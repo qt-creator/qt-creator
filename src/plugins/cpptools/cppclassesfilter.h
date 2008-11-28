@@ -31,63 +31,28 @@
 **
 ***************************************************************************/
 
-#ifndef CPPQUICKOPENFILTER_H
-#define CPPQUICKOPENFILTER_H
+#ifndef CPPCLASSESFILTER_H
+#define CPPCLASSESFILTER_H
 
-#include "searchsymbols.h"
-
-#include <quickopen/iquickopenfilter.h>
-
-namespace Core {
-class EditorManager;
-}
+#include <cppquickopenfilter.h>
 
 namespace CppTools {
 namespace Internal {
 
-class CppModelManager;
-
-class CppQuickOpenFilter : public QuickOpen::IQuickOpenFilter
+class CppClassesFilter : public CppQuickOpenFilter
 {
     Q_OBJECT
+
 public:
-    CppQuickOpenFilter(CppModelManager *manager, Core::EditorManager *editorManager);
-    ~CppQuickOpenFilter();
+    CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    ~CppClassesFilter();
 
-    QString trName() const { return tr("Classes and Methods"); }
-    QString name() const { return QLatin1String("Classes and Methods"); }
+    QString trName() const { return tr("Classes"); }
+    QString name() const { return QLatin1String("Classes"); }
     Priority priority() const { return Medium; }
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
-
-protected:
-    SearchSymbols search;
-
-private slots:
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onAboutToRemoveFiles(const QStringList &files);
-
-private:
-    CppModelManager *m_manager;
-    Core::EditorManager *m_editorManager;
-
-    struct Info {
-        Info(): dirty(true) {}
-        Info(CPlusPlus::Document::Ptr doc): doc(doc), dirty(true) {}
-
-        CPlusPlus::Document::Ptr doc;
-        QList<ModelItemInfo> items;
-        bool dirty;
-    };
-
-    QMap<QString, Info> m_searchList;
-    QList<ModelItemInfo> m_previousResults;
-    bool m_forceNewSearchList;
-    QString m_previousEntry;
 };
 
 } // namespace Internal
 } // namespace CppTools
 
-#endif // CPPQUICKOPENFILTER_H
+#endif // CPPCLASSESFILTER_H

@@ -501,7 +501,8 @@ void BaseTextEditor::currentEditorChanged(Core::IEditor *editor)
     if (editor == d->m_editable) {
         if (d->m_document->hasDecodingError()) {
             Core::EditorManager::instance()->showEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING),
-                tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.").arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())),
+                tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
+                    .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())),
                 tr("Select Encoding"),
                 this, SLOT(selectEncoding()));
         }

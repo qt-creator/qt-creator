@@ -32,171 +32,12 @@
 ***************************************************************************/
 
 #include "cppquickopenfilter.h"
+#include "cppmodelmanager.h"
 
-#include <Literals.h>
-#include <Symbols.h>
-#include <SymbolVisitor.h>
-#include <Scope.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Icons.h>
-
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
-
-#include <QtCore/QMultiMap>
-
-#include <functional>
-
-using namespace CPlusPlus;
-
-namespace CppTools {
-namespace Internal {
-
-class SearchSymbols: public std::unary_function<Document::Ptr, QList<ModelItemInfo> >,
-                     protected SymbolVisitor
-{
-    Overview overview;
-    Icons icons;
-    QList<ModelItemInfo> items;
-
-public:
-    QList<ModelItemInfo> operator()(Document::Ptr doc)
-    { return operator()(doc, QString()); }
-
-    QList<ModelItemInfo> operator()(Document::Ptr doc, const QString &scope)
-    {
-        QString previousScope = switchScope(scope);
-        items.clear();
-        for (unsigned i = 0; i < doc->globalSymbolCount(); ++i) {
-            accept(doc->globalSymbolAt(i));
-        }
-        (void) switchScope(previousScope);
-        return items;
-    }
-
-protected:
-    using SymbolVisitor::visit;
-
-    void accept(Symbol *symbol)
-    { Symbol::visitSymbol(symbol, this); }
-
-    QString switchScope(const QString &scope)
-    {
-        QString previousScope = _scope;
-        _scope = scope;
-        return previousScope;
-    }
-
-    virtual bool visit(Enum *symbol)
-    {
-        QString name = symbolName(symbol);
-        QString previousScope = switchScope(name);
-        QIcon icon = icons.iconForSymbol(symbol);
-        Scope *members = symbol->members();
-        items.append(ModelItemInfo(name, QString(), ModelItemInfo::Enum,
-                                   QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                                   symbol->line(),
-                                   icon));
-        for (unsigned i = 0; i < members->symbolCount(); ++i) {
-            accept(members->symbolAt(i));
-        }
-        (void) switchScope(previousScope);
-        return false;
-    }
-
-    virtual bool visit(Function *symbol)
-    {
-        QString name = symbolName(symbol);
-        QString type = overview.prettyType(symbol->type());
-        QIcon icon = icons.iconForSymbol(symbol);
-        items.append(ModelItemInfo(name, type, ModelItemInfo::Method,
-                                   QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                                   symbol->line(),
-                                   icon));
-        return false;
-    }
-
-    virtual bool visit(Namespace *symbol)
-    {
-        QString name = symbolName(symbol);
-        QString previousScope = switchScope(name);
-        Scope *members = symbol->members();
-        for (unsigned i = 0; i < members->symbolCount(); ++i) {
-            accept(members->symbolAt(i));
-        }
-        (void) switchScope(previousScope);
-        return false;
-    }
-#if 0
-    // This visit method would make function declaration be included in QuickOpen
-    virtual bool visit(Declaration *symbol)
-    {
-        if (symbol->type()->isFunction()) {
-            QString name = symbolName(symbol);
-            QString type = overview.prettyType(symbol->type());
-            //QIcon icon = ...;
-            items.append(ModelItemInfo(name, type, ModelItemInfo::Method,
-                                       QString::fromUtf8(symbol->fileName(), symbol->line()),
-                                       symbol->line()));
-        }
-        return false;
-    }
-#endif
-    virtual bool visit(Class *symbol)
-    {
-        QString name = symbolName(symbol);
-        QString previousScope = switchScope(name);
-        QIcon icon = icons.iconForSymbol(symbol);
-        items.append(ModelItemInfo(name, QString(), ModelItemInfo::Class,
-                                   QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                                   symbol->line(),
-                                   icon));
-        Scope *members = symbol->members();
-        for (unsigned i = 0; i < members->symbolCount(); ++i) {
-            accept(members->symbolAt(i));
-        }
-        (void) switchScope(previousScope);
-        return false;
-    }
-
-    QString symbolName(Symbol *symbol) const
-    {
-        QString name = _scope;
-        if (! name.isEmpty())
-            name += QLatin1String("::");
-        QString symbolName = overview.prettyName(symbol->name());
-        if (symbolName.isEmpty()) {
-            QString type;
-            if (symbol->isNamespace()) {
-                type = QLatin1String("namespace");
-            } else if (symbol->isEnum()) {
-                type = QLatin1String("enum");
-            } else if (Class *c = symbol->asClass())  {
-                if (c->isUnion()) {
-                    type = QLatin1String("union");
-                } else if (c->isStruct()) {
-                    type = QLatin1String("struct");
-                } else {
-                    type = QLatin1String("class");
-                }
-            } else {
-                type = QLatin1String("symbol");
-            }
-            symbolName = QLatin1String("<anonymous ");
-            symbolName += type;
-            symbolName += QLatin1String(">");
-        }
-        name += symbolName;
-        return name;
-    }
-
-private:
-    QString _scope;
-};
-
-} // namespace Internal
-} // namespace CppTools
 
 using namespace CppTools::Internal;
 
@@ -225,9 +66,8 @@ void CppQuickOpenFilter::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 
 void CppQuickOpenFilter::onAboutToRemoveFiles(const QStringList &files)
 {
-    foreach (QString file, files) {
+    foreach (const QString &file, files)
         m_searchList.remove(file);
-    }
 }
 
 void CppQuickOpenFilter::refresh(QFutureInterface<void> &future)
@@ -245,7 +85,6 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
         return entries;
     bool hasWildcard = (entry.contains('*') || entry.contains('?'));
 
-    SearchSymbols search;
     QMutableMapIterator<QString, Info> it(m_searchList);
     while (it.hasNext()) {
         it.next();
@@ -276,6 +115,5 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
 void CppQuickOpenFilter::accept(QuickOpen::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
-
     TextEditor::BaseTextEditor::openEditorAt(info.fileName, info.line);
 }
