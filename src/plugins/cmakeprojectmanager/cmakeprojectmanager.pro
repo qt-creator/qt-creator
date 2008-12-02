@@ -6,9 +6,11 @@ HEADERS = cmakeproject.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
-    cmakeprojectnodes.h
+    cmakeprojectnodes.h \
+    cmakestep.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
-    cmakeprojectnodes.cpp
+    cmakeprojectnodes.cpp \
+    cmakestep.cpp
 RESOURCES += cmakeproject.qrc
