@@ -36,10 +36,10 @@
 
 #include <QtCore/QUrl>
 #include <QtGui/QWidget>
+#include <QtGui/QLineEdit>
 
 QT_BEGIN_NAMESPACE
 
-class QLineEdit;
 class QHelpIndexWidget;
 class QHelpEngine;
 
@@ -52,7 +52,11 @@ public:
     ~IndexWindow();
 
     void setSearchLineEditText(const QString &text);
-    
+    QString searchLineEditText() const
+    {
+        return m_searchLineEdit->text();
+    }
+
 signals:
     void linkActivated(const QUrl &link);
     void linksActivated(const QMap<QString, QUrl> &links,

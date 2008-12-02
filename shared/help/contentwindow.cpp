@@ -48,22 +48,22 @@ ContentWindow::ContentWindow(QHelpEngine *helpEngine)
     , m_contentWidget(0)
     , m_expandDepth(-2)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
     m_contentWidget = m_helpEngine->contentWidget();
-    connect(m_contentWidget, SIGNAL(linkActivated(const QUrl&)),
-        this, SIGNAL(linkActivated(const QUrl&)));
+    m_contentWidget->viewport()->installEventFilter(this);
+    m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(4);
     layout->addWidget(m_contentWidget);
 
-    m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_contentWidget, SIGNAL(customContextMenuRequested(const QPoint&)),
-        this, SLOT(showContextMenu(const QPoint&)));
+    connect(m_contentWidget, SIGNAL(customContextMenuRequested(QPoint)), this,
+        SLOT(showContextMenu(QPoint)));
+    connect(m_contentWidget, SIGNAL(linkActivated(QUrl)), this,
+        SIGNAL(linkActivated(QUrl)));
+
     QHelpContentModel *contentModel =
         qobject_cast<QHelpContentModel*>(m_contentWidget->model());
-    connect(contentModel, SIGNAL(contentsCreated()),
-        this, SLOT(expandTOC()));
-
-    m_contentWidget->viewport()->installEventFilter(this);
+    connect(contentModel, SIGNAL(contentsCreated()), this, SLOT(expandTOC()));
 }
 
 ContentWindow::~ContentWindow()
@@ -125,7 +125,7 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
             CentralWidget::instance()->setSourceInNewTab(itm->url());
         }
     }
-    return QWidget::eventFilter(o,e);
+    return QWidget::eventFilter(o, e);
 }
 
 void ContentWindow::showContextMenu(const QPoint &pos)

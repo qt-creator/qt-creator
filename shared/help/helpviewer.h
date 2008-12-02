@@ -128,6 +128,14 @@ public:
     inline bool hasSelection() const
     { return textCursor().hasSelection(); }
 
+    bool launchedWithExternalApp(const QUrl &url);
+
+public Q_SLOTS:
+    void home();
+
+protected:
+    void wheelEvent(QWheelEvent *e);
+
 private:
     QVariant loadResource(int type, const QUrl &name);    
     void openLinkInNewTab(const QString &link);
@@ -145,6 +153,7 @@ private:
     QString lastAnchor;
     QHelpEngine *helpEngine;
     CentralWidget* parentWidget;
+    QUrl homeUrl;
 };
 
 #endif

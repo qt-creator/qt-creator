@@ -60,24 +60,24 @@ IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
 
     m_searchLineEdit = new QLineEdit();
     l->setBuddy(m_searchLineEdit);
-    connect(m_searchLineEdit, SIGNAL(textChanged(QString)),
-        this, SLOT(filterIndices(QString)));
+    connect(m_searchLineEdit, SIGNAL(textChanged(QString)), this,
+        SLOT(filterIndices(QString)));
     m_searchLineEdit->installEventFilter(this);
     layout->setMargin(4);
     layout->addWidget(m_searchLineEdit);
 
     m_indexWidget = m_helpEngine->indexWidget();
     m_indexWidget->installEventFilter(this);
-    connect(m_helpEngine->indexModel(), SIGNAL(indexCreationStarted()),
-        this, SLOT(disableSearchLineEdit()));
-    connect(m_helpEngine->indexModel(), SIGNAL(indexCreated()),
-        this, SLOT(enableSearchLineEdit()));
-    connect(m_indexWidget, SIGNAL(linkActivated(QUrl, QString)),
-        this, SIGNAL(linkActivated(QUrl)));
+    connect(m_helpEngine->indexModel(), SIGNAL(indexCreationStarted()), this,
+        SLOT(disableSearchLineEdit()));
+    connect(m_helpEngine->indexModel(), SIGNAL(indexCreated()), this,
+        SLOT(enableSearchLineEdit()));
+    connect(m_indexWidget, SIGNAL(linkActivated(QUrl, QString)), this,
+        SIGNAL(linkActivated(QUrl)));
     connect(m_indexWidget, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
         this, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)));
-    connect(m_searchLineEdit, SIGNAL(returnPressed()),
-        m_indexWidget, SLOT(activateCurrentItem()));
+    connect(m_searchLineEdit, SIGNAL(returnPressed()), m_indexWidget,
+        SLOT(activateCurrentItem()));
     layout->addWidget(m_indexWidget);
 
     m_indexWidget->viewport()->installEventFilter(this);

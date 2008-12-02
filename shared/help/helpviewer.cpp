@@ -38,7 +38,6 @@
 #include <QtCore/QEvent>
 #include <QtCore/QVariant>
 #include <QtCore/QByteArray>
-#include <QtCore/QDebug>
 #include <QtCore/QTimer>
 
 #include <QtGui/QMenu>
@@ -65,7 +64,8 @@ public:
 
     virtual void abort();
 
-    virtual qint64 bytesAvailable() const { return data.length() + QNetworkReply::bytesAvailable(); }
+    virtual qint64 bytesAvailable() const
+    { return data.length() + QNetworkReply::bytesAvailable(); }
 
 protected:
     virtual qint64 readData(char *data, qint64 maxlen);
@@ -75,14 +75,15 @@ private:
     qint64 origLen;
 };
 
-HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request, const QByteArray &fileData)
+HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
+        const QByteArray &fileData)
     : data(fileData), origLen(fileData.length())
 {
     setRequest(request);
     setOpenMode(QIODevice::ReadOnly);
 
     setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/html"));
-    setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(fileData.length()));
+    setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(origLen));
     QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
     QTimer::singleShot(0, this, SIGNAL(readyRead()));
 }
@@ -110,20 +111,21 @@ public:
     HelpNetworkAccessManager(QHelpEngine *engine, QObject *parent);
 
 protected:
-    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
-                                         QIODevice *outgoingData = 0);
+    virtual QNetworkReply *createRequest(Operation op,
+        const QNetworkRequest &request, QIODevice *outgoingData = 0);
 
 private:
     QHelpEngine *helpEngine;
 };
 
-HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine, QObject *parent)
+HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine,
+        QObject *parent)
     : QNetworkAccessManager(parent), helpEngine(engine)
 {
 }
 
-QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request,
-                                                       QIODevice *outgoingData)
+QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
+    const QNetworkRequest &request, QIODevice *outgoingData)
 {
     const QString scheme = request.url().scheme();
     if (scheme == QLatin1String("qthelp") || scheme == QLatin1String("about")) {
@@ -140,7 +142,8 @@ public:
 protected:
     virtual QWebPage *createWindow(QWebPage::WebWindowType);
 
-    virtual bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
+    virtual bool acceptNavigationRequest(QWebFrame *frame,
+        const QNetworkRequest &request, NavigationType type);
 
 private:
     CentralWidget *centralWidget;
@@ -170,9 +173,10 @@ static bool isLocalUrl(const QUrl &url)
     return false;
 }
 
-bool HelpPage::acceptNavigationRequest(QWebFrame *, const QNetworkRequest &request, QWebPage::NavigationType)
+bool HelpPage::acceptNavigationRequest(QWebFrame *,
+    const QNetworkRequest &request, QWebPage::NavigationType)
 {
-    const QUrl url = request.url();
+    const QUrl &url = request.url();
     if (isLocalUrl(url)) {
         if (url.path().endsWith(QLatin1String("pdf"))) {
             QString fileName = url.toString();
@@ -186,12 +190,12 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *, const QNetworkRequest &reque
             }
             QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
             return false;
-        } else
-            return true;
-    } else {
-        QDesktopServices::openUrl(url);
-        return false;
+        }
+        return true;
     }
+
+    QDesktopServices::openUrl(url);
+    return false;
 }
 
 HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
@@ -202,19 +206,22 @@ HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     page()->setNetworkAccessManager(new HelpNetworkAccessManager(engine, this));
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
-    if (parent)
-        action->setText(tr("Open Link in New Tab"));
-    else
+    action->setText(tr("Open Link in New Tab"));
+    if (!parent)
         action->setVisible(false);
 
     pageAction(QWebPage::DownloadLinkToDisk)->setVisible(false);
     pageAction(QWebPage::DownloadImageToDisk)->setVisible(false);
     pageAction(QWebPage::OpenImageInNewWindow)->setVisible(false);
 
-    connect(pageAction(QWebPage::Copy), SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(pageAction(QWebPage::Back), SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(page(), SIGNAL(linkHovered(QString, QString, QString)), this, SIGNAL(highlighted(QString)));
+    connect(pageAction(QWebPage::Copy), SIGNAL(changed()), this,
+        SLOT(actionChanged()));
+    connect(pageAction(QWebPage::Back), SIGNAL(changed()), this,
+        SLOT(actionChanged()));
+    connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this,
+        SLOT(actionChanged()));
+    connect(page(), SIGNAL(linkHovered(QString, QString, QString)), this,
+        SIGNAL(highlighted(QString)));
     connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
 }
 
@@ -232,12 +239,12 @@ void HelpViewer::resetZoom()
 
 void HelpViewer::zoomIn(qreal range)
 {
-    setTextSizeMultiplier(textSizeMultiplier() + range/10);
+    setTextSizeMultiplier(textSizeMultiplier() + range / 10.0);
 }
 
 void HelpViewer::zoomOut(qreal range)
 {
-    setTextSizeMultiplier(qMax(0.,textSizeMultiplier() - range/10));
+    setTextSizeMultiplier(qMax(0.0, textSizeMultiplier() - range / 10.0));
 }
 
 void HelpViewer::home()
@@ -250,11 +257,10 @@ void HelpViewer::wheelEvent(QWheelEvent *e)
 {
     if (e->modifiers() & Qt::ControlModifier) {
         const int delta = e->delta();
-        qDebug() << delta;
         if (delta > 0)
-            zoomIn(delta/120);
+            zoomIn(delta / 120);
         else if (delta < 0)
-            zoomOut(-delta/120);
+            zoomOut(-delta / 120);
         e->accept();
         return;
     }
@@ -287,7 +293,7 @@ void HelpViewer::actionChanged()
         emit forwardAvailable(a->isEnabled());
 }
 
-#else   // !defined(USE_WEBKIT)
+#else  // !defined(QT_NO_WEBKIT)
 
 HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     : QTextBrowser(parent)
@@ -304,37 +310,15 @@ void HelpViewer::setSource(const QUrl &url)
 {
     bool help = url.toString() == QLatin1String("help");
     if (url.isValid() && !help) {
-        bool isPdf = url.path().endsWith(QLatin1String("pdf"));
-        if (url.scheme() == QLatin1String("http")
-            || url.scheme() == QLatin1String("ftp")
-            || url.scheme() == QLatin1String("mailto") || isPdf) {
-            bool launched = false;
-            if (isPdf && url.scheme() == QLatin1String("qthelp")) {
-                QString fileName = url.toString();
-                fileName = QDir::tempPath() + QDir::separator() + fileName.right
-                    (fileName.length() - fileName.lastIndexOf(QChar('/')));
-
-                QFile tmpFile(QDir::cleanPath(fileName));
-                if (tmpFile.open(QIODevice::ReadWrite)) {
-                    tmpFile.write(helpEngine->fileData(url));
-                    tmpFile.close();
-                }
-                launched = QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
-            } else {
-                launched = QDesktopServices::openUrl(url);
-            }
-
-            if (!launched) {
-                QMessageBox::information(this, tr("Help"),
-                    tr("Unable to launch external application.\n"), tr("OK"));
-            }
+        if (launchedWithExternalApp(url))
             return;
-        } else {
-            QUrl u = helpEngine->findFile(url);
-            if (u.isValid()) {
-                QTextBrowser::setSource(u);
-                return;
-            }
+        
+        QUrl u = helpEngine->findFile(url);
+        if (u.isValid()) {
+            if (!homeUrl.isValid())
+                homeUrl = url;
+            QTextBrowser::setSource(u);
+            return;
         }
     }
 
@@ -375,6 +359,37 @@ void HelpViewer::zoomOut(int range)
 
     QTextBrowser::zoomOut(range);
     zoomCount--;
+}
+
+bool HelpViewer::launchedWithExternalApp(const QUrl &url)
+{
+    bool isPdf = url.path().endsWith(QLatin1String("pdf"));
+    if (url.scheme() == QLatin1String("http")
+        || url.scheme() == QLatin1String("ftp")
+        || url.scheme() == QLatin1String("mailto") || isPdf) {
+        bool launched = false;
+        if (isPdf && url.scheme() == QLatin1String("qthelp")) {
+            QString fileName = url.toString();
+            fileName = QDir::tempPath() + QDir::separator() + fileName.right
+                (fileName.length() - fileName.lastIndexOf(QChar('/')));
+
+            QFile tmpFile(QDir::cleanPath(fileName));
+            if (tmpFile.open(QIODevice::ReadWrite)) {
+                tmpFile.write(helpEngine->fileData(url));
+                tmpFile.close();
+            }
+            launched = QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
+        } else {
+            launched = QDesktopServices::openUrl(url);
+        }
+
+        if (!launched) {
+            QMessageBox::information(this, tr("Help"),
+                tr("Unable to launch external application.\n"), tr("OK"));
+        }
+        return true;
+    }
+    return false;
 }
 
 QVariant HelpViewer::loadResource(int type, const QUrl &name)
@@ -436,7 +451,8 @@ void HelpViewer::contextMenuEvent(QContextMenuEvent *e)
         copyAnchorAction = menu.addAction(tr("Copy &Link Location"));
         copyAnchorAction->setEnabled(!link.isEmpty() && link.isValid());
 
-        menu.addAction(tr("Open Link in New Tab\tCtrl+LMB"), this, SLOT(openLinkInNewTab()));
+        menu.addAction(tr("Open Link in New Tab\tCtrl+LMB"), this,
+            SLOT(openLinkInNewTab()));
         menu.addSeparator();
     }
     menu.addActions(parentWidget->globalActions());
@@ -478,6 +494,23 @@ void HelpViewer::keyPressEvent(QKeyEvent *e)
     QTextBrowser::keyPressEvent(e);
 }
 
-#endif  // !defined(USE_WEBKIT)
+void HelpViewer::home()
+{
+    if (homeUrl.isValid())
+        setSource(homeUrl);
+}
+
+void HelpViewer::wheelEvent(QWheelEvent *e)
+{
+    if (e->modifiers() == Qt::CTRL) {
+        e->accept();
+        (e->delta() > 0) ? zoomIn() : zoomOut();
+    } else {
+        e->ignore();
+        QTextBrowser::wheelEvent(e);
+    }
+}
+
+#endif  // !defined(QT_NO_WEBKIT)
 
 QT_END_NAMESPACE
