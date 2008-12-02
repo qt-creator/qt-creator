@@ -88,7 +88,8 @@ QWidget *FindInFiles::createConfigWidget()
         m_configWidget->setLayout(gridLayout);
         gridLayout->addWidget(createRegExpWidget(), 0, 1, 1, 2);
 
-        gridLayout->addWidget(new QLabel(tr("Directory:")), 1, 0, Qt::AlignRight);
+        QLabel *dirLabel = new QLabel(tr("&Directory:"));
+        gridLayout->addWidget(dirLabel, 1, 0, Qt::AlignRight);
         m_directory = new QComboBox;
         m_directory->setEditable(true);
         m_directory->setMaxCount(30);
@@ -98,17 +99,20 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         m_directory->setModel(&m_directoryStrings);
         syncComboWithSettings(m_directory, m_directorySetting);
+        dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, 1, 1);
-        QPushButton *browseButton = new QPushButton(tr("Browse"));
+        QPushButton *browseButton = new QPushButton(tr("&Browse"));
         gridLayout->addWidget(browseButton, 1, 2);
         connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
 
-        QLabel * const filePatternLabel = new QLabel(tr("File pattern:"));
+        QLabel * const filePatternLabel = new QLabel(tr("File &pattern:"));
         filePatternLabel->setMinimumWidth(80);
         filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        QWidget *patternWidget = createPatternWidget();
+        filePatternLabel->setBuddy(patternWidget);
         gridLayout->addWidget(filePatternLabel, 2, 0);
-        gridLayout->addWidget(createPatternWidget(), 2, 1, 1, 2);
+        gridLayout->addWidget(patternWidget, 2, 1, 1, 2);
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
     return m_configWidget;
