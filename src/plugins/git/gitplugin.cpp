@@ -166,6 +166,7 @@ GitPlugin::~GitPlugin()
 
     if (m_submitEditorFactory) {
         removeObject(m_submitEditorFactory);
+        delete m_submitEditorFactory;
         m_submitEditorFactory = 0;
     }
 
