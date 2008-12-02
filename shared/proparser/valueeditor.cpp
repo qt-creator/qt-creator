@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "valueeditor.h"
 #include "proitems.h"
 #include "proeditormodel.h"
@@ -40,8 +41,8 @@
 
 using namespace Qt4ProjectManager::Internal;
 
-ValueEditor::ValueEditor(QWidget *parent) :
-    QWidget(parent),
+ValueEditor::ValueEditor(QWidget *parent)
+  : QWidget(parent),
     m_model(0),
     m_handleModelChanges(true),
     m_infomanager(0)
@@ -434,7 +435,8 @@ void ValueEditor::updateItemChanges(QListWidgetItem *item)
     m_handleModelChanges = true;
 }
 
-void ValueEditor::updateVariableId() {
+void ValueEditor::updateVariableId()
+{
     if (!m_model)
         return;
     m_handleModelChanges = false;
@@ -442,7 +444,8 @@ void ValueEditor::updateVariableId() {
     m_handleModelChanges = true;
 }
 
-void ValueEditor::updateVariableId(int index) {
+void ValueEditor::updateVariableId(int index)
+{
     if (!m_model)
         return;
     ProVariableInfo *info = m_infomanager->variable(m_varComboBox->itemData(index).toString());
@@ -451,7 +454,8 @@ void ValueEditor::updateVariableId(int index) {
     m_model->setData(m_currentIndex, info->defaultOperator());
 }
 
-void ValueEditor::updateVariableOp(int index) {
+void ValueEditor::updateVariableOp(int index)
+{
     if (!m_model)
         return;
     m_handleModelChanges = false;
@@ -459,7 +463,8 @@ void ValueEditor::updateVariableOp(int index) {
     m_handleModelChanges = true;
 }
 
-void ValueEditor::updateItemId() {
+void ValueEditor::updateItemId()
+{
     if (!m_model)
         return;
     QModelIndex index = m_currentIndex;
@@ -476,7 +481,8 @@ void ValueEditor::updateItemId() {
     m_handleModelChanges = true;
 }
 
-void ValueEditor::updateItemId(int index) {
+void ValueEditor::updateItemId(int index)
+{
     if (!m_model)
         return;
     QModelIndex idx = m_currentIndex;

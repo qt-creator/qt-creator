@@ -30,21 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef INDENTER_C
 #define INDENTER_C
-
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
 
 /*
   This file is a self-contained interactive indenter for C++ and Qt
@@ -1120,4 +1108,5 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 
 #undef YY_SAVE
 #undef YY_RESTORE
-#endif
+
+#endif // INDENTER_C

@@ -108,7 +108,7 @@ void ContentWindow::keyPressEvent(QKeyEvent *e)
         emit escapePressed();
 }
 
-bool ContentWindow::eventFilter(QObject* o, QEvent *e)
+bool ContentWindow::eventFilter(QObject *o, QEvent *e)
 {
     if (m_contentWidget && o == m_contentWidget->viewport() && e->type()
         == QEvent::MouseButtonRelease) {

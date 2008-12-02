@@ -30,8 +30,10 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtGui/QApplication>
+
 #include "textfinder.h"
+
+#include <QtGui/QApplication>
 
 int main(int argc, char *argv[])
 {

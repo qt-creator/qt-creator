@@ -30,12 +30,12 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef POSTER_H
 #define POSTER_H
 
 #include <QHttp>
 #include <QHttpResponseHeader>
-
 #include <QString>
 
 class Poster : public QHttp

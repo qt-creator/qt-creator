@@ -45,7 +45,7 @@ FilterNameDialog::FilterNameDialog(QWidget *parent)
         SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_ui.buttonBox->button(QDialogButtonBox::Cancel),
         SIGNAL(clicked()), this, SLOT(reject()));
-    connect(m_ui.lineEdit, SIGNAL(textChanged(const QString&)),
+    connect(m_ui.lineEdit, SIGNAL(textChanged(QString)),
         this, SLOT(updateOkButton()));
     m_ui.buttonBox->button(QDialogButtonBox::Ok)->setDisabled(true);
 

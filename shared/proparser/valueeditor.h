@@ -30,15 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef VALUEEDITOR_H
 #define VALUEEDITOR_H
 
 #include "namespace_global.h"
+#include "ui_valueeditor.h"
 
 #include <QtCore/QList>
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
-#include "ui_valueeditor.h"
 
 QT_BEGIN_NAMESPACE
 class ProBlock;
@@ -51,8 +52,7 @@ namespace Internal {
 class ProEditorModel;
 class ProItemInfoManager;
 
-class ValueEditor : public QWidget,
-    protected Ui::ValueEditor
+class ValueEditor : public QWidget, protected Ui::ValueEditor
 {
     Q_OBJECT
 
@@ -113,7 +113,7 @@ private:
     ProItemInfoManager *m_infomanager;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //VALUEEDITOR_H
+#endif // VALUEEDITOR_H

@@ -49,4 +49,4 @@
 #  define QT_MANGLE_NAMESPACE(name) name
 #endif
 
-#endif
+#endif // NAMESPACE_GLOBAL_H

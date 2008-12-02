@@ -214,8 +214,8 @@ HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     connect(pageAction(QWebPage::Copy), SIGNAL(changed()), this, SLOT(actionChanged()));
     connect(pageAction(QWebPage::Back), SIGNAL(changed()), this, SLOT(actionChanged()));
     connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(page(), SIGNAL(linkHovered(const QString &, const QString &, const QString &)), this, SIGNAL(highlighted(const QString &)));
-    connect(this, SIGNAL(urlChanged(const QUrl &)), this, SIGNAL(sourceChanged(const QUrl &)));
+    connect(page(), SIGNAL(linkHovered(QString, QString, QString)), this, SIGNAL(highlighted(QString)));
+    connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
 }
 
 void HelpViewer::setSource(const QUrl &url)

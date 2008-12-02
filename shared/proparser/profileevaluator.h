@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROFILEEVALUATOR_H
 #define PROFILEEVALUATOR_H
 
@@ -91,4 +92,3 @@ private:
 QT_END_NAMESPACE
 
 #endif // PROFILEEVALUATOR_H
-

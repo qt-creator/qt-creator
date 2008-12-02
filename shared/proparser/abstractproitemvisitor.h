@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef ABSTRACTPROITEMVISITOR
 #define ABSTRACTPROITEMVISITOR
 
@@ -37,7 +38,8 @@
 
 QT_BEGIN_NAMESPACE
 
-struct AbstractProItemVisitor {
+struct AbstractProItemVisitor
+{
     virtual ~AbstractProItemVisitor() {}
     virtual bool visitBeginProBlock(ProBlock *block) = 0;
     virtual bool visitEndProBlock(ProBlock *block) = 0;
@@ -52,7 +54,6 @@ struct AbstractProItemVisitor {
     virtual bool visitProFunction(ProFunction *function) = 0;
     virtual bool visitProOperator(ProOperator *function) = 0;
     virtual bool visitProCondition(ProCondition *function) = 0;
-
 };
 
 QT_END_NAMESPACE

@@ -31,8 +31,8 @@
 ** 
 ***************************************************************************/
 
-#ifndef INDEXWINDOW
-#define INDEXWINDOW
+#ifndef INDEXWINDOW_H
+#define INDEXWINDOW_H
 
 #include <QtCore/QUrl>
 #include <QtGui/QWidget>
@@ -75,4 +75,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif
+#endif // INDEXWINDOW_H

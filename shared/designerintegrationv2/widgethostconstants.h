@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef WIDGETHOST_CONSTANTS_H
 #define WIDGETHOST_CONSTANTS_H
 
@@ -40,5 +41,5 @@ namespace SharedTools {
    }
 }
 
-#endif //WIDGETHOST_CONSTANTS_H
+#endif // WIDGETHOST_CONSTANTS_H
 

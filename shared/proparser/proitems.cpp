@@ -30,13 +30,15 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 #include "proitems.h"
 #include "abstractproitemvisitor.h"
 
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
+
 QT_BEGIN_NAMESPACE
+
 // --------------- ProItem ------------
 void ProItem::setComment(const QString &comment)
 {
@@ -278,7 +280,6 @@ ProFile::ProFile(const QString &fileName)
 
 ProFile::~ProFile()
 {
-
 }
 
 QString ProFile::displayFileName() const

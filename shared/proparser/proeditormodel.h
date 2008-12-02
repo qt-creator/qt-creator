@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROEDITORMODEL_H
 #define PROEDITORMODEL_H
 
@@ -41,10 +42,12 @@
 #include <QtCore/QStringList>
 #include <QtGui/QSortFilterProxyModel>
 
-QT_FORWARD_DECLARE_CLASS(ProBlock)
-QT_FORWARD_DECLARE_CLASS(ProFile)
-QT_FORWARD_DECLARE_CLASS(ProItem)
-QT_FORWARD_DECLARE_CLASS(ProVariable)
+QT_BEGIN_NAMESPACE
+class ProBlock;
+class ProFile;
+class ProItem;
+class ProVariable;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -146,8 +149,8 @@ private:
     QMap<QModelIndex, bool> m_checkStates;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //PROEDITORMODEL_H
+#endif // PROEDITORMODEL_H
 

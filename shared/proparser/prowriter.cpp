@@ -30,10 +30,11 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtCore/QFile>
 
 #include "proitems.h"
 #include "prowriter.h"
+
+#include <QtCore/QFile>
 
 using namespace Qt4ProjectManager::Internal;
 

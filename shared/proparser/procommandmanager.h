@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROCOMMANDMANAGER_H
 #define PROCOMMANDMANAGER_H
 
@@ -37,19 +38,23 @@
 
 #include <QtCore/QModelIndex>
 
-QT_FORWARD_DECLARE_CLASS(ProItem)
+QT_BEGIN_NAMESPACE
+class ProItem;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
     
-class ProCommand {
+class ProCommand
+{
 public:
     virtual ~ProCommand() {}
     virtual bool redo() = 0;
     virtual void undo() = 0;
 };
 
-class ProCommandGroup {
+class ProCommandGroup
+{
 public:
     ProCommandGroup(const QString &name);
     ~ProCommandGroup();
@@ -104,4 +109,4 @@ private:
 } //namespace Internal
 } //namespace Qt4ProjectManager
 
-#endif //PROCOMMANDMANAGER_H
+#endif // PROCOMMANDMANAGER_H

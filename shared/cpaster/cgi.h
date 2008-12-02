@@ -30,8 +30,10 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#ifndef _CGI_H_
-#define _CGI_H_
+
+#ifndef CGI_H
+#define CGI_H
+
 #include <QString>
 
 class CGI
@@ -54,5 +56,4 @@ private:
     inline QChar hexToChar(const QString &hx);
 };
 
-#endif // _CGI_H_
-
+#endif // CGI_H

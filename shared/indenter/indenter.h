@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef INDENTER_H
 #define INDENTER_H
 
@@ -141,4 +142,4 @@ private:
 
 #include "indenter_impl.h"
 
-#endif
+#endif // INDENTER_H

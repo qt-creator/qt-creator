@@ -28,8 +28,9 @@
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt GPL Exception version
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+**
 ***************************************************************************/
+
 #ifndef PROITEMINFO_H
 #define PROITEMINFO_H
 
@@ -44,7 +45,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProItemInfo {
+class ProItemInfo
+{
 public:
     enum ProItemInfoKind {
         Scope,
@@ -70,17 +72,20 @@ private:
     ProItemInfoKind m_kind;
 };
 
-class ProScopeInfo : public ProItemInfo {
+class ProScopeInfo : public ProItemInfo
+{
 public:
     ProScopeInfo();
 };
 
-class ProValueInfo : public ProItemInfo {
+class ProValueInfo : public ProItemInfo
+{
 public:
     ProValueInfo();
 };
 
-class ProVariableInfo : public ProItemInfo {
+class ProVariableInfo : public ProItemInfo
+{
 public:
     ProVariableInfo();
     ~ProVariableInfo();
@@ -126,7 +131,7 @@ private:
     QMap<QString, ProVariableInfo *> m_variables;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //PROITEMINFO_H
+#endif // PROITEMINFO_H

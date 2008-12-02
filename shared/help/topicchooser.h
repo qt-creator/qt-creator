@@ -34,12 +34,13 @@
 #ifndef TOPICCHOOSER_H
 #define TOPICCHOOSER_H
 
+#include "ui_topicchooser.h"
+
 #include <QUrl>
 #include <QMap>
 #include <QString>
 
 #include <QtGui/QDialog>
-#include "ui_topicchooser.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -60,4 +61,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif
+#endif // TOPICCHOOSER_H

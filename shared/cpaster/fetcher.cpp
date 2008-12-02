@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "fetcher.h"
 #include "cgi.h"
 
@@ -44,7 +45,7 @@ Fetcher::Fetcher(const QString &host)
     m_status = 0;
     m_hadError = false;
     connect(this, SIGNAL(requestFinished(int,bool)), SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(readyRead(const QHttpResponseHeader &)), SLOT(gotReadyRead(const QHttpResponseHeader &)));
+    connect(this, SIGNAL(readyRead(QHttpResponseHeader)), SLOT(gotReadyRead(QHttpResponseHeader)));
 }
 
 int Fetcher::fetch(const QString &url)

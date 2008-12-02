@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROEDITOR_H
 #define PROEDITOR_H
 
@@ -56,8 +57,7 @@ namespace Internal {
 class ProEditorModel;
 class ProScopeFilter;
 
-class ProEditor : public QWidget,
-    protected Ui::ProEditor
+class ProEditor : public QWidget, protected Ui::ProEditor
 {
     Q_OBJECT
 
@@ -125,4 +125,4 @@ private:
 } //namespace Internal
 } //namespace Qt4ProjectManager
 
-#endif //PROEDITOR_H
+#endif // PROEDITOR_H

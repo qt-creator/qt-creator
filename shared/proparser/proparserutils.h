@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROPARSERUTILS_H
 #define PROPARSERUTILS_H
 
@@ -272,4 +273,3 @@ static QStringList qmake_mkspec_paths()
 QT_END_NAMESPACE
 
 #endif // PROPARSERUTILS_H
-

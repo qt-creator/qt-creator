@@ -30,12 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "procommandmanager.h"
 
 using namespace Qt4ProjectManager::Internal;
 
 ProCommandGroup::ProCommandGroup(const QString &name)
-    : m_name(name) { }
+    : m_name(name)
+{ }
 
 ProCommandGroup::~ProCommandGroup()
 {
@@ -49,16 +51,14 @@ void ProCommandGroup::appendCommand(ProCommand *cmd)
 
 void ProCommandGroup::undo()
 {
-    for(int i=m_commands.count(); i>0; --i) {
+    for (int i = m_commands.count(); i > 0; --i)
         m_commands[i-1]->undo();
-    }
 }
 
 void ProCommandGroup::redo()
 {
-    for(int i=0; i<m_commands.count(); ++i) {
+    for (int i = 0; i < m_commands.count(); ++i)
         m_commands[i]->redo();
-    }
 }
 
 ProCommandManager::ProCommandManager(QObject *parent)
@@ -80,9 +80,8 @@ void ProCommandManager::beginGroup(const QString &name)
 
     if (m_pos != m_groups.count()) {
         int removecount = m_groups.count() - m_pos;
-        for(int i=0; i<removecount; ++i) {
+        for (int i = 0; i < removecount; ++i)
             delete m_groups.takeLast();
-        }
         m_pos = m_groups.count();
     }
     
@@ -91,7 +90,7 @@ void ProCommandManager::beginGroup(const QString &name)
 
 bool ProCommandManager::hasGroup() const
 {
-    return (m_group != 0);
+    return m_group != 0;
 }
 
 void ProCommandManager::endGroup()
@@ -154,13 +153,12 @@ void ProCommandManager::notifySave()
         m_savepoint = m_groups.at(m_pos - 1);
 }
 
-
 bool ProCommandManager::canUndo() const
 {
-    return (!m_groups.isEmpty() && m_pos > 0);
+    return !m_groups.isEmpty() && m_pos > 0;
 }
 
 bool ProCommandManager::canRedo() const
 {
-    return (m_groups.count() > m_pos);
+    return m_groups.count() > m_pos;
 }

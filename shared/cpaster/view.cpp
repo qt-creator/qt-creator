@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "view.h"
 
 #include <QFontMetrics>
@@ -38,7 +39,6 @@
 #include <QPushButton>
 #include <QSettings>
 
-// -------------------------------------------------------------------------------------------------
 class ColumnIndicatorTextEdit : public QTextEdit
 {
 public:

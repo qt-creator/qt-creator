@@ -30,10 +30,12 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtGui/QMessageBox>
+
+#include "textfinder.h"
+
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
-#include "textfinder.h"
+#include <QtGui/QMessageBox>
 
 TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
     : QWidget(parent, flags)

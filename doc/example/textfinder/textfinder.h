@@ -30,11 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef TEXTFINDER_H
 #define TEXTFINDER_H
 
-#include <QtGui/QWidget>
 #include "ui_textfinder.h"
+
+#include <QtGui/QWidget>
 
 class QPushButton;
 class QTextEdit;

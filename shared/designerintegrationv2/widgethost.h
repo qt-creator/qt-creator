@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef WIDGETHOST_H
 #define WIDGETHOST_H
 
@@ -80,4 +81,3 @@ private:
 } // namespace SharedTools
 
 #endif // WIDGETHOST_H
-

@@ -30,15 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QClipboard>
 
 #include "proeditor.h"
 #include "proitems.h"
 #include "proeditormodel.h"
 #include "procommandmanager.h"
 #include "proxml.h"
+
+#include <QtGui/QMenu>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QClipboard>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -58,7 +59,6 @@ ProEditor::ProEditor(QWidget *parent, bool shortcuts)
 
 ProEditor::~ProEditor()
 {
-
 }
 
 void ProEditor::initialize(ProEditorModel *model, ProItemInfoManager *infomanager)
@@ -384,4 +384,3 @@ void ProEditor::addBlock()
         m_editListView->setCurrentIndex(m_model->index(row,0,parent));
     }
 }
-

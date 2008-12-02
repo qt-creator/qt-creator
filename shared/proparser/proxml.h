@@ -30,13 +30,17 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROXML_H
 #define PROXML_H
 
 #include "namespace_global.h"
 
 #include <QtXml>
-QT_FORWARD_DECLARE_CLASS(ProItem)
+
+QT_BEGIN_NAMESPACE
+class ProItem;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -50,7 +54,7 @@ private:
     ProItem *parseItemNode(QDomDocument doc, QDomNode node) const;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //PROXML_H
+#endif // PROXML_H

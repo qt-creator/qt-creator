@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROWRITER_H
 #define PROWRITER_H
 
@@ -37,15 +38,18 @@
 
 #include <QtCore/QTextStream>
 
-QT_FORWARD_DECLARE_CLASS(ProFile)
-QT_FORWARD_DECLARE_CLASS(ProValue)
-QT_FORWARD_DECLARE_CLASS(ProItem)
-QT_FORWARD_DECLARE_CLASS(ProBlock)
+QT_BEGIN_NAMESPACE
+class ProFile;
+class ProValue;
+class ProItem;
+class ProBlock;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProWriter {
+class ProWriter
+{
 public:
     bool write(ProFile *profile, const QString &fileName);
     QString contents(ProFile *profile);
@@ -69,7 +73,7 @@ private:
     QString m_comment;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //PROWRITER_H
+#endif // PROWRITER_H

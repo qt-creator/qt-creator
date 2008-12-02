@@ -30,15 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "proiteminfo.h"
 
 #include <QtCore/QFile>
 
-
 using namespace Qt4ProjectManager::Internal;
 
 ProItemInfo::ProItemInfo(ProItemInfoKind kind)
-    : m_kind(kind) { }
+    : m_kind(kind)
+{ }
 
 ProItemInfo::ProItemInfoKind ProItemInfo::kind() const
 {
@@ -76,10 +77,12 @@ QString ProItemInfo::description() const
 }
 
 ProScopeInfo::ProScopeInfo()
-    : ProItemInfo(ProItemInfo::Scope) { }
+    : ProItemInfo(ProItemInfo::Scope)
+{ }
 
 ProValueInfo::ProValueInfo()
-    : ProItemInfo(ProItemInfo::Value) { }
+    : ProItemInfo(ProItemInfo::Value)
+{ }
 
 ProVariableInfo::ProVariableInfo()
     : ProItemInfo(ProItemInfo::Variable)
@@ -106,7 +109,6 @@ void ProVariableInfo::setDefaultOperator(ProVariable::VariableOperator op)
 {
     m_operator = op;
 }
-
 
 ProValueInfo *ProVariableInfo::value(const QString &id) const
 {

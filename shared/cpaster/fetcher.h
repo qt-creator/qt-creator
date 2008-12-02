@@ -30,12 +30,12 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FETCHER_H
 #define FETCHER_H
 
 #include <QHttp>
 #include <QHttpResponseHeader>
-
 #include <QString>
 
 class Fetcher : public QHttp

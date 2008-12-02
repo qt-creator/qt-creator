@@ -30,12 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef SPLITTER_H
 #define SPLITTER_H
 
-#include <QString>
 #include <QByteArray>
 #include <QList>
+#include <QString>
 
 struct FileData
 {

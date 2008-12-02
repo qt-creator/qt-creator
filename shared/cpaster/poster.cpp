@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "poster.h"
 #include "cgi.h"
 
@@ -43,7 +44,7 @@ Poster::Poster(const QString &host)
     m_status = 0;
     m_hadError = false;
     connect(this, SIGNAL(requestFinished(int,bool)), SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)), SLOT(gotResponseHeaderReceived(const QHttpResponseHeader &)));
+    connect(this, SIGNAL(responseHeaderReceived(QHttpResponseHeader)), SLOT(gotResponseHeaderReceived(QHttpResponseHeader)));
 }
 
 void Poster::post(const QString &description, const QString &comment,

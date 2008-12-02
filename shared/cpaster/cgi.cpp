@@ -30,13 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "cgi.h"
 
 #include <QByteArray>
 
-// -------------------------------------------------------------------------------------------------
 
 const char *cgi_chars = "0123456789abcdef"; // RFC 1738 suggests lower-case to be optimal
+
 QString CGI::encodeURL(const QString &rawText)
 {
     QByteArray utf = rawText.toUtf8();
@@ -423,6 +424,4 @@ QString CGI::encodeHTML(const QString &rawText, int conversionFlags)
 
     return enc;
 }
-
-// -------------------------------------------------------------------------------------------------
 

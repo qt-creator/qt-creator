@@ -66,7 +66,7 @@ private slots:
 private:
     void focusInEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);
-    bool eventFilter(QObject* o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e);
 
     QHelpEngine *m_helpEngine;
     QHelpContentWidget *m_contentWidget;
@@ -75,4 +75,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif
+#endif // CONTENTWINDOW_H
