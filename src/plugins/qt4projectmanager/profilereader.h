@@ -43,14 +43,14 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProFileCache;
 
 class ProFileReader : public QObject, public ProFileEvaluator
 {
     Q_OBJECT
 
 public:
-    ProFileReader(ProFileCache *cache);
+    ProFileReader();
+    ~ProFileReader();
 
     void setQtVersion(QtVersion *qtVersion);
     bool readProFile(const QString &fileName);
@@ -63,7 +63,7 @@ public:
                                    const QString &baseDirectory,
                                    PathValuesMode mode,
                                    const ProFile *pro = 0) const;
-
+    ProFile *proFileFromCache(const QString &fileName) const;
 signals:
     void errorFound(const QString &error);
 
@@ -75,9 +75,8 @@ private:
     virtual void errorMessage(const QString &msg);
 
 private:
-    ProFile *proFileFromCache(const QString &fileName) const;
-    ProFileCache *m_cache;
     QMap<QString, ProFile *> m_includeFiles;
+    QList<ProFile *> m_proFiles;
 };
 
 } // namespace Internal

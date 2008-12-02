@@ -73,7 +73,6 @@ namespace Internal {
 
 using ProjectExplorer::FileType;
 
-class ProFileCache;
 class ProFileReader;
 class DirectoryWatcher;
 
@@ -154,6 +153,7 @@ private:
     QString m_projectDir;
     ProFile *m_includeFile;
     QTimer *m_saveTimer;
+    ProFileReader *m_reader;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
@@ -167,12 +167,14 @@ public:
     Qt4ProFileNode(Qt4Project *project,
                    const QString &filePath,
                    QObject *parent = 0);
+    ~Qt4ProFileNode();
 
     bool hasTargets() const;
 
     Qt4ProjectType projectType() const;
 
     QStringList variableValue(const Qt4Variable var) const;
+    ProFile *proFileFromCache(const QString &fileName);
 
 public slots:
     void update();
@@ -200,8 +202,8 @@ private:
     QHash<Qt4Variable, QStringList> m_varValues;
     bool m_isQBuildProject;
 
-    ProFileCache *m_cache;
     DirectoryWatcher *m_dirWatcher;
+    ProFileReader *m_reader;
 
     friend class Qt4NodeHierarchy;
 };

@@ -87,7 +87,8 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project,
           m_projectFilePath(filePath),
           m_projectDir(QFileInfo(filePath).absolutePath()),
           m_includeFile(0),
-          m_saveTimer(new QTimer(this))
+          m_saveTimer(new QTimer(this)),
+          m_reader(0)
 {
     Q_ASSERT(project);
     setFolderName(QFileInfo(filePath).baseName());
@@ -104,6 +105,7 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
 {
     Q_ASSERT(includeFile);
     Q_ASSERT(reader);
+    m_reader = reader;
 
     m_includeFile = includeFile;
 
@@ -363,10 +365,6 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         return;
 
     // Check if file is readonly
-    ProFileCache *cache = m_project->qt4ProjectManager()->proFileCache();
-    if (cache->fileInterface(m_projectFilePath)->isReadOnly() && !priFileWritable(m_projectFilePath))
-        return;
-
     ProEditorModel proModel;
     proModel.setProFiles(QList<ProFile*>() << m_includeFile);
 
@@ -449,22 +447,26 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
 void Qt4PriFileNode::save()
 {
-    // Prevent any reload questions; just reload
     Core::FileManager *fileManager = m_core->fileManager();
-    ProFileCache *cache = m_project->qt4ProjectManager()->proFileCache();
-
     QList<Core::IFile *> allFileHandles = fileManager->managedFiles(m_includeFile->fileName());
-    Core::IFile *modifiedFileHandle = cache->fileInterface(m_includeFile->fileName());
+    Core::IFile *modifiedFileHandle = 0;
+    foreach(Core::IFile *file, allFileHandles)
+        if (file->fileName() == m_includeFile->fileName())
+            modifiedFileHandle = file;
 
-    fileManager->blockFileChange(modifiedFileHandle);
-    modifiedFileHandle->save();
-    fileManager->unblockFileChange(modifiedFileHandle);
+    if (modifiedFileHandle)
+        fileManager->blockFileChange(modifiedFileHandle);
+    ProWriter pw;
+    bool ok = pw.write(m_includeFile, m_includeFile->fileName());
+    m_includeFile->setModified(false);
+    m_project->qt4ProjectManager()->notifyChanged(m_includeFile->fileName());
+    if (modifiedFileHandle)
+        fileManager->unblockFileChange(modifiedFileHandle);
 
     Core::IFile::ReloadBehavior tempBehavior =
             Core::IFile::ReloadAll;
-    foreach (Core::IFile *file, allFileHandles) {
+    foreach (Core::IFile *file, allFileHandles)
         file->modified(&tempBehavior);
-    }
 }
 
 /*
@@ -516,8 +518,8 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
           // own stuff
           m_projectType(InvalidProject),
           m_isQBuildProject(false),
-          m_cache(project->qt4ProjectManager()->proFileCache()),
-          m_dirWatcher(new DirectoryWatcher(this))
+          m_dirWatcher(new DirectoryWatcher(this)),
+          m_reader(0)
 {
     if (parent)
         setParent(parent);
@@ -528,6 +530,11 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
             this, SLOT(fileChanged(const QString&)));
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(update()));
+}
+
+Qt4ProFileNode::~Qt4ProFileNode()
+{
+    delete m_reader;
 }
 
 bool Qt4ProFileNode::hasTargets() const
@@ -547,10 +554,11 @@ QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
 
 void Qt4ProFileNode::update()
 {
-    ProFileReader *reader = createProFileReader();
-    if (!reader->readProFile(m_projectFilePath)) {
+    delete m_reader;
+    m_reader = createProFileReader();
+    if (!m_reader->readProFile(m_projectFilePath)) {
         m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
-        delete reader;
+        delete m_reader;
         invalidate();
         return;
     }
@@ -565,7 +573,7 @@ void Qt4ProFileNode::update()
 #endif
 
     Qt4ProjectType projectType = InvalidProject;
-    switch (reader->templateType()) {
+    switch (m_reader->templateType()) {
     case ProFileEvaluator::TT_Unknown:
     case ProFileEvaluator::TT_Application: {
         projectType = ApplicationTemplate;
@@ -604,11 +612,11 @@ void Qt4ProFileNode::update()
     ProFile *fileForCurrentProject = 0;
     {
         if (projectType == SubDirsTemplate) {
-            foreach (const QString &subDirProject, subDirsPaths(reader))
+            foreach (const QString &subDirProject, subDirsPaths(m_reader))
                 newProjectFiles << subDirProject;
         }
 
-        foreach (ProFile *includeFile, reader->includeFiles()) {
+        foreach (ProFile *includeFile, m_reader->includeFiles()) {
             if (includeFile->fileName() == m_projectFilePath) { // this file
                 fileForCurrentProject = includeFile;
             } else {
@@ -637,7 +645,7 @@ void Qt4ProFileNode::update()
                 Qt4PriFileNode *priFileNode
                     = new Qt4PriFileNode(m_project,
                                          *newProjectFileIter);
-                priFileNode->update(file, reader);
+                priFileNode->update(file, m_reader);
                 toAdd << priFileNode;
             } else {
                 toAdd << createSubProFileNode(*newProjectFileIter);
@@ -646,7 +654,7 @@ void Qt4ProFileNode::update()
         } else { // *existingNodeIter->path() == *newProjectFileIter
              if (ProFile *file = includeFiles.value(*newProjectFileIter)) {
                 Qt4PriFileNode *priFileNode = static_cast<Qt4PriFileNode*>(*existingNodeIter);
-                priFileNode->update(file, reader);
+                priFileNode->update(file, m_reader);
             }
 
             ++existingNodeIter;
@@ -662,7 +670,7 @@ void Qt4ProFileNode::update()
             Qt4PriFileNode *priFileNode
                     = new Qt4PriFileNode(m_project,
                                          *newProjectFileIter);
-            priFileNode->update(file, reader);
+            priFileNode->update(file, m_reader);
             toAdd << priFileNode;
         } else {
             toAdd << createSubProFileNode(*newProjectFileIter);
@@ -675,15 +683,15 @@ void Qt4ProFileNode::update()
     if (!toAdd.isEmpty())
         addProjectNodes(toAdd);
 
-    Qt4PriFileNode::update(fileForCurrentProject, reader);
+    Qt4PriFileNode::update(fileForCurrentProject, m_reader);
 
     // update other variables
     QHash<Qt4Variable, QStringList> newVarValues;
-    newVarValues[CxxCompilerVar] << reader->value(QLatin1String("QMAKE_CXX"));
-    newVarValues[DefinesVar] = reader->values(QLatin1String("DEFINES"));
-    newVarValues[IncludePathVar] = includePaths(reader);
-    newVarValues[UiDirVar] = uiDirPaths(reader);
-    newVarValues[MocDirVar] = mocDirPaths(reader);
+    newVarValues[CxxCompilerVar] << m_reader->value(QLatin1String("QMAKE_CXX"));
+    newVarValues[DefinesVar] = m_reader->values(QLatin1String("DEFINES"));
+    newVarValues[IncludePathVar] = includePaths(m_reader);
+    newVarValues[UiDirVar] = uiDirPaths(m_reader);
+    newVarValues[MocDirVar] = mocDirPaths(m_reader);
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;
@@ -693,9 +701,7 @@ void Qt4ProFileNode::update()
     }
 
     updateGeneratedFiles();
-    m_project->qt4ProjectManager()->proFileCache()->updateDependencies(reader->includeFiles().toSet(), this);
 
-    delete reader;
     foreach (NodesWatcher *watcher, watchers())
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileUpdated(this);
@@ -812,7 +818,7 @@ void Qt4ProFileNode::updateGeneratedFiles()
 
 ProFileReader *Qt4ProFileNode::createProFileReader() const
 {
-    ProFileReader *reader = new ProFileReader(m_cache);
+    ProFileReader *reader = new ProFileReader();
     connect(reader, SIGNAL(errorFound(const QString &)),
             m_project, SLOT(proFileParseError(const QString &)));
 
@@ -969,6 +975,12 @@ void Qt4ProFileNode::invalidate()
     foreach (NodesWatcher *watcher, watchers())
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->projectTypeChanged(this, oldType, InvalidProject);
+}
+
+
+ProFile *Qt4ProFileNode::proFileFromCache(const QString &fileName)
+{
+    return m_reader->proFileFromCache(fileName);
 }
 
 Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)

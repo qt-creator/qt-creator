@@ -32,7 +32,6 @@
 ***************************************************************************/
 
 #include "profilereader.h"
-#include "profilecache.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
@@ -40,9 +39,14 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-ProFileReader::ProFileReader(ProFileCache *cache)
-  : m_cache(cache)
+ProFileReader::ProFileReader()
 {
+}
+
+ProFileReader::~ProFileReader()
+{
+    foreach(ProFile *pf, m_proFiles)
+        delete pf;
 }
 
 void ProFileReader::setQtVersion(QtVersion *qtVersion) {
@@ -72,6 +76,7 @@ bool ProFileReader::readProFile(const QString &fileName)
         return false;
     }
     m_includeFiles.insert(fn, pro);
+    m_proFiles.append(pro);
     return accept(pro);
 }
 
@@ -84,23 +89,23 @@ ProFile *ProFileReader::parsedProFile(const QString &fileName)
     ProFile *pro = ProFileEvaluator::parsedProFile(fn);
     if (pro) {
         m_includeFiles.insert(fn, pro);
+        m_proFiles.append(pro);
     }
     return pro;
 }
 
-void ProFileReader::releaseParsedProFile(ProFile */*proFile*/)
+void ProFileReader::releaseParsedProFile(ProFile *)
 {
     return;
 }
 
 ProFile *ProFileReader::proFileFromCache(const QString &fileName) const
 {
+
     QString fn =  QFileInfo(fileName).filePath();
     ProFile *pro = 0;
     if (m_includeFiles.contains(fn))
         pro = m_includeFiles.value(fn);
-    else
-        pro = m_cache->proFile(fn); // this can expand to null
     return pro;
 }
 

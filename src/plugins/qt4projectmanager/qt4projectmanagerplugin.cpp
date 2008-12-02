@@ -40,7 +40,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "profilecache.h"
 #include "qmakebuildstepfactory.h"
 #include "buildparserfactory.h"
 #include "qtversionmanager.h"

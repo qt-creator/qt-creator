@@ -36,7 +36,6 @@
 #include "profilehighlighter.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
-#include "profilecache.h"
 #include "profileeditorfactory.h"
 #include "proeditormodel.h"
 #include "procommandmanager.h"
@@ -51,6 +50,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QTextEdit>
 #include <QtGui/QHeaderView>
+#include <QtCore/QDebug>
 
 using namespace ExtensionSystem;
 using namespace Core;
@@ -150,9 +150,7 @@ ProFileDocument::ProFileDocument(Qt4Manager *manager)
 bool ProFileDocument::save(const QString &name)
 {
     if (BaseTextDocument::save(name)) {
-        ProFile *profile = m_manager->proFileCache()->proFile(name);
-        if (profile)
-            m_manager->proFileCache()->notifyChanged(QSet<ProFile*>() << profile, true);
+        m_manager->notifyChanged(name);
         return true;
     }
     return false;

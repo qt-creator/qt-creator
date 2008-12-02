@@ -34,8 +34,8 @@
 #include "qt4project.h"
 
 #include "qt4projectmanager.h"
-#include "profilecache.h"
 #include "profilereader.h"
+#include "prowriter.h"
 #include "makestep.h"
 #include "qmakestep.h"
 #include "deployhelper.h"
@@ -179,8 +179,12 @@ Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QOb
 
 bool Qt4ProjectFile::save(const QString &)
 {
-    Core::IFile *file = fileFromCache();
-    return file && file->save();
+    ProFile *file = m_project->proFileFromCache(m_filePath);
+    ProWriter pw;
+    bool ok = pw.write(file, file->fileName());
+    file->setModified(false);
+    m_project->qt4ProjectManager()->notifyChanged(file->fileName());
+    return ok;
 }
 
 QString Qt4ProjectFile::fileName() const
@@ -205,14 +209,13 @@ QString Qt4ProjectFile::mimeType() const
 
 bool Qt4ProjectFile::isModified() const
 {
-    Core::IFile *file = fileFromCache();
-    return file && fileFromCache()->isModified();
+    return m_project->proFileFromCache(m_filePath)->isModified();
 }
 
 bool Qt4ProjectFile::isReadOnly() const
 {
-    Core::IFile *file = fileFromCache();
-    return file && fileFromCache()->isReadOnly();
+    QFileInfo fi(m_filePath);
+    return !fi.isWritable();
 }
 
 bool Qt4ProjectFile::isSaveAsAllowed() const
@@ -222,15 +225,6 @@ bool Qt4ProjectFile::isSaveAsAllowed() const
 
 void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
 {
-}
-
-Core::IFile *Qt4ProjectFile::fileFromCache() const
-{
-    ProFileCache *cache = m_project->qt4ProjectManager()->proFileCache();
-    Core::IFile *fi = cache->fileInterface(fileName());
-    if (!fi && debug)
-        qWarning() << "Could not retrieve IFile interface from ProFileCache";
-    return fi;
 }
 
 /*!
@@ -247,6 +241,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_isApplication(true),
     m_projectFiles(new Qt4ProjectFiles)
 {
+    m_manager->registerProject(this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
     connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(updateFileList()));
     connect(m_nodesWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateFileList()));
@@ -267,6 +262,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 
 Qt4Project::~Qt4Project()
 {
+    m_manager->unregisterProject(this);
     delete m_projectFiles;
 }
 
@@ -520,7 +516,7 @@ void Qt4Project::update()
 
 ProFileReader *Qt4Project::createProFileReader() const
 {
-    ProFileReader *reader = new ProFileReader(m_manager->proFileCache());
+    ProFileReader *reader = new ProFileReader();
     connect(reader, SIGNAL(errorFound(const QString&)),
             this, SLOT(proFileParseError(const QString&)));
     QtVersion *version = qtVersion(activeBuildConfiguration());
@@ -578,10 +574,11 @@ QStringList Qt4Project::files(FilesMode fileMode) const
 QList<Core::IFile *> Qt4Project::dependencies()
 {
     QList<Core::IFile *> result;
-    ProFileCache *cache = m_manager->proFileCache();
-    foreach (const QString &file, cache->dependencies(m_rootProjectNode)) {
-        result << cache->fileInterface(file);
-    }
+    // TODO profile cache is no longer
+//    ProFileCache *cache = m_manager->proFileCache();
+//    foreach (const QString &file, cache->dependencies(m_rootProjectNode)) {
+//        result << cache->fileInterface(file);
+//    }
     return result;
 }
 
@@ -896,4 +893,30 @@ MakeStep *Qt4Project::makeStep() const
         if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
             return qs;
     return 0;
+}
+
+ProFile *Qt4Project::proFileFromCache(const QString &fileName)
+{
+    return rootProjectNode()->proFileFromCache(fileName);
+}
+
+void Qt4Project::findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list)
+{
+    if (root->path() == fileName)
+        list.append(root);
+    else if (root->proFileFromCache(fileName))
+        list.append(root);
+
+    foreach (FolderNode *fn, root->subFolderNodes())
+        if (Qt4ProFileNode *qt4proFileNode =  qobject_cast<Qt4ProFileNode *>(fn))
+            findProFile(fileName, qt4proFileNode, list);
+}
+
+void Qt4Project::notifyChanged(const QString &name)
+{
+    QList<Qt4ProFileNode *> list;
+    findProFile(name, rootProjectNode(), list);
+    foreach(Qt4ProFileNode *node, list)
+        node->update();
+
 }

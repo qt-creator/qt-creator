@@ -1519,12 +1519,9 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName, bool *resu
     if (pro) {
         m_profileStack.push(pro);
         ok = (currentProFile() ? pro->Accept(this) : false);
-        if (ok) {
-            if (m_profileStack.count() > 0) {
-                ProFile *pro = m_profileStack.pop();
-                q->releaseParsedProFile(pro);
-            }
-        }
+        m_profileStack.pop();
+        q->releaseParsedProFile(pro);
+
         if (result)
             *result = true;
     } else {

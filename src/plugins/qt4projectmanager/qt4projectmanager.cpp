@@ -37,7 +37,6 @@
 #include "qt4projectmanagerplugin.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
-#include "profilecache.h"
 #include "profilereader.h"
 #include "qtversionmanager.h"
 #include "qmakestep.h"
@@ -81,16 +80,31 @@ Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin, Core::ICore *core) :
     m_core(core),
     m_projectExplorer(0),
     m_contextProject(0),
-    m_languageID(0),
-    m_proFileCache(0)
+    m_languageID(0)
 {
     m_languageID = m_core->uniqueIDManager()->
         uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
-    m_proFileCache = new ProFileCache(this);
 }
 
 Qt4Manager::~Qt4Manager()
 {
+}
+
+void Qt4Manager::registerProject(Qt4Project *project)
+{
+    m_projects.append(project);
+}
+
+void Qt4Manager::unregisterProject(Qt4Project *project)
+{
+    m_projects.removeOne(project);
+}
+
+void Qt4Manager::notifyChanged(const QString &name)
+{
+    foreach(Qt4Project *pro, m_projects) {
+        pro->notifyChanged(name);
+    }
 }
 
 void Qt4Manager::init()

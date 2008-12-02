@@ -107,8 +107,6 @@ public:
     void modified(Core::IFile::ReloadBehavior *behavior);
 
 private:
-    Core::IFile *fileFromCache() const;
-
     const QString m_mimeType;
     Qt4Project *m_project;
     QString m_filePath;
@@ -182,6 +180,9 @@ public:
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
+    ProFile *proFileFromCache(const QString &fileName);
+    void notifyChanged(const QString &name);
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);
@@ -207,6 +208,7 @@ protected:
 
 private:
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
+    static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
 
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;

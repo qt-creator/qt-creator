@@ -57,7 +57,6 @@ namespace Qt4ProjectManager {
 
 namespace Internal {
 class Qt4Builder;
-class ProFileCache;
 class ProFileEditor;
 class Qt4ProjectManagerPlugin;
 class QtVersionManager;
@@ -75,7 +74,10 @@ public:
     ~Qt4Manager();
 
     void init();
-    inline Internal::ProFileCache *proFileCache() const { return m_proFileCache; }
+
+    void registerProject(Qt4Project *project);
+    void unregisterProject(Qt4Project *project);
+    void notifyChanged(const QString &name);
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
     ExtensionSystem::PluginManager *pluginManager() const;
@@ -104,6 +106,7 @@ public slots:
     void runQMakeContextMenu();
 
 private:
+    QList<Qt4Project *> m_projects;
     void runQMake(ProjectExplorer::Project *p);
 
     const QString m_mimeType;
@@ -116,7 +119,6 @@ private:
 
     int m_languageID;
 
-    Internal::ProFileCache *m_proFileCache;
 };
 
 } // namespace Qt4ProjectManager
