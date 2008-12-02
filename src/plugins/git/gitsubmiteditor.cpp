@@ -52,11 +52,13 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
     return static_cast<GitSubmitEditorWidget *>(widget());
 }
 
-QStringList GitSubmitEditor::vcsFileListToFileList(const QStringList &rawList) const
+QStringList GitSubmitEditor::statusListToFileList(const QStringList &rawList)
 {
+    if (rawList.empty())
+        return rawList;
     QStringList rc;
     foreach (const QString &rf, rawList)
-        rc.push_back(fileFromChangeLine(rf));
+        rc.push_back(fileFromStatusLine(rf));
     return rc;
 }
 
@@ -65,9 +67,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     submitEditorWidget()->setPanelData(d.panelData);
     submitEditorWidget()->setPanelInfo(d.panelInfo);
 
-    // Commited: Checked, user cannot uncheck
-    addFiles(d.commitFiles, true, false);
-    // Not Updated: User can check
+    addFiles(d.commitFiles, true, true);
+    // Not Updated: Initially unchecked
     addFiles(d.notUpdatedFiles, false, true);
     addFiles(d.untrackedFiles, false, true);
 }
@@ -77,10 +78,10 @@ GitSubmitEditorPanelData GitSubmitEditor::panelData() const
     return const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->panelData();
 }
 
-QString GitSubmitEditor::fileFromChangeLine(const QString &line)
+QString GitSubmitEditor::fileFromStatusLine(const QString &line)
 {
     QString rc = line;
-    // "modified: mainwindow.cpp"
+    // "modified:   mainwindow.cpp"
     const int index = rc.indexOf(QLatin1Char(':'));
     if (index != -1)
         rc.remove(0, index + 1);

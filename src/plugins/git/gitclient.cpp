@@ -59,6 +59,8 @@ const char* const kGitCommand = "git";
 const char* const kGitDirectoryC = ".git";
 const char* const kBranchIndicatorC = "# On branch";
 
+enum { untrackedFilesInCommit = 0 };
+
 static inline QString msgServerFailure()
 {
     return GitClient::tr(
@@ -197,7 +199,9 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 
 void GitClient::status(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("status")), m_plugin->m_outputWindow, 0,true);
+    QStringList statusArgs(QLatin1String("status"));
+    statusArgs << QLatin1String("-u");
+    executeGit(workingDirectory, statusArgs, m_plugin->m_outputWindow, 0,true);
 }
 
 void GitClient::log(const QString &workingDirectory, const QString &fileName)
@@ -286,10 +290,12 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
 
 bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
 {
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << "add" << files;
+    arguments << QLatin1String("add") << files;
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
@@ -298,6 +304,30 @@ bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringLis
         m_plugin->m_outputWindow->popup(false);
     }
     return rc;
+}
+
+bool GitClient::synchronousReset(const QString &workingDirectory,
+                                 const QStringList &files)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << files;
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("reset") << QLatin1String("HEAD") << files;
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const QString output = QString::fromLocal8Bit(outputText);
+    m_plugin->m_outputWindow->popup(false);
+    m_plugin->m_outputWindow->append(output);
+    // Note that git exits with 1 even if the operation is successful
+    // Assume real failure if the output does not contain "foo.cpp modified"
+    if (!rc && !output.contains(QLatin1String("modified"))) {
+        const QString errorMessage = tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).
+                                     arg(workingDirectory, QString::fromLocal8Bit(errorText));
+        m_plugin->m_outputWindow->append(errorMessage);
+        return false;
+    }
+    return true;
 }
 
 void GitClient::executeGit(const QString &workingDirectory, const QStringList &arguments,
@@ -365,6 +395,22 @@ bool GitClient::synchronousGit(const QString &workingDirectory
     return process.exitCode() == 0;
 }
 
+
+// Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
+static inline QString trimFileSpecification(QString fileSpec)
+{
+    const int colonIndex = fileSpec.indexOf(QLatin1Char(':'));
+    if (colonIndex != -1) {
+        // Collapse the sequence of spaces
+        const int filePos = colonIndex + 2;
+        int nonBlankPos = filePos;
+        for ( ; fileSpec.at(nonBlankPos).isSpace(); nonBlankPos++);
+        if (nonBlankPos > filePos)
+            fileSpec.remove(filePos, nonBlankPos - filePos);
+    }
+    return fileSpec;
+}
+
 /* Parse a git status file list:
  * \code
     # Changes to be committed:
@@ -385,8 +431,8 @@ static bool parseFiles(const QStringList &lines, CommitData *d)
     const QString untrackedIndicator = QLatin1String("# Untracked files:");
 
     State s = None;
-
-    const QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+[^ ]+"));
+    // Match added/changed-not-updated files: "#<tab>modified: foo.cpp"
+    QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+.+"));
     Q_ASSERT(filesPattern.isValid());
 
     const QStringList::const_iterator cend = lines.constEnd();
@@ -402,19 +448,22 @@ static bool parseFiles(const QStringList &lines, CommitData *d)
                     s = NotUpdatedFiles;
                 } else {
                     if (line.startsWith(untrackedIndicator)) {
+                        // Now match untracked: "#<tab>foo.cpp"
                         s = UntrackedFiles;
+                        filesPattern = QRegExp(QLatin1String("#\\t.+"));
+                        Q_ASSERT(filesPattern.isValid());
                     } else {
                         if (filesPattern.exactMatch(line)) {
-                            const QString fileSpec = line.mid(2).simplified();
+                            const QString fileSpec = line.mid(2).trimmed();
                             switch (s) {
                             case CommitFiles:
-                                d->commitFiles.push_back(fileSpec);
+                                d->commitFiles.push_back(trimFileSpecification(fileSpec));
                             break;
                             case NotUpdatedFiles:
-                                d->notUpdatedFiles.push_back(fileSpec);
+                                d->notUpdatedFiles.push_back(trimFileSpecification(fileSpec));
                                 break;
                             case UntrackedFiles:
-                                d->untrackedFiles.push_back(fileSpec);
+                                d->untrackedFiles.push_back(QLatin1String("untracked: ") + fileSpec);
                                 break;
                             case None:
                                 break;
@@ -461,7 +510,10 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     // Run status. Note that it has exitcode 1 if there are no added files.
     QByteArray outputText;
     QByteArray errorText;
-    const bool statusRc = synchronousGit(workingDirectory, QStringList(QLatin1String("status")), &outputText, &errorText);
+    QStringList statusArgs(QLatin1String("status"));
+    if (untrackedFilesInCommit)
+        statusArgs << QLatin1String("-u");
+    const bool statusRc = synchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
     if (!statusRc) {
         // Something fatal
         if (!outputText.contains(kBranchIndicatorC)) {
@@ -517,13 +569,25 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     return true;
 }
 
+// addAndCommit:
 bool GitClient::addAndCommit(const QString &workingDirectory,
                              const GitSubmitEditorPanelData &data,
                              const QString &messageFile,
-                             const QStringList &files)
+                             const QStringList &checkedFiles,
+                             const QStringList &origCommitFiles)
 {
+    if (Git::Constants::debug)
+        qDebug() << "GitClient::addAndCommit:" << workingDirectory << checkedFiles << origCommitFiles;
+
+    // Do we need to reset any files that had been added before
+    // (did the user uncheck any previously added files)
+    const QSet<QString> resetFiles = origCommitFiles.toSet().subtract(checkedFiles.toSet());
+    if (!resetFiles.empty())
+        if (!synchronousReset(workingDirectory, resetFiles.toList()))
+            return false;
+
     // Re-add all to make sure we have the latest changes
-    if (!synchronousAdd(workingDirectory, files))
+    if (!synchronousAdd(workingDirectory, checkedFiles))
         return false;
 
     // Do the final commit
@@ -536,8 +600,8 @@ bool GitClient::addAndCommit(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
     const QString message = rc ?
-        tr("Committed %n file(s).", 0, files.size()) :
-        tr("Unable to commit %n file(s): %1", 0, files.size()).arg(QString::fromLocal8Bit(errorText));
+        tr("Committed %n file(s).", 0, checkedFiles.size()) :
+        tr("Unable to commit %n file(s): %1", 0, checkedFiles.size()).arg(QString::fromLocal8Bit(errorText));
 
     m_plugin->m_outputWindow->append(message);
     m_plugin->m_outputWindow->popup(false);

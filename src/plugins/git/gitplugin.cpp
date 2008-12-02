@@ -524,7 +524,10 @@ void GitPlugin::startCommit()
         return;
     }
 
+    // Store repository for diff and the original list of
+    // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
+    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.commitFiles);
 
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
@@ -614,7 +617,8 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
         m_gitClient->addAndCommit(m_submitRepository,
                                   editor->panelData(),
                                   m_changeTmpFile->fileName(),
-                                  fileList);
+                                  fileList,
+                                  m_submitOrigCommitFiles);
     }
     cleanChangeTmpFile();
     return true;

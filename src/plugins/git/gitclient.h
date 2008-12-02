@@ -90,6 +90,7 @@ public:
     void hardReset(const QString &workingDirectory, const QString &commit);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
+    bool synchronousReset(const QString &workingDirectory, const QStringList &files);
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
@@ -105,7 +106,8 @@ public:
     bool addAndCommit(const QString &workingDirectory,
                       const GitSubmitEditorPanelData &data,
                       const QString &messageFile,
-                      const QStringList &files);
+                      const QStringList &checkedFiles,
+                      const QStringList &origCommitFiles);
 
 public slots:
     void show(const QString &source, const QString &id);

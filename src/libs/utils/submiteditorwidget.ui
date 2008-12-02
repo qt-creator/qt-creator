@@ -22,10 +22,9 @@
      <property name="flat">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout">
-      <item row="0" column="0">
-       <widget class="QPlainTextEdit" name="description">
-       </widget>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPlainTextEdit" name="description"/>
       </item>
      </layout>
     </widget>
@@ -38,8 +37,8 @@
      <property name="flat">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout">
-      <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
        <widget class="QListWidget" name="fileList">
         <property name="font">
          <font/>

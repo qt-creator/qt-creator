@@ -36,6 +36,8 @@
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
+#include <QtCore/QStringList>
+
 namespace Git {
 namespace Internal {
 
@@ -43,7 +45,6 @@ class GitSubmitEditorWidget;
 struct CommitData;
 struct GitSubmitEditorPanelData;
 
-/*  */
 class GitSubmitEditor : public VCSBase::VCSBaseSubmitEditor
 {
     Q_OBJECT
@@ -53,10 +54,12 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
 
-    static QString fileFromChangeLine(const QString &line);
+    static QString fileFromStatusLine(const QString &line);
+    static QStringList statusListToFileList(const QStringList &);
 
 protected:
-    virtual QStringList vcsFileListToFileList(const QStringList &) const;
+    virtual QStringList vcsFileListToFileList(const QStringList &l) const
+    { return statusListToFileList(l); }
 
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();

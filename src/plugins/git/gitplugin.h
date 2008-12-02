@@ -44,7 +44,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
-#include <QtCore/QList>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -155,6 +155,7 @@ private:
     CoreListener                *m_coreListener;
     Core::IEditorFactory        *m_submitEditorFactory;
     QString                     m_submitRepository;
+    QStringList                 m_submitOrigCommitFiles;
     QTemporaryFile              *m_changeTmpFile;
 };
 
