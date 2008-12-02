@@ -110,8 +110,10 @@ void BuildStepsPage::init(const QString &buildConfiguration)
 
     m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(0));
     // make sure widget is updated
-    BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
-    widget->init(m_configuration);
+    if (m_ui->buildSettingsWidget->currentWidget()) {
+        BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
+        widget->init(m_configuration);
+    }
 }
 
 /* switch from one tree item / build step to another */
