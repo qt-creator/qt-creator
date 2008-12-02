@@ -123,6 +123,7 @@ TextEditorSettings::~TextEditorSettings()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->removeObject(m_generalSettingsPage);
     pm->removeObject(m_fontSettingsPage);
+    delete m_fontSettingsPage;
 
     m_instance = 0;
 }
