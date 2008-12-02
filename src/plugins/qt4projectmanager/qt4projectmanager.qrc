@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/qt4projectmanager" >
+        <file>images/window.png</file>
+        <file>images/run_qmake.png</file>
+        <file>images/run_qmake_small.png</file>
+        <file>images/qt_project.png</file>
+        <file>Qt4ProjectManager.mimetypes.xml</file>
+    </qresource>
+</RCC>

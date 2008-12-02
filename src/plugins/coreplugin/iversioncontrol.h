@@ -1,0 +1,96 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+** 
+** Non-Open Source Usage  
+** 
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.  
+** 
+** GNU General Public License Usage 
+** 
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception version
+** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
+** 
+***************************************************************************/
+#ifndef IVERSIONCONTROL_H
+#define IVERSIONCONTROL_H
+
+#include "core_global.h"
+
+#include <QtCore/QObject>
+#include <QtCore/QString>
+
+namespace Core {
+
+class CORE_EXPORT IVersionControl : public QObject
+{
+    Q_OBJECT
+public:
+    IVersionControl(QObject *parent = 0) : QObject(parent) {}
+    virtual ~IVersionControl() {}
+
+    // Returns wheter files in this directory should be managed with this
+    // version control.
+    virtual bool managesDirectory(const QString &filename) const = 0;
+
+    // This function should return the topmost directory, for
+    // which this IVersionControl should be used.
+    // The VCSManager assumes that all files in the returned directory
+    // are managed by the same IVersionControl
+    // Note that this is used as an optimization, so that the VCSManager
+    // doesn't need to call managesDirectory(..) for each directory
+    // This function is called after finding out that the directory is managed by
+    // a specific version control
+    virtual QString findTopLevelForDirectory(const QString &directory) const = 0;
+
+    // Called prior to save, if the file is read only.
+    // Should be implemented if the scc requires a operation before editing the file
+    // E.g. p4 edit
+    // Note: The EditorManager calls this for the editors
+    virtual bool vcsOpen(const QString &fileName) = 0;
+
+    // Called after a file has been added to a project
+    // If the version control needs to know which files it needs to track
+    // you should reimplement this function
+    // E.g. p4 add, cvs add, svn add
+    // Note: This function should be called from IProject subclasses after files
+    // are added to the project
+    virtual bool vcsAdd(const QString &filename) = 0;
+
+    // Called after a file has been removed from the project (if the user wants)
+    // E.g. p4 delete, svn delete
+    // You probably want to call SccManager::showDeleteDialog, which asks the user to
+    // confirm the deletion
+    virtual bool vcsDelete(const QString &filename) = 0;
+
+    // TODO: ADD A WAY TO DETECT WHETHER A FILE IS MANAGED, e.g
+    // virtual bool sccManaged(const QStryng &filename) = 0;
+
+    // TODO
+    // we probably want to have a function supports( enum Operation ) or
+    // something which describes which "kind" of revision control system it is.
+    // That is to check wheter a given operation is needed.
+    // But well I don't know yet how all different version control systems work
+};
+
+} // namespace Core
+
+#endif // IVERSIONCONTROL_H

@@ -1,0 +1,1153 @@
+/*!
+    \contentspage{index.html}{Qt Creator}
+    \page index.html
+    \nextpage qtcreator-quick-tour.html
+
+    \title Qt Creator Manual
+
+    \section1 Version 0.9 - Technical Preview
+
+    The goal of Qt Creator is to provide a cross-platform, complete Integrated
+    Development Environment (IDE) to develop Qt projects. It is available for
+    the Linux, Mac OS X and Windows platforms.
+
+    \note Qt Creator is currently released as a Technical Preview. It is
+    possible to edit source code, compile, run and debug applications; other
+    features are still under development. Please send bug reports and
+    suggestions to qt-creator@trolltech.com. To subscribe, send a
+    message with the word \e subscribe to qt-creator-request@trolltech.com.
+    For more information on Qt mailing lists, visit http://lists.trolltech.com
+
+    \table
+    \row
+    \o \inlineimage qtcreator.png
+    \o Qt Creator includes a wide range of useful features. Among them are:
+    \list 1
+        \o \bold{Qt4 Project Generating Wizard}: This wizard allows the user
+           to generate a project for a console application, a GUI application,
+           or a C++ library.
+        \o \bold{Qt Help Integration}: Qt's entire documentation can be
+           accessed easily by clicking on the \gui{Help} button.
+        \o \bold{Qt Designer Integration}: User interface forms can be designed
+           within Qt Creator. Simply double-click on a \c{.ui} file within the
+           \gui{Project Explorer} to launch the integration.
+        \o \bold{Navigation tools}: Powerful navigation tools let the user
+           navigate around files and classes with minimal keystrokes.
+        \o \bold{Support for qmake's .pro file format}: The project's \c{.pro}
+           file is used as a project description file.
+        \o \bold{Debugging Interface to GDB}: Applications can be debugged
+           within Qt Creator using a graphical frontend to the GNU symbolic
+           debugger.
+    \endlist
+    \endtable
+
+    To learn more about the Qt Creator, click on one of the links below:
+
+    \list
+       \o \l{A Quick Tour Around Qt Creator}
+       \o \l{Creating a Project in Qt Creator}
+       \o \l{Build Settings}
+       \o \l{Writing a Simple Program with Qt Creator}
+       \o \l{Quick Navigation}
+       \o \l{Debugging with Qt Creator}
+       \o \l{Tips and Tricks}
+       \o \l{Glossary}
+       \o \l{Known Issues for Version 0.9 (Technical Preview)}
+    \endlist
+
+*/
+
+/*!
+    \contentspage index.html
+    \page creator-quick-tour.html
+    \nextpage creator-build-settings.html
+
+    \title A Quick Tour Around Qt Creator
+
+    The labeled screenshot below shows some of the components of Qt Creator,
+    in \gui Edit mode.
+
+    \image qtcreator-breakdown.png
+
+    \seection1 The Mode Selectors
+
+    When working in Qt Creator, you can be in one of five modes: \bold Project,
+    \bold Edit, \bold Debug, \bold Help, and \bold Output.
+
+    Mode selectors allow you to quickly switch between tasks: Editing,
+    browsing the Qt manual, setting up the build environment, etc. You can
+    activate a mode by either clicking on its mode selector, or using the
+    \l{keyboard-shortcuts}{corresponding shortcut}. Certain actions also
+    trigger a mode change, e.g., \gui{Debug}/\gui{Start Debugging} will switch
+    to the \gui Debug mode.
+
+
+    \list
+
+    \o \gui{Welcome Mode} - Displays a welcome screen allowing you to quickly
+    load recent sessions or individual projects. This is the first mode
+    displayed if Qt Creator is run without command line switches.
+
+    \o \gui{Edit Mode} - You can edit both project and source files here. An
+    optional sidebar on the left provides different views to navigate between
+    files.
+
+    \o \gui{Debug Mode} - Provides various ways to inspect the state of the
+    program while debugging. See \l{qtcreator-debugging}{Debugging With Qt
+    Creator} for a hands-on description of the mode.
+
+    \o \gui{Build & Run Mode} - Lets you configure how projects can be built
+    and executed. Under the list of projects, there are tabs to configure the
+    build and run settings.
+
+    \o \gui{Help Mode} - Shows any documentation registered by Qt Assistant,
+    such as the Qt library and Qt Creator documentation.
+
+    \o \gui{Output Mode} - Lets you examine various logs in detail, for example
+    the task list, the compiler and application output. Some of these logs can
+    also be viewed in the output panes.
+
+    \endlist
+
+
+    \section1 The Output Panes
+
+    The task pane in Qt Creator can display one out of four different panes:
+    Task List, Search Results, Application Output, and Compile Output. These
+    panes are available in all modes.
+
+    \section2 Task List
+
+    The Task List provides a list of important tasks such as error messages
+    that need to be fixed. It filters out irrelevant output from the compiler
+    and collects them in the form of tasks.
+
+    \image qtcreator-task-list.png
+
+    \section2 Search Results
+
+    The Search Results pane displays the results for global searches such as
+    searching within a current document, files on disk, or all projects.
+    In the screenshot below, we searched for all occurrences of \c{textfinder}
+    within the "/TextFinder" folder.
+
+    \image qtcreator-search-pane.png
+
+    \section2 Application Output
+
+    This pane displays the status of the program when it is executed, as
+    well as debug output, for example, output from qDebug().
+
+    \image qtcreator-application-output.png
+
+    \section2 Compile Output
+
+    The Compile Output provides all the output from the compiler. In other
+    words, it is a more verbose version of the Task List.
+
+    \image qtcreator-compile-pane.png
+
+    \section1 Qt Help Integration
+
+    Qt Creator comes fully integrated with all of Qt's documentation and
+    examples via the Qt Help plugin. To view the documentation, you can switch
+    to the \gui{Help} mode. To obtain context sensitive help, move your text
+    cursor to a Qt class or function and press \key{F1}. The documentation
+    will be displayed within a panel on the right, as shown in the screenshot
+    below.
+
+    External Documentation provided by the user can be used to augment or
+    replace the documentation shipped with Qt Creator and Qt.
+
+    \image qtcreator-context-sensitive-help.png
+
+
+    \section1 Qt Designer Integration
+
+    Qt Creator is fully integrated with Qt Designer to help you design user
+    interface forms just like you would with the standalone version. The Qt
+    Designer integration also includes project management and code completion.
+
+    \image qtcreator-formedit.png
+
+
+    \section1 Keyboard Navigation
+   
+    Even though Qt Creator can be used with a mouse, it also caters to the
+    needs of developers who are more comfortable with the keyboard. A wide
+    range of \l{keyboard-shortcuts}{keyboard} and \l{Quick Navigation}
+    {navigation} shortcuts are available to help speed up the process of
+    developing your application.
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-quick-tour.html
+    \page creator-build-settings.html
+    \nextpage creator-creating-project.html
+
+    \title Build Settings
+
+    \table
+        \row
+            \i \bold{Warning:} Qt Creator currently supports qmake only.
+               Makefile and CMake support is not yet available.
+    \endtable
+
+    To modify the build settings of your project, switch to the
+    \gui{Build & Run} mode using the mouse or by pressing \key{Ctrl+4}.
+
+    \image qtcreator-buildsettings.png
+
+    Action items to create, clone, or delete build configurations can be found
+    on the right of the dialog. You can have as many build configurations
+    as you need. By default Qt Creator creates a \bold{debug} and
+    \bold{release} build configuration. Both these configurations use the
+    \l{glossary-default-qt}{Default Qt Version}.
+
+    In the tree on the left, a list of build configurations and their settings
+    are displayed. The screenshot below shows the \bold{debug} and
+    \bold{release} configurations and their corresponding settings:
+    \bold{Build Environment} and \bold{Build Steps}.
+
+    \image qtcreator-buildsettingstab.png
+
+    When you select a build configuration in the tree, a configuration page for
+    general build settings will be displayed. Here you can specify which
+    \l{glossary-project-qt}{Qt version} to use to build your project, whether
+    to \l{glossary-shadow-build}{shadow build} the project, and if a special
+    debugging helper is linked into the project or not.
+
+    The debugging helper enables the gdb integration to show the contents of
+    Qt data types. Enabling this option means that an additional file will be
+    compiled and linked to your project.
+
+    \image qtcreator-buildenvironment.png
+
+    In the \bold{Build Environment} page you can specify the environment used
+    for building. By default the environment in which Qt Creator was started
+    is used and modified to include the Qt version. Depending on the selected
+    Qt version, Qt Creator will automatically add the necessary environment
+    variables.
+
+    \image qtcreator-buildsteps.png
+
+    The build system of Qt Creator is built on top of \c qmake and \c make. The
+    settings for \c qmake and \c make can be changed in the
+    \bold{Build Settings} page. Qt Creator will run the make command using the
+    correct Qt version.
+
+    \note The default qmake arguments \c{-after SOURCES*=gdbmacros.cpp
+    -after QT*=network} are due to the debugging helper described above. If the
+    debugging helper seems to break your build or your application, you can
+    turn it off. You will still be able to debug applications, but the contents
+    of Qt data types will not be displayed properly.
+
+
+    \section1 Qt Version Management
+
+    Qt Creator allows you to use multiple versions of Qt installed on your hard
+    disk and switch between them easily.
+
+    Qt Creator automatically detects if \c qmake is in the environment variable
+    \c PATH. This \l{glossary-system-qt}{version of Qt} is referred to as
+    \bold{System Qt}. If you intend to use only one version of Qt - it is
+    already in your path and correctly set up for command line usage - you do
+    not need to manually configure your Qt version.
+
+    Otherwise, you can add your Qt version in
+    \gui{Tools -> Options... -> Qt Versions}. If you are on the Windows
+    platform and use MinGW to compile Qt, you need to tell Qt Creator where
+    MinGW is installed. This is done by setting the \gui{MinGW Directory}
+    under \gui{Tools -> Options... -> Qt4 -> Qt Versions -> MinGw Directory}.
+    If your Qt version is compiled with Microsoft Visual C++'s compiler, Qt
+    Creator will automatically set the correct environment variables for
+    compilation.
+
+    \note By default projects are compiled with the
+    \l{glossary-default-qt}{default Qt version}. You can override this in the
+    \gui{Build Configuration}.
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-quick-tour.html
+    \page creator-creating-project.html
+    \nextpage creator-writing-program.html
+
+    \title Creating a Project in Qt Creator
+
+    \table
+        \row
+	    \i \inlineimage qtcreator-new-project.png
+            \i \bold{Creating a New Project}
+
+    To create a new project, select \gui{New Project} from the \gui{File} menu.
+    You can create one of the following three projects:
+    
+    \list
+        \o Qt4 Console Application
+        \o Qt4 Gui Application
+        \o C++ Library
+    \endlist
+
+    In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
+
+        \row
+	    \i \inlineimage qtcreator-intro-and-location.png
+            \i \bold{Setting The Project Name and Location}
+
+        Next, we set the project's name and its path. Click on the \gui{...}
+        button to browse and select your path.
+
+        Ideally, the path should not contain spaces or special characters.
+
+        \row
+	    \i \inlineimage qtcreator-select-modules.png
+            \i \bold{Selecting The Necessary Qt Modules}
+
+        Click on the check boxes of each Qt Module you would like to include in
+        your project.
+
+        Since we started a Qt4 Gui Application, the Core and Gui modules are
+        set, but you are free to add more.
+
+        \row
+	    \i \inlineimage qtcreator-class-info.png
+            \i \bold{Specifying Class Information}
+
+        Lastly, specify the name of the class you would like to create. The
+        \e{Header file}, \e{Source file} and \e{Form file} fields will update
+        themselves according to your choice of class name.
+
+        You also have to select the base class for your class, either a
+        QWidget, QDialog or QMainWindow,  from the drop down box. Click
+        \gui{Done} and your project will be generated.
+    
+    \endtable
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-creating-project.html
+    \page creator-writing-program.html
+    \nextpage creator-navigation.html
+
+    \title Writing a Simple Program with Qt Creator
+
+    \table
+        \row
+        \o \note This tutorial assumes that the user has experience writing
+           basic Qt applications, designing user interfaces with Qt Designer
+           and and using the Qt Resource System.
+    \endtable
+
+
+    In this example, we will describe the steps involve in using Qt Creator
+    to create a small Qt program, Text Finder. Inspired by the QtUiTools'
+    \l{http://doc.trolltech.com/uitools-textfinder.html}{Text Finder}
+    example, we will write a similar but simplified version of it, as shown
+    below.
+
+    \image qtcreator-textfinder-screenshot.png
+
+    \section1 Setting Up Your Environment
+
+    Once you have installed Qt Creator, it will automatically detect if Qt's
+    location is in your \c PATH variable. If Qt's location is not in your
+    \c PATH, you can set it in one of the following ways, depending on your
+    platform:
+
+    \list
+         \o On Windows and Linux: in the \gui{Tools} menu, under \gui{Options}.
+         \o On Mac OS X: in \gui{Preferences}, under \gui{Qt4}.
+    \endlist
+
+    \note If Qt was compiled with Visual Studio, all environment variables set
+    in Visual Studio will be added to Qt Creator as well.
+
+    \section1 Setting Up The Project
+
+    We begin with a Qt4 Gui Application project generated by Qt Creator. The
+    \l{Creating a Project in Qt Creator} document describes this process in
+    detail. Remember to select QWidget as the Text Finder's base class.
+
+    Once your project is generated, you will have the following files:
+
+    \list
+        \o \c{textfinder.h}
+        \o \c{textfinder.cpp}
+        \o \c{main.cpp}
+        \o \c{textfinder.ui}
+        \o \c{textfinder.pro}
+    \endlist
+    
+    The \c{.h} and \c{.cpp} files come with the necessary boiler plate code;
+    the \c{.pro} file is also complete.
+
+    \section1 Filling In The Missing Pieces
+
+    We will begin by designing the user interface and then move on to filling
+    in the missing code. Finally, we will add the find functionality.
+
+    \section2 Designing the User Interface
+
+    To begin designing the user interface, double-click on the
+    \c{textfinder.ui} file in your \gui{Project Explorer}. This will launch the
+    integrated Qt Designer.
+
+    \image qtcreator-textfinder-ui.png
+
+    Design the form above using a QLabel, QLineEdit, QPushButton and a
+    QTextEdit. We recommend that you use a QGridLayout to lay out the QLabel,
+    QLineEdit and QPushButton. The QTextEdit can then be added to a
+    QVBoxLayout, along with the QGridLayout. If you are new to designing forms
+    with \QD, you can take a look at the 
+    \l{http://doc.trolltech.com/designer-manual.html}{Designer Manual}.
+
+    \section2 The Header File
+
+    The \c{textfinder.h} file already has the necessary includes, a
+    constructor, a destructor, and the \c{Ui} object. We need to add a private
+    slot, \c{on_findButton_clicked()}, to carry out our find operation. We
+    also need a private function, \c{loadTextFile()}, to read and display the
+    contents of our input text file in the QTextEdit. This is done with the
+    following code:
+
+    \code
+    private slots:
+        void on_findButton_clicked();
+
+    private:
+        Ui::Form ui;
+        void loadTextFile();
+    \endcode
+
+    \note The \c{Ui::Form} object is already provided.
+
+    \section2 The Source File
+
+    Now that our header file is complete we move on to our source file,
+    \c{textfinder.cpp}.  We begin by filling in the functionality to load a
+    text file. The code snippet below describes this:
+
+    \code
+    void TextFinder::loadTextFile()
+    {
+        QFile inputFile(":/input.txt");
+        inputFile.open(QIODevice::ReadOnly);
+        
+        QTextStream in(&inputFile);
+        QString line = in.readAll();
+        inputFile.close();
+        
+        ui.textEdit->setPlainText(line);
+        QTextCursor cursor = ui.textEdit->textCursor();
+    }
+    \endcode
+
+    Basically, we load a text file using QFile, read it with QTextStream, and
+    then display it on \c{textEdit} with \l{QTextEdit::}{setPlainText()}.
+
+    For the \c{on_findButton_clicked()} slot, we extract the search string and
+    use the \l{QTextEdit::}{find()} function to look for the search string
+    within the text file. The code snippet below further describes it:
+
+    \code
+    void TextFinder::on_findButton_clicked()
+    {
+        QString searchString = ui.lineEdit->text();
+        ui.textEdit->find(searchString, QTextDocument::FindWholeWords);
+    }
+    \endcode
+
+    Once we have both these functions complete, we call \c{loadTextFile()} in
+    our constructor.
+
+    \code
+    TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
+        : QWidget(parent, flags)
+    {
+        ui.setupUi(this);
+        loadTextFile();
+    }
+    \endcode
+
+    The \c{on_findButton_clicked()} slot will be called automatically due to
+    this line of code:
+
+    \code
+    QMetaObject::connectSlotsByName(Form);
+    \endcode
+
+    in the uic generated \c{ui_textfinder.h} file.
+
+    \section2 The Resource File
+
+    We require a resource file (\c{.qrc}) within which we will embed the input
+    text file. This can be any \c{.txt} file with a paragraph of text. To add
+    a resource file, right click on \gui{Resource Files} in the
+    \gui{Project Explorer} and select \gui{Add New File...}. You will see the
+    wizard dialog displayed below.
+
+    \image qtcreator-add-resource-wizard.png
+
+    Enter "textfinder" in the \gui{Name} field and use the given \gui{Path}.
+    Then, click \gui{Done}.
+
+    Your resource file will now be displayed with the Resource Editor. Click
+    on the \gui{Add} drop down box and select \gui{Add Prefix}. The prefix we
+    require is just a slash (\c{/}). Click \gui{Add} again but this time,
+    select \gui{Add File}. Locate the text file you are going to use, we use
+    \c{input.txt}.
+
+    \image qtcreator-add-resource.png
+
+    The screenshot above shows what you can expect to see once you have added
+    the resource file successfully.
+
+    \section1 Compiling and Running Your Program
+
+    Now that you have all the necessary files, you can compile your program by
+    clicking on the 
+    \inlineimage qtcreator-run.png
+    button.
+    
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-writing-program.html
+    \page creator-navigation.html
+    \nextpage creator-debugging.html
+
+    \title Quick Navigation
+
+    With Qt Creator, navigating to different locations in your project or on
+    your disk, such as files, classes and methods, is trivial using the input
+    field at the bottom left of the application window.
+
+    ### SCREENSHOT
+
+    To open for example the file \c{main.cpp} of your project, click into the
+    input field (or use \key{Ctrl+K} to get there), type the file name, and
+    finally press the \key{Return} key. The file will open in the editor.
+    You can also type only a part of a file name, and use the wildcard
+    characters \c{*} and \c{?} which match \c{any number of any characters} and
+    \c{any single character}, respectively - you will get a list of all matching
+    files to choose from.
+
+    As mentioned above, files are not the only type of locations you can
+    jump to. The different types of locations are organized in what we
+    call \c{filters}. There are filters for jumping to
+    \list
+        \o files mentioned in your \c{.pro} files, such as source and header,
+           resource and \c{.ui} files,
+        \o a specific line in your current text document,
+        \o class and method definitions in your project or anywhere referenced
+           from your project,
+        \o help topics, including the Qt API reference documentation,
+        \o files anywhere on your hard disk (by browsing through the file system),
+        \o any open document,
+        \o files from a subdirectory structure you define.
+    \endlist
+    Some of these filters are not used by default if you just start typing in the
+    input field, but require you to type a "prefix" in front, that is
+    assigned to that filter. The prefix is usually a single character,
+    followed by a space. As an example, to jump to the definition of the class
+    \c{QDataStream} type \key{Ctrl+K}, \key{:}, \key{Space}, and the class name.
+    You find a full list of filters and their prefixes below.
+
+    \image qtcreator-navigate-popup.png
+
+    You can add filters that provide quick navigation to files in a
+    subdirectory structure that you define. This way you have quick access to
+    files that are not directly mentioned in your project, but still relate to it.
+    Click on the little magnifier glass in the input field and choose
+    \gui{Configure...} from the menu that appears. This opens the preferences
+    dialog for navigation filters. Click the \gui{Add} button to create a new
+    filter.  Give it a name, choose directories, set (a comma separated list of)
+    file patterns, and give it a prefix string. After closing the preferences
+    dialog the directories you specified are searched for files that match the
+    file patterns, and the information is cached. From now on you can jump to
+    these files by just typing part of the file name into the navigation input
+    field. You can force an update of the cached information about the files via
+    the \gui{Refresh} menu item in the magnifier menu.
+
+    \image qtcreator-navigate-customfilter.png
+
+    The following table gives an overview on the currently available filters:
+
+    \table
+        \header
+            \o Function
+            \o Key Combination
+        \row
+            \o Go to a Line in the Current Document
+            \o Ctrl + K, l, Space, and the line number
+        \row
+            \o Go to a Function Definitions
+            \o Ctrl + K, :, Space, and the function name
+        \row
+            \o Go to a Help Topic
+            \o Ctrl + K, ?, Space, and the topic
+        \row
+            \o Go to an Already Opened Document
+            \o Ctrl + K, o, Space, and the document name.
+        \row
+            \o Go to a File in the File System (browsing the file system)
+            \o Ctrl + K, f, Space, and the file name.
+        \row
+            \o Go to a File in any Loaded Project
+            \o Ctrl + K, a, Space, and the function name.
+        \row
+            \o Go to a File in the Current Project
+            \o Ctrl + K, p, Space, and the function name.
+    \endtable
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-navigation.html
+    \page creator-debugging.html
+    \nextpage creator-tips.html
+
+    \title Debugging With Qt Creator
+
+    \table
+        \row 
+            \i \note Qt Creator's debugger integration currently does not
+               support debugging applications created with the Microsoft Visual
+               Studio Compiler.
+    \endtable
+
+    Qt Creator does not have its own debugger. Instead, it provides a graphical
+    frontend to the GNU Symbolic Debugger (gdb). This frontend allows you to
+    step through a program line-by-line or instruction-by-instruction,
+    interrupt running programs, set breakpoints, examine the contents of the
+    call stack, local and global variables, etc.
+
+
+    Within Qt Creator, the raw information provided by gdb is displayed in a
+    clear and concise manner, simplifying the process of debugging.
+
+    In addition to generic IDE functionality: stack view, views for locals and
+    watchers, registers, etc, Qt Creator comes with additional features to make
+    debugging Qt-based applications easy. The debugger frontend knows about the
+    internal layout of several Qt classes such as QString, the QTL containers,
+    and most importantly QObject (and classes derived from it). Therefore, it
+    is able to present Qt's data clearly.
+
+
+    \section1 Interacting with the Debugger
+
+    In \gui Debug mode, several dock widgets are used to interact with the
+    program you are debugging. The frequently used dock widgets are visible by
+    default; the rarely used ones are hidden. To change the default settings,
+    select \gui Debug and then select \gui View.
+
+    ####SCREENSHOT
+
+    Here, you can lock or unlock the location of your views as well as display
+    or hide them. Among the views you can display are \gui Breakpoints,
+    \gui Disassembler, \gui Modules, \gui Registers, \gui Gdb, \gui Stack, and
+    \gui Thread. The position of your dock widgets will be saved for future
+    sessions.
+
+
+    \section2 Breakpoints
+
+    Breakpoints are shown in the \gui{Breakpoints} view which is enabled by
+    by default. This view is also accessible when the debugger and the program
+    being debugged is not running.
+
+    A breakpoint represents a position or sets of positions in the code that,
+    when executed, stops the program being debugged and passing the control to
+    the user. The user is then free to examine the state of the interrupted
+    program, or continue execution line-by-line or continuously.
+
+    Typically, breakpoints are associated with a source code file and line, or
+    the start of a function -- both allowed in Qt Creator.
+
+    Also, the interruption of a program by a breakpoint can be restricted with
+    certain conditions.
+
+    You can set a breakpoint:
+
+    \list
+       \o At a particular line you want the program to stop -- click on the
+          left margin or press \key F9 (\key F8 for Mac Os X).
+       \o At the name of a function that you want the program to stop -- enter
+          the function's name in \gui{Set Breakpoint at Function...} under the
+          \gui Debug menu.
+    \endlist
+
+    You can remove a breakpoint:
+
+    \list
+        \o By clicking on the breakpoint marker in the text editor.
+        \o By selecting the breakpoint in the breakpoint view and pressing
+           \key{Delete}.
+        \o By selecting \gui{Delete Breakpoint} from the breakpoint's context
+           menu in the \gui Breakpoints view.
+    \endlist
+
+    Breakpoints can be set and deleted before the program has actually started
+    running or while it is running under the debugger's control. Also,
+    breakpoints are saved together with a session.
+
+
+    \section2 Running
+
+    To start a program under the debugger's control, select the \gui{Debug}
+    menu and \gui{Start Debugging}, or simply press \key{F5}. Qt Creator then
+    checks whether the compiled program is up-to-date, rebuilding it if
+    necessary. The debugger then takes over and starts the program.
+
+    \note Starting a program in the debugger will take considerable amount of
+    time, typically in the range of several seconds to minutes if complex
+    features (like QtWebKit) are used. 
+
+    Once the program starts running, it behaves as usual; performance-wise as
+    well. The user can interrupt a running program by selecting
+    \gui {Interrupt} from the \gui{Debug} menu. The program is automatically
+    interrupted as soon as a breakpoint is hit.
+
+    \omit (and, if set, its associated conditions are met). \endomit
+
+    Once the program stops, Qt Creator:
+
+    \list
+        \o Retrieves data representing the call stack at the program's current
+           position.
+        \o Retrieves the contents of local variables.
+        \o Examines \gui Watchers.
+        \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
+           views.
+    \endlist
+
+
+    You can use the debugger views to examine the data in more detail.
+
+    To finish debugging, Press \key{Shift+F5}. A line of code can be executed
+    as a whole with \key F10; to execute a function or a sub-function, use
+    \key F11. Alternatively, you can continue running the program with \key F5.
+
+    ###REWORD    
+    There is also the possibility to continue execution until the current
+    function finishes, or, for advanced use, to jump to an arbitrary 
+    possition in the current function.
+
+
+    \section2 Stack
+
+    When the program being debugged is stopped, Qt Creator displays the nested
+    function calls leading to the current position as a \e call stack trace.
+    This stack trace is built up from \e call stack frames, each representing a
+    particular function. For each function, Qt Creator will try to retrieve the
+    file name and line number of the corresponding source files. This data is
+    shown in the \gui Stack view.
+
+    Since the call stack leading to the current position may originate or go
+    through code for which no debug information is available, not all stack
+    frames will have corresponding source locations. These frames will be
+    greyed out in the \gui Stack view.
+
+    ###SCREENSHOT
+
+
+    If you click on a frame with a known source location, the text editor will
+    jump to the corresponding location and update the \gui{Locals and Watchers}
+    view, making it seem like the program stopped before entering the function.
+
+
+    \section2 Threads
+
+    
+    The \gui Thread view displays the state of the program being debugged one
+    thread at a time. If a multi-threaded program is stopped, the \gui Thread
+    view  or the combobox named \gui Thread in the debugger's status bar can
+    be used to switch from one thread to another. The \gui Stack view will
+    adjust itself accordingly.
+
+
+    \section2 Locals and Watchers
+
+    Whenever a program stops under the control of the debugger, it retrieves
+    information about the topmost stack frame and displays it in the
+    \gui{Locals and Watchers} view. This typically includes information about
+    parameters of the function in that frame as well as the local variables.
+
+    Compound variables of struct or class type will be displayed as
+    "expandable" in the view. C lick on the "+" to expand the entry and show
+    all members. Together with the display of value and type, the user can
+    examine and traverse the low-level layout of an object's data.
+
+
+    \table
+        \row
+            \i \bold{Note:}
+            \i  Gdb, and therefore Qt Creator's debugger works for optimized builds
+    on Linux and Mac OS X. However, optimization may lead to re-ordering of
+    instructions or sometimes even complete removal of some local variables.
+    In this case, the \gui{Locals and Watchers} view may show unexpected data.
+    \endtable
+
+    \note 
+   
+    \bold{Note:} The debug information provided by gcc does not include 
+    enough information about the time at which a variable is initialized.
+    Qt Creator therefore can not tell whether the contents of a local
+    variable contains "real data", or "initial noise". If an QObject
+    appears uninitialized, its value will be reported as "out of scope".
+    Not all uninitialized objects can be recognized as such, though.
+
+    The \gui{Locals and Watchers View} also gives accesst to the most powerful
+    feature of the Qt Creator Debugger: The comprehensive display of data
+    of objects of some of Qt's basic classes.
+
+    To start using that feature, select \gui{Debug} and \gui{Use Custom
+    Display for Qt Objects}. The \gui{Locals and Watchers View} will
+    be re-organized to give a more high-level view of the objects
+    in question. So instead of displaying a pointer to some private
+    data structure in case of QObject, a list of children, signals
+    and slots will be shown. 
+
+    Similarily, instead of showing a bunch of pointers and ints,
+    a QHash or QMap will display its contents in an orderly fashion,
+    a QFileInfo will expose e.g. access data, and the otherwise
+    "opaque" QVariant gives access to the "real" contents.
+
+    The \gui{Locals and Watchers View} can be used to change the
+    contents of variables of simple data types like int or float
+    while the program is stopped. To do so, click into the 'Value'
+    column, modify the value there, and hit \key{Return}.
+    
+
+
+    \section2 Modules
+
+    The \gui{Modules View} is hidden by default and only useful in
+    connection with the experimental feature of delayed debug 
+    information loading. This feature is accessible by selecting
+    \gui{Debug} and \gui{Fast Debugger Start}. When using the
+    feature, debug information coming from the Qt library itself
+    are not loaded on application startup, thereby reducing the
+    startup times for some applications.  The \gui{Modules View}
+    can then be used to load this information manually if needed.
+    Note that the debugger may fail to set some breakpoints in
+    this scenarios.
+        
+    \section2 Disassembler View and Registers View
+
+    Both the \gui{Disassembler View} and \gui{Registers View} are hidden
+    by default. The former shows the disassembled code of the current
+    function, the latter the current state of the CPU registers.
+    Both views are mainly useful in connection with the low-level
+    \gui{Step single instruction} and \gui{Step over single instruction}
+    commands
+        
+
+
+    \section1 A short walk through the debugger frontend
+
+    In our \l{Writing a Simple Program with Qt Creator}{TextFinder}
+    example, we read a text file into a QString and then display it with a
+    QTextEdit. Suppose, you would like to look at this QString, \c{line},
+    and see what data it actually stores. Follow the steps described below
+    to place a break point and view the QString object's data.
+
+    \table
+        \row
+	    \i \inlineimage qtcreator-setting-breakpoint1.png
+            \i \bold{Setting a Breakpoint}
+
+    First, we set a breakpoint on the line where we invoke
+    \l{QTextEdit::}{setPlainText()} by clicking between the line number and
+    the window border. Then, select \gui{Start Debugging} from the
+    \gui{Debug} menu or press \key{F5}.
+    \endtable
+
+    Breakpoints are visible in the \gui{Breakpoints} view, shown below, in
+    \gui{Debug} mode. If you wish to remove a breakpoint, simply right
+    click on it and select \gui{Delete breakpoint} from the context menu.
+
+    \image qtcreator-setting-breakpoint2.png
+
+    To view the contents of \c{line}, take a look at the \gui{Locals and
+    Watchers} view.
+
+    \image qtcreator-watcher.png
+
+    Suppose we modify our \c{on_findButton_clicked()} function to move back
+    to the start of the document and continue searching once the cursor
+    hits the end of the document. Adding this functionality can be done
+    with the code snippet below:
+
+    \code
+    void TextFinder::on_findButton_clicked()
+    {
+        QString searchString = ui.lineEdit->text();
+
+        QTextDocument *document = ui.textEdit->document();
+        QTextCursor cursor = ui.textEdit->textCursor();
+        cursor = document->find(searchString, cursor,
+            QTextDocument::FindWholeWords);
+        ui.textEdit->setTextCursor(cursor);
+
+        bool found = cursor.isNull();
+
+        if (!found && previouslyFound == true) {
+            int ret = QMessageBox::question(this, tr("End of Document"),
+            tr("I have reached the end of the document. Would you like "
+            "me to start searching from the beginning of the document?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+            if (ret == QMessageBox::Yes) {
+                cursor = document->find(searchString,
+                    QTextDocument::FindWholeWords);
+                ui.textEdit->setTextCursor(cursor);
+            } else
+                return;
+        }
+        previouslyFound = found;
+    }
+    \endcode
+
+    However, if you compile and run this code, the application will not
+    work correctly due to a logic error. To locate this logic error, you
+    can step through the code using the following buttons:
+
+    \image qtcreator-debugging-buttons.png
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-tips.html
+    \nextpage creator-glossary.html
+
+    \title Tips and Tricks
+
+    \bold{Quick mode switch}
+
+    You can quickly switch between modes by pressing \key{Ctrl+1},
+    \key{Ctrl+2}, etc.
+
+    \bold{Other keyboard shortcuts}
+
+    There are a lot of other \l{keyboard-shortcuts}{keyboard shortcuts}.
+
+    \bold{Command line}
+
+    You can start Qt Creator from a command prompt with an already
+    existing session or \c{.pro} file by giving the name as argument on the
+    command line.
+
+    \bold{Sidebar}
+
+    You can hide/unhide the sidebar in the edit and debug mode
+    by clicking on the corresponding icon on the left bottom.
+    Keyboard shortcut is \key{Alt+0}.
+
+    \bold{Display signals and slots}
+
+    If you have an instance of a class derived from QObject and 
+    want to find all other objects connected to one of its
+    slots by Qt's signals-and-slots mechanism, enable
+    \gui{Debug} and \gui{Use Custom Display for Qt Objects}.
+    In the \gui{Locals and Watchers View}, expand the object's
+    entry and open the wanted slot in the "slots" subitem. The
+    objects connect to this slot are exposed as children of
+    this slot. The same works with signals.
+
+    \bold{Low level display}
+
+    If the special debugging of Qt objects fails due to data
+    corruption within the debugged objects, you can switch the
+    special debugging off in the \gui{Debug} menu. This will make
+    the low-level structures visible again.
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-tips.html
+    \page creator-glossary.html
+    \nextpage creator-known-issues.html
+
+    \title Glossary
+
+    \bold{System Qt}
+
+    \target glossary-system-qt
+    The version of Qt installed on your system.
+    This is the one whose \c qmake command is found in the \c PATH.
+
+    \bold{Default Qt}
+
+    \target glossary-default-qt
+    The version of Qt configured in \gui{Tools
+    -> Options -> Qt 4 -> Default Qt Version}. This is the version
+    used by new projects. It defaults to the System Qt.
+
+    \bold{Project Qt}
+
+    \target glossary-project-qt
+    The version of Qt configured in \gui{Build&Run
+    -> Build Settings -> Build Configurations}. This is the version
+    actually used by the project. It defaults to the Default Qt.
+
+    \bold{Shadow Build}
+
+    \target glossary-shadow-build
+    Shadow building means building the project not in the source directory,
+    but in a seperate \bold{build directory}. This has the benefit of keeping
+    the source directory clean. It is also considered "best practice" if 
+    you need many build configurations for a single set of sources.
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-glossary.html
+    \page creator-keyboard-shortcuts.html
+
+    \title Keyboard Shortcuts
+
+    Qt Creator provides various keyboard shortcuts to aid in the development
+    process. These shortcuts are listed in the table below:
+
+    \table
+        \header
+            \o Function
+            \o Key Combination
+        \row
+            \o Activate Build & Run Mode
+            \o Ctrl + 4
+        \row
+            \o Activate Debug Mode
+            \o Ctrl + 3
+        \row
+            \o Activate Edit Mode
+            \o Ctrl + 2
+        \row
+            \o Activate Help Mode
+            \o Ctrl + 5
+        \row
+            \o Activate Output Mode
+            \o Ctrl + 6
+        \row
+            \o Activate Welcome Mode
+            \o Ctrl + 1
+        \row
+            \o Find
+            \o Ctrl + F
+        \row
+            \o Find Next
+            \o F3
+        \row
+            \o Go back to Code Editor (May require more than one press)
+            \o Esc
+        \row
+            \o Go to a Line
+            \o Ctrl + L
+        \row
+            \o Start Debugging
+            \o F5
+        \row
+            \o Stop Debugging
+            \o Shift + F5
+        \row
+            \o Toggle Application Output
+            \o Alt + 3
+        \row
+            \o Toggle Code Declaration and Definition
+            \o F2
+        \row
+            \o Toggle Header File and Source File
+            \o F4
+        \row
+            \o Toggle Side Bar
+            \o Alt + 0
+        \row
+            \o Toggle Task List
+            \o Alt + 1
+        \row
+            \o Toggle Search Results
+            \o Alt + 2
+        \row
+            \o Toggle Compile Output
+            \o Alt + 4
+        \row
+            \o Select Welcome Mode
+            \o Ctrl + 1
+        \row
+            \o Select Edit Mode
+            \o Ctrl + 2
+        \row
+            \o Select Debug Mode
+            \o Ctrl + 3
+        \row
+            \o Select Build & Run Mode
+            \o Ctrl + 4
+        \row
+            \o Select Help Mode
+            \o Ctrl + 5
+        \row
+            \o Select Output Mode
+            \o Ctrl + 6
+    \endtable
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-keyboard-shortcuts.html
+    \page creator-known-issues.html
+
+    \title Known Issues of Version 0.9 (Technical Preview)
+
+    There are some known issues with the Technical Preview.
+    The development team is aware of those, there is no need to report them as bug.
+
+    \list
+      \o The central editor sometimes loses it "changed" status marker.
+
+      \o There is a kernel bug essentially making debugging unreliable
+         on 2.6.24 kernels for i386 (which is, unfortunately, the default
+         on Ubuntu 8.04).
+         See \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/}
+         for details.
+         The only solution for this problem is to boot another kernel.
+
+      \o gdb sometimes takes very long to load debugging symbol,
+         especially from big libraries like libQtWebKit. Starting debugging
+         can take up to several minutes without visible progress.
+
+      \o Paths or file names containing spaces or special characters like colons,
+         dollar signs, hash marks etc. may create difficulties.
+         Some of the tools Qt Creator uses in the background to do the "real
+         work" have restrictions on the characters that are allowed in file
+         and directory names. To be on the safe side, it is strongly
+         recommended to create projects and project items only with names
+         consisting of plain characters, numbers, underscores, and hyphens.
+
+      \o \c .pro files are reformatted if files are added/removed.
+         Whitespace is not preserved.
+
+      \o No IDE support for adding files to include (\c .pri) files.
+
+      \o No IDE support for adding/removing sub-projects.
+         Project hierarchies (SUBDIRS template) have to be created by hand.
+
+      \o The file system sidebar does not update automatically.
+         As a workaround you can switch to another directory and then back.
+
+      \o The resource system of the embedded version of Qt Designer
+         does not interact with the project management.
+
+      \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
+    \endlist
+*/
+

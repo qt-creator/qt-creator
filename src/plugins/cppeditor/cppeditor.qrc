@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/cppeditor" >
+        <file>images/qt_cpp.png</file>
+        <file>images/qt_h.png</file>
+        <file>CppEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

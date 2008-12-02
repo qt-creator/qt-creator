@@ -1,0 +1,9 @@
+C++ / Qt Script indenter based on:
+
+research/qsa/quickport/src/neweditor/yyindent.cpp
+
+Known issues:
+- Using an indentation different from 4 makes it goof up.
+
+History:
+- 070510: Split off the test application and made it work with Qt 4.

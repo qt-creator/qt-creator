@@ -1,0 +1,5 @@
+<plugin name="plugin4" version="1.0.1" compatVersion="1.0.0">
+    <dependencyList>
+        <dependency name="plugin5" version="2.3.0_2"/>
+    </dependencyList>
+</plugin>

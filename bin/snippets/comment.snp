@@ -1,0 +1,23 @@
+<!DOCTYPE QtWorkbenchSnippet>
+<qtworkbench>
+ <data>
+  <variable>Name</variable>
+  <value type="QString" >/* ... */ Comment</value>
+ </data>
+ <data>
+  <variable>Description</variable>
+  <value type="QString" >This creates comment</value>
+ </data>
+ <data>
+  <variable>Category</variable>
+  <value type="QString" >Other</value>
+ </data>
+ <data>
+  <variable>Shortcut</variable>
+  <value type="QString" >/*</value>
+ </data>
+ <data>
+  <variable>Contents</variable>
+  <value type="QString" ><![CDATA[/* $anchor$$selection$$cursor$ */]]></value>
+ </data>
+</qtworkbench>

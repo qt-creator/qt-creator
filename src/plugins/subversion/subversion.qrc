@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/trolltech.subversion" >
+        <file>images/diff.png</file>
+        <file>images/submit.png</file>
+        <file>Subversion.mimetypes.xml</file>
+    </qresource>
+</RCC>

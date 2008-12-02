@@ -1,0 +1,55 @@
+<ui version="4.0" >
+ <class>roundprogressClass</class>
+ <widget class="QWidget" name="roundprogressClass" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>212</width>
+    <height>144</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="FutureProgress" name="progressButton" >
+     <property name="font" >
+      <font/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QPushButton" name="startButton" >
+     <property name="text" >
+      <string>Start with progress</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QPushButton" name="startButton2" >
+     <property name="text" >
+      <string>Start with animation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QPushButton" name="startBothButton" >
+     <property name="text" >
+      <string>Start both</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FutureProgress</class>
+   <extends>QToolButton</extends>
+   <header>../../../src/plugins/core/progressmanager/futureprogress.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

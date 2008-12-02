@@ -1,0 +1,23 @@
+<!DOCTYPE QtWorkbenchManifest>
+<qwp>
+ <pluginName>CppEditor</pluginName>
+ <author>Trolltech</author>
+ <requiredPluginList>
+  <requiredPlugin>
+   <name>TextEditor</name>
+   <provider></provider>
+  </requiredPlugin>
+  <requiredPlugin>
+   <name>Find</name>
+   <provider></provider>
+  </requiredPlugin>
+ </requiredPluginList>
+ <extendsInterfaceList>
+  <extendsInterface>
+   <name>Core::OptionsPageInterface</name>
+  </extendsInterface>
+  <extendsInterface>
+   <name>Core::WizardInterface</name>
+  </extendsInterface>
+ </extendsInterfaceList>
+</qwp>

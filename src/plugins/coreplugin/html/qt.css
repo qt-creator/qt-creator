@@ -1,0 +1,351 @@
+/**************************************
+Nokia, QT Software CSS - IDE Startseite
+**************************************/
+
+/************************************** 
+Reset
+**************************************/	
+* {
+	
+	vertical-align: baseline;
+	font-weight: inherit;
+	font-family: inherit;
+	font-style: inherit;
+	padding: 0;
+	margin: 0;
+
+}
+
+/*image link*/
+a.img_link:link {text-decoration:none;}
+a.img_link:visited {text-decoration:none}
+a.img_link:active {text-decoration:none}
+a.img_link:hover {text-decoration:none}
+
+/*regular link*/
+a:link {color:#5e5e5e; text-decoration:none;}
+a:visited {color:#5e5e5e; text-decoration:none}
+a:active {color:#5e5e5e; text-decoration:none}
+a:hover {color:#5e5e5e; text-decoration:underline}
+
+p{
+	
+	font-size:9pt;
+	
+	}
+
+strong{
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
+}
+
+ul{
+	
+	list-style-type: none;
+	margin:0px 0px;
+	padding:15px 0px;
+	
+	}
+	
+li {
+	
+	background:url(images/list_bullet_arrow.png) top left no-repeat;
+	font-size:9pt;
+	padding:1px 0px 0px 22px;
+	margin:0px 0px 15px 0px;
+	}
+	
+li:last-child{
+	
+	margin:0px;
+	
+	}
+	
+
+	
+	
+
+img {
+	
+	border: 0 none;
+	
+	}
+
+/*Welcome Headline*/
+h1{
+	
+	font-size:2em;
+	font-weight:normal;
+	padding-bottom:22px;
+	
+	color:#4d4d4d;
+	
+	}
+
+/*Headlines Recent...*/
+h2{
+	
+	font-size:18px;
+	font-weight:normal;
+	color:#7c92a1;
+	border-bottom:1px solid #a6b5c1;
+	padding:5px 0px 10px 0px;
+	
+	}
+
+.clear_float{
+	
+	clear:both;
+	
+	}
+	
+.clear_left{
+	
+	clear:left;
+	
+	}
+
+.clear_right{
+	
+	clear:right;
+	
+	}
+
+/************************************** 
+HTML / BODY
+**************************************/	
+html, body {
+   font-family: Arial, Trebuchet, Lucida, sans-serif;	
+   color: #5e5e5e;
+   background:#d7d7d7 url(images/body_bg_gradient.png) top left repeat-x;
+   height:100%;
+}
+
+/*Platzierung der Circles unten rechts*/
+.global_container {
+	position:relative;
+	width:100%;
+	min-height:100%;	
+	min-width:550px;
+}
+
+
+.footer {
+	position:relative;
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100px;
+	margin-top:-100px;
+}
+
+.left-logo {
+	float:left;
+	background:none;
+	margin:0;
+	padding:0;
+	content:url(images/qt_logo.png);
+ }
+
+.right-logo {
+	float:right;
+	background:none;
+	margin:0;
+	padding:0;
+	content:url(images/nokia_logo.png);
+ }
+
+/************************************** 
+Site Header
+**************************************/
+.site_header{
+	
+	height:21px;
+	background:#686868 url(images/bg_site_header_dark_grey.png) top left repeat-x;
+	
+	}
+
+.site_header p{
+	
+	padding:3px 10px;
+	color:#fff;
+	
+	}
+
+
+/************************************** 
+Content
+**************************************/
+.content_container{
+	
+	margin:0px auto;
+	
+	/*CUSTOMIZE WIDTH*/
+	width:600px;
+	}
+
+
+/************************************** 
+Layout TOP - Logo und Welcome Text
+**************************************/
+.layout_top{
+	
+	padding-top:50px;
+	min-height:250px;
+	
+	}
+
+
+/*Product Logo*/
+.layout_top .product_logo{
+	
+	float:left;
+	width:210px;
+		
+	}
+
+.layout_top .product_logo img{
+
+	
+	}
+
+/*Welcome Text*/
+.layout_top .welcome_text{
+	
+	margin-left:210px;
+	padding-top:50px;
+	
+	
+	}
+	
+.layout_top .welcome_text p{
+	
+	font-size:9pt;
+	line-height:180%;
+	
+	}
+	
+.layout_top .welcome_text .get_started_container{
+	
+	border-top:1px solid #a8a8a8;
+	margin-top:20px;
+	padding:10px 0px;
+	
+	}
+
+/*Getting started Button inlusive CSS HOVER*/
+a.btn_getting_started{
+	
+	float:right;
+	display:block;
+    background-image:url(images/btn_getting_started.png);
+    width:133px;
+    height:29px; 
+    
+    }
+   
+a.btn_getting_started:hover{ 
+	
+	background-image:url(images/btn_getting_started_hover.png)
+	
+	}; 
+
+
+/************************************** 
+Layout BOTTOM - Recent Projects und Recent Sessions
+**************************************/
+
+
+/*ROUNDED CORNER BOX - fluid layout compatible*/
+.rc_box{}
+
+.rc_box .top{height:8px;}
+
+.rc_box .top .left{float:left; height:8px; width:8px; background:url(images/rc_top_left.png) top left no-repeat;}
+
+.rc_box .top .mid{margin-left:8px; margin-right:8px; height:8px; background:url(images/rc_top_mid.png) top left repeat-x;}
+
+.rc_box .top .right{float:right; height:8px; width:8px; background:url(images/rc_top_right.png) top left no-repeat;}
+
+
+.rc_box .mid{}
+
+.rc_box .mid .mid{padding:0px 20px 0px 10px; min-height:203px; background:#e6e6e6 url(images/rc_mid_mid.png) top left repeat-x; border-left:1px solid #a6b5c1; border-right:1px solid #a6b5c1;}
+
+.rc_box .icon{
+	
+	width:35px;
+	float:left;
+	padding-top:3px;
+	
+	}
+	
+.rc_box .box_content{
+	
+	margin-left:35px;
+	
+	}
+
+
+.rc_box .bottom{height:8px;}
+
+.rc_box .bottom .left{float:left; height:8px; width:8px; background:url(images/rc_bottom_left.png) top left no-repeat;}
+
+.rc_box .bottom .mid{margin-left:8px; margin-right:8px; height:8px; background:url(images/rc_bottom_mid.png) top left repeat-x;}
+
+.rc_box .bottom .right{float:right; height:8px; width:8px; background:url(images/rc_bottom_right.png) top left no-repeat;}
+
+/*Layout Bottom*/
+.layout_bottom{ padding:10px 0px 50px 0px; }
+
+/*Recent Projects*/
+.layout_bottom .rec_proj_container{
+	
+	width:50%;
+	float:left;
+	
+	}
+
+.layout_bottom .rec_proj_container .rec_proj_box{
+	
+	margin-right:10px;
+	
+	}
+
+
+
+/*Recent Sessions*/
+.layout_bottom .rec_sess_container{
+	
+	margin-left:50%;
+	
+	}
+
+.layout_bottom .rec_sess_container .rec_sess_box{
+	
+	margin-left:10px;
+	
+	}
+	
+/*Restore Session Button inlusive CSS HOVER*/
+a.restore_session{
+	
+	float:right;
+	display:block;
+    background-image:url(images/btn_restore_session.png);
+    width:137px;
+    height:27px; 
+    
+    }
+   
+a.restore_session:hover{ 
+	
+	background-image:url(images/btn_restore_session_hover.png)
+	
+	}; 
+	
+

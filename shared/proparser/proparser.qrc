@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/proparser" >
+        <file>images/profile.png</file>
+        <file>images/scope.png</file>
+        <file>images/value.png</file>
+        <file>images/other.png</file>
+        <file>images/set.png</file>
+        <file>images/append.png</file>
+        <file>images/remove.png</file>
+        <file>proiteminfo.xml</file>
+    </qresource>
+</RCC>

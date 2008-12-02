@@ -1,0 +1,49 @@
+<ui version="4.0" >
+ <class>EmbeddedPropertiesPage</class>
+ <widget class="QWidget" name="EmbeddedPropertiesPage" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>649</width>
+    <height>302</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <layout class="QFormLayout" name="formLayout" >
+     <property name="fieldGrowthPolicy" >
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="1" >
+      <widget class="QCheckBox" name="virtualBoxCheckbox" >
+       <property name="text" >
+        <string>Use Virtual Box&#xd;
+Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.&#xd;
+It also automatically sets the correct qt version.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="skinLabel" >
+       <property name="text" >
+        <string>Skin:</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QComboBox" name="skinComboBox" />
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

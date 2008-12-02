@@ -1,0 +1,6 @@
+#include "extensionsystem/pluginmanager.h"
+#include "extensionsystem/pluginspec.h"
+#include "extensionsystem/iplugin.h"
+#include "extensionsystem/pluginview.h"
+#include "extensionsystem/pluginerrorview.h"
+#include "extensionsystem/plugindetailsview.h"

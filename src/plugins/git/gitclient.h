@@ -1,0 +1,168 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+** 
+** Non-Open Source Usage  
+** 
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.  
+** 
+** GNU General Public License Usage 
+** 
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception version
+** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
+** 
+***************************************************************************/
+#ifndef GITCLIENT_H
+#define GITCLIENT_H
+
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <projectexplorer/environment.h>
+
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+
+QT_BEGIN_NAMESPACE
+class QErrorMessage;
+QT_END_NAMESPACE
+
+namespace Core {
+    class ICore;
+}
+
+namespace VCSBase {
+    class VCSBaseEditor;
+}
+
+namespace Git {
+namespace Internal {
+
+class GitPlugin;
+class GitOutputWindow;
+class GitCommand;
+struct CommitData;
+struct GitSubmitEditorPanelData;
+
+class GitClient : public Core::IVersionControl
+{
+    Q_OBJECT
+public:
+    explicit                    GitClient(GitPlugin *plugin, Core::ICore *core);
+                                ~GitClient();
+    bool                        vcsOpen(const QString &fileName);
+    bool                        vcsAdd(const QString&) {return false;}
+    bool                        vcsDelete(const QString&) {return false;}
+    bool                        managesDirectory(const QString&) const {return false;}
+    QString                     findTopLevelForDirectory(const QString&) const {return QString();}
+
+    static QString              findRepositoryForFile(const QString &fileName);
+    static QString              findRepositoryForDirectory(const QString &dir);
+
+    void                        diff(const QString &workingDirectory,
+                                     const QString &fileName);
+    void                        diff(const QString &workingDirectory,
+                                     const QStringList &fileNames);
+
+    void                        status(const QString &workingDirectory);
+    void                        log(const QString &workingDirectory
+                                           , const QString &fileName);
+    void                        blame(const QString &workingDirectory
+                                           , const QString &fileName);
+    void                        showCommit(const QString &workingDirectory
+                                           , const QString &commit);
+    void                        checkout(const QString &workingDirectory
+                                           , const QString &file);
+    void                        hardReset(const QString &workingDirectory
+                                           , const QString &commit);
+    void                        addFile(const QString &workingDirectory
+                                           , const QString &fileName);
+    bool                        synchronousAdd(const QString &workingDirectory,
+                                               const QStringList &files);
+    void                        pull(const QString &workingDirectory);
+    void                        push(const QString &workingDirectory);
+
+    QString                     readConfig(const QString &workingDirectory
+                                           , const QStringList &configVar);
+
+    QString                     readConfigValue(const QString &workingDirectory,
+                                                const QString &configVar);
+
+    bool                        getCommitData(const QString &workingDirectory,
+                                              QString *commitTemplate,
+                                              CommitData *d,
+                                              QString *errorMessage);
+
+    bool                        addAndCommit(const QString &workingDirectory,
+                                             const GitSubmitEditorPanelData &data,
+                                             const QString &messageFile,
+                                             const QStringList &files);
+
+public slots:
+    void show(const QString &source, const QString &id);
+
+private:
+    VCSBase::VCSBaseEditor      *createVCSEditor(const QString &kind,
+                                                 QString title,
+                                                 const QString &source,
+                                                 bool setSourceCodec,
+                                                 const char *registerDynamicProperty,
+                                                 const QString &dynamicPropertyValue) const;
+
+
+    void                        executeGit(const QString &workingDirectory
+                                           , const QStringList &arguments
+                                           , GitOutputWindow *outputWindow
+                                           , VCSBase::VCSBaseEditor* editor = 0
+                                           , bool outputToWindow = false);
+
+    bool                        synchronousGit(const QString &workingDirectory
+                                           , const QStringList &arguments
+                                           , QByteArray* outputText = 0
+                                           , QByteArray* errorText = 0);
+
+    const QString               m_msgWait;
+    GitPlugin                   *m_plugin;
+    Core::ICore                 *m_core;
+};
+
+class GitCommand : public QObject
+{
+    Q_OBJECT
+public:
+    GitCommand();
+    ~GitCommand();
+    void execute(const QStringList &arguments
+                 , const QString &workingDirectory
+                 , const ProjectExplorer::Environment &environment);
+    void run(const QStringList &arguments
+                 , const QString &workingDirectory
+                 , const ProjectExplorer::Environment &environment);
+
+Q_SIGNALS:
+    void outputData(const QByteArray&);
+    void outputText(const QString&);
+    void errorText(const QString&);
+};
+
+    }
+}
+
+#endif // GITCLIENT_H

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/formeditor" >
+        <file>images/qt_ui.png</file>
+        <file>Designer.mimetypes.xml</file>
+    </qresource>
+</RCC>

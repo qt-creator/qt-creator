@@ -1,0 +1,174 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+** 
+** Non-Open Source Usage  
+** 
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.  
+** 
+** GNU General Public License Usage 
+** 
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception version
+** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
+** 
+***************************************************************************/
+#include "formclasswizardparameters.h"
+#include "formtemplatewizardpage.h"
+
+#include <utils/codegeneration.h>
+
+#include <QtCore/QTextStream>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
+
+static const char *uiMemberC = "m_ui";
+static const char *uiNamespaceC = "Ui";
+
+namespace Designer {
+namespace Internal {
+
+FormClassWizardParameters::FormClassWizardParameters() :
+    embedding(PointerAggregatedUiClass),
+    languageChange(true)
+{
+}
+
+bool FormClassWizardParameters::generateCpp(QString *header, QString *source, int indentation) const
+{
+    const QString indent = QString(indentation, QLatin1Char(' '));
+    QString formBaseClass;
+    QString uiClassName;
+    if (!FormTemplateWizardPagePage::getUIXmlData(uiTemplate, &formBaseClass, &uiClassName)) {
+        qWarning("Unable to determine the form base class from %s.", uiTemplate.toUtf8().constData());
+        return false;
+    }
+
+    // Do we have namespaces?
+    QStringList namespaceList = className.split(QLatin1String("::"));
+    if (namespaceList.empty()) // Paranoia!
+        return false;
+
+    const QString unqualifiedClassName = namespaceList.takeLast();
+
+    // Include guards
+    const QString guard = Core::Utils::headerGuard(unqualifiedClassName);
+
+    QString uiInclude = QLatin1String("ui_");
+    uiInclude += QFileInfo(uiFile).baseName();
+    uiInclude += QLatin1String(".h");
+
+    // 1) Header file
+    QTextStream headerStr(header);
+    headerStr << "#ifndef " << guard
+              << "\n#define " <<  guard << '\n' << '\n';
+
+    // Include 'ui_'
+    if (embedding != PointerAggregatedUiClass) {
+        Core::Utils::writeIncludeFileDirective(uiInclude, false, headerStr);
+    } else {
+        // Todo: Can we obtain the header from the code model for custom widgets?
+        // Alternatively, from Designer.
+        if (formBaseClass.startsWith(QLatin1Char('Q'))) {
+            QString baseInclude = QLatin1String("QtGui/");
+            baseInclude += formBaseClass;
+            Core::Utils::writeIncludeFileDirective(baseInclude, true, headerStr);
+        }
+    }
+
+    // Forward-declare the UI class
+    if (embedding == PointerAggregatedUiClass) {
+          headerStr << "\nnamespace " <<  uiNamespaceC << " {\n"
+            << indent << "class " << uiClassName << ";\n}\n";
+    }
+
+    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
+    // Class declaration
+    headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName
+              << " : public " << formBaseClass;
+    if (embedding == InheritedUiClass) {
+        headerStr << ", private " << uiNamespaceC << "::" <<  uiClassName;
+    }
+    headerStr << " {\n" << namespaceIndent << indent << "Q_OBJECT\n"
+              << namespaceIndent << indent << "Q_DISABLE_COPY(" << unqualifiedClassName << ")\n"
+              << namespaceIndent << "public:\n"
+              << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
+    if (embedding == PointerAggregatedUiClass)
+        headerStr << namespaceIndent << indent << "virtual ~" << unqualifiedClassName << "();\n";
+    // retranslation
+    if (languageChange)
+        headerStr << '\n' << namespaceIndent << "protected:\n"
+                  << namespaceIndent << indent << "virtual void changeEvent(QEvent *e);\n";
+    // Member variable
+    if (embedding != InheritedUiClass) {
+        headerStr << '\n' << namespaceIndent << "private:\n"
+                  << namespaceIndent << indent << uiNamespaceC << "::" <<  uiClassName << ' ';
+        if (embedding == PointerAggregatedUiClass)
+            headerStr << '*';
+        headerStr << uiMemberC << ";\n";
+    }
+    headerStr << namespaceIndent << "};\n\n";
+    Core::Utils::writeClosingNameSpaces(namespaceList, indent, headerStr);
+    headerStr << "#endif // "<<  guard << '\n';
+
+    // 2) Source file
+    QTextStream sourceStr(source);
+    Core::Utils::writeIncludeFileDirective(headerFile, false, sourceStr);
+    if (embedding == PointerAggregatedUiClass)
+        Core::Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
+    // NameSpaces(
+    Core::Utils::writeOpeningNameSpaces(namespaceList, indent, sourceStr);
+    // Constructor with setupUi
+    sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
+               << namespaceIndent << indent << formBaseClass << "(parent)";
+    if (embedding == PointerAggregatedUiClass)
+        sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " <<  uiNamespaceC << "::" <<  uiClassName << ")\n";
+    sourceStr <<  namespaceIndent << "{\n" <<  namespaceIndent << indent;
+    if (embedding != InheritedUiClass)
+        sourceStr << uiMemberC << (embedding == PointerAggregatedUiClass ? "->" : ".");
+    sourceStr << "setupUi(this);\n" << namespaceIndent << "}\n";
+    // Deleting destructor for ptr
+    if (embedding == PointerAggregatedUiClass) {
+        sourceStr << '\n' <<  namespaceIndent << unqualifiedClassName << "::~" << unqualifiedClassName
+                  << "()\n" << namespaceIndent << "{\n"
+                  << namespaceIndent << indent << "delete " << uiMemberC << ";\n"
+                  << namespaceIndent << "}\n";
+    }
+    // retranslation
+    if (languageChange) {
+        sourceStr  << '\n' << namespaceIndent << "void " << unqualifiedClassName << "::" << "changeEvent(QEvent *e)\n"
+        << namespaceIndent << "{\n"
+        << namespaceIndent << indent << "switch(e->type()) {\n" << namespaceIndent << indent << "case QEvent::LanguageChange:\n"
+        << namespaceIndent << indent << indent;
+        if (embedding != InheritedUiClass)
+            sourceStr << uiMemberC << (embedding == PointerAggregatedUiClass ? "->" : ".");
+        sourceStr << "retranslateUi(this);\n"
+                  << namespaceIndent << indent <<  indent << "break;\n"
+                  << namespaceIndent << indent << "default:\n"
+                  << namespaceIndent << indent << indent << "break;\n"
+                  << namespaceIndent << indent << "}\n"
+                  << namespaceIndent << "}\n";
+    }
+    Core::Utils::writeClosingNameSpaces(namespaceList, indent, sourceStr);
+    return true;
+}
+
+} // namespace Internal
+} // namespace Designer

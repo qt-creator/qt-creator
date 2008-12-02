@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/gdbdebugger" >
+        <file>images/breakpoint.svg</file>
+        <file>images/breakpoint_pending.svg</file>
+        <file>images/debugger_breakpoints.png</file>
+        <file>images/debugger_continue_small.png</file>
+        <file>images/debugger_interrupt_small.png</file>
+        <file>images/debugger_start.png</file>
+        <file>images/debugger_start_small.png</file>
+        <file>images/debugger_stepinto_small.png</file>
+        <file>images/debugger_stepout_small.png</file>
+        <file>images/debugger_stepover_small.png</file>
+        <file>images/debugger_steponeproc_small.png</file>
+        <file>images/debugger_stepoverproc_small.png</file>
+        <file>images/debugger_stop_small.png</file>
+        <file>images/delete.png</file>
+        <file>images/done.png</file>
+        <file>images/empty.svg</file>
+        <file>images/error.png</file>
+        <file>images/location.svg</file>
+        <file>images/newitem.png</file>
+        <file>images/running.png</file>
+    </qresource>
+</RCC>

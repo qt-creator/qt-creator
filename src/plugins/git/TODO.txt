@@ -1,0 +1,26 @@
+- Make texts translateable
+- Do not use QErrorMessage, Creator standard error instead?
+Commands:
+ - P2:
+        - branch [list, create, delete]
+        - checkout [with/without creation]
+        - combine both above to a single dialog?
+ - P3:
+        - stash [creating, listing, applying]
+        - allow to use external viewer instead of greenhouse one
+          as these have more functionality usually
+
+GUI:
+ - Better diff view
+ - Commit view View (reuse diff view?)
+ - Commit action View
+        - Able to add further files to commit (list of modified/untracked files)
+ - use List for Log (and allow 10+ entries)
+        - Have commits clickable for 'git show'
+Backend:
+ - Don't use forked processes, instead find a library connection like libgit-thin
+        - http://repo.or.cz/w/git/libgit-gsoc.git
+ - apply to SCM Manager in Greenhouse, currently it's mostly independent
+
+Suggestions:
+ - Bjorn: Use a "Summary" Lineedit in the commit dialog to make commits look nicer on gitweb or such.

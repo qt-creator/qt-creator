@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/codemodel" >
+        <file>images/class.png</file>
+        <file>images/enum.png</file>
+        <file>images/enumerator.png</file>
+        <file>images/func.png</file>
+        <file>images/func_priv.png</file>
+        <file>images/func_prot.png</file>
+        <file>images/keyword.png</file>
+        <file>images/macro.png</file>
+        <file>images/namespace.png</file>
+        <file>images/signal.png</file>
+        <file>images/slot.png</file>
+        <file>images/slot_priv.png</file>
+        <file>images/slot_prot.png</file>
+        <file>images/var.png</file>
+        <file>images/var_priv.png</file>
+        <file>images/var_prot.png</file>
+    </qresource>
+</RCC>

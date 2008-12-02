@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/x-designer">
+        <sub-class-of type="application/xml"/>
+        <comment>Qt Designer file</comment>
+        <glob pattern="*.ui"/>
+        <comment xml:lang="bg">Файл, формат Qt Designer</comment>
+        <comment xml:lang="ca">fitxer de Qt Designer</comment>
+        <comment xml:lang="cs">Soubor Qt Designeru</comment>
+        <comment xml:lang="cy">Ffeil Qt Designer</comment>
+        <comment xml:lang="da">Qt Designer-fil</comment>
+        <comment xml:lang="de">QT Designer-Datei</comment>
+        <comment xml:lang="el">αρχείο Qt Designer</comment>
+        <comment xml:lang="eo">dosiero de Qt Designer</comment>
+        <comment xml:lang="es">fichero de Qt Designer</comment>
+        <comment xml:lang="eu">Qt Designer Fitxategia</comment>
+        <comment xml:lang="fi">Qt Designer -tiedosto</comment>
+        <comment xml:lang="fr">fichier Qt Designer</comment>
+        <comment xml:lang="hu">Qt Designer-fájl</comment>
+        <comment xml:lang="it">File Qt Designer</comment>
+        <comment xml:lang="ja">Qt Designer ファイル</comment>
+        <comment xml:lang="ko">Qt 디자이너 파일</comment>
+        <comment xml:lang="lt">Qt Designer rinkmena</comment>
+        <comment xml:lang="ms">Fail Qt Designer</comment>
+        <comment xml:lang="nb">Qt Designer-fil</comment>
+        <comment xml:lang="nl">Qt Designer-bestand</comment>
+        <comment xml:lang="nn">Qt Designer-fil</comment>
+        <comment xml:lang="pl">Plik Qt Designera</comment>
+        <comment xml:lang="pt">ficheiro do Qt Designer</comment>
+        <comment xml:lang="pt_BR">Arquivo do Qt Designer</comment>
+        <comment xml:lang="ru">файл Qt Designer</comment>
+        <comment xml:lang="sq">File Qt Designer</comment>
+        <comment xml:lang="sr">Qt Designer датотека</comment>
+        <comment xml:lang="sv">Qt Designer-fil</comment>
+        <comment xml:lang="uk">Файл програми Qt-дизайнер</comment>
+     </mime-type>
+</mime-info>

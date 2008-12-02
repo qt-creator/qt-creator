@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProjectExplorer::Internal::RemoveFileDialog</class>
+ <widget class="QDialog" name="ProjectExplorer::Internal::RemoveFileDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>237</width>
+    <height>171</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Remove File</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="fileToDeleteLabel">
+     <property name="text">
+      <string>File to delete:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="fileNameLabel">
+     <property name="font">
+      <font>
+       <family>Courier New</family>
+      </font>
+     </property>
+     <property name="text">
+      <string notr="true">placeholder</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="deleteFileCheckBox">
+     <property name="text">
+      <string>&amp;Delete file permanently</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="removeVCCheckBox">
+     <property name="text">
+      <string>&amp;Remove from Version Control</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../libs/cplusplus/cplusplus.qrc"/>
+  <include location="../../libs/extensionsystem/pluginview.qrc"/>
+  <include location="../bookmarks/bookmarks.qrc"/>
+  <include location="../coreplugin/core.qrc"/>
+  <include location="../coreplugin/fancyactionbar.qrc"/>
+  <include location="../cppeditor/cppeditor.qrc"/>
+  <include location="../cpptools/cpptools.qrc"/>
+  <include location="../designer/designer.qrc"/>
+  <include location="../find/find.qrc"/>
+  <include location="../gdbdebugger/gdbdebugger.qrc"/>
+  <include location="../help/help.qrc"/>
+  <include location="../perforce/perforce.qrc"/>
+  <include location="projectexplorer.qrc"/>
+  <include location="../../../shared/proparser/proparser.qrc"/>
+  <include location="../qt4projectmanager/qt4projectmanager.qrc"/>
+  <include location="../qt4projectmanager/wizards/wizards.qrc"/>
+  <include location="../quickopen/quickopen.qrc"/>
+  <include location="../resourceeditor/resourceeditor.qrc"/>
+  <include location="../texteditor/texteditor.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ProjectExplorer::Internal::RemoveFileDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ProjectExplorer::Internal::RemoveFileDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

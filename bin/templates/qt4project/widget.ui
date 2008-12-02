@@ -1,0 +1,23 @@
+<ui version="4.0" stdsetdef="1" >
+ <class>%CLASS%Class</class>
+ <widget class="%BASECLASS%" name="%CLASS%Class" >
+  <property name="objectName" >
+   <cstring>%CLASS%Class</cstring>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>%CLASS%</string>
+  </property>%CENTRAL_WIDGET%
+ </widget>
+ <layoutDefault spacing="6" margin="11" />
+ <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>

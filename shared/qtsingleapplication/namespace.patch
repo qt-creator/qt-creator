@@ -1,0 +1,133 @@
+
+--- qtlocalpeer.cpp  1970-01-01 01:00:00.000000000
++++ qtlocalpeer.cpp  2008/05/16 10:36:53.000000000
+@@ -13,6 +13,8 @@
+ #include <time.h>
+ #endif
+ 
++namespace SharedTools {
++
+ const char* QtLocalPeer::ack = "ack";
+ 
+ QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
+@@ -139,3 +141,5 @@
+     delete socket;
+     emit messageReceived(message); // ##(might take a long time to return)
+ }
++
++}
+
+--- qtlocalpeer.h  1970-01-01 01:00:00.000000000
++++ qtlocalpeer.h  2008/05/16 10:36:53.000000000
+@@ -1,9 +1,11 @@
+ 
++
+ #include <QtNetwork/QLocalServer>
+ #include <QtNetwork/QLocalSocket>
+ #include <QtCore/QDir>
+ #include <qtlockedfile.h>
+ 
++namespace SharedTools {
+ 
+ class QtLocalPeer : public QObject
+ {
+@@ -31,3 +33,5 @@
+ private:
+     static const char* ack;
+ };
++
++} // SharedTools
+
+--- qtsingleapplication.cpp  1970-01-01 01:00:00.000000000
++++ qtsingleapplication.cpp  2008/05/16 10:36:53.000000000
+@@ -3,6 +3,8 @@
+ #include "qtlocalpeer.h"
+ #include <QtGui/QWidget>
+ 
++namespace SharedTools {
++
+ void QtSingleApplication::sysInit(const QString &appId)
+ {
+     actWin = 0;
+@@ -95,3 +97,5 @@
+         actWin->activateWindow();
+     }
+ }
++
++}
+
+--- qtsingleapplication.h  1970-01-01 01:00:00.000000000
++++ qtsingleapplication.h  2008/05/16 10:36:53.000000000
+@@ -1,6 +1,8 @@
+ 
+ #include <QtGui/QApplication>
+ 
++namespace SharedTools {
++
+ class QtLocalPeer;
+ 
+ class QtSingleApplication : public QApplication
+@@ -47,3 +49,5 @@
+     QtLocalPeer *peer;
+     QWidget *actWin;
+ };
++
++}
+
+--- qtsingleapplication.pri  1970-01-01 01:00:00.000000000
++++ qtsingleapplication.pri  2008/05/16 10:36:53.000000000
+@@ -6,7 +6,7 @@
+ QT *= network
+ 
+ gotqtlockedfile = $$find(HEADERS, .*qtlockedfile.h)
+-isEmpty(gotqtlockedfile):include(../../qtlockedfile/src/qtlockedfile.pri)
++isEmpty(gotqtlockedfile):include(../qtlockedfile/qtlockedfile.pri)
+ 
+ 
+ win32:contains(TEMPLATE, lib):contains(CONFIG, shared) {
+
+--- qtsinglecoreapplication.cpp  1970-01-01 01:00:00.000000000
++++ qtsinglecoreapplication.cpp  2008/05/16 10:36:53.000000000
+@@ -2,6 +2,7 @@
+ #include "qtsinglecoreapplication.h"
+ #include "qtlocalpeer.h"
+ 
++namespace SharedTools {
+ 
+ QtSingleCoreApplication::QtSingleCoreApplication(int &argc, char **argv)
+     : QCoreApplication(argc, argv)
+@@ -36,3 +37,4 @@
+     return peer->applicationId();
+ }
+ 
++}
+
+--- qtsinglecoreapplication.h  1970-01-01 01:00:00.000000000
++++ qtsinglecoreapplication.h  2008/05/16 10:36:53.000000000
+@@ -1,6 +1,8 @@
+ 
+ #include <QtCore/QCoreApplication>
+ 
++namespace SharedTools {
++
+ class QtLocalPeer;
+ 
+ class QtSingleCoreApplication : public QCoreApplication
+@@ -25,3 +27,5 @@
+ private:
+     QtLocalPeer* peer;
+ };
++
++}
+
+--- qtsinglecoreapplication.pri  1970-01-01 01:00:00.000000000
++++ qtsinglecoreapplication.pri  2008/05/16 10:36:53.000000000
+@@ -6,7 +6,7 @@
+ QT *= network
+ 
+ gotqtlockedfile = $$find(HEADERS, .*qtlockedfile.h)
+-isEmpty(gotqtlockedfile):include(../../qtlockedfile/src/qtlockedfile.pri)
++isEmpty(gotqtlockedfile):include(../qtlockedfile/qtlockedfile.pri)
+ 
+ 
+ win32:contains(TEMPLATE, lib):contains(CONFIG, shared) {

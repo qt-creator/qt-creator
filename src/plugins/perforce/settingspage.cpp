@@ -1,0 +1,110 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+** 
+** Non-Open Source Usage  
+** 
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.  
+** 
+** GNU General Public License Usage 
+** 
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception version
+** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
+** 
+***************************************************************************/
+#include "settingspage.h"
+#include "perforcesettings.h"
+#include "perforceplugin.h"
+
+#include <QtGui/QLineEdit>
+#include <QtGui/QFileDialog>
+
+using namespace Perforce::Internal;
+
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    m_ui.setupUi(this);
+    connect(m_ui.browseButton, SIGNAL(clicked()), this, SLOT(browseForCommand()));
+}
+
+PerforceSettings SettingsPageWidget::settings() const
+{
+    PerforceSettings rc;
+    rc.p4Command = m_ui.p4CmdLineEdit->text();
+    rc.defaultEnv = m_ui.defaultCheckBox->isChecked();
+    rc.p4Port = m_ui.portLineEdit->text();
+    rc.p4Client = m_ui.clientLineEdit->text();
+    rc.p4User = m_ui.userLineEdit->text();
+    return rc;
+}
+
+void SettingsPageWidget::setSettings(const PerforceSettings &s)
+{
+    m_ui.p4CmdLineEdit->setText(s.p4Command);
+    m_ui.defaultCheckBox->setChecked(s.defaultEnv);
+    m_ui.portLineEdit->setText(s.p4Port);
+    m_ui.clientLineEdit->setText(s.p4Client);
+    m_ui.userLineEdit->setText(s.p4User);
+}
+
+void SettingsPageWidget::browseForCommand()
+{
+    const QString cmd = QFileDialog::getOpenFileName(window(), tr("Perforce Command"));
+    if (!cmd.isEmpty())
+        m_ui.p4CmdLineEdit->setText(cmd);
+}
+
+
+SettingsPage::SettingsPage()
+{
+}
+
+QString SettingsPage::name() const
+{
+    return tr("General");
+}
+
+QString SettingsPage::category() const
+{
+    return QLatin1String("Perforce");
+}
+
+QString SettingsPage::trCategory() const
+{
+    return tr("Perforce");
+}
+
+QWidget *SettingsPage::createPage(QWidget *parent)
+{
+    if (!m_widget)
+        m_widget = new SettingsPageWidget(parent);
+    m_widget->setSettings(PerforcePlugin::perforcePluginInstance()->settings());
+    return m_widget;
+}
+
+void SettingsPage::finished(bool accepted)
+{
+    if (!accepted || !m_widget)
+        return;
+
+    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());
+}

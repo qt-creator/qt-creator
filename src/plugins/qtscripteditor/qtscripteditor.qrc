@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qtscripteditor" >
+        <file>QtScriptEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

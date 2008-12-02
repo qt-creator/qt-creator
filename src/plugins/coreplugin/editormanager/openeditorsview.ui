@@ -1,0 +1,39 @@
+<ui version="4.0" >
+ <class>OpenEditorsView</class>
+ <widget class="QWidget" name="OpenEditorsView" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>263</width>
+    <height>217</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>200</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QTreeWidget" name="editorList" >
+     <property name="uniformRowHeights" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

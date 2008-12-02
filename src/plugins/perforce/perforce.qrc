@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/trolltech.perforce" >
+        <file>images/diff.png</file>
+        <file>images/submit.png</file>
+        <file>Perforce.mimetypes.xml</file>
+    </qresource>
+</RCC>

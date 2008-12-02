@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/plain">
+        <comment>Plain text document</comment>
+        <sub-class-of type="application/octet-stream"/>
+        <comment xml:lang="bg">Документ с неформатиран текст</comment>
+        <comment xml:lang="ca">document de text pla</comment>
+        <comment xml:lang="cs">Prostý textový dokument</comment>
+        <comment xml:lang="da">ren tekst-dokument</comment>
+        <comment xml:lang="de">einfaches Textdokument</comment>
+        <comment xml:lang="el">έγγραφο απλού κειμένου</comment>
+        <comment xml:lang="eo">plata teksta dokumento</comment>
+        <comment xml:lang="es">documento de texto sencillo</comment>
+        <comment xml:lang="eu">testu soileko dokumentua</comment>
+        <comment xml:lang="fi">perustekstiasiakirja</comment>
+        <comment xml:lang="fr">document plein texte</comment>
+        <comment xml:lang="hu">egyszerű szöveg</comment>
+        <comment xml:lang="it">Documento in testo semplice</comment>
+        <comment xml:lang="ja">平文テキストドキュメント</comment>
+        <comment xml:lang="ko">보통 text 문서</comment>
+        <comment xml:lang="lt">paprastas tekstinis dokumentas</comment>
+        <comment xml:lang="ms">Dokumen teks jernih</comment>
+        <comment xml:lang="nb">vanlig tekstdokument</comment>
+        <comment xml:lang="nl">platte tekst document</comment>
+        <comment xml:lang="nn">vanleg tekstdokument</comment>
+        <comment xml:lang="pl">zwykły dokument tekstowy</comment>
+        <comment xml:lang="pt">documento em texto simples</comment>
+        <comment xml:lang="pt_BR">Documento somente texto</comment>
+        <comment xml:lang="sq">dokument teksti i thjeshtë</comment>
+        <comment xml:lang="sr">обичан текстуални документ</comment>
+        <comment xml:lang="sv">vanligt textdokument</comment>
+        <comment xml:lang="uk">звичайний текстовий документ</comment>
+        <comment xml:lang="vi">thư nhập thô (văn bản không có kiểu dáng)</comment>
+        <comment xml:lang="zh_CN">纯文本文档</comment>
+        <comment xml:lang="zh_TW">普通文本檔</comment>
+        <glob pattern="*.txt"/>
+    </mime-type>
+    <mime-type type="application/xml">
+        <sub-class-of type="text/plain"/>
+        <comment>XML document</comment>
+        <glob pattern="*.xml"/>
+        <glob pattern="*.xsl"/>
+        <glob pattern="*.xslt"/>
+        <glob pattern="*.xbl"/>
+        <alias type="text/xml"/>
+    </mime-type>
+</mime-info>

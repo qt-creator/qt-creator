@@ -1,0 +1,48 @@
+<!DOCTYPE QtWorkbenchSnippet>
+<qtworkbench>
+
+ <data>
+  <variable>Name</variable>
+  <value type="QString" >for loop</value>
+ </data>
+
+ <data>
+  <variable>Description</variable>
+  <value type="QString" >This inserts an incrementing for loop</value>
+ </data>
+
+ <data>
+  <variable>Category</variable>
+  <value type="QString" >Common Statements</value>
+ </data>
+
+ <data>
+  <variable>Shortcut</variable>
+  <value type="QString" >fo</value>
+ </data>
+
+ <data>
+  <variable>Contents</variable>
+  <value type="QString" ><![CDATA[for (%1 %2 = 0; %2 < %3; ++%2) {
+    $anchor$$selection$$cursor$
+}]]></value>
+ </data>
+
+ <data>
+  <variable>Arguments</variable>
+  <valuemap type="QVariantMap" >
+   <value key="1" type="QString"><![CDATA[<tt>for (<b>TYPE</b> VAR = 0; VAR &lt; CONDITION; ++VAR)...</tt>]]></value>
+   <value key="2" type="QString"><![CDATA[<tt>for (%1 <b>VAR</b> = 0; <b>VAR</b> &lt; 10; ++<b>VAR</b>)...</tt>]]></value>
+   <value key="3" type="QString"><![CDATA[<tt>for (%1 %2 = 0; %2 &lt; <b>CONDITION</b>; ++%2)...</tt>]]></value>
+  </valuemap>
+ </data>
+
+ <data>
+  <variable>ArgumentDefaults</variable>
+  <valuemap type="QVariantMap" >
+   <value key="1" type="QString">int</value>
+   <value key="2" type="QString">i</value>
+  </valuemap>
+ </data>
+
+</qtworkbench>

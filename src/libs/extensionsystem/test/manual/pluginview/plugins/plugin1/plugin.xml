@@ -1,0 +1,18 @@
+<plugin name="plugin1" version="2.1.0" compatVersion="1.0.0">
+    <vendor>Blablubb Corp</vendor>
+    <copyright>(C) 2023 Blubb</copyright>
+    <license>
+This is a default license bla
+blubbblubb
+end of terms
+    </license>
+    <description>
+This plugin is just a test.
+    it demonstrates the great use of the plugin spec.
+    </description>
+    <url>http://www.blablubb-corp.com/greatplugin</url>
+    <dependencyList>
+        <dependency name="plugin2" version="1.0.0"/>
+        <dependency name="plugin3" version="1.0.0"/>
+    </dependencyList>
+</plugin>

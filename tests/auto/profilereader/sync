@@ -1,0 +1,114 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Cwd;
+use File::Copy;
+use File::Basename;
+use IO::File;
+use File::Spec;
+use File::Path;
+
+# --------------------------------
+sub copyFiles
+{
+    my ($srcDir, $destDir, @files) = @_;
+    unless (-d $destDir) {
+        mkpath $destDir;
+    }
+    die ('No directory ' . $srcDir)  unless -d $srcDir;
+    die ('No directory ' . $destDir) unless -d $destDir;
+    foreach (@files) {
+        my $src = File::Spec->catfile($srcDir, $_);
+        print 'syncing ', $src, "...\n";
+        my $dest =  File::Spec->catfile($destDir, $_);
+        if (-f $dest) {
+            unlink($dest) or die ('Unable to delete existing ' . $dest . ' :' . $!);
+        }
+        copy($src, $dest) || die ($0 . ': Unable to copy ' . $src . ': ' . $! . "\n");
+        chmod 0644, $destDir . $_;    
+    }    
+}
+
+# -----------------------------------------
+sub showUsage
+{
+    print "$0 usage:\n";
+    print "  -qtdir <dir>     Set directory for Qt         (default: use qmake to figure out)\n";
+    print "  -help            This help\n";
+    exit 0;
+}
+
+my $currentDir = getcwd;
+my @files;
+
+my $qtSrcTree = '';
+
+# Parse arguments
+while ( @ARGV ) {
+    my $var = 0;
+    my $val = 0;
+
+    #parse
+    my $arg = shift @ARGV;
+    if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "--help" || "$arg" eq "?" || "$arg" eq "/?" || "$arg" eq "-?") {
+	showUsage();
+	exit(0);
+    } elsif("$arg" eq "-qtdir") {
+	$qtSrcTree = shift @ARGV;
+    } else {
+	print "Unknown option: $arg\n";
+	showUsage();
+	exit(1);
+    }
+}
+
+# If QTDIR is not set, use qmake to figure it out
+if (!$qtSrcTree) {
+    my $qmakeInfo = `qmake -v` or die "Couldn't run qmake!";
+    chomp($qmakeInfo);
+    $qmakeInfo =~ m/Using Qt version .* in (.*)lib$/;
+    $qtSrcTree = $1;
+    # read Qt source directory from .qmake.cache
+    my $fh = IO::File->new();
+    $fh->open($qtSrcTree . '.qmake.cache');
+    while (defined (my $line = $fh->getline())) {
+        # parse line
+        # QT_SOURCE_TREE = $$quote(/home/kkoehne/dev/qt)
+        if ($line =~ /^\s*QT_SOURCE_TREE\s*=/) {
+            $qtSrcTree = $line;
+            $qtSrcTree =~ s/^QT_SOURCE_TREE\s*=\s*(\$\$quote\()?//g;
+            $qtSrcTree =~ s/\)?\n//g;
+        }
+    }
+    print "Detected qt source directory: " . $qtSrcTree . "\n";
+    $fh->close();
+}
+$qtSrcTree =~ s/\\/\//g;
+
+
+# if the sources can't be found, check for shadow builds.
+my $preprocessor_h = File::Spec->catfile($qtSrcTree, 'src', 'tools', 'moc', 'preprocessor.h');
+
+my $qtsrcdirEnv = $ENV{'QTSRCDIR'};
+if (defined $qtsrcdirEnv) {
+    if ((! -e $preprocessor_h) && ($qtsrcdirEnv ne '')) {
+        $qtSrcTree = $qtsrcdirEnv;
+    }
+}
+
+# copy files for Qt4ProjectManager
+
+
+@files = ( 'proitems.h',
+           'abstractproitemvisitor.h',
+           'proparserutils.h',
+           'profileevaluator.h',
+           
+           'proitems.cpp',           
+           'profileevaluator.cpp' );
+    
+copyFiles(File::Spec->catfile($qtSrcTree, 'tools', 'linguist', 'shared'), $currentDir,@files);
+
+@files = ( 'profilereader.h',
+	   'profilereader.cpp');
+copyFiles(File::Spec->catfile('..', '..', '..', 'src', 'plugins', 'qt4projectmanager'), $currentDir, @files)

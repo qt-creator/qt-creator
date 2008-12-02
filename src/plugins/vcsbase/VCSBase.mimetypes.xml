@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/x-patch">
+        <sub-class-of type="text/plain"/>
+        <comment>Differences between files</comment>
+        <glob pattern="*.diff"/> <comment xml:lang="bg">Разлики между файлове</comment>
+        <comment xml:lang="ca">diferències entre fitxers</comment>
+        <comment xml:lang="cs">Rozdíly mezi soubory</comment>
+        <comment xml:lang="da">forskel mellem filer</comment>
+        <comment xml:lang="de">Unterschied zwischen Dateien</comment>
+        <comment xml:lang="el">διαφορές μεταξύ αρχείων</comment>
+        <comment xml:lang="eo">diferencoj inter dosieroj</comment>
+        <comment xml:lang="es">diferencias entre ficheros</comment>
+        <comment xml:lang="eu">fitxategien arteko ezberdintasunak</comment>
+        <comment xml:lang="fi">tiedostojen väliset erot</comment>
+        <comment xml:lang="fr">différences entre fichiers</comment>
+        <comment xml:lang="hu">diff-különbségfájl</comment>
+        <comment xml:lang="it">Differenze tra file</comment>
+        <comment xml:lang="ja">ファイル間差分</comment>
+        <comment xml:lang="ko">파일사이의 바뀐점</comment>
+        <comment xml:lang="lt">skirtumai tarp rinkmenų</comment>
+        <comment xml:lang="ms">Perbezaan antara fail</comment>
+        <comment xml:lang="nb">forskjeller mellom filer</comment>
+        <comment xml:lang="nl">verschillen tussen bestanden</comment>
+        <comment xml:lang="nn">skilnader mellom filer</comment>
+        <comment xml:lang="pl">różnica pomiędzy plikami</comment>
+        <comment xml:lang="pt">diferenças entre ficheiros</comment>
+        <comment xml:lang="pt_BR">Diferenças entre arquivos</comment>
+        <comment xml:lang="ru">различия между файлами</comment>
+        <comment xml:lang="sq">diferenca midis files</comment>
+        <comment xml:lang="sr">разлике међу датотекама</comment>
+        <comment xml:lang="sv">skillnader mellan filer</comment>
+        <comment xml:lang="uk">різниця між файлами</comment>
+        <comment xml:lang="vi">khác biệt giữa nhiều tập tin</comment>
+        <comment xml:lang="zh_CN">文件的区别</comment>
+        <comment xml:lang="zh_TW">檔案內容差異</comment>
+        <glob pattern="*.patch"/>
+    </mime-type>
+</mime-info>

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/texteditor" >
+        <file>images/finddocuments.png</file>
+        <file>images/finddirectory.png</file>
+        <file>TextEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

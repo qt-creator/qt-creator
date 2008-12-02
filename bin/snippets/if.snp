@@ -1,0 +1,25 @@
+<!DOCTYPE QtWorkbenchSnippet>
+<qtworkbench>
+ <data>
+  <variable>Name</variable>
+  <value type="QString" >if Statement</value>
+ </data>
+ <data>
+  <variable>Description</variable>
+  <value type="QString" >This creates a if statement</value>
+ </data>
+ <data>
+  <variable>Category</variable>
+  <value type="QString" >Common Statements</value>
+ </data>
+ <data>
+  <variable>Shortcut</variable>
+  <value type="QString" >if</value>
+ </data>
+ <data>
+  <variable>Contents</variable>
+  <value type="QString" ><![CDATA[if ($cursor$) {
+    $selection$
+}]]></value>
+ </data>
+</qtworkbench>

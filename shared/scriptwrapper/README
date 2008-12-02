@@ -1,0 +1,58 @@
+Some wrap helpers for Script support.
+
+How to wrap an interface:
+=========================
+
+1) Prototypes (preferred)
+-------------------------
+
+- Interface must inherit QObjectInterface and be qvariant-castable, that is,
+  declared as Q-MetaType.
+
+- Register a prototype with the engine for each interface:
+  - Provide an informative toString()-slot.
+  - Use properties and slots for everything, can be non-void as well
+  - Accessors to interfaces should be properties.
+
+- In the toScriptValue() function passed on to qScriptRegisterMetaType, create
+  an newQObject on the QObject obtained from the QObjectInterface and assign it the prototype
+  registered for the interface (obtained  from the engine) using QScriptValue::setDefaultPrototype
+  The prototype can then qobject (-extension)-cast to the interface as each
+  implementing class returns 'this' as qObject() of QObjectInterface.
+
+- If sequences of the  interface are used, declare them as Q-MetaType
+  and do qScriptRegisterSequenceMetaType().
+
+The template  registerQObjectInterface does the magic.
+
+2) Manually bless a script value with properties
+------------------------------------------------
+
+Typically, a qobject-derived wrapper will be used
+that provides an accessor to the wrapped class.
+The wrapper contains a QScriptValue 'm_self' which
+typically is initialized using:
+
+- engine.newQObject(this, QScriptEngine::ScriptOwnership))
+  for interfaces that are always present.
+
+- m_self(engine.newQObject(this, QScriptEngine::QtOwnership)),
+  can be used when setting the qObject() of an QObjectInterface
+  as parent of the qobject-derived wrapper. If the QObject goes
+  out of scope while running the script, the script object
+  will stop working.
+
+A conversion cast to QScriptValue can then be provided.
+
+How to wrap functions:
+
+Most functions can then be implemented as slots, property-like
+things as such.
+
+The other functions have to be implemented via script-callbacks.
+(Parameter checking required).
+
+The templates in here can help in writing the wrapper
+objects. For examples, see
+
+src/plugins/core/scriptmanager/qworkbench_wrapper.h

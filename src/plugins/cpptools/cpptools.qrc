@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/cpptools" >
+        <file>images/f1.svg</file>
+    </qresource>
+</RCC>

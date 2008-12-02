@@ -1,0 +1,29 @@
+<!DOCTYPE QtWorkbenchSnippet>
+<qtworkbench>
+ <data>
+  <variable>Name</variable>
+  <value type="QString" >Class - QWidget</value>
+ </data>
+ <data>
+  <variable>Description</variable>
+  <value type="QString" >This creates a new class deriving from QWidget</value>
+ </data>
+ <data>
+  <variable>Category</variable>
+  <value type="QString" >Classes</value>
+ </data>
+ <data>
+  <variable>Shortcut</variable>
+  <value type="QString" >cl</value>
+ </data>
+ <data>
+  <variable>Contents</variable>
+  <value type="QString" ><![CDATA[class $anchor$MyClass$cursor$ : public QWidget
+{
+    Q_OBJECT
+
+public:
+    $selection$
+};]]></value>
+ </data>
+</qtworkbench>

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/extensionsystem" >
+        <file>images/ok.png</file>
+        <file>images/error.png</file>
+    </qresource>
+</RCC>

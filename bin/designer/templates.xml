@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<designertemplates version="1.0.0">
+    <template name="Widget Form" description="Create new widget form" uifile="templates/Widget.ui">
+    </template>
+    <template name="Mainwindow Form" description="Create new mainwindow form" uifile="templates/Main_Window.ui">
+    </template>
+    <template name="Dialog without buttons" description="Create a dialog without buttons." uifile="templates/Dialog_without_Buttons.ui">
+    </template>
+    <template name="Dialog with buttons bottom" description="Create a dialog with the buttons at the bottom." uifile="templates/Dialog_with_Buttons_Bottom.ui">
+    </template>
+    <template name="Dialog with buttons right" description="Create a dialog with the buttons at the right." uifile="templates/Dialog_with_Buttons_Right.ui">
+    </template>
+</designertemplates>

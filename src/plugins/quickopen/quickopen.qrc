@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/quickopen" >
+        <file>images/quickopen.png</file>
+        <file>images/reload.png</file>
+    </qresource>
+</RCC>

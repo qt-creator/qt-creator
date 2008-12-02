@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/javascript">
+        <alias type="application/x-javascript"/>
+        <alias type="text/javascript"/>
+        <sub-class-of type="text/plain"/>
+        <comment>Qt Script file</comment>
+        <comment xml:lang="bg">Програма на JavaScript</comment>
+        <comment xml:lang="ca">programa JavaScript</comment>
+        <comment xml:lang="cs">Program v JavaScriptu</comment>
+        <comment xml:lang="da">JavaScript-program</comment>
+        <comment xml:lang="de">JavaScript-Programm</comment>
+        <comment xml:lang="el">πρόγραμμα JavaScript</comment>
+        <comment xml:lang="eo">JavaScript-programo</comment>
+        <comment xml:lang="es">programa en JavaScript</comment>
+        <comment xml:lang="eu">JavaScript programa</comment>
+        <comment xml:lang="fi">JavaScript-ohjelma</comment>
+        <comment xml:lang="fr">programme JavaScript</comment>
+        <comment xml:lang="hu">JavaScript-program</comment>
+        <comment xml:lang="it">Programma JavaScript</comment>
+        <comment xml:lang="ja">JavaScript プログラム</comment>
+        <comment xml:lang="ko">자바스크립트 프로그램</comment>
+        <comment xml:lang="lt">JavaScript programa</comment>
+        <comment xml:lang="ms">Program JavaScript</comment>
+        <comment xml:lang="nb">JavaScript-program</comment>
+        <comment xml:lang="nl">JavaScript-programma</comment>
+        <comment xml:lang="nn">JavaScript-program</comment>
+        <comment xml:lang="pl">Pogram JavaScript</comment>
+        <comment xml:lang="pt">programa JavaScript</comment>
+        <comment xml:lang="pt_BR">Programa JavaScript</comment>
+        <comment xml:lang="ru">программа JavaScript</comment>
+        <comment xml:lang="sq">program JavaScript</comment>
+        <comment xml:lang="sr">Јаваскрипт програм</comment>
+        <comment xml:lang="sv">JavaScript-program</comment>
+        <comment xml:lang="uk">Програма на мові JavaScript</comment>
+        <comment xml:lang="vi">Chương trình JavaScript</comment>
+        <comment xml:lang="zh_CN">JavaScript 程序</comment>
+        <comment xml:lang="zh_TW">JavaScript 程式</comment>
+        <glob pattern="*.js"/>
+    </mime-type>
+</mime-info>

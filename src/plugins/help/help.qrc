@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/help" >
+        <file>images/find.png</file>
+        <file>images/book.png</file>
+        <file>images/previous.png</file>
+        <file>images/next.png</file>
+        <file>images/home.png</file>
+        <file>images/bookmark.png</file>
+    </qresource>
+    <qresource prefix="/trolltech/assistant" >
+        <file>images/mac/addtab.png</file>
+        <file>images/mac/closetab.png</file>
+        <file>images/win/addtab.png</file>
+        <file>images/win/closetab.png</file>
+    </qresource>
+</RCC>

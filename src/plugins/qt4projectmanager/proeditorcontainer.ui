@@ -1,0 +1,72 @@
+<ui version="4.0" >
+ <class>ProEditorContainer</class>
+ <widget class="QWidget" name="ProEditorContainer" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>503</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <layout class="QVBoxLayout" >
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeView" name="m_scopeList" >
+       <property name="uniformRowHeights" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Qt4ProjectManager::Internal::ProEditor" name="m_variableEdit" />
+     </item>
+     <item>
+      <widget class="QCheckBox" name="m_advancedCheckBox" >
+       <property name="text" >
+        <string>Advanced Mode</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Qt4ProjectManager::Internal::ValueEditor" native="1" name="m_valueEdit" />
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Qt4ProjectManager::Internal::ProEditor</class>
+   <extends>QFrame</extends>
+   <header>proparser/proeditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Qt4ProjectManager::Internal::ValueEditor</class>
+   <extends>QWidget</extends>
+   <header>valueeditor.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

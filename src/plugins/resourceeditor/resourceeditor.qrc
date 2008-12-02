@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/resourceeditor" >
+        <file>images/qt_qrc.png</file>
+        <file>ResourceEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

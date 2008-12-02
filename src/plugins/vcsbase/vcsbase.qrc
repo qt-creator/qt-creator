@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/trolltech.vcsbase" >
+        <file>VCSBase.mimetypes.xml</file>
+    </qresource>
+</RCC>

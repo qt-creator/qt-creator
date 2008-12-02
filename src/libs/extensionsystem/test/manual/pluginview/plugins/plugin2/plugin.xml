@@ -1,0 +1,4 @@
+<plugin name="plugin2" version="1.0.0" compatVersion="1.0.0">
+  <vendor>1 &lt; 2 GmbH</vendor>
+  <url>http://www.somewhereintheweb.com/dodo.php?q=p</url>
+</plugin>

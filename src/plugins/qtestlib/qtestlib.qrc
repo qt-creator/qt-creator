@@ -1,0 +1,5 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/Trolltech/QTestLibPlugin">
+  <file>images/pass.png</file>
+</qresource>
+</RCC>

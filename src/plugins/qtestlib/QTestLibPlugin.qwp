@@ -1,0 +1,16 @@
+<!DOCTYPE QtWorkbenchManifest>
+<qwp>
+ <pluginName>QTestLibPlugin</pluginName>
+ <author>Trolltech</author>
+ <requiredPluginList>
+  <requiredPlugin>
+   <name>ProjectExplorer</name>
+   <provider></provider>
+  </requiredPlugin>
+ </requiredPluginList>
+ <extendsInterfaceList>
+  <extendsInterface>
+   <name>Core::OutputPaneInterface</name>
+  </extendsInterface>
+ </extendsInterfaceList>
+</qwp>
