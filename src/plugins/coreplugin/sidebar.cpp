@@ -30,9 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "sidebar.h"
 #include "imode.h"
 #include "modemanager.h"
+
 #include "actionmanager/actionmanagerinterface.h"
 
 #include <QtCore/QDebug>

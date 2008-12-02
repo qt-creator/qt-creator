@@ -30,19 +30,20 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTTREEMODEL_H
 #define SEARCHRESULTTREEMODEL_H
 
 #include <QtCore/QAbstractItemModel>
 
-namespace Find{
+namespace Find {
 namespace Internal {
 
 class SearchResultTreeItem;
 class SearchResultTextRow;
 class SearchResultFile;
 
-class SearchResultTreeModel: public QAbstractItemModel
+class SearchResultTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -81,7 +82,7 @@ private:
     SearchResultFile *m_lastAppendedResultFile;
 };
 
-} //Internal
-} //Find
+} // namespace Internal
+} // namespace Find
 
-#endif
+#endif // SEARCHRESULTTREEMODEL_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "searchresultwindow.h"
 #include "searchresulttreemodel.h"
 
@@ -45,7 +46,7 @@ using namespace Find::Internal;
 static const QString SETTINGSKEYSECTIONNAME("SearchResults");
 static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
 
-SearchResultWindow::SearchResultWindow(Core::ICore *core):
+SearchResultWindow::SearchResultWindow(Core::ICore *core) :
     m_core(core),
     m_widget(new QStackedWidget())
 {

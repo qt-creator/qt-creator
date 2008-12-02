@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "commitdata.h"
 
 #include <QtCore/QDebug>
@@ -92,5 +93,5 @@ QDebug operator<<(QDebug d, const CommitData &data)
     return d;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Git

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GITOUTPUTWINDOW_H
 #define GITOUTPUTWINDOW_H
 
@@ -42,7 +43,6 @@
 namespace Git {
 namespace Internal {
 
-
 class GitOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
@@ -52,7 +52,7 @@ public:
     ~GitOutputWindow();
 
     QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets(void) const { return QList<QWidget *>(); }
+    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
 
     QString name() const;
     int priorityInStatusBar() const;
@@ -76,4 +76,4 @@ private:
 } // namespace Internal
 } // namespace Git
 
-#endif
+#endif // GITOUTPUTWINDOW_H

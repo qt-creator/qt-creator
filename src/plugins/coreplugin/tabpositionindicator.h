@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef TABPOSITIONINDICATOR_H
 #define TABPOSITIONINDICATOR_H
 
@@ -43,9 +44,10 @@ namespace Internal {
 class TabPositionIndicator : public QWidget
 {
     Q_OBJECT
+
 public:
     TabPositionIndicator();
-    inline int indicatorWidth() { return TABPOSITIONINDICATOR_WIDTH; }
+    int indicatorWidth() { return TABPOSITIONINDICATOR_WIDTH; }
 
 private:
     void paintEvent(QPaintEvent *event);
@@ -54,4 +56,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //TABPOSITIONINDICATOR_H
+#endif // TABPOSITIONINDICATOR_H

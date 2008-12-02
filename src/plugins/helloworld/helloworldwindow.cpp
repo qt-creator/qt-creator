@@ -30,15 +30,16 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtGui/QTextEdit>
-#include <QtGui/QVBoxLayout>
 
 #include "helloworldwindow.h"
+
+#include <QtGui/QTextEdit>
+#include <QtGui/QVBoxLayout>
 
 using namespace HelloWorld::Internal;
 
 HelloWorldWindow::HelloWorldWindow(QWidget *parent)
-   :QWidget(parent)
+   : QWidget(parent)
 {
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(new QTextEdit("Focus me to activate my context!"));

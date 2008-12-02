@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef IFINDSUPPORT_H
 #define IFINDSUPPORT_H
 
 #include "find_global.h"
+
 #include <QtGui/QTextDocument>
 
 namespace Find {
@@ -69,7 +71,7 @@ signals:
 };
 
 
-inline void IFindSupport::highlightAll(const QString &, QTextDocument::FindFlags){}
+inline void IFindSupport::highlightAll(const QString &, QTextDocument::FindFlags) {}
 
 } // namespace Find
 

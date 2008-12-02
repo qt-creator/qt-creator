@@ -30,10 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "searchresulttreeitemdelegate.h"
 #include "searchresulttreeitemroles.h"
-
-#include <math.h>
 
 #include <QModelIndex>
 #include <QTextDocument>
@@ -41,21 +40,20 @@
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 
+#include <math.h>
+
 using namespace Find::Internal;
 
 SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(QObject *parent)
-:   QItemDelegate(parent)
+  : QItemDelegate(parent)
 {
 }
 
 void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if (index.model()->data(index, ItemDataRoles::TypeRole).toString().compare("file") == 0)
-    {
+    if (index.model()->data(index, ItemDataRoles::TypeRole).toString().compare("file") == 0) {
         QItemDelegate::paint(painter, option, index);
-    }
-    else
-    {
+    } else {
         painter->save();
 
         QStyleOptionViewItemV3 opt = setOptions(index, option);

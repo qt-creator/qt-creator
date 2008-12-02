@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "vcsmanager.h"
 #include "iversioncontrol.h"
 
@@ -110,4 +111,4 @@ void VCSManager::showDeleteDialog(const QString &fileName)
     }
 }
 
-}
+} // namespace Core

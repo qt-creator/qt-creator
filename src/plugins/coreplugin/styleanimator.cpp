@@ -30,10 +30,10 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "styleanimator.h"
 
 #include <QtGui/QStyleOption>
-
 
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {

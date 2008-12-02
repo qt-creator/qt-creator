@@ -59,11 +59,9 @@ QT_END_NAMESPACE
 
 namespace Help {
 namespace Internal {
-
 class PrintHelper;
-
-}
-}
+} // namespace Internal
+} // namespace Help
 
 QT_BEGIN_NAMESPACE
 

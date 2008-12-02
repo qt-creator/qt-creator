@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FORMEDITORFACTORY_H
 #define FORMEDITORFACTORY_H
 
@@ -69,5 +70,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif
-
+#endif // FORMEDITORFACTORY_H

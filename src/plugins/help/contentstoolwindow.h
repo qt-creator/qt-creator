@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CONTENTSTOOLWINDOW_H
 #define CONTENTSTOOLWINDOW_H
 
-#include <QtGui/QTreeWidget>
-
 #include <coreplugin/iview.h>
+
+#include <QtGui/QTreeWidget>
 
 namespace Help {
 namespace Internal {
@@ -96,7 +97,7 @@ private:
     ContentsToolWidget *m_widget;
 };
 
-} //namespace Internal
-} //namespace Help
+} // namespace Internal
+} // namespace Help
 
-#endif
+#endif // CONTENTSTOOLWINDOW_H

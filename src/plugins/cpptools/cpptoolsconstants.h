@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CPPTOOLSCONSTANTS_H
 #define CPPTOOLSCONSTANTS_H
 
@@ -43,7 +44,8 @@ const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
-}
-}
 
-#endif //CPPTOOLSCONSTANTS_H
+} // namespace Constants
+} // namespace CppTools
+
+#endif // CPPTOOLSCONSTANTS_H

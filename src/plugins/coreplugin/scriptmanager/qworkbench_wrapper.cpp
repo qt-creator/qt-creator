@@ -30,8 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "qworkbench_wrapper.h"
+
 #include <wrap_helpers.h>
+
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/editormanager/editorgroup.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -40,9 +45,6 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtScript/QScriptEngine>
-
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/editormanager/editorgroup.h>
 
 namespace {
     enum { debugQWorkbenchWrappers = 0 };
@@ -377,5 +379,5 @@ Core::EditorGroup *EditorGroupPrototype::callee() const
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Core

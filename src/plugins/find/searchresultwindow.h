@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTWINDOW_H
 #define SEARCHRESULTWINDOW_H
 
@@ -91,8 +92,8 @@ private slots:
         int searchTermStart, int searchTermLength);
 
 private:
-    void readSettings(void);
-    void writeSettings(void);
+    void readSettings();
+    void writeSettings();
 
     Internal::SearchResultTreeView *m_searchResultTreeView;
     QListWidget *m_noMatchesFoundDisplay;

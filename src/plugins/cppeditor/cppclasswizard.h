@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CPPCLASSWIZARD_H
 #define CPPCLASSWIZARD_H
 
@@ -45,9 +46,9 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace Core {
-    namespace Utils {
-        class NewClassWidget;
-    }
+namespace Utils {
+    class NewClassWidget;
+}
 }
 
 namespace CppEditor {

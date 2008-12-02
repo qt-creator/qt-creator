@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
@@ -138,7 +139,7 @@ QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &contex
 }
 
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
-    :BaseTextEditorEditable(editor)
+    : BaseTextEditorEditable(editor)
 {
     Core::ICore *core = CppPlugin::core();
     m_context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);

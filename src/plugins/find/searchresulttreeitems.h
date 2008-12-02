@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTTREEITEMS_H
 #define SEARCHRESULTTREEITEMS_H
 
@@ -55,13 +56,13 @@ public:
     SearchResultTreeItem(itemType type = root, const SearchResultTreeItem *parent = NULL);
     virtual ~SearchResultTreeItem();
 
-    itemType getItemType(void) const;
-    const SearchResultTreeItem *getParent(void) const;
+    itemType getItemType() const;
+    const SearchResultTreeItem *getParent() const;
     const SearchResultTreeItem *getChild(int index) const;
     void appendChild(SearchResultTreeItem *child);
-    int getChildrenCount(void) const;
-    int getRowOfItem(void) const;
-    void clearChildren(void);
+    int getChildrenCount() const;
+    int getRowOfItem() const;
+    void clearChildren();
 
 private:
     itemType m_type;
@@ -92,7 +93,7 @@ class SearchResultFile: public SearchResultTreeItem
 {
 public:
     SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent);
-    QString getFileName(void) const;
+    QString getFileName() const;
     void appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
         int searchTermLength);
 
@@ -100,7 +101,7 @@ private:
     QString m_fileName;
 };
 
-} //Internal
-} //Find
+} // namespace Internal
+} // namespace Find
 
-#endif
+#endif // SEARCHRESULTTREEITEMS_H

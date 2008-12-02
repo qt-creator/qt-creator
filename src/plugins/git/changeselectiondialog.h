@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CHANGESELECTIONDIALOG_H
 #define CHANGESELECTIONDIALOG_H
 
@@ -40,7 +41,7 @@
 namespace Git {
 namespace Internal {
 
-    class GitPlugin;
+class GitPlugin;
 
 class ChangeSelectionDialog : public QDialog
 {
@@ -57,7 +58,7 @@ private:
 
 };
 
-} //namespace Internal
-} //namespace Git
+} // namespace Internal
+} // namespace Git
 
 #endif // CHANGESELECTIONDIALOG_H

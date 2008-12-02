@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef CodepasterPlugin_H
-#define CodepasterPlugin_H
+
+#ifndef CODEPASTERPLUGIN_H
+#define CODEPASTERPLUGIN_H
 
 #include "settingspage.h"
 #include "fetcher.h"
@@ -58,62 +59,65 @@ class CodepasterPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-                                CodepasterPlugin();
-                                ~CodepasterPlugin();
+    CodepasterPlugin();
+    ~CodepasterPlugin();
 
-    bool                        initialize(const QStringList &arguments
-                                           , QString *error_message);
-    void                        extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void extensionsInitialized();
 
 public slots:
-    void                        post();
-    void                        fetch();
+    void post();
+    void fetch();
 
 private:
 
-    QAction                     *m_postAction;
-    QAction                     *m_fetchAction;
+    QAction *m_postAction;
+    QAction *m_fetchAction;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
-    SettingsPage                *m_settingsPage;
-    CustomFetcher               *m_fetcher;
-    CustomPoster                *m_poster;
+    SettingsPage  *m_settingsPage;
+    CustomFetcher *m_fetcher;
+    CustomPoster  *m_poster;
 };
+
 
 class CustomFetcher : public Fetcher
 {
     Q_OBJECT
+
 public:
-                                CustomFetcher(const QString &host);
+    CustomFetcher(const QString &host);
 
-    int                         fetch(int pasteID);
-    inline bool                 hadCustomError() { return m_customError; }
+    int fetch(int pasteID);
+    bool hadCustomError() { return m_customError; }
 
-    void                        list(QListWidget*);
+    void list(QListWidget *);
+
 private slots:
-    void                        customRequestFinished(int id, bool error);
+    void customRequestFinished(int id, bool error);
 
 private:
-    QString                     m_host;
-    QListWidget                 *m_listWidget;
-    int                         m_id;
-    bool                        m_customError;
+    QString m_host;
+    QListWidget *m_listWidget;
+    int m_id;
+    bool m_customError;
 };
+
 
 class CustomPoster : public Poster
 {
     Q_OBJECT
 public:
-                                CustomPoster(const QString &host
-                                             , bool copyToClipboard = true
-                                             , bool displayOutput = true);
+    CustomPoster(const QString &host, bool copyToClipboard = true,
+                 bool displayOutput = true);
 
 private slots:
-    void                        customRequestFinished(int id, bool error);
+    void customRequestFinished(int id, bool error);
+
 private:
-    bool                        m_copy;
-    bool                        m_output;
+    bool m_copy;
+    bool m_output;
 };
 
 } // namespace CodePaster
 
-#endif
+#endif // CODEPASTERPLUGIN_H

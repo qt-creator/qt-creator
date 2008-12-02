@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CPPHIGHLIGHTER_H
 #define CPPHIGHLIGHTER_H
 

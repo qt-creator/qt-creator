@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
 
@@ -325,6 +326,7 @@ QString FormTemplateWizardPagePage::changeUiClassName(const QString &uiXml, cons
     const QString rc = domUi.toString();
     return rc;
 }
-#endif
+#endif // USE_XSLT 
+
 } // namespace Internal
 } // namespace Designer

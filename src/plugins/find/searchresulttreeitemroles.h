@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTTREEITEMROLES_H
 #define SEARCHRESULTTREEITEMROLES_H
 
@@ -50,8 +51,8 @@ enum roles
     RowOfItem // The ?-th child of its parent is this this item
 };
 
-} //Internal
-} //Find
-} //itemDataRoles
+} // namespace Internal
+} // namespace Find
+} // namespace itemDataRoles
 
-#endif
+#endif // SEARCHRESULTTREEITEMROLES_H

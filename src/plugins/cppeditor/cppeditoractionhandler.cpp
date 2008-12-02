@@ -48,7 +48,11 @@ CPPEditorActionHandler::~CPPEditorActionHandler()
 { }
 
 void CPPEditorActionHandler::createActions()
-{ TextEditor::TextEditorActionHandler::createActions(); }
+{
+    TextEditor::TextEditorActionHandler::createActions();
+}
 
 void CPPEditorActionHandler::updateActions(UpdateMode um)
-{ TextEditor::TextEditorActionHandler::updateActions(um); }
+{
+    TextEditor::TextEditorActionHandler::updateActions(um);
+}

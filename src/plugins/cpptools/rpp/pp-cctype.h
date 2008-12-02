@@ -72,5 +72,3 @@ inline bool pp_isspace (int __ch)
 } // namespace rpp
 
 #endif // PP_CCTYPE_H
-
-// kate: space-indent on; indent-width 2; replace-tabs on;

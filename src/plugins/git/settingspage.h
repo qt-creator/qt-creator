@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SETTINGSPAGE_H
 #define SETTINGSPAGE_H
 
@@ -76,7 +77,7 @@ private:
     int m_logCount;
 };
 
-} //namespace Internal
-} //namespace Git
+} // namespace Internal
+} // namespace Git
 
-#endif
+#endif // SETTINGSPAGE_H

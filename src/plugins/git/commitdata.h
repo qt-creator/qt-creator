@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef COMMITDATA_H
 #define COMMITDATA_H
 
@@ -42,40 +43,43 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-    // Read-only
-    struct GitSubmitEditorPanelInfo {
-        void clear();
-        QString repository;
-        QString description;
-        QString branch;
-    };
+// Read-only
+struct GitSubmitEditorPanelInfo
+{
+    void clear();
+    QString repository;
+    QString description;
+    QString branch;
+};
 
-    QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
+QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
 
-    struct GitSubmitEditorPanelData {
-        void clear();
-        // Format as "John Doe <jdoe@foobar.com>"
-        QString authorString() const;
+struct GitSubmitEditorPanelData
+{
+    void clear();
+    // Format as "John Doe <jdoe@foobar.com>"
+    QString authorString() const;
 
-        QString author;
-        QString email;
-    };
+    QString author;
+    QString email;
+};
 
-    QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
+QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 
-    struct CommitData {
-        void clear();
-        GitSubmitEditorPanelInfo panelInfo;
-        GitSubmitEditorPanelData panelData;
-        QStringList commitFiles;
-        QStringList notUpdatedFiles;
-        QStringList untrackedFiles;
-    };
+struct CommitData
+{
+    void clear();
+    GitSubmitEditorPanelInfo panelInfo;
+    GitSubmitEditorPanelData panelData;
+    QStringList commitFiles;
+    QStringList notUpdatedFiles;
+    QStringList untrackedFiles;
+};
 
-    QDebug operator<<(QDebug d, const CommitData &);
+QDebug operator<<(QDebug d, const CommitData &);
 
 
-}
-}
+} // namespace Internal
+} // namespace Git
 
-#endif
+#endif // COMMITDATA_H

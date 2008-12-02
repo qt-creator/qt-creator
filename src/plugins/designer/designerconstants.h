@@ -30,36 +30,44 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DESIGNERPLUGIN_CONSTANTS_H
 #define DESIGNERPLUGIN_CONSTANTS_H
 
 namespace Designer {
-    namespace Constants {
-        // context
-        const char * const C_FORMEDITOR         = "Formeditor";
-        const char * const T_FORMEDITOR         = "Formeditor.Toolbar";
-        const char * const M_FORMEDITOR         = "Formeditor.Menu";
-        const char * const M_FORMEDITOR_PREVIEW = "Formeditor.Menu.Preview";
-        const char * const C_FORMWINDOW         = "Formwindow";
-        // Wizard type
-        const char * const FORM_FILE_TYPE       = "Qt4FormFiles";
-        const char * const FORM_MIMETYPE = "application/x-designer";
+namespace Constants {
 
-        enum DesignerSubWindows  {
-            WidgetBoxSubWindow,
-            ObjectInspectorSubWindow,
-            PropertyEditorSubWindow,
-            SignalSlotEditorSubWindow,
-            ActionEditorSubWindow,
-            DesignerSubWindowCount };
+// context
+const char * const C_FORMEDITOR         = "Formeditor";
+const char * const T_FORMEDITOR         = "Formeditor.Toolbar";
+const char * const M_FORMEDITOR         = "Formeditor.Menu";
+const char * const M_FORMEDITOR_PREVIEW = "Formeditor.Menu.Preview";
+const char * const C_FORMWINDOW         = "Formwindow";
 
-        enum EditModes  {
-            EditModeWidgetEditor,
-            EditModeSignalsSlotEditor,
-            EditModeBuddyEditor,
-            EditModeTabOrderEditor,
-            NumEditModes };
-    }
-}
+// Wizard type
+const char * const FORM_FILE_TYPE       = "Qt4FormFiles";
+const char * const FORM_MIMETYPE = "application/x-designer";
+
+enum DesignerSubWindows
+{
+    WidgetBoxSubWindow,
+    ObjectInspectorSubWindow,
+    PropertyEditorSubWindow,
+    SignalSlotEditorSubWindow,
+    ActionEditorSubWindow,
+    DesignerSubWindowCount
+};
+
+enum EditModes
+{
+    EditModeWidgetEditor,
+    EditModeSignalsSlotEditor,
+    EditModeBuddyEditor,
+    EditModeTabOrderEditor,
+    NumEditModes
+};
+
+} // Constants
+} // Designer
 
 #endif //DESIGNERPLUGIN_CONSTANTS_H

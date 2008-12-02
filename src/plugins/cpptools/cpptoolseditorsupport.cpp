@@ -35,6 +35,7 @@
 #include "cppmodelmanager.h"
 
 #include <texteditor/itexteditor.h>
+
 #include <QTimer>
 
 using namespace CppTools::Internal;

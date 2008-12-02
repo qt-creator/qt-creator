@@ -30,20 +30,23 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "stylehelper.h"
 
 #include <QtGui/QPixmapCache>
 #include <QtGui/QWidget>
 
 // Clamps float color values within (0, 255)
-static int clamp(float x) {
+static int clamp(float x)
+{
     const int val = x > 255 ? 255 : static_cast<int>(x);
     return val < 0 ? 0 : val;
 }
 
 // Clamps float color values within (0, 255)
 /*
-static int range(float x, int min, int max) {
+static int range(float x, int min, int max)
+{
     int val = x > max ? max : x;
     return val < min ? min : val;
 }

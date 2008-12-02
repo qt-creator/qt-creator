@@ -30,19 +30,19 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "tabpositionindicator.h"
+
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QBrush>
 #include <QtGui/QPalette>
-
-#include "tabpositionindicator.h"
 
 using namespace Core::Internal;
 
 TabPositionIndicator::TabPositionIndicator()
     : QWidget(0, Qt::ToolTip)
 {
-
 }
 
 void TabPositionIndicator::paintEvent(QPaintEvent *event)

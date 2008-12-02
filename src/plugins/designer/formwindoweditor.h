@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FORMWINDOWEDITOR_H
 #define FORMWINDOWEDITOR_H
 
@@ -125,4 +126,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif //FORMWINDOWEDITOR_H
+#endif // FORMWINDOWEDITOR_H

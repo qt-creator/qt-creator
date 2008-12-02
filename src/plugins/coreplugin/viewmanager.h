@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef VIEWMANAGER_H
 #define VIEWMANAGER_H
 
@@ -83,4 +84,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //VIEWMANAGER_H
+#endif // VIEWMANAGER_H

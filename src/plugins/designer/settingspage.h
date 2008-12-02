@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DESIGNER_SETTINGSPAGE_H
 #define DESIGNER_SETTINGSPAGE_H
 
@@ -64,7 +65,7 @@ private:
     QDesignerOptionsPageInterface *m_designerPage;
 };
 
-} //namespace Internal
-} //namespace QuickOpen
+} // namespace Internal
+} // namespace QuickOpen
 
 #endif // DESIGNER_SETTINGSPAGE_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FORMWIZARDPAGE_H
 #define FORMWIZARDPAGE_H
 
@@ -76,4 +77,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif //FORMTEMPLATEWIZARDPAGE_H
+#endif // FORMTEMPLATEWIZARDPAGE_H

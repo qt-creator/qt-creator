@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef VIEWMANAGERINTERFACE_H
 #define VIEWMANAGERINTERFACE_H
 
@@ -59,6 +60,6 @@ public:
     virtual IView * view(const QString & id) = 0;
 };
 
-} //namespace Core
+} // namespace Core
 
-#endif //VIEWMANAGERINTERFACE_H
+#endif // VIEWMANAGERINTERFACE_H

@@ -30,17 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
+
 #include <QtGui/QFont>
 #include <QtGui/QColor>
 
 using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
-:   QAbstractItemModel(parent)
-,   m_lastAppendedResultFile(NULL)
+  : QAbstractItemModel(parent), m_lastAppendedResultFile(0)
 {
     m_rootItem = new SearchResultTreeItem();
 }

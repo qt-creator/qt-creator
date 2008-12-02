@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DEBUGGER_WATCHHANDLER_H
 #define DEBUGGER_WATCHHANDLER_H
 

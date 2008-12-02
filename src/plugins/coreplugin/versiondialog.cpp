@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "versiondialog.h"
 #include "coreconstants.h"
 #include "coreimpl.h"
@@ -46,8 +47,8 @@ using namespace Core::Constants;
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QTextBrowser>
 
-VersionDialog::VersionDialog(QWidget *parent):
-    QDialog(parent)
+VersionDialog::VersionDialog(QWidget *parent)
+    : QDialog(parent)
 {
     // We need to set the window icon explicitly here since for some reason the
     // application icon isn't used when the size of the dialog is fixed (at least not on X11/GNOME)

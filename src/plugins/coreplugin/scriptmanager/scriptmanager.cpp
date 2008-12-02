@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "scriptmanager.h"
 #include "qworkbench_wrapper.h"
 #include "metatypedeclarations.h"
@@ -309,5 +310,5 @@ QString ScriptManager::engineError(QScriptEngine &scriptEngine)
     return QObject::tr("Unknown error");
 }
 
-}
-}
+} // namespace Internal
+} // namespace Core

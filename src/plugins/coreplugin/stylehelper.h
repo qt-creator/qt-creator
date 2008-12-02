@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef STYLEHELPER_H
 #define STYLEHELPER_H
 
@@ -43,7 +44,8 @@
 
 // Helper class holding all custom color values
 
-class CORE_EXPORT StyleHelper {
+class CORE_EXPORT StyleHelper
+{
 public:
     // Height of the project explorer navigation bar
     static int navigationWidgetHeight() { return 24; }

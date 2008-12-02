@@ -54,6 +54,7 @@
 #define PP_ENGINE_H
 
 #include "pp-client.h"
+
 #include <Token.h>
 #include <QVector>
 

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef HELLOWORLDPLUGIN_H
 #define HELLOWORLDPLUGIN_H
 
@@ -62,4 +63,4 @@ private:
 } // namespace Internal
 } // namespace HelloWorld
 
-#endif //HELLOWORLDPLUGIN_H
+#endif // HELLOWORLDPLUGIN_H

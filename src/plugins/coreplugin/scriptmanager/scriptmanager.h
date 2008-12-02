@@ -30,15 +30,16 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SCRIPTMANAGER_H
 #define SCRIPTMANAGER_H
+
+#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtScript/QScriptEngine>
-
-#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
-#include <coreplugin/icore.h>
 
 namespace Core {
 namespace Internal {
@@ -68,4 +69,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //SCRIPTMANAGER_H
+#endif // SCRIPTMANAGER_H

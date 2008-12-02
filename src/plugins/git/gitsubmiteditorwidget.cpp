@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "gitsubmiteditorwidget.h"
 #include "commitdata.h"
 
@@ -65,5 +66,5 @@ void GitSubmitEditorWidget::setPanelData(const  GitSubmitEditorPanelData &data)
     m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
 }
 
-}
-}
+} // namespace Internal
+} // namespace Git

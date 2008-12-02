@@ -30,9 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FORMWINDOWHOST_H
 #define FORMWINDOWHOST_H
-
 
 #include "widgethost.h"
 
@@ -58,4 +58,4 @@ private slots:
 } // namespace Internal
 } // namespace Designer
 
-#endif //FORMWINDOWHOST_H
+#endif // FORMWINDOWHOST_H

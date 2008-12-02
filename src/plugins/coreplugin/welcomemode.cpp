@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "welcomemode.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
@@ -65,7 +66,8 @@ static QString readFile(const QString &name)
     return ts.readAll();
 }
 
-struct WelcomeModePrivate {
+struct WelcomeModePrivate
+{
     WelcomeModePrivate();
 
     QWidget *m_widget;

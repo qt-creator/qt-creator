@@ -30,13 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "searchresulttreeitems.h"
 
 using namespace Find::Internal;
 
 SearchResultTreeItem::SearchResultTreeItem(SearchResultTreeItem::itemType type, const SearchResultTreeItem *parent)
-:   m_type(type)
-,   m_parent(parent)
+  : m_type(type), m_parent(parent)
 {
 }
 
@@ -118,8 +118,7 @@ int SearchResultTextRow::searchTermLength() const
 }
 
 SearchResultFile::SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent)
-:   SearchResultTreeItem(resultFile, parent)
-,   m_fileName(fileName)
+  : SearchResultTreeItem(resultFile, parent), m_fileName(fileName)
 {
 }
 

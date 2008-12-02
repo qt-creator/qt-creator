@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef WELCOMEMODE_H
 #define WELCOMEMODE_H
 
@@ -44,7 +45,6 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
-
 namespace Internal {
 
 struct WelcomeModePrivate;

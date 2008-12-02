@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "registerhandler.h"
 
 #include "assert.h"
@@ -43,7 +44,6 @@
 using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
-
 
 
 //////////////////////////////////////////////////////////////////

@@ -30,12 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CPPCODECOMPLETION_H
 #define CPPCODECOMPLETION_H
-
-// Qt
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
 
 // C++ front-end
 #include <ASTfwd.h>
@@ -46,6 +43,10 @@
 
 // Qt Creator
 #include <texteditor/icompletioncollector.h>
+
+// Qt
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
 
 namespace Core {
 class ICore;

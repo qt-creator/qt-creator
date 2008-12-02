@@ -56,26 +56,23 @@
 #include <QByteArray>
 
 namespace rpp {
+namespace _PP_internal {
 
-    namespace _PP_internal
-    {
+inline bool comment_p (const char *__first, const char *__last)
+{
+    if (__first == __last)
+        return false;
 
-        inline bool comment_p (const char *__first, const char *__last)
-        {
-            if (__first == __last)
-                return false;
+    if (*__first != '/')
+        return false;
 
-            if (*__first != '/')
-                return false;
+    if (++__first == __last)
+        return false;
 
-            if (++__first == __last)
-                return false;
+    return (*__first == '/' || *__first == '*');
+}
 
-            return (*__first == '/' || *__first == '*');
-        }
-
-    } // _PP_internal
-
+} // _PP_internal
 } // namespace rpp
 
 #endif // PP_INTERNAL_H

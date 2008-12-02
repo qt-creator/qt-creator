@@ -38,11 +38,11 @@
 using namespace rpp;
 
 MacroExpander::MacroExpander (Environment &env, pp_frame *frame)
-    : env (env), frame (frame),
-      lines (0), generated_lines (0)
+    : env(env), frame(frame),
+      lines(0), generated_lines(0)
 { }
 
-const QByteArray *MacroExpander::resolve_formal (const QByteArray &__name)
+const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
 {
     if (! (frame && frame->expanding_macro))
         return 0;

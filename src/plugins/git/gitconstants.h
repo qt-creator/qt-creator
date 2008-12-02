@@ -30,29 +30,32 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GIT_CONSTANTS_H
 #define GIT_CONSTANTS_H
 
 namespace Git {
-    namespace Constants {
-        const char * const GIT_COMMAND_LOG_EDITOR_KIND = "Git Command Log Editor";
-        const char * const GIT_LOG_EDITOR_KIND = "Git File Log Editor";
-        const char * const GIT_BLAME_EDITOR_KIND = "Git Annotation Editor";
-        const char * const GIT_DIFF_EDITOR_KIND = "Git Diff Editor";
+namespace Constants {
 
-        const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
-        const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
-        const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
-        const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
-        const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
+const char * const GIT_COMMAND_LOG_EDITOR_KIND = "Git Command Log Editor";
+const char * const GIT_LOG_EDITOR_KIND = "Git File Log Editor";
+const char * const GIT_BLAME_EDITOR_KIND = "Git Annotation Editor";
+const char * const GIT_DIFF_EDITOR_KIND = "Git Diff Editor";
 
-        // TODO: For the moment, trust p4 is loaded...
-        const char * const ICON_SUBMIT = ":/trolltech.perforce/images/submit.png";
-        const char * const ICON_DIFF = ":/trolltech.perforce/images/diff.png";
+const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
+const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
+const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
+const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
 
-        const char * const DIFF_FILE_INDICATOR = "--- ";
-        enum { debug = 0 };
-    }
-}
+// TODO: For the moment, trust p4 is loaded...
+const char * const ICON_SUBMIT = ":/trolltech.perforce/images/submit.png";
+const char * const ICON_DIFF = ":/trolltech.perforce/images/diff.png";
+
+const char * const DIFF_FILE_INDICATOR = "--- ";
+enum { debug = 0 };
+
+} // namespace Constants
+} // namespace Git
 
 #endif // GIT_CONSTANTS_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "giteditor.h"
 #include "annotationhighlighter.h"
 #include "gitconstants.h"
@@ -141,5 +142,5 @@ QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
     return QString();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Git

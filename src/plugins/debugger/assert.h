@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DEBUGGER_QWB_ASSERT_H
 #define DEBUGGER_QWB_ASSERT_H
 
@@ -41,5 +42,5 @@
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
 #endif
 
-#endif
+#endif // DEBUGGER_QWB_ASSERT_H
 

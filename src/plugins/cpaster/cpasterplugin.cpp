@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "cpasterplugin.h"
 
 #include "ui_pasteselect.h"
@@ -64,9 +65,7 @@ using namespace TextEditor;
 Core::ICore *gCoreInstance = NULL;
 
 CodepasterPlugin::CodepasterPlugin()
-        : m_settingsPage(0)
-        , m_fetcher(0)
-        , m_poster(0)
+    : m_settingsPage(0), m_fetcher(0), m_poster(0)
 {
 }
 
@@ -125,7 +124,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
 void CodepasterPlugin::extensionsInitialized()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ExtensionSystem::PluginManager::instance()
+        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
 void CodepasterPlugin::post()
@@ -268,18 +268,14 @@ void CustomFetcher::list(QListWidget* list)
     Fetcher::fetch(url);
 }
 
-CustomPoster::CustomPoster(const QString &host
-                           , bool copyToClipboard
-                           , bool displayOutput)
-        : Poster(host)
-        , m_copy(copyToClipboard)
-        , m_output(displayOutput)
+CustomPoster::CustomPoster(const QString &host, bool copyToClipboard, bool displayOutput)
+    : Poster(host), m_copy(copyToClipboard), m_output(displayOutput)
 {
     // cpaster calls QCoreApplication::exit which we want to avoid here
-    disconnect(this, SIGNAL(requestFinished(int,bool))
-              ,this, SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(requestFinished(int,bool))
-                    , SLOT(customRequestFinished(int,bool)));
+    disconnect(this, SIGNAL(requestFinished(int,bool)),
+              this, SLOT(gotRequestFinished(int,bool)));
+    connect(this, SIGNAL(requestFinished(int,bool)),
+                  SLOT(customRequestFinished(int,bool)));
 }
 
 void CustomPoster::customRequestFinished(int, bool error)

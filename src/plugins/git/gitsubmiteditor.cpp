@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "gitsubmiteditor.h"
 #include "gitsubmiteditorwidget.h"
 #include "gitconstants.h"
@@ -88,5 +89,6 @@ QString GitSubmitEditor::fileFromChangeLine(const QString &line)
         rc.remove(0, 1);
     return rc;
 }
-}
-}
+
+} // namespace Internal
+} // namespace Git

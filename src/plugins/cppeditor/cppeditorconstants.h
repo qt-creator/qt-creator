@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CPPPLUGIN_GLOBAL_H
 #define CPPPLUGIN_GLOBAL_H
 
@@ -53,6 +54,7 @@ const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+
 } // namespace Constants
 } // namespace CppEditor
 

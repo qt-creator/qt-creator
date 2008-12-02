@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTTREEITEMDELEGATE_H
 #define SEARCHRESULTTREEITEMDELEGATE_H
 
@@ -51,7 +52,7 @@ private:
     static const int m_minimumLineNumberDigits = 6;
 };
 
-} //Internal
-} //Find
+} // namespace Internal
+} // namespace Find
 
-#endif
+#endif // SEARCHRESULTTREEITEMDELEGATE_H

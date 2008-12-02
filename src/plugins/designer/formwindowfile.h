@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
@@ -102,4 +103,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif //FORMWINDOWFILE_H
+#endif // FORMWINDOWFILE_H

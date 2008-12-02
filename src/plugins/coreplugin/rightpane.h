@@ -30,16 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef RIGHTPANE_H
 #define RIGHTPANE_H
 
 #include "core_global.h"
+
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
 
 namespace Core {
-class IMode;
 
+class IMode;
 class RightPaneWidget;
 
 // TODO: The right pane works only for the help plugin atm.
@@ -103,6 +105,5 @@ private:
 };
 
 } // namespace Core
-
 
 #endif // RIGHTPANE_H

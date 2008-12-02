@@ -30,13 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "contentstoolwindow.h"
+#include "helpengine.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QStack>
 #include <QtGui/QFocusEvent>
 #include <QtGui/QKeyEvent>
-
-#include "contentstoolwindow.h"
-#include "helpengine.h"
 
 using namespace Help::Internal;
 

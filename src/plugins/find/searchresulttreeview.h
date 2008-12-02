@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SEARCHRESULTTREEVIEW_H
 #define SEARCHRESULTTREEVIEW_H
 
@@ -41,7 +42,7 @@ namespace Internal {
 
 class SearchResultTreeModel;
 
-class SearchResultTreeView: public QTreeView
+class SearchResultTreeView : public QTreeView
 {
     Q_OBJECT
 

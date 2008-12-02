@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "searchresulttreeview.h"
 #include "searchresulttreeitemroles.h"
 #include "searchresulttreemodel.h"
@@ -40,8 +41,7 @@
 using namespace Find::Internal;
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
-:   QTreeView(parent)
-,   m_autoExpandResults(false)
+  : QTreeView(parent), m_autoExpandResults(false)
 {
     m_model = new SearchResultTreeModel(this);
     setModel(m_model);
@@ -71,7 +71,7 @@ void SearchResultTreeView::appendResultLine(int index, const QString &fileName, 
     int rowsAfter = m_model->rowCount();
 
     if (m_autoExpandResults && (rowsAfter > rowsBefore))
-        setExpanded(model()->index(model()->rowCount()-1, 0), true);
+        setExpanded(model()->index(model()->rowCount() - 1, 0), true);
 }
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)

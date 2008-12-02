@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "annotationhighlighter.h"
+
 #include <QtCore/QDebug>
 
 namespace Git {
@@ -49,5 +51,5 @@ QString GitAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Git

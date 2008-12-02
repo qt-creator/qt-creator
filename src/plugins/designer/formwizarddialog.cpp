@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "formwizarddialog.h"
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
@@ -123,5 +124,6 @@ void FormFileWizardDialog::slotCurrentIdChanged(int id)
         }
     }
 }
+
 } // namespace Internal
 } // namespace Designer

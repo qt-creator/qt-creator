@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GITCLIENT_H
 #define GITCLIENT_H
 
@@ -64,62 +65,53 @@ struct GitSubmitEditorPanelData;
 class GitClient : public Core::IVersionControl
 {
     Q_OBJECT
+
 public:
-    explicit                    GitClient(GitPlugin *plugin, Core::ICore *core);
-                                ~GitClient();
-    bool                        vcsOpen(const QString &fileName);
-    bool                        vcsAdd(const QString&) {return false;}
-    bool                        vcsDelete(const QString&) {return false;}
-    bool                        managesDirectory(const QString&) const {return false;}
-    QString                     findTopLevelForDirectory(const QString&) const {return QString();}
+    GitClient(GitPlugin *plugin, Core::ICore *core);
+    ~GitClient();
 
-    static QString              findRepositoryForFile(const QString &fileName);
-    static QString              findRepositoryForDirectory(const QString &dir);
+    bool vcsOpen(const QString &fileName);
+    bool vcsAdd(const QString &) { return false; }
+    bool vcsDelete(const QString &) { return false; }
+    bool managesDirectory(const QString &) const { return false; }
+    QString findTopLevelForDirectory(const QString &) const { return QString(); }
 
-    void                        diff(const QString &workingDirectory,
-                                     const QString &fileName);
-    void                        diff(const QString &workingDirectory,
-                                     const QStringList &fileNames);
+    static QString findRepositoryForFile(const QString &fileName);
+    static QString findRepositoryForDirectory(const QString &dir);
 
-    void                        status(const QString &workingDirectory);
-    void                        log(const QString &workingDirectory
-                                           , const QString &fileName);
-    void                        blame(const QString &workingDirectory
-                                           , const QString &fileName);
-    void                        showCommit(const QString &workingDirectory
-                                           , const QString &commit);
-    void                        checkout(const QString &workingDirectory
-                                           , const QString &file);
-    void                        hardReset(const QString &workingDirectory
-                                           , const QString &commit);
-    void                        addFile(const QString &workingDirectory
-                                           , const QString &fileName);
-    bool                        synchronousAdd(const QString &workingDirectory,
-                                               const QStringList &files);
-    void                        pull(const QString &workingDirectory);
-    void                        push(const QString &workingDirectory);
+    void diff(const QString &workingDirectory, const QString &fileName);
+    void diff(const QString &workingDirectory, const QStringList &fileNames);
 
-    QString                     readConfig(const QString &workingDirectory
-                                           , const QStringList &configVar);
+    void status(const QString &workingDirectory);
+    void log(const QString &workingDirectory, const QString &fileName);
+    void blame(const QString &workingDirectory, const QString &fileName);
+    void showCommit(const QString &workingDirectory, const QString &commit);
+    void checkout(const QString &workingDirectory, const QString &file);
+    void hardReset(const QString &workingDirectory, const QString &commit);
+    void addFile(const QString &workingDirectory, const QString &fileName);
+    bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
+    void pull(const QString &workingDirectory);
+    void push(const QString &workingDirectory);
 
-    QString                     readConfigValue(const QString &workingDirectory,
-                                                const QString &configVar);
+    QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 
-    bool                        getCommitData(const QString &workingDirectory,
-                                              QString *commitTemplate,
-                                              CommitData *d,
-                                              QString *errorMessage);
+    QString readConfigValue(const QString &workingDirectory, const QString &configVar);
 
-    bool                        addAndCommit(const QString &workingDirectory,
-                                             const GitSubmitEditorPanelData &data,
-                                             const QString &messageFile,
-                                             const QStringList &files);
+    bool getCommitData(const QString &workingDirectory,
+                       QString *commitTemplate,
+                       CommitData *d,
+                       QString *errorMessage);
+
+    bool addAndCommit(const QString &workingDirectory,
+                      const GitSubmitEditorPanelData &data,
+                      const QString &messageFile,
+                      const QStringList &files);
 
 public slots:
     void show(const QString &source, const QString &id);
 
 private:
-    VCSBase::VCSBaseEditor      *createVCSEditor(const QString &kind,
+    VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
                                                  QString title,
                                                  const QString &source,
                                                  bool setSourceCodec,
@@ -127,20 +119,20 @@ private:
                                                  const QString &dynamicPropertyValue) const;
 
 
-    void                        executeGit(const QString &workingDirectory
-                                           , const QStringList &arguments
-                                           , GitOutputWindow *outputWindow
-                                           , VCSBase::VCSBaseEditor* editor = 0
-                                           , bool outputToWindow = false);
+    void executeGit(const QString &workingDirectory,
+                                           const QStringList &arguments,
+                                           GitOutputWindow *outputWindow,
+                                           VCSBase::VCSBaseEditor* editor = 0,
+                                           bool outputToWindow = false);
 
-    bool                        synchronousGit(const QString &workingDirectory
-                                           , const QStringList &arguments
-                                           , QByteArray* outputText = 0
-                                           , QByteArray* errorText = 0);
+    bool synchronousGit(const QString &workingDirectory,
+                                           const QStringList &arguments,
+                                           QByteArray* outputText = 0,
+                                           QByteArray* errorText = 0);
 
-    const QString               m_msgWait;
-    GitPlugin                   *m_plugin;
-    Core::ICore                 *m_core;
+    const QString m_msgWait;
+    GitPlugin     *m_plugin;
+    Core::ICore   *m_core;
 };
 
 class GitCommand : public QObject
@@ -149,12 +141,12 @@ class GitCommand : public QObject
 public:
     GitCommand();
     ~GitCommand();
-    void execute(const QStringList &arguments
-                 , const QString &workingDirectory
-                 , const ProjectExplorer::Environment &environment);
-    void run(const QStringList &arguments
-                 , const QString &workingDirectory
-                 , const ProjectExplorer::Environment &environment);
+    void execute(const QStringList &arguments,
+                 const QString &workingDirectory,
+                 const ProjectExplorer::Environment &environment);
+    void run(const QStringList &arguments,
+                 const QString &workingDirectory,
+                 const ProjectExplorer::Environment &environment);
 
 Q_SIGNALS:
     void outputData(const QByteArray&);
@@ -162,7 +154,7 @@ Q_SIGNALS:
     void errorText(const QString&);
 };
 
-    }
-}
+} // namespace Internal
+} // namespace Git
 
 #endif // GITCLIENT_H

@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "currentdocumentfind.h"
+
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>

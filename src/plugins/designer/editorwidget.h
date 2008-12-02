@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DESIGNER_EDITORWIDGET_H
 #define DESIGNER_EDITORWIDGET_H
 
@@ -50,69 +51,73 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
-    /* A widget that shares its embedded sub window with others. For example,
-     * the designer editors need to share the widget box, etc. */
-    class SharedSubWindow : public QWidget {
-        Q_OBJECT
-        Q_DISABLE_COPY(SharedSubWindow)
+/* A widget that shares its embedded sub window with others. For example,
+ * the designer editors need to share the widget box, etc. */
+class SharedSubWindow : public QWidget
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(SharedSubWindow)
 
-    public:
-        SharedSubWindow(QWidget *shared, QWidget *parent = 0);
-        virtual ~SharedSubWindow();
+public:
+    SharedSubWindow(QWidget *shared, QWidget *parent = 0);
+    virtual ~SharedSubWindow();
 
-    public slots:
-        // Takes the shared widget off the current parent and adds it to its
-        // layout
-        void activate();
+public slots:
+    // Takes the shared widget off the current parent and adds it to its
+    // layout
+    void activate();
 
-    private:
-        QPointer <QWidget> m_shared;
-        QVBoxLayout *m_layout;
-    };
+private:
+    QPointer <QWidget> m_shared;
+    QVBoxLayout *m_layout;
+};
 
-    /** State of the editor window (splitter sizes)
-      * Shared as a global struct between the instances and stored
-      * in QSettings. */
-    struct EditorWidgetState {
-        QVariant toVariant() const; // API to conveniently store in QSettings
-        bool fromVariant(const QVariant &v);
+/** State of the editor window (splitter sizes)
+  * Shared as a global struct between the instances and stored
+  * in QSettings. */
+struct EditorWidgetState
+{
+    QVariant toVariant() const; // API to conveniently store in QSettings
+    bool fromVariant(const QVariant &v);
 
-        QList<int> horizontalSizes;
-        QList<int> centerVerticalSizes;
-        QList<int> rightVerticalSizes;
-    };
+    QList<int> horizontalSizes;
+    QList<int> centerVerticalSizes;
+    QList<int> rightVerticalSizes;
+};
 
-    /* Form editor splitter used as editor window. Contains the shared designer
-     * windows. */
-    class EditorWidget : public Core::MiniSplitter {
-        Q_OBJECT
-        Q_DISABLE_COPY(EditorWidget)
-    public:
-        explicit EditorWidget(QWidget *formWindow);
+/* Form editor splitter used as editor window. Contains the shared designer
+ * windows. */
+class EditorWidget : public Core::MiniSplitter
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(EditorWidget)
+public:
+    explicit EditorWidget(QWidget *formWindow);
 
-        virtual bool event(QEvent * e);
+    virtual bool event(QEvent * e);
 
-        EditorWidgetState save() const;
-        bool restore(const EditorWidgetState &s);
+    EditorWidgetState save() const;
+    bool restore(const EditorWidgetState &s);
 
-        // Get/Set the shared splitter state of all editors of that type for
-        // settings
-        static EditorWidgetState state();
-        static void setState(const EditorWidgetState&st);
+    // Get/Set the shared splitter state of all editors of that type for
+    // settings
+    static EditorWidgetState state();
+    static void setState(const EditorWidgetState&st);
 
-    public slots:
-        void activate();
-        void toolChanged(int);
+public slots:
+    void activate();
+    void toolChanged(int);
 
-    private:
-        void setInitialSizes();
+private:
+    void setInitialSizes();
 
-        SharedSubWindow* m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
-        QSplitter *m_centerVertSplitter;
-        QTabWidget *m_bottomTab;
-        QSplitter *m_rightVertSplitter;
-    };
-}
-}
+    SharedSubWindow* m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
+    QSplitter *m_centerVertSplitter;
+    QTabWidget *m_bottomTab;
+    QSplitter *m_rightVertSplitter;
+};
 
-#endif
+} // namespace Internal
+} // namespace Designer
+
+#endif // DESIGNER_EDITORWIDGET_H

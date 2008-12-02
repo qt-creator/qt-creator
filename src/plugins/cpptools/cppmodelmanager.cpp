@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #define _SCL_SECURE_NO_WARNINGS 1
 #include "pp.h"
 

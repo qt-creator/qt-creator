@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "attachexternaldialog.h"
 
 #include <QDebug>
@@ -38,6 +39,13 @@
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QHeaderView>
+
+#ifdef Q_OS_WINDOWS
+#include <windows.h>
+#include <tlhelp32.h>
+#include <tchar.h>
+#include <stdio.h>
+#endif
 
 using namespace Debugger::Internal;
 
@@ -70,7 +78,8 @@ static bool isProcessName(const QString &procname)
     return true;
 }
 
-struct ProcData {
+struct ProcData
+{
     QString ppid;
     QString name;
     QString state;
@@ -142,11 +151,6 @@ void AttachExternalDialog::rebuildProcessList()
 }
 
 #ifdef Q_OS_WINDOWS
-
-#include <windows.h>
-#include <tlhelp32.h>
-#include <tchar.h>
-#include <stdio.h>
 
 //  Forward declarations:
 BOOL GetProcessList( );

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "viewmanager.h"
 
 #include "coreconstants.h"
@@ -37,24 +38,23 @@
 #include "uniqueidmanager.h"
 #include "iview.h"
 
-#include <QtCore/QSettings>
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QStatusBar>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QToolButton>
-
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <extensionsystem/ExtensionSystemInterfaces>
 #include <aggregation/aggregate.h>
 
+#include <QtCore/QSettings>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QComboBox>
+#include <QtGui/QDockWidget>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QMenu>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolButton>
+#include <QtGui/QVBoxLayout>
 
 using namespace Core;
 using namespace Core::Internal;

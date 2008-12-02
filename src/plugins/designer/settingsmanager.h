@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
@@ -61,4 +62,4 @@ private:
 } // namespace Internal
 } // namespace Designer
 
-#endif //SETTINGSMANAGER_H
+#endif // SETTINGSMANAGER_H
