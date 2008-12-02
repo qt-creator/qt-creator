@@ -169,7 +169,7 @@ ProjectExplorer::BuildStep *GdbMacrosBuildStepFactory::create(ProjectExplorer::P
 QStringList GdbMacrosBuildStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
 {
     QStringList results;
-    if (qobject_cast<QObject *>(pro))
+    if (qobject_cast<Qt4Project *>(pro))
         results <<  Constants::GDBMACROSBUILDSTEP;
     return results;
 }
