@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef DEBUGGER_SCRIPTENGINE_H
 #define DEBUGGER_SCRIPTENGINE_H
 

@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef RESOURCEEDITOR_CONSTANTS_H
 #define RESOURCEEDITOR_CONSTANTS_H
 

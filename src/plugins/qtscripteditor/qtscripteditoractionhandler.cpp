@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #include "qtscripteditoractionhandler.h"
 #include "qtscripteditorconstants.h"
 #include "qtscripteditor.h"

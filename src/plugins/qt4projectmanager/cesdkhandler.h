@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef CE_SDK_HANDLER_INCL
 #define CE_SDK_HANDLER_INCL
 

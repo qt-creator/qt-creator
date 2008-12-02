@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 
 #ifndef EDITORMANAGER_H
 #define EDITORMANAGER_H

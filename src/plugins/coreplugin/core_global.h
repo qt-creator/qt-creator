@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 
 #ifndef CORE_GLOBAL_H
 #define CORE_GLOBAL_H

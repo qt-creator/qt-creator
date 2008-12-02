@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef QWORKBENCH_WRAPPER_H
 #define QWORKBENCH_WRAPPER_H
 

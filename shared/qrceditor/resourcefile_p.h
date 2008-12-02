@@ -30,10 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 
-#ifndef RESOURCEFILE__P_H
-#define RESOURCEFILE__P_H
+#ifndef RESOURCEFILE_P_H
+#define RESOURCEFILE_P_H
 
 #include "namespace_global.h"
 

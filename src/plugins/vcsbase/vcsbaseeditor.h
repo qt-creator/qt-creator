@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef VCSBaseBASEEDITOR_H
 #define VCSBaseBASEEDITOR_H
 

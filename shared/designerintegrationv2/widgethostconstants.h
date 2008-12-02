@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 
 #ifndef WIDGETHOST_CONSTANTS_H
 #define WIDGETHOST_CONSTANTS_H

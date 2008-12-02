@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 #ifndef DESIGNERPLUGIN_CONSTANTS_H
 #define DESIGNERPLUGIN_CONSTANTS_H
 

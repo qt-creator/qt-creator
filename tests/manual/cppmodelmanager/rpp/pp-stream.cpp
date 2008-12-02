@@ -30,7 +30,6 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-***************************************************************************/
 /*
   Copyright 2006 Hamish Rodda <rodda@kde.org>
 
