@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef HEADERPATH_H
 #define HEADERPATH_H
 
@@ -63,7 +64,8 @@ private:
     Kind _kind;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
 
 #endif // HEADERPATH_H

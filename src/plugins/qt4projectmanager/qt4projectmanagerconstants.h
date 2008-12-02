@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4PROJECTMANAGERCONSTANTS_H
 #define QT4PROJECTMANAGERCONSTANTS_H
 
@@ -84,6 +85,7 @@ const char * const BUILD_PARSER_GCC     = "BuildParser.Gcc";
 // views
 const char * const VIEW_DETAILED        = "Qt4.View.Detailed";
 const char * const VIEW_PROFILESONLY    = "Qt4.View.ProjectHierarchy";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

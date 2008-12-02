@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "librarywizarddialog.h"
 #include "consoleappwizard.h"
 #include "modulespage.h"
@@ -264,5 +265,5 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager

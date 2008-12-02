@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "qmakestep.h"
+
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"

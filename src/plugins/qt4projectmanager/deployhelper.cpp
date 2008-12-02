@@ -40,12 +40,13 @@
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
+
 DeployHelperRunStep::DeployHelperRunStep(Qt4Project *pro)
     : BuildStep(pro),  m_started(false), m_pro(pro)
 {
     QDir workbenchDir = QCoreApplication::applicationDirPath();
     workbenchDir.cdUp();
-    m_binary = QDir::convertSeparators( workbenchDir.absolutePath() + QLatin1String("/qtembeddedtools/qemudeployer"));
+    m_binary = QDir::convertSeparators(workbenchDir.absolutePath() + QLatin1String("/qtembeddedtools/qemudeployer"));
     m_id = "id";
 
 };

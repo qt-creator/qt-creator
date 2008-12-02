@@ -30,11 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtCore/QDebug>
 
 #include "proreader.h"
 #include "proitems.h"
 #include "proxml.h"
+
+#include <QtCore/QDebug>
 
 int main(int argc, char *argv[])
 {

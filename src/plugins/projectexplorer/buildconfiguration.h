@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BUILDCONFIGURATION_H
 #define BUILDCONFIGURATION_H
 
@@ -59,6 +60,6 @@ private:
     QString m_name;
 };
 
-}
+} // namespace ProjectExplorer
 
-#endif
+#endif // BUILDCONFIGURATION_H

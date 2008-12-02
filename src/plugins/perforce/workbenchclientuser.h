@@ -30,15 +30,17 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef WORKBENCHCLIENTUSER_H
 #define WORKBENCHCLIENTUSER_H
 
+#include "p4.h"
+#include "ui_promptdialog.h"
+
+#include <coreplugin/icorelistener.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QMap>
-#include <coreplugin/icorelistener.h>
-#include "p4.h"
-
-#include "ui_promptdialog.h"
 
 QT_BEGIN_NAMESPACE
 class QRadioButton;
@@ -108,4 +110,4 @@ private:
 } // namespace Perforce
 } // namespace Internal
 
-#endif
+#endif // WORKBENCHCLIENTUSER_H

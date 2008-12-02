@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef APPLICATIONLAUNCHER_H
 #define APPLICATIONLAUNCHER_H
 
@@ -82,7 +83,7 @@ private:
     WinGuiProcess *m_winGuiProcess;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // APPLICATIONLAUNCHER_H

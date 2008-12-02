@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+
 #include "subversionsubmiteditor.h"
 
 #include <utils/submiteditorwidget.h>
 
-namespace Subversion {
-namespace Internal {
+using namespace Subversion::Internal;
 
 SubversionSubmitEditor::SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
@@ -57,7 +58,4 @@ QString SubversionSubmitEditor::fileFromStatusLine(const QString &statusLine)
 {
     enum { filePos = 7 };
     return statusLine.mid(filePos, statusLine.size() - filePos);
-}
-
-}
 }

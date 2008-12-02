@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef COMPLETIONSUPPORT_H
 #define COMPLETIONSUPPORT_H
 
 #include <texteditor/texteditor_global.h>
+
 #include <QtCore/QObject>
 
 namespace Core { class ICore; }

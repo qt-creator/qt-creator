@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef _CUSTOMWIDGETS_
-#define _CUSTOMWIDGETS_
+
+#ifndef CUSTOMWIDGETS_H
+#define CUSTOMWIDGETS_H
 
 #include "customwidget.h"
 
@@ -52,7 +53,7 @@
 
 // Custom Widgets
 
-class NewClassCustomWidget:
+class NewClassCustomWidget :
     public QObject,
     public CustomWidget<Core::Utils::NewClassWidget>
 {
@@ -62,7 +63,7 @@ public:
     explicit NewClassCustomWidget(QObject *parent = 0);
 };
 
-class ClassNameValidatingLineEdit_CW:
+class ClassNameValidatingLineEdit_CW :
     public QObject,
     public CustomWidget<Core::Utils::ClassNameValidatingLineEdit>
 {
@@ -72,7 +73,7 @@ public:
     explicit ClassNameValidatingLineEdit_CW(QObject *parent = 0);
 };
 
-class FileNameValidatingLineEdit_CW:
+class FileNameValidatingLineEdit_CW :
     public QObject,
     public CustomWidget<Core::Utils::FileNameValidatingLineEdit>
 {
@@ -82,7 +83,7 @@ public:
     explicit FileNameValidatingLineEdit_CW(QObject *parent = 0);
 };
 
-class ProjectNameValidatingLineEdit_CW:
+class ProjectNameValidatingLineEdit_CW :
     public QObject,
     public CustomWidget<Core::Utils::ProjectNameValidatingLineEdit>
 {
@@ -92,7 +93,7 @@ public:
     explicit ProjectNameValidatingLineEdit_CW(QObject *parent = 0);
 };
 
-class LineColumnLabel_CW:
+class LineColumnLabel_CW :
     public QObject,
     public CustomWidget<Core::Utils::LineColumnLabel>
 {
@@ -102,7 +103,7 @@ public:
     explicit LineColumnLabel_CW(QObject *parent = 0);
 };
 
-class PathChooser_CW:
+class PathChooser_CW :
     public QObject,
     public CustomWidget<Core::Utils::PathChooser>
 {
@@ -112,7 +113,7 @@ public:
     explicit PathChooser_CW(QObject *parent = 0);
 };
 
-class FancyLineEdit_CW:
+class FancyLineEdit_CW :
     public QObject,
     public CustomWidget<Core::Utils::FancyLineEdit>
 {
@@ -124,7 +125,7 @@ public:
     virtual QWidget *createWidget(QWidget *parent);
 };
 
-class QtColorButton_CW:
+class QtColorButton_CW :
     public QObject,
     public CustomWidget<Core::Utils::QtColorButton>
 {
@@ -134,7 +135,7 @@ public:
     explicit QtColorButton_CW(QObject *parent = 0);
 };
 
-class SubmitEditorWidget_CW:
+class SubmitEditorWidget_CW :
     public QObject,
     public CustomWidget<Core::Utils::SubmitEditorWidget>
 {
@@ -146,7 +147,7 @@ public:
 
 // Collection
 
-class WidgetCollection: public QObject, public QDesignerCustomWidgetCollectionInterface
+class WidgetCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
@@ -159,4 +160,4 @@ private:
     QList<QDesignerCustomWidgetInterface*> m_plugins;
 };
 
-#endif // _CUSTOMWIDGETS_
+#endif // CUSTOMWIDGETS_H

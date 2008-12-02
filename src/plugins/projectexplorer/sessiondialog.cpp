@@ -30,11 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "sessiondialog.h"
 #include "session.h"
 
 #include <QtGui/QInputDialog>
-
 #include <QtGui/QValidator>
 
 using namespace ProjectExplorer;
@@ -190,5 +190,5 @@ void SessionDialog::remove()
     m_ui.sessionList->addItems(m_sessionManager->sessions());
 }
 
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer

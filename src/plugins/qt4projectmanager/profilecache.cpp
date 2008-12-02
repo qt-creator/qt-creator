@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "qt4project.h"
 #include "qt4nodes.h"
 #include "qt4projectmanager.h"

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERFOCESETTINGS_H
 #define PERFOCESETTINGS_H
 
@@ -59,7 +60,8 @@ inline bool operator==(const PerforceSettings &p1, const PerforceSettings &p2)
     { return p1.equals(p2); }
 inline bool operator!=(const PerforceSettings &p1, const PerforceSettings &p2)
     { return !p1.equals(p2); }
-}
-}
 
-#endif
+} // Internal
+} // Perforce
+
+#endif // PERFOCESETTINGS_H

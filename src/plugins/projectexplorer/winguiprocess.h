@@ -30,14 +30,16 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef WINGUIPROCESS_H
 #define WINGUIPROCESS_H
 
+#include "abstractprocess.h"
+
 #include <QtCore/QThread>
 #include <QtCore/QStringList>
-#include <windows.h>
 
-#include "abstractprocess.h"
+#include <windows.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -72,7 +74,7 @@ private:
     unsigned long m_exitCode;
 };
 
-} //namespace Internal
-} //namespace ProjectExplorer
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif
+#endif // WINGUIPROCESS_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef STORAGESETTINGS_H
 #define STORAGESETTINGS_H
 
@@ -41,7 +42,8 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-struct TEXTEDITOR_EXPORT StorageSettings {
+struct TEXTEDITOR_EXPORT StorageSettings
+{
     StorageSettings();
 
     void toSettings(const QString &category, QSettings *s) const;

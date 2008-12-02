@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef VCSBaseBASEEDITORFACTORY_H
-#define VCSBaseBASEEDITORFACTORY_H
+
+#ifndef VCSBASE_BASEEDITORFACTORY_H
+#define VCSBASE_BASEEDITORFACTORY_H
 
 #include "vcsbase_global.h"
 
@@ -95,6 +96,7 @@ VCSBaseSubmitEditor *VCSSubmitEditorFactory<Editor>::createBaseSubmitEditor(cons
 {
     return new Editor(parameters, parent);
 }
-}
 
-#endif // VCSBaseBASEEDITOR_H
+} // namespace VCSBase
+
+#endif // VCSBASE_BASEEDITOR_H

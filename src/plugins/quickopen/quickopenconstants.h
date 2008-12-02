@@ -30,15 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QUICKOPENCONSTANTS_H
 #define QUICKOPENCONSTANTS_H
 
 namespace QuickOpen {
 namespace Constants {
-    const char * const FILTER_OPTIONS_PAGE = "Filters";
-    const char * const QUICKOPEN_CATEGORY = "QuickOpen";
-    const char * const TASK_INDEX = "QuickOpen.Task.Index";
-}
-}
+
+const char * const FILTER_OPTIONS_PAGE = "Filters";
+const char * const QUICKOPEN_CATEGORY = "QuickOpen";
+const char * const TASK_INDEX = "QuickOpen.Task.Index";
+
+} // namespace Constants
+} // namespace QuickOpen
 
 #endif // QUICKOPENCONSTANTS_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CODECSELECTOR_H
 #define CODECSELECTOR_H
 
@@ -75,11 +76,7 @@ private:
     QAbstractButton *m_saveButton;
 };
 
-
-
-
-
-}
-}
+} // namespace Internal
+} // namespace TextEditor
 
 #endif // CODECSELECTOR_H

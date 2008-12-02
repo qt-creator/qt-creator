@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4PROJECTMANAGER_H
 #define QT4PROJECTMANAGER_H
 
@@ -118,6 +119,6 @@ private:
     Internal::ProFileCache *m_proFileCache;
 };
 
-} //namespace Qt4ProjectManager
+} // namespace Qt4ProjectManager
 
-#endif //QT4PROJECTMANAGER_H
+#endif // QT4PROJECTMANAGER_H

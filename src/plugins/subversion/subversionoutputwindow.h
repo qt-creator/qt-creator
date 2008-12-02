@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SUBVERSIONOUTPUTWINDOW_H
 #define SUBVERSIONOUTPUTWINDOW_H
 
@@ -40,7 +41,7 @@ class QListWidget;
 QT_END_NAMESPACE
 
 namespace Subversion {
-    namespace Internal {
+namespace Internal {
 
 class SubversionPlugin;
 
@@ -78,4 +79,4 @@ private:
 } // namespace Subversion
 } // namespace Internal
 
-#endif
+#endif // SUBVERSIONOUTPUTWINDOW_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef DIFFHIGHLIGHTER_H
 #define DIFFHIGHLIGHTER_H
 
@@ -86,6 +87,6 @@ private:
     DiffHighlighterPrivate *m_d;
 };
 
-} //namespace VCSBase
+} // namespace VCSBase
 
 #endif // DIFFHIGHLIGHTER_H

@@ -30,11 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "subversioncontrol.h"
 #include "subversionplugin.h"
 
-namespace Subversion {
-namespace Internal {
+using namespace Subversion;
+using namespace Subversion::Internal;
 
 SubversionControl::SubversionControl(SubversionPlugin *plugin) :
     m_plugin(plugin)
@@ -65,6 +66,4 @@ bool SubversionControl::managesDirectory(const QString &directory) const
 QString SubversionControl::findTopLevelForDirectory(const QString &directory) const
 {
     return m_plugin->findTopLevelForDirectory(directory);
-}
-}
 }

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "basevcssubmiteditorfactory.h"
 #include "vcsbasesubmiteditor.h"
 
@@ -38,7 +39,8 @@
 
 namespace VCSBase {
 
-struct BaseVCSSubmitEditorFactoryPrivate {
+struct BaseVCSSubmitEditorFactoryPrivate
+{
     BaseVCSSubmitEditorFactoryPrivate(const VCSBaseSubmitEditorParameters *parameters);
 
     const VCSBaseSubmitEditorParameters *m_parameters;
@@ -86,4 +88,4 @@ Core::IFile *BaseVCSSubmitEditorFactory::open(const QString &fileName)
     return 0;
 }
 
-}
+} // namespace VCSBase

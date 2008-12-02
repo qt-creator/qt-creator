@@ -30,17 +30,19 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include "ui_qtversionmanager.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
 
-#include <QDebug>
-#include "ui_qtversionmanager.h"
+#include <QtCore/QDebug>
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -208,7 +210,7 @@ private:
     int m_idcount;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif //QTVERSIONMANAGER_H
+#endif // QTVERSIONMANAGER_H

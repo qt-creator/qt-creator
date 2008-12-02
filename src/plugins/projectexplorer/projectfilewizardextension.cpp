@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "projectfilewizardextension.h"
 #include "projectexplorer.h"
 #include "projectnodes.h"
@@ -194,6 +195,5 @@ bool ProjectFileWizardExtension::process(const QList<Core::GeneratedFile> &files
     return true;
 }
 
-
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERFORCEEDITOR_H
 #define PERFORCEEDITOR_H
 

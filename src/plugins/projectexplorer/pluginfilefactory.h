@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PLUGINFILEFACTORY_H
 #define PLUGINFILEFACTORY_H
 
@@ -69,8 +70,7 @@ private:
     ProjectExplorer::IProjectManager *m_manager;
 };
 
-
-} //namespace Internal
-} //namespace ProjectExplorer
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // PLUGINFILEFACTORY

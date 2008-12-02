@@ -30,10 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtCore/QDir>
 
 #include "winguiprocess.h"
 #include "consoleprocess.h"
+
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer::Internal;
 

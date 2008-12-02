@@ -30,13 +30,16 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "makestep.h"
+
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <extensionsystem/ExtensionSystemInterfaces>
+
 #include <QFileInfo>
 #include <QDir>
-#include <extensionsystem/ExtensionSystemInterfaces>
 
 using ProjectExplorer::IBuildParserFactory;
 using ProjectExplorer::BuildParserInterface;

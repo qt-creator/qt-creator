@@ -30,12 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef PROFILEEDITOR
-#define PROFILEEDITOR
+
+#ifndef PROFILEEDITOR_H
+#define PROFILEEDITOR_H
+
+#include "ui_proeditorcontainer.h"
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
-#include "ui_proeditorcontainer.h"
 
 namespace TextEditor {
 class FontSettings;
@@ -118,4 +120,4 @@ private:
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // PROFILEEDITOR
+#endif // PROFILEEDITOR_H

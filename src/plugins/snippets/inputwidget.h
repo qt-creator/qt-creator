@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef INPUTWIDGET_H
 #define INPUTWIDGET_H
 
@@ -64,7 +65,7 @@ private:
     QLineEdit *m_lineEdit;
 };
 
-} //namespace Internal
-} //namespace Snippets
+} // namespace Internal
+} // namespace Snippets
 
 #endif // INPUTWIDGET_H

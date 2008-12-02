@@ -30,10 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "annotationhighlighter.h"
 
-namespace Subversion {
-namespace Internal {
+using namespace Subversion;
+using namespace Subversion::Internal;
 
 SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                              QTextDocument *document) :
@@ -46,7 +47,4 @@ QString SubversionAnnotationHighlighter::changeNumber(const QString &block) cons
 {
     const int pos = block.indexOf(m_blank);
     return pos > 1 ? block.left(pos) : QString();
-}
-
-}
 }

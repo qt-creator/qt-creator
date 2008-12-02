@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "subversioneditor.h"
 #include "annotationhighlighter.h"
 #include "subversionconstants.h"
@@ -39,8 +40,8 @@
 #include <QtCore/QDebug>
 #include <QtGui/QTextCursor>
 
-namespace  Subversion {
-namespace Internal {
+using namespace Subversion;
+using namespace Subversion::Internal;
 
 SubversionEditor::SubversionEditor(const VCSBase::VCSBaseEditorParameters *type,
                                    QWidget *parent) :
@@ -134,7 +135,4 @@ QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBloc
         }
     }
     return QString();
-}
-
-}
 }

@@ -30,10 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtCore/QStringList>
 
 #include "msvcparser.h"
 #include "qt4projectmanagerconstants.h"
+
+#include <QtCore/QStringList>
 
 using namespace Qt4ProjectManager;
 

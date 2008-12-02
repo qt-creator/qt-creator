@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "subversionsettings.h"
 
 #include <QtCore/QSettings>
@@ -54,8 +55,7 @@ static QString defaultCommand()
     return rc;
 }
 
-namespace Subversion {
-namespace Internal {
+using namespace Subversion::Internal;
 
 SubversionSettings::SubversionSettings() :
     svnCommand(defaultCommand()),
@@ -126,8 +126,3 @@ QString SubversionSettings::formatArguments(const QStringList &args)
     }
     return rc;
 }
-
-
-}
-}
-

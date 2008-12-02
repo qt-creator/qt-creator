@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "helpmode.h"
 #include "helpplugin.h"
 
@@ -43,7 +44,8 @@ using namespace Help::Internal;
 HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent):
     BaseMode(tr("Help"),
              Constants::ID_MODE_HELP,
-             QIcon((QLatin1String(":/fancyactionbar/images/mode_Reference.png"))), Constants::P_MODE_HELP, widget, parent),
+             QIcon((QLatin1String(":/fancyactionbar/images/mode_Reference.png"))),
+             Constants::P_MODE_HELP, widget, parent),
     m_centralWidget(centralWidget)
 {
     m_centralWidget->layout()->setSpacing(0);

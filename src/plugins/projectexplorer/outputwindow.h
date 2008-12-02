@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef OUTPUTWINDOW_H
 #define OUTPUTWINDOW_H
 
@@ -192,7 +193,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent * e);
 };
 #endif // 0
-} //namespace Internal
-} //namespace ProjectExplorer
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif
+#endif // OUTPUTWINDOW_H

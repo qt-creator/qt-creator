@@ -44,6 +44,18 @@
 #include "helpfindsupport.h"
 #include "searchwidget.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/minisplitter.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/rightpane.h>
+#include <coreplugin/sidebar.h>
+#include <coreplugin/welcomemode.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 #include <QtCore/QFileInfo>
@@ -57,18 +69,6 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QComboBox>
 #include <QtHelp/QHelpEngine>
-
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <coreplugin/minisplitter.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/rightpane.h>
-#include <coreplugin/sidebar.h>
-#include <coreplugin/welcomemode.h>
 
 using namespace Help;
 using namespace Help::Internal;

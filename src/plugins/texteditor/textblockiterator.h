@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef _TEXTBLOCKITERATOR_H
-#define _TEXTBLOCKITERATOR_H
+
+#ifndef TEXTBLOCKITERATOR_H
+#define TEXTBLOCKITERATOR_H
 
 #include "texteditor_global.h"
 
@@ -68,4 +69,4 @@ inline bool operator!=(const TextBlockIterator &i1, const TextBlockIterator &i2)
 
 } // namespace TextEditor
 
-#endif // _TEXTBLOCKITERATOR_H
+#endif // TEXTBLOCKITERATOR_H

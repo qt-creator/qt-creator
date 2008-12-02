@@ -30,8 +30,8 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include "snippetscompletion.h"
 
+#include "snippetscompletion.h"
 #include "snippetswindow.h"
 #include "snippetspec.h"
 #include "snippetsplugin.h"

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "vcsbasesubmiteditor.h"
 #include "submiteditorfile.h"
 
@@ -278,4 +279,4 @@ bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
     return true;
 }
 
-}
+} // namespace VCSBase

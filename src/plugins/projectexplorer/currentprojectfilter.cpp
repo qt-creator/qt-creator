@@ -31,8 +31,6 @@
 **
 ***************************************************************************/
 
-
-
 #include "currentprojectfilter.h"
 #include "projectexplorer.h"
 #include "project.h"
@@ -40,7 +38,6 @@
 
 #include <QtCore/QVariant>
 #include <QtCore/QTimer>
-
 #include <QtCore/QThread>
 #include <QtDebug>
 

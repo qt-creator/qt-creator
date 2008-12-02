@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CE_SDK_HANDLER_INCL
 #define CE_SDK_HANDLER_INCL
 
@@ -67,13 +68,13 @@ private:
     int                             m_minor;
 };
 
-inline QString CeSdkInfo::name(){ return m_name; }
-inline QString CeSdkInfo::binPath(){ return m_bin; }
-inline QString CeSdkInfo::includePath(){ return m_include; }
-inline QString CeSdkInfo::libPath(){ return m_lib; }
-inline bool CeSdkInfo::isValid(){ return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
-inline int CeSdkInfo::majorVersion(){ return m_major; }
-inline int CeSdkInfo::minorVersion(){ return m_minor; }
+inline QString CeSdkInfo::name() { return m_name; }
+inline QString CeSdkInfo::binPath() { return m_bin; }
+inline QString CeSdkInfo::includePath() { return m_include; }
+inline QString CeSdkInfo::libPath() { return m_lib; }
+inline bool CeSdkInfo::isValid() { return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
+inline int CeSdkInfo::majorVersion() { return m_major; }
+inline int CeSdkInfo::minorVersion() { return m_minor; }
 inline bool CeSdkInfo::isSupported() { return m_major >= 5; }
 
 class CeSdkHandler
@@ -101,7 +102,7 @@ inline QString CeSdkHandler::fixPaths(QString path) const
     return QDir::toNativeSeparators(QDir::cleanPath(path.replace(VCINSTALL_MACRO, VCInstallDir).replace(VSINSTALL_MACRO, VSInstallDir).replace(QLatin1String(";$(PATH)"), QLatin1String(""))));
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif
+#endif // CE_SDK_HANDLER_INCL

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTEXPLORERCONSTANTS_H
 #define PROJECTEXPLORERCONSTANTS_H
 
@@ -174,7 +175,7 @@ const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";
 const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
-}
-}
+} // namespace Constants
+} // namespace ProjectExplorer
 
-#endif //PROJECTEXPLORERCONSTANTS_H
+#endif // PROJECTEXPLORERCONSTANTS_H

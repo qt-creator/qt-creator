@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef ABSTRACTPROCESS_H
 #define ABSTRACTPROCESS_H
 
@@ -68,5 +69,5 @@ private:
 } //namespace Internal
 } //namespace Qt4ProjectManager
 
-#endif
+#endif // ABSTRACTPROCESS_H
 

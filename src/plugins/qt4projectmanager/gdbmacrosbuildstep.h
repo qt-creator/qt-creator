@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GDBMACROSBUILDSTEP_H
 #define GDBMACROSBUILDSTEP_H
 
@@ -76,7 +77,8 @@ class GdbMacrosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWi
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
 };
-}
-}
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // GDBMACROSBUILDSTEP_H

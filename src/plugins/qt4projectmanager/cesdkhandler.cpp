@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "cesdkhandler.h"
+
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
@@ -38,7 +40,8 @@
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::Environment;
 
-CeSdkInfo::CeSdkInfo() : m_major(0) , m_minor(0)
+CeSdkInfo::CeSdkInfo()
+    : m_major(0) , m_minor(0)
 {
 }
 

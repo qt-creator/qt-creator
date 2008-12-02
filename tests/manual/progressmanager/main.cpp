@@ -30,8 +30,10 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtGui/QApplication>
+
 #include "roundprogress.h"
+
+#include <QtGui/QApplication>
 
 int main(int argc, char *argv[])
 {

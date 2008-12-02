@@ -30,9 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "applicationrunconfiguration.h"
 #include "persistentsettings.h"
 #include "environment.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QLabel>

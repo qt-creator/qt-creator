@@ -34,10 +34,11 @@
 #ifndef DOCSETTINGSPAGE_H
 #define DOCSETTINGSPAGE_H
 
-#include <QtGui/QWidget>
+#include "ui_docsettingspage.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include "ui_docsettingspage.h"
+#include <QtGui/QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 

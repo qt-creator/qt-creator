@@ -30,8 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef HELPENGINE_H
 #define HELPENGINE_H
+
+#include "docuparser.h"
 
 #include <QtCore/QThread>
 #include <QtCore/QPair>
@@ -39,8 +42,6 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 #include <QtGui/QStringListModel>
-
-#include "docuparser.h"
 
 namespace Help {
 namespace Internal {
@@ -129,7 +130,7 @@ class HelpEngine : public QObject
     Q_OBJECT
 
 public:
-    HelpEngine(QObject *parent, const QString& defaultQtVersionPath);
+    HelpEngine(QObject *parent, const QString &defaultQtVersionPath);
     ~HelpEngine();
     void init();    
     QList<QPair<QString, ContentList> > contents() const { return contentList; }
@@ -176,7 +177,7 @@ private:
     bool contentsOnly;
 };
 
-} //namespace Internal
-} //namespace Help
+} // namespace Internal
+} // namespace Help
 
-#endif
+#endif // HELPENGINE_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef MODULESPAGE_H
 #define MODULESPAGE_H
 
@@ -62,7 +63,7 @@ private:
     QString modules(bool selected = true) const;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif
+#endif // MODULESPAGE_H

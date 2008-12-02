@@ -30,13 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "submiteditorfile.h"
 
-namespace VCSBase {
-namespace Internal {
+using namespace VCSBase;
+using namespace VCSBase::Internal;
 
-SubmitEditorFile::SubmitEditorFile(const QString &mimeType,
-                                   QObject *parent) :
+SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
     Core::IFile(parent),
     m_mimeType(mimeType),
     m_modified(false)
@@ -65,7 +65,4 @@ bool SubmitEditorFile::save(const QString &fileName)
 QString SubmitEditorFile::mimeType() const
 {
     return m_mimeType;
-}
-
-}
 }

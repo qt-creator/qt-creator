@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERFORCEOUTPUTWINDOW_H
 #define PERFORCEOUTPUTWINDOW_H
 
@@ -84,4 +85,4 @@ private:
 } // namespace Perforce
 } // namespace Internal
 
-#endif
+#endif // PERFORCEOUTPUTWINDOW_H

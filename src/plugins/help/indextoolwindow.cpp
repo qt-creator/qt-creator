@@ -30,6 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "indextoolwindow.h"
+#include "helpengine.h"
+#include "topicchooser.h"
+
 #include <QtCore/QDebug>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QFocusEvent>
@@ -38,10 +43,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>
 #include <QtGui/QApplication>
-
-#include "indextoolwindow.h"
-#include "helpengine.h"
-#include "topicchooser.h"
 
 using namespace Help::Internal;
 

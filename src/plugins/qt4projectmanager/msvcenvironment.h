@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef MSVCENVIRONMENT_H
 #define MSVCENVIRONMENT_H
 
@@ -59,6 +60,7 @@ private:
     mutable bool m_valuesSet;
 };
 
-}
-}
-#endif
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
+#endif // MSVCENVIRONMENT_H

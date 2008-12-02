@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BASEVCSEDITORFACTORY_H
 #define BASEVCSEDITORFACTORY_H
 
@@ -49,6 +50,7 @@ namespace Core {
 }
 
 namespace VCSBase {
+
 struct BaseVCSEditorFactoryPrivate;
 
 // Base class for editor factories creating instances of VCSBaseEditor
@@ -116,6 +118,8 @@ VCSBaseEditor *VCSEditorFactory<Editor>::createVCSBaseEditor(const VCSBaseEditor
     return rc;
 
 }
-}
-#endif
+
+} // namespace VCSBase
+
+#endif // BASEVCSEDITORFACTORY_H
 

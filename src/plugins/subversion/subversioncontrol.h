@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SUBVERSIONCONTROL_H
 #define SUBVERSIONCONTROL_H
 
@@ -37,6 +38,7 @@
 
 namespace Subversion {
 namespace Internal {
+
 class SubversionPlugin;
 
 // Just a proxy for SubversionPlugin
@@ -55,6 +57,7 @@ private:
     SubversionPlugin *m_plugin;
 };
 
-}
-}
-#endif
+} // namespace Internal
+} // namespace Subversion
+
+#endif // SUBVERSIONCONTROL_H

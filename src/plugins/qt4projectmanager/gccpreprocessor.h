@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GCCPREPROCESSOR_H
 #define GCCPREPROCESSOR_H
 
@@ -56,7 +57,7 @@ private:
     QList<HeaderPath> m_systemHeaderPaths;
 };
 
-} // end of namespace Internal
-} // end of namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // GCCPREPROCESSOR_H

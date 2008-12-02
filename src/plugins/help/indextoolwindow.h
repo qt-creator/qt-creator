@@ -30,13 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef INDEXTOOLWINDOW_H
 #define INDEXTOOLWINDOW_H
 
+#include <coreplugin/iview.h>
+
 #include <QtCore/QModelIndex>
 #include <QtGui/QWidget>
-
-#include <coreplugin/iview.h>
 
 class QListView;
 class QLineEdit;

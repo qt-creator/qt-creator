@@ -30,11 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef EMBEDDEDPROPERTIESPAGE_H
 #define EMBEDDEDPROPERTIESPAGE_H
 
 #include "ui_embeddedpropertiespage.h"
+
 #include <projectexplorer/iprojectproperties.h>
+
 #include <QtCore/QModelIndex>
 
 namespace ProjectExplorer {

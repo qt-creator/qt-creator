@@ -30,11 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef GCCPARSER
-#define GCCPARSER
+
+#ifndef GCCPARSER_H
+#define GCCPARSER_H
+
+#include <projectexplorer/ProjectExplorerInterfaces>
 
 #include <QtCore/QRegExp>
-#include <projectexplorer/ProjectExplorerInterfaces>
 
 namespace Qt4ProjectManager {
 
@@ -55,6 +57,6 @@ private:
     bool m_linkIndent;
 };
 
-} //namespace ProjectExplorer
+} // namespace ProjectExplorer
 
-#endif
+#endif // GCCPARSER_H

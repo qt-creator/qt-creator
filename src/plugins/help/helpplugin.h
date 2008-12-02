@@ -35,6 +35,7 @@
 #define HELPPLUGIN_H
 
 #include "help_global.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QMap>

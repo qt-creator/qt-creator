@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef RESOURCEWIZARD_H
 #define RESOURCEWIZARD_H
 
@@ -43,7 +44,6 @@ class ResourceWizard : public Core::StandardFileWizard
     Q_OBJECT
 
 public:
-
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
     explicit ResourceWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent);
 

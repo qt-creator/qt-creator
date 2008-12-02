@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
@@ -56,9 +57,9 @@ class IContext;
 class ICore;
 class IMode;
 class IFileFactory;
-    namespace Internal {
-        class WelcomeMode;
-    }
+namespace Internal {
+    class WelcomeMode;
+}
 }
 
 namespace ProjectExplorer {

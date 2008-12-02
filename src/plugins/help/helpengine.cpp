@@ -30,13 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "helpengine.h"
+#include "config.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
 #include <QtCore/QCoreApplication>
-
-#include "helpengine.h"
-#include "config.h"
 
 using namespace Help::Internal;
 
@@ -52,7 +53,8 @@ static bool verifyDirectory(const QString &str)
     return true;
 }
 
-struct IndexKeyword {
+struct IndexKeyword
+{
     IndexKeyword(const QString &kw, const QString &l)
         : keyword(kw), link(l) {}
     IndexKeyword() : keyword(QString()), link(QString()) {}
@@ -190,12 +192,6 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     }
     return index(bestMatch, 0, QModelIndex());
 }
-
-
-
-
-
-
 
 
 
@@ -344,13 +340,6 @@ QString HelpEngine::home() const
 
 
 
-
-
-
-
-
-
-
 TitleMapThread::TitleMapThread(HelpEngine *he)
     : QThread(he)
 {
@@ -486,9 +475,6 @@ void TitleMapThread::buildContentDict()
         contentOut.close();
     }    
 }
-
-
-
 
 
 IndexThread::IndexThread(HelpEngine *he)

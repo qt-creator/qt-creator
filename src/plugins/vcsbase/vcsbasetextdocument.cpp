@@ -30,10 +30,10 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "vcsbasetextdocument.h"
 
-namespace VCSBase {
-namespace Internal {
+using namespace VCSBase::Internal;
 
 VCSBaseTextDocument::VCSBaseTextDocument()
 {
@@ -47,7 +47,4 @@ bool VCSBaseTextDocument::isReadOnly() const
 bool VCSBaseTextDocument::isModified() const
 {
     return false;
-}
-
-}
 }

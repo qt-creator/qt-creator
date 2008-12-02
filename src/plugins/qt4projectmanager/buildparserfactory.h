@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BUILDPARSERFACTORY_H
 #define BUILDPARSERFACTORY_H
 
@@ -62,7 +63,8 @@ public:
     virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif
+
+#endif // BUILDPARSERFACTORY_H

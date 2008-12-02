@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SESSIONDIALOG_H
 #define SESSIONDIALOG_H
 
@@ -66,8 +67,7 @@ private:
     bool m_startup;
 };
 
-}
-}
-
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // SESSIONDIALOG_H

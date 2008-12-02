@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "guiappwizarddialog.h"
 #include "consoleappwizard.h"
 #include "modulespage.h"
@@ -45,13 +46,10 @@ enum PageId { IntroPageId, ModulesPageId, FilesPageId };
 namespace Qt4ProjectManager {
 namespace Internal {
 
-
-GuiAppParameters::GuiAppParameters() :
-    designerForm(true)
+GuiAppParameters::GuiAppParameters()
+    : designerForm(true)
 {
-
 }
-
 
 GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        const QIcon &icon,
@@ -132,5 +130,5 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager

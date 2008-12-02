@@ -30,9 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "abstractprocessstep.h"
 #include "buildstep.h"
 #include "project.h"
+
 #include <QtCore/QProcess>
 #include <QtCore/QEventLoop>
 #include <QtCore/QDebug>
@@ -41,7 +43,7 @@
 using namespace ProjectExplorer;
 
 AbstractProcessStep::AbstractProcessStep(Project *pro)
-        : BuildStep(pro)
+  : BuildStep(pro)
 {
 }
 

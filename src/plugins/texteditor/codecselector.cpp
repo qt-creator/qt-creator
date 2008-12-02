@@ -30,9 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "codecselector.h"
 #include "basetextdocument.h"
-
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -44,22 +44,24 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-
 namespace TextEditor {
-    namespace Internal {
+namespace Internal {
 
-        /* custom class to make sure the width is wide enough for the
-         * contents. Should be easier with Qt. */
-        class CodecListWidget : public QListWidget {
-        public:
-            CodecListWidget(QWidget *parent):QListWidget(parent){}
-            QSize sizeHint() const {
-                return QListWidget::sizeHint().expandedTo(
-                    QSize(sizeHintForColumn(0) + verticalScrollBar()->sizeHint().width() + 4, 0));
-            }
-        };
+/* custom class to make sure the width is wide enough for the
+ * contents. Should be easier with Qt. */
+class CodecListWidget : public QListWidget
+{
+public:
+    CodecListWidget(QWidget *parent):QListWidget(parent){}
+    QSize sizeHint() const {
+        return QListWidget::sizeHint().expandedTo(
+            QSize(sizeHintForColumn(0) + verticalScrollBar()->sizeHint().width() + 4, 0));
     }
-}
+};
+
+} // namespace Internal
+} // namespace TextEditor
+
 
 CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     : QDialog(parent)
@@ -134,8 +136,6 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     updateButtons();
 }
 
-
-
 CodecSelector::~CodecSelector()
 {
 }
@@ -160,12 +160,10 @@ QTextCodec *CodecSelector::selectedCodec() const
     return 0;
 }
 
-
 CodecSelector::Result CodecSelector::exec()
 {
     return (Result) QDialog::exec();
 }
-
 
 void CodecSelector::buttonClicked(QAbstractButton *button)
 {

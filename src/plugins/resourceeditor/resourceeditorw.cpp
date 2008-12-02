@@ -30,11 +30,15 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "resourceeditorw.h"
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
 #include <qrceditor.h>
+
+#include <coreplugin/icore.h>
+#include <utils/reloadpromptutils.h>
 
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QFileInfo>
@@ -42,9 +46,6 @@
 #include <QtCore/qdebug.h>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
-
-#include <coreplugin/icore.h>
-#include <utils/reloadpromptutils.h>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -267,5 +268,5 @@ void ResourceEditorW::onRedo()
         m_resourceEditor.data()->onRedo();
 }
 
-}
-}
+} // namespace Internal
+} // namespace ResourceEditor

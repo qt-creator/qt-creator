@@ -30,10 +30,11 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtCore/QSettings>
-#include <QtGui/QLineEdit>
 
 #include "buildoptionspage.h"
+
+#include <QtCore/QSettings>
+#include <QtGui/QLineEdit>
 
 BuildOptionsPage::BuildOptionsPage(QWorkbench::PluginManager *app)
 {

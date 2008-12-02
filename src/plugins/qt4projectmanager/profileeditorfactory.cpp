@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "profileeditorfactory.h"
+
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditor.h"

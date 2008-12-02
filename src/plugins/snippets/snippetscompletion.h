@@ -30,15 +30,16 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SNIPPETSCOMPLETION_H
 #define SNIPPETSCOMPLETION_H
+
+#include <texteditor/icompletioncollector.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QDir>
 #include <QtGui/QIcon>
-
-#include <texteditor/icompletioncollector.h>
 
 namespace Core {
 class ICore;

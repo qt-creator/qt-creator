@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BASETEXTMARK_H
 #define BASETEXTMARK_H
 
@@ -127,6 +128,8 @@ public:
 private:
     BaseTextMark *m_parent;
 };
-}
-}
+
+} // namespace Internal
+} // namespace TextEditor
+
 #endif // BASETEXTMARK_H

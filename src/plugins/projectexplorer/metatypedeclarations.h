@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTEXPLORERMETATYPEDECLARATIONS_H
 #define PROJECTEXPLORERMETATYPEDECLARATIONS_H
 
@@ -63,5 +64,6 @@ Q_DECLARE_METATYPE(ProjectExplorer::IApplicationOutput*)
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::CommandQObject*)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Internal::CommandQObject*>)
 Q_DECLARE_METATYPE(ProjectExplorer::BuildParserInterface*)
+
 Q_DECLARE_METATYPE(ProjectExplorer::GlobalConfigManagerInterface*)
 #endif // PROJECTEXPLORERMETATYPEDECLARATIONS_H

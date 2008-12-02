@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BASETEXTDOCUMENT_H
 #define BASETEXTDOCUMENT_H
 
@@ -158,4 +159,4 @@ private:
 
 } // namespace TextEditor
 
-#endif
+#endif // BASETEXTDOCUMENT_H

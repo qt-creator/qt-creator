@@ -30,14 +30,15 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-
-#include <qhelpsystem.h>
 
 #include "qhelpproject.h"
 #include "qhelpprojectmanager.h"
 #include "qhelpprojectitems.h"
+
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
+#include <qhelpsystem.h>
 
 using namespace ProjectExplorer;
 using namespace QHelpProjectPlugin::Internal;

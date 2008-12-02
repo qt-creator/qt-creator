@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "gdbmacrosbuildstep.h"
+
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "qmakestep.h"
@@ -42,7 +44,6 @@ using namespace Qt4ProjectManager::Internal;
 GdbMacrosBuildStep::GdbMacrosBuildStep(Qt4Project *project)
     : BuildStep(project), m_project(project), m_configWidget(new GdbMacrosBuildStepConfigWidget)
 {
-
 }
 
 GdbMacrosBuildStep::~GdbMacrosBuildStep()

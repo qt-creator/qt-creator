@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FILESPAGE_H
 #define FILESPAGE_H
 
@@ -40,10 +41,10 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
-    namespace Utils {
-        class NewClassWidget;
-    }
-}
+namespace Utils {
+class NewClassWidget;
+} // namespace Utils
+} // namespace Core
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "fontsettingspage.h"
 #include "fontsettings.h"
 #include "texteditorconstants.h"

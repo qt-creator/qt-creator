@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "libraryparameters.h"
+
+#include <utils/codegeneration.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QStringList>
-
-#include <utils/codegeneration.h>
 
 // Contents of the header defining the shared library export.
 #define GUARD_VARIABLE "<GUARD>"
@@ -161,6 +162,6 @@ QString  LibraryParameters::generateSharedHeader(const QString &globalHeaderFile
     contents.replace(QLatin1String(LIBRARY_MACRO_VARIABLE), QtProjectParameters::libraryMacro(projectTarget));
     return contents;
 }
-}
-}
 
+} // namespace Internal
+} // namespace Qt4ProjectManager

@@ -30,14 +30,15 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "perforceoutputwindow.h"
+#include "perforceplugin.h"
+
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QListWidget>
-
-#include "perforceoutputwindow.h"
-#include "perforceplugin.h"
 
 using namespace Perforce::Internal;
 
@@ -74,7 +75,6 @@ bool PerforceOutputWindow::canFocus()
 
 void PerforceOutputWindow::setFocus()
 {
-
 }
 
 QWidget *PerforceOutputWindow::outputWidget(QWidget *parent)
@@ -95,7 +95,6 @@ void PerforceOutputWindow::clearContents()
 
 void PerforceOutputWindow::visibilityChanged(bool /* b */)
 {
-
 }
 
 void PerforceOutputWindow::append(const QString &txt, bool doPopup)

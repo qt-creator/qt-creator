@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "project.h"
 #include "projectmodels.h"
 #include "projectexplorerconstants.h"
@@ -49,88 +50,91 @@ using namespace ProjectExplorer::Internal;
 using Core::FileIconProvider;
 
 namespace {
-    // sorting helper function
-    bool sortNodes(Node *n1, Node *n2) {
-        // Ordering is: project files, project, folder, file
 
-        const NodeType n1Type = n1->nodeType();
-        const NodeType n2Type = n2->nodeType();
+// sorting helper function
+bool sortNodes(Node *n1, Node *n2)
+{
+    // Ordering is: project files, project, folder, file
 
-        // project files
-        FileNode *file1 = qobject_cast<FileNode*>(n1);
-        FileNode *file2 = qobject_cast<FileNode*>(n2);
-        if (file1 && file1->fileType() == ProjectFileType) {
-            if (file2 && file2->fileType() == ProjectFileType) {
-                const QString fileName1 = QFileInfo(file1->path()).fileName();
-                const QString fileName2 = QFileInfo(file2->path()).fileName();
+    const NodeType n1Type = n1->nodeType();
+    const NodeType n2Type = n2->nodeType();
 
-                if (fileName1 != fileName2)
-                    return fileName1 < fileName2;
-                else
-                    return file1 < file2;
-            } else {
-                return true; // project file is before everything else
-            }
+    // project files
+    FileNode *file1 = qobject_cast<FileNode*>(n1);
+    FileNode *file2 = qobject_cast<FileNode*>(n2);
+    if (file1 && file1->fileType() == ProjectFileType) {
+        if (file2 && file2->fileType() == ProjectFileType) {
+            const QString fileName1 = QFileInfo(file1->path()).fileName();
+            const QString fileName2 = QFileInfo(file2->path()).fileName();
+
+            if (fileName1 != fileName2)
+                return fileName1 < fileName2;
+            else
+                return file1 < file2;
         } else {
-            if (file2 && file2->fileType() == ProjectFileType) {
-                return false;
-            }
+            return true; // project file is before everything else
         }
-
-        // projects
-        if (n1Type == ProjectNodeType) {
-            if (n2Type == ProjectNodeType) {
-                ProjectNode *project1 = static_cast<ProjectNode*>(n1);
-                ProjectNode *project2 = static_cast<ProjectNode*>(n2);
-
-                if (project1->name() != project2->name())
-                    return project1->name() < project2->name(); // sort by name
-                else
-                    return project1 < project2; // sort by pointer value
-            } else {
-               return true; // project is before folder & file
-           }
-        }
-        if (n2Type == ProjectNodeType)
+    } else {
+        if (file2 && file2->fileType() == ProjectFileType) {
             return false;
-
-        if (n1Type == FolderNodeType) {
-            if (n2Type == FolderNodeType) {
-                FolderNode *folder1 = static_cast<FolderNode*>(n1);
-                FolderNode *folder2 = static_cast<FolderNode*>(n2);
-
-                if (folder1->name() != folder2->name())
-                    return folder1->name() < folder2->name();
-                else
-                    return folder1 < folder2;
-            } else {
-                return true; // folder is before file
-            }
         }
-        if (n2Type == FolderNodeType)
-            return false;
-
-        // must be file nodes
-        {
-            const QString filePath1 = n1->path();
-            const QString filePath2 = n2->path();
-
-            const QString fileName1 = QFileInfo(filePath1).fileName();
-            const QString fileName2 = QFileInfo(filePath2).fileName();
-
-            if (fileName1 != fileName2) {
-                return fileName1 < fileName2; // sort by file names
-            } else {
-                if (filePath1 != filePath2) {
-                    return filePath1 < filePath2; // sort by path names
-                } else {
-                    return n1 < n2; // sort by pointer value
-                }
-            }
-        }
-        return false;
     }
+
+    // projects
+    if (n1Type == ProjectNodeType) {
+        if (n2Type == ProjectNodeType) {
+            ProjectNode *project1 = static_cast<ProjectNode*>(n1);
+            ProjectNode *project2 = static_cast<ProjectNode*>(n2);
+
+            if (project1->name() != project2->name())
+                return project1->name() < project2->name(); // sort by name
+            else
+                return project1 < project2; // sort by pointer value
+        } else {
+           return true; // project is before folder & file
+       }
+    }
+    if (n2Type == ProjectNodeType)
+        return false;
+
+    if (n1Type == FolderNodeType) {
+        if (n2Type == FolderNodeType) {
+            FolderNode *folder1 = static_cast<FolderNode*>(n1);
+            FolderNode *folder2 = static_cast<FolderNode*>(n2);
+
+            if (folder1->name() != folder2->name())
+                return folder1->name() < folder2->name();
+            else
+                return folder1 < folder2;
+        } else {
+            return true; // folder is before file
+        }
+    }
+    if (n2Type == FolderNodeType)
+        return false;
+
+    // must be file nodes
+    {
+        const QString filePath1 = n1->path();
+        const QString filePath2 = n2->path();
+
+        const QString fileName1 = QFileInfo(filePath1).fileName();
+        const QString fileName2 = QFileInfo(filePath2).fileName();
+
+        if (fileName1 != fileName2) {
+            return fileName1 < fileName2; // sort by file names
+        } else {
+            if (filePath1 != filePath2) {
+                return filePath1 < filePath2; // sort by path names
+            } else {
+                return n1 < n2; // sort by pointer value
+            }
+        }
+    }
+    return false;
 }
+
+} // namespace anon
 
 /*!
   \class DetailedModel

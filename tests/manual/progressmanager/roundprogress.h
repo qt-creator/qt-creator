@@ -30,18 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef ROUNDPROGRESS_H
 #define ROUNDPROGRESS_H
 
-#include <QtGui/QMainWindow>
 #include "ui_roundprogress.h"
+
 #include <QtCore>
 #include <QtGui>
 #include <QtDebug>
+#include <QtGui/QMainWindow>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QFuture>
-
-class MyInternalTask;
 
 class MyInternalTask : public QObject
 {

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4PROJECTMANAGERPLUGIN_H
 #define QT4PROJECTMANAGERPLUGIN_H
 
@@ -91,7 +92,7 @@ private:
     QAction *m_runQMakeActionContextMenu;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // QT4PROJECTMANAGERPLUGIN_H

@@ -30,17 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef VCSBaseCONSTANTS_H
-#define VCSBaseCONSTANTS_H
+
+#ifndef VCSBASE_CONSTANTS_H
+#define VCSBASE_CONSTANTS_H
 
 namespace VCSBase {
-    namespace Constants {
+namespace Constants {
 
-        namespace Internal {
+namespace Internal {
+enum { debug = 0 };
+} // namespace Internal
 
-            enum { debug = 0 };
-        } // namespace Internal
-    } // namespace Constants
+} // namespace Constants
 } // VCSBase
 
-#endif // VCSBaseCONSTANTS_H
+#endif // VCSBASE_CONSTANTS_H

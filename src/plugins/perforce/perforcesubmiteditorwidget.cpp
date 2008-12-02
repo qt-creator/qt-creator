@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "perforcesubmiteditorwidget.h"
 
 namespace Perforce {
@@ -51,5 +52,6 @@ void PerforceSubmitEditorWidget::setData(const QString &change,
     m_submitPanelUi.clientName->setText(client);
     m_submitPanelUi.userName->setText(userName);
 }
-}
-}
+
+} // Internal
+} // Perforce

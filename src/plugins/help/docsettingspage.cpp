@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "docsettingspage.h"
 
 #include <QtGui/QFileDialog>
@@ -42,7 +43,6 @@ DocSettingsPage::DocSettingsPage(QHelpEngine *helpEngine)
     : m_helpEngine(helpEngine),
       m_registeredDocs(false)
 {
-
 }
 
 QString DocSettingsPage::name() const

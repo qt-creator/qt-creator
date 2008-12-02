@@ -30,8 +30,10 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include "buildstep.h"
+
 #include "project.h"
+
+#include "buildstep.h"
 #include "projectexplorer.h"
 #include "runconfiguration.h"
 #include "editorconfiguration.h"

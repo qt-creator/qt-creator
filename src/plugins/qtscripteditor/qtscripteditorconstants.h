@@ -30,17 +30,21 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QTSCRIPTEDITOR_CONSTANTS_H
 #define QTSCRIPTEDITOR_CONSTANTS_H
 
 namespace QtScriptEditor {
 namespace Constants {
+
 const char * const M_CONTEXT = "Qt Script Editor.ContextMenu";
 const char * const RUN = "Qt Script Editor.Run";
 const char * const RUN_SEP = "Qt Script Editor.Run.Separator";
 const char * const C_QTSCRIPTEDITOR = "Qt Script Editor";
-const char * const C_QTSCRIPTEDITOR_MIMETYPE = "application/javascript";
-}
-}
 
-#endif //QTSCRIPTEDITOR_CONSTANTS_H
+const char * const C_QTSCRIPTEDITOR_MIMETYPE = "application/javascript";
+
+} // namespace Constants
+} // namespace QtScriptEditor
+
+#endif // QTSCRIPTEDITOR_CONSTANTS_H

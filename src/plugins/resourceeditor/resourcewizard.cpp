@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "resourcewizard.h"
 #include "resourceeditorw.h"
 #include "resourceeditorconstants.h"
 
-namespace ResourceEditor {
-namespace Internal {
+using namespace ResourceEditor;
+using namespace ResourceEditor::Internal;
 
 ResourceWizard::ResourceWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent) :
     Core::StandardFileWizard(parameters, core, parent)
@@ -43,9 +44,9 @@ ResourceWizard::ResourceWizard(const BaseFileWizardParameters &parameters, Core:
 }
 
 Core::GeneratedFiles
-        ResourceWizard::generateFilesFromPath(const QString &path,
-                                              const QString &name,
-                                              QString * /*errorMessage*/) const
+ResourceWizard::generateFilesFromPath(const QString &path,
+                                      const QString &name,
+                                      QString * /*errorMessage*/) const
 {
     const QString suffix = preferredSuffix(QLatin1String(Constants::C_RESOURCE_MIMETYPE));
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
@@ -53,7 +54,4 @@ Core::GeneratedFiles
     file.setContents(QLatin1String("<RCC/>"));
     file.setEditorKind(QLatin1String(Constants::C_RESOURCEEDITOR));
     return Core::GeneratedFiles() << file;
-}
-
-}
 }

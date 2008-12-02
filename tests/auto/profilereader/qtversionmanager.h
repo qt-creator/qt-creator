@@ -30,16 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
 #include <QtCore/QString>
 
-class QtVersion {
+class QtVersion
+{
 public:
     QString path() { return QString(); }
     QString sourcePath() { return QString(); }
-    QHash<QString,QString> versionInfo() { return QHash<QString,QString>();}
+    QHash<QString, QString> versionInfo() { return QHash<QString, QString>(); }
 };
 
 #endif // QTVERSIONMANAGER_H

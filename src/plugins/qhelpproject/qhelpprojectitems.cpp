@@ -30,9 +30,10 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <QtGui/QFileIconProvider>
 
 #include "qhelpprojectitems.h"
+
+#include <QtGui/QFileIconProvider>
 
 using namespace ProjectExplorer;
 using namespace QHelpProjectPlugin::Internal;

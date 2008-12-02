@@ -30,13 +30,15 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROFILEHIGHLIGHTER_H
 #define PROFILEHIGHLIGHTER_H
 
 #include "qt4projectmanagerenums.h"
+
+#include <QtCore/QtAlgorithms>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCharFormat>
-#include <QtCore/QtAlgorithms>
 
 namespace Qt4ProjectManager {
 namespace Internal {

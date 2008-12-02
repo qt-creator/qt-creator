@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "qtprojectparameters.h"
 
 #include <QtCore/QTextStream>
@@ -42,10 +43,10 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 // ----------- QtProjectParameters
-QtProjectParameters::QtProjectParameters() :
-   type(ConsoleApp)
+QtProjectParameters::QtProjectParameters()
+  : type(ConsoleApp)
 {
- }
+}
 
 QString QtProjectParameters::projectPath() const
 {
@@ -122,7 +123,5 @@ QString QtProjectParameters::libraryMacro(const QString &projectName)
      return createMacro(projectName, QLatin1String("_LIBRARY"));
 }
 
-
-
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager

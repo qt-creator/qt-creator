@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROFILEREADER_H
 #define PROFILEREADER_H
 
@@ -40,7 +41,6 @@
 #include <QtCore/QMap>
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
 
 class ProFileCache;
@@ -80,7 +80,7 @@ private:
     QMap<QString, ProFile *> m_includeFiles;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // PROFILEREADER_H

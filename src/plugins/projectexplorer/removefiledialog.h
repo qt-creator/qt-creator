@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef REMOVEFILEDIALOG_H
 #define REMOVEFILEDIALOG_H
 
@@ -42,7 +43,8 @@ namespace Ui {
     class RemoveFileDialog;
 }
 
-class RemoveFileDialog : public QDialog {
+class RemoveFileDialog : public QDialog
+{
     Q_OBJECT
     Q_DISABLE_COPY(RemoveFileDialog)
 public:

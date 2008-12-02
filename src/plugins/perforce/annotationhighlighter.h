@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef ANNOTATIONHIGHLIGHTER_H
 #define ANNOTATIONHIGHLIGHTER_H
 
@@ -52,7 +53,7 @@ private:
     const QChar m_colon;
 };
 
-} //namespace Perforce
-} //namespace Internal
+} // namespace Perforce
+} // namespace Internal
 
-#endif
+#endif // ANNOTATIONHIGHLIGHTER_H

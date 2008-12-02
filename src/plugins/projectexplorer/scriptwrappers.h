@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTEXPLORER_SCRIPT_WRAPPER_H
 #define PROJECTEXPLORER_SCRIPT_WRAPPER_H
 

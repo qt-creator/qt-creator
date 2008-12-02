@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "buildparserfactory.h"
+
 #include "qt4projectmanagerconstants.h"
 #include "gccparser.h"
 #include "msvcparser.h"
@@ -40,7 +41,6 @@ using namespace Qt4ProjectManager::Internal;
 
 GccParserFactory::~GccParserFactory()
 {
-
 }
 
 bool GccParserFactory::canCreate(const QString & name) const
@@ -56,7 +56,6 @@ ProjectExplorer::BuildParserInterface * GccParserFactory::create(const QString &
 
 MsvcParserFactory::~MsvcParserFactory()
 {
-
 }
 
 bool MsvcParserFactory::canCreate(const QString & name) const

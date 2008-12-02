@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "annotationhighlighter.h"
 
 namespace Perforce {
@@ -48,5 +49,5 @@ QString PerforceAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-}
-}
+} // Internal
+} // Perforce

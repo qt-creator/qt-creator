@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "vcsbaseeditor.h"
 #include "diffhighlighter.h"
 #include "baseannotationhighlighter.h"
@@ -483,4 +484,4 @@ VCSBaseEditor *VCSBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
     return 0;
 }
 
-}
+} // namespace VCSBase

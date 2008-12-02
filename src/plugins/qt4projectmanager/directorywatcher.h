@@ -30,14 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef DIRECTORYWATCHER
-#define DIRECTORYWATCHER
+
+#ifndef DIRECTORYWATCHER_H
+#define DIRECTORYWATCHER_H
 
 #include <QtCore/QDateTime>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -87,7 +87,7 @@ private:
     FileModificationTimeMap m_files;
 };
 
-}
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif
+#endif // DIRECTORYWATCHER_H

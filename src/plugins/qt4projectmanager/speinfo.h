@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SIMPLEPROEDITORINFO_H
 #define SIMPLEPROEDITORINFO_H
 
-#include <QtGui/QPixmap>
-#include <QVariant>
 #include <QtCore/QHash>
+#include <QtCore/QVariant>
+#include <QtGui/QPixmap>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -110,7 +111,7 @@ private:
     static bool m_listsInitialized;
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif
+#endif // SIMPLEPROEDITORINFO_H

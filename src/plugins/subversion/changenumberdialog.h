@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CHANGENUMBERDIALOG_H
 #define CHANGENUMBERDIALOG_H
 
-#include <QtGui/QDialog>
-
 #include "ui_changenumberdialog.h"
+
+#include <QtGui/QDialog>
 
 namespace Subversion {
 namespace Internal {
@@ -49,12 +50,9 @@ public:
 
 private:
     Ui::ChangeNumberDialog m_ui;
-
 };
 
-} //namespace Subversion
-} //namespace Internal
+} // namespace Subversion
+} // namespace Internal
 
-#endif
-
-
+#endif // CHANGENUMBERDIALOG_H

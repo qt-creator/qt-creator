@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QMAKEBUILDSTEPFACTORY_H
 #define QMAKEBUILDSTEPFACTORY_H
 
 #include <projectexplorer/buildstep.h>
+
 #include <QString>
 
 namespace ProjectExplorer {

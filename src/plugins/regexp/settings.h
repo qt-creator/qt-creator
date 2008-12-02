@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef REGEXP_SETTINGS_H
 #define REGEXP_SETTINGS_H
 

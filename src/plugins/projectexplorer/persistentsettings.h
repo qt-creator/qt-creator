@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERSISTENTSETTINGS_H
 #define PERSISTENTSETTINGS_H
 
@@ -70,6 +71,6 @@ private:
     QMap<QString, QVariant> m_valueMap;
 };
 
-} //namespace ProjectExplorer
+} // namespace ProjectExplorer
 
-#endif //PERSISTENTSETTINGS_H
+#endif // PERSISTENTSETTINGS_H

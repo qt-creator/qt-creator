@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTMANAGERINTERFACE_H
 #define PROJECTMANAGERINTERFACE_H
 
 #include "projectexplorer_export.h"
+
 #include <QtCore/QObject>
 
 namespace ProjectExplorer {

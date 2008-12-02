@@ -30,10 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef GUIAPPWIZARD_H
 #define GUIAPPWIZARD_H
-
-#include <QtGui/QWizard>
 
 #include "qtwizard.h"
 

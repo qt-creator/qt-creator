@@ -30,15 +30,15 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
+#include "qtversionmanager.h"
+#include "ui_makestep.h"
+
 #include <projectexplorer/ProjectExplorerInterfaces>
 #include <QDebug>
-
-#include "qtversionmanager.h"
-
-#include "ui_makestep.h"
 
 namespace Qt4ProjectManager {
 

@@ -30,12 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+#include "session.h"
+
 #include "dependenciesdialog.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "nodesvisitor.h"
-#include "session.h"
 #include "editorconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -48,7 +50,6 @@
 #include <utils/listutils.h>
 
 #include <texteditor/itexteditor.h>
-
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>

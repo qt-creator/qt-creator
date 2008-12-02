@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef VCSBaseBASEEDITOR_H
-#define VCSBaseBASEEDITOR_H
+
+#ifndef VCSBASE_BASEEDITOR_H
+#define VCSBASE_BASEEDITOR_H
 
 #include "vcsbase_global.h"
 
@@ -168,6 +169,6 @@ private:
     VCSBaseEditorPrivate *m_d;
 };
 
-} // namespace Internal
+} // namespace VCSBase
 
-#endif // VCSBaseBASEEDITOR_H
+#endif // VCSBASE_BASEEDITOR_H

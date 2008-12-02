@@ -30,15 +30,18 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef RESOURCEEDITOR_CONSTANTS_H
 #define RESOURCEEDITOR_CONSTANTS_H
 
 namespace ResourceEditor {
 namespace Constants {
+
 const char * const C_RESOURCEEDITOR = "Resource Editor";
 const char * const C_RESOURCEWINDOW = "Resourcewindow";
 const char * const C_RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
-}
-}
+
+} // namespace Constants
+} // namespace ResourceEditor
 
 #endif // RESOURCEEDITOR_CONSTANTS_H

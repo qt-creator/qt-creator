@@ -30,24 +30,27 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERFORCE_CONSTANTS_H
 #define PERFORCE_CONSTANTS_H
 
 namespace Perforce {
-    namespace Constants {
-        const char * const C_PERFORCEEDITOR  = "Perforce Editor";
+namespace Constants {
 
-        const char * const PERFORCEEDITOR_KIND  = "Perforce Editor";
-        const char * const C_PERFORCESUBMITEDITOR  = "Perforce Submit Editor";
-        const char * const PERFORCESUBMITEDITOR_KIND  = "Perforce Submit Editor";
-        const char * const ICON_SUBMIT = ":/trolltech.perforce/images/submit.png";
-        const char * const ICON_DIFF = ":/trolltech.perforce/images/diff.png";
-        const char * const SUBMIT_CURRENT = "Nokia.Perforce.SubmitCurrentLog";
-        const char * const DIFF_SELECTED = "Nokia.Perforce.DiffSelectedFilesInLog";
-        const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.p4.submit";
+const char * const C_PERFORCEEDITOR  = "Perforce Editor";
 
-        enum { debug = 0 };
-    }
-}
+const char * const PERFORCEEDITOR_KIND  = "Perforce Editor";
+const char * const C_PERFORCESUBMITEDITOR  = "Perforce Submit Editor";
+const char * const PERFORCESUBMITEDITOR_KIND  = "Perforce Submit Editor";
+const char * const ICON_SUBMIT = ":/trolltech.perforce/images/submit.png";
+const char * const ICON_DIFF = ":/trolltech.perforce/images/diff.png";
+const char * const SUBMIT_CURRENT = "Nokia.Perforce.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Nokia.Perforce.DiffSelectedFilesInLog";
+const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.p4.submit";
+
+enum { debug = 0 };
+
+} // Internal
+} // Perforce
 
 #endif // PERFORCE_CONSTANTS_H

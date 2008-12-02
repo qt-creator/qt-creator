@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "qt4runconfiguration.h"
+
 #include "qt4project.h"
 #include "profilereader.h"
 #include "qt4nodes.h"
 #include "makestep.h"
-
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

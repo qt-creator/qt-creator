@@ -30,21 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-/********************************************************************************
-** Form generated from reading ui file 'projectloadwizard.ui'
-**
-** Created: Mon Nov 3 16:31:45 2008
-**      by: Qt User Interface Compiler version 4.5.0
-**
-** WARNING! All changes made in this file will be lost when recompiling ui file!
-********************************************************************************/
 
 #ifndef PROJECTLOADWIZARD_H
 #define PROJECTLOADWIZARD_H
 
 #include "qt4project.h"
-#include <QtGui/QWizard>
 
+#include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;
@@ -74,6 +66,7 @@ public:
     virtual int nextId() const;
     virtual void done(int result);
     void execDialog();
+
 private:
     void addBuildConfiguration(QString name, QtVersion *qtversion, QtVersion::QmakeBuildConfig buildConfiguration);
     void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfig buildConfig);
@@ -96,7 +89,8 @@ private:
 
     void setupUi();
 };
-}
-}
 
-#endif // UI_PROJECTLOADWIZARD_H
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
+#endif // PROJECTLOADWIZARD_H

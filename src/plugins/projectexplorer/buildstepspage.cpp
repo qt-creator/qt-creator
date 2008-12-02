@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "buildstepspage.h"
 #include "ui_buildstepspage.h"
 #include "project.h"

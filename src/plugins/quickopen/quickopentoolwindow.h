@@ -30,13 +30,14 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QUICKOPENTOOLWINDOW_H
 #define QUICKOPENTOOLWINDOW_H
 
+#include "quickopenplugin.h"
+
 #include <QtCore/QEvent>
 #include <QtGui/QWidget>
-
-#include "quickopenplugin.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;

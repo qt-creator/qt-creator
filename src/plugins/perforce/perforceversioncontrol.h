@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PERFORCEVERSIONCONTROL_H
 #define PERFORCEVERSIONCONTROL_H
 
@@ -55,6 +56,7 @@ private:
     PerforcePlugin *m_plugin;
 };
 
-}
-}
-#endif
+} // Internal
+} // Perforce
+
+#endif // PERFORCEVERSIONCONTROL_H

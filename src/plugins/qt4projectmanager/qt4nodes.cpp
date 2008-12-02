@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "proeditormodel.h"
+
 #include "profilecache.h"
 #include "profilereader.h"
 #include "qt4nodes.h"

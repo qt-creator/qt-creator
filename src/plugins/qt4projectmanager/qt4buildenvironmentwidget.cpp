@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include "qt4buildenvironmentwidget.h"
-#include "ui_qt4buildenvironmentwidget.h"
 
+#include "qt4buildenvironmentwidget.h"
+
+#include "ui_qt4buildenvironmentwidget.h"
 #include "qt4project.h"
+
 #include <projectexplorer/environmenteditmodel.h>
 
 namespace {
@@ -69,8 +71,8 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
             this, SLOT(removeEnvironmentButtonClicked()));
     connect(m_ui->unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(m_ui->environmentTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex &)),
-            this, SLOT(environmentCurrentIndexChanged(const QModelIndex &, const QModelIndex &)));
+    connect(m_ui->environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
     connect(m_ui->clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }

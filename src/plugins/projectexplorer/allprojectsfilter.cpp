@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "allprojectsfilter.h"
 #include "projectexplorer.h"
 #include "session.h"
@@ -42,8 +43,7 @@ using namespace QuickOpen;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe,
-                                     ICore *core)
+AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe, ICore *core)
     : BaseFileFilter(core)
 {
     m_projectExplorer = pe;

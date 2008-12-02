@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "perforceversioncontrol.h"
 #include "perforceplugin.h"
 
@@ -65,5 +66,6 @@ QString PerforceVersionControl::findTopLevelForDirectory(const QString &director
 {
     return m_plugin->findTopLevelForDirectory(directory);
 }
-}
-}
+
+} // Internal
+} // Perforce

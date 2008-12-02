@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef REGEXPPLUGIN_H
 #define REGEXPPLUGIN_H
 
@@ -63,7 +64,7 @@ private:
     QPointer<RegExpWindow> m_regexpWindow;
 };
 
-} //namespace Internal
-} //namespace RegExp
+} // namespace Internal
+} // namespace RegExp
 
-#endif
+#endif // REGEXPPLUGIN_H

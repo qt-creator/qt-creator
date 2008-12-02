@@ -30,11 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "textfilewizard.h"
 #include "basetexteditor.h"
 #include "texteditorconstants.h"
 
-namespace TextEditor {
+using namespace TextEditor;
 
 TextFileWizard::TextFileWizard(const QString &mimeType,
                                const QString &editorKind,
@@ -58,6 +59,4 @@ Core::GeneratedFiles
     Core::GeneratedFile file(fileName);
     file.setEditorKind(m_editorKind);
     return Core::GeneratedFiles() << file;
-}
-
 }

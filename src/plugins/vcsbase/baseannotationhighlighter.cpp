@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "baseannotationhighlighter.h"
 
 #include <math.h>
@@ -98,5 +99,4 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
         setFormat(0, text.length(), it.value());
 }
 
-}
-
+} // namespace VCSBase

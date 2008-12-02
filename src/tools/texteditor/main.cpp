@@ -43,4 +43,3 @@ int main(int argc, char *argv[])
     mw.loadFiles(args);
     return app.exec();
 }
-

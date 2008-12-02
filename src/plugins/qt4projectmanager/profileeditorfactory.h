@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROFILEEDITORFACTORY_H
 #define PROFILEEDITORFACTORY_H
 
 #include <coreplugin/editormanager/ieditorfactory.h>
+
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE

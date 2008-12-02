@@ -1,4 +1,4 @@
-/***************************************************************************
+/*************************************************************************** 
 **
 ** This file is part of Qt Creator
 **
@@ -30,11 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef MSVCPARSER_H
 #define MSVCPARSER_H
 
-#include <QtCore/QRegExp>
 #include <projectexplorer/ProjectExplorerInterfaces>
+
+#include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
@@ -54,6 +56,6 @@ private:
     QRegExp m_linkRegExp;
 };
 
-} //namespace ProjectExplorer
+} // namespace ProjectExplorer
 
-#endif
+#endif // MsvcParser

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "tabsettings.h"
 
 #include <QtCore/QSettings>
@@ -85,8 +86,6 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
     m_tabSize         = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize      = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
 }
-
-
 
 int TabSettings::lineIndentPosition(const QString &text) const
 {
@@ -144,7 +143,6 @@ bool TabSettings::isIndentationClean(const QString &text) const
     }
     return true;
 }
-
 
 int TabSettings::columnAt(const QString &text, int position) const
 {

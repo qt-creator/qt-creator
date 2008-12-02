@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROJECTWIZARDPAGE_H
 #define PROJECTWIZARDPAGE_H
 
@@ -77,7 +78,7 @@ private:
     Ui::WizardPage *m_ui;
 };
 
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // PROJECTWIZARDPAGE_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef CHANGENUMBERDIALOG_H
 #define CHANGENUMBERDIALOG_H
 
@@ -53,9 +54,7 @@ private:
 
 };
 
-} //namespace Perforce
-} //namespace Internal
+} // namespace Perforce
+} // namespace Internal
 
-#endif
-
-
+#endif // CHANGENUMBERDIALOG_H

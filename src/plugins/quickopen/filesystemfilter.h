@@ -30,23 +30,20 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef FILESYSTEMFILTER_H
 #define FILESYSTEMFILTER_H
 
 #include "iquickopenfilter.h"
 #include "ui_filesystemfilter.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
 
 namespace QuickOpen {
 namespace Internal {

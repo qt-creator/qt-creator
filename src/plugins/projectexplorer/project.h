@@ -30,6 +30,8 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
+
 #ifndef PROJECT_H
 #define PROJECT_H
 
@@ -177,6 +179,6 @@ private:
     EditorConfiguration *m_editorConfiguration;
 };
 
-} //namespace ProjectExplorer
+} // namespace ProjectExplorer
 
-#endif //PROJECTINTERFACE_H
+#endif // PROJECTINTERFACE_H

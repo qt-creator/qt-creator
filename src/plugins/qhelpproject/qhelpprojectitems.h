@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QHELPPROJECTITEMS_H
 #define QHELPPROJECTITEMS_H
 
-#include <QtGui/QIcon>
-
 #include <projectexplorer/ProjectExplorerInterfaces>
+
+#include <QtGui/QIcon>
 
 namespace QHelpProjectPlugin {
 namespace Internal {
@@ -84,8 +85,7 @@ private:
     static QIcon m_icon;
 };
 
-}
-}
-}
+} // namespace Internal
+} // namespace QHelpProject
 
-#endif
+#endif // QHELPPROJECTITEMS_H

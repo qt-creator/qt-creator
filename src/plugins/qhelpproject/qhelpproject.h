@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QHELPPROJECT_H
 #define QHELPPROJECT_H
 
-#include <QtCore/QObject>
-
 #include <projectexplorer/ProjectExplorerInterfaces>
+
+#include <QtCore/QObject>
 
 namespace QHelpProjectPlugin {
 namespace Internal {
@@ -108,8 +109,7 @@ private:
     QStringList m_files;
 };
 
-}
-}
-}
+} // namespace Internal
+} // namespace QHelpProject
 
-#endif
+#endif // QHELPPROJECT_H

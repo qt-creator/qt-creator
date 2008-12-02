@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "helpfindsupport.h"
 #include "helpviewer.h"
 
@@ -48,6 +49,7 @@ bool HelpFindSupport::isEnabled() const
 {
     return true;
 }
+
 QString HelpFindSupport::currentFindString() const
 {
     Q_ASSERT(m_centralWidget);
@@ -61,8 +63,10 @@ QString HelpFindSupport::currentFindString() const
 #endif
 }
 
-
-QString HelpFindSupport::completedFindString() const { return QString(); }
+QString HelpFindSupport::completedFindString() const
+{
+    return QString();
+}
 
 bool HelpFindSupport::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
 {

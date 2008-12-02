@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "guiappwizard.h"
 #include "guiappwizarddialog.h"
 #include "qt4projectmanager.h"
@@ -197,5 +198,6 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     *target = contents;
     return true;
 }
-}
-}
+
+} // namespace Internal
+} // namespace Qt4ProjectManager

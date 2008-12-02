@@ -30,23 +30,24 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SETTINGSPAGE_H
 #define SETTINGSPAGE_H
+
+#include "ui_settingspage.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
-
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include "ui_settingspage.h"
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
 namespace Subversion {
-    namespace Internal {
+namespace Internal {
 
 struct SubversionSettings;
 
@@ -84,7 +85,7 @@ private:
     QPointer<SettingsPageWidget> m_widget;
 };
 
-    }   //namespace Subversion
-}   //namespace Internal
+} // namespace Subversion
+} // namespace Internal
 
 #endif  // SETTINGSPAGE_H

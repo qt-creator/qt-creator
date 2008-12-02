@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PENDINGCHANGESDIALOG_H
 #define PENDINGCHANGESDIALOG_H
 
@@ -52,8 +53,8 @@ private:
     Ui::PendingChangesDialog m_ui;
 };
 
-} //namespace Perforce
-} //namespace Internal
+} // namespace Perforce
+} // namespace Internal
 
-#endif
+#endif // PENDINGCHANGESDIALOG_H
 

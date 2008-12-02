@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4PRO_ENUMS_H
 #define QT4PRO_ENUMS_H
 
@@ -46,4 +47,4 @@ enum ProfileFormats {
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif //QT4PRO_ENUMS_H
+#endif // QT4PRO_ENUMS_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SUBVERSIONSETTINGS_H
 #define SUBVERSIONSETTINGS_H
 
@@ -43,7 +44,8 @@ namespace Subversion {
 namespace Internal {
 
 // Todo: Add user name and password?
-struct SubversionSettings {
+struct SubversionSettings
+{
     SubversionSettings();
 
     void fromSettings(QSettings *);
@@ -67,7 +69,8 @@ inline bool operator==(const SubversionSettings &p1, const SubversionSettings &p
     { return p1.equals(p2); }
 inline bool operator!=(const SubversionSettings &p1, const SubversionSettings &p2)
     { return !p1.equals(p2); }
-}
-}
 
-#endif
+} // namespace Internal
+} // namespace Subversion
+
+#endif // SUBVERSIONSETTINGS_H

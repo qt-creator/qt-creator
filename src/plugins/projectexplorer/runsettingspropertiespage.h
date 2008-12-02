@@ -30,16 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef RUNSETTINGSPROPERTIESPAGE_H
 #define RUNSETTINGSPROPERTIESPAGE_H
 
 #include "iprojectproperties.h"
+
 #include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-
-
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4BUILDENVIRONMENTWIDGET_H
 #define QT4BUILDENVIRONMENTWIDGET_H
 
@@ -52,6 +53,7 @@ class Qt4BuildEnvironmentWidget;
 class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
+
 public:
     Qt4BuildEnvironmentWidget(Qt4Project *project);
     ~Qt4BuildEnvironmentWidget();
@@ -77,7 +79,7 @@ private:
     QString m_buildConfiguration;
 };
 
-} // Internal
-} // Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // QT4BUILDENVIRONMENTWIDGET_H

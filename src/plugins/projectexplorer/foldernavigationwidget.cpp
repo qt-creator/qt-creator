@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "foldernavigationwidget.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -52,18 +53,21 @@ bool debug = false;
 }
 
 namespace ProjectExplorer {
-    namespace Internal {
-        class FirstRowFilter : public QSortFilterProxyModel {
-            Q_OBJECT
-        public:
-            FirstRowFilter(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
-        protected:
-            bool filterAcceptsRow (int source_row, const QModelIndex & ) const {
-                return source_row != 0;
-            }
-        };
+namespace Internal {
+
+class FirstRowFilter : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    FirstRowFilter(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
+protected:
+    bool filterAcceptsRow (int source_row, const QModelIndex & ) const {
+        return source_row != 0;
     }
-}
+};
+
+} // namespace Internal
+} // namespace ProjectExplorer
 
 /*!
   /class FolderNavigationWidget

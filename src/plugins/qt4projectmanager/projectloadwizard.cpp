@@ -32,17 +32,20 @@
 ***************************************************************************/
 
 #include "projectloadwizard.h"
+
 #include "qt4project.h"
 #include "qtversionmanager.h"
 #include "qt4projectmanager.h"
 #include "qmakestep.h"
 #include "makestep.h"
+
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
+#include <QtGui/QFileDialog>
 #include <QtGui/QFormLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
@@ -55,7 +58,6 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWizard>
 #include <QtGui/QWizardPage>
-#include <QFileDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

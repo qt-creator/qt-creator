@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "perforcesettings.h"
 
 #include <QtCore/QSettings>
@@ -90,6 +91,5 @@ bool PerforceSettings::equals(const PerforceSettings &s) const
         && defaultEnv == s.defaultEnv;
 }
 
-}
-}
-
+} // Internal
+} // Perforce

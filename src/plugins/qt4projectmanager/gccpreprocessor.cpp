@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "gccpreprocessor.h"
+
 #include <QProcess>
 #include <QString>
 #include <QFile>

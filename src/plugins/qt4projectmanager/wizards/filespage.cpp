@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "filespage.h"
 
 #include <utils/newclasswidget.h>
@@ -177,9 +178,6 @@ void FilesPage::setFormInputChecked(bool checked)
 {
     m_newClassWidget->setFormInputChecked(checked);
 }
-
-
-
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "settings.h"
+
 #include <QtCore/QSettings>
 
 static const char *syntaxKey = "Syntax";
@@ -90,5 +92,5 @@ void Settings::toQSettings(QSettings *s) const
     s->endGroup();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Settings;

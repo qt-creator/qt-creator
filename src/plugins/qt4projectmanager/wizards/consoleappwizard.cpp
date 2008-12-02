@@ -30,7 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "consoleappwizard.h"
+
 #include "consoleappwizarddialog.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
@@ -54,7 +56,6 @@ static const char *mainCppC =
 static const char *mainSourceFileC = "main";
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard(Core::ICore *core) :
@@ -101,5 +102,5 @@ Core::GeneratedFiles
     return Core::GeneratedFiles() <<  source << profile;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager

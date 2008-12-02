@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
@@ -124,4 +125,4 @@ private:
 } //namespace Internal
 } //namespace ProjectExplorer
 
-#endif
+#endif // TASKWINDOW_H

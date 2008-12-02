@@ -30,11 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef ABSTRACTPROCESSSTEP_H
 #define ABSTRACTPROCESSSTEP_H
 
 #include "buildstep.h"
 #include "environment.h"
+
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 
@@ -136,6 +138,6 @@ private:
     ProjectExplorer::Environment m_environment;
 };
 
-}
+} // namespace ProjectExplorer
 
 #endif // ABSTRACTPROCESSSTEP_H

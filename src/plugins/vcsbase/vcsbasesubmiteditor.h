@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef VCSBaseSUBMITEDITOR_H
-#define VCSBaseSUBMITEDITOR_H
+
+#ifndef VCSBASE_SUBMITEDITOR_H
+#define VCSBASE_SUBMITEDITOR_H
 
 #include "vcsbase_global.h"
 
@@ -141,6 +142,6 @@ private:
     VCSBaseSubmitEditorPrivate *m_d;
 };
 
-}
+} // namespace VCSBase
 
-#endif // VCSBaseSUBMITEDITOR_H
+#endif // VCSBASE_SUBMITEDITOR_H

@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "perforcesubmiteditor.h"
 #include "perforcesubmiteditorwidget.h"
 #include "perforceplugin.h"
@@ -190,5 +191,5 @@ void PerforceSubmitEditor::updateEntries()
     m_entries.insert(QLatin1String("Files"), files);
 }
 
-}
-}
+} // Internal
+} // Perforce

@@ -30,12 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#include <projectexplorer/ProjectExplorerInterfaces>
 
-#include <QDebug>
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 #include "winguiprocess.h"
+#include <projectexplorer/ProjectExplorerInterfaces>
+
+#include <QDebug>
 
 using namespace ProjectExplorer::Internal;
 

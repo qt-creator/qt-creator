@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef BASEANNOTATIONHIGHLIGHTER_H
 #define BASEANNOTATIONHIGHLIGHTER_H
 
@@ -71,6 +72,6 @@ private:
     BaseAnnotationHighlighterPrivate *m_d;
 };
 
-} //namespace Internal
+} // namespace VCSBase
 
-#endif
+#endif // BASEANNOTATIONHIGHLIGHTER_H

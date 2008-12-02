@@ -30,8 +30,9 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-#ifndef ENVIRONMENT
-#define ENVIRONMENT
+
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
 
 #include "projectexplorer_export.h"
 
@@ -96,6 +97,6 @@ private:
     QMap<QString, QString> m_values;
 };
 
-}
+} // namespace ProjectExplorer
 
-#endif
+#endif // ENVIRONMENT_H

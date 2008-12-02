@@ -30,11 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QTESTLIBPLUGIN_H
 #define QTESTLIBPLUGIN_H
 
 #include <coreplugin/ioutputpane.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
+
 #include <QPixmap>
 #include <QStandardItem>
 #include <QWidget>

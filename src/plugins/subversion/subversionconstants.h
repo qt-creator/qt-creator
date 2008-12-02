@@ -30,22 +30,25 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef SUBVERSION_CONSTANTS_H
 #define SUBVERSION_CONSTANTS_H
 
 namespace Subversion {
-    namespace Constants {
-        const char * const SUBVERSION_SUBMIT_MIMETYPE = "application/vnd.nokia.text.subversion.submit";
-        const char * const SUBVERSIONEDITOR  = "Subversion Editor";
-        const char * const SUBVERSIONEDITOR_KIND  = "Subversion Editor";
-        const char * const SUBVERSIONCOMMITEDITOR  = "Subversion Commit Editor";
-        const char * const SUBVERSIONCOMMITEDITOR_KIND  = "Subversion Commit Editor";
-        const char * const ICON_SUBMIT = ":/trolltech.subversion/images/submit.png";
-        const char * const ICON_DIFF = ":/trolltech.subversion/images/diff.png";
-        const char * const SUBMIT_CURRENT = "Nokia.Subversion.SubmitCurrentLog";
-        const char * const DIFF_SELECTED = "Nokia.Subversion.DiffSelectedFilesInLog";
-        enum { debug = 0 };
-    }
-}
+namespace Constants {
 
-#endif
+const char * const SUBVERSION_SUBMIT_MIMETYPE = "application/vnd.nokia.text.subversion.submit";
+const char * const SUBVERSIONEDITOR  = "Subversion Editor";
+const char * const SUBVERSIONEDITOR_KIND  = "Subversion Editor";
+const char * const SUBVERSIONCOMMITEDITOR  = "Subversion Commit Editor";
+const char * const SUBVERSIONCOMMITEDITOR_KIND  = "Subversion Commit Editor";
+const char * const ICON_SUBMIT = ":/trolltech.subversion/images/submit.png";
+const char * const ICON_DIFF = ":/trolltech.subversion/images/diff.png";
+const char * const SUBMIT_CURRENT = "Nokia.Subversion.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Nokia.Subversion.DiffSelectedFilesInLog";
+enum { debug = 0 };
+
+} // namespace Constants
+} // namespace SubVersion
+
+#endif // SUBVERSION_CONSTANTS_H

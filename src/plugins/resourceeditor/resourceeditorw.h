@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef RESOURCEDITORW_H
 #define RESOURCEDITORW_H
 
@@ -140,4 +141,4 @@ public:
 } // namespace Internal
 } // namespace ResourceEditor
 
-#endif //RESOURCEDITORW_H
+#endif // RESOURCEDITORW_H

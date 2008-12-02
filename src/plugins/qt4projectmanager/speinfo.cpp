@@ -30,10 +30,12 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "speinfo.h"
+
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QVariant>
-#include <QtDebug>
 
 using namespace Qt4ProjectManager::Internal;
 

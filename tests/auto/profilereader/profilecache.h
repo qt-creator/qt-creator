@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PROFILECACHE_H
 #define PROFILECACHE_H
 
@@ -45,7 +46,7 @@ public:
     { return new ProFile(arg); }
 };
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // PROFILECACHE_H

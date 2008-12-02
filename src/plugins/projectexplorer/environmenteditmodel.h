@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef ENVIRONMENTEDITMODEL_H
 #define ENVIRONMENTEDITMODEL_H
 
@@ -40,8 +41,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QFont>
 
-namespace ProjectExplorer
-{
+namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT EnvironmentModel : public QAbstractItemModel
 {
@@ -88,5 +88,6 @@ private:
     bool m_mergedEnvironments;
 };
 
-}
+} // namespace ProjectExplorer
+
 #endif // ENVIRONMENTEDITMODEL_H

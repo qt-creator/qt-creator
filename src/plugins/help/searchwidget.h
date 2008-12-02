@@ -85,4 +85,4 @@ private:
 } // namespace Internal
 } // namespace Help
 
-#endif  // SEARCHWIDGET_H
+#endif // SEARCHWIDGET_H

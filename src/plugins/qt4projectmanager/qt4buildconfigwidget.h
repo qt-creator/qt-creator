@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef QT4BUILDCONFIGWIDGET_H
 #define QT4BUILDCONFIGWIDGET_H
 
@@ -70,7 +71,7 @@ private:
     QString m_buildConfiguration;
 };
 
-} // Internal
-} // Qt4ProjectManager
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // QT4BUILDCONFIGWIDGET_H

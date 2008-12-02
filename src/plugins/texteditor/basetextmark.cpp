@@ -30,10 +30,13 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "basetextmark.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
+
 #include <QtCore/QTimer>
 
 using namespace TextEditor;
@@ -42,7 +45,6 @@ using namespace TextEditor::Internal;
 BaseTextMark::BaseTextMark()
     : m_markableInterface(0), m_internalMark(0), m_init(false)
 {
-    
 }
 
 BaseTextMark::BaseTextMark(const QString &filename, int line)
