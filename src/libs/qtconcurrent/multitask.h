@@ -30,11 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef MULTITASK_H
 #define MULTITASK_H
 
 #include "qtconcurrent_global.h"
 #include "runextensions.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QEventLoop>
@@ -184,14 +186,15 @@ private:
 };
 
 template <typename Class, typename T>
-QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &), const QList<Class *> &objects, int priority = 0) {
+QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &), const QList<Class *> &objects, int priority = 0)
+{
     MultiTask<Class, T> *task = new MultiTask<Class, T>(fn, objects);
     QFuture<T> future = task->future();
     QThreadPool::globalInstance()->start(task, priority);
     return future;
 }
 
-} //namespace
+} // namespace QtConcurrent
 
 QT_END_NAMESPACE
 

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "main.h"
 
 #include <QtGui/QApplication>
@@ -107,4 +108,3 @@ int main(int argc, char *argv[])
     w.show();
     return app.exec();
 }
-

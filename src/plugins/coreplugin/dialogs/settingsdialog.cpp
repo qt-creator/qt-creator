@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "settingsdialog.h"
 #include "coreimpl.h"
 
@@ -111,7 +112,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
 
 SettingsDialog::~SettingsDialog()
 {
-
 }
 
 void SettingsDialog::pageSelected(QTreeWidgetItem *)
@@ -123,16 +123,14 @@ void SettingsDialog::pageSelected(QTreeWidgetItem *)
 
 void SettingsDialog::accept()
 {
-    foreach(IOptionsPage *page, m_pages) {
+    foreach(IOptionsPage *page, m_pages)
         page->finished(true);
-    }
     done(QDialog::Accepted);
 }
 
 void SettingsDialog::reject()
 {
-    foreach(IOptionsPage *page, m_pages) {
+    foreach(IOptionsPage *page, m_pages)
         page->finished(false);
-    }
     done(QDialog::Rejected);
 }

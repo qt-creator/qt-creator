@@ -30,15 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef MAIN_H
 #define MAIN_H
 
 #include "myinterfaces.h"
+#include "ui_main.h"
 
 #include <aggregate.h>
 
 #include <QtGui/QWidget>
-#include "ui_main.h"
 
 class MyMain : public QWidget
 {

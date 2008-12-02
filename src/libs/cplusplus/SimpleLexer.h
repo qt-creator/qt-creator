@@ -34,6 +34,7 @@
 #define SIMPLELEXER_H
 
 #include <CPlusPlusForwardDeclarations.h>
+
 #include <QString>
 #include <QList>
 

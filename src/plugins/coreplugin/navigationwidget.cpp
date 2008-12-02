@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "navigationwidget.h"
 
 #include <coreplugin/icore.h>
@@ -134,10 +135,10 @@ void NavigationWidgetPlaceHolder::currentModeAboutToChange(Core::IMode *mode)
 NavigationWidget *NavigationWidget::m_instance = 0;
 
 NavigationWidget::NavigationWidget(QAction *toggleSideBarAction)
-    : m_shown(true)
-    , m_suppressed(false)
-    , m_width(0)
-    , m_toggleSideBarAction(toggleSideBarAction)
+    : m_shown(true),
+      m_suppressed(false),
+      m_width(0),
+      m_toggleSideBarAction(toggleSideBarAction)
 {
     connect(ExtensionSystem::PluginManager::instance(), SIGNAL(objectAdded(QObject*)),
             this, SLOT(objectAdded(QObject*)));

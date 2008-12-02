@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef WRAP_HELPERS_H
 #define WRAP_HELPERS_H
 
@@ -329,6 +330,6 @@ static void registerQObject(QScriptEngine &engine)
                                           scriptValueToQObject<SomeQObject>);
 }
 
-}
+} // namespace SharedTools
 
-#endif
+#endif // WRAP_HELPERS_H

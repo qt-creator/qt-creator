@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGINMANAGER_P_H
 #define PLUGINMANAGER_P_H
 

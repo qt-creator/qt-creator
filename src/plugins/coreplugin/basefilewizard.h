@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BASEFILEWIZARD_H
 #define BASEFILEWIZARD_H
 
@@ -62,7 +63,8 @@ class GeneratedFilePrivate;
  * each file whether it already exists and will report any errors that may
  * occur during creation of the files.
  */
-class CORE_EXPORT GeneratedFile {
+class CORE_EXPORT GeneratedFile
+{
 public:
     GeneratedFile();
     explicit GeneratedFile(const QString &path);
@@ -93,7 +95,8 @@ typedef QList<GeneratedFile> GeneratedFiles;
 /* Parameter class for passing parameters to instances of class Wizard
  * containing name, icon and such. */
 
-class CORE_EXPORT BaseFileWizardParameters {
+class CORE_EXPORT BaseFileWizardParameters
+{
 public:
     explicit BaseFileWizardParameters(IWizard::Kind kind = IWizard::FileWizard);
     BaseFileWizardParameters(const BaseFileWizardParameters &);
@@ -204,7 +207,8 @@ private:
 // Core::Utils::FileWizardDialog and introduces a new virtual to generate the
 // files from path and name.
 
-class CORE_EXPORT StandardFileWizard : public BaseFileWizard {
+class CORE_EXPORT StandardFileWizard : public BaseFileWizard
+{
     Q_DISABLE_COPY(StandardFileWizard)
     Q_OBJECT
 

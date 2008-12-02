@@ -30,11 +30,11 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BASEMODE_H
 #define BASEMODE_H
 
 #include "core_global.h"
-
 #include "imode.h"
 
 #include <QtCore/QObject>

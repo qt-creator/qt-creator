@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "plugindialog.h"
+
 #include <extensionsystem/plugindetailsview.h>
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginspec.h>
@@ -139,4 +141,3 @@ int main(int argc, char *argv[])
     dialog.show();
     app.exec();
 }
-

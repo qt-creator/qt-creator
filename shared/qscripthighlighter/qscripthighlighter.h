@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
@@ -59,7 +60,8 @@ private:
     virtual int onBlockStart(); // returns the blocks initial state
     virtual void onOpeningParenthesis(QChar parenthesis, int pos);
     virtual void onClosingParenthesis(QChar parenthesis, int pos);
-    virtual void onBlockEnd(int state, int firstNonSpace); // sets the enriched user state, or simply calls setCurrentBlockState(state);
+    // sets the enriched user state, or simply calls setCurrentBlockState(state);
+    virtual void onBlockEnd(int state, int firstNonSpace);
 
     void highlightKeyword(int currentPos, const QString &buffer);
 

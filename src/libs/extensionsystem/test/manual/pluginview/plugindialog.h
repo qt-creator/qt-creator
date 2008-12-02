@@ -30,11 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGINDIALOG_H
 #define PLUGINDIALOG_H
 
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QWidget>
 #include <QtGui/QPushButton>
 
@@ -58,4 +60,4 @@ private:
     QPushButton *m_errorDetailsButton;
 };
 
-#endif
+#endif // PLUGINDIALOG_H

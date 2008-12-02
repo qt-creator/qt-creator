@@ -30,27 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-/****************************************************************************
-**
-** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
-#include <QtGui>
 
 #include "flowlayout.h"
 
 using namespace Core::Internal;
 
 FlowLayout::FlowLayout(QWidget *parent, int margin, int spacing)
-    : QLayout(parent)
+  : QLayout(parent)
 {
     setMargin(margin);
     setSpacing(spacing);
@@ -121,11 +107,10 @@ QSize FlowLayout::sizeHint() const
 QSize FlowLayout::minimumSize() const
 {
     QSize size;
-    QLayoutItem *item;
-    foreach (item, itemList)
+    foreach (QLayoutItem *item, itemList)
         size = size.expandedTo(item->minimumSize());
 
-    size += QSize(2*margin(), 2*margin());
+    size += QSize(2 * margin(), 2 * margin());
     return size;
 }
 
@@ -135,8 +120,7 @@ int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
     int y = rect.y();
     int lineHeight = 0;
 
-    QLayoutItem *item;
-    foreach (item, itemList) {
+    foreach (QLayoutItem *item, itemList) {
         int nextX = x + item->sizeHint().width() + spacing();
         if (nextX - spacing() > rect.right() && lineHeight > 0) {
             x = rect.x();

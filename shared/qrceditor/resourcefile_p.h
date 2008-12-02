@@ -30,8 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#ifndef RESOURCEFILE_H
-#define RESOURCEFILE_H
+
+#ifndef RESOURCEFILE__P_H
+#define RESOURCEFILE__P_H
 
 #include "namespace_global.h"
 
@@ -62,8 +63,6 @@ struct Prefix;
 */
 class Node
 {
-    File *m_file;
-    Prefix *m_prefix;
 protected:
     Node(File *file, Prefix *prefix) : m_file(file), m_prefix(prefix)
     {
@@ -72,6 +71,9 @@ protected:
 public:
     File * file() { return m_file; }
     Prefix * prefix() { Q_ASSERT(m_prefix != NULL); return m_prefix; }
+private:
+    File *m_file;
+    Prefix *m_prefix;
 };
 
 /*!
@@ -95,7 +97,8 @@ typedef QList<File *> FileList;
 
     Represents a prefix node in a \l ResourceFile tree.
 */
-struct Prefix : public Node  {
+struct Prefix : public Node
+{
     Prefix(const QString &_name = QString(), const QString &_lang = QString(), const FileList &_file_list = FileList())
         : Node(NULL, this), name(_name), lang(_lang), file_list(_file_list) {}
     ~Prefix()
@@ -263,4 +266,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // RESOURCEFILE_H
+#endif // RESOURCEFILE_P_H

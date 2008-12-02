@@ -30,16 +30,18 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CPPDOCUMENT_H
 #define CPPDOCUMENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
+
 #include <QByteArray>
+#include <QList>
+#include <QSet>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include <QList>
-#include <QSet>
 
 namespace CPlusPlus {
 

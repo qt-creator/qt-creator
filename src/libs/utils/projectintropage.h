@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROJECTINTROPAGE_H
 #define PROJECTINTROPAGE_H
 
@@ -55,7 +56,8 @@ struct ProjectIntroPagePrivate;
  * layout, otherwise, QWizard will squeeze it due to its strange expanding
  * hacks. */
 
-class QWORKBENCH_UTILS_EXPORT ProjectIntroPage : public QWizardPage {
+class QWORKBENCH_UTILS_EXPORT ProjectIntroPage : public QWizardPage
+{
     Q_OBJECT
     Q_DISABLE_COPY(ProjectIntroPage)
     Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)
@@ -102,6 +104,7 @@ private:
     ProjectIntroPagePrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif // PROJECTINTROPAGE_H

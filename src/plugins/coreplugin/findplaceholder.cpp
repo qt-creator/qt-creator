@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "findplaceholder.h"
 #include "modemanager.h"
 
@@ -41,7 +42,7 @@ using namespace Core;
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
 
 FindToolBarPlaceHolder::FindToolBarPlaceHolder(Core::IMode *mode, QWidget *parent)
-    :QWidget(parent), m_mode(mode)
+    : QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -52,7 +53,6 @@ FindToolBarPlaceHolder::FindToolBarPlaceHolder(Core::IMode *mode, QWidget *paren
 
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
 {
-
 }
 
 void FindToolBarPlaceHolder::currentModeChanged(Core::IMode *mode)

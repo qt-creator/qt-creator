@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef COMMANDSFILE_H
 #define COMMANDSFILE_H
 
@@ -44,7 +45,8 @@ namespace Internal {
 
 struct ShortcutItem;
     
-class CommandsFile : public QObject {
+class CommandsFile : public QObject
+{
     Q_OBJECT
 
 public:

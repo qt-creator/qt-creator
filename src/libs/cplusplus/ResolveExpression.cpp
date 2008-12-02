@@ -44,6 +44,7 @@
 #include <CoreTypes.h>
 #include <TypeVisitor.h>
 #include <NameVisitor.h>
+
 #include <QList>
 #include <QtDebug>
 

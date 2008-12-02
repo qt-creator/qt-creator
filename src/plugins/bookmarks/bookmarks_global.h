@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BOOKMARKS_GLOBAL_H
 #define BOOKMARKS_GLOBAL_H
 
@@ -49,8 +50,8 @@ const char * const BOOKMARKS_NEXTDOC_ACTION     = "Bookmarks.Next.Document";
 const char * const BOOKMARKS_MENU               = "Bookmarks.Menu";
 const char * const BOOKMARKS_CONTEXT            = "Bookmarks";
 
-} //namespace Constants
-} //namespace Bookmarks
+} // namespace Constants
+} // namespace Bookmarks
 
-#endif //BOOKMARKS_GLOBAL_H
+#endif // BOOKMARKS_GLOBAL_H
 

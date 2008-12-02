@@ -60,4 +60,4 @@ private:
     QtLocalPeer* peer;
 };
 
-}
+} // namespace SharedTools

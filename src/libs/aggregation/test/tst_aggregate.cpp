@@ -30,9 +30,10 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtTest/QtTest>
 
 #include <aggregate.h>
+
+#include <QtTest/QtTest>
 
 class tst_Aggregate : public QObject
 {
@@ -195,4 +196,5 @@ void tst_Aggregate::parentAggregate()
 }
 
 QTEST_MAIN(tst_Aggregate)
+
 #include "tst_aggregate.moc"

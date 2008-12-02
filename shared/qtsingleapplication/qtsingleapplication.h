@@ -82,4 +82,4 @@ private:
     QWidget *actWin;
 };
 
-}
+} // namespace SharedTools

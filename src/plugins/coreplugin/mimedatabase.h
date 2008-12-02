@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef MIMEDATABASE_H
 #define MIMEDATABASE_H
 
@@ -57,7 +58,8 @@ namespace Internal {
 }
 
 /* Magic (file contents) matcher interface. */
-class CORE_EXPORT IMagicMatcher {
+class CORE_EXPORT IMagicMatcher
+{
     Q_DISABLE_COPY(IMagicMatcher)
 protected:
     IMagicMatcher() {}
@@ -72,7 +74,8 @@ public:
 /* Utility class: A standard Magic match rule based on contents. Provides
  * static factory methods for creation (currently only for "string". This can
  * be extended to handle "little16"/"big16", etc.). */
-class CORE_EXPORT MagicRule {
+class CORE_EXPORT MagicRule
+{
     Q_DISABLE_COPY(MagicRule)
 public:
     explicit MagicRule(const QByteArray &pattern, int startPos, int endPos);
@@ -89,7 +92,8 @@ private:
 
 /* Utility class: A Magic matcher that checks a number of rules based on
  * operator "or". It is used for rules parsed from XML files. */
-class CORE_EXPORT MagicRuleMatcher : public IMagicMatcher {
+class CORE_EXPORT MagicRuleMatcher : public IMagicMatcher
+{
     Q_DISABLE_COPY(MagicRuleMatcher)
 public:
     typedef  QSharedPointer<MagicRule> MagicRuleSharedPointer;

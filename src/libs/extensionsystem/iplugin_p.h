@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef IPLUGIN_P_H
 #define IPLUGIN_P_H
 
@@ -55,4 +56,4 @@ public:
 } // namespace Internal
 } // namespace ExtensionSystem
 
-#endif // header guard
+#endif // IPLUGIN_P_H

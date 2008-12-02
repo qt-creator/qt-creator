@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef IWIZARD_H
 #define IWIZARD_H
 
@@ -65,6 +66,7 @@ public:
 
     virtual QStringList runWizard(const QString &path, QWidget *parent) = 0;
 };
+
 } // namespace Core
 
 #endif // IWIZARD_H

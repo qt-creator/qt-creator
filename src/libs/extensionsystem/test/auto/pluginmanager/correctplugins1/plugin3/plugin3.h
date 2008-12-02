@@ -53,6 +53,6 @@ private:
     bool initializeCalled;
 };
 
-} // namespace
+} // namespace Plugin3
 
-#endif // header guard
+#endif // PLUGIN3_H

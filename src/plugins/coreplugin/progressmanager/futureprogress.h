@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FUTUREPROGRESS_H
 #define FUTUREPROGRESS_H
 
@@ -91,4 +92,5 @@ private:
 };
 
 } // namespace Core
+
 #endif // FUTUREPROGRESS_H

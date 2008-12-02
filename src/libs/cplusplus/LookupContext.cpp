@@ -39,6 +39,7 @@
 #include <Scope.h>
 #include <Control.h>
 #include <cplusplus/Overview.h>
+
 #include <QFile>
 #include <QtDebug>
 

@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "SimpleLexer.h"
+
 #include <Lexer.h>
 #include <Token.h>
 #include <QtDebug>
@@ -39,13 +40,19 @@
 using namespace CPlusPlus;
 
 bool SimpleToken::isLiteral() const
-{ return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL; }
+{
+    return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL;
+}
 
 bool SimpleToken::isOperator() const
-{ return _kind >= T_FIRST_OPERATOR && _kind <= T_LAST_OPERATOR; }
+{
+    return _kind >= T_FIRST_OPERATOR && _kind <= T_LAST_OPERATOR;
+}
 
 bool SimpleToken::isKeyword() const
-{ return _kind >= T_FIRST_KEYWORD && _kind < T_FIRST_QT_KEYWORD; }
+{
+    return _kind >= T_FIRST_KEYWORD && _kind < T_FIRST_QT_KEYWORD;
+}
 
 SimpleLexer::SimpleLexer()
     : _lastState(0),
@@ -57,16 +64,24 @@ SimpleLexer::~SimpleLexer()
 { }
 
 bool SimpleLexer::qtMocRunEnabled() const
-{ return _qtMocRunEnabled; }
+{
+    return _qtMocRunEnabled;
+}
 
 void SimpleLexer::setQtMocRunEnabled(bool enabled)
-{ _qtMocRunEnabled = enabled; }
+{
+    _qtMocRunEnabled = enabled;
+}
 
 bool SimpleLexer::skipComments() const
-{ return _skipComments; }
+{
+    return _skipComments;
+}
 
 void SimpleLexer::setSkipComments(bool skipComments)
-{ _skipComments = skipComments; }
+{
+    _skipComments = skipComments;
+}
 
 QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
 {

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "newclasswidget.h"
 #include "ui_newclasswidget.h"
 
@@ -456,7 +457,6 @@ QStringList NewClassWidget::files() const
         rc.push_back(expandFileName(dir, formFileName(), formExtension()));
     return rc;
 }
-
 
 } // namespace Utils
 } // namespace Core

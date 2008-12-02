@@ -30,16 +30,17 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BINEDITORPLUGIN_H
 #define BINEDITORPLUGIN_H
+
+#include <extensionsystem/iplugin.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 #include <QtGui/QAction>
-
-#include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace Core {
 class ICore;

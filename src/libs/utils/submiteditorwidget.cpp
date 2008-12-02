@@ -30,18 +30,20 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "submiteditorwidget.h"
 #include "ui_submiteditorwidget.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 
-enum { debug= 0 };
+enum { debug = 0 };
 
 namespace Core {
 namespace Utils {
 
-struct SubmitEditorWidgetPrivate {
+struct SubmitEditorWidgetPrivate
+{
     SubmitEditorWidgetPrivate();
 
     Ui::SubmitEditorWidget m_ui;

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef INAVIGATIONWIDGET_H
 #define INAVIGATIONWIDGET_H
 
@@ -65,6 +66,7 @@ public:
     // Similar to how IView
     virtual NavigationView createWidget() = 0;
 };
-}
+
+} // namespace Core
 
 #endif // INAVIGATIONWIDGET_H

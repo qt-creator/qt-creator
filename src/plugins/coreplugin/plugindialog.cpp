@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "plugindialog.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/plugindetailsview.h>
@@ -47,8 +49,8 @@
 using namespace Core::Internal;
 
 PluginDialog::PluginDialog(ExtensionSystem::PluginManager *manager, QWidget *parent)
-    : QDialog(parent)
-    , m_view(new ExtensionSystem::PluginView(manager, this))
+    : QDialog(parent),
+      m_view(new ExtensionSystem::PluginView(manager, this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
     vl->addWidget(m_view);

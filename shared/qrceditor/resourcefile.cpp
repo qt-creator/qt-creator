@@ -30,9 +30,6 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-/*
-TRANSLATOR qdesigner_internal::ResourceModel
-*/
 
 #include "resourcefile_p.h"
 
@@ -49,6 +46,10 @@ TRANSLATOR qdesigner_internal::ResourceModel
 #include <QtXml/QDomDocument>
 
 QT_BEGIN_NAMESPACE
+
+/*
+TRANSLATOR qdesigner_internal::ResourceModel
+*/
 
 namespace qdesigner_internal {
 
@@ -956,7 +957,7 @@ QString ResourceModel::resourcePath(const QString &prefix, const QString &file)
     return QDir::cleanPath(rc);
 }
 
-QMimeData *ResourceModel::mimeData(const QModelIndexList & indexes) const
+QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.size() != 1)
         return 0;
@@ -977,6 +978,7 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList & indexes) const
     rc->setText(doc.toString());
     return rc;
 }
+
 } // namespace qdesigner_internal
 
 QT_END_NAMESPACE

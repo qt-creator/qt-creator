@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "bineditorplugin.h"
 #include "bineditor.h"
 #include "bineditorconstants.h"

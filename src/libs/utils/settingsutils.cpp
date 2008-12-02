@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "settingsutils.h"
+
 #include <QtCore/QString>
 
 namespace Core {
@@ -41,13 +43,13 @@ QWORKBENCH_UTILS_EXPORT QString settingsKey(const QString &category)
     QString rc(category);
     const QChar underscore = QLatin1Char('_');
     const int size = rc.size();
-    for (int i = 0; i < size;i++) {
+    for (int i = 0; i < size; i++) {
         const QChar c = rc.at(i);
-        if (!c.isLetterOrNumber() && c !=  underscore)
+        if (!c.isLetterOrNumber() && c != underscore)
             rc[i] = underscore;
     }
     return rc;
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

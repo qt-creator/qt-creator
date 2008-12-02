@@ -30,16 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "mainwindow.h"
 #include "qrceditor.h"
 
-#include <QMenuBar>
 #include <QAction>
-#include <QVBoxLayout>
+#include <QDebug>
 #include <QFileDialog>
+#include <QMenuBar>
 #include <QStatusBar>
-
-#include <qdebug.h>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow() :
     m_qrcEditor(new  SharedTools::QrcEditor())
@@ -67,9 +67,9 @@ MainWindow::MainWindow() :
 
 void MainWindow::slotOpen()
 {
-    const QString fileName = QFileDialog::getOpenFileName (this, tr("Choose resource file"),
-                                                           QString(),
-                                                           tr("Resource files (*.qrc)"));
+    const QString fileName = QFileDialog::getOpenFileName(this, tr("Choose resource file"),
+                                                          QString(),
+                                                          tr("Resource files (*.qrc)"));
     if (fileName.isEmpty())
         return;
 
@@ -81,13 +81,13 @@ void MainWindow::slotOpen()
 
 void MainWindow::slotSave()
 {
-    const QString oldFileName =  m_qrcEditor->fileName();
+    const QString oldFileName = m_qrcEditor->fileName();
     QString fileName = oldFileName;
 
     if (fileName.isEmpty()) {
-        fileName = QFileDialog::getSaveFileName (this, tr("Save resource file"),
-                                                 QString(),
-                                                 tr("Resource files (*.qrc)"));
+        fileName = QFileDialog::getSaveFileName(this, tr("Save resource file"),
+                                                QString(),
+                                                tr("Resource files (*.qrc)"));
         if (fileName.isEmpty())
             return;
     }

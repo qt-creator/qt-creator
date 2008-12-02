@@ -84,7 +84,7 @@ private:
     PathChooserPrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
 
 #endif // PATHCHOOSER_H

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
@@ -39,7 +40,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-
 
 using namespace CMakeProjectManager::Internal;
 

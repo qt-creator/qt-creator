@@ -30,16 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#ifndef PLUGINERRORVIEW_H_
-#define PLUGINERRORVIEW_H_
+
+#ifndef PLUGINERRORVIEW_H
+#define PLUGINERRORVIEW_H
 
 #include "extensionsystem_global.h"
 #include "pluginspec.h"
 
 #include <QtGui/QWidget>
 
-namespace ExtensionSystem
-{
+namespace ExtensionSystem {
 
 namespace Internal {
 namespace Ui {
@@ -63,4 +63,4 @@ private:
 
 } // namespace ExtensionSystem
 
-#endif /*PLUGINERRORVIEW_H_*/
+#endif // PLUGINERRORVIEW_H

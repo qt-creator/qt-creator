@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "pathchooser.h"
 #include "basevalidatinglineedit.h"
 
@@ -181,5 +182,5 @@ QString PathChooser::homePath()
 #endif
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

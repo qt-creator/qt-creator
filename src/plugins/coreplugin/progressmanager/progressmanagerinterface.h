@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROGRESSMANAGERINTERFACE_H
 #define PROGRESSMANAGERINTERFACE_H
 
@@ -57,6 +58,6 @@ public slots:
     virtual void cancelTasks(const QString &type) = 0;
 };
 
-} //namespace
+} // namespace Core
 
 #endif //PROGRESSMANAGERINTERFACE_H

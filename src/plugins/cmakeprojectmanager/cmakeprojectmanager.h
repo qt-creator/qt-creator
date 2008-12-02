@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CMAKEPROJECTMANAGER_H
 #define CMAKEPROJECTMANAGER_H
 
@@ -55,6 +56,8 @@ private:
     int m_projectContext;
     int m_projectLanguage;
 };
-}
-}
+
+} // namespace Internal
+} // namespace CMakeProjectManager
+
 #endif // CMAKEPROJECTMANAGER_H

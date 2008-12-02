@@ -30,8 +30,10 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "bookmark.h"
 #include "bookmarkmanager.h"
+
 #include <QtCore/QDebug>
 #include <QtGui/QTextBlock>
 

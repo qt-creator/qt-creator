@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGINVIEW_H
 #define PLUGINVIEW_H
 
@@ -79,4 +80,4 @@ private:
 
 } // namespae ExtensionSystem
 
-#endif
+#endif // PLUGIN_VIEW_H

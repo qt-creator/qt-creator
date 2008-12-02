@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CPLUSPLUS_LOOKUPCONTEXT_H
 #define CPLUSPLUS_LOOKUPCONTEXT_H
 
@@ -45,8 +46,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT LookupUtils
 {
 public:
-    static bool isNameCompatibleWithIdentifier(Name *name,
-                                               Identifier *id);
+    static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
 };
 
 class CPLUSPLUS_EXPORT LookupContext: LookupUtils

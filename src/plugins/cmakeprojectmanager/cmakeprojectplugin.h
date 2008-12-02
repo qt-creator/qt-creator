@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CMAKEPROJECTPLUGIN_H
 #define CMAKEPROJECTPLUGIN_H
 
@@ -52,9 +53,6 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
 
     void extensionsInitialized();
-
-
-private:
 };
 
 } // namespace Internal

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "qscripthighlighter.h"
 
 #include <QtCore/QSet>
@@ -105,7 +106,7 @@ static const QSet<QString> &qscriptKeywords() {
 }
 
 
-    namespace SharedTools {
+namespace SharedTools {
 
 QScriptHighlighter::QScriptHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -438,9 +439,8 @@ void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
     if (buffer.at(0) == QLatin1Char('Q')) {
         setFormat(currentPos - buffer.length(), buffer.length(), m_formats[TypeFormat]);
     } else {
-        if (qscriptKeywords().contains(buffer)) {
+        if (qscriptKeywords().contains(buffer))
             setFormat(currentPos - buffer.length(), buffer.length(), m_formats[KeywordFormat]);
-        }
     }
 }
 
@@ -466,7 +466,8 @@ void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
     qCopy(s.constBegin(), s.constEnd(), m_formats);
 }
 
-int QScriptHighlighter::onBlockStart() {
+int QScriptHighlighter::onBlockStart()
+{
     int state = 0;
     int previousState = previousBlockState();
     if (previousState != -1)
@@ -476,5 +477,6 @@ int QScriptHighlighter::onBlockStart() {
 void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
-}
+
+} // namespace SharedTools
 

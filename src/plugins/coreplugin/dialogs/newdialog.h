@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
@@ -79,4 +80,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //NEWDIALOG_H
+#endif // NEWDIALOG_H

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "resourceview.h"
 #include "undocommands_p.h"
 
@@ -658,4 +659,4 @@ bool ResourceView::resourceDragEnabled() const
     return m_qrcModel->resourceDragEnabled();
 }
 
-}
+} // namespace SharedTools

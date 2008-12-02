@@ -30,12 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "qtcolorbutton.h"
-#include <QtGui/QColorDialog>
-#include <QtGui/QPainter>
+
 #include <QtCore/QMimeData>
-#include <QtGui/QDragEnterEvent>
 #include <QtGui/QApplication>
+#include <QtGui/QColorDialog>
+#include <QtGui/QDragEnterEvent>
+#include <QtGui/QPainter>
 
 namespace Core {
 namespace Utils {

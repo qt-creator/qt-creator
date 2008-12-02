@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef QTCONCURRENT_GLOBAL_H
 #define QTCONCURRENT_GLOBAL_H
 

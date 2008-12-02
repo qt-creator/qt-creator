@@ -30,13 +30,16 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "cmakeprojectplugin.h"
+#include "cmakeprojectmanager.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
 
-#include "cmakeprojectmanager.h"
 
 using namespace CMakeProjectManager::Internal;
 
@@ -59,7 +62,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
 void CMakeProjectPlugin::extensionsInitialized()
 {
-
 }
 
 Q_EXPORT_PLUGIN(CMakeProjectPlugin)

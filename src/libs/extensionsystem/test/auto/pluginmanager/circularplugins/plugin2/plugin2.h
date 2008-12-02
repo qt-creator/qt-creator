@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGIN2_H
 #define PLUGIN2_H
 
@@ -50,6 +51,6 @@ public:
     void extensionsInitialized();
 };
 
-} // namespace
+} // Plugin2
 
-#endif // header guard
+#endif // PLUGIN2_H

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "fileiconprovider.h"
 
 using namespace Core;
@@ -46,8 +47,8 @@ using namespace Core;
 
 FileIconProvider *FileIconProvider::m_instance = 0;
 
-FileIconProvider::FileIconProvider():
-    m_unknownFileIcon(QLatin1String(":/qworkbench/images/unknownfile.png"))
+FileIconProvider::FileIconProvider()
+    : m_unknownFileIcon(QLatin1String(":/qworkbench/images/unknownfile.png"))
 {
 }
 

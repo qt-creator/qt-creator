@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "classnamevalidatinglineedit.h"
 
 #include <QtCore/QDebug>
@@ -133,5 +134,5 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     return className;
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

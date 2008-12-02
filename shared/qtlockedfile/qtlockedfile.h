@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef QTLOCKEDFILE_H
 #define QTLOCKEDFILE_H
 
@@ -75,6 +76,6 @@ private:
     LockMode m_lock_mode;
 };
 
-}
+} // namespace SharedTools
 
-#endif
+#endif // QTLOCKEDFILE_H

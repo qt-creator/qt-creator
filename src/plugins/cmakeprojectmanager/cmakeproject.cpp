@@ -30,11 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+
 #include <QtCore/QDebug>
 
 using namespace CMakeProjectManager;

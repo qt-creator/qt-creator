@@ -31,11 +31,11 @@
 ** 
 ***************************************************************************/
 
+#include "qtlockedfile.h"
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 #include <QtCore/QDir>
-#include <qtlockedfile.h>
 
 namespace SharedTools {
 
@@ -66,4 +66,4 @@ private:
     static const char* ack;
 };
 
-} // SharedTools
+} // namespace SharedTools

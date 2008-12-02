@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FILEWIZARDPAGE_H
 #define FILEWIZARDPAGE_H
 
@@ -81,6 +82,7 @@ private:
     FileWizardPagePrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif // FILEWIZARDPAGE_H

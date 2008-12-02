@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BOOKMARKMANAGER_H
 #define BOOKMARKMANAGER_H
 
@@ -131,7 +132,8 @@ private:
     QItemSelectionModel *m_selectionModel;
 };
 
-class BookmarkView : public QListView {
+class BookmarkView : public QListView
+{
     Q_OBJECT
 public:
     BookmarkView(QWidget *parent = 0);

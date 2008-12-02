@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef TESTPLUGIN_GLOBAL_H
 #define TESTPLUGIN_GLOBAL_H
 
@@ -41,4 +42,4 @@
 #  define MYPLUGIN_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // header
+#endif // TESTPLUGIN_GLOBAL_H

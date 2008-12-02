@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROGRESSMANAGER_H
 #define PROGRESSMANAGER_H
 
@@ -40,7 +41,6 @@
 #include <QtCore/QFutureWatcher>
 
 namespace Core {
-
 namespace Internal {
 
 class ProgressView;
@@ -71,4 +71,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //PROGRESSMANAGER_H
+#endif // PROGRESSMANAGER_H

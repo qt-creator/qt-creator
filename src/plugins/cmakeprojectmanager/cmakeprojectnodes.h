@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CMAKEPROJECTNODE_H
 #define CMAKEPROJECTNODE_H
 
@@ -60,7 +61,8 @@ public:
     using ProjectNode::addFileNodes;
     using ProjectNode::addFolderNodes;
 };
-}
-}
+
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // CMAKEPROJECTNODE_H

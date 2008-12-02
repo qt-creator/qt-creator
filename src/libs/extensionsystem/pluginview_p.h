@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGINVIEW_P_H
 #define PLUGINVIEW_P_H
 
@@ -45,7 +46,7 @@ public:
     PluginManager *manager;
 };
 
-} // namespace
-} // namespace
+} // namespace Internal
+} // namespace ExtensionSystem
 
-#endif
+#endif PLUGINVIEW_P_H

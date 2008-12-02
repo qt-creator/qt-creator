@@ -30,8 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#ifndef _MAINWINDOW_
-#define _MAINWINDOW_
+
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 
@@ -39,7 +40,8 @@ namespace SharedTools {
     class QrcEditor;
 }
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
@@ -51,6 +53,6 @@ private slots:
 
 private:
     SharedTools::QrcEditor *m_qrcEditor;
-}; // MainWindow
+};
 
-#endif
+#endif // MAINWINDOW_H

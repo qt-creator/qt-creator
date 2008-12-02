@@ -51,7 +51,7 @@
 using namespace Core;
 using namespace Core::Internal;
 
-EditMode::EditMode(EditorManager *editorManager):
+EditMode::EditMode(EditorManager *editorManager) :
     m_editorManager(editorManager),
     m_splitter(new MiniSplitter),
     m_rightSplitWidgetLayout(new QVBoxLayout)

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef TESTPLUGIN_H
 #define TESTPLUGIN_H
 
@@ -59,4 +60,4 @@ private:
 
 } // namespace
 
-#endif // header guard
+#endif // TESTPLUGIN_H

@@ -30,18 +30,6 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-/****************************************************************************
-**
-** Copyright (C) 2008-$THISYEAR$ $TROLLTECH$. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $TROLLTECH_DUAL_LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
 
 #include "undocommands_p.h"
 
@@ -104,7 +92,7 @@ bool ModifyPropertyCommand::mergeWith(const QUndoCommand * command)
 {
     const ModifyPropertyCommand * const brother
             = dynamic_cast<const ModifyPropertyCommand *>(command);
-    if ((command == NULL) || (m_property != brother->m_property))
+    if (command == NULL || m_property != brother->m_property)
         return false;
 
     // Choose older command (this) and forgot the other
@@ -125,9 +113,8 @@ void ModifyPropertyCommand::undo()
 void ModifyPropertyCommand::redo()
 {
     // Prevent execution from within QUndoStack::push
-    if (m_after.isNull()) {
+    if (m_after.isNull())
         return;
-    }
 
     // Bring back text before undo
     Q_ASSERT(m_view != NULL);

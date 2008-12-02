@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef UNDO_COMMANDS_H
 #define UNDO_COMMANDS_H
 
@@ -38,7 +39,9 @@
 #include <QtCore/QString>
 #include <QtGui/QUndoCommand>
 
-QT_FORWARD_DECLARE_CLASS(QModelIndex);
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+QT_END_NAMESPACE
 
 namespace SharedTools {
 

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "modemanager.h"
 #include "fancytabwidget.h"
 #include "fancyactionbar.h"
@@ -55,7 +56,7 @@ using namespace Core::Internal;
 
 ModeManager *ModeManager::m_instance = 0;
 
-ModeManager::ModeManager(Internal::MainWindow *mainWindow, FancyTabWidget *modeStack):
+ModeManager::ModeManager(Internal::MainWindow *mainWindow, FancyTabWidget *modeStack) :
     m_mainWindow(mainWindow),
     m_modeStack(modeStack),
     m_signalMapper(new QSignalMapper(this))

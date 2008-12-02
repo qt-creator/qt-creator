@@ -30,14 +30,15 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "projectnamevalidatinglineedit.h"
 #include "filenamevalidatinglineedit.h"
 
 namespace Core {
 namespace Utils {
 
-ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent) :
-    BaseValidatingLineEdit(parent)
+ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent)
+  : BaseValidatingLineEdit(parent)
 {
 }
 
@@ -62,5 +63,5 @@ bool ProjectNameValidatingLineEdit::validate(const QString &value, QString *erro
     return validateProjectName(value, errorMessage);
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

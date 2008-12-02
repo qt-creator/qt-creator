@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BASEVALIDATINGLINEEDIT_H
 #define BASEVALIDATINGLINEEDIT_H
 
@@ -95,6 +96,6 @@ private:
     BaseValidatingLineEditPrivate *m_bd;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
 #endif // BASEVALIDATINGLINEEDIT_H

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef SUBMITEDITORWIDGET_H
 #define SUBMITEDITORWIDGET_H
 
@@ -65,7 +66,8 @@ struct SubmitEditorWidgetPrivate;
  * Care should be taken to ensure the widget is deleted properly when the
  * editor closes. */
 
-class QWORKBENCH_UTILS_EXPORT SubmitEditorWidget : public QWidget {
+class QWORKBENCH_UTILS_EXPORT SubmitEditorWidget : public QWidget
+{
     Q_OBJECT
     Q_DISABLE_COPY(SubmitEditorWidget)
     Q_PROPERTY(QString descriptionText READ descriptionText WRITE setDescriptionText DESIGNABLE true)
@@ -117,6 +119,7 @@ private:
     SubmitEditorWidgetPrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif // SUBMITEDITORWIDGET_H

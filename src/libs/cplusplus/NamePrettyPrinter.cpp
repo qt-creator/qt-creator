@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "NamePrettyPrinter.h"
+
 #include <Names.h>
 #include <Overview.h>
 #include <NameVisitor.h>
@@ -46,7 +48,9 @@ NamePrettyPrinter::~NamePrettyPrinter()
 { }
 
 const Overview *NamePrettyPrinter::overview() const
-{ return _overview; }
+{
+    return _overview;
+}
 
 QString NamePrettyPrinter::operator()(Name *name)
 {

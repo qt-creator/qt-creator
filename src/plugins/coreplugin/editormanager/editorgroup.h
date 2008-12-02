@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef EDITORGROUP_H
 #define EDITORGROUP_H
 
@@ -135,19 +136,24 @@ public:
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
     void addEditor(IEditor *editor) { insertEditor(rowCount(), editor); }
-    void insertEditor(int index, IEditor *editor) {
+
+    void insertEditor(int index, IEditor *editor)
+    {
         beginInsertRows(QModelIndex(), index, index);
         m_editors.insert(index, editor);
         endInsertRows();
     }
-    void removeEditor(IEditor *editor) {
+
+    void removeEditor(IEditor *editor)
+    {
         int index = m_editors.indexOf(editor);
         beginRemoveRows(QModelIndex(), index, index);
         m_editors.removeAt(index);
         endRemoveRows();
     }
 
-    void emitDataChanged(IEditor *editor) {
+    void emitDataChanged(IEditor *editor)
+    {
         int idx = m_editors.indexOf(editor);
         QModelIndex mindex = index(idx, 0);
         emit dataChanged(mindex, mindex);

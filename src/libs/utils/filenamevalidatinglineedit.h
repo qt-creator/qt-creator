@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FILENAMEVALIDATINGLINEEDIT_H
 #define FILENAMEVALIDATINGLINEEDIT_H
 
@@ -38,7 +39,8 @@
 namespace Core {
 namespace Utils {
 
-class QWORKBENCH_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit {
+class QWORKBENCH_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
+{
     Q_OBJECT
     Q_DISABLE_COPY(FileNameValidatingLineEdit)
 
@@ -51,6 +53,7 @@ protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif // FILENAMEVALIDATINGLINEEDIT_H

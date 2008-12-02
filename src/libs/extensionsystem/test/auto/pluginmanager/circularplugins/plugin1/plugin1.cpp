@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "plugin1.h"
 
 #include <QtCore/qplugin.h>
@@ -40,8 +41,10 @@ MyPlugin1::MyPlugin1()
 {
 }
 
-bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorString)
+bool MyPlugin1::initialize(const QStringList &arguments, QString *errorString)
 {
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorString);
     return true;
 }
 

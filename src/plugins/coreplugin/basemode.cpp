@@ -30,11 +30,12 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "basemode.h"
 
-#include <QtGui/QWidget>
-
 #include <extensionsystem/pluginmanager.h>
+
+#include <QtGui/QWidget>
 
 using namespace Core;
 

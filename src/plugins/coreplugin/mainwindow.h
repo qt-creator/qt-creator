@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -56,34 +57,34 @@ namespace Core {
 
 class ActionManagerInterface;
 class BaseMode;
+class BaseView;
 class EditorManager;
 class FileManager;
 class IContext;
 class MessageManager;
-class ModeManager;
 class MimeDatabase;
+class ModeManager;
 class ProgressManagerInterface;
-class VCSManager;
+class RightPaneWidget;
 class ScriptManagerInterface;
 class UniqueIDManager;
 class VariableManager;
+class VCSManager;
 class ViewManagerInterface;
-class BaseView;
-class RightPaneWidget;
 
 namespace Internal {
 
-class CoreImpl;
 class ActionManager;
-class ProgressManager;
-class OutputPane;
-class ViewManager;
-class GeneralSettings;
-class ShortcutSettings;
+class CoreImpl;
 class FancyTabWidget;
+class GeneralSettings;
 class NavigationWidget;
+class OutputPane;
+class ProgressManager;
+class ShortcutSettings;
+class ViewManager;
 
-class  CORE_EXPORT  MainWindow : public QMainWindow
+class CORE_EXPORT  MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -128,7 +129,6 @@ public:
     void updateContext();
 
     QMenu *createPopupMenu();
-
 
     void setSuppressNavigationWidget(bool suppress);
 

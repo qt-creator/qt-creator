@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FILESEARCH_H
 #define FILESEARCH_H
 
@@ -63,7 +64,7 @@ QWORKBENCH_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &sea
 QWORKBENCH_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags);
 
-} //Utils
-} //Core
+} // namespace Utils
+} // namespace Core
 
-#endif
+#endif // FILESEARCH_H

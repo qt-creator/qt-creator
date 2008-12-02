@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "filenamevalidatinglineedit.h"
 
 namespace Core {
@@ -93,5 +94,5 @@ bool  FileNameValidatingLineEdit::validate(const QString &value, QString *errorM
     return validateFileName(value, errorMessage);
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

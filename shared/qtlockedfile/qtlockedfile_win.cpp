@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "qtlockedfile.h"
+
 #include <qt_windows.h>
 #include <QtCore/QFileInfo>
 
@@ -202,4 +204,4 @@ QtLockedFile::~QtLockedFile()
     }
 }
 
-}
+} // namespace SharedTools

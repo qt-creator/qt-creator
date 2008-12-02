@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "aggregate.h"
 
 #include <QtCore/QWriteLocker>
@@ -262,4 +263,3 @@ void Aggregate::remove(QObject *component)
     m_components.removeAll(component);
     disconnect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
 }
-

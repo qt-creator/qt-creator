@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef LINECOLUMNLABEL_H
 #define LINECOLUMNLABEL_H
 
@@ -42,7 +43,8 @@ namespace Utils {
 /* A label suitable for displaying cursor positions, etc. with a fixed
  * with derived from a sample text. */
 
-class  QWORKBENCH_UTILS_EXPORT LineColumnLabel : public QLabel {
+class  QWORKBENCH_UTILS_EXPORT LineColumnLabel : public QLabel
+{
     Q_DISABLE_COPY(LineColumnLabel)
     Q_OBJECT
     Q_PROPERTY(QString maxText READ maxText WRITE setMaxText DESIGNABLE true)
@@ -62,7 +64,7 @@ private:
     void *m_unused;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
 
 #endif // LINECOLUMNLABEL_H

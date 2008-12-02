@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "mimedatabase.h"
 
 #include <QtCore/QStringList>
@@ -93,7 +94,6 @@ enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
 */
 
 namespace Core {
-
 namespace Internal {
 
 // FileMatchContext: Passed on to the mimetypes from the database
@@ -786,7 +786,8 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
 
 enum { Dangling = 32767 };
 
-struct MimeMapEntry {
+struct MimeMapEntry
+{
     explicit MimeMapEntry(const MimeType &t = MimeType(), int aLevel = Dangling);
     MimeType type;
     int level; // hierachy level
@@ -821,7 +822,8 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
  * to check the most specific types first). Starting a recursion from the
  * leaves is not suitable since it will hit parent nodes several times. */
 
-class MimeDatabasePrivate {
+class MimeDatabasePrivate
+{
     Q_DISABLE_COPY(MimeDatabasePrivate)
 public:
     MimeDatabasePrivate();

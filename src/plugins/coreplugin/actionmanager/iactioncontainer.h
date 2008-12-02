@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef IACTIONCONTAINER_H
 #define IACTIONCONTAINER_H
 
@@ -42,6 +43,7 @@
 namespace Core {
 
 class ICommand;
+
 class IActionContainer : public QObject
 {
 public:

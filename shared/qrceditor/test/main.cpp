@@ -30,12 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "qrceditor.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc,argv);
+    QApplication app(argc, argv);
     MainWindow mw;
     mw.show();
     return app.exec();

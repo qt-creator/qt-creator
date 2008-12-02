@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef EXTENSIONSYSTEM_PLUGINMANAGER_H
 #define EXTENSIONSYSTEM_PLUGINMANAGER_H
 
@@ -133,6 +134,6 @@ private:
     friend class Internal::PluginManagerPrivate;
 };
 
-} //namespace
+} // namespace ExtensionSystem
 
-#endif // PLUGINMANAGER_H
+#endif // EXTENSIONSYSTEM_PLUGINMANAGER_H

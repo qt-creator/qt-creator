@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "progresspie.h"
 #include "stylehelper.h"
 
@@ -47,7 +48,6 @@ ProgressBar::ProgressBar(QWidget *parent)
 
 ProgressBar::~ProgressBar()
 {
-
 }
 
 QString ProgressBar::title() const
@@ -59,7 +59,6 @@ bool ProgressBar::hasError() const
 {
     return m_error;
 }
-
 
 void ProgressBar::setTitle(const QString &title)
 {

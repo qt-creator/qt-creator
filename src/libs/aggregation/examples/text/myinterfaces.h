@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef MYINTERFACES_H
 #define MYINTERFACES_H
 
@@ -45,6 +46,7 @@ public:
     IComboEntry(QString title) : m_title(title) {}
     virtual ~IComboEntry() {}
     QString title() const { return m_title; }
+
 private:
     QString m_title;
 };
@@ -57,6 +59,7 @@ public:
     IText1(QString text) : m_text(text) {}
     virtual ~IText1() {}
     QString text() const { return m_text; }
+
 private:
     QString m_text;
 };
@@ -68,6 +71,7 @@ class IText2 : public QObject
 public:
     IText2(QString text) : m_text(text) {}
     QString text() const { return m_text; }
+
 private:
     QString m_text;
 };
@@ -80,6 +84,7 @@ public:
     IText3(QString text) : m_text(text) {}
     virtual ~IText3() {}
     QString text() const { return m_text; }
+
 private:
     QString m_text;
 };

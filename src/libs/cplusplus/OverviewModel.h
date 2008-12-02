@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CPLUSPLUS_OVERVIEWMODEL_H
 #define CPLUSPLUS_OVERVIEWMODEL_H
 
@@ -42,7 +43,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT OverviewModel: public QAbstractItemModel
+class CPLUSPLUS_EXPORT OverviewModel : public QAbstractItemModel
 {
     Q_OBJECT
 

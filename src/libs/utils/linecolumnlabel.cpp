@@ -30,14 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "linecolumnlabel.h"
 
 namespace Core {
 namespace Utils {
 
-LineColumnLabel::LineColumnLabel(QWidget *parent) :
-    QLabel(parent),
-    m_unused(0)
+LineColumnLabel::LineColumnLabel(QWidget *parent)
+  : QLabel(parent), m_unused(0)
 {
 }
 
@@ -65,5 +65,5 @@ void LineColumnLabel::setMaxText(const QString &maxText)
      m_maxText = maxText;
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

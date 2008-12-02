@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CMAKEPROJECTCONSTANTS_H
 #define CMAKEPROJECTCONSTANTS_H
 
@@ -39,7 +40,7 @@ namespace Constants {
 const char * const PROJECTCONTEXT = "CMakeProject.ProjectContext";
 const char * const CMAKEMIMETYPE = "text/x-cmake"; // TOOD check that this is correct
 
-}
-}
+} // namespace Constants
+} // namespace CMakeProjectManager
 
 #endif // CMAKEPROJECTCONSTANTS_H

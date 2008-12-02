@@ -53,6 +53,7 @@
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
+
 #include "scriptmanager.h"
 #include "settingsdialog.h"
 #include "stylehelper.h"

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "plugin1.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -83,4 +84,3 @@ void MyPlugin1::extensionsInitialized()
 }
 
 Q_EXPORT_PLUGIN(MyPlugin1)
-

@@ -30,12 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
+#include "qtlockedfile.h"
+
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-#include "qtlockedfile.h"
 
 namespace SharedTools {
 
@@ -107,4 +108,4 @@ QtLockedFile::~QtLockedFile()
         unlock();
 }
 
-}
+} // namespace SharedTools

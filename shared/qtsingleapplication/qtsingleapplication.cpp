@@ -33,6 +33,7 @@
 
 #include "qtsingleapplication.h"
 #include "qtlocalpeer.h"
+
 #include <QtGui/QWidget>
 #include <QtGui/QFileOpenEvent>
 
@@ -80,7 +81,8 @@ QtSingleApplication::QtSingleApplication(Display *dpy, int &argc, char **argv, Q
     sysInit();
 }
 
-QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId, int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
+QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId,
+    int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QApplication(dpy, argc, argv, visual, colormap)
 {
     sysInit(appId);
@@ -115,13 +117,13 @@ QString QtSingleApplication::id() const
 }
 
 
-void QtSingleApplication::setActivationWindow(QWidget* aw, bool activateOnMessage)
+void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessage)
 {
     actWin = aw;
     if (activateOnMessage)
-        connect(peer, SIGNAL(messageReceived(const QString&)), this, SLOT(activateWindow()));
+        connect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
     else
-        disconnect(peer, SIGNAL(messageReceived(const QString&)), this, SLOT(activateWindow()));
+        disconnect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
 }
 
 
@@ -140,4 +142,4 @@ void QtSingleApplication::activateWindow()
     }
 }
 
-}
+} // namespace SharedTools

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include <QtCore/QDebug>
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>

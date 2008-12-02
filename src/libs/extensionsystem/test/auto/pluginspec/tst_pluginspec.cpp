@@ -30,7 +30,6 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
-#include <QtTest/QtTest>
 
 #include "testplugin/testplugin.h"
 
@@ -40,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QObject>
+#include <QtTest/QtTest>
 
 using namespace ExtensionSystem;
 
@@ -275,4 +275,5 @@ void tst_PluginSpec::initializeExtensions()
 }
 
 QTEST_MAIN(tst_PluginSpec)
+
 #include "tst_pluginspec.moc"

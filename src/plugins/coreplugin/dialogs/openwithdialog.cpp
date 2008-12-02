@@ -28,8 +28,9 @@
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt GPL Exception version
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+**
 ***************************************************************************/
+
 #include "openwithdialog.h"
 
 #include <QtGui/QListWidget>
@@ -39,8 +40,8 @@
 using namespace Core;
 using namespace Core::Internal;
 
-OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent) :
-    QDialog(parent)
+OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent)
+    : QDialog(parent)
 {
     setupUi(this);
     label->setText(tr("Open file '%1' with:").arg(QFileInfo(fileName).fileName()));

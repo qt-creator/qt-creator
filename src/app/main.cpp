@@ -51,7 +51,7 @@
 #  include <sys/resource.h>
 #endif
 
-enum { OptionIndent =4, DescriptionIndent = 24 };
+enum { OptionIndent = 4, DescriptionIndent = 24 };
 
 static const char *appNameC = "Qt Creator";
 static const char *corePluginNameC = "Core";

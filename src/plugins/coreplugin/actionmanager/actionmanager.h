@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef ACTIONMANAGER_H
 #define ACTIONMANAGER_H
 
@@ -43,7 +44,8 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-struct CommandLocation {
+struct CommandLocation
+{
     int m_container;
     int m_position;
 };
@@ -125,5 +127,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-
-#endif //ACTIONMANAGER_H
+#endif // ACTIONMANAGER_H

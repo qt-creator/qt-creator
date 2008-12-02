@@ -30,13 +30,14 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef INTERFACE_WRAP_HELPERS_H
 #define INTERFACE_WRAP_HELPERS_H
 
 #include <extensionsystem/ExtensionSystemInterfaces>
 #include <QtScript/QScriptEngine>
 
-    namespace SharedTools {
+namespace SharedTools {
 
 // Convert a QObjectInterface to Scriptvalue
 // To be registered as a magic creation function with qScriptRegisterMetaType().
@@ -87,6 +88,6 @@ static void registerQObjectInterface(QScriptEngine &engine)
     Q_UNUSED(metaTypeId);
 }
 
-}
+} // namespace SharedTools
 
-#endif
+#endif // INTERFACE_WRAP_HELPERS_H

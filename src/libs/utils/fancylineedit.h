@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FANCYLINEEDIT_H
 #define FANCYLINEEDIT_H
 
@@ -77,11 +78,11 @@ public:
     bool useLayoutDirection() const;
     void setUseLayoutDirection(bool v);
 
-    /* Set whether tabbing in will trigger the menu. */
+    // Set whether tabbing in will trigger the menu.
     bool hasMenuTabFocusTrigger() const;
     void setMenuTabFocusTrigger(bool v);
 
-    /* Hint text that is displayed when no focus is set */
+    // Hint text that is displayed when no focus is set.
     QString hintText() const;
 
     bool isShowingHintText() const;

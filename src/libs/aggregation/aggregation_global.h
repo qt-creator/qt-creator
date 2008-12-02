@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef AGGREGATION_GLOBAL_H
 #define AGGREGATION_GLOBAL_H
 
@@ -41,4 +42,4 @@
 #  define AGGREGATION_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // header
+#endif // AGGREGATION_GLOBAL_H

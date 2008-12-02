@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CPLUSPLUS_ICONS_H
 #define CPLUSPLUS_ICONS_H
 

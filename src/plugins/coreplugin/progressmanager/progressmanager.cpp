@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "progressmanager.h"
 #include "progressview.h"
 #include "coreimpl.h"
@@ -56,7 +57,6 @@ ProgressManager::~ProgressManager()
 
 void ProgressManager::init()
 {
-
 }
 
 void ProgressManager::cancelTasks(const QString &type)

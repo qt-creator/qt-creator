@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "openeditorsview.h"
 #include "editorgroup.h"
 #include "editormanager.h"
@@ -301,10 +302,8 @@ QKeySequence OpenEditorsViewFactory::activationSequence()
 
 OpenEditorsViewFactory::OpenEditorsViewFactory()
 {
-    
 }
 
 OpenEditorsViewFactory::~OpenEditorsViewFactory()
 {
-    
 }

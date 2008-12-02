@@ -30,10 +30,12 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CPLUSPLUS_RESOLVEEXPRESSION_H
 #define CPLUSPLUS_RESOLVEEXPRESSION_H
 
 #include "LookupContext.h"
+
 #include <ASTVisitor.h>
 #include <Semantic.h>
 #include <FullySpecifiedType.h>

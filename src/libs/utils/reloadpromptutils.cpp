@@ -30,7 +30,9 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "reloadpromptutils.h"
+
 #include <QtGui/QMessageBox>
 
 using namespace Core;
@@ -47,7 +49,8 @@ QWORKBENCH_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
 QWORKBENCH_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
     Core::Utils::reloadPrompt(const QString &title, const QString &prompt, QWidget *parent)
 {
-    switch (QMessageBox::question(parent,  title, prompt, QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll,
+    switch (QMessageBox::question(parent, title, prompt,
+                                  QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll,
                                   QMessageBox::YesToAll)) {
     case QMessageBox::Yes:
         return  ReloadCurrent;

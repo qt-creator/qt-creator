@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "basefilewizard.h"
 #include "mimedatabase.h"
 
@@ -56,7 +57,8 @@ enum { debugWizard = 0 };
 
 namespace Core {
 
-class GeneratedFilePrivate : public QSharedData {
+class GeneratedFilePrivate : public QSharedData
+{
 public:
     GeneratedFilePrivate() {}
     explicit GeneratedFilePrivate(const QString &p);
@@ -150,8 +152,11 @@ bool GeneratedFile::write(QString *errorMessage) const
     file.close();
     return true;
 }
+
+
 // ------------ BaseFileWizardParameterData
-class BaseFileWizardParameterData : public QSharedData {
+class BaseFileWizardParameterData : public QSharedData
+{
 public:
     explicit BaseFileWizardParameterData(IWizard::Kind kind = IWizard::FileWizard);
 
@@ -338,7 +343,8 @@ void WizardEventLoop::rejected()
 }
 
 // ---------------- BaseFileWizardPrivate
-struct BaseFileWizardPrivate {
+struct BaseFileWizardPrivate
+{
     explicit BaseFileWizardPrivate(const Core::BaseFileWizardParameters &parameters,
                                    Core::ICore *core);
 
@@ -666,6 +672,6 @@ GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,
                                  errorMessage);
 }
 
-
 } // namespace Core
+
 #include "basefilewizard.moc"

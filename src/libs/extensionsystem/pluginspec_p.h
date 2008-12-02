@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PLUGINSPEC_P_H
 #define PLUGINSPEC_P_H
 
@@ -103,4 +104,4 @@ private:
 } // namespace Internal
 } // namespace ExtensionSystem
 
-#endif // header guard
+#endif // PLUGINSPEC_P_H

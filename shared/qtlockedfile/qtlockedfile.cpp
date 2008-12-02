@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "qtlockedfile.h"
 
 namespace SharedTools {
@@ -158,4 +159,4 @@ QtLockedFile::LockMode QtLockedFile::lockMode() const
     Destroys the \e QtLockedFile object. If any locks were held, they are released.
 */
 
-}
+} // namespace SharedTools

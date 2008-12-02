@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "iplugin.h"
 #include "iplugin_p.h"
 #include "pluginmanager.h"

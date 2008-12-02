@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "qtlocalpeer.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTime>
 
@@ -176,4 +177,4 @@ void QtLocalPeer::receiveConnection()
     emit messageReceived(message); // ##(might take a long time to return)
 }
 
-}
+} // namespace SharedTools

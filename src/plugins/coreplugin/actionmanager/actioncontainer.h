@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef ACTIONCONTAINER_H
 #define ACTIONCONTAINER_H
 
@@ -152,6 +153,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //ACTIONCONTAINER_H
-
-
+#endif // ACTIONCONTAINER_H

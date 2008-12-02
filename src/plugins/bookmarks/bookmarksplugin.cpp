@@ -30,13 +30,10 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "bookmarksplugin.h"
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
-
-#include <QtCore/qplugin.h>
-#include <QtGui/QMenu>
-#include <QDebug>
 
 #include <texteditor/texteditorconstants.h>
 #include <coreplugin/icore.h>
@@ -44,14 +41,17 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 
+#include <QtCore/qplugin.h>
+#include <QtGui/QMenu>
+#include <QDebug>
+
 using namespace Bookmarks::Constants;
 using namespace Bookmarks::Internal;
 
 BookmarksPlugin *BookmarksPlugin::m_instance = 0;
 
-BookmarksPlugin::BookmarksPlugin():
-    m_bookmarkManager(0),
-    m_core(0)
+BookmarksPlugin::BookmarksPlugin()
+    : m_bookmarkManager(0), m_core(0)
 {
     m_instance = this;
 }

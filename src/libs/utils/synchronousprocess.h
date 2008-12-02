@@ -30,14 +30,15 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef SYNCHRONOUSPROCESS_H
 #define SYNCHRONOUSPROCESS_H
+
+#include "utils_global.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
-
-#include "utils_global.h"
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -51,7 +52,8 @@ namespace Utils {
 struct SynchronousProcessPrivate;
 
 /* Result of SynchronousProcess execution */
-struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse {
+struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse
+{
     enum Result {
         // Finished with return code 0
         Finished,
@@ -87,7 +89,8 @@ QWORKBENCH_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRe
  * stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
  * They would typically be used for log windows. */
 
-class QWORKBENCH_UTILS_EXPORT SynchronousProcess : public QObject {
+class QWORKBENCH_UTILS_EXPORT SynchronousProcess : public QObject
+{
     Q_OBJECT
 public:
     SynchronousProcess();
@@ -134,6 +137,7 @@ private:
     SynchronousProcessPrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif

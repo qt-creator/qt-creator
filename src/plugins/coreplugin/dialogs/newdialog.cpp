@@ -30,13 +30,13 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "newdialog.h"
 #include "ui_newdialog.h"
 #include "basefilewizard.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/iwizard.h>
-
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
@@ -142,7 +142,6 @@ void NewDialog::okButtonClicked()
     if (m_ui->templatesTree->currentItem())
         accept();
 }
-
 
 void NewDialog::updateOkButton()
 {

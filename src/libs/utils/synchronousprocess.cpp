@@ -352,5 +352,5 @@ void SynchronousProcess::processStdErr(bool emitSignals)
     }
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "projectintropage.h"
 #include "filewizardpage.h"
 #include "ui_projectintropage.h"
@@ -211,5 +212,5 @@ void ProjectIntroPage::hideStatusLabel()
     displayStatusMessage(Hint, QString());
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef OPENWITHDIALOG_H
 #define OPENWITHDIALOG_H
 
@@ -66,4 +67,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif
+#endif // OPENWITHDIALOG_H

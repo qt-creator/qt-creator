@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CLASSNAMEVALIDATINGLINEEDIT_H
 #define CLASSNAMEVALIDATINGLINEEDIT_H
 
@@ -44,8 +45,9 @@ struct ClassNameValidatingLineEditPrivate;
 /* A Line edit that validates a C++ class name and emits a signal
  * to derive suggested file names from it. */
 
-class QWORKBENCH_UTILS_EXPORT  ClassNameValidatingLineEdit :
-    public Core::Utils::BaseValidatingLineEdit {
+class QWORKBENCH_UTILS_EXPORT ClassNameValidatingLineEdit
+  : public Core::Utils::BaseValidatingLineEdit
+{
     Q_DISABLE_COPY(ClassNameValidatingLineEdit)
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
     Q_OBJECT
@@ -73,7 +75,7 @@ private:
     ClassNameValidatingLineEditPrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
 
 #endif // CLASSNAMEVALIDATINGLINEEDIT_H

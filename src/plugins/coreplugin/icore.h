@@ -72,7 +72,6 @@ class CORE_EXPORT ICore : public QObject
     Q_OBJECT
 
 public:
-
     ICore() {}
     virtual ~ICore() {}
 
@@ -131,4 +130,4 @@ signals:
 
 } // namespace Core
 
-#endif //ICORE_H
+#endif // ICORE_H

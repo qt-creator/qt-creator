@@ -40,6 +40,7 @@
 #include <Symbols.h>
 #include <AST.h>
 #include <Scope.h>
+
 #include <QByteArray>
 #include <QFile>
 #include <QtDebug>
@@ -47,50 +48,52 @@
 using namespace CPlusPlus;
 
 namespace {
-    class DocumentDiagnosticClient: public DiagnosticClient
+
+class DocumentDiagnosticClient : public DiagnosticClient
+{
+    enum { MAX_MESSAGE_COUNT = 10 };
+
+public:
+    DocumentDiagnosticClient(Document *doc, QList<Document::DiagnosticMessage> *messages)
+        : doc(doc),
+          messages(messages)
+    { }
+
+    virtual void report(int level,
+                        StringLiteral *fileId,
+                        unsigned line, unsigned column,
+                        const char *format, va_list ap)
     {
-        enum { MAX_MESSAGE_COUNT = 10 };
+        if (messages->count() == MAX_MESSAGE_COUNT)
+            return;
 
-    public:
-        DocumentDiagnosticClient(Document *doc, QList<Document::DiagnosticMessage> *messages)
-            : doc(doc),
-              messages(messages)
-        { }
+        const QString fileName = QString::fromUtf8(fileId->chars(), fileId->size());
 
-        virtual void report(int level,
-                            StringLiteral *fileId,
-                            unsigned line, unsigned column,
-                            const char *format, va_list ap)
-        {
-            if (messages->count() == MAX_MESSAGE_COUNT)
-                return;
+        if (fileName != doc->fileName())
+            return;
 
-            const QString fileName = QString::fromUtf8(fileId->chars(), fileId->size());
+        QString message;
+        message.vsprintf(format, ap);
 
-            if (fileName != doc->fileName())
-                return;
+        Document::DiagnosticMessage m(convertLevel(level), doc->fileName(),
+                                      line, column, message);
+        messages->append(m);
+    }
 
-            QString message;
-            message.vsprintf(format, ap);
-
-            Document::DiagnosticMessage m(convertLevel(level), doc->fileName(),
-                                          line, column, message);
-            messages->append(m);
+    static int convertLevel(int level) {
+        switch (level) {
+            case Warning: return Document::DiagnosticMessage::Warning;
+            case Error:   return Document::DiagnosticMessage::Error;
+            case Fatal:   return Document::DiagnosticMessage::Fatal;
+            default:      return Document::DiagnosticMessage::Error;
         }
+    }
 
-        static int convertLevel(int level) {
-            switch (level) {
-                case Warning: return Document::DiagnosticMessage::Warning;
-                case Error:   return Document::DiagnosticMessage::Error;
-                case Fatal:   return Document::DiagnosticMessage::Fatal;
-                default:      return Document::DiagnosticMessage::Error;
-            }
-        }
+    Document *doc;
+    QList<Document::DiagnosticMessage> *messages;
+};
 
-        Document *doc;
-        QList<Document::DiagnosticMessage> *messages;
-    };
-} // end of anonymous namespace
+} // anonymous namespace
 
 Document::Document(const QString &fileName)
     : _fileName(fileName),
@@ -116,19 +119,29 @@ Document::~Document()
 }
 
 Control *Document::control() const
-{ return _control; }
+{
+    return _control;
+}
 
 QString Document::fileName() const
-{ return _fileName; }
+{
+    return _fileName;
+}
 
 QStringList Document::includedFiles() const
-{ return _includedFiles; }
+{
+    return _includedFiles;
+}
 
 void Document::addIncludeFile(const QString &fileName)
-{ _includedFiles.append(fileName); }
+{
+    _includedFiles.append(fileName);
+}
 
 QByteArray Document::definedMacros() const
-{ return _definedMacros; }
+{
+    return _definedMacros;
+}
 
 void Document::appendMacro(const QByteArray &macroName, const QByteArray &text)
 {
@@ -141,13 +154,19 @@ void Document::appendMacro(const QByteArray &macroName, const QByteArray &text)
 }
 
 TranslationUnit *Document::translationUnit() const
-{ return _translationUnit; }
+{
+    return _translationUnit;
+}
 
 bool Document::skipFunctionBody() const
-{ return _translationUnit->skipFunctionBody(); }
+{
+    return _translationUnit->skipFunctionBody();
+}
 
 void Document::setSkipFunctionBody(bool skipFunctionBody)
-{ _translationUnit->setSkipFunctionBody(skipFunctionBody); }
+{
+    _translationUnit->setSkipFunctionBody(skipFunctionBody);
+}
 
 unsigned Document::globalSymbolCount() const
 {
@@ -158,7 +177,9 @@ unsigned Document::globalSymbolCount() const
 }
 
 Symbol *Document::globalSymbolAt(unsigned index) const
-{ return _globalNamespace->memberAt(index); }
+{
+    return _globalNamespace->memberAt(index);
+}
 
 Scope *Document::globalSymbols() const
 {
@@ -169,10 +190,14 @@ Scope *Document::globalSymbols() const
 }
 
 Namespace *Document::globalNamespace() const
-{ return _globalNamespace; }
+{
+    return _globalNamespace;
+}
 
 Symbol *Document::findSymbolAt(unsigned line, unsigned column) const
-{ return findSymbolAt(line, column, globalSymbols()); }
+{
+    return findSymbolAt(line, column, globalSymbols());
+}
 
 Symbol *Document::findSymbolAt(unsigned line, unsigned column, Scope *scope) const
 {
@@ -203,10 +228,14 @@ Document::Ptr Document::create(const QString &fileName)
 }
 
 void Document::setSource(const QByteArray &source)
-{ _translationUnit->setSource(source.constBegin(), source.size()); }
+{
+    _translationUnit->setSource(source.constBegin(), source.size());
+}
 
 void Document::startSkippingBlocks(unsigned start)
-{ _skippedBlocks.append(Block(start, 0)); }
+{
+    _skippedBlocks.append(Block(start, 0));
+}
 
 void Document::stopSkippingBlocks(unsigned stop)
 {
@@ -218,10 +247,14 @@ void Document::stopSkippingBlocks(unsigned stop)
 }
 
 QSet<QByteArray> Document::macroNames() const
-{ return _macroNames; }
+{
+    return _macroNames;
+}
 
 void Document::parse()
-{ _translationUnit->parse(); }
+{
+    _translationUnit->parse();
+}
 
 void Document::check()
 {
@@ -239,4 +272,6 @@ void Document::check()
 }
 
 void Document::releaseTranslationUnit()
-{ _translationUnit->release(); }
+{
+    _translationUnit->release();
+}

@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef RESOURCEVIEW_H
 #define RESOURCEVIEW_H
 
@@ -42,10 +43,12 @@
 
 using namespace qdesigner_internal;
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QMenu)
-QT_FORWARD_DECLARE_CLASS(QMouseEvent)
-QT_FORWARD_DECLARE_CLASS(QUndoStack)
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+class QMouseEvent;
+class QUndoStack;
+QT_END_NAMESPACE
 
 namespace SharedTools {
 
@@ -178,6 +181,6 @@ private:
     int m_mergeId;
 };
 
-}
+} // namespace SharedTools
 
-#endif //RESOURCEVIEW_H
+#endif // RESOURCEVIEW_H

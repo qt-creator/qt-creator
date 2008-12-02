@@ -1,4 +1,4 @@
-/***************************************************************************
+    /***************************************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -30,17 +30,19 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef CMAKEPROJECT_H
 #define CMAKEPROJECT_H
+
+#include "cmakeprojectmanager.h"
+#include "cmakeprojectnodes.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <coreplugin/ifile.h>
-#include <QtCore/QXmlStreamReader>
 
-#include "cmakeprojectmanager.h"
-#include "cmakeprojectnodes.h"
+#include <QtCore/QXmlStreamReader>
 
 namespace CMakeProjectManager {
 namespace Internal{
@@ -152,7 +154,7 @@ public:
     virtual void init(const QString &buildConfiguration);
 };
 
-}
-}
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // CMAKEPROJECT_H

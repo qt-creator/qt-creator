@@ -49,25 +49,39 @@ Overview::~Overview()
 { }
 
 bool Overview::showArgumentNames() const
-{ return _showArgumentNames; }
+{
+    return _showArgumentNames;
+}
 
 void Overview::setShowArgumentNames(bool showArgumentNames)
-{ _showArgumentNames = showArgumentNames; }
+{
+    _showArgumentNames = showArgumentNames;
+}
 
 void Overview::setShowReturnTypes(bool showReturnTypes)
-{ _showReturnTypes = showReturnTypes; }
+{
+    _showReturnTypes = showReturnTypes;
+}
 
 bool Overview::showReturnTypes() const
-{ return _showReturnTypes; }
+{
+    return _showReturnTypes;
+}
 
 void Overview::setMarkArgument(unsigned position)
-{ _markArgument = position; }
+{
+    _markArgument = position;
+}
 
 bool Overview::showFunctionSignatures() const
-{ return _showFunctionSignatures; }
+{
+    return _showFunctionSignatures;
+}
 
 void Overview::setShowFunctionSignatures(bool showFunctionSignatures)
-{ _showFunctionSignatures = showFunctionSignatures; }
+{
+    _showFunctionSignatures = showFunctionSignatures;
+}
 
 QString Overview::prettyName(Name *name) const
 {
@@ -75,9 +89,10 @@ QString Overview::prettyName(Name *name) const
     return pp(name);
 }
 
-QString Overview::prettyType(const FullySpecifiedType &ty,
-                             Name *name) const
-{ return prettyType(ty, prettyName(name)); }
+QString Overview::prettyType(const FullySpecifiedType &ty, Name *name) const
+{
+    return prettyType(ty, prettyName(name));
+}
 
 QString Overview::prettyType(const FullySpecifiedType &ty,
                              const QString &name) const

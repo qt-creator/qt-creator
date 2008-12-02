@@ -30,14 +30,17 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef BINEDITORCONSTANTS_H
 #define BINEDITORCONSTANTS_H
 
 namespace BINEditor {
-    namespace Constants {
-        const char * const C_BINEDITOR          = "Binary Editor";
-        const char * const C_BINEDITOR_MIMETYPE = "application/octet-stream";
-    }
-}
+namespace Constants {
+
+const char * const C_BINEDITOR          = "Binary Editor";
+const char * const C_BINEDITOR_MIMETYPE = "application/octet-stream";
+
+} // namespace Constants
+} // namespace BINEditor
 
 #endif // BINEDITORCONSTANTS_H

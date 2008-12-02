@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef IFILE_H
 #define IFILE_H
 
@@ -67,6 +68,6 @@ signals:
     void changed();
 };
 
-} //namespace
+} // namespace Core
 
-#endif //IFILE_H
+#endif // IFILE_H

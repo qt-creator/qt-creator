@@ -30,21 +30,21 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "messagemanager.h"
 #include "messageoutputwindow.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QStatusBar>
 #include <QtGui/QApplication>
-
-#include <extensionsystem/pluginmanager.h>
 
 using namespace Core;
 
 MessageManager *MessageManager::m_instance = 0;
 
-MessageManager::MessageManager():
-    m_pm(0),
-    m_messageOutputWindow(0)
+MessageManager::MessageManager()
+    : m_pm(0), m_messageOutputWindow(0)
 {
     m_instance = this;
 }

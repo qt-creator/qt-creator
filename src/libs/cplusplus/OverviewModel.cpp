@@ -33,10 +33,12 @@
 
 #include "OverviewModel.h"
 #include "Overview.h"
+
 #include <Scope.h>
 #include <Semantic.h>
 #include <Literals.h>
 #include <Symbols.h>
+
 #include <QFile>
 #include <QtDebug>
 
@@ -50,10 +52,14 @@ OverviewModel::~OverviewModel()
 { }
 
 bool OverviewModel::hasDocument() const
-{ return _cppDocument; }
+{
+    return _cppDocument;
+}
 
 Document::Ptr OverviewModel::document() const
-{ return _cppDocument; }
+{
+    return _cppDocument;
+}
 
 unsigned OverviewModel::globalSymbolCount() const
 {
@@ -124,7 +130,9 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
 }
 
 int OverviewModel::columnCount(const QModelIndex &) const
-{ return 1; }
+{
+    return 1;
+}
 
 QVariant OverviewModel::data(const QModelIndex &index, int role) const
 {
@@ -174,7 +182,9 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
 }
 
 Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
-{ return static_cast<Symbol *>(index.internalPointer()); }
+{
+    return static_cast<Symbol *>(index.internalPointer());
+}
 
 void OverviewModel::rebuild(Document::Ptr doc)
 {

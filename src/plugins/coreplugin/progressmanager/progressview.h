@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef PROGRESSVIEW_H
 #define PROGRESSVIEW_H
 
@@ -78,4 +79,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //PROGRESSVIEW_H
+#endif // PROGRESSVIEW_H

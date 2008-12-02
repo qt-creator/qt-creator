@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef SHORTCUTSETTINGS_H
 #define SHORTCUTSETTINGS_H
 
@@ -54,7 +55,8 @@ class ActionManager;
 class Command;
 class MainWindow;
 
-struct ShortcutItem {
+struct ShortcutItem
+{
     ICommand *m_cmd;
     QKeySequence m_key;
     QTreeWidgetItem *m_item;

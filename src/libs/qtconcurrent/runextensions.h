@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef QTCONCURRENT_RUNEX_H
 #define QTCONCURRENT_RUNEX_H
 
@@ -390,8 +391,8 @@ QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &), Class *object)
     return (new StoredInterfaceMemberFunctionCall0<T, void (Class::*)(QFutureInterface<T> &), Class>(fn, object))->start();
 }
 
-} //namespace QtConcurrent
+} // namespace QtConcurrent
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QTCONCURRENT_RUNEX_H

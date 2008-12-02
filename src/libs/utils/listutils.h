@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef LISTUTILS_H
 #define LISTUTILS_H
 
@@ -48,7 +49,7 @@ QList<T1> qwConvertList(const QList<T2> &list)
     return convertedList;
 }
 
-} // Utils
-} // Core
+} // namespace Utils
+} // namespace Core
 
 #endif // LISTUTILS_H

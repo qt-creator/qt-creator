@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "basevalidatinglineedit.h"
 
 #include <QtCore/QDebug>
@@ -153,5 +154,5 @@ void BaseValidatingLineEdit::slotReturnPressed()
         emit validReturnPressed();
 }
 
-}
-}
+} // namespace Utils
+} // namespace Core

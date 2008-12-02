@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
@@ -60,7 +61,8 @@ class CORE_EXPORT FileManager : public QObject
 {
     Q_OBJECT
 
-    struct FileInfo {
+    struct FileInfo
+    {
         QString fileName;
         QDateTime modified;
         QFile::Permissions permissions;

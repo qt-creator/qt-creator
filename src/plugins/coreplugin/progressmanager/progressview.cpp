@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #include "progressview.h"
 #include "futureprogress.h"
 
@@ -39,7 +40,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 ProgressView::ProgressView(QWidget *parent)
-: QWidget(parent)
+    : QWidget(parent)
 {
     m_layout = new QVBoxLayout;
     setLayout(m_layout);

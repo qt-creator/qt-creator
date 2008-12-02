@@ -30,6 +30,7 @@
 ** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
 ** 
 ***************************************************************************/
+
 #ifndef COMMAND_H
 #define COMMAND_H
 
@@ -175,4 +176,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //COMMAND_H
+#endif // COMMAND_H
