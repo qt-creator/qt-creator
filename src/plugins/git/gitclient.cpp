@@ -625,7 +625,7 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 
     QByteArray outputText;
     if (synchronousGit(workingDirectory, arguments, &outputText))
-        return outputText;
+        return QString::fromLocal8Bit(outputText);
     return QString();
 }
 

@@ -354,12 +354,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     // Submit editor
     QList<int> submitContext;
     submitContext.push_back(m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::C_GITSUBMITEDITOR)));
-    m_submitCurrentAction = new QAction(QIcon(Constants::ICON_SUBMIT), tr("Commit"), this);
+    m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
     // TODO
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
-    m_diffSelectedFilesAction = new QAction(QIcon(Constants::ICON_DIFF), tr("Diff Selected Files"), this);
+    m_diffSelectedFilesAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
     command = actionManager->registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
 
     m_undoAction = new QAction(tr("&Undo"), this);

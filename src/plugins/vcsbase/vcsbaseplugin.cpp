@@ -61,7 +61,7 @@ bool VCSBasePlugin::initialize(const QStringList & /*arguments*/, QString *error
 {
     Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
 
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.vcsbase/VCSBase.mimetypes.xml"), errorMessage))
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))
         return false;
 
     return true;
@@ -70,7 +70,7 @@ bool VCSBasePlugin::initialize(const QStringList & /*arguments*/, QString *error
 void VCSBasePlugin::extensionsInitialized()
 {
 }
-    
+
 VCSBasePlugin *VCSBasePlugin::instance()
 {
     return m_instance;

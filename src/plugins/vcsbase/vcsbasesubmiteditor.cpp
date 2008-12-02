@@ -51,6 +51,7 @@
 #include <QtCore/QDebug>
 
 enum { debug = 0 };
+enum { wantToolBar = 0 };
 
 static inline QAction *actionFromId(const Core::ICore *core, const char *id)
 {
@@ -187,8 +188,27 @@ const char *VCSBaseSubmitEditor::kind() const
     return m_d->m_parameters->kind;
 }
 
+static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
+{
+    // Create
+    QToolBar *toolBar = new QToolBar;
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
+    toolBar->setIconSize(QSize(size, size));
+    toolBar->addSeparator();
+
+    if (submitAction)
+        toolBar->addAction(submitAction);
+    if (diffAction)
+        toolBar->addAction(diffAction);
+    return toolBar;
+}
+
 QToolBar *VCSBaseSubmitEditor::toolBar()
 {
+    if (!wantToolBar)
+        return 0;
+
     if (m_d->m_toolWidget)
         return m_d->m_toolWidget;
 
@@ -196,18 +216,8 @@ QToolBar *VCSBaseSubmitEditor::toolBar()
         return 0;
 
     // Create
-    QToolBar *toolBar = new QToolBar;
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    const int size = m_d->m_widget->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    toolBar->setIconSize(QSize(size, size));
-    toolBar->addSeparator();
-
-    if (m_d->m_submitAction)
-        toolBar->addAction(m_d->m_submitAction);
-    if (m_d->m_diffAction)
-        toolBar->addAction(m_d->m_diffAction);
-    m_d->m_toolWidget = toolBar;
-    return toolBar;
+    m_d->m_toolWidget = createToolBar(m_d->m_widget, m_d->m_submitAction, m_d->m_diffAction);
+    return m_d->m_toolWidget;
 }
 
 QList<int> VCSBaseSubmitEditor::context() const
@@ -279,4 +289,14 @@ bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
     return true;
 }
 
-} // namespace VCSBase
+QIcon VCSBaseSubmitEditor::diffIcon()
+{
+    return QIcon(QLatin1String(":/vcsbase/images/diff.png"));
+}
+
+QIcon VCSBaseSubmitEditor::submitIcon()
+{
+    return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
+}
+
+}

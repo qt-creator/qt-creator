@@ -40,6 +40,10 @@
 
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
+class QIcon;
+QT_END_NAMESPACE
+
 namespace Core {
     namespace Utils {
         class SubmitEditorWidget;
@@ -117,6 +121,10 @@ public:
 
     void setFileList(const QStringList&);
     void addFiles(const QStringList&, bool checked = true, bool userCheckable = true);
+
+    // Utilities returning some predefined icons for actions
+    static QIcon diffIcon();
+    static QIcon submitIcon();
 
 signals:
     void diffSelectedFiles(const QStringList &files);

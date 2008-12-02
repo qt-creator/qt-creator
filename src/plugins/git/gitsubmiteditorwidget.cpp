@@ -48,7 +48,6 @@ GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
     m_gitSubmitPanelUi.repositoryLabel->setText(info.repository);
-    m_gitSubmitPanelUi.descriptionLabel->setText(info.description);
     m_gitSubmitPanelUi.branchLabel->setText(info.branch);
 }
 

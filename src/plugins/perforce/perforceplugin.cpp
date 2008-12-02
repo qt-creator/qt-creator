@@ -366,11 +366,11 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
     connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
     mperforce->addAction(command);
 
-    m_submitCurrentLogAction = new QAction(QIcon(Constants::ICON_SUBMIT), tr("Submit"), this);
+    m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Submit"), this);
     command = am->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, perforcesubmitcontext);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
-    m_diffSelectedFiles = new QAction(QIcon(Constants::ICON_DIFF), tr("Diff Selected Files"), this);
+    m_diffSelectedFiles = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
     command = am->registerAction(m_diffSelectedFiles, Constants::DIFF_SELECTED, perforcesubmitcontext);
 
     m_undoAction = new QAction(tr("&Undo"), this);

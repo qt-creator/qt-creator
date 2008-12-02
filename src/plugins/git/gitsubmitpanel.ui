@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>201</width>
-    <height>210</height>
+    <height>189</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -17,6 +17,9 @@
       <string>General Information</string>
      </property>
      <layout class="QFormLayout" name="infoFormLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="repositoryLabelLabel">
         <property name="text">
@@ -32,30 +35,13 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="descriptionLabelLabel">
-        <property name="text">
-         <string>Description:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="descriptionLabel">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>description</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
        <widget class="QLabel" name="branchLabelLabel">
         <property name="text">
          <string>Branch:</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="1" column="1">
        <widget class="QLabel" name="branchLabel">
         <property name="text">
          <string>branch</string>

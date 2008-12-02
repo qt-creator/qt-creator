@@ -37,11 +37,39 @@
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 
+#include <QtGui/QPushButton>
+
 enum { debug = 0 };
 
 namespace Core {
 namespace Utils {
 
+// QActionPushButton: A push button tied to an action
+// (similar to a QToolButton)
+class QActionPushButton : public QPushButton {
+    Q_OBJECT
+public:
+    explicit QActionPushButton(QAction *a);
+
+private slots:
+    void actionChanged();
+};
+
+QActionPushButton::QActionPushButton(QAction *a) :
+     QPushButton(a->icon(), a->text())
+{
+    connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
+    connect(this, SIGNAL(clicked()), a, SLOT(trigger()));
+    setEnabled(a->isEnabled());
+}
+
+void QActionPushButton::actionChanged()
+{
+    if (const QAction *a = qobject_cast<QAction*>(sender()))
+        setEnabled(a->isEnabled());
+}
+
+// -----------  SubmitEditorWidgetPrivate
 struct SubmitEditorWidgetPrivate
 {
     SubmitEditorWidgetPrivate();
@@ -99,13 +127,15 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction,  QAction *ed
             qDebug() << submitAction << m_d->m_ui.fileList->count() << "items" << m_d->m_filesChecked;
         submitAction->setEnabled(m_d->m_filesChecked);
         connect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        m_d->m_ui.buttonLayout->addWidget(new QActionPushButton(submitAction));
     }
     if (diffAction) {
         if (debug)
             qDebug() << diffAction << m_d->m_filesSelected;
-         diffAction->setEnabled(m_d->m_filesSelected);
-         connect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
-         connect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+        diffAction->setEnabled(m_d->m_filesSelected);
+        connect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
+        connect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+        m_d->m_ui.buttonLayout->addWidget(new QActionPushButton(diffAction));
     }
 }
 
@@ -305,3 +335,5 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
 
 } // namespace Utils
 } // namespace Core
+
+#include "submiteditorwidget.moc"

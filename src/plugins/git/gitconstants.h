@@ -48,10 +48,6 @@ const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
 const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
 
-// TODO: For the moment, trust p4 is loaded...
-const char * const ICON_SUBMIT = ":/trolltech.perforce/images/submit.png";
-const char * const ICON_DIFF = ":/trolltech.perforce/images/diff.png";
-
 const char * const DIFF_FILE_INDICATOR = "--- ";
 enum { debug = 0 };
 

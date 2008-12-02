@@ -382,11 +382,11 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     QList<int> svncommitcontext;
     svncommitcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(Constants::SUBVERSIONCOMMITEDITOR);
 
-    m_submitCurrentLogAction = new QAction(QIcon(Constants::ICON_SUBMIT), tr("Commit"), this);
+    m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
-    m_submitDiffAction = new QAction(QIcon(Constants::ICON_DIFF), tr("Diff Selected Files"), this);
+    m_submitDiffAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
     command = ami->registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, svncommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
