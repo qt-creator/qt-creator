@@ -345,7 +345,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
 #ifdef Q_OS_MAC
     m_d->m_externalEditor = m_d->m_core->resourcePath()
-        +QLatin1String("/runInTerminal.command vi %f +%l");
+        +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
 #elif defined(Q_OS_UNIX)
     m_d->m_externalEditor = QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
 #endif
