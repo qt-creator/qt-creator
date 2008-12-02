@@ -655,12 +655,14 @@ void DebuggerManager::shutdown()
 
     delete m_breakHandler;
     delete m_disassemblerHandler;
+    delete m_threadsHandler;
     delete m_modulesHandler;
     delete m_registerHandler;
     delete m_stackHandler;
     delete m_watchHandler;
     m_breakHandler = 0;
     m_disassemblerHandler = 0;
+    m_threadsHandler = 0;
     m_modulesHandler = 0;
     m_registerHandler = 0;
     m_stackHandler = 0;
