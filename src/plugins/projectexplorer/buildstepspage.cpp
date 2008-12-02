@@ -92,7 +92,7 @@ BuildStepsPage::~BuildStepsPage()
     delete m_ui;
 }
 
-void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString &displayName)
+void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString & /* displayName */)
 {
     int index = m_pro->buildSteps().indexOf(bs);
     m_ui->buildSettingsList->invisibleRootItem()->child(index)->setText(0, bs->displayName());

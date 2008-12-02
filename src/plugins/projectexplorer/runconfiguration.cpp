@@ -118,6 +118,8 @@ void RunControl::bringApplicationToForeground(qint64 pid)
     m_internalPid = pid;
     m_foregroundCount = 0;
     bringApplicationToForegroundInternal();
+#else
+    Q_UNUSED(pid)
 #endif
 }
 

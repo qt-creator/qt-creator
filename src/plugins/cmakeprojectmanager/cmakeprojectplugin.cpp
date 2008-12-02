@@ -48,11 +48,11 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
 {
 }
 
-bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    QString errorMessage;
-    core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), &errorMessage);
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), errorMessage))
+        return false;
     addAutoReleasedObject(new CMakeManager());
     return true;
 }

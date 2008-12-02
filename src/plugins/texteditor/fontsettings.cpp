@@ -133,7 +133,7 @@ bool Format::equals(const Format &f) const
            m_bold == f.m_bold && m_italic == f.m_italic;
 }
 // -- FontSettings
-FontSettings::FontSettings(const FormatDescriptions &fd) :
+FontSettings::FontSettings(const FormatDescriptions & /* fd */) :
     m_family(defaultFixedFontFamily()),
     m_fontSize(DEFAULT_FONT_SIZE)
 {
