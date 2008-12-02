@@ -53,18 +53,11 @@
 #ifndef PP_H
 #define PP_H
 
-#if defined(_WIN64) || defined(WIN64) || defined(__WIN64__) \
-    || defined(_WIN32) || defined(WIN32) || defined(__WIN32__)
-#  define PP_OS_WIN
-#endif
-
 #include <cassert>
 #include <cstring>
 #include <cctype>
 
-#include "pp-fwd.h"
 #include "pp-cctype.h"
-#include "pp-symbol.h"
 #include "pp-internal.h"
 #include "pp-macro.h"
 #include "pp-environment.h"

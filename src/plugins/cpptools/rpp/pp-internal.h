@@ -60,27 +60,6 @@ namespace rpp {
     namespace _PP_internal
     {
 
-        inline void output_line(const QByteArray &__filename, int __line, QByteArray *__result)
-        {
-            QByteArray __msg;
-
-            __msg += "# ";
-
-            char __line_descr[16];
-            qsnprintf (__line_descr, 16, "%d", __line);
-            __msg += __line_descr;
-
-            __msg += " \"";
-
-            if (__filename.isEmpty ())
-                __msg += "<editor>";
-            else
-                __msg += __filename;
-
-            __msg += "\"\n";
-            __result->append(__msg);
-        }
-
         inline bool comment_p (const char *__first, const char *__last)
         {
             if (__first == __last)
