@@ -42,7 +42,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 GdbMacrosBuildStep::GdbMacrosBuildStep(Qt4Project *project)
-    : BuildStep(project), m_project(project), m_configWidget(new GdbMacrosBuildStepConfigWidget)
+    : BuildStep(project), m_project(project)
 {
 }
 

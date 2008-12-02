@@ -55,7 +55,6 @@ public:
     virtual bool immutable() const;
 private:
     Qt4Project *m_project;
-    GdbMacrosBuildStepConfigWidget* m_configWidget;
     QString m_buildDirectory;
     QString m_qmake;
     QString m_buildConfiguration;
