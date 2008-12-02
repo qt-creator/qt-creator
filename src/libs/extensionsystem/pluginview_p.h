@@ -49,4 +49,4 @@ public:
 } // namespace Internal
 } // namespace ExtensionSystem
 
-#endif PLUGINVIEW_P_H
+#endif // PLUGINVIEW_P_H

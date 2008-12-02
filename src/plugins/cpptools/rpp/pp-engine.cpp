@@ -515,8 +515,7 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
     while (true) {
         if (env.currentLine != _dot->lineno) {
             if (env.currentLine > _dot->lineno) {
-                result->append('\n');
-                result->append('#');
+                result->append("\n# ");
                 result->append(QByteArray::number(_dot->lineno));
                 result->append(' ');
                 result->append('"');
@@ -564,16 +563,6 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
         } else {
             if (_dot->joined)
                 result->append("\\\n");
-            else if (_dot->newline) {
-                result->append('\n');
-                result->append('#');
-                result->append(QByteArray::number(_dot->lineno));
-                result->append(' ');
-                result->append('"');
-                result->append(env.current_file);
-                result->append('"');
-                result->append('\n');
-            }
             else if (_dot->whitespace)
                 result->append(' ');
 
@@ -861,11 +850,14 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
     if (isQtWord)
         macro.definition = macroId;
     else {
+        // ### make me fast!
         const char *startOfDefinition = startOfToken(*tk);
         const char *endOfDefinition = startOfToken(*lastToken);
         macro.definition.append(startOfDefinition,
                                 endOfDefinition - startOfDefinition);
         macro.definition.replace("\\\n", " ");
+        macro.definition.replace('\n', ' ');
+        macro.definition = macro.definition.trimmed();
     }
 
     env.bind(macro);
