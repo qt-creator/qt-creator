@@ -463,7 +463,10 @@ void FileManager::changedFile(const QString &file)
 
 void FileManager::mainWindowActivated()
 {
-    checkForReload();
+    //we need to do this asynchronously because
+    //opening a dialog ("Reload?") in a windowactivated event
+    //freezes on Mac
+    QTimer::singleShot(0, this, SLOT(checkForReload()));
 }
 
 void FileManager::checkForReload()
