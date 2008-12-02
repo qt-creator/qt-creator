@@ -1152,7 +1152,7 @@ void EditorManager::updateActions()
 
     m_d->m_duplicateAction->setEnabled(curEditor != 0 && curEditor->duplicateSupported());
 
-    m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
+    m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0 && !m_d->m_externalEditor.isEmpty());
 }
 
 QList<IEditor*> EditorManager::openedEditors() const
@@ -1488,6 +1488,9 @@ QString EditorManager::externalEditorHelpText() const
 
 void EditorManager::openInExternalEditor()
 {
+    if (m_d->m_externalEditor.isEmpty())
+        return;
+
     IEditor *editor = currentEditor();
     if (!editor)
         return;
@@ -1498,7 +1501,6 @@ void EditorManager::openInExternalEditor()
         if (cancelled)
             return;
     }
-
 
     QRect rect = editor->widget()->rect();
     QFont font = editor->widget()->font();
