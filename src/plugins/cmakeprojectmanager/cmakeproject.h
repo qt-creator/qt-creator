@@ -93,15 +93,7 @@ public:
 private:
     QString findCbpFile(const QDir &);
     QString createCbpFile(const QDir &);
-    bool parseCbpFile(const QString &fileName, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles);
-    void parseCodeBlocks_project_file(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles);
-    void parseProject(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles);
-    void parseBuild(QXmlStreamReader &stream, QStringList &includeFiles);
-    void parseTarget(QXmlStreamReader &stream, QStringList &includeFiles);
-    void parseCompiler(QXmlStreamReader &stream, QStringList &includeFiles);
-    void parseAdd(QXmlStreamReader &stream, QStringList &includeFiles);
-    void parseUnit(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList);
-    void parseUnknownElement(QXmlStreamReader &stream);
+
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
 
@@ -118,6 +110,26 @@ protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
+};
+
+class CMakeCbpParser : public QXmlStreamReader
+{
+public:
+    bool parseCbpFile(const QString &fileName);
+    QList<ProjectExplorer::FileNode *> fileList();
+    QStringList includeFiles();
+private:
+    void parseCodeBlocks_project_file();
+    void parseProject();
+    void parseBuild();
+    void parseTarget();
+    void parseCompiler();
+    void parseAdd();
+    void parseUnit();
+    void parseUnknownElement();
+
+    QList<ProjectExplorer::FileNode *> m_fileList;
+    QStringList m_includeFiles;
 };
 
 class CMakeFile : public Core::IFile

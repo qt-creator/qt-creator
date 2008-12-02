@@ -52,21 +52,20 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     QString cbpFile = findCbpFile(dir);
     if (cbpFile.isEmpty())
         cbpFile = createCbpFile(dir);
-    QList<ProjectExplorer::FileNode *> fileList;
-    QStringList includeFiles;
-    if (parseCbpFile(cbpFile, fileList, includeFiles)) {
-        buildTree(m_rootNode, fileList);
-        foreach(ProjectExplorer::FileNode *fn, fileList)
+
+    CMakeCbpParser cbpparser;
+    if (cbpparser.parseCbpFile(cbpFile)) {
+        buildTree(m_rootNode, cbpparser.fileList());
+        foreach(ProjectExplorer::FileNode *fn, cbpparser.fileList())
             m_files.append(fn->path());
         m_files.sort();
 
-        includeFiles.sort();
-        includeFiles.removeDuplicates();
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
             CppTools::CppModelManagerInterface::ProjectInfo *pinfo = modelmanager->projectInfo(this);
-            pinfo->includePaths = includeFiles;
-            pinfo->sourceFiles = m_files; // TODO we only want C++ files, not all other stuff that might be in the project
+            pinfo->includePaths = cbpparser.includeFiles();
+            // TODO we only want C++ files, not all other stuff that might be in the project
+            pinfo->sourceFiles = m_files;
             // TODO defines
         }
     } else {
@@ -105,141 +104,6 @@ QString CMakeProject::createCbpFile(const QDir &)
     //         would indicate, creating it in the build directory
     //         Or we could use a temp directory and use -C builddirectory
     return QString::null;
-}
-
-bool CMakeProject::parseCbpFile(const QString &fileName, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles)
-{
-    QFile fi(fileName);
-    if (fi.exists() && fi.open(QFile::ReadOnly)) {
-        QXmlStreamReader stream(&fi);
-
-        while(!stream.atEnd()) {
-            stream.readNext();
-            if (stream.name() == "CodeBlocks_project_file") {
-                parseCodeBlocks_project_file(stream, fileList, includeFiles);
-            } else if (stream.isStartElement()) {
-                parseUnknownElement(stream);
-            }
-        }
-        fi.close();
-        return true;
-    }
-    return false;
-}
-
-void CMakeProject::parseCodeBlocks_project_file(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles)
-{
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.name() == "Project") {
-            parseProject(stream, fileList, includeFiles);
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseProject(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList, QStringList &includeFiles)
-{
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.name() == "Unit") {
-            parseUnit(stream, fileList);
-        } else if (stream.name() == "Build") {
-            parseBuild(stream, includeFiles);
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseBuild(QXmlStreamReader &stream, QStringList &includeFiles)
-{
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.name() == "Target") {
-            parseTarget(stream, includeFiles);
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseTarget(QXmlStreamReader &stream, QStringList &includeFiles)
-{
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.name() == "Compiler") {
-            parseCompiler(stream, includeFiles);
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseCompiler(QXmlStreamReader &stream, QStringList &includeFiles)
-{
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.name() == "Add") {
-            parseAdd(stream, includeFiles);
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseAdd(QXmlStreamReader &stream, QStringList &includeFiles)
-{
-    includeFiles.append(stream.attributes().value("directory").toString());
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-
-void CMakeProject::parseUnit(QXmlStreamReader &stream, QList<ProjectExplorer::FileNode *> &fileList)
-{
-    //qDebug()<<stream.attributes().value("filename");
-    QString fileName = stream.attributes().value("filename").toString();
-    if (!fileName.endsWith(".rule"))
-        fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
-    while(!stream.atEnd()) {
-        stream.readNext();
-        if (stream.isEndElement()) {
-            return;
-        } else if (stream.isStartElement()) {
-            parseUnknownElement(stream);
-        }
-    }
-}
-void CMakeProject::parseUnknownElement(QXmlStreamReader &stream)
-{
-    Q_ASSERT(stream.isStartElement());
-
-    while (!stream.atEnd()) {
-        stream.readNext();
-
-        if (stream.isEndElement())
-            break;
-
-        if (stream.isStartElement())
-            parseUnknownElement(stream);
-    }
 }
 
 void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
@@ -441,4 +305,152 @@ void CMakeBuildSettingsWidget::init(const QString &buildConfiguration)
 {
     Q_UNUSED(buildConfiguration);
     // TODO
+}
+
+bool CMakeCbpParser::parseCbpFile(const QString &fileName)
+{
+    QFile fi(fileName);
+    if (fi.exists() && fi.open(QFile::ReadOnly)) {
+        setDevice(&fi);
+
+        while(!atEnd()) {
+            readNext();
+            if (name() == "CodeBlocks_project_file") {
+                parseCodeBlocks_project_file();
+            } else if (isStartElement()) {
+                parseUnknownElement();
+            }
+        }
+        fi.close();
+        m_includeFiles.sort();
+        m_includeFiles.removeDuplicates();
+        return true;
+    }
+    return false;
+}
+
+void CMakeCbpParser::parseCodeBlocks_project_file()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Project") {
+            parseProject();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseProject()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Unit") {
+            parseUnit();
+        } else if (name() == "Build") {
+            parseBuild();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseBuild()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Target") {
+            parseTarget();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseTarget()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Compiler") {
+            parseCompiler();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseCompiler()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Add") {
+            parseAdd();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseAdd()
+{
+    m_includeFiles.append(attributes().value("directory").toString());
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseUnit()
+{
+    //qDebug()<<stream.attributes().value("filename");
+    QString fileName = attributes().value("filename").toString();
+    if (!fileName.endsWith(".rule"))
+        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseUnknownElement()
+{
+    Q_ASSERT(isStartElement());
+
+    while (!atEnd()) {
+        readNext();
+
+        if (isEndElement())
+            break;
+
+        if (isStartElement())
+            parseUnknownElement();
+    }
+}
+
+QList<ProjectExplorer::FileNode *> CMakeCbpParser::fileList()
+{
+    return m_fileList;
+}
+
+QStringList CMakeCbpParser::includeFiles()
+{
+    return m_includeFiles;
 }
