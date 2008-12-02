@@ -54,7 +54,7 @@ QString HelpFindSupport::currentFindString() const
     HelpViewer* viewer = m_centralWidget->currentHelpViewer();
     if (!viewer)
         return QString();
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
     return viewer->selectedText();
 #else
     return viewer->textCursor().selectedText();

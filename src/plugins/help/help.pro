@@ -30,7 +30,7 @@ FORMS += docsettingspage.ui \
     filtersettingspage.ui
 RESOURCES += help.qrc
 include(../../../shared/help/help.pri)
-contains(QT_CONFIG, webkit) { 
-    DEFINES += USE_WEBKIT
+
+contains(QT_CONFIG, webkit) {
     QT += webkit
 }

@@ -36,7 +36,7 @@
 #include "coreimpl.h"
 #include "modemanager.h"
 
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
 #include <QtWebKit/QWebView>
 #include <QtGui/QApplication>
 #include <QtCore/QFileInfo>
@@ -69,7 +69,7 @@ struct WelcomeModePrivate {
     WelcomeModePrivate();
 
     QWidget *m_widget;
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     QWebView *m_webview;
 #else
     QLabel *m_label;
@@ -85,7 +85,7 @@ struct WelcomeModePrivate {
 
 WelcomeModePrivate::WelcomeModePrivate() :
     m_widget(new QWidget),
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     m_webview(new QWebView),
 #else
     m_label(new QLabel),
@@ -97,7 +97,7 @@ WelcomeModePrivate::WelcomeModePrivate() :
 {
 }
 
-#ifndef QT_WEBKIT
+#if defined(QT_NO_WEBKIT)
 
 const char *LABEL = "<center><table><tr><td><img src=\":/qworkbench/html/images/product_logo.png\"/></td><td width=300>"
                     "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
@@ -142,7 +142,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     connect(m_d->m_webview, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
 
     WelcomePageData welcomePageData;
@@ -199,7 +199,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
 {
 // should really only modify the DOM tree
 
-#ifndef QT_WEBKIT
+#if defined(QT_NO_WEBKIT)
     Q_UNUSED(welcomePageData);
 #else
 
