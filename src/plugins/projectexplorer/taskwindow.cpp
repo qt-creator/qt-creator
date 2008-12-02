@@ -35,6 +35,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
@@ -316,8 +317,10 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
     if (file.isEmpty() || line == -1)
         return;
 
-    if (QFileInfo(file).exists())
+    if (QFileInfo(file).exists()) {
         TextEditor::BaseTextEditor::openEditorAt(file, line);
+        Core::EditorManager::instance()->ensureEditorManagerVisible();
+    }
     else
         m_model->setFileNotFound(index, true);
     m_listview->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
