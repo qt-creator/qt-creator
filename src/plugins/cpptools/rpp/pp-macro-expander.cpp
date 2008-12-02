@@ -69,8 +69,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
     {
         if (*__first == '\n')
         {
-            __result->append('\n');
-            __result->append('#');
+            __result->append("\n# ");
             __result->append(QByteArray::number(env.currentLine));
             __result->append(' ');
             __result->append('"');
