@@ -155,9 +155,14 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory
 public:
     IBuildStepFactory();
     virtual ~IBuildStepFactory();
+    // Called to check wheter this factory can restore the named BuildStep
     virtual bool canCreate(const QString &name) const = 0;
+    // Called to restore a buildstep
     virtual BuildStep *create(Project *pro, const QString &name) const = 0;
+    // Caleld by the add BuildStep action to check which BuildSteps could be added
+    // to the project by this factory, should return a list of names
     virtual QStringList canCreateForProject(Project *pro) const = 0;
+    // Called to convert an internal name to a displayName
     virtual QString displayNameForName(const QString &name) const = 0;
 };
 
