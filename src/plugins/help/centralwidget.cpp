@@ -296,7 +296,7 @@ void CentralWidget::print()
     initPrinter();
 
     QPrintDialog *dlg = new QPrintDialog(printer, this);
-#if !defined(USE_WEBKIT)
+#if defined(QT_NO_WEBKIT)
     if (viewer->textCursor().hasSelection())
         dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
 #endif
@@ -414,7 +414,7 @@ HelpViewer *CentralWidget::newEmptyTab()
     HelpViewer* viewer = new HelpViewer(helpEngine, this);
     viewer->installEventFilter(this);
     viewer->setFocus(Qt::OtherFocusReason);
-#if !defined(USE_WEBKIT)
+#if defined(QT_NO_WEBKIT)
     viewer->setDocumentTitle(tr("unknown"));
 #endif
     tabWidget->setCurrentIndex(tabWidget->addTab(viewer, tr("unknown")));
@@ -465,7 +465,7 @@ void CentralWidget::setTabTitle(const QUrl& url)
     int tab = lastTabPage;
     HelpViewer* viewer = currentHelpViewer();
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
     if (!viewer || viewer->source() != url) {
         QTabBar *tabBar = qFindChild<QTabBar*>(tabWidget);
         for (tab = 0; tab < tabBar->count(); ++tab) {
@@ -611,7 +611,7 @@ bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
 {
     HelpViewer* viewer = currentHelpViewer();
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
     Q_UNUSED(incremental);
     if (viewer) {
         QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;

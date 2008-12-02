@@ -39,7 +39,7 @@
 #include <QtGui/QTextBrowser>
 #include <QtGui/QAction>
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
 #include <QWebView>
 #endif
 
@@ -54,7 +54,7 @@ class QKeyEvent;
 class QMouseEvent;
 class QContextMenuEvent;
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
 
 class HelpViewer : public QWebView
 {

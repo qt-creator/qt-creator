@@ -163,7 +163,6 @@ FORMS += dialogs/newdialog.ui \
 RESOURCES += core.qrc \
     fancyactionbar.qrc
 
-contains(QT_CONFIG, webkit): {
+contains(QT_CONFIG, webkit) {
     QT += webkit
-    DEFINES += QT_WEBKIT
 }

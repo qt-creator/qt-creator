@@ -56,7 +56,7 @@
 
 QT_BEGIN_NAMESPACE
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
 
 class HelpNetworkReply : public QNetworkReply
 {

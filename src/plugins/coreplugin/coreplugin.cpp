@@ -40,7 +40,7 @@
 #include "fileiconprovider.h"
 
 #include <QtCore/qplugin.h>
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
 #include <QtWebKit/QWebSettings>
 #endif
@@ -74,7 +74,7 @@ bool CorePlugin::initialize(const QStringList & /*arguments*/, QString *error_me
     m_pm = ExtensionSystem::PluginManager::instance();
     const bool success = m_mainWindow->init(m_pm, error_message);
     if (success) {
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
         QWebSettings *webSettings = QWebSettings::globalSettings();
         const QFont applicationFont = QApplication::font();
         webSettings->setFontFamily(QWebSettings::StandardFont, applicationFont.family());
