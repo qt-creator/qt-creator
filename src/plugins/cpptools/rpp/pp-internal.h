@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,9 +26,9 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
@@ -56,47 +56,23 @@
 #include <QByteArray>
 
 namespace rpp {
+namespace _PP_internal {
 
-    namespace _PP_internal
-    {
+inline bool comment_p (const char *__first, const char *__last)
+{
+    if (__first == __last)
+        return false;
 
-        inline void output_line(const QByteArray &__filename, int __line, QByteArray *__result)
-        {
-            QByteArray __msg;
+    if (*__first != '/')
+        return false;
 
-            __msg += "# ";
+    if (++__first == __last)
+        return false;
 
-            char __line_descr[16];
-            qsnprintf (__line_descr, 16, "%d", __line);
-            __msg += __line_descr;
+    return (*__first == '/' || *__first == '*');
+}
 
-            __msg += " \"";
-
-            if (__filename.isEmpty ())
-                __msg += "<editor>";
-            else
-                __msg += __filename;
-
-            __msg += "\"\n";
-            __result->append(__msg);
-        }
-
-        inline bool comment_p (const char *__first, const char *__last)
-        {
-            if (__first == __last)
-                return false;
-
-            if (*__first != '/')
-                return false;
-
-            if (++__first == __last)
-                return false;
-
-            return (*__first == '/' || *__first == '*');
-        }
-
-    } // _PP_internal
-
+} // _PP_internal
 } // namespace rpp
 
 #endif // PP_INTERNAL_H

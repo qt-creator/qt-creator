@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "cpasterplugin.h"
 
 #include "ui_pasteselect.h"
@@ -64,9 +65,7 @@ using namespace TextEditor;
 Core::ICore *gCoreInstance = NULL;
 
 CodepasterPlugin::CodepasterPlugin()
-        : m_settingsPage(0)
-        , m_fetcher(0)
-        , m_poster(0)
+    : m_settingsPage(0), m_fetcher(0), m_poster(0)
 {
 }
 
@@ -125,7 +124,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
 void CodepasterPlugin::extensionsInitialized()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ExtensionSystem::PluginManager::instance()
+        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
 void CodepasterPlugin::post()
@@ -268,18 +268,14 @@ void CustomFetcher::list(QListWidget* list)
     Fetcher::fetch(url);
 }
 
-CustomPoster::CustomPoster(const QString &host
-                           , bool copyToClipboard
-                           , bool displayOutput)
-        : Poster(host)
-        , m_copy(copyToClipboard)
-        , m_output(displayOutput)
+CustomPoster::CustomPoster(const QString &host, bool copyToClipboard, bool displayOutput)
+    : Poster(host), m_copy(copyToClipboard), m_output(displayOutput)
 {
     // cpaster calls QCoreApplication::exit which we want to avoid here
-    disconnect(this, SIGNAL(requestFinished(int,bool))
-              ,this, SLOT(gotRequestFinished(int,bool)));
-    connect(this, SIGNAL(requestFinished(int,bool))
-                    , SLOT(customRequestFinished(int,bool)));
+    disconnect(this, SIGNAL(requestFinished(int,bool)),
+              this, SLOT(gotRequestFinished(int,bool)));
+    connect(this, SIGNAL(requestFinished(int,bool)),
+                  SLOT(customRequestFinished(int,bool)));
 }
 
 void CustomPoster::customRequestFinished(int, bool error)

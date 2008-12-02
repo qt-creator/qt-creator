@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,9 +26,9 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 
 #include "centralwidget.h"
@@ -296,7 +296,7 @@ void CentralWidget::print()
     initPrinter();
 
     QPrintDialog *dlg = new QPrintDialog(printer, this);
-#if !defined(USE_WEBKIT)
+#if defined(QT_NO_WEBKIT)
     if (viewer->textCursor().hasSelection())
         dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
 #endif
@@ -414,7 +414,7 @@ HelpViewer *CentralWidget::newEmptyTab()
     HelpViewer* viewer = new HelpViewer(helpEngine, this);
     viewer->installEventFilter(this);
     viewer->setFocus(Qt::OtherFocusReason);
-#if !defined(USE_WEBKIT)
+#if defined(QT_NO_WEBKIT)
     viewer->setDocumentTitle(tr("unknown"));
 #endif
     tabWidget->setCurrentIndex(tabWidget->addTab(viewer, tr("unknown")));
@@ -465,7 +465,7 @@ void CentralWidget::setTabTitle(const QUrl& url)
     int tab = lastTabPage;
     HelpViewer* viewer = currentHelpViewer();
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
     if (!viewer || viewer->source() != url) {
         QTabBar *tabBar = qFindChild<QTabBar*>(tabWidget);
         for (tab = 0; tab < tabBar->count(); ++tab) {
@@ -611,7 +611,7 @@ bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
 {
     HelpViewer* viewer = currentHelpViewer();
 
-#if defined(USE_WEBKIT)
+#if !defined(QT_NO_WEBKIT)
     Q_UNUSED(incremental);
     if (viewer) {
         QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;

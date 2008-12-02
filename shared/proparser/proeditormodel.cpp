@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,14 +26,10 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
-#include <QtCore/QStringList>
-#include <QtCore/QMimeData>
-#include <QtCore/QDebug>
-#include <QtGui/QIcon>
 
 #include "proxml.h"
 #include "proitems.h"
@@ -41,12 +37,18 @@
 #include "procommandmanager.h"
 #include "proiteminfo.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QMimeData>
+#include <QtCore/QStringList>
+#include <QtGui/QIcon>
+
 using namespace Qt4ProjectManager::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
     
-class ProAddCommand : public ProCommand {
+class ProAddCommand : public ProCommand
+{
 public:
     ProAddCommand(ProEditorModel *model, ProItem *item, int row, const QModelIndex &parent, bool dodelete = true)
         : m_model(model), m_item(item), m_row(row), m_parent(parent), m_dodelete(dodelete), m_delete(false) { }
@@ -75,7 +77,8 @@ private:
     bool m_delete;
 };
 
-class ProRemoveCommand : public ProCommand {
+class ProRemoveCommand : public ProCommand
+{
 public:
     ProRemoveCommand(ProEditorModel *model, const QModelIndex &index, bool dodelete = true)
         : m_model(model), m_index(index), m_dodelete(dodelete), m_delete(dodelete) { }
@@ -103,7 +106,8 @@ private:
     bool m_delete;
 };
 
-class ChangeProVariableIdCommand : public ProCommand {
+class ChangeProVariableIdCommand : public ProCommand
+{
 public:
     ChangeProVariableIdCommand(ProEditorModel *model, ProVariable *variable, const QString &newId)
         : m_newId(newId), m_model(model), m_variable(variable)
@@ -130,7 +134,8 @@ private:
     ProVariable *m_variable;
 };
 
-class ChangeProVariableOpCommand : public ProCommand {
+class ChangeProVariableOpCommand : public ProCommand
+{
 public:
     ChangeProVariableOpCommand(ProEditorModel *model, ProVariable *variable, ProVariable::VariableOperator newOp)
         :  m_newOp(newOp), m_model(model), m_variable(variable)
@@ -157,7 +162,8 @@ private:
     ProVariable *m_variable;
 };
 
-class ChangeProScopeCommand : public ProCommand {
+class ChangeProScopeCommand : public ProCommand
+{
 public:
     ChangeProScopeCommand(ProEditorModel *model, ProBlock *scope, const QString &newExp)
         : m_newExp(newExp), m_model(model), m_scope(scope) {
@@ -196,7 +202,8 @@ private:
     ProBlock *m_scope;
 };
 
-class ChangeProAdvancedCommand : public ProCommand {
+class ChangeProAdvancedCommand : public ProCommand
+{
 public:
     ChangeProAdvancedCommand(ProEditorModel *model, ProBlock *block, const QString &newExp)
         : m_newExp(newExp), m_model(model), m_block(block) {
@@ -239,7 +246,6 @@ ProEditorModel::ProEditorModel(QObject *parent)
 
 ProEditorModel::~ProEditorModel()
 {
-
 }
 
 void ProEditorModel::setInfoManager(ProItemInfoManager *infomanager)
@@ -299,9 +305,8 @@ QList<QModelIndex> ProEditorModel::findBlocks(const QModelIndex &parent) const
         return result;
     }
 
-    for (int i=0; i<rowCount(parent); ++i) {
+    for (int i = 0; i < rowCount(parent); ++i)
         result += findBlocks(index(i, 0, parent));
-    }
 
     return result;
 }
@@ -936,7 +941,8 @@ bool ProScopeFilter::setData(const QModelIndex &index, const QVariant &value, in
 {
     // map to source
     if (m_checkable != ProScopeFilter::None && role == Qt::CheckStateRole) {
-        if ( m_checkable == ProScopeFilter::Blocks  || ( m_checkable == ProScopeFilter::Variable && sourceVariable(index))) {
+        if (m_checkable == ProScopeFilter::Blocks
+             || (m_checkable == ProScopeFilter::Variable && sourceVariable(index))) {
             QModelIndex srcindex = mapToSource(index);
             if (value.toInt() == Qt::Checked && !m_checkStates.value(srcindex, false)) {
                 m_checkStates.insert(srcindex, true);

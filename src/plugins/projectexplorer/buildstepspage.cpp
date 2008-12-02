@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,9 +26,9 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 #include "buildstepspage.h"
 #include "ui_buildstepspage.h"
@@ -92,7 +92,7 @@ BuildStepsPage::~BuildStepsPage()
     delete m_ui;
 }
 
-void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString &displayName)
+void BuildStepsPage::displayNameChanged(BuildStep *bs, const QString & /* displayName */)
 {
     int index = m_pro->buildSteps().indexOf(bs);
     m_ui->buildSettingsList->invisibleRootItem()->child(index)->setText(0, bs->displayName());

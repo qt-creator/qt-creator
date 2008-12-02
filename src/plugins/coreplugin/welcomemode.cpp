@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,17 +26,18 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "welcomemode.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
 #include "coreimpl.h"
 #include "modemanager.h"
 
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
 #include <QtWebKit/QWebView>
 #include <QtGui/QApplication>
 #include <QtCore/QFileInfo>
@@ -65,11 +66,12 @@ static QString readFile(const QString &name)
     return ts.readAll();
 }
 
-struct WelcomeModePrivate {
+struct WelcomeModePrivate
+{
     WelcomeModePrivate();
 
     QWidget *m_widget;
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     QWebView *m_webview;
 #else
     QLabel *m_label;
@@ -85,7 +87,7 @@ struct WelcomeModePrivate {
 
 WelcomeModePrivate::WelcomeModePrivate() :
     m_widget(new QWidget),
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     m_webview(new QWebView),
 #else
     m_label(new QLabel),
@@ -97,7 +99,7 @@ WelcomeModePrivate::WelcomeModePrivate() :
 {
 }
 
-#ifndef QT_WEBKIT
+#if defined(QT_NO_WEBKIT)
 
 const char *LABEL = "<center><table><tr><td><img src=\":/qworkbench/html/images/product_logo.png\"/></td><td width=300>"
                     "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
@@ -142,7 +144,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-#ifdef QT_WEBKIT
+#if !defined(QT_NO_WEBKIT)
     connect(m_d->m_webview, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
 
     WelcomePageData welcomePageData;
@@ -199,7 +201,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
 {
 // should really only modify the DOM tree
 
-#ifndef QT_WEBKIT
+#if defined(QT_NO_WEBKIT)
     Q_UNUSED(welcomePageData);
 #else
 

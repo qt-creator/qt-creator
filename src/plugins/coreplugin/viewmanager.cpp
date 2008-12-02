@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "viewmanager.h"
 
 #include "coreconstants.h"
@@ -37,24 +38,23 @@
 #include "uniqueidmanager.h"
 #include "iview.h"
 
-#include <QtCore/QSettings>
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QStatusBar>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QToolButton>
-
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <extensionsystem/ExtensionSystemInterfaces>
 #include <aggregation/aggregate.h>
 
+#include <QtCore/QSettings>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QComboBox>
+#include <QtGui/QDockWidget>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QMenu>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolButton>
+#include <QtGui/QVBoxLayout>
 
 using namespace Core;
 using namespace Core::Internal;

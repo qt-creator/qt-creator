@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,9 +26,9 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
@@ -51,9 +51,11 @@
 */
 
 #include "pp.h"
+
 #include <Lexer.h>
 #include <Token.h>
 #include <QtDebug>
+#include <algorithm>
 
 using namespace rpp;
 using namespace CPlusPlus;
@@ -513,8 +515,7 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
     while (true) {
         if (env.currentLine != _dot->lineno) {
             if (env.currentLine > _dot->lineno) {
-                result->append('\n');
-                result->append('#');
+                result->append("\n# ");
                 result->append(QByteArray::number(_dot->lineno));
                 result->append(' ');
                 result->append('"');
@@ -562,16 +563,6 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
         } else {
             if (_dot->joined)
                 result->append("\\\n");
-            else if (_dot->newline) {
-                result->append('\n');
-                result->append('#');
-                result->append(QByteArray::number(_dot->lineno));
-                result->append(' ');
-                result->append('"');
-                result->append(env.current_file);
-                result->append('"');
-                result->append('\n');
-            }
             else if (_dot->whitespace)
                 result->append(' ');
 
@@ -859,11 +850,14 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
     if (isQtWord)
         macro.definition = macroId;
     else {
+        // ### make me fast!
         const char *startOfDefinition = startOfToken(*tk);
         const char *endOfDefinition = startOfToken(*lastToken);
         macro.definition.append(startOfDefinition,
                                 endOfDefinition - startOfDefinition);
         macro.definition.replace("\\\n", " ");
+        macro.definition.replace('\n', ' ');
+        macro.definition = macro.definition.trimmed();
     }
 
     env.bind(macro);

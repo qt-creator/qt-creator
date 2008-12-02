@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -56,34 +57,34 @@ namespace Core {
 
 class ActionManagerInterface;
 class BaseMode;
+class BaseView;
 class EditorManager;
 class FileManager;
 class IContext;
 class MessageManager;
-class ModeManager;
 class MimeDatabase;
+class ModeManager;
 class ProgressManagerInterface;
-class VCSManager;
+class RightPaneWidget;
 class ScriptManagerInterface;
 class UniqueIDManager;
 class VariableManager;
+class VCSManager;
 class ViewManagerInterface;
-class BaseView;
-class RightPaneWidget;
 
 namespace Internal {
 
-class CoreImpl;
 class ActionManager;
-class ProgressManager;
-class OutputPane;
-class ViewManager;
-class GeneralSettings;
-class ShortcutSettings;
+class CoreImpl;
 class FancyTabWidget;
+class GeneralSettings;
 class NavigationWidget;
+class OutputPane;
+class ProgressManager;
+class ShortcutSettings;
+class ViewManager;
 
-class  CORE_EXPORT  MainWindow : public QMainWindow
+class CORE_EXPORT  MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -128,7 +129,6 @@ public:
     void updateContext();
 
     QMenu *createPopupMenu();
-
 
     void setSuppressNavigationWidget(bool suppress);
 

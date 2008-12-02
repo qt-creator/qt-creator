@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,18 +26,19 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #ifndef SYNCHRONOUSPROCESS_H
 #define SYNCHRONOUSPROCESS_H
+
+#include "utils_global.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
-
-#include "utils_global.h"
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -51,7 +52,8 @@ namespace Utils {
 struct SynchronousProcessPrivate;
 
 /* Result of SynchronousProcess execution */
-struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse {
+struct QWORKBENCH_UTILS_EXPORT SynchronousProcessResponse
+{
     enum Result {
         // Finished with return code 0
         Finished,
@@ -87,7 +89,8 @@ QWORKBENCH_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRe
  * stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
  * They would typically be used for log windows. */
 
-class QWORKBENCH_UTILS_EXPORT SynchronousProcess : public QObject {
+class QWORKBENCH_UTILS_EXPORT SynchronousProcess : public QObject
+{
     Q_OBJECT
 public:
     SynchronousProcess();
@@ -134,6 +137,7 @@ private:
     SynchronousProcessPrivate *m_d;
 };
 
-}
-}
+} // namespace Utils
+} // namespace Core
+
 #endif

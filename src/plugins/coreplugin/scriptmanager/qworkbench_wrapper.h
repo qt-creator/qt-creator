@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #ifndef QWORKBENCH_WRAPPER_H
 #define QWORKBENCH_WRAPPER_H
 
@@ -45,7 +46,8 @@ namespace Internal {
 
 // Script prototype for the core interface.
 
-class CorePrototype : public QObject, public QScriptable {
+class CorePrototype : public QObject, public QScriptable
+{
     Q_OBJECT
 
     Q_PROPERTY(Core::MessageManager* messageManager READ messageManager DESIGNABLE false SCRIPTABLE true STORED false)
@@ -97,7 +99,8 @@ public slots:
 
 // Script prototype for the file manager interface.
 
-class FileManagerPrototype : public QObject, public QScriptable {
+class FileManagerPrototype : public QObject, public QScriptable
+{
     Q_OBJECT
 
     Q_PROPERTY(QStringList recentFiles READ recentFiles DESIGNABLE false SCRIPTABLE true STORED false)
@@ -163,7 +166,8 @@ private:
 
 // Script prototype for the editor manager interface.
 
-class EditorManagerPrototype : public QObject, public QScriptable {
+class EditorManagerPrototype : public QObject, public QScriptable
+{
     Q_OBJECT
     Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE setCurrentEditor DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> openedEditors READ openedEditors DESIGNABLE false SCRIPTABLE true STORED false)
@@ -195,7 +199,8 @@ private:
 
 // Script prototype for the editor interface.
 
-class EditorPrototype :  public QObject, public QScriptable {
+class EditorPrototype :  public QObject, public QScriptable
+{
     Q_OBJECT
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QString kind READ kind DESIGNABLE false SCRIPTABLE true STORED false)
@@ -228,7 +233,8 @@ private:
 
 // Script prototype for the editor group interface with Script-managed life cycle.
 
-class EditorGroupPrototype :  public QObject, public QScriptable {
+class EditorGroupPrototype :  public QObject, public QScriptable
+{
     Q_OBJECT
     Q_PROPERTY(int editorCount READ editorCount DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE setCurrentEditor DESIGNABLE false SCRIPTABLE true STORED false)
@@ -259,4 +265,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif //QWORKBENCH_WRAPPER_H
+#endif // QWORKBENCH_WRAPPER_H

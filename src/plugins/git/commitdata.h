@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #ifndef COMMITDATA_H
 #define COMMITDATA_H
 
@@ -42,40 +43,43 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-    // Read-only
-    struct GitSubmitEditorPanelInfo {
-        void clear();
-        QString repository;
-        QString description;
-        QString branch;
-    };
+// Read-only
+struct GitSubmitEditorPanelInfo
+{
+    void clear();
+    QString repository;
+    QString description;
+    QString branch;
+};
 
-    QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
+QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
 
-    struct GitSubmitEditorPanelData {
-        void clear();
-        // Format as "John Doe <jdoe@foobar.com>"
-        QString authorString() const;
+struct GitSubmitEditorPanelData
+{
+    void clear();
+    // Format as "John Doe <jdoe@foobar.com>"
+    QString authorString() const;
 
-        QString author;
-        QString email;
-    };
+    QString author;
+    QString email;
+};
 
-    QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
+QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 
-    struct CommitData {
-        void clear();
-        GitSubmitEditorPanelInfo panelInfo;
-        GitSubmitEditorPanelData panelData;
-        QStringList commitFiles;
-        QStringList notUpdatedFiles;
-        QStringList untrackedFiles;
-    };
+struct CommitData
+{
+    void clear();
+    GitSubmitEditorPanelInfo panelInfo;
+    GitSubmitEditorPanelData panelData;
+    QStringList commitFiles;
+    QStringList notUpdatedFiles;
+    QStringList untrackedFiles;
+};
 
-    QDebug operator<<(QDebug d, const CommitData &);
+QDebug operator<<(QDebug d, const CommitData &);
 
 
-}
-}
+} // namespace Internal
+} // namespace Git
 
-#endif
+#endif // COMMITDATA_H

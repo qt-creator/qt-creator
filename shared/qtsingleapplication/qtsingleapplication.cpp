@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,13 +26,14 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 
 #include "qtsingleapplication.h"
 #include "qtlocalpeer.h"
+
 #include <QtGui/QWidget>
 #include <QtGui/QFileOpenEvent>
 
@@ -80,7 +81,8 @@ QtSingleApplication::QtSingleApplication(Display *dpy, int &argc, char **argv, Q
     sysInit();
 }
 
-QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId, int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
+QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId,
+    int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QApplication(dpy, argc, argv, visual, colormap)
 {
     sysInit(appId);
@@ -115,13 +117,13 @@ QString QtSingleApplication::id() const
 }
 
 
-void QtSingleApplication::setActivationWindow(QWidget* aw, bool activateOnMessage)
+void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessage)
 {
     actWin = aw;
     if (activateOnMessage)
-        connect(peer, SIGNAL(messageReceived(const QString&)), this, SLOT(activateWindow()));
+        connect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
     else
-        disconnect(peer, SIGNAL(messageReceived(const QString&)), this, SLOT(activateWindow()));
+        disconnect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
 }
 
 
@@ -140,4 +142,4 @@ void QtSingleApplication::activateWindow()
     }
 }
 
-}
+} // namespace SharedTools

@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "qrceditor.h"
 #include "undocommands_p.h"
 
@@ -40,8 +41,8 @@
 
 namespace SharedTools {
 
-QrcEditor::QrcEditor(QWidget *parent) :
-    QWidget(parent),
+QrcEditor::QrcEditor(QWidget *parent)
+  : QWidget(parent),
     m_treeview(new ResourceView(&m_history)),
     m_addFileAction(0)
 {
@@ -62,18 +63,18 @@ QrcEditor::QrcEditor(QWidget *parent) :
     m_ui.addButton->setMenu(addMenu);
 
     connect(m_treeview, SIGNAL(addPrefixTriggered()), this, SLOT(onAddPrefix()));
-    connect(m_treeview, SIGNAL(addFilesTriggered(const QString &)), this, SLOT(onAddFiles()));
+    connect(m_treeview, SIGNAL(addFilesTriggered(QString)), this, SLOT(onAddFiles()));
     connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
     connect(m_treeview, SIGNAL(currentIndexChanged()), this, SLOT(updateCurrent()));
     connect(m_treeview, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
     m_treeview->setFocus();
 
-    connect(m_ui.aliasText, SIGNAL(textEdited(const QString &)),
-            this, SLOT(onAliasChanged(const QString &)));
-    connect(m_ui.prefixText, SIGNAL(textEdited(const QString &)),
-            this, SLOT(onPrefixChanged(const QString &)));
-    connect(m_ui.languageText, SIGNAL(textEdited(const QString &)),
-            this, SLOT(onLanguageChanged(const QString &)));
+    connect(m_ui.aliasText, SIGNAL(textEdited(QString)),
+            this, SLOT(onAliasChanged(QString)));
+    connect(m_ui.prefixText, SIGNAL(textEdited(QString)),
+            this, SLOT(onPrefixChanged(QString)));
+    connect(m_ui.languageText, SIGNAL(textEdited(QString)),
+            this, SLOT(onLanguageChanged(QString)));
 
     // Prevent undo command merging after a switch of focus:
     // (0) The initial text is "Green".

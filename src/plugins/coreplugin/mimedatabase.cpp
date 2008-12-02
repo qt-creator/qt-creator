@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "mimedatabase.h"
 
 #include <QtCore/QStringList>
@@ -93,7 +94,6 @@ enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
 */
 
 namespace Core {
-
 namespace Internal {
 
 // FileMatchContext: Passed on to the mimetypes from the database
@@ -786,7 +786,8 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
 
 enum { Dangling = 32767 };
 
-struct MimeMapEntry {
+struct MimeMapEntry
+{
     explicit MimeMapEntry(const MimeType &t = MimeType(), int aLevel = Dangling);
     MimeType type;
     int level; // hierachy level
@@ -821,7 +822,8 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
  * to check the most specific types first). Starting a recursion from the
  * leaves is not suitable since it will hit parent nodes several times. */
 
-class MimeDatabasePrivate {
+class MimeDatabasePrivate
+{
     Q_DISABLE_COPY(MimeDatabasePrivate)
 public:
     MimeDatabasePrivate();

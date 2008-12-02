@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "indenter.h"
 
 #include <QtCore/QFile>
@@ -40,12 +41,12 @@
 
 #include <stdio.h>
 
-typedef SharedTools::Indenter<QStringList::const_iterator> Indenter ;
+typedef SharedTools::Indenter<QStringList::const_iterator> Indenter;
 
-static QString fileContents( const QString& fileName )
+static QString fileContents(const QString &fileName)
 {
-    QFile f( fileName );
-    if ( !f.open(QIODevice::ReadOnly) ) {
+    QFile f(fileName);
+    if (!f.open(QIODevice::ReadOnly)) {
         const QString msg = QString(QLatin1String("error: Cannot open file '%1' for reading: %2")).
                             arg(fileName).arg(f.errorString());
         qWarning(msg.toLatin1().constData());
@@ -119,11 +120,11 @@ static QStringList parseCommandLine(char **begin, char **end)
 
 int format(const QString &fileName)
 {
-    const QString code = fileContents(fileName );
-    if ( code == QString::null)
+    const QString code = fileContents(fileName);
+    if (code == QString::null)
         return 1;
 
-    QStringList program = code.split( QLatin1Char('\n'), QString::KeepEmptyParts);
+    QStringList program = code.split(QLatin1Char('\n'), QString::KeepEmptyParts);
     while (!program.isEmpty()) {
         if (!program.back().trimmed().isEmpty())
             break;
@@ -138,19 +139,19 @@ int format(const QString &fileName)
     const QChar newLine = QLatin1Char('\n');
 
     QStringList::const_iterator cend = program.constEnd();
-    for  (QStringList::const_iterator it = program.constBegin(); it != cend; ++it) {
+    for (QStringList::const_iterator it = program.constBegin(); it != cend; ++it) {
         p.push_back(*it);
         QString &line = p.back();
 
         QChar typedIn = Indenter::instance().firstNonWhiteSpace(line);
-        if ( p.last().endsWith( colon ) )
+        if (p.last().endsWith(colon))
             typedIn = colon;
 
-        const int indent = Indenter::instance().indentForBottomLine( p.constBegin(), p.constEnd(), typedIn );
+        const int indent = Indenter::instance().indentForBottomLine(p.constBegin(), p.constEnd(), typedIn);
 
         const QString trimmed = line.trimmed();
         // Indent the line in the list so that the formatter code sees the indented line.
-        if ( !trimmed.isEmpty() ) {
+        if (!trimmed.isEmpty()) {
             line = QString(indent, blank);
             line += trimmed;
         }
@@ -158,14 +159,14 @@ int format(const QString &fileName)
         out += newLine ;
     }
 
-    while ( out.endsWith(newLine) )
-        out.truncate( out.length() - 1 );
+    while (out.endsWith(newLine))
+        out.truncate(out.length() - 1 );
 
     fputs(out.toUtf8().constData(), stdout);
     return 0;
 }
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
     const QStringList fileNames = parseCommandLine(argv, argv + argc);
     if (fileNames.empty()) {
@@ -174,7 +175,7 @@ int main( int argc, char **argv )
     }
 
     foreach(QString fileName, fileNames)
-        if (const int rc  = format(fileName))
+        if (const int rc = format(fileName))
             return rc;
 
     return 0;

@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,17 +26,19 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 
 #include "OverviewModel.h"
 #include "Overview.h"
+
 #include <Scope.h>
 #include <Semantic.h>
 #include <Literals.h>
 #include <Symbols.h>
+
 #include <QFile>
 #include <QtDebug>
 
@@ -50,10 +52,14 @@ OverviewModel::~OverviewModel()
 { }
 
 bool OverviewModel::hasDocument() const
-{ return _cppDocument; }
+{
+    return _cppDocument;
+}
 
 Document::Ptr OverviewModel::document() const
-{ return _cppDocument; }
+{
+    return _cppDocument;
+}
 
 unsigned OverviewModel::globalSymbolCount() const
 {
@@ -124,7 +130,9 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
 }
 
 int OverviewModel::columnCount(const QModelIndex &) const
-{ return 1; }
+{
+    return 1;
+}
 
 QVariant OverviewModel::data(const QModelIndex &index, int role) const
 {
@@ -174,7 +182,9 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
 }
 
 Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
-{ return static_cast<Symbol *>(index.internalPointer()); }
+{
+    return static_cast<Symbol *>(index.internalPointer());
+}
 
 void OverviewModel::rebuild(Document::Ptr doc)
 {

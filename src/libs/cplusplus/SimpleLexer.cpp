@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,12 +26,13 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
 
 #include "SimpleLexer.h"
+
 #include <Lexer.h>
 #include <Token.h>
 #include <QtDebug>
@@ -39,13 +40,19 @@
 using namespace CPlusPlus;
 
 bool SimpleToken::isLiteral() const
-{ return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL; }
+{
+    return _kind >= T_FIRST_LITERAL && _kind <= T_LAST_LITERAL;
+}
 
 bool SimpleToken::isOperator() const
-{ return _kind >= T_FIRST_OPERATOR && _kind <= T_LAST_OPERATOR; }
+{
+    return _kind >= T_FIRST_OPERATOR && _kind <= T_LAST_OPERATOR;
+}
 
 bool SimpleToken::isKeyword() const
-{ return _kind >= T_FIRST_KEYWORD && _kind < T_FIRST_QT_KEYWORD; }
+{
+    return _kind >= T_FIRST_KEYWORD && _kind < T_FIRST_QT_KEYWORD;
+}
 
 SimpleLexer::SimpleLexer()
     : _lastState(0),
@@ -57,16 +64,24 @@ SimpleLexer::~SimpleLexer()
 { }
 
 bool SimpleLexer::qtMocRunEnabled() const
-{ return _qtMocRunEnabled; }
+{
+    return _qtMocRunEnabled;
+}
 
 void SimpleLexer::setQtMocRunEnabled(bool enabled)
-{ _qtMocRunEnabled = enabled; }
+{
+    _qtMocRunEnabled = enabled;
+}
 
 bool SimpleLexer::skipComments() const
-{ return _skipComments; }
+{
+    return _skipComments;
+}
 
 void SimpleLexer::setSkipComments(bool skipComments)
-{ _skipComments = skipComments; }
+{
+    _skipComments = skipComments;
+}
 
 QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
 {

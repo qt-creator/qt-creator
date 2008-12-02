@@ -788,31 +788,31 @@
     \table
         \row
             \i \bold{Note:}
-            \i  Gdb, and therefore Qt Creator's debugger works for optimized builds
-    on Linux and Mac OS X. However, optimization may lead to re-ordering of
-    instructions or sometimes even complete removal of some local variables.
-    In this case, the \gui{Locals and Watchers} view may show unexpected data.
+
+            \i  Gdb, and therefore Qt Creator's debugger works for optimized
+                builds on Linux and Mac OS X. However, optimization may lead
+                to re-ordering of instructions or sometimes even complete
+                removal of some local variables. In this case, the
+                \gui{Locals and Watchers} view may show unexpected data.
+
+            \i  The debug information provided by gcc does not include enough
+                information about the time when a variable is initialized.
+                Qt Creator therefore can not tell whether the contents of a
+                local variable contains "real data", or "initial noise". If a
+                QObject appears uninitialized, its value will be reported as
+                "out of scope". However, not all uninitialized objects can be
+                recognized as such.
     \endtable
 
-    \note 
-   
-    \bold{Note:} The debug information provided by gcc does not include 
-    enough information about the time at which a variable is initialized.
-    Qt Creator therefore can not tell whether the contents of a local
-    variable contains "real data", or "initial noise". If an QObject
-    appears uninitialized, its value will be reported as "out of scope".
-    Not all uninitialized objects can be recognized as such, though.
 
-    The \gui{Locals and Watchers View} also gives accesst to the most powerful
-    feature of the Qt Creator Debugger: The comprehensive display of data
-    of objects of some of Qt's basic classes.
-
-    To start using that feature, select \gui{Debug} and \gui{Use Custom
-    Display for Qt Objects}. The \gui{Locals and Watchers View} will
-    be re-organized to give a more high-level view of the objects
-    in question. So instead of displaying a pointer to some private
-    data structure in case of QObject, a list of children, signals
-    and slots will be shown. 
+    The \gui{Locals and Watchers} view also provides access to the most
+    powerful feature of the debugger: comprehensive display of data belonging
+    to Qt's basic objects. To enable this feature, select \gui{Use Custom
+    Display for Qt Objects} from the \gui Debug menu.The
+    \gui{Locals and Watchers} view will be re-organized to provide a high-level
+    view of the objects. For example, in case of QObject, instead of displaying
+    a pointer to some private data structure, you will see a list of children,
+    signals and slots.
 
     Similarily, instead of showing a bunch of pointers and ints,
     a QHash or QMap will display its contents in an orderly fashion,

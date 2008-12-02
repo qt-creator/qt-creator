@@ -6,16 +6,16 @@
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
-** 
-** Non-Open Source Usage  
-** 
+**
+** Non-Open Source Usage
+**
 ** Licensees may use this file in accordance with the Qt Beta Version
 ** License Agreement, Agreement version 2.2 provided with the Software or,
 ** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.  
-** 
-** GNU General Public License Usage 
-** 
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the packaging
@@ -26,10 +26,11 @@
 ** http://www.gnu.org/copyleft/gpl.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception version
-** 1.2, included in the file GPL_EXCEPTION.txt in this package.  
-** 
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+**
 ***************************************************************************/
+
 #include "qscripthighlighter.h"
 
 #include <QtCore/QSet>
@@ -105,7 +106,7 @@ static const QSet<QString> &qscriptKeywords() {
 }
 
 
-    namespace SharedTools {
+namespace SharedTools {
 
 QScriptHighlighter::QScriptHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -438,9 +439,8 @@ void QScriptHighlighter::highlightKeyword(int currentPos, const QString &buffer)
     if (buffer.at(0) == QLatin1Char('Q')) {
         setFormat(currentPos - buffer.length(), buffer.length(), m_formats[TypeFormat]);
     } else {
-        if (qscriptKeywords().contains(buffer)) {
+        if (qscriptKeywords().contains(buffer))
             setFormat(currentPos - buffer.length(), buffer.length(), m_formats[KeywordFormat]);
-        }
     }
 }
 
@@ -466,7 +466,8 @@ void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
     qCopy(s.constBegin(), s.constEnd(), m_formats);
 }
 
-int QScriptHighlighter::onBlockStart() {
+int QScriptHighlighter::onBlockStart()
+{
     int state = 0;
     int previousState = previousBlockState();
     if (previousState != -1)
@@ -476,5 +477,6 @@ int QScriptHighlighter::onBlockStart() {
 void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
-}
+
+} // namespace SharedTools
 
