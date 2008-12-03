@@ -57,9 +57,9 @@ GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
     rc.author = m_gitSubmitPanelUi.authorLineEdit->text();
     rc.email = m_gitSubmitPanelUi.emailLineEdit->text();
     return rc;
-};
+}
 
-void GitSubmitEditorWidget::setPanelData(const  GitSubmitEditorPanelData &data)
+void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 {
     m_gitSubmitPanelUi.authorLineEdit->setText(data.author);
     m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
