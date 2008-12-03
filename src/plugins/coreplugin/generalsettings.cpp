@@ -99,7 +99,7 @@ void GeneralSettings::resetInterfaceColor()
 
 void GeneralSettings::resetExternalEditor()
 {
-    m_page->externalEditorEdit->setText(EditorManager::defaultExternalEditor());
+    m_page->externalEditorEdit->setText(EditorManager::instance()->defaultExternalEditor());
 }
 
 void GeneralSettings::showHelpForExternalEditor()

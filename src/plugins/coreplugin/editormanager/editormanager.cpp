@@ -74,10 +74,11 @@ using namespace Core::Internal;
 
 enum { debugEditorManager=0 };
 
-QString EditorManager::defaultExternalEditor() {
+QString EditorManager::defaultExternalEditor() const
+{
 #ifdef Q_OS_MAC
-    return m_d->m_externalEditor = m_d->m_core->resourcePath()
-                                   +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
+    return m_d->m_core->resourcePath()
+            +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
 #elif defined(Q_OS_UNIX)
     return QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
 #elif defined (Q_OS_WIN)
