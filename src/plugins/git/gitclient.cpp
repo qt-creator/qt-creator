@@ -49,6 +49,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QFuture>
+#include <QtCore/QTime>
 
 #include <QtGui/QErrorMessage>
 
@@ -74,6 +75,12 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
         if (ed->property(property).toString() == entry)
             return ed;
     return 0;
+}
+
+static QString formatCommand(const QString &binary, const QStringList &args)
+{
+    const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
+    return GitClient::tr("%1 Executing: %2 %3\n").arg(timeStamp, binary, args.join(QString(QLatin1Char(' '))));
 }
 
 GitClient::GitClient(GitPlugin* plugin, Core::ICore *core) :
@@ -331,7 +338,8 @@ void GitClient::executeGit(const QString &workingDirectory, const QStringList &a
 {
     if (Git::Constants::debug)
         qDebug() << "executeGit" << workingDirectory << arguments << editor;
-    outputWindow->clearContents();
+
+    m_plugin->m_outputWindow->append(formatCommand(QLatin1String(kGitCommand), arguments));
 
     QProcess process;
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
@@ -363,8 +371,11 @@ bool GitClient::synchronousGit(const QString &workingDirectory
 {
     if (Git::Constants::debug)
         qDebug() << "synchronousGit" << workingDirectory << arguments;
-    QProcess process;
+    const QString binary = QLatin1String(kGitCommand);
 
+    m_plugin->m_outputWindow->append(formatCommand(binary, arguments));
+
+    QProcess process;
     process.setWorkingDirectory(workingDirectory);
 
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
@@ -372,7 +383,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory
         environment.set(QLatin1String("PATH"), m_plugin->m_settingsPage->path());
     process.setEnvironment(environment.toStringList());
 
-    process.start(QLatin1String(kGitCommand), arguments);
+    process.start(binary, arguments);
     if (!process.waitForFinished()) {
         if (errorText)
             *errorText = "Error: Git timed out";
@@ -477,6 +488,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
                               CommitData *d,
                               QString *errorMessage)
 {
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory;
+
     d->clear();
 
     // Find repo
@@ -506,9 +520,10 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     QByteArray outputText;
     QByteArray errorText;
     QStringList statusArgs(QLatin1String("status"));
+
     if (untrackedFilesInCommit)
         statusArgs << QLatin1String("-u");
-    const bool statusRc = synchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    const bool statusRc = synchronousGit(repoDirectory, statusArgs, &outputText, &errorText);
     if (!statusRc) {
         // Something fatal
         if (!outputText.contains(kBranchIndicatorC)) {
@@ -565,24 +580,24 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 }
 
 // addAndCommit:
-bool GitClient::addAndCommit(const QString &workingDirectory,
+bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
                              const QString &messageFile,
                              const QStringList &checkedFiles,
                              const QStringList &origCommitFiles)
 {
     if (Git::Constants::debug)
-        qDebug() << "GitClient::addAndCommit:" << workingDirectory << checkedFiles << origCommitFiles;
+        qDebug() << "GitClient::addAndCommit:" << repositoryDirectory << checkedFiles << origCommitFiles;
 
     // Do we need to reset any files that had been added before
     // (did the user uncheck any previously added files)
     const QSet<QString> resetFiles = origCommitFiles.toSet().subtract(checkedFiles.toSet());
     if (!resetFiles.empty())
-        if (!synchronousReset(workingDirectory, resetFiles.toList()))
+        if (!synchronousReset(repositoryDirectory, resetFiles.toList()))
             return false;
 
     // Re-add all to make sure we have the latest changes
-    if (!synchronousAdd(workingDirectory, checkedFiles))
+    if (!synchronousAdd(repositoryDirectory, checkedFiles))
         return false;
 
     // Do the final commit
@@ -593,7 +608,7 @@ bool GitClient::addAndCommit(const QString &workingDirectory,
 
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = synchronousGit(repositoryDirectory, args, &outputText, &errorText);
     const QString message = rc ?
         tr("Committed %n file(s).", 0, checkedFiles.size()) :
         tr("Unable to commit %n file(s): %1", 0, checkedFiles.size()).arg(QString::fromLocal8Bit(errorText));
