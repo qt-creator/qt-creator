@@ -47,11 +47,4 @@ macx {
 }
 
 
-unix {
-    OBJECTS_DIR = $${OUT_PWD}/.obj/
-    MOC_DIR = $${OUT_PWD}/.moc/
-    RCC_DIR = $${OUT_PWD}/.rcc/
-    UI_DIR = $${OUT_PWD}/.uic/
-}
-
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
