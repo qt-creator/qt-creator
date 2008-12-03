@@ -59,6 +59,7 @@ public:
 
 private slots:
     void resetInterfaceColor();
+    void resetExternalEditor();
     void showHelpForExternalEditor();
 
 private:

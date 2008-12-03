@@ -74,6 +74,19 @@ using namespace Core::Internal;
 
 enum { debugEditorManager=0 };
 
+QString EditorManager::defaultExternalEditor() {
+#ifdef Q_OS_MAC
+    return m_d->m_externalEditor = m_d->m_core->resourcePath()
+                                   +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
+#elif defined(Q_OS_UNIX)
+    return QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
+#elif defined (Q_OS_WIN)
+    return QLatin1String("notepad %f");
+#else
+    return QString();
+#endif
+}
+
 //===================EditorManager=====================
 
 EditorManagerPlaceHolder *EditorManagerPlaceHolder::m_current = 0;
@@ -342,13 +355,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     updateActions();
 
     m_d->m_windowPopup = new OpenEditorsWindow(this);
-
-#ifdef Q_OS_MAC
-    m_d->m_externalEditor = m_d->m_core->resourcePath()
-        +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
-#elif defined(Q_OS_UNIX)
-    m_d->m_externalEditor = QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
-#endif
 }
 
 EditorManager::~EditorManager()
@@ -1153,7 +1159,7 @@ void EditorManager::updateActions()
 
     m_d->m_duplicateAction->setEnabled(curEditor != 0 && curEditor->duplicateSupported());
 
-    m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0 && !m_d->m_externalEditor.isEmpty());
+    m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
 }
 
 QList<IEditor*> EditorManager::openedEditors() const
@@ -1364,7 +1370,7 @@ void EditorManager::saveSettings(QSettings *settings)
     m_d->m_splitter->saveSettings(settings);
     settings->setValue(QLatin1String("EditorManager/DocumentStates"),
                        m_d->m_editorStates);
-    settings->setValue(QLatin1String("EditorManager/ExternalEditor"),
+    settings->setValue(QLatin1String("EditorManager/ExternalEditorCommand"),
                        m_d->m_externalEditor);
 }
 
@@ -1375,7 +1381,7 @@ void EditorManager::readSettings(QSettings *settings)
         m_d->m_editorStates = settings->value(QLatin1String("EditorManager/DocumentStates"))
             .value<QMap<QString, QVariant> >();
     if (settings->contains(QLatin1String("EditorManager/ExternalEditor")))
-        m_d->m_externalEditor = settings->value(QLatin1String("EditorManager/ExternalEditor")).toString();
+        m_d->m_externalEditor = settings->value(QLatin1String("EditorManager/ExternalEditorCommand")).toString();
 }
 
 QByteArray EditorManager::saveOpenEditorList() const
@@ -1489,7 +1495,11 @@ QString EditorManager::externalEditorHelpText() const
 
 void EditorManager::openInExternalEditor()
 {
-    if (m_d->m_externalEditor.isEmpty())
+    QString command = m_d->m_externalEditor;
+    if (command.isEmpty())
+        command = defaultExternalEditor();
+
+    if (command.isEmpty())
         return;
 
     IEditor *editor = currentEditor();
@@ -1508,7 +1518,7 @@ void EditorManager::openInExternalEditor()
     QFontMetrics fm(font);
     rect.moveTo(editor->widget()->mapToGlobal(QPoint(0,0)));
 
-    QString pre = m_d->m_externalEditor;
+    QString pre = command;
     QString cmd;
     for (int i = 0; i < pre.size(); ++i) {
         QChar c = pre.at(i);
@@ -1551,11 +1561,16 @@ void EditorManager::openInExternalEditor()
 
 void EditorManager::setExternalEditor(const QString &editor)
 {
-    m_d->m_externalEditor = editor;
+    if (editor.isEmpty() || editor == defaultExternalEditor())
+        m_d->m_externalEditor = defaultExternalEditor();
+    else
+        m_d->m_externalEditor = editor;
 }
 
 QString EditorManager::externalEditor() const
 {
+    if (m_d->m_externalEditor.isEmpty())
+        return defaultExternalEditor();
     return m_d->m_externalEditor;
 }
 

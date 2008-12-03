@@ -72,6 +72,8 @@ QWidget* GeneralSettings::createPage(QWidget *parent)
 
     connect(m_page->resetButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
+    connect(m_page->resetEditorButton, SIGNAL(clicked()),
+            this, SLOT(resetExternalEditor()));
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
 
@@ -95,6 +97,10 @@ void GeneralSettings::resetInterfaceColor()
     m_page->colorButton->setColor(0x666666);
 }
 
+void GeneralSettings::resetExternalEditor()
+{
+    m_page->externalEditorEdit->setText(EditorManager::defaultExternalEditor());
+}
 
 void GeneralSettings::showHelpForExternalEditor()
 {
