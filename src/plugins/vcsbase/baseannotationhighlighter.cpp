@@ -69,7 +69,7 @@ void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumb
         // Assign a color gradient to annotation change numbers. Give
         // each change number a unique color.
         const double oneThird = 1.0 / 3.0;
-        const int step = qRound(ceil(pow(changeNumbers.count(), oneThird)));
+        const int step = qRound(ceil(pow(double(changeNumbers.count()), oneThird)));
         QList<QColor> colors;
         const int factor = 255 / step;
         for (int i=0; i<step; ++i)
