@@ -585,15 +585,19 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                 } else {
                     if (! m->function_like) {
                         if (_dot->isNot(T_LPAREN)) {
+                            m->hidden = true;
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    result);
+                            m->hidden = false;
                             continue;
                         } else {
                             QByteArray tmp;
+                            m->hidden = true;
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    &tmp);
+                            m->hidden = false;
 
                             m = 0; // reset the active the macro
 
@@ -636,7 +640,9 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                         const char *beginOfText = startOfToken(*identifierToken);
                         const char *endOfText = endOfToken(*_dot);
                         ++_dot; // skip T_RPAREN
+                        m->hidden = true;
                         expand(beginOfText, endOfText, result);
+                        m->hidden = false;
                     }
                 }
             }
