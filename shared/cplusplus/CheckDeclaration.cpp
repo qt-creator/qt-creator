@@ -236,13 +236,21 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     _scope->enterSymbol(fun);
 
-    if (ast->ctor_initializer && (ty.isValid() || (fun->identity() && ! fun->identity()->isNameId()))) {
-        translationUnit()->error(ast->ctor_initializer->firstToken(),
-                                 "only constructors take base initializers");
+    if (ast->ctor_initializer) {
+        bool looksLikeCtor = false;
+        if (ty.isValid() || ! fun->identity())
+            looksLikeCtor = false;
+        else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
+            looksLikeCtor = true;
+
+        if (! looksLikeCtor) {
+            translationUnit()->error(ast->ctor_initializer->firstToken(),
+                                     "only constructors take base initializers");
+        }
     }
 
-    int previousVisibility = semantic()->switchVisibility(Symbol::Public);
-    int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
+    const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
+    const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
     semantic()->check(ast->function_body, fun->members());
 
