@@ -251,9 +251,31 @@ QSet<QByteArray> Document::macroNames() const
     return _macroNames;
 }
 
-void Document::parse()
+bool Document::parse(ParseMode mode)
 {
-    _translationUnit->parse();
+    TranslationUnit::ParseMode m = TranslationUnit::ParseTranlationUnit;
+    switch (mode) {
+    case ParseTranlationUnit:
+        m = TranslationUnit::ParseTranlationUnit;
+        break;
+
+    case ParseDeclaration:
+        m = TranslationUnit::ParseDeclaration;
+        break;
+
+    case ParseExpression:
+        m = TranslationUnit::ParseExpression;
+        break;
+
+    case ParseStatement:
+        m = TranslationUnit::ParseStatement;
+        break;
+
+    default:
+        break;
+    }
+
+    return _translationUnit->parse(m);
 }
 
 void Document::check()
@@ -264,7 +286,10 @@ void Document::check()
 
     _globalNamespace = _control->newNamespace(0);
     Scope *globals = _globalNamespace->members();
-    if (TranslationUnitAST *ast = _translationUnit->ast()) {
+    if (! _translationUnit->ast())
+        return; // nothing to do.
+
+    if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit()) {
         for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
             semantic.check(decl, globals);
         }
