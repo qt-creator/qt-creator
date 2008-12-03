@@ -125,7 +125,6 @@ enum GdbCommandType
     GdbInfoProc,
     GdbQueryDataDumper1,
     GdbQueryDataDumper2,
-    GdbInitializeSocket1,
 
     BreakCondition = 200,
     BreakEnablePending,
@@ -634,18 +633,10 @@ void GdbEngine::readGdbStandardOutput()
 {
     // This is the function called whenever the Gdb process created
     // output. As a rule of thumb, stdout contains _real_ Gdb output
-    // as responses to our command (with exception of the data dumpers)
+    // as responses to our command
     // and "spontaneous" events like messages on loaded shared libraries.
-    // Otoh, stderr contains application output produced by qDebug etc.
-    // There is no organized way to pass application stdout output
-
-    // The result of custom data dumpers arrives over the socket _before_
-    // the corresponding Gdb "^done" message arrives here over stdout
-    // and is merged into the response via m_pendingCustomValueContents.
-
-    // Note that this code here runs syncronized to the arriving
-    // output. The completed response will be signalled by a queued
-    // connection to the handlers.
+    // OTOH, stderr contains application output produced by qDebug etc.
+    // There is no organized way to pass application stdout output.
 
     QByteArray out = m_gdbProc.readAllStandardOutput();
 
@@ -766,8 +757,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     //qDebug() << "TOKEN: " << record.token
     //    << " ACCEPTABLE: " << m_oldestAcceptableToken;
     //qDebug() << "";
-    //qDebug() << qPrintable(currentTime()) << "Reading response:  "
-    //   << record.toString() << "\n";
     //qDebug() << "\nRESULT" << record.token << record.toString();
 
     int token = record.token;
@@ -853,9 +842,6 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             break;
         case GdbInfoShared:
             handleInfoShared(record);
-            break;
-        case GdbInitializeSocket1:
-            //qDebug() << " INIT SOCKET" << record.toString();
             break;
         case GdbQueryDataDumper1:
             handleQueryDataDumper1(record);
