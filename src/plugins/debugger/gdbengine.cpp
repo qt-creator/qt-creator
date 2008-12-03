@@ -444,7 +444,7 @@ void GdbEngine::handleResponse()
             break;
         }
 
-        if (token == -1 && *from != '&' && *from != '~') {
+        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
             // FIXME: On Linux the application's std::out is merged in here.
             // High risk of falsely interpreting this as MI output.
             // We assume that we _always_ use tokens, so not finding a token
@@ -493,8 +493,10 @@ void GdbEngine::handleResponse()
                 m_inbuffer = QByteArray(from, to - from);
                 if (asyncClass == "stopped") {
                     handleAsyncOutput(record);
+                } else if (asyncClass == "running") {
+                    // Archer has 'thread-id="all"' here
                 } else {
-                    qDebug() << "INGNORED ASYNC OUTPUT " << record.toString();
+                    qDebug() << "IGNORED ASYNC OUTPUT " << record.toString();
                 }
                 break;
             }
@@ -773,11 +775,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     if (token == -1)
         return;
 
-    if (!m_cookieForToken.contains(token)) {
-        qDebug() << "NO SUCH TOKEN (ANYMORE): " << token;
-        return;
-    }
-
     GdbCookie cmd = m_cookieForToken.take(token);
 
     // FIXME: this falsely rejects results from the custom dumper recognition
@@ -787,12 +784,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
     }
-
-    // We get _two_ results for a '-exec-foo' command: First a
-    // 'running' notification, then a 'stopped' or similar.
-    // So put it back.
-    if (record.resultClass == GdbResultRunning)
-        m_cookieForToken[token] = cmd;
 
 #if 0
     qDebug() << "# handleOutput, "
