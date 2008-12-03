@@ -505,7 +505,7 @@ CppModelManager::ProjectInfo *CppModelManager::projectInfo(ProjectExplorer::Proj
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
-    if (qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+    if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
         const QMap<QString, QByteArray> workingCopy = buildWorkingCopyList();
 
         QFuture<void> result = QtConcurrent::run(&CppModelManager::parse, this,
@@ -657,6 +657,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
                             QStringList files,
                             QMap<QString, QByteArray> workingCopy)
 {
+    Q_ASSERT(! files.isEmpty());
+
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);
 
@@ -697,6 +699,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         qDebug() << fileName << "parsed in:" << tm.elapsed();
 #endif
     }
+
+    future.setProgressValue(files.size());
 
     // Restore the previous thread priority.
     QThread::currentThread()->setPriority(QThread::NormalPriority);
