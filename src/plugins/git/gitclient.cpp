@@ -87,11 +87,6 @@ GitClient::~GitClient()
 {
 }
 
-bool GitClient::vcsOpen(const QString &fileName)
-{
-    return m_plugin->vcsOpen(fileName);
-}
-
 QString GitClient::findRepositoryForFile(const QString &fileName)
 {
     const QString gitDirectory = QLatin1String(kGitDirectoryC);

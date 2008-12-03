@@ -276,6 +276,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
         ami->createMenu(QLatin1String(SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
+    if (QAction *ma = subversionMenu->menu()->menuAction()) {
+        ma->setEnabled(m_versionControl->isEnabled());
+        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+    }
 
     QList<int> globalcontext;
     globalcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);

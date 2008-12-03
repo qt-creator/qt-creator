@@ -33,6 +33,7 @@
 
 #include "gitplugin.h"
 #include "gitclient.h"
+#include "gitversioncontrol.h"
 #include "giteditor.h"
 #include "gitconstants.h"
 #include "changeselectiondialog.h"
@@ -132,6 +133,7 @@ GitPlugin::GitPlugin() :
     m_settingsPage(0),
     m_coreListener(0),
     m_submitEditorFactory(0),
+    m_versionControl(0),
     m_changeTmpFile(0)
 {
     Q_ASSERT(m_instance == 0);
@@ -168,6 +170,12 @@ GitPlugin::~GitPlugin()
         removeObject(m_submitEditorFactory);
         delete m_submitEditorFactory;
         m_submitEditorFactory = 0;
+    }
+
+    if (m_versionControl) {
+        removeObject(m_versionControl);
+        delete m_versionControl;
+        m_versionControl = 0;
     }
 
     cleanChangeTmpFile();
@@ -235,6 +243,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     m_submitEditorFactory = new GitSubmitEditorFactory(&submitParameters);
     addObject(m_submitEditorFactory);
 
+    m_versionControl = new GitVersionControl(m_gitClient);
+    addObject(m_versionControl);
+
     //register actions
     Core::ActionManagerInterface *actionManager = m_core->actionManager();
 
@@ -245,6 +256,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
         actionManager->createMenu(QLatin1String("Git"));
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
+    if (QAction *ma = gitContainer->menu()->menuAction()) {
+        ma->setEnabled(m_versionControl->isEnabled());
+        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+    }
 
     Core::ICommand *command;
     QAction *tmpaction;
@@ -381,12 +396,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
 void GitPlugin::extensionsInitialized()
 {
     m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
-}
-
-bool GitPlugin::vcsOpen(const QString &fileName)
-{
-    Q_UNUSED(fileName);
-    return false;
 }
 
 void GitPlugin::submitEditorDiff(const QStringList &files)

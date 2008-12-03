@@ -55,6 +55,7 @@ class IEditorFactory;
 class MimeType;
 class IFile;
 class IMode;
+class IVersionControl;
 
 enum MakeWritableResult {
     OpenedWithVersionControl,
@@ -158,6 +159,16 @@ public:
     QString externalEditor() const;
     QString defaultExternalEditor() const;
     QString externalEditorHelpText() const;
+
+
+    // Helper to display a message dialog when encountering a read-only
+    // file, prompting the user about how to make it writeable.
+    enum ReadOnlyAction { RO_Cancel, RO_OpenVCS, RO_MakeWriteable, RO_SaveAs };
+
+    static ReadOnlyAction promptReadOnlyFile(const QString &fileName,
+                                             const IVersionControl *versionControl,
+                                             QWidget *parent,
+                                             bool displaySaveAsButton = false);
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
