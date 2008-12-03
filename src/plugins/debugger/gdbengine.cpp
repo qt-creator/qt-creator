@@ -110,7 +110,6 @@ enum GdbCommandType
     GdbFileExecAndSymbols,
     GdbQueryPwd,
     GdbQuerySources,
-    GdbQuerySources2,
     GdbAsyncOutput2,
     GdbExecRun,
     GdbExecRunToFunction,
@@ -849,9 +848,6 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbQuerySources:
             handleQuerySources(record);
             break;
-        case GdbQuerySources2:
-            handleQuerySources2(record, cookie);
-            break;
         case GdbAsyncOutput2:
             handleAsyncOutput2(cookie.value<GdbMi>());
             break;
@@ -1061,13 +1057,6 @@ void GdbEngine::handleInfoShared(const GdbResultRecord &record)
             reloadModules();
         continueInferior();
     }
-}
-
-void GdbEngine::handleQuerySources2(const GdbResultRecord &record,
-    const QVariant &cookie)
-{
-    if (record.resultClass == GdbResultDone)
-        handleAsyncOutput2(cookie.value<GdbMi>());
 }
 
 void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
