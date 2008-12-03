@@ -697,7 +697,7 @@ void ProjectExplorerPlugin::unloadProject()
 
     QList<Core::IFile*> filesToSave;
     filesToSave << fi;
-    filesToSave << pro->dependencies();
+    filesToSave << m_currentProject->dependencies();
 
     // check the number of modified files
     int readonlycount = 0;
