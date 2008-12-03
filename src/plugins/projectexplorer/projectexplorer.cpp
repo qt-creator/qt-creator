@@ -686,28 +686,19 @@ void ProjectExplorerPlugin::loadAction()
     updateActions();
 }
 
-bool ProjectExplorerPlugin::saveAction(Project *pro)
+void ProjectExplorerPlugin::unloadProject()
 {
     if (debug)
-        qDebug() << "ProjectExplorerPlugin::saveAction";
+        qDebug() << "ProjectExplorerPlugin::unloadProject";
 
-    if (!pro)
-        pro = m_currentProject;
-    Q_ASSERT(pro);
-
-    Core::IFile *fi = pro->file();
-
-    if (!fi) // TODO Why saving the session here????
-        fi = m_session->file();
+    Core::IFile *fi = m_currentProject->file();
 
     if (!fi || fi->fileName().isEmpty()) //nothing to save?
-        return false;
+        return;
 
     QList<Core::IFile*> filesToSave;
-
     filesToSave << fi;
-    if (pro)
-        filesToSave << pro->dependencies();
+    filesToSave << m_currentProject->dependencies();
 
     // check the number of modified files
     int readonlycount = 0;
@@ -722,20 +713,10 @@ bool ProjectExplorerPlugin::saveAction(Project *pro)
     else
         success = m_core->fileManager()->saveModifiedFilesSilently(filesToSave).isEmpty();
 
-    if (success)
-        addToRecentProjects(fi->fileName());
-    updateActions();
-    return success;
-}
-
-void ProjectExplorerPlugin::unloadProject()
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::unloadProject";
-
-    if (!saveAction(m_currentProject))
+    if (!success)
         return;
 
+    addToRecentProjects(fi->fileName());
     m_session->removeProject(m_currentProject);
     updateActions();
 }

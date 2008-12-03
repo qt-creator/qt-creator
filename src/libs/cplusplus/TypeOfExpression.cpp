@@ -91,7 +91,8 @@ Document::Ptr TypeOfExpression::documentForExpression(const QString &expression)
 {
     // create the expression's AST.
     Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-    doc->setSource(expression.toUtf8());
+    const QByteArray bytes = expression.toUtf8();
+    doc->setSource(bytes);
     doc->parse(Document::ParseExpression);
     return doc;
 }

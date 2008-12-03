@@ -939,6 +939,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
     // Delete projects
     foreach (Project *pro, remove) {
+        pro->saveSettings();
         m_file->m_projects.removeOne(pro);
 
         if (pro == m_file->m_startupProject)
