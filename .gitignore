@@ -68,8 +68,8 @@ src/corelib/lib
 src/network/lib
 src/xml/lib/
 
-# Files copied by syncIde
-# -----------------------
+# Binaries
+# --------
 bin/Aggregation.dll
 bin/CodeModel.dll
 bin/ExtensionSystem.dll
@@ -77,24 +77,4 @@ bin/QtConcurrent.dll
 bin/Utils.dll
 bin/qtcreator
 bin/qtcreator.exe
-shared/help/bookmarkdialog.ui
-shared/help/bookmarkmanager.cpp
-shared/help/bookmarkmanager.h
-shared/help/contentwindow.cpp
-shared/help/contentwindow.h
-shared/help/filternamedialog.cpp
-shared/help/filternamedialog.h
-shared/help/filternamedialog.ui
-shared/help/helpviewer.cpp
-shared/help/helpviewer.h
-shared/help/indexwindow.cpp
-shared/help/indexwindow.h
-shared/help/topicchooser.cpp
-shared/help/topicchooser.h
-shared/help/topicchooser.ui
-shared/proparser/abstractproitemvisitor.h
-shared/proparser/profileevaluator.cpp
-shared/proparser/profileevaluator.h
-shared/proparser/proitems.cpp
-shared/proparser/proitems.h
-shared/proparser/proparserutils.h
+tests/manual/cplusplus/cplusplus0
