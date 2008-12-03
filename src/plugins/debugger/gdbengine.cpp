@@ -1650,16 +1650,15 @@ bool GdbEngine::startDebugger()
     #ifdef Q_OS_MAC
     sendCommand("-gdb-set inferior-auto-start-cfm off");
     sendCommand("-gdb-set sharedLibrary load-rules "
-            "dyld \".*libSystem.*\" "
-            "all dyld \".*libauto.*\" "
-            "all dyld \".*AppKit.*\" "
-            "all dyld \".*PBGDBIntrospectionSupport.*\" "
-            "all dyld \".*Foundation.*\" "
-            "all dyld \".*CFDataFormatters.*\" "
-            "all dyld \".*libobjc.*\" "
-            "all dyld \".*CarbonDataFormatters");
+            "dyld \".*libSystem.*\" all "
+            "dyld \".*libauto.*\" all "
+            "dyld \".*AppKit.*\" all "
+            "dyld \".*PBGDBIntrospectionSupport.*\" all "
+            "dyld \".*Foundation.*\" all "
+            "dyld \".*CFDataFormatters.*\" all "
+            "dyld \".*libobjc.*\" all "
+            "dyld \".*CarbonDataFormatters.*\" all");
     #endif
-
     if (q->startMode() == q->attachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID));
     }
