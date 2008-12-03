@@ -55,6 +55,7 @@ QT_END_NAMESPACE
 namespace Core {
     class IEditorFactory;
     class ICore;
+    class IVersionControl;
 }
 
 namespace Git {
@@ -86,8 +87,6 @@ public:
                                 GitPlugin();
                                 ~GitPlugin();
     static GitPlugin *instance();
-
-    bool                        vcsOpen(const QString &fileName);
 
     bool                        initialize(const QStringList &arguments
                                            , QString *error_message);
@@ -154,6 +153,7 @@ private:
     QList<Core::IEditorFactory*> m_editorFactories;
     CoreListener                *m_coreListener;
     Core::IEditorFactory        *m_submitEditorFactory;
+    Core::IVersionControl       *m_versionControl;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QTemporaryFile              *m_changeTmpFile;

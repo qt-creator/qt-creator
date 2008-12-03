@@ -62,17 +62,14 @@ class GitCommand;
 struct CommitData;
 struct GitSubmitEditorPanelData;
 
-class GitClient : public Core::IVersionControl
+class GitClient : public QObject
 {
     Q_OBJECT
 
 public:
-    GitClient(GitPlugin *plugin, Core::ICore *core);
+    explicit GitClient(GitPlugin *plugin, Core::ICore *core);
     ~GitClient();
 
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &) { return false; }
-    bool vcsDelete(const QString &) { return false; }
     bool managesDirectory(const QString &) const { return false; }
     QString findTopLevelForDirectory(const QString &) const { return QString(); }
 

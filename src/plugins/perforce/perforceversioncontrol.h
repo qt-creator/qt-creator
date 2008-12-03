@@ -46,13 +46,25 @@ class PerforceVersionControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit PerforceVersionControl(PerforcePlugin *plugin);
+
+    virtual QString name() const;
+
+    virtual bool isEnabled() const;
+    virtual void setEnabled(bool enabled);
+
     bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;
+
+    virtual bool supportsOperation(Operation operation) const;
     virtual bool vcsOpen(const QString &fileName);
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
 
+signals:
+    void enabledChanged(bool);
+
 private:
+    bool m_enabled;
     PerforcePlugin *m_plugin;
 };
 

@@ -1003,29 +1003,32 @@ bool EditorManager::saveFile(IEditor *editor)
     return success;
 }
 
-namespace {
-    enum ReadOnlyAction { RO_Cancel, RO_OpenSCC, RO_MakeWriteable, RO_SaveAs };
-}
-
-static ReadOnlyAction promptReadOnly(const QString &fileName, bool hasSCC, QWidget *parent)
+EditorManager::ReadOnlyAction
+    EditorManager::promptReadOnlyFile(const QString &fileName,
+                                      const IVersionControl *versionControl,
+                                      QWidget *parent,
+                                      bool displaySaveAsButton)
 {
     QMessageBox msgBox(QMessageBox::Question, QObject::tr("File is Read Only"),
                        QObject::tr("The file %1 is read only.").arg(fileName),
                        QMessageBox::Cancel, parent);
 
     QPushButton *sccButton = 0;
-    if (hasSCC)
-        sccButton = msgBox.addButton(QObject::tr("Open with SCC"), QMessageBox::AcceptRole);
+    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation))
+        sccButton = msgBox.addButton(QObject::tr("Open with VCS (%1)").arg(versionControl->name()), QMessageBox::AcceptRole);
+
     QPushButton *makeWritableButton =  msgBox.addButton(QObject::tr("Make writable"), QMessageBox::AcceptRole);
-    QPushButton *saveAsButton =  msgBox.addButton(QObject::tr("Save as ..."), QMessageBox::ActionRole);
-    if (hasSCC)
-        msgBox.setDefaultButton(sccButton);
-    else
-        msgBox.setDefaultButton(makeWritableButton);
+
+    QPushButton *saveAsButton = 0;
+    if (displaySaveAsButton)
+        msgBox.addButton(QObject::tr("Save as ..."), QMessageBox::ActionRole);
+
+    msgBox.setDefaultButton(sccButton ? sccButton : makeWritableButton);
     msgBox.exec();
+
     QAbstractButton *clickedButton = msgBox.clickedButton();
     if (clickedButton == sccButton)
-        return RO_OpenSCC;
+        return RO_OpenVCS;
     if (clickedButton == makeWritableButton)
         return RO_MakeWriteable;
     if (clickedButton == saveAsButton)
@@ -1042,8 +1045,8 @@ EditorManager::makeEditorWritable(IEditor *editor)
     IFile *file = editor->file();
     const QString &fileName = file->fileName();
 
-    switch (promptReadOnly(fileName, versionControl, m_d->m_core->mainWindow())) {
-    case RO_OpenSCC:
+    switch (promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), true)) {
+    case RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
             QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with SCC."));
             return Failed;

@@ -118,7 +118,11 @@ void ProjectFileWizardExtension::firstExtensionPageShown(const QList<Core::Gener
     m_context->versionControl = m_core->vcsManager()->findVersionControlForDirectory(directory);
 
     m_context->page->setFilesDisplay(fileNames);
-    m_context->page->setAddToVersionControlEnabled(m_context->versionControl != 0);
+
+    const bool canAddToVCS = m_context->versionControl && m_context->versionControl->supportsOperation(Core::IVersionControl::AddOperation);
+    if (m_context->versionControl)
+         m_context->page->setVCSDisplay(m_context->versionControl->name());
+    m_context->page->setAddToVersionControlEnabled(canAddToVCS);
 }
 
 static ProjectNode *currentProject()

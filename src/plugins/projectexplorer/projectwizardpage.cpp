@@ -108,6 +108,11 @@ void ProjectWizardPage::changeEvent(QEvent *e)
     }
 }
 
+void ProjectWizardPage::setVCSDisplay(const QString &vcsName)
+{
+    m_ui->addToVersionControlLabel->setText(tr("Add to &VCS (%1)").arg(vcsName));
+}
+
 void ProjectWizardPage::setFilesDisplay(const QStringList &files)
 {
     QString fileMessage; {
