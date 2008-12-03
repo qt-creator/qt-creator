@@ -132,7 +132,7 @@ private:
     const char *_currentChar;
     const char *_lastChar;
     const char *_tokenStart;
-    char _yychar;
+    unsigned char _yychar;
     int _state;
     union {
         unsigned _flags;
