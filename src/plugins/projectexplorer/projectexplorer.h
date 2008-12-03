@@ -139,7 +139,6 @@ private slots:
     void cancelBuild();
     void debugProject();
     void editDependencies();
-    bool saveAction(ProjectExplorer::Project *pro = 0);
     void loadAction();
     void unloadProject();
     void clearSession();
