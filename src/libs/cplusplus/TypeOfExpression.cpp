@@ -81,34 +81,18 @@ ExpressionAST *TypeOfExpression::expressionAST() const
 
 ExpressionAST *TypeOfExpression::extractExpressionAST(Document::Ptr doc) const
 {
-    TranslationUnitAST *translationUnitAST = doc->translationUnit()->ast();
+    if (! doc->translationUnit()->ast())
+        return 0;
 
-    // ### evaluate the expression
-    ExpressionAST *expressionAST = 0;
-    if (translationUnitAST) {
-        DeclarationAST *declaration = translationUnitAST->declarations;
-        SimpleDeclarationAST *simpleDecl = 0;
-        if (declaration)
-            simpleDecl = declaration->asSimpleDeclaration();
-        if (simpleDecl && simpleDecl->decl_specifier_seq) {
-            if (TypeofSpecifierAST *typeOfSpec = simpleDecl->decl_specifier_seq->asTypeofSpecifier())
-                expressionAST = typeOfSpec->expression;
-        }
-    }
-    return expressionAST;
+    return doc->translationUnit()->ast()->asExpression();
 }
 
 Document::Ptr TypeOfExpression::documentForExpression(const QString &expression) const
 {
-    // create a __typeof__ specifier
-    QByteArray declaration;
-    declaration += "__typeof__ ";
-    declaration += expression.toLatin1(); // C++ code needs to be in latin1
-    declaration += ";";
-
     // create the expression's AST.
     Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-    doc->setSource(declaration);
-    doc->parse();
+    const QByteArray bytes = expression.toUtf8();
+    doc->setSource(bytes);
+    doc->parse(Document::ParseExpression);
     return doc;
 }

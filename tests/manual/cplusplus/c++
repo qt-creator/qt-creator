@@ -1,0 +1,3 @@
+#!/bin/sh
+me=$(dirname $0)
+${CPP-gcc} -xc++ -E -include $me/conf.c++ $* | $me/cplusplus0

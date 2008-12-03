@@ -33,7 +33,6 @@
 
 #include "proeditormodel.h"
 
-#include "profilecache.h"
 #include "profilereader.h"
 #include "prowriter.h"
 #include "qt4nodes.h"
@@ -884,12 +883,12 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         QString realFile;
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
         if (reader->contains(subDirKey))
-            realDir = reader->value(subDirKey);
+            realDir = QFileInfo(reader->value(subDirKey)).filePath();
          else
             realDir = subDirVar;
         QFileInfo info(realDir);
         if (!info.isAbsolute())
-            realDir = QString("%1/%2").arg(m_projectDir, realDir);
+            realDir = m_projectDir + "/" + realDir;
 
 #ifdef QTEXTENDED_QBUILD_SUPPORT
         // QBuild only uses project files named qbuild.pro, and subdirs are implied

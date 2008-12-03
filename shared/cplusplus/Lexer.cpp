@@ -221,7 +221,7 @@ void Lexer::scan_helper(Token *tok)
         return;
     }
 
-    char ch = _yychar;
+    unsigned char ch = _yychar;
     yyinp();
 
     switch (ch) {

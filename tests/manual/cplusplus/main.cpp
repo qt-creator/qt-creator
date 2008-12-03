@@ -31,43 +31,41 @@
 **
 ***************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#include <QFile>
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
+#include <cstdio>
+#include <cstdlib>
 
-QT_BEGIN_NAMESPACE
-class Ui_GeneralSettings;
-QT_END_NAMESPACE
+#include <TranslationUnit.h>
+#include <Control.h>
+#include <AST.h>
+#include <Semantic.h>
+#include <Scope.h>
 
-namespace Core {
-namespace Internal {
-
-class GeneralSettings : public IOptionsPage
+int main(int, char *[])
 {
-    Q_OBJECT
+    Control control;
+    StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
 
-public:
-    GeneralSettings();
+    QFile in;
+    if (! in.open(stdin, QFile::ReadOnly))
+        return EXIT_FAILURE;
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
-    QWidget* createPage(QWidget *parent);
-    void finished(bool accepted);
+    const QByteArray source = in.readAll();
 
-private slots:
-    void resetInterfaceColor();
-    void resetExternalEditor();
-    void showHelpForExternalEditor();
+    TranslationUnit unit(&control, fileId);
+    unit.setSource(source.constData(), source.size());
+    unit.parse();
+    if (unit.ast()) {
+        TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
+        Q_ASSERT(ast != 0);
 
-private:
-    Ui_GeneralSettings *m_page;
-    QWidget *m_dialog;
-};
+        Scope globalScope;
+        Semantic sem(&control);
+        for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
+            sem.check(decl, &globalScope);
+        }
+    }
 
-} // namespace Internal
-} // namespace Core
-
-#endif // GENERALSETTINGS_H
+    return EXIT_SUCCESS;
+}

@@ -791,6 +791,11 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
         m_processArgs = QStringList();
         m_workingDir = QString();
         m_attachedPID = dlg.attachPID();
+        if (m_attachedPID == 0) {
+            QMessageBox::warning(mainWindow(), tr("Warning"),
+                tr("Cannot attach to PID 0"));
+            return false;
+        }
     } else if (startMode() == startInternal) {
         if (m_executable.isEmpty()) {
             QString startDirectory = m_executable;

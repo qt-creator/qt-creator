@@ -85,7 +85,14 @@ public:
     void startSkippingBlocks(unsigned offset);
     void stopSkippingBlocks(unsigned offset);
 
-    void parse(); // ### remove
+    enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
+        ParseTranlationUnit,
+        ParseDeclaration,
+        ParseExpression,
+        ParseStatement
+    };
+
+    bool parse(ParseMode mode = ParseTranlationUnit);
     void check();
     void releaseTranslationUnit();
 

@@ -31,43 +31,45 @@
 **
 ***************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#ifndef GITVERSIONCONTROL_H
+#define GITVERSIONCONTROL_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
+#include <coreplugin/iversioncontrol.h>
 
-QT_BEGIN_NAMESPACE
-class Ui_GeneralSettings;
-QT_END_NAMESPACE
-
-namespace Core {
+namespace Git {
 namespace Internal {
 
-class GeneralSettings : public IOptionsPage
+class GitClient;
+
+// Just a proxy for GitPlugin
+class GitVersionControl : public Core::IVersionControl
 {
     Q_OBJECT
-
 public:
-    GeneralSettings();
+    explicit GitVersionControl(GitClient *plugin);
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
-    QWidget* createPage(QWidget *parent);
-    void finished(bool accepted);
+    virtual QString name() const;
 
-private slots:
-    void resetInterfaceColor();
-    void resetExternalEditor();
-    void showHelpForExternalEditor();
+    virtual bool isEnabled() const;
+    virtual void setEnabled(bool enabled);
+
+    bool managesDirectory(const QString &directory) const;
+    virtual QString findTopLevelForDirectory(const QString &directory) const;
+
+    virtual bool supportsOperation(Operation operation) const;
+    virtual bool vcsOpen(const QString &fileName);
+    virtual bool vcsAdd(const QString &fileName);
+    virtual bool vcsDelete(const QString &filename);
+
+signals:
+    void enabledChanged(bool);
 
 private:
-    Ui_GeneralSettings *m_page;
-    QWidget *m_dialog;
+    bool m_enabled;
+    GitClient *m_client;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Internal
+} // Git
 
-#endif // GENERALSETTINGS_H
+#endif // GITVERSIONCONTROL_H
