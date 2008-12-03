@@ -146,7 +146,7 @@ unsigned TranslationUnit::matchingBrace(unsigned index) const
 MemoryPool *TranslationUnit::memoryPool() const
 { return _pool; }
 
-TranslationUnitAST *TranslationUnit::ast() const
+AST *TranslationUnit::ast() const
 { return _ast; }
 
 bool TranslationUnit::isTokenized() const
@@ -218,17 +218,49 @@ bool TranslationUnit::skipFunctionBody() const
 void TranslationUnit::setSkipFunctionBody(bool skipFunctionBody)
 { _skipFunctionBody = skipFunctionBody; }
 
-void TranslationUnit::parse()
+bool TranslationUnit::parse(ParseMode mode)
 {
     if (isParsed())
-        return;
+        return false;
 
     if (! isTokenized())
         tokenize();
 
     Parser parser(this);
     parser.setQtMocRunEnabled(_qtMocRunEnabled);
-    parser.parseTranslationUnit(_ast);
+
+    bool parsed = false;
+
+    switch (mode) {
+    case ParseTranlationUnit: {
+        TranslationUnitAST *node = 0;
+        parsed = parser.parseTranslationUnit(node);
+        _ast = node;
+    } break;
+
+    case ParseDeclaration: {
+        DeclarationAST *node = 0;
+        parsed = parser.parseDeclaration(node);
+        _ast = node;
+    } break;
+
+    case ParseExpression: {
+        ExpressionAST *node = 0;
+        parsed = parser.parseExpression(node);
+        _ast = node;
+    } break;
+
+    case ParseStatement: {
+        StatementAST *node = 0;
+        parsed = parser.parseStatement(node);
+        _ast = node;
+    } break;
+
+    default:
+        break;
+    } // switch
+
+    return parsed;
 }
 
 void TranslationUnit::pushLineOffset(unsigned offset)

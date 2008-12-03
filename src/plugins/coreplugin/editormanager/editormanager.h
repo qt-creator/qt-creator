@@ -156,6 +156,7 @@ public:
 
     void setExternalEditor(const QString &);
     QString externalEditor() const;
+    QString defaultExternalEditor() const;
     QString externalEditorHelpText() const;
 
 signals:

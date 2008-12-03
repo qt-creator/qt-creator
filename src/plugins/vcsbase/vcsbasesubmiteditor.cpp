@@ -240,7 +240,7 @@ bool VCSBaseSubmitEditor::restoreState(const QByteArray &/*state*/)
     return true;
 }
 
-QStringList  VCSBaseSubmitEditor::checkedFiles() const
+QStringList VCSBaseSubmitEditor::checkedFiles() const
 {
     return vcsFileListToFileList(m_d->m_widget->checkedFiles());
 }
@@ -255,7 +255,7 @@ void VCSBaseSubmitEditor::addFiles(const QStringList& list, bool checked, bool u
      m_d->m_widget->addFiles(list, checked, userCheckable);
 }
 
-void  VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
+void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
 {
      emit diffSelectedFiles(vcsFileListToFileList(rawList));
 }
@@ -299,4 +299,4 @@ QIcon VCSBaseSubmitEditor::submitIcon()
     return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
 }
 
-}
+} // namespace VCSBase

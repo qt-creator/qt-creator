@@ -31,41 +31,45 @@
 **
 ***************************************************************************/
 
-#include <QFile>
+#ifndef GITVERSIONCONTROL_H
+#define GITVERSIONCONTROL_H
 
-#include <cstdio>
-#include <cstdlib>
+#include <coreplugin/iversioncontrol.h>
 
-#include <TranslationUnit.h>
-#include <Control.h>
-#include <AST.h>
-#include <Semantic.h>
-#include <Scope.h>
+namespace Git {
+namespace Internal {
 
-int main(int, char *[])
+class GitClient;
+
+// Just a proxy for GitPlugin
+class GitVersionControl : public Core::IVersionControl
 {
-    Control control;
-    StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
+    Q_OBJECT
+public:
+    explicit GitVersionControl(GitClient *plugin);
 
-    QFile in;
-    if (! in.open(stdin, QFile::ReadOnly))
-        return EXIT_FAILURE;
+    virtual QString name() const;
 
-    const QByteArray source = in.readAll();
+    virtual bool isEnabled() const;
+    virtual void setEnabled(bool enabled);
 
-    TranslationUnit unit(&control, fileId);
-    unit.setSource(source.constData(), source.size());
-    unit.parse();
-    if (unit.ast()) {
-        TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
-        Q_ASSERT(ast != 0);
+    bool managesDirectory(const QString &directory) const;
+    virtual QString findTopLevelForDirectory(const QString &directory) const;
 
-        Scope globalScope;
-        Semantic sem(&control);
-        for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-            sem.check(decl, &globalScope);
-        }
-    }
+    virtual bool supportsOperation(Operation operation) const;
+    virtual bool vcsOpen(const QString &fileName);
+    virtual bool vcsAdd(const QString &fileName);
+    virtual bool vcsDelete(const QString &filename);
 
-    return EXIT_SUCCESS;
-}
+signals:
+    void enabledChanged(bool);
+
+private:
+    bool m_enabled;
+    GitClient *m_client;
+};
+
+} // Internal
+} // Git
+
+#endif // GITVERSIONCONTROL_H

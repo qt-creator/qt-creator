@@ -31,43 +31,74 @@
 **
 ***************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#include "gitversioncontrol.h"
+#include "gitclient.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class Ui_GeneralSettings;
-QT_END_NAMESPACE
-
-namespace Core {
+namespace Git {
 namespace Internal {
 
-class GeneralSettings : public IOptionsPage
+GitVersionControl::GitVersionControl(GitClient *client) :
+    m_enabled(true),
+    m_client(client)
 {
-    Q_OBJECT
+}
 
-public:
-    GeneralSettings();
+QString GitVersionControl::name() const
+{
+    return QLatin1String("git");
+}
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
-    QWidget* createPage(QWidget *parent);
-    void finished(bool accepted);
+bool GitVersionControl::isEnabled() const
+{
+    return m_enabled;
+}
 
-private slots:
-    void resetInterfaceColor();
-    void resetExternalEditor();
-    void showHelpForExternalEditor();
+void GitVersionControl::setEnabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        emit enabledChanged(m_enabled);
+    }
+}
 
-private:
-    Ui_GeneralSettings *m_page;
-    QWidget *m_dialog;
-};
+bool GitVersionControl::supportsOperation(Operation operation) const
+{
+    bool rc = false;
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+    case OpenOperation:
+        break;
+    }
+    return rc;
+}
 
-} // namespace Internal
-} // namespace Core
+bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
+{
+    return false;
+}
 
-#endif // GENERALSETTINGS_H
+bool GitVersionControl::vcsAdd(const QString & /*fileName*/)
+{
+    return false;
+}
+
+bool GitVersionControl::vcsDelete(const QString & /*fileName*/)
+{
+    // TODO: implement using 'git rm'.
+    return false;
+}
+
+bool GitVersionControl::managesDirectory(const QString &directory) const
+{
+    return !GitClient::findRepositoryForDirectory(directory).isEmpty();
+
+}
+
+QString GitVersionControl::findTopLevelForDirectory(const QString &directory) const
+{
+    return GitClient::findRepositoryForDirectory(directory);
+}
+
+} // Internal
+} // Git

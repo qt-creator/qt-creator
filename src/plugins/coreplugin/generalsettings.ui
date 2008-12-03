@@ -109,6 +109,20 @@
          <widget class="QLineEdit" name="externalEditorEdit"/>
         </item>
         <item>
+         <widget class="QToolButton" name="resetEditorButton">
+          <property name="toolTip">
+           <string>Reset to default</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="core.qrc">
+            <normaloff>:/qworkbench/images/reset.png</normaloff>:/qworkbench/images/reset.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="helpExternalEditorButton">
           <property name="text">
            <string>?</string>

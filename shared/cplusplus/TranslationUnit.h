@@ -95,7 +95,7 @@ public:
     NumericLiteral *numericLiteral(unsigned index) const;
 
     MemoryPool *memoryPool() const;
-    TranslationUnitAST *ast() const;
+    AST *ast() const;
 
     bool blockErrors(bool block);
 
@@ -113,7 +113,15 @@ public:
     void setSkipFunctionBody(bool skipFunctionBody);
 
     bool isParsed() const;
-    void parse();
+
+    enum ParseMode {
+        ParseTranlationUnit,
+        ParseDeclaration,
+        ParseExpression,
+        ParseStatement
+    };
+
+    bool parse(ParseMode mode = ParseTranlationUnit);
 
     void resetAST();
     void release();
@@ -169,7 +177,7 @@ private:
     std::vector<unsigned> _lineOffsets;
     std::vector<PPLine> _ppLines;
     MemoryPool *_pool;
-    TranslationUnitAST *_ast;
+    AST *_ast;
     TranslationUnit *_previousTranslationUnit;
     union {
         unsigned _flags;
