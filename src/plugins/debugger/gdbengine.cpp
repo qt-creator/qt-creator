@@ -3647,11 +3647,16 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
     // stage 2/2
 
     // There could be shadowed variables
-    QHash<QString, int> seen;
     QList<GdbMi> locals = record.data.findChild("locals").children();
     locals += m_currentFunctionArgs;
 
+    setLocals(locals);
+}
+
+void GdbEngine::setLocals(const QList<GdbMi> &locals) 
+{ 
     //qDebug() << m_varToType;
+    QHash<QString, int> seen;
 
     foreach (const GdbMi &item, locals) {
         #ifdef Q_OS_MAC

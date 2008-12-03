@@ -326,6 +326,7 @@ private:
     void handleVarListChildrenHelper(const GdbMi &child,
         const WatchData &parent);
     void setWatchDataType(WatchData &data, const GdbMi &mi);
+    void setLocals(const QList<GdbMi> &locals);
 
     QString m_editedData;
     int m_pendingRequests;
