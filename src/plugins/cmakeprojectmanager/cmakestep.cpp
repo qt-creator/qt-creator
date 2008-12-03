@@ -19,6 +19,7 @@ CMakeStep::~CMakeStep()
 bool CMakeStep::init(const QString &buildConfiguration)
 {
     // TODO
+    return true;
 }
 
 void CMakeStep::run(QFutureInterface<bool> &fi)

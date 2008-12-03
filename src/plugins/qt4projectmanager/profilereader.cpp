@@ -69,7 +69,7 @@ bool ProFileReader::readProFile(const QString &fileName)
 //            return false;
 //        }
 //    }
-    QString fn =  QFileInfo(fileName).filePath();
+    QString fn = QFileInfo(fileName).filePath();
     ProFile *pro = new ProFile(fn);
     if (!queryProFile(pro)) {
         delete pro;

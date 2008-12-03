@@ -170,7 +170,7 @@ void GitClient::diff(const QString &workingDirectory, const QStringList &fileNam
       if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileNames;
     QStringList arguments;
-    arguments << QLatin1String("diff") << fileNames;
+    arguments << QLatin1String("diff") << QLatin1String("--") << fileNames;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff");
@@ -187,7 +187,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
     QStringList arguments;
     arguments << QLatin1String("diff");
     if (!fileName.isEmpty())
-            arguments << fileName;
+        arguments << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);
@@ -246,7 +246,7 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName)
     if (Git::Constants::debug)
         qDebug() << "blame" << workingDirectory << fileName;
     QStringList arguments(QLatin1String("blame"));
-    arguments << fileName;
+    arguments << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_KIND);
     const QString title = tr("Git Blame %1").arg(fileName);
@@ -314,7 +314,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("reset") << QLatin1String("HEAD") << files;
+    arguments << QLatin1String("reset") << QLatin1String("HEAD") << QLatin1String("--") << files;
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = QString::fromLocal8Bit(outputText);
     m_plugin->m_outputWindow->popup(false);
@@ -643,9 +643,9 @@ GitCommand::~GitCommand()
 {
 }
 
-void GitCommand::execute(const QStringList &arguments
-                 , const QString &workingDirectory
-                 , const ProjectExplorer::Environment &environment)
+void GitCommand::execute(const QStringList &arguments,
+                         const QString &workingDirectory,
+                         const ProjectExplorer::Environment &environment)
 {
     if (Git::Constants::debug)
         qDebug() << "GitCommand::execute" << workingDirectory << arguments;
@@ -663,9 +663,9 @@ void GitCommand::execute(const QStringList &arguments
                             , Core::ProgressManagerInterface::CloseOnSuccess);
 }
 
-void GitCommand::run(const QStringList &arguments
-                 , const QString &workingDirectory
-                 , const ProjectExplorer::Environment &environment)
+void GitCommand::run(const QStringList &arguments,
+                     const QString &workingDirectory,
+                     const ProjectExplorer::Environment &environment)
 {
     if (Git::Constants::debug)
         qDebug() << "GitCommand::run" << workingDirectory << arguments;

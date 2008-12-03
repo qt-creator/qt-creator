@@ -640,9 +640,9 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                         const char *beginOfText = startOfToken(*identifierToken);
                         const char *endOfText = endOfToken(*_dot);
                         ++_dot; // skip T_RPAREN
-                        m->hidden = true;
+                        //m->hidden = true;
                         expand(beginOfText, endOfText, result);
-                        m->hidden = false;
+                        //m->hidden = false;
                     }
                 }
             }

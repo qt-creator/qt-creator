@@ -56,8 +56,10 @@ int main(int, char *[])
     TranslationUnit unit(&control, fileId);
     unit.setSource(source.constData(), source.size());
     unit.parse();
+    if (unit.ast()) {
+        TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
+        Q_ASSERT(ast != 0);
 
-    if (TranslationUnitAST *ast = unit.ast()) {
         Scope globalScope;
         Semantic sem(&control);
         for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
