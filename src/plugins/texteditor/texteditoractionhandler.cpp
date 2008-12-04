@@ -67,6 +67,8 @@ TextEditorActionHandler::TextEditorActionHandler(Core::ICore *core,
                  = m_collapseAction = m_expandAction
                  = m_deleteLineAction = m_selectEncodingAction
                  = m_increaseFontSizeAction = m_decreaseFontSizeAction
+                 = m_gotoBlockStartAction = m_gotoBlockStartWithSelectionAction
+                 = m_gotoBlockEndAction = m_gotoBlockEndWithSelectionAction
                  = 0;
 
     m_contextId << m_core->uniqueIDManager()->uniqueIdentifier(context);
@@ -185,6 +187,27 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
     connect(m_decreaseFontSizeAction, SIGNAL(triggered()), this, SLOT(decreaseFontSize()));
     advancedMenu->addAction(command);
+
+    m_gotoBlockStartAction = new QAction(tr("Goto Block Start"), this);
+    command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+[")));
+    connect(m_gotoBlockStartAction, SIGNAL(triggered()), this, SLOT(gotoBlockStart()));
+
+    m_gotoBlockEndAction = new QAction(tr("Goto Block End"), this);
+    command = am->registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+]")));
+    connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
+
+    m_gotoBlockStartWithSelectionAction = new QAction(tr("Goto Block Start With Selection"), this);
+    command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+{")));
+    connect(m_gotoBlockStartWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockStartWithSelection()));
+
+    m_gotoBlockEndWithSelectionAction = new QAction(tr("Goto Block End With Selection"), this);
+    command = am->registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
+    connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
+
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -365,54 +388,29 @@ void TextEditorActionHandler::setTextWrapping(bool checked)
     }
 }
 
-void TextEditorActionHandler::unCommentSelection()
-{
-    if (m_currentEditor)
-        m_currentEditor->unCommentSelection();
+#define FUNCTION(funcname) void TextEditorActionHandler::funcname ()\
+{\
+    if (m_currentEditor)\
+        m_currentEditor->funcname ();\
+}
+#define FUNCTION2(funcname, funcname2) void TextEditorActionHandler::funcname ()\
+{\
+    if (m_currentEditor)\
+        m_currentEditor->funcname2 ();\
 }
 
-void TextEditorActionHandler::deleteLine()
-{
-    if (m_currentEditor)
-        m_currentEditor->deleteLine();
-}
-
-void TextEditorActionHandler::unCollapseAll()
-{
-    if (m_currentEditor)
-        m_currentEditor->unCollapseAll();
-}
-
-void TextEditorActionHandler::collapse()
-{
-    if (m_currentEditor)
-        m_currentEditor->collapse();
-}
-
-void TextEditorActionHandler::expand()
-{
-    if (m_currentEditor)
-        m_currentEditor->expand();
-}
-
-void TextEditorActionHandler::selectEncoding()
-{
-    if (m_currentEditor)
-        m_currentEditor->selectEncoding();
-}
-
-void TextEditorActionHandler::increaseFontSize()
-{
-    if (m_currentEditor)
-        m_currentEditor->zoomIn();
-}
-
-void TextEditorActionHandler::decreaseFontSize()
-{
-    if (m_currentEditor)
-        m_currentEditor->zoomOut();
-}
-
+FUNCTION(unCommentSelection)
+FUNCTION(deleteLine)
+FUNCTION(unCollapseAll)
+FUNCTION(collapse)
+FUNCTION(expand)
+FUNCTION2(increaseFontSize, zoomIn)
+FUNCTION2(decreaseFontSize, zoomOut)
+FUNCTION(selectEncoding)
+FUNCTION(gotoBlockStart)
+FUNCTION(gotoBlockEnd)
+FUNCTION(gotoBlockStartWithSelection)
+FUNCTION(gotoBlockEndWithSelection)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IContext *object)
 {

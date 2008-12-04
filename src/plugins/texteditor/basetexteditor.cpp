@@ -531,7 +531,6 @@ void BaseTextEditor::selectEncoding()
     }
 }
 
-
 void DocumentMarker::updateMark(ITextMark *mark)
 {
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
@@ -600,6 +599,36 @@ void BaseTextEditor::slotSelectionChanged()
         d->m_blockSelectionExtraX = 0;
 }
 
+void BaseTextEditor::gotoBlockStart()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockEnd()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockStartWithSelection()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockEndWithSelection()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+        setTextCursor(cursor);
+}
+
+
+
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
 
@@ -632,6 +661,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 d->removeBlockSelection();
                 e->accept();
                 return;
+            }
+        } else if (e == QKeySequence::Paste) {
+            if (!ro) {
+                d->removeBlockSelection();
+                // continue
             }
         }
     }
@@ -693,6 +727,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Home:
         if (!(e == QKeySequence::MoveToStartOfDocument) && !(e == QKeySequence::SelectStartOfDocument)) {
+            if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier))
+                d->m_lastEventWasBlockSelectionEvent = true;
             handleHomeKey(e->modifiers() & Qt::ShiftModifier);
             e->accept();
             return;
@@ -708,6 +744,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             return;
         }
         // fall through
+    case Qt::Key_End:
     case Qt::Key_Right:
     case Qt::Key_Left:
 #ifndef Q_OS_MAC
@@ -793,6 +830,15 @@ skip_event:
 
     if (e != original_e)
         delete e;
+}
+
+void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
+{
+    // workaround for QTextControl bug
+    bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
+    QPlainTextEdit::setTextCursor(cursor);
+    if (selectionChange)
+        slotSelectionChanged();
 }
 
 void BaseTextEditor::gotoLine(int line, int column)
@@ -2908,6 +2954,61 @@ TextBlockUserData::MatchType TextBlockUserData::checkClosedParenthesis(QTextCurs
     }
 }
 
+
+bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool select)
+{
+    QTextBlock block = cursor->block();
+    int position = cursor->position();
+    int ignore = 0;
+    while (block.isValid()) {
+        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty()) {
+            for (int i = parenList.count()-1; i >= 0; --i) {
+                Parenthesis paren = parenList.at(i);
+                if (block == cursor->block() && position - block.position() <= paren.pos + 1)
+                    continue;
+                if (paren.type == Parenthesis::Closed) {
+                    ++ignore;
+                } else if (ignore > 0) {
+                    --ignore;
+                } else {
+                    cursor->setPosition(block.position() + paren.pos, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+                    return true;
+                }
+            }
+        }
+        block = block.previous();
+    }
+    return false;
+}
+
+bool TextBlockUserData::findNextClosingParenthesis(QTextCursor *cursor, bool select)
+{
+    QTextBlock block = cursor->block();
+    int position = cursor->position();
+    int ignore = 0;
+    while (block.isValid()) {
+        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty()) {
+            for (int i = 0; i < parenList.count(); ++i) {
+                Parenthesis paren = parenList.at(i);
+                if (block == cursor->block() && position - block.position() >= paren.pos)
+                    continue;
+                if (paren.type == Parenthesis::Opened) {
+                    ++ignore;
+                } else if (ignore > 0) {
+                    --ignore;
+                } else {
+                    cursor->setPosition(block.position() + paren.pos+1, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+                    return true;
+                }
+            }
+        }
+        block = block.next();
+    }
+    return false;
+}
+
 TextBlockUserData::MatchType TextBlockUserData::matchCursorBackward(QTextCursor *cursor)
 {
     cursor->clearSelection();
@@ -3152,13 +3253,16 @@ void BaseTextEditor::collapse()
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     Q_ASSERT(documentLayout);
     QTextBlock block = textCursor().block();
+    qDebug() << "collapse at block" << block.blockNumber();
     while (block.isValid()) {
-        if (TextBlockUserData::canCollapse(block)) {
-            if ((block.next().userState()) >> 8 == (textCursor().block().userState() >> 8))
+        qDebug() << "test block" << block.blockNumber();
+        if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
+            if ((block.next().userState()) >> 8 <= (textCursor().block().userState() >> 8))
                 break;
         }
         block = block.previous();
     }
+    qDebug() << "found" << block.blockNumber();
     if (block.isValid()) {
         TextBlockUserData::doCollapse(block, false);
         d->moveCursorVisible();
@@ -3236,6 +3340,14 @@ void BaseTextEditor::cut()
         return;
     }
     QPlainTextEdit::cut();
+}
+
+void BaseTextEditor::paste()
+{
+    if (d->m_inBlockSelectionMode) {
+        d->removeBlockSelection();
+    }
+    QPlainTextEdit::paste();
 }
 
 QMimeData *BaseTextEditor::createMimeDataFromSelection() const

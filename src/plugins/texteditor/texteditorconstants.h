@@ -48,9 +48,15 @@ const char * const UN_COLLAPSE_ALL       = "TextEditor.UnCollapseAll";
 const char * const AUTO_INDENT_SELECTION = "TextEditor.AutoIndentSelection";
 const char * const INCREASE_FONT_SIZE    = "TextEditor.IncreaseFontSize";
 const char * const DECREASE_FONT_SIZE    = "TextEditor.DecreaseFontSize";
+const char * const GOTO_BLOCK_START      = "TextEditor.GotoBlockStart";
+const char * const GOTO_BLOCK_START_WITH_SELECTION = "TextEditor.GotoBlockStartWithSelection";
+const char * const GOTO_BLOCK_END        = "TextEditor.GotoBlockEnd";
+const char * const GOTO_BLOCK_END_WITH_SELECTION = "TextEditor.GotoBlockEndWithSelection";
 const char * const DELETE_LINE           = "TextEditor.DeleteLine";
 const char * const DELETE_WORD           = "TextEditor.DeleteWord";
 const char * const SELECT_ENCODING       = "TextEditor.SelectEncoding";
+const char * const GOTO_OPENING_PARENTHESIS = "TextEditor.GotoOpeningParenthesis";
+const char * const GOTO_CLOSING_PARENTHESIS = "TextEditor.GotoOpeningParenthesis";
 const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
 const char * const C_TEXTEDITOR_MIMETYPE_XML = "application/xml";
 

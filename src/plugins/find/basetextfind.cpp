@@ -162,7 +162,10 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     QTextDocument::FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
-    editCursor.movePosition(QTextCursor::Start);
+    if (!m_findScope.isNull())
+        editCursor.setPosition(m_findScope.selectionStart());
+    else
+        editCursor.movePosition(QTextCursor::Start);
     editCursor.beginEditBlock();
     int count = 0;
     QTextCursor found;
