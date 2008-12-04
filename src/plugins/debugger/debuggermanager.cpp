@@ -317,18 +317,21 @@ void DebuggerManager::init()
 
     m_debugDumpersAction = new QAction(this);
     m_debugDumpersAction->setText(tr("Debug Custom Dumpers"));
+    m_debugDumpersAction->setText(tr("This is an internal tool to "
+        "make debugging the Custom Data Dumper code easier. "
+        "Using this action is in general not needed unless you "
+        "want do debug Qt Creator itself."));
     m_debugDumpersAction->setCheckable(true);
 
     m_skipKnownFramesAction = new QAction(this);
     m_skipKnownFramesAction->setText(tr("Skip Known Frames When Stepping"));
+    m_skipKnownFramesAction->setToolTip(tr("After checking this option"
+        "'Step Into' combines in certain situations several steps, "
+        "leading to 'less noisy' debugging. So will, e.g., the atomic "
+        "reference counting code be skipped, and a single 'Step Into' "
+        "for a signal emission will end up directly in the slot connected "
+        "to it"));
     m_skipKnownFramesAction->setCheckable(true);
-
-    m_useCustomDumpersAction = new QAction(this);
-    m_useCustomDumpersAction->setText(tr("Use Custom Display for Qt Objects"));
-    m_useCustomDumpersAction->setToolTip(tr("Checking this will make the debugger "
-        "try to use code to format certain data (QObject, QString, ...) nicely. "));
-    m_useCustomDumpersAction->setCheckable(true);
-    m_useCustomDumpersAction->setChecked(true);
 
     m_useCustomDumpersAction = new QAction(this);
     m_useCustomDumpersAction->setText(tr("Use Custom Display for Qt Objects"));
