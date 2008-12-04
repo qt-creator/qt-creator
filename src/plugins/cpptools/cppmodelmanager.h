@@ -58,6 +58,7 @@ namespace CppTools {
 namespace Internal {
 
 class CppEditorSupport;
+class CppPreprocessor;
 class CppHoverHandler;
 
 class CppModelManager : public CppModelManagerInterface
@@ -97,18 +98,54 @@ private Q_SLOTS:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSessionUnloaded();
+    void onProjectAdded(ProjectExplorer::Project *project);
 
 private:
-    QMap<QString, QByteArray> buildWorkingCopyList() const;
-    QStringList projectFiles() const;
-    QStringList includePaths() const;
-    QStringList frameworkPaths() const;
-    QByteArray definedMacros() const;
+    QMap<QString, QByteArray> buildWorkingCopyList();
+
+    QStringList projectFiles()
+    {
+        ensureUpdated();
+        return m_projectFiles;
+    }
+
+    QStringList includePaths()
+    {
+        ensureUpdated();
+        return m_includePaths;
+    }
+
+    QStringList frameworkPaths()
+    {
+        ensureUpdated();
+        return m_frameworkPaths;
+    }
+
+    QByteArray definedMacros()
+    {
+        ensureUpdated();
+        return m_definedMacros;
+    }
+
+    QStringList updateProjectFiles() const;
+    QStringList updateIncludePaths() const;
+    QStringList updateFrameworkPaths() const;
+    QByteArray updateDefinedMacros() const;
+
+    void ensureUpdated() {
+        if (! m_dirty)
+            return;
+
+        m_projectFiles = updateProjectFiles();
+        m_includePaths = updateIncludePaths();
+        m_frameworkPaths = updateFrameworkPaths();
+        m_definedMacros = updateDefinedMacros();
+        m_dirty = false;
+    }
 
     static void parse(QFutureInterface<void> &future,
-                      CppModelManager *model,
-                      QStringList files,
-                      QMap<QString, QByteArray> workingCopy);
+                      CppPreprocessor *preproc,
+                      QStringList files);
 
 private:
     Core::ICore *m_core;
@@ -116,8 +153,12 @@ private:
     CppHoverHandler *m_hoverHandler;
     DocumentTable m_documents;
 
-    // List of available source files
+    // cache
+    bool m_dirty;
     QStringList m_projectFiles;
+    QStringList m_includePaths;
+    QStringList m_frameworkPaths;
+    QByteArray m_definedMacros;
 
     // editor integration
     QMap<TextEditor::ITextEditor *, CppEditorSupport *> m_editorSupport;

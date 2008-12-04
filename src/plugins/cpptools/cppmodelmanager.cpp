@@ -129,8 +129,11 @@ public:
     void setProjectFiles(const QStringList &files)
     { m_projectFiles = files; }
 
-    void operator()(QString &fileName)
+    void run(QString &fileName)
     { sourceNeeded(fileName, IncludeGlobal); }
+
+    void operator()(QString &fileName)
+    { run(fileName); }
 
 protected:
     bool includeFile(const QString &absoluteFilePath, QByteArray *result)
@@ -409,6 +412,8 @@ CppModelManager::CppModelManager(QObject *parent) :
     CppModelManagerInterface(parent),
     m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>())
 {
+    m_dirty = true;
+
     m_projectExplorer = ExtensionSystem::PluginManager::instance()
                         ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
@@ -416,6 +421,9 @@ CppModelManager::CppModelManager(QObject *parent) :
 
     ProjectExplorer::SessionManager *session = m_projectExplorer->session();
     Q_ASSERT(session != 0);
+
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
 
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
             this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project *)));
@@ -448,7 +456,7 @@ Document::Ptr CppModelManager::document(const QString &fileName)
 CppModelManager::DocumentTable CppModelManager::documents()
 { return m_documents; }
 
-QStringList CppModelManager::projectFiles() const
+QStringList CppModelManager::updateProjectFiles() const
 {
     QStringList files;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -460,7 +468,7 @@ QStringList CppModelManager::projectFiles() const
     return files;
 }
 
-QStringList CppModelManager::includePaths() const
+QStringList CppModelManager::updateIncludePaths() const
 {
     QStringList includePaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -472,7 +480,7 @@ QStringList CppModelManager::includePaths() const
     return includePaths;
 }
 
-QStringList CppModelManager::frameworkPaths() const
+QStringList CppModelManager::updateFrameworkPaths() const
 {
     QStringList frameworkPaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -484,7 +492,7 @@ QStringList CppModelManager::frameworkPaths() const
     return frameworkPaths;
 }
 
-QByteArray CppModelManager::definedMacros() const
+QByteArray CppModelManager::updateDefinedMacros() const
 {
     QByteArray macros;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -496,7 +504,7 @@ QByteArray CppModelManager::definedMacros() const
     return macros;
 }
 
-QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList() const
+QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
 {
     QMap<QString, QByteArray> workingCopy;
     QMapIterator<TextEditor::ITextEditor *, CppEditorSupport *> it(m_editorSupport);
@@ -527,8 +535,14 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
     if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
         const QMap<QString, QByteArray> workingCopy = buildWorkingCopyList();
 
-        QFuture<void> result = QtConcurrent::run(&CppModelManager::parse, this,
-                                                 sourceFiles, workingCopy);
+        CppPreprocessor *preproc = new CppPreprocessor(this);
+        preproc->setProjectFiles(projectFiles());
+        preproc->setIncludePaths(includePaths());
+        preproc->setFrameworkPaths(frameworkPaths());
+        preproc->setWorkingCopy(workingCopy);
+
+        QFuture<void> result = QtConcurrent::run(&CppModelManager::parse,
+                                                 preproc, sourceFiles);
 
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
@@ -675,22 +689,29 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
     }
 }
 
+void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
+{
+    m_dirty = true;
+}
+
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
+    m_dirty = true;
     m_projects.remove(project);
     GC();
 }
 
 void CppModelManager::onSessionUnloaded()
 {
-    if (m_core->progressManager())
+    if (m_core->progressManager()) {
         m_core->progressManager()->cancelTasks(CppTools::Constants::TASK_INDEX);
+        m_dirty = true;
+    }
 }
 
 void CppModelManager::parse(QFutureInterface<void> &future,
-                            CppModelManager *model,
-                            QStringList files,
-                            QMap<QString, QByteArray> workingCopy)
+                            CppPreprocessor *preproc,
+                            QStringList files)
 {
     Q_ASSERT(! files.isEmpty());
 
@@ -699,14 +720,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
     future.setProgressRange(0, files.size());
 
-    CppPreprocessor preproc(model);
-    preproc.setWorkingCopy(workingCopy);
-    preproc.setProjectFiles(model->projectFiles());
-    preproc.setIncludePaths(model->includePaths());
-    preproc.setFrameworkPaths(model->frameworkPaths());
-
     QString conf = QLatin1String(pp_configuration_file);
-    (void) preproc(conf);
+    (void) preproc->run(conf);
 
     const int STEP = 10;
 
@@ -725,7 +740,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 #endif
 
         QString fileName = files.at(i);
-        preproc(fileName);
+        preproc->run(fileName);
 
         if (! (i % STEP)) // Yields execution of the current thread.
             QThread::yieldCurrentThread();
@@ -739,6 +754,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
     // Restore the previous thread priority.
     QThread::currentThread()->setPriority(QThread::NormalPriority);
+
+    delete preproc;
 }
 
 void CppModelManager::GC()
@@ -746,7 +763,7 @@ void CppModelManager::GC()
     DocumentTable documents = m_documents;
 
     QSet<QString> processed;
-    QStringList todo = m_projectFiles;
+    QStringList todo = projectFiles();
 
     while (! todo.isEmpty()) {
         QString fn = todo.last();
