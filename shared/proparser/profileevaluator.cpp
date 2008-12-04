@@ -987,8 +987,6 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     } else if (!current.isEmpty()) {
         unquote(&current);
         ret.append(current);
-        q->logMessage(format("Project Parser [var replace]: %1 -> [%2]\n")
-                    .arg(str).arg(ret.join(QLatin1String(","))));
     }
     return ret;
 }
@@ -1501,7 +1499,6 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
 {
     QFileInfo fi(fileName);
     if (fi.exists()) {
-        logMessage(d->format("Reading %1\n").arg(fileName));
         ProFile *pro = new ProFile(fi.absoluteFilePath());
         if (d->read(pro))
             return pro;
