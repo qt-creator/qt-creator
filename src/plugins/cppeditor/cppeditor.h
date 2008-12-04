@@ -115,7 +115,7 @@ private slots:
     void updateFileName();
     void jumpToMethod(int index);
     void updateMethodBoxIndex();
-
+    void updateMethodBoxToolTip();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
 private:
