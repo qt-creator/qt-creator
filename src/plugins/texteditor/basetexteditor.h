@@ -432,6 +432,7 @@ protected slots:
 
 signals:
     void markRequested(TextEditor::ITextEditor *editor, int line);
+    void lineContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(ITextEditable *editor, bool forced);
 

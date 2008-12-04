@@ -79,6 +79,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMenu>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -2430,6 +2431,11 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
             }
+        } else if (e->button() == Qt::RightButton) {
+            QMenu * contextMenu = new QMenu(this);
+            emit lineContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
+            if (!contextMenu->isEmpty())
+                contextMenu->exec(e->globalPos());
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
