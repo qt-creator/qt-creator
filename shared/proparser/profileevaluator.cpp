@@ -1083,7 +1083,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (func_t == E_SECTION) {
                 if (args.count() != 3 && args.count() != 4) {
                     q->logMessage(format("%1(var) section(var, sep, begin, end) "
-                        "requires three arguments.").arg(func));
+                        "requires three or four arguments.").arg(func));
                 } else {
                     var = args[0];
                     sep = args[1];
@@ -1116,7 +1116,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
         }
         case E_JOIN: {
             if (args.count() < 1 || args.count() > 4) {
-                q->logMessage(format("join(var, glue, before, after) requires four arguments."));
+                q->logMessage(format("join(var, glue, before, after) requires one to four arguments."));
             } else {
                 QString glue, before, after;
                 if (args.count() >= 2)
@@ -1132,7 +1132,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             break;
         }
         case E_SPLIT: {
-            if (args.count() < 2 || args.count() > 2) {
+            if (args.count() != 2) {
                 q->logMessage(format("split(var, sep) requires two arguments"));
             } else {
                 QString sep = args.at(1);
@@ -1144,7 +1144,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
         }
         case E_MEMBER: {
             if (args.count() < 1 || args.count() > 3) {
-                q->logMessage(format("member(var, start, end) requires three arguments."));
+                q->logMessage(format("member(var, start, end) requires one to three arguments."));
             } else {
                 bool ok = true;
                 const QStringList var = values(args.first());
@@ -1301,7 +1301,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         }
         case CF_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
-                q->logMessage(format("contains(var, val) requires at least two arguments."));
+                q->logMessage(format("contains(var, val) requires two or three arguments."));
                 ok = false;
                 break;
             }
@@ -1333,7 +1333,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         }
         case CF_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
-                q->logMessage(format("count(var, count) requires at least two arguments."));
+                q->logMessage(format("count(var, count) requires two or three arguments."));
                 ok = false;
                 break;
             }
@@ -1363,7 +1363,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             if (args.count() == 2) {
                 parseInto = args[1];
             } else if (args.count() != 1) {
-                q->logMessage(format("include(file) requires one argument."));
+                q->logMessage(format("include(file) requires one or two arguments."));
                 ok = false;
                 break;
             }
@@ -1381,7 +1381,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 QString sarg = args[1];
                 ignore_error = (sarg.toLower() == QLatin1String("true") || sarg.toInt());
             } else if (args.count() != 1) {
-                q->logMessage(format("load(feature) requires one argument."));
+                q->logMessage(format("load(feature) requires one or two arguments."));
                 ok = false;
                 break;
             }
