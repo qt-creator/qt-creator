@@ -31,59 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#include "gitsettings.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
+#include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
-#include <coreplugin/dialogs/ioptionspage.h>
+static const char *groupC = "Git";
+static const char *sysEnvKeyC = "SysEnv";
+static const char *pathKeyC = "Path";
+static const char *logCountKeyC = "LogCount";
 
-#include "ui_settingspage.h"
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+enum { defaultLogCount =  10 };
 
 namespace Git {
 namespace Internal {
 
-struct GitSettings;
-
-class SettingsPageWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
-
-    GitSettings settings() const;
-    void setSettings(const GitSettings &);
-
-private slots:
-    void setSystemPath();
-
-private:
-    Ui::SettingsPage m_ui;
-};
-
-class SettingsPage : public Core::IOptionsPage
+GitSettings::GitSettings() :
+    adoptPath(false),
+    logCount(defaultLogCount)
 {
-    Q_OBJECT
+}
 
-public:
-    SettingsPage();
+void GitSettings::fromSettings(QSettings *settings)
+{
+    settings->beginGroup(QLatin1String(groupC));
+    adoptPath = settings->value(QLatin1String(sysEnvKeyC), false).toBool();
+    path = settings->value(QLatin1String(pathKeyC), QString()).toString();
+    logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
+    settings->endGroup();
+}
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
+void GitSettings::toSettings(QSettings *settings) const
+{
+    settings->beginGroup(QLatin1String(groupC));
+    settings->setValue(QLatin1String(sysEnvKeyC), adoptPath);
+    settings->setValue(QLatin1String(pathKeyC), path);
+    settings->setValue(QLatin1String(logCountKeyC), logCount);
+    settings->endGroup();
+}
 
-    QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+bool GitSettings::equals(const GitSettings &s) const
+{
+    return adoptPath == s.adoptPath  && path == s.path && logCount == s.logCount;
+}
 
-private:
-    QPointer<SettingsPageWidget> m_widget;
-};
-
-} // namespace Internal
-} // namespace Git
-
-#endif // SETTINGSPAGE_H
+}
+}

@@ -66,6 +66,7 @@ namespace Internal {
     class ChangeSelectionDialog;
     class GitSubmitEditor;
     struct CommitData;
+    struct GitSettings;
 
 // Just a proxy for GitPlugin
 class CoreListener : public Core::ICoreListener
@@ -94,6 +95,11 @@ public:
 
     QString                     getWorkingDirectory();
 
+    GitOutputWindow             *outputWindow() const;
+
+    GitSettings  settings() const;
+    void setSettings(const GitSettings &s);
+
 public slots:
     void                        updateActions();
     bool                        editorAboutToClose(Core::IEditor *editor);
@@ -114,12 +120,15 @@ private slots:
 
     void                        showCommit();
     void                        startCommit();
+    void                        stash();
+    void                        stashPop();
+    void                        branchList();
+    void                        stashList();
     void                        pull();
     void                        push();
 
 private:
-    friend class GitClient;
-    QFileInfo                   currentFile();
+    QFileInfo                   currentFile() const;
     Core::IEditor               *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void                        cleanChangeTmpFile();
 
@@ -144,6 +153,10 @@ private:
     QAction                     *m_diffSelectedFilesAction;
     QAction                     *m_undoAction;
     QAction                     *m_redoAction;
+    QAction                     *m_stashAction;
+    QAction                     *m_stashPopAction;
+    QAction                     *m_stashListAction;
+    QAction                     *m_branchListAction;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     GitClient                   *m_gitClient;
