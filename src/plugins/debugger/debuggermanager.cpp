@@ -317,7 +317,7 @@ void DebuggerManager::init()
 
     m_debugDumpersAction = new QAction(this);
     m_debugDumpersAction->setText(tr("Debug Custom Dumpers"));
-    m_debugDumpersAction->setText(tr("This is an internal tool to "
+    m_debugDumpersAction->setToolTip(tr("This is an internal tool to "
         "make debugging the Custom Data Dumper code easier. "
         "Using this action is in general not needed unless you "
         "want do debug Qt Creator itself."));
