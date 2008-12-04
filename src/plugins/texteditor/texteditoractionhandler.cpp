@@ -69,6 +69,7 @@ TextEditorActionHandler::TextEditorActionHandler(Core::ICore *core,
                  = m_increaseFontSizeAction = m_decreaseFontSizeAction
                  = m_gotoBlockStartAction = m_gotoBlockStartWithSelectionAction
                  = m_gotoBlockEndAction = m_gotoBlockEndWithSelectionAction
+                 = m_selectBlockUpAction = m_selectBlockDownAction
                  = 0;
 
     m_contextId << m_core->uniqueIDManager()->uniqueIdentifier(context);
@@ -163,13 +164,11 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_collapseAction, Constants::COLLAPSE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+<")));
     connect(m_collapseAction, SIGNAL(triggered()), this, SLOT(collapse()));
-    advancedMenu->addAction(command);
 
     m_expandAction = new QAction(tr("Expand"), this);
     command = am->registerAction(m_expandAction, Constants::EXPAND, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+>")));
     connect(m_expandAction, SIGNAL(triggered()), this, SLOT(expand()));
-    advancedMenu->addAction(command);
 
     m_unCollapseAllAction = new QAction(tr("(Un)&Collapse All"), this);
     command = am->registerAction(m_unCollapseAllAction, Constants::UN_COLLAPSE_ALL, m_contextId);
@@ -208,6 +207,15 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
     connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
 
+    m_selectBlockUpAction= new QAction(tr("Select Block Up"), this);
+    command = am->registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+U")));
+    connect(m_selectBlockUpAction, SIGNAL(triggered()), this, SLOT(selectBlockUp()));
+
+    m_selectBlockDownAction= new QAction(tr("Select Block Down"), this);
+    command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
+    connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -252,35 +260,30 @@ void TextEditorActionHandler::updateActions()
 
 void TextEditorActionHandler::updateActions(UpdateMode um)
 {
-    if (m_pasteAction)
-        m_pasteAction->setEnabled(um != NoEditor);
-    if (m_selectAllAction)
-        m_selectAllAction->setEnabled(um != NoEditor);
-    if (m_gotoAction)
-        m_gotoAction->setEnabled(um != NoEditor);
-    if (m_selectEncodingAction)
-        m_selectEncodingAction->setEnabled(um != NoEditor);
-    if (m_printAction)
-        m_printAction->setEnabled(um != NoEditor);
-    if (m_formatAction)
-        m_formatAction->setEnabled((m_optionalActions & Format) && um != NoEditor);
-    if (m_unCommentSelectionAction)
-        m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != NoEditor);
-    if (m_collapseAction)
-        m_collapseAction->setEnabled(um != NoEditor);
-    if (m_expandAction)
-        m_expandAction->setEnabled(um != NoEditor);
-    if (m_unCollapseAllAction)
-        m_unCollapseAllAction->setEnabled((m_optionalActions & UnCollapseAll) && um != NoEditor);
-    if (m_decreaseFontSizeAction)
-        m_decreaseFontSizeAction->setEnabled(um != NoEditor);
-    if (m_increaseFontSizeAction)
-        m_increaseFontSizeAction->setEnabled(um != NoEditor);
-    if (m_visualizeWhitespaceAction) {
-        m_visualizeWhitespaceAction->setEnabled(um != NoEditor);
-        if (m_currentEditor)
-            m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
-    }
+    if (!m_initialized)
+        return;
+    m_pasteAction->setEnabled(um != NoEditor);
+    m_selectAllAction->setEnabled(um != NoEditor);
+    m_gotoAction->setEnabled(um != NoEditor);
+    m_selectEncodingAction->setEnabled(um != NoEditor);
+    m_printAction->setEnabled(um != NoEditor);
+    m_formatAction->setEnabled((m_optionalActions & Format) && um != NoEditor);
+    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != NoEditor);
+    m_collapseAction->setEnabled(um != NoEditor);
+    m_expandAction->setEnabled(um != NoEditor);
+    m_unCollapseAllAction->setEnabled((m_optionalActions & UnCollapseAll) && um != NoEditor);
+    m_decreaseFontSizeAction->setEnabled(um != NoEditor);
+    m_increaseFontSizeAction->setEnabled(um != NoEditor);
+    m_gotoBlockStartAction->setEnabled(um != NoEditor);
+    m_gotoBlockStartWithSelectionAction->setEnabled(um != NoEditor);
+    m_gotoBlockEndAction->setEnabled(um != NoEditor);
+    m_gotoBlockEndWithSelectionAction->setEnabled(um != NoEditor);
+    m_selectBlockUpAction->setEnabled(um != NoEditor);
+    m_selectBlockDownAction->setEnabled(um != NoEditor);
+
+    m_visualizeWhitespaceAction->setEnabled(um != NoEditor);
+    if (m_currentEditor)
+        m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
     if (m_textWrappingAction) {
         m_textWrappingAction->setEnabled(um != NoEditor);
         if (m_currentEditor)
@@ -411,6 +414,8 @@ FUNCTION(gotoBlockStart)
 FUNCTION(gotoBlockEnd)
 FUNCTION(gotoBlockStartWithSelection)
 FUNCTION(gotoBlockEndWithSelection)
+FUNCTION(selectBlockUp)
+FUNCTION(selectBlockDown)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IContext *object)
 {

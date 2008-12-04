@@ -326,6 +326,9 @@ public slots:
     void gotoBlockStartWithSelection();
     void gotoBlockEndWithSelection();
 
+    void selectBlockUp();
+    void selectBlockDown();
+
 signals:
     void changed();
 

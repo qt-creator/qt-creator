@@ -597,6 +597,8 @@ void BaseTextEditor::slotSelectionChanged()
         viewport()->update();
     if (!d->m_inBlockSelectionMode)
         d->m_blockSelectionExtraX = 0;
+    if (!d->m_selectBlockAnchor.isNull() && !textCursor().hasSelection())
+        d->m_selectBlockAnchor = QTextCursor();
 }
 
 void BaseTextEditor::gotoBlockStart()
@@ -625,6 +627,45 @@ void BaseTextEditor::gotoBlockEndWithSelection()
     QTextCursor cursor = textCursor();
     if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
         setTextCursor(cursor);
+}
+
+void BaseTextEditor::selectBlockUp()
+{
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection())
+        d->m_selectBlockAnchor = cursor;
+    else
+        cursor.setPosition(cursor.selectionStart());
+
+
+    if (!TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+        return;
+    if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+        return;
+    setTextCursor(cursor);
+}
+
+void BaseTextEditor::selectBlockDown()
+{
+    QTextCursor tc = textCursor();
+    QTextCursor cursor = d->m_selectBlockAnchor;
+
+    if (!tc.hasSelection() || cursor.isNull())
+        return;
+    tc.setPosition(tc.selectionStart());
+
+    forever {
+        QTextCursor ahead = cursor;
+        if (!TextBlockUserData::findPreviousOpenParenthesis(&ahead, false))
+            break;
+        if (ahead.position() <= tc.position())
+            break;
+        cursor = ahead;
+    }
+    if ( cursor != d->m_selectBlockAnchor)
+        TextBlockUserData::findNextClosingParenthesis(&cursor, true);
+
+    setTextCursor(cursor);
 }
 
 
