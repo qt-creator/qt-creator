@@ -151,7 +151,7 @@ private slots:
     void populateOpenWithMenu();
     void openWithMenuTriggered(QAction *action);
     void updateSessionMenu();
-    void setSession();
+    void setSession(QAction *action);
 
     void restoreSession();
     void loadSession(const QString &session);
