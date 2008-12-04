@@ -45,9 +45,6 @@ struct AbstractProItemVisitor;
 class ProItem
 {
 public:
-    ProItem()
-        : m_lineNumber(0)
-    {}
     enum ProItemKind {
         ValueKind,
         FunctionKind,
@@ -55,6 +52,8 @@ public:
         OperatorKind,
         BlockKind
     };
+
+    ProItem() : m_lineNumber(0) {}
     virtual ~ProItem() {}
 
     virtual ProItemKind kind() const = 0;
