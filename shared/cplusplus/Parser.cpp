@@ -1191,6 +1191,11 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
     NameAST *name = 0;
     parseName(name);
 
+    bool parsed = false;
+
+    const bool previousInFunctionBody = _inFunctionBody;
+    _inFunctionBody = false;
+
     if (LA() == T_COLON || LA() == T_LBRACE) {
         BaseSpecifierAST *base_clause = 0;
         if (LA() == T_COLON) {
@@ -1233,9 +1238,12 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
             }
         }
         node = ast;
-        return true;
+        parsed = true;
     }
-    return false;
+
+    _inFunctionBody = previousInFunctionBody;
+
+    return parsed;
 }
 
 bool Parser::parseAccessSpecifier(SpecifierAST *&node)

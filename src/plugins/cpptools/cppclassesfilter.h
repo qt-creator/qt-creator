@@ -31,44 +31,28 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#ifndef CPPCLASSESFILTER_H
+#define CPPCLASSESFILTER_H
 
-#include <coreplugin/iversioncontrol.h>
+#include <cppquickopenfilter.h>
 
-namespace Perforce {
+namespace CppTools {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+class CppClassesFilter : public CppQuickOpenFilter
 {
     Q_OBJECT
+
 public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    ~CppClassesFilter();
 
-    virtual QString name() const;
-
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
-
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
-
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-
-signals:
-    void enabledChanged(bool);
-
-private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
+    QString trName() const { return tr("Classes"); }
+    QString name() const { return QLatin1String("Classes"); }
+    Priority priority() const { return Medium; }
 };
 
-} // Internal
-} // Perforce
+} // namespace Internal
+} // namespace CppTools
 
-#endif // PERFORCEVERSIONCONTROL_H
+#endif // CPPCLASSESFILTER_H

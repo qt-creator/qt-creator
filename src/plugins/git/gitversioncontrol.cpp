@@ -31,44 +31,74 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#include "gitversioncontrol.h"
+#include "gitclient.h"
 
-#include <coreplugin/iversioncontrol.h>
-
-namespace Perforce {
+namespace Git {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+GitVersionControl::GitVersionControl(GitClient *client) :
+    m_enabled(true),
+    m_client(client)
 {
-    Q_OBJECT
-public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+}
 
-    virtual QString name() const;
+QString GitVersionControl::name() const
+{
+    return QLatin1String("git");
+}
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
+bool GitVersionControl::isEnabled() const
+{
+    return m_enabled;
+}
 
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
+void GitVersionControl::setEnabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        emit enabledChanged(m_enabled);
+    }
+}
 
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
+bool GitVersionControl::supportsOperation(Operation operation) const
+{
+    bool rc = false;
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+    case OpenOperation:
+        break;
+    }
+    return rc;
+}
 
-signals:
-    void enabledChanged(bool);
+bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
+{
+    return false;
+}
 
-private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
-};
+bool GitVersionControl::vcsAdd(const QString & /*fileName*/)
+{
+    return false;
+}
+
+bool GitVersionControl::vcsDelete(const QString & /*fileName*/)
+{
+    // TODO: implement using 'git rm'.
+    return false;
+}
+
+bool GitVersionControl::managesDirectory(const QString &directory) const
+{
+    return !GitClient::findRepositoryForDirectory(directory).isEmpty();
+
+}
+
+QString GitVersionControl::findTopLevelForDirectory(const QString &directory) const
+{
+    return GitClient::findRepositoryForDirectory(directory);
+}
 
 } // Internal
-} // Perforce
-
-#endif // PERFORCEVERSIONCONTROL_H
+} // Git

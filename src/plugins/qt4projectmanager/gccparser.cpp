@@ -40,13 +40,13 @@ using namespace Qt4ProjectManager;
 
 GccParser::GccParser()
 {
-    m_regExp.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):(\\d+:)*(\\s(warning|error):)?(.+)$");
+    m_regExp.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):(\\d+:)*(\\s(warning|error):)?\\s(.+)$");
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    m_regExpLinker.setPattern("^(\\S+)\\(\\S+\\):(.+)$");
+    m_regExpLinker.setPattern("^(\\S+)\\(\\S+\\):\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 
     //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'

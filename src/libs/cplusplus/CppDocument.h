@@ -68,6 +68,8 @@ public:
 
     void appendMacro(const QByteArray &macroName, const QByteArray &text);
 
+    void addMacroUse(unsigned offset, unsigned length);
+
     Control *control() const;
     TranslationUnit *translationUnit() const;
 
@@ -176,6 +178,9 @@ public:
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
 
+    QList<Block> macroUses() const
+    { return _macroUses; }
+
 private:
     Symbol *findSymbolAt(unsigned line, unsigned column, Scope *scope) const;
 
@@ -189,6 +194,7 @@ private:
     QByteArray _definedMacros;
     QSet<QByteArray> _macroNames;
     QList<Block> _skippedBlocks;
+    QList<Block> _macroUses;
 };
 
 } // end of namespace CPlusPlus

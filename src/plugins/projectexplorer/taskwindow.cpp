@@ -37,6 +37,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorerconstants.h>
@@ -47,6 +48,8 @@
 #include <QtGui/QListView>
 #include <QtGui/QPainter>
 #include <QtCore/QAbstractItemModel>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QFont>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QTextLayout>
@@ -81,7 +84,7 @@ public:
     QModelIndex firstError() const;
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound };
+    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type };
 private:
     QList<TaskItem> m_items;
     int m_maxSizeOfFileName;
@@ -196,6 +199,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return m_items.at(index.row()).description;
     else if (role == TaskModel::FileNotFound)
         return m_items.at(index.row()).fileNotFound;
+    else if (role == TaskModel::Type)
+        return (int)m_items.at(index.row()).type;
     else if (role == Qt::DecorationRole) {
          if (m_items.at(index.row()).type == ProjectExplorer::BuildParserInterface::Error) {
            return QIcon(":/projectexplorer/images/compile_error.png");
@@ -257,6 +262,15 @@ TaskWindow::TaskWindow()
     TaskDelegate *tld = new TaskDelegate(this);
     m_listview->setItemDelegate(tld);
     m_listview->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+    m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    m_taskWindowContext = new TaskWindowContext(m_listview);
+    m_coreIFace->addContextObject(m_taskWindowContext);
+
+    m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
+    m_coreIFace->actionManager()->
+            registerAction(m_copyAction, Core::Constants::COPY, m_taskWindowContext->context());
+    m_listview->addAction(m_copyAction);
 
     connect(m_listview->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             tld, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));
@@ -266,12 +280,15 @@ TaskWindow::TaskWindow()
     connect(m_listview, SIGNAL(clicked(const QModelIndex &)),
             this, SLOT(showTaskInFile(const QModelIndex &)));
 
+    connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
+
     m_errorCount = 0;
     m_currentTask = -1;
 }
 
 TaskWindow::~TaskWindow()
 {
+    m_coreIFace->removeContextObject(m_taskWindowContext);
     delete m_listview;
     delete m_model;
 }
@@ -291,6 +308,7 @@ void TaskWindow::clearContents()
     m_errorCount = 0;
     m_currentTask = -1;
     m_model->clear();
+    m_copyAction->setEnabled(false);
     emit tasksChanged();
 }
 
@@ -305,6 +323,7 @@ void TaskWindow::addItem(ProjectExplorer::BuildParserInterface::PatternType type
     m_model->addTask(type, description, file, line);
     if (type == ProjectExplorer::BuildParserInterface::Error)
         ++m_errorCount;
+    m_copyAction->setEnabled(true);
     emit tasksChanged();
 }
 
@@ -325,6 +344,25 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
         m_model->setFileNotFound(index, true);
     m_listview->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
     m_listview->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+}
+
+void TaskWindow::copy()
+{
+    QModelIndex index = m_listview->selectionModel()->currentIndex();
+    QString file = index.data(TaskModel::File).toString();
+    QString line = index.data(TaskModel::Line).toString();
+    QString description = index.data(TaskModel::Description).toString();
+    QString type;
+    switch (index.data(TaskModel::Type).toInt()) {
+    case ProjectExplorer::BuildParserInterface::Error:
+        type = "error: ";
+        break;
+    case ProjectExplorer::BuildParserInterface::Warning:
+        type = "warning: ";
+        break;
+    }
+
+    QApplication::clipboard()->setText(file + ':' + line + ": " + type + description);
 }
 
 int TaskWindow::numberOfTasks() const
@@ -483,7 +521,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             painter->fillRect(width, 2 + opt.rect.top(), gwidth, fm.height() + 1, lg);
         }
     } else {
-        // Descritption
+        // Description
         QString description = index.data(TaskModel::Description).toString();
         // Layout the description
         int leading = fm.leading();
@@ -536,3 +574,21 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
     painter->restore();
 }
+
+TaskWindowContext::TaskWindowContext(QWidget *widget)
+    : m_taskList(widget)
+{
+    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    m_context << core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_PROBLEM_PANE);
+}
+
+QList<int> TaskWindowContext::context() const
+{
+    return m_context;
+}
+
+QWidget *TaskWindowContext::widget()
+{
+    return m_taskList;
+}
+

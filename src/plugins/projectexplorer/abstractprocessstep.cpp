@@ -39,6 +39,7 @@
 #include <QtCore/QEventLoop>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include <QtGui/QTextDocument>
 
 using namespace ProjectExplorer;
 
@@ -165,7 +166,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> & fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addToOutputWindow(tr("<font color=\"#0000ff\">Starting: %1 %2</font>\n").arg(m_command, m_arguments.join(" ")));
+    emit addToOutputWindow(tr("<font color=\"#0000ff\">Starting: %1 %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
 }
 
 bool AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -196,7 +197,7 @@ void AbstractProcessStep::processReadyReadStdOutput()
 
 void AbstractProcessStep::stdOut(const QString &line)
 {
-    emit addToOutputWindow(line);
+    emit addToOutputWindow(Qt::escape(line));
 }
 
 void AbstractProcessStep::processReadyReadStdError()
@@ -211,7 +212,7 @@ void AbstractProcessStep::processReadyReadStdError()
 
 void AbstractProcessStep::stdError(const QString &line)
 {
-    emit addToOutputWindow(QLatin1String("<font color=\"#ff0000\">") + line + QLatin1String("</font>"));
+    emit addToOutputWindow(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
 }
 
 void AbstractProcessStep::checkForCancel()

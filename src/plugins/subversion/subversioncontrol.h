@@ -47,13 +47,24 @@ class SubversionControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit SubversionControl(SubversionPlugin *plugin);
+    virtual QString name() const;
+
+    virtual bool isEnabled() const;
+    virtual void setEnabled(bool enabled);
+
     virtual bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;
+
+    virtual bool supportsOperation(Operation operation) const;
     virtual bool vcsOpen(const QString &fileName);
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
 
+signals:
+    void enabledChanged(bool);
+
 private:
+    bool m_enabled;
     SubversionPlugin *m_plugin;
 };
 

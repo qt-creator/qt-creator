@@ -31,44 +31,19 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#include "cppclassesfilter.h"
 
-#include <coreplugin/iversioncontrol.h>
+using namespace CppTools::Internal;
 
-namespace Perforce {
-namespace Internal {
-class PerforcePlugin;
-
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+CppClassesFilter::CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+    : CppQuickOpenFilter(manager, editorManager)
 {
-    Q_OBJECT
-public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    setShortcutString("c");
+    setIncludedByDefault(false);
 
-    virtual QString name() const;
+    search.setSymbolsToSearchFor(SearchSymbols::Classes);
+}
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
-
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
-
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-
-signals:
-    void enabledChanged(bool);
-
-private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
-};
-
-} // Internal
-} // Perforce
-
-#endif // PERFORCEVERSIONCONTROL_H
+CppClassesFilter::~CppClassesFilter()
+{
+}

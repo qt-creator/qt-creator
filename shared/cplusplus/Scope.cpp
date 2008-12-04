@@ -292,6 +292,7 @@ Use *Scope::useAt(unsigned index) const
 
 void Scope::addUse(unsigned sourceOffset, Name *name)
 {
+#ifdef CPLUSPLUS_WITH_USES
     if (++_useCount == _allocatedUses) {
         _allocatedUses += 4;
         _uses = reinterpret_cast<Use *>(realloc(_uses, _allocatedUses * sizeof(Use)));
@@ -303,6 +304,7 @@ void Scope::addUse(unsigned sourceOffset, Name *name)
     else
         lastVisibleSymbol = _symbols[_symbolCount];
     _uses[_useCount].init(sourceOffset, name, lastVisibleSymbol);
+#endif
 }
 
 CPLUSPLUS_END_NAMESPACE

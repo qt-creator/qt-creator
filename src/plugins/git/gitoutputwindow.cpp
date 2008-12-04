@@ -104,6 +104,7 @@ void GitOutputWindow::append(const QString &text)
     const QStringList lines = text.split(QLatin1Char('\n'));
     foreach (const QString &s, lines)
         m_outputListWidget->addItem(s);
+    m_outputListWidget->scrollToBottom();
     popup();
 }
 

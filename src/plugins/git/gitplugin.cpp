@@ -33,6 +33,7 @@
 
 #include "gitplugin.h"
 #include "gitclient.h"
+#include "gitversioncontrol.h"
 #include "giteditor.h"
 #include "gitconstants.h"
 #include "changeselectiondialog.h"
@@ -117,7 +118,9 @@ GitPlugin::GitPlugin() :
     m_undoFileAction(0),
     m_undoProjectAction(0),
     m_showAction(0),
-    m_addAction(0),
+    m_stageAction(0),
+    m_unstageAction(0),
+    m_revertAction(0),
     m_commitAction(0),
     m_pullAction(0),
     m_pushAction(0),
@@ -125,6 +128,10 @@ GitPlugin::GitPlugin() :
     m_diffSelectedFilesAction(0),
     m_undoAction(0),
     m_redoAction(0),
+    m_stashAction(0),
+    m_stashPopAction(0),
+    m_stashListAction(0),
+    m_branchListAction(0),
     m_projectExplorer(0),
     m_gitClient(0),
     m_outputWindow(0),
@@ -132,6 +139,7 @@ GitPlugin::GitPlugin() :
     m_settingsPage(0),
     m_coreListener(0),
     m_submitEditorFactory(0),
+    m_versionControl(0),
     m_changeTmpFile(0)
 {
     Q_ASSERT(m_instance == 0);
@@ -170,6 +178,12 @@ GitPlugin::~GitPlugin()
         m_submitEditorFactory = 0;
     }
 
+    if (m_versionControl) {
+        removeObject(m_versionControl);
+        delete m_versionControl;
+        m_versionControl = 0;
+    }
+
     cleanChangeTmpFile();
     delete m_gitClient;
     m_instance = 0;
@@ -198,6 +212,15 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::DIFF_SELECTED
 };
 
+static inline Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
+                                              const QList<int> &context,
+                                              const QString &id,
+                                              QObject *parent)
+{
+    QAction *a = new QAction(parent);
+    a->setSeparator(true);
+    return  am->registerAction(a, id, context);
+}
 
 bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
 {
@@ -235,6 +258,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     m_submitEditorFactory = new GitSubmitEditorFactory(&submitParameters);
     addObject(m_submitEditorFactory);
 
+    m_versionControl = new GitVersionControl(m_gitClient);
+    addObject(m_versionControl);
+
     //register actions
     Core::ActionManagerInterface *actionManager = m_core->actionManager();
 
@@ -245,9 +271,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
         actionManager->createMenu(QLatin1String("Git"));
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
+    if (QAction *ma = gitContainer->menu()->menuAction()) {
+        ma->setEnabled(m_versionControl->isEnabled());
+        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+    }
 
     Core::ICommand *command;
-    QAction *tmpaction;
 
     m_diffAction = new QAction(tr("Diff current file"), this);
     command = actionManager->registerAction(m_diffAction, "Git.Diff", globalcontext);
@@ -284,17 +313,26 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     connect(m_undoFileAction, SIGNAL(triggered()), this, SLOT(undoFileChanges()));
     gitContainer->addAction(command);
 
-    m_addAction = new QAction(tr("Add File"), this);
-    command = actionManager->registerAction(m_addAction, "Git.Add", globalcontext);
+    m_stageAction = new QAction(tr("Stage file for commit"), this);
+    command = actionManager->registerAction(m_stageAction, "Git.Stage", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
     command->setAttribute(Core::ICommand::CA_UpdateText);
-    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addFile()));
+    connect(m_stageAction, SIGNAL(triggered()), this, SLOT(stageFile()));
     gitContainer->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = actionManager->registerAction(tmpaction, QLatin1String("Git.Sep.Project"), globalcontext);
+    m_unstageAction = new QAction(tr("Unstage file from commit"), this);
+    command = actionManager->registerAction(m_unstageAction, "Git.Unstage", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_unstageAction, SIGNAL(triggered()), this, SLOT(unstageFile()));
     gitContainer->addAction(command);
+
+    m_revertAction = new QAction(tr("Revert..."), this);
+    command = actionManager->registerAction(m_revertAction, "Git.Revert", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertFile()));
+    gitContainer->addAction(command);
+
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
 
     m_diffProjectAction = new QAction(tr("Diff current project"), this);
     command = actionManager->registerAction(m_diffProjectAction, "Git.DiffProject", globalcontext);
@@ -322,15 +360,26 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     connect(m_undoProjectAction, SIGNAL(triggered()), this, SLOT(undoProjectChanges()));
     gitContainer->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = actionManager->registerAction(tmpaction, QLatin1String("Git.Sep.Global"), globalcontext);
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
+
+    m_stashAction = new QAction(tr("Stash"), this);
+    m_stashAction->setToolTip("Saves the current state of your work.");
+    command = actionManager->registerAction(m_stashAction, "Git.Stash", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_stashAction, SIGNAL(triggered()), this, SLOT(stash()));
     gitContainer->addAction(command);
 
-    m_showAction = new QAction(tr("Show commit..."), this);
-    command = actionManager->registerAction(m_showAction, "Git.ShowCommit", globalcontext);
+    m_pullAction = new QAction(tr("Pull"), this);
+    command = actionManager->registerAction(m_pullAction, "Git.Pull", globalcontext);
     command->setAttribute(Core::ICommand::CA_UpdateText);
-    connect(m_showAction, SIGNAL(triggered()), this, SLOT(showCommit()));
+    connect(m_pullAction, SIGNAL(triggered()), this, SLOT(pull()));
+    gitContainer->addAction(command);
+
+    m_stashPopAction = new QAction(tr("Stash pop"), this);
+    m_stashAction->setToolTip("Restores changes saved to the stash list using \"Stash\".");
+    command = actionManager->registerAction(m_stashPopAction, "Git.StashPop", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_stashPopAction, SIGNAL(triggered()), this, SLOT(stashPop()));
     gitContainer->addAction(command);
 
     m_commitAction = new QAction(tr("Commit..."), this);
@@ -340,16 +389,30 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     connect(m_commitAction, SIGNAL(triggered()), this, SLOT(startCommit()));
     gitContainer->addAction(command);
 
-    m_pullAction = new QAction(tr("Pull"), this);
-    command = actionManager->registerAction(m_pullAction, "Git.Pull", globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
-    connect(m_pullAction, SIGNAL(triggered()), this, SLOT(pull()));
-    gitContainer->addAction(command);
-
     m_pushAction = new QAction(tr("Push"), this);
     command = actionManager->registerAction(m_pushAction, "Git.Push", globalcontext);
     command->setAttribute(Core::ICommand::CA_UpdateText);
     connect(m_pushAction, SIGNAL(triggered()), this, SLOT(push()));
+    gitContainer->addAction(command);
+
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Branch"), this));
+
+    m_branchListAction = new QAction(tr("List branches"), this);
+    command = actionManager->registerAction(m_branchListAction, "Git.BranchList", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_branchListAction, SIGNAL(triggered()), this, SLOT(branchList()));
+    gitContainer->addAction(command);
+
+    m_stashListAction = new QAction(tr("List stashes"), this);
+    command = actionManager->registerAction(m_stashListAction, "Git.StashList", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_stashListAction, SIGNAL(triggered()), this, SLOT(stashList()));
+    gitContainer->addAction(command);
+
+    m_showAction = new QAction(tr("Show commit..."), this);
+    command = actionManager->registerAction(m_showAction, "Git.ShowCommit", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_showAction, SIGNAL(triggered()), this, SLOT(showCommit()));
     gitContainer->addAction(command);
 
     // Submit editor
@@ -357,7 +420,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     submitContext.push_back(m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::C_GITSUBMITEDITOR)));
     m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
-    // TODO
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_diffSelectedFilesAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
@@ -383,12 +445,6 @@ void GitPlugin::extensionsInitialized()
     m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
-bool GitPlugin::vcsOpen(const QString &fileName)
-{
-    Q_UNUSED(fileName);
-    return false;
-}
-
 void GitPlugin::submitEditorDiff(const QStringList &files)
 {
     if (files.empty())
@@ -412,7 +468,7 @@ void GitPlugin::diffCurrentProject()
     m_gitClient->diff(workingDirectory, QString());
 }
 
-QFileInfo GitPlugin::currentFile()
+QFileInfo GitPlugin::currentFile() const
 {
     QString fileName = m_core->fileManager()->currentFile();
     QFileInfo fileInfo(fileName);
@@ -495,12 +551,26 @@ void GitPlugin::undoProjectChanges()
     m_gitClient->hardReset(workingDirectory, QString());
 }
 
-void GitPlugin::addFile()
+void GitPlugin::stageFile()
 {
-    QFileInfo fileInfo = currentFile();
-    QString fileName = fileInfo.fileName();
-    QString workingDirectory = fileInfo.absolutePath();
+    const QFileInfo fileInfo = currentFile();
+    const QString fileName = fileInfo.fileName();
+    const QString workingDirectory = fileInfo.absolutePath();
     m_gitClient->addFile(workingDirectory, fileName);
+}
+
+void GitPlugin::unstageFile()
+{
+    const QFileInfo fileInfo = currentFile();
+    const QString fileName = fileInfo.fileName();
+    const QString workingDirectory = fileInfo.absolutePath();
+    m_gitClient->synchronousReset(workingDirectory, QStringList(fileName));
+}
+
+void GitPlugin::revertFile()
+{
+    const QFileInfo fileInfo = currentFile();
+    m_gitClient->revert(QStringList(fileInfo.absoluteFilePath()));
 }
 
 void GitPlugin::startCommit()
@@ -528,7 +598,7 @@ void GitPlugin::startCommit()
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
-    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.commitFiles);
+    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles);
 
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
@@ -560,7 +630,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     Q_ASSERT(submitEditor);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
-    m_submitCurrentAction->setEnabled(!cd.commitFiles.empty());
+    m_submitCurrentAction->setEnabled(!cd.stagedFiles.empty());
     m_diffSelectedFilesAction->setEnabled(false);
     m_undoAction->setEnabled(false);
     m_redoAction->setEnabled(false);
@@ -627,26 +697,52 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 
 void GitPlugin::pull()
 {
-    QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
-    m_gitClient->pull(workingDirectory);
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->pull(workingDirectory);
 }
 
 void GitPlugin::push()
 {
-    QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
-    m_gitClient->push(workingDirectory);
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->push(workingDirectory);
+}
+
+void GitPlugin::stash()
+{
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->stash(workingDirectory);
+}
+
+void GitPlugin::stashPop()
+{
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->stashPop(workingDirectory);
+}
+
+void GitPlugin::branchList()
+{
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->branchList(workingDirectory);
+}
+
+void GitPlugin::stashList()
+{
+    const QString workingDirectory = getWorkingDirectory();
+    if (!workingDirectory.isEmpty())
+        m_gitClient->stashList(workingDirectory);
 }
 
 void GitPlugin::updateActions()
 {
-    QFileInfo current = currentFile();
+    const QFileInfo current = currentFile();
     const QString fileName = current.fileName();
     const QString currentDirectory = getWorkingDirectory();
-    QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
+    const QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
     // First check for file commands and if the current file is inside
     // a Git-repository
     m_diffAction->setText(tr("Diff %1").arg(fileName));
@@ -654,7 +750,9 @@ void GitPlugin::updateActions()
     m_logAction->setText(tr("Log %1").arg(fileName));
     m_blameAction->setText(tr("Blame %1").arg(fileName));
     m_undoFileAction->setText(tr("Undo changes for %1").arg(fileName));
-    m_addAction->setText(tr("Add %1").arg(fileName));
+    m_stageAction->setText(tr("Stage %1 for commit").arg(fileName));
+    m_unstageAction->setText(tr("Unstage %1 from commit").arg(fileName));
+    m_revertAction->setText(tr("Revert %1...").arg(fileName));
     if (repository.isEmpty()) {
         // If the file is not in a repository, the corresponding project will
         // be neither and we can disable everything and return
@@ -663,7 +761,9 @@ void GitPlugin::updateActions()
         m_logAction->setEnabled(false);
         m_blameAction->setEnabled(false);
         m_undoFileAction->setEnabled(false);
-        m_addAction->setEnabled(false);
+        m_stageAction->setEnabled(false);
+        m_unstageAction->setEnabled(false);
+        m_revertAction->setEnabled(false);
         m_diffProjectAction->setEnabled(false);
         m_diffProjectAction->setText(tr("Diff Project"));
         m_statusProjectAction->setText(tr("Status Project"));
@@ -679,12 +779,14 @@ void GitPlugin::updateActions()
         m_logAction->setEnabled(true);
         m_blameAction->setEnabled(true);
         m_undoFileAction->setEnabled(true);
-        m_addAction->setEnabled(true);
+        m_stageAction->setEnabled(true);
+        m_unstageAction->setEnabled(true);
+        m_revertAction->setEnabled(true);
     }
 
     if (m_projectExplorer && m_projectExplorer->currentNode()
         && m_projectExplorer->currentNode()->projectNode()) {
-        QString name = QFileInfo(m_projectExplorer->currentNode()->projectNode()->path()).baseName();
+        const QString name = QFileInfo(m_projectExplorer->currentNode()->projectNode()->path()).baseName();
         m_diffProjectAction->setEnabled(true);
         m_diffProjectAction->setText(tr("Diff Project %1").arg(name));
         m_statusProjectAction->setEnabled(true);
@@ -718,6 +820,21 @@ void GitPlugin::showCommit()
         return;
 
     m_gitClient->show(m_changeSelectionDialog->m_ui.repositoryEdit->text(), change);
+}
+
+GitOutputWindow *GitPlugin::outputWindow() const
+{
+    return m_outputWindow;
+}
+
+GitSettings GitPlugin::settings() const
+{
+    return m_gitClient->settings();
+}
+
+void GitPlugin::setSettings(const GitSettings &s)
+{
+    m_gitClient->setSettings(s);
 }
 
 Q_EXPORT_PLUGIN(GitPlugin)

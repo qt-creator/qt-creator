@@ -35,6 +35,7 @@
 #include "consoleappwizard.h"
 #include "modulespage.h"
 
+#include <QtCore/QDebug>
 #include <utils/projectintropage.h>
 
 namespace Qt4ProjectManager {
@@ -51,13 +52,11 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
     Core::BaseFileWizard::setupWizard(this);
-    setOptions(QWizard::IndependentPages | QWizard::HaveNextButtonOnLastPage);
 
     m_introPage->setDescription(tr("This wizard generates a Qt4 console application "
                           "project. The application derives from QCoreApplication and does not "
                           "present a GUI. You can press 'Finish' at any point in time."));
 
-    m_introPage->setFinalPage(true);
     addPage(m_introPage);
 
     m_modulesPage->setModuleSelected(QLatin1String("core"));

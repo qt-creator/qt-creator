@@ -31,44 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#ifndef MAKESTEP_H
+#define MAKESTEP_H
 
-#include <coreplugin/iversioncontrol.h>
+#include <projectexplorer/abstractprocessstep.h>
 
-namespace Perforce {
+namespace CMakeProjectManager {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+class CMakeProject;
+
+class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
-    Q_OBJECT
 public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    MakeStep(CMakeProject *pro);
+    ~MakeStep();
+    virtual bool init(const QString &buildConfiguration);
 
-    virtual QString name() const;
+    virtual void run(QFutureInterface<bool> &fi);
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
-
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
-
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-
-signals:
-    void enabledChanged(bool);
-
+    virtual QString name();
+    virtual QString displayName();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    virtual bool immutable() const;
 private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
+    CMakeProject *m_pro;
 };
 
-} // Internal
-} // Perforce
+class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+{
+public:
+    virtual QString displayName() const;
+    virtual void init(const QString &buildConfiguration);
+};
 
-#endif // PERFORCEVERSIONCONTROL_H
+class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+{
+    virtual bool canCreate(const QString &name) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, const QString &name) const;
+    virtual QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    virtual QString displayNameForName(const QString &name) const;
+};
+
+}
+}
+
+#endif // MAKESTEP_H

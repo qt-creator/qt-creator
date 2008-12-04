@@ -125,6 +125,7 @@ struct SynchronousProcessPrivate {
     SynchronousProcessResponse m_result;
     int m_hangTimerCount;
     int m_maxHangTimerCount;
+    bool m_startFailure;
 
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
@@ -133,7 +134,8 @@ struct SynchronousProcessPrivate {
 SynchronousProcessPrivate::SynchronousProcessPrivate() :
     m_stdOutCodec(0),
     m_hangTimerCount(0),
-    m_maxHangTimerCount(defaultMaxHangTimerCount)
+    m_maxHangTimerCount(defaultMaxHangTimerCount),
+    m_startFailure(false)
 {
 }
 
@@ -143,6 +145,7 @@ void SynchronousProcessPrivate::clearForRun()
     m_stdOut.clearForRun();
     m_stdErr.clearForRun();
     m_result.clear();
+    m_startFailure = false;
 }
 
 // ----------- SynchronousProcess
@@ -221,22 +224,26 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
         qDebug() << '>' << Q_FUNC_INFO << binary << args;
 
     m_d->clearForRun();
-    m_d->m_timer.start();
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-
+    // On Windows, start failure is triggered immediately if the
+    // executable cannot be found in the path. Do not start the
+    // event loop in that case.
     m_d->m_process.start(binary, args, QIODevice::ReadOnly);
-    m_d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-    if (m_d->m_result.result == SynchronousProcessResponse::Finished || m_d->m_result.result == SynchronousProcessResponse::FinishedError) {
-        processStdOut(false);
-        processStdErr(false);
+    if (!m_d->m_startFailure) {
+        m_d->m_timer.start();
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        m_d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+        if (m_d->m_result.result == SynchronousProcessResponse::Finished || m_d->m_result.result == SynchronousProcessResponse::FinishedError) {
+            processStdOut(false);
+            processStdErr(false);
+        }
+
+        m_d->m_result.stdOut = convertStdOut(m_d->m_stdOut.data);
+        m_d->m_result.stdErr = convertStdErr(m_d->m_stdErr.data);
+
+        m_d->m_timer.stop();
+        QApplication::restoreOverrideCursor();
     }
-
-    m_d->m_result.stdOut = convertStdOut(m_d->m_stdOut.data);
-    m_d->m_result.stdErr = convertStdErr(m_d->m_stdErr.data);
-
-    m_d->m_timer.stop();
-    QApplication::restoreOverrideCursor();
 
     if (debug)
         qDebug() << '<' << Q_FUNC_INFO << binary << m_d->m_result;
@@ -246,12 +253,14 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
 void SynchronousProcess::slotTimeout()
 {
     if (++m_d->m_hangTimerCount > m_d->m_maxHangTimerCount) {
+        if (debug)
+            qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_d->m_process.kill();
         m_d->m_result.result = SynchronousProcessResponse::Hang;
+    } else {
+        if (debug)
+            qDebug() << Q_FUNC_INFO << m_d->m_hangTimerCount;
     }
-
-    if (debug)
-        qDebug() << Q_FUNC_INFO << m_d->m_hangTimerCount;
 }
 
 void SynchronousProcess::finished(int exitCode, QProcess::ExitStatus e)
@@ -265,7 +274,9 @@ void SynchronousProcess::finished(int exitCode, QProcess::ExitStatus e)
         m_d->m_result.exitCode = exitCode;
         break;
     case QProcess::CrashExit:
-        m_d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
+        // Was hang detected before and killed?
+        if (m_d->m_result.result != SynchronousProcessResponse::Hang)
+            m_d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
         m_d->m_result.exitCode = -1;
         break;
     }
@@ -277,7 +288,10 @@ void SynchronousProcess::error(QProcess::ProcessError e)
     m_d->m_hangTimerCount = 0;
     if (debug)
         qDebug() << Q_FUNC_INFO << e;
-    m_d->m_result.result = SynchronousProcessResponse::StartFailed;
+    // Was hang detected before and killed?
+    if (m_d->m_result.result != SynchronousProcessResponse::Hang)
+        m_d->m_result.result = SynchronousProcessResponse::StartFailed;
+    m_d->m_startFailure = true;
     m_d->m_eventLoop.quit();
 }
 

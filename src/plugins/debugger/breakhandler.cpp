@@ -231,6 +231,11 @@ BreakHandler::BreakHandler(QObject *parent)
 {
 }
 
+BreakHandler::~BreakHandler()
+{
+    clear();
+}
+
 int BreakHandler::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 6;

@@ -31,44 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#include "gitsettings.h"
 
-#include <coreplugin/iversioncontrol.h>
+#include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
-namespace Perforce {
+static const char *groupC = "Git";
+static const char *sysEnvKeyC = "SysEnv";
+static const char *pathKeyC = "Path";
+static const char *logCountKeyC = "LogCount";
+
+enum { defaultLogCount =  10 };
+
+namespace Git {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+GitSettings::GitSettings() :
+    adoptPath(false),
+    logCount(defaultLogCount)
 {
-    Q_OBJECT
-public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+}
 
-    virtual QString name() const;
+void GitSettings::fromSettings(QSettings *settings)
+{
+    settings->beginGroup(QLatin1String(groupC));
+    adoptPath = settings->value(QLatin1String(sysEnvKeyC), false).toBool();
+    path = settings->value(QLatin1String(pathKeyC), QString()).toString();
+    logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
+    settings->endGroup();
+}
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
+void GitSettings::toSettings(QSettings *settings) const
+{
+    settings->beginGroup(QLatin1String(groupC));
+    settings->setValue(QLatin1String(sysEnvKeyC), adoptPath);
+    settings->setValue(QLatin1String(pathKeyC), path);
+    settings->setValue(QLatin1String(logCountKeyC), logCount);
+    settings->endGroup();
+}
 
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
+bool GitSettings::equals(const GitSettings &s) const
+{
+    return adoptPath == s.adoptPath  && path == s.path && logCount == s.logCount;
+}
 
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-
-signals:
-    void enabledChanged(bool);
-
-private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
-};
-
-} // Internal
-} // Perforce
-
-#endif // PERFORCEVERSIONCONTROL_H
+}
+}

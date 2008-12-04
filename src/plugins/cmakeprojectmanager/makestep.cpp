@@ -31,55 +31,55 @@
 **
 ***************************************************************************/
 
-#include "cmakestep.h"
+#include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
-CMakeStep::CMakeStep(CMakeProject *pro)
+MakeStep::MakeStep(CMakeProject *pro)
     : AbstractProcessStep(pro), m_pro(pro)
 {
 
 }
 
-CMakeStep::~CMakeStep()
+MakeStep::~MakeStep()
 {
 
 }
 
-bool CMakeStep::init(const QString &buildConfiguration)
+bool MakeStep::init(const QString &buildConfiguration)
 {
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
-    setCommand(buildConfiguration, "cmake"); // TODO give full path here?
+    setCommand(buildConfiguration, "make"); // TODO give full path here?
     setArguments(buildConfiguration, QStringList()); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
 
-void CMakeStep::run(QFutureInterface<bool> &fi)
+void MakeStep::run(QFutureInterface<bool> &fi)
 {
     AbstractProcessStep::run(fi);
 }
 
-QString CMakeStep::name()
+QString MakeStep::name()
 {
-    return "CMake";
+    return "Make";
 }
 
-QString CMakeStep::displayName()
+QString MakeStep::displayName()
 {
     return Constants::CMAKESTEP;
 }
 
-ProjectExplorer::BuildStepConfigWidget *CMakeStep::createConfigWidget()
+ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
-    return new CMakeBuildStepConfigWidget();
+    return new MakeBuildStepConfigWidget();
 }
 
-bool CMakeStep::immutable() const
+bool MakeStep::immutable() const
 {
     return true;
 }
@@ -88,40 +88,40 @@ bool CMakeStep::immutable() const
 // CMakeBuildStepConfigWidget
 //
 
-QString CMakeBuildStepConfigWidget::displayName() const
+QString MakeBuildStepConfigWidget::displayName() const
 {
-    return "CMake";
+    return "Make";
 }
 
-void CMakeBuildStepConfigWidget::init(const QString &buildConfiguration)
+void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 {
     // TODO
 }
 
 //
-// CMakeBuildStepFactory
+// MakeBuildStepFactory
 //
 
-bool CMakeBuildStepFactory::canCreate(const QString &name) const
+bool MakeBuildStepFactory::canCreate(const QString &name) const
 {
-    return (Constants::CMAKESTEP == name);
+    return (Constants::MAKESTEP == name);
 }
 
-ProjectExplorer::BuildStep *CMakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
+ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
-    Q_ASSERT(name == Constants::CMAKESTEP);
+    Q_ASSERT(name == Constants::MAKESTEP);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     Q_ASSERT(pro);
-    return new CMakeStep(pro);
+    return new MakeStep(pro);
 }
 
-QStringList CMakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+QStringList MakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
 {
     return QStringList();
 }
 
-QString CMakeBuildStepFactory::displayNameForName(const QString &name) const
+QString MakeBuildStepFactory::displayNameForName(const QString &name) const
 {
-    return "CMake";
+    return "Make";
 }
 

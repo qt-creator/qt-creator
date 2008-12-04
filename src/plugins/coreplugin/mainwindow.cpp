@@ -127,6 +127,7 @@ MainWindow::MainWindow() :
     m_mimeDatabase(new MimeDatabase),
     m_navigationWidget(0),
     m_rightPaneWidget(0),
+    m_versionDialog(0),
     m_activeContext(0),
     m_pluginManager(0),
     m_outputPane(new OutputPane(m_globalContext)),
@@ -1085,8 +1086,20 @@ void MainWindow::openRecentFile()
 
 void MainWindow::aboutQtCreator()
 {
-    VersionDialog versionDialog(this);
-    versionDialog.exec();
+    if (!m_versionDialog) {
+        m_versionDialog = new VersionDialog(this);
+        connect(m_versionDialog, SIGNAL(finished(int)),
+                this, SLOT(destroyVersionDialog()));
+    }
+    m_versionDialog->show();
+}
+
+void MainWindow::destroyVersionDialog()
+{
+    if (m_versionDialog) {
+        m_versionDialog->deleteLater();
+        m_versionDialog = 0;
+    }
 }
 
 void MainWindow::aboutPlugins()

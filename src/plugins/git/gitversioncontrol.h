@@ -31,21 +31,22 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#ifndef GITVERSIONCONTROL_H
+#define GITVERSIONCONTROL_H
 
 #include <coreplugin/iversioncontrol.h>
 
-namespace Perforce {
+namespace Git {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+class GitClient;
+
+// Just a proxy for GitPlugin
+class GitVersionControl : public Core::IVersionControl
 {
     Q_OBJECT
 public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    explicit GitVersionControl(GitClient *plugin);
 
     virtual QString name() const;
 
@@ -65,10 +66,10 @@ signals:
 
 private:
     bool m_enabled;
-    PerforcePlugin *m_plugin;
+    GitClient *m_client;
 };
 
 } // Internal
-} // Perforce
+} // Git
 
-#endif // PERFORCEVERSIONCONTROL_H
+#endif // GITVERSIONCONTROL_H

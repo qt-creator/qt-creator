@@ -84,7 +84,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project,
         : ProjectNode(filePath),
           m_core(project->qt4ProjectManager()->core()),
           m_project(project),
-          m_projectFilePath(filePath),
+          m_projectFilePath(QDir::fromNativeSeparators(filePath)),
           m_projectDir(QFileInfo(filePath).absolutePath()),
           m_includeFile(0),
           m_saveTimer(new QTimer(this)),
@@ -265,46 +265,18 @@ bool Qt4PriFileNode::changeIncludes(ProFile *includeFile, const QStringList &pro
     return false;
 }
 
-
-namespace {
-    enum ReadOnlyAction { RO_Cancel, RO_OpenSCC, RO_MakeWriteable };
-}
-
-static ReadOnlyAction promptReadOnly(const QString &fileName, bool hasSCC, QWidget *parent)
-{
-    QMessageBox msgBox(QMessageBox::Question, QObject::tr("File is Read Only"),
-                       QObject::tr("The file %1 is read only.").arg(fileName),
-                       QMessageBox::Cancel, parent);
-
-    QPushButton *sccButton = 0;
-    if (hasSCC)
-        sccButton = msgBox.addButton(QObject::tr("Open with SCC"), QMessageBox::AcceptRole);
-    QPushButton *makeWritableButton =  msgBox.addButton(QObject::tr("Make writable"), QMessageBox::AcceptRole);
-    if (hasSCC)
-        msgBox.setDefaultButton(sccButton);
-    else
-        msgBox.setDefaultButton(makeWritableButton);
-    msgBox.exec();
-    QAbstractButton *clickedButton = msgBox.clickedButton();
-    if (clickedButton == sccButton)
-        return RO_OpenSCC;
-    if (clickedButton == makeWritableButton)
-        return RO_MakeWriteable;
-    return  RO_Cancel;
-}
-
 bool Qt4PriFileNode::priFileWritable(const QString &path)
 {
     const QString dir = QFileInfo(path).dir().path();
     Core::IVersionControl *versionControl = m_core->vcsManager()->findVersionControlForDirectory(dir);
-    switch (promptReadOnly(path, versionControl != 0, m_core->mainWindow())) {
-    case RO_OpenSCC:
+    switch (Core::EditorManager::promptReadOnlyFile(path, versionControl, m_core->mainWindow(), false)) {
+    case Core::EditorManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(path)) {
             QMessageBox::warning(m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for edit with SCC."));
             return false;
         }
         break;
-    case RO_MakeWriteable: {
+    case Core::EditorManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(path, QFile::permissions(path) | QFile::WriteUser);
         if (!permsOk) {
             QMessageBox::warning(m_core->mainWindow(), tr("Failed!"),  tr("Could not set permissions to writable."));
@@ -312,9 +284,9 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
         }
         break;
     }
-    case RO_Cancel: {
+    case Core::EditorManager::RO_SaveAs:
+    case Core::EditorManager::RO_Cancel:
         return false;
-    }
     }
     return true;
 }
@@ -457,7 +429,8 @@ void Qt4PriFileNode::save()
     if (modifiedFileHandle)
         fileManager->blockFileChange(modifiedFileHandle);
     ProWriter pw;
-    bool ok = pw.write(m_includeFile, m_includeFile->fileName());
+    const bool ok = pw.write(m_includeFile, m_includeFile->fileName());
+    Q_UNUSED(ok)
     m_includeFile->setModified(false);
     m_project->qt4ProjectManager()->notifyChanged(m_includeFile->fileName());
     if (modifiedFileHandle)

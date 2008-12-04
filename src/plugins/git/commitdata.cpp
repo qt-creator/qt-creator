@@ -80,16 +80,16 @@ void CommitData::clear()
     panelInfo.clear();
     panelData.clear();
 
-    commitFiles.clear();
-    notUpdatedFiles.clear();
+    stagedFiles.clear();
+    unstagedFiles.clear();
     untrackedFiles.clear();
 }
 
 QDebug operator<<(QDebug d, const CommitData &data)
 {
     d <<  data.panelInfo << data.panelData;
-    d.nospace() << "Commit: " << data.commitFiles << " Not updated: "
-        << data.notUpdatedFiles << " Untracked: " << data.untrackedFiles;
+    d.nospace() << "Commit: " << data.stagedFiles << " Not updated: "
+        << data.unstagedFiles << " Untracked: " << data.untrackedFiles;
     return d;
 }
 
