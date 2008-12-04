@@ -113,6 +113,7 @@ class BreakHandler : public QAbstractItemModel
 
 public:
     explicit BreakHandler(QObject *parent = 0);
+    ~BreakHandler();
 
     void removeAllBreakpoints();
     void setAllPending();
