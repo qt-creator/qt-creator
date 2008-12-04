@@ -31,15 +31,10 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef GITSETTINGS_H
+#define GITSETTINGS_H
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include "ui_settingspage.h"
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -48,42 +43,27 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-struct GitSettings;
-
-class SettingsPageWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
-
-    GitSettings settings() const;
-    void setSettings(const GitSettings &);
-
-private slots:
-    void setSystemPath();
-
-private:
-    Ui::SettingsPage m_ui;
-};
-
-class SettingsPage : public Core::IOptionsPage
+// Todo: Add user name and password?
+struct GitSettings
 {
-    Q_OBJECT
+    GitSettings();
 
-public:
-    SettingsPage();
+    void fromSettings(QSettings *);
+    void toSettings(QSettings *) const;
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
+    bool equals(const GitSettings &s) const;
 
-    QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
-
-private:
-    QPointer<SettingsPageWidget> m_widget;
+    bool adoptPath;
+    QString path;
+    int logCount;
 };
+
+inline bool operator==(const GitSettings &p1, const GitSettings &p2)
+    { return p1.equals(p2); }
+inline bool operator!=(const GitSettings &p1, const GitSettings &p2)
+    { return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace Git
 
-#endif // SETTINGSPAGE_H
+#endif // GITSETTINGS_H

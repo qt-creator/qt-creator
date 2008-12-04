@@ -34,6 +34,8 @@
 #ifndef GITCLIENT_H
 #define GITCLIENT_H
 
+#include "gitsettings.h"
+
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <projectexplorer/environment.h>
@@ -91,6 +93,11 @@ public:
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
+    void stash(const QString &workingDirectory);
+    void stashPop(const QString &workingDirectory);
+    void branchList(const QString &workingDirectory);
+    void stashList(const QString &workingDirectory);
+
     QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar);
@@ -106,10 +113,19 @@ public:
                       const QStringList &checkedFiles,
                       const QStringList &origCommitFiles);
 
+    GitSettings  settings() const;
+    void setSettings(const GitSettings &s);
+
 public slots:
     void show(const QString &source, const QString &id);
 
 private:
+    enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
+    StatusResult gitStatus(const QString &workingDirectory,
+                           bool untracked,
+                           QString *output = 0,
+                           QString *errorMessage = 0);
+
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
                                                  QString title,
                                                  const QString &source,
@@ -132,6 +148,7 @@ private:
     const QString m_msgWait;
     GitPlugin     *m_plugin;
     Core::ICore   *m_core;
+    GitSettings   m_settings;
 };
 
 class GitCommand : public QObject

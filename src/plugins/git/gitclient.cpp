@@ -88,6 +88,8 @@ GitClient::GitClient(GitPlugin* plugin, Core::ICore *core) :
     m_plugin(plugin),
     m_core(core)
 {
+    if (QSettings *s = m_core->settings())
+        m_settings.fromSettings(s);
 }
 
 GitClient::~GitClient()
@@ -178,7 +180,7 @@ void GitClient::diff(const QString &workingDirectory, const QStringList &fileNam
     const QString title = tr("Git Diff");
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDirectory, true, "originalFileName", workingDirectory);
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, editor);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), editor);
 
 }
 
@@ -196,27 +198,26 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
     const QString sourceFile = source(workingDirectory, fileName);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "originalFileName", sourceFile);
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, editor);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), editor);
 }
 
 void GitClient::status(const QString &workingDirectory)
 {
     QStringList statusArgs(QLatin1String("status"));
     statusArgs << QLatin1String("-u");
-    executeGit(workingDirectory, statusArgs, m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, statusArgs, m_plugin->outputWindow(), 0,true);
 }
 
 void GitClient::log(const QString &workingDirectory, const QString &fileName)
 {
     if (Git::Constants::debug)
         qDebug() << "log" << workingDirectory << fileName;
-    QStringList arguments;
-    int logCount = 10;
-    if (m_plugin->m_settingsPage && m_plugin->m_settingsPage->logCount() > 0)
-        logCount = m_plugin->m_settingsPage->logCount();
 
-    arguments << QLatin1String("log") << QLatin1String("-n")
-        << QString::number(logCount);
+    QStringList arguments(QLatin1String("log"));
+
+    if (m_settings.logCount > 0)
+         arguments << QLatin1String("-n") << QString::number(m_settings.logCount);
+
     if (!fileName.isEmpty())
         arguments << fileName;
 
@@ -224,7 +225,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName)
     const QString kind = QLatin1String(Git::Constants::GIT_LOG_EDITOR_KIND);
     const QString sourceFile = source(workingDirectory, fileName);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, false, "logFileName", sourceFile);
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, editor);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), editor);
 }
 
 void GitClient::show(const QString &source, const QString &id)
@@ -240,7 +241,7 @@ void GitClient::show(const QString &source, const QString &id)
 
     const QFileInfo sourceFi(source);
     const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
-    executeGit(workDir, arguments, m_plugin->m_outputWindow, editor);
+    executeGit(workDir, arguments, m_plugin->outputWindow(), editor);
 }
 
 void GitClient::blame(const QString &workingDirectory, const QString &fileName)
@@ -255,7 +256,7 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName)
     const QString sourceFile = source(workingDirectory, fileName);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "blameFileName", sourceFile);
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, editor);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), editor);
 }
 
 void GitClient::checkout(const QString &workingDirectory, const QString &fileName)
@@ -269,7 +270,7 @@ void GitClient::checkout(const QString &workingDirectory, const QString &fileNam
     arguments << QLatin1String("checkout") << QLatin1String("HEAD") << QLatin1String("--")
             << fileName;
 
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0,true);
 }
 
 void GitClient::hardReset(const QString &workingDirectory, const QString &commit)
@@ -279,7 +280,7 @@ void GitClient::hardReset(const QString &workingDirectory, const QString &commit
     if (!commit.isEmpty())
         arguments << commit;
 
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0,true);
 }
 
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
@@ -287,7 +288,7 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
     QStringList arguments;
     arguments << QLatin1String("add") << fileName;
 
-    executeGit(workingDirectory, arguments, m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0,true);
 }
 
 bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
@@ -302,8 +303,8 @@ bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringLis
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
                                      arg(workingDirectory, QString::fromLocal8Bit(errorText));
-        m_plugin->m_outputWindow->append(errorMessage);
-        m_plugin->m_outputWindow->popup(false);
+        m_plugin->outputWindow()->append(errorMessage);
+        m_plugin->outputWindow()->popup(false);
     }
     return rc;
 }
@@ -319,14 +320,14 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     arguments << QLatin1String("reset") << QLatin1String("HEAD") << QLatin1String("--") << files;
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = QString::fromLocal8Bit(outputText);
-    m_plugin->m_outputWindow->popup(false);
-    m_plugin->m_outputWindow->append(output);
+    m_plugin->outputWindow()->popup(false);
+    m_plugin->outputWindow()->append(output);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     if (!rc && !output.contains(QLatin1String("modified"))) {
         const QString errorMessage = tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).
                                      arg(workingDirectory, QString::fromLocal8Bit(errorText));
-        m_plugin->m_outputWindow->append(errorMessage);
+        m_plugin->outputWindow()->append(errorMessage);
         return false;
     }
     return true;
@@ -339,13 +340,13 @@ void GitClient::executeGit(const QString &workingDirectory, const QStringList &a
     if (Git::Constants::debug)
         qDebug() << "executeGit" << workingDirectory << arguments << editor;
 
-    m_plugin->m_outputWindow->append(formatCommand(QLatin1String(kGitCommand), arguments));
+    m_plugin->outputWindow()->append(formatCommand(QLatin1String(kGitCommand), arguments));
 
     QProcess process;
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
 
-    if (m_plugin->m_settingsPage && !m_plugin->m_settingsPage->adoptEnvironment())
-        environment.set(QLatin1String("PATH"), m_plugin->m_settingsPage->path());
+    if (m_settings.adoptPath)
+        environment.set(QLatin1String("PATH"), m_settings.path);
 
     GitCommand* command = new GitCommand();
     if (outputToWindow) {
@@ -373,14 +374,14 @@ bool GitClient::synchronousGit(const QString &workingDirectory
         qDebug() << "synchronousGit" << workingDirectory << arguments;
     const QString binary = QLatin1String(kGitCommand);
 
-    m_plugin->m_outputWindow->append(formatCommand(binary, arguments));
+    m_plugin->outputWindow()->append(formatCommand(binary, arguments));
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
 
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-    if (m_plugin->m_settingsPage && !m_plugin->m_settingsPage->adoptEnvironment())
-        environment.set(QLatin1String("PATH"), m_plugin->m_settingsPage->path());
+    if (m_settings.adoptPath)
+        environment.set(QLatin1String("PATH"), m_settings.path);
     process.setEnvironment(environment.toStringList());
 
     process.start(binary, arguments);
@@ -415,6 +416,34 @@ static inline QString trimFileSpecification(QString fileSpec)
             fileSpec.remove(filePos, nonBlankPos - filePos);
     }
     return fileSpec;
+}
+
+GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
+                                             bool untracked,
+                                             QString *output,
+                                             QString *errorMessage)
+{
+    // Run 'status'. Note that git returns exitcode 1 if there are no added files.
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList statusArgs(QLatin1String("status"));
+    if (untracked)
+        statusArgs << QLatin1String("-u");
+    const bool statusRc = synchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    if (output)
+        *output = QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r'));
+    // Is it something really fatal?
+    if (!statusRc && !outputText.contains(kBranchIndicatorC)) {
+        if (errorMessage) {
+            const QString error = QString::fromLocal8Bit(errorText).remove(QLatin1Char('\r'));
+            *errorMessage = tr("Unable to obtain the status: %1").arg(error);
+        }
+        return StatusFailed;
+    }
+    // Unchanged?
+    if (outputText.contains("nothing to commit"))
+        return StatusUnchanged;
+    return StatusChanged;
 }
 
 /* Parse a git status file list:
@@ -517,24 +546,15 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     }
 
     // Run status. Note that it has exitcode 1 if there are no added files.
-    QByteArray outputText;
-    QByteArray errorText;
-    QStringList statusArgs(QLatin1String("status"));
-
-    if (untrackedFilesInCommit)
-        statusArgs << QLatin1String("-u");
-    const bool statusRc = synchronousGit(repoDirectory, statusArgs, &outputText, &errorText);
-    if (!statusRc) {
-        // Something fatal
-        if (!outputText.contains(kBranchIndicatorC)) {
-            *errorMessage = tr("Unable to obtain the project status: %1").arg(QString::fromLocal8Bit(errorText));
-            return false;
-        }
-        // All unchanged
-        if (outputText.contains("nothing to commit")) {
-            *errorMessage = tr("There are no modified files.");
-            return false;
-        }
+    QString output;
+    switch (gitStatus(repoDirectory, untrackedFilesInCommit, &output, errorMessage)) {
+    case  StatusChanged:
+        break;
+    case StatusUnchanged:
+        *errorMessage = tr("There are no modified files.");
+        return false;
+    case StatusFailed:
+        return false;
     }
 
     //    Output looks like:
@@ -555,7 +575,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #
     //    #       list of files...
 
-    const QStringList lines = QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r')).split(QLatin1Char('\n'));
+    const QStringList lines = output.split(QLatin1Char('\n'));
     if (!parseFiles(lines, d)) {
         *errorMessage = tr("Unable to parse the file output.");
         return false;
@@ -610,22 +630,62 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     QByteArray errorText;
     const bool rc = synchronousGit(repositoryDirectory, args, &outputText, &errorText);
     const QString message = rc ?
-        tr("Committed %n file(s).", 0, checkedFiles.size()) :
-        tr("Unable to commit %n file(s): %1", 0, checkedFiles.size()).arg(QString::fromLocal8Bit(errorText));
+        tr("Committed %n file(s).\n", 0, checkedFiles.size()) :
+        tr("Unable to commit %n file(s): %1\n", 0, checkedFiles.size()).arg(QString::fromLocal8Bit(errorText));
 
-    m_plugin->m_outputWindow->append(message);
-    m_plugin->m_outputWindow->popup(false);
+    m_plugin->outputWindow()->append(message);
+    m_plugin->outputWindow()->popup(false);
     return rc;
 }
 
 void GitClient::pull(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("pull")), m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, QStringList(QLatin1String("pull")), m_plugin->outputWindow(), 0, true);
 }
 
 void GitClient::push(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("push")), m_plugin->m_outputWindow, 0,true);
+    executeGit(workingDirectory, QStringList(QLatin1String("push")), m_plugin->outputWindow(), 0, true);
+}
+
+void GitClient::stash(const QString &workingDirectory)
+{
+    // Check for changes and stash
+    QString errorMessage;
+    switch (gitStatus(workingDirectory, false, 0, &errorMessage)) {
+    case  StatusChanged:
+        executeGit(workingDirectory, QStringList(QLatin1String("stash")), m_plugin->outputWindow(), 0, true);
+        break;
+    case StatusUnchanged:
+        m_plugin->outputWindow()->append(tr("There are no modified files."));
+        m_plugin->outputWindow()->popup();
+        break;
+    case StatusFailed:
+        m_plugin->outputWindow()->append(errorMessage);
+        m_plugin->outputWindow()->popup();
+        break;
+    }
+}
+
+void GitClient::stashPop(const QString &workingDirectory)
+{
+    QStringList arguments(QLatin1String("stash"));
+    arguments << QLatin1String("pop");
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0, true);
+}
+
+void GitClient::branchList(const QString &workingDirectory)
+{
+    QStringList arguments(QLatin1String("branch"));
+    arguments << QLatin1String("-r");
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0, true);
+}
+
+void GitClient::stashList(const QString &workingDirectory)
+{
+    QStringList arguments(QLatin1String("stash"));
+    arguments << QLatin1String("list");
+    executeGit(workingDirectory, arguments, m_plugin->outputWindow(), 0, true);
 }
 
 QString GitClient::readConfig(const QString &workingDirectory, const QStringList &configVar)
@@ -645,6 +705,21 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
     return readConfig(workingDirectory, QStringList(configVar)).remove(QLatin1Char('\n'));
 }
 
+GitSettings GitClient::settings() const
+{
+    return m_settings;
+}
+
+void GitClient::setSettings(const GitSettings &s)
+{
+    if (s != m_settings) {
+        m_settings = s;
+        if (QSettings *s = m_core->settings())
+            m_settings.toSettings(s);
+    }
+}
+
+// ------------------------ GitCommand
 GitCommand::GitCommand()
 {
 }

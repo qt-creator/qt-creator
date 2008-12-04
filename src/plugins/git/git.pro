@@ -18,7 +18,8 @@ HEADERS += gitplugin.h \
     annotationhighlighter.h \
     gitsubmiteditorwidget.h \
     gitsubmiteditor.h \
-    gitversioncontrol.h
+    gitversioncontrol.h \
+    gitsettings.h
 
 SOURCES += gitplugin.cpp \
     gitoutputwindow.cpp \
@@ -30,7 +31,8 @@ SOURCES += gitplugin.cpp \
     annotationhighlighter.cpp \
     gitsubmiteditorwidget.cpp \
     gitsubmiteditor.cpp \
-    gitversioncontrol.cpp
+    gitversioncontrol.cpp \
+    gitsettings.cpp
 
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
