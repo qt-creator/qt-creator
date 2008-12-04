@@ -31,52 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef INDEXWINDOW_H
-#define INDEXWINDOW_H
+#ifndef MAKESTEP_H
+#define MAKESTEP_H
 
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
-#include <QtGui/QLineEdit>
+#include <projectexplorer/abstractprocessstep.h>
 
-QT_BEGIN_NAMESPACE
+namespace CMakeProjectManager {
+namespace Internal {
 
-class QHelpIndexWidget;
-class QHelpEngine;
+class CMakeProject;
 
-class IndexWindow : public QWidget
+class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
-    Q_OBJECT
-
 public:
-    IndexWindow(QHelpEngine *helpEngine, QWidget *parent = 0);
-    ~IndexWindow();
+    MakeStep(CMakeProject *pro);
+    ~MakeStep();
+    virtual bool init(const QString &buildConfiguration);
 
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const
-    {
-        return m_searchLineEdit->text();
-    }
+    virtual void run(QFutureInterface<bool> &fi);
 
-signals:
-    void linkActivated(const QUrl &link);
-    void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
-    void escapePressed();
-
-private slots:
-    void filterIndices(const QString &filter);
-    void enableSearchLineEdit();
-    void disableSearchLineEdit();
-
+    virtual QString name();
+    virtual QString displayName();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    virtual bool immutable() const;
 private:
-    bool eventFilter(QObject *obj, QEvent *e);
-    void focusInEvent(QFocusEvent *e);
-
-    QLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
-    QHelpEngine *m_helpEngine;
+    CMakeProject *m_pro;
 };
 
-QT_END_NAMESPACE
+class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+{
+public:
+    virtual QString displayName() const;
+    virtual void init(const QString &buildConfiguration);
+};
 
-#endif // INDEXWINDOW_H
+class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+{
+    virtual bool canCreate(const QString &name) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, const QString &name) const;
+    virtual QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    virtual QString displayNameForName(const QString &name) const;
+};
+
+}
+}
+
+#endif // MAKESTEP_H

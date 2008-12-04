@@ -116,7 +116,9 @@ private slots:
     void                        logProject();
     void                        undoFileChanges();
     void                        undoProjectChanges();
-    void                        addFile();
+    void                        stageFile();
+    void                        unstageFile();
+    void                        revertFile();
 
     void                        showCommit();
     void                        startCommit();
@@ -144,7 +146,9 @@ private:
     QAction                     *m_undoFileAction;
     QAction                     *m_undoProjectAction;
     QAction                     *m_showAction;
-    QAction                     *m_addAction;
+    QAction                     *m_stageAction;
+    QAction                     *m_unstageAction;
+    QAction                     *m_revertAction;
     QAction                     *m_commitAction;
     QAction                     *m_pullAction;
     QAction                     *m_pushAction;

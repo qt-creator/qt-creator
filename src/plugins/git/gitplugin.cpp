@@ -118,7 +118,9 @@ GitPlugin::GitPlugin() :
     m_undoFileAction(0),
     m_undoProjectAction(0),
     m_showAction(0),
-    m_addAction(0),
+    m_stageAction(0),
+    m_unstageAction(0),
+    m_revertAction(0),
     m_commitAction(0),
     m_pullAction(0),
     m_pushAction(0),
@@ -311,11 +313,23 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     connect(m_undoFileAction, SIGNAL(triggered()), this, SLOT(undoFileChanges()));
     gitContainer->addAction(command);
 
-    m_addAction = new QAction(tr("Add File"), this);
-    command = actionManager->registerAction(m_addAction, "Git.Add", globalcontext);
+    m_stageAction = new QAction(tr("Stage file for commit"), this);
+    command = actionManager->registerAction(m_stageAction, "Git.Stage", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
     command->setAttribute(Core::ICommand::CA_UpdateText);
-    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addFile()));
+    connect(m_stageAction, SIGNAL(triggered()), this, SLOT(stageFile()));
+    gitContainer->addAction(command);
+
+    m_unstageAction = new QAction(tr("Unstage file from commit"), this);
+    command = actionManager->registerAction(m_unstageAction, "Git.Unstage", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_unstageAction, SIGNAL(triggered()), this, SLOT(unstageFile()));
+    gitContainer->addAction(command);
+
+    m_revertAction = new QAction(tr("Revert..."), this);
+    command = actionManager->registerAction(m_revertAction, "Git.Revert", globalcontext);
+    command->setAttribute(Core::ICommand::CA_UpdateText);
+    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertFile()));
     gitContainer->addAction(command);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
@@ -537,12 +551,26 @@ void GitPlugin::undoProjectChanges()
     m_gitClient->hardReset(workingDirectory, QString());
 }
 
-void GitPlugin::addFile()
+void GitPlugin::stageFile()
 {
-    QFileInfo fileInfo = currentFile();
-    QString fileName = fileInfo.fileName();
-    QString workingDirectory = fileInfo.absolutePath();
+    const QFileInfo fileInfo = currentFile();
+    const QString fileName = fileInfo.fileName();
+    const QString workingDirectory = fileInfo.absolutePath();
     m_gitClient->addFile(workingDirectory, fileName);
+}
+
+void GitPlugin::unstageFile()
+{
+    const QFileInfo fileInfo = currentFile();
+    const QString fileName = fileInfo.fileName();
+    const QString workingDirectory = fileInfo.absolutePath();
+    m_gitClient->synchronousReset(workingDirectory, QStringList(fileName));
+}
+
+void GitPlugin::revertFile()
+{
+    const QFileInfo fileInfo = currentFile();
+    m_gitClient->revert(QStringList(fileInfo.absoluteFilePath()));
 }
 
 void GitPlugin::startCommit()
@@ -570,7 +598,7 @@ void GitPlugin::startCommit()
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
-    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.commitFiles);
+    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles);
 
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
@@ -602,7 +630,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     Q_ASSERT(submitEditor);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
-    m_submitCurrentAction->setEnabled(!cd.commitFiles.empty());
+    m_submitCurrentAction->setEnabled(!cd.stagedFiles.empty());
     m_diffSelectedFilesAction->setEnabled(false);
     m_undoAction->setEnabled(false);
     m_redoAction->setEnabled(false);
@@ -722,7 +750,9 @@ void GitPlugin::updateActions()
     m_logAction->setText(tr("Log %1").arg(fileName));
     m_blameAction->setText(tr("Blame %1").arg(fileName));
     m_undoFileAction->setText(tr("Undo changes for %1").arg(fileName));
-    m_addAction->setText(tr("Add %1").arg(fileName));
+    m_stageAction->setText(tr("Stage %1 for commit").arg(fileName));
+    m_unstageAction->setText(tr("Unstage %1 from commit").arg(fileName));
+    m_revertAction->setText(tr("Revert %1...").arg(fileName));
     if (repository.isEmpty()) {
         // If the file is not in a repository, the corresponding project will
         // be neither and we can disable everything and return
@@ -731,7 +761,9 @@ void GitPlugin::updateActions()
         m_logAction->setEnabled(false);
         m_blameAction->setEnabled(false);
         m_undoFileAction->setEnabled(false);
-        m_addAction->setEnabled(false);
+        m_stageAction->setEnabled(false);
+        m_unstageAction->setEnabled(false);
+        m_revertAction->setEnabled(false);
         m_diffProjectAction->setEnabled(false);
         m_diffProjectAction->setText(tr("Diff Project"));
         m_statusProjectAction->setText(tr("Status Project"));
@@ -747,7 +779,9 @@ void GitPlugin::updateActions()
         m_logAction->setEnabled(true);
         m_blameAction->setEnabled(true);
         m_undoFileAction->setEnabled(true);
-        m_addAction->setEnabled(true);
+        m_stageAction->setEnabled(true);
+        m_unstageAction->setEnabled(true);
+        m_revertAction->setEnabled(true);
     }
 
     if (m_projectExplorer && m_projectExplorer->currentNode()

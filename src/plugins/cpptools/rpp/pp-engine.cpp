@@ -575,7 +575,17 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
 
                 const QByteArray spell = tokenSpell(*identifierToken);
                 if (env.isBuiltinMacro(spell)) {
+                    const Macro trivial;
+
+                    if (client)
+                        client->startExpandingMacro(identifierToken->offset,
+                                                    trivial, spell);
+
                     expand(spell.constBegin(), spell.constEnd(), result);
+
+                    if (client)
+                        client->stopExpandingMacro(_dot->offset, trivial);
+
                     continue;
                 }
 
@@ -585,18 +595,36 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                 } else {
                     if (! m->function_like) {
                         if (_dot->isNot(T_LPAREN)) {
+                            if (client)
+                                client->startExpandingMacro(identifierToken->offset,
+                                                            *m, spell);
+
                             m->hidden = true;
+
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    result);
+
+                            if (client)
+                                client->stopExpandingMacro(_dot->offset, *m);
+
                             m->hidden = false;
                             continue;
                         } else {
                             QByteArray tmp;
                             m->hidden = true;
+
+                            if (client)
+                                client->startExpandingMacro(identifierToken->offset,
+                                                            *m, spell);
+
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    &tmp);
+
+                            if (client)
+                                client->stopExpandingMacro(_dot->offset, *m);
+
                             m->hidden = false;
 
                             m = 0; // reset the active the macro
@@ -640,9 +668,20 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                         const char *beginOfText = startOfToken(*identifierToken);
                         const char *endOfText = endOfToken(*_dot);
                         ++_dot; // skip T_RPAREN
-                        //m->hidden = true;
+
+                        if (client) {
+                            const QByteArray text =
+                                    QByteArray::fromRawData(beginOfText,
+                                                            endOfText - beginOfText);
+
+                            client->startExpandingMacro(identifierToken->offset,
+                                                        *m, text);
+                        }
+
                         expand(beginOfText, endOfText, result);
-                        //m->hidden = false;
+
+                        if (client)
+                            client->stopExpandingMacro(_dot->offset, *m);
                     }
                 }
             }

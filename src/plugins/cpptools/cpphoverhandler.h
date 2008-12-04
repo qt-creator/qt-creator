@@ -68,6 +68,7 @@ private:
     QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;
+    bool m_helpEngineNeedsSetup;
 };
 
 } // namespace Internal
