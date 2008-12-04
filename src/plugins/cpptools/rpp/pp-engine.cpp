@@ -613,9 +613,18 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                         } else {
                             QByteArray tmp;
                             m->hidden = true;
+
+                            if (client)
+                                client->startExpandingMacro(identifierToken->offset,
+                                                            *m, spell);
+
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    &tmp);
+
+                            if (client)
+                                client->stopExpandingMacro(_dot->offset, *m);
+
                             m->hidden = false;
 
                             m = 0; // reset the active the macro
