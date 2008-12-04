@@ -235,9 +235,9 @@ bool ResolveExpression::visit(ExpressionListAST *)
     return false;
 }
 
-bool ResolveExpression::visit(BinaryExpressionAST *)
+bool ResolveExpression::visit(BinaryExpressionAST *ast)
 {
-    // nothing to do.
+    accept(ast->left_expression);
     return false;
 }
 
