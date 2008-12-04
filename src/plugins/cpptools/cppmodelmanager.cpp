@@ -253,6 +253,25 @@ protected:
         m_currentDoc->appendMacro(macroName, macroText);
     }
 
+    virtual void startExpandingMacro(unsigned offset,
+                                     const rpp::Macro &macro,
+                                     const QByteArray &originalText)
+    {
+        if (! m_currentDoc)
+            return;
+
+        //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
+        m_currentDoc->addMacroUse(offset, originalText.length());
+    }
+
+    virtual void stopExpandingMacro(unsigned offset, const rpp::Macro &macro)
+    {
+        if (! m_currentDoc)
+            return;
+
+        //qDebug() << "stop expanding:" << macro.name;
+    }
+
     void mergeEnvironment(Document::Ptr doc)
     {
         QSet<QString> processed;
@@ -505,7 +524,7 @@ CppModelManager::ProjectInfo *CppModelManager::projectInfo(ProjectExplorer::Proj
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
-    if (qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+    if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
         const QMap<QString, QByteArray> workingCopy = buildWorkingCopyList();
 
         QFuture<void> result = QtConcurrent::run(&CppModelManager::parse, this,
@@ -595,6 +614,22 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
             QList<QTextEdit::ExtraSelection> selections;
 
+#ifdef QTCREATOR_WITH_MACRO_HIGHLIGHTING
+            // set up the format for the macros
+            QTextCharFormat macroFormat;
+            macroFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+
+            QTextCursor c = ed->textCursor();
+            foreach (const Document::Block block, doc->macroUses()) {
+                QTextEdit::ExtraSelection sel;
+                sel.cursor = c;
+                sel.cursor.setPosition(block.begin());
+                sel.cursor.setPosition(block.end(), QTextCursor::KeepAnchor);
+                sel.format = macroFormat;
+                selections.append(sel);
+            }
+#endif // QTCREATOR_WITH_MACRO_HIGHLIGHTING
+
             // set up the format for the errors
             QTextCharFormat errorFormat;
             errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
@@ -657,6 +692,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
                             QStringList files,
                             QMap<QString, QByteArray> workingCopy)
 {
+    Q_ASSERT(! files.isEmpty());
+
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);
 
@@ -697,6 +734,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         qDebug() << fileName << "parsed in:" << tm.elapsed();
 #endif
     }
+
+    future.setProgressValue(files.size());
 
     // Restore the previous thread priority.
     QThread::currentThread()->setPriority(QThread::NormalPriority);

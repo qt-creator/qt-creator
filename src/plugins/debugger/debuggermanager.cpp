@@ -622,7 +622,7 @@ void DebuggerManager::notifyInferiorPidChanged(int pid)
 
 void DebuggerManager::showApplicationOutput(const QString &prefix, const QString &str)
 {
-     applicationOutputAvailable(prefix, str);
+     emit applicationOutputAvailable(prefix, str);
 }
 
 void DebuggerManager::shutdown()

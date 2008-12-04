@@ -94,6 +94,7 @@ const char * const C_WELCOME_MODE        = "Core.WelcomeMode";
 const char * const C_EDIT_MODE           = "Core.EditMode";
 const char * const C_EDITORMANAGER       = "Core.EditorManager";
 const char * const C_NAVIGATION_PANE     = "Core.NavigationPane";
+const char * const C_PROBLEM_PANE        = "Core.ProblemPane";
 
 //default editor kind
 const char * const K_DEFAULT_TEXT_EDITOR = "Plain Text Editor";

@@ -235,6 +235,10 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
         am->createMenu(QLatin1String(PERFORCE_MENU));
     mperforce->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(mperforce);
+    if (QAction *ma = mperforce->menu()->menuAction()) {
+        ma->setEnabled(m_versionControl->isEnabled());
+        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+    }
 
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;

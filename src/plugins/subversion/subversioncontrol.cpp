@@ -38,8 +38,41 @@ using namespace Subversion;
 using namespace Subversion::Internal;
 
 SubversionControl::SubversionControl(SubversionPlugin *plugin) :
+    m_enabled(true),
     m_plugin(plugin)
 {
+}
+
+QString SubversionControl::name() const
+{
+    return QLatin1String("subversion");
+}
+
+bool SubversionControl::isEnabled() const
+{
+     return m_enabled;
+}
+
+void SubversionControl::setEnabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        emit enabledChanged(m_enabled);
+    }
+}
+
+bool SubversionControl::supportsOperation(Operation operation) const
+{
+    bool rc = true;
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+        break;
+    case OpenOperation:
+        rc = false;
+        break;
+    }
+    return rc;
 }
 
 bool SubversionControl::vcsOpen(const QString & /* fileName */)

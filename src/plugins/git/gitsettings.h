@@ -31,44 +31,39 @@
 **
 ***************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#ifndef GITSETTINGS_H
+#define GITSETTINGS_H
 
-#include <coreplugin/iversioncontrol.h>
+#include <QtCore/QStringList>
 
-namespace Perforce {
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
+namespace Git {
 namespace Internal {
-class PerforcePlugin;
 
-// Just a proxy for PerforcePlugin
-class PerforceVersionControl : public Core::IVersionControl
+// Todo: Add user name and password?
+struct GitSettings
 {
-    Q_OBJECT
-public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    GitSettings();
 
-    virtual QString name() const;
+    void fromSettings(QSettings *);
+    void toSettings(QSettings *) const;
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
+    bool equals(const GitSettings &s) const;
 
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
-
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-
-signals:
-    void enabledChanged(bool);
-
-private:
-    bool m_enabled;
-    PerforcePlugin *m_plugin;
+    bool adoptPath;
+    QString path;
+    int logCount;
 };
 
-} // Internal
-} // Perforce
+inline bool operator==(const GitSettings &p1, const GitSettings &p2)
+    { return p1.equals(p2); }
+inline bool operator!=(const GitSettings &p1, const GitSettings &p2)
+    { return !p1.equals(p2); }
 
-#endif // PERFORCEVERSIONCONTROL_H
+} // namespace Internal
+} // namespace Git
+
+#endif // GITSETTINGS_H

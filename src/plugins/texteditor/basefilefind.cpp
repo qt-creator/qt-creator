@@ -146,7 +146,7 @@ QWidget *BaseFileFind::createPatternWidget()
 */
     QString filterToolTip = tr("List of comma separated wildcard filters");
 /*
-    QLabel *label = new QLabel(tr("File pattern:"));
+    QLabel *label = new QLabel(tr("File &pattern:"));
     label->setToolTip(filterToolTip);
 */
 /*
@@ -163,6 +163,7 @@ QWidget *BaseFileFind::createPatternWidget()
     m_filterCombo->setToolTip(filterToolTip);
     syncComboWithSettings(m_filterCombo, m_filterSetting);
 /*
+    label->setBuddy(m_filterCombo);
     hlayout->addWidget(m_filterCombo);
 */
     return m_filterCombo;
@@ -170,7 +171,7 @@ QWidget *BaseFileFind::createPatternWidget()
 
 QWidget *BaseFileFind::createRegExpWidget()
 {
-    m_useRegExpCheckBox = new QCheckBox(tr("Use Regular Expressions"));
+    m_useRegExpCheckBox = new QCheckBox(tr("Use Regular E&xpressions"));
     m_useRegExpCheckBox->setChecked(m_useRegExp);
     connect(m_useRegExpCheckBox, SIGNAL(toggled(bool)), this, SLOT(syncRegExpSetting(bool)));
     return m_useRegExpCheckBox;

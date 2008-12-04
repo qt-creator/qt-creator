@@ -37,6 +37,7 @@
 #include "buildparserinterface.h"
 
 #include <coreplugin/ioutputpane.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <QtGui/QTreeWidget>
@@ -49,6 +50,7 @@ namespace Internal {
 
 class TaskModel;
 class TaskView;
+class TaskWindowContext;
 
 class TaskWindow : public Core::IOutputPane
 {
@@ -82,6 +84,7 @@ signals:
 
 private slots:
     void showTaskInFile(const QModelIndex &index);
+    void copy();
 
 private:
     int sizeHintForColumn(int column) const;
@@ -92,6 +95,8 @@ private:
 
     TaskModel *m_model;
     TaskView *m_listview;
+    TaskWindowContext *m_taskWindowContext;
+    QAction *m_copyAction;
 };
 
 class TaskView : public QListView
@@ -120,6 +125,17 @@ public slots:
 
 private:
     void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
+};
+
+class TaskWindowContext : public Core::IContext
+{
+public:
+    TaskWindowContext(QWidget *widget);
+    virtual QList<int> context() const;
+    virtual QWidget *widget();
+private:
+    QWidget *m_taskList;
+    QList<int> m_context;
 };
 
 } //namespace Internal

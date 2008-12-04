@@ -35,6 +35,7 @@
 #define SETTINGSPAGE_H
 
 #include <QtGui/QWidget>
+#include <QtCore/QPointer>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -46,6 +47,23 @@ QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
+
+struct GitSettings;
+
+class SettingsPageWidget : public QWidget {
+    Q_OBJECT
+public:
+    explicit SettingsPageWidget(QWidget *parent = 0);
+
+    GitSettings settings() const;
+    void setSettings(const GitSettings &);
+
+private slots:
+    void setSystemPath();
+
+private:
+    Ui::SettingsPage m_ui;
+};
 
 class SettingsPage : public Core::IOptionsPage
 {
@@ -61,20 +79,8 @@ public:
     QWidget *createPage(QWidget *parent);
     void finished(bool accepted);
 
-    bool adoptEnvironment() const { return m_adopt; }
-    int logCount() const { return m_logCount; }
-    QString path() const { return m_path; }
-
-private slots:
-    void setSystemPath();
-
 private:
-    Ui_SettingsPage m_ui;
-    QSettings *m_settings;
-
-    bool m_adopt;
-    QString m_path;
-    int m_logCount;
+    QPointer<SettingsPageWidget> m_widget;
 };
 
 } // namespace Internal

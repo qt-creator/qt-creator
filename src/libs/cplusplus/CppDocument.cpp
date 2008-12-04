@@ -153,6 +153,11 @@ void Document::appendMacro(const QByteArray &macroName, const QByteArray &text)
     _definedMacros += text;
 }
 
+void Document::addMacroUse(unsigned offset, unsigned length)
+{
+    _macroUses.append(Block(offset, offset + length));
+}
+
 TranslationUnit *Document::translationUnit() const
 {
     return _translationUnit;

@@ -165,7 +165,7 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
     int numFilesSearched = 0;
     int numMatches = 0;
     if (flags & QTextDocument::FindWholeWords)
-        searchTerm = QString("\b%1\b").arg(searchTerm);
+        searchTerm = QString("\\b%1\\b").arg(searchTerm);
     Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     QRegExp expression(searchTerm, caseSensitivity);
 

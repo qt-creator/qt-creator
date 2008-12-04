@@ -34,6 +34,8 @@
 #ifndef GITCLIENT_H
 #define GITCLIENT_H
 
+#include "gitsettings.h"
+
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <projectexplorer/environment.h>
@@ -62,17 +64,14 @@ class GitCommand;
 struct CommitData;
 struct GitSubmitEditorPanelData;
 
-class GitClient : public Core::IVersionControl
+class GitClient : public QObject
 {
     Q_OBJECT
 
 public:
-    GitClient(GitPlugin *plugin, Core::ICore *core);
+    explicit GitClient(GitPlugin *plugin, Core::ICore *core);
     ~GitClient();
 
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &) { return false; }
-    bool vcsDelete(const QString &) { return false; }
     bool managesDirectory(const QString &) const { return false; }
     QString findTopLevelForDirectory(const QString &) const { return QString(); }
 
@@ -94,6 +93,11 @@ public:
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
+    void stash(const QString &workingDirectory);
+    void stashPop(const QString &workingDirectory);
+    void branchList(const QString &workingDirectory);
+    void stashList(const QString &workingDirectory);
+
     QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar);
@@ -109,10 +113,19 @@ public:
                       const QStringList &checkedFiles,
                       const QStringList &origCommitFiles);
 
+    GitSettings  settings() const;
+    void setSettings(const GitSettings &s);
+
 public slots:
     void show(const QString &source, const QString &id);
 
 private:
+    enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
+    StatusResult gitStatus(const QString &workingDirectory,
+                           bool untracked,
+                           QString *output = 0,
+                           QString *errorMessage = 0);
+
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
                                                  QString title,
                                                  const QString &source,
@@ -135,6 +148,7 @@ private:
     const QString m_msgWait;
     GitPlugin     *m_plugin;
     Core::ICore   *m_core;
+    GitSettings   m_settings;
 };
 
 class GitCommand : public QObject

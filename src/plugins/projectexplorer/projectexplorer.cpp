@@ -76,6 +76,7 @@
 #include <coreplugin/welcomemode.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <utils/listutils.h>
 
 #include <QtCore/qplugin.h>
@@ -1153,6 +1154,13 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (projectChanged) {
         if (debug)
             qDebug() << "ProjectExplorer - currentProjectChanged(" << (project ? project->name() : "0") << ")";
+        // Enable the right VCS
+        if (const Core::IFile *projectFile = project ? project->file() : static_cast<const Core::IFile *>(0)) {
+            m_core->vcsManager()->setVCSEnabled(QFileInfo(projectFile->fileName()).absolutePath());
+        } else {
+            m_core->vcsManager()->setAllVCSEnabled();
+        }
+
         emit currentProjectChanged(project);
         updateActions();
     }
@@ -1565,27 +1573,28 @@ void ProjectExplorerPlugin::addExistingFiles()
             fileNames.removeOne(file);
     }
 
-    if (Core::IVersionControl *vcManager = m_core->vcsManager()->findVersionControlForDirectory(dir)) {
-        const QString files = fileNames.join("\n");
-        QMessageBox::StandardButton button =
+    if (Core::IVersionControl *vcManager = m_core->vcsManager()->findVersionControlForDirectory(dir))
+        if (vcManager->supportsOperation(Core::IVersionControl::AddOperation)) {
+            const QString files = fileNames.join(QString(QLatin1Char('\n')));
+            QMessageBox::StandardButton button =
                 QMessageBox::question(m_core->mainWindow(), tr("Add to Version Control"),
-                                      tr("Add files\n%1\nto version control?").arg(files),
+                                      tr("Add files\n%1\nto version control (%2)?").arg(files, vcManager->name()),
                                       QMessageBox::Yes | QMessageBox::No);
-        if (button == QMessageBox::Yes) {
-           QStringList notAddedToVc;
-            foreach (const QString file, fileNames) {
-                if (!vcManager->vcsAdd(file))
-                    notAddedToVc << file;
-            }
+            if (button == QMessageBox::Yes) {
+                QStringList notAddedToVc;
+                foreach (const QString &file, fileNames) {
+                    if (!vcManager->vcsAdd(file))
+                        notAddedToVc << file;
+                }
 
-            if (!notAddedToVc.isEmpty()) {
-                const QString message = tr("Could not add following files to version control\n");
-                const QString filesNotAdded = notAddedToVc.join("\n");
-                QMessageBox::warning(m_core->mainWindow(), tr("Add files to version control failed"),
-                                 message + filesNotAdded);
+                if (!notAddedToVc.isEmpty()) {
+                    const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->name());
+                    const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
+                    QMessageBox::warning(m_core->mainWindow(), tr("Add files to version control failed"),
+                                         message + filesNotAdded);
+                }
             }
         }
-    }
 }
 
 void ProjectExplorerPlugin::openFile()

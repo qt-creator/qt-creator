@@ -38,8 +38,39 @@ namespace Perforce {
 namespace Internal {
 
 PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
+    m_enabled(true),
     m_plugin(plugin)
 {
+}
+
+QString PerforceVersionControl::name() const
+{
+    return QLatin1String("perforce");
+}
+
+bool PerforceVersionControl::isEnabled() const
+{
+     return m_enabled;
+}
+
+void PerforceVersionControl::setEnabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        emit enabledChanged(m_enabled);
+    }
+}
+
+bool PerforceVersionControl::supportsOperation(Operation operation) const
+{
+    bool rc = true;
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+    case OpenOperation:
+        break;
+    }
+    return rc;
 }
 
 bool PerforceVersionControl::vcsOpen(const QString &fileName)
