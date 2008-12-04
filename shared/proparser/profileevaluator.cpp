@@ -533,14 +533,14 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
         if (!mkspecDirectory.isEmpty()) {
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"), &ok);
 
-            QStringList processed;
+            QSet<QString> processed;
             forever {
                 bool finished = true;
                 QStringList configs = values(QLatin1String("CONFIG"));
                 for (int i = configs.size() - 1; i >= 0; --i) {
                     const QString config = configs[i].toLower();
                     if (!processed.contains(config)) {
-                        processed.append(config);
+                        processed.insert(config);
                         evaluateFile(mkspecDirectory + QLatin1String("/features/")
                                      + config + QLatin1String(".prf"), &ok);
                         if (ok) {
