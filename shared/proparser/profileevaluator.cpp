@@ -508,12 +508,12 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
 
         m_profileStack.push(pro);
 
-        const QString mkspecDirectory = propertyValue("QMAKE_MKSPECS");
+        const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
             // This is what qmake does, everything set in the mkspec is also set
             // But this also creates a lot of problems
-            evaluateFile(mkspecDirectory + "/default/qmake.conf", &ok);
-            evaluateFile(mkspecDirectory + "/features/default_pre.prf", &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
         }
 
         QString fn = pro->fileName();
@@ -529,19 +529,20 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     bool ok = true;
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
-        const QString mkspecDirectory = propertyValue("QMAKE_MKSPECS");
+        const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
-            evaluateFile(mkspecDirectory + "/features/default_post.prf", &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"), &ok);
 
             QStringList processed;
-            while (1) {
+            forever {
                 bool finished = true;
-                QStringList configs = values("CONFIG");
-                for (int i = configs.size()-1; i >= 0; --i) {
+                QStringList configs = values(QLatin1String("CONFIG"));
+                for (int i = configs.size() - 1; i >= 0; --i) {
                     const QString config = configs[i].toLower();
                     if (!processed.contains(config)) {
                         processed.append(config);
-                        evaluateFile(mkspecDirectory + "/features/" + config + ".prf", &ok);
+                        evaluateFile(mkspecDirectory + QLatin1String("/features/")
+                                     + config + QLatin1String(".prf"), &ok);
                         if (ok) {
                             finished = false;
                             break;
