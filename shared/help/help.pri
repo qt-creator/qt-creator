@@ -9,7 +9,8 @@ HEADERS += \
         $$PWD/helpviewer.h \
         $$PWD/contentwindow.h \
         $$PWD/bookmarkmanager.h \
-        $$PWD/../namespace_global.h
+        $$PWD/../namespace_global.h \
+        $$PWD/indexwindow.h
 
 SOURCES += \
         $$PWD/filternamedialog.cpp \
@@ -19,7 +20,7 @@ SOURCES += \
         $$PWD/contentwindow.cpp \
         $$PWD/bookmarkmanager.cpp
 
-FORMS 	+= \
+FORMS   += \
         $$PWD/filternamedialog.ui \
         $$PWD/topicchooser.ui \
         $$PWD/bookmarkdialog.ui
