@@ -63,7 +63,6 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
     Core::BaseFileWizard::setupWizard(this);
-    setOptions(QWizard::IndependentPages);
 
     m_introPage->setDescription(tr("This wizard generates a Qt4 GUI application "
          "project. The application derives by default from QApplication "

@@ -405,17 +405,17 @@ void PerforcePlugin::extensionsInitialized()
 
 void PerforcePlugin::openCurrentFile()
 {
-    runP4Cmd(QStringList() << QLatin1String("edit") << currentFileName(), QStringList(), true);
+    vcsOpen(currentFileName());
 }
 
 void PerforcePlugin::addCurrentFile()
 {
-    runP4Cmd(QStringList() << QLatin1String("add") << currentFileName(), QStringList(), true);
+    vcsAdd(currentFileName());
 }
 
 void PerforcePlugin::deleteCurrentFile()
 {
-    runP4Cmd(QStringList() << QLatin1String("delete") << currentFileName(), QStringList(), true);
+    vcsDelete(currentFileName());
 }
 
 void PerforcePlugin::revertCurrentFile()
@@ -426,7 +426,7 @@ void PerforcePlugin::revertCurrentFile()
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, fileName);
     QStringList args;
     args << QLatin1String("diff") << QLatin1String("-sa");
-    PerforceResponse result = runP4Cmd(args, QStringList(), false, true, codec);
+    PerforceResponse result = runP4Cmd(args, QStringList(), CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (result.error)
         return;
 
@@ -444,7 +444,7 @@ void PerforcePlugin::revertCurrentFile()
     foreach (Core::IFile *file, files) {
         fm->blockFileChange(file);
     }
-    PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), true);
+    PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     Core::IFile::ReloadBehavior tempBehavior =
             Core::IFile::ReloadAll;
     foreach (Core::IFile *file, files) {
@@ -489,7 +489,7 @@ void PerforcePlugin::printOpenedFileList()
     Core::IEditor *e = m_coreInstance->editorManager()->currentEditor();
     if (e)
         e->widget()->setFocus();
-    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("opened"), QStringList(), true);
+    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("opened"), QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
 }
 
 #ifdef USE_P4_API
@@ -522,7 +522,8 @@ void PerforcePlugin::submit()
         return;
     }
 
-    PerforceResponse result = runP4Cmd(QStringList()<< QLatin1String("change") << QLatin1String("-o"), QStringList(), false);
+    PerforceResponse result = runP4Cmd(QStringList()<< QLatin1String("change") << QLatin1String("-o"), QStringList(),
+                                       CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result.error) {
         delete m_changeTmpFile;
         m_changeTmpFile = 0;
@@ -550,7 +551,8 @@ void PerforcePlugin::submit()
     foreach (const QString &f, files)
         nativeFiles << QDir::toNativeSeparators(f);
 
-    PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles, false);
+    PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles,
+                                        CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result2.error) {
         delete m_changeTmpFile;
         m_changeTmpFile = 0;
@@ -597,8 +599,10 @@ void PerforcePlugin::printPendingChanges()
     PendingChangesDialog dia(pendingChangesData(), m_coreInstance->mainWindow());
     qApp->restoreOverrideCursor();
     if (dia.exec() == QDialog::Accepted) {
-        int i = dia.changeNumber();
-        PerforceResponse result = runP4Cmd(QStringList()<<"submit"<<"-c"<<QString::number(i), QStringList(), true);
+        const int i = dia.changeNumber();
+        QStringList args(QLatin1String("submit"));
+        args << QLatin1String("-c") << QString::number(i);
+        runP4Cmd(args, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     }
 }
 
@@ -628,7 +632,8 @@ void PerforcePlugin::annotate(const QString &fileName)
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, fileName);
     QStringList args;
     args << QLatin1String("annotate") << QLatin1String("-cqi") << fileName;
-    const PerforceResponse result = runP4Cmd(args, QStringList(), false, true, codec);
+    const PerforceResponse result = runP4Cmd(args, QStringList(),
+                                             CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error) {
         const QFileInfo fi(fileName);
         showOutputInEditor(tr("p4 annotate %1").arg(fi.fileName()), result.stdOut, VCSBase::AnnotateOutput, codec);
@@ -654,7 +659,8 @@ void PerforcePlugin::filelog(const QString &fileName)
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, fileName);
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li") << fileName;
-    const PerforceResponse result = runP4Cmd(args, QStringList(), false, true, codec);
+    const PerforceResponse result = runP4Cmd(args, QStringList(),
+                                             CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error) {
         const QFileInfo fi(fileName);
         showOutputInEditor(tr("p4 filelog %1").arg(fi.fileName()), result.stdOut, VCSBase::LogOutput, codec);
@@ -718,18 +724,19 @@ bool PerforcePlugin::managesDirectory(const QString &directory) const
     QStringList args;
     args << QLatin1String("fstat") << QLatin1String("-m1") << p4Path;
 
-    const PerforceResponse result = runP4Cmd(args, QStringList(), false, false);
+    const PerforceResponse result = runP4Cmd(args, QStringList(), 0u);
     return result.stdOut.contains("depotFile") || result.stdErr.contains("... - no such file(s)");
 }
 
 QString PerforcePlugin::findTopLevelForDirectory(const QString & /* dir */) const
 {
     // First check with p4 client -o
-    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("client") << QLatin1String("-o"), QStringList(), false, false);
+    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("client") << QLatin1String("-o"), QStringList(), 0u);
     if (result.error)
         return QString::null;
 
     QRegExp regExp(QLatin1String("(\\n|\\r\\n|\\r)Root:\\s*(.*)(\\n|\\r\\n|\\r)"));
+    Q_ASSERT(regExp.isValid());
     regExp.setMinimal(true);
     if (regExp.indexIn(result.stdOut) != -1) {
         QString file = regExp.cap(2).trimmed();
@@ -741,20 +748,24 @@ QString PerforcePlugin::findTopLevelForDirectory(const QString & /* dir */) cons
 
 bool PerforcePlugin::vcsOpen(const QString &fileName)
 {
-    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("edit") << QDir::toNativeSeparators(fileName), QStringList(), true);
+    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("edit") << QDir::toNativeSeparators(fileName), QStringList(),
+                                       CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     return !result.error;
 }
 
 bool PerforcePlugin::vcsAdd(const QString &fileName)
 {
-    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("add") << fileName, QStringList(), true);
+    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("add") << fileName, QStringList(),
+                                       CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     return !result.error;
 }
 
 bool PerforcePlugin::vcsDelete(const QString &fileName)
 {
-    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), true);
-    PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("delete") << fileName, QStringList(), true);
+    PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(),
+                                       CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("delete") << fileName, QStringList(),
+                                        CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     // TODO need to carefully parse the actual messages from perforce
     // or do a fstat before to decide what to do
 
@@ -767,8 +778,7 @@ bool PerforcePlugin::vcsDelete(const QString &fileName)
 
 PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
                                           const QStringList &extraArgs,
-                                          bool showStdOutInOutputWindow,
-                                          bool showStdErrInOutputWindow,
+                                          unsigned logFlags,
                                           QTextCodec *outputCodec) const
 {
     if (Perforce::Constants::debug)
@@ -801,12 +811,14 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     }
     actualArgs << args;
 
-    response.command = m_settings.p4Command;
-    response.command += blank;
-    response.command += actualArgs.join(QString(blank));
-    const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
-    const QString outputText = tr("%1 Executing: %2\n").arg(timeStamp, response.command);
-    showOutput(outputText, false);
+    if (logFlags & CommandToWindow) {
+        QString command = m_settings.p4Command;
+        command += blank;
+        command += actualArgs.join(QString(blank));
+        const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
+        const QString outputText = tr("%1 Executing: %2\n").arg(timeStamp, command);
+        showOutput(outputText, false);
+    }
 
     // Run, connect stderr to the output window
     Core::Utils::SynchronousProcess process;
@@ -815,13 +827,13 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     process.setEnvironment(environment());
 
     // connect stderr to the output window if desired
-    if (showStdErrInOutputWindow) {
+    if (logFlags & StdErrToWindow) {
         process.setStdErrBufferedSignalsEnabled(true);
         connect(&process, SIGNAL(stdErrBuffered(QString,bool)), m_perforceOutputWindow, SLOT(append(QString,bool)));
     }
 
     // connect stdout to the output window if desired
-    if (showStdOutInOutputWindow) {
+    if (logFlags & StdOutToWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
         connect(&process, SIGNAL(stdOutBuffered(QString,bool)), m_perforceOutputWindow, SLOT(append(QString,bool)));
     }
@@ -847,13 +859,15 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         response.message = tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(m_settings.p4Command);
         break;
     case Core::Utils::SynchronousProcessResponse::Hang:
-        response.message = tr("Subversion did not respond within timeout limit (%1 ms).").arg(p4Timeout );
+        response.message = tr("Perforce did not respond within timeout limit (%1 ms).").arg(p4Timeout );
         break;
     }
-    if (response.error)
-        m_perforceOutputWindow->append(response.message, true);
-
-
+    if (response.error) {
+        if (Perforce::Constants::debug)
+            qDebug() << response.message;
+        if (logFlags & ErrorToWindow)
+            m_perforceOutputWindow->append(response.message, true);
+    }
     return response;
 }
 
@@ -923,7 +937,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
         }
     }
 
-    const PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("diff") << QLatin1String("-du"), files, false, codec);
+    const PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("diff") << QLatin1String("-du"), files, CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (result.error)
         return;
 
@@ -948,7 +962,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditor::getCodec(m_coreInstance, source);
     QStringList args;
     args << QLatin1String("describe") << QLatin1String("-du") << n;
-    const PerforceResponse result = runP4Cmd(args, QStringList(), codec);
+    const PerforceResponse result = runP4Cmd(args, QStringList(), CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error)
         showOutputInEditor(tr("p4 describe %1").arg(n), result.stdOut, VCSBase::DiffOutput, codec);
 }

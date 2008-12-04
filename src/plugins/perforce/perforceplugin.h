@@ -86,7 +86,6 @@ private:
 struct PerforceResponse
 {
     bool error;
-    QString command;
     QString stdOut;
     QString stdErr;
     QString message;
@@ -161,12 +160,15 @@ private:
     Core::IEditor *showOutputInEditor(const QString& title, const QString output,
                                       int editorType,
                                       QTextCodec *codec = 0);
+
+    // Verbosity flags for runP4Cmd.
+    enum  RunLogFlags { CommandToWindow = 0x1, StdOutToWindow = 0x2, StdErrToWindow = 0x4, ErrorToWindow = 0x8 };
+
     // args are passed as command line arguments
     // extra args via a tempfile and the option -x "temp-filename"
     PerforceResponse runP4Cmd(const QStringList &args,
                               const QStringList &extraArgs = QStringList(),
-                              bool showStdOutInOutputWindow = false,
-                              bool showStdErrInOutputWindow = true,
+                              unsigned logFlags = CommandToWindow|StdErrToWindow|ErrorToWindow,
                               QTextCodec *outputCodec = 0) const;
 
     void openFiles(const QStringList &files);
