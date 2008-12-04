@@ -90,11 +90,14 @@ public:
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files);
+    bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
+    bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
     void stash(const QString &workingDirectory);
     void stashPop(const QString &workingDirectory);
+    void revert(const QStringList &files);
     void branchList(const QString &workingDirectory);
     void stashList(const QString &workingDirectory);
 
@@ -113,19 +116,21 @@ public:
                       const QStringList &checkedFiles,
                       const QStringList &origCommitFiles);
 
-    GitSettings  settings() const;
-    void setSettings(const GitSettings &s);
-
-public slots:
-    void show(const QString &source, const QString &id);
-
-private:
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,
                            bool untracked,
                            QString *output = 0,
                            QString *errorMessage = 0);
 
+    GitSettings  settings() const;
+    void setSettings(const GitSettings &s);
+
+    static QString msgNoChangedFiles();
+
+public slots:
+    void show(const QString &source, const QString &id);
+
+private:
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
                                                  QString title,
                                                  const QString &source,
@@ -141,9 +146,13 @@ private:
                                            bool outputToWindow = false);
 
     bool synchronousGit(const QString &workingDirectory,
-                                           const QStringList &arguments,
-                                           QByteArray* outputText = 0,
-                                           QByteArray* errorText = 0);
+                        const QStringList &arguments,
+                        QByteArray* outputText = 0,
+                        QByteArray* errorText = 0,
+                        bool logCommandToWindow = true);
+
+    enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
+    RevertResult revertI(QStringList files, bool *isDirectory, QString *errorMessage);
 
     const QString m_msgWait;
     GitPlugin     *m_plugin;
