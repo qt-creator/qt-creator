@@ -254,7 +254,7 @@ protected:
     }
 
     virtual void startExpandingMacro(unsigned offset,
-                                     const rpp::Macro &macro,
+                                     const rpp::Macro &,
                                      const QByteArray &originalText)
     {
         if (! m_currentDoc)
@@ -264,7 +264,7 @@ protected:
         m_currentDoc->addMacroUse(offset, originalText.length());
     }
 
-    virtual void stopExpandingMacro(unsigned offset, const rpp::Macro &macro)
+    virtual void stopExpandingMacro(unsigned, const rpp::Macro &)
     {
         if (! m_currentDoc)
             return;
