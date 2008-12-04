@@ -253,6 +253,25 @@ protected:
         m_currentDoc->appendMacro(macroName, macroText);
     }
 
+    virtual void startExpandingMacro(unsigned offset,
+                                     const rpp::Macro &macro,
+                                     const QByteArray &originalText)
+    {
+        if (! m_currentDoc)
+            return;
+
+        //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
+        m_currentDoc->addMacroUse(offset, originalText.length());
+    }
+
+    virtual void stopExpandingMacro(unsigned offset, const rpp::Macro &macro)
+    {
+        if (! m_currentDoc)
+            return;
+
+        //qDebug() << "stop expanding:" << macro.name;
+    }
+
     void mergeEnvironment(Document::Ptr doc)
     {
         QSet<QString> processed;
@@ -594,6 +613,22 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             ed->setIfdefedOutBlocks(blockRanges);
 
             QList<QTextEdit::ExtraSelection> selections;
+
+#ifdef QTCREATOR_WITH_MACRO_HIGHLIGHTING
+            // set up the format for the macros
+            QTextCharFormat macroFormat;
+            macroFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+
+            QTextCursor c = ed->textCursor();
+            foreach (const Document::Block block, doc->macroUses()) {
+                QTextEdit::ExtraSelection sel;
+                sel.cursor = c;
+                sel.cursor.setPosition(block.begin());
+                sel.cursor.setPosition(block.end(), QTextCursor::KeepAnchor);
+                sel.format = macroFormat;
+                selections.append(sel);
+            }
+#endif // QTCREATOR_WITH_MACRO_HIGHLIGHTING
 
             // set up the format for the errors
             QTextCharFormat errorFormat;
