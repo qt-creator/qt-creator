@@ -1869,8 +1869,8 @@ static void qDumpQSet(QDumper &d)
                 d.beginHash();
                 P(d, "name", "[" << i << "]");
                 P(d, "type", d.innertype);
-                P(d, "exp", "(('QHashNode<" << d.innertype
-                    << ",QHashDummyValue>'*)"
+                P(d, "exp", "(('"NS"QHashNode<" << d.innertype
+                    << ","NS"QHashDummyValue>'*)"
                     << static_cast<const void*>(node) << ")->key"
                 );
                 d.endHash();
