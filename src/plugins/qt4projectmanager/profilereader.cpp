@@ -61,14 +61,6 @@ void ProFileReader::setQtVersion(QtVersion *qtVersion) {
 bool ProFileReader::readProFile(const QString &fileName)
 {
     //disable caching -> list of include files is not updated otherwise
-//    ProFile *pro = proFileFromCache(fileName);
-//    if (!pro) {
-//        pro = new ProFile(fileName);
-//        if (!queryProFile(pro)) {
-//            delete pro;
-//            return false;
-//        }
-//    }
     QString fn = QFileInfo(fileName).filePath();
     ProFile *pro = new ProFile(fn);
     if (!queryProFile(pro)) {
@@ -82,9 +74,6 @@ bool ProFileReader::readProFile(const QString &fileName)
 
 ProFile *ProFileReader::parsedProFile(const QString &fileName)
 {
-//    ProFile *pro = proFileFromCache(fileName);
-//    if (pro)
-//        return pro;
     QString fn =  QFileInfo(fileName).filePath();
     ProFile *pro = ProFileEvaluator::parsedProFile(fn);
     if (pro) {
@@ -97,16 +86,6 @@ ProFile *ProFileReader::parsedProFile(const QString &fileName)
 void ProFileReader::releaseParsedProFile(ProFile *)
 {
     return;
-}
-
-ProFile *ProFileReader::proFileFromCache(const QString &fileName) const
-{
-
-    QString fn =  QFileInfo(fileName).filePath();
-    ProFile *pro = 0;
-    if (m_includeFiles.contains(fn))
-        pro = m_includeFiles.value(fn);
-    return pro;
 }
 
 QList<ProFile*> ProFileReader::includeFiles() const
@@ -195,4 +174,15 @@ void ProFileReader::logMessage(const QString &message)
 void ProFileReader::errorMessage(const QString &message)
 {
     emit errorFound(message);
+}
+
+ProFile *ProFileReader::proFileFor(const QString &name)
+{
+    qDebug()<<"Asking for "<<name;
+    qDebug()<<"in "<<m_includeFiles.keys();
+    QMap<QString, ProFile *>::const_iterator it = m_includeFiles.constFind(name);
+    if (it == m_includeFiles.constEnd())
+        return 0;
+    else
+        return it.value();
 }

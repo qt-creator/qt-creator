@@ -179,12 +179,8 @@ Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QOb
 
 bool Qt4ProjectFile::save(const QString &)
 {
-    ProFile *file = m_project->proFileFromCache(m_filePath);
-    ProWriter pw;
-    bool ok = pw.write(file, file->fileName());
-    file->setModified(false);
-    m_project->qt4ProjectManager()->notifyChanged(file->fileName());
-    return ok;
+    // This is never used
+    return false;
 }
 
 QString Qt4ProjectFile::fileName() const
@@ -209,7 +205,7 @@ QString Qt4ProjectFile::mimeType() const
 
 bool Qt4ProjectFile::isModified() const
 {
-    return m_project->proFileFromCache(m_filePath)->isModified();
+    return false; // we save after changing anyway
 }
 
 bool Qt4ProjectFile::isReadOnly() const
@@ -895,16 +891,24 @@ MakeStep *Qt4Project::makeStep() const
     return 0;
 }
 
-ProFile *Qt4Project::proFileFromCache(const QString &fileName)
+bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)
 {
-    return rootProjectNode()->proFileFromCache(fileName);
+    if (root->path() == path)
+        return true;
+    foreach (FolderNode *fn, root->subFolderNodes()) {
+        if (qobject_cast<Qt4ProFileNode *>(fn)) {
+            // we aren't interested in pro file nodes
+        } else if(Qt4PriFileNode *qt4prifilenode = qobject_cast<Qt4PriFileNode *>(fn)) {
+            if (hasSubNode(qt4prifilenode, path))
+                return true;
+        }
+    }
+    return false;
 }
 
 void Qt4Project::findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list)
 {
-    if (root->path() == fileName)
-        list.append(root);
-    else if (root->proFileFromCache(fileName))
+    if (hasSubNode(root, fileName))
         list.append(root);
 
     foreach (FolderNode *fn, root->subFolderNodes())
@@ -914,9 +918,10 @@ void Qt4Project::findProFile(const QString& fileName, Qt4ProFileNode *root, QLis
 
 void Qt4Project::notifyChanged(const QString &name)
 {
-    QList<Qt4ProFileNode *> list;
-    findProFile(name, rootProjectNode(), list);
-    foreach(Qt4ProFileNode *node, list)
-        node->update();
-
+    if (files(Qt4Project::ExcludeGeneratedFiles).contains(name)) {
+        QList<Qt4ProFileNode *> list;
+        findProFile(name, rootProjectNode(), list);
+        foreach(Qt4ProFileNode *node, list)
+            node->update();
+    }
 }
