@@ -602,29 +602,44 @@ void BaseTextEditor::slotSelectionChanged()
 void BaseTextEditor::gotoBlockStart()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockEnd()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false))
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockStartWithSelection()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true))
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockEndWithSelection()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
+}
+
+static QTextCursor flippedCursor(const QTextCursor &cursor) {
+    QTextCursor flipped = cursor;
+    flipped.clearSelection();
+    flipped.setPosition(cursor.anchor(), QTextCursor::KeepAnchor);
+    return flipped;
 }
 
 void BaseTextEditor::selectBlockUp()
@@ -640,7 +655,8 @@ void BaseTextEditor::selectBlockUp()
         return;
     if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
         return;
-    setTextCursor(cursor);
+    setTextCursor(flippedCursor(cursor));
+    _q_matchParentheses();
 }
 
 void BaseTextEditor::selectBlockDown()
@@ -663,7 +679,8 @@ void BaseTextEditor::selectBlockDown()
     if ( cursor != d->m_selectBlockAnchor)
         TextBlockUserData::findNextClosingParenthesis(&cursor, true);
 
-    setTextCursor(cursor);
+    setTextCursor(flippedCursor(cursor));
+    _q_matchParentheses();
 }
 
 
