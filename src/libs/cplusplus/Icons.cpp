@@ -61,11 +61,11 @@ Icons::Icons()
 {
 }
 
-QIcon Icons::iconForSymbol(Symbol *symbol) const
+QIcon Icons::iconForSymbol(const Symbol *symbol) const
 {
     if (symbol->isFunction() || (symbol->isDeclaration() && symbol->type()->isFunction()))
     {
-        Function *function = symbol->asFunction();
+        const Function *function = symbol->asFunction();
         if (!function)
             function = symbol->type()->asFunction();
 

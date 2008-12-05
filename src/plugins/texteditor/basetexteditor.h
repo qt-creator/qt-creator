@@ -369,7 +369,6 @@ private:
     Internal::BaseTextEditorPrivate *d;
     friend class Internal::BaseTextEditorPrivate;
 
-
 public:
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = 0) const;
@@ -385,8 +384,16 @@ public:
 
     void ensureCursorVisible();
 
-    void setExtraExtraSelections(const QList<QTextEdit::ExtraSelection> &selections);
-    QList<QTextEdit::ExtraSelection> extraExtraSelections() const;
+    enum ExtraSelectionKind {
+        CurrentLineSelection,
+        ParenthesesMatchingSelection,
+        CodeWarningsSelection,
+        CodeSemanticsSelection,
+        OtherSelection,
+        NExtraSelectionKinds
+    };
+    void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
 
     struct BlockRange {
         BlockRange():first(0), last(-1){}

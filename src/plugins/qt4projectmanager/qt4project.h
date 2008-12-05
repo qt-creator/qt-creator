@@ -180,7 +180,6 @@ public:
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
-    ProFile *proFileFromCache(const QString &fileName);
     void notifyChanged(const QString &name);
 
 public slots:
@@ -209,6 +208,7 @@ protected:
 private:
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
+    static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;

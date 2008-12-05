@@ -63,7 +63,7 @@ public:
                                    const QString &baseDirectory,
                                    PathValuesMode mode,
                                    const ProFile *pro = 0) const;
-    ProFile *proFileFromCache(const QString &fileName) const;
+    ProFile *proFileFor(const QString &name);
 signals:
     void errorFound(const QString &error);
 

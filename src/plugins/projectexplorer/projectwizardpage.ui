@@ -104,8 +104,9 @@
         <widget class="QLabel" name="filesLabel">
          <property name="text">
           <string>The following files will be added:
-f1
-f2
+
+
+
 </string>
          </property>
          <property name="textInteractionFlags">
