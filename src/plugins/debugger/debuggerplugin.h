@@ -84,9 +84,13 @@ private slots:
     void setSessionValue(const QString &name, const QVariant &value);
     void queryConfigValue(const QString &name, QVariant *value);
     void setConfigValue(const QString &name, const QVariant &value);
+    void requestContextMenu(TextEditor::ITextEditor *editor,
+        int lineNumber, QMenu *menu);
 
     void resetLocation();
     void gotoLocation(const QString &fileName, int line, bool setMarker);
+
+    void breakpointMarginActionTriggered();
 
 private:
     friend class DebuggerManager;
@@ -104,6 +108,10 @@ private:
     QString m_previousMode;
     LocationMark *m_locationMark;
     int m_gdbRunningContext;
+
+    QAction *m_breakpointMarginAction;
+    int m_breakpointMarginActionLineNumber;
+    QString m_breakpointMarginActionFileName;
 };
 
 } // namespace Internal

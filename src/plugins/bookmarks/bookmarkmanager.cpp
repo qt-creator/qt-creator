@@ -396,11 +396,16 @@ void BookmarkManager::toggleBookmark()
     if (!editor)
         return;
 
-    const QFileInfo fi(editor->file()->fileName());
-    const int editorLine = editor->currentLine();
+    toggleBookmark(editor->file()->fileName(), editor->currentLine());
+}
+
+void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
+{
+    const QFileInfo fi(fileName);
+    const int editorLine = lineNumber;
 
     // Remove any existing bookmark on this line
-    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), editorLine)) {
+    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), lineNumber)) {
         // TODO check if the bookmark is really on the same markable Interface
         removeBookmark(mark);
         return;
