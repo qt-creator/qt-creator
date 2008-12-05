@@ -709,7 +709,7 @@ void SessionManager::editDependencies()
     dlg.exec();
 }
 
-QList<Project *> SessionManager::projects() const
+const QList<Project *> &SessionManager::projects() const
 {
     return m_file->m_projects;
 }
@@ -839,26 +839,26 @@ Project *SessionManager::projectForFile(const QString &fileName) const
     if (debug)
         qDebug() << "SessionManager::projectForFile(" << fileName << ")";
 
-    Project *project = 0;
+    const QList<Project *> &projectList = projects();
 
-    QList<Project *> projectList = projects();
+    // Check current project first
+    Project *currentProject = ProjectExplorerPlugin::instance()->currentProject();
+    if (currentProject && projectContainsFile(currentProject, fileName))
+        return currentProject;
 
-    // Always check current project first
-    if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject()) {
-        projectList.removeOne(currentProject);
-        projectList.insert(0, currentProject);
-    }
+    foreach (Project *p, projectList)
+        if (p != currentProject && projectContainsFile(p, fileName))
+            return p;
 
-    foreach (Project *p, projectList) {
-        if (!m_projectFileCache.contains(p)) {
-            m_projectFileCache.insert(p, p->files(Project::AllFiles));
-        }
-        if (m_projectFileCache.value(p).contains(fileName)) {
-            project = p;
-            break;
-        }
-    }
-    return project;
+    return 0;
+}
+
+bool SessionManager::projectContainsFile(Project *p, const QString &fileName) const
+{
+    if (!m_projectFileCache.contains(p))
+        m_projectFileCache.insert(p, p->files(Project::AllFiles));
+
+    return m_projectFileCache.value(p).contains(fileName);
 }
 
 void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileName)

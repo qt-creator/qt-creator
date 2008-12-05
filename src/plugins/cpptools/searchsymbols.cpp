@@ -194,7 +194,7 @@ QString SearchSymbols::symbolName(const Symbol *symbol) const
 void SearchSymbols::appendItem(const QString &name,
                                const QString &info,
                                ModelItemInfo::ItemType type,
-                               const CPlusPlus::Symbol *symbol)
+                               const Symbol *symbol)
 {
     const QIcon icon = icons.iconForSymbol(symbol);
     items.append(ModelItemInfo(name, info, type,
