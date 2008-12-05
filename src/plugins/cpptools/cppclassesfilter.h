@@ -31,38 +31,28 @@
 **
 ***************************************************************************/
 
-#ifndef FILENAMEVALIDATINGLINEEDIT_H
-#define FILENAMEVALIDATINGLINEEDIT_H
+#ifndef CPPCLASSESFILTER_H
+#define CPPCLASSESFILTER_H
 
-#include "basevalidatinglineedit.h"
+#include <cppquickopenfilter.h>
 
-namespace Core {
-namespace Utils {
+namespace CppTools {
+namespace Internal {
 
-class QWORKBENCH_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
+class CppClassesFilter : public CppQuickOpenFilter
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FileNameValidatingLineEdit)
-    Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
+
 public:
-    explicit FileNameValidatingLineEdit(QWidget *parent = 0);
+    CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    ~CppClassesFilter();
 
-    static bool validateFileName(const QString &name,
-                                 bool allowDirectories = false,
-                                 QString *errorMessage = 0);
-
-    bool allowDirectories() const;
-    void setAllowDirectories(bool v);
-
-protected:
-    virtual bool validate(const QString &value, QString *errorMessage) const;
-
-private:
-    bool m_allowDirectories;
-    void *m_unused;
+    QString trName() const { return tr("Classes"); }
+    QString name() const { return QLatin1String("Classes"); }
+    Priority priority() const { return Medium; }
 };
 
-} // namespace Utils
-} // namespace Core
+} // namespace Internal
+} // namespace CppTools
 
-#endif // FILENAMEVALIDATINGLINEEDIT_H
+#endif // CPPCLASSESFILTER_H

@@ -814,21 +814,26 @@
     a pointer to some private data structure, you will see a list of children,
     signals and slots.
 
-    Similarily, instead of showing a bunch of pointers and ints,
-    a QHash or QMap will display its contents in an orderly fashion,
-    a QFileInfo will expose e.g. access data, and the otherwise
-    "opaque" QVariant gives access to the "real" contents.
+    Similarly, instead of displaying many pointers and integers, Qt Creator's
+    debugger will display the contents of a QHash or QMap in an orderly manner.
+    Also, the debugger will display access data for QFileInfo and provide
+    access to the "real" contents of QVariant.
 
-    The \gui{Locals and Watchers View} can be used to change the
-    contents of variables of simple data types like int or float
-    while the program is stopped. To do so, click into the 'Value'
-    column, modify the value there, and hit \key{Return}.
+    The \gui{Locals and Watchers} view can be used to change the contents of
+    variables of simple data types such as \c int or \c float when the program
+    is stopped. To do so, click on the \gui Value column, modify the value
+    with the inplace editor, and hit \key Enter (or \key Return).
     
-
 
     \section2 Modules
 
-    The \gui{Modules View} is hidden by default and only useful in
+    By default, the \gui Modules view is hidden as it is only useful with the
+    experimental delayed debug information loading feature. You can turn this
+    feature on by selecting \gui{Fast Debugger Start} 
+
+
+
+    The \gui Modules view is hidden by default and only useful in
     connection with the experimental feature of delayed debug 
     information loading. This feature is accessible by selecting
     \gui{Debug} and \gui{Fast Debugger Start}. When using the
@@ -849,29 +854,28 @@
     commands
         
 
+    \section1 A Walkthrough for the Debugger Frontend
 
-    \section1 A short walk through the debugger frontend
-
-    In our \l{Writing a Simple Program with Qt Creator}{TextFinder}
-    example, we read a text file into a QString and then display it with a
-    QTextEdit. Suppose, you would like to look at this QString, \c{line},
-    and see what data it actually stores. Follow the steps described below
-    to place a break point and view the QString object's data.
+    In our \l{Writing a Simple Program with Qt Creator}{TextFinder} example, we
+    read a text file into a QString and then display it with a QTextEdit.
+    Suppose, you would like to look at this QString, \c{line}, and see what
+    data it actually stores. Follow the steps described below to place a
+    breakpoint and view the QString object's data.
 
     \table
         \row
-	    \i \inlineimage qtcreator-setting-breakpoint1.png
+	        \i \inlineimage qtcreator-setting-breakpoint1.png
             \i \bold{Setting a Breakpoint}
 
     First, we set a breakpoint on the line where we invoke
-    \l{QTextEdit::}{setPlainText()} by clicking between the line number and
-    the window border. Then, select \gui{Start Debugging} from the
-    \gui{Debug} menu or press \key{F5}.
+    \l{QTextEdit::}{setPlainText()} by clicking between the line number and the
+    window border. Then, select \gui{Start Debugging} from the \gui{Debug} menu
+    or press \key{F5}.
     \endtable
 
     Breakpoints are visible in the \gui{Breakpoints} view, shown below, in
-    \gui{Debug} mode. If you wish to remove a breakpoint, simply right
-    click on it and select \gui{Delete breakpoint} from the context menu.
+    \gui{Debug} mode. If you wish to remove a breakpoint, simply right-click on
+    it and select \gui{Delete breakpoint} from the context menu.
 
     \image qtcreator-setting-breakpoint2.png
 
@@ -880,10 +884,10 @@
 
     \image qtcreator-watcher.png
 
-    Suppose we modify our \c{on_findButton_clicked()} function to move back
-    to the start of the document and continue searching once the cursor
-    hits the end of the document. Adding this functionality can be done
-    with the code snippet below:
+    Suppose we modify our \c{on_findButton_clicked()} function to move back to
+    the start of the document and continue searching once the cursor hits the
+    end of the document. Adding this functionality can be done with the code
+    snippet below:
 
     \code
     void TextFinder::on_findButton_clicked()
@@ -915,9 +919,9 @@
     }
     \endcode
 
-    However, if you compile and run this code, the application will not
-    work correctly due to a logic error. To locate this logic error, you
-    can step through the code using the following buttons:
+    However, if you compile and run this code, the application will not work
+    correctly due to a logic error. To locate this logic error, you can step
+    through the code using the following buttons:
 
     \image qtcreator-debugging-buttons.png
 */
@@ -931,20 +935,20 @@
 
     \title Tips and Tricks
 
-    \bold{Quick mode switch}
+    \bold{Quickly Switching between Modes}
 
     You can quickly switch between modes by pressing \key{Ctrl+1},
-    \key{Ctrl+2}, etc.
+    \key{Ctrl+2}, and so on.
 
-    \bold{Other keyboard shortcuts}
+    \bold{Keyboard Shortcuts}
 
-    There are a lot of other \l{keyboard-shortcuts}{keyboard shortcuts}.
+    Qt Creator provides a lot of useful keyboard shortcuts. A complete list can
+    be found \l{Keyboard Shortcuts}{here}.
 
-    \bold{Command line}
+    \bold{Running Qt Creator from the Command Line}
 
-    You can start Qt Creator from a command prompt with an already
-    existing session or \c{.pro} file by giving the name as argument on the
-    command line.
+    You can start Qt Creator from a command prompt with an existing session or
+    \c{.pro} file by giving the name as argument on the command line.
 
     \bold{Sidebar}
 

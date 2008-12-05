@@ -79,6 +79,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMenu>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -487,10 +488,6 @@ ITextEditable *BaseTextEditor::editableInterface() const
                 d->m_editable, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
-        connect(this,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)),
-                d->m_editable,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)));
     }
     return d->m_editable;
 }
@@ -501,7 +498,8 @@ void BaseTextEditor::currentEditorChanged(Core::IEditor *editor)
     if (editor == d->m_editable) {
         if (d->m_document->hasDecodingError()) {
             Core::EditorManager::instance()->showEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING),
-                tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.").arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())),
+                tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
+                    .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())),
                 tr("Select Encoding"),
                 this, SLOT(selectEncoding()));
         }
@@ -530,7 +528,6 @@ void BaseTextEditor::selectEncoding()
         break;
     }
 }
-
 
 void DocumentMarker::updateMark(ITextMark *mark)
 {
@@ -598,7 +595,78 @@ void BaseTextEditor::slotSelectionChanged()
         viewport()->update();
     if (!d->m_inBlockSelectionMode)
         d->m_blockSelectionExtraX = 0;
+    if (!d->m_selectBlockAnchor.isNull() && !textCursor().hasSelection())
+        d->m_selectBlockAnchor = QTextCursor();
 }
+
+void BaseTextEditor::gotoBlockStart()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockEnd()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockStartWithSelection()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::gotoBlockEndWithSelection()
+{
+    QTextCursor cursor = textCursor();
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+        setTextCursor(cursor);
+}
+
+void BaseTextEditor::selectBlockUp()
+{
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection())
+        d->m_selectBlockAnchor = cursor;
+    else
+        cursor.setPosition(cursor.selectionStart());
+
+
+    if (!TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+        return;
+    if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+        return;
+    setTextCursor(cursor);
+}
+
+void BaseTextEditor::selectBlockDown()
+{
+    QTextCursor tc = textCursor();
+    QTextCursor cursor = d->m_selectBlockAnchor;
+
+    if (!tc.hasSelection() || cursor.isNull())
+        return;
+    tc.setPosition(tc.selectionStart());
+
+    forever {
+        QTextCursor ahead = cursor;
+        if (!TextBlockUserData::findPreviousOpenParenthesis(&ahead, false))
+            break;
+        if (ahead.position() <= tc.position())
+            break;
+        cursor = ahead;
+    }
+    if ( cursor != d->m_selectBlockAnchor)
+        TextBlockUserData::findNextClosingParenthesis(&cursor, true);
+
+    setTextCursor(cursor);
+}
+
+
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
@@ -632,6 +700,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 d->removeBlockSelection();
                 e->accept();
                 return;
+            }
+        } else if (e == QKeySequence::Paste) {
+            if (!ro) {
+                d->removeBlockSelection();
+                // continue
             }
         }
     }
@@ -693,6 +766,8 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Home:
         if (!(e == QKeySequence::MoveToStartOfDocument) && !(e == QKeySequence::SelectStartOfDocument)) {
+            if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier))
+                d->m_lastEventWasBlockSelectionEvent = true;
             handleHomeKey(e->modifiers() & Qt::ShiftModifier);
             e->accept();
             return;
@@ -708,6 +783,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             return;
         }
         // fall through
+    case Qt::Key_End:
     case Qt::Key_Right:
     case Qt::Key_Left:
 #ifndef Q_OS_MAC
@@ -793,6 +869,15 @@ skip_event:
 
     if (e != original_e)
         delete e;
+}
+
+void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
+{
+    // workaround for QTextControl bug
+    bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
+    QPlainTextEdit::setTextCursor(cursor);
+    if (selectionChange)
+        slotSelectionChanged();
 }
 
 void BaseTextEditor::gotoLine(int line, int column)
@@ -2343,6 +2428,12 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
             }
+        } else if (e->button() == Qt::RightButton) {
+            QMenu * contextMenu = new QMenu(this);
+            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
+            if (!contextMenu->isEmpty())
+                contextMenu->exec(e->globalPos());
+            delete contextMenu;
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
@@ -2377,7 +2468,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
                 int line = n + 1;
-                emit markRequested(editableInterface(), line);
+                emit d->m_editable->markRequested(editableInterface(), line);
             }
         }
     }
@@ -2386,6 +2477,9 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 void BaseTextEditor::slotCursorPositionChanged()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+    if (d->m_parenthesesMatchingEnabled)
+        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2396,11 +2490,7 @@ void BaseTextEditor::slotCursorPositionChanged()
         extraSelections.append(sel);
     }
 
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
-
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(CurrentLineSelection, extraSelections);
 }
 
 QTextBlock TextBlockUserData::testCollapse(const QTextBlock& block)
@@ -2908,6 +2998,61 @@ TextBlockUserData::MatchType TextBlockUserData::checkClosedParenthesis(QTextCurs
     }
 }
 
+
+bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool select)
+{
+    QTextBlock block = cursor->block();
+    int position = cursor->position();
+    int ignore = 0;
+    while (block.isValid()) {
+        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty()) {
+            for (int i = parenList.count()-1; i >= 0; --i) {
+                Parenthesis paren = parenList.at(i);
+                if (block == cursor->block() && position - block.position() <= paren.pos + 1)
+                    continue;
+                if (paren.type == Parenthesis::Closed) {
+                    ++ignore;
+                } else if (ignore > 0) {
+                    --ignore;
+                } else {
+                    cursor->setPosition(block.position() + paren.pos, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+                    return true;
+                }
+            }
+        }
+        block = block.previous();
+    }
+    return false;
+}
+
+bool TextBlockUserData::findNextClosingParenthesis(QTextCursor *cursor, bool select)
+{
+    QTextBlock block = cursor->block();
+    int position = cursor->position();
+    int ignore = 0;
+    while (block.isValid()) {
+        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty()) {
+            for (int i = 0; i < parenList.count(); ++i) {
+                Parenthesis paren = parenList.at(i);
+                if (block == cursor->block() && position - block.position() >= paren.pos)
+                    continue;
+                if (paren.type == Parenthesis::Opened) {
+                    ++ignore;
+                } else if (ignore > 0) {
+                    --ignore;
+                } else {
+                    cursor->setPosition(block.position() + paren.pos+1, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+                    return true;
+                }
+            }
+        }
+        block = block.next();
+    }
+    return false;
+}
+
 TextBlockUserData::MatchType TextBlockUserData::matchCursorBackward(QTextCursor *cursor)
 {
     cursor->clearSelection();
@@ -2987,7 +3132,7 @@ void BaseTextEditor::_q_matchParentheses()
     if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
         return;
 
-    QList<QTextEdit::ExtraSelection> extraSelections = d->m_extraSelections;
+    QList<QTextEdit::ExtraSelection> extraSelections;
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -3040,8 +3185,7 @@ void BaseTextEditor::_q_matchParentheses()
         }
         extraSelections.append(sel);
     }
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 }
 
 void BaseTextEditor::setActionHack(QObject *hack)
@@ -3088,15 +3232,21 @@ void BaseTextEditor::deleteLine()
     cut();
 }
 
-void BaseTextEditor::setExtraExtraSelections(const QList<QTextEdit::ExtraSelection> &selections)
+void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
-    d->m_extraExtraSelections = selections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    if (selections.isEmpty() && d->m_extraSelections[kind].isEmpty())
+        return;
+    d->m_extraSelections[kind] = selections;
+
+    QList<QTextEdit::ExtraSelection> all;
+    for (int i = 0; i < NExtraSelectionKinds; ++i)
+        all += d->m_extraSelections[i];
+    QPlainTextEdit::setExtraSelections(all);
 }
 
-QList<QTextEdit::ExtraSelection> BaseTextEditor::extraExtraSelections() const
+QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionKind kind) const
 {
-    return d->m_extraExtraSelections;
+    return d->m_extraSelections[kind];
 }
 
 
@@ -3152,13 +3302,16 @@ void BaseTextEditor::collapse()
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     Q_ASSERT(documentLayout);
     QTextBlock block = textCursor().block();
+    qDebug() << "collapse at block" << block.blockNumber();
     while (block.isValid()) {
-        if (TextBlockUserData::canCollapse(block)) {
-            if ((block.next().userState()) >> 8 == (textCursor().block().userState() >> 8))
+        qDebug() << "test block" << block.blockNumber();
+        if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
+            if ((block.next().userState()) >> 8 <= (textCursor().block().userState() >> 8))
                 break;
         }
         block = block.previous();
     }
+    qDebug() << "found" << block.blockNumber();
     if (block.isValid()) {
         TextBlockUserData::doCollapse(block, false);
         d->moveCursorVisible();
@@ -3236,6 +3389,14 @@ void BaseTextEditor::cut()
         return;
     }
     QPlainTextEdit::cut();
+}
+
+void BaseTextEditor::paste()
+{
+    if (d->m_inBlockSelectionMode) {
+        d->removeBlockSelection();
+    }
+    QPlainTextEdit::paste();
 }
 
 QMimeData *BaseTextEditor::createMimeDataFromSelection() const

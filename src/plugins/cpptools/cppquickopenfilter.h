@@ -34,45 +34,18 @@
 #ifndef CPPQUICKOPENFILTER_H
 #define CPPQUICKOPENFILTER_H
 
-#include "cppmodelmanager.h"
-#include <cplusplus/CppDocument.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include "searchsymbols.h"
+
 #include <quickopen/iquickopenfilter.h>
-#include <QtGui/QIcon>
-#include <QFile>
-#include <QMetaType>
+
+namespace Core {
+class EditorManager;
+}
 
 namespace CppTools {
 namespace Internal {
 
-struct ModelItemInfo
-{
-    enum ItemType { Enum, Class, Method };
-
-    ModelItemInfo()
-    { }
-
-    ModelItemInfo(const QString &symbolName,
-                  const QString &symbolType,
-                  ItemType type,
-                  const QString &fileName,
-                  int line,
-                  const QIcon &icon)
-        : symbolName(symbolName),
-          symbolType(symbolType),
-          type(type),
-          fileName(fileName),
-          line(line),
-          icon(icon)
-    { }
-
-    QString symbolName;
-    QString symbolType;
-    ItemType type;
-    QString fileName;
-    int line;
-    QIcon icon;
-};
+class CppModelManager;
 
 class CppQuickOpenFilter : public QuickOpen::IQuickOpenFilter
 {
@@ -82,11 +55,14 @@ public:
     ~CppQuickOpenFilter();
 
     QString trName() const { return tr("Classes and Methods"); }
-    QString name() const { return "Classes and Methods"; }
+    QString name() const { return QLatin1String("Classes and Methods"); }
     Priority priority() const { return Medium; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
+
+protected:
+    SearchSymbols search;
 
 private slots:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
@@ -113,7 +89,5 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-Q_DECLARE_METATYPE(CppTools::Internal::ModelItemInfo)
 
 #endif // CPPQUICKOPENFILTER_H

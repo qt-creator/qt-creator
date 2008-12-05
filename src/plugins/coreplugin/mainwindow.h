@@ -83,6 +83,7 @@ class OutputPane;
 class ProgressManager;
 class ShortcutSettings;
 class ViewManager;
+class VersionDialog;
 
 class CORE_EXPORT  MainWindow : public QMainWindow
 {
@@ -160,6 +161,7 @@ private slots:
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);
     void toggleNavigation();
+    void destroyVersionDialog();
 
 private:
     void updateContextObject(IContext *context);
@@ -190,6 +192,7 @@ private:
     NavigationWidget *m_navigationWidget;
     RightPaneWidget *m_rightPaneWidget;
     Core::BaseView *m_outputView;
+    VersionDialog *m_versionDialog;
 
     IContext * m_activeContext;
 

@@ -31,52 +31,20 @@
 **
 ***************************************************************************/
 
-#ifndef INDEXWINDOW_H
-#define INDEXWINDOW_H
+#include "cppclassesfilter.h"
 
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
-#include <QtGui/QLineEdit>
+using namespace CppTools::Internal;
 
-QT_BEGIN_NAMESPACE
-
-class QHelpIndexWidget;
-class QHelpEngine;
-
-class IndexWindow : public QWidget
+CppClassesFilter::CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+    : CppQuickOpenFilter(manager, editorManager)
 {
-    Q_OBJECT
+    setShortcutString("c");
+    setIncludedByDefault(false);
 
-public:
-    IndexWindow(QHelpEngine *helpEngine, QWidget *parent = 0);
-    ~IndexWindow();
+    search.setSymbolsToSearchFor(SearchSymbols::Classes);
+    search.setSeparateScope(true);
+}
 
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const
-    {
-        return m_searchLineEdit->text();
-    }
-
-signals:
-    void linkActivated(const QUrl &link);
-    void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
-    void escapePressed();
-
-private slots:
-    void filterIndices(const QString &filter);
-    void enableSearchLineEdit();
-    void disableSearchLineEdit();
-
-private:
-    bool eventFilter(QObject *obj, QEvent *e);
-    void focusInEvent(QFocusEvent *e);
-
-    QLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
-    QHelpEngine *m_helpEngine;
-};
-
-QT_END_NAMESPACE
-
-#endif // INDEXWINDOW_H
+CppClassesFilter::~CppClassesFilter()
+{
+}

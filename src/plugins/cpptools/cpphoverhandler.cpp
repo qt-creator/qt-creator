@@ -60,7 +60,7 @@
 using namespace CppTools::Internal;
 
 CppHoverHandler::CppHoverHandler(CppModelManager *manager, QObject *parent)
-    : QObject(parent), m_manager(manager)
+    : QObject(parent), m_manager(manager), m_helpEngineNeedsSetup(false)
 {
     QFileInfo fi(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings()->fileName());
     m_helpEngine = new QHelpEngineCore(fi.absolutePath()
@@ -68,6 +68,7 @@ CppHoverHandler::CppHoverHandler(CppModelManager *manager, QObject *parent)
     //m_helpEngine->setAutoSaveFilter(false);
     m_helpEngine->setupData();
     m_helpEngine->setCurrentFilter(tr("Unfiltered"));
+    m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
 }
 
 void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
@@ -232,6 +233,12 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 }
             }
         }
+    }
+
+    if (m_helpEngineNeedsSetup
+        && m_helpEngine->registeredDocumentations().count() > 0) {
+        m_helpEngine->setupData();
+        m_helpEngineNeedsSetup = false;
     }
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {

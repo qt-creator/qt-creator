@@ -169,6 +169,8 @@ public:
     static MatchType checkClosedParenthesis(QTextCursor *cursor, QChar c);
     static MatchType matchCursorBackward(QTextCursor *cursor);
     static MatchType matchCursorForward(QTextCursor *cursor);
+    static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false);
+    static bool findNextClosingParenthesis(QTextCursor *cursor, bool select = false);
 
 
 private:
@@ -298,6 +300,8 @@ public:
 
     void setReadOnly(bool b);
 
+    void setTextCursor(const QTextCursor &cursor);
+
 public slots:
     void setDisplayName(const QString &title);
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -305,6 +309,7 @@ public slots:
     virtual void unCommentSelection();
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
 
+    void paste();
     void cut();
 
     void zoomIn(int range = 1);
@@ -315,6 +320,14 @@ public slots:
     void collapse();
     void expand();
     void selectEncoding();
+
+    void gotoBlockStart();
+    void gotoBlockEnd();
+    void gotoBlockStartWithSelection();
+    void gotoBlockEndWithSelection();
+
+    void selectBlockUp();
+    void selectBlockDown();
 
 signals:
     void changed();
@@ -356,7 +369,6 @@ private:
     Internal::BaseTextEditorPrivate *d;
     friend class Internal::BaseTextEditorPrivate;
 
-
 public:
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = 0) const;
@@ -372,8 +384,16 @@ public:
 
     void ensureCursorVisible();
 
-    void setExtraExtraSelections(const QList<QTextEdit::ExtraSelection> &selections);
-    QList<QTextEdit::ExtraSelection> extraExtraSelections() const;
+    enum ExtraSelectionKind {
+        CurrentLineSelection,
+        ParenthesesMatchingSelection,
+        CodeWarningsSelection,
+        CodeSemanticsSelection,
+        OtherSelection,
+        NExtraSelectionKinds
+    };
+    void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
 
     struct BlockRange {
         BlockRange():first(0), last(-1){}
@@ -418,7 +438,6 @@ protected slots:
 
 
 signals:
-    void markRequested(TextEditor::ITextEditor *editor, int line);
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(ITextEditable *editor, bool forced);
 

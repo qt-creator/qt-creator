@@ -44,6 +44,7 @@
 #include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
+class QMenu;
 class QTextBlock;
 QT_END_NAMESPACE
 
@@ -124,6 +125,7 @@ public:
 signals:
     void contentsChanged();
     void markRequested(TextEditor::ITextEditor *editor, int line);
+    void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void tooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position);
     void contextHelpIdRequested(TextEditor::ITextEditor *editor, int position);
 };

@@ -109,6 +109,12 @@ private slots:
     void selectEncoding();
     void increaseFontSize();
     void decreaseFontSize();
+    void gotoBlockStart();
+    void gotoBlockEnd();
+    void gotoBlockStartWithSelection();
+    void gotoBlockEndWithSelection();
+    void selectBlockUp();
+    void selectBlockDown();
     void updateCurrentEditor(Core::IContext *object);
 
 private:
@@ -131,6 +137,12 @@ private:
     QAction *m_selectEncodingAction;
     QAction *m_increaseFontSizeAction;
     QAction *m_decreaseFontSizeAction;
+    QAction *m_gotoBlockStartAction;
+    QAction *m_gotoBlockEndAction;
+    QAction *m_gotoBlockStartWithSelectionAction;
+    QAction *m_gotoBlockEndWithSelectionAction;
+    QAction *m_selectBlockUpAction;
+    QAction *m_selectBlockDownAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;

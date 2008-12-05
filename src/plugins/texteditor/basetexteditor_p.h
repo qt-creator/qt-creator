@@ -204,8 +204,7 @@ public:
 
     QObject *m_actionHack;
 
-    QList<QTextEdit::ExtraSelection> m_extraSelections;
-    QList<QTextEdit::ExtraSelection> m_extraExtraSelections;
+    QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditor::NExtraSelectionKinds];
 
     // block selection mode
     bool m_inBlockSelectionMode;
@@ -216,6 +215,7 @@ public:
     void removeBlockSelection(const QString &text = QString());
     
     QTextCursor m_findScope;
+    QTextCursor m_selectBlockAnchor;
 
     void moveCursorVisible();
 };

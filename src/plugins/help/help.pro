@@ -16,8 +16,8 @@ HEADERS += helpplugin.h \
     searchwidget.h \
     helpfindsupport.h \
     help_global.h \
-    helpindexfilter.h \
-    indexwindow.h
+    helpindexfilter.h
+
 SOURCES += helpplugin.cpp \
     docsettingspage.cpp \
     filtersettingspage.cpp \
@@ -26,6 +26,7 @@ SOURCES += helpplugin.cpp \
     searchwidget.cpp \
     helpfindsupport.cpp \
     helpindexfilter.cpp
+
 FORMS += docsettingspage.ui \
     filtersettingspage.ui
 RESOURCES += help.qrc

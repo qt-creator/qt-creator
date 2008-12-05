@@ -346,6 +346,21 @@ void NewClassWidget::setFormExtension(const QString &e)
     m_d->m_formExtension = fixSuffix(e);
 }
 
+bool NewClassWidget::allowDirectories() const
+{
+    return m_d->m_ui.headerFileLineEdit->allowDirectories();
+}
+
+void NewClassWidget::setAllowDirectories(bool v)
+{
+    // We keep all in sync
+    if (allowDirectories() != v) {
+        m_d->m_ui.sourceFileLineEdit->setAllowDirectories(v);
+        m_d->m_ui.headerFileLineEdit->setAllowDirectories(v);
+        m_d->m_ui.formFileLineEdit->setAllowDirectories(v);
+    }
+}
+
 void NewClassWidget::slotValidChanged()
 {
     const bool newValid = isValid();

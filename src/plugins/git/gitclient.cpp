@@ -35,6 +35,7 @@
 #include "gitplugin.h"
 #include "gitconstants.h"
 #include "commitdata.h"
+#include "gitsubmiteditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -51,7 +52,9 @@
 #include <QtCore/QFuture>
 #include <QtCore/QTime>
 
-#include <QtGui/QErrorMessage>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow> // for msg box parent
+#include <QtGui/QPushButton>
 
 using namespace Git;
 using namespace Git::Internal;
@@ -77,12 +80,24 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+static inline QString msgRepositoryNotFound(const QString &dir)
+{
+    return GitClient::tr("Unable to determine the repository for %1.").arg(dir);
+}
+
+static inline QString msgParseFilesFailed()
+{
+    return  GitClient::tr("Unable to parse the file output.");
+}
+
+// Format a command for the status window
 static QString formatCommand(const QString &binary, const QStringList &args)
 {
     const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
     return GitClient::tr("%1 Executing: %2 %3\n").arg(timeStamp, binary, args.join(QString(QLatin1Char(' '))));
 }
 
+// ---------------- GitClient
 GitClient::GitClient(GitPlugin* plugin, Core::ICore *core) :
     m_msgWait(tr("Waiting for data...")),
     m_plugin(plugin),
@@ -312,6 +327,19 @@ bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringLis
 bool GitClient::synchronousReset(const QString &workingDirectory,
                                  const QStringList &files)
 {
+    QString errorMessage;
+    const bool rc = synchronousReset(workingDirectory, files, &errorMessage);
+    if (!rc) {
+        m_plugin->outputWindow()->append(errorMessage);
+        m_plugin->outputWindow()->popup(false);
+    }
+    return rc;
+}
+
+bool GitClient::synchronousReset(const QString &workingDirectory,
+                                 const QStringList &files,
+                                 QString *errorMessage)
+{
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
@@ -325,9 +353,25 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     if (!rc && !output.contains(QLatin1String("modified"))) {
-        const QString errorMessage = tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).
-                                     arg(workingDirectory, QString::fromLocal8Bit(errorText));
-        m_plugin->outputWindow()->append(errorMessage);
+        *errorMessage = tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).arg(workingDirectory, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    return true;
+}
+
+bool GitClient::synchronousCheckout(const QString &workingDirectory,
+                                    const QStringList &files,
+                                    QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << files;
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("checkout") << QLatin1String("--") << files;
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to checkout %n file(s) in %1: %2", 0, files.size()).arg(workingDirectory, QString::fromLocal8Bit(errorText));
         return false;
     }
     return true;
@@ -365,16 +409,18 @@ void GitClient::executeGit(const QString &workingDirectory, const QStringList &a
     command->execute(arguments, workingDirectory, environment);
 }
 
-bool GitClient::synchronousGit(const QString &workingDirectory
-                                , const QStringList &arguments
-                                , QByteArray* outputText
-                                , QByteArray* errorText)
+bool GitClient::synchronousGit(const QString &workingDirectory,
+                               const QStringList &arguments,
+                               QByteArray* outputText,
+                               QByteArray* errorText,
+                               bool logCommandToWindow)
 {
     if (Git::Constants::debug)
         qDebug() << "synchronousGit" << workingDirectory << arguments;
     const QString binary = QLatin1String(kGitCommand);
 
-    m_plugin->outputWindow()->append(formatCommand(binary, arguments));
+    if (logCommandToWindow)
+        m_plugin->outputWindow()->append(formatCommand(binary, arguments));
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
@@ -456,10 +502,11 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     #<tab>modified:<blanks>git.pro
     \endcode
 */
-static bool parseFiles(const QStringList &lines, CommitData *d)
+static bool parseFiles(const QString &output, CommitData *d)
 {
     enum State { None, CommitFiles, NotUpdatedFiles, UntrackedFiles };
 
+    const QStringList lines = output.split(QLatin1Char('\n'));
     const QString branchIndicator = QLatin1String(kBranchIndicatorC);
     const QString commitIndicator = QLatin1String("# Changes to be committed:");
     const QString notUpdatedIndicator = QLatin1String("# Changed but not updated:");
@@ -492,10 +539,10 @@ static bool parseFiles(const QStringList &lines, CommitData *d)
                             const QString fileSpec = line.mid(2).trimmed();
                             switch (s) {
                             case CommitFiles:
-                                d->commitFiles.push_back(trimFileSpecification(fileSpec));
+                                d->stagedFiles.push_back(trimFileSpecification(fileSpec));
                             break;
                             case NotUpdatedFiles:
-                                d->notUpdatedFiles.push_back(trimFileSpecification(fileSpec));
+                                d->unstagedFiles.push_back(trimFileSpecification(fileSpec));
                                 break;
                             case UntrackedFiles:
                                 d->untrackedFiles.push_back(QLatin1String("untracked: ") + fileSpec);
@@ -509,7 +556,7 @@ static bool parseFiles(const QStringList &lines, CommitData *d)
             }
         }
     }
-    return !d->commitFiles.empty() || !d->notUpdatedFiles.empty() || !d->untrackedFiles.empty();
+    return !d->stagedFiles.empty() || !d->unstagedFiles.empty() || !d->untrackedFiles.empty();
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
@@ -525,7 +572,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     // Find repo
     const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
     if (repoDirectory.isEmpty()) {
-        *errorMessage = tr("Unable to determine the repository for %1.").arg(workingDirectory);
+        *errorMessage = msgRepositoryNotFound(workingDirectory);
         return false;
     }
 
@@ -551,7 +598,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case  StatusChanged:
         break;
     case StatusUnchanged:
-        *errorMessage = tr("There are no modified files.");
+        *errorMessage = msgNoChangedFiles();
         return false;
     case StatusFailed:
         return false;
@@ -575,9 +622,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #
     //    #       list of files...
 
-    const QStringList lines = output.split(QLatin1Char('\n'));
-    if (!parseFiles(lines, d)) {
-        *errorMessage = tr("Unable to parse the file output.");
+    if (!parseFiles(output, d)) {
+        *errorMessage = msgParseFilesFailed();
         return false;
     }
 
@@ -638,6 +684,129 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     return rc;
 }
 
+static inline bool askWithInformativeText(QWidget *parent,
+                                          const QString &title,
+                                          const QString &msg,
+                                          const QString &inf,
+                                          bool defaultValue)
+{
+    QMessageBox msgBox(QMessageBox::Question, title, msg, QMessageBox::Yes|QMessageBox::No, parent);
+    msgBox.setInformativeText(inf);
+    msgBox.setDefaultButton(defaultValue ? QMessageBox::Yes : QMessageBox::No);
+    return msgBox.exec() == QMessageBox::Yes;
+}
+
+/* Revert: This function can be called with a file list (to revert single
+ * files)  or a single directory (revert all). Qt Creator currently has only
+ * 'revert single' in its VCS menus, but the code is prepared to deal with
+ * reverting a directory pending a sophisticated selection dialog in the
+ * VCSBase plugin. */
+
+GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirectory, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << files;
+
+    if (files.empty())
+        return RevertCanceled;
+
+    // Figure out the working directory
+    const QFileInfo firstFile(files.front());
+    const bool isDirectory = firstFile.isDir();
+    if (ptrToIsDirectory)
+        *ptrToIsDirectory = isDirectory;
+    const QString workingDirectory = isDirectory ? firstFile.absoluteFilePath() : firstFile.absolutePath();
+
+    const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
+    if (repoDirectory.isEmpty()) {
+        *errorMessage = msgRepositoryNotFound(workingDirectory);
+        return RevertFailed;
+    }
+
+    // Check for changes
+    QString output;
+    switch (gitStatus(repoDirectory, false, &output, errorMessage)) {
+    case StatusChanged:
+        break;
+    case StatusUnchanged:
+        return RevertUnchanged;
+    case StatusFailed:
+        return RevertFailed;
+    }
+    CommitData d;
+    if (!parseFiles(output, &d)) {
+        *errorMessage = msgParseFilesFailed();
+        return RevertFailed;
+    }
+
+    // If we are looking at files, make them relative to the repository
+    // directory to match them in the status output list.
+    if (!isDirectory) {
+        const QDir repoDir(repoDirectory);
+        const QStringList::iterator cend = files.end();
+        for (QStringList::iterator it = files.begin(); it != cend; ++it)
+            *it = repoDir.relativeFilePath(*it);
+    }
+
+    // From the status output, determine all modified [un]staged files.
+    const QString modifiedPattern = QLatin1String("modified: ");
+    const QStringList allStagedFiles = GitSubmitEditor::statusListToFileList(d.stagedFiles.filter(modifiedPattern));
+    const QStringList allUnstagedFiles = GitSubmitEditor::statusListToFileList(d.unstagedFiles.filter(modifiedPattern));
+    // Unless a directory was passed, filter all modified files for the
+    // argument file list.
+    QStringList stagedFiles = allStagedFiles;
+    QStringList unstagedFiles = allUnstagedFiles;
+    if (!isDirectory) {
+        const QSet<QString> filesSet = files.toSet();
+        stagedFiles = allStagedFiles.toSet().intersect(filesSet).toList();
+        unstagedFiles = allUnstagedFiles.toSet().intersect(filesSet).toList();
+    }
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << d.stagedFiles << d.unstagedFiles << allStagedFiles << allUnstagedFiles << stagedFiles << unstagedFiles;
+
+    if (stagedFiles.empty() && unstagedFiles.empty())
+        return RevertUnchanged;
+
+    // Ask to revert (to do: Handle lists with a selection dialog)
+    const QMessageBox::StandardButton answer
+        = QMessageBox::question(m_core->mainWindow(),
+                                tr("Revert"),
+                                tr("The file has been changed. Do you want to revert it?"),
+                                QMessageBox::Yes|QMessageBox::No,
+                                QMessageBox::No);
+    if (answer == QMessageBox::No)
+        return RevertCanceled;
+
+    // Unstage the staged files
+    if (!stagedFiles.empty() && !synchronousReset(repoDirectory, stagedFiles, errorMessage))
+        return RevertFailed;
+    // Finally revert!
+    if (!synchronousCheckout(repoDirectory, stagedFiles + unstagedFiles, errorMessage))
+        return RevertFailed;
+    return RevertOk;
+}
+
+void GitClient::revert(const QStringList &files)
+{
+    bool isDirectory;
+    QString errorMessage;
+    switch (revertI(files, &isDirectory, &errorMessage)) {
+    case RevertOk:
+    case RevertCanceled:
+        break;
+    case RevertUnchanged: {
+        const QString msg = (isDirectory || files.size() > 1) ? msgNoChangedFiles() : tr("The file is not modified.");
+        m_plugin->outputWindow()->append(msg);
+        m_plugin->outputWindow()->popup();
+    }
+        break;
+    case RevertFailed:
+        m_plugin->outputWindow()->append(errorMessage);
+        m_plugin->outputWindow()->popup();
+        break;
+    }
+}
+
 void GitClient::pull(const QString &workingDirectory)
 {
     executeGit(workingDirectory, QStringList(QLatin1String("pull")), m_plugin->outputWindow(), 0, true);
@@ -646,6 +815,11 @@ void GitClient::pull(const QString &workingDirectory)
 void GitClient::push(const QString &workingDirectory)
 {
     executeGit(workingDirectory, QStringList(QLatin1String("push")), m_plugin->outputWindow(), 0, true);
+}
+
+QString GitClient::msgNoChangedFiles()
+{
+    return tr("There are no modified files.");
 }
 
 void GitClient::stash(const QString &workingDirectory)
@@ -657,7 +831,7 @@ void GitClient::stash(const QString &workingDirectory)
         executeGit(workingDirectory, QStringList(QLatin1String("stash")), m_plugin->outputWindow(), 0, true);
         break;
     case StatusUnchanged:
-        m_plugin->outputWindow()->append(tr("There are no modified files."));
+        m_plugin->outputWindow()->append(msgNoChangedFiles());
         m_plugin->outputWindow()->popup();
         break;
     case StatusFailed:
@@ -694,8 +868,8 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
     arguments << QLatin1String("config") << configVar;
 
     QByteArray outputText;
-    if (synchronousGit(workingDirectory, arguments, &outputText))
-        return QString::fromLocal8Bit(outputText);
+    if (synchronousGit(workingDirectory, arguments, &outputText, 0, false))
+        return QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r'));
     return QString();
 }
 
