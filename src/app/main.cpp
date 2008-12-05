@@ -212,9 +212,9 @@ int main(int argc, char **argv)
     pluginManager.setPluginPaths(pluginPaths);
 
     const QStringList arguments = app.arguments();
-    QMap<QString,QString> foundAppOptions;
+    QMap<QString, QString> foundAppOptions;
     if (arguments.size() > 1) {
-        QMap<QString,bool> appOptions;
+        QMap<QString, bool> appOptions;
         appOptions.insert(QLatin1String(HELP_OPTION1), false);
         appOptions.insert(QLatin1String(HELP_OPTION2), false);
         appOptions.insert(QLatin1String(HELP_OPTION3), false);
