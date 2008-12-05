@@ -32,14 +32,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="svnCmdLineEdit"/>
-       </item>
-       <item>
-        <widget class="QToolButton" name="browseButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
+        <widget class="Core::Utils::PathChooser" name="pathChooser" native="true"/>
        </item>
       </layout>
      </item>
@@ -109,9 +102,14 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>svnCmdLineEdit</tabstop>
- </tabstops>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
