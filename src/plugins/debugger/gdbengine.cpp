@@ -1276,7 +1276,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             m_currentFrame = frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%';
 
-            QApplication::alert(q->mainWindow(), 200);
+            QApplication::alert(q->mainWindow(), 3000);
             sendCommand("-file-list-exec-source-files", GdbQuerySources);
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
