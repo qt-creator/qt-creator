@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QLabel>
+#include <QtGui/QTextDocument>
 #include <QDebug>
 
 using namespace ProjectExplorer;
@@ -160,7 +161,7 @@ void ApplicationRunControl::slotError(const QString & err)
 
 void ApplicationRunControl::slotAddToOutputWindow(const QString &line)
 {
-    emit addToOutputWindow(this, line);
+    emit addToOutputWindow(this, Qt::escape(line));
 }
 
 void ApplicationRunControl::processExited(int exitCode)

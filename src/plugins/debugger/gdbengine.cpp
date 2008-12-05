@@ -110,7 +110,6 @@ enum GdbCommandType
     GdbFileExecAndSymbols,
     GdbQueryPwd,
     GdbQuerySources,
-    GdbQuerySources2,
     GdbAsyncOutput2,
     GdbExecRun,
     GdbExecRunToFunction,
@@ -126,7 +125,6 @@ enum GdbCommandType
     GdbInfoProc,
     GdbQueryDataDumper1,
     GdbQueryDataDumper2,
-    GdbInitializeSocket1,
 
     BreakCondition = 200,
     BreakEnablePending,
@@ -444,7 +442,7 @@ void GdbEngine::handleResponse()
             break;
         }
 
-        if (token == -1 && *from != '&' && *from != '~') {
+        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
             // FIXME: On Linux the application's std::out is merged in here.
             // High risk of falsely interpreting this as MI output.
             // We assume that we _always_ use tokens, so not finding a token
@@ -493,8 +491,10 @@ void GdbEngine::handleResponse()
                 m_inbuffer = QByteArray(from, to - from);
                 if (asyncClass == "stopped") {
                     handleAsyncOutput(record);
+                } else if (asyncClass == "running") {
+                    // Archer has 'thread-id="all"' here
                 } else {
-                    qDebug() << "INGNORED ASYNC OUTPUT " << record.toString();
+                    qDebug() << "IGNORED ASYNC OUTPUT " << record.toString();
                 }
                 break;
             }
@@ -633,18 +633,10 @@ void GdbEngine::readGdbStandardOutput()
 {
     // This is the function called whenever the Gdb process created
     // output. As a rule of thumb, stdout contains _real_ Gdb output
-    // as responses to our command (with exception of the data dumpers)
+    // as responses to our command
     // and "spontaneous" events like messages on loaded shared libraries.
-    // Otoh, stderr contains application output produced by qDebug etc.
-    // There is no organized way to pass application stdout output
-
-    // The result of custom data dumpers arrives over the socket _before_
-    // the corresponding Gdb "^done" message arrives here over stdout
-    // and is merged into the response via m_pendingCustomValueContents.
-
-    // Note that this code here runs syncronized to the arriving
-    // output. The completed response will be signalled by a queued
-    // connection to the handlers.
+    // OTOH, stderr contains application output produced by qDebug etc.
+    // There is no organized way to pass application stdout output.
 
     QByteArray out = m_gdbProc.readAllStandardOutput();
 
@@ -765,18 +757,11 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
     //qDebug() << "TOKEN: " << record.token
     //    << " ACCEPTABLE: " << m_oldestAcceptableToken;
     //qDebug() << "";
-    //qDebug() << qPrintable(currentTime()) << "Reading response:  "
-    //   << record.toString() << "\n";
     //qDebug() << "\nRESULT" << record.token << record.toString();
 
     int token = record.token;
     if (token == -1)
         return;
-
-    if (!m_cookieForToken.contains(token)) {
-        qDebug() << "NO SUCH TOKEN (ANYMORE): " << token;
-        return;
-    }
 
     GdbCookie cmd = m_cookieForToken.take(token);
 
@@ -787,12 +772,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
     }
-
-    // We get _two_ results for a '-exec-foo' command: First a
-    // 'running' notification, then a 'stopped' or similar.
-    // So put it back.
-    if (record.resultClass == GdbResultRunning)
-        m_cookieForToken[token] = cmd;
 
 #if 0
     qDebug() << "# handleOutput, "
@@ -858,17 +837,11 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbQuerySources:
             handleQuerySources(record);
             break;
-        case GdbQuerySources2:
-            handleQuerySources2(record, cookie);
-            break;
         case GdbAsyncOutput2:
             handleAsyncOutput2(cookie.value<GdbMi>());
             break;
         case GdbInfoShared:
             handleInfoShared(record);
-            break;
-        case GdbInitializeSocket1:
-            //qDebug() << " INIT SOCKET" << record.toString();
             break;
         case GdbQueryDataDumper1:
             handleQueryDataDumper1(record);
@@ -1070,13 +1043,6 @@ void GdbEngine::handleInfoShared(const GdbResultRecord &record)
             reloadModules();
         continueInferior();
     }
-}
-
-void GdbEngine::handleQuerySources2(const GdbResultRecord &record,
-    const QVariant &cookie)
-{
-    if (record.resultClass == GdbResultDone)
-        handleAsyncOutput2(cookie.value<GdbMi>());
 }
 
 void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
@@ -3681,11 +3647,16 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
     // stage 2/2
 
     // There could be shadowed variables
-    QHash<QString, int> seen;
     QList<GdbMi> locals = record.data.findChild("locals").children();
     locals += m_currentFunctionArgs;
 
+    setLocals(locals);
+}
+
+void GdbEngine::setLocals(const QList<GdbMi> &locals) 
+{ 
     //qDebug() << m_varToType;
+    QHash<QString, int> seen;
 
     foreach (const GdbMi &item, locals) {
         #ifdef Q_OS_MAC

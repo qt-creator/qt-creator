@@ -44,6 +44,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtGui/QTextDocument>
 
 using namespace Debugger::Internal;
 
@@ -140,8 +141,8 @@ void DebuggerRunControl::slotAddToOutputWindow(const QString &prefix, const QStr
 {  
     Q_UNUSED(prefix);
     foreach (const QString &l, line.split('\n'))
-        emit addToOutputWindow(this, prefix + l);
-    //emit addToOutputWindow(this, prefix + line);
+        emit addToOutputWindow(this, prefix + Qt::escape(l));
+    //emit addToOutputWindow(this, prefix + Qt::escape(line));
 }
 
 void DebuggerRunControl::stop()

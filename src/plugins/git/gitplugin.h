@@ -55,6 +55,7 @@ QT_END_NAMESPACE
 namespace Core {
     class IEditorFactory;
     class ICore;
+    class IVersionControl;
 }
 
 namespace Git {
@@ -65,6 +66,7 @@ namespace Internal {
     class ChangeSelectionDialog;
     class GitSubmitEditor;
     struct CommitData;
+    struct GitSettings;
 
 // Just a proxy for GitPlugin
 class CoreListener : public Core::ICoreListener
@@ -87,13 +89,16 @@ public:
                                 ~GitPlugin();
     static GitPlugin *instance();
 
-    bool                        vcsOpen(const QString &fileName);
-
     bool                        initialize(const QStringList &arguments
                                            , QString *error_message);
     void                        extensionsInitialized();
 
     QString                     getWorkingDirectory();
+
+    GitOutputWindow             *outputWindow() const;
+
+    GitSettings  settings() const;
+    void setSettings(const GitSettings &s);
 
 public slots:
     void                        updateActions();
@@ -111,16 +116,21 @@ private slots:
     void                        logProject();
     void                        undoFileChanges();
     void                        undoProjectChanges();
-    void                        addFile();
+    void                        stageFile();
+    void                        unstageFile();
+    void                        revertFile();
 
     void                        showCommit();
     void                        startCommit();
+    void                        stash();
+    void                        stashPop();
+    void                        branchList();
+    void                        stashList();
     void                        pull();
     void                        push();
 
 private:
-    friend class GitClient;
-    QFileInfo                   currentFile();
+    QFileInfo                   currentFile() const;
     Core::IEditor               *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void                        cleanChangeTmpFile();
 
@@ -136,7 +146,9 @@ private:
     QAction                     *m_undoFileAction;
     QAction                     *m_undoProjectAction;
     QAction                     *m_showAction;
-    QAction                     *m_addAction;
+    QAction                     *m_stageAction;
+    QAction                     *m_unstageAction;
+    QAction                     *m_revertAction;
     QAction                     *m_commitAction;
     QAction                     *m_pullAction;
     QAction                     *m_pushAction;
@@ -145,6 +157,10 @@ private:
     QAction                     *m_diffSelectedFilesAction;
     QAction                     *m_undoAction;
     QAction                     *m_redoAction;
+    QAction                     *m_stashAction;
+    QAction                     *m_stashPopAction;
+    QAction                     *m_stashListAction;
+    QAction                     *m_branchListAction;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     GitClient                   *m_gitClient;
@@ -154,6 +170,7 @@ private:
     QList<Core::IEditorFactory*> m_editorFactories;
     CoreListener                *m_coreListener;
     Core::IEditorFactory        *m_submitEditorFactory;
+    Core::IVersionControl       *m_versionControl;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QTemporaryFile              *m_changeTmpFile;

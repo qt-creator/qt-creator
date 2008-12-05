@@ -159,7 +159,6 @@ bool QMakeStep::init(const QString &name)
     setCommand(name, program);
     setArguments(name, args);
     setEnvironment(name, environment);
-    setWorkingDirectory(name, workingDirectory);
     return AbstractProcessStep::init(name);
 }
 

@@ -45,51 +45,53 @@ class CORE_EXPORT IVersionControl : public QObject
 {
     Q_OBJECT
 public:
+    enum Operation { AddOperation, DeleteOperation, OpenOperation };
+
     IVersionControl(QObject *parent = 0) : QObject(parent) {}
     virtual ~IVersionControl() {}
 
-    // Returns wheter files in this directory should be managed with this
+    virtual QString name() const = 0;
+
+    // Enable the VCS, that is, make its menu actions visible.
+    virtual bool isEnabled() const = 0;
+    virtual void setEnabled(bool enabled) = 0;
+
+    // Returns whether files in this directory should be managed with this
     // version control.
     virtual bool managesDirectory(const QString &filename) const = 0;
 
-    // This function should return the topmost directory, for
-    // which this IVersionControl should be used.
-    // The VCSManager assumes that all files in the returned directory
-    // are managed by the same IVersionControl
+    // This function should return the topmost directory, for which this
+    // IVersionControl should be used. The VCSManager assumes that all files
+    // in the returned directory are managed by the same IVersionControl
     // Note that this is used as an optimization, so that the VCSManager
     // doesn't need to call managesDirectory(..) for each directory
-    // This function is called after finding out that the directory is managed by
-    // a specific version control
+    // This function is called after finding out that the directory is managed
+    // by a specific version control.
     virtual QString findTopLevelForDirectory(const QString &directory) const = 0;
 
-    // Called prior to save, if the file is read only.
-    // Should be implemented if the scc requires a operation before editing the file
-    // E.g. p4 edit
-    // Note: The EditorManager calls this for the editors
+    // Called to query whether a VCS supports the respective operations.
+    virtual bool supportsOperation(Operation operation) const = 0;
+
+    // Called prior to save, if the file is read only. Should be implemented
+    // if the scc requires a operation before editing the file, e.g. 'p4 edit'
+    // Note: The EditorManager calls this for the editors.
     virtual bool vcsOpen(const QString &fileName) = 0;
 
-    // Called after a file has been added to a project
-    // If the version control needs to know which files it needs to track
-    // you should reimplement this function
-    // E.g. p4 add, cvs add, svn add
-    // Note: This function should be called from IProject subclasses after files
-    // are added to the project
+    // Called after a file has been added to a project If the version control
+    // needs to know which files it needs to track you should reimplement this
+    // function, e.g. 'p4 add', 'cvs add', 'svn add'.
+    // Note: This function should be called from IProject subclasses after
+    // files are added to the project
     virtual bool vcsAdd(const QString &filename) = 0;
 
-    // Called after a file has been removed from the project (if the user wants)
-    // E.g. p4 delete, svn delete
-    // You probably want to call SccManager::showDeleteDialog, which asks the user to
-    // confirm the deletion
+    // Called after a file has been removed from the project (if the user
+    // wants), e.g. 'p4 delete', 'svn delete'.
+    // You probably want to call VcsManager::showDeleteDialog, which asks the
+    // user to confirm the deletion
     virtual bool vcsDelete(const QString &filename) = 0;
 
     // TODO: ADD A WAY TO DETECT WHETHER A FILE IS MANAGED, e.g
     // virtual bool sccManaged(const QStryng &filename) = 0;
-
-    // TODO
-    // we probably want to have a function supports( enum Operation ) or
-    // something which describes which "kind" of revision control system it is.
-    // That is to check wheter a given operation is needed.
-    // But well I don't know yet how all different version control systems work
 };
 
 } // namespace Core

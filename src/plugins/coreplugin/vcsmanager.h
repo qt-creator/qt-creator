@@ -45,12 +45,12 @@ class IVersionControl;
 
 // The VCSManager has only one notable function:
 // findVersionControlFor(), which returns the IVersionControl * for a given
-// filename. Note that the VCSManager assumes that if a IVersionControl * 
+// filename. Note that the VCSManager assumes that if a IVersionControl *
 // manages a directory, then it also manages all the files and all the
 // subdirectories.
 //
 // It works by asking all IVersionControl * if they manage the file, and ask
-// for the topmost directory it manages. This information is cached and 
+// for the topmost directory it manages. This information is cached and
 // VCSManager thus knows pretty fast which IVersionControl * is responsible.
 
 class CORE_EXPORT VCSManager
@@ -62,10 +62,16 @@ public:
 
     IVersionControl *findVersionControlForDirectory(const QString &directory);
 
-    // Shows a confirmation dialog,
-    // wheter the file should also be deleted from revision control
-    // Calls sccDelete on the file
-    void showDeleteDialog(const QString &fileName);
+    // Enable the VCS managing a certain directory only. This should
+    // be used by project manager classes.
+    void setVCSEnabled(const QString &directory);
+    // Enable all VCS.
+    void setAllVCSEnabled();
+
+    // Shows a confirmation dialog, whether the file should also be deleted
+    // from revision control Calls sccDelete on the file. Returns false
+    // if a failure occurs
+    bool showDeleteDialog(const QString &fileName);
 
 private:
     VCSManagerPrivate *m_d;

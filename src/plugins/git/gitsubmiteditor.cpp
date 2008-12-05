@@ -67,9 +67,9 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     submitEditorWidget()->setPanelData(d.panelData);
     submitEditorWidget()->setPanelInfo(d.panelInfo);
 
-    addFiles(d.commitFiles, true, true);
+    addFiles(d.stagedFiles, true, true);
     // Not Updated: Initially unchecked
-    addFiles(d.notUpdatedFiles, false, true);
+    addFiles(d.unstagedFiles, false, true);
     addFiles(d.untrackedFiles, false, true);
 }
 

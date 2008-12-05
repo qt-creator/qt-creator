@@ -206,8 +206,6 @@ private:
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
-    void handleQuerySources2(const GdbResultRecord &response,
-        const QVariant &);
 
     QByteArray m_inbuffer;
 
@@ -219,7 +217,6 @@ private:
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingTargetStreamOutput;
     QByteArray m_pendingLogStreamOutput;
-    //QByteArray m_pendingCustomValueContents;
     QString m_pwd;
 
     // contains the first token number for the current round
@@ -329,6 +326,7 @@ private:
     void handleVarListChildrenHelper(const GdbMi &child,
         const WatchData &parent);
     void setWatchDataType(WatchData &data, const GdbMi &mi);
+    void setLocals(const QList<GdbMi> &locals);
 
     QString m_editedData;
     int m_pendingRequests;

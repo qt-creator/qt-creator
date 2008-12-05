@@ -71,8 +71,8 @@ struct CommitData
     void clear();
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
-    QStringList commitFiles;
-    QStringList notUpdatedFiles;
+    QStringList stagedFiles;
+    QStringList unstagedFiles;
     QStringList untrackedFiles;
 };
 

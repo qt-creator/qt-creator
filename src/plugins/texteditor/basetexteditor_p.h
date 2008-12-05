@@ -216,6 +216,7 @@ public:
     void removeBlockSelection(const QString &text = QString());
     
     QTextCursor m_findScope;
+    QTextCursor m_selectBlockAnchor;
 
     void moveCursorVisible();
 };

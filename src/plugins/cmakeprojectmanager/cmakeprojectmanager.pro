@@ -7,10 +7,12 @@ HEADERS = cmakeproject.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
     cmakeprojectnodes.h \
-    cmakestep.h
+    cmakestep.h \
+    makestep.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
-    cmakestep.cpp
+    cmakestep.cpp \
+    makestep.cpp
 RESOURCES += cmakeproject.qrc

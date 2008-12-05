@@ -40,6 +40,8 @@
 
 namespace rpp {
 
+class Macro;
+
 class Client
 {
   Client(const Client &other);
@@ -60,6 +62,13 @@ public:
 
   virtual void macroAdded(const QByteArray &macroId, const QByteArray &text) = 0;
   virtual void sourceNeeded(QString &fileName, IncludeType mode) = 0; // ### FIX the signature.
+
+  virtual void startExpandingMacro(unsigned offset,
+                                   const Macro &macro,
+                                   const QByteArray &originalTextt) = 0;
+
+  virtual void stopExpandingMacro(unsigned offset,
+                                  const Macro &macro) = 0;
 
   virtual void startSkippingBlocks(unsigned offset) = 0;
   virtual void stopSkippingBlocks(unsigned offset) = 0;

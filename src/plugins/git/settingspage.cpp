@@ -32,35 +32,44 @@
 ***************************************************************************/
 
 #include "settingspage.h"
+#include "gitsettings.h"
+#include "gitplugin.h"
 
-#include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
-
-#include <QtCore/QSettings>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFileDialog>
 #include <QtCore/QDebug>
 
 using namespace Git::Internal;
 
-static const char *groupC = "Git";
-static const char *sysEnvKeyC = "SysEnv";
-static const char *pathKeyC = "Path";
-static const char *logCountKeyC = "LogCount";
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    m_ui.setupUi(this);
+    connect(m_ui.adoptButton, SIGNAL(clicked()), this, SLOT(setSystemPath()));
+}
 
+GitSettings SettingsPageWidget::settings() const
+{
+    GitSettings rc;
+    rc.path = m_ui.pathLineEdit->text();
+    rc.adoptPath = m_ui.environmentGroupBox->isChecked() && !rc.path.isEmpty();
+    rc.logCount = m_ui.logCountSpinBox->value();
+    return rc;
+}
+
+void SettingsPageWidget::setSettings(const GitSettings &s)
+{
+    m_ui.environmentGroupBox->setChecked(s.adoptPath);
+    m_ui.pathLineEdit->setText(s.path);
+    m_ui.logCountSpinBox->setValue(s.logCount);
+}
+
+void SettingsPageWidget::setSystemPath()
+{
+    m_ui.pathLineEdit->setText(QLatin1String(qgetenv("PATH")));
+}
+
+// -------- SettingsPage
 SettingsPage::SettingsPage()
 {
-    Core::ICore *coreIFace = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (coreIFace)
-        m_settings = coreIFace->settings();
-
-    if (m_settings) {
-        m_settings->beginGroup(QLatin1String(groupC));
-        m_adopt = m_settings->value(QLatin1String(sysEnvKeyC), true).toBool();
-        m_path = m_settings->value(QLatin1String(pathKeyC), QString()).toString();
-        m_logCount = m_settings->value(QLatin1String(logCountKeyC), 10).toInt();
-        m_settings->endGroup();
-    }
 }
 
 QString SettingsPage::name() const
@@ -68,7 +77,7 @@ QString SettingsPage::name() const
     return tr("General");
 }
 
-QString SettingsPage::category() const
+ QString SettingsPage::category() const
 {
     return QLatin1String("Git");
 }
@@ -80,37 +89,17 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-    m_ui.adoptCheckBox->setChecked(m_adopt);
-    m_ui.pathLineEdit->setText(m_path);
-    m_ui.logLineEdit->setText(QString::number(m_logCount));
-
-    connect(m_ui.adoptButton, SIGNAL(clicked()), this, SLOT(setSystemPath()));
-    return w;
+    if (!m_widget)
+        m_widget = new SettingsPageWidget(parent);
+    m_widget->setSettings(GitPlugin::instance()->settings());
+    return m_widget;
 }
 
 void SettingsPage::finished(bool accepted)
 {
-    if (!accepted)
+    if (!accepted || !m_widget)
         return;
 
-    m_adopt = m_ui.adoptCheckBox->isChecked();
-    m_path = m_ui.pathLineEdit->text();
-    m_logCount = m_ui.logLineEdit->text().toInt();
-
-    if (!m_settings)
-        return;
-
-    m_settings->beginGroup(QLatin1String(groupC));
-    m_settings->setValue(QLatin1String(sysEnvKeyC), m_adopt);
-    m_settings->setValue(QLatin1String(pathKeyC), m_path);
-    m_settings->setValue(QLatin1String(logCountKeyC), m_logCount);
-    m_settings->endGroup();
+    GitPlugin::instance()->setSettings(m_widget->settings());
 }
 
-void SettingsPage::setSystemPath()
-{
-    m_path = qgetenv("PATH");
-    m_ui.pathLineEdit->setText(m_path);
-}

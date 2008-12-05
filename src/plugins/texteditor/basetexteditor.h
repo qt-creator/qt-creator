@@ -169,6 +169,8 @@ public:
     static MatchType checkClosedParenthesis(QTextCursor *cursor, QChar c);
     static MatchType matchCursorBackward(QTextCursor *cursor);
     static MatchType matchCursorForward(QTextCursor *cursor);
+    static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false);
+    static bool findNextClosingParenthesis(QTextCursor *cursor, bool select = false);
 
 
 private:
@@ -298,6 +300,8 @@ public:
 
     void setReadOnly(bool b);
 
+    void setTextCursor(const QTextCursor &cursor);
+
 public slots:
     void setDisplayName(const QString &title);
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -305,6 +309,7 @@ public slots:
     virtual void unCommentSelection();
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
 
+    void paste();
     void cut();
 
     void zoomIn(int range = 1);
@@ -315,6 +320,14 @@ public slots:
     void collapse();
     void expand();
     void selectEncoding();
+
+    void gotoBlockStart();
+    void gotoBlockEnd();
+    void gotoBlockStartWithSelection();
+    void gotoBlockEndWithSelection();
+
+    void selectBlockUp();
+    void selectBlockDown();
 
 signals:
     void changed();
@@ -419,6 +432,7 @@ protected slots:
 
 signals:
     void markRequested(TextEditor::ITextEditor *editor, int line);
+    void lineContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(ITextEditable *editor, bool forced);
 

@@ -31,52 +31,39 @@
 **
 ***************************************************************************/
 
-#ifndef INDEXWINDOW_H
-#define INDEXWINDOW_H
+#ifndef GITSETTINGS_H
+#define GITSETTINGS_H
 
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
-#include <QtGui/QLineEdit>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-
-class QHelpIndexWidget;
-class QHelpEngine;
-
-class IndexWindow : public QWidget
-{
-    Q_OBJECT
-
-public:
-    IndexWindow(QHelpEngine *helpEngine, QWidget *parent = 0);
-    ~IndexWindow();
-
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const
-    {
-        return m_searchLineEdit->text();
-    }
-
-signals:
-    void linkActivated(const QUrl &link);
-    void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
-    void escapePressed();
-
-private slots:
-    void filterIndices(const QString &filter);
-    void enableSearchLineEdit();
-    void disableSearchLineEdit();
-
-private:
-    bool eventFilter(QObject *obj, QEvent *e);
-    void focusInEvent(QFocusEvent *e);
-
-    QLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
-    QHelpEngine *m_helpEngine;
-};
-
+class QSettings;
 QT_END_NAMESPACE
 
-#endif // INDEXWINDOW_H
+namespace Git {
+namespace Internal {
+
+// Todo: Add user name and password?
+struct GitSettings
+{
+    GitSettings();
+
+    void fromSettings(QSettings *);
+    void toSettings(QSettings *) const;
+
+    bool equals(const GitSettings &s) const;
+
+    bool adoptPath;
+    QString path;
+    int logCount;
+};
+
+inline bool operator==(const GitSettings &p1, const GitSettings &p2)
+    { return p1.equals(p2); }
+inline bool operator!=(const GitSettings &p1, const GitSettings &p2)
+    { return !p1.equals(p2); }
+
+} // namespace Internal
+} // namespace Git
+
+#endif // GITSETTINGS_H

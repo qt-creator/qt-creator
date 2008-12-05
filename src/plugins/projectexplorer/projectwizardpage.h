@@ -69,6 +69,7 @@ public:
     bool addToVersionControl() const;
     void setAddToVersionControlEnabled(bool b);
 
+    void setVCSDisplay(const QString &vcsName);
     void setFilesDisplay(const QStringList &files);
 
 protected:

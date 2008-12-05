@@ -206,6 +206,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
+    connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
@@ -355,8 +356,14 @@ void CPPEditor::updateMethodBoxIndex()
     if (lastIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
         m_methodCombo->setCurrentIndex(lastIndex.row());
+        updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
+}
+
+void CPPEditor::updateMethodBoxToolTip()
+{
+    m_methodCombo->setToolTip(m_methodCombo->currentText());
 }
 
 static bool isCompatible(Name *name, Name *otherName)
