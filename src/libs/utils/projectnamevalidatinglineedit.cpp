@@ -45,7 +45,7 @@ ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent)
 bool ProjectNameValidatingLineEdit::validateProjectName(const QString &name, QString *errorMessage /* = 0*/)
 {
     // Validation is file name + checking for dots
-    if (!FileNameValidatingLineEdit::validateFileName(name, errorMessage))
+    if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
         return false;
 
     // We don't want dots in the directory name for some legacy Windows

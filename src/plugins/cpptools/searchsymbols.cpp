@@ -40,13 +40,13 @@ using namespace CPlusPlus;
 using namespace CppTools::Internal;
 
 SearchSymbols::SearchSymbols():
-    symbolsToSearchFor(ClassesMethodsFunctionsAndEnums)
+    symbolsToSearchFor(Classes | Functions | Enums)
 {
 }
 
-void SearchSymbols::setSymbolsToSearchFor(SymbolType type)
+void SearchSymbols::setSymbolsToSearchFor(SymbolTypes types)
 {
-    symbolsToSearchFor = type;
+    symbolsToSearchFor = types;
 }
 
 QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
@@ -69,7 +69,7 @@ QString SearchSymbols::switchScope(const QString &scope)
 
 bool SearchSymbols::visit(Enum *symbol)
 {
-    if (symbolsToSearchFor != ClassesMethodsFunctionsAndEnums)
+    if (!(symbolsToSearchFor & Enums))
         return false;
 
     QString name = symbolName(symbol);
@@ -89,7 +89,7 @@ bool SearchSymbols::visit(Enum *symbol)
 
 bool SearchSymbols::visit(Function *symbol)
 {
-    if (symbolsToSearchFor != ClassesMethodsFunctionsAndEnums)
+    if (!(symbolsToSearchFor & Functions))
         return false;
 
     QString name = symbolName(symbol);
@@ -131,6 +131,9 @@ bool SearchSymbols::visit(Declaration *symbol)
 
 bool SearchSymbols::visit(Class *symbol)
 {
+    if (!(symbolsToSearchFor & Classes))
+        return false;
+
     QString name = symbolName(symbol);
     QString previousScope = switchScope(name);
     QIcon icon = icons.iconForSymbol(symbol);

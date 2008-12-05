@@ -80,15 +80,16 @@ class SearchSymbols: public std::unary_function<CPlusPlus::Document::Ptr, QList<
                      protected CPlusPlus::SymbolVisitor
 {
 public:
-    // TODO: Probably should use QFlags
     enum SymbolType {
-        Classes,
-        ClassesMethodsFunctionsAndEnums
+        Classes   = 0x1,
+        Functions = 0x2,
+        Enums     = 0x4
     };
+    Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
 
     SearchSymbols();
 
-    void setSymbolsToSearchFor(SymbolType type);
+    void setSymbolsToSearchFor(SymbolTypes types);
 
     QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc)
     { return operator()(doc, QString()); }
@@ -117,8 +118,10 @@ private:
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
     QList<ModelItemInfo> items;
-    SymbolType symbolsToSearchFor;
+    SymbolTypes symbolsToSearchFor;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SearchSymbols::SymbolTypes)
 
 } // namespace Internal
 } // namespace CppTools

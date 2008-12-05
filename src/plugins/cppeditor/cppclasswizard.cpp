@@ -73,6 +73,7 @@ ClassNamePage::ClassNamePage(const QString &sourceSuffix,
     m_newClassWidget->setBaseClassEditable(true);
     m_newClassWidget->setFormInputVisible(false);
     m_newClassWidget->setNamespacesEnabled(true);
+    m_newClassWidget->setAllowDirectories(true);
 
     connect(m_newClassWidget, SIGNAL(validChanged()),
             this, SLOT(slotValidChanged()));

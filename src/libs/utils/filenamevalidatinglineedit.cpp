@@ -33,26 +33,65 @@
 
 #include "filenamevalidatinglineedit.h"
 
+#include <QtCore/QRegExp>
+#include <QtCore/QDebug>
+
 namespace Core {
 namespace Utils {
-
-FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
-    BaseValidatingLineEdit(parent)
-{
-
-}
-
-/* Validate a file base name, check for forbidden characters/strings. */
-
-static const char *notAllowedChars = "/?:&\\*\"|#%<> ";
-static const char *notAllowedSubStrings[] = {".."};
 
 // Naming a file like a device name will break on Windows, even if it is
 // "com1.txt". Since we are cross-platform, we generally disallow such file
 //  names.
-static const char *notAllowedStrings[] = {"CON", "AUX", "PRN", "COM1", "COM2", "LPT1", "LPT2" };
+static const QRegExp &windowsDeviceNoSubDirPattern()
+{
+    static const QRegExp rc(QLatin1String("CON|AUX|PRN|COM1|COM2|LPT1|LPT2|NUL"),
+                      Qt::CaseInsensitive);
+    Q_ASSERT(rc.isValid());
+    return rc;
+}
 
-bool FileNameValidatingLineEdit::validateFileName(const QString &name, QString *errorMessage /* = 0*/)
+static const QRegExp &windowsDeviceSubDirPattern()
+{
+    static const QRegExp rc(QLatin1String(".*[/\\\\]CON|.*[/\\\\]AUX|.*[/\\\\]PRN|.*[/\\\\]COM1|.*[/\\\\]COM2|.*[/\\\\]LPT1|.*[/\\\\]LPT2|.*[/\\\\]NUL"),
+                            Qt::CaseInsensitive);
+    Q_ASSERT(rc.isValid());
+    return rc;
+}
+
+// ----------- FileNameValidatingLineEdit
+FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
+    BaseValidatingLineEdit(parent),
+    m_allowDirectories(false),
+    m_unused(0)
+{
+}
+
+bool FileNameValidatingLineEdit::allowDirectories() const
+{
+    return m_allowDirectories;
+}
+
+void FileNameValidatingLineEdit::setAllowDirectories(bool v)
+{
+    m_allowDirectories = v;
+}
+
+/* Validate a file base name, check for forbidden characters/strings. */
+
+#ifdef Q_OS_WIN
+#  define SLASHES "/\\"
+#else
+#  define SLASHES "/"
+#endif
+
+static const char *notAllowedCharsSubDir   = "?:&*\"|#%<> ";
+static const char *notAllowedCharsNoSubDir = "?:&*\"|#%<> "SLASHES;
+
+static const char *notAllowedSubStrings[] = {".."};
+
+bool FileNameValidatingLineEdit::validateFileName(const QString &name,
+                                                  bool allowDirectories,
+                                                  QString *errorMessage /* = 0*/)
 {
     if (name.isEmpty()) {
         if (errorMessage)
@@ -60,6 +99,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name, QString *
         return false;
     }
     // Characters
+    const char *notAllowedChars = allowDirectories ? notAllowedCharsSubDir : notAllowedCharsNoSubDir;
     for (const char *c = notAllowedChars; *c; c++)
         if (name.contains(QLatin1Char(*c))) {
             if (errorMessage)
@@ -76,22 +116,22 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name, QString *
             return false;
         }
     }
-    // Strings
-    const int notAllowedStringCount = sizeof(notAllowedStrings)/sizeof(const char *);
-    for (int s = 0; s < notAllowedStringCount; s++) {
-        const QLatin1String notAllowedString(notAllowedStrings[s]);
-        if (name == notAllowedString) {
-            if (errorMessage)
-                *errorMessage = tr("The name must not be '%1'.").arg(QString(notAllowedString));
-            return false;
-        }
+    // Windows devices
+    bool matchesWinDevice = windowsDeviceNoSubDirPattern().exactMatch(name);
+    if (!matchesWinDevice && allowDirectories)
+        matchesWinDevice = windowsDeviceSubDirPattern().exactMatch(name);
+    if (matchesWinDevice) {
+        if (errorMessage)
+            *errorMessage = tr("The name must not match that of a MS Windows device. (%1).").
+                            arg(windowsDeviceNoSubDirPattern().pattern().replace(QLatin1Char('|'), QLatin1Char(',')));
+        return false;
     }
     return true;
 }
 
 bool  FileNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    return validateFileName(value, errorMessage);
+    return validateFileName(value, m_allowDirectories, errorMessage);
 }
 
 } // namespace Utils
