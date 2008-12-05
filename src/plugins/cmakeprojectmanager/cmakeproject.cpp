@@ -34,6 +34,8 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "cmakestep.h"
+#include "makestep.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -187,7 +189,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     Q_UNUSED(buildConfiguration)
     //TODO
-    return "";
+    return QFileInfo(m_fileName).absolutePath();
 }
 
 ProjectExplorer::BuildStepConfigWidget *CMakeProject::createConfigWidget()
@@ -230,7 +232,23 @@ void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &w
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     // TODO
-    Q_UNUSED(reader)
+    Q_UNUSED(reader);
+    if (buildConfigurations().isEmpty()) {
+        // No build configuration, adding those
+
+        // TODO do we want to create one build configuration per target?
+        // or how do we want to handle that?
+
+        CMakeStep *cmakeStep = new CMakeStep(this);
+        MakeStep *makeStep = new MakeStep(this);
+
+        insertBuildStep(0, cmakeStep);
+        insertBuildStep(1, makeStep);
+
+        addBuildConfiguration("all");
+        setActiveBuildConfiguration("all");
+    }
+    // Restoring is fine
 }
 
 

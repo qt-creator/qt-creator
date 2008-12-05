@@ -54,7 +54,7 @@ bool CMakeStep::init(const QString &buildConfiguration)
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "cmake"); // TODO give full path here?
-    setArguments(buildConfiguration, QStringList()); // TODO
+    setArguments(buildConfiguration, QStringList() << "-GUnix Makefiles"); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
