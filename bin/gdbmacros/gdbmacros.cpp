@@ -1674,7 +1674,10 @@ static void qDumpQObjectSignal(QDumper &d)
             d.beginHash();
                 P(d, "name", "[" << i << "] slot");
                 P(d, "type", "");
-                P(d, "value", conn.receiver->metaObject()->method(conn.method).signature());
+                if (conn.receiver) 
+                    P(d, "value", conn.receiver->metaObject()->method(conn.method).signature());
+                else
+                    P(d, "value", "<invalid receiver>");
                 P(d, "numchild", "0");
             d.endHash();
             d.beginHash();
