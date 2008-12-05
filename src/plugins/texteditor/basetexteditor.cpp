@@ -2477,6 +2477,9 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 void BaseTextEditor::slotCursorPositionChanged()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+    if (d->m_parenthesesMatchingEnabled)
+        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2487,11 +2490,7 @@ void BaseTextEditor::slotCursorPositionChanged()
         extraSelections.append(sel);
     }
 
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
-
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(CurrentLineSelection, extraSelections);
 }
 
 QTextBlock TextBlockUserData::testCollapse(const QTextBlock& block)
@@ -3133,7 +3132,7 @@ void BaseTextEditor::_q_matchParentheses()
     if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
         return;
 
-    QList<QTextEdit::ExtraSelection> extraSelections = d->m_extraSelections;
+    QList<QTextEdit::ExtraSelection> extraSelections;
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -3186,8 +3185,7 @@ void BaseTextEditor::_q_matchParentheses()
         }
         extraSelections.append(sel);
     }
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 }
 
 void BaseTextEditor::setActionHack(QObject *hack)
@@ -3234,15 +3232,21 @@ void BaseTextEditor::deleteLine()
     cut();
 }
 
-void BaseTextEditor::setExtraExtraSelections(const QList<QTextEdit::ExtraSelection> &selections)
+void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
-    d->m_extraExtraSelections = selections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    if (selections.isEmpty() && d->m_extraSelections[kind].isEmpty())
+        return;
+    d->m_extraSelections[kind] = selections;
+
+    QList<QTextEdit::ExtraSelection> all;
+    for (int i = 0; i < NExtraSelectionKinds; ++i)
+        all += d->m_extraSelections[i];
+    QPlainTextEdit::setExtraSelections(all);
 }
 
-QList<QTextEdit::ExtraSelection> BaseTextEditor::extraExtraSelections() const
+QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionKind kind) const
 {
-    return d->m_extraExtraSelections;
+    return d->m_extraSelections[kind];
 }
 
 

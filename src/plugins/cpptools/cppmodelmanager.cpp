@@ -683,7 +683,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                 sel.cursor = c;
                 selections.append(sel);
             }
-            ed->setExtraExtraSelections(selections);
+            ed->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection, selections);
             break;
         }
     }
