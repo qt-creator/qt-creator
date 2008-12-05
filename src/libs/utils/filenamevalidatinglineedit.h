@@ -43,14 +43,23 @@ class QWORKBENCH_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidating
 {
     Q_OBJECT
     Q_DISABLE_COPY(FileNameValidatingLineEdit)
-
+    Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
 public:
     explicit FileNameValidatingLineEdit(QWidget *parent = 0);
 
-    static bool validateFileName(const QString &name, QString *errorMessage /* = 0*/);
+    static bool validateFileName(const QString &name,
+                                 bool allowDirectories = false,
+                                 QString *errorMessage = 0);
+
+    bool allowDirectories() const;
+    void setAllowDirectories(bool v);
 
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
+
+private:
+    bool m_allowDirectories;
+    void *m_unused;
 };
 
 } // namespace Utils
