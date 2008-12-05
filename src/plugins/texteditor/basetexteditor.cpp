@@ -488,10 +488,6 @@ ITextEditable *BaseTextEditor::editableInterface() const
                 d->m_editable, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
-        connect(this,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)),
-                d->m_editable,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)));
     }
     return d->m_editable;
 }
@@ -2434,9 +2430,10 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             }
         } else if (e->button() == Qt::RightButton) {
             QMenu * contextMenu = new QMenu(this);
-            emit lineContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
+            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
             if (!contextMenu->isEmpty())
                 contextMenu->exec(e->globalPos());
+            delete contextMenu;
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
@@ -2471,7 +2468,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
                 int line = n + 1;
-                emit markRequested(editableInterface(), line);
+                emit d->m_editable->markRequested(editableInterface(), line);
             }
         }
     }
