@@ -91,6 +91,7 @@ const char * const DEBUG_DUMPERS        = "Debugger.DebugDumpers";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
 const char * const USE_CUSTOM_DUMPERS   = "Debugger.UseCustomDumpers";
 const char * const USE_FAST_START       = "Debugger.UseFastStart";
+const char * const USE_TOOL_TIPS        = "Debugger.UseToolTips";
 const char * const SKIP_KNOWN_FRAMES    = "Debugger.SkipKnownFrames";
 const char * const DUMP_LOG             = "Debugger.DumpLog";
 
@@ -374,13 +375,17 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
         Constants::USE_FAST_START, globalcontext);
     mdebug->addAction(cmd);
 
+    cmd = actionManager->registerAction(m_manager->m_useToolTipsAction,
+        Constants::USE_TOOL_TIPS, globalcontext);
+    mdebug->addAction(cmd);
+
+#ifdef QT_DEBUG
     cmd = actionManager->registerAction(m_manager->m_dumpLogAction,
         Constants::DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
     mdebug->addAction(cmd);
 
-#ifdef QT_DEBUG
     cmd = actionManager->registerAction(m_manager->m_debugDumpersAction,
         Constants::DEBUG_DUMPERS, debuggercontext);
     mdebug->addAction(cmd);
@@ -549,6 +554,9 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
+    if (!m_manager->useToolTipsAction()->isChecked())
+        return;
+
     QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
     if (!plaintext)
         return;

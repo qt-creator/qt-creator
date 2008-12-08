@@ -308,6 +308,7 @@ private:
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
     QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
+    QAction *useToolTipsAction() const { return m_useToolTipsAction; }
     QAction *debugDumpersAction() const { return m_debugDumpersAction; }
     bool skipKnownFrames() const;
     bool debugDumpers() const;
@@ -431,6 +432,7 @@ private:
     QAction *m_debugDumpersAction;
     QAction *m_useCustomDumpersAction;
     QAction *m_useFastStartAction;
+    QAction *m_useToolTipsAction;
     QAction *m_dumpLogAction;
 
     QWidget *m_breakWindow;
