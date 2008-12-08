@@ -62,6 +62,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
@@ -145,6 +146,7 @@ void DebuggerManager::init()
     m_modulesHandler = 0;
     m_registerHandler = 0;
 
+    m_statusLabel = new QLabel;
     m_breakWindow = new BreakWindow;
     m_disassemblerWindow = new DisassemblerWindow;
     m_modulesWindow = new ModulesWindow;
@@ -157,6 +159,7 @@ void DebuggerManager::init()
     //m_tooltipWindow = new WatchWindow(WatchWindow::TooltipType);
     //m_watchersWindow = new QTreeView;
     m_tooltipWindow = new QTreeView;
+    m_statusTimer = new QTimer(this);
 
     m_mainWindow = new QMainWindow;
     m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
@@ -408,6 +411,8 @@ void DebuggerManager::init()
         this, SLOT(saveSessionData()));
     connect(m_dumpLogAction, SIGNAL(triggered()),
         this, SLOT(dumpLog()));
+    connect(m_statusTimer, SIGNAL(timeout()),
+        this, SLOT(clearStatusMessage()));
 
     connect(m_outputWindow, SIGNAL(commandExecutionRequested(QString)),
         this, SLOT(executeDebuggerCommand(QString)));
@@ -553,24 +558,24 @@ QAbstractItemModel *DebuggerManager::threadsModel()
     return qobject_cast<ThreadsWindow*>(m_threadsWindow)->model();
 }
 
+void DebuggerManager::clearStatusMessage()
+{
+    m_statusLabel->setText(m_lastPermanentStatusMessage);
+}
+
 void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
 {
     Q_UNUSED(timeout)
     //qDebug() << "STATUS: " << msg;
     showDebuggerOutput("status:", msg);
-    mainWindow()->statusBar()->showMessage(msg, timeout);
-#if 0
-    QString currentTime = QTime::currentTime().toString("hh:mm:ss.zzz");
-
-    ICore *core = m_pm->getObject<Core::ICore>();
-    //qDebug() << qPrintable(currentTime) << "Setting status:    " << msg;
-    if (msg.isEmpty())
-        core->messageManager()->displayStatusBarMessage(msg);
-    else if (timeout == -1)
-        core->messageManager()->displayStatusBarMessage(tr("Debugger: ") + msg);
-    else
-        core->messageManager()->displayStatusBarMessage(tr("Debugger: ") + msg, timeout);
-#endif
+    m_statusLabel->setText("   " + msg);
+    if (timeout > 0) {
+        m_statusTimer->setSingleShot(true);
+        m_statusTimer->start(timeout);
+    } else {
+        m_lastPermanentStatusMessage = msg;
+        m_statusTimer->stop();
+    }
 }
 
 void DebuggerManager::notifyStartupFinished()
