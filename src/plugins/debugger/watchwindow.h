@@ -85,7 +85,6 @@ private:
 
     bool m_alwaysResizeColumnsToContents;
     Type m_type;
-    bool m_blocked;
     QSet<QString> m_expandedItems;
 };
 

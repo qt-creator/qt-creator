@@ -192,7 +192,6 @@ signals:
 private:
     WatchData takeData(const QString &iname);
     QString toString() const;
-    void cleanModel();
 
     bool m_expandPointers;
     bool m_inChange;

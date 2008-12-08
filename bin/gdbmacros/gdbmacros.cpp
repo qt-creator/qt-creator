@@ -1864,7 +1864,7 @@ static void qDumpQSet(QDumper &d)
             n = 100;
         d << ",children=[";
         int i = 0;
-        for (int bucket = 0; bucket != hd->numBuckets; ++bucket) {
+        for (int bucket = 0; bucket != hd->numBuckets && i <= 10000; ++bucket) {
             for (node = hd->buckets[bucket]; node->next; node = node->next) {
                 d.beginHash();
                 P(d, "name", "[" << i << "]");
@@ -1875,6 +1875,14 @@ static void qDumpQSet(QDumper &d)
                 );
                 d.endHash();
                 ++i;
+                if (i > 10000) {
+                    d.beginHash();
+                    P(d, "name", "Warning:");
+                    P(d, "value", "<incomplete>");
+                    P(d, "type", "");
+                    d.endHash();
+                    break;
+                }
             }
         }
         d << "]";

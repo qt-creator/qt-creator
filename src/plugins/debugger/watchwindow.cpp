@@ -57,7 +57,6 @@ enum { INameRole = Qt::UserRole, VisualRole };
 WatchWindow::WatchWindow(Type type, QWidget *parent)
   : QTreeView(parent), m_type(type)
 {
-    m_blocked = false;
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(true);
     setIndentation(indentation() * 9/10);
@@ -76,11 +75,7 @@ void WatchWindow::expandNode(const QModelIndex &idx)
     //QModelIndex mi0 = idx.sibling(idx.row(), 0);
     //QString iname = model()->data(mi0, INameRole).toString();
     //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    //qDebug() << "\n\nEXPAND NODE " // << iname << name
-    //    << idx << (m_blocked ? "blocked" : "passed");
     //if (isExpanded(idx))
-    //    return;
-    //if (m_blocked)
     //    return;
     emit requestExpandChildren(idx);
 }
@@ -91,8 +86,6 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
     //QString iname = model()->data(mi0, INameRole).toString();
     //QString name = model()->data(mi0, Qt::DisplayRole).toString();
     //qDebug() << "COLLAPSE NODE " << idx;
-    if (m_blocked)
-        return;
     emit requestCollapseChildren(idx);
 }
 
@@ -201,7 +194,6 @@ void WatchWindow::setModel(QAbstractItemModel *model)
 
 void WatchWindow::modelAboutToBeReset()
 {
-    m_blocked = true;
     //qDebug() << "Model about to be reset";
     m_expandedItems.clear();
     m_expandedItems.insert("local");
@@ -225,10 +217,9 @@ void WatchWindow::modelAboutToBeResetHelper(const QModelIndex &idx)
 
 void WatchWindow::modelReset()
 {
-    //qDebug() << "Model reset";
+    collapseAll();
     expand(model()->index(0, 0));
     modelResetHelper(model()->index(0, 0));
-    m_blocked = false;
 }
 
 void WatchWindow::modelResetHelper(const QModelIndex &idx)
@@ -242,6 +233,9 @@ void WatchWindow::modelResetHelper(const QModelIndex &idx)
             QModelIndex idx1 = model()->index(i, 0, idx);
             modelResetHelper(idx1);
         }
+    } else {
+    //    if (!iname.isEmpty())
+    //        collapse(idx);
     }
 }
 
