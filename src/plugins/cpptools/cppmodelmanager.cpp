@@ -66,6 +66,7 @@
 #include <Token.h>
 
 #include <QPlainTextEdit>
+#include <QMutexLocker>
 #include <QTime>
 #include <QDebug>
 
@@ -450,11 +451,24 @@ CppModelManager::CppModelManager(QObject *parent) :
 CppModelManager::~CppModelManager()
 { }
 
-Document::Ptr CppModelManager::document(const QString &fileName)
+Document::Ptr CppModelManager::document(const QString &fileName) const
 { return m_documents.value(fileName); }
 
-CppModelManager::DocumentTable CppModelManager::documents()
+CppModelManager::DocumentTable CppModelManager::documents() const
 { return m_documents; }
+
+void CppModelManager::ensureUpdated()
+{
+    QMutexLocker locker(&mutex);
+    if (! m_dirty)
+        return;
+
+    m_projectFiles = updateProjectFiles();
+    m_includePaths = updateIncludePaths();
+    m_frameworkPaths = updateFrameworkPaths();
+    m_definedMacros = updateDefinedMacros();
+    m_dirty = false;
+}
 
 QStringList CppModelManager::updateProjectFiles() const
 {
@@ -527,8 +541,29 @@ QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
 void CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
 { (void) refreshSourceFiles(sourceFiles); }
 
-CppModelManager::ProjectInfo *CppModelManager::projectInfo(ProjectExplorer::Project *project)
-{ return &m_projects[project]; }
+QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const
+{
+    QMutexLocker locker(&mutex);
+
+    return m_projects.values();
+}
+
+CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
+{
+    QMutexLocker locker(&mutex);
+
+    return m_projects.value(project, ProjectInfo(project));
+}
+
+void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
+{
+    QMutexLocker locker(&mutex);
+
+    if (! pinfo.isValid())
+        return;
+
+    m_projects.insert(pinfo.project, pinfo);
+}
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
@@ -691,13 +726,18 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
 {
+    QMutexLocker locker(&mutex);
     m_dirty = true;
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    m_dirty = true;
-    m_projects.remove(project);
+    do {
+        QMutexLocker locker(&mutex);
+        m_dirty = true;
+        m_projects.remove(project);
+    } while (0);
+
     GC();
 }
 
@@ -705,8 +745,15 @@ void CppModelManager::onSessionUnloaded()
 {
     if (m_core->progressManager()) {
         m_core->progressManager()->cancelTasks(CppTools::Constants::TASK_INDEX);
-        m_dirty = true;
     }
+
+    do {
+        QMutexLocker locker(&mutex);
+        m_projects.clear();
+        m_dirty = true;
+    } while (0);
+
+    GC();
 }
 
 void CppModelManager::parse(QFutureInterface<void> &future,

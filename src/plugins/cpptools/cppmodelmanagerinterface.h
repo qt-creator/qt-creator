@@ -38,6 +38,7 @@
 #include <cplusplus/CppDocument.h>
 #include <QtCore/QObject>
 #include <QtCore/QMap>
+#include <QtCore/QPointer>
 
 namespace ProjectExplorer {
     class Project;
@@ -51,10 +52,29 @@ class CPPTOOLS_EXPORT CppModelManagerInterface
     Q_OBJECT
 
 public:
-    typedef QMap<QString, CPlusPlus::Document::Ptr> DocumentTable;
+    typedef QMap<QString, CPlusPlus::Document::Ptr> DocumentTable; // ### remove me
 
-    struct ProjectInfo
+    class ProjectInfo
     {
+    public:
+        ProjectInfo()
+        { }
+
+        ProjectInfo(QPointer<ProjectExplorer::Project> project)
+            : project(project)
+        { }
+
+        operator bool() const
+        { return ! project.isNull(); }
+
+        bool isValid() const
+        { return ! project.isNull(); }
+
+        bool isNull() const
+        { return project.isNull(); }
+
+    public: // attributes
+        QPointer<ProjectExplorer::Project> project;
         QString projectPath;
         QByteArray defines;
         QStringList sourceFiles;
@@ -69,10 +89,12 @@ public:
     virtual void GC() = 0;
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
 
-    virtual CPlusPlus::Document::Ptr document(const QString &fileName) = 0;
-    virtual DocumentTable documents() = 0;
+    virtual CPlusPlus::Document::Ptr document(const QString &fileName) const = 0;
+    virtual DocumentTable documents() const = 0;
 
-    virtual ProjectInfo *projectInfo(ProjectExplorer::Project *project) = 0;
+    virtual QList<ProjectInfo> projectInfos() const = 0;
+    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
+    virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
 };
 
 } // namespace CppTools
