@@ -31,18 +31,26 @@
 **
 ***************************************************************************/
 
-#ifndef BOOKMARKS_H
-#define BOOKMARKS_H
+#ifndef BOOKMARKSPLUGIN_H
+#define BOOKMARKSPLUGIN_H
+
+#include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QMultiMap>
 
-#include <extensionsystem/iplugin.h>
-
-QT_FORWARD_DECLARE_CLASS(QAction)
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+QT_END_NAMESPACE
 
 namespace Core {
 class ICore;
+class IEditor;
+}
+
+namespace TextEditor {
+class ITextEditor;
 }
 
 namespace Bookmarks {
@@ -67,6 +75,13 @@ public:
 public slots:
     void updateActions(int stateMask);
 
+private slots:
+    void editorOpened(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
+    void requestContextMenu(TextEditor::ITextEditor *editor,
+        int lineNumber, QMenu *menu);
+    void bookmarkMarginActionTriggered();
+
 private:
     static BookmarksPlugin *m_instance;
     BookmarkManager *m_bookmarkManager;
@@ -79,6 +94,10 @@ private:
     QAction *m_docNextAction;
     QAction *m_moveUpAction;
     QAction *m_moveDownAction;
+
+    QAction *m_bookmarkMarginAction;
+    int m_bookmarkMarginActionLineNumber;
+    QString m_bookmarkMarginActionFileName;
 };
 
 } // namespace Internal

@@ -79,6 +79,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
 #include <QtGui/QHeaderView>
+#include <QtGui/QStringListModel>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -202,7 +203,9 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     m_methodCombo->setMaxVisibleItems(20);
 
     m_overviewModel = new OverviewModel(this);
-    m_methodCombo->setModel(m_overviewModel);
+    m_noSymbolsModel = new QStringListModel(this);
+    m_noSymbolsModel->setStringList(QStringList() << tr("<no symbols>"));
+    m_methodCombo->setModel(m_noSymbolsModel);
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
@@ -315,9 +318,16 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
         return;
 
     m_overviewModel->rebuild(doc);
-    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
-    treeView->sync();
-    updateMethodBoxIndex();
+    if (m_overviewModel->rowCount() > 0) {
+        if (m_methodCombo->model() != m_overviewModel)
+            m_methodCombo->setModel(m_overviewModel);
+        OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
+        treeView->sync();
+        updateMethodBoxIndex();
+    } else {
+        if (m_methodCombo->model() != m_noSymbolsModel)
+            m_methodCombo->setModel(m_noSymbolsModel);
+    }
 }
 
 void CPPEditor::updateFileName()
@@ -325,6 +335,8 @@ void CPPEditor::updateFileName()
 
 void CPPEditor::jumpToMethod(int)
 {
+    if (m_methodCombo->model() != m_overviewModel)
+        return;
     QModelIndex index = m_methodCombo->view()->currentIndex();
     Symbol *symbol = m_overviewModel->symbolFromIndex(index);
     if (! symbol)
@@ -339,12 +351,14 @@ void CPPEditor::jumpToMethod(int)
 
 void CPPEditor::updateMethodBoxIndex()
 {
+    if (m_methodCombo->model() != m_overviewModel)
+        return;
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
     QModelIndex lastIndex;
 
-    const int rc = m_overviewModel->rowCount(QModelIndex());
+    const int rc = m_overviewModel->rowCount();
     for (int row = 0; row < rc; ++row) {
         const QModelIndex index = m_overviewModel->index(row, 0, QModelIndex());
         Symbol *symbol = m_overviewModel->symbolFromIndex(index);

@@ -100,4 +100,4 @@ signals:
 
 } // namespace Core
 
-#endif //IEDITOR_H
+#endif // IEDITOR_H

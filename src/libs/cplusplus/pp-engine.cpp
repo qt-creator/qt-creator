@@ -57,7 +57,6 @@
 #include <QtDebug>
 #include <algorithm>
 
-using namespace rpp;
 using namespace CPlusPlus;
 
 namespace {

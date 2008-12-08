@@ -48,40 +48,54 @@
 namespace Core {
 namespace Utils {
 
+#ifdef Q_OS_OSX
+/*static*/ const char * const PathChooser::browseButtonLabel = "Choose...";
+#else
+/*static*/ const char * const PathChooser::browseButtonLabel = "Browse...";
+#endif
+
 // ------------------ PathValidatingLineEdit
 class PathValidatingLineEdit : public BaseValidatingLineEdit {
 public:
-    explicit PathValidatingLineEdit(QWidget *parent = 0);
+    explicit PathValidatingLineEdit(PathChooser *chooser, QWidget *parent = 0);
 
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
+
+private:
+    PathChooser *m_chooser;
 };
 
-PathValidatingLineEdit::PathValidatingLineEdit(QWidget *parent) :
-    BaseValidatingLineEdit(parent)
+PathValidatingLineEdit::PathValidatingLineEdit(PathChooser *chooser, QWidget *parent) :
+    BaseValidatingLineEdit(parent),
+    m_chooser(chooser)
 {
+    Q_ASSERT(chooser != NULL);
 }
 
 bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    return PathChooser::validatePath(value, errorMessage);
+    return m_chooser->validatePath(value, errorMessage);
 }
 
 // ------------------ PathChooserPrivate
 struct PathChooserPrivate {
-    PathChooserPrivate();
+    PathChooserPrivate(PathChooser *chooser);
 
     PathValidatingLineEdit *m_lineEdit;
+    PathChooser::Kind m_acceptingKind;
+    QString m_dialogTitleOverride;
 };
 
-PathChooserPrivate::PathChooserPrivate() :
-    m_lineEdit(new PathValidatingLineEdit)
+PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
+    m_lineEdit(new PathValidatingLineEdit(chooser)),
+    m_acceptingKind(PathChooser::Directory)
 {
 }
 
 PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
-    m_d(new PathChooserPrivate)
+    m_d(new PathChooserPrivate(this))
 {
     QHBoxLayout *hLayout = new QHBoxLayout;
     hLayout->setContentsMargins(0, 0, 0, 0);
@@ -90,11 +104,12 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
     connect(m_d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
 
-    m_d->m_lineEdit->setMinimumWidth(300);
+    m_d->m_lineEdit->setMinimumWidth(260);
     hLayout->addWidget(m_d->m_lineEdit);
+    hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
     QToolButton *browseButton = new QToolButton;
-    browseButton->setText(tr("..."));
+    browseButton->setText(tr(browseButtonLabel));
     connect(browseButton, SIGNAL(clicked()), this, SLOT(slotBrowse()));
 
     hLayout->addWidget(browseButton);
@@ -123,8 +138,28 @@ void PathChooser::slotBrowse()
     QString predefined = path();
     if (!predefined.isEmpty() && !QFileInfo(predefined).isDir())
         predefined.clear();
-    // Prompt for a directory, delete trailing slashes unless it is "/", only
-    QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose a path"), predefined);
+
+    // Prompt for a file/dir
+    QString dialogTitle;
+    QString newPath;
+    switch (m_d->m_acceptingKind) {
+    case PathChooser::Directory:
+        newPath = QFileDialog::getExistingDirectory(this,
+                makeDialogTitle(tr("Choose a directory")), predefined);
+        break;
+
+    case PathChooser::File: // fall through
+    case PathChooser::Command:
+        newPath = QFileDialog::getOpenFileName(this,
+                makeDialogTitle(tr("Choose a file")), predefined);
+        break;
+
+    default:
+        ;
+    }
+
+    // TODO make cross-platform
+    // Delete trailing slashes unless it is "/", only
     if (!newPath .isEmpty()) {
         if (newPath .size() > 1 && newPath .endsWith(QDir::separator()))
             newPath .truncate(newPath .size() - 1);
@@ -149,20 +184,52 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
             *errorMessage = tr("The path must not be empty.");
         return false;
     }
-    // Must be a directory?
-    const QFileInfo fi(path);
-    if (fi.isDir())
-        return true; // Happy!
 
-    if (!fi.exists()) {
-        if (errorMessage)
-            *errorMessage = tr("The path '%1' does not exist.").arg(path);
-        return false;
+    const QFileInfo fi(path);
+    const bool isDir = fi.isDir();
+
+    // Check if existing
+    switch (m_d->m_acceptingKind) {
+    case PathChooser::Directory: // fall through
+    case PathChooser::File:
+        if (!fi.exists()) {
+            if (errorMessage)
+                *errorMessage = tr("The path '%1' does not exist.").arg(path);
+            return false;
+        }
+        break;
+
+    case PathChooser::Command: // fall through
+    default:
+        ;
     }
-    // Must be something weird
-    if (errorMessage)
-        *errorMessage = tr("The path '%1' is not a directory.").arg(path);
-    return false;
+
+    // Check expected kind
+    switch (m_d->m_acceptingKind) {
+    case PathChooser::Directory:
+        if (!isDir)
+            if (errorMessage)
+                *errorMessage = tr("The path '%1' is not a directory.").arg(path);
+            return false;
+        break;
+
+    case PathChooser::File:
+        if (isDir)
+            if (errorMessage)
+                *errorMessage = tr("The path '%1' is not a file.").arg(path);
+            return false;
+        break;
+
+    case PathChooser::Command:
+        // TODO do proper command validation
+        // i.e. search $PATH for a matching file
+        break;
+
+    default:
+        ;
+    }
+
+    return true;
 }
 
 QString PathChooser::label()
@@ -180,6 +247,24 @@ QString PathChooser::homePath()
 #else
     return QDir::homePath();
 #endif
+}
+
+void PathChooser::setExpectedKind(Kind expected)
+{
+    m_d->m_acceptingKind = expected;
+}
+
+void PathChooser::setPromptDialogTitle(const QString &title)
+{
+    m_d->m_dialogTitleOverride = title;
+}
+
+QString PathChooser::makeDialogTitle(const QString &title)
+{
+    if (m_d->m_dialogTitleOverride.isNull())
+        return title;
+    else
+        return m_d->m_dialogTitleOverride;
 }
 
 } // namespace Utils

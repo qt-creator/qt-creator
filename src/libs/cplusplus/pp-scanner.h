@@ -53,7 +53,7 @@
 #ifndef PP_SCANNER_H
 #define PP_SCANNER_H
 
-namespace rpp {
+namespace CPlusPlus {
 
 struct pp_skip_blanks
 {
@@ -373,7 +373,7 @@ struct pp_skip_argument
   }
 };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_SCANNER_H
 

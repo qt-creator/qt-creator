@@ -483,23 +483,27 @@ void Qt4Project::updateCodeModel()
     files += m_projectFiles->files[SourceType];
     files += m_projectFiles->generatedFiles[SourceType];
 
-    CppTools::CppModelManagerInterface::ProjectInfo *pinfo = modelmanager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
-    if (pinfo->defines == predefinedMacros         &&
-        pinfo->includePaths == allIncludePaths     &&
-        pinfo->frameworkPaths == allFrameworkPaths &&
-        pinfo->sourceFiles == files) {
-        // Nothing to update...
+    if (pinfo.defines == predefinedMacros             &&
+            pinfo.includePaths == allIncludePaths     &&
+            pinfo.frameworkPaths == allFrameworkPaths &&
+            pinfo.sourceFiles == files) {
+        modelmanager->updateProjectInfo(pinfo);
     } else {
-        pinfo->defines = predefinedMacros;
+        pinfo.defines = predefinedMacros;
         // pinfo->defines += definedMacros;   // ### FIXME: me
-        pinfo->includePaths = allIncludePaths;
-        pinfo->frameworkPaths = allFrameworkPaths;
-        pinfo->sourceFiles = files;
+        pinfo.includePaths = allIncludePaths;
+        pinfo.frameworkPaths = allFrameworkPaths;
+        pinfo.sourceFiles = files;
+
+        modelmanager->updateProjectInfo(pinfo);
 
         modelmanager->GC();
-        modelmanager->updateSourceFiles(pinfo->sourceFiles);
+        modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
+
+    // update info
 }
 
 

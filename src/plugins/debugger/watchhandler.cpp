@@ -320,6 +320,51 @@ static WatchData take(const QString &iname, QList<WatchData> *list)
 }
 
 
+static QList<WatchData> initialSet()
+{
+    QList<WatchData> result;
+
+    WatchData root;
+    root.state = 0;
+    root.level = 0;
+    root.row = 0;
+    root.name = "Root";
+    root.parentIndex = -1;
+    root.childIndex.append(1);
+    root.childIndex.append(2);
+    root.childIndex.append(3);
+    result.append(root);
+
+    WatchData local;
+    local.iname = "local";
+    local.name = "Locals";
+    local.state = 0;
+    local.level = 1;
+    local.row = 0;
+    local.parentIndex = 0;
+    result.append(local);
+
+    WatchData tooltip;
+    tooltip.iname = "tooltip";
+    tooltip.name = "Tooltip";
+    tooltip.state = 0;
+    tooltip.level = 1;
+    tooltip.row = 1;
+    tooltip.parentIndex = 0;
+    result.append(tooltip);
+
+    WatchData watch;
+    watch.iname = "watch";
+    watch.name = "Watchers";
+    watch.state = 0;
+    watch.level = 1;
+    watch.row = 2;
+    watch.parentIndex = 0;
+    result.append(watch);
+
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // WatchHandler
@@ -332,7 +377,8 @@ WatchHandler::WatchHandler()
     m_inFetchMore = false;
     m_inChange = false;
 
-    cleanModel();
+    m_completeSet = initialSet();
+    m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 }
 
@@ -380,6 +426,7 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
     int node = idx.internalId();
     if (node < 0)
         return QVariant();
+    QWB_ASSERT(node < m_displaySet.size(), return QVariant());
 
     const WatchData &data = m_displaySet.at(node);
 
@@ -440,6 +487,13 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
 
         case VisualRole:
             return m_displayedINames.contains(data.iname);
+    
+        case ExpandedRole:
+            //qDebug() << " FETCHING: " << data.iname
+            //    << m_expandedINames.contains(data.iname)
+            //    << m_expandedINames;
+            // Level 0 and 1 are always expanded
+            return node < 4 || m_expandedINames.contains(data.iname);
     
         default:
             break; 
@@ -558,10 +612,13 @@ void WatchHandler::rebuildModel()
     MODEL_DEBUG("RECREATE MODEL, CURRENT SET:\n" << toString());
     #endif
 
+    QHash<QString, int> oldTopINames;
     QHash<QString, QString> oldValues;
     for (int i = 0, n = m_oldSet.size(); i != n; ++i) {
         WatchData &data = m_oldSet[i];
         oldValues[data.iname] = data.value;
+        if (data.level == 2)
+            ++oldTopINames[data.iname];
     }
     #ifdef DEBUG_PENDING
     MODEL_DEBUG("OLD VALUES: " << oldValues);
@@ -575,6 +632,9 @@ void WatchHandler::rebuildModel()
 
     qSort(m_completeSet.begin(), m_completeSet.end(), &iNameSorter);
 
+    // This helps to decide whether the view has completely changed or not.
+    QHash<QString, int> topINames;
+
     QHash<QString, int> iname2idx;
 
     for (int i = m_completeSet.size(); --i > 0; ) {
@@ -582,7 +642,10 @@ void WatchHandler::rebuildModel()
         data.parentIndex = 0;
         data.childIndex.clear();
         iname2idx[data.iname] = i;
+        if (data.level == 2)
+            ++topINames[data.iname];
     }
+    //qDebug() << "TOPINAMES: " << topINames << "\nOLD: " << oldTopINames;
 
     for (int i = 1; i < m_completeSet.size(); ++i) {
         WatchData &data = m_completeSet[i];
@@ -603,7 +666,13 @@ void WatchHandler::rebuildModel()
             && data.value != strNotInScope;
     }
 
-    //emit layoutAboutToBeChanged();
+    emit layoutAboutToBeChanged();
+
+    if (oldTopINames != topINames) {
+        m_displaySet = initialSet();
+        m_expandedINames.clear();
+        emit reset();
+    }
 
     m_displaySet = m_completeSet;
 
@@ -668,11 +737,6 @@ void WatchHandler::rebuildModel()
     emit reset();
     //qDebug() << "WATCHHANDLER: RESET EMITTED";
     m_inChange = false;
-    //emit layoutChanged();
-    //QSet<QString> einames = m_expandedINames;
-    //einames.insert("local");
-    //einames.insert("watch");
-    //emit expandedItems(einames);
 
     #if DEBUG_MODEL
     #if USE_MODEL_TEST
@@ -691,8 +755,11 @@ void WatchHandler::cleanup()
     m_oldSet.clear();
     m_expandedINames.clear();
     m_displayedINames.clear();
-    cleanModel();
+
+    m_incompleteSet.clear();
+    m_completeSet = initialSet();
     m_displaySet = m_completeSet;
+
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {
@@ -707,7 +774,7 @@ void WatchHandler::cleanup()
 void WatchHandler::collapseChildren(const QModelIndex &idx)
 {
     if (m_inChange || m_completeSet.isEmpty()) {
-        //qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << idx;
+        qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << idx;
         return;
     }
     QWB_ASSERT(checkIndex(idx.internalId()), return);
@@ -879,56 +946,10 @@ void WatchHandler::removeWatchExpression(const QString &iname)
     emit watchModelUpdateRequested();
 }
 
-void WatchHandler::cleanModel()
-{
-    // This uses data stored in m_oldSet to re-create a new set
-    // one-by-one
-    m_completeSet.clear();
-    m_incompleteSet.clear();
-
-    WatchData root;
-    root.state = 0;
-    root.level = 0;
-    root.row = 0;
-    root.name = "Root";
-    root.parentIndex = -1;
-    root.childIndex.append(1);
-    root.childIndex.append(2);
-    root.childIndex.append(3);
-    m_completeSet.append(root);
-
-    WatchData local;
-    local.iname = "local";
-    local.name = "Locals";
-    local.state = 0;
-    local.level = 1;
-    local.row = 0;
-    local.parentIndex = 0;
-    m_completeSet.append(local);
-
-    WatchData tooltip;
-    tooltip.iname = "tooltip";
-    tooltip.name = "Tooltip";
-    tooltip.state = 0;
-    tooltip.level = 1;
-    tooltip.row = 1;
-    tooltip.parentIndex = 0;
-    m_completeSet.append(tooltip);
-
-    WatchData watch;
-    watch.iname = "watch";
-    watch.name = "Watchers";
-    watch.state = 0;
-    watch.level = 1;
-    watch.row = 2;
-    watch.parentIndex = 0;
-    m_completeSet.append(watch);
-}
-
-
 void WatchHandler::reinitializeWatchers()
 {
-    cleanModel();
+    m_completeSet = initialSet();
+    m_incompleteSet.clear();
 
     // copy over all watchers and mark all watchers as incomplete
     for (int i = 0, n = m_oldSet.size(); i < n; ++i) {

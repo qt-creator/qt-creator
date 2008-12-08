@@ -44,6 +44,8 @@
 #include <QMetaType>
 #include <QString>
 
+#include <functional>
+
 namespace CppTools {
 namespace Internal {
 

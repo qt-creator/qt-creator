@@ -46,7 +46,7 @@
 
 using namespace Debugger::Internal;
 
-enum { INameRole = Qt::UserRole, VisualRole };
+enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -57,7 +57,6 @@ enum { INameRole = Qt::UserRole, VisualRole };
 WatchWindow::WatchWindow(Type type, QWidget *parent)
   : QTreeView(parent), m_type(type)
 {
-    m_blocked = false;
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(true);
     setIndentation(indentation() * 9/10);
@@ -76,12 +75,6 @@ void WatchWindow::expandNode(const QModelIndex &idx)
     //QModelIndex mi0 = idx.sibling(idx.row(), 0);
     //QString iname = model()->data(mi0, INameRole).toString();
     //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    //qDebug() << "\n\nEXPAND NODE " // << iname << name
-    //    << idx << (m_blocked ? "blocked" : "passed");
-    //if (isExpanded(idx))
-    //    return;
-    //if (m_blocked)
-    //    return;
     emit requestExpandChildren(idx);
 }
 
@@ -91,8 +84,6 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
     //QString iname = model()->data(mi0, INameRole).toString();
     //QString name = model()->data(mi0, Qt::DisplayRole).toString();
     //qDebug() << "COLLAPSE NODE " << idx;
-    if (m_blocked)
-        return;
     emit requestCollapseChildren(idx);
 }
 
@@ -181,6 +172,7 @@ void WatchWindow::reset()
     QTreeView::reset(); 
     setRootIndex(model()->index(row, 0, model()->index(0, 0)));
     //setRootIndex(model()->index(0, 0));
+    resetHelper(model()->index(0, 0));
 }
 
 void WatchWindow::setModel(QAbstractItemModel *model)
@@ -192,55 +184,15 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     header()->setResizeMode(QHeaderView::ResizeToContents);
     if (m_type != LocalsType)
         header()->hide();
-
-    connect(model, SIGNAL(modelAboutToBeReset()),
-        this, SLOT(modelAboutToBeReset()));
-    connect(model, SIGNAL(modelReset()),
-        this, SLOT(modelReset()));
 }
 
-void WatchWindow::modelAboutToBeReset()
+void WatchWindow::resetHelper(const QModelIndex &idx)
 {
-    m_blocked = true;
-    //qDebug() << "Model about to be reset";
-    m_expandedItems.clear();
-    m_expandedItems.insert("local");
-    m_expandedItems.insert("watch");
-    modelAboutToBeResetHelper(model()->index(0, 0));
-    //qDebug() << "   expanded: " << m_expandedItems;
-}
-
-void WatchWindow::modelAboutToBeResetHelper(const QModelIndex &idx)
-{
-    QString iname = model()->data(idx, INameRole).toString();
-    //qDebug() << "Model about to be reset helper" << iname << idx
-    //    << isExpanded(idx);
-    if (isExpanded(idx))
-        m_expandedItems.insert(iname);
-    for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
-        QModelIndex idx1 = model()->index(i, 0, idx);
-        modelAboutToBeResetHelper(idx1);
-    }
-}
-
-void WatchWindow::modelReset()
-{
-    //qDebug() << "Model reset";
-    expand(model()->index(0, 0));
-    modelResetHelper(model()->index(0, 0));
-    m_blocked = false;
-}
-
-void WatchWindow::modelResetHelper(const QModelIndex &idx)
-{
-    QString name = model()->data(idx, Qt::DisplayRole).toString();
-    QString iname = model()->data(idx, INameRole).toString();
-    //qDebug() << "Model reset helper" << iname << name;
-    if (m_expandedItems.contains(iname)) {
+    if (model()->data(idx, ExpandedRole).toBool()) {
         expand(idx);
         for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
             QModelIndex idx1 = model()->index(i, 0, idx);
-            modelResetHelper(idx1);
+            resetHelper(idx1);
         }
     }
 }

@@ -351,6 +351,23 @@ void testPlugin()
     }
 }
 
+void testSet()
+{
+    QSet<int> hgg0;
+    hgg0.insert(11);
+    hgg0.insert(22);
+
+    QSet<QString> hgg1;
+    hgg1.insert("22.0");
+
+    QObject ob;
+    QSet<QPointer<QObject> > hash;
+    QPointer<QObject> ptr(&ob);
+    //hash.insert(ptr);
+    //hash.insert(ptr);
+    //hash.insert(ptr);
+}
+
 void stringRefTest(const QString &refstring)
 {
     Q_UNUSED(refstring);
@@ -759,6 +776,7 @@ int main(int argc, char *argv[])
     testImage();
     testMap();
     testString();
+    testSet();
     testStringList();
     testStruct();
     //testThreads();
@@ -767,7 +785,12 @@ int main(int argc, char *argv[])
     testVariant3();
     testVector();
     testVectorOfList();
+
+
+    *(int *)0 = 0;
+
     testObject(argc, argv);
+
 
     //QColor color(255,128,10);
     //QFont font;

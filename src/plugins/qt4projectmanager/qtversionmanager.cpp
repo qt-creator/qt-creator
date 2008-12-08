@@ -969,7 +969,7 @@ void QtVersion::updateVersionInfo() const
                 QString line = stream.readLine();
                 int index = line.indexOf(":");
                 if (index != -1)
-                    m_versionInfo.insert(line.left(index), line.mid(index+1));
+                    m_versionInfo.insert(line.left(index), QDir::fromNativeSeparators(line.mid(index+1)));
             }
         }
 
@@ -1041,6 +1041,7 @@ void QtVersion::updateMkSpec() const
 //                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE/mkspecs/").length());
 //                    else if (mkspec.startsWith("$$QT_BUILD_TREE\\mkspecs\\"))
 //                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE\\mkspecs\\").length());
+//                    mkspec = QDir::fromNativeSeparators(mkspec);
 //                }
 //                break;
 //            }
@@ -1107,7 +1108,8 @@ void QtVersion::updateMkSpec() const
     int index = mkspec.lastIndexOf('/');
     if(index == -1)
         index = mkspec.lastIndexOf('\\');
-    if (index >= 0 && QDir(mkspec.left(index)).canonicalPath() == QDir(m_path + "/mkspecs/").canonicalPath())
+    QString mkspecDir = QDir(m_path + "/mkspecs/").canonicalPath();
+    if (index >= 0 && QDir(mkspec.left(index)).canonicalPath() == mkspecDir)
         mkspec = mkspec.mid(index+1).trimmed();
 
     m_mkspec = mkspec;
@@ -1119,7 +1121,7 @@ QString QtVersion::makeCommand() const
 {
 #ifdef Q_OS_WIN
     const QString &spec = mkspec();
-    if (spec.startsWith("win32-msvc") || spec == QLatin1String("win32-icc"))
+    if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return "nmake.exe";
     else if(spec.startsWith("wince"))
         return "nmake.exe";
@@ -1156,7 +1158,7 @@ QtVersion::ToolchainType QtVersion::toolchainType() const
     if (!isValid())
         return INVALID;
     const QString &spec = mkspec();
-    if(spec.startsWith("win32-msvc") || spec == QLatin1String("win32-icc"))
+    if(spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return MSVC;
     else if(spec == "win32-g++")
         return MinGW;

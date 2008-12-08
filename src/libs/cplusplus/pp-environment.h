@@ -50,54 +50,60 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_MACRO_EXPANDER_H
-#define PP_MACRO_EXPANDER_H
+#ifndef PP_ENVIRONMENT_H
+#define PP_ENVIRONMENT_H
 
-namespace rpp {
+#include <QVector>
+#include <QByteArray>
 
-    struct pp_frame
-    {
-        Macro *expanding_macro;
-        const QVector<QByteArray> actuals;
+namespace CPlusPlus {
 
-        pp_frame (Macro *expanding_macro, const QVector<QByteArray> &actuals)
-            : expanding_macro (expanding_macro),
-              actuals (actuals)
-        { }
-    };
+struct Macro;
 
-    class MacroExpander
-    {
-        Environment &env;
-        pp_frame *frame;
+class Environment
+{
+public:
+    Environment();
+    ~Environment();
 
-        pp_skip_number skip_number;
-        pp_skip_identifier skip_identifier;
-        pp_skip_string_literal skip_string_literal;
-        pp_skip_char_literal skip_char_literal;
-        pp_skip_argument skip_argument;
-        pp_skip_comment_or_divop skip_comment_or_divop;
-        pp_skip_blanks skip_blanks;
-        pp_skip_whitespaces skip_whitespaces;
+    unsigned macroCount() const;
+    Macro *macroAt(unsigned index) const;
 
-        const QByteArray *resolve_formal (const QByteArray &name);
+    Macro *bind(const Macro &macro);
+    void remove(const QByteArray &name);
 
-    public:
-        MacroExpander (Environment &env, pp_frame *frame = 0);
+    Macro *resolve(const QByteArray &name) const;
+    bool isBuiltinMacro(const QByteArray &name) const;
 
-        const char *operator () (const char *first, const char *last,
-                                 QByteArray *result);
+    const Macro *const *firstMacro() const
+    { return _macros; }
 
-        const char *skip_argument_variadics (const QVector<QByteArray> &actuals,
-                                             Macro *macro,
-                                             const char *first, const char *last);
+    Macro **firstMacro()
+    { return _macros; }
 
-    public: // attributes
-        int lines;
-        int generated_lines;
-    };
+    const Macro *const *lastMacro() const
+    { return _macros + _macro_count + 1; }
 
-} // namespace rpp
+    Macro **lastMacro()
+    { return _macros + _macro_count + 1; }
 
-#endif // PP_MACRO_EXPANDER_H
+private:
+    static unsigned hash_code (const QByteArray &s);
+    void rehash();
 
+public:
+    QByteArray current_file;
+    unsigned currentLine;
+    bool hide_next;
+
+private:
+    Macro **_macros;
+    int _allocated_macros;
+    int _macro_count;
+    Macro **_hash;
+    int _hash_count;
+};
+
+} // namespace CPlusPlus
+
+#endif // PP_ENVIRONMENT_H

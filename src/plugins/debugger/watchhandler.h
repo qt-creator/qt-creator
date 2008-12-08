@@ -135,7 +135,7 @@ public:
     bool changed;
 };
 
-enum { INameRole = Qt::UserRole, VisualRole };
+enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
 
 
 class WatchHandler : public QAbstractItemModel
@@ -192,7 +192,6 @@ signals:
 private:
     WatchData takeData(const QString &iname);
     QString toString() const;
-    void cleanModel();
 
     bool m_expandPointers;
     bool m_inChange;

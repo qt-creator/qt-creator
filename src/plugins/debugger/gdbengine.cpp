@@ -1271,6 +1271,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (isStoppedReason(reason) || reason.isEmpty()) {
         // Need another round trip
         if (reason == "breakpoint-hit") {
+            q->showStatusMessage(tr("Stopped at breakpoint."), -1);
             GdbMi frame = data.findChild("frame");
             //qDebug() << frame.toString();
             m_currentFrame = frame.findChild("addr").data() + '%' +
@@ -1282,6 +1283,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
         } else {
+            q->showStatusMessage(tr("Stopped. %1").arg(reason), -1);
             handleAsyncOutput2(data);
         }
         return;

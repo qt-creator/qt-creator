@@ -39,18 +39,20 @@
 #include <QtGui/QFileDialog>
 
 using namespace Perforce::Internal;
+using namespace Core::Utils;
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.browseButton, SIGNAL(clicked()), this, SLOT(browseForCommand()));
+    m_ui.pathChooser->setPromptDialogTitle(tr("Perforce Command"));
+    m_ui.pathChooser->setExpectedKind(PathChooser::Command);
 }
 
 PerforceSettings SettingsPageWidget::settings() const
 {
     PerforceSettings rc;
-    rc.p4Command = m_ui.p4CmdLineEdit->text();
+    rc.p4Command = m_ui.pathChooser->path();
     rc.defaultEnv = m_ui.defaultCheckBox->isChecked();
     rc.p4Port = m_ui.portLineEdit->text();
     rc.p4Client = m_ui.clientLineEdit->text();
@@ -60,20 +62,12 @@ PerforceSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const PerforceSettings &s)
 {
-    m_ui.p4CmdLineEdit->setText(s.p4Command);
+    m_ui.pathChooser->setPath(s.p4Command);
     m_ui.defaultCheckBox->setChecked(s.defaultEnv);
     m_ui.portLineEdit->setText(s.p4Port);
     m_ui.clientLineEdit->setText(s.p4Client);
     m_ui.userLineEdit->setText(s.p4User);
 }
-
-void SettingsPageWidget::browseForCommand()
-{
-    const QString cmd = QFileDialog::getOpenFileName(window(), tr("Perforce Command"));
-    if (!cmd.isEmpty())
-        m_ui.p4CmdLineEdit->setText(cmd);
-}
-
 
 SettingsPage::SettingsPage()
 {

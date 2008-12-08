@@ -50,29 +50,46 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_INTERNAL_H
-#define PP_INTERNAL_H
+#ifndef PP_MACRO_H
+#define PP_MACRO_H
 
 #include <QByteArray>
+#include <QVector>
 
-namespace rpp {
-namespace _PP_internal {
+namespace CPlusPlus {
 
-inline bool comment_p (const char *__first, const char *__last)
-{
-    if (__first == __last)
-        return false;
+    struct Macro
+    {
+        QByteArray name;
+        QByteArray definition;
+        QVector<QByteArray> formals;
+        QByteArray fileName;
+        int line;
+        int lines;
+        Macro *next;
+        unsigned hashcode;
 
-    if (*__first != '/')
-        return false;
+        union
+        {
+            unsigned state;
 
-    if (++__first == __last)
-        return false;
+            struct
+            {
+                unsigned hidden: 1;
+                unsigned function_like: 1;
+                unsigned variadics: 1;
+            };
+        };
 
-    return (*__first == '/' || *__first == '*');
-}
+        inline Macro():
+            line(0),
+            lines(0),
+            next(0),
+            hashcode(0),
+            state(0)
+        { }
+    };
 
-} // _PP_internal
-} // namespace rpp
+} // namespace CPlusPlus
 
-#endif // PP_INTERNAL_H
+#endif // PP_MACRO_H

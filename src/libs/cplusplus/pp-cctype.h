@@ -50,60 +50,25 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_ENVIRONMENT_H
-#define PP_ENVIRONMENT_H
+#ifndef PP_CCTYPE_H
+#define PP_CCTYPE_H
 
-#include <QVector>
-#include <QByteArray>
+#include <cctype>
 
-namespace rpp {
+namespace CPlusPlus {
 
-struct Macro;
+inline bool pp_isalpha (int __ch)
+{ return std::isalpha ((unsigned char) __ch) != 0; }
 
-class Environment
-{
-public:
-    Environment();
-    ~Environment();
+inline bool pp_isalnum (int __ch)
+{ return std::isalnum ((unsigned char) __ch) != 0; }
 
-    unsigned macroCount() const;
-    Macro *macroAt(unsigned index) const;
+inline bool pp_isdigit (int __ch)
+{ return std::isdigit ((unsigned char) __ch) != 0; }
 
-    Macro *bind(const Macro &macro);
-    void remove(const QByteArray &name);
+inline bool pp_isspace (int __ch)
+{ return std::isspace ((unsigned char) __ch) != 0; }
 
-    Macro *resolve(const QByteArray &name) const;
-    bool isBuiltinMacro(const QByteArray &name) const;
+} // namespace CPlusPlus
 
-    const Macro *const *firstMacro() const
-    { return _macros; }
-
-    Macro **firstMacro()
-    { return _macros; }
-
-    const Macro *const *lastMacro() const
-    { return _macros + _macro_count + 1; }
-
-    Macro **lastMacro()
-    { return _macros + _macro_count + 1; }
-
-private:
-    static unsigned hash_code (const QByteArray &s);
-    void rehash();
-
-public:
-    QByteArray current_file;
-    unsigned currentLine;
-    bool hide_next;
-
-private:
-    Macro **_macros;
-    int _allocated_macros;
-    int _macro_count;
-    Macro **_hash;
-    int _hash_count;
-};
-
-} // namespace rpp
-
-#endif // PP_ENVIRONMENT_H
+#endif // PP_CCTYPE_H
