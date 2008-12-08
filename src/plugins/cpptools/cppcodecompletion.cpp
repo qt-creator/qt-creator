@@ -1027,6 +1027,10 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
 void CppCodeCompletion::cleanup()
 {
     m_completions.clear();
+
+    // Set empty map in order to avoid referencing old versions of the documents
+    // until the next completion
+    typeOfExpression.setDocuments(QMap<QString, Document::Ptr>());
 }
 
 int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)
