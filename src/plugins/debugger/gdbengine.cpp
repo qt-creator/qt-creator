@@ -3963,7 +3963,7 @@ void GdbEngine::tryLoadCustomDumpers()
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call dlopen(\"" + lib + "\", " + flag + ")");
+        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
         sendCommand("sharedlibrary " + dotEscape(lib));
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 1");
