@@ -442,7 +442,8 @@ void GdbEngine::handleResponse()
             break;
         }
 
-        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
+        if (token == -1 && *from != '&' && *from != '~' && *from != '*'
+            && *from != '=') {
             // FIXME: On Linux the application's std::out is merged in here.
             // High risk of falsely interpreting this as MI output.
             // We assume that we _always_ use tokens, so not finding a token
@@ -470,7 +471,7 @@ void GdbEngine::handleResponse()
                 for (; from != to; ++from) {
                     const char c = *from;
                     if (!isNameChar(c))
-                      break;
+                        break;
                     asyncClass += *from;
                 }
                 //qDebug() << "ASYNCCLASS" << asyncClass;
@@ -1283,7 +1284,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
         } else {
-            q->showStatusMessage(tr("Stopped. Reason: \"%1\"").arg(reason));
+            q->showStatusMessage(tr("Stopped: \"%1\"").arg(reason));
             handleAsyncOutput2(data);
         }
         return;
