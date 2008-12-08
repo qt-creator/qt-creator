@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "pp.h"
+#include <cplusplus/pp.h>
 
 #include "cppmodelmanager.h"
 #include "cpphoverhandler.h"
@@ -107,7 +107,7 @@ static const char pp_configuration[] =
 namespace CppTools {
 namespace Internal {
 
-class CppPreprocessor: public rpp::Client
+class CppPreprocessor: public CPlusPlus::Client
 {
 public:
     CppPreprocessor(QPointer<CppModelManager> modelManager);
@@ -129,12 +129,11 @@ protected:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
     void mergeEnvironment(CPlusPlus::Document::Ptr doc, QSet<QString> *processed);
 
-    virtual void macroAdded(const QByteArray &macroName,
-                            const QByteArray &macroText);
+    virtual void macroAdded(const Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
-                                     const rpp::Macro &macro,
+                                     const Macro &macro,
                                      const QByteArray &originalText);
-    virtual void stopExpandingMacro(unsigned offset, const rpp::Macro &macro);
+    virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
     virtual void sourceNeeded(QString &fileName, IncludeType type);
@@ -142,8 +141,8 @@ protected:
 private:
     QPointer<CppModelManager> m_modelManager;
     CppModelManager::DocumentTable m_documents;
-    rpp::Environment env;
-    rpp::pp m_proc;
+    Environment env;
+    pp m_proc;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
     QMap<QString, QByteArray> m_workingCopy;
@@ -295,16 +294,16 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
     return QByteArray();
 }
 
-void CppPreprocessor::macroAdded(const QByteArray &macroName, const QByteArray &macroText)
+void CppPreprocessor::macroAdded(const Macro &macro)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->appendMacro(macroName, macroText);
+    m_currentDoc->appendMacro(macro);
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
-                                          const rpp::Macro &,
+                                          const Macro &,
                                           const QByteArray &originalText)
 {
     if (! m_currentDoc)
@@ -314,7 +313,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset,
     m_currentDoc->addMacroUse(offset, originalText.length());
 }
 
-void CppPreprocessor::stopExpandingMacro(unsigned, const rpp::Macro &)
+void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
 {
     if (! m_currentDoc)
         return;
@@ -340,14 +339,13 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
 
     processed->insert(fn);
 
-    foreach (QString includedFile, doc->includedFiles())
+    foreach (QString includedFile, doc->includedFiles()) {
         mergeEnvironment(m_documents.value(includedFile), processed);
+    }
 
-    const QByteArray macros = doc->definedMacros();
-    QByteArray localFileName = doc->fileName().toUtf8();
-
-    QByteArray dummy;
-    m_proc(localFileName, macros, &dummy);
+    foreach (const Macro macro, doc->definedMacros()) {
+        env.bind(macro);
+    }
 }
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)

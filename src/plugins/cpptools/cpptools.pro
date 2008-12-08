@@ -10,7 +10,7 @@ unix:QMAKE_CXXFLAGS_DEBUG += -O3
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
 CONFIG += help
-include(rpp/rpp.pri)|error("Can't find RPP")
+
 HEADERS += cpptools_global.h \
     cppquickopenfilter.h \
     cppclassesfilter.h \

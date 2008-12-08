@@ -605,7 +605,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
         }
     }
 
-    connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(sessionManager()));
+    connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
 #if 0
     connect(m_loadAction, SIGNAL(triggered()), this, SLOT(loadAction()));
@@ -765,10 +765,10 @@ void ProjectExplorerPlugin::newProject()
     updateActions();
 }
 
-void ProjectExplorerPlugin::sessionManager()
+void ProjectExplorerPlugin::showSessionManager()
 {
     if (debug)
-        qDebug() << "ProjectExplorerPlugin::newSession";
+        qDebug() << "ProjectExplorerPlugin::showSessionManager";
 
     if (m_session->isDefaultVirgin()) {
         // do not save new virgin default sessions

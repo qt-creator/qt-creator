@@ -34,6 +34,8 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "cmakestep.h"
+#include "makestep.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -188,7 +190,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     Q_UNUSED(buildConfiguration)
     //TODO
-    return "";
+    return QFileInfo(m_fileName).absolutePath();
 }
 
 ProjectExplorer::BuildStepConfigWidget *CMakeProject::createConfigWidget()
@@ -225,13 +227,29 @@ QStringList CMakeProject::files(FilesMode fileMode) const
 void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
     // TODO
-    Q_UNUSED(writer)
+    Q_UNUSED(writer);
 }
 
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     // TODO
-    Q_UNUSED(reader)
+    Q_UNUSED(reader);
+    if (buildConfigurations().isEmpty()) {
+        // No build configuration, adding those
+
+        // TODO do we want to create one build configuration per target?
+        // or how do we want to handle that?
+
+        CMakeStep *cmakeStep = new CMakeStep(this);
+        MakeStep *makeStep = new MakeStep(this);
+
+        insertBuildStep(0, cmakeStep);
+        insertBuildStep(1, makeStep);
+
+        addBuildConfiguration("all");
+        setActiveBuildConfiguration("all");
+    }
+    // Restoring is fine
 }
 
 
@@ -376,12 +394,36 @@ void CMakeCbpParser::parseBuild()
 
 void CMakeCbpParser::parseTarget()
 {
+    m_targetOutput.clear();
+    m_targetType = false;
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            if (m_targetType && !m_targetOutput.isEmpty()) {
+                qDebug()<<"found target "<<m_targetOutput;
+                m_targets.insert(m_targetOutput);
+            }
+            return;
+        } else if (name() == "Compiler") {
+            parseCompiler();
+        } else if (name() == "Option") {
+            parseTargetOption();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseTargetOption()
+{
+    if (attributes().hasAttribute("output"))
+        m_targetOutput = attributes().value("output").toString();
+    else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
+        m_targetType = true;
     while(!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Compiler") {
-            parseCompiler();
         } else if (isStartElement()) {
             parseUnknownElement();
         }

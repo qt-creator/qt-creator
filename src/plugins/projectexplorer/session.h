@@ -137,7 +137,7 @@ public:
     Core::IFile *file() const;
     Project *startupProject() const;
 
-    QList<Project *> projects() const;
+    const QList<Project *> &projects() const;
 
     bool isDefaultVirgin() const;
     bool isDefaultSession(const QString &session) const;
@@ -182,6 +182,7 @@ private:
     bool loadImpl(const QString &fileName);
     bool createImpl(const QString &fileName);
     QString sessionNameToFileName(const QString &session);
+    bool projectContainsFile(Project *p, const QString &fileName) const;
 
     bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
     QStringList dependencies(const QString &proName) const;

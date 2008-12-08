@@ -54,7 +54,7 @@
 #include "pp.h"
 #include <cstring>
 
-using namespace rpp;
+using namespace CPlusPlus;
 
 Environment::Environment ()
     : currentLine(0),
@@ -115,12 +115,12 @@ Macro *Environment::bind(const Macro &__macro)
     return m;
 }
 
-void Environment::remove (const QByteArray &name)
+Macro *Environment::remove (const QByteArray &name)
 {
     Macro macro;
     macro.name = name;
     macro.hidden = true;
-    bind(macro);
+    return bind(macro);
 }
 
 bool Environment::isBuiltinMacro(const QByteArray &s) const

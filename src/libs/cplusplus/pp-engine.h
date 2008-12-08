@@ -62,7 +62,7 @@ namespace CPlusPlus {
     class Token;
 }
 
-namespace rpp {
+namespace CPlusPlus {
 
     struct Value
     {
@@ -134,7 +134,7 @@ namespace rpp {
 #undef PP_DEFINE_BIN_OP
     };
 
-    class pp
+    class CPLUSPLUS_EXPORT pp
     {
         Client *client;
         Environment &env;
@@ -200,7 +200,7 @@ namespace rpp {
 
         Value evalExpression(TokenIterator firstToken,
                              TokenIterator lastToken,
-			     const QByteArray &source) const;
+                             const QByteArray &source) const;
 
         QVector<CPlusPlus::Token> tokenize(const QByteArray &text) const;
 
@@ -226,6 +226,6 @@ namespace rpp {
         bool isQtReservedWord(const QByteArray &name) const;
     };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_ENGINE_H

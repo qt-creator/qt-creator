@@ -138,19 +138,9 @@ void Document::addIncludeFile(const QString &fileName)
     _includedFiles.append(fileName);
 }
 
-QByteArray Document::definedMacros() const
+void Document::appendMacro(const Macro &macro)
 {
-    return _definedMacros;
-}
-
-void Document::appendMacro(const QByteArray &macroName, const QByteArray &text)
-{
-    int index = macroName.indexOf('(');
-    if (index == -1)
-        _macroNames.insert(macroName);
-    else
-        _macroNames.insert(macroName.left(index));
-    _definedMacros += text;
+    _definedMacros.append(macro);
 }
 
 void Document::addMacroUse(unsigned offset, unsigned length)
@@ -249,11 +239,6 @@ void Document::stopSkippingBlocks(unsigned stop)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
     else
         _skippedBlocks.back() = Block(start, stop);
-}
-
-QSet<QByteArray> Document::macroNames() const
-{
-    return _macroNames;
 }
 
 bool Document::parse(ParseMode mode)
