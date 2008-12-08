@@ -314,7 +314,7 @@ QStringList QtVersionManager::possibleQMakeCommands()
     return result;
 }
 
-bool QtVersionManager::checkQMakeVersion(const QString &qmakePath)
+QString QtVersionManager::qtVersionForQMake(const QString &qmakePath)
 {
     QProcess qmake;
     qmake.start(qmakePath, QStringList()<<"--version");
@@ -323,9 +323,12 @@ bool QtVersionManager::checkQMakeVersion(const QString &qmakePath)
     QString output = qmake.readAllStandardOutput();
     QRegExp regexp("(QMake version|Qmake version:)[\\s]*([\\d.]*)");
     regexp.indexIn(output);
-    if (regexp.cap(2).startsWith("2."))
-        return true;
-    return false;
+    if (regexp.cap(2).startsWith("2.")) {
+        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)");
+        regexp2.indexIn(output);
+        return regexp2.cap(1);
+    }
+    return QString();
 }
 
 QString QtVersionManager::findSystemQt() const
@@ -336,7 +339,7 @@ QString QtVersionManager::findSystemQt() const
         foreach (const QString &possibleCommand, possibleQMakeCommands()) {
             QFileInfo qmake(path + "/" + possibleCommand);
             if (qmake.exists()) {
-                if (checkQMakeVersion(qmake.absoluteFilePath())) {
+                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
                     QDir dir(qmake.absoluteDir());
                     dir.cdUp();
                     return dir.absolutePath();
@@ -517,7 +520,10 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
             m_ui.mingwLineEdit->setVisible(false);
             m_ui.mingwLabel->setVisible(false);
             m_ui.mingwBrowseButton->setVisible(false);
-            m_ui.errorLabel->setText("Found qt version: " + m_versions.at(index)->mkspec());
+            m_ui.errorLabel->setText("Found Qt version "
+                                     + m_versions.at(index)->qtVersionString()
+                                     + " using mkspec "
+                                     + m_versions.at(index)->mkspec());
         }
     } else {
         m_ui.msvcComboBox->setVisible(false);
@@ -732,6 +738,12 @@ QString QtVersion::mkspecPath() const
 {
     updateMkSpec();
     return m_mkspecFullPath;
+}
+
+QString QtVersion::qtVersionString() const
+{
+    qmakeCommand();
+    return m_qtVersionString;
 }
 
 QHash<QString,QString> QtVersion::versionInfo() const
@@ -1144,7 +1156,9 @@ QString QtVersion::qmakeCommand() const
         QString s = qtDir.absoluteFilePath(possibleCommand);
         QFileInfo qmake(s);
         if (qmake.exists() && qmake.isExecutable()) {
-            if (QtVersionManager::checkQMakeVersion(qmake.absoluteFilePath())) {
+            QString qtVersion = QtVersionManager::qtVersionForQMake(qmake.absoluteFilePath());
+            if (!qtVersion.isNull()) {
+                m_qtVersionString = qtVersion;
                 m_qmakeCommand = qmake.absoluteFilePath();
                 return qmake.absoluteFilePath();
             }
