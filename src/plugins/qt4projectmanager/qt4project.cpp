@@ -474,6 +474,9 @@ void Qt4Project::updateCodeModel()
         }
     }
 
+    // Add mkspec directory
+    allIncludePaths.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+
     QStringList files;
     files += m_projectFiles->files[HeaderType];
     files += m_projectFiles->generatedFiles[HeaderType];

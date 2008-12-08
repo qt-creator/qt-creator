@@ -226,7 +226,7 @@ QStringList CMakeProject::files(FilesMode fileMode) const
 void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
     // TODO
-    Q_UNUSED(writer)
+    Q_UNUSED(writer);
 }
 
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
