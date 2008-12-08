@@ -785,7 +785,12 @@ int main(int argc, char *argv[])
     testVariant3();
     testVector();
     testVectorOfList();
+
+
+    *(int *)0 = 0;
+
     testObject(argc, argv);
+
 
     //QColor color(255,128,10);
     //QFont font;

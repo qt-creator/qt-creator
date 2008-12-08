@@ -78,7 +78,7 @@ private:
     void editItem(const QModelIndex &idx);
     void reset(); /* reimpl */
 
-    void modelResetHelper(const QModelIndex &idx);
+    void resetHelper(const QModelIndex &idx);
 
     bool m_alwaysResizeColumnsToContents;
     Type m_type;
