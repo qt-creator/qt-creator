@@ -139,7 +139,6 @@ private:
     QList<int> m_contexts;
     QComboBox *m_methodCombo;
     CPlusPlus::OverviewModel *m_overviewModel;
-    QStringListModel *m_noSymbolsModel;
 };
 
 } // namespace Internal
