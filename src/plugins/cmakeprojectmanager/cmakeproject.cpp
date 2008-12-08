@@ -62,11 +62,12 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
-            CppTools::CppModelManagerInterface::ProjectInfo *pinfo = modelmanager->projectInfo(this);
-            pinfo->includePaths = cbpparser.includeFiles();
+            CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+            pinfo.includePaths = cbpparser.includeFiles();
             // TODO we only want C++ files, not all other stuff that might be in the project
-            pinfo->sourceFiles = m_files;
+            pinfo.sourceFiles = m_files;
             // TODO defines
+            modelmanager->updateProjectInfo(pinfo);
         }
     } else {
         // TODO report error
