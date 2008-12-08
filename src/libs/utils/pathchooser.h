@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #ifndef PATHCHOOSER_H
 #define PATHCHOOSER_H
 
@@ -53,8 +54,22 @@ class QWORKBENCH_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
 
 public:
+    static const char * const browseButtonLabel;
+
     explicit PathChooser(QWidget *parent = 0);
     virtual ~PathChooser();
+
+    enum Kind {
+        Directory,
+        File,
+        Command,
+        // ,Any
+    };
+
+    // Default is <Directory>
+    void setExpectedKind(Kind expected);
+
+    void setPromptDialogTitle(const QString &title);
 
     bool isValid() const;
     QString errorMessage() const;
@@ -64,10 +79,14 @@ public:
     // Returns the suggested label title when used in a form layout
     static QString label();
 
-    static bool validatePath(const QString &path, QString *errorMessage = 0);
+    bool validatePath(const QString &path, QString *errorMessage = 0);
 
     // Return the home directory, which needs some fixing under Windows.
     static QString homePath();
+
+private:
+    // Returns overridden title or the one from <title>
+    QString makeDialogTitle(const QString &title);
 
 signals:
     void validChanged();

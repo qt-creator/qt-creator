@@ -250,6 +250,12 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
 
+    m_breakpointMarginAction = new QAction(this);
+    m_breakpointMarginAction->setText("Toggle Breakpoint");
+    //m_breakpointMarginAction->setIcon(QIcon(":/gdbdebugger/images/breakpoint.svg"));
+    connect(m_breakpointMarginAction, SIGNAL(triggered()),
+        this, SLOT(breakpointMarginActionTriggered()));
+
     //Core::IActionContainer *mcppcontext =
     //    actionManager->actionContainer(CppEditor::Constants::M_CONTEXT);
 
@@ -502,6 +508,8 @@ void DebuggerPlugin::editorOpened(Core::IEditor *editor)
             this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
         connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
             this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+        connect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
     }
 }
 
@@ -512,7 +520,25 @@ void DebuggerPlugin::editorAboutToClose(Core::IEditor *editor)
             this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
         disconnect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
             this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+        disconnect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
     }
+}
+
+void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
+    int lineNumber, QMenu *menu)
+{
+    m_breakpointMarginActionLineNumber = lineNumber;
+    m_breakpointMarginActionFileName = editor->file()->fileName();
+    menu->addAction(m_breakpointMarginAction);
+}
+
+void DebuggerPlugin::breakpointMarginActionTriggered()
+{
+    m_manager->toggleBreakpoint(
+        m_breakpointMarginActionFileName,
+        m_breakpointMarginActionLineNumber
+    );
 }
 
 void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber)

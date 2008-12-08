@@ -36,6 +36,8 @@
 
 #include <CPlusPlusForwardDeclarations.h>
 
+#include "pp-macro.h"
+
 #include <QByteArray>
 #include <QList>
 #include <QSet>
@@ -44,6 +46,8 @@
 #include <QStringList>
 
 namespace CPlusPlus {
+
+class Macro;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -63,10 +67,7 @@ public:
     QStringList includedFiles() const;
     void addIncludeFile(const QString &fileName);
 
-    QByteArray definedMacros() const;
-    QSet<QByteArray> macroNames() const;
-
-    void appendMacro(const QByteArray &macroName, const QByteArray &text);
+    void appendMacro(const Macro &macro);
 
     void addMacroUse(unsigned offset, unsigned length);
 
@@ -80,6 +81,9 @@ public:
     Symbol *globalSymbolAt(unsigned index) const;
     Scope *globalSymbols() const; // ### deprecate?
     Namespace *globalNamespace() const;
+
+    QList<Macro> definedMacros() const
+    { return _definedMacros; }
 
     Symbol *findSymbolAt(unsigned line, unsigned column) const;
 
@@ -191,8 +195,7 @@ private:
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;
     QList<DiagnosticMessage> _diagnosticMessages;
-    QByteArray _definedMacros;
-    QSet<QByteArray> _macroNames;
+    QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<Block> _macroUses;
 };

@@ -72,21 +72,16 @@ private slots:
     void handleChangedItem(QWidget *);
     void expandNode(const QModelIndex &index);
     void collapseNode(const QModelIndex &index);
-    void modelAboutToBeReset();
-    void modelReset();
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
     void editItem(const QModelIndex &idx);
     void reset(); /* reimpl */
 
-    void modelAboutToBeResetHelper(const QModelIndex &idx);
-    void modelResetHelper(const QModelIndex &idx);
+    void resetHelper(const QModelIndex &idx);
 
     bool m_alwaysResizeColumnsToContents;
     Type m_type;
-    bool m_blocked;
-    QSet<QString> m_expandedItems;
 };
 
 

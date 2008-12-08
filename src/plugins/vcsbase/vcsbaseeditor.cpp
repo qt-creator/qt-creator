@@ -225,23 +225,12 @@ void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
             sel.format.setFontUnderline(true);
             change = changeUnderCursor(cursor);
             sel.format.setProperty(QTextFormat::UserProperty, change);
-            bool found = false;
-            foreach (QTextEdit::ExtraSelection es, extraSelections()) {
-                if (es.format.stringProperty(QTextFormat::UserProperty) == sel.format.stringProperty(QTextFormat::UserProperty)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                setExtraSelections(QList<QTextEdit::ExtraSelection>() << sel);
-                viewport()->setCursor(Qt::PointingHandCursor);
-            }
-        } else {
-            if (!extraSelections().isEmpty()) {
-                setExtraSelections(QList<QTextEdit::ExtraSelection>());
-                viewport()->setCursor(Qt::IBeamCursor);
-            }
+            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
+            viewport()->setCursor(Qt::PointingHandCursor);
         }
+    } else {
+        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+        viewport()->setCursor(Qt::IBeamCursor);
     }
     TextEditor::BaseTextEditor::mouseMoveEvent(e);
 }

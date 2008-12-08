@@ -73,6 +73,7 @@ class QWORKBENCH_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(QString formExtension READ formExtension WRITE setFormExtension DESIGNABLE true)
     Q_PROPERTY(bool formInputCheckable READ formInputCheckable WRITE setFormInputCheckable DESIGNABLE true)
     Q_PROPERTY(bool formInputChecked READ formInputChecked WRITE setFormInputChecked DESIGNABLE true)
+    Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
     // Utility "USER" property for wizards containing file names.
     Q_PROPERTY(QStringList files READ files DESIGNABLE false USER true)
 public:
@@ -97,7 +98,7 @@ public:
     QString sourceExtension() const;
     QString headerExtension() const;
     QString formExtension() const;
-
+    bool allowDirectories() const;
 
     bool isValid(QString *error = 0) const;
 
@@ -125,6 +126,7 @@ public slots:
     void setSourceExtension(const QString &e);
     void setHeaderExtension(const QString &e);
     void setFormExtension(const QString &e);
+    void setAllowDirectories(bool v);
 
     /* Suggest a class name from the base class by stripping the leading 'Q'
      * character. This will happen automagically if the base class combo

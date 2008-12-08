@@ -69,7 +69,7 @@
 
     \image qtcreator-breakdown.png
 
-    \seection1 The Mode Selectors
+    \section1 The Mode Selectors
 
     When working in Qt Creator, you can be in one of five modes: \bold Project,
     \bold Edit, \bold Debug, \bold Help, and \bold Output.
@@ -613,7 +613,7 @@
     \page creator-debugging.html
     \nextpage creator-tips.html
 
-    \title Debugging With Qt Creator
+    \title Debugging with Qt Creator
 
     \table
         \row 
@@ -677,9 +677,9 @@
 
     \list
        \o At a particular line you want the program to stop -- click on the
-          left margin or press \key F9 (\key F8 for Mac Os X).
-       \o At the name of a function that you want the program to stop -- enter
-          the function's name in \gui{Set Breakpoint at Function...} under the
+          left margin or press \key F9 (\key F8 for Mac OS X).
+       \o At a function that you want the program to stop -- enter the
+          function's name in \gui{Set Breakpoint at Function...} under the
           \gui Debug menu.
     \endlist
 
@@ -744,7 +744,7 @@
 
     When the program being debugged is stopped, Qt Creator displays the nested
     function calls leading to the current position as a \e call stack trace.
-    This stack trace is built up from \e call stack frames, each representing a
+    This stack trace is built up from \e{call stack frames}, each representing a
     particular function. For each function, Qt Creator will try to retrieve the
     file name and line number of the corresponding source files. This data is
     shown in the \gui Stack view.
@@ -765,11 +765,10 @@
     \section2 Threads
 
     
-    The \gui Thread view displays the state of the program being debugged one
-    thread at a time. If a multi-threaded program is stopped, the \gui Thread
-    view  or the combobox named \gui Thread in the debugger's status bar can
-    be used to switch from one thread to another. The \gui Stack view will
-    adjust itself accordingly.
+    If a multi-threaded program is stopped, the \gui Thread view  or the
+    combobox named \gui Thread in the debugger's status bar can be used to
+    switch from one thread to another. The \gui Stack view will adjust itself
+    accordingly.
 
 
     \section2 Locals and Watchers
@@ -851,8 +850,7 @@
     function, the latter the current state of the CPU registers.
     Both views are mainly useful in connection with the low-level
     \gui{Step single instruction} and \gui{Step over single instruction}
-    commands
-        
+    commands.
 
     \section1 A Walkthrough for the Debugger Frontend
 
@@ -947,27 +945,27 @@
 
     \bold{Running Qt Creator from the Command Line}
 
-    You can start Qt Creator from a command prompt with an existing session or
-    \c{.pro} file by giving the name as argument on the command line.
+    You can start Qt Creator from a command prompt with the name of an existing
+    session or \c{.pro} file by giving the name as argument on the command
+    line.
 
-    \bold{Sidebar}
+    \bold{Show and Hide the Sidebar}
 
-    You can hide/unhide the sidebar in the edit and debug mode
-    by clicking on the corresponding icon on the left bottom.
-    Keyboard shortcut is \key{Alt+0}.
+    You can show and hide the the sidebar in \gui Edit and \gui Debug mode by
+    clicking on the corresponding icon, or by pressing \key{Alt+0}.
 
-    \bold{Display signals and slots}
+    \bold{Display Signals and Slots}
 
-    If you have an instance of a class derived from QObject and 
-    want to find all other objects connected to one of its
-    slots by Qt's signals-and-slots mechanism, enable
-    \gui{Debug} and \gui{Use Custom Display for Qt Objects}.
-    In the \gui{Locals and Watchers View}, expand the object's
-    entry and open the wanted slot in the "slots" subitem. The
-    objects connect to this slot are exposed as children of
-    this slot. The same works with signals.
+    If you have an instance of a class that is derived from QObject, and you
+    you would like to find all other objects connected to one of your object's
+    slots using Qt's signals and slots mechanism -- you can enable
+    \gui{Use Custom Display for Qt Objects} feature under the \gui Debug menu.
 
-    \bold{Low level display}
+    In the \gui{Locals and Watchers} view, expand the object's entry and open
+    the slot in the \e slots subitem. The objects connected to this slot are
+    exposed as children of the slot. This method works with signals too.
+
+    \bold{Display Low Level Data}
 
     If the special debugging of Qt objects fails due to data
     corruption within the debugged objects, you can switch the
@@ -983,33 +981,38 @@
 
     \title Glossary
 
-    \bold{System Qt}
+    \table
+        \header
+            \o  Term
+            \o  Meaning
 
-    \target glossary-system-qt
-    The version of Qt installed on your system.
-    This is the one whose \c qmake command is found in the \c PATH.
+        \row
+            \o  System Qt   \target glossary-system-qt
+            \o  The version of Qt installed on your system. This is the Qt
+                version for the \c qmake command found in your \c PATH.
 
-    \bold{Default Qt}
+        \row
+            \o  Default Qt  \target glossary-default-qt
+            \o  The version of Qt configured in \gui{Tools -> Options -> Qt 4
+                -> Default Qt Version}. This is the Qt version used by your
+                new projects. It defaults to System Qt.
 
-    \target glossary-default-qt
-    The version of Qt configured in \gui{Tools
-    -> Options -> Qt 4 -> Default Qt Version}. This is the version
-    used by new projects. It defaults to the System Qt.
+        \row
+            \o  Project Qt  \target glossary-project-qt
+            \o  The version of Qt configured in \gui{Build&Run -> Build
+                Settings -> Build Configurations}. This is the Qt version that
+                is actually used by a particular project. It defaults to
+                Default Qt.
 
-    \bold{Project Qt}
-
-    \target glossary-project-qt
-    The version of Qt configured in \gui{Build&Run
-    -> Build Settings -> Build Configurations}. This is the version
-    actually used by the project. It defaults to the Default Qt.
-
-    \bold{Shadow Build}
-
-    \target glossary-shadow-build
-    Shadow building means building the project not in the source directory,
-    but in a seperate \bold{build directory}. This has the benefit of keeping
-    the source directory clean. It is also considered "best practice" if 
-    you need many build configurations for a single set of sources.
+        \row
+            \o  Shadow Build    \target glossary-shadow-build
+            \o  Shadow building means building a project in a separate
+                directory, the \e{build directory}. The build directory is
+                different from the source directory. One of the benefits of
+                shadow building is that it keeps your source directory clean.
+                Shadow building is the best practice if you need many build
+                configurations for a single set of source.
+    \endtable
 
 */
 

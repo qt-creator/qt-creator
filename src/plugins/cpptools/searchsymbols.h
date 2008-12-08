@@ -44,6 +44,8 @@
 #include <QMetaType>
 #include <QString>
 
+#include <functional>
+
 namespace CppTools {
 namespace Internal {
 
@@ -90,6 +92,7 @@ public:
     SearchSymbols();
 
     void setSymbolsToSearchFor(SymbolTypes types);
+    void setSeparateScope(bool separateScope);
 
     QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc)
     { return operator()(doc, QString()); }
@@ -111,14 +114,27 @@ protected:
     virtual bool visit(CPlusPlus::Declaration *symbol);
 #endif
     virtual bool visit(CPlusPlus::Class *symbol);
+
+    QString scopedSymbolName(const QString &symbolName) const;
+    QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
     QString symbolName(const CPlusPlus::Symbol *symbol) const;
+    void appendItem(const QString &name,
+                    const QString &info,
+                    ModelItemInfo::ItemType type,
+                    const CPlusPlus::Symbol *symbol);
 
 private:
+    QString findOrInsert(const QString &s)
+    { return *strings.insert(s); }
+
+    QSet<QString> strings;            // Used to avoid QString duplication
+
     QString _scope;
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
     QList<ModelItemInfo> items;
     SymbolTypes symbolsToSearchFor;
+    bool separateScope;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(SearchSymbols::SymbolTypes)

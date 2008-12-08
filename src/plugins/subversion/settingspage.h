@@ -59,9 +59,6 @@ public:
     SubversionSettings settings() const;
     void setSettings(const SubversionSettings &);
 
-private slots:;
-    void browseForCommand();
-
 private:
     Ui::SettingsPage m_ui;
 };

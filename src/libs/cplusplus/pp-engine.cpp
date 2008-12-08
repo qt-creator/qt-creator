@@ -57,7 +57,6 @@
 #include <QtDebug>
 #include <algorithm>
 
-using namespace rpp;
 using namespace CPlusPlus;
 
 namespace {
@@ -907,16 +906,8 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
 
     env.bind(macro);
 
-    QByteArray macroText;
-    macroText.reserve(64);
-    macroText += "#define ";
-
-    macroText += macroId;
-    macroText += ' ';
-    macroText += macro.definition;
-    macroText += '\n';
-
-    client->macroAdded(macroId, macroText);
+    if (client)
+        client->macroAdded(macro);
 }
 
 void pp::processIf(TokenIterator firstToken, TokenIterator lastToken)
@@ -1020,13 +1011,10 @@ void pp::processUndef(TokenIterator firstToken, TokenIterator lastToken)
 
     if (tk->is(T_IDENTIFIER)) {
         const QByteArray macroName = tokenText(*tk);
-        env.remove(macroName);
+        const Macro *macro = env.remove(macroName);
 
-        QByteArray macroText;
-        macroText += "#undef ";
-        macroText += macroName;
-        macroText += '\n';
-        client->macroAdded(macroName, macroText);
+        if (client && macro)
+            client->macroAdded(*macro);
     }
 }
 

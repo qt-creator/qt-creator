@@ -1,16 +1,14 @@
 IDE_SOURCE_TREE = $$PWD/../
 
-isEmpty(TEST) {
-    CONFIG(debug, debug|release) {
+isEmpty(TEST):CONFIG(debug, debug|release) {
+    !debug_and_release|build_pass {
         TEST = 1
     }
 }
 
-!isEmpty(TEST) {
-    equals(TEST, 1) {
-        QT +=testlib
-        DEFINES+=WITH_TESTS
-    }
+equals(TEST, 1) {
+    QT +=testlib
+    DEFINES += WITH_TESTS
 }
 
 isEmpty(IDE_BUILD_TREE) {

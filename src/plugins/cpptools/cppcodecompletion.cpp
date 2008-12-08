@@ -699,7 +699,9 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
             continue;
         processed.insert(fn);
         if (Document::Ptr doc = context.document(fn)) {
-            macroNames += doc->macroNames();
+            foreach (const Macro macro, doc->definedMacros()) {
+                macroNames.insert(macro.name);
+            }
             todo += doc->includedFiles();
         }
     }
@@ -1025,6 +1027,10 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
 void CppCodeCompletion::cleanup()
 {
     m_completions.clear();
+
+    // Set empty map in order to avoid referencing old versions of the documents
+    // until the next completion
+    typeOfExpression.setDocuments(QMap<QString, Document::Ptr>());
 }
 
 int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)

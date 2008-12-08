@@ -54,9 +54,6 @@ public:
     PerforceSettings settings() const;
     void setSettings(const PerforceSettings &);
 
-private slots:;
-    void browseForCommand();
-
 private:
     Ui::SettingsPage m_ui;
 };

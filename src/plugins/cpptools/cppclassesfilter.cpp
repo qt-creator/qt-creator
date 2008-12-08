@@ -42,6 +42,7 @@ CppClassesFilter::CppClassesFilter(CppModelManager *manager, Core::EditorManager
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SearchSymbols::Classes);
+    search.setSeparateScope(true);
 }
 
 CppClassesFilter::~CppClassesFilter()

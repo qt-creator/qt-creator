@@ -347,7 +347,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
                 "This is the default return value of error().");
     }
 
-    q->showStatusMessage(msg, 5000);
+    q->showStatusMessage(msg);
     QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     // act as if it was closed by the core
     q->exitDebugger();
@@ -442,7 +442,8 @@ void GdbEngine::handleResponse()
             break;
         }
 
-        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
+        if (token == -1 && *from != '&' && *from != '~' && *from != '*'
+            && *from != '=') {
             // FIXME: On Linux the application's std::out is merged in here.
             // High risk of falsely interpreting this as MI output.
             // We assume that we _always_ use tokens, so not finding a token
@@ -470,7 +471,7 @@ void GdbEngine::handleResponse()
                 for (; from != to; ++from) {
                     const char c = *from;
                     if (!isNameChar(c))
-                      break;
+                        break;
                     asyncClass += *from;
                 }
                 //qDebug() << "ASYNCCLASS" << asyncClass;
@@ -710,7 +711,7 @@ void GdbEngine::sendCommand(const QString &command, int type,
 
     bool temporarilyStopped = false;
     if (needStop && q->status() == DebuggerInferiorRunning) {
-        q->showStatusMessage(tr("Temporarily stopped"), -1);
+        q->showStatusMessage(tr("Temporarily stopped"));
         interruptInferior();
         temporarilyStopped = true;
     }
@@ -1055,7 +1056,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
     // ~"242\t x *= 2;"
     //109^done"
     qq->notifyInferiorStopped();
-    q->showStatusMessage(tr("Jumped. Stopped."), -1);
+    q->showStatusMessage(tr("Jumped. Stopped."));
     QString output = record.data.findChild("logstreamoutput").data();
     if (!output.isEmpty())
         return;
@@ -1074,7 +1075,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record)
     // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
     // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
     qq->notifyInferiorStopped();
-    q->showStatusMessage(tr("Run to Function finished. Stopped."), -1);
+    q->showStatusMessage(tr("Run to Function finished. Stopped."));
     GdbMi frame = record.data.findChild("frame");
     QString file = frame.findChild("fullname").data();
     int line = frame.findChild("line").data().toInt();
@@ -1212,7 +1213,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             }
         } else {
             // slow start requested.
-            q->showStatusMessage("Loading " + data.toString(), -1);
+            q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
             continueInferior();
         }
         return;
@@ -1231,7 +1232,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             msg = "Program exited after receiving signal "
                 + data.findChild("signal-name").toString();
         }
-        q->showStatusMessage(msg, -1);
+        q->showStatusMessage(msg);
         q->exitDebugger();
         return;
     }
@@ -1271,17 +1272,19 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (isStoppedReason(reason) || reason.isEmpty()) {
         // Need another round trip
         if (reason == "breakpoint-hit") {
+            q->showStatusMessage(tr("Stopped at breakpoint"));
             GdbMi frame = data.findChild("frame");
             //qDebug() << frame.toString();
             m_currentFrame = frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%';
 
-            QApplication::alert(q->mainWindow(), 200);
+            QApplication::alert(q->mainWindow(), 3000);
             sendCommand("-file-list-exec-source-files", GdbQuerySources);
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
         } else {
+            q->showStatusMessage(tr("Stopped: \"%1\"").arg(reason));
             handleAsyncOutput2(data);
         }
         return;
@@ -1303,7 +1306,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
     q->resetLocation();
     qq->notifyInferiorStopped();
-    q->showStatusMessage(tr("Run to Function finished. Stopped."), -1);
+    q->showStatusMessage(tr("Run to Function finished. Stopped."));
     GdbMi frame = data.findChild("frame");
     QString file = frame.findChild("fullname").data();
     int line = frame.findChild("line").data().toInt();
@@ -1376,8 +1379,9 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         QString msg = response.data.findChild("consolestreamoutput").data();
-        QRegExp supported("GNU gdb 6.[6789]");
-        if (msg.indexOf(supported) == -1) {
+        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)\\.(\\d+)");
+        if (supported.indexIn(msg) == -1) {
+            qDebug() << "UNSUPPORTED GDB VERSION " << msg;
             QStringList list = msg.split("\n");
             while (list.size() > 2)
                 list.removeLast();
@@ -1394,11 +1398,11 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
 #else
             //QMessageBox::information(m_mainWindow, tr("Warning"), msg);
 #endif
-        }
-        int pos = msg.indexOf("GNU gdb 6.");
-        if (pos != -1) {
-            m_gdbVersion = 600 + (msg.at(pos + 10).unicode() - '0') * 10;
-            //qDebug() << "GDB VERSION " << m_gdbVersion << msg;
+        } else {
+            m_gdbVersion = 10000 * supported.cap(2).toInt()
+                         +   100 * supported.cap(3).toInt()
+                         +     1 * supported.cap(4).toInt();
+            //qDebug() << "GDB VERSION " << m_gdbVersion;
         }
     }
 }
@@ -1421,14 +1425,14 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response)
 {
     if (response.resultClass == GdbResultRunning) {
         qq->notifyInferiorRunning();
-        q->showStatusMessage(tr("Running..."), -1);
+        q->showStatusMessage(tr("Running..."));
         //reloadModules();
     } else if (response.resultClass == GdbResultError) {
         QString msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
             qq->notifyInferiorStopped();
             //q->showStatusMessage(tr("No debug information available. "
-            //  "Leaving function..."), -1);
+            //  "Leaving function..."));
             //stepOutExec();
         } else {
             QMessageBox::critical(q->mainWindow(), tr("Error"),
@@ -1556,7 +1560,7 @@ bool GdbEngine::startDebugger()
     qDebug() << "ExeFile: " << q->m_executable;
     #endif
 
-    q->showStatusMessage("Starting Debugger", -1);
+    q->showStatusMessage(tr("Starting Debugger"));
     emit gdbInputAvailable(QString(), theGdbSettings().m_gdbCmd + ' ' + gdbArgs.join(" "));
 
     m_gdbProc.start(theGdbSettings().m_gdbCmd, gdbArgs);
@@ -1565,7 +1569,7 @@ bool GdbEngine::startDebugger()
     if (m_gdbProc.state() != QProcess::Running)
         return false;
 
-    q->showStatusMessage(tr("Gdb Running"), -1);
+    q->showStatusMessage(tr("Gdb Running"));
 
     sendCommand("show version", GdbShowVersion);
     if (qq->useFastStart()) {
@@ -2335,8 +2339,8 @@ void GdbEngine::handleModulesList(const GdbResultRecord &record)
 void GdbEngine::handleStackSelectThread(const GdbResultRecord &record, int)
 {
     Q_UNUSED(record);
-    qDebug("FIXME: StackHandler::handleOutput: SelectThread");
-    q->showStatusMessage(tr("Retrieving data for stack view..."), -1);
+    //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
+    q->showStatusMessage(tr("Retrieving data for stack view..."), 3000);
     sendCommand("-stack-list-frames", StackListFrames);
 }
 
@@ -2430,7 +2434,7 @@ void GdbEngine::selectThread(int index)
     QList<ThreadData> threads = threadsHandler->threads();
     QWB_ASSERT(index < threads.size(), return);
     int id = threads.at(index).id;
-    q->showStatusMessage(tr("Retrieving data for stack view..."), -1);
+    q->showStatusMessage(tr("Retrieving data for stack view..."), 10000);
     sendCommand(QLatin1String("-thread-select ") + QString::number(id),
         StackSelectThread);
 }
@@ -2543,7 +2547,7 @@ bool GdbEngine::supportsThreads() const
 {
     // 6.3 crashes happily on -thread-list-ids. So don't use it.
     // The test below is a semi-random pick, 6.8 works fine
-    return m_gdbVersion > 650;
+    return m_gdbVersion > 60500;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -3079,7 +3083,7 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
-            .arg(m_pendingRequests + 1), -1);
+            .arg(m_pendingRequests + 1), 10000);
     // create response slot for socket data
     QVariant var;
     var.setValue(data);
@@ -3297,7 +3301,7 @@ void GdbEngine::updateWatchModel2()
     PENDING_DEBUG("REBUILDING MODEL")
     emit gdbInputAvailable(QString(),
         "[" + currentTime() + "]    <Rebuild Watchmodel>");
-    q->showStatusMessage(tr("Finished retrieving data."), -1);
+    q->showStatusMessage(tr("Finished retrieving data."), 400);
     qq->watchHandler()->rebuildModel();
 
     if (!m_toolTipExpression.isEmpty()) {
@@ -3311,9 +3315,6 @@ void GdbEngine::updateWatchModel2()
                 "Cannot evaluate expression: " + m_toolTipExpression);
         }
     }
-
-    //qDebug() << "INSERT DATA" << data0.toString();
-    //q->showStatusMessage(tr("Stopped."), 5000);
 }
 
 void GdbEngine::handleQueryDataDumper1(const GdbResultRecord &record)
@@ -3895,7 +3896,7 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
             if (isCustomValueDumperAvailable(m_toolTip.type))
                 runCustomDumper(m_toolTip, false);
             else
-                q->showStatusMessage(tr("Retrieving data for tooltip..."), -1);
+                q->showStatusMessage(tr("Retrieving data for tooltip..."), 10000);
                 sendCommand("-data-evaluate-expression " + m_toolTip.exp,
                     WatchToolTip, "evaluate");
                 //sendToolTipCommand("-var-evaluate-expression tooltip")
@@ -3970,7 +3971,7 @@ void GdbEngine::tryLoadCustomDumpers()
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call dlopen(\"" + lib + "\", " + flag + ")");
+        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
         sendCommand("sharedlibrary " + dotEscape(lib));
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 1");

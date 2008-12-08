@@ -728,6 +728,12 @@ QString QtVersion::mkspec() const
     return m_mkspec;
 }
 
+QString QtVersion::mkspecPath() const
+{
+    updateMkSpec();
+    return m_mkspecFullPath;
+}
+
 QHash<QString,QString> QtVersion::versionInfo() const
 {
     updateVersionInfo();
@@ -1023,25 +1029,25 @@ void QtVersion::updateMkSpec() const
     //qDebug()<<"Finding mkspec for"<<path();
 
     QString mkspec;
-    QFile f(path() + "/.qmake.cache");
-    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-        while(!f.atEnd()) {
-            QByteArray line = f.readLine();
-            if(line.startsWith("QMAKESPEC")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if(temp.size() == 2) {
-                    mkspec = temp.at(1).trimmed();
-                    if (mkspec.startsWith("$$QT_BUILD_TREE/mkspecs/"))
-                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE/mkspecs/").length());
-                    else if (mkspec.startsWith("$$QT_BUILD_TREE\\mkspecs\\"))
-                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE\\mkspecs\\").length());
-                    mkspec = QDir::fromNativeSeparators(mkspec);
-                }
-                break;
-            }
-        }
-        f.close();
-    } else {
+//    QFile f(path() + "/.qmake.cache");
+//    if (f.exists() && f.open(QIODevice::ReadOnly)) {
+//        while(!f.atEnd()) {
+//            QByteArray line = f.readLine();
+//            if(line.startsWith("QMAKESPEC")) {
+//                const QList<QByteArray> &temp = line.split('=');
+//                if(temp.size() == 2) {
+//                    mkspec = temp.at(1).trimmed();
+//                    if (mkspec.startsWith("$$QT_BUILD_TREE/mkspecs/"))
+//                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE/mkspecs/").length());
+//                    else if (mkspec.startsWith("$$QT_BUILD_TREE\\mkspecs\\"))
+//                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE\\mkspecs\\").length());
+//                    mkspec = QDir::fromNativeSeparators(mkspec);
+//                }
+//                break;
+//            }
+//        }
+//        f.close();
+//    } else {
         // no .qmake.cache so look at the default mkspec
         QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
         if (mkspecPath.isEmpty())
@@ -1096,8 +1102,9 @@ void QtVersion::updateMkSpec() const
             mkspec = f2.symLinkTarget();
         }
 #endif
-    }
+//    }
 
+    m_mkspecFullPath = mkspec;
     int index = mkspec.lastIndexOf('/');
     if(index == -1)
         index = mkspec.lastIndexOf('\\');

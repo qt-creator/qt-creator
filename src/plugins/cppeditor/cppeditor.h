@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
+class QStringListModel;
 QT_END_NAMESPACE
 
 namespace Core {

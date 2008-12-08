@@ -67,6 +67,7 @@ public:
     QString path() const;
     QString sourcePath() const;
     QString mkspec() const;
+    QString mkspecPath() const;
     QString makeCommand() const;
     QString qmakeCommand() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
@@ -107,6 +108,7 @@ private:
     QString m_path;
     QString m_sourcePath;
     mutable QString m_mkspec; // updated lazily
+    mutable QString m_mkspecFullPath;
     QString m_mingwDirectory;
     QString m_prependPath;
     QString m_msvcVersion;

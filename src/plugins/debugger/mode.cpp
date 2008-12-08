@@ -169,6 +169,8 @@ QToolBar *DebugMode::createToolBar()
         managerAccess->threadsWindow(), SIGNAL(threadSelected(int)));
     debugToolBar->addWidget(threadBox);
 
+    debugToolBar->addWidget(managerAccess->statusLabel());
+
     QWidget *stretch = new QWidget;
     stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     debugToolBar->addWidget(stretch);

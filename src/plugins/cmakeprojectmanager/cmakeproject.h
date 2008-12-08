@@ -123,13 +123,18 @@ private:
     void parseProject();
     void parseBuild();
     void parseTarget();
+    void parseTargetOption();
     void parseCompiler();
     void parseAdd();
     void parseUnit();
     void parseUnknownElement();
 
+    QSet<QString> m_targets;
     QList<ProjectExplorer::FileNode *> m_fileList;
     QStringList m_includeFiles;
+
+    QString m_targetOutput;
+    bool m_targetType;
 };
 
 class CMakeFile : public Core::IFile

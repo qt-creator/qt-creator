@@ -34,15 +34,17 @@
 #ifndef PP_CLIENT_H
 #define PP_CLIENT_H
 
+#include <CPlusPlusForwardDeclarations.h>
+
 #include <QByteArray>
 #include <QString>
 #include <QFile>
 
-namespace rpp {
+namespace CPlusPlus {
 
 class Macro;
 
-class Client
+class CPLUSPLUS_EXPORT Client
 {
   Client(const Client &other);
   void operator=(const Client &other);
@@ -60,7 +62,7 @@ public:
   virtual ~Client()
   { }
 
-  virtual void macroAdded(const QByteArray &macroId, const QByteArray &text) = 0;
+  virtual void macroAdded(const Macro &macro) = 0;
   virtual void sourceNeeded(QString &fileName, IncludeType mode) = 0; // ### FIX the signature.
 
   virtual void startExpandingMacro(unsigned offset,
@@ -74,6 +76,6 @@ public:
   virtual void stopSkippingBlocks(unsigned offset) = 0;
 };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_CLIENT_H

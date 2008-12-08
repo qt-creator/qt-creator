@@ -40,6 +40,7 @@
 
 #include <QMap>
 #include <QFutureInterface>
+#include <QMutex>
 
 namespace Core {
 class ICore;
@@ -70,9 +71,13 @@ public:
     virtual ~CppModelManager();
 
     virtual void updateSourceFiles(const QStringList &sourceFiles);
-    virtual ProjectInfo *projectInfo(ProjectExplorer::Project *project);
-    virtual CPlusPlus::Document::Ptr document(const QString &fileName);
-    virtual DocumentTable documents();
+
+    virtual QList<ProjectInfo> projectInfos() const;
+    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    virtual void updateProjectInfo(const ProjectInfo &pinfo);
+
+    virtual CPlusPlus::Document::Ptr document(const QString &fileName) const;
+    virtual DocumentTable documents() const;
     virtual void GC();
 
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
@@ -127,21 +132,11 @@ private:
         return m_definedMacros;
     }
 
-    QStringList updateProjectFiles() const;
-    QStringList updateIncludePaths() const;
-    QStringList updateFrameworkPaths() const;
-    QByteArray updateDefinedMacros() const;
-
-    void ensureUpdated() {
-        if (! m_dirty)
-            return;
-
-        m_projectFiles = updateProjectFiles();
-        m_includePaths = updateIncludePaths();
-        m_frameworkPaths = updateFrameworkPaths();
-        m_definedMacros = updateDefinedMacros();
-        m_dirty = false;
-    }
+    void ensureUpdated();
+    QStringList internalProjectFiles() const;
+    QStringList internalIncludePaths() const;
+    QStringList internalFrameworkPaths() const;
+    QByteArray internalDefinedMacros() const;
 
     static void parse(QFutureInterface<void> &future,
                       CppPreprocessor *preproc,
@@ -165,6 +160,8 @@ private:
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+
+    mutable QMutex mutex;
 
     enum {
         MAX_SELECTION_COUNT = 5

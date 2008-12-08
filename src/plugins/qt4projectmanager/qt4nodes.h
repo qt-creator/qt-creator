@@ -102,8 +102,7 @@ class Qt4PriFileNode : public ProjectExplorer::ProjectNode {
     Q_OBJECT
     Q_DISABLE_COPY(Qt4PriFileNode)
 public:
-    Qt4PriFileNode(Qt4Project *project,
-                   const QString &filePath);
+    Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
 
     void update(ProFile *includeFile, ProFileReader *reader);
 
@@ -122,9 +121,6 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
-private slots:
-    void save();
-
 protected:
     void clear();
     static QStringList varNames(FileType type);
@@ -142,18 +138,20 @@ protected:
                      const QStringList &filePaths,
                      QStringList *notChanged,
                      ChangeType change);
-    
+
+    QString buildDir() const;
+    ProFileReader *createProFileReader() const;
+
 private:
+    void save(ProFile *includeFile);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors(const QString &path);
 
-    Core::ICore *m_core;
     Qt4Project *m_project;
+    Qt4ProFileNode *m_qt4ProFileNode;
     QString m_projectFilePath;
     QString m_projectDir;
-    ProFile *m_includeFile;
     QTimer *m_saveTimer;
-    ProFileReader *m_reader;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
@@ -174,7 +172,6 @@ public:
     Qt4ProjectType projectType() const;
 
     QStringList variableValue(const Qt4Variable var) const;
-    ProFile *proFileFromCache(const QString &fileName);
 
 public slots:
     void update();
@@ -185,7 +182,6 @@ private slots:
 private:
     void updateGeneratedFiles();
 
-    ProFileReader *createProFileReader() const;
     Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;
@@ -194,7 +190,7 @@ private:
     QStringList subDirsPaths(ProFileReader *reader) const;
     QStringList qBuildSubDirsPaths(const QString &scanDir)  const;
 
-    QString buildDir() const;
+
 
     void invalidate();
 
@@ -203,7 +199,6 @@ private:
     bool m_isQBuildProject;
 
     DirectoryWatcher *m_dirWatcher;
-    ProFileReader *m_reader;
 
     friend class Qt4NodeHierarchy;
 };

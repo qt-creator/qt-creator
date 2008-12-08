@@ -50,46 +50,54 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_MACRO_H
-#define PP_MACRO_H
+#ifndef PP_MACRO_EXPANDER_H
+#define PP_MACRO_EXPANDER_H
 
-#include <QByteArray>
-#include <QVector>
+namespace CPlusPlus {
 
-namespace rpp {
-
-    struct Macro
+    struct pp_frame
     {
-        QByteArray name;
-        QByteArray definition;
-        QVector<QByteArray> formals;
-        QByteArray fileName;
-        int line;
-        int lines;
-        Macro *next;
-        unsigned hashcode;
+        Macro *expanding_macro;
+        const QVector<QByteArray> actuals;
 
-        union
-        {
-            unsigned state;
-
-            struct
-            {
-                unsigned hidden: 1;
-                unsigned function_like: 1;
-                unsigned variadics: 1;
-            };
-        };
-
-        inline Macro():
-            line(0),
-            lines(0),
-            next(0),
-            hashcode(0),
-            state(0)
+        pp_frame (Macro *expanding_macro, const QVector<QByteArray> &actuals)
+            : expanding_macro (expanding_macro),
+              actuals (actuals)
         { }
     };
 
-} // namespace rpp
+    class MacroExpander
+    {
+        Environment &env;
+        pp_frame *frame;
 
-#endif // PP_MACRO_H
+        pp_skip_number skip_number;
+        pp_skip_identifier skip_identifier;
+        pp_skip_string_literal skip_string_literal;
+        pp_skip_char_literal skip_char_literal;
+        pp_skip_argument skip_argument;
+        pp_skip_comment_or_divop skip_comment_or_divop;
+        pp_skip_blanks skip_blanks;
+        pp_skip_whitespaces skip_whitespaces;
+
+        const QByteArray *resolve_formal (const QByteArray &name);
+
+    public:
+        MacroExpander (Environment &env, pp_frame *frame = 0);
+
+        const char *operator () (const char *first, const char *last,
+                                 QByteArray *result);
+
+        const char *skip_argument_variadics (const QVector<QByteArray> &actuals,
+                                             Macro *macro,
+                                             const char *first, const char *last);
+
+    public: // attributes
+        int lines;
+        int generated_lines;
+    };
+
+} // namespace CPlusPlus
+
+#endif // PP_MACRO_EXPANDER_H
+

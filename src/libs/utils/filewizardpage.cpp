@@ -123,7 +123,7 @@ void FileWizardPage::slotActivated()
 
 bool FileWizardPage::validateBaseName(const QString &name, QString *errorMessage /* = 0*/)
 {
-    return FileNameValidatingLineEdit::validateFileName(name, errorMessage);
+    return FileNameValidatingLineEdit::validateFileName(name, false, errorMessage);
 }
 
 } // namespace Utils

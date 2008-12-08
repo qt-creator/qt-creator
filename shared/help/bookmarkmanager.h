@@ -95,8 +95,10 @@ private:
     QSortFilterProxyModel *proxyModel;
 };
 
-class TreeView : public QTreeView {
+class TreeView : public QTreeView
+{
     Q_OBJECT
+
 public:
     TreeView(QWidget* parent = 0) : QTreeView(parent) {}
     void subclassKeyPressEvent(QKeyEvent* event)
@@ -159,18 +161,18 @@ class BookmarkManager : public QObject
     Q_OBJECT
 
 public:
-    BookmarkManager(QHelpEngineCore* helpEngine);
+    BookmarkManager(QHelpEngineCore *helpEngine);
     ~BookmarkManager();
 
-    BookmarkModel* treeBookmarkModel();
-    BookmarkModel* listBookmarkModel();
+    BookmarkModel *treeBookmarkModel();
+    BookmarkModel *listBookmarkModel();
 
     void saveBookmarks();
     QStringList bookmarkFolders() const;
-    QModelIndex addNewFolder(const QModelIndex& index);
+    QModelIndex addNewFolder(const QModelIndex &index);
     void removeBookmarkItem(QTreeView *treeView, const QModelIndex& index);
-    void showBookmarkDialog(QWidget* parent, const QString &name, const QString &url);
-    void addNewBookmark(const QModelIndex& index, const QString &name, const QString &url);
+    void showBookmarkDialog(QWidget *parent, const QString &name, const QString &url);
+    void addNewBookmark(const QModelIndex &index, const QString &name, const QString &url);
     void setupBookmarkModels();
 
 private slots:

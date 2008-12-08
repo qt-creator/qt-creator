@@ -50,25 +50,29 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_CCTYPE_H
-#define PP_CCTYPE_H
+#ifndef PP_INTERNAL_H
+#define PP_INTERNAL_H
 
-#include <cctype>
+#include <QByteArray>
 
-namespace rpp {
+namespace CPlusPlus {
+namespace _PP_internal {
 
-inline bool pp_isalpha (int __ch)
-{ return std::isalpha ((unsigned char) __ch) != 0; }
+inline bool comment_p (const char *__first, const char *__last)
+{
+    if (__first == __last)
+        return false;
 
-inline bool pp_isalnum (int __ch)
-{ return std::isalnum ((unsigned char) __ch) != 0; }
+    if (*__first != '/')
+        return false;
 
-inline bool pp_isdigit (int __ch)
-{ return std::isdigit ((unsigned char) __ch) != 0; }
+    if (++__first == __last)
+        return false;
 
-inline bool pp_isspace (int __ch)
-{ return std::isspace ((unsigned char) __ch) != 0; }
+    return (*__first == '/' || *__first == '*');
+}
 
-} // namespace rpp
+} // _PP_internal
+} // namespace CPlusPlus
 
-#endif // PP_CCTYPE_H
+#endif // PP_INTERNAL_H
