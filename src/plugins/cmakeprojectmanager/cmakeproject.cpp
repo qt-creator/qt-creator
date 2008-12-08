@@ -393,12 +393,36 @@ void CMakeCbpParser::parseBuild()
 
 void CMakeCbpParser::parseTarget()
 {
+    m_targetOutput.clear();
+    m_targetType = false;
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            if (m_targetType && !m_targetOutput.isEmpty()) {
+                qDebug()<<"found target "<<m_targetOutput;
+                m_targets.insert(m_targetOutput);
+            }
+            return;
+        } else if (name() == "Compiler") {
+            parseCompiler();
+        } else if (name() == "Option") {
+            parseTargetOption();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseTargetOption()
+{
+    if (attributes().hasAttribute("output"))
+        m_targetOutput = attributes().value("output").toString();
+    else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
+        m_targetType = true;
     while(!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Compiler") {
-            parseCompiler();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
