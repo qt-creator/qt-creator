@@ -115,7 +115,6 @@ public:
     void setWorkingCopy(const QMap<QString, QByteArray> &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
-    void addIncludePath(const QString &path);
     void setProjectFiles(const QStringList &files);
     void run(QString &fileName);
     void operator()(QString &fileName);
@@ -169,9 +168,6 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
 
 void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
 { m_frameworkPaths = frameworkPaths; }
-
-void CppPreprocessor::addIncludePath(const QString &path)
-{ m_includePaths.append(path); }
 
 void CppPreprocessor::setProjectFiles(const QStringList &files)
 { m_projectFiles = files; }
@@ -488,14 +484,14 @@ void CppModelManager::ensureUpdated()
     if (! m_dirty)
         return;
 
-    m_projectFiles = updateProjectFiles();
-    m_includePaths = updateIncludePaths();
-    m_frameworkPaths = updateFrameworkPaths();
-    m_definedMacros = updateDefinedMacros();
+    m_projectFiles = internalProjectFiles();
+    m_includePaths = internalIncludePaths();
+    m_frameworkPaths = internalFrameworkPaths();
+    m_definedMacros = internalDefinedMacros();
     m_dirty = false;
 }
 
-QStringList CppModelManager::updateProjectFiles() const
+QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -504,10 +500,11 @@ QStringList CppModelManager::updateProjectFiles() const
         ProjectInfo pinfo = it.value();
         files += pinfo.sourceFiles;
     }
+    files.removeDuplicates();
     return files;
 }
 
-QStringList CppModelManager::updateIncludePaths() const
+QStringList CppModelManager::internalIncludePaths() const
 {
     QStringList includePaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -516,10 +513,11 @@ QStringList CppModelManager::updateIncludePaths() const
         ProjectInfo pinfo = it.value();
         includePaths += pinfo.includePaths;
     }
+    includePaths.removeDuplicates();
     return includePaths;
 }
 
-QStringList CppModelManager::updateFrameworkPaths() const
+QStringList CppModelManager::internalFrameworkPaths() const
 {
     QStringList frameworkPaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -528,10 +526,11 @@ QStringList CppModelManager::updateFrameworkPaths() const
         ProjectInfo pinfo = it.value();
         frameworkPaths += pinfo.frameworkPaths;
     }
+    frameworkPaths.removeDuplicates();
     return frameworkPaths;
 }
 
-QByteArray CppModelManager::updateDefinedMacros() const
+QByteArray CppModelManager::internalDefinedMacros() const
 {
     QByteArray macros;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
@@ -588,6 +587,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         return;
 
     m_projects.insert(pinfo.project, pinfo);
+    m_dirty = true;
 }
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
