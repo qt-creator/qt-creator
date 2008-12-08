@@ -54,7 +54,7 @@
 #include "pp.h"
 #include <cstring>
 
-using namespace rpp;
+using namespace CPlusPlus;
 
 Environment::Environment ()
     : currentLine(0),

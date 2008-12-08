@@ -55,7 +55,7 @@
 
 #include <QByteArray>
 
-namespace rpp {
+namespace CPlusPlus {
 namespace _PP_internal {
 
 inline bool comment_p (const char *__first, const char *__last)
@@ -73,6 +73,6 @@ inline bool comment_p (const char *__first, const char *__last)
 }
 
 } // _PP_internal
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_INTERNAL_H

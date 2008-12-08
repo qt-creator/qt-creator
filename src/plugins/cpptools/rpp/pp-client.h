@@ -38,7 +38,7 @@
 #include <QString>
 #include <QFile>
 
-namespace rpp {
+namespace CPlusPlus {
 
 class Macro;
 
@@ -74,6 +74,6 @@ public:
   virtual void stopSkippingBlocks(unsigned offset) = 0;
 };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_CLIENT_H

@@ -56,7 +56,7 @@
 #include <QVector>
 #include <QByteArray>
 
-namespace rpp {
+namespace CPlusPlus {
 
 struct Macro;
 
@@ -104,6 +104,6 @@ private:
     int _hash_count;
 };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_ENVIRONMENT_H

@@ -107,7 +107,7 @@ static const char pp_configuration[] =
 namespace CppTools {
 namespace Internal {
 
-class CppPreprocessor: public rpp::Client
+class CppPreprocessor: public CPlusPlus::Client
 {
 public:
     CppPreprocessor(QPointer<CppModelManager> modelManager);
@@ -132,9 +132,9 @@ protected:
     virtual void macroAdded(const QByteArray &macroName,
                             const QByteArray &macroText);
     virtual void startExpandingMacro(unsigned offset,
-                                     const rpp::Macro &macro,
+                                     const Macro &macro,
                                      const QByteArray &originalText);
-    virtual void stopExpandingMacro(unsigned offset, const rpp::Macro &macro);
+    virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
     virtual void sourceNeeded(QString &fileName, IncludeType type);
@@ -142,8 +142,8 @@ protected:
 private:
     QPointer<CppModelManager> m_modelManager;
     CppModelManager::DocumentTable m_documents;
-    rpp::Environment env;
-    rpp::pp m_proc;
+    Environment env;
+    pp m_proc;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
     QMap<QString, QByteArray> m_workingCopy;
@@ -304,7 +304,7 @@ void CppPreprocessor::macroAdded(const QByteArray &macroName, const QByteArray &
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
-                                          const rpp::Macro &,
+                                          const Macro &,
                                           const QByteArray &originalText)
 {
     if (! m_currentDoc)
@@ -314,7 +314,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset,
     m_currentDoc->addMacroUse(offset, originalText.length());
 }
 
-void CppPreprocessor::stopExpandingMacro(unsigned, const rpp::Macro &)
+void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
 {
     if (! m_currentDoc)
         return;

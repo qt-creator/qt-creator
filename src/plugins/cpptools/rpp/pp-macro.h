@@ -56,7 +56,7 @@
 #include <QByteArray>
 #include <QVector>
 
-namespace rpp {
+namespace CPlusPlus {
 
     struct Macro
     {
@@ -90,6 +90,6 @@ namespace rpp {
         { }
     };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_MACRO_H

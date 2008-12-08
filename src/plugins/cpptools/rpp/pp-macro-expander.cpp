@@ -35,7 +35,7 @@
 #include "pp-macro-expander.h"
 #include <QDateTime>
 
-using namespace rpp;
+using namespace CPlusPlus;
 
 MacroExpander::MacroExpander (Environment &env, pp_frame *frame)
     : env(env), frame(frame),

@@ -55,7 +55,7 @@
 
 #include <cctype>
 
-namespace rpp {
+namespace CPlusPlus {
 
 inline bool pp_isalpha (int __ch)
 { return std::isalpha ((unsigned char) __ch) != 0; }
@@ -69,6 +69,6 @@ inline bool pp_isdigit (int __ch)
 inline bool pp_isspace (int __ch)
 { return std::isspace ((unsigned char) __ch) != 0; }
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_CCTYPE_H
