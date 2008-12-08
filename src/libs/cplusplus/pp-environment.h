@@ -53,14 +53,16 @@
 #ifndef PP_ENVIRONMENT_H
 #define PP_ENVIRONMENT_H
 
+#include "CPlusPlusForwardDeclarations.h"
+
 #include <QVector>
 #include <QByteArray>
 
 namespace CPlusPlus {
 
-struct Macro;
+class Macro;
 
-class Environment
+class CPLUSPLUS_EXPORT Environment
 {
 public:
     Environment();
@@ -70,7 +72,7 @@ public:
     Macro *macroAt(unsigned index) const;
 
     Macro *bind(const Macro &macro);
-    void remove(const QByteArray &name);
+    Macro *remove(const QByteArray &name);
 
     Macro *resolve(const QByteArray &name) const;
     bool isBuiltinMacro(const QByteArray &name) const;

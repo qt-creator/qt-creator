@@ -134,7 +134,7 @@ namespace CPlusPlus {
 #undef PP_DEFINE_BIN_OP
     };
 
-    class pp
+    class CPLUSPLUS_EXPORT pp
     {
         Client *client;
         Environment &env;

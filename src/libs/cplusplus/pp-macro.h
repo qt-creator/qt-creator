@@ -53,42 +53,43 @@
 #ifndef PP_MACRO_H
 #define PP_MACRO_H
 
+#include <CPlusPlusForwardDeclarations.h>
+
 #include <QByteArray>
 #include <QVector>
 
 namespace CPlusPlus {
 
-    struct Macro
+class CPLUSPLUS_EXPORT Macro
+{
+public:
+    QByteArray name;
+    QByteArray definition;
+    QVector<QByteArray> formals;
+    QByteArray fileName;
+    int line;
+    Macro *next;
+    unsigned hashcode;
+
+    union
     {
-        QByteArray name;
-        QByteArray definition;
-        QVector<QByteArray> formals;
-        QByteArray fileName;
-        int line;
-        int lines;
-        Macro *next;
-        unsigned hashcode;
+        unsigned state;
 
-        union
+        struct
         {
-            unsigned state;
-
-            struct
-            {
-                unsigned hidden: 1;
-                unsigned function_like: 1;
-                unsigned variadics: 1;
-            };
+            unsigned hidden: 1;
+            unsigned function_like: 1;
+            unsigned variadics: 1;
         };
+    };
 
-        inline Macro():
+    inline Macro():
             line(0),
-            lines(0),
             next(0),
             hashcode(0),
             state(0)
-        { }
-    };
+    { }
+};
 
 } // namespace CPlusPlus
 

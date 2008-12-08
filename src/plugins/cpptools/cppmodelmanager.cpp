@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "pp.h"
+#include <cplusplus/pp.h>
 
 #include "cppmodelmanager.h"
 #include "cpphoverhandler.h"
@@ -129,8 +129,7 @@ protected:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
     void mergeEnvironment(CPlusPlus::Document::Ptr doc, QSet<QString> *processed);
 
-    virtual void macroAdded(const QByteArray &macroName,
-                            const QByteArray &macroText);
+    virtual void macroAdded(const Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
                                      const Macro &macro,
                                      const QByteArray &originalText);
@@ -295,12 +294,12 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
     return QByteArray();
 }
 
-void CppPreprocessor::macroAdded(const QByteArray &macroName, const QByteArray &macroText)
+void CppPreprocessor::macroAdded(const Macro &macro)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->appendMacro(macroName, macroText);
+    m_currentDoc->appendMacro(macro);
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
@@ -340,14 +339,13 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
 
     processed->insert(fn);
 
-    foreach (QString includedFile, doc->includedFiles())
+    foreach (QString includedFile, doc->includedFiles()) {
         mergeEnvironment(m_documents.value(includedFile), processed);
+    }
 
-    const QByteArray macros = doc->definedMacros();
-    QByteArray localFileName = doc->fileName().toUtf8();
-
-    QByteArray dummy;
-    m_proc(localFileName, macros, &dummy);
+    foreach (const Macro macro, doc->definedMacros()) {
+        env.bind(macro);
+    }
 }
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)

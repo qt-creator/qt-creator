@@ -699,7 +699,9 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
             continue;
         processed.insert(fn);
         if (Document::Ptr doc = context.document(fn)) {
-            macroNames += doc->macroNames();
+            foreach (const Macro macro, doc->definedMacros()) {
+                macroNames.insert(macro.name);
+            }
             todo += doc->includedFiles();
         }
     }
