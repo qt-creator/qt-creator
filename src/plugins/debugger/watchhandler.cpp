@@ -488,6 +488,13 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
         case VisualRole:
             return m_displayedINames.contains(data.iname);
     
+        case ExpandedRole:
+            //qDebug() << " FETCHING: " << data.iname
+            //    << m_expandedINames.contains(data.iname)
+            //    << m_expandedINames;
+            // Level 0 and 1 are always expanded
+            return node < 4 || m_expandedINames.contains(data.iname);
+    
         default:
             break; 
     }

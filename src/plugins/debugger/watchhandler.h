@@ -135,7 +135,7 @@ public:
     bool changed;
 };
 
-enum { INameRole = Qt::UserRole, VisualRole };
+enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
 
 
 class WatchHandler : public QAbstractItemModel
