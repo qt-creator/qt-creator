@@ -74,10 +74,10 @@ Symbol *OverviewModel::globalSymbolAt(unsigned index) const
 
 QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (! hasDocument()) {
-        return QModelIndex();
-    } else if (! parent.isValid()) {
-        Symbol *symbol = globalSymbolAt(row);
+    if (!parent.isValid()) {
+        if (row == 0) // account for no symbol item
+            return createIndex(row, column);
+        Symbol *symbol = globalSymbolAt(row-1); // account for no symbol item
         return createIndex(row, column, symbol);
     } else {
         Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
@@ -96,12 +96,20 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
 QModelIndex OverviewModel::parent(const QModelIndex &child) const
 {
     Symbol *symbol = static_cast<Symbol *>(child.internalPointer());
-    Q_ASSERT(symbol != 0);
+    if (!symbol) // account for no symbol item
+        return QModelIndex();
 
     if (Scope *scope = symbol->scope()) {
         Symbol *parentSymbol = scope->owner();
-        if (parentSymbol && parentSymbol->scope())
-            return createIndex(parentSymbol->index(), 0, parentSymbol);
+        if (parentSymbol && parentSymbol->scope()) {
+            QModelIndex index;
+            if (parentSymbol->scope() && parentSymbol->scope()->owner()
+                    && parentSymbol->scope()->owner()->scope()) // the parent doesn't have a parent
+                index = createIndex(parentSymbol->index(), 0, parentSymbol);
+            else //+1 to account for no symbol item
+                index = createIndex(parentSymbol->index() + 1, 0, parentSymbol);
+            return index;
+        }
     }
 
     return QModelIndex();
@@ -110,22 +118,27 @@ QModelIndex OverviewModel::parent(const QModelIndex &child) const
 int OverviewModel::rowCount(const QModelIndex &parent) const
 {
     if (hasDocument()) {
-        if (! parent.isValid()) {
-            return globalSymbolCount();
+        if (!parent.isValid()) {
+            return globalSymbolCount()+1; // account for no symbol item
         } else {
+            if (!parent.parent().isValid() && parent.row() == 0) // account for no symbol item
+                return 0;
             Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
             Q_ASSERT(parentSymbol != 0);
 
             if (ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol()) {
-                if (! scopedSymbol->isFunction()) {
+                if (!scopedSymbol->isFunction()) {
                     Scope *parentScope = scopedSymbol->members();
                     Q_ASSERT(parentScope != 0);
 
                     return parentScope->symbolCount();
                 }
             }
+            return 0;
         }
     }
+    if (!parent.isValid())
+        return 1; // account for no symbol item
     return 0;
 }
 
@@ -136,6 +149,19 @@ int OverviewModel::columnCount(const QModelIndex &) const
 
 QVariant OverviewModel::data(const QModelIndex &index, int role) const
 {
+    // account for no symbol item
+    if (!index.parent().isValid() && index.row() == 0) {
+        switch (role) {
+        case Qt::DisplayRole:
+            if (rowCount() > 1)
+                return tr("<Select Symbol>");
+            else
+                return tr("<No Symbols>");
+        default:
+            return QVariant();
+        } //switch
+    }
+
     switch (role) {
     case Qt::DisplayRole: {
         Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
