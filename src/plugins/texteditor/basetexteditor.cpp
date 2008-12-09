@@ -2751,7 +2751,9 @@ void BaseTextEditor::handleBackspaceKey()
 void BaseTextEditor::format()
 {
     QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
     indent(document(), cursor, QChar::Null);
+    cursor.endEditBlock();
 }
 
 void BaseTextEditor::unCommentSelection()
@@ -3319,16 +3321,13 @@ void BaseTextEditor::collapse()
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     Q_ASSERT(documentLayout);
     QTextBlock block = textCursor().block();
-    qDebug() << "collapse at block" << block.blockNumber();
     while (block.isValid()) {
-        qDebug() << "test block" << block.blockNumber();
         if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
             if ((block.next().userState()) >> 8 <= (textCursor().block().userState() >> 8))
                 break;
         }
         block = block.previous();
     }
-    qDebug() << "found" << block.blockNumber();
     if (block.isValid()) {
         TextBlockUserData::doCollapse(block, false);
         d->moveCursorVisible();
