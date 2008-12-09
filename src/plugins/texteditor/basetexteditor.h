@@ -329,6 +329,8 @@ public slots:
     void selectBlockUp();
     void selectBlockDown();
 
+    void cleanWhitespace();
+
 signals:
     void changed();
 

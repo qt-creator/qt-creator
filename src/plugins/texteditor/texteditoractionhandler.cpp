@@ -63,7 +63,7 @@ TextEditorActionHandler::TextEditorActionHandler(Core::ICore *core,
 {
     m_undoAction = m_redoAction = m_copyAction = m_cutAction = m_pasteAction
                  = m_selectAllAction = m_gotoAction = m_printAction = m_formatAction
-                 = m_visualizeWhitespaceAction = m_textWrappingAction
+                 = m_visualizeWhitespaceAction = m_cleanWhitespaceAction = m_textWrappingAction
                  = m_unCommentSelectionAction = m_unCollapseAllAction
                  = m_collapseAction = m_expandAction
                  = m_deleteLineAction = m_selectEncodingAction
@@ -128,16 +128,22 @@ void TextEditorActionHandler::createActions()
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
 
 
-    m_visualizeWhitespaceAction = new QAction(tr("Visualize &Whitespace"), this);
+    m_visualizeWhitespaceAction = new QAction(tr("&Visualize Whitespace"), this);
     m_visualizeWhitespaceAction->setCheckable(true);
     command = am->registerAction(m_visualizeWhitespaceAction,
                                                  TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+V")));
 #endif
-
     advancedMenu->addAction(command);
     connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
+
+    m_cleanWhitespaceAction = new QAction(tr("Clean Whitespace"), this);
+    command = am->registerAction(m_cleanWhitespaceAction,
+                                 TextEditor::Constants::CLEAN_WHITESPACE, m_contextId);
+
+    advancedMenu->addAction(command);
+    connect(m_cleanWhitespaceAction, SIGNAL(triggered()), this, SLOT(cleanWhitespace()));
 
     m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
     m_textWrappingAction->setCheckable(true);
@@ -285,6 +291,7 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
     m_visualizeWhitespaceAction->setEnabled(um != NoEditor);
     if (m_currentEditor)
         m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
+    m_cleanWhitespaceAction->setEnabled(um != NoEditor);
     if (m_textWrappingAction) {
         m_textWrappingAction->setEnabled(um != NoEditor);
         if (m_currentEditor)
@@ -317,42 +324,6 @@ void TextEditorActionHandler::updateCopyAction()
         m_copyAction->setEnabled(hasCopyableText);
 }
 
-void TextEditorActionHandler::undoAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->undo();
-}
-
-void TextEditorActionHandler::redoAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->redo();
-}
-
-void TextEditorActionHandler::copyAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->copy();
-}
-
-void TextEditorActionHandler::cutAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->cut();
-}
-
-void TextEditorActionHandler::pasteAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->paste();
-}
-
-void TextEditorActionHandler::selectAllAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->selectAll();
-}
-
 void TextEditorActionHandler::gotoAction()
 {
     QuickOpen::QuickOpenManager *quickopen = QuickOpen::QuickOpenManager::instance();
@@ -366,13 +337,6 @@ void TextEditorActionHandler::printAction()
     if (m_currentEditor)
         m_currentEditor->print(m_core->printer());
 }
-
-void TextEditorActionHandler::formatAction()
-{
-    if (m_currentEditor)
-        m_currentEditor->format();
-}
-
 
 void TextEditorActionHandler::setVisualizeWhitespace(bool checked)
 {
@@ -403,6 +367,15 @@ void TextEditorActionHandler::setTextWrapping(bool checked)
         m_currentEditor->funcname2 ();\
 }
 
+
+FUNCTION2(undoAction, undo)
+FUNCTION2(redoAction, redo)
+FUNCTION2(copyAction, copy)
+FUNCTION2(cutAction, cut)
+FUNCTION2(pasteAction, paste)
+FUNCTION2(formatAction, format)
+FUNCTION2(selectAllAction, selectAll)
+FUNCTION(cleanWhitespace)
 FUNCTION(unCommentSelection)
 FUNCTION(deleteLine)
 FUNCTION(unCollapseAll)

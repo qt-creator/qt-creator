@@ -685,6 +685,10 @@ void BaseTextEditor::selectBlockDown()
 }
 
 
+void BaseTextEditor::cleanWhitespace()
+{
+        d->m_document->cleanWhitespace();
+}
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
