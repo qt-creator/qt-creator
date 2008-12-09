@@ -111,7 +111,7 @@ public:
             }
             if (variadics)
                 text += QLatin1String("...");
-            text += QLatin1Char(' ');
+            text += QLatin1Char(')');
         }
         text += QLatin1Char(' ');
         text += QString::fromUtf8(definition.constData(), definition.size());
