@@ -75,6 +75,12 @@ void CppQuickOpenFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future);
 }
 
+static bool compareLexigraphically(const QuickOpen::FilterEntry &a,
+                                   const QuickOpen::FilterEntry &b)
+{
+    return a.displayName < b.displayName;
+}
+
 QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
@@ -108,6 +114,9 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
             }
         }
     }
+
+    if (entries.size() < 1000)
+        qSort(entries.begin(), entries.end(), compareLexigraphically);
 
     return entries;
 }
