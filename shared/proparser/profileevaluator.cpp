@@ -1773,11 +1773,9 @@ bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QS
     QStringList tsFileNames;
 
     QFileInfo fi(fileName);
-    QDir rootPath;
     if (!fi.exists())
         return false;
 
-    rootPath.setPath(fi.absolutePath());
     ProFile pro(fi.absoluteFilePath());
 
     ProFileEvaluator visitor;
