@@ -302,14 +302,14 @@ void CppPreprocessor::macroAdded(const Macro &macro)
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
-                                          const Macro &,
+                                          const Macro &macro,
                                           const QByteArray &originalText)
 {
     if (! m_currentDoc)
         return;
 
     //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
-    m_currentDoc->addMacroUse(offset, originalText.length());
+    m_currentDoc->addMacroUse(macro, offset, originalText.length());
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)

@@ -57,6 +57,7 @@
 
 #include <QByteArray>
 #include <QVector>
+#include <QString>
 
 namespace CPlusPlus {
 
@@ -89,6 +90,33 @@ public:
             hashcode(0),
             state(0)
     { }
+
+    QString toString() const
+    {
+        QString text;
+        if (hidden)
+            text += QLatin1String("#undef ");
+        else
+            text += QLatin1String("#define ");
+        text += QString::fromUtf8(name.constData(), name.size());
+        if (function_like) {
+            text += QLatin1Char('(');
+            bool first = true;
+            foreach (const QByteArray formal, formals) {
+                if (! first)
+                    text += QLatin1String(", ");
+                else
+                    first = false;
+                text += QString::fromUtf8(formal.constData(), formal.size());
+            }
+            if (variadics)
+                text += QLatin1String("...");
+            text += QLatin1Char(')');
+        }
+        text += QLatin1Char(' ');
+        text += QString::fromUtf8(definition.constData(), definition.size());
+        return text;
+    }
 };
 
 } // namespace CPlusPlus
