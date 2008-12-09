@@ -35,6 +35,7 @@
 
 #include <Literals.h>
 #include <Scope.h>
+#include <Names.h>
 
 using namespace CPlusPlus;
 using namespace CppTools::Internal;
@@ -97,12 +98,24 @@ bool SearchSymbols::visit(Function *symbol)
     if (!(symbolsToSearchFor & Functions))
         return false;
 
+    QString extraScope;
+    if (Name *name = symbol->name()) {
+        if (QualifiedNameId *nameId = name->asQualifiedNameId()) {
+            if (nameId->nameCount() > 1) {
+                extraScope = overview.prettyName(nameId->nameAt(nameId->nameCount() - 2));
+            }
+        }
+    }
+    QString fullScope = _scope;
+    if (!_scope.isEmpty() && !extraScope.isEmpty())
+        fullScope += QLatin1String("::");
+    fullScope += extraScope;
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString type = overview.prettyType(symbol->type(),
-                                       separateScope ? symbol->name() : 0);
+                                       separateScope ? symbol->identity() : 0);
     appendItem(separateScope ? type : scopedName,
-               separateScope ? _scope : type,
+               separateScope ? fullScope : type,
                ModelItemInfo::Method, symbol);
     return false;
 }

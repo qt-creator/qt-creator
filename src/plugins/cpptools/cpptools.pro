@@ -10,15 +10,16 @@ unix:QMAKE_CXXFLAGS_DEBUG += -O3
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
 CONFIG += help
-
 HEADERS += cpptools_global.h \
     cppquickopenfilter.h \
     cppclassesfilter.h \
-    searchsymbols.h
+    searchsymbols.h \
+    cppfunctionsfilter.h
 SOURCES += cppquickopenfilter.cpp \
     cpptoolseditorsupport.cpp \
     cppclassesfilter.cpp \
-    searchsymbols.cpp
+    searchsymbols.cpp \
+    cppfunctionsfilter.cpp
 
 # Input
 SOURCES += cpptools.cpp \

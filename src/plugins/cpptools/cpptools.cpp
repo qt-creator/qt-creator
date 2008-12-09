@@ -34,6 +34,7 @@
 #include "cpptools.h"
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
+#include "cppfunctionsfilter.h"
 #include "cpphoverhandler.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
@@ -89,6 +90,7 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
                                                                  m_core->editorManager());
     addAutoReleasedObject(quickOpenFilter);
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, m_core->editorManager()));
+    addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, m_core->editorManager()));
 
     // Menus
     Core::IActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
