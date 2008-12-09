@@ -34,6 +34,8 @@
 #ifndef WRAP_HELPERS_H
 #define WRAP_HELPERS_H
 
+#include <utils/qtcassert.h>
+
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptContext>
 #include <QtScript/QScriptValue>
@@ -87,7 +89,7 @@ template <class  Wrapper, class Wrapped>
                                                 Wrapped * (Wrapper::*wrappedAccessor)  () const)
 {
     Wrapped *wrapped = wrappedFromScriptValue(context->thisObject(), wrappedAccessor);
-    Q_ASSERT(wrapped);
+    QTC_ASSERT(wrapped, return 0);
     return wrapped;
 }
 
@@ -314,7 +316,7 @@ static void scriptValueToQObject(const QScriptValue &sv, SomeQObject * &p)
 {
     QObject *qObject =  sv.toQObject();
     p = qobject_cast<SomeQObject*>(qObject);
-    Q_ASSERT(p);
+    QTC_ASSERT(p, return);
 }
 
 // Register a QObject-derived class which has Q_DECLARE_METATYPE(Ptr*)

@@ -37,9 +37,10 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <extensionsystem/ExtensionSystemInterfaces>
+#include <utils/qtcassert.h>
 
-#include <QFileInfo>
-#include <QDir>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 using ProjectExplorer::IBuildParserFactory;
 using ProjectExplorer::BuildParserInterface;
@@ -289,10 +290,11 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
     bool showPage0 = buildConfiguration.isNull();
-    m_ui.stackedWidget->setCurrentIndex(showPage0? 0 : 1);
+    m_ui.stackedWidget->setCurrentIndex(showPage0 ? 0 : 1);
 
     if (!showPage0) {
         Qt4Project *pro = qobject_cast<Qt4Project *>(m_makeStep->project());
+        QTC_ASSERT(pro, return);
         m_ui.makeLabel->setText(tr("Override %1:").arg(pro->qtVersion(buildConfiguration)->makeCommand()));
 
         const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();
@@ -307,12 +309,12 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
-    Q_ASSERT(!m_buildConfiguration.isNull());
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_makeStep->setValue(m_buildConfiguration, "makeCmd", m_ui.makeLineEdit->text());
 }
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
-    Q_ASSERT(!m_buildConfiguration.isNull());
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_makeStep->setValue(m_buildConfiguration, "makeargs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
 }

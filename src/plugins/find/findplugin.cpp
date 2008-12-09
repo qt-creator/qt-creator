@@ -30,6 +30,7 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "findplugin.h"
 
 #include "textfindconstants.h"
@@ -41,6 +42,8 @@
 #include <coreplugin/actionmanager/iactioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/coreconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QSettings>
@@ -102,24 +105,18 @@ void FindPlugin::filterChanged()
 {
     IFindFilter *changedFilter = qobject_cast<IFindFilter *>(sender());
     QAction *action = m_filterActions.value(changedFilter);
-    Q_ASSERT(changedFilter);
-    Q_ASSERT(action);
-    if (!changedFilter || !action)
-        return;
+    QTC_ASSERT(changedFilter, return);
+    QTC_ASSERT(action, return);
     action->setEnabled(changedFilter->isEnabled());
 }
 
 void FindPlugin::openFindFilter()
 {
     QAction *action = qobject_cast<QAction*>(sender());
-    Q_ASSERT(action);
-    if (!action)
-        return;
+    QTC_ASSERT(action, return);
     IFindFilter *filter = action->data().value<IFindFilter *>();
-    Q_ASSERT(filter);
-    Q_ASSERT(filter->isEnabled());
-    if (!filter || !filter->isEnabled())
-        return;
+    QTC_ASSERT(filter, return);
+    QTC_ASSERT(filter->isEnabled(), return);
     QString currentFindString = (m_currentDocumentFind->isEnabled() ? m_currentDocumentFind->currentFindString() : "");
     if (!currentFindString.isEmpty())
         m_findDialog->setFindText(currentFindString);

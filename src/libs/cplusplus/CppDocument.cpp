@@ -32,6 +32,9 @@
 ***************************************************************************/
 
 #include "CppDocument.h"
+
+#include <utils/qtcassert.h>
+
 #include <Control.h>
 #include <TranslationUnit.h>
 #include <DiagnosticClient.h>
@@ -143,9 +146,9 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
-void Document::addMacroUse(unsigned offset, unsigned length)
+void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
 {
-    _macroUses.append(Block(offset, offset + length));
+    _macroUses.append(MacroUse(macro, offset, offset + length));
 }
 
 TranslationUnit *Document::translationUnit() const
@@ -270,7 +273,7 @@ bool Document::parse(ParseMode mode)
 
 void Document::check()
 {
-    Q_ASSERT(! _globalNamespace);
+    QTC_ASSERT(!_globalNamespace, return);
 
     Semantic semantic(_control);
 

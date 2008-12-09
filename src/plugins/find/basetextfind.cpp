@@ -33,6 +33,8 @@
 
 #include "basetextfind.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QTextBlock>
 
 using namespace Find;
@@ -49,26 +51,26 @@ BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
 
 QTextCursor BaseTextFind::textCursor() const
 {
-    Q_ASSERT(m_editor || m_plaineditor);
+    QTC_ASSERT(m_editor || m_plaineditor, return QTextCursor());
     return m_editor ? m_editor->textCursor() : m_plaineditor->textCursor();
 
 }
 
 void BaseTextFind::setTextCursor(const QTextCursor& cursor)
 {
-    Q_ASSERT(m_editor || m_plaineditor);
+    QTC_ASSERT(m_editor || m_plaineditor, return);
     m_editor ? m_editor->setTextCursor(cursor) : m_plaineditor->setTextCursor(cursor);
 }
 
 QTextDocument *BaseTextFind::document() const
 {
-    Q_ASSERT(m_editor || m_plaineditor);
+    QTC_ASSERT(m_editor || m_plaineditor, return 0);
     return m_editor ? m_editor->document() : m_plaineditor->document();
 }
 
 bool BaseTextFind::isReadOnly() const
 {
-    Q_ASSERT(m_editor || m_plaineditor);
+    QTC_ASSERT(m_editor || m_plaineditor, return true);
     return m_editor ? m_editor->isReadOnly() : m_plaineditor->isReadOnly();
 }
 

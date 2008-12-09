@@ -33,12 +33,12 @@
 
 #include "proeditormodel.h"
 
+#include "directorywatcher.h"
 #include "profilereader.h"
 #include "prowriter.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4projectmanager.h"
-#include "directorywatcher.h"
 
 #include <projectexplorer/nodesvisitor.h>
 
@@ -50,11 +50,14 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
+
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
@@ -86,15 +89,15 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
           m_projectDir(QFileInfo(filePath).absolutePath())
 {
-    Q_ASSERT(project);
+    QTC_ASSERT(project, return);
     setFolderName(QFileInfo(filePath).baseName());
     setIcon(QIcon(":/qt4projectmanager/images/qt_project.png"));
 }
 
 void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
 {
-    Q_ASSERT(includeFile);
-    Q_ASSERT(reader);
+    QTC_ASSERT(includeFile, return);
+    QTC_ASSERT(reader, return);
 
     // add project file node
     if (m_fileNodes.isEmpty())
@@ -167,7 +170,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions() const
     const Qt4ProFileNode *proFileNode;
     while (!(proFileNode = qobject_cast<const Qt4ProFileNode*>(folderNode)))
         folderNode = folderNode->parentFolderNode();
-    Q_ASSERT(proFileNode);
+    QTC_ASSERT(proFileNode, return actions);
 
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:

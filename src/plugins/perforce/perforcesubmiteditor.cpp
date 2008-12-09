@@ -36,6 +36,8 @@
 #include "perforceplugin.h"
 #include "perforceconstants.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 
 namespace Perforce {
@@ -153,7 +155,7 @@ void PerforceSubmitEditor::updateFields()
     lines.removeLast(); // that is the empty line at the end
 
     const QRegExp leadingTabPattern = QRegExp(QLatin1String("^\\t"));
-    Q_ASSERT(leadingTabPattern.isValid());
+    QTC_ASSERT(leadingTabPattern.isValid(), /**/);
 
     lines.replaceInStrings(leadingTabPattern, QString());
     widget->setDescriptionText(lines.join(newLine));

@@ -32,15 +32,18 @@
 ***************************************************************************/
 
 #include "editorgroup.h"
+
 #include "editormanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
+
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
-#include <QtCore/QtDebug>
 #ifdef Q_WS_MAC
 #include <QtGui/QMacStyle>
 #endif
@@ -107,20 +110,20 @@ QVariant EditorModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
     IEditor *editor = m_editors.at(index.row());
-    Q_ASSERT(editor);
+    QTC_ASSERT(editor, return QVariant());
     switch (role) {
     case Qt::DisplayRole:
         return editor->file()->isModified()
-                ?editor->displayName()+QLatin1String("*")
-                :editor->displayName();
+                ? editor->displayName() + QLatin1String("*")
+                : editor->displayName();
     case Qt::DecorationRole:
         return editor->file()->isReadOnly()
-                ?QIcon(QLatin1String(":/qworkbench/images/locked.png"))
-                :QIcon();
+                ? QIcon(QLatin1String(":/qworkbench/images/locked.png"))
+                : QIcon();
     case Qt::ToolTipRole:
         return editor->file()->fileName().isEmpty()
-                ?editor->displayName()
-                :QDir::toNativeSeparators(editor->file()->fileName());
+                ? editor->displayName()
+                : QDir::toNativeSeparators(editor->file()->fileName());
     case Qt::UserRole:
         return qVariantFromValue(editor);
     default:
@@ -145,6 +148,7 @@ EditorGroupContext::EditorGroupContext(EditorGroup *editorGroup)
      m_editorGroup(editorGroup)
 {
 }
+
 QList<int> EditorGroupContext::context() const
 {
     return m_context;

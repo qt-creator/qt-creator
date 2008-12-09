@@ -40,11 +40,13 @@
 #include "uniqueidmanager.h"
 #include "viewmanagerinterface.h"
 
+#include <utils/qtcassert.h>
+
 using namespace Core;
 using namespace Core::Internal;
 
-ProgressManager::ProgressManager(QObject *parent) :
-    ProgressManagerInterface(parent)
+ProgressManager::ProgressManager(QObject *parent)
+  : ProgressManagerInterface(parent)
 {
     m_progressView = new ProgressView;
     ICore *core = CoreImpl::instance();
@@ -103,7 +105,7 @@ QWidget *ProgressManager::progressView()
 void ProgressManager::taskFinished()
 {
     QObject *taskObject = sender();
-    Q_ASSERT(taskObject);
+    QTC_ASSERT(taskObject, return);
     QFutureWatcher<void> *task = static_cast<QFutureWatcher<void> *>(taskObject);
     m_runningTasks.remove(task);
     delete task;

@@ -36,6 +36,11 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+class QPoint;
+class QString;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 

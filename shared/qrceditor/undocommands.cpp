@@ -92,7 +92,7 @@ bool ModifyPropertyCommand::mergeWith(const QUndoCommand * command)
 {
     const ModifyPropertyCommand * const brother
             = dynamic_cast<const ModifyPropertyCommand *>(command);
-    if (command == NULL || m_property != brother->m_property)
+    if (command == 0 || m_property != brother->m_property)
         return false;
 
     // Choose older command (this) and forgot the other
@@ -101,7 +101,7 @@ bool ModifyPropertyCommand::mergeWith(const QUndoCommand * command)
 
 void ModifyPropertyCommand::undo()
 {
-    Q_ASSERT(m_view != NULL);
+    QTC_ASSERT(m_view, return);
 
     // Save current text in m_after for redo()
     m_after = m_view->getCurrentValue(m_property);
@@ -117,12 +117,12 @@ void ModifyPropertyCommand::redo()
         return;
 
     // Bring back text before undo
-    Q_ASSERT(m_view != NULL);
+    QTC_ASSERT(m_view, return);
     m_view->changeValue(makeIndex(), m_property, m_after);
 }
 
 RemoveEntryCommand::RemoveEntryCommand(ResourceView *view, const QModelIndex &index)
-        : ModelIndexViewCommand(view), m_entry(NULL), m_isExpanded(true)
+        : ModelIndexViewCommand(view), m_entry(0), m_isExpanded(true)
 {
     storeIndex(index);
 }
@@ -142,9 +142,9 @@ void RemoveEntryCommand::redo()
 
 void RemoveEntryCommand::undo()
 {
-    if (m_entry != NULL) {
+    if (m_entry == 0) {
         m_entry->restore();
-        Q_ASSERT(m_view != NULL);
+        QTC_ASSERT(m_view != 0, return);
         const QModelIndex index = makeIndex();
         m_view->setExpanded(index, m_isExpanded);
         m_view->setCurrentIndex(index);
@@ -155,7 +155,7 @@ void RemoveEntryCommand::undo()
 void RemoveEntryCommand::freeEntry()
 {
     delete m_entry;
-    m_entry = NULL;
+    m_entry = 0;
 }
 
 AddFilesCommand::AddFilesCommand(ResourceView *view, int prefixIndex, int cursorFileIndex,

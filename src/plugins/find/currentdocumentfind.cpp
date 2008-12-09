@@ -36,16 +36,17 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
+#include <utils/qtcassert.h>
 
+#include <QtCore/QDebug>
 #include <QtGui/QApplication>
-#include <QtDebug>
 
 using namespace Core;
 using namespace Find;
 using namespace Find::Internal;
 
 CurrentDocumentFind::CurrentDocumentFind(ICore *core)
-        : m_core(core), m_currentFind(0)
+  : m_core(core), m_currentFind(0)
 {
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)),
             this, SLOT(updateCurrentFindFilter(QWidget*,QWidget*)));
@@ -59,16 +60,14 @@ void CurrentDocumentFind::removeConnections()
 
 void CurrentDocumentFind::resetIncrementalSearch()
 {
-    Q_ASSERT(m_currentFind);
-    if (m_currentFind)
-        m_currentFind->resetIncrementalSearch();
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->resetIncrementalSearch();
 }
 
 void CurrentDocumentFind::clearResults()
 {
-    Q_ASSERT(m_currentFind);
-    if (m_currentFind)
-        m_currentFind->clearResults();
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->clearResults();
 }
 
 bool CurrentDocumentFind::isEnabled() const
@@ -78,67 +77,64 @@ bool CurrentDocumentFind::isEnabled() const
 
 bool CurrentDocumentFind::supportsReplace() const
 {
-    Q_ASSERT(m_currentFind);
-    return m_currentFind ? m_currentFind->supportsReplace() : false;
+    QTC_ASSERT(m_currentFind, return false);
+    return m_currentFind->supportsReplace();
 }
 
 QString CurrentDocumentFind::currentFindString() const
 {
-    Q_ASSERT(m_currentFind);
-    return m_currentFind ? m_currentFind->currentFindString() : QString();
+    QTC_ASSERT(m_currentFind, return QString());
+    return m_currentFind->currentFindString();
 }
 
 QString CurrentDocumentFind::completedFindString() const
 {
-    Q_ASSERT(m_currentFind);
-    return m_currentFind ? m_currentFind->completedFindString() : QString();
+    QTC_ASSERT(m_currentFind, return QString());
+    return m_currentFind->completedFindString();
 }
 
 void CurrentDocumentFind::highlightAll(const QString &txt, QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_currentFind);
-    if (m_currentFind)
-        m_currentFind->highlightAll(txt, findFlags);
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->highlightAll(txt, findFlags);
 }
 
 bool CurrentDocumentFind::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_currentFind);
-    return (m_currentFind? m_currentFind->findIncremental(txt, findFlags) : false);
+    QTC_ASSERT(m_currentFind, return false);
+    return m_currentFind->findIncremental(txt, findFlags);
 }
 
 bool CurrentDocumentFind::findStep(const QString &txt, QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_currentFind);
-    return (m_currentFind? m_currentFind->findStep(txt, findFlags) : false);
+    QTC_ASSERT(m_currentFind, return false);
+    return m_currentFind->findStep(txt, findFlags);
 }
 
 bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after,
     QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_currentFind);
-    return (m_currentFind? m_currentFind->replaceStep(before, after, findFlags) : false);
+    QTC_ASSERT(m_currentFind, return false);
+    return m_currentFind->replaceStep(before, after, findFlags);
 }
 
 int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
     QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_currentFind);
-    return (m_currentFind? m_currentFind->replaceAll(before, after, findFlags) : 0);
+    QTC_ASSERT(m_currentFind, return 0);
+    return m_currentFind->replaceAll(before, after, findFlags);
 }
 
 void CurrentDocumentFind::defineFindScope()
 {
-    Q_ASSERT(m_currentFind);
-    if (m_currentFind)
-        m_currentFind->defineFindScope();
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->defineFindScope();
 }
 
 void CurrentDocumentFind::clearFindScope()
 {
-    Q_ASSERT(m_currentFind);
-    if (m_currentFind)
-        m_currentFind->clearFindScope();
+    QTC_ASSERT(m_currentFind, return);
+    m_currentFind->clearFindScope();
 }
 
 void CurrentDocumentFind::updateCurrentFindFilter(QWidget *old, QWidget *now)

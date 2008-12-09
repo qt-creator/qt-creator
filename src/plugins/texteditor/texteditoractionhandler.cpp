@@ -42,6 +42,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QSet>
 #include <QtCore/QtDebug>
@@ -355,7 +356,7 @@ void TextEditorActionHandler::selectAllAction()
 void TextEditorActionHandler::gotoAction()
 {
     QuickOpen::QuickOpenManager *quickopen = QuickOpen::QuickOpenManager::instance();
-    Q_ASSERT(quickopen);
+    QTC_ASSERT(quickopen, return);
     QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
     quickopen->show(shortcut + " <line number>", 2, 13);
 }

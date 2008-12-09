@@ -34,6 +34,8 @@
 #include "buildstep.h"
 #include "buildconfiguration.h"
 
+#include <utils/qtcassert.h>
+
 namespace ProjectExplorer {
 
 BuildStep::BuildStep(Project * pro)
@@ -78,7 +80,7 @@ void BuildStep::copyBuildConfiguration(const QString &source, const QString &des
 void BuildStep::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    Q_ASSERT(bc);
+    QTC_ASSERT(bc, return);
     bc->setValue(name, value);
 }
 

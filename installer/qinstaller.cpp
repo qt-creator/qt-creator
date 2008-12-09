@@ -239,7 +239,7 @@ static void appendFileData(QIODevice *out, const QString &fileName)
 
 static void appendFileData(QIODevice *out, QIODevice *in)
 {
-    Q_ASSERT(!in->isSequential());
+    QTC_ASSERT(!in->isSequential(), return);
     qint64 size = in->size();
     QByteArray &b = theBuffer(size);
     rawRead(in, b.data(), size);

@@ -10,11 +10,12 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/cpptools/cpptools.pri)
 include(../../libs/cplusplus/cplusplus.pri)
 
+INCLUDEPATH += ../../libs/utils
+
 # DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 QT += gui network script
 
-HEADERS += assert.h \
-    attachexternaldialog.h \
+HEADERS += attachexternaldialog.h \
     attachremotedialog.h \
     breakhandler.h \
     breakwindow.h \

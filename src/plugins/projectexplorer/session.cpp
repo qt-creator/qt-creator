@@ -47,17 +47,20 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/progressmanager/progressmanagerinterface.h>
 #include <coreplugin/modemanager.h>
-#include <utils/listutils.h>
 
 #include <texteditor/itexteditor.h>
 
-#include <QtCore/QDir>
+#include <utils/listutils.h>
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
 #include <QtCore/QFuture>
-#include <QtGui/QMessageBox>
+#include <QtCore/QSettings>
+
 #include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
 namespace {
     bool debug = false;
@@ -138,20 +141,16 @@ QString SessionFile::mimeType() const
 
 bool SessionFile::load(const QString &fileName)
 {
-    Q_ASSERT(!fileName.isEmpty());
+    QTC_ASSERT(!fileName.isEmpty(), return false);
 
     if (debug)
         qDebug() << "SessionFile::load " << fileName;
-
-
 
     m_fileName = fileName;
 
     // NPE: Load the session in the background?
     // NPE: Let FileManager monitor filename
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-
 
     PersistentSettingsReader reader;
     if (!reader.load(m_fileName)) {
@@ -161,8 +160,8 @@ bool SessionFile::load(const QString &fileName)
     }
 
     m_core->progressManager()->addTask(future.future(), tr("Session"),
-                                       QLatin1String("ProjectExplorer.SessionFile.Load"),
-                                       Core::ProgressManagerInterface::CloseOnSuccess);
+       QLatin1String("ProjectExplorer.SessionFile.Load"),
+       Core::ProgressManagerInterface::CloseOnSuccess);
 
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
     foreach (const QString &key, keys) {
@@ -183,7 +182,6 @@ bool SessionFile::load(const QString &fileName)
             it.setValue(configDir + "/" + file);
         }
     }
-
 
     int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
 
@@ -248,7 +246,7 @@ bool SessionFile::save(const QString &fileName)
     if (!fileName.isEmpty())
         m_fileName = fileName;
 
-    Q_ASSERT(!m_fileName.isEmpty());
+    QTC_ASSERT(!m_fileName.isEmpty(), return false);
 
     if (debug)
         qDebug() << "SessionFile - saving " << m_fileName;
@@ -495,7 +493,7 @@ void SessionManager::setStartupProject(Project *startupProject)
         qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->name() : "0");
 
     if (startupProject) {
-        Q_ASSERT(m_file->m_projects.contains(startupProject));
+        QTC_ASSERT(m_file->m_projects.contains(startupProject), return);
     }
 
     m_file->m_startupProject = startupProject;
@@ -568,7 +566,7 @@ void SessionManager::removeProject(Project *project)
 
 bool SessionManager::createImpl(const QString &fileName)
 {
-    Q_ASSERT(!fileName.isEmpty());
+    QTC_ASSERT(!fileName.isEmpty(), return false);
 
     if (debug)
         qDebug() << "SessionManager - creating new session " << fileName << " ...";
@@ -576,9 +574,8 @@ bool SessionManager::createImpl(const QString &fileName)
     bool success = true;
 
     if (!m_file->fileName().isEmpty()) {
-        if (!save() || !clear()) {
+        if (!save() || !clear())
             success = false;
-        }
     }
 
     if (success) {
@@ -600,7 +597,7 @@ bool SessionManager::createImpl(const QString &fileName)
 
 bool SessionManager::loadImpl(const QString &fileName)
 {
-    Q_ASSERT(!fileName.isEmpty());
+    QTC_ASSERT(!fileName.isEmpty(), return false);
 
     if (debug)
         qDebug() << "SessionManager - loading session " << fileName << " ...";
@@ -804,7 +801,7 @@ Project *SessionManager::projectForNode(Node *node) const
     while (rootProjectNode && rootProjectNode->parentFolderNode() != m_sessionNode)
         rootProjectNode = rootProjectNode->parentFolderNode();
 
-    Q_ASSERT(rootProjectNode);
+    QTC_ASSERT(rootProjectNode, return 0);
 
     QList<Project *> projectList = projects();
     foreach (Project *p, projectList) {

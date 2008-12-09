@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "cppcodecompletion.h"
+
 #include "cppmodelmanager.h"
 
 #include <Control.h>
@@ -45,6 +46,7 @@
 #include <SymbolVisitor.h>
 #include <Scope.h>
 #include <TranslationUnit.h>
+
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
@@ -55,6 +57,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
+#include <utils/qtcassert.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QDebug>
@@ -540,7 +543,7 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
                                        const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
-    Q_ASSERT(! results.isEmpty());
+    QTC_ASSERT(!results.isEmpty(), return false);
 
     QList<Symbol *> classObjectCandidates;
 
@@ -938,7 +941,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (m_completionOperator == T_LPAREN) {
         if (symbol) {
             Function *function = symbol->type()->asFunction();
-            Q_ASSERT(function != 0);
+            QTC_ASSERT(function, return);
 
             m_functionArgumentWidget = new FunctionArgumentWidget(m_core);
             m_functionArgumentWidget->showFunctionHint(function);

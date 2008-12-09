@@ -41,6 +41,8 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 
+#include <utils/qtcassert.h>
+
 #include <QApplication>
 
 using namespace TextEditor;
@@ -52,7 +54,7 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
                                        QObject *parent)
     : QObject(parent)
 {
-    Q_ASSERT(!m_instance);
+    QTC_ASSERT(!m_instance, return);
     m_instance = this;
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

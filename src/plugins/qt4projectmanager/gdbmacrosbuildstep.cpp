@@ -33,10 +33,12 @@
 
 #include "gdbmacrosbuildstep.h"
 
-#include "qt4projectmanagerconstants.h"
-#include "qt4project.h"
-#include "qmakestep.h"
 #include "makestep.h"
+#include "qmakestep.h"
+#include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
+
+#include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -160,9 +162,9 @@ bool GdbMacrosBuildStepFactory::canCreate(const QString &name) const
 
 ProjectExplorer::BuildStep *GdbMacrosBuildStepFactory::create(ProjectExplorer::Project *pro, const QString &name) const
 {
-    Q_ASSERT(name == Constants::GDBMACROSBUILDSTEP);
+    QTC_ASSERT(name == Constants::GDBMACROSBUILDSTEP, return 0);
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    Q_ASSERT(qt4project);
+    QTC_ASSERT(qt4project, return 0);
     return new GdbMacrosBuildStep(qt4project);
 }
 

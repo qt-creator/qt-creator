@@ -32,8 +32,11 @@
 ***************************************************************************/
 
 #include "cmakestep.h"
-#include "cmakeprojectconstants.h"
+
 #include "cmakeproject.h"
+#include "cmakeprojectconstants.h"
+
+#include <utils/qtcassert.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -41,12 +44,10 @@ using namespace CMakeProjectManager::Internal;
 CMakeStep::CMakeStep(CMakeProject *pro)
     : AbstractProcessStep(pro), m_pro(pro)
 {
-
 }
 
 CMakeStep::~CMakeStep()
 {
-
 }
 
 bool CMakeStep::init(const QString &buildConfiguration)
@@ -61,6 +62,11 @@ bool CMakeStep::init(const QString &buildConfiguration)
 
 void CMakeStep::run(QFutureInterface<bool> &fi)
 {
+    // TODO we want to only run cmake if the command line arguments or
+    // the CmakeLists.txt has actually changed
+    // And we want all of them to share the SAME command line arguments
+    // Shadow building ruins this, hmm, hmm
+    //
     AbstractProcessStep::run(fi);
 }
 
@@ -109,9 +115,9 @@ bool CMakeBuildStepFactory::canCreate(const QString &name) const
 
 ProjectExplorer::BuildStep *CMakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
-    Q_ASSERT(name == Constants::CMAKESTEP);
+    QTC_ASSERT(name == Constants::CMAKESTEP, /**/);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
+    QTC_ASSERT(pro, /**/);
     return new CMakeStep(pro);
 }
 

@@ -36,8 +36,10 @@
 #include "metatypedeclarations.h"
 
 #include <extensionsystem/ExtensionSystemInterfaces>
+#include <utils/qtcassert.h>
 #include <interface_wrap_helpers.h>
 #include <wrap_helpers.h>
+
 #include <limits.h>
 
 #include <QtCore/QDebug>
@@ -154,7 +156,7 @@ static QScriptValue inputDialogGetItem(QScriptContext *context, QScriptEngine *e
 // Script function template to pop up a file box
 // with a certain icon and buttons.
 template <int TAcceptMode, int TFileMode>
-        static QScriptValue fileBox(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue fileBox(QScriptContext *context, QScriptEngine *engine)
 {
     const int argumentCount = context->argumentCount();
     if (argumentCount < 2)
@@ -170,7 +172,7 @@ template <int TAcceptMode, int TFileMode>
     if (fileDialog.exec() == QDialog::Rejected)
         return  QScriptValue(engine, QScriptValue::NullValue);
     const QStringList rc = fileDialog.selectedFiles();
-    Q_ASSERT(!rc.empty());
+    QTC_ASSERT(!rc.empty(), /**/);
     return TFileMode == QFileDialog::ExistingFiles ?
         engine->toScriptValue(rc) : engine->toScriptValue(rc.front());
 }
@@ -249,7 +251,7 @@ void ScriptManager::ensureEngineInitialized()
 {
     if (m_initialized)
         return;
-    Q_ASSERT(m_core);
+    QTC_ASSERT(m_core, return);
     // register QObjects that occur as properties
     SharedTools::registerQObject<QMainWindow>(m_engine);
     SharedTools::registerQObject<QStatusBar>(m_engine);

@@ -34,6 +34,8 @@
 #include "fontsettings.h"
 #include "fontsettingspage.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QSettings>
 #include <QtGui/QTextCharFormat>
 
@@ -133,11 +135,13 @@ bool Format::equals(const Format &f) const
     return m_foreground ==  f.m_foreground && m_background == f.m_background &&
            m_bold == f.m_bold && m_italic == f.m_italic;
 }
+
 // -- FontSettings
-FontSettings::FontSettings(const FormatDescriptions & /* fd */) :
+FontSettings::FontSettings(const FormatDescriptions &fd) :
     m_family(defaultFixedFontFamily()),
     m_fontSize(DEFAULT_FONT_SIZE)
 {
+    Q_UNUSED(fd);
 }
 
 void FontSettings::clear()
@@ -152,7 +156,7 @@ void FontSettings::toSettings(const QString &category,
                               QSettings *s) const
 {
     const int numFormats = m_formats.size();
-    Q_ASSERT(descriptions.size() == numFormats);
+    QTC_ASSERT(descriptions.size() == numFormats, /**/);
     s->beginGroup(category);
     if (m_family != defaultFixedFontFamily() || s->contains(QLatin1String(fontFamilyKey)))
         s->setValue(QLatin1String(fontFamilyKey), m_family);

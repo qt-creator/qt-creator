@@ -32,18 +32,20 @@
 ***************************************************************************/
 
 #include "pathchooser.h"
+
 #include "basevalidatinglineedit.h"
+#include "qtcassert.h"
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/QDesktopServices>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
+
+#include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QToolButton>
 
 namespace Core {
 namespace Utils {
@@ -71,7 +73,7 @@ PathValidatingLineEdit::PathValidatingLineEdit(PathChooser *chooser, QWidget *pa
     BaseValidatingLineEdit(parent),
     m_chooser(chooser)
 {
-    Q_ASSERT(chooser != NULL);
+    QTC_ASSERT(chooser, return);
 }
 
 bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessage) const

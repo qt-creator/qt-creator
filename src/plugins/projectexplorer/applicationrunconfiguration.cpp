@@ -36,6 +36,7 @@
 #include "environment.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QLabel>
 #include <QtGui/QTextDocument>
@@ -94,8 +95,8 @@ QString ApplicationRunConfigurationRunner::displayName() const
 RunControl* ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     QSharedPointer<ApplicationRunConfiguration> rc = qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
-    Q_ASSERT(rc);
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
+    QTC_ASSERT(rc, return 0);
+    QTC_ASSERT(mode == ProjectExplorer::Constants::RUNMODE, return 0);
 
     ApplicationRunControl *runControl = new ApplicationRunControl(rc);
     return runControl;
@@ -112,10 +113,10 @@ QWidget *ApplicationRunConfigurationRunner::configurationWidget(QSharedPointer<R
 ApplicationRunControl::ApplicationRunControl(QSharedPointer<ApplicationRunConfiguration> runConfiguration)
     : RunControl(runConfiguration), m_applicationLauncher()
 {
-    connect(&m_applicationLauncher, SIGNAL(applicationError(const QString &)),
-            this, SLOT(slotError(const QString &)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(const QString &)),
-            this, SLOT(slotAddToOutputWindow(const QString &)));
+    connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
+            this, SLOT(slotError(QString)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
+            this, SLOT(slotAddToOutputWindow(QString)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -129,7 +130,7 @@ ApplicationRunControl::~ApplicationRunControl()
 void ApplicationRunControl::start()
 {
     QSharedPointer<ApplicationRunConfiguration> rc = qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return);
 
     m_applicationLauncher.setEnvironment(rc->environment().toStringList());
     m_applicationLauncher.setWorkingDirectory(rc->workingDirectory());

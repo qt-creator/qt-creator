@@ -32,16 +32,18 @@
 ***************************************************************************/
 
 #include "buildmanager.h"
+
+#include "buildprogress.h"
 #include "buildstep.h"
 #include "compileoutputwindow.h"
-#include "taskwindow.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
-#include "buildprogress.h"
+#include "projectexplorer.h"
+#include "taskwindow.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/progressmanager/progressmanagerinterface.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -300,7 +302,7 @@ void BuildManager::buildQueueAppend(BuildStep * bs, const QString &configuration
 
 void BuildManager::buildProjects(const QList<Project *> &projects, const QList<QString> &configurations)
 {
-    Q_ASSERT(projects.count() == configurations.count());
+    QTC_ASSERT(projects.count() == configurations.count(), /**/);
     QList<QString>::const_iterator cit = configurations.constBegin();
     QList<Project *>::const_iterator it, end;
     end = projects.constEnd();
@@ -316,7 +318,7 @@ void BuildManager::buildProjects(const QList<Project *> &projects, const QList<Q
 
 void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<QString> &configurations)
 {
-    Q_ASSERT(projects.count() == configurations.count());
+    QTC_ASSERT(projects.count() == configurations.count(), /**/);
     QList<QString>::const_iterator cit = configurations.constBegin();
     QList<Project *>::const_iterator it, end;
     end = projects.constEnd();
@@ -376,7 +378,7 @@ void BuildManager::decrementActiveBuildSteps(Project *pro)
     QHash<Project *, int>::iterator it = m_activeBuildSteps.find(pro);
     QHash<Project *, int>::iterator end = m_activeBuildSteps.end();
     if (it == end) {
-        Q_ASSERT(false && "BuildManager m_activeBuildSteps says project is not building, but apparently a build step was still in the queue.");
+        QTC_ASSERT(false && "BuildManager m_activeBuildSteps says project is not building, but apparently a build step was still in the queue.", return);
     } else if (*it == 1) {
         --*it;
         emit buildStateChanged(pro);

@@ -34,6 +34,9 @@
 #ifndef DEBUGGER_GDBENGINE_H
 #define DEBUGGER_GDBENGINE_H
 
+#include "idebuggerengine.h"
+#include "gdbmi.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
@@ -47,9 +50,6 @@ class QAction;
 class QAbstractItemModel;
 class QWidget;
 QT_END_NAMESPACE
-
-#include "idebuggerengine.h"
-#include "gdbmi.h"
 
 namespace Debugger {
 namespace Internal {

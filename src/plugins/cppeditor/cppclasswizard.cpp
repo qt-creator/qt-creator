@@ -36,12 +36,14 @@
 
 #include <utils/codegeneration.h>
 #include <utils/newclasswidget.h>
+#include <utils/qtcassert.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
-#include <QtGui/QComboBox>
+#include <QtCore/QDir>
+#include <QtCore/QTextStream>
+
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWizard>
@@ -196,7 +198,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
               << "\n#define " <<  guard << '\n' << '\n';
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
-    Q_ASSERT(qtClassExpr.isValid());
+    QTC_ASSERT(qtClassExpr.isValid(), /**/);
     const bool superIsQtClass = qtClassExpr.exactMatch(params.baseClass);
     if (superIsQtClass) {
         Core::Utils::writeIncludeFileDirective(params.baseClass, true, headerStr);

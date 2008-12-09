@@ -45,8 +45,9 @@
 
 #ifndef TEXTEDITOR_STANDALONE
 #include <utils/reloadpromptutils.h>
-#include "coreplugin/icore.h"
+#include <coreplugin/icore.h>
 #endif
+#include <utils/qtcassert.h>
 
 using namespace TextEditor;
 
@@ -236,7 +237,7 @@ bool BaseTextDocument::open(const QString &fileName)
             m_document->setPlainText(text);
         m_document->setUndoRedoEnabled(true);
         TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
-        Q_ASSERT(documentLayout);
+        QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = 0;
         m_document->setModified(false);
         emit titleChanged(title);
@@ -247,7 +248,7 @@ bool BaseTextDocument::open(const QString &fileName)
 
 void BaseTextDocument::reload(QTextCodec *codec)
 {
-    Q_ASSERT(codec);
+    QTC_ASSERT(codec, return);
     m_codec = codec;
     reload();
 }
@@ -255,9 +256,8 @@ void BaseTextDocument::reload(QTextCodec *codec)
 void BaseTextDocument::reload()
 {
     emit aboutToReload();
-    if (open(m_fileName)) {
+    if (open(m_fileName))
         emit reloaded();
-    }
 }
 
 void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)

@@ -604,27 +604,28 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                                    m->definition.constEnd(),
                                    result);
 
+                            m->hidden = false;
+
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
 
-                            m->hidden = false;
                             continue;
                         } else {
                             QByteArray tmp;
-                            m->hidden = true;
 
                             if (client)
                                 client->startExpandingMacro(identifierToken->offset,
                                                             *m, spell);
+                            m->hidden = true;
 
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    &tmp);
 
+                            m->hidden = false;
+
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
-
-                            m->hidden = false;
 
                             m = 0; // reset the active the macro
 

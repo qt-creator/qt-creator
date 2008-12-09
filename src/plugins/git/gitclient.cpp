@@ -32,36 +32,38 @@
 ***************************************************************************/
 
 #include "gitclient.h"
-#include "gitplugin.h"
-#include "gitconstants.h"
+
 #include "commitdata.h"
+#include "gitconstants.h"
+#include "gitplugin.h"
 #include "gitsubmiteditor.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanagerinterface.h>
-#include <vcsbase/vcsbaseeditor.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
+#include <utils/qtcassert.h>
+#include <vcsbase/vcsbaseeditor.h>
 
+#include <QtCore/QFuture>
 #include <QtCore/QRegExp>
 #include <QtCore/QTemporaryFile>
-#include <QtCore/QFuture>
 #include <QtCore/QTime>
 
-#include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow> // for msg box parent
+#include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 
 using namespace Git;
 using namespace Git::Internal;
 
-const char* const kGitCommand = "git";
-const char* const kGitDirectoryC = ".git";
-const char* const kBranchIndicatorC = "# On branch";
+const char *const kGitCommand = "git";
+const char *const kGitDirectoryC = ".git";
+const char *const kBranchIndicatorC = "# On branch";
 
 enum { untrackedFilesInCommit = 0 };
 
@@ -169,14 +171,14 @@ VCSBase::VCSBaseEditor
          // Exists already
         outputEditor->createNew(m_msgWait);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
-        Q_ASSERT(rc);
+        QTC_ASSERT(rc, return 0);
         m_core->editorManager()->setCurrentEditor(outputEditor);
     } else {
         // Create new, set wait message, set up with source and codec
         outputEditor = m_core->editorManager()->newFile(kind, &title, m_msgWait);
         outputEditor->setProperty(registerDynamicProperty, dynamicPropertyValue);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
-        Q_ASSERT(rc);
+        QTC_ASSERT(rc, return 0);
         rc->setSource(source);
         if (setSourceCodec)
             rc->setCodec(VCSBase::VCSBaseEditor::getCodec(m_core, source));
@@ -394,11 +396,10 @@ void GitClient::executeGit(const QString &workingDirectory, const QStringList &a
 
     GitCommand* command = new GitCommand();
     if (outputToWindow) {
-        Q_ASSERT(outputWindow);
         connect(command, SIGNAL(outputText(QString)), outputWindow, SLOT(append(QString)));
         connect(command, SIGNAL(outputData(QByteArray)), outputWindow, SLOT(appendData(QByteArray)));
     } else {
-        Q_ASSERT(editor);
+        QTC_ASSERT(editor, /**/);
         connect(command, SIGNAL(outputText(QString)), editor, SLOT(setPlainText(QString)));
         connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextData(QByteArray)));
     }
@@ -515,7 +516,7 @@ static bool parseFiles(const QString &output, CommitData *d)
     State s = None;
     // Match added/changed-not-updated files: "#<tab>modified: foo.cpp"
     QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+.+"));
-    Q_ASSERT(filesPattern.isValid());
+    QTC_ASSERT(filesPattern.isValid(), return false);
 
     const QStringList::const_iterator cend = lines.constEnd();
     for (QStringList::const_iterator it =  lines.constBegin(); it != cend; ++it) {
@@ -533,7 +534,7 @@ static bool parseFiles(const QString &output, CommitData *d)
                         // Now match untracked: "#<tab>foo.cpp"
                         s = UntrackedFiles;
                         filesPattern = QRegExp(QLatin1String("#\\t.+"));
-                        Q_ASSERT(filesPattern.isValid());
+                        QTC_ASSERT(filesPattern.isValid(), return false);
                     } else {
                         if (filesPattern.exactMatch(line)) {
                             const QString fileSpec = line.mid(2).trimmed();

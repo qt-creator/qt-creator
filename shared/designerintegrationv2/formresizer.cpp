@@ -30,19 +30,22 @@
 ** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
+
 #include "formresizer.h"
 #include "sizehandlerect.h"
 #include "widgethostconstants.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtDesigner/QDesignerFormWindowInterface>
+
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPalette>
 #include <QtGui/QLayout>
 #include <QtGui/QFrame>
 #include <QtGui/QResizeEvent>
-#include <QtCore/QDebug>
 
-enum { debugFormResizer=0 };
+enum { debugFormResizer = 0 };
 
 using namespace SharedTools::Internal;
 
@@ -140,7 +143,7 @@ void FormResizer::setFormWindow(QDesignerFormWindowInterface *fw)
     if (debugFormResizer)
         qDebug() << "FormResizer::setFormWindow " << fw;
     QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(m_frame->layout());
-    Q_ASSERT(layout);
+    QTC_ASSERT(layout, return);
     if (layout->count())
         delete layout->takeAt(0);
     m_formWindow = fw;

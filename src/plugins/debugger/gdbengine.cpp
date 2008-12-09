@@ -33,11 +33,11 @@
 
 #include "gdbengine.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "gdbmi.h"
 #include "procinterrupt.h"
+#include "qtcassert.h"
 
 #include "disassemblerhandler.h"
 #include "breakhandler.h"
@@ -630,7 +630,7 @@ void GdbEngine::readGdbStandardOutput()
     #endif
 
     m_inbuffer.append(out);
-    //QWB_ASSERT(!m_inbuffer.isEmpty(), return);
+    //QTC_ASSERT(!m_inbuffer.isEmpty(), return);
 
     char c = m_inbuffer[m_inbuffer.size() - 1];
     static const QByteArray termArray("(gdb) ");
@@ -1398,7 +1398,7 @@ void GdbEngine::handleFileExecAndSymbols
         QString msg = response.data.findChild("msg").data();
         QMessageBox::critical(q->mainWindow(), tr("Error"),
             tr("Starting executable failed:\n") + msg);
-        QWB_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
+        QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
         interruptInferior();
     }
 }
@@ -1419,7 +1419,7 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response)
         } else {
             QMessageBox::critical(q->mainWindow(), tr("Error"),
                 tr("Starting executable failed:\n") + msg);
-            QWB_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
+            QTC_ASSERT(q->status() == DebuggerInferiorRunning, /**/);
             interruptInferior();
         }
     }
@@ -2414,7 +2414,7 @@ void GdbEngine::selectThread(int index)
     threadsHandler->setCurrentThread(index);
 
     QList<ThreadData> threads = threadsHandler->threads();
-    QWB_ASSERT(index < threads.size(), return);
+    QTC_ASSERT(index < threads.size(), return);
     int id = threads.at(index).id;
     q->showStatusMessage(tr("Retrieving data for stack view..."), 10000);
     sendCommand(QLatin1String("-thread-select ") + QString::number(id),
@@ -2431,7 +2431,7 @@ void GdbEngine::activateFrame(int frameIndex)
     //qDebug() << "ACTIVATE FRAME: " << frameIndex << oldIndex
     //    << stackHandler->currentIndex();
 
-    QWB_ASSERT(frameIndex < stackHandler->stackSize(), return);
+    QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
         // Assuming this always succeeds saves a roundtrip.
@@ -2952,7 +2952,7 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
 {
     WatchData data = data0;
-    QWB_ASSERT(!data.exp.isEmpty(), return);
+    QTC_ASSERT(!data.exp.isEmpty(), return);
     QString tmplate;
     QString inner;
     bool isTemplate = extractTemplate(data.type, &tmplate, &inner);
@@ -3093,7 +3093,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     #if DEBUG_SUBITEM
     qDebug() << "UPDATE SUBITEM: " << data.toString();
     #endif
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
 
     // in any case we need the type first
     if (data.isTypeNeeded()) {
@@ -3121,7 +3121,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     }
 
     // we should have a type now. this is relied upon further below
-    QWB_ASSERT(!data.type.isEmpty(), return);
+    QTC_ASSERT(!data.type.isEmpty(), return);
 
     // a common case that can be easily solved
     if (data.isChildrenNeeded() && isPointerType(data.type)
@@ -3179,7 +3179,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     }
 
     if (data.isValueNeeded()) {
-        QWB_ASSERT(!data.variable.isEmpty(), return); // tested above
+        QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VALUE";
         #endif
@@ -3208,7 +3208,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     }
 
     if (data.isChildrenNeeded()) {
-        QWB_ASSERT(!data.variable.isEmpty(), return); // tested above
+        QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QString cmd = "-var-list-children --all-values \"" + data.variable + "\"";
         sendSynchronizedCommand(cmd, WatchVarListChildren, QVariant::fromValue(data));
         return;
@@ -3233,14 +3233,14 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     }
 
     if (data.isChildCountNeeded()) {
-        QWB_ASSERT(!data.variable.isEmpty(), return); // tested above
+        QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QString cmd = "-var-list-children --all-values \"" + data.variable + "\"";
         sendCommand(cmd, WatchVarListChildren, QVariant::fromValue(data));
         return;
     }
 
     qDebug() << "FIXME: UPDATE SUBITEM: " << data.toString();
-    QWB_ASSERT(false, return);
+    QTC_ASSERT(false, return);
 }
 
 void GdbEngine::updateWatchModel()
@@ -3254,7 +3254,7 @@ void GdbEngine::updateWatchModel2()
 {
     PENDING_DEBUG("UPDATE WATCH MODEL");
     QList<WatchData> incomplete = qq->watchHandler()->takeCurrentIncompletes();
-    //QWB_ASSERT(incomplete.isEmpty(), /**/);
+    //QTC_ASSERT(incomplete.isEmpty(), /**/);
     if (!incomplete.isEmpty()) {
         #if DEBUG_PENDING
         qDebug() << "##############################################";
@@ -3419,7 +3419,7 @@ void GdbEngine::handleEvaluateExpression(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
-    QWB_ASSERT(data.isValid(), qDebug() << "HUH?");
+    QTC_ASSERT(data.isValid(), qDebug() << "HUH?");
     if (record.resultClass == GdbResultDone) {
         //if (col == 0)
         //    data.name = record.data.findChild("value").data();
@@ -3447,7 +3447,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
     if (record.resultClass == GdbResultDone) {
         // ignore this case, data will follow
     } else if (record.resultClass == GdbResultError) {
@@ -3481,7 +3481,7 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
     //qDebug() << "CUSTOM VALUE RESULT: " << record.toString();
     //qDebug() << "FOR DATA: " << data.toString() << record.resultClass;
     if (record.resultClass == GdbResultDone) {
