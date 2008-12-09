@@ -118,7 +118,7 @@ static QByteArray quoteUnprintable(const QByteArray &ba)
     QByteArray res;
     char buf[10];
     for (int i = 0, n = ba.size(); i != n; ++i) {
-        char c = ba.at(i);
+        unsigned char c = ba.at(i);
         if (isprint(c)) {
             res += c;
         } else {
