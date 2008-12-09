@@ -574,7 +574,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
     //qDebug() << "\nUPDATE SUBITEM: " << data.toString();
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {
         QScriptValue ob = data.scriptValue;
@@ -667,7 +667,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    QWB_ASSERT(false, return);
+    QTC_ASSERT(false, return);
 }
 
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent)

@@ -371,7 +371,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
     static const QString empty = QString(QLatin1Char('-'));
 
-    QWB_ASSERT(mi.isValid(), return QVariant());
+    QTC_ASSERT(mi.isValid(), return QVariant());
 
     if (mi.row() >= size())
         return QVariant();
@@ -550,7 +550,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
     // One per function is enough for now
     for (int index = size(); --index >= 0;) {
         const BreakpointData *data = at(index);
-        QWB_ASSERT(data, break);
+        QTC_ASSERT(data, break);
         if (data->funcName == functionName && data->condition.isEmpty()
                 && data->ignoreCount.isEmpty())
             return;

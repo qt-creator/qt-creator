@@ -189,7 +189,7 @@ void DebuggerPlugin::shutdown()
 {
     if (m_debugMode)
         m_debugMode->shutdown(); // saves state including manager information
-    QWB_ASSERT(m_manager, /**/);
+    QTC_ASSERT(m_manager, /**/);
     if (m_manager)
         m_manager->shutdown();
 
@@ -226,13 +226,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     m_pm = ExtensionSystem::PluginManager::instance();
 
     ICore *core = m_pm->getObject<Core::ICore>();
-    QWB_ASSERT(core, return false);
+    QTC_ASSERT(core, return false);
 
     Core::ActionManagerInterface *actionManager = core->actionManager();
-    QWB_ASSERT(actionManager, return false);
+    QTC_ASSERT(actionManager, return false);
 
     Core::UniqueIDManager *uidm = core->uniqueIDManager();
-    QWB_ASSERT(uidm, return false);
+    QTC_ASSERT(uidm, return false);
 
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
@@ -598,13 +598,13 @@ void DebuggerPlugin::querySessionValue(const QString &name, QVariant *value)
 
 void DebuggerPlugin::setConfigValue(const QString &name, const QVariant &value)
 {
-    QWB_ASSERT(m_debugMode, return);
+    QTC_ASSERT(m_debugMode, return);
     m_debugMode->settings()->setValue(name, value);
 }
 
 void DebuggerPlugin::queryConfigValue(const QString &name, QVariant *value)
 {
-    QWB_ASSERT(m_debugMode, return);
+    QTC_ASSERT(m_debugMode, return);
     *value = m_debugMode->settings()->value(name);
 }
 

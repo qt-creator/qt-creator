@@ -118,9 +118,9 @@ void DebuggerRunControl::start()
     m_running = true;
     ApplicationRunConfigurationPtr rc =
         qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration());
-    QWB_ASSERT(rc, return);
+    QTC_ASSERT(rc, return);
     ProjectExplorer::Project *project = rc->project();
-    QWB_ASSERT(project, return);
+    QTC_ASSERT(project, return);
 
     m_manager->m_executable = rc->executable();
     m_manager->m_environment = rc->environment().toStringList();

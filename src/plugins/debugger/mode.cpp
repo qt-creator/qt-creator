@@ -213,8 +213,8 @@ void DebugMode::focusCurrentEditor(IMode *mode)
 void DebugMode::writeSettings() const
 {
     QSettings *s = settings();
-    QWB_ASSERT(m_manager, return);
-    QWB_ASSERT(m_manager->mainWindow(), return);
+    QTC_ASSERT(m_manager, return);
+    QTC_ASSERT(m_manager->mainWindow(), return);
     s->beginGroup(QLatin1String("DebugMode"));
     s->setValue(QLatin1String("State"), m_manager->mainWindow()->saveState());
     s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());

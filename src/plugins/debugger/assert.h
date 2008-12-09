@@ -31,16 +31,16 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_QWB_ASSERT_H
-#define DEBUGGER_QWB_ASSERT_H
+#ifndef DEBUGGER_QTC_ASSERT_H
+#define DEBUGGER_QTC_ASSERT_H
 
 #ifdef Q_OS_UNIX
-#define QWB_ASSERT(cond, action) \
+#define QTC_ASSERT(cond, action) \
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
 #else
-#define QWB_ASSERT(cond, action) \
+#define QTC_ASSERT(cond, action) \
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
 #endif
 
-#endif // DEBUGGER_QWB_ASSERT_H
+#endif // DEBUGGER_QTC_ASSERT_H
 
