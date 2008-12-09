@@ -424,7 +424,7 @@ void CMakeCbpParser::parseTarget()
 
     if (attributes().hasAttribute("title"))
         m_target.title = attributes().value("title").toString();
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             if (m_targetType || m_target.title == "all") {
@@ -449,7 +449,7 @@ void CMakeCbpParser::parseTargetOption()
         m_targetType = true;
     else if (attributes().hasAttribute("working_dir"))
         m_target.workingDirectory = attributes().value("working_dir").toString();
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -463,7 +463,7 @@ void CMakeCbpParser::parseTargetOption()
 
 void CMakeCbpParser::parseMakeCommand()
 {
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -481,7 +481,7 @@ void CMakeCbpParser::parseTargetBuild()
 {
     if (attributes().hasAttribute("command"))
         m_target.makeCommand = attributes().value("command").toString();
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -495,7 +495,7 @@ void CMakeCbpParser::parseTargetClean()
 {
     if (attributes().hasAttribute("command"))
         m_target.makeCleanCommand = attributes().value("command").toString();
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
