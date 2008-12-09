@@ -97,8 +97,6 @@ Macro *Environment::bind(const Macro &__macro)
 
     Macro *m = new Macro (__macro);
     m->hashcode = hash_code(m->name);
-    m->fileName = current_file;
-    m->line = currentLine;
 
     if (++_macro_count == _allocated_macros) {
         if (! _allocated_macros)
@@ -122,11 +120,13 @@ Macro *Environment::bind(const Macro &__macro)
     return m;
 }
 
-Macro *Environment::remove (const QByteArray &name)
+Macro *Environment::remove(const QByteArray &name)
 {
     Macro macro;
     macro.name = name;
     macro.hidden = true;
+    macro.fileName = currentFile;
+    macro.line = currentLine;
     return bind(macro);
 }
 

@@ -390,17 +390,17 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type)
         } else {
             Document::Ptr previousDoc = switchDocument(Document::create(fileName));
 
-            const QByteArray previousFile = env.current_file;
+            const QByteArray previousFile = env.currentFile;
             const unsigned previousLine = env.currentLine;
 
-            env.current_file = QByteArray(m_currentDoc->translationUnit()->fileName(),
-                                          m_currentDoc->translationUnit()->fileNameLength());
+            env.currentFile = QByteArray(m_currentDoc->translationUnit()->fileName(),
+                                         m_currentDoc->translationUnit()->fileNameLength());
 
             QByteArray preprocessedCode;
             m_proc(contents, &preprocessedCode);
             //qDebug() << preprocessedCode;
 
-            env.current_file = previousFile;
+            env.currentFile = previousFile;
             env.currentLine = previousLine;
 
             m_currentDoc->setSource(preprocessedCode);
