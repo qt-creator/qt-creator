@@ -80,6 +80,7 @@ public:
     void setName(const QString &name);
 
     // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
+    // rename to createConfigurationWidget
     virtual QWidget *configurationWidget() = 0;
 
     virtual void save(PersistentSettingsWriter &writer) const;
@@ -112,7 +113,6 @@ public:
     // used to translate the types to names to display to the user
     virtual QString nameForType(const QString &type) const = 0;
     virtual QSharedPointer<RunConfiguration> create(Project *project, const QString &type) = 0;
-    
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationRunner : public QObject

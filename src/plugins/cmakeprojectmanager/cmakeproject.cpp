@@ -36,10 +36,13 @@
 #include "cmakeprojectnodes.h"
 #include "cmakestep.h"
 #include "makestep.h"
+#include "cmakerunconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
+#include <QProcess>
+#include <QDir>
 #include <QtCore/QDebug>
 
 using namespace CMakeProjectManager;
@@ -48,19 +51,30 @@ using namespace CMakeProjectManager::Internal;
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager), m_fileName(fileName), m_rootNode(new CMakeProjectNode(m_fileName))
 {
-    //TODO
+
     m_file = new CMakeFile(this, fileName);
     QDir dir = QFileInfo(m_fileName).absoluteDir();
     QString cbpFile = findCbpFile(dir);
     if (cbpFile.isEmpty())
         cbpFile = createCbpFile(dir);
 
+    //TODO move this parsing to a seperate method, which is also called if the CMakeList.txt is updated
     CMakeCbpParser cbpparser;
     if (cbpparser.parseCbpFile(cbpFile)) {
+        // TODO do a intelligent updating of the tree
         buildTree(m_rootNode, cbpparser.fileList());
         foreach(ProjectExplorer::FileNode *fn, cbpparser.fileList())
             m_files.append(fn->path());
         m_files.sort();
+
+        m_targets = cbpparser.targets();
+        qDebug()<<"Printing targets";
+        foreach(CMakeTarget ct, m_targets) {
+            qDebug()<<ct.title<<" with executable:"<<ct.executable;
+            qDebug()<<"WD:"<<ct.workingDirectory;
+            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
+            qDebug()<<"";
+        }
 
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
@@ -69,6 +83,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
             // TODO we only want C++ files, not all other stuff that might be in the project
             pinfo.sourceFiles = m_files;
             // TODO defines
+            // TODO gcc preprocessor files
             modelmanager->updateProjectInfo(pinfo);
         }
     } else {
@@ -96,16 +111,20 @@ QString CMakeProject::findCbpFile(const QDir &directory)
     return QString::null;
 }
 
-
-QString CMakeProject::createCbpFile(const QDir &)
+QString CMakeProject::createCbpFile(const QDir &directory)
 {
-    // TODO create a cbp file.
-    //  Issue: Where to create it? We want to do that in the build directory
-    //         but at this stage we don't know the build directory yet
-    //         So create it in a temp directory?
-    //  Issue: We want to reuse whatever CMakeCache.txt that is alread there, which
-    //         would indicate, creating it in the build directory
-    //         Or we could use a temp directory and use -C builddirectory
+    // We create a cbp file, only if we didn't find a cbp file in the base directory
+    // Yet that can still override cbp files in subdirectories
+    // And we are creating tons of files in the source directories
+    // All of that is not really nice.
+    // The mid term plan is to move away from the CodeBlocks Generator and use our own
+    // QtCreator generator, which actually can be very similar to the CodeBlock Generator
+
+    // TODO we need to pass on the same paremeters as the cmakestep
+    QProcess cmake;
+    cmake.setWorkingDirectory(directory.absolutePath());
+    cmake.start("cmake", QStringList() << "-GCodeBlocks - Unix Makefiles");
+
     return QString::null;
 }
 
@@ -227,27 +246,35 @@ QStringList CMakeProject::files(FilesMode fileMode) const
 void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
     // TODO
-    Q_UNUSED(writer);
+    Project::saveSettingsImpl(writer);
 }
 
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     // TODO
-    Q_UNUSED(reader);
+    Project::restoreSettingsImpl(reader);
     if (buildConfigurations().isEmpty()) {
         // No build configuration, adding those
-
-        // TODO do we want to create one build configuration per target?
-        // or how do we want to handle that?
-
         CMakeStep *cmakeStep = new CMakeStep(this);
         MakeStep *makeStep = new MakeStep(this);
 
         insertBuildStep(0, cmakeStep);
         insertBuildStep(1, makeStep);
 
-        addBuildConfiguration("all");
+        // Create build configurations of m_targets
+        qDebug()<<"Create build configurations of m_targets";
+        foreach(const CMakeTarget &ct, m_targets) {
+            addBuildConfiguration(ct.title);
+            makeStep->setValue(ct.title, "makeCommand", ct.makeCommand);
+            makeStep->setValue(ct.title, "makeCleanCommand", ct.makeCleanCommand);
+
+            QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory));
+            // TODO set build configuration to build before it can be run
+            addRunConfiguration(rc);
+            setActiveRunConfiguration(rc); // TODO what exactly shall be the active run configuration?
+        }
         setActiveBuildConfiguration("all");
+
     }
     // Restoring is fine
 }
@@ -394,14 +421,16 @@ void CMakeCbpParser::parseBuild()
 
 void CMakeCbpParser::parseTarget()
 {
-    m_targetOutput.clear();
     m_targetType = false;
+    m_target.clear();
+
+    if (attributes().hasAttribute("title"))
+        m_target.title = attributes().value("title").toString();
     while(!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_targetType && !m_targetOutput.isEmpty()) {
-                qDebug()<<"found target "<<m_targetOutput;
-                m_targets.insert(m_targetOutput);
+            if (m_targetType || m_target.title == "all") {
+                m_targets.append(m_target);
             }
             return;
         } else if (name() == "Compiler") {
@@ -417,9 +446,57 @@ void CMakeCbpParser::parseTarget()
 void CMakeCbpParser::parseTargetOption()
 {
     if (attributes().hasAttribute("output"))
-        m_targetOutput = attributes().value("output").toString();
+        m_target.executable = attributes().value("output").toString();
     else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
         m_targetType = true;
+    else if (attributes().hasAttribute("working_dir"))
+        m_target.workingDirectory = attributes().value("working_dir").toString();
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "MakeCommand") {
+            parseMakeCommand();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseMakeCommand()
+{
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (name() == "Build") {
+            parseTargetBuild();
+        } else if (name() == "Clean") {
+            parseTargetClean();
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseTargetBuild()
+{
+    if (attributes().hasAttribute("command"))
+        m_target.makeCommand = attributes().value("command").toString();
+    while(!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+void CMakeCbpParser::parseTargetClean()
+{
+    if (attributes().hasAttribute("command"))
+        m_target.makeCleanCommand = attributes().value("command").toString();
     while(!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -497,3 +574,18 @@ QStringList CMakeCbpParser::includeFiles()
 {
     return m_includeFiles;
 }
+
+QList<CMakeTarget> CMakeCbpParser::targets()
+{
+    return m_targets;
+}
+
+void CMakeTarget::clear()
+{
+    executable = QString::null;
+    makeCommand = QString::null;
+    makeCleanCommand = QString::null;
+    workingDirectory = QString::null;
+    title = QString::null;
+}
+

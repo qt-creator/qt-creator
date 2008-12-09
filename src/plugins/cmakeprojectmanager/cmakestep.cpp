@@ -61,6 +61,11 @@ bool CMakeStep::init(const QString &buildConfiguration)
 
 void CMakeStep::run(QFutureInterface<bool> &fi)
 {
+    // TODO we want to only run cmake if the command line arguments or
+    // the CmakeLists.txt has actually changed
+    // And we want all of them to share the SAME command line arguments
+    // Shadow building ruins this, hmm, hmm
+    //
     AbstractProcessStep::run(fi);
 }
 

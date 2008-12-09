@@ -33,6 +33,7 @@
 
 #include "cmakeprojectplugin.h"
 #include "cmakeprojectmanager.h"
+#include "cmakerunconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -57,6 +58,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), errorMessage))
         return false;
     addAutoReleasedObject(new CMakeManager());
+    addAutoReleasedObject(new CMakeRunConfigurationFactory());
     return true;
 }
 
