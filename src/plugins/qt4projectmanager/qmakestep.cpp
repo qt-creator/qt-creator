@@ -40,6 +40,7 @@
 #include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QFileDialog>
 #include <QDir>
@@ -233,7 +234,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
-    Q_ASSERT(!m_buildConfiguration.isNull());
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
     m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
 }

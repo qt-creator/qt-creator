@@ -38,12 +38,15 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
+
 #include <QtScript/QScriptEngine>
 
 namespace {
@@ -107,7 +110,7 @@ QString CorePrototype::toString() const
 CorePrototype::ICore *CorePrototype::callee() const
 {
     ICore *rc = qscriptvalue_cast<ICore *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
 }
 
@@ -121,14 +124,14 @@ MessageManagerPrototype::MessageManagerPrototype(QObject *parent) :
 void MessageManagerPrototype::displayStatusBarMessage(const QString &text, int ms)
 {
     MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
-    Q_ASSERT(mm);
+    QTC_ASSERT(mm, return);
     mm->displayStatusBarMessage(text, ms);
 }
 
 void MessageManagerPrototype::printToOutputPane(const QString &text, bool bringToForeground)
 {
     MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
-    Q_ASSERT(mm);
+    QTC_ASSERT(mm, return);
     mm->printToOutputPane(text, bringToForeground);
 }
 
@@ -147,28 +150,66 @@ FileManagerPrototype::FileManagerPrototype(QObject *parent) :
 FileManager *FileManagerPrototype::callee() const
 {
     FileManager *rc = qscriptvalue_cast<FileManager *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
 }
 
-bool FileManagerPrototype::addFiles(const QList<Core::IFile *> &files) { return callee()->addFiles(files); }
-bool FileManagerPrototype::addFile(Core::IFile *file) { return callee()->addFile(file); }
-bool FileManagerPrototype::removeFile(Core::IFile *file) { return callee()->removeFile(file); }
+bool FileManagerPrototype::addFiles(const QList<Core::IFile *> &files)
+{
+    return callee()->addFiles(files);
+}
+
+bool FileManagerPrototype::addFile(Core::IFile *file)
+{
+    return callee()->addFile(file);
+}
+
+bool FileManagerPrototype::removeFile(Core::IFile *file)
+{
+    return callee()->removeFile(file);
+}
 
 QList<Core::IFile*>
-    FileManagerPrototype::saveModifiedFilesSilently(const QList<Core::IFile*> &files) { return callee()->saveModifiedFilesSilently(files); }
+FileManagerPrototype::saveModifiedFilesSilently(const QList<Core::IFile*> &files)
+{
+    return callee()->saveModifiedFilesSilently(files);
+}
 
-QString FileManagerPrototype::getSaveAsFileName(Core::IFile *file) { return callee()->getSaveAsFileName(file); }
+QString FileManagerPrototype::getSaveAsFileName(Core::IFile *file)
+{
+    return callee()->getSaveAsFileName(file);
+}
 
-bool FileManagerPrototype::isFileManaged(const QString &fileName) const { return callee()->isFileManaged(fileName); }
+bool FileManagerPrototype::isFileManaged(const QString &fileName) const
+{
+    return callee()->isFileManaged(fileName);
+}
+
 QList<Core::IFile *>
-    FileManagerPrototype::managedFiles(const QString &fileName) const { return callee()->managedFiles(fileName); }
+FileManagerPrototype::managedFiles(const QString &fileName) const
+{
+    return callee()->managedFiles(fileName);
+}
 
-void FileManagerPrototype::blockFileChange(Core::IFile *file) { callee()->blockFileChange(file); }
-void FileManagerPrototype::unblockFileChange(Core::IFile *file) { return callee()->unblockFileChange(file); }
+void FileManagerPrototype::blockFileChange(Core::IFile *file)
+{
+    callee()->blockFileChange(file);
+}
 
-void FileManagerPrototype::addToRecentFiles(const QString &fileName) { return callee()->addToRecentFiles(fileName); }
-QStringList FileManagerPrototype::recentFiles() const { return callee()->recentFiles(); }
+void FileManagerPrototype::unblockFileChange(Core::IFile *file)
+{
+    return callee()->unblockFileChange(file);
+}
+
+void FileManagerPrototype::addToRecentFiles(const QString &fileName)
+{
+    return callee()->addToRecentFiles(fileName);
+}
+
+QStringList FileManagerPrototype::recentFiles() const
+{
+    return callee()->recentFiles();
+}
 
 QString FileManagerPrototype::toString() const
 {
@@ -185,7 +226,7 @@ FilePrototype::FilePrototype(QObject *parent) :
 IFile *FilePrototype::callee() const
 {
     IFile *rc = qscriptvalue_cast<IFile *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
 }
 
@@ -270,39 +311,66 @@ QString EditorManagerPrototype::toString() const
 EditorManagerPrototype::EditorManager *EditorManagerPrototype::callee() const
 {
     EditorManager *rc = qscriptvalue_cast<EditorManager *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
-
 }
 
 // ------------- EditorPrototype
 
-EditorPrototype::EditorPrototype(QObject *parent) :
-    QObject(parent)
+EditorPrototype::EditorPrototype(QObject *parent)
+  : QObject(parent)
 {
 }
 
-QString EditorPrototype::displayName() const { return callee()->displayName(); }
-void EditorPrototype::setDisplayName(const QString &title) { callee()->setDisplayName(title); }
+QString EditorPrototype::displayName() const
+{
+    return callee()->displayName();
+}
 
-QString EditorPrototype::kind() const { return  QLatin1String(callee()->kind()); }
-bool EditorPrototype::duplicateSupported() const { return callee()->duplicateSupported(); }
+void EditorPrototype::setDisplayName(const QString &title)
+{
+    callee()->setDisplayName(title);
+}
 
-bool EditorPrototype::createNew(const QString &contents) { return callee()->createNew(contents); }
-bool EditorPrototype::open(const QString &fileName) { return callee()->open(fileName); }
+QString EditorPrototype::kind() const
+{
+    return  QLatin1String(callee()->kind());
+}
+
+bool EditorPrototype::duplicateSupported() const
+{
+    return callee()->duplicateSupported();
+}
+
+bool EditorPrototype::createNew(const QString &contents)
+{
+    return callee()->createNew(contents);
+}
+
+bool EditorPrototype::open(const QString &fileName)
+{
+    return callee()->open(fileName);
+}
 
 Core::IEditor *EditorPrototype::duplicate(QWidget *parent)
 {
     return callee()->duplicate(parent);
 }
 
-Core::IFile *EditorPrototype::file() const { return callee()->file(); }
-QToolBar* EditorPrototype::toolBar() const { return callee()->toolBar();}
+Core::IFile *EditorPrototype::file() const
+{
+    return callee()->file();
+}
+
+QToolBar* EditorPrototype::toolBar() const
+{
+    return callee()->toolBar();
+}
 
 Core::IEditor *EditorPrototype::callee() const
 {
     IEditor *rc = qscriptvalue_cast<IEditor *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
 }
 
@@ -375,7 +443,7 @@ QString EditorGroupPrototype::toString() const
 Core::EditorGroup *EditorGroupPrototype::callee() const
 {
     EditorGroup *rc = qscriptvalue_cast<EditorGroup *>(thisObject());
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     return rc;
 }
 

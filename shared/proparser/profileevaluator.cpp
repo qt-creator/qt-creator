@@ -35,6 +35,8 @@
 #include "proparserutils.h"
 #include "proitems.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -683,7 +685,7 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
     QString text = func->text();
     int lparen = text.indexOf(QLatin1Char('('));
     int rparen = text.lastIndexOf(QLatin1Char(')'));
-    Q_ASSERT(lparen < rparen);
+    QTC_ASSERT(lparen < rparen, return false);
 
     QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
     QString funcName = text.left(lparen);

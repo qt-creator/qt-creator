@@ -32,16 +32,20 @@
 ***************************************************************************/
 
 #include "resourceview.h"
+
 #include "undocommands_p.h"
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QMenu>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
+
 #include <QtGui/QAction>
-#include <QtGui/QMouseEvent>
 #include <QtGui/QApplication>
-#include <QtGui/QInputDialog>
 #include <QtGui/QFileDialog>
-#include <QtCore/QtDebug>
+#include <QtGui/QHeaderView>
+#include <QtGui/QInputDialog>
+#include <QtGui/QMenu>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QUndoStack>
 
 namespace SharedTools {
@@ -308,14 +312,14 @@ void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &pa
 
 EntryBackup * ResourceView::removeEntry(const QModelIndex &index)
 {
-    Q_ASSERT(m_qrcModel != NULL);
+    QTC_ASSERT(m_qrcModel, return 0);
     return m_qrcModel->removeEntry(index);
 }
 
 void ResourceView::addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
         int &firstFile, int &lastFile)
 {
-    Q_ASSERT(m_qrcModel != NULL);
+    QTC_ASSERT(m_qrcModel, return);
     m_qrcModel->addFiles(prefixIndex, fileNames, cursorFile, firstFile, lastFile);
 
     // Expand prefix node
@@ -327,11 +331,11 @@ void ResourceView::addFiles(int prefixIndex, const QStringList &fileNames, int c
 
 void ResourceView::removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex)
 {
-    Q_ASSERT((prefixIndex >= 0) && (prefixIndex < m_qrcModel->rowCount(QModelIndex())));
+    QTC_ASSERT(prefixIndex >= 0 && prefixIndex < m_qrcModel->rowCount(QModelIndex()), return);
     const QModelIndex prefixModelIndex = m_qrcModel->index(prefixIndex, 0, QModelIndex());
-    Q_ASSERT(prefixModelIndex != QModelIndex());
-    Q_ASSERT((firstFileIndex >= 0) && (firstFileIndex < m_qrcModel->rowCount(prefixModelIndex)));
-    Q_ASSERT((lastFileIndex >= 0) && (lastFileIndex < m_qrcModel->rowCount(prefixModelIndex)));
+    QTC_ASSERT(prefixModelIndex != QModelIndex(), return);
+    QTC_ASSERT(firstFileIndex >= 0 && firstFileIndex < m_qrcModel->rowCount(prefixModelIndex), return);
+    QTC_ASSERT(lastFileIndex >= 0 && lastFileIndex < m_qrcModel->rowCount(prefixModelIndex), return);
 
     for (int i = lastFileIndex; i >= firstFileIndex; i--) {
         const QModelIndex index = m_qrcModel->index(i, 0, prefixModelIndex);
@@ -568,7 +572,7 @@ QString ResourceView::getCurrentValue(NodeProperty property) const
     case AliasProperty: return currentAlias();
     case PrefixProperty: return currentPrefix();
     case LanguageProperty: return currentLanguage();
-    default: Q_ASSERT(false); return QString(); // Kill warning
+    default: QTC_ASSERT(false, /**/); return QString(); // Kill warning
     }
 }
 
@@ -579,7 +583,7 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     case AliasProperty: m_qrcModel->changeAlias(nodeIndex, value); return;
     case PrefixProperty: m_qrcModel->changePrefix(nodeIndex, value); return;
     case LanguageProperty: m_qrcModel->changeLang(nodeIndex, value); return;
-    default: Q_ASSERT(false);
+    default: QTC_ASSERT(false, /**/);
     }
 }
 

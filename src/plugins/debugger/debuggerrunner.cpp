@@ -34,16 +34,18 @@
 #include "debuggerrunner.h"
 
 #include "debuggermanager.h"
-#include "qtcassert.h"
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+
 #include <QtGui/QTextDocument>
 
 using namespace Debugger::Internal;
@@ -76,11 +78,10 @@ QString DebuggerRunner::displayName() const
 
 RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration, const QString &mode)
 {
-    Q_UNUSED(mode);
-    Q_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE);
+    QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     ApplicationRunConfigurationPtr rc =
         qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
-    Q_ASSERT(rc);
+    QTC_ASSERT(rc, return 0);
     //qDebug() << "***** Debugging" << rc->name() << rc->executable();
     return new DebuggerRunControl(m_manager, rc);
 }

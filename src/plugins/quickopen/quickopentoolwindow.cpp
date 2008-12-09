@@ -51,6 +51,7 @@ QT_END_NAMESPACE
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <utils/fancylineedit.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
@@ -452,9 +453,9 @@ void QuickOpenToolWindow::filterSelected()
 {
     const char * const TEXT = "<type here>";
     QAction *action = qobject_cast<QAction*>(sender());
-    Q_ASSERT(action);
+    QTC_ASSERT(action, return);
     IQuickOpenFilter *filter = action->data().value<IQuickOpenFilter*>();
-    Q_ASSERT(filter);
+    QTC_ASSERT(filter, return);
     show(filter->shortcutString() + " " + TEXT,
          filter->shortcutString().length() + 1,
          QString(TEXT).length());

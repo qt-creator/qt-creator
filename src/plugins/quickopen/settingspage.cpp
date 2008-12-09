@@ -32,13 +32,15 @@
 ***************************************************************************/
 
 #include "settingspage.h"
+
 #include "quickopenplugin.h"
 #include "iquickopenfilter.h"
 #include "directoryfilter.h"
 
-#include <QtGui/QMessageBox>
-
 #include <qtconcurrent/QtConcurrentTools>
+#include <utils/qtcassert.h>
+
+#include <QtGui/QMessageBox>
 
 Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*)
 
@@ -46,7 +48,7 @@ using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
 SettingsPage::SettingsPage(Core::ICore *core, QuickOpenPlugin *plugin)
-        : m_core(core), m_plugin(plugin), m_page(0)
+    : m_core(core), m_plugin(plugin), m_page(0)
 {
 }
 
@@ -144,9 +146,10 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 {
     if (!item)
         item = m_ui.filterList->currentItem();
-    Q_ASSERT(item);
+    QTC_ASSERT(item, return);
     IQuickOpenFilter *filter = item->data(Qt::UserRole).value<IQuickOpenFilter *>();
-    Q_ASSERT(filter);
+    QTC_ASSERT(filter, return);
+
     if (!filter->isConfigurable())
         return;
     bool needsRefresh = false;
@@ -172,9 +175,9 @@ void SettingsPage::addCustomFilter()
 void SettingsPage::removeCustomFilter()
 {
     QListWidgetItem *item = m_ui.filterList->currentItem();
-    Q_ASSERT(item);
+    QTC_ASSERT(item, return);
     IQuickOpenFilter *filter = item->data(Qt::UserRole).value<IQuickOpenFilter *>();
-    Q_ASSERT(m_customFilters.contains(filter));
+    QTC_ASSERT(m_customFilters.contains(filter), return);
     m_filters.removeAll(filter);
     m_customFilters.removeAll(filter);
     m_refreshFilters.removeAll(filter);

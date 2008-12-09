@@ -32,15 +32,18 @@
 ***************************************************************************/
 
 #include "editorsplitter.h"
+
 #include "editormanager.h"
+#include "minisplitter.h"
 #include "openeditorswindow.h"
 #include "stackededitorgroup.h"
-#include "minisplitter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
@@ -160,7 +163,7 @@ void EditorSplitter::registerActions()
 void EditorSplitter::updateActions()
 {
     const bool hasMultipleGroups = (qobject_cast<QSplitter*>(m_root) != 0);
-    Q_ASSERT(currentGroup());
+    QTC_ASSERT(currentGroup(), return);
     const bool hasEditors = (currentGroup()->editorCount() != 0);
     m_unsplitAction->setEnabled(hasMultipleGroups);
 #if 0
@@ -245,7 +248,7 @@ void EditorSplitter::collectGroups(QWidget *widget, QList<EditorGroup*> &groups)
         return;
     }
     QSplitter *splitter = qobject_cast<QSplitter*>(widget);
-    Q_ASSERT(splitter);
+    QTC_ASSERT(splitter, return);
     collectGroups(splitter->widget(LEFT), groups);
     collectGroups(splitter->widget(RIGHT), groups);
 }
@@ -330,7 +333,7 @@ void EditorSplitter::unsplit()
     if (!curGroup)
         return;
     QWidget *curGroupWidget = curGroup->widget();
-    Q_ASSERT(curGroupWidget);
+    QTC_ASSERT(curGroupWidget, return);
     IEditor *selectedEditor = curGroup->currentEditor();
 
     QSplitter *parentSplitter = qobject_cast<QSplitter*>(curGroupWidget->parentWidget());
@@ -454,25 +457,25 @@ EditorGroup *EditorSplitter::groupFarthestOnSide(QWidget *node, Side side) const
 void EditorSplitter::selectNextGroup()
 {
     EditorGroup *curGroup = currentGroup();
-    Q_ASSERT(curGroup);
+    QTC_ASSERT(curGroup, return);
     setCurrentGroup(nextGroup(curGroup, RIGHT));
 }
 
 void EditorSplitter::selectPreviousGroup()
 {
     EditorGroup *curGroup = currentGroup();
-    Q_ASSERT(curGroup);
+    QTC_ASSERT(curGroup, return);
     setCurrentGroup(nextGroup(curGroup, LEFT));
 }
 
 EditorGroup *EditorSplitter::nextGroup(EditorGroup *curGroup, Side side) const
 {
-    Q_ASSERT(curGroup);
+    QTC_ASSERT(curGroup, return 0);
     QWidget *curWidget = curGroup->widget();
     QWidget *parent = curWidget->parentWidget();
     while (curWidget != m_root) {
         QSplitter *splitter = qobject_cast<QSplitter *>(parent);
-        Q_ASSERT(splitter);
+        QTC_ASSERT(splitter, return 0);
         if (splitter->widget(side) != curWidget) {
             curWidget = splitter->widget(side);
             break;
@@ -486,7 +489,7 @@ EditorGroup *EditorSplitter::nextGroup(EditorGroup *curGroup, Side side) const
 void EditorSplitter::moveDocToAdjacentGroup(Side side)
 {
     EditorGroup *curGroup = currentGroup();
-    Q_ASSERT(curGroup);
+    QTC_ASSERT(curGroup, return);
     IEditor *editor = curGroup->currentEditor();
     if (!editor)
         return;
@@ -510,7 +513,7 @@ QWidget *EditorSplitter::recreateGroupTree(QWidget *node)
     QSplitter *splitter = qobject_cast<QSplitter *>(node);
     if (!splitter) {
         EditorGroup *group = qobject_cast<EditorGroup *>(node);
-        Q_ASSERT(group);
+        QTC_ASSERT(group, return 0);
         IEditor *currentEditor = group->currentEditor();
         EditorGroup *newGroup = createGroup();
         bool block = newGroup->widget()->blockSignals(true);
@@ -588,7 +591,7 @@ void EditorSplitter::saveState(QWidget *current, QDataStream &stream) const
         saveState(splitter->widget(1), stream);
     } else {
         EditorGroup *group = qobject_cast<EditorGroup *>(current);
-        Q_ASSERT(group);
+        QTC_ASSERT(group, /**/);
         if (group != currentGroup())
             type = 1;
         else
@@ -639,7 +642,7 @@ void EditorSplitter::fillPathGroupMap(QWidget *current, QString currentPath,
         map.insert(currentPath, group);
     } else {
         QSplitter *splitter = qobject_cast<QSplitter *>(current);
-        Q_ASSERT(splitter);
+        QTC_ASSERT(splitter, return);
         fillPathGroupMap(splitter->widget(0), currentPath+"0", map);
         fillPathGroupMap(splitter->widget(1), currentPath+"1", map);
     }

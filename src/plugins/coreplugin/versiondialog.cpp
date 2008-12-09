@@ -32,20 +32,24 @@
 ***************************************************************************/
 
 #include "versiondialog.h"
+
 #include "coreconstants.h"
 #include "coreimpl.h"
+
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDate>
+#include <QtCore/QFile>
+
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+#include <QtGui/QTextBrowser>
 
 using namespace Core;
 using namespace Core::Internal;
 using namespace Core::Constants;
-
-#include <QtCore/QDate>
-#include <QtCore/QFile>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QTextBrowser>
 
 VersionDialog::VersionDialog(QWidget *parent)
     : QDialog(parent)
@@ -90,7 +94,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     QPushButton *closeButton = buttonBox->button(QDialogButtonBox::Close);
-    Q_ASSERT(closeButton);
+    QTC_ASSERT(closeButton, /**/);
     buttonBox->addButton(closeButton, QDialogButtonBox::ButtonRole(QDialogButtonBox::RejectRole | QDialogButtonBox::AcceptRole));
     connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
 
@@ -118,7 +122,7 @@ void VersionDialog::popupLicense()
 
     // Read file into string
     ICore * core = CoreImpl::instance();
-    Q_ASSERT(core != NULL);
+    QTC_ASSERT(core, return);
     QString fileName = core->resourcePath() + "/license.txt";
     QFile file(fileName);
 

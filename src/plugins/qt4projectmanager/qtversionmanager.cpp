@@ -39,14 +39,16 @@
 
 #include <coreplugin/coreconstants.h>
 #include <help/helpplugin.h>
+#include <utils/qtcassert.h>
 
+#include <QtCore/QDebug>
+#include <QtCore/QProcess>
 #include <QtCore/QSettings>
 #include <QtCore/QStringRef>
 #include <QtCore/QTime>
-#include <QtCore/QProcess>
-#include <QtGui/QHeaderView>
+
 #include <QtGui/QFileDialog>
-#include <QtCore/QDebug>
+#include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
 
 using namespace Qt4ProjectManager::Internal;
@@ -114,9 +116,7 @@ void QtVersionManager::addVersion(QtVersion *version)
 void QtVersionManager::updateDocumentation()
 {
     Help::HelpManager *helpManager = m_core->pluginManager()->getObject<Help::HelpManager>();
-    Q_ASSERT(helpManager);
-    if (!helpManager)
-        return;
+    QTC_ASSERT(helpManager, return);
     QStringList fileEndings = QStringList() << "/qch/qt.qch" << "/qch/qmake.qch" << "/qch/designer.qch";
     QStringList files;
     foreach (QtVersion *version, m_versions) {
@@ -596,7 +596,7 @@ void QtDirWidget::defaultChanged(int)
 void QtDirWidget::updateCurrentQtName()
 {
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
+    QTC_ASSERT(currentItem, return);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     m_versions[currentItemIndex]->setName(m_ui.nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->name());
@@ -645,7 +645,7 @@ void QtDirWidget::fixQtVersionName(int index)
 void QtDirWidget::updateCurrentQtPath()
 {
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
+    QTC_ASSERT(currentItem, return);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     m_versions[currentItemIndex]->setPath(m_ui.pathEdit->text());
     currentItem->setText(1, m_versions[currentItemIndex]->path());
@@ -656,7 +656,7 @@ void QtDirWidget::updateCurrentQtPath()
 void QtDirWidget::updateCurrentMingwDirectory()
 {
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
+    QTC_ASSERT(currentItem, return);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     m_versions[currentItemIndex]->setMingwDirectory(m_ui.mingwLineEdit->text());
 }
@@ -665,7 +665,7 @@ void QtDirWidget::msvcVersionChanged()
 {
     const QString &msvcVersion = m_ui.msvcComboBox->currentText();
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
+    QTC_ASSERT(currentItem, return);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
 

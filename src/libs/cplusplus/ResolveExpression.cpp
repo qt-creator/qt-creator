@@ -45,12 +45,14 @@
 #include <TypeVisitor.h>
 #include <NameVisitor.h>
 
-#include <QList>
-#include <QtDebug>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QList>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
 
-namespace  {
+namespace {
 
 typedef QList< QPair<Name *, FullySpecifiedType> > Substitution;
 
@@ -98,7 +100,7 @@ protected:
     // types
     virtual void visit(PointerToMemberType * /*ty*/)
     {
-        Q_ASSERT(0);
+        QTC_ASSERT(false, /**/);
     }
 
     virtual void visit(PointerType *ty)
@@ -150,32 +152,32 @@ protected:
     { /* nothing to do*/ }
 
     virtual void visit(Namespace *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(Class *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(Enum *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     // names
     virtual void visit(NameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(TemplateNameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(DestructorNameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(OperatorNameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(ConversionNameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 
     virtual void visit(QualifiedNameId *)
-    { Q_ASSERT(0); }
+    { QTC_ASSERT(false, /**/); }
 };
 
 } // end of anonymous namespace

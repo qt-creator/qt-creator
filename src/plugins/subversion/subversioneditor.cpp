@@ -32,9 +32,11 @@
 ***************************************************************************/
 
 #include "subversioneditor.h"
+
 #include "annotationhighlighter.h"
 #include "subversionconstants.h"
 
+#include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
 #include <QtCore/QDebug>
@@ -49,8 +51,8 @@ SubversionEditor::SubversionEditor(const VCSBase::VCSBaseEditorParameters *type,
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_revisionNumberPattern(QLatin1String("^r\\d+$"))
 {
-    Q_ASSERT(m_changeNumberPattern.isValid());
-    Q_ASSERT(m_revisionNumberPattern.isValid());
+    QTC_ASSERT(m_changeNumberPattern.isValid(), return);
+    QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
 }
 
 QSet<QString> SubversionEditor::annotationChanges() const
@@ -61,11 +63,11 @@ QSet<QString> SubversionEditor::annotationChanges() const
         return changes;
     // Hunt for first change number in annotation: "<change>:"
     QRegExp r(QLatin1String("^(\\d+):"));
-    Q_ASSERT(r.isValid());
+    QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
         r.setPattern(QLatin1String("\n(\\d+):"));
-        Q_ASSERT(r.isValid());
+        QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {
             pos += r.matchedLength();
@@ -108,7 +110,7 @@ QString SubversionEditor::changeUnderCursor(const QTextCursor &c) const
 VCSBase::DiffHighlighter *SubversionEditor::createDiffHighlighter() const
 {
     const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*|^Index: .*|^==*$"));
-    Q_ASSERT(filePattern.isValid());
+    QTC_ASSERT(filePattern.isValid(), /**/);
     return new VCSBase::DiffHighlighter(filePattern);
 }
 

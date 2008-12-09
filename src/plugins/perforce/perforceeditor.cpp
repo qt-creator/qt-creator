@@ -32,26 +32,28 @@
 ***************************************************************************/
 
 #include "perforceeditor.h"
+
 #include "annotationhighlighter.h"
-#include "perforceplugin.h"
 #include "perforceconstants.h"
 #include "perforceplugin.h"
 
-#include <vcsbase/diffhighlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
+#include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QSet>
-#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QRegExp>
+#include <QtCore/QSet>
+#include <QtCore/QTextStream>
+
+#include <QtGui/QAction>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLayout>
-#include <QtGui/QTextEdit>
 #include <QtGui/QMenu>
-#include <QtGui/QAction>
 #include <QtGui/QTextCursor>
-#include <QtCore/QProcess>
+#include <QtGui/QTextEdit>
 
 namespace Perforce {
 namespace Internal {
@@ -63,7 +65,7 @@ PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {
-    Q_ASSERT(m_changeNumberPattern.isValid());
+    QTC_ASSERT(m_changeNumberPattern.isValid(), /**/);
     if (Perforce::Constants::debug)
         qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->kind;
 }
@@ -76,11 +78,11 @@ QSet<QString> PerforceEditor::annotationChanges() const
         return changes;
     // Hunt for first change number in annotation: "<change>:"
     QRegExp r(QLatin1String("^(\\d+):"));
-    Q_ASSERT(r.isValid());
+    QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
         r.setPattern(QLatin1String("\n(\\d+):"));
-        Q_ASSERT(r.isValid());
+        QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {
             pos += r.matchedLength();

@@ -100,7 +100,7 @@ public:
     ~PerforcePlugin();
 
     QStringList basicP4Args() const;
-    inline SettingsPage *settingsPage() const { return m_settingsPage; }
+    SettingsPage *settingsPage() const { return m_settingsPage; }
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
@@ -117,8 +117,8 @@ public:
 
     Core::IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
-    static Core::ICore *coreInstance() {Q_ASSERT(m_coreInstance); return m_coreInstance;}
-    static PerforcePlugin *perforcePluginInstance() {Q_ASSERT(m_perforcePluginInstance); return m_perforcePluginInstance;}
+    static Core::ICore *coreInstance();
+    static PerforcePlugin *perforcePluginInstance();
 
     PerforceSettings settings() const;
     void setSettings(const PerforceSettings &s);

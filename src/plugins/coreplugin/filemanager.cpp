@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "filemanager.h"
+
 #include "ifile.h"
 #include "mainwindow.h"
 #include "saveitemsdialog.h"
@@ -39,6 +40,8 @@
 #include "editormanager.h"
 #include "mimedatabase.h"
 #include "iversioncontrol.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -177,22 +180,20 @@ bool FileManager::removeFile(IFile *file)
 
 void FileManager::addWatch(const QString &filename)
 {
-    if (!filename.isEmpty() && managedFiles(filename).isEmpty()) {
+    if (!filename.isEmpty() && managedFiles(filename).isEmpty())
         m_fileWatcher->addPath(filename);
-    }
 }
 
 void FileManager::removeWatch(const QString &filename)
 {
-    if (!filename.isEmpty() && managedFiles(filename).isEmpty()) {
+    if (!filename.isEmpty() && managedFiles(filename).isEmpty())
         m_fileWatcher->removePath(filename);
-    }
 }
 
 void FileManager::checkForNewFileName()
 {
     IFile *file = qobject_cast<IFile *>(sender());
-    Q_ASSERT(file);
+    QTC_ASSERT(file, return);
     const QString newfilename = fixFileName(file->fileName());
     const QString oldfilename = m_managedFiles.value(file).fileName;
     if (!newfilename.isEmpty() && newfilename != oldfilename) {

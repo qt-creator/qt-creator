@@ -32,14 +32,17 @@
 ***************************************************************************/
 
 #include "modulespage.h"
+
 #include "speinfo.h"
 
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
-#include <QtGui/QCheckBox>
-#include <QtGui/QWidget>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+
+#include <QtGui/QCheckBox>
+#include <QtGui/QLabel>
+#include <QtGui/QLayout>
+#include <QtGui/QWidget>
 
 #include <math.h>
 
@@ -101,17 +104,15 @@ QString ModulesPage::deselectedModules() const
 void ModulesPage::setModuleSelected(const QString &module, bool selected) const
 {
     QCheckBox *checkBox = m_moduleCheckBoxMap[module];
-    Q_ASSERT(checkBox);
-    if (checkBox)
-        checkBox->setCheckState(selected?Qt::Checked:Qt::Unchecked);
+    QTC_ASSERT(checkBox, return);
+    checkBox->setCheckState(selected?Qt::Checked:Qt::Unchecked);
 }
 
 void ModulesPage::setModuleEnabled(const QString &module, bool enabled) const
 {
     QCheckBox *checkBox = m_moduleCheckBoxMap[module];
-    Q_ASSERT(checkBox);
-    if (checkBox)
-        checkBox->setEnabled(enabled);
+    QTC_ASSERT(checkBox, return);
+    checkBox->setEnabled(enabled);
 }
 
 QString ModulesPage::modules(bool selected) const

@@ -52,11 +52,14 @@
 
 #include "pp-environment.h"
 #include "pp.h"
+
+#include <utils/qtcassert.h>
+
 #include <cstring>
 
 using namespace CPlusPlus;
 
-Environment::Environment ()
+Environment::Environment()
     : currentLine(0),
       hide_next(false),
       _macros(0),
@@ -67,7 +70,7 @@ Environment::Environment ()
 {
 }
 
-Environment::~Environment ()
+Environment::~Environment()
 {
     if (_macros) {
         qDeleteAll(firstMacro(), lastMacro());
@@ -78,15 +81,19 @@ Environment::~Environment ()
         free(_hash);
 }
 
-unsigned Environment::macroCount () const
-{ return _macro_count + 1; }
+unsigned Environment::macroCount() const
+{
+    return _macro_count + 1;
+}
 
-Macro *Environment::macroAt (unsigned index) const
-{ return _macros[index]; }
+Macro *Environment::macroAt(unsigned index) const
+{
+    return _macros[index];
+}
 
 Macro *Environment::bind(const Macro &__macro)
 {
-    Q_ASSERT(! __macro.name.isEmpty());
+    QTC_ASSERT(! __macro.name.isEmpty(), return 0);
 
     Macro *m = new Macro (__macro);
     m->hashcode = hash_code(m->name);

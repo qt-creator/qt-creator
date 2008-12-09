@@ -34,6 +34,8 @@
 #ifndef QTC_ASSERT_H
 #define QTC_ASSERT_H
 
+#include <QtCore/QDebug>
+
 #ifdef Q_OS_UNIX
 #define QTC_ASSERT(cond, action) \
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}

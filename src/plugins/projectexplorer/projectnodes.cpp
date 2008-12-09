@@ -31,11 +31,13 @@
 **
 ***************************************************************************/
 
-#include "nodesvisitor.h"
 #include "projectnodes.h"
+
+#include "nodesvisitor.h"
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
@@ -374,7 +376,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
   */
 void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder)
 {
-    Q_ASSERT(parentFolder);
+    QTC_ASSERT(parentFolder, return);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -410,7 +412,7 @@ void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNod
 void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
                                    FolderNode *parentFolder)
 {
-    Q_ASSERT(parentFolder);
+    QTC_ASSERT(parentFolder, return);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -448,7 +450,7 @@ void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
   */
 void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    Q_ASSERT(folder);
+    QTC_ASSERT(folder, return);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);
@@ -480,7 +482,7 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
   */
 void ProjectNode::removeFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    Q_ASSERT(folder);
+    QTC_ASSERT(folder, return);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);

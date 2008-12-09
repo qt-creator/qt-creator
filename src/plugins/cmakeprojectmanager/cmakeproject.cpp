@@ -32,18 +32,20 @@
 ***************************************************************************/
 
 #include "cmakeproject.h"
+
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "cmakerunconfiguration.h"
 #include "cmakestep.h"
 #include "makestep.h"
-#include "cmakerunconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <utils/qtcassert.h>
 
-#include <QProcess>
-#include <QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QProcess>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -550,7 +552,7 @@ void CMakeCbpParser::parseUnit()
 
 void CMakeCbpParser::parseUnknownElement()
 {
-    Q_ASSERT(isStartElement());
+    QTC_ASSERT(isStartElement(), /**/);
 
     while (!atEnd()) {
         readNext();

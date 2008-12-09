@@ -52,6 +52,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <TranslationUnit.h>
 #include <Semantic.h>
 #include <AST.h>
@@ -64,10 +66,11 @@
 #include <Lexer.h>
 #include <Token.h>
 
-#include <QPlainTextEdit>
-#include <QMutexLocker>
-#include <QTime>
-#include <QDebug>
+#include <QtCore/QDebug>
+#include <QtCore/QMutexLocker>
+#include <QtCore/QTime>
+
+//#include <QtGui/QPlainTextEdit>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -439,10 +442,10 @@ CppModelManager::CppModelManager(QObject *parent) :
     m_projectExplorer = ExtensionSystem::PluginManager::instance()
                         ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
-    Q_ASSERT(m_projectExplorer);
+    QTC_ASSERT(m_projectExplorer, return);
 
     ProjectExplorer::SessionManager *session = m_projectExplorer->session();
-    Q_ASSERT(session != 0);
+    QTC_ASSERT(session, return);
 
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
@@ -626,7 +629,7 @@ void CppModelManager::editorOpened(Core::IEditor *editor)
 {
     if (isCppEditor(editor)) {
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        Q_ASSERT(textEditor != 0);
+        QTC_ASSERT(textEditor, return);
 
         CppEditorSupport *editorSupport = new CppEditorSupport(this);
         editorSupport->setTextEditor(textEditor);
@@ -646,7 +649,7 @@ void CppModelManager::editorAboutToClose(Core::IEditor *editor)
 {
     if (isCppEditor(editor)) {
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        Q_ASSERT(textEditor != 0);
+        QTC_ASSERT(textEditor, return);
 
         CppEditorSupport *editorSupport = m_editorSupport.value(textEditor);
         m_editorSupport.remove(textEditor);
@@ -785,7 +788,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
                             CppPreprocessor *preproc,
                             QStringList files)
 {
-    Q_ASSERT(! files.isEmpty());
+    QTC_ASSERT(!files.isEmpty(), return);
 
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);

@@ -35,6 +35,7 @@
 #include "quickopentoolwindow.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
@@ -57,6 +58,6 @@ QuickOpenManager::~QuickOpenManager()
 void QuickOpenManager::show(const QString &text,
                             int selectionStart, int selectionLength)
 {
-    Q_ASSERT(m_toolWindow);
+    QTC_ASSERT(m_toolWindow, return);
     m_toolWindow->show(text, selectionStart, selectionLength);
 }

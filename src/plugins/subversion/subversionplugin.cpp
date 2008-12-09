@@ -56,6 +56,7 @@
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
@@ -504,7 +505,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
 {
     Core::IEditor *editor = m_coreInstance->editorManager()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
-    Q_ASSERT(submitEditor);
+    QTC_ASSERT(submitEditor, /**/);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
     m_submitDiffAction->setEnabled(false);
@@ -981,7 +982,7 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
                                                      QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
-    Q_ASSERT(params);
+    QTC_ASSERT(params, return 0);
     const QString kind = QLatin1String(params->kind);
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
@@ -1015,13 +1016,13 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
 
 Core::ICore *SubversionPlugin::coreInstance()
 {
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return 0);
     return m_coreInstance;
 }
 
 SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 {
-    Q_ASSERT(m_subversionPluginInstance);
+    QTC_ASSERT(m_subversionPluginInstance, m_subversionPluginInstance);
     return m_subversionPluginInstance;
 }
 

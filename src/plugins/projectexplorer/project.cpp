@@ -40,9 +40,10 @@
 
 #include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
-#include <QtCore/QTextCodec>
 #include <QtCore/QDebug>
+#include <QtCore/QTextCodec>
 
 using namespace ProjectExplorer;
 using ExtensionSystem::PluginManager;
@@ -410,7 +411,7 @@ BuildConfiguration * Project::getBuildConfiguration(const QString &name) const
 void Project::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    Q_ASSERT(bc);
+    QTC_ASSERT(bc, return);
     bc->setValue(name, value);
 }
 
@@ -444,13 +445,13 @@ QList<QSharedPointer<RunConfiguration> > Project::runConfigurations() const
 
 void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
 {
-    Q_ASSERT(!m_runConfigurations.contains(runConfiguration));
+    QTC_ASSERT(!m_runConfigurations.contains(runConfiguration), return);
     m_runConfigurations.push_back(runConfiguration);
 }
 
 void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
 {
-    Q_ASSERT(m_runConfigurations.contains(runConfiguration));
+    QTC_ASSERT(m_runConfigurations.contains(runConfiguration), /**/);
     m_runConfigurations.removeOne(runConfiguration);
     if (m_activeRunConfiguration == runConfiguration) {
         if (m_runConfigurations.isEmpty())
@@ -469,7 +470,7 @@ void Project::setActiveRunConfiguration(QSharedPointer<RunConfiguration> runConf
 {
     if (runConfiguration == m_activeRunConfiguration)
         return;
-    Q_ASSERT(m_runConfigurations.contains(runConfiguration) || runConfiguration == 0);
+    QTC_ASSERT(m_runConfigurations.contains(runConfiguration) || runConfiguration == 0,  return);
     m_activeRunConfiguration = runConfiguration;
     emit activeRunConfigurationChanged();
 }

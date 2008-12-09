@@ -37,19 +37,22 @@
 #include "ui_runsettingspropertiespage.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QPair>
 
 namespace ProjectExplorer {
 namespace Internal {
+
 struct FactoryAndType
 {
     ProjectExplorer::IRunConfigurationFactory *factory;
     QString type;
 };
-} // namespace
-} // namespace
+
+} // namespace Internal
+} // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndType);
 
@@ -170,9 +173,9 @@ void RunConfigurationsModel::setRunConfigurations(const QList<QSharedPointer<Run
 ///
 
 RunSettingsWidget::RunSettingsWidget(Project *project)
-    : m_project(project)
-    , m_runConfigurationsModel(new RunConfigurationsModel(this))
-    , m_runConfigurationWidget(0)
+    : m_project(project),
+      m_runConfigurationsModel(new RunConfigurationsModel(this)),
+      m_runConfigurationWidget(0)
 {
     m_ui = new Ui::RunSettingsPropertiesPage;
     m_ui->setupUi(this);
@@ -214,8 +217,9 @@ RunSettingsWidget::~RunSettingsWidget()
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addMenu->clear();
-    QList<IRunConfigurationFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory * factory, factories) {
+    QList<IRunConfigurationFactory *> factories =
+        ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
+    foreach (IRunConfigurationFactory *factory, factories) {
         QStringList types = factory->canCreate(m_project);
         foreach (const QString &type, types) {
             QAction *action = m_addMenu->addAction(factory->nameForType(type));;
@@ -243,16 +247,14 @@ void RunSettingsWidget::addRunConfiguration()
     m_project->addRunConfiguration(newRC);
     m_project->setActiveRunConfiguration(newRC);
     initRunConfigurationComboBox();
-    connect(newRC.data(), SIGNAL(nameChanged()),
-            this, SLOT(nameChanged()));
+    connect(newRC.data(), SIGNAL(nameChanged()), this, SLOT(nameChanged()));
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
     int index = m_ui->runConfigurationCombo->currentIndex();
     QSharedPointer<RunConfiguration> rc = m_project->runConfigurations().at(index);
-    disconnect(rc.data(), SIGNAL(nameChanged()),
-               this, SLOT(nameChanged()));
+    disconnect(rc.data(), SIGNAL(nameChanged()), this, SLOT(nameChanged()));
     m_project->removeRunConfiguration(rc);
     initRunConfigurationComboBox();
 }
@@ -272,9 +274,9 @@ void RunSettingsWidget::initRunConfigurationComboBox()
 
 void RunSettingsWidget::activateRunConfiguration(int index)
 {
-    Q_ASSERT(m_project);
+    QTC_ASSERT(m_project, return);
     const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();
-    Q_ASSERT(index < runConfigurations.size());
+    QTC_ASSERT(index < runConfigurations.size(), return);
     QSharedPointer<RunConfiguration> selectedRunConfiguration = runConfigurations.at(index);
 
     // Change the active run configuration of the project

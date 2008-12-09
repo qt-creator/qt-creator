@@ -32,10 +32,13 @@
 ***************************************************************************/
 
 #include "currentprojectfind.h"
+
 #include "projectexplorer.h"
 #include "project.h"
 
-#include <QtDebug>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 #include <QtGui/QGridLayout>
 
@@ -71,9 +74,7 @@ QKeySequence CurrentProjectFind::defaultShortcut() const
 QStringList CurrentProjectFind::files()
 {
     Project *project = m_plugin->currentProject();
-    Q_ASSERT(project);
-    if (!project)
-        return QStringList();
+    QTC_ASSERT(project, return QStringList());
     QList<QRegExp> filterRegs;
     QStringList nameFilters = fileNameFilters();
     foreach (const QString &filter, nameFilters) {

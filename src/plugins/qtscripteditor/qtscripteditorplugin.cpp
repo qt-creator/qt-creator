@@ -32,10 +32,11 @@
 ***************************************************************************/
 
 #include "qtscripteditorplugin.h"
+
+#include "qscripthighlighter.h"
+#include "qtscripteditor.h"
 #include "qtscripteditorconstants.h"
 #include "qtscripteditorfactory.h"
-#include "qtscripteditor.h"
-#include "qscripthighlighter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -47,6 +48,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
@@ -108,7 +110,7 @@ void QtScriptEditorPlugin::extensionsInitialized()
 
 void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEditor *editor)
 {
-    Q_ASSERT(m_instance);
+    QTC_ASSERT(m_instance, /**/);
 
     TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),

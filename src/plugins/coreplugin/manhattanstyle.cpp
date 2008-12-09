@@ -33,30 +33,34 @@
 
 #include "manhattanstyle.h"
 
-#include <QStyleOption>
-#include <QPainter>
-#include <QScrollArea>
-#include <QMainWindow>
-#include <QDockWidget>
-#include <QPixmapCache>
-#include <QDialogButtonBox>
-#include <QPixmap>
-#include <QToolBar>
-#include <QDialog>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QLibrary>
-#include <QStatusBar>
-#include <QApplication>
-#include <QStyleFactory>
-#include <QToolButton>
-#include <QLabel>
-#include <QPushButton>
-#include <QSplitter>
-#include <QMenuBar>
 #include "stylehelper.h"
 #include "styleanimator.h"
-#include <qdebug.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QLibrary>
+
+#include <QtGui/QApplication>
+#include <QtGui/QComboBox>
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QDockWidget>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMenuBar>
+#include <QtGui/QPainter>
+#include <QtGui/QPixmap>
+#include <QtGui/QPixmapCache>
+#include <QtGui/QPushButton>
+#include <QtGui/QScrollArea>
+#include <QtGui/QSplitter>
+#include <QtGui/QStatusBar>
+#include <QtGui/QStyleFactory>
+#include <QtGui/QStyleOption>
+#include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
+
+#include <utils/qtcassert.h>
 
 // We define a currently unused state for indicating animations
 #define State_Animating 0x00000040
@@ -97,7 +101,7 @@ public:
     ManhattanStylePrivate(const QString &baseStyleName)
     {
         style = QStyleFactory::create(baseStyleName);
-        Q_ASSERT(style);
+        QTC_ASSERT(style, /**/);
         buttonImage_pressed = QImage(":/qworkbench/images/pushbutton_pressed.png");
         buttonImage = QImage(":/qworkbench/images/pushbutton.png");
 
@@ -105,12 +109,15 @@ public:
         lineeditImage_disabled = QImage(":/qworkbench/images/inputfield_disabled.png");
     }
 
-    ~ManhattanStylePrivate() {
+    ~ManhattanStylePrivate()
+    {
         delete style;
         style = 0;
     }
 
     void init();
+
+public:
     QStyle *style;
     QImage buttonImage;
     QImage buttonImage_pressed;

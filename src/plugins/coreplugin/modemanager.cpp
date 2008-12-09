@@ -32,11 +32,13 @@
 ***************************************************************************/
 
 #include "modemanager.h"
+
 #include "fancytabwidget.h"
 #include "fancyactionbar.h"
 #include "mainwindow.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/coreconstants.h>
@@ -44,9 +46,12 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/uniqueidmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QSignalMapper>
+
 #include <QtGui/QAction>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
@@ -225,7 +230,7 @@ void ModeManager::currentTabChanged(int index)
 void ModeManager::setFocusToCurrentMode()
 {
     IMode *mode = currentMode();
-    Q_ASSERT(mode);
+    QTC_ASSERT(mode, return);
     QWidget *widget = mode->widget();
     if (widget) {
         QWidget *focusWidget = widget->focusWidget();

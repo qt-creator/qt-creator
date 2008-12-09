@@ -53,6 +53,7 @@
 #include <aggregation/aggregate.h>
 #endif
 #include <utils/linecolumnlabel.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextCodec>
@@ -415,10 +416,10 @@ UserCanceled:
 
 bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
 {
-    Q_ASSERT(line >= 1);
+    QTC_ASSERT(line >= 1, return false);
     int blockNumber = line - 1;
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return false);
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
@@ -436,7 +437,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
 
 TextEditor::TextMarks DocumentMarker::marksAt(int line) const
 {
-    Q_ASSERT(line >= 1);
+    QTC_ASSERT(line >= 1, return TextMarks());
     int blockNumber = line - 1;
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
@@ -531,9 +532,9 @@ void BaseTextEditor::selectEncoding()
 
 void DocumentMarker::updateMark(ITextMark *mark)
 {
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
-    Q_ASSERT(documentLayout);
     Q_UNUSED(mark);
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
 }
 
@@ -857,7 +858,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             }
 #if 0
             TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
-            Q_ASSERT(documentLayout);
+            QTC_ASSERT(documentLayout, return);
             documentLayout->requestUpdate(); // a bit drastic
             e->accept();
 #endif
@@ -1628,7 +1629,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QPainter painter(viewport());
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QPointF offset(contentOffset());
 
@@ -2055,7 +2056,7 @@ void BaseTextEditor::slotModificationChanged(bool m)
 
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     int oldLastSaveRevision = documentLayout->lastSaveRevision;
     documentLayout->lastSaveRevision = doc->revision();
 
@@ -2113,7 +2114,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QPalette pal = d->m_extraArea->palette();
     pal.setCurrentColorGroup(QPalette::Active);
@@ -2612,7 +2613,7 @@ void BaseTextEditor::ensureCursorVisible()
 void BaseTextEditor::toggleBlockVisible(const QTextBlock &block)
 {
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     bool visible = block.next().isVisible();
     TextBlockUserData::doCollapse(block, !visible);
@@ -2711,7 +2712,7 @@ void BaseTextEditor::handleHomeKey(bool anchor)
 void BaseTextEditor::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
-    Q_ASSERT(!cursor.hasSelection());
+    QTC_ASSERT(!cursor.hasSelection(), return);
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
     QTextBlock currentBlock = cursor.block();
@@ -3271,7 +3272,7 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     bool needUpdate = false;
 
@@ -3316,7 +3317,7 @@ void BaseTextEditor::collapse()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
     qDebug() << "collapse at block" << block.blockNumber();
     while (block.isValid()) {
@@ -3340,7 +3341,7 @@ void BaseTextEditor::expand()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
     while (block.isValid() && !block.isVisible())
         block = block.previous();
@@ -3354,7 +3355,7 @@ void BaseTextEditor::unCollapseAll()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = doc->firstBlock();
     bool makeVisible = true;

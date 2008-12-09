@@ -33,6 +33,8 @@
 
 #include "indenter.h"
 
+#include <utils/qtcassert.h>
+
 using namespace SharedTools::IndenterInternal;
 
 // --- Constants
@@ -55,12 +57,12 @@ Constants::Constants() :
                 "|(?:public|protected|private|signals|Q_SIGNALS|default)(?:\\s+slots|\\s+Q_SLOTS)?\\s*"
                 ")?:.*"))
 {
-    m_literal.setMinimal( true );
-    m_inlineCComment.setMinimal( true );
-    Q_ASSERT(m_literal.isValid());
-    Q_ASSERT(m_label.isValid());
-    Q_ASSERT(m_inlineCComment.isValid());
-    Q_ASSERT(m_braceX.isValid());
-    Q_ASSERT(m_iflikeKeyword.isValid());
-    Q_ASSERT(m_caseLabel.isValid());
+    m_literal.setMinimal(true);
+    m_inlineCComment.setMinimal(true);
+    QTC_ASSERT(m_literal.isValid(), return);
+    QTC_ASSERT(m_label.isValid(), return);
+    QTC_ASSERT(m_inlineCComment.isValid(), return);
+    QTC_ASSERT(m_braceX.isValid(), return);
+    QTC_ASSERT(m_iflikeKeyword.isValid(), return);
+    QTC_ASSERT(m_caseLabel.isValid(), return);
 }

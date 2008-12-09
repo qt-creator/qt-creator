@@ -32,10 +32,12 @@
 ***************************************************************************/
 
 #include "cmakerunconfiguration.h"
-#include "cmakeprojectconstants.h"
+
 #include "cmakeproject.h"
+#include "cmakeprojectconstants.h"
 
 #include <projectexplorer/environment.h>
+#include <utils/qtcassert.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -45,9 +47,9 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
 {
     setName(target);
 }
+
 CMakeRunConfiguration::~CMakeRunConfiguration()
 {
-
 }
 
 QString CMakeRunConfiguration::type() const
@@ -130,7 +132,7 @@ QStringList CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *pr
 // used to translate the types to names to display to the user
 QString CMakeRunConfigurationFactory::nameForType(const QString &type) const
 {
-    Q_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION));
+    QTC_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION), /**/);
 
     if (type == Constants::CMAKERUNCONFIGURATION)
         return "CMake"; // Doesn't happen
@@ -141,7 +143,7 @@ QString CMakeRunConfigurationFactory::nameForType(const QString &type) const
 QSharedPointer<ProjectExplorer::RunConfiguration> CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
+    QTC_ASSERT(pro, /**/);
     if (type == Constants::CMAKERUNCONFIGURATION) {
         // Restoring, filename will be added by restoreSettings
         QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, QString::null, QString::null));

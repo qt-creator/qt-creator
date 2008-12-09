@@ -32,6 +32,9 @@
 ***************************************************************************/
 
 #include "CppDocument.h"
+
+#include <utils/qtcassert.h>
+
 #include <Control.h>
 #include <TranslationUnit.h>
 #include <DiagnosticClient.h>
@@ -270,7 +273,7 @@ bool Document::parse(ParseMode mode)
 
 void Document::check()
 {
-    Q_ASSERT(! _globalNamespace);
+    QTC_ASSERT(!_globalNamespace, return);
 
     Semantic semantic(_control);
 

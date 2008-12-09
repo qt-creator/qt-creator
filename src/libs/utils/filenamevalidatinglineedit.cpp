@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "filenamevalidatinglineedit.h"
+#include "qtcassert.h"
 
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
@@ -46,7 +47,7 @@ static const QRegExp &windowsDeviceNoSubDirPattern()
 {
     static const QRegExp rc(QLatin1String("CON|AUX|PRN|COM1|COM2|LPT1|LPT2|NUL"),
                       Qt::CaseInsensitive);
-    Q_ASSERT(rc.isValid());
+    QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
 
@@ -54,7 +55,7 @@ static const QRegExp &windowsDeviceSubDirPattern()
 {
     static const QRegExp rc(QLatin1String(".*[/\\\\]CON|.*[/\\\\]AUX|.*[/\\\\]PRN|.*[/\\\\]COM1|.*[/\\\\]COM2|.*[/\\\\]LPT1|.*[/\\\\]LPT2|.*[/\\\\]NUL"),
                             Qt::CaseInsensitive);
-    Q_ASSERT(rc.isValid());
+    QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
 

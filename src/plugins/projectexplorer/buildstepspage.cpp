@@ -32,10 +32,12 @@
 ***************************************************************************/
 
 #include "buildstepspage.h"
+
 #include "ui_buildstepspage.h"
 #include "project.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -121,15 +123,14 @@ void BuildStepsPage::updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidget
 {
     if (oldItem == newItem)
         return;
-    Q_ASSERT(m_pro);
+    QTC_ASSERT(m_pro, return);
 
     if (newItem) {
         int row = m_ui->buildSettingsList->indexOfTopLevelItem(newItem);
         m_ui->buildSettingsWidget->setCurrentIndex(row);
         BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
-        Q_ASSERT(widget);
-        if (widget)
-            widget->init(m_configuration);
+        QTC_ASSERT(widget, return);
+        widget->init(m_configuration);
     }
     updateBuildStepButtonsState();
 }

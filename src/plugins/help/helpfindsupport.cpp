@@ -34,6 +34,8 @@
 #include "helpfindsupport.h"
 #include "helpviewer.h"
 
+#include <utils/qtcassert.h>
+
 using namespace Help::Internal;
 
 HelpFindSupport::HelpFindSupport(CentralWidget *centralWidget)
@@ -52,8 +54,8 @@ bool HelpFindSupport::isEnabled() const
 
 QString HelpFindSupport::currentFindString() const
 {
-    Q_ASSERT(m_centralWidget);
-    HelpViewer* viewer = m_centralWidget->currentHelpViewer();
+    QTC_ASSERT(m_centralWidget, return QString());
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (!viewer)
         return QString();
 #if !defined(QT_NO_WEBKIT)
@@ -70,13 +72,13 @@ QString HelpFindSupport::completedFindString() const
 
 bool HelpFindSupport::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_centralWidget);
+    QTC_ASSERT(m_centralWidget, return false);
     findFlags &= ~QTextDocument::FindBackward;
     return m_centralWidget->find(txt, findFlags, true);
 }
 
 bool HelpFindSupport::findStep(const QString &txt, QTextDocument::FindFlags findFlags)
 {
-    Q_ASSERT(m_centralWidget);
+    QTC_ASSERT(m_centralWidget, return false);
     return m_centralWidget->find(txt, findFlags, false);
 }
