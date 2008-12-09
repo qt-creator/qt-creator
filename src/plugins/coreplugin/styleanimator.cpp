@@ -52,7 +52,8 @@ void Animation::paint(QPainter *painter, const QStyleOption *option)
     Q_UNUSED(painter);
 }
 
-void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha) {
+void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
+{
     if (_secondaryImage.isNull() || _primaryImage.isNull())
         return;
 
@@ -64,7 +65,7 @@ void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha) {
     const int sw = _primaryImage.width();
     const int sh = _primaryImage.height();
     const int bpl = _primaryImage.bytesPerLine();
-    switch(_primaryImage.depth()) {
+    switch (_primaryImage.depth()) {
     case 32:
         {
             uchar *mixed_data = _tempImage.bits();

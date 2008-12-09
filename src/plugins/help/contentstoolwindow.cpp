@@ -126,7 +126,7 @@ void ContentsToolWindow::contentsDone()
 {    
     m_widget->setCursor(QCursor(Qt::WaitCursor));
     QList<QPair<QString, ContentList> > contentList = helpEngine->contents();
-    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+    for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         QTreeWidgetItem *newEntry;
         QTreeWidgetItem *contentEntry;
         QStack<QTreeWidgetItem*> stack;
@@ -135,7 +135,7 @@ void ContentsToolWindow::contentsDone()
         bool root = false;
 
         QTreeWidgetItem *lastItem[64];
-        for(int j = 0; j < 64; ++j)
+        for (int j = 0; j < 64; ++j)
             lastItem[j] = 0;
 
         ContentList lst = (*it).second;
@@ -149,19 +149,18 @@ void ContentsToolWindow::contentsDone()
                 stack.push(newEntry);
                 depth = 1;
                 root = true;
-            }
-            else{
-                if((item.depth > depth) && root) {
+            } else {
+                if (item.depth > depth && root) {
                     depth = item.depth;
                     stack.push(contentEntry);
                 }
-                if(item.depth == depth) {
+                if (item.depth == depth) {
                     contentEntry = new QTreeWidgetItem(stack.top(), lastItem[ depth ]);
                     lastItem[ depth ] = contentEntry;
                     contentEntry->setText(0, item.title);
                     contentEntry->setData(0, LinkRole, item.reference);
                 }
-                else if(item.depth < depth) {
+                else if (item.depth < depth) {
                     stack.pop();
                     depth--;
                     item = *(--it);

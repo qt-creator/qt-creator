@@ -734,7 +734,7 @@ void ProjectExplorerPlugin::clearSession()
 void ProjectExplorerPlugin::extensionsInitialized()
 {
     m_fileFactories = ProjectFileFactory::createFactories(m_core, &m_projectFilterString);
-    foreach(ProjectFileFactory *pf, m_fileFactories) {
+    foreach (ProjectFileFactory *pf, m_fileFactories) {
         m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
     }
@@ -1212,7 +1212,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
         qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->file()->fileName() << ")";
 
     QStringList filesToSave;
-    foreach(Project *p, m_session->projectOrder(pro)) {
+    foreach (Project *p, m_session->projectOrder(pro)) {
         FindAllFilesVisitor filesVisitor;
         p->rootProjectNode()->accept(&filesVisitor);
         filesToSave << filesVisitor.filePaths();
@@ -1783,7 +1783,7 @@ void ProjectExplorerPlugin::updateSessionMenu()
 {
     m_sessionMenu->clear();
     const QString &activeSession = m_session->activeSession();
-    foreach(const QString &session, m_session->sessions()) {
+    foreach (const QString &session, m_session->sessions()) {
         QAction *act = m_sessionMenu->addAction(session, this, SLOT(setSession()));
         act->setCheckable(true);
         if (session == activeSession)

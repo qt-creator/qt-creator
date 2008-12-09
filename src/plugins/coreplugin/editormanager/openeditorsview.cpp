@@ -70,7 +70,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     m_ui.editorList->installEventFilter(this);
     m_ui.editorList->setFrameStyle(QFrame::NoFrame);
     EditorManager *em = EditorManager::instance();
-    foreach(IEditor *editor, em->openedEditors()) {
+    foreach (IEditor *editor, em->openedEditors()) {
         registerEditor(editor);
     }
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),

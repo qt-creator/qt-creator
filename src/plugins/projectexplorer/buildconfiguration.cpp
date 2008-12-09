@@ -42,9 +42,8 @@ BuildConfiguration::BuildConfiguration(const QString &name)
 }
 
 BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *source)
-    :m_values(source->m_values), m_name(name)
+    : m_values(source->m_values), m_name(name)
 {
-
 }
 
 QString BuildConfiguration::name() const
@@ -71,7 +70,7 @@ void BuildConfiguration::setDisplayName(const QString &name)
 QVariant BuildConfiguration::getValue(const QString & key) const
 {
     QHash<QString, QVariant>::const_iterator it = m_values.find(key);
-    if(it != m_values.constEnd())
+    if (it != m_values.constEnd())
         return *it;
     else
         return QVariant();
@@ -86,7 +85,7 @@ void BuildConfiguration::setValuesFromMap(QMap<QString, QVariant> map)
 {
     QMap<QString, QVariant>::const_iterator it, end;
     end = map.constEnd();
-    for(it = map.constBegin(); it != end; ++it)
+    for (it = map.constBegin(); it != end; ++it)
         setValue(it.key(), it.value());
 }
 
@@ -95,7 +94,7 @@ QMap<QString, QVariant> BuildConfiguration::toMap() const
     QMap<QString, QVariant> result;
     QHash<QString, QVariant>::const_iterator it, end;
     end = m_values.constEnd();
-    for(it = m_values.constBegin(); it != end; ++it)
+    for (it = m_values.constBegin(); it != end; ++it)
         result.insert(it.key(), it.value());
     return result;
 }

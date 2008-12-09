@@ -140,7 +140,7 @@ void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
     if (top > 0) { //top
         painter->drawImage(QRect(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
                            QRect(left, 0, size.width() -right - left, top));
-        if(left > 0) //top-left
+        if (left > 0) //top-left
             painter->drawImage(QRect(rect.left(), rect.top(), left, top), img,
                                QRect(0, 0, left, top));
         if (right > 0) //top-right

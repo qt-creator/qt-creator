@@ -456,7 +456,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
             }
         }
         if (firstExtensionPageHit)
-            foreach(IFileWizardExtension *ex, extensions)
+            foreach (IFileWizardExtension *ex, extensions)
                 ex->firstExtensionPageShown(files);
         if (accepted)
             break;
@@ -486,7 +486,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
         }
     }
     // Run the extensions
-    foreach(IFileWizardExtension *ex, extensions)
+    foreach (IFileWizardExtension *ex, extensions)
         if (!ex->process(files, &errorMessage)) {
             QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
             return QStringList();

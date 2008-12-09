@@ -277,7 +277,7 @@ void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
 
         connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
         connect(cmd->action(), SIGNAL(changed()), this, SLOT(updateToolTip()));
-    } while(it != begin);
+    } while (it != begin);
 
     changePage();
 }
@@ -293,7 +293,7 @@ void OutputPane::shortcutTriggered()
         // but the outputpane doesn't have focus
         // then just give it focus
         // else do the same as clicking on the button does
-        if(OutputPanePlaceHolder::m_current
+        if (OutputPanePlaceHolder::m_current
            && OutputPanePlaceHolder::m_current->isVisible()
            && m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() == idx) {
             if (!outputPane->hasFocus() && outputPane->canFocus())

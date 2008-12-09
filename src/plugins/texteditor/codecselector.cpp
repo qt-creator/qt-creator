@@ -87,15 +87,15 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     QList<int> mibs = QTextCodec::availableMibs();
     qSort(mibs);
     QList<int> sortedMibs;
-    foreach(int mib, mibs)
+    foreach (int mib, mibs)
         if (mib >= 0)
             sortedMibs += mib;
-    foreach(int mib, mibs)
+    foreach (int mib, mibs)
         if (mib < 0)
             sortedMibs += mib;
 
     int currentIndex = -1;
-    foreach(int mib, sortedMibs) {
+    foreach (int mib, sortedMibs) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
         if (!buf.isEmpty()) {
 
@@ -109,9 +109,8 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
                 continue;
         }
         QString names = QString::fromLatin1(c->name());
-        foreach(QByteArray alias, c->aliases()) {
+        foreach (QByteArray alias, c->aliases())
             names += QLatin1String(" / ") + QString::fromLatin1(alias);
-        }
         if (doc->codec() == c)
             currentIndex = encodings.count();
         encodings << names;

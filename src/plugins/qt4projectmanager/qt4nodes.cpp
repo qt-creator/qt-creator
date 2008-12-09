@@ -321,7 +321,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     }
 
     ProFile *includeFile = reader->proFileFor(m_projectFilePath);
-    if(!includeFile) {
+    if (!includeFile) {
         m_project->proFileParseError(tr("Error while changing pro file %1.").arg(m_projectFilePath));
     }
 
@@ -418,7 +418,7 @@ void Qt4PriFileNode::save(ProFile *includeFile)
     Core::FileManager *fileManager = core->fileManager();
     QList<Core::IFile *> allFileHandles = fileManager->managedFiles(includeFile->fileName());
     Core::IFile *modifiedFileHandle = 0;
-    foreach(Core::IFile *file, allFileHandles)
+    foreach (Core::IFile *file, allFileHandles)
         if (file->fileName() == includeFile->fileName())
             modifiedFileHandle = file;
 

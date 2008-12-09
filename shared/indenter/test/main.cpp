@@ -174,7 +174,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    foreach(QString fileName, fileNames)
+    foreach (const QString &fileName, fileNames)
         if (const int rc = format(fileName))
             return rc;
 

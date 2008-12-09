@@ -45,7 +45,7 @@ ProFileReader::ProFileReader()
 
 ProFileReader::~ProFileReader()
 {
-    foreach(ProFile *pf, m_proFiles)
+    foreach (ProFile *pf, m_proFiles)
         delete pf;
 }
 

@@ -161,7 +161,7 @@ GitPlugin::~GitPlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory* pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
     }

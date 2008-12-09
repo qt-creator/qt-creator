@@ -151,7 +151,7 @@ bool ResourceFile::save()
 
     const QStringList name_list = prefixList();
 
-    foreach (QString name, name_list) {
+    foreach (const QString &name, name_list) {
         FileList file_list;
         QString lang;
         foreach (Prefix *pref, m_prefix_list) {
@@ -164,7 +164,7 @@ bool ResourceFile::save()
         QDomElement relt = doc.createElement(QLatin1String("qresource"));
         root.appendChild(relt);
         relt.setAttribute(QLatin1String("prefix"), name);
-        if(!lang.isEmpty())
+        if (!lang.isEmpty())
             relt.setAttribute(QLatin1String("lang"), lang);
 
         foreach (const File *f, file_list) {
@@ -622,14 +622,14 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 // Prefix node
                 stringRes = prefix->name;
                 const QString &lang = prefix->lang;
-                if(!lang.isEmpty())
+                if (!lang.isEmpty())
                     appendParenthesized(lang, stringRes);
             } else  {
                 // File node
                 Q_ASSERT(file != NULL);
                 stringRes = QFileInfo(file->name).fileName();
                 const QString alias = file->alias;
-                if(!alias.isEmpty())
+                if (!alias.isEmpty())
                     appendParenthesized(alias, stringRes);
             }
             result = stringRes;
@@ -654,7 +654,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             QString conv_file = m_resource_file.relativePath(file->name);
             QString stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
             const QString &alias_file = file->alias;
-            if(!alias_file.isEmpty())
+            if (!alias_file.isEmpty())
                     appendParenthesized(alias_file, stringRes);
 
             result = stringRes;
@@ -696,7 +696,7 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
 
 QString ResourceModel::lang(const QModelIndex &index) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QString();
 
     return m_resource_file.lang(index.row());
@@ -704,14 +704,14 @@ QString ResourceModel::lang(const QModelIndex &index) const
 
 QString ResourceModel::alias(const QModelIndex &index) const
 {
-    if(!index.isValid() || !index.parent().isValid())
+    if (!index.isValid() || !index.parent().isValid())
         return QString();
     return m_resource_file.alias(index.parent().row(), index.row());
 }
 
 QString ResourceModel::file(const QModelIndex &index) const
 {
-    if(!index.isValid() || !index.parent().isValid())
+    if (!index.isValid() || !index.parent().isValid())
         return QString();
     return m_resource_file.file(index.parent().row(), index.row());
 }
@@ -852,7 +852,7 @@ void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &pr
     if (m_resource_file.prefix(prefix_idx) == ResourceFile::fixPrefix(prefix))
         return;
 
-    if(m_resource_file.contains(prefix))
+    if (m_resource_file.contains(prefix))
         return;
 
     m_resource_file.replacePrefix(prefix_idx, prefix);
@@ -880,7 +880,7 @@ void ResourceModel::changeAlias(const QModelIndex &index, const QString &alias)
     if (!index.parent().isValid())
         return;
 
-    if(m_resource_file.alias(index.parent().row(), index.row()) == alias)
+    if (m_resource_file.alias(index.parent().row(), index.row()) == alias)
         return;
     m_resource_file.replaceAlias(index.parent().row(), index.row(), alias);
     emit dataChanged(index, index);

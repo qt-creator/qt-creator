@@ -512,7 +512,7 @@ void HelpPlugin::activateContext()
     // case 1 sidebar shown and has focus, we show whatever we have in the
     // sidebar in big
     RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
-    if(placeHolder && Core::RightPaneWidget::instance()->hasFocus()) {
+    if (placeHolder && Core::RightPaneWidget::instance()->hasFocus()) {
         switchToHelpMode();
         return;
     }

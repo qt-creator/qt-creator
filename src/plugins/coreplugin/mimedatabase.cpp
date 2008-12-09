@@ -299,7 +299,7 @@ void MimeTypeData::debug(QTextStream &str, int indent) const
         str << indentS << "SubClassesOf: " << subClassesOf.join(comma) << '\n';
     if (!globPatterns.empty()) {
         str << indentS << "Glob: ";
-        foreach(const QRegExp &r, globPatterns)
+        foreach (const QRegExp &r, globPatterns)
             str << r.pattern() << ' ';
         str << '\n';
         if (!suffixes.empty()) {

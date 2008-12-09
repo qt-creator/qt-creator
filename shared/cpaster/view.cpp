@@ -125,7 +125,7 @@ QString View::getComment()
 QByteArray View::getContent()
 {
     QByteArray newContent;
-    for(int i = 0; i < m_ui.uiPatchList->count(); ++i) {
+    for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
         QListWidgetItem *item = m_ui.uiPatchList->item(i);
         if (item->checkState() != Qt::Unchecked)
             newContent += m_parts.at(i).content;
@@ -159,7 +159,7 @@ int View::show(const QString &user, const QString &description, const QString &c
     QByteArray content;
     m_parts = parts;
     m_ui.uiPatchList->clear();
-    foreach(const FileData part, parts) {
+    foreach (const FileData part, parts) {
         QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
         itm->setCheckState(Qt::Checked);
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);

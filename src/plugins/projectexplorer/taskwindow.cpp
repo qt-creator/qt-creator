@@ -441,7 +441,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         int height = 0;
         QTextLayout tl(description);
         tl.beginLayout();
-        while(true) {
+        while (true) {
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;
@@ -528,7 +528,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int height = 0;
         QTextLayout tl(description);
         tl.beginLayout();
-        while(true) {
+        while (true) {
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;

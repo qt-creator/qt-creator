@@ -119,17 +119,17 @@ void BuildStepsPage::init(const QString &buildConfiguration)
 /* switch from one tree item / build step to another */
 void BuildStepsPage::updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidgetItem *oldItem)
 {
-    if(oldItem == newItem)
+    if (oldItem == newItem)
         return;
     Q_ASSERT(m_pro);
 
-    if(newItem) {
+    if (newItem) {
         int row = m_ui->buildSettingsList->indexOfTopLevelItem(newItem);
         m_ui->buildSettingsWidget->setCurrentIndex(row);
         BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
         Q_ASSERT(widget);
         if (widget)
-         widget->init(m_configuration);
+            widget->init(m_configuration);
     }
     updateBuildStepButtonsState();
 }
@@ -151,11 +151,11 @@ void BuildStepsPage::updateAddBuildStepMenu()
     QMenu *menu = m_ui->buildStepAddButton->menu();
     m_addBuildStepHash.clear();
     menu->clear();
-    if(!map.isEmpty()) {
+    if (!map.isEmpty()) {
         QStringList names;
         QMap<QString, QPair<QString, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
-        for(it = map.constBegin(); it != end; ++it) {
+        for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
             connect(action, SIGNAL(triggered()),
                     this, SLOT(addBuildStep()));
@@ -167,7 +167,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
 
 void BuildStepsPage::addBuildStep()
 {
-    if(QAction *action = qobject_cast<QAction *>(sender())) {
+    if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_pro, pair.first);
         m_pro->insertBuildStep(0, newStep);
@@ -182,7 +182,7 @@ void BuildStepsPage::addBuildStep()
 void BuildStepsPage::removeBuildStep()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row();
-    if(m_pro->buildSteps().at(pos)->immutable())
+    if (m_pro->buildSteps().at(pos)->immutable())
         return;
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
     delete m_ui->buildSettingsList->invisibleRootItem()->takeChild(pos);
@@ -190,7 +190,7 @@ void BuildStepsPage::removeBuildStep()
     QWidget *widget = m_ui->buildSettingsWidget->widget(pos);
     m_ui->buildSettingsWidget->removeWidget(widget);
     delete widget;
-    if(pos < m_ui->buildSettingsList->invisibleRootItem()->childCount())
+    if (pos < m_ui->buildSettingsList->invisibleRootItem()->childCount())
         m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos));
     else
         m_ui->buildSettingsList->setCurrentItem(m_ui->buildSettingsList->invisibleRootItem()->child(pos - 1));
@@ -201,11 +201,11 @@ void BuildStepsPage::removeBuildStep()
 void BuildStepsPage::upBuildStep()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row();
-    if(pos < 1)
+    if (pos < 1)
         return;
-    if(pos > m_ui->buildSettingsList->invisibleRootItem()->childCount()-1)
+    if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount()-1)
         return;
-    if(m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos-1)->immutable())
+    if (m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos-1)->immutable())
         return;
 
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
@@ -220,11 +220,11 @@ void BuildStepsPage::upBuildStep()
 void BuildStepsPage::downBuildStep()
 {
     int pos = m_ui->buildSettingsList->currentIndex().row() + 1;
-    if(pos < 1)
+    if (pos < 1)
         return;
-    if(pos > m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1)
+    if (pos > m_ui->buildSettingsList->invisibleRootItem()->childCount() - 1)
         return;
-    if(m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos - 1)->immutable())
+    if (m_pro->buildSteps().at(pos)->immutable() && m_pro->buildSteps().at(pos - 1)->immutable())
         return;
 
     bool blockSignals = m_ui->buildSettingsList->blockSignals(true);
@@ -238,7 +238,7 @@ void BuildStepsPage::downBuildStep()
 
 void BuildStepsPage::changeEvent(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);
         break;

@@ -74,7 +74,7 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
     QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
     QDir dir;
     dir.mkpath(destDir);
-    foreach(const QString &file, files) {
+    foreach (const QString &file, files) {
         QFile destination(destDir + file);
         if (destination.exists())
             destination.remove();
@@ -116,7 +116,7 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         QStringList makeargs = ms->value(m_buildConfiguration, "makeargs").toStringList();
         if (makeargs.contains("debug")) {
             makeArguments <<  "debug";
-        } else if(makeargs.contains("release")) {
+        } else if (makeargs.contains("release")) {
             makeArguments << "release";
         }
     }

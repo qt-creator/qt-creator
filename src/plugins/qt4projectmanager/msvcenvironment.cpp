@@ -66,7 +66,7 @@ QList<MSVCEnvironment> MSVCEnvironment::availableVersions()
     QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7", 
                        QSettings::NativeFormat);
     QStringList versions = registry.allKeys();
-    foreach(const QString &version, versions) {
+    foreach (const QString &version, versions) {
         QString dir = registry.value(version).toString();
         result << MSVCEnvironment(version, dir);
     }
@@ -92,7 +92,7 @@ Environment MSVCEnvironment::addToEnvironment(const Environment &env) const
         QString varsbat = m_path + "Common7\\Tools\\vsvars32.bat";
         if (QFileInfo(varsbat).exists()) {
             QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
-            if(!tf.open())
+            if (!tf.open())
                 return e;
             QString filename = tf.fileName();
             tf.write("call \"" + varsbat.toLocal8Bit()+"\"\r\n");
@@ -107,13 +107,13 @@ Environment MSVCEnvironment::addToEnvironment(const Environment &env) const
             tf.close();
 
             QFile vars(QDir::tempPath() + "\\qtcreator-msvc-environment.txt");
-            if(vars.exists() && vars.open(QIODevice::ReadOnly)) {
-                while(!vars.atEnd()) {
+            if (vars.exists() && vars.open(QIODevice::ReadOnly)) {
+                while (!vars.atEnd()) {
                     QByteArray line = vars.readLine();
                     QString line2 = QString::fromLocal8Bit(line);
                     line2 = line2.trimmed();
                     QRegExp regexp("(\\w*)=(.*)");
-                    if(regexp.exactMatch(line2)) {
+                    if (regexp.exactMatch(line2)) {
                         QString variable = regexp.cap(1);
                         QString value = regexp.cap(2);
                         value.replace('%' + variable + '%', e.value(variable));
@@ -137,13 +137,13 @@ Environment MSVCEnvironment::addToEnvironment(const Environment &env) const
 
 
 //    QFile varsbat(m_path + "Common7\\Tools\\vsvars32.bat");
-//    if(varsbat.exists() && varsbat.open(QIODevice::ReadOnly)) {
-//        while(!varsbat.atEnd()) {
+//    if (varsbat.exists() && varsbat.open(QIODevice::ReadOnly)) {
+//        while (!varsbat.atEnd()) {
 //            QByteArray line = varsbat.readLine();
 //            QString line2 = QString::fromLocal8Bit(line);
 //            line2 = line2.trimmed();
 //            QRegExp regexp("\\s*@?(S|s)(E|e)(T|t)\\s*(\\w*)=(.*)");
-//            if(regexp.exactMatch(line2)) {
+//            if (regexp.exactMatch(line2)) {
 //                QString variable = regexp.cap(4);
 //                QString value = regexp.cap(5);
 //                value.replace('%' + variable + '%', e.value(variable));

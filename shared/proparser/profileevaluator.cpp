@@ -332,7 +332,7 @@ void ProFileEvaluator::Private::insertOperator(const char op)
     updateItem();
 
     ProOperator::OperatorKind opkind;
-    switch(op) {
+    switch (op) {
         case '!':
             opkind = ProOperator::NotOperator;
             break;
@@ -532,21 +532,21 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
             evaluateFile(mkspecDirectory + "/features/default_post.prf", &ok);
 
             QStringList processed;
-            while(1) {
+            while (1) {
                 bool finished = true;
                 QStringList configs = values("CONFIG");
-                for(int i = configs.size()-1; i >= 0; --i) {
+                for (int i = configs.size()-1; i >= 0; --i) {
                     const QString config = configs[i].toLower();
-                    if(!processed.contains(config)) {
+                    if (!processed.contains(config)) {
                         processed.append(config);
                         evaluateFile(mkspecDirectory + "/features/" + config + ".prf", &ok);
-                        if(ok) {
+                        if (ok) {
                             finished = false;
                             break;
                         }
                     }
                 }
-                if(finished)
+                if (finished)
                     break;
             }
         }

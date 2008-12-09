@@ -422,12 +422,12 @@ void PluginManager::formatPluginVersions(QTextStream &str) const
 void PluginManager::startTests()
 {
 #ifdef WITH_TESTS
-    foreach(PluginSpec *pluginSpec, d->testSpecs) {
+    foreach (PluginSpec *pluginSpec, d->testSpecs) {
         const QMetaObject *mo = pluginSpec->plugin()->metaObject();
         QStringList methods;
         methods.append("arg0");
         // We only want slots starting with "test"
-        for(int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
+        for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
             if (QByteArray(mo->method(i).signature()).startsWith("test")) {
                 QString method = QString::fromLatin1(mo->method(i).signature());
                 methods.append(method.left(method.size()-2));

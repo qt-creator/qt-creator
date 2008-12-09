@@ -1089,7 +1089,7 @@ bool EditorManager::saveFileAs(IEditor *editor)
     const bool success = editor->file()->save(absoluteFilePath);
     m_d->m_core->fileManager()->unblockFileChange(editor->file());
 
-    if(success)
+    if (success)
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
 
     updateActions();

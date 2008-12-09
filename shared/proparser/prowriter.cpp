@@ -137,7 +137,7 @@ void ProWriter::writeBlock(ProBlock *block, const QString &indent)
     if (block->blockKind() & ProBlock::VariableKind) {
         ProVariable *v = static_cast<ProVariable*>(block);
         m_out << v->variable();
-        switch(v->variableOperator()) {
+        switch (v->variableOperator()) {
             case ProVariable::AddOperator:
                 m_out << QLatin1String(" += "); break;
             case ProVariable::RemoveOperator:
@@ -165,12 +165,12 @@ void ProWriter::writeBlock(ProBlock *block, const QString &indent)
     }
 
     QList<ProItem*> items = block->items();
-    for (int i=0; i<items.count(); ++i) {
+    for (int i = 0; i < items.count(); ++i) {
         m_writeState &= ~LastItem;
         m_writeState &= ~FirstItem;
         if (i == 0)
             m_writeState |= FirstItem;
-        if (i == (items.count()-1))
+        if (i == items.count() - 1)
             m_writeState |= LastItem;
         writeItem(items.at(i), newindent);
     }

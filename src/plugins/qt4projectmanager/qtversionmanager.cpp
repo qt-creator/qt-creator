@@ -158,7 +158,7 @@ QWidget *QtVersionManager::createPage(QWidget *parent)
 void QtVersionManager::updateUniqueIdToIndexMap()
 {
     m_uniqueIdToIndex.clear();
-    for(int i=0; i<m_versions.size(); ++i)
+    for (int i = 0; i < m_versions.size(); ++i)
         m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
 }
 
@@ -225,7 +225,7 @@ QtVersion *QtVersionManager::version(int id) const
     if (pos != -1)
         return m_versions.at(pos);
 
-    if(m_defaultVersion < m_versions.count())
+    if (m_defaultVersion < m_versions.count())
         return m_versions.at(m_defaultVersion);
     else
         return m_emptyVersion;
@@ -248,17 +248,17 @@ void QtVersionManager::addNewVersionsFromInstaller()
     bool defaultVersionWasReset = false;
     foreach (QString newVersion, newVersionsList) {
         QStringList newVersionData = newVersion.split('=');
-        if(newVersionData.count()>=2) {
+        if (newVersionData.count()>=2) {
             if (QDir(newVersionData[1]).exists()) {
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
-                if(newVersionData.count() >= 3)
+                if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
-                if(newVersionData.count() >= 4)
+                if (newVersionData.count() >= 4)
                     version->setPrependPath(newVersionData[3]);
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
-                    if(QDir(version->path()).canonicalPath() == QDir(it->path()).canonicalPath()) {
+                    if (QDir(version->path()).canonicalPath() == QDir(it->path()).canonicalPath()) {
                         versionWasAlreadyInList = true;
                         break;
                     }
@@ -349,7 +349,7 @@ QString QtVersionManager::findSystemQt() const
 
 QtVersion *QtVersionManager::currentQtVersion() const
 {
-    if(m_defaultVersion < m_versions.count())
+    if (m_defaultVersion < m_versions.count())
         return m_versions.at(m_defaultVersion);
     else
         return m_emptyVersion;
@@ -465,27 +465,27 @@ void QtDirWidget::updateState()
 void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     m_ui.msvcComboBox->setVisible(false);
-    if(item) {
+    if (item) {
         int index = m_ui.qtdirList->indexOfTopLevelItem(item);
         m_ui.errorLabel->setText("");
         QtVersion::ToolchainType t = m_versions.at(index)->toolchainType();
-        if(t == QtVersion::MinGW) {
+        if (t == QtVersion::MinGW) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
             m_ui.mingwLineEdit->setVisible(true);
             m_ui.mingwLabel->setVisible(true);
             m_ui.mingwBrowseButton->setVisible(true);
             m_ui.mingwLineEdit->setText(m_versions.at(index)->mingwDirectory());
-        } else if(t == QtVersion::MSVC || t == QtVersion::WINCE){
+        } else if (t == QtVersion::MSVC || t == QtVersion::WINCE){
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(true);
             m_ui.mingwLineEdit->setVisible(false);
             m_ui.mingwLabel->setVisible(false);
             m_ui.mingwBrowseButton->setVisible(false);
             QList<MSVCEnvironment> msvcenvironments = MSVCEnvironment::availableVersions();
-            if(msvcenvironments.count() == 0) {
+            if (msvcenvironments.count() == 0) {
                 m_ui.msvcLabel->setText(tr("No Visual Studio Installation found"));
-            } else if(msvcenvironments.count() == 1) {
+            } else if (msvcenvironments.count() == 1) {
                 m_ui.msvcLabel->setText( msvcenvironments.at(0).description());
             } else {
                  m_ui.msvcComboBox->setVisible(true);
@@ -500,7 +500,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
                  }
                  m_ui.msvcComboBox->blockSignals(block);
             }
-        } else if(t == QtVersion::INVALID) {
+        } else if (t == QtVersion::INVALID) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
             m_ui.mingwLineEdit->setVisible(false);
@@ -530,7 +530,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
 
 void QtDirWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
 {
-    if(old) {
+    if (old) {
         fixQtVersionName(m_ui.qtdirList->indexOfTopLevelItem(old));
     }
     if (item) {
@@ -601,7 +601,7 @@ void QtDirWidget::updateCurrentQtName()
 
 void QtDirWidget::finish()
 {
-    if(QTreeWidgetItem *item = m_ui.qtdirList->currentItem())
+    if (QTreeWidgetItem *item = m_ui.qtdirList->currentItem())
         fixQtVersionName(m_ui.qtdirList->indexOfTopLevelItem(item));
 }
 
@@ -612,9 +612,9 @@ void QtDirWidget::finish()
 void QtDirWidget::fixQtVersionName(int index)
 {
     int count = m_versions.count();
-    for(int i=0; i<count; ++i) {
-        if(i != index) {
-            if(m_versions.at(i)->name() == m_versions.at(index)->name()) {
+    for (int i = 0; i < count; ++i) {
+        if (i != index) {
+            if (m_versions.at(i)->name() == m_versions.at(index)->name()) {
                 // Same name, find new name
                 QString name = m_versions.at(index)->name();
                 QRegExp regexp("^(.*)\\((\\d)\\)$");
@@ -666,7 +666,7 @@ void QtDirWidget::msvcVersionChanged()
     //get descriptionx
     QList<MSVCEnvironment> msvcEnvironments = MSVCEnvironment::availableVersions();
     foreach(const MSVCEnvironment &msvcEnv, msvcEnvironments) {
-        if(msvcEnv.name() == msvcVersion) {
+        if (msvcEnv.name() == msvcVersion) {
             m_ui.msvcLabel->setText(msvcEnv.description());
             break;
         }
@@ -691,7 +691,7 @@ QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSy
     : m_name(name), m_isSystemVersion(isSystemVersion), m_notInstalled(false), m_defaultConfigIsDebug(true), m_defaultConfigIsDebugAndRelease(true)
 {
     setPath(path);
-    if(id == -1)
+    if (id == -1)
         m_id = getUniqueId();
     else
         m_id = id;
@@ -860,7 +860,7 @@ QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const Q
                     //Now chop into parts that are intresting
                     QStringList parts;
                     int lastpos = 0;
-                    for(int i=1; i<line.size(); ++i) {
+                    for (int i = 1; i < line.size(); ++i) {
                         if (line.at(i) == QLatin1Char(' ') && line.at(i-1) != QLatin1Char('\\')) {
                             // found a part
                             parts.append(line.mid(lastpos, i-lastpos));
@@ -874,7 +874,7 @@ QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const Q
                         qDebug()<<"part appended:"<<line.mid(lastpos);
 
                     foreach(const QString &part, parts) {
-                        if(debugScan)
+                        if (debugScan)
                             qDebug()<<"now interpreting part"<<part;
                         bool setFlags;
                         // Now try to understand each part for that we do a rather stupid approach, optimize it if you care
@@ -893,7 +893,7 @@ QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const Q
                                 qDebug()<<"part has setFlags:"<<setFlags;
                             // now loop forward, looking for something that looks like debug, release or debug_and_release
 
-                            for(int i=0; i<part.size(); ++i) {
+                            for (int i = 0; i < part.size(); ++i) {
                                 int left = part.size() - i;
                                 if (left >= 17  && QStringRef(&part, i, 17) == "debug_and_release") {
                                         if (setFlags)
@@ -910,7 +910,7 @@ QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const Q
                                             result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
                                         if (debugScan)
                                             qDebug()<<"found release new value"<<result;
-                                        i +=7;
+                                        i += 7;
                                 } else if (left >= 5 && QStringRef(&part, i, 5) == "debug") {
                                         if (setFlags)
                                             result = QtVersion::QmakeBuildConfig(result  | QtVersion::DebugBuild);
@@ -918,7 +918,7 @@ QtVersion::QmakeBuildConfig QtVersionManager::scanMakefileForQmakeConfig(const Q
                                             result = QtVersion::QmakeBuildConfig(result  & ~QtVersion::DebugBuild);
                                         if (debugScan)
                                             qDebug()<<"found debug new value"<<result;
-                                        i+=5;
+                                        i += 5;
                                 }
                             }
                         }
@@ -1004,9 +1004,9 @@ void QtVersion::updateVersionInfo() const
                     foreach(const QString &value, values) {
                         if (value == "debug")
                             m_defaultConfigIsDebug = true;
-                        else if(value == "release")
+                        else if (value == "release")
                             m_defaultConfigIsDebug = false;
-                        else if(value == "build_all")
+                        else if (value == "build_all")
                             m_defaultConfigIsDebugAndRelease = true;
                     }
                 }
@@ -1031,11 +1031,11 @@ void QtVersion::updateMkSpec() const
     QString mkspec;
 //    QFile f(path() + "/.qmake.cache");
 //    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-//        while(!f.atEnd()) {
+//        while (!f.atEnd()) {
 //            QByteArray line = f.readLine();
-//            if(line.startsWith("QMAKESPEC")) {
+//            if (line.startsWith("QMAKESPEC")) {
 //                const QList<QByteArray> &temp = line.split('=');
-//                if(temp.size() == 2) {
+//                if (temp.size() == 2) {
 //                    mkspec = temp.at(1).trimmed();
 //                    if (mkspec.startsWith("$$QT_BUILD_TREE/mkspecs/"))
 //                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE/mkspecs/").length());
@@ -1058,9 +1058,9 @@ void QtVersion::updateMkSpec() const
 #ifdef Q_OS_WIN
         QFile f2(mkspecPath + "/qmake.conf");
         if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while(!f2.atEnd()) {
+            while (!f2.atEnd()) {
                 QByteArray line = f2.readLine();
-                if(line.startsWith("QMAKESPEC_ORIGINAL")) {
+                if (line.startsWith("QMAKESPEC_ORIGINAL")) {
                     const QList<QByteArray> &temp = line.split('=');
                     if (temp.size() == 2) {
                         mkspec = temp.at(1);
@@ -1073,9 +1073,9 @@ void QtVersion::updateMkSpec() const
 #elif defined(Q_OS_MAC)
         QFile f2(mkspecPath + "/qmake.conf");
         if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while(!f2.atEnd()) {
+            while (!f2.atEnd()) {
                 QByteArray line = f2.readLine();
-                if(line.startsWith("MAKEFILE_GENERATOR")) {
+                if (line.startsWith("MAKEFILE_GENERATOR")) {
                     const QList<QByteArray> &temp = line.split('=');
                     if (temp.size() == 2) {
                         const QByteArray &value = temp.at(1);
@@ -1106,7 +1106,7 @@ void QtVersion::updateMkSpec() const
 
     m_mkspecFullPath = mkspec;
     int index = mkspec.lastIndexOf('/');
-    if(index == -1)
+    if (index == -1)
         index = mkspec.lastIndexOf('\\');
     QString mkspecDir = QDir(m_path + "/mkspecs/").canonicalPath();
     if (index >= 0 && QDir(mkspec.left(index)).canonicalPath() == mkspecDir)
@@ -1123,7 +1123,7 @@ QString QtVersion::makeCommand() const
     const QString &spec = mkspec();
     if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return "nmake.exe";
-    else if(spec.startsWith("wince"))
+    else if (spec.startsWith("wince"))
         return "nmake.exe";
     else
         return "mingw32-make.exe";
@@ -1140,7 +1140,7 @@ QString QtVersion::qmakeCommand() const
         return m_qmakeCommand;
 
     QDir qtDir = path() + "/bin/";
-    foreach(const QString &possibleCommand, QtVersionManager::possibleQMakeCommands()) {
+    foreach (const QString &possibleCommand, QtVersionManager::possibleQMakeCommands()) {
         QString s = qtDir.absoluteFilePath(possibleCommand);
         QFileInfo qmake(s);
         if (qmake.exists() && qmake.isExecutable()) {
@@ -1158,13 +1158,13 @@ QtVersion::ToolchainType QtVersion::toolchainType() const
     if (!isValid())
         return INVALID;
     const QString &spec = mkspec();
-    if(spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
+    if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return MSVC;
-    else if(spec == "win32-g++")
+    else if (spec == "win32-g++")
         return MinGW;
-    else if(spec == QString::null)
+    else if (spec == QString::null)
         return INVALID;
-    else if(spec.startsWith("wince"))
+    else if (spec.startsWith("wince"))
         return WINCE;
     else
         return OTHER;
@@ -1210,32 +1210,32 @@ Environment QtVersion::addToEnvironment(const Environment &env)
     // or add Mingw dirs
     // or do nothing on other
     QtVersion::ToolchainType t = toolchainType();
-    if(t == QtVersion::MinGW) {
+    if (t == QtVersion::MinGW) {
         QFileInfo mingwFileInfo(m_mingwDirectory + "/bin");
-        if(mingwFileInfo.exists())
+        if (mingwFileInfo.exists())
             e.prependOrSetPath(m_mingwDirectory + "/bin");
-    } else if(t == QtVersion::MSVC) {
+    } else if (t == QtVersion::MSVC) {
         QList<MSVCEnvironment> list = MSVCEnvironment::availableVersions();
-        if(list.count() == 1) {
+        if (list.count() == 1) {
             e = list.at(0).addToEnvironment(e);
         } else {
             foreach(const MSVCEnvironment &m, list) {
-                if(m.name() == m_msvcVersion) {
+                if (m.name() == m_msvcVersion) {
                     e = m.addToEnvironment(e);
                     break;
                 }
             }
         }
-    } else if(t == QtVersion::WINCE) {
+    } else if (t == QtVersion::WINCE) {
         QString msvcPath;
         // Find MSVC path
         QList<MSVCEnvironment> list = MSVCEnvironment::availableVersions();
-        if(list.count() == 1) {
+        if (list.count() == 1) {
             msvcPath = list.at(0).path();
             e = list.at(0).addToEnvironment(e);
         } else {
             foreach(const MSVCEnvironment &m, list) {
-                if(m.name() == m_msvcVersion) {
+                if (m.name() == m_msvcVersion) {
                     e = m.addToEnvironment(e);
                     msvcPath = m.path();
                     break;
@@ -1254,8 +1254,8 @@ Environment QtVersion::addToEnvironment(const Environment &env)
         CeSdkHandler cesdkhandler;
         cesdkhandler.parse(msvcPath);
         e = cesdkhandler.find(platformName).addToEnvironment(e);
-    } else if(t == QtVersion::OTHER) {
-        if(!m_prependPath.isEmpty())
+    } else if (t == QtVersion::OTHER) {
+        if (!m_prependPath.isEmpty())
             e.prependOrSetPath(m_prependPath);
     }
     return e;

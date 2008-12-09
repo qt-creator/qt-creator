@@ -93,7 +93,7 @@ static QString pluginDependencies(const PluginBaseClasses *plb)
                                QString(QLatin1String(plb->dependentModules)).split(blank) :
                                QStringList();
     pluginModules.push_back(QLatin1String(plb->module));
-    foreach(const QString &module, pluginModules) {
+    foreach (const QString &module, pluginModules) {
         if (!dependencies.isEmpty())
             dependencies += blank;
         dependencies += ModulesPage::idOfModule(module);

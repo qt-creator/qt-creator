@@ -57,11 +57,9 @@ void Project::insertBuildStep(int position, BuildStep *step)
 {
     m_buildSteps.insert(position, step);
     // check that the step has all the configurations
-    foreach(const QString & name, buildConfigurations())
-    {
+    foreach (const QString &name, buildConfigurations())
         if (!step->getBuildConfiguration(name))
             step->addBuildConfiguration(name);
-    }
 }
 
 void Project::removeBuildStep(int position)
@@ -80,11 +78,9 @@ void Project::insertCleanStep(int position, BuildStep *step)
 {
     m_cleanSteps.insert(position, step);
     // check that the step has all the configurations
-    foreach(const QString & name, buildConfigurations())
-    {
+    foreach (const QString &name, buildConfigurations())
         if (!step->getBuildConfiguration(name))
             step->addBuildConfiguration(name);
-    }
 }
 
 void Project::removeCleanStep(int position)
@@ -100,10 +96,10 @@ void Project::addBuildConfiguration(const QString &name)
 
     m_buildConfigurationValues.push_back(new BuildConfiguration(name));
 
-    for (int i = 0; i!=m_buildSteps.size(); ++i)
+    for (int i = 0; i != m_buildSteps.size(); ++i)
         m_buildSteps.at(i)->addBuildConfiguration(name);
 
-    for (int i = 0; i!=m_cleanSteps.size(); ++i)
+    for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->addBuildConfiguration(name);
 }
 
@@ -113,15 +109,15 @@ void Project::removeBuildConfiguration(const QString &name)
         return;
 
     for (int i = 0; i != m_buildConfigurationValues.size(); ++i)
-        if(m_buildConfigurationValues.at(i)->name() == name) {
+        if (m_buildConfigurationValues.at(i)->name() == name) {
             delete m_buildConfigurationValues.at(i);
             m_buildConfigurationValues.removeAt(i);
             break;
         }
 
-    for (int i = 0; i!=m_buildSteps.size(); ++i)
+    for (int i = 0; i != m_buildSteps.size(); ++i)
         m_buildSteps.at(i)->removeBuildConfiguration(name);
-    for (int i = 0; i!=m_cleanSteps.size(); ++i)
+    for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->removeBuildConfiguration(name);
 
 }
@@ -132,22 +128,21 @@ void Project::copyBuildConfiguration(const QString &source, const QString &dest)
         return;
 
     for (int i = 0; i != m_buildConfigurationValues.size(); ++i)
-        if(m_buildConfigurationValues.at(i)->name() == source)
+        if (m_buildConfigurationValues.at(i)->name() == source)
             m_buildConfigurationValues.push_back(new BuildConfiguration(dest, m_buildConfigurationValues.at(i)));
 
-    for (int i = 0; i!= m_buildSteps.size(); ++i)
+    for (int i = 0; i != m_buildSteps.size(); ++i)
         m_buildSteps.at(i)->copyBuildConfiguration(source, dest);
 
-    for (int i = 0; i!= m_cleanSteps.size(); ++i)
+    for (int i = 0; i != m_cleanSteps.size(); ++i)
         m_cleanSteps.at(i)->copyBuildConfiguration(source, dest);
 }
 
 QStringList Project::buildConfigurations() const
 {
     QStringList result;
-    foreach (BuildConfiguration *bc, m_buildConfigurationValues) {
+    foreach (BuildConfiguration *bc, m_buildConfigurationValues)
         result << bc->name();
-    }
     return result;
 }
 
@@ -195,39 +190,36 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     writer.saveValue("project", m_values);
 
     //save buildsettings
-    foreach(const QString & buildConfigurationName, buildConfigurations()) {
+    foreach (const QString &buildConfigurationName, buildConfigurations()) {
         QMap<QString, QVariant> temp =
             getBuildConfiguration(buildConfigurationName)->toMap();
         writer.saveValue("buildConfiguration-" + buildConfigurationName, temp);
     }
 
     QStringList buildStepNames;
-    foreach(BuildStep * buildStep, buildSteps()) {
+    foreach (BuildStep *buildStep, buildSteps())
         buildStepNames << buildStep->name();
-    }
     writer.saveValue("buildsteps", buildStepNames);
 
     QStringList cleanStepNames;
-    foreach(BuildStep * cleanStep, cleanSteps()) {
+    foreach (BuildStep *cleanStep, cleanSteps())
         cleanStepNames << cleanStep->name();
-    }
     writer.saveValue("cleansteps", cleanStepNames);
     QStringList buildConfigurationNames = buildConfigurations();
     writer.saveValue("buildconfigurations", buildConfigurationNames );
 
     //save buildstep configuration
     int buildstepnr = 0;
-    foreach(BuildStep * buildStep, buildSteps())
-    {
+    foreach (BuildStep *buildStep, buildSteps()) {
         QMap<QString, QVariant> buildConfiguration = buildStep->valuesToMap();
         writer.saveValue("buildstep" + QString().setNum(buildstepnr), buildConfiguration);
         ++buildstepnr;
     }
 
     // save each buildstep/buildConfiguration combination
-    foreach(const QString & buildConfigurationName, buildConfigurationNames) {
+    foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         buildstepnr = 0;
-        foreach(BuildStep * buildStep, buildSteps()) {
+        foreach (BuildStep *buildStep, buildSteps()) {
             QMap<QString, QVariant> temp =
                 buildStep->valuesToMap(buildConfigurationName);
             writer.saveValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr), temp);
@@ -237,17 +229,16 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 
     //save cleansteps buildconfiguration
     int cleanstepnr = 0;
-    foreach(BuildStep * cleanStep, cleanSteps())
-    {
+    foreach (BuildStep *cleanStep, cleanSteps()) {
         QMap<QString, QVariant> buildConfiguration = cleanStep->valuesToMap();
         writer.saveValue("cleanstep" + QString().setNum(cleanstepnr), buildConfiguration);
         ++cleanstepnr;
     }
 
     // save each cleanstep/buildConfiguration combination
-    foreach(const QString & buildConfigurationName, buildConfigurationNames) {
+    foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         cleanstepnr = 0;
-        foreach(BuildStep * cleanStep, cleanSteps()) {
+        foreach (BuildStep *cleanStep, cleanSteps()) {
             QMap<QString, QVariant> temp = cleanStep->valuesToMap(buildConfigurationName);
             writer.saveValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr), temp);
             ++cleanstepnr;
@@ -279,7 +270,7 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
     //Build Settings
     const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
-    foreach(const QString & buildConfigurationName, buildConfigurationNames) {
+    foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         addBuildConfiguration(buildConfigurationName);
         QMap<QString, QVariant> temp =
             reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap();
@@ -287,16 +278,16 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     }
 
     QVariant buildStepsVariant = reader.restoreValue("buildsteps");
-    if(buildStepsVariant.isValid()) {
+    if (buildStepsVariant.isValid()) {
         // restoring BuildSteps from settings
         int pos = 0;
         const QList<IBuildStepFactory *> buildStepFactories =
             ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
         QStringList buildStepNames = buildStepsVariant.toStringList();
-        foreach(const QString & buildStepName, buildStepNames) {
-            foreach(IBuildStepFactory * factory, buildStepFactories) {
-                if(factory->canCreate(buildStepName)) {
-                    BuildStep * buildStep = factory->create(this, buildStepName);
+        foreach (const QString &buildStepName, buildStepNames) {
+            foreach (IBuildStepFactory *factory, buildStepFactories) {
+                if (factory->canCreate(buildStepName)) {
+                    BuildStep *buildStep = factory->create(this, buildStepName);
                     insertBuildStep(pos, buildStep);
                     ++pos;
                     break;
@@ -307,10 +298,10 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         QStringList cleanStepNames = reader.restoreValue("cleansteps").toStringList();
         // restoring BuildSteps from settings
         pos = 0;
-        foreach(const QString & cleanStepName, cleanStepNames) {
-            foreach(IBuildStepFactory * factory, buildStepFactories) {
-                if(factory->canCreate(cleanStepName)) {
-                    BuildStep * cleanStep = factory->create(this, cleanStepName);
+        foreach (const QString &cleanStepName, cleanStepNames) {
+            foreach (IBuildStepFactory *factory, buildStepFactories) {
+                if (factory->canCreate(cleanStepName)) {
+                    BuildStep *cleanStep = factory->create(this, cleanStepName);
                     insertCleanStep(pos, cleanStep);
                     ++pos;
                     break;
@@ -324,15 +315,15 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
         // restore BuildSteps configuration
         int buildstepnr = 0;
-        foreach(BuildStep * buildStep, buildSteps()) {
+        foreach (BuildStep *buildStep, buildSteps()) {
             QMap<QString, QVariant> buildConfiguration = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
             buildStep->setValuesFromMap(buildConfiguration);
             ++buildstepnr;
         }
 
-        foreach(const QString & buildConfigurationName, buildConfigurationNames) {
+        foreach (const QString &buildConfigurationName, buildConfigurationNames) {
             buildstepnr = 0;
-            foreach(BuildStep * buildStep, buildSteps()) {
+            foreach (BuildStep *buildStep, buildSteps()) {
                 //get the buildconfiguration for this build step
                 QMap<QString, QVariant> buildConfiguration =
                     reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr)).toMap();
@@ -343,16 +334,15 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
         // restore CleanSteps configuration
         int cleanstepnr = 0;
-        foreach(BuildStep * cleanStep, cleanSteps())
-        {
+        foreach (BuildStep *cleanStep, cleanSteps()) {
             QMap<QString, QVariant> buildConfiguration = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
             cleanStep->setValuesFromMap(buildConfiguration);
             ++cleanstepnr;
         }
 
-        foreach(const QString & buildConfigurationName, buildConfigurationNames) {
+        foreach (const QString &buildConfigurationName, buildConfigurationNames) {
             cleanstepnr = 0;
-            foreach(BuildStep * cleanStep, cleanSteps()) {
+            foreach (BuildStep *cleanStep, cleanSteps()) {
                 //get the buildconfiguration for this clean step
                 QMap<QString, QVariant> buildConfiguration =
                     reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr)).toMap();
@@ -373,7 +363,7 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         if (!typeVariant.isValid())
             break;
         const QString &type = typeVariant.toString();
-        foreach (IRunConfigurationFactory * factory, factories) {
+        foreach (IRunConfigurationFactory *factory, factories) {
             if (factory->canCreate(type)) {
                 QSharedPointer<RunConfiguration> rc = factory->create(this, type);
                 rc->restore(reader);
@@ -403,7 +393,7 @@ QVariant Project::value(const QString &name) const
 {
     QMap<QString, QVariant>::const_iterator it =
         m_values.find(name);
-    if(it != m_values.constEnd())
+    if (it != m_values.constEnd())
         return it.value();
     else
         return QVariant();
@@ -497,7 +487,7 @@ QString Project::displayNameFor(const QString &buildConfiguration)
 void Project::setDisplayNameFor(const QString &buildConfiguration, const QString &displayName)
 {
     QStringList displayNames;
-    foreach(const QString &bc, buildConfigurations()) {
+    foreach (const QString &bc, buildConfigurations()) {
         if (bc != buildConfiguration)
             displayNames << displayNameFor(bc);
     }

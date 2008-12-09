@@ -173,41 +173,41 @@ static QStringList split_arg_list(QString params)
     const QChar *params_data = params.data();
     const int params_len = params.length();
     int last = 0;
-    while(last < params_len && ((params_data+last)->unicode() == SPACE
+    while (last < params_len && ((params_data+last)->unicode() == SPACE
                                 /*|| (params_data+last)->unicode() == TAB*/))
         ++last;
-    for(int x = last, parens = 0; x <= params_len; x++) {
+    for (int x = last, parens = 0; x <= params_len; x++) {
         unicode = (params_data+x)->unicode();
-        if(x == params_len) {
-            while(x && (params_data+(x-1))->unicode() == SPACE)
+        if (x == params_len) {
+            while (x && (params_data+(x-1))->unicode() == SPACE)
                 --x;
             QString mid(params_data+last, x-last);
-            if(quote) {
-                if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
+            if (quote) {
+                if (mid[0] == quote && mid[(int)mid.length()-1] == quote)
                     mid = mid.mid(1, mid.length()-2);
                 quote = 0;
             }
             args << mid;
             break;
         }
-        if(unicode == LPAREN) {
+        if (unicode == LPAREN) {
             --parens;
-        } else if(unicode == RPAREN) {
+        } else if (unicode == RPAREN) {
             ++parens;
-        } else if(quote && unicode == quote) {
+        } else if (quote && unicode == quote) {
             quote = 0;
-        } else if(!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
+        } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
             quote = unicode;
-        } else if(!parens && !quote && unicode == COMMA) {
+        } else if (!parens && !quote && unicode == COMMA) {
             QString mid = params.mid(last, x - last).trimmed();
             args << mid;
             last = x+1;
-            while(last < params_len && ((params_data+last)->unicode() == SPACE
+            while (last < params_len && ((params_data+last)->unicode() == SPACE
                                         /*|| (params_data+last)->unicode() == TAB*/))
                 ++last;
         }
     }
-    for(int i = 0; i < args.count(); i++)
+    for (int i = 0; i < args.count(); i++)
         unquote(&args[i]);
     return args;
 }
@@ -227,22 +227,22 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
 
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
-    for(int x = 0, parens = 0; x < vals_len; x++) {
+    for (int x = 0, parens = 0; x < vals_len; x++) {
         QChar c = vals_data[x];
         if (x != vals_len-1 && c == BACKSLASH &&
            vals_data[x+1].unicode() == '\'' || vals_data[x+1] == DOUBLEQUOTE) {
             build += vals_data[x++]; // get that 'escape'
         } else if (!quote.isEmpty() && c == quote.top()) {
             quote.pop();
-        } else if(c == SINGLEQUOTE || c == DOUBLEQUOTE) {
+        } else if (c == SINGLEQUOTE || c == DOUBLEQUOTE) {
             quote.push(c);
-        } else if(c == RPAREN) {
+        } else if (c == RPAREN) {
             --parens;
-        } else if(c == LPAREN) {
+        } else if (c == LPAREN) {
             ++parens;
         }
 
-        if(!parens && quote.isEmpty() && ((do_semicolon && c == SEMICOLON) ||
+        if (!parens && quote.isEmpty() && ((do_semicolon && c == SEMICOLON) ||
                                           vals_data[x] == Option::field_sep)) {
             ret << build;
             build.clear();
@@ -250,7 +250,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
             build += vals_data[x];
         }
     }
-    if(!build.isEmpty())
+    if (!build.isEmpty())
         ret << build;
     return ret;
 }
@@ -262,7 +262,7 @@ static QStringList qmake_mkspec_paths()
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isEmpty()) {
         const QStringList lst = splitPathList(QString::fromLocal8Bit(qmakepath));
-        for(QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
+        for (QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
     }
     ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;

@@ -230,13 +230,11 @@ void ProjectWindow::updateTreeWidget()
 Project *ProjectWindow::findProject(const QString &path) const
 {
     QList<Project*> projects = m_session->projects();
-    foreach(Project* project, projects) {
-        if (project->file()->fileName() == path) {
+    foreach (Project* project, projects)
+        if (project->file()->fileName() == path)
             return project;
-        }
-    }
     return 0;
- }
+}
 
 
 void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
@@ -244,7 +242,6 @@ void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
     if (current) {
         QString path = current->text(2);
         if (Project *project = findProject(path)) {
-
             m_projectExplorer->setCurrentFile(project, path);
             showProperties(project, QModelIndex());
             return;

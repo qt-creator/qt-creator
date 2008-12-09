@@ -45,7 +45,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(QStringList list)
     QList<EnvironmentItem> result;
     foreach (const QString &string, list) {
         int pos = string.indexOf(QLatin1Char('='));
-        if(pos == -1) {
+        if (pos == -1) {
             EnvironmentItem item(string, "");
             item.unset = true;
             result.append(item);
@@ -61,7 +61,7 @@ QStringList EnvironmentItem::toStringList(QList<EnvironmentItem> list)
 {
     QStringList result;
     foreach (const EnvironmentItem &item, list) {
-        if(item.unset)
+        if (item.unset)
             result << QString(item.name);
         else
             result << QString(item.name + '=' + item.value);
@@ -71,14 +71,13 @@ QStringList EnvironmentItem::toStringList(QList<EnvironmentItem> list)
 
 Environment::Environment()
 {
-
 }
 
 Environment::Environment(QStringList env)
 {
-    foreach(QString s, env) {
+    foreach (const QString &s, env) {
         int i = s.indexOf("=");
-        if (i >=0 ) {
+        if (i >= 0) {
 #ifdef Q_OS_WIN
             m_values.insert(s.left(i).toUpper(), s.mid(i+1));
 #else
@@ -196,13 +195,13 @@ QString Environment::searchInPath(QString executable)
         executable.append(QLatin1String(".exe"));
 #endif
     const QChar slash = QLatin1Char('/');
-    foreach(const QString &p, path()) {
+    foreach (const QString &p, path()) {
 //        qDebug()<<"trying"<<path + '/' + executable;
         QString fp = p;
         fp += slash;
         fp += executable;
         const QFileInfo fi(fp);
-        if(fi.exists()) {
+        if (fi.exists()) {
 //            qDebug()<<"returning "<<fi.absoluteFilePath();
             return fi.absoluteFilePath();
         }
@@ -248,7 +247,7 @@ Environment::const_iterator Environment::constEnd() const
 Environment::const_iterator Environment::find(const QString &name)
 {
     QMap<QString, QString>::const_iterator it = m_values.constFind(name);
-    if(it == m_values.constEnd())
+    if (it == m_values.constEnd())
         return constEnd();
     else
         return it;
@@ -263,24 +262,24 @@ void Environment::modify(const QList<EnvironmentItem> & list)
 {
     Environment resultEnvironment = *this;
     foreach (const EnvironmentItem &item, list) {
-        if(item.unset) {
+        if (item.unset) {
             resultEnvironment.unset(item.name);
         } else {
             // TODO use variable expansion
             QString value = item.value;
-            for(int i=0; i < value.size(); ++i) {
-                if(value.at(i) == QLatin1Char('$')) {
-                    if((i + 1) < value.size()) {
+            for (int i=0; i < value.size(); ++i) {
+                if (value.at(i) == QLatin1Char('$')) {
+                    if ((i + 1) < value.size()) {
                         const QChar &c = value.at(i+1);
                         int end = -1;
                         if (c == '(')
                             end = value.indexOf(')', i);
-                        else if (c=='{')
+                        else if (c == '{')
                             end = value.indexOf('}', i);
-                        if(end != -1) {
+                        if (end != -1) {
                             const QString &name = value.mid(i+2, end-i-2);
                             Environment::const_iterator it = find(name);
-                            if(it != constEnd())
+                            if (it != constEnd())
                                 value.replace(i, end-i+1, it.value());
                         }
                     }
@@ -334,7 +333,7 @@ QStringList Environment::parseCombinedArgString(const QString &program)
 QString Environment::joinArgumentList(const QStringList &arguments)
 {
     QString result;
-    foreach(QString arg, arguments) {
+    foreach (QString arg, arguments) {
         if (!result.isEmpty())
             result += QLatin1Char(' ');
         arg.replace(QLatin1String("\""), QLatin1String("\"\"\""));

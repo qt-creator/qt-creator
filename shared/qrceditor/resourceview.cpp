@@ -476,7 +476,7 @@ bool ResourceView::load(QString fileName)
     const QFileInfo fi(fileName);
     m_qrcModel->setFileName(fi.absoluteFilePath());
 
-    if(!fi.exists())
+    if (!fi.exists())
         return false;
 
     const bool result = m_qrcModel->reload();
@@ -501,9 +501,8 @@ void ResourceView::changePrefix(const QModelIndex &index)
     QString const prefixAfter = QInputDialog::getText(this, tr("Change Prefix"), tr("Input Prefix:"),
         QLineEdit::Normal, prefixBefore, &ok);
 
-    if (ok) {
+    if (ok)
         addUndoCommand(preindex, PrefixProperty, prefixBefore, prefixAfter);
-    }
 }
 
 void ResourceView::changeLang(const QModelIndex &index)
@@ -522,7 +521,7 @@ void ResourceView::changeLang(const QModelIndex &index)
 
 void ResourceView::changeAlias(const QModelIndex &index)
 {
-    if(!index.parent().isValid())
+    if (!index.parent().isValid())
         return;
 
     bool ok = false;
@@ -531,9 +530,8 @@ void ResourceView::changeAlias(const QModelIndex &index)
     QString const aliasAfter = QInputDialog::getText(this, tr("Change File Alias"), tr("Alias:"),
         QLineEdit::Normal, aliasBefore, &ok);
 
-    if (ok) {
+    if (ok)
         addUndoCommand(index, AliasProperty, aliasBefore, aliasAfter);
-    }
 }
 
 QString ResourceView::currentAlias() const
@@ -585,15 +583,16 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     }
 }
 
-void ResourceView::advanceMergeId() {
+void ResourceView::advanceMergeId()
+{
     m_mergeId++;
-    if (m_mergeId < 0) {
+    if (m_mergeId < 0)
         m_mergeId = 0;
-    }
 }
 
 void ResourceView::addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
-        const QString &before, const QString &after) {
+        const QString &before, const QString &after)
+{
     QUndoCommand * const command = new ModifyPropertyCommand(this, nodeIndex, property,
             m_mergeId, before, after);
     m_history->push(command);

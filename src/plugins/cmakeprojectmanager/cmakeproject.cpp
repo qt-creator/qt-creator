@@ -58,7 +58,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     CMakeCbpParser cbpparser;
     if (cbpparser.parseCbpFile(cbpFile)) {
         buildTree(m_rootNode, cbpparser.fileList());
-        foreach(ProjectExplorer::FileNode *fn, cbpparser.fileList())
+        foreach (ProjectExplorer::FileNode *fn, cbpparser.fileList())
             m_files.append(fn->path());
         m_files.sort();
 
@@ -87,11 +87,9 @@ QString CMakeProject::findCbpFile(const QDir &directory)
     //   TODO the cbp file is named like the project() command in the CMakeList.txt file
     //   so this method below could find the wrong cbp file, if the user changes the project()
     //   name
-    foreach(const QString &cbpFile , directory.entryList())
-    {
-        if (cbpFile.endsWith(".cbp")) {
+    foreach (const QString &cbpFile , directory.entryList()) {
+        if (cbpFile.endsWith(".cbp"))
             return directory.path() + "/" + cbpFile;
-        }
     }
     return QString::null;
 }
@@ -113,7 +111,7 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
 {
     //m_rootNode->addFileNodes(fileList, m_rootNode);
     qSort(list.begin(), list.end(), ProjectExplorer::ProjectNode::sortNodesByPath);
-    foreach( ProjectExplorer::FileNode *fn, list) {
+    foreach (ProjectExplorer::FileNode *fn, list) {
         // Get relative path to rootNode
         QString parentDir = QFileInfo(fn->path()).absolutePath();
         ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
@@ -127,10 +125,10 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
     QString relativePath = QDir(QFileInfo(rootNode->path()).path()).relativeFilePath(directory);
     QStringList parts = relativePath.split("/");
     ProjectExplorer::FolderNode *parent = rootNode;
-    foreach(const QString &part, parts) {
+    foreach (const QString &part, parts) {
         // Find folder in subFolders
         bool found = false;
-        foreach(ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
+        foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
             if (QFileInfo(folder->path()).fileName() == part) {
                 // yeah found something :)
                 parent = folder;
@@ -332,7 +330,7 @@ bool CMakeCbpParser::parseCbpFile(const QString &fileName)
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         setDevice(&fi);
 
-        while(!atEnd()) {
+        while (!atEnd()) {
             readNext();
             if (name() == "CodeBlocks_project_file") {
                 parseCodeBlocks_project_file();
@@ -350,7 +348,7 @@ bool CMakeCbpParser::parseCbpFile(const QString &fileName)
 
 void CMakeCbpParser::parseCodeBlocks_project_file()
 {
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -364,7 +362,7 @@ void CMakeCbpParser::parseCodeBlocks_project_file()
 
 void CMakeCbpParser::parseProject()
 {
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -380,7 +378,7 @@ void CMakeCbpParser::parseProject()
 
 void CMakeCbpParser::parseBuild()
 {
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -396,7 +394,7 @@ void CMakeCbpParser::parseTarget()
 {
     m_targetOutput.clear();
     m_targetType = false;
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             if (m_targetType && !m_targetOutput.isEmpty()) {
@@ -420,7 +418,7 @@ void CMakeCbpParser::parseTargetOption()
         m_targetOutput = attributes().value("output").toString();
     else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
         m_targetType = true;
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -432,7 +430,7 @@ void CMakeCbpParser::parseTargetOption()
 
 void CMakeCbpParser::parseCompiler()
 {
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -447,7 +445,7 @@ void CMakeCbpParser::parseCompiler()
 void CMakeCbpParser::parseAdd()
 {
     m_includeFiles.append(attributes().value("directory").toString());
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;
@@ -463,7 +461,7 @@ void CMakeCbpParser::parseUnit()
     QString fileName = attributes().value("filename").toString();
     if (!fileName.endsWith(".rule"))
         m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));
-    while(!atEnd()) {
+    while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             return;

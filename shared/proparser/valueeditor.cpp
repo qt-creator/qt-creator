@@ -131,7 +131,7 @@ void ValueEditor::initialize()
     connect(m_itemListWidget, SIGNAL(itemChanged(QListWidgetItem *)),
         this, SLOT(updateItemChanges(QListWidgetItem *)));
 
-    foreach(ProVariableInfo *varinfo, m_infomanager->variables()) {
+    foreach (ProVariableInfo *varinfo, m_infomanager->variables()) {
         m_varComboBox->addItem(varinfo->name(), varinfo->id());
     }
 
