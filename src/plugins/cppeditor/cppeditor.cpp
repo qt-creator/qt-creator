@@ -520,6 +520,15 @@ void CPPEditor::jumpToDefinition()
 #endif
         }
     } else {
+        foreach (const Document::MacroUse use, doc->macroUses()) {
+            if (use.contains(endOfName - 1)) {
+                const Macro &macro = use.macro();
+                const QString fileName = QString::fromUtf8(macro.fileName);
+                if (TextEditor::BaseTextEditor::openEditorAt(fileName, macro.line, 0))
+                    return; // done
+            }
+        }
+
         qDebug() << "No results for expression:" << expression;
     }
 }
