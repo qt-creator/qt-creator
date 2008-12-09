@@ -39,7 +39,6 @@
 #include "gdboptionpage.h"
 #include "gdbengine.h"
 #include "mode.h"
-#include "qtcassert.h"
 
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/coreconstants.h>
@@ -48,20 +47,27 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
+
 #include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+
+#include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/basetexteditor.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
+
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>

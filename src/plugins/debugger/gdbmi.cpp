@@ -32,10 +32,10 @@
 ***************************************************************************/
 
 #include "gdbmi.h"
-#include "qtcassert.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
-#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 
 namespace Debugger {

@@ -36,13 +36,11 @@
 
 #include <QtCore/QDebug>
 
-#ifdef Q_OS_UNIX
+// we do not use the  'do {...} while (0)' idiom here to be able to use
+// 'break' and 'continue' as 'actions'.
+
 #define QTC_ASSERT(cond, action) \
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
-#else
-#define QTC_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
-#endif
 
 #endif // QTC_ASSERT_H
 

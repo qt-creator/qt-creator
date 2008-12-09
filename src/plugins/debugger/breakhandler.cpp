@@ -34,7 +34,8 @@
 #include "breakhandler.h"
 
 #include "imports.h" // TextEditor::BaseTextMark
-#include "qtcassert.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>

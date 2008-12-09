@@ -37,7 +37,7 @@
 #include "modeltest.h"
 #endif
 
-#include "qtcassert.h"
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
