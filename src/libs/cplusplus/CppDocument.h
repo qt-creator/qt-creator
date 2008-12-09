@@ -68,8 +68,7 @@ public:
     void addIncludeFile(const QString &fileName);
 
     void appendMacro(const Macro &macro);
-
-    void addMacroUse(unsigned offset, unsigned length);
+    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -177,12 +176,30 @@ public:
 
         inline unsigned end() const
         { return _end; }
+
+        bool contains(unsigned pos) const
+        { return pos >= _begin && pos < _end; }
+    };
+
+    class MacroUse: public Block {
+        Macro _macro;
+
+    public:
+        inline MacroUse(const Macro &macro,
+                        unsigned begin = 0,
+                        unsigned end = 0)
+            : Block(begin, end),
+              _macro(macro)
+        { }
+
+        const Macro &macro() const
+        { return _macro; }
     };
 
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
 
-    QList<Block> macroUses() const
+    QList<MacroUse> macroUses() const
     { return _macroUses; }
 
 private:
@@ -197,7 +214,7 @@ private:
     QList<DiagnosticMessage> _diagnosticMessages;
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
-    QList<Block> _macroUses;
+    QList<MacroUse> _macroUses;
 };
 
 } // end of namespace CPlusPlus

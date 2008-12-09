@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <debugger/debuggerconstants.h>
 
 #include <CoreTypes.h>
@@ -51,13 +52,13 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QtGui/QToolTip>
-#include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 #include <QtHelp/QHelpEngineCore>
 #include <QtCore/QtCore>
 
 using namespace CppTools::Internal;
+using namespace CPlusPlus;
 
 CppHoverHandler::CppHoverHandler(CppModelManager *manager, QObject *parent)
     : QObject(parent), m_manager(manager), m_helpEngineNeedsSetup(false)
@@ -104,11 +105,9 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-static QString buildHelpId(const CPlusPlus::FullySpecifiedType &type,
-                           const CPlusPlus::Symbol *symbol)
+static QString buildHelpId(const FullySpecifiedType &type,
+                           const Symbol *symbol)
 {
-    using namespace CPlusPlus;
-
     Name *name = 0;
     Scope *scope = 0;
 
@@ -156,12 +155,10 @@ static QString buildHelpId(const CPlusPlus::FullySpecifiedType &type,
 
 void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
 {
-    using namespace CPlusPlus;
-
     m_helpId.clear();
     m_toolTip.clear();
 
-    QPlainTextEdit *edit = qobject_cast<QPlainTextEdit *>(editor->widget());
+    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
     if (!edit)
         return;
 
@@ -169,14 +166,22 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     tc.setPosition(pos);
 
     const int lineNumber = tc.block().blockNumber() + 1;
-
-    QString fileName = editor->file()->fileName();
+    const QString fileName = editor->file()->fileName();
     Document::Ptr doc = m_manager->document(fileName);
     if (doc) {
         foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
             if (m.line() == lineNumber) {
                 m_toolTip = m.text();
                 break;
+            }
+        }
+
+        if (m_toolTip.isEmpty()) {
+            foreach (const Document::MacroUse use, doc->macroUses()) {
+                if (use.contains(pos)) {
+                    m_toolTip = use.macro().toString();
+                    break;
+                }
             }
         }
     }
