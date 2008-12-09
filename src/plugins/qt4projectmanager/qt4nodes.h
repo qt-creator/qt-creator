@@ -75,6 +75,7 @@ using ProjectExplorer::FileType;
 
 class ProFileReader;
 class DirectoryWatcher;
+class FileWatcher;
 
 //  Type of projects
 enum Qt4ProjectType {
@@ -142,6 +143,9 @@ protected:
     QString buildDir() const;
     ProFileReader *createProFileReader() const;
 
+private slots:
+    void scheduleUpdate();
+
 private:
     void save(ProFile *includeFile);
     bool priFileWritable(const QString &path);
@@ -151,7 +155,10 @@ private:
     Qt4ProFileNode *m_qt4ProFileNode;
     QString m_projectFilePath;
     QString m_projectDir;
-    QTimer *m_saveTimer;
+
+    // TODO we might be better off using an IFile* and the FileManager for
+    // watching changes to the .pro and .pri files on disk
+    FileWatcher *m_fileWatcher;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
@@ -174,14 +181,13 @@ public:
     QStringList variableValue(const Qt4Variable var) const;
 
 public slots:
+    void scheduleUpdate();
     void update();
-
 private slots:
     void fileChanged(const QString &filePath);
-
-private:
     void updateGeneratedFiles();
 
+private:
     Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;
@@ -197,9 +203,9 @@ private:
     Qt4ProjectType m_projectType;
     QHash<Qt4Variable, QStringList> m_varValues;
     bool m_isQBuildProject;
+    QTimer m_updateTimer;
 
     DirectoryWatcher *m_dirWatcher;
-
     friend class Qt4NodeHierarchy;
 };
 

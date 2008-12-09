@@ -265,7 +265,7 @@ Qt4Project::~Qt4Project()
 void Qt4Project::defaultQtVersionChanged()
 {
     if (qtVersionId(activeBuildConfiguration()) == 0)
-        update();
+        m_rootProjectNode->update();
 }
 
 void Qt4Project::qtVersionsChanged()
@@ -274,7 +274,7 @@ void Qt4Project::qtVersionsChanged()
         if (!qt4ProjectManager()->versionManager()->version(qtVersionId(bc))->isValid()) {
             setQtVersion(bc, 0);
             if (bc == activeBuildConfiguration())
-                update();
+                m_rootProjectNode->update();
         }
     }
 }
@@ -507,9 +507,9 @@ void Qt4Project::updateCodeModel()
 }
 
 
-/*!
-  Updates complete project
-  */
+///*!
+//  Updates complete project
+//  */
 void Qt4Project::update()
 {
     // TODO Maybe remove this method completely?

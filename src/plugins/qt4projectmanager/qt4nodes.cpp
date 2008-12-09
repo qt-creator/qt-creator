@@ -87,11 +87,20 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_project(project),
           m_qt4ProFileNode(qt4ProFileNode),
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
-          m_projectDir(QFileInfo(filePath).absolutePath())
+          m_projectDir(QFileInfo(filePath).absolutePath()),
+          m_fileWatcher(new FileWatcher(this))
 {
     QTC_ASSERT(project, return);
     setFolderName(QFileInfo(filePath).baseName());
     setIcon(QIcon(":/qt4projectmanager/images/qt_project.png"));
+    m_fileWatcher->addFile(filePath);
+    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(scheduleUpdate()));
+}
+
+void Qt4PriFileNode::scheduleUpdate()
+{
+    m_qt4ProFileNode->scheduleUpdate();
 }
 
 void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
@@ -495,11 +504,16 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
     if (parent)
         setParent(parent);
 
+    m_updateTimer.setInterval(100);
+    m_updateTimer.setSingleShot(true);
+
     connect(m_dirWatcher, SIGNAL(directoryChanged(const QString&)),
-            this, SLOT(update()));
+            this, SLOT(updateGeneratedFiles()));
     connect(m_dirWatcher, SIGNAL(fileChanged(const QString&)),
             this, SLOT(fileChanged(const QString&)));
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(update()));
+    connect(&m_updateTimer, SIGNAL(timeout()),
             this, SLOT(update()));
 }
 
@@ -521,6 +535,11 @@ Qt4ProjectType Qt4ProFileNode::projectType() const
 QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
 {
     return m_varValues.value(var);
+}
+
+void Qt4ProFileNode::scheduleUpdate()
+{
+    m_updateTimer.start();
 }
 
 void Qt4ProFileNode::update()
@@ -681,9 +700,11 @@ void Qt4ProFileNode::update()
 
 void Qt4ProFileNode::fileChanged(const QString &filePath)
 {
+    qDebug()<<"+++++"<<filePath;
     CppTools::CppModelManagerInterface *modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
+    // TODO compress
     modelManager->updateSourceFiles(QStringList() << filePath);
 }
 
@@ -731,11 +752,16 @@ void Qt4ProFileNode::updateGeneratedFiles()
 
     // update generated files
 
+    // Already existing FileNodes
     QList<FileNode*> existingFileNodes;
     foreach (FileNode *file, fileNodes()) {
         if (file->isGenerated())
             existingFileNodes << file;
     }
+
+
+    // Convert uiFile to uiHeaderFilePath, find all headers that correspond
+    // and try to find them in uicDirs
     QStringList newFilePaths;
     foreach (const QString &uicDir, m_varValues[UiDirVar]) {
         foreach (FileNode *uiFile, uiFiles) {
