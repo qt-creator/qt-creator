@@ -33,9 +33,9 @@
 
 #include "mode.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
+#include "qtcassert.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

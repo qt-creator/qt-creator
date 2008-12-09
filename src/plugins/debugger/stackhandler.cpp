@@ -33,7 +33,7 @@
 
 #include "stackhandler.h"
 
-#include "assert.h"
+#include "qtcassert.h"
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>

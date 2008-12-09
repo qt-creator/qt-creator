@@ -33,7 +33,7 @@
 
 #include "scriptengine.h"
 
-#include "assert.h"
+#include "qtcassert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 

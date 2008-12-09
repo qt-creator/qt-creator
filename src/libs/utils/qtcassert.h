@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_QTC_ASSERT_H
-#define DEBUGGER_QTC_ASSERT_H
+#ifndef QTC_ASSERT_H
+#define QTC_ASSERT_H
 
 #ifdef Q_OS_UNIX
 #define QTC_ASSERT(cond, action) \
@@ -42,5 +42,5 @@
     if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
 #endif
 
-#endif // DEBUGGER_QTC_ASSERT_H
+#endif // QTC_ASSERT_H
 

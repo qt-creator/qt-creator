@@ -33,8 +33,8 @@
 
 #include "debuggerrunner.h"
 
-#include "assert.h"
 #include "debuggermanager.h"
+#include "qtcassert.h"
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/environment.h>

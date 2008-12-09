@@ -33,11 +33,11 @@
 
 #include "gdbengine.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "gdbmi.h"
 #include "procinterrupt.h"
+#include "qtcassert.h"
 
 #include "disassemblerhandler.h"
 #include "breakhandler.h"

@@ -32,7 +32,7 @@
 ***************************************************************************/
 
 #include "gdbmi.h"
-#include "assert.h"
+#include "qtcassert.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>

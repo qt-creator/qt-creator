@@ -33,13 +33,13 @@
 
 #include "debuggerplugin.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
 #include "gdboptionpage.h"
 #include "gdbengine.h"
 #include "mode.h"
+#include "qtcassert.h"
 
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/coreconstants.h>
