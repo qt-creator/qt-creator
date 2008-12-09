@@ -153,7 +153,7 @@ bool SearchSymbols::visit(Class *symbol)
 QString SearchSymbols::scopedSymbolName(const QString &symbolName) const
 {
     QString name = _scope;
-    if (! name.isEmpty())
+    if (!name.isEmpty())
         name += QLatin1String("::");
     name += symbolName;
     return name;
@@ -196,6 +196,9 @@ void SearchSymbols::appendItem(const QString &name,
                                ModelItemInfo::ItemType type,
                                const Symbol *symbol)
 {
+    if (!symbol->name())
+        return;
+
     const QIcon icon = icons.iconForSymbol(symbol);
     items.append(ModelItemInfo(name, info, type,
                                QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
