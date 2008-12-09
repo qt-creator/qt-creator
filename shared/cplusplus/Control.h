@@ -151,6 +151,11 @@ public:
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 
+    typedef const Identifier *const *IdentifierIterator;
+
+    IdentifierIterator firstIdentifier() const;
+    IdentifierIterator lastIdentifier() const;
+
     StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
     StringLiteral *findOrInsertStringLiteral(const char *chars);
 

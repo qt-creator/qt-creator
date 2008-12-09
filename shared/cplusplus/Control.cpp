@@ -511,6 +511,12 @@ Identifier *Control::findOrInsertIdentifier(const char *chars)
     return findOrInsertIdentifier(chars, length);
 }
 
+Control::IdentifierIterator Control::firstIdentifier() const
+{ return d->identifiers.begin(); }
+
+Control::IdentifierIterator Control::lastIdentifier() const
+{ return d->identifiers.end(); }
+
 StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
