@@ -273,7 +273,7 @@ void Qt4Project::qtVersionsChanged()
     foreach (QString bc, buildConfigurations()) {
         if (!qt4ProjectManager()->versionManager()->version(qtVersionId(bc))->isValid()) {
             setQtVersion(bc, 0);
-            if(bc == activeBuildConfiguration())
+            if (bc == activeBuildConfiguration())
                 update();
         }
     }
@@ -663,7 +663,7 @@ QString Qt4Project::buildDirectory(const QString &buildConfiguration) const
     QString workingDirectory;
     if (value(buildConfiguration, "useShadowBuild").toBool())
         workingDirectory = value(buildConfiguration, "buildDirectory").toString();
-    if(workingDirectory.isEmpty())
+    if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(file()->fileName()).absolutePath();
     return workingDirectory;
 }
@@ -698,7 +698,7 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
         qDebug()<<"Looking for qtVersion ID of "<<buildConfiguration;
     int id = 0;
     QVariant vid = value(buildConfiguration, "QtVersionId");
-    if(vid.isValid()) {
+    if (vid.isValid()) {
         id = vid.toInt();
         if (m_manager->versionManager()->version(id)->isValid()) {
             return id;
@@ -711,10 +711,10 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
         QString vname = value(buildConfiguration, "QtVersion").toString();
         if (debug)
             qDebug()<<"  Backward compatibility reading QtVersion"<<vname;
-        if(!vname.isEmpty()) {
+        if (!vname.isEmpty()) {
             const QList<QtVersion *> &versions = m_manager->versionManager()->versions();
             foreach (const QtVersion * const version, versions) {
-                if(version->name() == vname) {
+                if (version->name() == vname) {
                     if (debug)
                         qDebug()<<"found name in versions";
                     const_cast<Qt4Project *>(this)->setValue(buildConfiguration, "QtVersionId", version->uniqueId());
@@ -828,7 +828,7 @@ void Qt4Project::checkForDeletedApplicationProjects()
 
     bool resetActiveRunConfiguration = false;
     QSharedPointer<RunConfiguration> rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
-    foreach(QSharedPointer<Qt4RunConfiguration> qt4rc, removeList) {
+    foreach (QSharedPointer<Qt4RunConfiguration> qt4rc, removeList) {
         removeRunConfiguration(qt4rc);
         if (activeRunConfiguration() == qt4rc)
             resetActiveRunConfiguration = true;
@@ -905,7 +905,7 @@ bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)
     foreach (FolderNode *fn, root->subFolderNodes()) {
         if (qobject_cast<Qt4ProFileNode *>(fn)) {
             // we aren't interested in pro file nodes
-        } else if(Qt4PriFileNode *qt4prifilenode = qobject_cast<Qt4PriFileNode *>(fn)) {
+        } else if (Qt4PriFileNode *qt4prifilenode = qobject_cast<Qt4PriFileNode *>(fn)) {
             if (hasSubNode(qt4prifilenode, path))
                 return true;
         }

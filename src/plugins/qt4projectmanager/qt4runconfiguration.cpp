@@ -297,7 +297,7 @@ QString Qt4RunConfiguration::qmakeBuildConfigFromBuildConfiguration(const QStrin
     QStringList makeargs = ms->value(buildConfigurationName, "makeargs").toStringList();
     if (makeargs.contains("debug"))
         return "debug";
-    else if(makeargs.contains("release"))
+    else if (makeargs.contains("release"))
         return "release";
 
     // Oh we don't have an explicit make argument
@@ -428,7 +428,7 @@ QStringList Qt4RunConfigurationFactoryUser::canCreate(ProjectExplorer::Project *
     if (qt4project) {
         QStringList applicationProFiles;
         QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach(Qt4ProFileNode * node, list) {
+        foreach (Qt4ProFileNode * node, list) {
             applicationProFiles.append("Qt4RunConfiguration." + node->path());
         }
         return applicationProFiles;

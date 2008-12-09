@@ -127,7 +127,7 @@ void Qt4BuildEnvironmentWidget::removeEnvironmentButtonClicked()
 void Qt4BuildEnvironmentWidget::unsetEnvironmentButtonClicked()
 {
     const QString &name = m_environmentModel->indexToVariable(m_ui->environmentTreeView->currentIndex());
-    if(!m_environmentModel->isInBaseEnvironment(name) && m_environmentModel->mergedEnvironments())
+    if (!m_environmentModel->isInBaseEnvironment(name) && m_environmentModel->mergedEnvironments())
         m_environmentModel->removeVariable(name);
     else
         m_environmentModel->unset(name);
@@ -138,7 +138,7 @@ void Qt4BuildEnvironmentWidget::switchEnvironmentTab(int newTab)
 {
     bool mergedEnvironments = (newTab == 0);
     m_environmentModel->setMergedEnvironments(mergedEnvironments);
-    if(mergedEnvironments) {
+    if (mergedEnvironments) {
         m_ui->removeButton->setText(tr("Reset"));
     } else {
         m_ui->removeButton->setText(tr("Remove"));
@@ -153,8 +153,8 @@ void Qt4BuildEnvironmentWidget::updateButtonsEnabled()
 void Qt4BuildEnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_UNUSED(previous)
-    if(current.isValid()) {
-        if(m_environmentModel->mergedEnvironments()) {
+    if (current.isValid()) {
+        if (m_environmentModel->mergedEnvironments()) {
             const QString &name = m_environmentModel->indexToVariable(current);
             bool modified = m_environmentModel->isInBaseEnvironment(name) && m_environmentModel->changes(name);
             bool unset = m_environmentModel->isUnset(name);

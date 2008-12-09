@@ -409,7 +409,7 @@ QVariant HelpViewer::loadResource(int type, const QUrl &name)
 
 void HelpViewer::openLinkInNewTab()
 {
-    if(lastAnchor.isEmpty())
+    if (lastAnchor.isEmpty())
         return;
 
     parentWidget->setSourceInNewTab(QUrl(lastAnchor));

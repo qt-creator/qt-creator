@@ -60,8 +60,8 @@ void BuildStep::addBuildConfiguration(const QString &name)
 
 void BuildStep::removeBuildConfiguration(const QString &name)
 {
-    for(int i = 0; i != m_buildConfigurations.size(); ++i)
-        if(m_buildConfigurations.at(i)->name() == name) {
+    for (int i = 0; i != m_buildConfigurations.size(); ++i)
+        if (m_buildConfigurations.at(i)->name() == name) {
             delete m_buildConfigurations.at(i);
             m_buildConfigurations.removeAt(i);
             break;
@@ -70,8 +70,8 @@ void BuildStep::removeBuildConfiguration(const QString &name)
 
 void BuildStep::copyBuildConfiguration(const QString &source, const QString &dest)
 {
-    for(int i = 0; i != m_buildConfigurations.size(); ++i)
-        if(m_buildConfigurations.at(i)->name() == source)
+    for (int i = 0; i != m_buildConfigurations.size(); ++i)
+        if (m_buildConfigurations.at(i)->name() == source)
             m_buildConfigurations.push_back(new BuildConfiguration(dest, m_buildConfigurations.at(i)));
 }
 

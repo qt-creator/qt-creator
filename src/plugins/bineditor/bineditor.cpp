@@ -222,7 +222,7 @@ void BinEditor::scrollContentsBy(int dx, int dy)
 void BinEditor::changeEvent(QEvent *e)
 {
     QAbstractScrollArea::changeEvent(e);
-    if(e->type() == QEvent::ActivationChange) {
+    if (e->type() == QEvent::ActivationChange) {
         if (!isActiveWindow())
             m_autoScrollTimer.stop();
     }
@@ -450,7 +450,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
         for (int c = 0; c < 16; ++c) {
             int pos = line * 16 + c;
             if (pos >= m_data.size()) {
-                while(c < 16) {
+                while (c < 16) {
                     itemStringData[c*3] = itemStringData[c*3+1] = ' ';
                     ++c;
                 }

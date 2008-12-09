@@ -69,7 +69,7 @@ ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion * c
 {
     QString buildParser;
     QtVersion::ToolchainType type = version->toolchainType();
-    if( type == QtVersion::MSVC || type == QtVersion::WINCE)
+    if ( type == QtVersion::MSVC || type == QtVersion::WINCE)
         buildParser = Constants::BUILD_PARSER_MSVC;
     else
         buildParser = Constants::BUILD_PARSER_GCC;
@@ -92,18 +92,18 @@ bool MakeStep::init(const QString &name)
     QString workingDirectory;
     if (project()->value(name, "useShadowBuild").toBool())
         workingDirectory = project()->value(name, "buildDirectory").toString();
-    if(workingDirectory.isEmpty())
+    if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     setWorkingDirectory(name, workingDirectory);
 
     //NBS only dependency on Qt4Project, we probably simply need a MakeProject from which Qt4Project derives
     QString makeCmd = qobject_cast<Qt4Project *>(project())->qtVersion(name)->makeCommand();
-    if(!value(name, "makeCmd").toString().isEmpty())
+    if (!value(name, "makeCmd").toString().isEmpty())
         makeCmd = value(name, "makeCmd").toString();
     if (!QFileInfo(makeCmd).isAbsolute()) {
         // Try to detect command in environment
         QString tmp = environment.searchInPath(makeCmd);
-        if(tmp == QString::null) {
+        if (tmp == QString::null) {
             emit addToOutputWindow(tr("<font color=\"#ff0000\">Could not find make command: %1 "\
                                       "in the build environment</font>").arg(makeCmd));
             return false;
@@ -291,7 +291,7 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
     bool showPage0 = buildConfiguration.isNull();
     m_ui.stackedWidget->setCurrentIndex(showPage0? 0 : 1);
 
-    if(!showPage0) {
+    if (!showPage0) {
         Qt4Project *pro = qobject_cast<Qt4Project *>(m_makeStep->project());
         m_ui.makeLabel->setText(tr("Override %1:").arg(pro->qtVersion(buildConfiguration)->makeCommand()));
 

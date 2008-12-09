@@ -88,7 +88,7 @@ QString StartExternalDialog::executableArguments() const
         result << QLatin1String("--args");
     result << execEdit->text();
 
-    for(int i=0; i<args.length(); ++i) {
+    for (int i = 0; i < args.length(); ++i) {
         current = args.at(i);
 
         if (current == QLatin1Char('\"') && last != QLatin1Char('\\')) {

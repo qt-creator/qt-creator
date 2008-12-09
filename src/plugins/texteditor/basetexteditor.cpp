@@ -1635,6 +1635,20 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QRect er = e->rect();
     QRect viewportRect = viewport()->rect();
 
+    const QColor baseColor = palette().base().color();
+    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
+    // Darker backgrounds may need a bit more contrast
+    // (this calculation is temporary solution until we have a setting for this color)
+    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
+    const QColor blendColor(
+        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256,
+        (blendBase * blendFactor + baseColor.green() * (256 - blendFactor)) / 256,
+        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256);
+    if (d->m_visibleWrapColumn > 0) {
+        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
+        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
+    }
+
     // keep right margin clean from full-width selection
     int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
                - doc->documentMargin();
@@ -1646,7 +1660,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QTextBlock block = firstVisibleBlock();
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
-
 
     if (!d->m_findScope.isNull()) {
         QAbstractTextDocumentLayout::Selection selection;
@@ -1670,20 +1683,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         int columnB = end - block.position();
         blockSelection->firstColumn = qMin(columnA, columnB);
         blockSelection->lastColumn = qMax(columnA, columnB) + d->m_blockSelectionExtraX;
-    }
-
-    const QColor baseColor = palette().base().color();
-    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
-    // Darker backgrounds may need a bit more contrast
-    // (this calculation is temporary solution until we have a setting for this color)
-    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
-    const QColor blendColor(
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.green() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256);
-    if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
 
     QTextBlock visibleCollapsedBlock;

@@ -142,7 +142,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 void BuildSettingsWidget::buildConfigurationDisplayNameChanged(const QString &buildConfiguration)
 {
     QTreeWidgetItem *rootItem = m_ui.buildSettingsList->invisibleRootItem();
-    for(int i = 0; i < rootItem->childCount(); ++i) {
+    for (int i = 0; i < rootItem->childCount(); ++i) {
         QTreeWidgetItem *child = rootItem->child(i);
         if (child->data(0, Qt::UserRole).toString() == buildConfiguration) {
             child->setText(0, m_project->displayNameFor(buildConfiguration));
@@ -334,7 +334,7 @@ void BuildSettingsWidget::createConfiguration()
 {
     bool ok;
     QString newBuildConfiguration = QInputDialog::getText(this, tr("New configuration"), tr("New Configuration Name:"), QLineEdit::Normal, QString(), &ok);
-    if(!ok || newBuildConfiguration.isEmpty())
+    if (!ok || newBuildConfiguration.isEmpty())
         return;
 
     QString newDisplayName = newBuildConfiguration;
@@ -342,22 +342,20 @@ void BuildSettingsWidget::createConfiguration()
     const QStringList &buildConfigurations = m_project->buildConfigurations();
     if (buildConfigurations.contains(newBuildConfiguration)) {
         int i = 2;
-        while(buildConfigurations.contains(newBuildConfiguration + QString::number(i))) {
+        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
             ++i;
-        }
         newBuildConfiguration += QString::number(i);
     }
 
     // Check that we don't have a configuration with the same displayName
     QStringList displayNames;
-    foreach(const QString &bc, buildConfigurations)
+    foreach (const QString &bc, buildConfigurations)
         displayNames << m_project->displayNameFor(bc);
 
     if (displayNames.contains(newDisplayName)) {
         int i = 2;
-        while(displayNames.contains(newDisplayName + QString::number(i))) {
+        while (displayNames.contains(newDisplayName + QString::number(i)))
             ++i;
-        }
         newDisplayName += QString::number(i);
     }
 
@@ -407,11 +405,11 @@ void BuildSettingsWidget::setActiveConfiguration(const QString &configuration)
 
 void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
 {
-    if(sourceConfiguration.isEmpty())
+    if (sourceConfiguration.isEmpty())
         return;
 
     QString newBuildConfiguration = QInputDialog::getText(this, tr("Clone configuration"), tr("New Configuration Name:"));
-    if(newBuildConfiguration.isEmpty())
+    if (newBuildConfiguration.isEmpty())
         return;
 
     QString newDisplayName = newBuildConfiguration;
@@ -419,22 +417,20 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
     const QStringList &buildConfigurations = m_project->buildConfigurations();
     if (buildConfigurations.contains(newBuildConfiguration)) {
         int i = 2;
-        while(buildConfigurations.contains(newBuildConfiguration + QString::number(i))) {
+        while (buildConfigurations.contains(newBuildConfiguration + QString::number(i)))
             ++i;
-        }
         newBuildConfiguration += QString::number(i);
     }
 
     // Check that we don't have a configuration with the same displayName
     QStringList displayNames;
-    foreach(const QString &bc, buildConfigurations)
+    foreach (const QString &bc, buildConfigurations)
         displayNames << m_project->displayNameFor(bc);
 
     if (displayNames.contains(newDisplayName)) {
         int i = 2;
-        while(displayNames.contains(newDisplayName + QString::number(i))) {
+        while (displayNames.contains(newDisplayName + QString::number(i)))
             ++i;
-        }
         newDisplayName += QString::number(i);
     }
 

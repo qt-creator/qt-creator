@@ -59,10 +59,10 @@ TypeMacroPage::TypeMacroPage(GdbSettings *settings)
         //insert qt4 defaults
         m_settings->m_scriptFile = coreIFace->resourcePath() +
             QLatin1String("/gdb/qt4macros");
-        for (int i=0; i<3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             QByteArray data;
             QDataStream stream(&data, QIODevice::WriteOnly);
-            switch(i) {
+            switch (i) {
             case 0:
                 stream << QString("printqstring") << (int)1;
                 m_settings->m_typeMacros.insert(QLatin1String("QString"), data);
@@ -154,7 +154,7 @@ void TypeMacroPage::finished(bool accepted)
     m_settings->m_typeMacros.clear();
     m_settings->m_scriptFile = m_ui.scriptEdit->text();
 
-    for (int i=0; i<m_ui.treeWidget->topLevelItemCount(); ++i) {
+    for (int i = 0; i < m_ui.treeWidget->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = m_ui.treeWidget->topLevelItem(i);
         QByteArray data;
         QDataStream stream(&data, QIODevice::WriteOnly);

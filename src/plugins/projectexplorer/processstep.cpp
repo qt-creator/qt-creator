@@ -54,7 +54,7 @@ bool ProcessStep::init(const QString &buildConfiguration)
     setEnvironment(buildConfiguration, project()->environment(buildConfiguration));
     QVariant wd = value(buildConfiguration, "workingDirectory").toString();
     QString workingDirectory;
-    if(!wd.isValid() || wd.toString().isEmpty())
+    if (!wd.isValid() || wd.toString().isEmpty())
         workingDirectory = "$BUILDDIR";
     else
         workingDirectory = wd.toString();
@@ -161,7 +161,7 @@ QString ProcessStepConfigWidget::displayName() const
 void ProcessStepConfigWidget::workingDirBrowseButtonClicked()
 {
     QString workingDirectory = QFileDialog::getExistingDirectory(this, "Select the working directory", m_ui.workingDirectoryLineEdit->text());
-    if(workingDirectory.isEmpty())
+    if (workingDirectory.isEmpty())
         return;
     m_ui.workingDirectoryLineEdit->setText(workingDirectory);
     workingDirectoryLineEditTextEdited();
@@ -170,7 +170,7 @@ void ProcessStepConfigWidget::workingDirBrowseButtonClicked()
 void ProcessStepConfigWidget::commandBrowseButtonClicked()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Select the executable");
-    if(filename.isEmpty())
+    if (filename.isEmpty())
         return;
     m_ui.commandLineEdit->setText(filename);
     commandLineEditTextEdited();
@@ -179,7 +179,7 @@ void ProcessStepConfigWidget::commandBrowseButtonClicked()
 void ProcessStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
-    if(buildConfiguration != QString::null) {
+    if (buildConfiguration != QString::null) {
         m_ui.commandLineEdit->setText(m_step->command(buildConfiguration));
 
         QString workingDirectory = m_step->value(buildConfiguration, "workingDirectory").toString();

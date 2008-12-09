@@ -296,7 +296,7 @@ quint32 HelpEngine::getFileAges()
     QStringList::const_iterator i = addDocuFiles.begin();
 
     quint32 fileAges = 0;
-    for(; i != addDocuFiles.end(); ++i) {
+    for (; i != addDocuFiles.end(); ++i) {
         QFileInfo fi(*i);
         if (fi.exists())
             fileAges += fi.lastModified().toTime_t();
@@ -364,7 +364,7 @@ void TitleMapThread::run()
     bool needRebuild = false;
     if (Config::configuration()->profileName() == QLatin1String("default")) {
         const QStringList docuFiles = Config::configuration()->docFiles();
-        for(QStringList::ConstIterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
+        for (QStringList::ConstIterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
             if (!QFile::exists(*it)) {
                 Config::configuration()->saveProfile(Profile::createDefaultProfile());
                 Config::configuration()->loadDefaultProfile();
@@ -383,7 +383,7 @@ void TitleMapThread::run()
         getAllContents();
     
     titleMap.clear();
-    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+    for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         ContentList lst = (*it).second;
         foreach (ContentItem item, lst) {
             titleMap[item.reference] = item.title.trimmed();
@@ -430,7 +430,7 @@ void TitleMapThread::buildContentDict()
     QStringList docuFiles = Config::configuration()->docFiles();
 
     quint32 fileAges = 0;
-    for(QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
+    for (QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
         QFile file(*it);
         if (!file.exists()) {
 #ifdef _SHOW_ERRORS_
@@ -441,7 +441,7 @@ void TitleMapThread::buildContentDict()
         }
         fileAges += QFileInfo(file).lastModified().toTime_t();
         DocuParser *handler = DocuParser::createParser(*it);
-        if(!handler) {
+        if (!handler) {
 #ifdef _SHOW_ERRORS_
             emit errorOccured(tr("Documentation file %1 is not compatible!\n"
                 "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
@@ -450,7 +450,7 @@ void TitleMapThread::buildContentDict()
         }
         bool ok = handler->parse(&file);
         file.close();
-        if(ok) {
+        if (ok) {
             contentList += qMakePair(*it, QList<ContentItem>(handler->getContentItems()));
             delete handler;
         } else {
@@ -469,7 +469,7 @@ void TitleMapThread::buildContentDict()
     if (contentOut.open(QFile::WriteOnly)) {
         QDataStream s(&contentOut);
         s << fileAges;
-        for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+        for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
             s << *it;
         }
         contentOut.close();
@@ -542,12 +542,12 @@ void IndexThread::buildKeywordDB()
     QStringList::iterator i = addDocuFiles.begin();
 
     int steps = 0;
-    for(; i != addDocuFiles.end(); i++)
+    for (; i != addDocuFiles.end(); i++)
         steps += QFileInfo(*i).size();
 
     QList<IndexKeyword> lst;
     quint32 fileAges = 0;
-    for(i = addDocuFiles.begin(); i != addDocuFiles.end(); i++){
+    for (i = addDocuFiles.begin(); i != addDocuFiles.end(); i++) {
         QFile file(*i);
         if (!file.exists()) {
 #ifdef _SHOW_ERRORS_
@@ -560,7 +560,7 @@ void IndexThread::buildKeywordDB()
         DocuParser *handler = DocuParser::createParser(*i);
         bool ok = handler->parse(&file);
         file.close();
-        if(!ok){
+        if (!ok){
 #ifdef _SHOW_ERRORS_
             QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())

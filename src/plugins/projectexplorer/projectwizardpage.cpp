@@ -99,7 +99,7 @@ void ProjectWizardPage::setAddToVersionControlEnabled(bool b)
 
 void ProjectWizardPage::changeEvent(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);
         break;
@@ -115,7 +115,8 @@ void ProjectWizardPage::setVCSDisplay(const QString &vcsName)
 
 void ProjectWizardPage::setFilesDisplay(const QStringList &files)
 {
-    QString fileMessage; {
+    QString fileMessage;
+    {
         QTextStream str(&fileMessage);
         str << "<html>Files to be added:<pre>";
         const QStringList::const_iterator cend = files.constEnd();

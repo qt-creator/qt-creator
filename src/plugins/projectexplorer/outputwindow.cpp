@@ -64,7 +64,7 @@ bool OutputPane::canFocus()
 
 void OutputPane::setFocus()
 {
-    if(m_tabWidget->currentWidget())
+    if (m_tabWidget->currentWidget())
         m_tabWidget->currentWidget()->setFocus();
 }
 
@@ -199,7 +199,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     
     // First look if we can reuse a tab
     bool found = false;
-    for(int i=0; i<m_tabWidget->count(); ++i) {
+    for (int i=0; i<m_tabWidget->count(); ++i) {
         RunControl *old = runControlForTab(i);
         if (old->runConfiguration() == rc->runConfiguration() && !old->isRunning()) {
             // Reuse this tab

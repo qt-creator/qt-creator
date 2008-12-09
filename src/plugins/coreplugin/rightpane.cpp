@@ -76,8 +76,8 @@ void RightPanePlaceHolder::applyStoredSize(int width)
             QList<int> sizes = splitter->sizes();
             int index = splitter->indexOf(this);
             int diff = width - sizes.at(index);
-            int adjust = sizes.count() > 1? ( diff / (sizes.count() - 1)) : 0;
-            for(int i=0; i<sizes.count(); ++i) {
+            int adjust = sizes.count() > 1 ? (diff / (sizes.count() - 1)) : 0;
+            for (int i = 0; i < sizes.count(); ++i) {
                 if (i != index)
                     sizes[i] -= adjust;
             }
@@ -125,7 +125,7 @@ void RightPanePlaceHolder::currentModeChanged(Core::IMode *mode)
 RightPaneWidget *RightPaneWidget::m_instance = 0;
 
 RightPaneWidget::RightPaneWidget()
-    :m_shown(true), m_width(0)
+    : m_shown(true), m_width(0)
 {
     m_instance = this;
 

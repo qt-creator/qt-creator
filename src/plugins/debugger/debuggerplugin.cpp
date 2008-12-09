@@ -33,13 +33,13 @@
 
 #include "debuggerplugin.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
 #include "gdboptionpage.h"
 #include "gdbengine.h"
 #include "mode.h"
+#include "qtcassert.h"
 
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/coreconstants.h>
@@ -91,6 +91,7 @@ const char * const DEBUG_DUMPERS        = "Debugger.DebugDumpers";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
 const char * const USE_CUSTOM_DUMPERS   = "Debugger.UseCustomDumpers";
 const char * const USE_FAST_START       = "Debugger.UseFastStart";
+const char * const USE_TOOL_TIPS        = "Debugger.UseToolTips";
 const char * const SKIP_KNOWN_FRAMES    = "Debugger.SkipKnownFrames";
 const char * const DUMP_LOG             = "Debugger.DumpLog";
 
@@ -188,7 +189,7 @@ void DebuggerPlugin::shutdown()
 {
     if (m_debugMode)
         m_debugMode->shutdown(); // saves state including manager information
-    QWB_ASSERT(m_manager, /**/);
+    QTC_ASSERT(m_manager, /**/);
     if (m_manager)
         m_manager->shutdown();
 
@@ -225,13 +226,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     m_pm = ExtensionSystem::PluginManager::instance();
 
     ICore *core = m_pm->getObject<Core::ICore>();
-    QWB_ASSERT(core, return false);
+    QTC_ASSERT(core, return false);
 
     Core::ActionManagerInterface *actionManager = core->actionManager();
-    QWB_ASSERT(actionManager, return false);
+    QTC_ASSERT(actionManager, return false);
 
     Core::UniqueIDManager *uidm = core->uniqueIDManager();
-    QWB_ASSERT(uidm, return false);
+    QTC_ASSERT(uidm, return false);
 
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
@@ -374,13 +375,17 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
         Constants::USE_FAST_START, globalcontext);
     mdebug->addAction(cmd);
 
+    cmd = actionManager->registerAction(m_manager->m_useToolTipsAction,
+        Constants::USE_TOOL_TIPS, globalcontext);
+    mdebug->addAction(cmd);
+
+#ifdef QT_DEBUG
     cmd = actionManager->registerAction(m_manager->m_dumpLogAction,
         Constants::DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
     mdebug->addAction(cmd);
 
-#ifdef QT_DEBUG
     cmd = actionManager->registerAction(m_manager->m_debugDumpersAction,
         Constants::DEBUG_DUMPERS, debuggercontext);
     mdebug->addAction(cmd);
@@ -549,6 +554,9 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
+    if (!m_manager->useToolTipsAction()->isChecked())
+        return;
+
     QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
     if (!plaintext)
         return;
@@ -590,13 +598,13 @@ void DebuggerPlugin::querySessionValue(const QString &name, QVariant *value)
 
 void DebuggerPlugin::setConfigValue(const QString &name, const QVariant &value)
 {
-    QWB_ASSERT(m_debugMode, return);
+    QTC_ASSERT(m_debugMode, return);
     m_debugMode->settings()->setValue(name, value);
 }
 
 void DebuggerPlugin::queryConfigValue(const QString &name, QVariant *value)
 {
-    QWB_ASSERT(m_debugMode, return);
+    QTC_ASSERT(m_debugMode, return);
     *value = m_debugMode->settings()->value(name);
 }
 

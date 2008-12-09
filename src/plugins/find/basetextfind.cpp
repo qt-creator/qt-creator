@@ -101,7 +101,7 @@ QString BaseTextFind::currentFindString() const
         cursor.movePosition(QTextCursor::StartOfWord);
         cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         QString s = cursor.selectedText();
-        foreach(QChar c, s) {
+        foreach (QChar c, s) {
             if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
                 s.clear();
                 break;

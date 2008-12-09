@@ -58,7 +58,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
         CoreImpl::instance()->pluginManager()->getObjects<IOptionsPage>();
 
     int index = 0;
-    foreach(IOptionsPage *page, pages) {
+    foreach (IOptionsPage *page, pages) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, page->name());
         item->setData(0, Qt::UserRole, index);
@@ -77,7 +77,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
 
         int catCount = 1;
         while (catCount < categoriesId.count()) {
-            if(!categories.contains(currentCategory + QLatin1Char('|') + categoriesId.at(catCount))) {
+            if (!categories.contains(currentCategory + QLatin1Char('|') + categoriesId.at(catCount))) {
                 treeitem = new QTreeWidgetItem(categories.value(currentCategory));
                 currentCategory +=  QLatin1Char('|') + categoriesId.at(catCount);
                 treeitem->setText(0, trCategories.at(catCount));
@@ -123,14 +123,14 @@ void SettingsDialog::pageSelected(QTreeWidgetItem *)
 
 void SettingsDialog::accept()
 {
-    foreach(IOptionsPage *page, m_pages)
+    foreach (IOptionsPage *page, m_pages)
         page->finished(true);
     done(QDialog::Accepted);
 }
 
 void SettingsDialog::reject()
 {
-    foreach(IOptionsPage *page, m_pages)
+    foreach (IOptionsPage *page, m_pages)
         page->finished(false);
     done(QDialog::Rejected);
 }

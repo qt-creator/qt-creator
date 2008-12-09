@@ -65,7 +65,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     QStringList arguments;
     arguments << project()->file()->fileName();
     if (!additonalArguments.contains("-spec")) {
-        if(m_pro->value("useVBOX").toBool()) { //NBS TODO don't special case VBOX like this
+        if (m_pro->value("useVBOX").toBool()) { //NBS TODO don't special case VBOX like this
             arguments << "-spec" << "linux-i686fb-g++";
             arguments << "-unix";
         } else {
@@ -116,7 +116,7 @@ bool QMakeStep::init(const QString &name)
     QString workingDirectory = m_pro->buildDirectory(name);
 
     Environment environment = m_pro->environment(name);
-    if(!environment.value("QMAKESPEC").isEmpty() && environment.value("QMAKESPEC") != qtVersion->mkspec())
+    if (!environment.value("QMAKESPEC").isEmpty() && environment.value("QMAKESPEC") != qtVersion->mkspec())
         emit addToOutputWindow(tr("QMAKESPEC set to ") + environment.value("QMAKESPEC") +
                                tr(" overrides mkspec of selected qt ")+qtVersion->mkspec());
 

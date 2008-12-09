@@ -173,7 +173,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 //        int idx;
 //        forever {
 //            idx = directory.lastIndexOf("/", pos-1);
-//            if(idx == -1) {
+//            if (idx == -1) {
 //                // Can't happen, this means the string did fit after all?
 //                break;
 //            }

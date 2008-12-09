@@ -472,7 +472,7 @@ Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManagerI
     const QString deviceProfilePrefix = QLatin1String("DeviceProfile");
     const QChar dot = QLatin1Char('.');
 
-    foreach(QAction* a, actions) {
+    foreach (QAction* a, actions) {
         QString name = menuId;
         name += dot;
         const QVariant data = a->data();

@@ -139,7 +139,7 @@ bool ProEditor::eventFilter(QObject *, QEvent *event)
     if (event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *k = static_cast<QKeyEvent*>(event);
         if (k->modifiers() == Qt::ControlModifier) {
-            switch(k->key()) {
+            switch (k->key()) {
                 case Qt::Key_X:
                     cut(); return true;
                 case Qt::Key_C:
@@ -168,11 +168,8 @@ void ProEditor::updatePasteAction()
     bool pasteEnabled = false;
 
     const QMimeData *data = QApplication::clipboard()->mimeData();
-    if (data) {
-        if (data->hasFormat(QLatin1String("application/x-problock"))) {
-            pasteEnabled = true;
-        }
-    }
+    if (data && data->hasFormat(QLatin1String("application/x-problock")))
+        pasteEnabled = true;
 
     m_pasteAction->setEnabled(pasteEnabled);
 }

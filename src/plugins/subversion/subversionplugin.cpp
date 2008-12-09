@@ -194,7 +194,7 @@ SubversionPlugin::~SubversionPlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory* pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
         m_editorFactories.clear();
@@ -579,9 +579,8 @@ void SubversionPlugin::revertCurrentFile()
 
     Core::FileManager *fm = m_coreInstance->fileManager();
     QList<Core::IFile *> files = fm->managedFiles(file);
-    foreach (Core::IFile *file, files) {
+    foreach (Core::IFile *file, files)
         fm->blockFileChange(file);
-    }
 
     // revert
     args.clear();
@@ -726,7 +725,7 @@ QStringList SubversionPlugin::parseStatusOutput(const QString &output) const
     QStringList changeSet;
     const QString newLine = QString(QLatin1Char('\n'));
     const QStringList list = output.split(newLine, QString::SkipEmptyParts);
-    foreach (const QString& l, list) {
+    foreach (const QString &l, list) {
         QString line(l.trimmed());
         if (line.startsWith(QLatin1Char('A')) || line.startsWith(QLatin1Char('D'))
             || line.startsWith(QLatin1Char('M')))

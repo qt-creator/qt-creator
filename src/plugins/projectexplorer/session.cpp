@@ -387,10 +387,10 @@ SessionManager::SessionManager(Core::ICore *core, QObject *parent)
         dir.mkpath(configDir + "/qtcreator");
 
         // Move sessions to that directory
-        foreach(const QString &session, sessions()) {
+        foreach (const QString &session, sessions()) {
             QFile file(configDir + "/" + session + ".qws");
             if (file.exists())
-                if(file.copy(configDir + "/qtcreator/" + session + ".qws"))
+                if (file.copy(configDir + "/qtcreator/" + session + ".qws"))
                     file.remove();
         }
     }
@@ -413,15 +413,15 @@ SessionManager::~SessionManager()
 
 bool SessionManager::isDefaultVirgin() const
 {
-    return (isDefaultSession(m_sessionName)
+    return isDefaultSession(m_sessionName)
             && projects().isEmpty()
-            && m_core->editorManager()->openedEditors().isEmpty());
+            && m_core->editorManager()->openedEditors().isEmpty();
 }
 
 
 bool SessionManager::isDefaultSession(const QString &session) const
 {
-    return (session == QLatin1String("default"));
+    return session == QLatin1String("default");
 }
 
 
@@ -1082,7 +1082,7 @@ bool SessionManager::loadSession(const QString &session)
         }
     } else {
         // Create a new session with that name
-        if(!createImpl(sessionNameToFileName(session)))
+        if (!createImpl(sessionNameToFileName(session)))
             return false;
         updateName(session);
         return true;

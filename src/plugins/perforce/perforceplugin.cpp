@@ -561,10 +561,9 @@ void PerforcePlugin::submit()
 
     QStringList stdOutLines = result2.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
-    foreach(const QString &line, stdOutLines) {
-        if (line.startsWith("... depotFile")) {
+    foreach (const QString &line, stdOutLines) {
+        if (line.startsWith("... depotFile"))
             depotFileNames.append(line.mid(14));
-        }
     }
     if (depotFileNames.isEmpty()) {
         showOutput(tr("Project has no files"));
@@ -1225,7 +1224,7 @@ PerforcePlugin::~PerforcePlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory *pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
         m_editorFactories.clear();

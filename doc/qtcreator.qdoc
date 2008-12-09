@@ -69,7 +69,7 @@
 
     \image qtcreator-breakdown.png
 
-    \seection1 The Mode Selectors
+    \section1 The Mode Selectors
 
     When working in Qt Creator, you can be in one of five modes: \bold Project,
     \bold Edit, \bold Debug, \bold Help, and \bold Output.
@@ -613,7 +613,7 @@
     \page creator-debugging.html
     \nextpage creator-tips.html
 
-    \title Debugging With Qt Creator
+    \title Debugging with Qt Creator
 
     \table
         \row 
@@ -677,9 +677,9 @@
 
     \list
        \o At a particular line you want the program to stop -- click on the
-          left margin or press \key F9 (\key F8 for Mac Os X).
-       \o At the name of a function that you want the program to stop -- enter
-          the function's name in \gui{Set Breakpoint at Function...} under the
+          left margin or press \key F9 (\key F8 for Mac OS X).
+       \o At a function that you want the program to stop -- enter the
+          function's name in \gui{Set Breakpoint at Function...} under the
           \gui Debug menu.
     \endlist
 
@@ -744,7 +744,7 @@
 
     When the program being debugged is stopped, Qt Creator displays the nested
     function calls leading to the current position as a \e call stack trace.
-    This stack trace is built up from \e call stack frames, each representing a
+    This stack trace is built up from \e{call stack frames}, each representing a
     particular function. For each function, Qt Creator will try to retrieve the
     file name and line number of the corresponding source files. This data is
     shown in the \gui Stack view.
@@ -765,11 +765,10 @@
     \section2 Threads
 
     
-    The \gui Thread view displays the state of the program being debugged one
-    thread at a time. If a multi-threaded program is stopped, the \gui Thread
-    view  or the combobox named \gui Thread in the debugger's status bar can
-    be used to switch from one thread to another. The \gui Stack view will
-    adjust itself accordingly.
+    If a multi-threaded program is stopped, the \gui Thread view  or the
+    combobox named \gui Thread in the debugger's status bar can be used to
+    switch from one thread to another. The \gui Stack view will adjust itself
+    accordingly.
 
 
     \section2 Locals and Watchers
@@ -851,8 +850,8 @@
     function, the latter the current state of the CPU registers.
     Both views are mainly useful in connection with the low-level
     \gui{Step single instruction} and \gui{Step over single instruction}
-    commands
-        
+    commands.
+
 
     \section1 A Walkthrough for the Debugger Frontend
 
@@ -947,8 +946,9 @@
 
     \bold{Running Qt Creator from the Command Line}
 
-    You can start Qt Creator from a command prompt with an existing session or
-    \c{.pro} file by giving the name as argument on the command line.
+    You can start Qt Creator from a command prompt with the name of an existing
+    session or \c{.pro} file by giving the name as argument on the command
+    line.
 
     \bold{Show and Hide the Sidebar}
 

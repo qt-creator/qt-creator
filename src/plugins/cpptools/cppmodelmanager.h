@@ -133,10 +133,10 @@ private:
     }
 
     void ensureUpdated();
-    QStringList updateProjectFiles() const;
-    QStringList updateIncludePaths() const;
-    QStringList updateFrameworkPaths() const;
-    QByteArray updateDefinedMacros() const;
+    QStringList internalProjectFiles() const;
+    QStringList internalIncludePaths() const;
+    QStringList internalFrameworkPaths() const;
+    QByteArray internalDefinedMacros() const;
 
     static void parse(QFutureInterface<void> &future,
                       CppPreprocessor *preproc,

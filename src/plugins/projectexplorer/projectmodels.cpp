@@ -988,10 +988,9 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
         return;
     }
 
-    while(true)
-    {
+    while (true) {
         // Skip all that are the same
-        while(*oldIter == *newIter) {
+        while (*oldIter == *newIter) {
             ++oldIter;
             ++newIter;
             if (oldIter == oldNodeList.constEnd()) {
@@ -1002,7 +1001,7 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
                 int count = newIter - startOfBlock;
                 if (count > 0) {
                     beginInsertRows(parentIndex, pos, pos+count-1);
-                    while(startOfBlock != newIter) {
+                    while (startOfBlock != newIter) {
                         oldNodeList.insert(pos, *startOfBlock);
                         ++pos;
                         ++startOfBlock;
@@ -1015,7 +1014,7 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
         }
 
         QList<Node *>::const_iterator startOfBlock = newIter;
-        while(*oldIter != *newIter)
+        while (*oldIter != *newIter)
             ++newIter;
         // startOfBlock is the first that was diffrent
         // newIter points to the new position of oldIter
@@ -1024,7 +1023,7 @@ void FlatModel::added(FolderNode* parentNode, const QList<Node*> &newNodeList)
         int pos = oldIter - oldNodeList.constBegin();
         int count = newIter - startOfBlock;
         beginInsertRows(parentIndex, pos, pos + count - 1);
-        while(startOfBlock != newIter) {
+        while (startOfBlock != newIter) {
             oldNodeList.insert(pos, *startOfBlock);
             ++pos;
             ++startOfBlock;
@@ -1059,10 +1058,9 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         return;
     }
 
-    while(true)
-    {
+    while (true) {
         // Skip all that are the same
-        while(*oldIter == *newIter) {
+        while (*oldIter == *newIter) {
             ++oldIter;
             ++newIter;
             if (newIter == newNodeList.constEnd()) {
@@ -1073,7 +1071,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
                 int count = oldIter - startOfBlock;
                 if (count > 0) {
                     beginRemoveRows(parentIndex, pos, pos+count-1);
-                    while(startOfBlock != oldIter) {
+                    while (startOfBlock != oldIter) {
                         ++startOfBlock;
                         oldNodeList.removeAt(pos);
                     }
@@ -1086,7 +1084,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         }
 
         QList<Node *>::const_iterator startOfBlock = oldIter;
-        while(*oldIter != *newIter)
+        while (*oldIter != *newIter)
             ++oldIter;
         // startOfBlock is the first that was diffrent
         // oldIter points to the new position of newIter
@@ -1095,7 +1093,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
         int pos = startOfBlock - oldNodeList.constBegin();
         int count = oldIter - startOfBlock;
         beginRemoveRows(parentIndex, pos, pos + count - 1);
-        while(startOfBlock != oldIter) {
+        while (startOfBlock != oldIter) {
             ++startOfBlock;
             oldNodeList.removeAt(pos);
         }
@@ -1125,7 +1123,7 @@ void FlatModel::foldersAdded()
 void FlatModel::foldersAboutToBeRemoved(FolderNode *parentFolder, const QList<FolderNode*> &staleFolders)
 {
     QSet<Node *> blackList;
-    foreach(FolderNode * node, staleFolders)
+    foreach (FolderNode *node, staleFolders)
         blackList.insert(node);
 
     FolderNode *folderNode = visibleFolderNode(parentFolder);
@@ -1137,7 +1135,7 @@ void FlatModel::foldersAboutToBeRemoved(FolderNode *parentFolder, const QList<Fo
 
 void FlatModel::removeFromCache(QList<FolderNode *> list)
 {
-    foreach(FolderNode * fn, list) {
+    foreach (FolderNode *fn, list) {
         removeFromCache(fn->subFolderNodes());
         m_childNodes.remove(fn);
     }
@@ -1170,7 +1168,7 @@ void FlatModel::filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*>
     FolderNode *folderNode = visibleFolderNode(folder);
 
     QSet<Node *> blackList;
-    foreach(Node* node, staleFiles)
+    foreach(Node *node, staleFiles)
         blackList.insert(node);
 
     // Now get the new List for that folder

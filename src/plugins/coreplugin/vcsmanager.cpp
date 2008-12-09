@@ -77,7 +77,7 @@ void VCSManager::setVCSEnabled(const QString &directory)
         qDebug() << Q_FUNC_INFO << directory;
     IVersionControl* managingVCS = findVersionControlForDirectory(directory);
     const VersionControlList versionControls = allVersionControls();
-    foreach(IVersionControl *versionControl, versionControls) {
+    foreach (IVersionControl *versionControl, versionControls) {
         const bool newEnabled = versionControl == managingVCS;
         if (newEnabled != versionControl->isEnabled())
             versionControl->setEnabled(newEnabled);
@@ -89,7 +89,7 @@ void VCSManager::setAllVCSEnabled()
     if (debug)
         qDebug() << Q_FUNC_INFO;
     const VersionControlList versionControls = allVersionControls();
-    foreach(IVersionControl *versionControl, versionControls)
+    foreach (IVersionControl *versionControl, versionControls)
         if (!versionControl->isEnabled())
             versionControl->setEnabled(true);
 }
@@ -106,7 +106,7 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
 
     int pos = 0;
     const QChar slash = QLatin1Char('/');
-    while(true) {
+    while (true) {
         int index = directory.indexOf(slash, pos);
         if (index == -1)
             break;
@@ -119,7 +119,7 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
 
     // ah nothing so ask the IVersionControls directly
     const VersionControlList versionControls = allVersionControls();
-    foreach(IVersionControl * versionControl, versionControls) {
+    foreach (IVersionControl * versionControl, versionControls) {
         if (versionControl->managesDirectory(directory)) {
             m_d->m_cachedMatches.insert(versionControl->findTopLevelForDirectory(directory), versionControl);
             return versionControl;
