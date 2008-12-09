@@ -1765,27 +1765,12 @@ void ProFileEvaluator::setVerbose(bool on)
     d->m_verbose = on;
 }
 
-bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap)
+void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap)
 {
     QStringList sourceFiles;
     QString codecForTr;
     QString codecForSource;
     QStringList tsFileNames;
-
-    QFileInfo fi(fileName);
-    if (!fi.exists())
-        return false;
-
-    ProFile pro(fi.absoluteFilePath());
-
-    ProFileEvaluator visitor;
-    visitor.setVerbose(verbose);
-
-    if (!visitor.queryProFile(&pro))
-        return false;
-
-    if (!visitor.accept(&pro))
-        return false;
 
     // app/lib template
     sourceFiles += visitor.values(QLatin1String("SOURCES"));
@@ -1823,6 +1808,27 @@ bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QS
     varMap->insert("CODECFORTR", QStringList() << codecForTr);
     varMap->insert("CODECFORSRC", QStringList() << codecForSource);
     varMap->insert("TRANSLATIONS", tsFileNames);
+}
+
+bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap)
+{
+    QFileInfo fi(fileName);
+    if (!fi.exists())
+        return false;
+
+    ProFile pro(fi.absoluteFilePath());
+
+    ProFileEvaluator visitor;
+    visitor.setVerbose(verbose);
+
+    if (!visitor.queryProFile(&pro))
+        return false;
+
+    if (!visitor.accept(&pro))
+        return false;
+
+    evaluateProFile(visitor, varMap);
+
     return true;
 }
 

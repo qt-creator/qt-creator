@@ -45,7 +45,9 @@
 QT_BEGIN_NAMESPACE
 
 class ProFile;
+class ProFileEvaluator;
 
+void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap);
 bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap);
 
 class ProFileEvaluator
