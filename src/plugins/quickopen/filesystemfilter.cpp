@@ -54,14 +54,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
     QString name = entryInfo.fileName();
     QString directory = entryInfo.path();
     QString filePath = entryInfo.filePath();
-    bool isDrive = false;
-    foreach (const QFileInfo &drive, QDir::drives()) {
-        if (filePath.startsWith(drive.path())) {
-            isDrive = true;
-            break;
-        }
-    }
-    if (!isDrive) {
+    if (entryInfo.isRelative()) {
         if (filePath.startsWith("~/")) {
             directory.replace(0, 1, QDir::homePath());
         } else {

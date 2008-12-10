@@ -45,6 +45,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
+#include <QtGui/QApplication>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QComboBox>
 #include <QtGui/QTabWidget>
@@ -190,7 +191,14 @@ void ProjectWindow::updateTreeWidget()
     // That one runs fully thorough and deletes all widgets, even that one that we are currently removing
     // from m_panelsTabWidget.
     // To prevent that, we simply prevent the focus switching....
-    m_treeWidget->setFocus();
+    QWidget *focusWidget = qApp->focusWidget();
+    while (focusWidget) {
+        if (focusWidget == this) {
+            m_treeWidget->setFocus();
+            break;
+        }
+        focusWidget = focusWidget->parentWidget();
+    }
     m_treeWidget->clear();
 
     foreach(Project *project, m_session->projects()) {

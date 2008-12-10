@@ -628,8 +628,10 @@ bool SessionManager::loadImpl(const QString &fileName)
     if (success) {
         // restore the active mode
         const QString &modeIdentifier = value(QLatin1String("ActiveMode")).toString();
-        if (!modeIdentifier.isEmpty())
+        if (!modeIdentifier.isEmpty()) {
             m_core->modeManager()->activateMode(modeIdentifier);
+            m_core->modeManager()->setFocusToCurrentMode();
+        }
     }
 
     if (debug)

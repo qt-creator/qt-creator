@@ -1208,4 +1208,141 @@ int Lexer::classify(const char *s, int n, bool q) {
   } // switch
 }
 
+static inline int classifyOperator2(const char *s) {
+  if (s[0] == 'o') {
+    if (s[1] == 'r') {
+      return T_OR;
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+static inline int classifyOperator3(const char *s) {
+  if (s[0] == 'a') {
+    if (s[1] == 'n') {
+      if (s[2] == 'd') {
+        return T_AND;
+      }
+    }
+  }
+  else if (s[0] == 'n') {
+    if (s[1] == 'o') {
+      if (s[2] == 't') {
+        return T_NOT;
+      }
+    }
+  }
+  else if (s[0] == 'x') {
+    if (s[1] == 'o') {
+      if (s[2] == 'r') {
+        return T_XOR;
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+static inline int classifyOperator5(const char *s) {
+  if (s[0] == 'b') {
+    if (s[1] == 'i') {
+      if (s[2] == 't') {
+        if (s[3] == 'o') {
+          if (s[4] == 'r') {
+            return T_BITOR;
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'c') {
+    if (s[1] == 'o') {
+      if (s[2] == 'm') {
+        if (s[3] == 'p') {
+          if (s[4] == 'l') {
+            return T_COMPL;
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'o') {
+    if (s[1] == 'r') {
+      if (s[2] == '_') {
+        if (s[3] == 'e') {
+          if (s[4] == 'q') {
+            return T_OR_EQ;
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+static inline int classifyOperator6(const char *s) {
+  if (s[0] == 'a') {
+    if (s[1] == 'n') {
+      if (s[2] == 'd') {
+        if (s[3] == '_') {
+          if (s[4] == 'e') {
+            if (s[5] == 'q') {
+              return T_AND_EQ;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'b') {
+    if (s[1] == 'i') {
+      if (s[2] == 't') {
+        if (s[3] == 'a') {
+          if (s[4] == 'n') {
+            if (s[5] == 'd') {
+              return T_BITAND;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'n') {
+    if (s[1] == 'o') {
+      if (s[2] == 't') {
+        if (s[3] == '_') {
+          if (s[4] == 'e') {
+            if (s[5] == 'q') {
+              return T_NOT_EQ;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'x') {
+    if (s[1] == 'o') {
+      if (s[2] == 'r') {
+        if (s[3] == '_') {
+          if (s[4] == 'e') {
+            if (s[5] == 'q') {
+              return T_XOR_EQ;
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+int Lexer::classifyOperator(const char *s, int n) {
+  switch (n) {
+    case 2: return classifyOperator2(s);
+    case 3: return classifyOperator3(s);
+    case 5: return classifyOperator5(s);
+    case 6: return classifyOperator6(s);
+    default: return T_IDENTIFIER;
+  } // switch
+}
+
 CPLUSPLUS_END_NAMESPACE

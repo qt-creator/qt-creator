@@ -34,8 +34,6 @@
 #include "OverviewModel.h"
 #include "Overview.h"
 
-#include <utils/qtcassert.h>
-
 #include <Scope.h>
 #include <Semantic.h>
 #include <Literals.h>
@@ -83,13 +81,13 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
         return createIndex(row, column, symbol);
     } else {
         Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
-        QTC_ASSERT(parentSymbol, return QModelIndex());
+        Q_ASSERT(parentSymbol);
 
         ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol();
-        QTC_ASSERT(scopedSymbol, return QModelIndex());
+        Q_ASSERT(scopedSymbol);
 
         Scope *scope = scopedSymbol->members();
-        QTC_ASSERT(scope, return QModelIndex());
+        Q_ASSERT(scope);
 
         return createIndex(row, 0, scope->symbolAt(row));
     }
@@ -126,12 +124,12 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
             if (!parent.parent().isValid() && parent.row() == 0) // account for no symbol item
                 return 0;
             Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
-            QTC_ASSERT(parentSymbol, return 0);
+            Q_ASSERT(parentSymbol);
 
             if (ScopedSymbol *scopedSymbol = parentSymbol->asScopedSymbol()) {
                 if (!scopedSymbol->isFunction()) {
                     Scope *parentScope = scopedSymbol->members();
-                    QTC_ASSERT(parentScope, return 0);
+                    Q_ASSERT(parentScope);
 
                     return parentScope->symbolCount();
                 }

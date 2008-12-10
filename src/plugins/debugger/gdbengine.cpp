@@ -2939,6 +2939,8 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
             if (tmplate == "QSet")
                 return true;
         }
+        if (tmplate == "std::list")
+            return true;
         if (tmplate == "std::vector" && inner != "bool")
             return true;
         if (tmplate == "std::basic_string") {

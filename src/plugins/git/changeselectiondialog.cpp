@@ -43,6 +43,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
 {
     m_ui.setupUi(this);
     connect(m_ui.repositoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
+    setWindowTitle(tr("Select a Git commit"));
 }
 
 void ChangeSelectionDialog::selectWorkingDirectory()
@@ -59,7 +60,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
     // the head directory of the repository.
     QDir repository(location);
     do {
-        if (repository.entryList(QDir::AllDirs).contains(QLatin1String(".git"))) {
+        if (repository.entryList(QDir::AllDirs|QDir::Hidden).contains(QLatin1String(".git"))) {
             m_ui.repositoryEdit->setText(repository.absolutePath());
             return;
         }
