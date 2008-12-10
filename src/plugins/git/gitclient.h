@@ -130,6 +130,10 @@ public:
 public slots:
     void show(const QString &source, const QString &id);
 
+private slots:
+    void appendAndPopup(const QString &text);
+    void appendDataAndPopup(const QByteArray &data);
+
 private:
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
                                                  QString title,
@@ -141,7 +145,6 @@ private:
 
     void executeGit(const QString &workingDirectory,
                                            const QStringList &arguments,
-                                           GitOutputWindow *outputWindow,
                                            VCSBase::VCSBaseEditor* editor = 0,
                                            bool outputToWindow = false);
 
