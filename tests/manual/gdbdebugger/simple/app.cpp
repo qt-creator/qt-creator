@@ -73,6 +73,9 @@ uint qHash(const double & f)
     return int(f);
 }
 
+#define X myns
+X::QString str;
+
 class  Foo
 {
 public:
@@ -623,6 +626,8 @@ void testQVariant3()
 
 void testQVector()
 {
+    QVector<int> big(10000);
+
     QVector<Foo *> plist;
     plist.append(new Foo(1));
     plist.append(0);

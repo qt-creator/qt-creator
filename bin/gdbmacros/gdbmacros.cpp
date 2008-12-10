@@ -661,11 +661,8 @@ void QDumper::endHash()
 
 void QDumper::putEllipsis()
 {
-    d.beginHash();
-    P(d, "name", "Warning:");
-    P(d, "value", "<incomplete>");
-    P(d, "type", d.innertype);
-    d.endHash();
+    addCommaIfNeeded();
+    *this << "{name=\"<incomplete>\",value=\"\",type=\"" << innertype << "\"}";
 }
 
 //
@@ -2120,7 +2117,7 @@ static void qDumpStdList(QDumper &d)
 
     int nn = 0;
     std::list<int>::const_iterator it = list.begin();
-    for (nn < 101 && it != list.end(); ++nn, ++it)
+    for (; nn < 101 && it != list.end(); ++nn, ++it)
         qCheckAccess(it.operator->());
 
     if (nn > 100)
@@ -2135,7 +2132,7 @@ static void qDumpStdList(QDumper &d)
         const char *stripped =
             isPointerType(d.innertype) ? strippedInnerType.data() : 0;
         d << ",children=[";
-        std::list<int>::const_iterator it = list.begin();
+        it = list.begin();
         for (int i = 0; i < 1000 && it != list.end(); ++i, ++it) {
             d.beginHash();
             P(d, "name", "[" << i << "]");
