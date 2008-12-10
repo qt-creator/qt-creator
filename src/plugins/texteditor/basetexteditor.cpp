@@ -684,6 +684,64 @@ void BaseTextEditor::selectBlockDown()
     _q_matchParentheses();
 }
 
+void BaseTextEditor::moveLineUp()
+{
+    moveLineUpDown(true);
+}
+
+void BaseTextEditor::moveLineDown()
+{
+    moveLineUpDown(false);
+}
+
+void BaseTextEditor::moveLineUpDown(bool up)
+{
+    QTextCursor cursor = textCursor();
+    QTextCursor move = cursor;
+    move.beginEditBlock();
+
+    bool hasSelection = cursor.hasSelection();
+
+    if (cursor.hasSelection()) {
+        move.setPosition(cursor.selectionStart());
+        move.movePosition(QTextCursor::StartOfBlock);
+        move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
+        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    } else {
+        move.movePosition(QTextCursor::StartOfBlock);
+        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    }
+    QString text = move.selectedText();
+    move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+    move.removeSelectedText();
+    
+    if (up) {
+        move.movePosition(QTextCursor::PreviousBlock);
+        move.insertBlock();
+        move.movePosition(QTextCursor::Left);
+    } else {
+        move.movePosition(QTextCursor::EndOfBlock);
+        if (move.atBlockStart()) { // empty block
+            move.movePosition(QTextCursor::NextBlock);
+            move.insertBlock();
+            move.movePosition(QTextCursor::Left);
+        } else {
+            move.insertBlock();
+        }
+    }
+    
+    int start = move.position();
+    move.clearSelection();
+    move.insertText(text);
+    int end = move.position();
+    move.endEditBlock();
+    if (hasSelection) {
+        move.setPosition(start);
+        move.setPosition(end, QTextCursor::KeepAnchor);
+    }
+
+    setTextCursor(move);
+}
 
 void BaseTextEditor::cleanWhitespace()
 {
@@ -740,9 +798,13 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         if (d->m_inBlockSelectionMode)
             cursor.clearSelection();
-        cursor.insertBlock();
         if (d->m_document->tabSettings().m_autoIndent) {
+            cursor.beginEditBlock();
+            cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
+            cursor.endEditBlock();
+        } else {
+            cursor.insertBlock();
         }
         e->accept();
         setTextCursor(cursor);

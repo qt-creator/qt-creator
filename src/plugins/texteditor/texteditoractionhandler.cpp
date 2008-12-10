@@ -71,6 +71,7 @@ TextEditorActionHandler::TextEditorActionHandler(Core::ICore *core,
                  = m_gotoBlockStartAction = m_gotoBlockStartWithSelectionAction
                  = m_gotoBlockEndAction = m_gotoBlockEndWithSelectionAction
                  = m_selectBlockUpAction = m_selectBlockDownAction
+                 = m_moveLineUpAction = m_moveLineDownAction
                  = 0;
 
     m_contextId << m_core->uniqueIDManager()->uniqueIdentifier(context);
@@ -223,6 +224,16 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
+
+    m_moveLineUpAction= new QAction(tr("Move Line Up"), this);
+    command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Up")));
+    connect(m_moveLineUpAction, SIGNAL(triggered()), this, SLOT(moveLineUp()));
+
+    m_moveLineDownAction= new QAction(tr("Move Line Down"), this);
+    command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
+    connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -287,6 +298,8 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
     m_gotoBlockEndWithSelectionAction->setEnabled(um != NoEditor);
     m_selectBlockUpAction->setEnabled(um != NoEditor);
     m_selectBlockDownAction->setEnabled(um != NoEditor);
+    m_moveLineUpAction->setEnabled(um != NoEditor);
+    m_moveLineDownAction->setEnabled(um != NoEditor);
 
     m_visualizeWhitespaceAction->setEnabled(um != NoEditor);
     if (m_currentEditor)
@@ -390,6 +403,8 @@ FUNCTION(gotoBlockStartWithSelection)
 FUNCTION(gotoBlockEndWithSelection)
 FUNCTION(selectBlockUp)
 FUNCTION(selectBlockDown)
+FUNCTION(moveLineUp)
+FUNCTION(moveLineDown)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IContext *object)
 {

@@ -329,6 +329,9 @@ public slots:
     void selectBlockUp();
     void selectBlockDown();
 
+    void moveLineUp();
+    void moveLineDown();
+
     void cleanWhitespace();
 
 signals:
@@ -447,6 +450,7 @@ private:
     void indentOrUnindent(bool doIndent);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
+    void moveLineUpDown(bool up);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect collapseBox(const QTextBlock &block);
