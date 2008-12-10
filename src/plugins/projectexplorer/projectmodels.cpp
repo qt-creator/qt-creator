@@ -626,7 +626,7 @@ QList<FolderNode*> DetailedModel::recursiveSubFolders(FolderNode *parentFolder)
 
 FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
         : QAbstractItemModel(parent),
-          m_filterProjects(true),
+          m_filterProjects(false),
           m_filterGeneratedFiles(true),
           m_rootNode(rootNode),
           m_startupProject(0),
@@ -914,6 +914,8 @@ QModelIndex FlatModel::indexForNode(const Node *node_)
 
 void FlatModel::setProjectFilterEnabled(bool filter)
 {
+    if (filter == m_filterProjects)
+        return;
     m_filterProjects = filter;
     reset();
 }
