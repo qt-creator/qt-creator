@@ -43,6 +43,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
 {
     m_ui.setupUi(this);
     connect(m_ui.repositoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
+    setWindowTitle(tr("Select a Git commit"));
 }
 
 void ChangeSelectionDialog::selectWorkingDirectory()
