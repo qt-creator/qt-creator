@@ -65,7 +65,7 @@ public:
     QString fileName() const;
 
     QStringList includedFiles() const;
-    void addIncludeFile(const QString &fileName);
+    void addIncludeFile(const QString &fileName, unsigned line);
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
@@ -181,6 +181,22 @@ public:
         { return pos >= _begin && pos < _end; }
     };
 
+    class Include {
+        QString _fileName;
+        unsigned _line;
+
+    public:
+        Include(const QString &fileName, unsigned line)
+            : _fileName(fileName), _line(line)
+        { }
+
+        QString fileName() const
+        { return _fileName; }
+
+        unsigned line() const
+        { return _line; }
+    };
+
     class MacroUse: public Block {
         Macro _macro;
 
@@ -196,6 +212,9 @@ public:
         { return _macro; }
     };
 
+    QList<Include> includes() const
+    { return _includes; }
+
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
 
@@ -207,11 +226,11 @@ private:
 
 private:
     QString _fileName;
-    QStringList _includedFiles;
     Control *_control;
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;
     QList<DiagnosticMessage> _diagnosticMessages;
+    QList<Include> _includes;
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;

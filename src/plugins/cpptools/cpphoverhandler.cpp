@@ -178,6 +178,16 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     }
 
     if (m_toolTip.isEmpty()) {
+        unsigned lineno = tc.blockNumber() + 1;
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (lineno == incl.line()) {
+                m_toolTip = incl.fileName();
+                break;
+            }
+        }
+    }
+
+    if (m_toolTip.isEmpty()) {
         // Move to the end of a qualified name
         bool stop = false;
         while (!stop) {

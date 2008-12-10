@@ -818,7 +818,7 @@ void pp::processInclude(bool skipCurentPath,
         QString fn = QString::fromUtf8(path.constData(), path.length());
 
         if (client)
-            client->sourceNeeded(fn, Client::IncludeGlobal);
+            client->sourceNeeded(fn, Client::IncludeGlobal, firstToken->lineno);
     } else if (tk->is(T_ANGLE_STRING_LITERAL) || tk->is(T_STRING_LITERAL)) {
         const QByteArray spell = tokenSpell(*tk);
         const char *beginOfPath = spell.constBegin();
@@ -831,7 +831,7 @@ void pp::processInclude(bool skipCurentPath,
             QString fn = QString::fromUtf8(path.constData(), path.length());
 
             if (client)
-                client->sourceNeeded(fn, Client::IncludeLocal);
+                client->sourceNeeded(fn, Client::IncludeLocal, firstToken->lineno);
         }
     }
 }
