@@ -59,7 +59,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
     // the head directory of the repository.
     QDir repository(location);
     do {
-        if (repository.entryList(QDir::AllDirs).contains(QLatin1String(".git"))) {
+        if (repository.entryList(QDir::AllDirs|QDir::Hidden).contains(QLatin1String(".git"))) {
             m_ui.repositoryEdit->setText(repository.absolutePath());
             return;
         }
