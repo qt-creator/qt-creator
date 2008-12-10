@@ -877,8 +877,8 @@ void WatchHandler::watchExpression(const QString &exp)
     data.name = exp;
     data.iname = "watch." + exp;
     insertData(data);
+    emit watchModelUpdateRequested();
 }
-
 
 void WatchHandler::setDisplayedIName(const QString &iname, bool on)
 {
