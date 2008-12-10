@@ -33,19 +33,18 @@
 
 #include "scriptengine.h"
 
-#include "qtcassert.h"
+#include "attachexternaldialog.h"
+#include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
-
 #include "disassemblerhandler.h"
-#include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
+#include "startexternaldialog.h"
 #include "watchhandler.h"
 
-#include "startexternaldialog.h"
-#include "attachexternaldialog.h"
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>

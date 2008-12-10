@@ -37,7 +37,6 @@
 #include "debuggermanager.h"
 #include "gdbmi.h"
 #include "procinterrupt.h"
-#include "qtcassert.h"
 
 #include "disassemblerhandler.h"
 #include "breakhandler.h"
@@ -48,6 +47,8 @@
 
 #include "startexternaldialog.h"
 #include "attachexternaldialog.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

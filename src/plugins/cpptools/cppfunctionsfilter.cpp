@@ -31,16 +31,20 @@
 **
 ***************************************************************************/
 
-#ifndef QTC_ASSERT_H
-#define QTC_ASSERT_H
+#include "cppfunctionsfilter.h"
 
-#include <QtCore/QDebug>
+using namespace CppTools::Internal;
 
-// we do not use the  'do {...} while (0)' idiom here to be able to use
-// 'break' and 'continue' as 'actions'.
+CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+    : CppQuickOpenFilter(manager, editorManager)
+{
+    setShortcutString("m");
+    setIncludedByDefault(false);
 
-#define QTC_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
+    search.setSymbolsToSearchFor(SearchSymbols::Functions);
+    search.setSeparateScope(true);
+}
 
-#endif // QTC_ASSERT_H
-
+CppFunctionsFilter::~CppFunctionsFilter()
+{
+}

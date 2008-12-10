@@ -35,7 +35,6 @@
 
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
-#include "qtcassert.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -48,10 +47,14 @@
 #include <coreplugin/outputpane.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/rightpane.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+
 #include <QtGui/QDockWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>

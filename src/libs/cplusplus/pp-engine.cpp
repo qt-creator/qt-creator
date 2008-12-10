@@ -164,7 +164,15 @@ protected:
     bool process_primary()
     {
         if ((*_lex)->is(T_INT_LITERAL)) {
-            _value.set_long(tokenSpell().toLong());
+            int base = 10;
+            const QByteArray spell = tokenSpell();
+            if (spell.at(0) == '0') {
+                if (spell.size() > 1 && (spell.at(1) == 'x' || spell.at(1) == 'X'))
+                    base = 16;
+                else
+                    base = 8;
+            }
+            _value.set_long(tokenSpell().toLong(0, base));
             ++(*_lex);
             return true;
         } else if (isTokenDefined()) {
@@ -367,7 +375,7 @@ protected:
     {
         process_xor();
 
-        while ((*_lex)->is(T_CARET)) {
+        while ((*_lex)->is(T_PIPE)) {
             const Token op = *(*_lex);
             ++(*_lex);
 
@@ -481,12 +489,12 @@ void pp::operator () (const QByteArray &filename,
                       const QByteArray &source,
                       QByteArray *result)
 {
-    const QByteArray previousFile = env.current_file;
-    env.current_file = filename;
+    const QByteArray previousFile = env.currentFile;
+    env.currentFile = filename;
 
     operator () (source, result);
 
-    env.current_file = previousFile;
+    env.currentFile = previousFile;
 }
 
 pp::State pp::createStateFromSource(const QByteArray &source) const
@@ -518,7 +526,7 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                 result->append(QByteArray::number(_dot->lineno));
                 result->append(' ');
                 result->append('"');
-                result->append(env.current_file);
+                result->append(env.currentFile);
                 result->append('"');
                 result->append('\n');
             } else {
@@ -844,6 +852,8 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
     }
 
     Macro macro;
+    macro.fileName = env.currentFile;
+    macro.line = env.currentLine;
     macro.name = tokenText(*tk);
     ++tk; // skip T_IDENTIFIER
 

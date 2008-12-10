@@ -257,7 +257,7 @@ TaskWindow::TaskWindow()
 
     m_listview->setModel(m_model);
     m_listview->setFrameStyle(QFrame::NoFrame);
-    m_listview->setWindowTitle(tr("Problems"));
+    m_listview->setWindowTitle(tr("Build Issues"));
     m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
     TaskDelegate *tld = new TaskDelegate(this);
     m_listview->setItemDelegate(tld);

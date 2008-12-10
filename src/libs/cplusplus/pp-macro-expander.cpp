@@ -73,7 +73,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
             __result->append(QByteArray::number(env.currentLine));
             __result->append(' ');
             __result->append('"');
-            __result->append(env.current_file);
+            __result->append(env.currentFile);
             __result->append('"');
             __result->append('\n');
             ++lines;
@@ -218,7 +218,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                     else if (fast_name == "__FILE__")
                     {
                         __result->append('"');
-                        __result->append(env.current_file);
+                        __result->append(env.currentFile);
                         __result->append('"');
                         continue;
                     }
