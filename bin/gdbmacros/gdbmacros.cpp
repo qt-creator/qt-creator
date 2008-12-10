@@ -122,6 +122,7 @@ int qtGhVersion = QT_VERSION;
 #   include <QImage>
 #endif
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -2101,6 +2102,76 @@ static void qDumpQVector(QDumper &d)
     d.disarm();
 }
 
+static void qDumpStdList(QDumper &d)
+{
+    const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
+    const void *p = d.data;
+    qCheckAccess(p);
+    p = deref(p);
+    qCheckAccess(p);
+    p = deref(p);
+    qCheckAccess(p);
+    p = deref(p);
+    qCheckAccess(p);
+    p = deref(addOffset(d.data, sizeof(void*)));
+    qCheckAccess(p);
+    p = deref(addOffset(p, sizeof(void*)));
+    qCheckAccess(p);
+    p = deref(addOffset(p, sizeof(void*)));
+    qCheckAccess(p);
+    p = deref(addOffset(p, sizeof(void*)));
+    qCheckAccess(p);
+
+    int nn = 0;
+    std::list<int>::const_iterator it = list.begin();
+    for (int i = 0; i < 101 && it != list.end(); ++i, ++it) {
+        qCheckAccess(it.operator->());
+        ++nn;
+    }
+
+    if (nn > 100)
+        P(d, "value", "<more than 100 items>");
+    else
+        P(d, "value", "<" << nn << " items>");
+    P(d, "numchild", nn);
+
+    P(d, "valuedisabled", "true");
+    if (d.dumpChildren) {
+        unsigned innersize = d.extraInt[0];
+        bool innerTypeIsPointer = isPointerType(d.innertype);
+        QByteArray strippedInnerType = stripPointerType(d.innertype);
+        d << ",children=[";
+        std::list<int>::const_iterator it = list.begin();
+        for (int i = 0; i < 1000 && it != list.end(); ++i, ++it) {
+            d.beginHash();
+            P(d, "name", "[" << i << "]");
+            P(d, "type", d.innertype);
+            const void *p = it.operator->();
+            if (innerTypeIsPointer) {
+                if (deref(p)) {
+                    qDumpInnerValue(d, strippedInnerType.data(), deref(p));
+                } else {
+                    P(d, "type", d.innertype);
+                    P(d, "value", "<null>");
+                    P(d, "numchild", "0");
+                }
+            } else {
+                qDumpInnerValue(d, d.innertype, p);
+            }
+            d.endHash();
+        }
+        if (it != list.end()) {
+            d.beginHash();
+            P(d, "name", "[...]");
+            P(d, "value", "<incomplete>");
+            P(d, "type", d.innertype);
+            d.endHash();
+        }
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
@@ -2325,6 +2396,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdVector(d);
             else if (isEqual(type, "std::vector::bool"))
                 qDumpStdVectorBool(d);
+            else if (isEqual(type, "std::list"))
+                qDumpStdList(d);
             else if (isEqual(type, "string"))
                 qDumpStdString(d);
             else if (isEqual(type, "std::string"))
