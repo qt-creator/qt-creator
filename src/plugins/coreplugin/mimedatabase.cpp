@@ -33,19 +33,22 @@
 
 #include "mimedatabase.h"
 
-#include <QtCore/QStringList>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QLocale>
 #include <QtCore/QMap>
 #include <QtCore/QMultiHash>
-#include <QtCore/QDebug>
 #include <QtCore/QRegExp>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QByteArray>
 #include <QtCore/QSharedData>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QStringList>
 #include <QtCore/QTextStream>
-#include <QtCore/QLocale>
+
 #include <QtXml/QXmlStreamReader>
 
 enum { debugMimeDB = 0 };
@@ -299,7 +302,7 @@ void MimeTypeData::debug(QTextStream &str, int indent) const
         str << indentS << "SubClassesOf: " << subClassesOf.join(comma) << '\n';
     if (!globPatterns.empty()) {
         str << indentS << "Glob: ";
-        foreach(const QRegExp &r, globPatterns)
+        foreach (const QRegExp &r, globPatterns)
             str << r.pattern() << ' ';
         str << '\n';
         if (!suffixes.empty()) {
@@ -574,7 +577,7 @@ BaseMimeTypeParser:: BaseMimeTypeParser() :
     // "*.log[1-9]"
     m_suffixPattern(QLatin1String("^\\*\\.[\\w]+$"))
 {
-    Q_ASSERT(m_suffixPattern.isValid());
+    QTC_ASSERT(m_suffixPattern.isValid(), /**/);
 }
 
 void BaseMimeTypeParser::addGlobPattern(const QString &pattern, MimeTypeData *d) const

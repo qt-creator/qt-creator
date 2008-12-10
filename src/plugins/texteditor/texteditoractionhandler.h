@@ -100,6 +100,7 @@ private slots:
     void printAction();
     void formatAction();
     void setVisualizeWhitespace(bool);
+    void cleanWhitespace();
     void setTextWrapping(bool);
     void unCommentSelection();
     void unCollapseAll();
@@ -128,6 +129,7 @@ private:
     QAction *m_printAction;
     QAction *m_formatAction;
     QAction *m_visualizeWhitespaceAction;
+    QAction *m_cleanWhitespaceAction;
     QAction *m_textWrappingAction;
     QAction *m_unCommentSelectionAction;
     QAction *m_unCollapseAllAction;

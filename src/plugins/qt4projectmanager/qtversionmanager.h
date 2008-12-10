@@ -70,6 +70,7 @@ public:
     QString mkspecPath() const;
     QString makeCommand() const;
     QString qmakeCommand() const;
+    QString qtVersionString() const;
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
@@ -119,6 +120,9 @@ private:
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
     mutable QString m_qmakeCommand;
+    // This is updated on first call to qmakeCommand
+    // That function is called from updateVersionInfo()
+    mutable QString m_qtVersionString;
     Q_DISABLE_COPY(QtVersion);
 };
 
@@ -189,7 +193,7 @@ public:
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
-    static bool checkQMakeVersion(const QString &qmakePath);
+    static QString qtVersionForQMake(const QString &qmakePath);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();

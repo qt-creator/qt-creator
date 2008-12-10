@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "resourceeditorplugin.h"
+
 #include "resourceeditorw.h"
 #include "resourceeditorconstants.h"
 #include "resourcewizard.h"
@@ -43,6 +44,8 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtGui/QAction>
@@ -122,10 +125,11 @@ void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
     }
 }
 
-ResourceEditorW * ResourceEditorPlugin::currentEditor() const {
+ResourceEditorW * ResourceEditorPlugin::currentEditor() const
+{
     ResourceEditorW * const focusEditor = qobject_cast<ResourceEditorW *>(
             m_core->editorManager()->currentEditor());
-    Q_ASSERT(focusEditor);
+    QTC_ASSERT(focusEditor, return 0);
     return focusEditor;
 }
 

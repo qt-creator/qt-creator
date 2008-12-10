@@ -63,7 +63,7 @@ public:
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets(void) const;
 
-    QString name() const { return tr("Problems"); }
+    QString name() const { return tr("Build Issues"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);

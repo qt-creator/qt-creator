@@ -34,6 +34,8 @@
 #include "progressview.h"
 #include "futureprogress.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QHBoxLayout>
 
 using namespace Core;
@@ -136,7 +138,7 @@ void ProgressView::removeTask(FutureProgress *task)
 void ProgressView::slotFinished()
 {
     FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
-    Q_ASSERT(progress);
+    QTC_ASSERT(progress, return);
     if (m_keep.contains(progress) && !m_keep.value(progress) && !progress->hasError())
         removeTask(progress);
     removeOldTasks(m_type.value(progress), true);

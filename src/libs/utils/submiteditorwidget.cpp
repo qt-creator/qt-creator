@@ -46,7 +46,8 @@ namespace Utils {
 
 // QActionPushButton: A push button tied to an action
 // (similar to a QToolButton)
-class QActionPushButton : public QPushButton {
+class QActionPushButton : public QPushButton
+{
     Q_OBJECT
 public:
     explicit QActionPushButton(QAction *a);
@@ -319,7 +320,7 @@ void SubmitEditorWidget::fileSelectionChanged()
 
 void SubmitEditorWidget::changeEvent(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::LanguageChange:
         m_d->m_ui.retranslateUi(this);
         break;

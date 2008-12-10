@@ -896,7 +896,7 @@ void MainWindow::removeContextObject(IContext *context)
         return;
 
     m_contextWidgets.remove(widget);
-    if(m_activeContext == context)
+    if (m_activeContext == context)
         updateContextObject(0);
 }
 
@@ -957,10 +957,11 @@ void MainWindow::resetContext()
     updateContextObject(0);
 }
 
-QMenu *MainWindow::createPopupMenu() {
+QMenu *MainWindow::createPopupMenu()
+{
     QMenu *menu = new QMenu(this);
     QList<ActionContainer *> containers = m_actionManager->containers();
-    foreach(ActionContainer *c, containers) {
+    foreach (ActionContainer *c, containers) {
         if (c->toolBar())
             menu->addAction(c->toolBar()->toggleViewAction());
     }

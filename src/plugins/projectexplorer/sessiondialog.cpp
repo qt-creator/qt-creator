@@ -128,7 +128,7 @@ SessionDialog::SessionDialog(SessionManager *sessionManager, const QString &last
             this, SLOT(updateActions()));
 
     QStringList sessions = sessionManager->sessions();
-    foreach(const QString &session, sessions) {
+    foreach (const QString &session, sessions) {
         m_ui.sessionList->addItem(session);
         if (session == lastSession)
             m_ui.sessionList->setCurrentRow(m_ui.sessionList->count() - 1);

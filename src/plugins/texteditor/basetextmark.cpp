@@ -60,9 +60,8 @@ void BaseTextMark::init()
     Core::EditorManager *em = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->editorManager();
     connect(em, SIGNAL(editorOpened(Core::IEditor *)), this, SLOT(editorOpened(Core::IEditor *)));
 
-    foreach(Core::IEditor *editor, em->openedEditors()) {
+    foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);
-    }
 }
 
 void BaseTextMark::editorOpened(Core::IEditor *editor)
@@ -132,7 +131,6 @@ void BaseTextMark::moveMark(const QString & /* filename */, int /* line */)
     delete m_internalMark;
     m_internalMark = 0;
 
-    foreach(Core::IEditor *editor, em->openedEditors()) {
+    foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);
-    }
 }

@@ -31,33 +31,28 @@
 **
 ***************************************************************************/
 
-#include "quickopenmanager.h"
-#include "quickopentoolwindow.h"
+#ifndef CPPFUNCTIONSFILTER_H
+#define CPPFUNCTIONSFILTER_H
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
+#include <cppquickopenfilter.h>
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+namespace CppTools {
+namespace Internal {
 
-QuickOpenManager *QuickOpenManager::m_instance = 0;
-
-QuickOpenManager::QuickOpenManager(QuickOpenToolWindow *toolWindow)
-  : QObject(toolWindow),
-    m_toolWindow(toolWindow)
+class CppFunctionsFilter : public CppQuickOpenFilter
 {
-    m_instance = this;
-}
+    Q_OBJECT
 
-QuickOpenManager::~QuickOpenManager()
-{
-    ExtensionSystem::PluginManager::instance()->removeObject(this);
-    m_instance = 0;
-}
+public:
+    CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    ~CppFunctionsFilter();
 
-void QuickOpenManager::show(const QString &text,
-                            int selectionStart, int selectionLength)
-{
-    QTC_ASSERT(m_toolWindow, return);
-    m_toolWindow->show(text, selectionStart, selectionLength);
-}
+    QString trName() const { return tr("Methods"); }
+    QString name() const { return QLatin1String("Methods"); }
+    Priority priority() const { return Medium; }
+};
+
+} // namespace Internal
+} // namespace CppTools
+
+#endif // CPPFUNCTIONSFILTER_H

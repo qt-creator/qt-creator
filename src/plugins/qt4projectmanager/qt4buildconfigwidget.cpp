@@ -118,31 +118,31 @@ void Qt4BuildConfigWidget::setupQtVersionsComboBox()
     if (m_buildConfiguration.isEmpty()) // not yet initialized
         return;
 
-    disconnect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(const QString &)),
-        this, SLOT(qtVersionComboBoxCurrentIndexChanged(const QString &)));
+    disconnect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
+        this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
 
     m_ui->qtVersionComboBox->clear();
     m_ui->qtVersionComboBox->addItem(tr("Default Qt Version"), 0);
 
-    if(m_pro->qtVersionId(m_buildConfiguration) == 0) {
+    if (m_pro->qtVersionId(m_buildConfiguration) == 0) {
         m_ui->qtVersionComboBox->setCurrentIndex(0);
         m_ui->invalidQtWarningLabel->setVisible(false);
     }
     // Add Qt Versions to the combo box
     QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
     const QList<QtVersion *> &versions = vm->versions();
-    for(int i=0; i<versions.size(); ++i) {
+    for (int i = 0; i < versions.size(); ++i) {
         m_ui->qtVersionComboBox->addItem(versions.at(i)->name(), versions.at(i)->uniqueId());
 
-        if(versions.at(i)->uniqueId() == m_pro->qtVersionId(m_buildConfiguration)) {
-            m_ui->qtVersionComboBox->setCurrentIndex(i+1);
+        if (versions.at(i)->uniqueId() == m_pro->qtVersionId(m_buildConfiguration)) {
+            m_ui->qtVersionComboBox->setCurrentIndex(i + 1);
             m_ui->invalidQtWarningLabel->setVisible(!versions.at(i)->isValid());
         }
     }
 
     // And connect again
-    connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(const QString &)),
-        this, SLOT(qtVersionComboBoxCurrentIndexChanged(const QString &)));
+    connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
+        this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
 }
 
 void Qt4BuildConfigWidget::shadowBuildButtonClicked()
@@ -180,7 +180,7 @@ void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildLineEdit->text());
-        if(!qtPath.isEmpty()) {
+        if (!qtPath.isEmpty()) {
             m_ui->importLabel->setVisible(true);
         }
     }
@@ -252,7 +252,7 @@ void Qt4BuildConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString &)
     }
     bool isValid = m_pro->qt4ProjectManager()->versionManager()->version(newQtVersion)->isValid();
     m_ui->invalidQtWarningLabel->setVisible(!isValid);
-    if(newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
+    if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);
         m_pro->update();
     }

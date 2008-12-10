@@ -35,18 +35,18 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
+#include <utils/qtcassert.h>
+
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 MakeStep::MakeStep(CMakeProject *pro)
     : AbstractProcessStep(pro), m_pro(pro)
 {
-
 }
 
 MakeStep::~MakeStep()
 {
-
 }
 
 bool MakeStep::init(const QString &buildConfiguration)
@@ -109,9 +109,9 @@ bool MakeBuildStepFactory::canCreate(const QString &name) const
 
 ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
-    Q_ASSERT(name == Constants::MAKESTEP);
+    QTC_ASSERT(name == Constants::MAKESTEP, return 0);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
+    QTC_ASSERT(pro, return 0);
     return new MakeStep(pro);
 }
 

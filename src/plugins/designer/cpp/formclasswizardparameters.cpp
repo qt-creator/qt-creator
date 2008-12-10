@@ -156,7 +156,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     if (languageChange) {
         sourceStr  << '\n' << namespaceIndent << "void " << unqualifiedClassName << "::" << "changeEvent(QEvent *e)\n"
         << namespaceIndent << "{\n"
-        << namespaceIndent << indent << "switch(e->type()) {\n" << namespaceIndent << indent << "case QEvent::LanguageChange:\n"
+        << namespaceIndent << indent << "switch (e->type()) {\n" << namespaceIndent << indent << "case QEvent::LanguageChange:\n"
         << namespaceIndent << indent << indent;
         if (embedding != InheritedUiClass)
             sourceStr << uiMemberC << (embedding == PointerAggregatedUiClass ? "->" : ".");

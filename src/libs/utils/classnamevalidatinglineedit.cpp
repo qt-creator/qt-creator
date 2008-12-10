@@ -33,6 +33,8 @@
 
 #include "classnamevalidatinglineedit.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 
@@ -53,7 +55,7 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
     m_namespaceDelimiter(QLatin1String("::")),
     m_namespacesEnabled(false)
 {
-    Q_ASSERT(m_nameRegexp.isValid());
+    QTC_ASSERT(m_nameRegexp.isValid(), return);
 }
 
 // --------------------- ClassNameValidatingLineEdit
@@ -113,7 +115,7 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     // Remove spaces and convert the adjacent characters to uppercase
     QString className = name;
     QRegExp spaceMatcher(QLatin1String(" +(\\w)"), Qt::CaseSensitive, QRegExp::RegExp2);
-    Q_ASSERT(spaceMatcher.isValid());
+    QTC_ASSERT(spaceMatcher.isValid(), /**/);
     int pos;
     while ((pos = spaceMatcher.indexIn(className)) != -1) {
         className.replace(pos, spaceMatcher.matchedLength(),

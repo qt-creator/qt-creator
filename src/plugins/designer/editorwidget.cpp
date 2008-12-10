@@ -35,6 +35,7 @@
 #include "formeditorw.h"
 
 #include <coreplugin/minisplitter.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QEvent>
 #include <QtGui/QVBoxLayout>
@@ -54,7 +55,7 @@ SharedSubWindow::SharedSubWindow(QWidget *shared, QWidget *parent) :
    m_shared(shared),
    m_layout(new QVBoxLayout)
 {
-    Q_ASSERT(m_shared);
+    QTC_ASSERT(m_shared, /**/);
     m_layout->setContentsMargins(0, 0, 0, 0);
     setLayout(m_layout);
 }
@@ -62,14 +63,14 @@ SharedSubWindow::SharedSubWindow(QWidget *shared, QWidget *parent) :
 void SharedSubWindow::activate()
 {
     // Take the widget off the other parent
-    Q_ASSERT(m_shared);
+    QTC_ASSERT(m_shared, return);
     QWidget *currentParent = m_shared->parentWidget();
     if (currentParent == this)
         return;
 
     if (currentParent) {
         QVBoxLayout *lt = qobject_cast<QVBoxLayout *>(currentParent->layout());
-        Q_ASSERT(lt);
+        QTC_ASSERT(lt, return);
         m_shared->setParent(0);
         delete lt->takeAt(0);
     }

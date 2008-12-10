@@ -32,18 +32,20 @@
 ***************************************************************************/
 
 #include "pathchooser.h"
+
 #include "basevalidatinglineedit.h"
+#include "qtcassert.h"
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/QDesktopServices>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
+
+#include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QToolButton>
 
 namespace Core {
 namespace Utils {
@@ -55,7 +57,8 @@ namespace Utils {
 #endif
 
 // ------------------ PathValidatingLineEdit
-class PathValidatingLineEdit : public BaseValidatingLineEdit {
+class PathValidatingLineEdit : public BaseValidatingLineEdit
+{
 public:
     explicit PathValidatingLineEdit(PathChooser *chooser, QWidget *parent = 0);
 
@@ -70,7 +73,7 @@ PathValidatingLineEdit::PathValidatingLineEdit(PathChooser *chooser, QWidget *pa
     BaseValidatingLineEdit(parent),
     m_chooser(chooser)
 {
-    Q_ASSERT(chooser != NULL);
+    QTC_ASSERT(chooser, return);
 }
 
 bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
@@ -79,7 +82,8 @@ bool PathValidatingLineEdit::validate(const QString &value, QString *errorMessag
 }
 
 // ------------------ PathChooserPrivate
-struct PathChooserPrivate {
+struct PathChooserPrivate
+{
     PathChooserPrivate(PathChooser *chooser);
 
     PathValidatingLineEdit *m_lineEdit;
@@ -160,9 +164,9 @@ void PathChooser::slotBrowse()
 
     // TODO make cross-platform
     // Delete trailing slashes unless it is "/", only
-    if (!newPath .isEmpty()) {
-        if (newPath .size() > 1 && newPath .endsWith(QDir::separator()))
-            newPath .truncate(newPath .size() - 1);
+    if (!newPath.isEmpty()) {
+        if (newPath.size() > 1 && newPath.endsWith(QDir::separator()))
+            newPath.truncate(newPath.size() - 1);
         setPath(newPath);
     }
 }
@@ -174,7 +178,7 @@ bool PathChooser::isValid() const
 
 QString PathChooser::errorMessage() const
 {
-    return  m_d->m_lineEdit->errorMessage();
+    return m_d->m_lineEdit->errorMessage();
 }
 
 bool PathChooser::validatePath(const QString &path, QString *errorMessage)
@@ -207,17 +211,19 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     // Check expected kind
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory:
-        if (!isDir)
+        if (!isDir) {
             if (errorMessage)
                 *errorMessage = tr("The path '%1' is not a directory.").arg(path);
             return false;
+        }
         break;
 
     case PathChooser::File:
-        if (isDir)
+        if (isDir) {
             if (errorMessage)
                 *errorMessage = tr("The path '%1' is not a file.").arg(path);
             return false;
+        }
         break;
 
     case PathChooser::Command:

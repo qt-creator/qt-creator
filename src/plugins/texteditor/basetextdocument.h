@@ -118,6 +118,8 @@ public:
 
     void reload(QTextCodec *codec);
 
+    void cleanWhitespace();
+
 signals:
     void titleChanged(QString title);
     void changed();

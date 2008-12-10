@@ -117,7 +117,7 @@ void ProjectIntroPage::setDescription(const QString &description)
 
 void ProjectIntroPage::changeEvent(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::LanguageChange:
         m_d->m_ui.retranslateUi(this);
         break;

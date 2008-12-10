@@ -32,10 +32,10 @@
 ***************************************************************************/
 
 #include "gdbmi.h"
-#include "assert.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
-#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 
 namespace Debugger {
@@ -138,7 +138,7 @@ void GdbMi::parseValue(const Char *&from, const Char *to)
 void GdbMi::parseTuple(const Char *&from, const Char *to)
 {
     //qDebug() << "parseTuple: " << QByteArray::fromUtf16(from, to - from);
-    QWB_ASSERT(*from == '{', /**/);
+    QTC_ASSERT(*from == '{', /**/);
     ++from;
     parseTuple_helper(from, to);
 }
@@ -166,7 +166,7 @@ void GdbMi::parseTuple_helper(const Char *&from, const Char *to)
 void GdbMi::parseList(const Char *&from, const Char *to)
 {
     //qDebug() << "parseList: " << QByteArray::fromUtf16(from, to - from);
-    QWB_ASSERT(*from == '[', /**/);
+    QTC_ASSERT(*from == '[', /**/);
     ++from;
     m_type = List;
     while (from < to) {

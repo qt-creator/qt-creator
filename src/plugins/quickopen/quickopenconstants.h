@@ -38,7 +38,7 @@ namespace QuickOpen {
 namespace Constants {
 
 const char * const FILTER_OPTIONS_PAGE = "Filters";
-const char * const QUICKOPEN_CATEGORY = "QuickOpen";
+const char * const QUICKOPEN_CATEGORY = "Locator";
 const char * const TASK_INDEX = "QuickOpen.Task.Index";
 
 } // namespace Constants

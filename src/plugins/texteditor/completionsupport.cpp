@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <texteditor/itexteditable.h>
+#include <utils/qtcassert.h>
 
 #include <QString>
 #include <QList>
@@ -103,7 +104,7 @@ void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
         m_startPosition = m_completionCollector->startCompletion(editor);
         completionItems = getCompletions();
 
-        Q_ASSERT(m_startPosition != -1 || completionItems.size() == 0);
+        QTC_ASSERT(m_startPosition != -1 || completionItems.size() == 0, return);
 
         if (completionItems.isEmpty()) {
             cleanupCompletions();

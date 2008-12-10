@@ -33,15 +33,16 @@
 
 #include "qt4runconfiguration.h"
 
-#include "qt4project.h"
+#include "makestep.h"
 #include "profilereader.h"
 #include "qt4nodes.h"
-#include "makestep.h"
+#include "qt4project.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
 #include <projectexplorer/buildstep.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
@@ -148,7 +149,7 @@ QStringList Qt4RunConfiguration::commandLineArguments() const
 ProjectExplorer::Environment Qt4RunConfiguration::environment() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    Q_ASSERT(pro);
+    QTC_ASSERT(pro, return ProjectExplorer::Environment());
     return pro->environment(pro->activeBuildConfiguration());
 }
 
@@ -297,7 +298,7 @@ QString Qt4RunConfiguration::qmakeBuildConfigFromBuildConfiguration(const QStrin
     QStringList makeargs = ms->value(buildConfigurationName, "makeargs").toStringList();
     if (makeargs.contains("debug"))
         return "debug";
-    else if(makeargs.contains("release"))
+    else if (makeargs.contains("release"))
         return "release";
 
     // Oh we don't have an explicit make argument
@@ -369,11 +370,12 @@ bool Qt4RunConfigurationFactory::canCreate(const QString &type) const
     return type == "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
-QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
+QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactory::create
+    (ProjectExplorer::Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
-    Q_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration");
+    QTC_ASSERT(p, /**/);
+    QTC_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration", /**/);
     // The right path is set in restoreSettings
     QSharedPointer<ProjectExplorer::RunConfiguration> rc(new Qt4RunConfiguration(p, QString::null));
     return rc;
@@ -416,7 +418,7 @@ bool Qt4RunConfigurationFactoryUser::canCreate(const QString &type) const
 QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactoryUser::create(ProjectExplorer::Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
+    QTC_ASSERT(p, /**/);
 
     QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
     return QSharedPointer<ProjectExplorer::RunConfiguration>(new Qt4RunConfiguration(p, fileName));
@@ -428,7 +430,7 @@ QStringList Qt4RunConfigurationFactoryUser::canCreate(ProjectExplorer::Project *
     if (qt4project) {
         QStringList applicationProFiles;
         QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach(Qt4ProFileNode * node, list) {
+        foreach (Qt4ProFileNode * node, list) {
             applicationProFiles.append("Qt4RunConfiguration." + node->path());
         }
         return applicationProFiles;

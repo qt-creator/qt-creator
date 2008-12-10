@@ -94,7 +94,7 @@ private:
     void rehash();
 
 public:
-    QByteArray current_file;
+    QByteArray currentFile;
     unsigned currentLine;
     bool hide_next;
 

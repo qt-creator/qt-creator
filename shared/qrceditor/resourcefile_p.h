@@ -36,10 +36,12 @@
 
 #include "namespace_global.h"
 
+#include <utils/qtcassert.h>
+
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtCore/QAbstractItemModel>
 
 #include "shared_global_p.h"
 
@@ -66,11 +68,11 @@ class Node
 protected:
     Node(File *file, Prefix *prefix) : m_file(file), m_prefix(prefix)
     {
-        Q_ASSERT(m_prefix != NULL);
+        QTC_ASSERT(m_prefix, return);
     }
 public:
-    File * file() { return m_file; }
-    Prefix * prefix() { Q_ASSERT(m_prefix != NULL); return m_prefix; }
+    File *file() { return m_file; }
+    Prefix *prefix() { return m_prefix; }
 private:
     File *m_file;
     Prefix *m_prefix;

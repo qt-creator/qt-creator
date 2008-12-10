@@ -31,16 +31,20 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_QWB_ASSERT_H
-#define DEBUGGER_QWB_ASSERT_H
+#include "cppfunctionsfilter.h"
 
-#ifdef Q_OS_UNIX
-#define QWB_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
-#else
-#define QWB_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
-#endif
+using namespace CppTools::Internal;
 
-#endif // DEBUGGER_QWB_ASSERT_H
+CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+    : CppQuickOpenFilter(manager, editorManager)
+{
+    setShortcutString("m");
+    setIncludedByDefault(false);
 
+    search.setSymbolsToSearchFor(SearchSymbols::Functions);
+    search.setSeparateScope(true);
+}
+
+CppFunctionsFilter::~CppFunctionsFilter()
+{
+}

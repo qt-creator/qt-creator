@@ -51,6 +51,7 @@ QT_END_NAMESPACE
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <utils/fancylineedit.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
@@ -263,7 +264,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     // Explcitly hide the completion list popup.
     m_completionList->hide();
 
-    setWindowTitle("Quick Open");
+    setWindowTitle("Locate...");
     resize(200, 90);
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
@@ -280,7 +281,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setPixmap(image);
     m_fileLineEdit->setUseLayoutDirection(true);
-    m_fileLineEdit->setHintText(tr("Type to QuickOpen"));
+    m_fileLineEdit->setHintText(tr("Type to locate"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
 
     m_fileLineEdit->installEventFilter(this);
@@ -452,9 +453,9 @@ void QuickOpenToolWindow::filterSelected()
 {
     const char * const TEXT = "<type here>";
     QAction *action = qobject_cast<QAction*>(sender());
-    Q_ASSERT(action);
+    QTC_ASSERT(action, return);
     IQuickOpenFilter *filter = action->data().value<IQuickOpenFilter*>();
-    Q_ASSERT(filter);
+    QTC_ASSERT(filter, return);
     show(filter->shortcutString() + " " + TEXT,
          filter->shortcutString().length() + 1,
          QString(TEXT).length());

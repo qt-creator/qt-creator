@@ -159,14 +159,12 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 
     if (Core::IActionContainer *mcontext = m_core->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
-        foreach(QAction *action, contextMenu->actions()) {
+        foreach (QAction *action, contextMenu->actions())
             menu->addAction(action);
-        }
     }
 
     menu->exec(e->globalPos());
     delete menu;
-
 }
 
 } // namespace Internal

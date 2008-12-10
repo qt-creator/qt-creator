@@ -32,22 +32,25 @@
 ***************************************************************************/
 
 #include "giteditor.h"
+
 #include "annotationhighlighter.h"
+#include "gitclient.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
-#include "gitclient.h"
 
-#include <vcsbase/diffhighlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
+#include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QSet>
-#include <QtCore/QRegExp>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
-#include <QtGui/QTextEdit>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QRegExp>
+#include <QtCore/QSet>
+#include <QtCore/QTextStream>
+
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextEdit>
 
 #define CHANGE_PATTERN_8C "[a-f0-9]{8,8}"
 #define CHANGE_PATTERN_40C "[a-f0-9]{40,40}"
@@ -62,8 +65,8 @@ GitEditor::GitEditor(const VCSBase::VCSBaseEditorParameters *type,
     m_changeNumberPattern8(QLatin1String(CHANGE_PATTERN_8C)),
     m_changeNumberPattern40(QLatin1String(CHANGE_PATTERN_40C))
 {
-    Q_ASSERT(m_changeNumberPattern8.isValid());
-    Q_ASSERT(m_changeNumberPattern40.isValid());
+    QTC_ASSERT(m_changeNumberPattern8.isValid(), return);
+    QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
     if (Git::Constants::debug)
         qDebug() << "GitEditor::GitEditor" << type->type << type->kind;
 }
@@ -76,11 +79,11 @@ QSet<QString> GitEditor::annotationChanges() const
         return changes;
     // Hunt for first change number in annotation: "<change>:"
     QRegExp r(QLatin1String("^("CHANGE_PATTERN_8C") "));
-    Q_ASSERT(r.isValid());
+    QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
         r.setPattern(QLatin1String("\n("CHANGE_PATTERN_8C") "));
-        Q_ASSERT(r.isValid());
+        QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {
             pos += r.matchedLength();

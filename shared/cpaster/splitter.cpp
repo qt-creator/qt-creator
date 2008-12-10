@@ -66,10 +66,8 @@ FileDataList splitDiffToFiles(const QByteArray &data)
     // The algorithm works like this:
     // On the first match we only get the filename of the first patch part
     // On the second match (if any) we get the diff content, and the name of the next file patch
-    //
     
-    
-    while(-1 != (splitIndex = splitExpr.indexIn(strData,splitIndex))) {
+    while (-1 != (splitIndex = splitExpr.indexIn(strData,splitIndex))) {
         if (!filename.isEmpty()) {
             QString content = strData.mid(previousSplit, splitIndex - previousSplit);
             ret.append(FileData(filename, content.toLatin1()));

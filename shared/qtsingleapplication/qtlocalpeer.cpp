@@ -50,9 +50,9 @@ static PProcessIdToSessionId pProcessIdToSessionId = 0;
 
 namespace SharedTools {
 
-const char* QtLocalPeer::ack = "ack";
+const char *QtLocalPeer::ack = "ack";
 
-QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
+QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
     : QObject(parent), id(appId)
 {
     if (id.isEmpty())
@@ -86,8 +86,6 @@ QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
     lockFile.open(QIODevice::ReadWrite);
 }
 
-
-
 bool QtLocalPeer::isClient()
 {
     if (lockFile.isLocked())
@@ -105,7 +103,6 @@ bool QtLocalPeer::isClient()
     return false;
 }
 
-
 bool QtLocalPeer::sendMessage(const QString &message, int timeout)
 {
     if (!isClient())
@@ -113,7 +110,7 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout)
 
     QLocalSocket socket;
     bool connOk = false;
-    for(int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         // Try twice, in case the other instance is just starting up
         socket.connectToServer(socketName);
         connOk = socket.waitForConnected(timeout/2);
@@ -138,7 +135,6 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout)
     res &= (socket.read(qstrlen(ack)) == ack);
     return res;
 }
-
 
 void QtLocalPeer::receiveConnection()
 {

@@ -96,7 +96,7 @@ void FileIconProvider::registerIconForSuffix(const QIcon &icon, const QString &s
 {
     // delete old icon, if it exists
     QList<QPair<QString,QIcon> >::iterator iter = m_cache.begin();
-    for(; iter != m_cache.end(); ++iter) {
+    for (; iter != m_cache.end(); ++iter) {
         if ((*iter).first == suffix) {
             iter = m_cache.erase(iter);
             break;
@@ -118,7 +118,7 @@ QIcon FileIconProvider::iconForSuffix(const QString &suffix) const
         return icon;
 
     QList<QPair<QString,QIcon> >::const_iterator iter = m_cache.constBegin();
-    for(; iter != m_cache.constEnd(); ++iter) {
+    for (; iter != m_cache.constEnd(); ++iter) {
         if ((*iter).first == suffix) {
             icon = (*iter).second;
             break;

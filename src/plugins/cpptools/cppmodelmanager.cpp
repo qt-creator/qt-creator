@@ -52,6 +52,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <TranslationUnit.h>
 #include <Semantic.h>
 #include <AST.h>
@@ -64,10 +66,11 @@
 #include <Lexer.h>
 #include <Token.h>
 
-#include <QPlainTextEdit>
-#include <QMutexLocker>
-#include <QTime>
-#include <QDebug>
+#include <QtCore/QDebug>
+#include <QtCore/QMutexLocker>
+#include <QtCore/QTime>
+
+//#include <QtGui/QPlainTextEdit>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -299,14 +302,14 @@ void CppPreprocessor::macroAdded(const Macro &macro)
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
-                                          const Macro &,
+                                          const Macro &macro,
                                           const QByteArray &originalText)
 {
     if (! m_currentDoc)
         return;
 
     //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
-    m_currentDoc->addMacroUse(offset, originalText.length());
+    m_currentDoc->addMacroUse(macro, offset, originalText.length());
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -387,17 +390,17 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type)
         } else {
             Document::Ptr previousDoc = switchDocument(Document::create(fileName));
 
-            const QByteArray previousFile = env.current_file;
+            const QByteArray previousFile = env.currentFile;
             const unsigned previousLine = env.currentLine;
 
-            env.current_file = QByteArray(m_currentDoc->translationUnit()->fileName(),
-                                          m_currentDoc->translationUnit()->fileNameLength());
+            env.currentFile = QByteArray(m_currentDoc->translationUnit()->fileName(),
+                                         m_currentDoc->translationUnit()->fileNameLength());
 
             QByteArray preprocessedCode;
             m_proc(contents, &preprocessedCode);
             //qDebug() << preprocessedCode;
 
-            env.current_file = previousFile;
+            env.currentFile = previousFile;
             env.currentLine = previousLine;
 
             m_currentDoc->setSource(preprocessedCode);
@@ -439,10 +442,10 @@ CppModelManager::CppModelManager(QObject *parent) :
     m_projectExplorer = ExtensionSystem::PluginManager::instance()
                         ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
-    Q_ASSERT(m_projectExplorer);
+    QTC_ASSERT(m_projectExplorer, return);
 
     ProjectExplorer::SessionManager *session = m_projectExplorer->session();
-    Q_ASSERT(session != 0);
+    QTC_ASSERT(session, return);
 
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
@@ -626,7 +629,7 @@ void CppModelManager::editorOpened(Core::IEditor *editor)
 {
     if (isCppEditor(editor)) {
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        Q_ASSERT(textEditor != 0);
+        QTC_ASSERT(textEditor, return);
 
         CppEditorSupport *editorSupport = new CppEditorSupport(this);
         editorSupport->setTextEditor(textEditor);
@@ -646,7 +649,7 @@ void CppModelManager::editorAboutToClose(Core::IEditor *editor)
 {
     if (isCppEditor(editor)) {
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-        Q_ASSERT(textEditor != 0);
+        QTC_ASSERT(textEditor, return);
 
         CppEditorSupport *editorSupport = m_editorSupport.value(textEditor);
         m_editorSupport.remove(textEditor);
@@ -785,7 +788,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
                             CppPreprocessor *preproc,
                             QStringList files)
 {
-    Q_ASSERT(! files.isEmpty());
+    QTC_ASSERT(!files.isEmpty(), return);
 
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);

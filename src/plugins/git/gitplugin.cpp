@@ -32,13 +32,14 @@
 ***************************************************************************/
 
 #include "gitplugin.h"
-#include "gitclient.h"
-#include "gitversioncontrol.h"
-#include "giteditor.h"
-#include "gitconstants.h"
+
 #include "changeselectiondialog.h"
-#include "gitsubmiteditor.h"
 #include "commitdata.h"
+#include "gitclient.h"
+#include "gitconstants.h"
+#include "giteditor.h"
+#include "gitsubmiteditor.h"
+#include "gitversioncontrol.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -47,20 +48,24 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/qtcassert.h>
+
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
-#include <QtCore/QDir>
+
 #include <QtGui/QAction>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QFileDialog>
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -142,7 +147,6 @@ GitPlugin::GitPlugin() :
     m_versionControl(0),
     m_changeTmpFile(0)
 {
-    Q_ASSERT(m_instance == 0);
     m_instance = this;
 }
 
@@ -161,7 +165,7 @@ GitPlugin::~GitPlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory* pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
     }
@@ -212,10 +216,10 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::DIFF_SELECTED
 };
 
-static inline Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
-                                              const QList<int> &context,
-                                              const QString &id,
-                                              QObject *parent)
+static Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
+                                       const QList<int> &context,
+                                       const QString &id,
+                                       QObject *parent)
 {
     QAction *a = new QAction(parent);
     a->setSeparator(true);
@@ -627,7 +631,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
         qDebug() << Q_FUNC_INFO << fileName << editor;
     m_core->editorManager()->ensureEditorManagerVisible();
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
-    Q_ASSERT(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
     m_submitCurrentAction->setEnabled(!cd.stagedFiles.empty());

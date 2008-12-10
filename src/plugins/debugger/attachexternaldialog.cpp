@@ -152,13 +152,12 @@ void AttachExternalDialog::rebuildProcessList()
 
 #ifdef Q_OS_WINDOWS
 
-//  Forward declarations:
-BOOL GetProcessList( );
-BOOL ListProcessModules( DWORD dwPID );
-BOOL ListProcessThreads( DWORD dwOwnerPID );
-void printError( TCHAR* msg );
+BOOL GetProcessList();
+BOOL ListProcessModules(DWORD dwPID);
+BOOL ListProcessThreads(DWORD dwOwnerPID);
+void printError(TCHAR *msg);
 
-BOOL GetProcessList( )
+BOOL GetProcessList()
 {
   HANDLE hProcessSnap;
   HANDLE hProcess;
@@ -167,7 +166,7 @@ BOOL GetProcessList( )
 
   // Take a snapshot of all processes in the system.
   hProcessSnap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-  if( hProcessSnap == INVALID_HANDLE_VALUE )
+  if (hProcessSnap == INVALID_HANDLE_VALUE)
   {
     printError( TEXT("CreateToolhelp32Snapshot (of processes)") );
     return( FALSE );
@@ -178,7 +177,7 @@ BOOL GetProcessList( )
 
   // Retrieve information about the first process,
   // and exit if unsuccessful
-  if( !Process32First( hProcessSnap, &pe32 ) )
+  if (!Process32First( hProcessSnap, &pe32 ))
   {
     printError( TEXT("Process32First") ); // show cause of failure
     CloseHandle( hProcessSnap );          // clean the snapshot object
@@ -196,12 +195,12 @@ BOOL GetProcessList( )
     // Retrieve the priority class.
     dwPriorityClass = 0;
     hProcess = OpenProcess( PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID );
-    if( hProcess == NULL )
+    if (hProcess == NULL)
       printError( TEXT("OpenProcess") );
     else
     {
       dwPriorityClass = GetPriorityClass( hProcess );
-      if( !dwPriorityClass )
+      if (!dwPriorityClass)
         printError( TEXT("GetPriorityClass") );
       CloseHandle( hProcess );
     }
@@ -210,31 +209,30 @@ BOOL GetProcessList( )
     printf( "\n  Thread count      = %d",   pe32.cntThreads );
     printf( "\n  Parent process ID = 0x%08X", pe32.th32ParentProcessID );
     printf( "\n  Priority base     = %d", pe32.pcPriClassBase );
-    if( dwPriorityClass )
+    if (dwPriorityClass)
       printf( "\n  Priority class    = %d", dwPriorityClass );
 
     // List the modules and threads associated with this process
     ListProcessModules( pe32.th32ProcessID );
     ListProcessThreads( pe32.th32ProcessID );
 
-  } while( Process32Next( hProcessSnap, &pe32 ) );
+  } while (Process32Next(hProcessSnap, &pe32));
 
-  CloseHandle( hProcessSnap );
-  return( TRUE );
+  CloseHandle(hProcessSnap);
+  return TRUE;
 }
 
 
-BOOL ListProcessModules( DWORD dwPID )
+BOOL ListProcessModules(DWORD dwPID)
 {
   HANDLE hModuleSnap = INVALID_HANDLE_VALUE;
   MODULEENTRY32 me32;
 
   // Take a snapshot of all modules in the specified process.
   hModuleSnap = CreateToolhelp32Snapshot( TH32CS_SNAPMODULE, dwPID );
-  if( hModuleSnap == INVALID_HANDLE_VALUE )
-  {
-    printError( TEXT("CreateToolhelp32Snapshot (of modules)") );
-    return( FALSE );
+  if (hModuleSnap == INVALID_HANDLE_VALUE) {
+    printError(TEXT("CreateToolhelp32Snapshot (of modules)"));
+    return FALSE;
   }
 
   // Set the size of the structure before using it.
@@ -242,7 +240,7 @@ BOOL ListProcessModules( DWORD dwPID )
 
   // Retrieve information about the first module,
   // and exit if unsuccessful
-  if( !Module32First( hModuleSnap, &me32 ) )
+  if (!Module32First( hModuleSnap, &me32))
   {
     printError( TEXT("Module32First") );  // show cause of failure
     CloseHandle( hModuleSnap );           // clean the snapshot object
@@ -261,10 +259,10 @@ BOOL ListProcessModules( DWORD dwPID )
     printf( "\n     Base address   = 0x%08X", (DWORD) me32.modBaseAddr );
     printf( "\n     Base size      = %d",             me32.modBaseSize );
 
-  } while( Module32Next( hModuleSnap, &me32 ) );
+  } while (Module32Next(hModuleSnap, &me32));
 
-  CloseHandle( hModuleSnap );
-  return( TRUE );
+  CloseHandle(hModuleSnap);
+  return TRUE;
 }
 
 BOOL ListProcessThreads( DWORD dwOwnerPID ) 
@@ -274,7 +272,7 @@ BOOL ListProcessThreads( DWORD dwOwnerPID )
  
   // Take a snapshot of all running threads  
   hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
-  if( hThreadSnap == INVALID_HANDLE_VALUE ) 
+  if (hThreadSnap == INVALID_HANDLE_VALUE) 
     return( FALSE ); 
  
   // Fill in the size of the structure before using it. 
@@ -282,7 +280,7 @@ BOOL ListProcessThreads( DWORD dwOwnerPID )
  
   // Retrieve information about the first thread,
   // and exit if unsuccessful
-  if( !Thread32First( hThreadSnap, &te32 ) ) 
+  if (!Thread32First( hThreadSnap, &te32 )) 
   {
     printError( TEXT("Thread32First") ); // show cause of failure
     CloseHandle( hThreadSnap );          // clean the snapshot object
@@ -294,13 +292,13 @@ BOOL ListProcessThreads( DWORD dwOwnerPID )
   // associated with the specified process
   do 
   { 
-    if( te32.th32OwnerProcessID == dwOwnerPID )
+    if (te32.th32OwnerProcessID == dwOwnerPID)
     {
       printf( "\n\n     THREAD ID      = 0x%08X", te32.th32ThreadID ); 
       printf( "\n     Base priority  = %d", te32.tpBasePri ); 
       printf( "\n     Delta priority = %d", te32.tpDeltaPri ); 
     }
-  } while( Thread32Next(hThreadSnap, &te32 ) ); 
+  } while (Thread32Next(hThreadSnap, &te32)); 
 
   CloseHandle( hThreadSnap );
   return( TRUE );
@@ -308,29 +306,30 @@ BOOL ListProcessThreads( DWORD dwOwnerPID )
 
 void printError( TCHAR* msg )
 {
-  DWORD eNum;
-  TCHAR sysMsg[256];
-  TCHAR* p;
+    DWORD eNum;
+    TCHAR sysMsg[256];
+    TCHAR* p;
 
-  eNum = GetLastError( );
-  FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    eNum = GetLastError( );
+    FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
          NULL, eNum,
          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
          sysMsg, 256, NULL );
 
-  // Trim the end of the line and terminate it with a null
-  p = sysMsg;
-  while( ( *p > 31 ) || ( *p == 9 ) )
-    ++p;
-  do { *p-- = 0; } while( ( p >= sysMsg ) &&
-                          ( ( *p == '.' ) || ( *p < 33 ) ) );
+    // Trim the end of the line and terminate it with a null
+    p = sysMsg;
+    while (*p > 31 || *p == 9 )
+        ++p;
+
+    do {
+        *p-- = 0;
+    } while( p >= sysMsg && (*p == '.' || *p < 33));
 
   // Display the message
   _tprintf( TEXT("\n  WARNING: %s failed with error %d (%s)"), msg, eNum, sysMsg );
 }
 
 #endif
-
 
 void AttachExternalDialog::procSelected(const QModelIndex &index0)
 {

@@ -101,9 +101,9 @@ void ProgressBar::paintEvent(QPaintEvent *)
     double percent = 0.50;
     if (range != 0)
         percent = (value() - minimum()) / range;
-    if(percent > 1)
+    if (percent > 1)
         percent = 1;
-    else if(percent < 0)
+    else if (percent < 0)
         percent = 0;
 
     QPainter p(this);

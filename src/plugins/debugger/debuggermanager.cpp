@@ -352,6 +352,15 @@ void DebuggerManager::init()
     m_useFastStartAction->setCheckable(true);
     m_useFastStartAction->setChecked(true);
 
+    m_useToolTipsAction = new QAction(this);
+    m_useToolTipsAction->setText(tr("Use Tooltips While Debugging"));
+    m_useToolTipsAction->setToolTip(tr("Checking this will make enable "
+        "tooltips for variable values during debugging. Since this can slow "
+        "down debugging and does not provide reliable information as it does "
+        "not use scope information, it is switched off by default."));
+    m_useToolTipsAction->setCheckable(true);
+    m_useToolTipsAction->setChecked(false);
+
     // FIXME
     m_useFastStartAction->setChecked(false);
     m_useFastStartAction->setEnabled(false);
@@ -943,6 +952,8 @@ void DebuggerManager::loadSessionData()
     QVariant value;
     querySessionValue(QLatin1String("UseFastStart"), &value);
     m_useFastStartAction->setChecked(value.toBool());
+    querySessionValue(QLatin1String("UseToolTips"), &value);
+    m_useToolTipsAction->setChecked(value.toBool());
     querySessionValue(QLatin1String("UseCustomDumpers"), &value);
     m_useCustomDumpersAction->setChecked(!value.isValid() || value.toBool());
     querySessionValue(QLatin1String("SkipKnownFrames"), &value);
@@ -956,6 +967,8 @@ void DebuggerManager::saveSessionData()
 
     setSessionValue(QLatin1String("UseFastStart"),
         m_useFastStartAction->isChecked());
+    setSessionValue(QLatin1String("UseToolTips"),
+        m_useToolTipsAction->isChecked());
     setSessionValue(QLatin1String("UseCustomDumpers"),
         m_useCustomDumpersAction->isChecked());
     setSessionValue(QLatin1String("SkipKnownFrames"),

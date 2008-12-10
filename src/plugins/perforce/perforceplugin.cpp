@@ -31,25 +31,27 @@
 **
 ***************************************************************************/
 
-#include "p4.h"
 #include "perforceplugin.h"
-#include "perforceoutputwindow.h"
-#include "settingspage.h"
-#include "perforcesubmiteditor.h"
-#include "changenumberdialog.h"
-#include "perforceconstants.h"
-#include "perforceversioncontrol.h"
-#include "perforceeditor.h"
-#include "pendingchangesdialog.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/filemanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include "changenumberdialog.h"
+#include "p4.h"
+#include "pendingchangesdialog.h"
+#include "perforceconstants.h"
+#include "perforceeditor.h"
+#include "perforceoutputwindow.h"
+#include "perforcesubmiteditor.h"
+#include "perforceversioncontrol.h"
+#include "settingspage.h"
+
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/filemanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/mimedatabase.h>
+#include <coreplugin/uniqueidmanager.h>
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -57,16 +59,17 @@
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextCodec>
+
 #include <QtGui/QAction>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QFileDialog>
 
 using namespace Perforce::Internal;
 
@@ -420,7 +423,7 @@ void PerforcePlugin::deleteCurrentFile()
 
 void PerforcePlugin::revertCurrentFile()
 {
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return);
 
     const QString fileName = currentFileName();
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, fileName);
@@ -460,7 +463,7 @@ void PerforcePlugin::diffCurrentFile()
 
 void PerforcePlugin::diffCurrentProject()
 {
-    Q_ASSERT(m_projectExplorer);
+    QTC_ASSERT(m_projectExplorer, return);
     QStringList files;
     QString name;
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
@@ -502,7 +505,8 @@ void PerforcePlugin::resolve()
 
 void PerforcePlugin::submit()
 {
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return);
+
     if (!checkP4Command()) {
         showOutput(tr("No p4 executable specified!"));
         return;
@@ -534,7 +538,7 @@ void PerforcePlugin::submit()
     m_changeTmpFile->seek(0);
 
     // Assemble file list of project
-    Q_ASSERT(m_projectExplorer);
+    QTC_ASSERT(m_projectExplorer, return);
     QStringList files;
     QString name;
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
@@ -561,10 +565,9 @@ void PerforcePlugin::submit()
 
     QStringList stdOutLines = result2.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
-    foreach(const QString &line, stdOutLines) {
-        if (line.startsWith("... depotFile")) {
+    foreach (const QString &line, stdOutLines) {
+        if (line.startsWith("... depotFile"))
             depotFileNames.append(line.mid(14));
-        }
     }
     if (depotFileNames.isEmpty()) {
         showOutput(tr("Project has no files"));
@@ -582,7 +585,7 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
             m_coreInstance->editorManager()->openEditor(fileName, Constants::PERFORCESUBMITEDITOR_KIND);
     m_coreInstance->editorManager()->ensureEditorManagerVisible();
     PerforceSubmitEditor *submitEditor = dynamic_cast<PerforceSubmitEditor*>(editor);
-    Q_ASSERT(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     submitEditor->restrictToProjectFiles(depotFileNames);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiff(QStringList)));
     // The actions are for some reason enabled by the context switching
@@ -736,7 +739,7 @@ QString PerforcePlugin::findTopLevelForDirectory(const QString & /* dir */) cons
         return QString::null;
 
     QRegExp regExp(QLatin1String("(\\n|\\r\\n|\\r)Root:\\s*(.*)(\\n|\\r\\n|\\r)"));
-    Q_ASSERT(regExp.isValid());
+    QTC_ASSERT(regExp.isValid(), /**/);
     regExp.setMinimal(true);
     if (regExp.indexIn(result.stdOut) != -1) {
         QString file = regExp.cap(2).trimmed();
@@ -785,7 +788,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         qDebug() << "PerforcePlugin::runP4Cmd" << args << extraArgs << debugCodec(outputCodec);
     PerforceResponse response;
     response.error = true;
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return response);
     if (!checkP4Command()) {
         response.message = tr("No p4 executable specified!");
         m_perforceOutputWindow->append(response.message, true);
@@ -875,7 +878,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
                                                    int editorType, QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
-    Q_ASSERT(params);
+    QTC_ASSERT(params, return 0);
     const QString kind = QLatin1String(params->kind);
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
@@ -1048,10 +1051,9 @@ void PerforcePlugin::openFiles(const QStringList &files)
 
 QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
 {
-    QString path;
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return QString());
     if (!checkP4Command())
-        return path;
+        return QString();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QProcess proc;
@@ -1059,6 +1061,7 @@ QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
     proc.start(m_settings.p4Command,
         basicP4Args() << QLatin1String("fstat") << serverFilePath);
 
+    QString path;
     if (proc.waitForFinished(3000)) {
         QString output = QString::fromUtf8(proc.readAllStandardOutput());
         if (!output.isEmpty()) {
@@ -1225,7 +1228,7 @@ PerforcePlugin::~PerforcePlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory *pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
         m_editorFactories.clear();
@@ -1283,6 +1286,18 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     if (Perforce::Constants::debug)
         qDebug() << "fileNameFromPerforceName" << perforceName << rc;
     return rc;
+}
+
+Core::ICore *PerforcePlugin::coreInstance()
+{       
+    QTC_ASSERT(m_coreInstance, return 0);
+    return m_coreInstance;
+}
+
+PerforcePlugin *PerforcePlugin::perforcePluginInstance()
+{
+    QTC_ASSERT(m_perforcePluginInstance, return 0);
+    return m_perforcePluginInstance;
 }
 
 Q_EXPORT_PLUGIN(PerforcePlugin)

@@ -50,6 +50,7 @@
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtGui/QShortcut>
@@ -67,7 +68,7 @@ TextEditorPlugin::TextEditorPlugin() :
     m_editorFactory(0),
     m_lineNumberFilter(0)
 {
-    Q_ASSERT(!m_instance);
+    QTC_ASSERT(!m_instance, return);
     m_instance = this;
 }
 

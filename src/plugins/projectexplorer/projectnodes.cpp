@@ -31,11 +31,13 @@
 **
 ***************************************************************************/
 
-#include "nodesvisitor.h"
 #include "projectnodes.h"
+
+#include "nodesvisitor.h"
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
@@ -312,8 +314,8 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
             emit watcher->foldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, subProjects) {
-            Q_ASSERT_X(!project->parentFolderNode(), "addProjectNodes",
-                       "Project node has already a parent");
+            QTC_ASSERT(!project->parentFolderNode(),
+                qDebug("Project node has already a parent"));
             project->setParentFolderNode(this);
             foreach (NodesWatcher *watcher, m_watchers)
                 project->registerWatcher(watcher);
@@ -351,13 +353,13 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
             while ((*projectIter)->path() != (*toRemoveIter)->path()) {
                 ++projectIter;
-                Q_ASSERT_X(projectIter != m_subProjectNodes.end(), "removeProjectNodes",
-                           "Project to remove is not part of specified folder!");
+                QTC_ASSERT(projectIter != m_subProjectNodes.end(),
+                    qDebug("Project to remove is not part of specified folder!"));
             }
             while ((*folderIter)->path() != (*toRemoveIter)->path()) {
                 ++folderIter;
-                Q_ASSERT_X(folderIter != m_subFolderNodes.end(), "removeProjectNodes",
-                           "Project to remove is not part of specified folder!");
+                QTC_ASSERT(folderIter != m_subFolderNodes.end(),
+                    qDebug("Project to remove is not part of specified folder!"));
             }
             delete *projectIter;
             projectIter = m_subProjectNodes.erase(projectIter);
@@ -374,7 +376,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
   */
 void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder)
 {
-    Q_ASSERT(parentFolder);
+    QTC_ASSERT(parentFolder, return);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -384,15 +386,15 @@ void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNod
                 watcher->foldersAboutToBeAdded(parentFolder, subFolders);
 
         foreach (FolderNode *folder, subFolders) {
-            Q_ASSERT_X(!folder->parentFolderNode(), "addFolderNodes",
-                       "Project node has already a parent folder");
+            QTC_ASSERT(!folder->parentFolderNode(),
+                qDebug("Project node has already a parent folder"));
             folder->setParentFolderNode(parentFolder);
             folder->setProjectNode(this);
             parentFolder->m_subFolderNodes.append(folder);
 
             // project nodes have to be added via addProjectNodes
-            Q_ASSERT_X(folder->nodeType() != ProjectNodeType, "addFolderNodes",
-                       "project nodes have to be added via addProjectNodes");
+            QTC_ASSERT(folder->nodeType() != ProjectNodeType,
+                qDebug("project nodes have to be added via addProjectNodes"));
         }
         qSort(parentFolder->m_subFolderNodes.begin(), parentFolder->m_subFolderNodes.end(),
               sortNodesByPath);
@@ -410,7 +412,7 @@ void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNod
 void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
                                    FolderNode *parentFolder)
 {
-    Q_ASSERT(parentFolder);
+    QTC_ASSERT(parentFolder, return);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -425,12 +427,12 @@ void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = parentFolder->m_subFolderNodes.begin();
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-            Q_ASSERT_X(((*toRemoveIter)->nodeType() != ProjectNodeType), "removeFolderNodes",
-                           "project nodes have to be removed via removeProjectNodes");
+            QTC_ASSERT((*toRemoveIter)->nodeType() != ProjectNodeType,
+                qDebug("project nodes have to be removed via removeProjectNodes"));
             while ((*folderIter)->path() != (*toRemoveIter)->path()) {
                 ++folderIter;
-                Q_ASSERT_X(folderIter != parentFolder->m_subFolderNodes.end(), "removeFileNodes",
-                           "Folder to remove is not part of specified folder!");
+                QTC_ASSERT(folderIter != parentFolder->m_subFolderNodes.end(),
+                    qDebug("Folder to remove is not part of specified folder!"));
             }
             delete *folderIter;
             folderIter = parentFolder->m_subFolderNodes.erase(folderIter);
@@ -448,7 +450,7 @@ void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
   */
 void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    Q_ASSERT(folder);
+    QTC_ASSERT(folder, return);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);
@@ -458,8 +460,8 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
                 emit watcher->filesAboutToBeAdded(folder, files);
 
         foreach (FileNode *file, files) {
-            Q_ASSERT_X(!file->parentFolderNode(), "addFileNodes",
-                       "File node has already a parent folder");
+            QTC_ASSERT(!file->parentFolderNode(),
+                qDebug("File node has already a parent folder"));
 
             file->setParentFolderNode(folder);
             file->setProjectNode(this);
@@ -480,7 +482,7 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
   */
 void ProjectNode::removeFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    Q_ASSERT(folder);
+    QTC_ASSERT(folder, return);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);
@@ -497,8 +499,8 @@ void ProjectNode::removeFileNodes(const QList<FileNode*> &files, FolderNode *fol
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
             while ((*filesIter)->path() != (*toRemoveIter)->path()) {
                 ++filesIter;
-                Q_ASSERT_X(filesIter != folder->m_fileNodes.end(), "removeFileNodes",
-                           "File to remove is not part of specified folder!");
+                QTC_ASSERT(filesIter != folder->m_fileNodes.end(),
+                    qDebug("File to remove is not part of specified folder!"));
             }
             delete *filesIter;
             filesIter = folder->m_fileNodes.erase(filesIter);
@@ -589,8 +591,8 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
             emit watcher->foldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, projectNodes) {
-            Q_ASSERT_X(!project->parentFolderNode(), "addProjectNodes",
-                       "Project node has already a parent folder");
+            QTC_ASSERT(!project->parentFolderNode(),
+                qDebug("Project node has already a parent folder"));
             project->setParentFolderNode(this);
             foreach (NodesWatcher *watcher, m_watchers)
                 project->registerWatcher(watcher);
@@ -619,13 +621,13 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
             while ((*projectIter)->path() != (*toRemoveIter)->path()) {
                 ++projectIter;
-                Q_ASSERT_X(projectIter != m_projectNodes.end(), "removeProjectNodes",
-                           "Project to remove is not part of specified folder!");
+                QTC_ASSERT(projectIter != m_projectNodes.end(),
+                    qDebug("Project to remove is not part of specified folder!"));
             }
             while ((*folderIter)->path() != (*toRemoveIter)->path()) {
                 ++folderIter;
-                Q_ASSERT_X(folderIter != m_subFolderNodes.end(), "removeProjectNodes",
-                           "Project to remove is not part of specified folder!");
+                QTC_ASSERT(folderIter != m_subFolderNodes.end(),
+                    qDebug("Project to remove is not part of specified folder!"));
             }
             projectIter = m_projectNodes.erase(projectIter);
             folderIter = m_subFolderNodes.erase(folderIter);

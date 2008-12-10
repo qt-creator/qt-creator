@@ -31,33 +31,16 @@
 **
 ***************************************************************************/
 
-#include "quickopenmanager.h"
-#include "quickopentoolwindow.h"
+#ifndef QTC_ASSERT_H
+#define QTC_ASSERT_H
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
+#include <QtCore/QDebug>
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+// we do not use the  'do {...} while (0)' idiom here to be able to use
+// 'break' and 'continue' as 'actions'.
 
-QuickOpenManager *QuickOpenManager::m_instance = 0;
+#define QTC_ASSERT(cond, action) \
+    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
 
-QuickOpenManager::QuickOpenManager(QuickOpenToolWindow *toolWindow)
-  : QObject(toolWindow),
-    m_toolWindow(toolWindow)
-{
-    m_instance = this;
-}
+#endif // QTC_ASSERT_H
 
-QuickOpenManager::~QuickOpenManager()
-{
-    ExtensionSystem::PluginManager::instance()->removeObject(this);
-    m_instance = 0;
-}
-
-void QuickOpenManager::show(const QString &text,
-                            int selectionStart, int selectionLength)
-{
-    QTC_ASSERT(m_toolWindow, return);
-    m_toolWindow->show(text, selectionStart, selectionLength);
-}

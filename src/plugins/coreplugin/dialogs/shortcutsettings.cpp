@@ -123,7 +123,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 void ShortcutSettings::finished(bool accepted)
 {
     if (accepted) {
-        foreach(ShortcutItem *item, m_scitems) {
+        foreach (ShortcutItem *item, m_scitems) {
             item->m_cmd->setKeySequence(item->m_key);
         }
     }
@@ -196,7 +196,7 @@ bool ShortcutSettings::filter(const QString &f, const QTreeWidgetItem *item)
         if (f.isEmpty())
             return false;
         for (int i = 0; i < item->columnCount(); ++i) {
-            if(item->text(i).contains(f, Qt::CaseInsensitive))
+            if (item->text(i).contains(f, Qt::CaseInsensitive))
                 return false;
         }
         return true;
@@ -242,7 +242,7 @@ void ShortcutSettings::importAction()
         CommandsFile cf(fileName);
         QMap<QString, QKeySequence> mapping = cf.importCommands();
 
-        foreach(ShortcutItem *item, m_scitems) {
+        foreach (ShortcutItem *item, m_scitems) {
             QString sid = uidm->stringForUniqueIdentifier(item->m_cmd->id());
             if (mapping.contains(sid)) {
                 item->m_key = mapping.value(sid);
@@ -256,7 +256,7 @@ void ShortcutSettings::importAction()
 
 void ShortcutSettings::defaultAction()
 {
-    foreach(ShortcutItem *item, m_scitems) {
+    foreach (ShortcutItem *item, m_scitems) {
         item->m_key = item->m_cmd->defaultKeySequence();
         item->m_item->setText(2, item->m_key);
         if (item->m_item == m_page->commandList->currentItem())

@@ -33,7 +33,6 @@
 
 #include "mode.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 
@@ -48,10 +47,14 @@
 #include <coreplugin/outputpane.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/rightpane.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+
 #include <QtGui/QDockWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
@@ -213,8 +216,8 @@ void DebugMode::focusCurrentEditor(IMode *mode)
 void DebugMode::writeSettings() const
 {
     QSettings *s = settings();
-    QWB_ASSERT(m_manager, return);
-    QWB_ASSERT(m_manager->mainWindow(), return);
+    QTC_ASSERT(m_manager, return);
+    QTC_ASSERT(m_manager->mainWindow(), return);
     s->beginGroup(QLatin1String("DebugMode"));
     s->setValue(QLatin1String("State"), m_manager->mainWindow()->saveState());
     s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());

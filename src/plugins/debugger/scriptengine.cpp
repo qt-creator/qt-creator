@@ -33,19 +33,18 @@
 
 #include "scriptengine.h"
 
-#include "assert.h"
+#include "attachexternaldialog.h"
+#include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
-
 #include "disassemblerhandler.h"
-#include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
+#include "startexternaldialog.h"
 #include "watchhandler.h"
 
-#include "startexternaldialog.h"
-#include "attachexternaldialog.h"
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
@@ -574,7 +573,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
     //qDebug() << "\nUPDATE SUBITEM: " << data.toString();
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {
         QScriptValue ob = data.scriptValue;
@@ -667,7 +666,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    QWB_ASSERT(false, return);
+    QTC_ASSERT(false, return);
 }
 
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent)

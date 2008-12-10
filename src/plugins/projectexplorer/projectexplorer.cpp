@@ -78,23 +78,24 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/listutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
+#include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
-#include <QtCore/QDateTime>
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QFileSystemModel>
+
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
-#include <QtGui/QToolBar>
-#include <QtGui/QMainWindow>
+#include <QtGui/QFileDialog>
+#include <QtGui/QFileSystemModel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
+#include <QtGui/QToolBar>
 
 Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
 Q_DECLARE_METATYPE(Core::IEditorFactory *);
@@ -734,7 +735,7 @@ void ProjectExplorerPlugin::clearSession()
 void ProjectExplorerPlugin::extensionsInitialized()
 {
     m_fileFactories = ProjectFileFactory::createFactories(m_core, &m_projectFilterString);
-    foreach(ProjectFileFactory *pf, m_fileFactories) {
+    foreach (ProjectFileFactory *pf, m_fileFactories) {
         m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
     }
@@ -788,7 +789,7 @@ void ProjectExplorerPlugin::setStartupProject(Project *project)
 
     if (!project)
         project = m_currentProject;
-    Q_ASSERT(project);
+    QTC_ASSERT(project, return);
     m_session->setStartupProject(project);
     // NPE: Visually mark startup project
     updateActions();
@@ -1212,7 +1213,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
         qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->file()->fileName() << ")";
 
     QStringList filesToSave;
-    foreach(Project *p, m_session->projectOrder(pro)) {
+    foreach (Project *p, m_session->projectOrder(pro)) {
         FindAllFilesVisitor filesVisitor;
         p->rootProjectNode()->accept(&filesVisitor);
         filesToSave << filesVisitor.filePaths();
@@ -1537,7 +1538,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
 
 void ProjectExplorerPlugin::addNewFile()
 {
-    Q_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType);
+    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType, return);
     const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
     m_core->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::FileWizard)
@@ -1547,7 +1548,7 @@ void ProjectExplorerPlugin::addNewFile()
 
 void ProjectExplorerPlugin::addExistingFiles()
 {
-    Q_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType);
+    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType, return);
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(m_currentNode);
     const QString dir = QFileInfo(m_currentNode->path()).dir().absolutePath();
     QStringList fileNames = QFileDialog::getOpenFileNames(m_core->mainWindow(), tr("Add Existing Files"), dir);
@@ -1599,14 +1600,14 @@ void ProjectExplorerPlugin::addExistingFiles()
 
 void ProjectExplorerPlugin::openFile()
 {
-    Q_ASSERT(m_currentNode);
+    QTC_ASSERT(m_currentNode, return);
     m_core->editorManager()->openEditor(m_currentNode->path());
     m_core->editorManager()->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::removeFile()
 {
-    Q_ASSERT(m_currentNode && m_currentNode->nodeType() == FileNodeType);
+    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == FileNodeType, return);
     FileNode *fileNode = qobject_cast<FileNode*>(m_currentNode);
 
     const QString filePath = m_currentNode->path();
@@ -1618,7 +1619,7 @@ void ProjectExplorerPlugin::removeFile()
 
         // remove from project
         ProjectNode *projectNode = fileNode->projectNode();
-        Q_ASSERT(projectNode);
+        QTC_ASSERT(projectNode, return);
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
             QMessageBox::warning(m_core->mainWindow(), tr("Remove file failed"),
@@ -1770,11 +1771,11 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
 
 void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
 {
-    Q_ASSERT(action != NULL);
+    QTC_ASSERT(action, return);
     Core::IEditorFactory * const editorFactory = qVariantValue<Core::IEditorFactory *>(action->data());
-    Q_ASSERT(m_core != NULL);
-    Q_ASSERT(m_core->editorManager() != NULL);
-    Q_ASSERT(editorFactory != NULL);
+    QTC_ASSERT(m_core, return);
+    QTC_ASSERT(m_core->editorManager(), return);
+    QTC_ASSERT(editorFactory, return);
     m_core->editorManager()->openEditor(currentNode()->path(), editorFactory->kind());
     m_core->editorManager()->ensureEditorManagerVisible();
 }
@@ -1783,7 +1784,7 @@ void ProjectExplorerPlugin::updateSessionMenu()
 {
     m_sessionMenu->clear();
     const QString &activeSession = m_session->activeSession();
-    foreach(const QString &session, m_session->sessions()) {
+    foreach (const QString &session, m_session->sessions()) {
         QAction *act = m_sessionMenu->addAction(session, this, SLOT(setSession()));
         act->setCheckable(true);
         if (session == activeSession)
