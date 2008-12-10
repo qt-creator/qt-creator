@@ -235,6 +235,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             if (use.contains(pos)) {
                 m_toolTip = use.macro().toString();
+                m_helpId = use.macro().name;
                 break;
             }
         }
