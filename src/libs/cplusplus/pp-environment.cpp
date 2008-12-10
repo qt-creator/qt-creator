@@ -53,8 +53,6 @@
 #include "pp-environment.h"
 #include "pp.h"
 
-#include <utils/qtcassert.h>
-
 #include <cstring>
 
 using namespace CPlusPlus;
@@ -93,7 +91,7 @@ Macro *Environment::macroAt(unsigned index) const
 
 Macro *Environment::bind(const Macro &__macro)
 {
-    QTC_ASSERT(! __macro.name.isEmpty(), return 0);
+    Q_ASSERT(! __macro.name.isEmpty());
 
     Macro *m = new Macro (__macro);
     m->hashcode = hash_code(m->name);

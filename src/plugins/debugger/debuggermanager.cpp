@@ -1033,7 +1033,6 @@ void DebuggerManager::addToWatchWindow()
 void DebuggerManager::watchExpression(const QString &expression)
 {
     watchHandler()->watchExpression(expression);
-    //engine()->updateWatchModel();
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)

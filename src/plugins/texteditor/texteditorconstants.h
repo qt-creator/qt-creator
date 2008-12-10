@@ -40,6 +40,7 @@ namespace Constants {
 const char * const C_TEXTEDITOR          = "Text Editor";
 const char * const COMPLETE_THIS         = "TextEditor.CompleteThis";
 const char * const VISUALIZE_WHITESPACE  = "TextEditor.VisualizeWhitespace";
+const char * const CLEAN_WHITESPACE      = "TextEditor.CleanWhitespace";
 const char * const TEXT_WRAPPING         = "TextEditor.TextWrapping";
 const char * const UN_COMMENT_SELECTION  = "TextEditor.UnCommentSelection";
 const char * const COLLAPSE              = "TextEditor.Collapse";

@@ -112,6 +112,7 @@ private:
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
     static int classify(const char *string, int length, bool q);
+    static int classifyOperator(const char *string, int length);
 
     inline void yyinp()
     {

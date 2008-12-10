@@ -201,14 +201,18 @@ void BookmarksPlugin::updateActions(int state)
 
 void BookmarksPlugin::editorOpened(Core::IEditor *editor)
 {
-    connect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    if (qobject_cast<ITextEditor *>(editor)) {
+        connect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+                this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    }
 }
 
 void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
 {
-    disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    if (qobject_cast<ITextEditor *>(editor)) {
+        disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+                this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    }
 }
 
 void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,

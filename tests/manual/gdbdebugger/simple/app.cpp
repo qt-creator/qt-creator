@@ -53,6 +53,8 @@
 #include <QtNetwork/QHostAddress>
 
 #include <iostream>
+#include <list>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -70,6 +72,9 @@ uint qHash(const double & f)
 {
     return int(f);
 }
+
+#define X myns
+X::QString str;
 
 class  Foo
 {
@@ -127,7 +132,7 @@ void testArray()
 }
 
 
-void testByteArray()
+void testQByteArray()
 {
     QByteArray ba = "Hello";
     ba += '"';
@@ -138,7 +143,7 @@ void testByteArray()
 }
 
 
-void testHash()
+void testQHash()
 {
     QHash<int, float> hgg0;
     hgg0[11] = 11.0;
@@ -162,7 +167,7 @@ void testHash()
     hash.insert(".", QPointer<QObject>(&ob));
 }
 
-void testImage()
+void testQImage()
 {
     QImage im(QSize(200, 200), QImage::Format_RGB32);
     im.fill(QColor(200, 100, 130).rgba());
@@ -190,7 +195,7 @@ void testIO()
 }
 
 
-void testList()
+void testQList()
 {
 #if 1
     QList<int> li;
@@ -252,7 +257,7 @@ void testList()
     v.push_back("dd");
  }
 
-void testMap()
+void testQMap()
 {
     QMap<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
@@ -287,7 +292,7 @@ void testMap()
 #endif
 }
 
-void testObject(int &argc, char *argv[])
+void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
     QAction act("xxx", &app);
@@ -315,7 +320,7 @@ void testObject(int &argc, char *argv[])
     app.exec();
 }
 
-void testPixmap()
+void testQPixmap()
 {
     QImage im(QSize(200, 200), QImage::Format_RGB32);
     im.fill(QColor(200, 100, 130).rgba());
@@ -351,7 +356,7 @@ void testPlugin()
     }
 }
 
-void testSet()
+void testQSet()
 {
     QSet<int> hgg0;
     hgg0.insert(11);
@@ -373,63 +378,61 @@ void stringRefTest(const QString &refstring)
     Q_UNUSED(refstring);
 }
 
-
-int F(int a, int b)
+void testStdList()
 {
-   return a + b;
-}
-
-int add(int i) { return i + 2; }
-
-int mul(int i) { return i * 2; }
-
-
-void testStdVector()
-{
-    int x = F(add(1), mul(2));
-    Q_UNUSED(x);
-    std::vector<int *> plist1;
+    std::list<int *> plist1;
     plist1.push_back(new int(1));
     plist1.push_back(0);
     plist1.push_back(new int(2));
 
-    std::vector<int> flist2;
+    std::list<int> flist2;
     flist2.push_back(1);
     flist2.push_back(2);
     flist2.push_back(3);
     flist2.push_back(4);
-
-    int a = 1;
-    int b = 0;
-
-    while (0) {
-        a += 1;
-        if (b)
-            break;
-    }
 
     flist2.push_back(1);
     flist2.push_back(2);
     flist2.push_back(3);
     flist2.push_back(4);
 
-    std::vector<Foo *> plist;
+    std::list<Foo *> plist;
     plist.push_back(new Foo(1));
     plist.push_back(0);
     plist.push_back(new Foo(2));
 
-    std::vector<Foo> flist;
+    std::list<Foo> flist;
     flist.push_back(1);
-
     flist.push_back(2);
     flist.push_back(3);
     flist.push_back(4);
-    //flist.takeFirst();
-    //flist.takeFirst();
 
-    std::vector<bool> vec;
+    std::list<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
+}
+
+void testStdStack()
+{
+    std::stack<int *> plist1;
+    plist1.push(new int(1));
+    plist1.push(0);
+    plist1.push(new int(2));
+    plist1.pop();
+    plist1.pop();
+    plist1.pop();
+
+    std::stack<int> flist2;
+    flist2.push(1);
+    flist2.push(2);
+
+    std::stack<Foo *> plist;
+    plist.push(new Foo(1));
+    plist.push(new Foo(2));
+
+    std::stack<Foo> flist;
+    flist.push(1);
+    flist.push(2);
 }
 
 void testStdString()
@@ -470,7 +473,43 @@ void testStdString()
     v.push_back(str);
 }
 
-void testString()
+void testStdVector()
+{
+    std::vector<int *> plist1;
+    plist1.push_back(new int(1));
+    plist1.push_back(0);
+    plist1.push_back(new int(2));
+
+    std::vector<int> flist2;
+    flist2.push_back(1);
+    flist2.push_back(2);
+    flist2.push_back(3);
+    flist2.push_back(4);
+
+    flist2.push_back(1);
+    flist2.push_back(2);
+    flist2.push_back(3);
+    flist2.push_back(4);
+
+    std::vector<Foo *> plist;
+    plist.push_back(new Foo(1));
+    plist.push_back(0);
+    plist.push_back(new Foo(2));
+
+    std::vector<Foo> flist;
+    flist.push_back(1);
+    flist.push_back(2);
+    flist.push_back(3);
+    flist.push_back(4);
+    //flist.takeFirst();
+    //flist.takeFirst();
+
+    std::vector<bool> vec;
+    vec.push_back(true);
+    vec.push_back(false);
+}
+
+void testQString()
 {
     QString str = "Hello ";
     str += " big, ";
@@ -480,19 +519,9 @@ void testString()
     str += " World ";
     str += " World ";
     str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
 }
 
-void testString3()
+void testQString3()
 {
     QString str = "Hello ";
     str += " big, ";
@@ -508,7 +537,7 @@ void testString3()
     delete pstring;
 }
 
-void testStringList()
+void testQStringList()
 {
     QStringList l;
     l << "Hello ";
@@ -542,7 +571,7 @@ private:
     int m_id;
 };
 
-void testThreads()
+void testQThread()
 {
     Thread thread1(1);
     Thread thread2(2);
@@ -552,7 +581,7 @@ void testThreads()
     thread2.wait();
 }
 
-void testVariant1()
+void testQVariant1()
 {
     QVariant v;
     v = 1;
@@ -561,7 +590,7 @@ void testVariant1()
     v = 1;
 }
 
-void testVariant2()
+void testQVariant2()
 {
     QVariant var;
 #if 0
@@ -586,7 +615,7 @@ void testVariant2()
     var.setValue(my);
 }
 
-void testVariant3()
+void testQVariant3()
 {
     QList<int> list;
     list << 1 << 2 << 3;
@@ -595,8 +624,10 @@ void testVariant3()
     list = qVariantValue<QList<int> >(variant);
 }
 
-void testVector()
+void testQVector()
 {
+    QVector<int> big(10000);
+
     QVector<Foo *> plist;
     plist.append(new Foo(1));
     plist.append(0);
@@ -616,7 +647,7 @@ void testVector()
     vec.append(false);
 }
 
-void testVectorOfList()
+void testQVectorOfQList()
 {
     QVector<QList<int> > v;
     QVector<QList<int> > *pv = &v;
@@ -729,16 +760,9 @@ void testNamespace()
     bar.doit(1);
 }
 
-int main(int argc, char *argv[])
+
+void testHidden()
 {
-    testIO();
-    //QString s;
-    //s = "hallo";
-    //QList<QVector<int> *> vi;
-    //QList<QVector<double> *> vd;
-    //int n = A::barz();
-
-
     int  n = 1;
     n = 2;
     n = 3;
@@ -762,34 +786,42 @@ int main(int argc, char *argv[])
     }
     ++n;
     ++n;
+}
 
+int main(int argc, char *argv[])
+{
+    //testIO();
+    testHidden();
     testArray();
-    testStdVector();
+
+    testStdList();
+    testStdStack();
     testStdString();
+    testStdVector();
 
     testPlugin();
-    testList();
+    testQList();
     testNamespace();
     //return 0;
-    testByteArray();
-    testHash();
-    testImage();
-    testMap();
-    testString();
-    testSet();
-    testStringList();
+    testQByteArray();
+    testQHash();
+    testQImage();
+    testQMap();
+    testQString();
+    testQSet();
+    testQStringList();
     testStruct();
     //testThreads();
-    testVariant1();
-    testVariant2();
-    testVariant3();
-    testVector();
-    testVectorOfList();
+    testQVariant1();
+    testQVariant2();
+    testQVariant3();
+    testQVector();
+    testQVectorOfQList();
 
 
     *(int *)0 = 0;
 
-    testObject(argc, argv);
+    testQObject(argc, argv);
 
 
     //QColor color(255,128,10);

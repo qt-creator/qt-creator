@@ -56,6 +56,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="findPreviousButton">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="arrowType">
         <enum>Qt::LeftArrow</enum>
        </property>
@@ -65,6 +68,9 @@
       <widget class="QToolButton" name="findNextButton">
        <property name="font">
         <font/>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
        </property>
        <property name="arrowType">
         <enum>Qt::RightArrow</enum>
@@ -103,6 +109,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="replacePreviousButton">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="arrowType">
         <enum>Qt::LeftArrow</enum>
        </property>
@@ -112,6 +121,9 @@
       <widget class="QToolButton" name="replaceNextButton">
        <property name="font">
         <font/>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
        </property>
        <property name="arrowType">
         <enum>Qt::RightArrow</enum>

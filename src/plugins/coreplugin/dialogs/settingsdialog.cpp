@@ -47,6 +47,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     setupUi(this);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
+    splitter->setCollapsible(1, false);
     pageTree->header()->setVisible(false);
 
     connect(pageTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -59,7 +60,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
 
     int index = 0;
     foreach (IOptionsPage *page, pages) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
+        QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText(0, page->name());
         item->setData(0, Qt::UserRole, index);
 

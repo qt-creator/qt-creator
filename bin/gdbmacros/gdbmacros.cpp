@@ -122,6 +122,7 @@ int qtGhVersion = QT_VERSION;
 #   include <QImage>
 #endif
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -406,12 +407,13 @@ struct QDumper
     QDumper &operator<<(unsigned int i);
     QDumper &operator<<(const void *p);
     QDumper &operator<<(qulonglong c);
-    void put(char c);
-    void addCommaIfNeeded();
-    void putBase64Encoded(const char *buf, int n);
     QDumper &operator<<(const char *str);
     QDumper &operator<<(const QByteArray &ba);
     QDumper &operator<<(const QString &str);
+    void put(char c);
+    void addCommaIfNeeded();
+    void putBase64Encoded(const char *buf, int n);
+    void putEllipsis();
     void disarm();
 
     void beginHash(); // start of data hash output
@@ -657,6 +659,11 @@ void QDumper::endHash()
     put('}');
 }
 
+void QDumper::putEllipsis()
+{
+    addCommaIfNeeded();
+    *this << "{name=\"<incomplete>\",value=\"\",type=\"" << innertype << "\"}";
+}
 
 //
 // Some helpers to keep the dumper code short
@@ -814,6 +821,27 @@ static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
     qDumpInnerValueHelper(d, type, addr);
 }
 
+
+static void qDumpInnerValueOrPointer(QDumper &d,
+    const char *type, const char *strippedtype, const void *addr)
+{
+    if (strippedtype) {
+        if (deref(addr)) {
+            P(d, "addr", deref(addr));
+            P(d, "type", strippedtype);
+            qDumpInnerValueHelper(d, strippedtype, deref(addr));
+        } else {
+            P(d, "addr", addr);
+            P(d, "type", strippedtype);
+            P(d, "value", "<null>");
+            P(d, "numchild", "0");
+        }
+    } else {
+        P(d, "addr", addr);
+        P(d, "type", type);
+        qDumpInnerValueHelper(d, type, addr);
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1212,9 +1240,8 @@ static void qDumpQList(QDumper &d)
         bool isInternal = innerSize <= int(sizeof(void*))
             && isMovableType(d.innertype);
 
-    P(d, "internal", (int)isInternal);
-
-    P(d, "childtype", d.innertype);
+        P(d, "internal", (int)isInternal);
+        P(d, "childtype", d.innertype);
         if (n > 1000)
             n = 1000;
         d << ",children=[";
@@ -1244,11 +1271,8 @@ static void qDumpQList(QDumper &d)
             }
             d.endHash();
         }
-        if (n < nn) {
-            d.beginHash();
-            P(d, "value", "<incomplete>");
-            d.endHash();
-        }
+        if (n < nn)
+            d.putEllipsis();
         d << "]";
     }
     d.disarm();
@@ -1490,7 +1514,6 @@ static void qDumpQObject(QDumper &d)
         d.beginHash();
             P(d, "name", "methods");
             P(d, "exp", "*(class '"NS"QObject'*)" << d.data);
-            P(d, "type", NS"QObjectMethodList");
             P(d, "value", "<" << mo->methodCount() << " items>");
             P(d, "numchild", mo->methodCount());
         d.endHash();
@@ -1876,11 +1899,7 @@ static void qDumpQSet(QDumper &d)
                 d.endHash();
                 ++i;
                 if (i > 10000) {
-                    d.beginHash();
-                    P(d, "name", "Warning:");
-                    P(d, "value", "<incomplete>");
-                    P(d, "type", "");
-                    d.endHash();
+                    d.putEllipsis();
                     break;
                 }
             }
@@ -1935,13 +1954,8 @@ static void qDumpQStringList(QDumper &d)
             P(d, "valueencoded", "1");
             d.endHash();
         }
-        if (n < list.size()) {
-            d.beginHash();
-            P(d, "name", "Warning:");
-            P(d, "value", "<incomplete>");
-            P(d, "type", "");
-            d.endHash();
-        }
+        if (n < list.size())
+            d.putEllipsis();
         d << "]";
     }
     d.disarm();
@@ -2065,37 +2079,68 @@ static void qDumpQVector(QDumper &d)
     P(d, "valuedisabled", "true");
     P(d, "numchild", n);
     if (d.dumpChildren) {
-        bool innerTypeIsPointer = isPointerType(d.innertype);
         QByteArray strippedInnerType = stripPointerType(d.innertype);
-
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
         if (n > 1000)
             n = 1000;
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
             P(d, "name", "[" << i << "]");
-            const void *p = addOffset(v, i * innersize + typeddatasize);
-            if (innerTypeIsPointer) {
-                if (deref(p)) {
-                    //P(d, "value","@" << p);
-                    qDumpInnerValue(d, strippedInnerType.data(), deref(p));
-                } else {
-                    P(d, "type", d.innertype);
-                    P(d, "value", "<null>");
-                    P(d, "numchild", "0");
-                }
-            } else {
-                qDumpInnerValue(d, d.innertype, p);
-            }
+            qDumpInnerValueOrPointer(d, d.innertype, stripped,
+                addOffset(v, i * innersize + typeddatasize));
             d.endHash();
         }
-        if (n < nn) {
+        if (n < nn)
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
+static void qDumpStdList(QDumper &d)
+{
+    const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
+    const void *p = d.data;
+    qCheckAccess(p);
+    p = deref(p);
+    qCheckAccess(p);
+    p = deref(p);
+    qCheckAccess(p);
+    p = deref(addOffset(d.data, sizeof(void*)));
+    qCheckAccess(p);
+    p = deref(addOffset(p, sizeof(void*)));
+    qCheckAccess(p);
+    p = deref(addOffset(p, sizeof(void*)));
+    qCheckAccess(p);
+
+    int nn = 0;
+    std::list<int>::const_iterator it = list.begin();
+    for (; nn < 101 && it != list.end(); ++nn, ++it)
+        qCheckAccess(it.operator->());
+
+    if (nn > 100)
+        P(d, "value", "<more than 100 items>");
+    else
+        P(d, "value", "<" << nn << " items>");
+    P(d, "numchild", nn);
+
+    P(d, "valuedisabled", "true");
+    if (d.dumpChildren) {
+        QByteArray strippedInnerType = stripPointerType(d.innertype);
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
+        d << ",children=[";
+        it = list.begin();
+        for (int i = 0; i < 1000 && it != list.end(); ++i, ++it) {
             d.beginHash();
-            P(d, "name", "[...]");
-            P(d, "value", "<incomplete>");
-            P(d, "type", d.innertype);
+            P(d, "name", "[" << i << "]");
+            qDumpInnerValueOrPointer(d, d.innertype, stripped, it.operator->());
             d.endHash();
         }
+        if (it != list.end())
+            d.putEllipsis();
         d << "]";
     }
     d.disarm();
@@ -2167,37 +2212,21 @@ static void qDumpStdVector(QDumper &d)
     P(d, "numchild", n);
     if (d.dumpChildren) {
         unsigned innersize = d.extraInt[0];
-        bool innerTypeIsPointer = isPointerType(d.innertype);
         QByteArray strippedInnerType = stripPointerType(d.innertype);
-
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
         if (n > 1000)
             n = 1000;
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
             P(d, "name", "[" << i << "]");
-            const void *p = addOffset(v->start, i * innersize);
-            if (innerTypeIsPointer) {
-                if (deref(p)) {
-                    //P(d, "value","@" << p);
-                    qDumpInnerValue(d, strippedInnerType.data(), deref(p));
-                } else {
-                    P(d, "type", d.innertype);
-                    P(d, "value", "<null>");
-                    P(d, "numchild", "0");
-                }
-            } else {
-                qDumpInnerValue(d, d.innertype, p);
-            }
+            qDumpInnerValueOrPointer(d, d.innertype, stripped,
+                addOffset(v->start, i * innersize));
             d.endHash();
         }
-        if (n < nn) {
-            d.beginHash();
-            P(d, "name", "[...]");
-            P(d, "value", "<incomplete>");
-            P(d, "type", d.innertype);
-            d.endHash();
-        }
+        if (n < nn)
+            d.putEllipsis();
         d << "]";
     }
     d.disarm();
@@ -2325,6 +2354,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdVector(d);
             else if (isEqual(type, "std::vector::bool"))
                 qDumpStdVectorBool(d);
+            else if (isEqual(type, "std::list"))
+                qDumpStdList(d);
             else if (isEqual(type, "string"))
                 qDumpStdString(d);
             else if (isEqual(type, "std::string"))

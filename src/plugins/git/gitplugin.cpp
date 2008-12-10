@@ -496,7 +496,7 @@ QString GitPlugin::getWorkingDirectory()
     if (workingDirectory.isEmpty()) {
         m_outputWindow->clearContents();
         m_outputWindow->append(tr("Could not find working directory"));
-        m_outputWindow->popup();
+        m_outputWindow->popup(false);
         return QString();
     }
     return workingDirectory;
@@ -612,6 +612,7 @@ void GitPlugin::startCommit()
     changeTmpFile->setAutoRemove(true);
     if (!changeTmpFile->open()) {
         m_outputWindow->append(tr("Cannot create temporary file: %1").arg(changeTmpFile->errorString()));
+        m_outputWindow->popup(false);
         delete changeTmpFile;
         return;
     }

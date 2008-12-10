@@ -90,6 +90,20 @@ protected:
         if (event->reason() != Qt::PopupFocusReason)
             QTreeView::focusOutEvent(event);
     }
+
+#ifdef Q_OS_MAC
+    void keyPressEvent(QKeyEvent *event)
+    {
+        if ((event->key() == Qt::Key_Return
+                || event->key() == Qt::Key_Enter)
+                && event->modifiers() == 0
+                && currentIndex().isValid()) {
+            emit activated(currentIndex());
+            return;
+        }
+        QTreeView::keyPressEvent(event);
+    }
+#endif
 };
 
 /*!

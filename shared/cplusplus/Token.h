@@ -209,7 +209,19 @@ enum Kind {
 
     T_LAST_KEYWORD = T_SLOTS,
 
-    // ### aliases
+    // aliases
+    T_OR = T_PIPE_PIPE,
+    T_AND = T_AMPER_AMPER,
+    T_NOT = T_EXCLAIM,
+    T_XOR = T_CARET,
+    T_BITOR = T_PIPE,
+    T_COMPL = T_TILDE,
+    T_OR_EQ = T_PIPE_EQUAL,
+    T_AND_EQ = T_AMPER_EQUAL,
+    T_BITAND = T_AMPER,
+    T_NOT_EQ = T_EXCLAIM_EQUAL,
+    T_XOR_EQ = T_CARET_EQUAL,
+
     T___ASM = T_ASM,
     T___ASM__ = T_ASM,
 

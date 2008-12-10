@@ -302,6 +302,18 @@ void BaseTextDocument::setSyntaxHighlighter(QSyntaxHighlighter *highlighter)
     m_highlighter->setDocument(m_document);
 }
 
+
+
+void BaseTextDocument::cleanWhitespace()
+{
+    QTextCursor cursor(m_document);
+    cursor.beginEditBlock();
+    cleanWhitespace(cursor, true);
+    if (m_storageSettings.m_addFinalNewLine)
+        ensureFinalNewLine(cursor);
+    cursor.endEditBlock();
+}
+
 void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool inEntireDocument)
 {
 

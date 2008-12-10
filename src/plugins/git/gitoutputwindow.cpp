@@ -105,7 +105,6 @@ void GitOutputWindow::append(const QString &text)
     foreach (const QString &s, lines)
         m_outputListWidget->addItem(s);
     m_outputListWidget->scrollToBottom();
-    popup();
 }
 
 void GitOutputWindow::setData(const QByteArray &data)

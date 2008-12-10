@@ -480,13 +480,23 @@ void CPPEditor::jumpToDefinition()
     Document::Ptr doc = m_modelManager->document(file()->fileName());
     if (!doc)
         return;
+
+    QTextCursor tc = textCursor();
+    unsigned lineno = tc.blockNumber() + 1;
+    foreach (const Document::Include &incl, doc->includes()) {
+        if (incl.line() == lineno) {
+            if (TextEditor::BaseTextEditor::openEditorAt(incl.fileName(), 0, 0))
+                return; // done
+            break;
+        }
+    }
+
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
     if (!lastSymbol)
         return;
 
     // Get the expression under the cursor
     const int endOfName = endOfNameUnderCursor();
-    QTextCursor tc = textCursor();
     tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);

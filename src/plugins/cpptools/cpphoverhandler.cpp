@@ -175,13 +175,14 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 break;
             }
         }
+    }
 
-        if (m_toolTip.isEmpty()) {
-            foreach (const Document::MacroUse use, doc->macroUses()) {
-                if (use.contains(pos)) {
-                    m_toolTip = use.macro().toString();
-                    break;
-                }
+    if (m_toolTip.isEmpty()) {
+        unsigned lineno = tc.blockNumber() + 1;
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (lineno == incl.line()) {
+                m_toolTip = incl.fileName();
+                break;
             }
         }
     }
@@ -240,6 +241,16 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
+    if (doc && m_toolTip.isEmpty()) {
+        foreach (const Document::MacroUse &use, doc->macroUses()) {
+            if (use.contains(pos)) {
+                m_toolTip = use.macro().toString();
+                m_helpId = use.macro().name;
+                break;
+            }
+        }
+    }
+
     if (m_helpEngineNeedsSetup
         && m_helpEngine->registeredDocumentations().count() > 0) {
         m_helpEngine->setupData();
@@ -248,7 +259,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
         m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
-                                          "<td><img src=\":/cpptools/images/f1.svg\"></td></tr></table>")).arg(Qt::escape(m_toolTip));
+                                          "<td><img src=\":/cpptools/images/f1.svg\"></td></tr></table>"))
+                    .arg(Qt::escape(m_toolTip));
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty()) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
