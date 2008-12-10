@@ -214,6 +214,9 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
 
 void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
 {
+    bool overrideCursor = false;
+    Qt::CursorShape cursorShape;
+
     if (m_d->m_parameters->type == LogOutput || m_d->m_parameters->type == AnnotateOutput) {
         // Link emulation behaviour for 'click on change-interaction'
         QTextCursor cursor = cursorForPosition(e->pos());
@@ -226,13 +229,18 @@ void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
             change = changeUnderCursor(cursor);
             sel.format.setProperty(QTextFormat::UserProperty, change);
             setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
-            viewport()->setCursor(Qt::PointingHandCursor);
+            overrideCursor = true;
+            cursorShape = Qt::PointingHandCursor;
         }
     } else {
         setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-        viewport()->setCursor(Qt::IBeamCursor);
+        overrideCursor = true;
+        cursorShape = Qt::IBeamCursor;
     }
     TextEditor::BaseTextEditor::mouseMoveEvent(e);
+
+    if (overrideCursor)
+        viewport()->setCursor(cursorShape);
 }
 
 void VCSBaseEditor::mouseReleaseEvent(QMouseEvent *e)
