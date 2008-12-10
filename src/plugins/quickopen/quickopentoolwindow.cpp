@@ -264,7 +264,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     // Explcitly hide the completion list popup.
     m_completionList->hide();
 
-    setWindowTitle("Quick Open");
+    setWindowTitle("Locate...");
     resize(200, 90);
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
@@ -281,7 +281,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setPixmap(image);
     m_fileLineEdit->setUseLayoutDirection(true);
-    m_fileLineEdit->setHintText(tr("Type to QuickOpen"));
+    m_fileLineEdit->setHintText(tr("Type to locate"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
 
     m_fileLineEdit->installEventFilter(this);
