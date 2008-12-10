@@ -45,8 +45,6 @@
 #include <TypeVisitor.h>
 #include <NameVisitor.h>
 
-#include <utils/qtcassert.h>
-
 #include <QtCore/QList>
 #include <QtCore/QtDebug>
 
@@ -100,7 +98,7 @@ protected:
     // types
     virtual void visit(PointerToMemberType * /*ty*/)
     {
-        QTC_ASSERT(false, /**/);
+        Q_ASSERT(false);
     }
 
     virtual void visit(PointerType *ty)
@@ -152,32 +150,32 @@ protected:
     { /* nothing to do*/ }
 
     virtual void visit(Namespace *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(Class *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(Enum *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     // names
     virtual void visit(NameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(TemplateNameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(DestructorNameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(OperatorNameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(ConversionNameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 
     virtual void visit(QualifiedNameId *)
-    { QTC_ASSERT(false, /**/); }
+    { Q_ASSERT(false); }
 };
 
 } // end of anonymous namespace
