@@ -58,7 +58,11 @@ GdbOptionPage::GdbOptionPage(GdbSettings *settings)
 #if defined(Q_OS_WIN32)
     defaultCommand.append(".exe");
 #endif
+    QString defaultScript = coreIFace->resourcePath() +
+        QLatin1String("/gdb/qt4macros");
+
     m_settings->m_gdbCmd   = s->value("Location", defaultCommand).toString();
+    m_settings->m_scriptFile= s->value("ScriptFile", defaultScript).toString();
     m_settings->m_gdbEnv   = s->value("Environment", "").toString();
     m_settings->m_autoRun  = s->value("AutoRun", true).toBool();
     m_settings->m_autoQuit = s->value("AutoQuit", true).toBool();
@@ -72,36 +76,56 @@ QString GdbOptionPage::name() const
 
 QString GdbOptionPage::category() const
 {
-    return "Debugger|Gdb";
+    return "Debugger";
 }
 
 QString GdbOptionPage::trCategory() const
 {
-    return tr("Debugger|Gdb");
+    return tr("Debugger");
 }
 
 QWidget *GdbOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbEdit->setText(m_settings->m_gdbCmd);
-    m_ui.envEdit->setText(m_settings->m_gdbEnv);
+    m_ui.gdbLocationEdit->setText(m_settings->m_gdbCmd);
+    m_ui.environmentEdit->setText(m_settings->m_gdbEnv);
     m_ui.autoStartBox->setChecked(m_settings->m_autoRun);
     m_ui.autoQuitBox->setChecked(m_settings->m_autoQuit);
-    connect(m_ui.pushButtonBrowse, SIGNAL(clicked()),
-        this, SLOT(browse()));
+    m_ui.gdbStartupScriptEdit->setText(m_settings->m_scriptFile);
+
+    // FIXME
+    m_ui.autoStartBox->hide();
+    m_ui.autoQuitBox->hide();
+    m_ui.environmentEdit->hide();
+    m_ui.labelEnvironment->hide();
+
+    connect(m_ui.browseForGdbButton, SIGNAL(clicked()),
+        this, SLOT(browseForGdb()));
+    connect(m_ui.browseForScriptButton, SIGNAL(clicked()),
+        this, SLOT(browseForScript()));
 
     return w;
 }
 
-void GdbOptionPage::browse()
+void GdbOptionPage::browseForGdb()
 {
-    QString fileName = QFileDialog::getOpenFileName(m_ui.pushButtonBrowse,
+    QString fileName = QFileDialog::getOpenFileName(m_ui.browseForGdbButton,
             "Browse for gdb executable");
     if (fileName.isEmpty())
         return;
     m_settings->m_gdbCmd = fileName;
-    m_ui.gdbEdit->setText(fileName);
+    m_ui.gdbLocationEdit->setText(fileName);
+}
+
+void GdbOptionPage::browseForScript()
+{
+    QString fileName = QFileDialog::getOpenFileName(m_ui.browseForGdbButton,
+            "Browse for gdb startup script");
+    if (fileName.isEmpty())
+        return;
+    m_settings->m_scriptFile = fileName;
+    m_ui.gdbStartupScriptEdit->setText(fileName);
 }
 
 void GdbOptionPage::finished(bool accepted)
@@ -109,10 +133,11 @@ void GdbOptionPage::finished(bool accepted)
     if (!accepted)
         return;
 
-    m_settings->m_gdbCmd   = m_ui.gdbEdit->text();
-    m_settings->m_gdbEnv   = m_ui.envEdit->text();
+    m_settings->m_gdbCmd   = m_ui.gdbLocationEdit->text();
+    m_settings->m_gdbEnv   = m_ui.environmentEdit->text();
     m_settings->m_autoRun  = m_ui.autoStartBox->isChecked();
     m_settings->m_autoQuit = m_ui.autoQuitBox->isChecked();
+    m_settings->m_scriptFile = m_ui.gdbStartupScriptEdit->text();
 
     Core::ICore *coreIFace = m_pm->getObject<Core::ICore>();
     if (!coreIFace || !coreIFace->settings())

@@ -35,7 +35,6 @@
 #define GDBOPTIONPAGE_H
 
 #include "ui_gdboptionpage.h"
-#include "ui_gdbtypemacros.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -63,7 +62,8 @@ public:
     void finished(bool accepted);
 
 public slots:
-    void browse();
+    void browseForGdb();
+    void browseForScript();
 
 private:
     ExtensionSystem::PluginManager *m_pm;
@@ -72,6 +72,7 @@ private:
     GdbSettings *m_settings;
 };
 
+#if 0
 class TypeMacroPage : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -100,6 +101,7 @@ private:
     GdbSettings *m_settings;
     QWidget *m_widget;
 };
+#endif
 
 } // namespace Internal
 } // namespace Debugger

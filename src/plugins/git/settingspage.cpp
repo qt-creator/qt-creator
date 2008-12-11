@@ -77,7 +77,7 @@ QString SettingsPage::name() const
     return tr("General");
 }
 
- QString SettingsPage::category() const
+QString SettingsPage::category() const
 {
     return QLatin1String("Git");
 }
