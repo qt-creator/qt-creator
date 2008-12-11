@@ -62,8 +62,8 @@ public:
     void finished(bool accepted);
 
 public slots:
-    void browseForGdb();
-    void browseForScript();
+    void onGdbLocationChanged();
+    void onScriptFileChanged();
 
 private:
     ExtensionSystem::PluginManager *m_pm;

@@ -53,6 +53,7 @@
 #include <QtNetwork/QHostAddress>
 
 #include <iostream>
+#include <map>
 #include <list>
 #include <stack>
 #include <string>
@@ -131,7 +132,6 @@ void testArray()
     }
 }
 
-
 void testQByteArray()
 {
     QByteArray ba = "Hello";
@@ -141,7 +141,6 @@ void testQByteArray()
     ba += 1;
     ba += 2;
 }
-
 
 void testQHash()
 {
@@ -410,6 +409,41 @@ void testStdList()
     std::list<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
+}
+
+void testStdMap()
+{
+    std::map<uint, QStringList> ggl;
+    ggl[11] = QStringList() << "11";
+    ggl[22] = QStringList() << "22";
+
+    typedef std::map<uint, QStringList> T;
+    T ggt;
+    ggt[11] = QStringList() << "11";
+    ggt[22] = QStringList() << "22";
+
+#if 0
+    std::map<uint, float> gg0;
+    gg0[11] = 11.0;
+    gg0[22] = 22.0;
+
+
+    std::map<QString, float> gg1;
+    gg1["22.0"] = 22.0;
+
+    std::map<int, QString> gg2;
+    gg2[22] = "22.0";
+
+    std::map<QString, Foo> gg3;
+    gg3["22.0"] = Foo(22);
+    gg3["33.0"] = Foo(33);
+
+    QObject ob;
+    std::map<QString, QPointer<QObject> > map;
+    map.insert("Hallo", QPointer<QObject>(&ob));
+    map.insert("Welt", QPointer<QObject>(&ob));
+    map.insert(".", QPointer<QObject>(&ob));
+#endif
 }
 
 void testStdStack()
@@ -795,6 +829,7 @@ int main(int argc, char *argv[])
     testArray();
 
     testStdList();
+    testStdMap();
     testStdStack();
     testStdString();
     testStdVector();
