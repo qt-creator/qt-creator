@@ -1,0 +1,246 @@
+/*!
+
+\contentpage{index.html}{Qt Creator}
+\page coding-style.html
+
+\title Qt Creator Coding Rules
+
+THIS IS PRELIMINARY.
+
+\section1 Introduction
+
+The aim of this section is to serve as a guide for the developers, to aid us
+to build understandable and maintainable code, to create less confusion and
+surprises when working on Qt Creator.
+
+As usual: Rules are not set in stone. If there's a good reason to break one,
+do it, preferably after making sure that there are others agreeing.
+
+This document is incomplete.
+
+In general, if you want to contribute to the main source, we expect at least
+that you:
+
+\list 1
+\o The most important rule first: KISS (keep it simple ...): always
+   use a simple implementation in favor of a more complicated one.
+   This eases maintenance a lot.
+\o Write good C++ code: Readable, well commented when necessary,
+   and taking advantage of the OO model. Follow the \l{Formatting} guidelines.
+   There are also certain \l{Code Constructs} that we try to follow.
+\o Adapt the code to the structures already existing in Qt Creator, or in
+   the case that you have better ideas, discuss them with other developers
+   before writing the code.
+\o Take advantage of Qt. Don't re-invent the wheel. Think about what parts
+   of your code are generic enough that they might be incorporated into 
+   Qt proper. 
+\o Document interfaces. Right now we use qdoc, but changing to doxygen
+   is being considered.
+\endlist
+
+
+
+\section1 Submitting Code
+
+It is implicitly understood that all patches contributed to The Qt Creator
+Project are made under under the Gnu General Public License, version 2 or later
+and 
+
+If you have a problem with that, don't contribute code.
+
+Also please don't just pop up out of the blue with a huge patch (or
+small) that changes something substantial in Qt Creator. Always discuss your
+ideas with the other developers on mailing list first.
+
+When you create the patch, please use git or use "diff -up" since we find
+that a lot easier to read than the other diff formats. Also please do not
+send patches that implements or fixes several different things; several
+patches is a much better option.
+
+We also require you to provide a commit message entry with every patch,
+this describes in detail what the patch is doing.
+
+
+
+\section1 Code Constructs
+
+We have several guidelines on code constructs, some of these exist to
+make the code faster, others to make the code clearer. Yet others
+exist to allow us to take advantage of the strong type checking
+in C++.
+
+\list 1
+\o Declaration of variables should wait as long as possible. The rule
+  is: "Don't declare it until you need it." In C++ there are a lot of
+  user defined types, and these can very often be expensive to
+  initialize. This rule connects to the next rule too.
+
+\o Make the scope of a variable as small as possible.
+
+\o Prefer preincrement to postincrement whenever possible.
+  Preincrement has potential of being faster than postincrement. Just
+  think about the obvious implementations of pre/post-increment. This
+  rule applies to decrement too.
+
+\code
+	++T;
+	--U;
+	-NOT-
+	T++; // not used in Qt Creator
+	U--; // not used in Qt Creator
+\endcode
+
+\o Try to minimize evaluation of the same code over and over. This is
+   aimed especially at loops.
+
+\code
+
+	Container::iterator end = large.end();
+	for (Container::iterator it = large.begin(); it != end; ++it) {
+		...;
+	}
+	-NOT-
+	for (Container::iterator it = large.begin();
+	     it != large.end(); ++it) {
+		...;
+	}
+\endcode
+
+
+
+\section1 Formatting
+
+\section2 Declarations
+
+Only one declaration on each line.
+\code
+	int a;
+	int b;
+	-NOT-
+	int a, b; // not used in Qt Creator
+\endcode
+
+  This is especially important when initialization is done at the same
+  time.
+\code
+	QString a = "Joe";
+	QString b = "Foo";
+	-NOT-
+	QString a = "Joe", b = "Foo"; // not used in Qt Creator
+\endcode
+	[Note that 'QString a = "Joe"' is formally calling a copy constructor 
+	on a temporary constructed from a string literal and therefore has the
+	potential of being more expensive then direct construction by
+	'QString a("joe")'. However the compiler is allowed to elide the copy
+	(even if it had side effects), and modern compilers typically do so.
+	Given these equal costs, Qt Creator code favours the '=' idiom as it is in
+	line with the traditional C-style initialization, _and_ cannot be
+	mistaken as function declaration, _and_ reduces the level of nested
+	parantheses in more initializations.]
+	
+
+\section2  Pointers and references
+
+\code
+	char *p = "flop";
+	char &c = *p;
+	-NOT-
+	char* p = "flop"; // not used in Qt Creator
+	char & c = *p;     // not used in Qt Creator
+\endcode
+
+  This is simply in line with the official Qt guide lines.
+
+  Also note that we will have:
+\code
+	const char *p;
+	-NOT-
+	char const * p; // not used in Qt Creator
+\endcode
+
+
+  Using a plain 0 for Null pointer constants is always correct and least effort
+  to type. So:
+\code
+	void *p = 0;
+	-NOT-
+	void *p = NULL; // not used in Qt Creator
+	-NOT-
+	void *p = '\0'; // not used in Qt Creator
+	-NOT-
+	void *p = 42 - 7 * 6; // also not used in Qt Creator
+\endcode
+  Note: As an exception, imported third party code as well as code
+  interfacing the "native" APIs (src/support/os_*) can use NULL.
+
+
+\section2  Operator names and parentheses
+\code
+	operator==(type)
+	-NOT-
+	operator == (type)  // not used in Qt Creator
+\endcode
+
+  The == is part of the function name, separating it makes the
+  declaration look like an expression.
+
+
+\section2 Function names and parentheses
+\code
+	void mangle()
+	-NOT-
+	void mangle ()  // not used in Qt Creator
+\endcode
+
+
+
+\section2 Naming rules
+
+  Simply follow the style of Qt proper. As examples:
+ \list
+  \o Use descriptive but simple and short names. Do not abbreviate.
+
+  \o Class names are capitalized, and function names lowercased.
+    Enums are named like Classes, values are in lower-case.
+\endlist
+
+
+
+\section2 Formatting
+
+   Adapt the formatting of your code to the one used in the
+   other parts of Qt Creator. In case there is different formatting for
+   the same construct, use the one used more often.
+
+
+\section2 Declarations
+
+  - Use this order for the access sections of your class: public,
+    protected, private. The public section is interesting for every
+    user of the class. The private section is only of interest for the
+    implementors of the class (you). [Obviously not true since this is
+    for developers, and we do not want one developer only to be able to
+    read and understand the implementation of class internals. Lgb]
+
+  - Avoid declaring global objects in the declaration file of the class.
+    If the same variable is used for all objects, use a static member.
+
+  - Avoid global or static variables.
+
+
+\section2 File headers
+
+  If you create a new file, the top of the file should include a 
+  header comment equal to the one found in other source files of Qt Creator.
+
+\section2 Documentation
+
+  The documentation is generated from source and header files.
+  You document for the other developers, not for yourself.
+  In the header you should document interfaces, i.e.  what the function does,
+   not the implementation.
+  In the .cpp files you document the implementation if the implementation 
+  in non-obvious.
+
+
+*/
