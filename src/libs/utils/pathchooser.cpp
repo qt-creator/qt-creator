@@ -46,11 +46,12 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QToolButton>
+#include <QtGui/QPushButton>
 
 namespace Core {
 namespace Utils {
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MAC
 /*static*/ const char * const PathChooser::browseButtonLabel = "Choose...";
 #else
 /*static*/ const char * const PathChooser::browseButtonLabel = "Browse...";
@@ -112,7 +113,11 @@ PathChooser::PathChooser(QWidget *parent) :
     hLayout->addWidget(m_d->m_lineEdit);
     hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
+#ifdef Q_OS_MAC
+    QPushButton *browseButton = new QPushButton;
+#else
     QToolButton *browseButton = new QToolButton;
+#endif
     browseButton->setText(tr(browseButtonLabel));
     connect(browseButton, SIGNAL(clicked()), this, SLOT(slotBrowse()));
 
