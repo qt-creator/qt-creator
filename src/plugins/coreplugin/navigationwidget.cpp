@@ -220,6 +220,8 @@ void NavigationWidget::close()
     }
 }
 
+
+
 void NavigationWidget::saveSettings(QSettings *settings)
 {
     QStringList views;
@@ -230,9 +232,12 @@ void NavigationWidget::saveSettings(QSettings *settings)
     settings->setValue("Navigation/Visible", isShown());
     settings->setValue("Navigation/VerticalPosition", saveState());
     settings->setValue("Navigation/Width", m_width);
+
+    for (int i=0; i<m_subWidgets.count(); ++i)
+        m_subWidgets.at(i)->saveSettings(i);
 }
 
-void NavigationWidget::readSettings(QSettings *settings)
+void NavigationWidget::restoreSettings(QSettings *settings)
 {
     if (settings->contains("Navigation/Views")) {
         QStringList views = settings->value("Navigation/Views").toStringList();
@@ -266,6 +271,9 @@ void NavigationWidget::readSettings(QSettings *settings)
     if (NavigationWidgetPlaceHolder::m_current) {
         NavigationWidgetPlaceHolder::m_current->applyStoredSize(m_width);
     }
+
+    for (int i=0; i<m_subWidgets.count(); ++i)
+        m_subWidgets.at(i)->restoreSettings(i);
 }
 
 void NavigationWidget::setShown(bool b)
@@ -463,6 +471,16 @@ INavigationWidgetFactory *NavigationSubWidget::factory()
     if (index == -1)
         return 0;
     return m_navigationComboBox->itemData(index).value<INavigationWidgetFactory *>();
+}
+
+void NavigationSubWidget::saveSettings(int position)
+{
+    factory()->saveSettings(position, m_navigationWidget);
+}
+
+void NavigationSubWidget::restoreSettings(int position)
+{
+    factory()->restoreSettings(position, m_navigationWidget);
 }
 
 Core::ICommand *NavigationSubWidget::command(const QString &title) const

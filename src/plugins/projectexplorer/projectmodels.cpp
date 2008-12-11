@@ -926,6 +926,16 @@ void FlatModel::setGeneratedFilesFilterEnabled(bool filter)
     reset();
 }
 
+bool FlatModel::projectFilterEnabled()
+{
+    return m_filterProjects;
+}
+
+bool FlatModel::generatedFilesFilterEnabled()
+{
+    return m_filterGeneratedFiles;
+}
+
 Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 {
     if (index.isValid())
