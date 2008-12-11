@@ -48,7 +48,7 @@
 #include <QTest>
 #endif
 
-typedef QSet<ExtensionSystem::PluginSpec *> PluginSpecSet;
+typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
 enum { debugLeaks = 0 };
 
@@ -161,6 +161,11 @@ enum { debugLeaks = 0 };
 
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
+
+static bool lessThanByPluginName(const PluginSpec *one, const PluginSpec *two)
+{
+    return one->name() < two->name();
+}
 
 PluginManager *PluginManager::m_instance = 0;
 
@@ -306,7 +311,7 @@ QStringList PluginManager::arguments() const
 }
 
 /*!
-    \fn QSet<PluginSpec *> PluginManager::plugins() const
+    \fn QList<PluginSpec *> PluginManager::plugins() const
     List of all plugin specifications that have been found in the plugin search paths.
     This list is valid directly after the setPluginPaths() call.
     The plugin specifications contain the information from the plugins' xml description files
@@ -315,7 +320,7 @@ QStringList PluginManager::arguments() const
 
     \sa setPluginPaths()
 */
-QSet<PluginSpec *> PluginManager::plugins() const
+QList<PluginSpec *> PluginManager::plugins() const
 {
     return d->pluginSpecs;
 }
@@ -703,9 +708,11 @@ void PluginManagerPrivate::readPluginPaths()
     foreach (const QString &specFile, specFiles) {
         PluginSpec *spec = new PluginSpec;
         spec->d->read(specFile);
-        pluginSpecs.insert(spec);
+        pluginSpecs.append(spec);
     }
     resolveDependencies();
+    // ensure deterministic plugin load order by sorting
+    qSort(pluginSpecs.begin(), pluginSpecs.end(), lessThanByPluginName);
     emit q->pluginsChanged();
 }
 
