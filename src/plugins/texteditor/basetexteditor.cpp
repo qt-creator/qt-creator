@@ -2767,6 +2767,8 @@ void BaseTextEditor::handleHomeKey(bool anchor)
 
     while (character == tab || character.category() == QChar::Separator_Space) {
         ++pos;
+        if (pos == initpos)
+            break;
         character = characterAt(pos);
     }
 
