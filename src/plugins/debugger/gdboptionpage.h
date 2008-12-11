@@ -87,7 +87,6 @@ public:
     void finished(bool accepted);
 
 private slots:
-    void onScriptButton();
     void onAddButton();
     void onDelButton();
     void currentItemChanged(QTreeWidgetItem *item);
