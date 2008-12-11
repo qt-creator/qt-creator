@@ -69,7 +69,7 @@ static const char *HELP_OPTION4 = "--help";
 static const char *VERSION_OPTION = "-version";
 static const char *CLIENT_OPTION = "-client";
 
-typedef QSet<ExtensionSystem::PluginSpec *> PluginSpecSet;
+typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
 // Helpers for displaying messages. Note that there is no console on Windows.
 #ifdef Q_WS_WIN

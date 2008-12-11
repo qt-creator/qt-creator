@@ -101,7 +101,7 @@ public:
     void loadPlugins();
     QStringList pluginPaths() const;
     void setPluginPaths(const QStringList &paths);
-    QSet<PluginSpec *> plugins() const;
+    QList<PluginSpec *> plugins() const;
     void setFileExtension(const QString &extension);
     QString fileExtension() const;
 

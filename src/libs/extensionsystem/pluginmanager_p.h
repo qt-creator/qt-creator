@@ -66,7 +66,7 @@ public:
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
 
-    QSet<PluginSpec *> pluginSpecs;
+    QList<PluginSpec *> pluginSpecs;
     QList<PluginSpec *> testSpecs;
     QStringList pluginPaths;
     QString extension;
