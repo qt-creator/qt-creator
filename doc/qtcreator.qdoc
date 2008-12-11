@@ -23,6 +23,8 @@
     \o \inlineimage qtcreator.png
     \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
+        \o \bold{Smart Code Editor}: The code editor provides syntax
+            highlighting as well as code completion.
         \o \bold{Qt4 Project Generating Wizard}: This wizard allows the user
            to generate a project for a console application, a GUI application,
            or a C++ library.
@@ -48,7 +50,7 @@
        \o \l{Creating a Project in Qt Creator}
        \o \l{Build Settings}
        \o \l{Writing a Simple Program with Qt Creator}
-       \o \l{Quick Navigation}
+       \o \l{Navigating Quickly Around Your Code}
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
@@ -64,86 +66,85 @@
 
     \title A Quick Tour Around Qt Creator
 
-    The labeled screenshot below shows some of the components of Qt Creator,
-    in \gui Edit mode.
+    The labeled screenshot below shows some of the components of Qt Creator, in
+    \gui Edit mode.
 
     \image qtcreator-breakdown.png
 
     \section1 The Mode Selectors
 
-    When working in Qt Creator, you can be in one of five modes: \bold Project,
-    \bold Edit, \bold Debug, \bold Help, and \bold Output.
+    When working in Qt Creator, you can be in one of six modes: \bold Welcome,
+    \bold Edit, \bold Debug, \bold Projects, \bold Help, and \bold Output.
 
-    Mode selectors allow you to quickly switch between tasks: Editing,
-    browsing the Qt manual, setting up the build environment, etc. You can
+    Mode selectors allow you to quickly switch between tasks: Editing, browsing
+    the Qt Creator manual, setting up the build environment, etc. You can
     activate a mode by either clicking on its mode selector, or using the
     \l{keyboard-shortcuts}{corresponding shortcut}. Certain actions also
     trigger a mode change, e.g., \gui{Debug}/\gui{Start Debugging} will switch
     to the \gui Debug mode.
 
-
     \list
 
     \o \gui{Welcome Mode} - Displays a welcome screen allowing you to quickly
-    load recent sessions or individual projects. This is the first mode
-    displayed if Qt Creator is run without command line switches.
+    load recent sessions or individual projects. This is the mode you will see
+    if Qt Creator is run without command line switches.
 
-    \o \gui{Edit Mode} - You can edit both project and source files here. An
-    optional sidebar on the left provides different views to navigate between
-    files.
+    \o \gui{Edit Mode} - Lets you edit both project and source files. A sidebar
+    on the left provides different views to navigate between files.
 
     \o \gui{Debug Mode} - Provides various ways to inspect the state of the
     program while debugging. See \l{qtcreator-debugging}{Debugging With Qt
-    Creator} for a hands-on description of the mode.
+    Creator} for a hands-on description of how to use this mode.
 
-    \o \gui{Build & Run Mode} - Lets you configure how projects can be built
-    and executed. Under the list of projects, there are tabs to configure the
-    build and run settings.
+    \o \gui{Projects Mode} - Lets you configure how projects can be built and
+    executed. Under the list of projects, there are tabs to configure the 
+    build, run, and editor settings.
 
     \o \gui{Help Mode} - Shows any documentation registered by Qt Assistant,
     such as the Qt library and Qt Creator documentation.
 
-    \o \gui{Output Mode} - Lets you examine various logs in detail, for example
-    the task list, the compiler and application output. Some of these logs can
-    also be viewed in the output panes.
+    \o \gui{Output Mode} - Lets you examine various data in detail, for example
+    build issues as well as compile and application output. This information
+    is also available in the output panes.
 
     \endlist
 
 
     \section1 The Output Panes
 
-    The task pane in Qt Creator can display one out of four different panes:
-    Task List, Search Results, Application Output, and Compile Output. These
-    panes are available in all modes.
+    The task pane in Qt Creator can display one of four different panes:
+    \gui{Build Issues}, \gui{Search Results}, \gui{Application Output}, and
+    \gui{Compile}. These panes are available in all modes.
 
-    \section2 Task List
+    \section2 Build Issues
 
-    The Task List provides a list of important tasks such as error messages
-    that need to be fixed. It filters out irrelevant output from the compiler
-    and collects them in the form of tasks.
+    The {Build Issues} pane provides a list of issues, e.g., error messages or
+    warnings that need to be fixed. It filters out irrelevant output from the
+    compiler and collects them in an organized way.
 
-    \image qtcreator-task-list.png
+    \image qtcreator-build-issues.png
 
     \section2 Search Results
 
-    The Search Results pane displays the results for global searches such as
-    searching within a current document, files on disk, or all projects.
-    In the screenshot below, we searched for all occurrences of \c{textfinder}
-    within the "/TextFinder" folder.
+    The \gui{Search Results} pane displays the results for global searches such
+    as searching within a current document, files on disk, or all projects. In
+    the screenshot below, we searched for all occurrences of \c{textfinder}
+    within the \c{"/TextFinder"} folder.
 
     \image qtcreator-search-pane.png
 
     \section2 Application Output
 
-    This pane displays the status of the program when it is executed, as
-    well as debug output, for example, output from qDebug().
+    The \gui{Application Output} pane displays the status of the program when
+    it is executed and debug output, e.g., output from qDebug().
 
     \image qtcreator-application-output.png
 
-    \section2 Compile Output
+    \section2 Compile
 
-    The Compile Output provides all the output from the compiler. In other
-    words, it is a more verbose version of the Task List.
+    The \gui{Compile} pane provides all the output from the compiler. In other
+    words, it is a more verbose version of information displayed in the
+    \gui{Build Issues}
 
     \image qtcreator-compile-pane.png
 
@@ -521,7 +522,7 @@
     \page creator-navigation.html
     \nextpage creator-debugging.html
 
-    \title Quick Navigation
+    \title Navigating Quickly Around Your Code
 
     With Qt Creator, navigating to different locations in your project or on
     your disk, such as files, classes and methods, is trivial using the input
