@@ -408,7 +408,7 @@ static Document::Ptr addDefinition(const QString &headerFileName, const QString 
         QFileInfo sourceFI(doc->fileName());
         // we take only those documents which has the same filename and path (maybe we don't need to compare the path???)
         if (headerBaseName == sourceFI.baseName() && headerAbsolutePath == sourceFI.absolutePath()) {
-            ITextEditable *editable = qobject_cast<ITextEditable *>( // TODO: add the code into appropriate namespace
+            ITextEditable *editable = qobject_cast<ITextEditable *>(
                             TextEditor::BaseTextEditor::openEditorAt(doc->fileName(), 0));
             if (editable) {
                 const QString contents = editable->contents();
