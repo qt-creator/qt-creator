@@ -230,7 +230,8 @@ public:
     BaseTextEditor(QWidget *parent);
     ~BaseTextEditor();
 
-    static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0);
+    static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
+                                     const QString &editorKind = QString());
 
     // EditorInterface
     Core::IFile * file();
