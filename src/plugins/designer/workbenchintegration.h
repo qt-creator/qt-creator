@@ -40,7 +40,7 @@
 
 namespace Designer {
 namespace Internal {
-    
+
 class FormEditorW;
 
 class WorkbenchIntegration : public qdesigner_internal::QDesignerIntegration {
@@ -55,14 +55,8 @@ public:
 public slots:
     void updateSelection();
 private slots:
-    void slotNavigateToSlot(const QString &objectName, const QString &signalSignature);
+    void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
 private:
-    QList<CPlusPlus::Document::Ptr> findDocuments(const QString &uiFileName) const;
-    CPlusPlus::Class *findClass(CPlusPlus::Namespace *parentNameSpace, const QString &uiClassName) const;
-    CPlusPlus::Function *findFunction(CPlusPlus::Class *cl, const QString &functionName) const;
-    CPlusPlus::Document::Ptr findDefinition(CPlusPlus::Function *functionDeclaration, int *line) const;
-    void addDeclaration(const QString &docFileName, CPlusPlus::Class *cl, const QString &functionName) const;
-
     FormEditorW *m_few;
 };
 
