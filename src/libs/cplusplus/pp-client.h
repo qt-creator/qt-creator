@@ -63,7 +63,8 @@ public:
   { }
 
   virtual void macroAdded(const Macro &macro) = 0;
-  virtual void sourceNeeded(QString &fileName, IncludeType mode) = 0; // ### FIX the signature.
+  virtual void sourceNeeded(QString &fileName, IncludeType mode,
+                            unsigned line) = 0; // ### FIX the signature.
 
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,

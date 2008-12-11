@@ -138,7 +138,8 @@ protected:
     virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
-    virtual void sourceNeeded(QString &fileName, IncludeType type);
+    virtual void sourceNeeded(QString &fileName, IncludeType type,
+                              unsigned line);
 
 private:
     QPointer<CppModelManager> m_modelManager;
@@ -176,7 +177,7 @@ void CppPreprocessor::setProjectFiles(const QStringList &files)
 { m_projectFiles = files; }
 
 void CppPreprocessor::run(QString &fileName)
-{ sourceNeeded(fileName, IncludeGlobal); }
+{ sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
 
 void CppPreprocessor::operator()(QString &fileName)
 { run(fileName); }
@@ -361,7 +362,8 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
         m_currentDoc->stopSkippingBlocks(offset);
 }
 
-void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type)
+void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
+                                   unsigned line)
 {
     if (fileName.isEmpty())
         return;
@@ -369,7 +371,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type)
     QByteArray contents = tryIncludeFile(fileName, type);
 
     if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(fileName);
+        m_currentDoc->addIncludeFile(fileName, line);
         if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
             QString msg;
             msg += fileName;

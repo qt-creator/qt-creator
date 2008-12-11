@@ -439,7 +439,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         typeOfExpression.setDocuments(m_manager->documents());
 
-        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol);
+        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol,
+                                                                         TypeOfExpression::Preprocess);
         LookupContext context = typeOfExpression.lookupContext();
 
         if (!typeOfExpression.expressionAST() && (! m_completionOperator ||
