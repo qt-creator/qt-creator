@@ -107,6 +107,8 @@ void TypeOfExpression::processEnvironment(QMap<QString, Document::Ptr> documents
                                           Document::Ptr doc, Environment *env,
                                           QSet<QString> *processed) const
 {
+    if (! doc)
+        return;
     if (processed->contains(doc->fileName()))
         return;
     processed->insert(doc->fileName());

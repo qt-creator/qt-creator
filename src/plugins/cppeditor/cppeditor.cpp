@@ -744,7 +744,8 @@ void CPPEditor::unCommentSelection()
 
         QString endText = endBlock.text();
         int endPos = end - endBlock.position();
-        bool hasTrailingCharacters = !endText.mid(endPos).trimmed().isEmpty();
+        bool hasTrailingCharacters = !endText.left(endPos).remove(QLatin1String("//")).trimmed().isEmpty()
+                                     && !endText.mid(endPos).trimmed().isEmpty();
         if ((endPos <= endText.length() - 2
             && endText.at(endPos) == QLatin1Char('*')
              && endText.at(endPos+1) == QLatin1Char('/'))) {
