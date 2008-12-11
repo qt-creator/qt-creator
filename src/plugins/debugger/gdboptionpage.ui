@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>433</width>
-    <height>216</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Gdb Debug Options</string>
+      <string>Locations</string>
      </property>
      <layout class="QGridLayout">
       <property name="margin">
@@ -33,33 +33,36 @@
        <number>6</number>
       </property>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="gdbEdit"/>
+       <widget class="QLineEdit" name="gdbLocationEdit"/>
       </item>
       <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="envEdit"/>
+       <widget class="QLineEdit" name="environmentEdit"/>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="labelGdbLocaltion">
+        <property name="toolTip">
+         <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that wiull be searched in your PATH.</string>
+        </property>
         <property name="text">
          <string>Gdb Location:</string>
         </property>
         <property name="buddy">
-         <cstring>gdbEdit</cstring>
+         <cstring>gdbLocationEdit</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="labelEnvironment">
         <property name="text">
          <string>Environment:</string>
         </property>
         <property name="buddy">
-         <cstring>envEdit</cstring>
+         <cstring>environmentEdit</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="pushButtonBrowse">
+       <widget class="QPushButton" name="browseForGdbButton">
         <property name="text">
          <string/>
         </property>
@@ -69,6 +72,36 @@
         </property>
         <property name="checkable">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="gdbStartupScriptEdit"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QToolButton" name="browseForScriptButton">
+        <property name="minimumSize">
+         <size>
+          <width>21</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../coreplugin/core.qrc">
+          <normaloff>:/qworkbench/images/fileopen.png</normaloff>:/qworkbench/images/fileopen.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelGdbStartupScript">
+        <property name="toolTip">
+         <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
+        </property>
+        <property name="text">
+         <string>Gdb Startup Script:</string>
         </property>
        </widget>
       </item>

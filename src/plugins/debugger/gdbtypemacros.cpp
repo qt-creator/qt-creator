@@ -109,6 +109,8 @@ QWidget *TypeMacroPage::createPage(QWidget *parent)
 
     m_widget = new QWidget(parent);
     m_ui.setupUi(m_widget);
+    m_ui.scriptFile->setPromptDialogTitle(tr("Select Gdb Script"));
+    m_ui.scriptFile->setExpectedKind(Core::Utils::PathChooser::File);
 
     connect(m_ui.addButton, SIGNAL(clicked()),
         this, SLOT(onAddButton()));
@@ -116,8 +118,8 @@ QWidget *TypeMacroPage::createPage(QWidget *parent)
     connect(m_ui.delButton, SIGNAL(clicked()),
         this, SLOT(onDelButton()));
 
-    connect(m_ui.scriptButton, SIGNAL(clicked()),
-        this, SLOT(onScriptButton()));
+    connect(m_ui.scriptFile, SIGNAL(validChanged()),
+        this, SLOT(updateButtonState()));
 
     connect(m_ui.treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
         this, SLOT(currentItemChanged(QTreeWidgetItem *)));
@@ -139,7 +141,7 @@ QWidget *TypeMacroPage::createPage(QWidget *parent)
         ++i;
     }
 
-    m_ui.scriptEdit->setText(m_settings->m_scriptFile);
+    m_ui.scriptFile->setPath(m_settings->m_scriptFile);
 
     updateButtonState();
 
@@ -152,7 +154,7 @@ void TypeMacroPage::finished(bool accepted)
 	return;
 
     m_settings->m_typeMacros.clear();
-    m_settings->m_scriptFile = m_ui.scriptEdit->text();
+    m_settings->m_scriptFile = m_ui.scriptFile->path();
 
     for (int i = 0; i < m_ui.treeWidget->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = m_ui.treeWidget->topLevelItem(i);
@@ -170,13 +172,6 @@ void TypeMacroPage::finished(bool accepted)
         s->setValue("TypeMacros", m_settings->m_typeMacros);
         s->endGroup();
     }
-}
-
-void TypeMacroPage::onScriptButton()
-{
-    QString fileName = QFileDialog::getOpenFileName(m_widget, tr("Select Gdb Script"));
-    m_ui.scriptEdit->setText(fileName);
-    updateButtonState();
 }
 
 void TypeMacroPage::onAddButton()

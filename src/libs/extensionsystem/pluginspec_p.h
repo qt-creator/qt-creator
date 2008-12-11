@@ -56,7 +56,7 @@ public:
 
     bool read(const QString &fileName);
     bool provides(const QString &pluginName, const QString &version) const;
-    bool resolveDependencies(const QSet<PluginSpec *> &specs);
+    bool resolveDependencies(const QList<PluginSpec *> &specs);
     bool loadLibrary();
     bool initializePlugin();
     bool initializeExtensions();

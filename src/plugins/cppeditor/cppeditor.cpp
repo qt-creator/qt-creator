@@ -485,7 +485,7 @@ void CPPEditor::jumpToDefinition()
     unsigned lineno = tc.blockNumber() + 1;
     foreach (const Document::Include &incl, doc->includes()) {
         if (incl.line() == lineno) {
-            if (TextEditor::BaseTextEditor::openEditorAt(incl.fileName(), 0, 0))
+            if (openCppEditorAt(incl.fileName(), 0, 0))
                 return; // done
             break;
         }
@@ -525,7 +525,7 @@ void CPPEditor::jumpToDefinition()
             QList<Symbol *> candidates = context.resolve(namedType->name());
             if (!candidates.isEmpty()) {
                 Symbol *s = candidates.takeFirst();
-                openEditorAt(s->fileName(), s->line(), s->column());
+                openCppEditorAt(s->fileName(), s->line(), s->column());
             }
 #endif
         }
@@ -534,7 +534,7 @@ void CPPEditor::jumpToDefinition()
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
                 const QString fileName = QString::fromUtf8(macro.fileName);
-                if (TextEditor::BaseTextEditor::openEditorAt(fileName, macro.line, 0))
+                if (openCppEditorAt(fileName, macro.line, 0))
                     return; // done
             }
         }
@@ -837,8 +837,15 @@ int CPPEditor::endOfNameUnderCursor()
     return pos;
 }
 
+TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
+                                                    int line, int column)
+{
+    return TextEditor::BaseTextEditor::openEditorAt(fileName, line, column,
+                                                    Constants::C_CPPEDITOR);
+}
+
 bool CPPEditor::openEditorAt(Symbol *s)
 {
     const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-    return TextEditor::BaseTextEditor::openEditorAt(fileName, s->line(), s->column());
+    return openCppEditorAt(fileName, s->line(), s->column());
 }

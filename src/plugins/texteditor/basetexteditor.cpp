@@ -128,12 +128,13 @@ protected:
 
 ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                              int line,
-                                             int column)
+                                             int column,
+                                             const QString &editorKind)
 {
     Core::EditorManager *editorManager =
             ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->editorManager();
     editorManager->addCurrentPositionToNavigationHistory(true);
-    Core::IEditor *editor = editorManager->openEditor(fileName, QString(), true);
+    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, true);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);
@@ -714,7 +715,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
     QString text = move.selectedText();
     move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
     move.removeSelectedText();
-    
+
     if (up) {
         move.movePosition(QTextCursor::PreviousBlock);
         move.insertBlock();
@@ -729,7 +730,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
             move.insertBlock();
         }
     }
-    
+
     int start = move.position();
     move.clearSelection();
     move.insertText(text);
@@ -3385,7 +3386,7 @@ void BaseTextEditorPrivate::moveCursorVisible()
     if (!cursor.block().isVisible()) {
         cursor.setVisualNavigation(true);
         cursor.movePosition(QTextCursor::PreviousBlock);
-        q->setTextCursor(cursor);        
+        q->setTextCursor(cursor);
     }
     q->ensureCursorVisible();
 }
