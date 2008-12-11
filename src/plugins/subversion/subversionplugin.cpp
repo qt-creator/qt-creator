@@ -56,6 +56,7 @@
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
+#include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
@@ -194,7 +195,7 @@ SubversionPlugin::~SubversionPlugin()
     }
 
     if (!m_editorFactories.empty()) {
-        foreach(Core::IEditorFactory* pf, m_editorFactories)
+        foreach (Core::IEditorFactory* pf, m_editorFactories)
             removeObject(pf);
         qDeleteAll(m_editorFactories);
         m_editorFactories.clear();
@@ -504,7 +505,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
 {
     Core::IEditor *editor = m_coreInstance->editorManager()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
-    Q_ASSERT(submitEditor);
+    QTC_ASSERT(submitEditor, /**/);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
     m_submitDiffAction->setEnabled(false);
@@ -579,9 +580,8 @@ void SubversionPlugin::revertCurrentFile()
 
     Core::FileManager *fm = m_coreInstance->fileManager();
     QList<Core::IFile *> files = fm->managedFiles(file);
-    foreach (Core::IFile *file, files) {
+    foreach (Core::IFile *file, files)
         fm->blockFileChange(file);
-    }
 
     // revert
     args.clear();
@@ -726,7 +726,7 @@ QStringList SubversionPlugin::parseStatusOutput(const QString &output) const
     QStringList changeSet;
     const QString newLine = QString(QLatin1Char('\n'));
     const QStringList list = output.split(newLine, QString::SkipEmptyParts);
-    foreach (const QString& l, list) {
+    foreach (const QString &l, list) {
         QString line(l.trimmed());
         if (line.startsWith(QLatin1Char('A')) || line.startsWith(QLatin1Char('D'))
             || line.startsWith(QLatin1Char('M')))
@@ -982,7 +982,7 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
                                                      QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
-    Q_ASSERT(params);
+    QTC_ASSERT(params, return 0);
     const QString kind = QLatin1String(params->kind);
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
@@ -1016,13 +1016,13 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
 
 Core::ICore *SubversionPlugin::coreInstance()
 {
-    Q_ASSERT(m_coreInstance);
+    QTC_ASSERT(m_coreInstance, return 0);
     return m_coreInstance;
 }
 
 SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 {
-    Q_ASSERT(m_subversionPluginInstance);
+    QTC_ASSERT(m_subversionPluginInstance, m_subversionPluginInstance);
     return m_subversionPluginInstance;
 }
 

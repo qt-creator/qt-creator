@@ -179,12 +179,8 @@ Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QOb
 
 bool Qt4ProjectFile::save(const QString &)
 {
-    ProFile *file = m_project->proFileFromCache(m_filePath);
-    ProWriter pw;
-    bool ok = pw.write(file, file->fileName());
-    file->setModified(false);
-    m_project->qt4ProjectManager()->notifyChanged(file->fileName());
-    return ok;
+    // This is never used
+    return false;
 }
 
 QString Qt4ProjectFile::fileName() const
@@ -209,7 +205,7 @@ QString Qt4ProjectFile::mimeType() const
 
 bool Qt4ProjectFile::isModified() const
 {
-    return m_project->proFileFromCache(m_filePath)->isModified();
+    return false; // we save after changing anyway
 }
 
 bool Qt4ProjectFile::isReadOnly() const
@@ -269,7 +265,7 @@ Qt4Project::~Qt4Project()
 void Qt4Project::defaultQtVersionChanged()
 {
     if (qtVersionId(activeBuildConfiguration()) == 0)
-        update();
+        m_rootProjectNode->update();
 }
 
 void Qt4Project::qtVersionsChanged()
@@ -277,8 +273,8 @@ void Qt4Project::qtVersionsChanged()
     foreach (QString bc, buildConfigurations()) {
         if (!qt4ProjectManager()->versionManager()->version(qtVersionId(bc))->isValid()) {
             setQtVersion(bc, 0);
-            if(bc == activeBuildConfiguration())
-                update();
+            if (bc == activeBuildConfiguration())
+                m_rootProjectNode->update();
         }
     }
 }
@@ -478,35 +474,42 @@ void Qt4Project::updateCodeModel()
         }
     }
 
+    // Add mkspec directory
+    allIncludePaths.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+
     QStringList files;
     files += m_projectFiles->files[HeaderType];
     files += m_projectFiles->generatedFiles[HeaderType];
     files += m_projectFiles->files[SourceType];
     files += m_projectFiles->generatedFiles[SourceType];
 
-    CppTools::CppModelManagerInterface::ProjectInfo *pinfo = modelmanager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
-    if (pinfo->defines == predefinedMacros         &&
-        pinfo->includePaths == allIncludePaths     &&
-        pinfo->frameworkPaths == allFrameworkPaths &&
-        pinfo->sourceFiles == files) {
-        // Nothing to update...
+    if (pinfo.defines == predefinedMacros             &&
+            pinfo.includePaths == allIncludePaths     &&
+            pinfo.frameworkPaths == allFrameworkPaths &&
+            pinfo.sourceFiles == files) {
+        modelmanager->updateProjectInfo(pinfo);
     } else {
-        pinfo->defines = predefinedMacros;
+        pinfo.defines = predefinedMacros;
         // pinfo->defines += definedMacros;   // ### FIXME: me
-        pinfo->includePaths = allIncludePaths;
-        pinfo->frameworkPaths = allFrameworkPaths;
-        pinfo->sourceFiles = files;
+        pinfo.includePaths = allIncludePaths;
+        pinfo.frameworkPaths = allFrameworkPaths;
+        pinfo.sourceFiles = files;
+
+        modelmanager->updateProjectInfo(pinfo);
 
         modelmanager->GC();
-        modelmanager->updateSourceFiles(pinfo->sourceFiles);
+        modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
+
+    // update info
 }
 
 
-/*!
-  Updates complete project
-  */
+///*!
+//  Updates complete project
+//  */
 void Qt4Project::update()
 {
     // TODO Maybe remove this method completely?
@@ -660,7 +663,7 @@ QString Qt4Project::buildDirectory(const QString &buildConfiguration) const
     QString workingDirectory;
     if (value(buildConfiguration, "useShadowBuild").toBool())
         workingDirectory = value(buildConfiguration, "buildDirectory").toString();
-    if(workingDirectory.isEmpty())
+    if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(file()->fileName()).absolutePath();
     return workingDirectory;
 }
@@ -695,7 +698,7 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
         qDebug()<<"Looking for qtVersion ID of "<<buildConfiguration;
     int id = 0;
     QVariant vid = value(buildConfiguration, "QtVersionId");
-    if(vid.isValid()) {
+    if (vid.isValid()) {
         id = vid.toInt();
         if (m_manager->versionManager()->version(id)->isValid()) {
             return id;
@@ -708,10 +711,10 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
         QString vname = value(buildConfiguration, "QtVersion").toString();
         if (debug)
             qDebug()<<"  Backward compatibility reading QtVersion"<<vname;
-        if(!vname.isEmpty()) {
+        if (!vname.isEmpty()) {
             const QList<QtVersion *> &versions = m_manager->versionManager()->versions();
             foreach (const QtVersion * const version, versions) {
-                if(version->name() == vname) {
+                if (version->name() == vname) {
                     if (debug)
                         qDebug()<<"found name in versions";
                     const_cast<Qt4Project *>(this)->setValue(buildConfiguration, "QtVersionId", version->uniqueId());
@@ -825,7 +828,7 @@ void Qt4Project::checkForDeletedApplicationProjects()
 
     bool resetActiveRunConfiguration = false;
     QSharedPointer<RunConfiguration> rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
-    foreach(QSharedPointer<Qt4RunConfiguration> qt4rc, removeList) {
+    foreach (QSharedPointer<Qt4RunConfiguration> qt4rc, removeList) {
         removeRunConfiguration(qt4rc);
         if (activeRunConfiguration() == qt4rc)
             resetActiveRunConfiguration = true;
@@ -895,16 +898,24 @@ MakeStep *Qt4Project::makeStep() const
     return 0;
 }
 
-ProFile *Qt4Project::proFileFromCache(const QString &fileName)
+bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)
 {
-    return rootProjectNode()->proFileFromCache(fileName);
+    if (root->path() == path)
+        return true;
+    foreach (FolderNode *fn, root->subFolderNodes()) {
+        if (qobject_cast<Qt4ProFileNode *>(fn)) {
+            // we aren't interested in pro file nodes
+        } else if (Qt4PriFileNode *qt4prifilenode = qobject_cast<Qt4PriFileNode *>(fn)) {
+            if (hasSubNode(qt4prifilenode, path))
+                return true;
+        }
+    }
+    return false;
 }
 
 void Qt4Project::findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list)
 {
-    if (root->path() == fileName)
-        list.append(root);
-    else if (root->proFileFromCache(fileName))
+    if (hasSubNode(root, fileName))
         list.append(root);
 
     foreach (FolderNode *fn, root->subFolderNodes())
@@ -914,9 +925,10 @@ void Qt4Project::findProFile(const QString& fileName, Qt4ProFileNode *root, QLis
 
 void Qt4Project::notifyChanged(const QString &name)
 {
-    QList<Qt4ProFileNode *> list;
-    findProFile(name, rootProjectNode(), list);
-    foreach(Qt4ProFileNode *node, list)
-        node->update();
-
+    if (files(Qt4Project::ExcludeGeneratedFiles).contains(name)) {
+        QList<Qt4ProFileNode *> list;
+        findProFile(name, rootProjectNode(), list);
+        foreach(Qt4ProFileNode *node, list)
+            node->update();
+    }
 }

@@ -57,7 +57,6 @@
 #include <QtDebug>
 #include <algorithm>
 
-using namespace rpp;
 using namespace CPlusPlus;
 
 namespace {
@@ -165,7 +164,15 @@ protected:
     bool process_primary()
     {
         if ((*_lex)->is(T_INT_LITERAL)) {
-            _value.set_long(tokenSpell().toLong());
+            int base = 10;
+            const QByteArray spell = tokenSpell();
+            if (spell.at(0) == '0') {
+                if (spell.size() > 1 && (spell.at(1) == 'x' || spell.at(1) == 'X'))
+                    base = 16;
+                else
+                    base = 8;
+            }
+            _value.set_long(tokenSpell().toLong(0, base));
             ++(*_lex);
             return true;
         } else if (isTokenDefined()) {
@@ -368,7 +375,7 @@ protected:
     {
         process_xor();
 
-        while ((*_lex)->is(T_CARET)) {
+        while ((*_lex)->is(T_PIPE)) {
             const Token op = *(*_lex);
             ++(*_lex);
 
@@ -482,12 +489,12 @@ void pp::operator () (const QByteArray &filename,
                       const QByteArray &source,
                       QByteArray *result)
 {
-    const QByteArray previousFile = env.current_file;
-    env.current_file = filename;
+    const QByteArray previousFile = env.currentFile;
+    env.currentFile = filename;
 
     operator () (source, result);
 
-    env.current_file = previousFile;
+    env.currentFile = previousFile;
 }
 
 pp::State pp::createStateFromSource(const QByteArray &source) const
@@ -519,7 +526,7 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                 result->append(QByteArray::number(_dot->lineno));
                 result->append(' ');
                 result->append('"');
-                result->append(env.current_file);
+                result->append(env.currentFile);
                 result->append('"');
                 result->append('\n');
             } else {
@@ -605,27 +612,28 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
                                    m->definition.constEnd(),
                                    result);
 
+                            m->hidden = false;
+
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
 
-                            m->hidden = false;
                             continue;
                         } else {
                             QByteArray tmp;
-                            m->hidden = true;
 
                             if (client)
                                 client->startExpandingMacro(identifierToken->offset,
                                                             *m, spell);
+                            m->hidden = true;
 
                             expand(m->definition.constBegin(),
                                    m->definition.constEnd(),
                                    &tmp);
 
+                            m->hidden = false;
+
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
-
-                            m->hidden = false;
 
                             m = 0; // reset the active the macro
 
@@ -844,6 +852,8 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
     }
 
     Macro macro;
+    macro.fileName = env.currentFile;
+    macro.line = env.currentLine;
     macro.name = tokenText(*tk);
     ++tk; // skip T_IDENTIFIER
 
@@ -907,16 +917,8 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
 
     env.bind(macro);
 
-    QByteArray macroText;
-    macroText.reserve(64);
-    macroText += "#define ";
-
-    macroText += macroId;
-    macroText += ' ';
-    macroText += macro.definition;
-    macroText += '\n';
-
-    client->macroAdded(macroId, macroText);
+    if (client)
+        client->macroAdded(macro);
 }
 
 void pp::processIf(TokenIterator firstToken, TokenIterator lastToken)
@@ -1020,13 +1022,10 @@ void pp::processUndef(TokenIterator firstToken, TokenIterator lastToken)
 
     if (tk->is(T_IDENTIFIER)) {
         const QByteArray macroName = tokenText(*tk);
-        env.remove(macroName);
+        const Macro *macro = env.remove(macroName);
 
-        QByteArray macroText;
-        macroText += "#undef ";
-        macroText += macroName;
-        macroText += '\n';
-        client->macroAdded(macroName, macroText);
+        if (client && macro)
+            client->macroAdded(*macro);
     }
 }
 

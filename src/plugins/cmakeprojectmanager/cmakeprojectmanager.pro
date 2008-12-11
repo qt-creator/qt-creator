@@ -8,11 +8,13 @@ HEADERS = cmakeproject.h \
     cmakeprojectconstants.h \
     cmakeprojectnodes.h \
     cmakestep.h \
-    makestep.h
+    makestep.h \
+    cmakerunconfiguration.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
     cmakestep.cpp \
-    makestep.cpp
+    makestep.cpp \
+    cmakerunconfiguration.cpp
 RESOURCES += cmakeproject.qrc

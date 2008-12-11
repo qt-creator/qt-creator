@@ -36,17 +36,22 @@
 #include "bookmarks_global.h"
 
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 
 #include <QtCore/qplugin.h>
+#include <QtCore/QDebug>
+
 #include <QtGui/QMenu>
-#include <QDebug>
 
 using namespace Bookmarks::Constants;
 using namespace Bookmarks::Internal;
+using namespace TextEditor;
 
 BookmarksPlugin *BookmarksPlugin::m_instance = 0;
 
@@ -159,6 +164,19 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     updateActions(m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
 
+    m_bookmarkMarginAction = new QAction(this);
+    m_bookmarkMarginAction->setText("Toggle Bookmark");
+    //m_bookmarkAction->setIcon(QIcon(":/gdbdebugger/images/breakpoint.svg"));
+    connect(m_bookmarkMarginAction, SIGNAL(triggered()),
+        this, SLOT(bookmarkMarginActionTriggered()));
+
+    // EditorManager
+    QObject *editorManager = m_core->editorManager();
+    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+        this, SLOT(editorAboutToClose(Core::IEditor*)));
+    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+        this, SLOT(editorOpened(Core::IEditor*)));
+
     return true;
 }
 
@@ -169,7 +187,6 @@ BookmarksPlugin::~BookmarksPlugin()
 
 void BookmarksPlugin::updateActions(int state)
 {
-
     const bool hasbm    = state >= BookmarkManager::HasBookMarks;
     const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
 
@@ -180,6 +197,34 @@ void BookmarksPlugin::updateActions(int state)
     m_docNextAction->setEnabled(hasdocbm);
     m_moveUpAction->setEnabled(hasbm);
     m_moveDownAction->setEnabled(hasbm);
+}
+
+void BookmarksPlugin::editorOpened(Core::IEditor *editor)
+{
+    connect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+}
+
+void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
+{
+    disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+}
+
+void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
+    int lineNumber, QMenu *menu)
+{
+    m_bookmarkMarginActionLineNumber = lineNumber;
+    m_bookmarkMarginActionFileName = editor->file()->fileName();
+    menu->addAction(m_bookmarkMarginAction);
+}
+
+void BookmarksPlugin::bookmarkMarginActionTriggered()
+{
+    m_bookmarkManager->toggleBookmark(
+        m_bookmarkMarginActionFileName,
+        m_bookmarkMarginActionLineNumber
+    );
 }
 
 Q_EXPORT_PLUGIN(BookmarksPlugin)

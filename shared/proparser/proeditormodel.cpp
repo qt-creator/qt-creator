@@ -732,13 +732,10 @@ bool ProEditorModel::insertItem(ProItem *item, int row, const QModelIndex &paren
 
 void ProEditorModel::markProFileModified(QModelIndex index)
 {
-    while(index.isValid())
-    {        
-        if( proItem(index)->kind() == ProItem::BlockKind)
-        {
+    while (index.isValid()) {        
+        if (proItem(index)->kind() == ProItem::BlockKind) {
             ProBlock * block = proBlock(index);
-            if(block->blockKind() == ProBlock::ProFileKind)
-            {
+            if (block->blockKind() == ProBlock::ProFileKind) {
                 ProFile * file = static_cast<ProFile *>(block);
                 file->setModified(true);
                 return;
@@ -791,9 +788,9 @@ QString ProEditorModel::expressionToString(ProBlock *block, bool display) const
 {
     QString result;
     QList<ProItem*> items = block->items();
-    for(int i=0; i<items.count(); ++i) {
+    for (int i = 0; i < items.count(); ++i) {
         ProItem *item = items.at(i);
-        switch(item->kind()) {
+        switch (item->kind()) {
             case ProItem::FunctionKind: {
                 ProFunction *v = static_cast<ProFunction*>(item);
                 result += v->text();
@@ -808,14 +805,16 @@ QString ProEditorModel::expressionToString(ProBlock *block, bool display) const
                 } else {
                     result += v->text();
                 }
-                break; }
+                break;
+            }
             case ProItem::OperatorKind: {
                 ProOperator *v = static_cast<ProOperator*>(item);
                 if (v->operatorKind() == ProOperator::NotOperator)
                     result += QLatin1Char('!');
                 else
                     result += QLatin1Char('|');
-                break; }
+                break;
+            }
             case ProItem::ValueKind:
             case ProItem::BlockKind:
                 break; // ### unhandled
@@ -847,7 +846,7 @@ QList<ProItem *> ProEditorModel::stringToExpression(const QString &exp) const
     bool c = false;
 
     QString tmpstr;
-    for (int i=0; i<exp.length(); ++i) {
+    for (int i = 0; i < exp.length(); ++i) {
         QChar tmpchar = exp.at(i);
         if (tmpchar == '(') ++p;
         else if (tmpchar == ')') --p;

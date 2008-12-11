@@ -34,14 +34,14 @@
 #ifndef BOOKMARKMANAGER_H
 #define BOOKMARKMANAGER_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtGui/QListView>
-#include <QtCore/QList>
-#include <QtGui/QPixmap>
-#include <QtGui/QStyledItemDelegate>
-
 #include <coreplugin/icontext.h>
 #include <coreplugin/inavigationwidgetfactory.h>
+
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QList>
+#include <QtGui/QListView>
+#include <QtGui/QPixmap>
+#include <QtGui/QStyledItemDelegate>
 
 namespace ProjectExplorer {
 class SessionManager;
@@ -89,10 +89,16 @@ public:
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
 
-    enum Roles {Filename = Qt::UserRole, LineNumber = Qt::UserRole + 1, Directory = Qt::UserRole + 2, LineText = Qt::UserRole + 3};
+    enum Roles {
+        Filename = Qt::UserRole,
+        LineNumber = Qt::UserRole + 1,
+        Directory = Qt::UserRole + 2,
+        LineText = Qt::UserRole + 3
+    };
 
 public slots:
     void toggleBookmark();
+    void toggleBookmark(const QString &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
     void next();
@@ -108,6 +114,7 @@ private slots:
     void updateActionStatus();
     void gotoBookmark(Bookmark *bookmark);
     void loadBookmarks();
+
 private:
     TextEditor::ITextEditor *currentTextEditor() const;
     ProjectExplorer::SessionManager* sessionManager() const;
@@ -120,8 +127,8 @@ private:
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
 
-    typedef QMultiMap<QString, Bookmark*> FileNameBookmarksMap;
-    typedef QMap<QString, FileNameBookmarksMap*> DirectoryFileBookmarksMap;
+    typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
+    typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;
 
     DirectoryFileBookmarksMap m_bookmarksMap;
     Core::ICore *m_core;
@@ -138,7 +145,7 @@ class BookmarkView : public QListView
 public:
     BookmarkView(QWidget *parent = 0);
     ~BookmarkView();
-    void setModel(QAbstractItemModel * model);
+    void setModel(QAbstractItemModel *model);
 public slots:
     void gotoBookmark(const QModelIndex &index);
 protected slots:
@@ -146,7 +153,7 @@ protected slots:
     void removeAll();
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
-    void removeBookmark(const QModelIndex& index);
+    void removeBookmark(const QModelIndex &index);
 private:
     BookmarkContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;

@@ -33,6 +33,8 @@
 
 #include "procommandmanager.h"
 
+#include <utils/qtcassert.h>
+
 using namespace Qt4ProjectManager::Internal;
 
 ProCommandGroup::ProCommandGroup(const QString &name)
@@ -76,7 +78,7 @@ ProCommandManager::~ProCommandManager()
 
 void ProCommandManager::beginGroup(const QString &name)
 {
-    Q_ASSERT(!m_group);
+    QTC_ASSERT(!m_group, return);
 
     if (m_pos != m_groups.count()) {
         int removecount = m_groups.count() - m_pos;
@@ -95,7 +97,7 @@ bool ProCommandManager::hasGroup() const
 
 void ProCommandManager::endGroup()
 {
-    Q_ASSERT(m_group);
+    QTC_ASSERT(m_group, return);
 
     m_groups.append(m_group);
     m_pos = m_groups.count();
@@ -106,7 +108,7 @@ void ProCommandManager::endGroup()
 
 bool ProCommandManager::command(ProCommand *cmd)
 {
-    Q_ASSERT(m_group);
+    QTC_ASSERT(m_group, return false);
 
     if (cmd->redo()) {
         m_group->appendCommand(cmd);

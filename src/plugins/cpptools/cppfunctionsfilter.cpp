@@ -31,49 +31,20 @@
 **
 ***************************************************************************/
 
-#ifndef PP_CLIENT_H
-#define PP_CLIENT_H
+#include "cppfunctionsfilter.h"
 
-#include <QByteArray>
-#include <QString>
-#include <QFile>
+using namespace CppTools::Internal;
 
-namespace rpp {
-
-class Macro;
-
-class Client
+CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+    : CppQuickOpenFilter(manager, editorManager)
 {
-  Client(const Client &other);
-  void operator=(const Client &other);
+    setShortcutString("m");
+    setIncludedByDefault(false);
 
-public:
-  enum IncludeType {
-    IncludeLocal,
-    IncludeGlobal
-  };
+    search.setSymbolsToSearchFor(SearchSymbols::Functions);
+    search.setSeparateScope(true);
+}
 
-public:
-  Client()
-  { }
-
-  virtual ~Client()
-  { }
-
-  virtual void macroAdded(const QByteArray &macroId, const QByteArray &text) = 0;
-  virtual void sourceNeeded(QString &fileName, IncludeType mode) = 0; // ### FIX the signature.
-
-  virtual void startExpandingMacro(unsigned offset,
-                                   const Macro &macro,
-                                   const QByteArray &originalTextt) = 0;
-
-  virtual void stopExpandingMacro(unsigned offset,
-                                  const Macro &macro) = 0;
-
-  virtual void startSkippingBlocks(unsigned offset) = 0;
-  virtual void stopSkippingBlocks(unsigned offset) = 0;
-};
-
-} // namespace rpp
-
-#endif // PP_CLIENT_H
+CppFunctionsFilter::~CppFunctionsFilter()
+{
+}

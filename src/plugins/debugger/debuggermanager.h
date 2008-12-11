@@ -44,9 +44,11 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QAbstractItemModel;
 class QDockWidget;
+class QLabel;
 class QMainWindow;
 class QModelIndex;
 class QSplitter;
+class QTimer;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -190,7 +192,8 @@ public:
 private:
     friend class DebugMode;
 
-    virtual QWidget *threadsWindow() = 0;
+    virtual QWidget *threadsWindow() const = 0;
+    virtual QLabel *statusLabel() const = 0;
     virtual QList<QDockWidget*> dockWidgets() const = 0;
     virtual void createDockWidgets() = 0;
 };
@@ -213,6 +216,7 @@ public:
     IDebuggerManagerAccessForEngines *engineInterface();
     IDebuggerManagerAccessForDebugMode *debugModeInterface();
     QMainWindow *mainWindow() const { return m_mainWindow; }
+    QLabel *statusLabel() const { return m_statusLabel; }
 
     enum StartMode { startInternal, startExternal, attachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
@@ -272,7 +276,7 @@ public slots:
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString &command);
 
-    void showStatusMessage(const QString &msg, int timeout); // -1 forever
+    void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
@@ -290,6 +294,7 @@ private slots:
     void reloadRegisters();
     void registerDockToggled(bool on);
     void setStatus(int status);
+    void clearStatusMessage();
 
 private:
     //
@@ -303,6 +308,7 @@ private:
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
     QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
+    QAction *useToolTipsAction() const { return m_useToolTipsAction; }
     QAction *debugDumpersAction() const { return m_debugDumpersAction; }
     bool skipKnownFrames() const;
     bool debugDumpers() const;
@@ -322,7 +328,7 @@ private:
     //
     // Implementation of IDebuggerManagerAccessForDebugMode
     //
-    QWidget *threadsWindow() { return m_threadsWindow; }
+    QWidget *threadsWindow() const { return m_threadsWindow; }
     QList<QDockWidget*> dockWidgets() const { return m_dockWidgets; }
     void createDockWidgets();
 
@@ -382,6 +388,7 @@ private:
 
     /// Views
     QMainWindow *m_mainWindow;
+    QLabel *m_statusLabel;
     QDockWidget *m_breakDock;
     QDockWidget *m_disassemblerDock;
     QDockWidget *m_modulesDock;
@@ -425,6 +432,7 @@ private:
     QAction *m_debugDumpersAction;
     QAction *m_useCustomDumpersAction;
     QAction *m_useFastStartAction;
+    QAction *m_useToolTipsAction;
     QAction *m_dumpLogAction;
 
     QWidget *m_breakWindow;
@@ -440,6 +448,8 @@ private:
 
     int m_status;
     bool m_busy;
+    QTimer *m_statusTimer;
+    QString m_lastPermanentStatusMessage;
 
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;

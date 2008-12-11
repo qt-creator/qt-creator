@@ -50,29 +50,62 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_INTERNAL_H
-#define PP_INTERNAL_H
+#ifndef PP_ENVIRONMENT_H
+#define PP_ENVIRONMENT_H
 
+#include "CPlusPlusForwardDeclarations.h"
+
+#include <QVector>
 #include <QByteArray>
 
-namespace rpp {
-namespace _PP_internal {
+namespace CPlusPlus {
 
-inline bool comment_p (const char *__first, const char *__last)
+class Macro;
+
+class CPLUSPLUS_EXPORT Environment
 {
-    if (__first == __last)
-        return false;
+public:
+    Environment();
+    ~Environment();
 
-    if (*__first != '/')
-        return false;
+    unsigned macroCount() const;
+    Macro *macroAt(unsigned index) const;
 
-    if (++__first == __last)
-        return false;
+    Macro *bind(const Macro &macro);
+    Macro *remove(const QByteArray &name);
 
-    return (*__first == '/' || *__first == '*');
-}
+    Macro *resolve(const QByteArray &name) const;
+    bool isBuiltinMacro(const QByteArray &name) const;
 
-} // _PP_internal
-} // namespace rpp
+    const Macro *const *firstMacro() const
+    { return _macros; }
 
-#endif // PP_INTERNAL_H
+    Macro **firstMacro()
+    { return _macros; }
+
+    const Macro *const *lastMacro() const
+    { return _macros + _macro_count + 1; }
+
+    Macro **lastMacro()
+    { return _macros + _macro_count + 1; }
+
+private:
+    static unsigned hash_code (const QByteArray &s);
+    void rehash();
+
+public:
+    QByteArray currentFile;
+    unsigned currentLine;
+    bool hide_next;
+
+private:
+    Macro **_macros;
+    int _allocated_macros;
+    int _macro_count;
+    Macro **_hash;
+    int _hash_count;
+};
+
+} // namespace CPlusPlus
+
+#endif // PP_ENVIRONMENT_H

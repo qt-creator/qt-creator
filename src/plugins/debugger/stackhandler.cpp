@@ -33,7 +33,7 @@
 
 #include "stackhandler.h"
 
-#include "assert.h"
+#include <utils/qtcassert.h>
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
@@ -128,8 +128,8 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 
 StackFrame StackHandler::currentFrame() const
 {       
-    QWB_ASSERT(m_currentIndex >= 0, return StackFrame());
-    QWB_ASSERT(m_currentIndex < m_stackFrames.size(), return StackFrame());
+    QTC_ASSERT(m_currentIndex >= 0, return StackFrame());
+    QTC_ASSERT(m_currentIndex < m_stackFrames.size(), return StackFrame());
     return m_stackFrames.at(m_currentIndex);
 }
 

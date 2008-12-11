@@ -43,6 +43,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
 #include <QtDesigner/private/pluginmanager_p.h>
@@ -169,9 +170,9 @@ FormEditorW::FormEditorW() :
 {
     if (debugFormEditor)
         qDebug() << Q_FUNC_INFO;
-    Q_ASSERT(!m_self);
+    QTC_ASSERT(!m_self, return);
     m_self = this;
-    Q_ASSERT(m_core);
+    QTC_ASSERT(m_core, return);
 
     qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount,
           static_cast<QWidget *>(0));
@@ -180,7 +181,7 @@ FormEditorW::FormEditorW() :
     m_formeditor->setSettingsManager(new SettingsManager());
 
     m_fwm = qobject_cast<qdesigner_internal::QDesignerFormWindowManager*>(m_formeditor->formWindowManager());
-    Q_ASSERT(m_fwm);
+    QTC_ASSERT(m_fwm, return);
 
     const int uid = m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
     m_context << uid;
@@ -216,7 +217,7 @@ FormEditorW::~FormEditorW()
 
 void FormEditorW::fullInit()
 {
-    Q_ASSERT(m_initStage == RegisterPlugins);
+    QTC_ASSERT(m_initStage == RegisterPlugins, return);
     QTime *initTime = 0;
     if (debugFormEditor) {
         initTime = new QTime;
@@ -410,7 +411,7 @@ void FormEditorW::setupActions()
     createSeparator(this, am, m_context, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
 
     m_actionPreview = m_fwm->actionDefaultPreview();
-    Q_ASSERT(m_actionPreview);
+    QTC_ASSERT(m_actionPreview, return);
     addToolAction(m_actionPreview,  am,  m_context,
                    QLatin1String("FormEditor.Preview"), mformtools, tr("Ctrl+Alt+R"));
 
@@ -445,8 +446,8 @@ QToolBar *FormEditorW::createEditorToolBar() const
     Core::ActionManagerInterface *am = m_core->actionManager();
     const QStringList::const_iterator cend = m_toolActionIds.constEnd();
     for (QStringList::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
-        Core::ICommand *cmd =  am->command(*it);
-        Q_ASSERT(cmd);
+        Core::ICommand *cmd = am->command(*it);
+        QTC_ASSERT(cmd, continue);
         QAction *action = cmd->action();
         if (!action->icon().isNull()) // Simplify grid has no action yet
             rc->addAction(action);
@@ -472,7 +473,7 @@ Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManagerI
     const QString deviceProfilePrefix = QLatin1String("DeviceProfile");
     const QChar dot = QLatin1Char('.');
 
-    foreach(QAction* a, actions) {
+    foreach (QAction* a, actions) {
         QString name = menuId;
         name += dot;
         const QVariant data = a->data();
@@ -591,7 +592,7 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
     // Deactivate Designer if a non-form is being edited
     if (editor && !qstrcmp(editor->kind(), Constants::C_FORMWINDOW)) {
         FormWindowEditor *fw = qobject_cast<FormWindowEditor *>(editor);
-        Q_ASSERT(fw);
+        QTC_ASSERT(fw, return);
         fw->activate();
         m_fwm->setActiveFormWindow(fw->formWindow());
     } else {

@@ -132,7 +132,7 @@ bool TabSettings::isIndentationClean(const QString &text) const
 
         if (c == QLatin1Char(' ')) {
             ++spaceCount;
-            if (spaceCount == m_tabSize)
+            if (!m_spacesForTabs && spaceCount == m_tabSize)
                 return false;
         } else if (c == QLatin1Char('\t')) {
             if (m_spacesForTabs || spaceCount != m_indentSize)

@@ -32,18 +32,21 @@
 ***************************************************************************/
 
 #include "projecttreewidget.h"
+
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectmodels.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFocusEvent>
-#include <QtCore/QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -208,7 +211,7 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
     Node *node = m_model->nodeForIndex(current);
-    Q_ASSERT(node);
+    QTC_ASSERT(node, return);
 
     bool autoSync = autoSynchronization();
     setAutoSynchronization(false);

@@ -53,6 +53,7 @@
 #include <aggregation/aggregate.h>
 #endif
 #include <utils/linecolumnlabel.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextCodec>
@@ -415,10 +416,10 @@ UserCanceled:
 
 bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
 {
-    Q_ASSERT(line >= 1);
+    QTC_ASSERT(line >= 1, return false);
     int blockNumber = line - 1;
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return false);
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
@@ -436,7 +437,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
 
 TextEditor::TextMarks DocumentMarker::marksAt(int line) const
 {
-    Q_ASSERT(line >= 1);
+    QTC_ASSERT(line >= 1, return TextMarks());
     int blockNumber = line - 1;
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
@@ -488,10 +489,6 @@ ITextEditable *BaseTextEditor::editableInterface() const
                 d->m_editable, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
-        connect(this,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)),
-                d->m_editable,
-                SIGNAL(markRequested(TextEditor::ITextEditor *, int)));
     }
     return d->m_editable;
 }
@@ -535,9 +532,9 @@ void BaseTextEditor::selectEncoding()
 
 void DocumentMarker::updateMark(ITextMark *mark)
 {
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
-    Q_ASSERT(documentLayout);
     Q_UNUSED(mark);
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
 }
 
@@ -606,29 +603,44 @@ void BaseTextEditor::slotSelectionChanged()
 void BaseTextEditor::gotoBlockStart()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockEnd()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false))
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, false)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockStartWithSelection()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true))
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, true)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
 }
 
 void BaseTextEditor::gotoBlockEndWithSelection()
 {
     QTextCursor cursor = textCursor();
-    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true))
+    if (TextBlockUserData::findNextClosingParenthesis(&cursor, true)) {
         setTextCursor(cursor);
+        _q_matchParentheses();
+    }
+}
+
+static QTextCursor flippedCursor(const QTextCursor &cursor) {
+    QTextCursor flipped = cursor;
+    flipped.clearSelection();
+    flipped.setPosition(cursor.anchor(), QTextCursor::KeepAnchor);
+    return flipped;
 }
 
 void BaseTextEditor::selectBlockUp()
@@ -644,7 +656,8 @@ void BaseTextEditor::selectBlockUp()
         return;
     if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
         return;
-    setTextCursor(cursor);
+    setTextCursor(flippedCursor(cursor));
+    _q_matchParentheses();
 }
 
 void BaseTextEditor::selectBlockDown()
@@ -667,10 +680,15 @@ void BaseTextEditor::selectBlockDown()
     if ( cursor != d->m_selectBlockAnchor)
         TextBlockUserData::findNextClosingParenthesis(&cursor, true);
 
-    setTextCursor(cursor);
+    setTextCursor(flippedCursor(cursor));
+    _q_matchParentheses();
 }
 
 
+void BaseTextEditor::cleanWhitespace()
+{
+        d->m_document->cleanWhitespace();
+}
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
@@ -844,7 +862,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             }
 #if 0
             TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
-            Q_ASSERT(documentLayout);
+            QTC_ASSERT(documentLayout, return);
             documentLayout->requestUpdate(); // a bit drastic
             e->accept();
 #endif
@@ -1615,12 +1633,26 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QPainter painter(viewport());
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QPointF offset(contentOffset());
 
     QRect er = e->rect();
     QRect viewportRect = viewport()->rect();
+
+    const QColor baseColor = palette().base().color();
+    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
+    // Darker backgrounds may need a bit more contrast
+    // (this calculation is temporary solution until we have a setting for this color)
+    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
+    const QColor blendColor(
+        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256,
+        (blendBase * blendFactor + baseColor.green() * (256 - blendFactor)) / 256,
+        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256);
+    if (d->m_visibleWrapColumn > 0) {
+        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
+        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
+    }
 
     // keep right margin clean from full-width selection
     int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
@@ -1633,7 +1665,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QTextBlock block = firstVisibleBlock();
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
-
 
     if (!d->m_findScope.isNull()) {
         QAbstractTextDocumentLayout::Selection selection;
@@ -1657,20 +1688,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         int columnB = end - block.position();
         blockSelection->firstColumn = qMin(columnA, columnB);
         blockSelection->lastColumn = qMax(columnA, columnB) + d->m_blockSelectionExtraX;
-    }
-
-    const QColor baseColor = palette().base().color();
-    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
-    // Darker backgrounds may need a bit more contrast
-    // (this calculation is temporary solution until we have a setting for this color)
-    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
-    const QColor blendColor(
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.green() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256);
-    if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
 
     QTextBlock visibleCollapsedBlock;
@@ -2043,7 +2060,7 @@ void BaseTextEditor::slotModificationChanged(bool m)
 
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     int oldLastSaveRevision = documentLayout->lastSaveRevision;
     documentLayout->lastSaveRevision = doc->revision();
 
@@ -2101,7 +2118,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QPalette pal = d->m_extraArea->palette();
     pal.setCurrentColorGroup(QPalette::Active);
@@ -2434,9 +2451,10 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             }
         } else if (e->button() == Qt::RightButton) {
             QMenu * contextMenu = new QMenu(this);
-            emit lineContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
+            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
             if (!contextMenu->isEmpty())
                 contextMenu->exec(e->globalPos());
+            delete contextMenu;
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
@@ -2471,7 +2489,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
                 int line = n + 1;
-                emit markRequested(editableInterface(), line);
+                emit d->m_editable->markRequested(editableInterface(), line);
             }
         }
     }
@@ -2480,6 +2498,9 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 void BaseTextEditor::slotCursorPositionChanged()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+    if (d->m_parenthesesMatchingEnabled)
+        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2490,11 +2511,7 @@ void BaseTextEditor::slotCursorPositionChanged()
         extraSelections.append(sel);
     }
 
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
-
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(CurrentLineSelection, extraSelections);
 }
 
 QTextBlock TextBlockUserData::testCollapse(const QTextBlock& block)
@@ -2600,7 +2617,7 @@ void BaseTextEditor::ensureCursorVisible()
 void BaseTextEditor::toggleBlockVisible(const QTextBlock &block)
 {
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document()->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     bool visible = block.next().isVisible();
     TextBlockUserData::doCollapse(block, !visible);
@@ -2699,7 +2716,7 @@ void BaseTextEditor::handleHomeKey(bool anchor)
 void BaseTextEditor::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
-    Q_ASSERT(!cursor.hasSelection());
+    QTC_ASSERT(!cursor.hasSelection(), return);
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
     QTextBlock currentBlock = cursor.block();
@@ -2738,7 +2755,9 @@ void BaseTextEditor::handleBackspaceKey()
 void BaseTextEditor::format()
 {
     QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
     indent(document(), cursor, QChar::Null);
+    cursor.endEditBlock();
 }
 
 void BaseTextEditor::unCommentSelection()
@@ -3136,7 +3155,7 @@ void BaseTextEditor::_q_matchParentheses()
     if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
         return;
 
-    QList<QTextEdit::ExtraSelection> extraSelections = d->m_extraSelections;
+    QList<QTextEdit::ExtraSelection> extraSelections;
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -3189,8 +3208,7 @@ void BaseTextEditor::_q_matchParentheses()
         }
         extraSelections.append(sel);
     }
-    d->m_extraSelections = extraSelections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 }
 
 void BaseTextEditor::setActionHack(QObject *hack)
@@ -3237,15 +3255,21 @@ void BaseTextEditor::deleteLine()
     cut();
 }
 
-void BaseTextEditor::setExtraExtraSelections(const QList<QTextEdit::ExtraSelection> &selections)
+void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
-    d->m_extraExtraSelections = selections;
-    setExtraSelections(d->m_extraSelections + d->m_extraExtraSelections);
+    if (selections.isEmpty() && d->m_extraSelections[kind].isEmpty())
+        return;
+    d->m_extraSelections[kind] = selections;
+
+    QList<QTextEdit::ExtraSelection> all;
+    for (int i = 0; i < NExtraSelectionKinds; ++i)
+        all += d->m_extraSelections[i];
+    QPlainTextEdit::setExtraSelections(all);
 }
 
-QList<QTextEdit::ExtraSelection> BaseTextEditor::extraExtraSelections() const
+QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionKind kind) const
 {
-    return d->m_extraExtraSelections;
+    return d->m_extraSelections[kind];
 }
 
 
@@ -3254,7 +3278,7 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     bool needUpdate = false;
 
@@ -3299,18 +3323,15 @@ void BaseTextEditor::collapse()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
-    qDebug() << "collapse at block" << block.blockNumber();
     while (block.isValid()) {
-        qDebug() << "test block" << block.blockNumber();
         if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
             if ((block.next().userState()) >> 8 <= (textCursor().block().userState() >> 8))
                 break;
         }
         block = block.previous();
     }
-    qDebug() << "found" << block.blockNumber();
     if (block.isValid()) {
         TextBlockUserData::doCollapse(block, false);
         d->moveCursorVisible();
@@ -3323,7 +3344,7 @@ void BaseTextEditor::expand()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
     while (block.isValid() && !block.isVisible())
         block = block.previous();
@@ -3337,7 +3358,7 @@ void BaseTextEditor::unCollapseAll()
 {
     QTextDocument *doc = document();
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    Q_ASSERT(documentLayout);
+    QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = doc->firstBlock();
     bool makeVisible = true;

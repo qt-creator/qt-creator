@@ -31,16 +31,16 @@
 **
 ***************************************************************************/
 
-#include <QFile>
+#include <AST.h>
+#include <Control.h>
+#include <Scope.h>
+#include <Semantic.h>
+#include <TranslationUnit.h>
+
+#include <QtCore/QFile>
 
 #include <cstdio>
 #include <cstdlib>
-
-#include <TranslationUnit.h>
-#include <Control.h>
-#include <AST.h>
-#include <Semantic.h>
-#include <Scope.h>
 
 int main(int, char *[])
 {

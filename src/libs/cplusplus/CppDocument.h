@@ -36,6 +36,8 @@
 
 #include <CPlusPlusForwardDeclarations.h>
 
+#include "pp-macro.h"
+
 #include <QByteArray>
 #include <QList>
 #include <QSet>
@@ -44,6 +46,8 @@
 #include <QStringList>
 
 namespace CPlusPlus {
+
+class Macro;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -63,12 +67,8 @@ public:
     QStringList includedFiles() const;
     void addIncludeFile(const QString &fileName);
 
-    QByteArray definedMacros() const;
-    QSet<QByteArray> macroNames() const;
-
-    void appendMacro(const QByteArray &macroName, const QByteArray &text);
-
-    void addMacroUse(unsigned offset, unsigned length);
+    void appendMacro(const Macro &macro);
+    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -80,6 +80,9 @@ public:
     Symbol *globalSymbolAt(unsigned index) const;
     Scope *globalSymbols() const; // ### deprecate?
     Namespace *globalNamespace() const;
+
+    QList<Macro> definedMacros() const
+    { return _definedMacros; }
 
     Symbol *findSymbolAt(unsigned line, unsigned column) const;
 
@@ -173,12 +176,30 @@ public:
 
         inline unsigned end() const
         { return _end; }
+
+        bool contains(unsigned pos) const
+        { return pos >= _begin && pos < _end; }
+    };
+
+    class MacroUse: public Block {
+        Macro _macro;
+
+    public:
+        inline MacroUse(const Macro &macro,
+                        unsigned begin = 0,
+                        unsigned end = 0)
+            : Block(begin, end),
+              _macro(macro)
+        { }
+
+        const Macro &macro() const
+        { return _macro; }
     };
 
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
 
-    QList<Block> macroUses() const
+    QList<MacroUse> macroUses() const
     { return _macroUses; }
 
 private:
@@ -191,10 +212,9 @@ private:
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;
     QList<DiagnosticMessage> _diagnosticMessages;
-    QByteArray _definedMacros;
-    QSet<QByteArray> _macroNames;
+    QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
-    QList<Block> _macroUses;
+    QList<MacroUse> _macroUses;
 };
 
 } // end of namespace CPlusPlus

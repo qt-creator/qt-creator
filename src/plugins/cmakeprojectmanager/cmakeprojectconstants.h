@@ -41,6 +41,7 @@ const char * const PROJECTCONTEXT = "CMakeProject.ProjectContext";
 const char * const CMAKEMIMETYPE  = "text/x-cmake"; // TOOD check that this is correct
 const char * const CMAKESTEP      = "CMakeProjectManager.CMakeStep";
 const char * const MAKESTEP       = "CMakeProjectManager.MakeStep";
+const char * const CMAKERUNCONFIGURATION = "CMakeProjectManager.CMakeRunConfiguration";
 
 
 } // namespace Constants

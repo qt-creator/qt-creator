@@ -53,7 +53,7 @@ while ( @ARGV ) {
     if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "--help" || "$arg" eq "?" || "$arg" eq "/?" || "$arg" eq "-?") {
 	showUsage();
 	exit(0);
-    } elsif("$arg" eq "-qtdir") {
+    } elsif ("$arg" eq "-qtdir") {
 	$qtSrcTree = shift @ARGV;
     } else {
 	print "Unknown option: $arg\n";

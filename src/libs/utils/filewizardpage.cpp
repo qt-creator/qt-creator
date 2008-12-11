@@ -92,7 +92,7 @@ void FileWizardPage::setName(const QString &name)
 
 void FileWizardPage::changeEvent(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::LanguageChange:
         m_d->m_ui.retranslateUi(this);
         break;
@@ -123,7 +123,7 @@ void FileWizardPage::slotActivated()
 
 bool FileWizardPage::validateBaseName(const QString &name, QString *errorMessage /* = 0*/)
 {
-    return FileNameValidatingLineEdit::validateFileName(name, errorMessage);
+    return FileNameValidatingLineEdit::validateFileName(name, false, errorMessage);
 }
 
 } // namespace Utils

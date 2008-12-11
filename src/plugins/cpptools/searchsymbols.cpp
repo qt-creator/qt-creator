@@ -35,18 +35,25 @@
 
 #include <Literals.h>
 #include <Scope.h>
+#include <Names.h>
 
 using namespace CPlusPlus;
 using namespace CppTools::Internal;
 
 SearchSymbols::SearchSymbols():
-    symbolsToSearchFor(Classes | Functions | Enums)
+    symbolsToSearchFor(Classes | Functions | Enums),
+    separateScope(false)
 {
 }
 
 void SearchSymbols::setSymbolsToSearchFor(SymbolTypes types)
 {
     symbolsToSearchFor = types;
+}
+
+void SearchSymbols::setSeparateScope(bool separateScope)
+{
+    this->separateScope = separateScope;
 }
 
 QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
@@ -73,13 +80,12 @@ bool SearchSymbols::visit(Enum *symbol)
         return false;
 
     QString name = symbolName(symbol);
-    QString previousScope = switchScope(name);
-    QIcon icon = icons.iconForSymbol(symbol);
+    QString scopedName = scopedSymbolName(name);
+    QString previousScope = switchScope(scopedName);
+    appendItem(separateScope ? name : scopedName,
+               separateScope ? previousScope : QString(),
+               ModelItemInfo::Enum, symbol);
     Scope *members = symbol->members();
-    items.append(ModelItemInfo(name, QString(), ModelItemInfo::Enum,
-                               QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                               symbol->line(),
-                               icon));
     for (unsigned i = 0; i < members->symbolCount(); ++i) {
         accept(members->symbolAt(i));
     }
@@ -92,19 +98,31 @@ bool SearchSymbols::visit(Function *symbol)
     if (!(symbolsToSearchFor & Functions))
         return false;
 
+    QString extraScope;
+    if (Name *name = symbol->name()) {
+        if (QualifiedNameId *nameId = name->asQualifiedNameId()) {
+            if (nameId->nameCount() > 1) {
+                extraScope = overview.prettyName(nameId->nameAt(nameId->nameCount() - 2));
+            }
+        }
+    }
+    QString fullScope = _scope;
+    if (!_scope.isEmpty() && !extraScope.isEmpty())
+        fullScope += QLatin1String("::");
+    fullScope += extraScope;
     QString name = symbolName(symbol);
-    QString type = overview.prettyType(symbol->type());
-    QIcon icon = icons.iconForSymbol(symbol);
-    items.append(ModelItemInfo(name, type, ModelItemInfo::Method,
-                               QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                               symbol->line(),
-                               icon));
+    QString scopedName = scopedSymbolName(name);
+    QString type = overview.prettyType(symbol->type(),
+                                       separateScope ? symbol->identity() : 0);
+    appendItem(separateScope ? type : scopedName,
+               separateScope ? fullScope : type,
+               ModelItemInfo::Method, symbol);
     return false;
 }
 
 bool SearchSymbols::visit(Namespace *symbol)
 {
-    QString name = symbolName(symbol);
+    QString name = findOrInsert(scopedSymbolName(symbol));
     QString previousScope = switchScope(name);
     Scope *members = symbol->members();
     for (unsigned i = 0; i < members->symbolCount(); ++i) {
@@ -118,12 +136,9 @@ bool SearchSymbols::visit(Namespace *symbol)
 bool SearchSymbols::visit(Declaration *symbol)
 {
     if (symbol->type()->isFunction()) {
-        QString name = symbolName(symbol);
+        QString name = scopedSymbolName(symbol);
         QString type = overview.prettyType(symbol->type());
-        //QIcon icon = ...;
-        items.append(ModelItemInfo(name, type, ModelItemInfo::Method,
-                                   QString::fromUtf8(symbol->fileName(), symbol->line()),
-                                   symbol->line()));
+        appendItems(name, type, ModelItemInfo::Method, symbol->fileName());
     }
     return false;
 }
@@ -135,12 +150,11 @@ bool SearchSymbols::visit(Class *symbol)
         return false;
 
     QString name = symbolName(symbol);
-    QString previousScope = switchScope(name);
-    QIcon icon = icons.iconForSymbol(symbol);
-    items.append(ModelItemInfo(name, QString(), ModelItemInfo::Class,
-                               QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
-                               symbol->line(),
-                               icon));
+    QString scopedName = scopedSymbolName(name);
+    QString previousScope = switchScope(scopedName);
+    appendItem(separateScope ? name : scopedName,
+               separateScope ? previousScope : QString(),
+               ModelItemInfo::Class, symbol);
     Scope *members = symbol->members();
     for (unsigned i = 0; i < members->symbolCount(); ++i) {
         accept(members->symbolAt(i));
@@ -149,11 +163,22 @@ bool SearchSymbols::visit(Class *symbol)
     return false;
 }
 
-QString SearchSymbols::symbolName(const Symbol *symbol) const
+QString SearchSymbols::scopedSymbolName(const QString &symbolName) const
 {
     QString name = _scope;
-    if (! name.isEmpty())
+    if (!name.isEmpty())
         name += QLatin1String("::");
+    name += symbolName;
+    return name;
+}
+
+QString SearchSymbols::scopedSymbolName(const Symbol *symbol) const
+{
+    return scopedSymbolName(symbolName(symbol));
+}
+
+QString SearchSymbols::symbolName(const Symbol *symbol) const
+{
     QString symbolName = overview.prettyName(symbol->name());
     if (symbolName.isEmpty()) {
         QString type;
@@ -176,6 +201,20 @@ QString SearchSymbols::symbolName(const Symbol *symbol) const
         symbolName += type;
         symbolName += QLatin1String(">");
     }
-    name += symbolName;
-    return name;
+    return symbolName;
+}
+
+void SearchSymbols::appendItem(const QString &name,
+                               const QString &info,
+                               ModelItemInfo::ItemType type,
+                               const Symbol *symbol)
+{
+    if (!symbol->name())
+        return;
+
+    const QIcon icon = icons.iconForSymbol(symbol);
+    items.append(ModelItemInfo(name, info, type,
+                               QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()),
+                               symbol->line(),
+                               icon));
 }

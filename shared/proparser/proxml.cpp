@@ -104,7 +104,7 @@ QDomNode ProXmlParser::createItemNode(QDomDocument doc, ProItem *item) const
             tag = doc.createElement(QLatin1String("block"));
         }
 
-        foreach(ProItem *child, block->items()) {
+        foreach (ProItem *child, block->items()) {
             QDomNode childNode = createItemNode(doc, child);
             if (!childNode.isNull())
                 tag.appendChild(childNode);

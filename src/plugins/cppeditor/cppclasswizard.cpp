@@ -36,12 +36,14 @@
 
 #include <utils/codegeneration.h>
 #include <utils/newclasswidget.h>
+#include <utils/qtcassert.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
-#include <QtGui/QComboBox>
+#include <QtCore/QDir>
+#include <QtCore/QTextStream>
+
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWizard>
@@ -73,6 +75,7 @@ ClassNamePage::ClassNamePage(const QString &sourceSuffix,
     m_newClassWidget->setBaseClassEditable(true);
     m_newClassWidget->setFormInputVisible(false);
     m_newClassWidget->setNamespacesEnabled(true);
+    m_newClassWidget->setAllowDirectories(true);
 
     connect(m_newClassWidget, SIGNAL(validChanged()),
             this, SLOT(slotValidChanged()));
@@ -195,7 +198,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
               << "\n#define " <<  guard << '\n' << '\n';
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
-    Q_ASSERT(qtClassExpr.isValid());
+    QTC_ASSERT(qtClassExpr.isValid(), /**/);
     const bool superIsQtClass = qtClassExpr.exactMatch(params.baseClass);
     if (superIsQtClass) {
         Core::Utils::writeIncludeFileDirective(params.baseClass, true, headerStr);

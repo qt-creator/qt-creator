@@ -54,6 +54,9 @@ public:
     /**
      * Sets the documents used to evaluate expressions. Should be set before
      * calling this functor.
+     *
+     * Also clears the lookup context, so can be used to make sure references
+     * to the documents previously used are removed.
      */
     void setDocuments(const QMap<QString, Document::Ptr> &documents);
 

@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "bookmarkmanager.h"
+
 #include "bookmark.h"
 #include "bookmarksplugin.h"
 #include "bookmarks_global.h"
@@ -41,12 +42,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/basetexteditor.h>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 #include <QtGui/QAction>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtGui/QPainter>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QPainter>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
@@ -173,7 +176,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 //        int idx;
 //        forever {
 //            idx = directory.lastIndexOf("/", pos-1);
-//            if(idx == -1) {
+//            if (idx == -1) {
 //                // Can't happen, this means the string did fit after all?
 //                break;
 //            }
@@ -272,7 +275,7 @@ void BookmarkView::removeAll()
 void BookmarkView::setModel(QAbstractItemModel *model)
 {
     BookmarkManager *manager = qobject_cast<BookmarkManager *>(model);
-    Q_ASSERT(manager);
+    QTC_ASSERT(manager, return);
     QListView::setModel(model);
     setSelectionModel(manager->selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -396,11 +399,16 @@ void BookmarkManager::toggleBookmark()
     if (!editor)
         return;
 
-    const QFileInfo fi(editor->file()->fileName());
-    const int editorLine = editor->currentLine();
+    toggleBookmark(editor->file()->fileName(), editor->currentLine());
+}
+
+void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
+{
+    const QFileInfo fi(fileName);
+    const int editorLine = lineNumber;
 
     // Remove any existing bookmark on this line
-    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), editorLine)) {
+    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), lineNumber)) {
         // TODO check if the bookmark is really on the same markable Interface
         removeBookmark(mark);
         return;

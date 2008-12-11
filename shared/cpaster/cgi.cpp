@@ -45,7 +45,7 @@ QString CGI::encodeURL(const QString &rawText)
     enc.reserve(utf.length()); // Make sure we at least have space for a normal US-ASCII URL
     
     QByteArray::const_iterator it = utf.constBegin();
-    while(it != utf.constEnd()) {
+    while (it != utf.constEnd()) {
         char ch = *it;
         if (('A' <= ch && ch <= 'Z')
             || ('a' <= ch && ch <= 'z')
@@ -54,7 +54,7 @@ QString CGI::encodeURL(const QString &rawText)
         else if (ch == ' ')
             enc.append('+');
         else {
-            switch(ch) {
+            switch (ch) {
             case '-': case '_':
             case '(': case ')':
             case '.': case '!':
@@ -80,15 +80,15 @@ QString CGI::decodeURL(const QString &urlText)
 {
     QByteArray dec;
     QString::const_iterator it = urlText.constBegin();
-    while(it != urlText.constEnd()) {
+    while (it != urlText.constEnd()) {
         ushort ch = (*it).unicode();
-        switch(ch) {
+        switch (ch) {
         case '%':
             {
                 char c1 = char(0x00ff & (*(++it)).unicode());
                 char c2 = char(0x00ff & (*(++it)).unicode());
                 ushort v = 0;
-                if('A' <= c1 && c1 <= 'Z')
+                if ('A' <= c1 && c1 <= 'Z')
                     v = c1 - 'A' + 10;
                 else if ('a' <= c1 && c1 <= 'z')
                     v = c1 - 'a' + 10;
@@ -97,7 +97,7 @@ QString CGI::decodeURL(const QString &urlText)
                 else
                     continue; // Malformed URL!
                 v <<= 4; // c1 was MSB half
-                if('A' <= c2 && c2 <= 'Z')
+                if ('A' <= c2 && c2 <= 'Z')
                     v |= c2 - 'A' + 10;
                 else if ('a' <= c2 && c2 <= 'z')
                     v |= c2 - 'a' + 10;
@@ -123,7 +123,7 @@ QString CGI::decodeURL(const QString &urlText)
 // -------------------------------------------------------------------------------------------------
 inline const char *unicodeToHTML(ushort unicode_char)
 {
-    switch(unicode_char) {
+    switch (unicode_char) {
     // Latin -------------------------------
     case 0x0022: return "quot";    // (34  ) quotation mark = APL quote
     case 0x0026: return "amp";     // (38  ) ampersand

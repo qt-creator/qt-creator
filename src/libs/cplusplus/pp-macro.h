@@ -50,60 +50,75 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_ENVIRONMENT_H
-#define PP_ENVIRONMENT_H
+#ifndef PP_MACRO_H
+#define PP_MACRO_H
 
-#include <QVector>
+#include <CPlusPlusForwardDeclarations.h>
+
 #include <QByteArray>
+#include <QVector>
+#include <QString>
 
-namespace rpp {
+namespace CPlusPlus {
 
-struct Macro;
-
-class Environment
+class CPLUSPLUS_EXPORT Macro
 {
 public:
-    Environment();
-    ~Environment();
+    QByteArray name;
+    QByteArray definition;
+    QVector<QByteArray> formals;
+    QByteArray fileName;
+    int line;
+    Macro *next;
+    unsigned hashcode;
 
-    unsigned macroCount() const;
-    Macro *macroAt(unsigned index) const;
+    union
+    {
+        unsigned state;
 
-    Macro *bind(const Macro &macro);
-    void remove(const QByteArray &name);
+        struct
+        {
+            unsigned hidden: 1;
+            unsigned function_like: 1;
+            unsigned variadics: 1;
+        };
+    };
 
-    Macro *resolve(const QByteArray &name) const;
-    bool isBuiltinMacro(const QByteArray &name) const;
+    inline Macro():
+            line(0),
+            next(0),
+            hashcode(0),
+            state(0)
+    { }
 
-    const Macro *const *firstMacro() const
-    { return _macros; }
-
-    Macro **firstMacro()
-    { return _macros; }
-
-    const Macro *const *lastMacro() const
-    { return _macros + _macro_count + 1; }
-
-    Macro **lastMacro()
-    { return _macros + _macro_count + 1; }
-
-private:
-    static unsigned hash_code (const QByteArray &s);
-    void rehash();
-
-public:
-    QByteArray current_file;
-    unsigned currentLine;
-    bool hide_next;
-
-private:
-    Macro **_macros;
-    int _allocated_macros;
-    int _macro_count;
-    Macro **_hash;
-    int _hash_count;
+    QString toString() const
+    {
+        QString text;
+        if (hidden)
+            text += QLatin1String("#undef ");
+        else
+            text += QLatin1String("#define ");
+        text += QString::fromUtf8(name.constData(), name.size());
+        if (function_like) {
+            text += QLatin1Char('(');
+            bool first = true;
+            foreach (const QByteArray formal, formals) {
+                if (! first)
+                    text += QLatin1String(", ");
+                else
+                    first = false;
+                text += QString::fromUtf8(formal.constData(), formal.size());
+            }
+            if (variadics)
+                text += QLatin1String("...");
+            text += QLatin1Char(')');
+        }
+        text += QLatin1Char(' ');
+        text += QString::fromUtf8(definition.constData(), definition.size());
+        return text;
+    }
 };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
-#endif // PP_ENVIRONMENT_H
+#endif // PP_MACRO_H

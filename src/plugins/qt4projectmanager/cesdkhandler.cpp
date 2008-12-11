@@ -41,13 +41,13 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::Environment;
 
 CeSdkInfo::CeSdkInfo()
-    : m_major(0) , m_minor(0)
+    : m_major(0), m_minor(0)
 {
 }
 
 Environment CeSdkInfo::addToEnvironment(const Environment &env)
 {
-    qDebug()<<"adding "<<name()<< "to Environment";
+    qDebug() << "adding " << name() << "to Environment";
     Environment e(env);
     e.set("INCLUDE", m_include);
     e.set("LIB", m_lib);
@@ -66,21 +66,21 @@ QString CeSdkHandler::platformName(const QString &qtpath)
     QString CE_SDK;
     QString CE_ARCH;
     QFile f(qtpath);
-    if(f.exists() && f.open(QIODevice::ReadOnly)) {
-        while(!f.atEnd()) {
+    if (f.exists() && f.open(QIODevice::ReadOnly)) {
+        while (!f.atEnd()) {
             QByteArray line = f.readLine();
-            if(line.startsWith("CE_SDK")) {
+            if (line.startsWith("CE_SDK")) {
                 int index = line.indexOf('=');
-                if(index >= 0) {
+                if (index >= 0) {
                     CE_SDK = line.mid(index + 1).trimmed();
                 }
-            } else if(line.startsWith("CE_ARCH")) {
+            } else if (line.startsWith("CE_ARCH")) {
                 int index = line.indexOf('=');
-                if(index >= 0) {
+                if (index >= 0) {
                     CE_ARCH = line.mid(index + 1).trimmed();
                 }
             }
-            if(!CE_SDK.isEmpty() && !CE_ARCH.isEmpty()) {
+            if (!CE_SDK.isEmpty() && !CE_ARCH.isEmpty()) {
                 platformName = CE_SDK + " (" + CE_ARCH + ")";
                 break;
             }
@@ -146,9 +146,9 @@ bool CeSdkHandler::parse(const QString &vsdir)
 
 CeSdkInfo CeSdkHandler::find(const QString &name)
 {
-    qDebug()<<"looking for platform "<<name;
+    qDebug() << "looking for platform " << name;
     for (QList<CeSdkInfo>::iterator it = m_list.begin(); it != m_list.end(); ++it) {
-        qDebug()<<"...."<<it->name();
+        qDebug() << "...." << it->name();
         if (it->name() == name)
             return *it;
     }

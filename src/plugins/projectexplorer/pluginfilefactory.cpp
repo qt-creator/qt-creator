@@ -90,7 +90,7 @@ QList<ProjectFileFactory*> ProjectFileFactory::createFactories(const Core::ICore
 
     const QString filterSeparator = QLatin1String(";;");
     filterString->clear();
-    foreach(IProjectManager *manager, projectManagers) {
+    foreach (IProjectManager *manager, projectManagers) {
         rc.push_back(new ProjectFileFactory(core, manager));
         if (!filterString->isEmpty())
             *filterString += filterSeparator;

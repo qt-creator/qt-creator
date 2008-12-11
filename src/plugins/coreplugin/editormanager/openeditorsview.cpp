@@ -39,6 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
 #include <QtGui/QMenu>
@@ -70,7 +71,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     m_ui.editorList->installEventFilter(this);
     m_ui.editorList->setFrameStyle(QFrame::NoFrame);
     EditorManager *em = EditorManager::instance();
-    foreach(IEditor *editor, em->openedEditors()) {
+    foreach (IEditor *editor, em->openedEditors()) {
         registerEditor(editor);
     }
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
@@ -197,7 +198,7 @@ void OpenEditorsWidget::selectEditor(QTreeWidgetItem *item)
 void OpenEditorsWidget::updateEditor()
 {
     IEditor *editor = qobject_cast<IEditor *>(sender());
-    Q_ASSERT(editor);
+    QTC_ASSERT(editor, return);
     int num = m_ui.editorList->topLevelItemCount();
     for (int i = 0; i < num; ++i) {
         QTreeWidgetItem *item = m_ui.editorList->topLevelItem(i);

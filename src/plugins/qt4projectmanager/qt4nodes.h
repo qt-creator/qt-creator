@@ -75,6 +75,7 @@ using ProjectExplorer::FileType;
 
 class ProFileReader;
 class DirectoryWatcher;
+class FileWatcher;
 
 //  Type of projects
 enum Qt4ProjectType {
@@ -102,8 +103,7 @@ class Qt4PriFileNode : public ProjectExplorer::ProjectNode {
     Q_OBJECT
     Q_DISABLE_COPY(Qt4PriFileNode)
 public:
-    Qt4PriFileNode(Qt4Project *project,
-                   const QString &filePath);
+    Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
 
     void update(ProFile *includeFile, ProFileReader *reader);
 
@@ -122,9 +122,6 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
-private slots:
-    void save();
-
 protected:
     void clear();
     static QStringList varNames(FileType type);
@@ -142,18 +139,26 @@ protected:
                      const QStringList &filePaths,
                      QStringList *notChanged,
                      ChangeType change);
-    
+
+    QString buildDir() const;
+    ProFileReader *createProFileReader() const;
+
+private slots:
+    void scheduleUpdate();
+
 private:
+    void save(ProFile *includeFile);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors(const QString &path);
 
-    Core::ICore *m_core;
     Qt4Project *m_project;
+    Qt4ProFileNode *m_qt4ProFileNode;
     QString m_projectFilePath;
     QString m_projectDir;
-    ProFile *m_includeFile;
-    QTimer *m_saveTimer;
-    ProFileReader *m_reader;
+
+    // TODO we might be better off using an IFile* and the FileManager for
+    // watching changes to the .pro and .pri files on disk
+    FileWatcher *m_fileWatcher;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
@@ -174,18 +179,15 @@ public:
     Qt4ProjectType projectType() const;
 
     QStringList variableValue(const Qt4Variable var) const;
-    ProFile *proFileFromCache(const QString &fileName);
 
 public slots:
+    void scheduleUpdate();
     void update();
-
 private slots:
     void fileChanged(const QString &filePath);
-
-private:
     void updateGeneratedFiles();
 
-    ProFileReader *createProFileReader() const;
+private:
     Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;
@@ -194,17 +196,16 @@ private:
     QStringList subDirsPaths(ProFileReader *reader) const;
     QStringList qBuildSubDirsPaths(const QString &scanDir)  const;
 
-    QString buildDir() const;
+
 
     void invalidate();
 
     Qt4ProjectType m_projectType;
     QHash<Qt4Variable, QStringList> m_varValues;
     bool m_isQBuildProject;
+    QTimer m_updateTimer;
 
     DirectoryWatcher *m_dirWatcher;
-    ProFileReader *m_reader;
-
     friend class Qt4NodeHierarchy;
 };
 

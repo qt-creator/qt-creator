@@ -112,7 +112,7 @@ bool AbstractProcessStep::init(const QString &name)
 void AbstractProcessStep::run(QFutureInterface<bool> & fi)
 {
     m_futureInterface = &fi;
-    if(!m_enabled) {
+    if (!m_enabled) {
         fi.reportResult(true);
         return;
     }
@@ -136,7 +136,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> & fi)
             Qt::DirectConnection);
 
     m_process->start(m_command, m_arguments);
-    if(!m_process->waitForStarted()) {
+    if (!m_process->waitForStarted()) {
         processStartupFailed();
         delete m_process;
         m_process = 0;
@@ -188,8 +188,7 @@ void AbstractProcessStep::processStartupFailed()
 void AbstractProcessStep::processReadyReadStdOutput()
 {
     m_process->setReadChannel(QProcess::StandardOutput);
-    while(m_process->canReadLine())
-    {
+    while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine()).trimmed();
         stdOut(line);
     }
@@ -203,8 +202,7 @@ void AbstractProcessStep::stdOut(const QString &line)
 void AbstractProcessStep::processReadyReadStdError()
 {
     m_process->setReadChannel(QProcess::StandardError);
-    while (m_process->canReadLine())
-    {
+    while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine()).trimmed();
         stdError(line);
     }
@@ -217,7 +215,7 @@ void AbstractProcessStep::stdError(const QString &line)
 
 void AbstractProcessStep::checkForCancel()
 {
-    if(m_futureInterface->isCanceled() && m_timer->isActive()) {
+    if (m_futureInterface->isCanceled() && m_timer->isActive()) {
         m_timer->stop();
         m_process->terminate();
         m_process->waitForFinished(5000);
@@ -228,13 +226,12 @@ void AbstractProcessStep::checkForCancel()
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError()).trimmed();
-    if (!line.isEmpty()) {
+    if (!line.isEmpty())
         stdOut(line);
-    }
 
     line = QString::fromLocal8Bit(m_process->readAllStandardOutput()).trimmed();
-    if (!line.isEmpty()) {
+    if (!line.isEmpty())
         stdError(line);
-    }
+
     m_eventLoop->exit(0);
 }

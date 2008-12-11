@@ -36,6 +36,7 @@
 #include "icompletioncollector.h"
 
 #include <texteditor/itexteditable.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QEvent>
 #include <QtGui/QKeyEvent>
@@ -107,7 +108,7 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
       m_model(0),
       m_support(support)
 {
-    Q_ASSERT(m_editorWidget);
+    QTC_ASSERT(m_editorWidget, return);
 
     setUniformItemSizes(true);
     setSelectionBehavior(QAbstractItemView::SelectItems);

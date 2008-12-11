@@ -60,9 +60,9 @@ bool DeployHelperRunStep::init(const QString &configuration)
     //find target
     m_exec = "";
     QStringList targets = QStringList(); //TODO fix m_pro->qmakeTarget();
-    foreach(const QString& target, targets) {
+    foreach (const QString &target, targets) {
         QFileInfo fi(m_appdir + QLatin1Char('/') + target);
-        if(fi.exists())
+        if (fi.exists())
             m_exec = target;
         break;
     }

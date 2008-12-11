@@ -32,12 +32,14 @@
 ***************************************************************************/
 
 #include "librarywizarddialog.h"
+
 #include "consoleappwizard.h"
-#include "modulespage.h"
 #include "filespage.h"
 #include "libraryparameters.h"
+#include "modulespage.h"
 
 #include <utils/projectintropage.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
@@ -93,7 +95,7 @@ static QString pluginDependencies(const PluginBaseClasses *plb)
                                QString(QLatin1String(plb->dependentModules)).split(blank) :
                                QStringList();
     pluginModules.push_back(QLatin1String(plb->module));
-    foreach(const QString &module, pluginModules) {
+    foreach (const QString &module, pluginModules) {
         if (!dependencies.isEmpty())
             dependencies += blank;
         dependencies += ModulesPage::idOfModule(module);
@@ -231,7 +233,7 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
                 qDebug("initializing for plugins");
             QStringList baseClasses;
             const int pluginBaseClassCount = sizeof(pluginBaseClasses)/sizeof(PluginBaseClasses);
-            Q_ASSERT(defaultPluginBaseClass < pluginBaseClassCount);
+            QTC_ASSERT(defaultPluginBaseClass < pluginBaseClassCount, return);
             for (int i = 0; i < pluginBaseClassCount; i++)
                 baseClasses.push_back(QLatin1String(pluginBaseClasses[i].name));
             m_filesPage->setBaseClassChoices(baseClasses);

@@ -39,20 +39,24 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
+#include <utils/pathchooser.h>
 
 using namespace Subversion::Internal;
+using namespace Core::Utils;
+
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.browseButton, SIGNAL(clicked()), this, SLOT(browseForCommand()));
+    m_ui.pathChooser->setExpectedKind(PathChooser::Command);
+    m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 }
 
 SubversionSettings SettingsPageWidget::settings() const
 {
     SubversionSettings rc;
-    rc.svnCommand = m_ui.svnCmdLineEdit->text();
+    rc.svnCommand = m_ui.pathChooser->path();
     rc.useAuthentication = m_ui.userGroupBox->isChecked();
     rc.user =  m_ui.usernameLineEdit->text();
     rc.password = m_ui.passwordLineEdit->text();
@@ -63,17 +67,10 @@ SubversionSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const SubversionSettings &s)
 {
-    m_ui.svnCmdLineEdit->setText(s.svnCommand);
+    m_ui.pathChooser->setPath(s.svnCommand);
     m_ui.usernameLineEdit->setText(s.user);
     m_ui.passwordLineEdit->setText(s.password);
     m_ui.userGroupBox->setChecked(s.useAuthentication);
-}
-
-void SettingsPageWidget::browseForCommand()
-{
-    QString cmd = QFileDialog::getOpenFileName(window(), tr("Subversion Command"));
-    if (!cmd.isEmpty())
-        m_ui.svnCmdLineEdit->setText(cmd);
 }
 
 SettingsPage::SettingsPage()

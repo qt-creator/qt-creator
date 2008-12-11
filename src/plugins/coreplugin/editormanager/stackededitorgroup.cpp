@@ -35,21 +35,24 @@
 #include "editormanager.h"
 #include "coreimpl.h"
 
-#include <QtCore/QFileInfo>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QMimeData>
+
+#include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QStackedWidget>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QApplication>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
-#include <QtGui/QLabel>
-#include <QtGui/QStackedWidget>
-#include <QtDebug>
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
@@ -240,7 +243,7 @@ void StackedEditorGroup::sendCloseRequest()
 
 void StackedEditorGroup::removeEditor(IEditor *editor)
 {
-    Q_ASSERT(editor);
+    QTC_ASSERT(editor, return);
     EditorGroup::removeEditor(editor);
     const int index = m_container->indexOf(editor->widget());
     if (index != -1) {
@@ -280,7 +283,7 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
         return;
     m_toplevel->setVisible(true);
     const int idx = m_container->indexOf(editor->widget());
-    Q_ASSERT(idx >= 0);
+    QTC_ASSERT(idx >= 0, return);
     if (m_container->currentIndex() != idx) {
         m_container->setCurrentIndex(idx);
 
@@ -298,10 +301,11 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
     }
 }
 
-void StackedEditorGroup::updateEditorStatus(IEditor *editor) {
+void StackedEditorGroup::updateEditorStatus(IEditor *editor)
+{
     if (!editor)
         editor = qobject_cast<IEditor *>(sender());
-    Q_ASSERT(editor);
+    QTC_ASSERT(editor, return);
 
     static const QIcon lockedIcon(QLatin1String(":/qworkbench/images/locked.png"));
     static const QIcon unlockedIcon(QLatin1String(":/qworkbench/images/unlocked.png"));
@@ -371,6 +375,6 @@ int StackedEditorGroup::indexOf(IEditor *editor)
         if (editor == model->data(model->index(i, 0), Qt::UserRole).value<IEditor*>())
             return i;
     }
-    Q_ASSERT(false);
+    QTC_ASSERT(false, /**/);
     return 0;
 }

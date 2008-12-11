@@ -63,6 +63,7 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
 
     m_ui->newClassWidget->setBaseClassInputVisible(false);
     m_ui->newClassWidget->setNamespacesEnabled(true);
+    m_ui->newClassWidget->setAllowDirectories(true);
 
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 

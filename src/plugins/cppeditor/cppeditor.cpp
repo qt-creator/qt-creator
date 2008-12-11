@@ -79,6 +79,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
 #include <QtGui/QHeaderView>
+#include <QtGui/QStringListModel>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -344,11 +345,11 @@ void CPPEditor::updateMethodBoxIndex()
 
     QModelIndex lastIndex;
 
-    const int rc = m_overviewModel->rowCount(QModelIndex());
+    const int rc = m_overviewModel->rowCount();
     for (int row = 0; row < rc; ++row) {
         const QModelIndex index = m_overviewModel->index(row, 0, QModelIndex());
         Symbol *symbol = m_overviewModel->symbolFromIndex(index);
-        if (symbol->line() > unsigned(line))
+        if (symbol && symbol->line() > unsigned(line))
             break;
         lastIndex = index;
     }
@@ -519,6 +520,15 @@ void CPPEditor::jumpToDefinition()
 #endif
         }
     } else {
+        foreach (const Document::MacroUse use, doc->macroUses()) {
+            if (use.contains(endOfName - 1)) {
+                const Macro &macro = use.macro();
+                const QString fileName = QString::fromUtf8(macro.fileName);
+                if (TextEditor::BaseTextEditor::openEditorAt(fileName, macro.line, 0))
+                    return; // done
+            }
+        }
+
         qDebug() << "No results for expression:" << expression;
     }
 }

@@ -102,9 +102,8 @@ void Qt4Manager::unregisterProject(Qt4Project *project)
 
 void Qt4Manager::notifyChanged(const QString &name)
 {
-    foreach(Qt4Project *pro, m_projects) {
+    foreach (Qt4Project *pro, m_projects)
         pro->notifyChanged(name);
-    }
 }
 
 void Qt4Manager::init()

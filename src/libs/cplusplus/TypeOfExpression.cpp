@@ -48,6 +48,7 @@ TypeOfExpression::TypeOfExpression():
 void TypeOfExpression::setDocuments(const QMap<QString, Document::Ptr> &documents)
 {
     m_documents = documents;
+    m_lookupContext = LookupContext();
 }
 
 QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expression,

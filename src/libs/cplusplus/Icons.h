@@ -47,7 +47,7 @@ class CPLUSPLUS_EXPORT Icons
 public:
     Icons();
 
-    QIcon iconForSymbol(Symbol *symbol) const;
+    QIcon iconForSymbol(const Symbol *symbol) const;
 
     QIcon keywordIcon() const;
     QIcon macroIcon() const;

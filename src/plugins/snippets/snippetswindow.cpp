@@ -243,7 +243,7 @@ void SnippetsWindow::showInputWidget(bool canceled, const QString &value)
     } else {
         QString desc = m_currentSnippet->argumentDescription(m_requiredArgs.first());
         QString def = m_currentSnippet->argumentDefault(m_requiredArgs.first());
-        foreach(QString arg, m_args) {
+        foreach (const QString &arg, m_args) {
             desc = desc.arg(arg);
             def = def.arg(arg);
         }

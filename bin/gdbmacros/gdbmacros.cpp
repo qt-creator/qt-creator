@@ -1674,7 +1674,10 @@ static void qDumpQObjectSignal(QDumper &d)
             d.beginHash();
                 P(d, "name", "[" << i << "] slot");
                 P(d, "type", "");
-                P(d, "value", conn.receiver->metaObject()->method(conn.method).signature());
+                if (conn.receiver) 
+                    P(d, "value", conn.receiver->metaObject()->method(conn.method).signature());
+                else
+                    P(d, "value", "<invalid receiver>");
                 P(d, "numchild", "0");
             d.endHash();
             d.beginHash();
@@ -1861,17 +1864,25 @@ static void qDumpQSet(QDumper &d)
             n = 100;
         d << ",children=[";
         int i = 0;
-        for (int bucket = 0; bucket != hd->numBuckets; ++bucket) {
+        for (int bucket = 0; bucket != hd->numBuckets && i <= 10000; ++bucket) {
             for (node = hd->buckets[bucket]; node->next; node = node->next) {
                 d.beginHash();
                 P(d, "name", "[" << i << "]");
                 P(d, "type", d.innertype);
-                P(d, "exp", "(('QHashNode<" << d.innertype
-                    << ",QHashDummyValue>'*)"
+                P(d, "exp", "(('"NS"QHashNode<" << d.innertype
+                    << ","NS"QHashDummyValue>'*)"
                     << static_cast<const void*>(node) << ")->key"
                 );
                 d.endHash();
                 ++i;
+                if (i > 10000) {
+                    d.beginHash();
+                    P(d, "name", "Warning:");
+                    P(d, "value", "<incomplete>");
+                    P(d, "type", "");
+                    d.endHash();
+                    break;
+                }
             }
         }
         d << "]";

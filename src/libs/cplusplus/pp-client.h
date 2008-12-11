@@ -31,16 +31,51 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_QWB_ASSERT_H
-#define DEBUGGER_QWB_ASSERT_H
+#ifndef PP_CLIENT_H
+#define PP_CLIENT_H
 
-#ifdef Q_OS_UNIX
-#define QWB_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED"<<__FILE__<<__LINE__;action;}
-#else
-#define QWB_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"ASSERTION"<<#cond<<"FAILED";action;}
-#endif
+#include <CPlusPlusForwardDeclarations.h>
 
-#endif // DEBUGGER_QWB_ASSERT_H
+#include <QByteArray>
+#include <QString>
+#include <QFile>
 
+namespace CPlusPlus {
+
+class Macro;
+
+class CPLUSPLUS_EXPORT Client
+{
+  Client(const Client &other);
+  void operator=(const Client &other);
+
+public:
+  enum IncludeType {
+    IncludeLocal,
+    IncludeGlobal
+  };
+
+public:
+  Client()
+  { }
+
+  virtual ~Client()
+  { }
+
+  virtual void macroAdded(const Macro &macro) = 0;
+  virtual void sourceNeeded(QString &fileName, IncludeType mode) = 0; // ### FIX the signature.
+
+  virtual void startExpandingMacro(unsigned offset,
+                                   const Macro &macro,
+                                   const QByteArray &originalTextt) = 0;
+
+  virtual void stopExpandingMacro(unsigned offset,
+                                  const Macro &macro) = 0;
+
+  virtual void startSkippingBlocks(unsigned offset) = 0;
+  virtual void stopSkippingBlocks(unsigned offset) = 0;
+};
+
+} // namespace CPlusPlus
+
+#endif // PP_CLIENT_H

@@ -33,6 +33,8 @@
 
 #include "qtscripthighlighter.h"
 
+#include <utils/qtcassert.h>
+
 namespace QtScriptEditor {
 namespace Internal {
 
@@ -94,7 +96,7 @@ void QtScriptHighlighter::onBlockEnd(int state, int firstNonSpace)
         blockData->setCollapseMode(TextEditor::TextBlockUserData::NoCollapse);
     }
     if (!m_currentBlockParentheses.isEmpty()) {
-        Q_ASSERT(blockData);
+        QTC_ASSERT(blockData, return);
         int collapse = Parenthesis::collapseAtPos(m_currentBlockParentheses);
         if (collapse >= 0) {
             if (collapse == firstNonSpace)

@@ -87,6 +87,31 @@ private:
     FileModificationTimeMap m_files;
 };
 
+class FileWatcher : public QObject
+{
+    Q_DISABLE_COPY(FileWatcher)
+    Q_OBJECT
+public:
+    explicit FileWatcher(QObject *parent = 0);
+    virtual ~FileWatcher();
+
+    QStringList files();
+    void addFile(const QString &file);
+    void removeFile(const QString &file);
+signals:
+    void fileChanged(const QString &path);
+    void debugOutout(const QString &path);
+
+private slots:
+    void slotFileChanged(const QString&);
+
+private:
+    static int m_objectCount;
+    static QHash<QString, int> m_fileCount;
+    static QFileSystemWatcher *m_watcher;
+    QStringList m_files;
+};
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
 

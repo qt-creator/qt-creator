@@ -32,6 +32,9 @@
 ***************************************************************************/
 
 #include "CppDocument.h"
+
+#include <utils/qtcassert.h>
+
 #include <Control.h>
 #include <TranslationUnit.h>
 #include <DiagnosticClient.h>
@@ -138,24 +141,14 @@ void Document::addIncludeFile(const QString &fileName)
     _includedFiles.append(fileName);
 }
 
-QByteArray Document::definedMacros() const
+void Document::appendMacro(const Macro &macro)
 {
-    return _definedMacros;
+    _definedMacros.append(macro);
 }
 
-void Document::appendMacro(const QByteArray &macroName, const QByteArray &text)
+void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
 {
-    int index = macroName.indexOf('(');
-    if (index == -1)
-        _macroNames.insert(macroName);
-    else
-        _macroNames.insert(macroName.left(index));
-    _definedMacros += text;
-}
-
-void Document::addMacroUse(unsigned offset, unsigned length)
-{
-    _macroUses.append(Block(offset, offset + length));
+    _macroUses.append(MacroUse(macro, offset, offset + length));
 }
 
 TranslationUnit *Document::translationUnit() const
@@ -251,11 +244,6 @@ void Document::stopSkippingBlocks(unsigned stop)
         _skippedBlocks.back() = Block(start, stop);
 }
 
-QSet<QByteArray> Document::macroNames() const
-{
-    return _macroNames;
-}
-
 bool Document::parse(ParseMode mode)
 {
     TranslationUnit::ParseMode m = TranslationUnit::ParseTranlationUnit;
@@ -285,7 +273,7 @@ bool Document::parse(ParseMode mode)
 
 void Document::check()
 {
-    Q_ASSERT(! _globalNamespace);
+    QTC_ASSERT(!_globalNamespace, return);
 
     Semantic semantic(_control);
 

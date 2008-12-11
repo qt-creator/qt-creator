@@ -108,7 +108,6 @@ void MakeProcess::handleOutput()
     }
 }
 
-
 void MakeProcess::handleMakeLine(const QString &line)
 {
     int pos1 = line.indexOf('`');

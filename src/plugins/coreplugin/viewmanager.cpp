@@ -63,7 +63,7 @@ ViewManager::ViewManager(MainWindow *mainWnd)  :
     ViewManagerInterface(mainWnd),
     m_mainWnd(mainWnd)
 {
-    for(int i = 0; i< 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         QWidget *w = new QWidget();
         m_mainWnd->statusBar()->insertPermanentWidget(i, w);
         w->setLayout(new QHBoxLayout);
@@ -89,7 +89,7 @@ void ViewManager::init()
 
 void ViewManager::objectAdded(QObject *obj)
 {
-    IView * view = Aggregation::query<IView>(obj);
+    IView *view = Aggregation::query<IView>(obj);
     if (!view)
         return;
 
@@ -104,8 +104,8 @@ void ViewManager::objectAdded(QObject *obj)
 
 void ViewManager::aboutToRemoveObject(QObject *obj)
 {
-    IView * view = Aggregation::query<IView>(obj);
-    if(!view)
+    IView *view = Aggregation::query<IView>(obj);
+    if (!view)
         return;
     m_mainWnd->removeContextObject(view);
 }
@@ -121,10 +121,10 @@ void ViewManager::saveSettings(QSettings *settings)
     settings->setValue(QLatin1String("ViewGroup_Default"), m_mainWnd->saveState());
 }
 
-IView * ViewManager::view(const QString & id)
+IView *ViewManager::view(const QString &id)
 {
     QList<IView *> list = m_mainWnd->pluginManager()->getObjects<IView>();
-    foreach (IView * view, list) {
+    foreach (IView *view, list) {
         if (view->uniqueViewName() == id)
             return view;
     }

@@ -257,7 +257,7 @@ TaskWindow::TaskWindow()
 
     m_listview->setModel(m_model);
     m_listview->setFrameStyle(QFrame::NoFrame);
-    m_listview->setWindowTitle(tr("Problems"));
+    m_listview->setWindowTitle(tr("Build Issues"));
     m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
     TaskDelegate *tld = new TaskDelegate(this);
     m_listview->setItemDelegate(tld);
@@ -441,7 +441,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         int height = 0;
         QTextLayout tl(description);
         tl.beginLayout();
-        while(true) {
+        while (true) {
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;
@@ -528,7 +528,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int height = 0;
         QTextLayout tl(description);
         tl.beginLayout();
-        while(true) {
+        while (true) {
             QTextLine line = tl.createLine();
             if (!line.isValid())
                 break;

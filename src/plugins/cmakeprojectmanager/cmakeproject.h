@@ -49,6 +49,16 @@ namespace Internal{
 
 class CMakeFile;
 
+struct CMakeTarget
+{
+    QString title;
+    QString executable;
+    QString workingDirectory;
+    QString makeCommand;
+    QString makeCleanCommand;
+    void clear();
+};
+
 class CMakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -105,6 +115,7 @@ private:
     // TODO probably need a CMake specific node structure
     CMakeProjectNode* m_rootNode;
     QStringList m_files;
+    QList<CMakeTarget> m_targets;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -118,11 +129,16 @@ public:
     bool parseCbpFile(const QString &fileName);
     QList<ProjectExplorer::FileNode *> fileList();
     QStringList includeFiles();
+    QList<CMakeTarget> targets();
 private:
     void parseCodeBlocks_project_file();
     void parseProject();
     void parseBuild();
     void parseTarget();
+    void parseTargetOption();
+    void parseMakeCommand();
+    void parseTargetBuild();
+    void parseTargetClean();
     void parseCompiler();
     void parseAdd();
     void parseUnit();
@@ -130,6 +146,10 @@ private:
 
     QList<ProjectExplorer::FileNode *> m_fileList;
     QStringList m_includeFiles;
+
+    CMakeTarget m_target;
+    bool m_targetType;
+    QList<CMakeTarget> m_targets;
 };
 
 class CMakeFile : public Core::IFile

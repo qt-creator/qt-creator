@@ -285,6 +285,7 @@ void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &outp
 
 void DebuggerOutputWindow::showInput(const QString &prefix, const QString &input)
 {
+    Q_UNUSED(prefix);
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);

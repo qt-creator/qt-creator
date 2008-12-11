@@ -203,5 +203,59 @@ void DirectoryWatcher::updateFileList(const QString &dir)
     }
 }
 
+int FileWatcher::m_objectCount = 0;
+QHash<QString,int> FileWatcher::m_fileCount;
+QFileSystemWatcher *FileWatcher::m_watcher = 0;
+
+FileWatcher::FileWatcher(QObject *parent)
+{
+    if (!m_watcher)
+        m_watcher = new QFileSystemWatcher();
+    ++m_objectCount;
+    connect(m_watcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(slotFileChanged(QString)));
+}
+
+FileWatcher::~FileWatcher()
+{
+    foreach (const QString &file, m_files)
+        removeFile(file);
+    if (--m_objectCount == 0) {
+        delete m_watcher;
+        m_watcher = 0;
+    }
+}
+
+void FileWatcher::slotFileChanged(const QString &file)
+{
+    if (m_files.contains(file))
+        emit fileChanged(file);
+}
+
+QStringList FileWatcher::files()
+{
+    return m_files;
+}
+
+void FileWatcher::addFile(const QString &file)
+{
+    if (m_files.contains(file))
+        return;
+    m_files += file;
+    if (m_fileCount[file] == 0)
+        m_watcher->addPath(file);
+    m_fileCount[file] += 1;
+}
+
+void FileWatcher::removeFile(const QString &file)
+{
+    m_files.removeOne(file);
+    m_fileCount[file] -= 1;
+    if (m_fileCount[file] == 0)
+      m_watcher->removePath(file);
+}
+
+
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

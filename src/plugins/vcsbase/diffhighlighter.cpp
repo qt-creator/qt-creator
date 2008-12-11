@@ -33,6 +33,8 @@
 
 #include "diffhighlighter.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QRegExp>
@@ -67,7 +69,7 @@ DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
     m_diffInIndicator(QLatin1Char('+')),
     m_diffOutIndicator(QLatin1Char('-'))
 {
-    Q_ASSERT(filePattern.isValid());
+    QTC_ASSERT(filePattern.isValid(), /**/);
 }
 
 DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const

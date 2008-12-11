@@ -143,7 +143,7 @@ private slots:
     void unloadProject();
     void clearSession();
     void newProject();
-    void sessionManager();
+    void showSessionManager();
     void populateBuildConfigurationMenu();
     void buildConfigurationMenuTriggered(QAction *);
     void populateRunConfigurationMenu();

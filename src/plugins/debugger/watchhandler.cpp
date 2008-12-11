@@ -37,7 +37,7 @@
 #include "modeltest.h"
 #endif
 
-#include "assert.h"
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
@@ -118,7 +118,7 @@ static QByteArray quoteUnprintable(const QByteArray &ba)
     QByteArray res;
     char buf[10];
     for (int i = 0, n = ba.size(); i != n; ++i) {
-        char c = ba.at(i);
+        unsigned char c = ba.at(i);
         if (isprint(c)) {
             res += c;
         } else {
@@ -320,6 +320,51 @@ static WatchData take(const QString &iname, QList<WatchData> *list)
 }
 
 
+static QList<WatchData> initialSet()
+{
+    QList<WatchData> result;
+
+    WatchData root;
+    root.state = 0;
+    root.level = 0;
+    root.row = 0;
+    root.name = "Root";
+    root.parentIndex = -1;
+    root.childIndex.append(1);
+    root.childIndex.append(2);
+    root.childIndex.append(3);
+    result.append(root);
+
+    WatchData local;
+    local.iname = "local";
+    local.name = "Locals";
+    local.state = 0;
+    local.level = 1;
+    local.row = 0;
+    local.parentIndex = 0;
+    result.append(local);
+
+    WatchData tooltip;
+    tooltip.iname = "tooltip";
+    tooltip.name = "Tooltip";
+    tooltip.state = 0;
+    tooltip.level = 1;
+    tooltip.row = 1;
+    tooltip.parentIndex = 0;
+    result.append(tooltip);
+
+    WatchData watch;
+    watch.iname = "watch";
+    watch.name = "Watchers";
+    watch.state = 0;
+    watch.level = 1;
+    watch.row = 2;
+    watch.parentIndex = 0;
+    result.append(watch);
+
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // WatchHandler
@@ -332,7 +377,8 @@ WatchHandler::WatchHandler()
     m_inFetchMore = false;
     m_inChange = false;
 
-    cleanModel();
+    m_completeSet = initialSet();
+    m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 }
 
@@ -380,6 +426,7 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
     int node = idx.internalId();
     if (node < 0)
         return QVariant();
+    QTC_ASSERT(node < m_displaySet.size(), return QVariant());
 
     const WatchData &data = m_displaySet.at(node);
 
@@ -440,6 +487,13 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
 
         case VisualRole:
             return m_displayedINames.contains(data.iname);
+    
+        case ExpandedRole:
+            //qDebug() << " FETCHING: " << data.iname
+            //    << m_expandedINames.contains(data.iname)
+            //    << m_expandedINames;
+            // Level 0 and 1 are always expanded
+            return node < 4 || m_expandedINames.contains(data.iname);
     
         default:
             break; 
@@ -558,10 +612,13 @@ void WatchHandler::rebuildModel()
     MODEL_DEBUG("RECREATE MODEL, CURRENT SET:\n" << toString());
     #endif
 
+    QHash<QString, int> oldTopINames;
     QHash<QString, QString> oldValues;
     for (int i = 0, n = m_oldSet.size(); i != n; ++i) {
         WatchData &data = m_oldSet[i];
         oldValues[data.iname] = data.value;
+        if (data.level == 2)
+            ++oldTopINames[data.iname];
     }
     #ifdef DEBUG_PENDING
     MODEL_DEBUG("OLD VALUES: " << oldValues);
@@ -575,6 +632,9 @@ void WatchHandler::rebuildModel()
 
     qSort(m_completeSet.begin(), m_completeSet.end(), &iNameSorter);
 
+    // This helps to decide whether the view has completely changed or not.
+    QHash<QString, int> topINames;
+
     QHash<QString, int> iname2idx;
 
     for (int i = m_completeSet.size(); --i > 0; ) {
@@ -582,7 +642,10 @@ void WatchHandler::rebuildModel()
         data.parentIndex = 0;
         data.childIndex.clear();
         iname2idx[data.iname] = i;
+        if (data.level == 2)
+            ++topINames[data.iname];
     }
+    //qDebug() << "TOPINAMES: " << topINames << "\nOLD: " << oldTopINames;
 
     for (int i = 1; i < m_completeSet.size(); ++i) {
         WatchData &data = m_completeSet[i];
@@ -603,7 +666,13 @@ void WatchHandler::rebuildModel()
             && data.value != strNotInScope;
     }
 
-    //emit layoutAboutToBeChanged();
+    emit layoutAboutToBeChanged();
+
+    if (oldTopINames != topINames) {
+        m_displaySet = initialSet();
+        m_expandedINames.clear();
+        emit reset();
+    }
 
     m_displaySet = m_completeSet;
 
@@ -633,10 +702,10 @@ void WatchHandler::rebuildModel()
 
     // Possibly append dummy items to prevent empty views
     bool ok = true;
-    QWB_ASSERT(m_displaySet.size() >= 2, ok = false);
-    QWB_ASSERT(m_displaySet.at(1).iname == "local", ok = false);
-    QWB_ASSERT(m_displaySet.at(2).iname == "tooltip", ok = false);
-    QWB_ASSERT(m_displaySet.at(3).iname == "watch", ok = false);
+    QTC_ASSERT(m_displaySet.size() >= 2, ok = false);
+    QTC_ASSERT(m_displaySet.at(1).iname == "local", ok = false);
+    QTC_ASSERT(m_displaySet.at(2).iname == "tooltip", ok = false);
+    QTC_ASSERT(m_displaySet.at(3).iname == "watch", ok = false);
     if (ok) {
         for (int i = 1; i <= 3; ++i) {
             WatchData &data = m_displaySet[i];
@@ -668,11 +737,6 @@ void WatchHandler::rebuildModel()
     emit reset();
     //qDebug() << "WATCHHANDLER: RESET EMITTED";
     m_inChange = false;
-    //emit layoutChanged();
-    //QSet<QString> einames = m_expandedINames;
-    //einames.insert("local");
-    //einames.insert("watch");
-    //emit expandedItems(einames);
 
     #if DEBUG_MODEL
     #if USE_MODEL_TEST
@@ -691,8 +755,11 @@ void WatchHandler::cleanup()
     m_oldSet.clear();
     m_expandedINames.clear();
     m_displayedINames.clear();
-    cleanModel();
+
+    m_incompleteSet.clear();
+    m_completeSet = initialSet();
     m_displaySet = m_completeSet;
+
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {
@@ -707,10 +774,10 @@ void WatchHandler::cleanup()
 void WatchHandler::collapseChildren(const QModelIndex &idx)
 {
     if (m_inChange || m_completeSet.isEmpty()) {
-        //qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << idx;
+        qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << idx;
         return;
     }
-    QWB_ASSERT(checkIndex(idx.internalId()), return);
+    QTC_ASSERT(checkIndex(idx.internalId()), return);
 #if 0
     QString iname0 = m_displaySet.at(idx.internalId()).iname;
     MODEL_DEBUG("COLLAPSE NODE" << iname0);
@@ -739,11 +806,11 @@ void WatchHandler::expandChildren(const QModelIndex &idx)
     int index = idx.internalId();
     if (index == 0)
         return;
-    QWB_ASSERT(index >= 0, qDebug() << toString() << index; return);
-    QWB_ASSERT(index < m_completeSet.size(), qDebug() << toString() << index; return);
+    QTC_ASSERT(index >= 0, qDebug() << toString() << index; return);
+    QTC_ASSERT(index < m_completeSet.size(), qDebug() << toString() << index; return);
     const WatchData &display = m_displaySet.at(index);
-    QWB_ASSERT(index >= 0, qDebug() << toString() << index; return);
-    QWB_ASSERT(index < m_completeSet.size(), qDebug() << toString() << index; return);
+    QTC_ASSERT(index >= 0, qDebug() << toString() << index; return);
+    QTC_ASSERT(index < m_completeSet.size(), qDebug() << toString() << index; return);
     const WatchData &complete = m_completeSet.at(index);
     MODEL_DEBUG("\n\nEXPAND" << display.iname);
     if (display.iname.isEmpty()) {
@@ -781,7 +848,7 @@ void WatchHandler::expandChildren(const QModelIndex &idx)
 void WatchHandler::insertData(const WatchData &data)
 {
     //MODEL_DEBUG("INSERTDATA: " << data.toString());
-    QWB_ASSERT(data.isValid(), return);
+    QTC_ASSERT(data.isValid(), return);
     if (data.isSomethingNeeded())
         insertDataHelper(m_incompleteSet, data);
     else
@@ -879,56 +946,10 @@ void WatchHandler::removeWatchExpression(const QString &iname)
     emit watchModelUpdateRequested();
 }
 
-void WatchHandler::cleanModel()
-{
-    // This uses data stored in m_oldSet to re-create a new set
-    // one-by-one
-    m_completeSet.clear();
-    m_incompleteSet.clear();
-
-    WatchData root;
-    root.state = 0;
-    root.level = 0;
-    root.row = 0;
-    root.name = "Root";
-    root.parentIndex = -1;
-    root.childIndex.append(1);
-    root.childIndex.append(2);
-    root.childIndex.append(3);
-    m_completeSet.append(root);
-
-    WatchData local;
-    local.iname = "local";
-    local.name = "Locals";
-    local.state = 0;
-    local.level = 1;
-    local.row = 0;
-    local.parentIndex = 0;
-    m_completeSet.append(local);
-
-    WatchData tooltip;
-    tooltip.iname = "tooltip";
-    tooltip.name = "Tooltip";
-    tooltip.state = 0;
-    tooltip.level = 1;
-    tooltip.row = 1;
-    tooltip.parentIndex = 0;
-    m_completeSet.append(tooltip);
-
-    WatchData watch;
-    watch.iname = "watch";
-    watch.name = "Watchers";
-    watch.state = 0;
-    watch.level = 1;
-    watch.row = 2;
-    watch.parentIndex = 0;
-    m_completeSet.append(watch);
-}
-
-
 void WatchHandler::reinitializeWatchers()
 {
-    cleanModel();
+    m_completeSet = initialSet();
+    m_incompleteSet.clear();
 
     // copy over all watchers and mark all watchers as incomplete
     for (int i = 0, n = m_oldSet.size(); i < n; ++i) {
@@ -956,7 +977,7 @@ bool WatchHandler::canFetchMore(const QModelIndex &parent) const
     // needs to be made synchronous to be useful. Busy loop is no good.
     if (!parent.isValid())
         return false;
-    QWB_ASSERT(checkIndex(parent.internalId()), return false);
+    QTC_ASSERT(checkIndex(parent.internalId()), return false);
     const WatchData &data = m_displaySet.at(parent.internalId());
     MODEL_DEBUG("CAN FETCH MORE: " << parent << " children: " << data.childCount
         << data.iname);
@@ -969,7 +990,7 @@ void WatchHandler::fetchMore(const QModelIndex &parent)
     MODEL_DEBUG("FETCH MORE: " << parent);
     return;
 
-    QWB_ASSERT(checkIndex(parent.internalId()), return);
+    QTC_ASSERT(checkIndex(parent.internalId()), return);
     QString iname = m_displaySet.at(parent.internalId()).iname;
 
     if (m_inFetchMore) {
@@ -1028,15 +1049,15 @@ QModelIndex WatchHandler::index(int row, int col, const QModelIndex &parent) con
         MODEL_DEBUG(" -> " << QModelIndex() << " (2) ");
         return QModelIndex(); 
     }
-    QWB_ASSERT(checkIndex(parentIndex), return QModelIndex());
+    QTC_ASSERT(checkIndex(parentIndex), return QModelIndex());
     const WatchData &data = m_displaySet.at(parentIndex);
-    QWB_ASSERT(row >= 0, qDebug() << "ROW: " << row  << "PARENT: " << parent
+    QTC_ASSERT(row >= 0, qDebug() << "ROW: " << row  << "PARENT: " << parent
         << data.toString() << toString(); return QModelIndex());
-    QWB_ASSERT(row < data.childIndex.size(),
+    QTC_ASSERT(row < data.childIndex.size(),
         MODEL_DEBUG("ROW: " << row << data.toString() << toString());
         return QModelIndex());
     QModelIndex idx = createIndex(row, col, data.childIndex.at(row));
-    QWB_ASSERT(idx.row() == m_displaySet.at(idx.internalId()).row,
+    QTC_ASSERT(idx.row() == m_displaySet.at(idx.internalId()).row,
         return QModelIndex());
     MODEL_DEBUG(" -> " << idx << " (A) ");
     return idx;
@@ -1050,15 +1071,15 @@ QModelIndex WatchHandler::parent(const QModelIndex &idx) const
     }
     MODEL_DEBUG("PARENT " << idx);
     int currentIndex = idx.internalId();
-    QWB_ASSERT(checkIndex(currentIndex), return QModelIndex());
-    QWB_ASSERT(idx.row() == m_displaySet.at(currentIndex).row,
+    QTC_ASSERT(checkIndex(currentIndex), return QModelIndex());
+    QTC_ASSERT(idx.row() == m_displaySet.at(currentIndex).row,
         MODEL_DEBUG("IDX: " << idx << toString(); return QModelIndex()));
     int parentIndex = m_displaySet.at(currentIndex).parentIndex;
     if (parentIndex < 0) {
         MODEL_DEBUG(" -> " << QModelIndex() << " (2) ");
         return QModelIndex();
     }
-    QWB_ASSERT(checkIndex(parentIndex), return QModelIndex());
+    QTC_ASSERT(checkIndex(parentIndex), return QModelIndex());
     QModelIndex parent = 
         createIndex(m_displaySet.at(parentIndex).row, 0, parentIndex);
     MODEL_DEBUG(" -> " << parent);
@@ -1073,7 +1094,7 @@ int WatchHandler::rowCount(const QModelIndex &idx) const
         return 0;
     }
     int thisIndex = idx.internalId();
-    QWB_ASSERT(checkIndex(thisIndex), return 0);
+    QTC_ASSERT(checkIndex(thisIndex), return 0);
     if (idx.row() == -1 && idx.column() == -1) {
         MODEL_DEBUG(" -> " << 3 << " (B) ");
         return 1;
@@ -1108,7 +1129,7 @@ int WatchHandler::columnCount(const QModelIndex &idx) const
         return 0;
     }
     MODEL_DEBUG(" -> " << 3 << " (B) ");
-    QWB_ASSERT(checkIndex(idx.internalId()), return 3);
+    QTC_ASSERT(checkIndex(idx.internalId()), return 3);
     return 3;
 }
 
@@ -1118,7 +1139,7 @@ bool WatchHandler::hasChildren(const QModelIndex &idx) const
     bool base = rowCount(idx) > 0 && columnCount(idx) > 0;
     MODEL_DEBUG("HAS CHILDREN: " << idx << base);
     return base;
-    QWB_ASSERT(checkIndex(idx.internalId()), return false);
+    QTC_ASSERT(checkIndex(idx.internalId()), return false);
     const WatchData &data = m_displaySet.at(idx.internalId());
     MODEL_DEBUG("HAS CHILDREN: " << idx << data.toString());
     return data.childCount > 0; // || data.childIndex.size() > 0;

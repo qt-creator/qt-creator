@@ -53,21 +53,23 @@
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QMap>
-#include <QtCore/QSet>
-#include <QtCore/QProcess>
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QMap>
+#include <QtCore/QProcess>
+#include <QtCore/QSet>
+#include <QtCore/QSettings>
 
 #include <QtGui/QAction>
-#include <QtGui/QLayout>
 #include <QtGui/QApplication>
-#include <QtGui/QSplitter>
 #include <QtGui/QFileDialog>
+#include <QtGui/QLayout>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QSplitter>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -961,11 +963,10 @@ bool EditorManager::hasEditor(const QString &fileName) const
 
 void EditorManager::restoreEditorState(IEditor *editor)
 {
-    Q_ASSERT(editor);
+    QTC_ASSERT(editor, return);
     QString fileName = editor->file()->fileName();
-    if (m_d->m_editorStates.contains(fileName)) {
+    if (m_d->m_editorStates.contains(fileName))
         editor->restoreState(m_d->m_editorStates.value(fileName).toByteArray());
-    }
 }
 
 bool EditorManager::saveEditor(IEditor *editor)
@@ -1089,7 +1090,7 @@ bool EditorManager::saveFileAs(IEditor *editor)
     const bool success = editor->file()->save(absoluteFilePath);
     m_d->m_core->fileManager()->unblockFileChange(editor->file());
 
-    if(success)
+    if (success)
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
 
     updateActions();

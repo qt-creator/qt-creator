@@ -53,7 +53,7 @@
 #ifndef PP_MACRO_EXPANDER_H
 #define PP_MACRO_EXPANDER_H
 
-namespace rpp {
+namespace CPlusPlus {
 
     struct pp_frame
     {
@@ -97,7 +97,7 @@ namespace rpp {
         int generated_lines;
     };
 
-} // namespace rpp
+} // namespace CPlusPlus
 
 #endif // PP_MACRO_EXPANDER_H
 
