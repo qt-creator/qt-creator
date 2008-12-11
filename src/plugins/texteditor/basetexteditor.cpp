@@ -2517,7 +2517,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             }
         } else if (e->button() == Qt::RightButton) {
             QMenu * contextMenu = new QMenu(this);
-            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber(), contextMenu);
+            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber() + 1, contextMenu);
             if (!contextMenu->isEmpty())
                 contextMenu->exec(e->globalPos());
             delete contextMenu;
