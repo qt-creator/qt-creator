@@ -31,59 +31,56 @@
 **
 ***************************************************************************/
 
-#ifndef CPPTOOLS_H
-#define CPPTOOLS_H
+#include "completionsettingspage.h"
+#include "cppcodecompletion.h"
+#include "ui_completionsettingspage.h"
 
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QDir;
-QT_END_NAMESPACE
+using namespace CppTools::Internal;
 
-namespace Core {
-class ICore;
+CompletionSettingsPage::CompletionSettingsPage(CppCodeCompletion *completion)
+    : m_completion(completion)
+    , m_page(0)
+{
 }
 
-namespace CppTools {
-namespace Internal {
-
-class CppCodeCompletion;
-class CppModelManager;
-
-class CppToolsPlugin : public ExtensionSystem::IPlugin
+QString CompletionSettingsPage::name() const
 {
-    Q_OBJECT
+    return tr("Completion");
+}
 
-public:
-    static CppToolsPlugin *instance() { return m_instance; }
+QString CompletionSettingsPage::category() const
+{
+    return QLatin1String("TextEditor");
+}
 
-    CppToolsPlugin();
-    ~CppToolsPlugin();
+QString CompletionSettingsPage::trCategory() const
+{
+    return tr("Text Editor");
+}
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
-    void shutdown();
-    CppModelManager *cppModelManager() { return m_modelManager; }
-    QString correspondingHeaderOrSource(const QString &fileName) const;
+QWidget *CompletionSettingsPage::createPage(QWidget *parent)
+{
+    m_page = new Ui_CompletionSettingsPage;
+    QWidget *w = new QWidget(parent);
+    m_page->setupUi(w);
 
-private slots:
-    void switchHeaderSource();
+    m_page->caseSensitive->setChecked(m_completion->caseSensitivity() == Qt::CaseSensitive);
+    m_page->autoInsertBraces->setChecked(m_completion->autoInsertBraces());
 
-private:
-    QString correspondingHeaderOrSourceI(const QString &fileName) const;
-    QFileInfo findFile(const QDir &dir, const QString &name, const ProjectExplorer::Project *project) const;
+    return w;
+}
 
-    Core::ICore *m_core;
-    int m_context;
-    CppModelManager *m_modelManager;
-    CppCodeCompletion *m_completion;
+void CompletionSettingsPage::finished(bool accepted)
+{
+    if (accepted) {
+        m_completion->setCaseSensitivity(
+                m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+        m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());
+    }
 
-    static CppToolsPlugin *m_instance;
-};
-
-} // namespace Internal
-} // namespace CppTools
-
-#endif // CPPTOOLS_H
+    delete m_page;
+    m_page = 0;
+}

@@ -13,12 +13,14 @@ HEADERS += cpptools_global.h \
     cppquickopenfilter.h \
     cppclassesfilter.h \
     searchsymbols.h \
-    cppfunctionsfilter.h
+    cppfunctionsfilter.h \
+    completionsettingspage.h
 SOURCES += cppquickopenfilter.cpp \
     cpptoolseditorsupport.cpp \
     cppclassesfilter.cpp \
     searchsymbols.cpp \
-    cppfunctionsfilter.cpp
+    cppfunctionsfilter.cpp \
+    completionsettingspage.cpp
 
 # Input
 SOURCES += cpptoolsplugin.cpp \
@@ -33,3 +35,4 @@ HEADERS += cpptoolsplugin.h \
     cpptoolseditorsupport.h \
     cpptoolsconstants.h
 RESOURCES += cpptools.qrc
+FORMS += completionsettingspage.ui

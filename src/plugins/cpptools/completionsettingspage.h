@@ -31,59 +31,38 @@
 **
 ***************************************************************************/
 
-#ifndef CPPTOOLS_H
-#define CPPTOOLS_H
+#ifndef COMPLETIONSETTINGSPAGE_H
+#define COMPLETIONSETTINGSPAGE_H
 
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QDir;
+class Ui_CompletionSettingsPage;
 QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-}
 
 namespace CppTools {
 namespace Internal {
 
 class CppCodeCompletion;
-class CppModelManager;
 
-class CppToolsPlugin : public ExtensionSystem::IPlugin
+class CompletionSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    static CppToolsPlugin *instance() { return m_instance; }
+    CompletionSettingsPage(CppCodeCompletion *completion);
 
-    CppToolsPlugin();
-    ~CppToolsPlugin();
+    QString name() const;
+    QString category() const;
+    QString trCategory() const;
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
-    void shutdown();
-    CppModelManager *cppModelManager() { return m_modelManager; }
-    QString correspondingHeaderOrSource(const QString &fileName) const;
-
-private slots:
-    void switchHeaderSource();
+    QWidget *createPage(QWidget *parent);
+    void finished(bool accepted);
 
 private:
-    QString correspondingHeaderOrSourceI(const QString &fileName) const;
-    QFileInfo findFile(const QDir &dir, const QString &name, const ProjectExplorer::Project *project) const;
-
-    Core::ICore *m_core;
-    int m_context;
-    CppModelManager *m_modelManager;
     CppCodeCompletion *m_completion;
-
-    static CppToolsPlugin *m_instance;
+    Ui_CompletionSettingsPage *m_page;
 };
 
 } // namespace Internal
 } // namespace CppTools
 
-#endif // CPPTOOLS_H
+#endif // COMPLETIONSETTINGSPAGE_H

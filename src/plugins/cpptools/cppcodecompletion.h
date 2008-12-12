@@ -78,6 +78,12 @@ public:
 
     QIcon iconForSymbol(CPlusPlus::Symbol *symbol) const;
 
+    Qt::CaseSensitivity caseSensitivity() const;
+    void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
+
+    bool autoInsertBraces() const;
+    void setAutoInsertBraces(bool autoInsertBraces);
+
 private:
     void addKeywords();
     void addMacros(const CPlusPlus::LookupContext &context);
@@ -126,6 +132,8 @@ private:
 
     Core::ICore *m_core;
     CppModelManager *m_manager;
+    Qt::CaseSensitivity m_caseSensitivity;
+    bool m_autoInsertBraces;
 
     bool m_forcedCompletion;
 

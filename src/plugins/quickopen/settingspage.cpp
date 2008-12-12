@@ -40,8 +40,6 @@
 #include <qtconcurrent/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMessageBox>
-
 Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*)
 
 using namespace QuickOpen;
