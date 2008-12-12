@@ -48,3 +48,13 @@ QKeySequence INavigationWidgetFactory::activationSequence()
     return QKeySequence();
 }
 
+
+void INavigationWidgetFactory::saveSettings(int position, QWidget *widget)
+{
+
+}
+
+void INavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
+{
+
+}

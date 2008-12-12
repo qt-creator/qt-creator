@@ -87,26 +87,25 @@ public:
     IQuickOpenFilter(QObject *parent = 0);
     virtual ~IQuickOpenFilter() {}
 
-    /* visible name */
+    /* Visible name. */
     virtual QString trName() const = 0;
 
-    /* internal name */
+    /* Internal name. */
     virtual QString name() const = 0;
 
-    /* selection list order in case of multiple active filters (high goes on top) */
+    /* Selection list order in case of multiple active filters (high goes on top). */
     virtual Priority priority() const = 0;
 
-    /* string to type to use this filter exclusively */
-    virtual QString shortcutString() const;
-    void setShortcutString(const QString &shortcut);
+    /* String to type to use this filter exclusively. */
+    QString shortcutString() const;
 
-    /* list of matches for the given user entry */
+    /* List of matches for the given user entry. */
     virtual QList<FilterEntry> matchesFor(const QString &entry) = 0;
 
-    /* user has selected the given entry that belongs to this filter */
+    /* User has selected the given entry that belongs to this filter. */
     virtual void accept(FilterEntry selection) const = 0;
 
-    /* implement to update caches on user request, if that's a long operation */
+    /* Implement to update caches on user request, if that's a long operation. */
     virtual void refresh(QFutureInterface<void> &future) = 0;
 
     /* Saved state is used to restore the filter at start up. */
@@ -126,9 +125,11 @@ public:
      * implementation returns true. */
     virtual bool isConfigurable() const;
 
-    /* is this filter used also when the shortcutString is not used? */
-    virtual bool defaultActiveState() const;
-    void setIncludedByDefault(bool includedByDefault);
+    /* Is this filter used also when the shortcutString is not used? */
+    bool isIncludedByDefault() const;
+
+    /* Returns whether the filter should be hidden from configuration and menus. */
+    bool isHidden() const;
 
     static QString trimWildcards(const QString &str) {
         if (str.isEmpty())
@@ -143,9 +144,15 @@ public:
         return str.mid(first, last-first+1);
     }
 
+protected:
+    void setShortcutString(const QString &shortcut);
+    void setIncludedByDefault(bool includedByDefault);
+    void setHidden(bool hidden);
+
 private:
     QString m_shortcut;
-    bool m_default;
+    bool m_includedByDefault;
+    bool m_hidden;
 };
 
 } // namespace QuickOpen

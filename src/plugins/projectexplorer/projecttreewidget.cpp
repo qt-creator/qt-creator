@@ -42,6 +42,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
@@ -156,7 +157,20 @@ ProjectTreeWidget::ProjectTreeWidget(Core::ICore *core, QWidget *parent)
     connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
 
-    setAutoSynchronization(true);
+    m_toggleSync = new QToolButton;
+    m_toggleSync->setProperty("type", "dockbutton");
+    m_toggleSync->setIcon(QIcon(":/qworkbench/images/linkicon.png"));
+    m_toggleSync->setCheckable(true);
+    m_toggleSync->setChecked(autoSynchronization());
+    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
+
+    //setAutoSynchronization(true);
+}
+
+QToolButton *ProjectTreeWidget::toggleSync()
+{
+    return m_toggleSync;
 }
 
 void ProjectTreeWidget::toggleAutoSynchronization()
@@ -171,6 +185,7 @@ bool ProjectTreeWidget::autoSynchronization() const
 
 void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
 {
+    m_toggleSync->setChecked(sync);
     if (sync == m_autoSync)
         return;
 
@@ -296,6 +311,17 @@ void ProjectTreeWidget::setGeneratedFilesFilter(bool filter)
     m_filterGeneratedFilesAction->setChecked(filter);
 }
 
+bool ProjectTreeWidget::generatedFilesFilter()
+{
+    return m_model->generatedFilesFilterEnabled();
+}
+
+bool ProjectTreeWidget::projectFilter()
+{
+    return m_model->projectFilterEnabled();
+}
+
+
 ProjectTreeWidgetFactory::ProjectTreeWidgetFactory(Core::ICore *core)
     : m_core(core)
 {
@@ -331,15 +357,24 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
     filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
     filter->setMenu(filterMenu);
 
-    QToolButton *toggleSync = new QToolButton;
-    toggleSync->setProperty("type", "dockbutton");
-    toggleSync->setIcon(QIcon(":/qworkbench/images/linkicon.png"));
-    toggleSync->setCheckable(true);
-    toggleSync->setChecked(ptw->autoSynchronization());
-    toggleSync->setToolTip(tr("Synchronize with Editor"));
-    connect(toggleSync, SIGNAL(clicked(bool)), ptw, SLOT(toggleAutoSynchronization()));
-
-    n.doockToolBarWidgets << filter << toggleSync;
+    n.doockToolBarWidgets << filter << ptw->toggleSync();
     return n;
 }
 
+void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
+{
+    ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
+    Q_ASSERT(ptw);
+    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", ptw->projectFilter());
+    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", ptw->generatedFilesFilter());
+    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", ptw->autoSynchronization());
+}
+
+void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
+{
+    ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
+    Q_ASSERT(ptw);
+    ptw->setProjectFilter(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", false).toBool());
+    ptw->setGeneratedFilesFilter(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", true).toBool());
+    ptw->setAutoSynchronization(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", true).toBool());
+}

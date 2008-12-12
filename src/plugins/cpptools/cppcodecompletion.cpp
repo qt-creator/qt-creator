@@ -966,8 +966,10 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             if (Function *function = symbol->type()->asFunction()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
-                if (!function->returnType().isValid()
-                    && (function->identity() && !function->identity()->isDestructorNameId())) {
+                const bool hasReturnType = function->returnType().isValid()  ||
+                                           function->returnType().isSigned() ||
+                                           function->returnType().isUnsigned();
+                if (! hasReturnType && (function->identity() && !function->identity()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
                 } else if (function->templateParameterCount() != 0) {

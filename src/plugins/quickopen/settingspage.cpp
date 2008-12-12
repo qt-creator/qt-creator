@@ -121,8 +121,11 @@ void SettingsPage::updateFilterList()
 {
     m_ui.filterList->clear();
     foreach (IQuickOpenFilter *filter, m_filters) {
+        if (filter->isHidden())
+            continue;
+
         QString title;
-        if (filter->defaultActiveState())
+        if (filter->isIncludedByDefault())
             title = filter->trName();
         else
             title = tr("%1 (Prefix: %2)").arg(filter->trName()).arg(filter->shortcutString());

@@ -62,7 +62,7 @@ QByteArray DirectoryFilter::saveState() const
     out << m_directories;
     out << m_filters;
     out << shortcutString();
-    out << defaultActiveState();
+    out << isIncludedByDefault();
     out << m_files;
     return value;
 }
@@ -120,7 +120,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.directoryList->addItems(m_directories);
     m_ui.fileTypeEdit->setText(m_filters.join(tr(",")));
     m_ui.shortcutEdit->setText(shortcutString());
-    m_ui.defaultFlag->setChecked(!defaultActiveState());
+    m_ui.defaultFlag->setChecked(!isIncludedByDefault());
     updateOptionButtons();
     if (dialog.exec() == QDialog::Accepted) {
         QMutexLocker locker(&m_lock);

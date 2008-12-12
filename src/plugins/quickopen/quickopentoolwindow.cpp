@@ -314,7 +314,7 @@ void QuickOpenToolWindow::updateFilterList()
 {
     m_filterMenu->clear();
     foreach (IQuickOpenFilter *filter, m_quickOpenPlugin->filter()) {
-        if (!filter->shortcutString().isEmpty()) {
+        if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
             QAction *action = m_filterMenu->addAction(filter->trName(), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
         }
@@ -396,7 +396,7 @@ QList<IQuickOpenFilter*> QuickOpenToolWindow::filtersFor(const QString &text, QS
     searchText = text;
     QList<IQuickOpenFilter*> activeFilters;
     foreach (IQuickOpenFilter *filter, filters)
-        if (filter->defaultActiveState())
+        if (filter->isIncludedByDefault())
             activeFilters << filter;
     return activeFilters;
 }

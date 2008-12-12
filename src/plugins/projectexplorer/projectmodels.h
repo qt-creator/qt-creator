@@ -136,6 +136,9 @@ public:
     ProjectExplorer::Node *nodeForIndex(const QModelIndex &index) const;
     QModelIndex indexForNode(const Node *node);
 
+    bool projectFilterEnabled();
+    bool generatedFilesFilterEnabled();
+
 public slots:
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
