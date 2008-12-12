@@ -50,7 +50,7 @@
        \o \l{Creating a Project in Qt Creator}
        \o \l{Build Settings}
        \o \l{Writing a Simple Program with Qt Creator}
-       \o \l{Navigating Quickly Around Your Code}
+       \o \l{Navigating Quickly Around Your Code with Locator}
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
@@ -168,17 +168,19 @@
     Qt Creator is fully integrated with Qt Designer to help you design user
     interface forms just like you would with the standalone version. The Qt
     Designer integration also includes project management and code completion.
+    For more information on Qt Designer, you can refer to
+    \l{The Designer Manual}.
 
     \image qtcreator-formedit.png
 
 
     \section1 Keyboard Navigation
    
-    Even though Qt Creator can be used with a mouse, it also caters to the
-    needs of developers who are more comfortable with the keyboard. A wide
-    range of \l{keyboard-shortcuts}{keyboard} and \l{Quick Navigation}
-    {navigation} shortcuts are available to help speed up the process of
-    developing your application.
+    Qt Creator caters not only to developers who are used to using the mouse,
+    but also to developers who are more comfortable with the keyboard. A wide
+    range of \l{keyboard-shortcuts}{keyboard} and
+    \l{Navigating Quickly Around Your Code with Locator}{navigation} shortcuts
+    are available to help speed up the process of developing your application.
 */
 
 /*!
@@ -191,19 +193,19 @@
 
     \table
         \row
-            \i \bold{Warning:} Qt Creator currently supports qmake only.
-               Makefile and CMake support is not yet available.
+            \i \note Qt Creator currently supports \c qmake only. \c Makefile
+               and \c CMake support is currently unavailable.
     \endtable
 
-    To modify the build settings of your project, switch to the
-    \gui{Build & Run} mode using the mouse or by pressing \key{Ctrl+4}.
+    To modify the build settings of your project, switch to the \gui{Projects}
+    mode using the mouse or with \key{Ctrl+4}.
 
     \image qtcreator-buildsettings.png
 
     Action items to create, clone, or delete build configurations can be found
-    on the right of the dialog. You can have as many build configurations
-    as you need. By default Qt Creator creates a \bold{debug} and
-    \bold{release} build configuration. Both these configurations use the
+    on the right of the dialog. You can have as many build configurations as
+    needed. By default Qt Creator creates a \bold{debug} and \bold{release}
+    build configuration. Both these configurations use the
     \l{glossary-default-qt}{Default Qt Version}.
 
     In the tree on the left, a list of build configurations and their settings
@@ -319,7 +321,7 @@
 
         Lastly, specify the name of the class you would like to create. The
         \e{Header file}, \e{Source file} and \e{Form file} fields will update
-        themselves according to your choice of class name.
+        automatically according to your choice of class name.
 
         You also have to select the base class for your class, either a
         QWidget, QDialog or QMainWindow,  from the drop down box. Click
@@ -522,13 +524,18 @@
     \page creator-navigation.html
     \nextpage creator-debugging.html
 
-    \title Navigating Quickly Around Your Code
+    \title Navigating Quickly Around Your Code with Locator
 
     With Qt Creator, navigating to different locations in your project or on
-    your disk, such as files, classes and methods, is trivial using the input
-    field at the bottom left of the application window.
+    your disk -- such as files, classes and methods -- is trivial using
+    \gui Locator: a smart line edit at the bottom left of the application
+    window.
 
     ### SCREENSHOT
+
+    Suppose you would like to open your project's \c{main.cpp} file, click on
+    on the input field 
+
 
     To open for example the file \c{main.cpp} of your project, click into the
     input field (or use \key{Ctrl+K} to get there), type the file name, and
@@ -734,11 +741,9 @@
     To finish debugging, Press \key{Shift+F5}. A line of code can be executed
     as a whole with \key F10; to execute a function or a sub-function, use
     \key F11. Alternatively, you can continue running the program with \key F5.
-
-    ###REWORD    
-    There is also the possibility to continue execution until the current
-    function finishes, or, for advanced use, to jump to an arbitrary 
-    possition in the current function.
+    It is possible to continue executing your program until the current
+    function completes or jump to an arbitrary position in the current
+    function.
 
 
     \section2 Stack
@@ -828,30 +833,25 @@
     \section2 Modules
 
     By default, the \gui Modules view is hidden as it is only useful with the
-    experimental delayed debug information loading feature. You can turn this
-    feature on by selecting \gui{Fast Debugger Start} 
+    experimental delayed loaing of debug information feature. You can turn
+    this feature on by selecting \gui{Fast Debugger Start} 
 
 
+    With this feature, debug information from the Qt library itself is not
+    loaded when the application starts up, thereby reducing the startup times
+    for some applications. You can then use the \gui Modules view to manually
+    load this information, if required.
 
-    The \gui Modules view is hidden by default and only useful in
-    connection with the experimental feature of delayed debug 
-    information loading. This feature is accessible by selecting
-    \gui{Debug} and \gui{Fast Debugger Start}. When using the
-    feature, debug information coming from the Qt library itself
-    are not loaded on application startup, thereby reducing the
-    startup times for some applications.  The \gui{Modules View}
-    can then be used to load this information manually if needed.
-    Note that the debugger may fail to set some breakpoints in
-    this scenarios.
+    \note In this scenario, some breakpoints may not be set by the debugger.
+
         
     \section2 Disassembler View and Registers View
 
-    Both the \gui{Disassembler View} and \gui{Registers View} are hidden
-    by default. The former shows the disassembled code of the current
-    function, the latter the current state of the CPU registers.
-    Both views are mainly useful in connection with the low-level
-    \gui{Step single instruction} and \gui{Step over single instruction}
-    commands.
+    By default, both the \gui Disassembler and \gui Registers view are hidden.
+    The \gui Disassembler view displays disassembled code for the current
+    function; the \gui Registers view displays the current state of the CPU's
+    registers. Both views are useful for low-level commands such as
+    \gui{Step Single Instruction} and \gui{Step Over Single Instruction}.
 
 
     \section1 A Walkthrough for the Debugger Frontend
