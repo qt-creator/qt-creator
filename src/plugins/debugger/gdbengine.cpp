@@ -2941,6 +2941,8 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
         }
         if (tmplate == "std::list")
             return true;
+        if (tmplate == "std::map")
+            return true;
         if (tmplate == "std::vector" && inner != "bool")
             return true;
         if (tmplate == "std::basic_string") {
@@ -2962,6 +2964,8 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
     QStringList inners = inner.split('@');
     if (inners.at(0).isEmpty())
         inners.clear();
+    for (int i = 0; i != inners.size(); ++i)
+        inners[i] = inners[i].simplified();
 
     QString outertype = isTemplate ? tmplate : data.type;
 
@@ -3015,6 +3019,12 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
             //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
+    } else if (outertype == "std::map") {
+        // We don't want the comparator and the allocator confuse gdb.
+        // But we need the offset of the second item in the value pair.
+        extraArgs[2] = "(size_t)&(('std::pair<const " + inners.at(0)
+            + "," + inners.at(1) + ">'*)0)->second";
+        extraArgs[3] = "0";
     } else if (outertype == "std::basic_string") {
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
         if (inners.at(0) == "char") {
@@ -3063,6 +3073,8 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             + ',' + extraArgs[1]
             + ',' + extraArgs[2]
             + ',' + extraArgs[3] + ')';
+
+    //qDebug() << "CMD: " << cmd;
 
     sendSynchronizedCommand(cmd, WatchDumpCustomValue1, QVariant::fromValue(data));
 

@@ -43,7 +43,9 @@
 using namespace QuickOpen;
 
 IQuickOpenFilter::IQuickOpenFilter(QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_includedByDefault(false),
+    m_hidden(false)
 {
 }
 
@@ -62,7 +64,7 @@ QByteArray IQuickOpenFilter::saveState() const
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
     out << shortcutString();
-    out << defaultActiveState();
+    out << isIncludedByDefault();
     return value;
 }
 
@@ -91,7 +93,7 @@ bool IQuickOpenFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     QHBoxLayout *hlayout = new QHBoxLayout;
     QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
     QCheckBox *limitCheck = new QCheckBox(tr("Limit to prefix"));
-    limitCheck->setChecked(!defaultActiveState());
+    limitCheck->setChecked(!isIncludedByDefault());
 
     hlayout->addWidget(new QLabel(tr("Prefix:")));
     hlayout->addWidget(shortcutEdit);
@@ -120,12 +122,22 @@ bool IQuickOpenFilter::isConfigurable() const
     return true;
 }
 
-bool IQuickOpenFilter::defaultActiveState() const
+bool IQuickOpenFilter::isIncludedByDefault() const
 {
-    return m_default;
+    return m_includedByDefault;
 }
 
 void IQuickOpenFilter::setIncludedByDefault(bool includedByDefault)
 {
-    m_default = includedByDefault;
+    m_includedByDefault = includedByDefault;
+}
+
+bool IQuickOpenFilter::isHidden() const
+{
+    return m_hidden;
+}
+
+void IQuickOpenFilter::setHidden(bool hidden)
+{
+    m_hidden = hidden;
 }

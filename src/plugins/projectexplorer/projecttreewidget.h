@@ -60,6 +60,9 @@ public:
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync, bool syncNow = true);
+    bool projectFilter();
+    bool generatedFilesFilter();
+    QToolButton *toggleSync();
 
 public slots:
     void toggleAutoSynchronization();
@@ -84,6 +87,7 @@ private:
     FlatModel *m_model;
     QAction *m_filterProjectsAction;
     QAction *m_filterGeneratedFilesAction;
+    QToolButton *m_toggleSync;
 
     QModelIndex m_subIndex;
     QString m_modelId;
@@ -100,6 +104,8 @@ public:
     virtual QString displayName();
     virtual QKeySequence activationSequence();
     virtual Core::NavigationView createWidget();
+    void restoreSettings(int position, QWidget *widget);
+    void saveSettings(int position, QWidget *widget);
 private:
     Core::ICore *m_core;
 };

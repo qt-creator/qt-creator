@@ -481,3 +481,16 @@ void FindToolBar::openFind()
     m_currentDocumentFind->highlightAll(getFindText(), m_plugin->findFlags());
     selectFindText();
 }
+
+
+bool FindToolBar::focusNextPrevChild(bool next)
+{
+    // close tab order change
+    if (next && m_ui.replaceAllButton->hasFocus())
+        m_ui.findEdit->setFocus(Qt::TabFocusReason);
+    else if (!next && m_ui.findEdit->hasFocus())
+        m_ui.replaceAllButton->setFocus(Qt::TabFocusReason);
+    else
+        return QToolBar::focusNextPrevChild(next);
+    return true;
+}

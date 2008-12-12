@@ -84,7 +84,7 @@ public:
     ~NavigationWidget();
 
     void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void restoreSettings(QSettings *settings);
 
     bool isShown() const;
     void setShown(bool b);
@@ -132,6 +132,9 @@ public:
     void setFactory(INavigationWidgetFactory *factory);
     void setFactory(const QString &name);
     void setFocusWidget();
+
+    void saveSettings(int position);
+    void restoreSettings(int position);
 
     Core::ICommand *command(const QString &title) const;
 

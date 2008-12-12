@@ -997,7 +997,7 @@ void MainWindow::readSettings()
 
     m_settings->endGroup();
     m_editorManager->readSettings(m_settings);
-    m_navigationWidget->readSettings(m_settings);
+    m_navigationWidget->restoreSettings(m_settings);
     m_rightPaneWidget->readSettings(m_settings);
 }
 

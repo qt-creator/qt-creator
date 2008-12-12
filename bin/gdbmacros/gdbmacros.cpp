@@ -123,13 +123,12 @@ int qtGhVersion = QT_VERSION;
 #endif
 
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 
 #include <ctype.h>
 #include <stdio.h>
-
-//#include <sys/types.h>
 
 #ifdef Q_OS_WIN
 #   include <windows.h>
@@ -172,9 +171,6 @@ public:
 
     // id of the thread that owns the object
     QThreadData *threadData;
-    void moveToThread_helper();
-    void setThreadData_helper(QThreadData *currentData, QThreadData *targetData);
-    void _q_reregisterTimers(void *pointer);
 
     struct Sender
     {
@@ -188,20 +184,12 @@ public:
 
     QList<QPointer<QObject> > eventFilters;
 
-    struct ExtraData
-    {
-#ifndef QT_NO_USERDATA
-        QVector<QObjectUserData *> userData;
-#endif
-        QList<QByteArray> propertyNames;
-        QList<QVariant> propertyValues;
-    };
+    struct ExtraData;
     ExtraData *extraData;
     mutable quint32 connectedSignals;
 
     QString objectName;
 
-    // Note: you must hold the signalSlotLock() before accessing the lists below or calling the functions
     struct Connection
     {
         QObject *receiver;
@@ -214,8 +202,6 @@ public:
     QObjectConnectionListVector *connectionLists;
     QList<Sender> senders;
     int *deleteWatch;
-
-    static QObjectPrivate *get(QObject *o) { return o->d_func(); }
 };
 
 #if defined(QT_BEGIN_NAMESPACE)
@@ -291,7 +277,7 @@ static bool startsWith(const char *s, const char *t)
 #define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
 #define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
 // provoke segfault unconditionally
-#define qCheck(b) do { if (!b) qProvokeSegFaultHelper = *(char*)0; } while (0)
+#define qCheck(b) do { if (!(b)) qProvokeSegFaultHelper = *(char*)0; } while (0)
 
 const char *stripNamespace(const char *type)
 {
@@ -2146,6 +2132,61 @@ static void qDumpStdList(QDumper &d)
     d.disarm();
 }
 
+static void qDumpStdMap(QDumper &d)
+{
+    typedef std::map<int, int> DummyType;
+    const DummyType &map = *reinterpret_cast<const DummyType*>(d.data);
+    const char *keyType   = d.templateParameters[0];
+    const char *valueType = d.templateParameters[1];
+    const void *p = d.data;
+    qCheckAccess(p);
+    p = deref(p);
+
+    int nn = map.size();
+    qCheck(nn >= 0);
+    DummyType::const_iterator it = map.begin();
+    for (int i = 0; i < nn && i < 10 && it != map.end(); ++i, ++it)
+        qCheckAccess(it.operator->());
+
+    QByteArray strippedInnerType = stripPointerType(d.innertype);
+    P(d, "numchild", nn);
+    P(d, "value", "<" << nn << " items>");
+    P(d, "valuedisabled", "true");
+    P(d, "valueoffset", d.extraInt[2]);
+
+    if (d.dumpChildren) {
+        bool simpleKey = isSimpleType(keyType);
+        bool simpleValue = isShortKey(valueType);
+        int valueOffset = d.extraInt[2];
+
+        d << ",children=[";
+        it = map.begin();
+        for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
+            const void *node = it.operator->();
+            if (simpleKey) {
+                d.beginHash();
+                P(d, "type", valueType);
+                qDumpInnerValueHelper(d, keyType, node, "name");
+                P(d, "nameisindex", "1");
+                if (simpleValue)
+                    qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                P(d, "addr", addOffset(node, valueOffset));
+                d.endHash();
+            } else {
+                d.beginHash();
+                P(d, "name", "[" << i << "]");
+                P(d, "addr", it.operator->());
+                P(d, "type", "std::pair<const " << keyType << "," << valueType << " >");
+                d.endHash();
+            }
+        }
+        if (it != map.end())
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
@@ -2356,9 +2397,9 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdVectorBool(d);
             else if (isEqual(type, "std::list"))
                 qDumpStdList(d);
-            else if (isEqual(type, "string"))
-                qDumpStdString(d);
-            else if (isEqual(type, "std::string"))
+            else if (isEqual(type, "std::map"))
+                qDumpStdMap(d);
+            else if (isEqual(type, "std::string") || isEqual(type, "string"))
                 qDumpStdString(d);
             else if (isEqual(type, "std::wstring"))
                 qDumpStdWString(d);
@@ -2383,34 +2424,7 @@ void qDumpObjectData440(
     int extraInt2,
     int extraInt3)
 {
-    if (protocolVersion == -2) {
-        // close socket
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        d.flush();
-        d.disarm();
-    }
-
-    else if (protocolVersion == -1) {
-        // finalize Startup
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        d.disarm();
-    }
-
-    else if (protocolVersion == 0) {
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        // used to test whether error output gets through
-        //fprintf(stderr, "using stderr, qDebug follows: %d\n", token);
-        //qDebug() << "using qDebug, stderr already used: " << token;
-        d.disarm();
-    }
-
-    else if (protocolVersion == 1) {
+    if (protocolVersion == 1) {
         QDumper d;
         d.protocolVersion = protocolVersion;
         d.token           = token;

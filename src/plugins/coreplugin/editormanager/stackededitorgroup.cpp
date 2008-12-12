@@ -157,6 +157,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
         hbox->addWidget(closeButton);
 
 
+        m_infoWidget->setVisible(false);
         tl->addWidget(m_infoWidget);
     }
     tl->addWidget(m_container);
@@ -166,8 +167,6 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
     l->setMargin(0);
     l->addWidget(m_toplevel);
     setLayout(l);
-
-    m_toplevel->setVisible(false);
 }
 
 void StackedEditorGroup::showEditorInfoBar(const QString &kind,
@@ -226,12 +225,11 @@ void StackedEditorGroup::insertEditor(int index, IEditor *editor)
     m_widgetEditorMap.insert(editor->widget(), editor);
 
     QToolBar *toolBar = editor->toolBar();
-    if (toolBar)
+    if (toolBar) {
+        toolBar->setVisible(false); // will be made visible in setCurrentEditor
         m_toolBar->layout()->addWidget(toolBar);
-    connect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-
-    updateEditorStatus(editor);
-    updateToolBar(editor);
+    }
+    connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
     emit editorAdded(editor);
 }
@@ -261,10 +259,6 @@ void StackedEditorGroup::removeEditor(IEditor *editor)
             toolBar->setVisible(false);
             toolBar->setParent(0);
         }
-        if (m_container->count() == 0) {
-            m_toplevel->setVisible(false);
-            setFocus();
-        }
         emit editorRemoved(editor);
     }
 }
@@ -281,7 +275,6 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
         return;
-    m_toplevel->setVisible(true);
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     if (m_container->currentIndex() != idx) {
@@ -290,23 +283,26 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
         const bool block = m_editorList->blockSignals(true);
         m_editorList->setCurrentIndex(indexOf(editor));
         m_editorList->blockSignals(block);
-
-        updateEditorStatus(editor);
-        updateToolBar(editor);
     }
     setEditorFocus(idx);
+
+    updateEditorStatus(editor);
+    updateToolBar(editor);
     if (editor != m_editorForInfoWidget) {
         m_infoWidget->hide();
         m_editorForInfoWidget = 0;
     }
 }
 
+void StackedEditorGroup::checkEditorStatus()
+{
+        IEditor *editor = qobject_cast<IEditor *>(sender());
+        if (editor == currentEditor())
+            updateEditorStatus(editor);
+}
+
 void StackedEditorGroup::updateEditorStatus(IEditor *editor)
 {
-    if (!editor)
-        editor = qobject_cast<IEditor *>(sender());
-    QTC_ASSERT(editor, return);
-
     static const QIcon lockedIcon(QLatin1String(":/qworkbench/images/locked.png"));
     static const QIcon unlockedIcon(QLatin1String(":/qworkbench/images/unlocked.png"));
 
@@ -331,8 +327,8 @@ void StackedEditorGroup::updateToolBar(IEditor *editor)
         toolBar = m_defaultToolBar;
     if (m_activeToolBar == toolBar)
         return;
-    m_activeToolBar->setVisible(false);
     toolBar->setVisible(true);
+    m_activeToolBar->setVisible(false);
     m_activeToolBar = toolBar;
 }
 

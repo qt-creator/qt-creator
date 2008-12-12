@@ -177,14 +177,14 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 break;
             }
         }
-    }
 
-    if (m_toolTip.isEmpty()) {
-        unsigned lineno = tc.blockNumber() + 1;
-        foreach (const Document::Include &incl, doc->includes()) {
-            if (lineno == incl.line()) {
-                m_toolTip = incl.fileName();
-                break;
+        if (m_toolTip.isEmpty()) {
+            unsigned lineno = tc.blockNumber() + 1;
+            foreach (const Document::Include &incl, doc->includes()) {
+                if (lineno == incl.line()) {
+                    m_toolTip = incl.fileName();
+                    break;
+                }
             }
         }
     }

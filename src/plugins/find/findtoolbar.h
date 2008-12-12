@@ -79,6 +79,9 @@ private slots:
     void updateActions();
     void findFlagsChanged();
 
+protected:
+    bool focusNextPrevChild(bool next);
+
 private:
     bool setFocusToCurrentFindSupport();
 

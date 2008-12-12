@@ -80,6 +80,7 @@ protected:
 private slots:
     void sendCloseRequest();
     void updateEditorStatus(Core::IEditor *editor = 0);
+    void checkEditorStatus();
     void setEditorFocus(int index);
     void makeEditorWritable();
     void listSelectionChanged(int index);
