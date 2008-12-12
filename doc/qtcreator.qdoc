@@ -541,46 +541,57 @@
     criteria will be displayed. 
 
     \gui Locator not only allows you to navigate files on disk but also other
-    "locations", which are organized with \bold{Filters}.
+    "locations", which are organized with \bold{Filters}. Currently there are
+    filters for:
 
-    As mentioned above, files are not the only type of locations you can
-    jump to. The different types of locations are organized in what we
-    call \c{filters}. There are filters for jumping to
     \list
-        \o files mentioned in your \c{.pro} files, such as source and header,
-           resource and \c{.ui} files,
-        \o a specific line in your current text document,
-        \o class and method definitions in your project or anywhere referenced
-           from your project,
-        \o help topics, including the Qt API reference documentation,
-        \o files anywhere on your hard disk (by browsing through the file system),
-        \o any open document,
-        \o files from a subdirectory structure you define.
+        \o  files anywhere on your hard disk (browsing through the file system),
+        \o  files from a subdirectory structure defined by you,
+        \o  files mentioned in your \c{.pro} files, such as source, header,
+            resource, and \c{.ui} files,
+        \o  any open document,
+        \o  class and method definitions in your project or anywhere referenced
+            from your project,
+        \o  help topics, including Qt's documentation, and,
+        \o  a specific line in the document displayed on your editor,
     \endlist
-    Some of these filters are not used by default if you just start typing in the
-    input field, but require you to type a "prefix" in front, that is
-    assigned to that filter. The prefix is usually a single character,
-    followed by a space. As an example, to jump to the definition of the class
-    \c{QDataStream} type \key{Ctrl+K}, \key{:}, \key{Space}, and the class name.
-    You find a full list of filters and their prefixes below.
+
+
+    Some of these filters require you to activate them by typing an assigned
+    \e prefix. This prefix is usually a single character followed by
+    \key{Space}. For example, to jump to the definition of the class
+    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream}, type:
+    \key{Ctrl+K} to activate \gui Locator. Then type colon (\key{:}) followed
+    by \key{Space} and the class name.
+
+
+    Below is a full list of \l{http://doc.trolltech.com/qdatastream.html}
+    {QDataStream} related output:
 
     \image qtcreator-navigate-popup.png
 
-    You can add filters that provide quick navigation to files in a
-    subdirectory structure that you define. This way you have quick access to
-    files that are not directly mentioned in your project, but still relate to it.
-    Click on the little magnifier glass in the input field and choose
-    \gui{Configure...} from the menu that appears. This opens the preferences
-    dialog for navigation filters. Click the \gui{Add} button to create a new
-    filter.  Give it a name, choose directories, set (a comma separated list of)
-    file patterns, and give it a prefix string. After closing the preferences
-    dialog the directories you specified are searched for files that match the
-    file patterns, and the information is cached. From now on you can jump to
-    these files by just typing part of the file name into the navigation input
-    field. You can force an update of the cached information about the files via
-    the \gui{Refresh} menu item in the magnifier menu.
+
+    Filters can be added to provide quick navigation around files in a
+    subdirectory structure defined by you. This way, you can acccess files you
+    need, that are not directly mentioned in your project. Click on 
+    \image qtcreator-locator-magnify.png
+     and choose \gui{Configure...} from the menu displayed.
+
+    \image qtcreator-locator-customize.png
+
+    This then displays the \gui Preferences dialog (\gui Options on Mac Os X)
+    for navigation filters. Click \gui Add to create a new filter. In the
+    \gui{Filter Configuration} dialog below, give your filter a name, select
+    your preferred directories, set file patterns with a comma separated list,
+    and specify a prefix string.
 
     \image qtcreator-navigate-customfilter.png
+
+    After closing this dialog, \gui Locator will search the directories you
+    selected for files matching your file patterns, and the information will be
+    cached. Click \gui Refresh from the menu above to update the cached
+    information.
+
 
     The following table lists the filters currently available:
 
@@ -601,7 +612,7 @@
             \o Go to an Already Opened Document
             \o Ctrl + K, o, Space, and the document name.
         \row
-            \o Go to a File in the File System (browsing the file system)
+            \o Go to a File in the File System (browse the file system)
             \o Ctrl + K, f, Space, and the file name.
         \row
             \o Go to a File in any Loaded Project
