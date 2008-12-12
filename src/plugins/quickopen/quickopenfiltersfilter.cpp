@@ -49,7 +49,7 @@ QuickOpenFiltersFilter::QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
     m_icon(QIcon(Core::Constants::ICON_NEXT))
 {
     setIncludedByDefault(true);
-    setShortcutString(QString());
+    setHidden(true);
 }
 
 QString QuickOpenFiltersFilter::trName() const
@@ -71,8 +71,8 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
-        foreach (IQuickOpenFilter* filter, m_plugin->filter()) {
-            if (!filter->shortcutString().isEmpty()) {
+        foreach (IQuickOpenFilter *filter, m_plugin->filter()) {
+            if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
                 FilterEntry entry(this,
                                   filter->shortcutString(),
                                   QVariant::fromValue(filter),
