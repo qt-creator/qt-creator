@@ -57,8 +57,6 @@ bool GdbMacrosBuildStep::init(const QString &buildConfiguration)
     m_buildDirectory = m_project->buildDirectory(buildConfiguration);
     m_qmake = m_project->qtVersion(buildConfiguration)->qmakeCommand();
     m_buildConfiguration = buildConfiguration;
-    qDebug()<<"m_buildDirectory "<<m_buildDirectory;
-    qDebug()<<"m_qmake "<<m_qmake;
     return true;
 }
 
@@ -81,7 +79,6 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         if (destination.exists())
             destination.remove();
         QFile::copy(dumperPath + file, destDir + file);
-        qDebug()<<"copying"<<(dumperPath + file)<<" to "<< (destDir + file);
     }
 
     Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
@@ -112,7 +109,6 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 
     } else {
         // Old style with CONFIG+=debug_and_release
-        qDebug() << "OLD STYLE CONF";
         configarguments << "CONFIG+=debug_and_release";
         const MakeStep *ms = qt4Project->makeStep();
         QStringList makeargs = ms->value(m_buildConfiguration, "makeargs").toStringList();
@@ -126,11 +122,10 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
     QString mkspec = qt4Project->qtVersion(m_buildConfiguration)->mkspec();
     qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
     qmake.waitForFinished();
-    qDebug()<<qmake.readAllStandardError()<<qmake.readAllStandardOutput();
+
 
     qmake.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), makeArguments);
     qmake.waitForFinished();
-    qDebug()<<qmake.readAllStandardError()<<qmake.readAllStandardOutput();
 
     fi.reportResult(true);
 }
