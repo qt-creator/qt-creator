@@ -1133,42 +1133,42 @@
     The development team is aware of those, there is no need to report them as bug.
 
     \list
-      \o The central editor sometimes loses it "changed" status marker.
+        \o  The central editor sometimes loses it "changed" status marker.
 
-      \o There is a kernel bug essentially making debugging unreliable
-         on 2.6.24 kernels for i386 (which is, unfortunately, the default
-         on Ubuntu 8.04).
-         See \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/}
-         for details.
-         The only solution for this problem is to boot another kernel.
+        \o  There is a kernel bug essentially making debugging unreliable on
+            2.6.24 kernels for i386 (which is, unfortunately, the default on
+            Ubuntu 8.04). See
+            \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/} for
+            details. The only solution to this problem is to boot another
+            kernel.
+        
+        \o  Gdb may take long to load debugging symbols, especially from large
+            libraries like \c libQtWebKit. Starting the debugging module can
+            take up to several minutes without visible progress.
 
-      \o gdb sometimes takes very long to load debugging symbol,
-         especially from big libraries like \c libQtWebKit. Starting debugging
-         can take up to several minutes without visible progress.
+        \o  Paths or file names containing spaces or special characters, e.g.,
+            colons, dollar signs, hash marks etc. may cause difficulties. This
+            is because some of the tools Qt Creator uses in the background have
+            restrictions on the characters allowed in file and directory names.
+            To be on the safe side, we recomment creating projects and project
+            items with names consisting of plain characters, numbers,
+            underscores, and hyphens.
 
-      \o Paths or file names containing spaces or special characters like colons,
-         dollar signs, hash marks etc. may create difficulties.
-         Some of the tools Qt Creator uses in the background to do the "real
-         work" have restrictions on the characters that are allowed in file
-         and directory names. To be on the safe side, it is strongly
-         recommended to create projects and project items only with names
-         consisting of plain characters, numbers, underscores, and hyphens.
+        \o  \c{.pro} files are reformatted if files have been added or removed.
+            Whitespace is not preserved.
 
-      \o \c .pro files are reformatted if files are added/removed.
-         Whitespace is not preserved.
+        \o  There is no IDE support for adding files to include (\c .pri) files.
 
-      \o No IDE support for adding files to include (\c .pri) files.
+        \o  There is no IDE support for adding/removing sub-projects. Project
+            hierarchies (SUBDIRS template) have to be created manually.
 
-      \o No IDE support for adding/removing sub-projects.
-         Project hierarchies (SUBDIRS template) have to be created by hand.
+        \o  The file system sidebar does not update automatically. As a
+            workaround, switch to another directory and then back.
 
-      \o The file system sidebar does not update automatically.
-         As a workaround you can switch to another directory and then back.
+        \o  The resource system of the embedded version of Qt Designer does not
+            interact with the project manager.
 
-      \o The resource system of the embedded version of Qt Designer
-         does not interact with the project management.
-
-      \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
+        \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
     \endlist
 */
 
