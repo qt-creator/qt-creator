@@ -131,6 +131,12 @@ class ProFileEvaluator::Private : public AbstractProItemVisitor
 public:
     Private(ProFileEvaluator *q_);
 
+    ProFileEvaluator *q;
+    int m_lineNo;                                   // Error reporting
+    bool m_verbose;
+
+    /////////////// Reading pro file
+
     bool read(ProFile *pro);
 
     ProBlock *currentBlock();
@@ -142,6 +148,17 @@ public:
     void enterScope(bool multiLine);
     void leaveScope();
     void finalizeBlock();
+
+    QStack<ProBlock *> m_blockstack;
+    ProBlock *m_block;
+
+    ProItem *m_commentItem;
+    QString m_proitem;
+    QString m_pendingComment;
+    bool m_syntaxError;
+    bool m_contNextLine;
+
+    /////////////// Evaluating pro file contents
 
     // implementation of AbstractProItemVisitor
     bool visitBeginProBlock(ProBlock *block);
@@ -180,21 +197,16 @@ public:
 
     QStringList qmakeFeaturePaths();
 
-    ProFileEvaluator *q;
-
-    QStack<ProBlock *> m_blockstack;
-    ProBlock *m_block;
-
-    ProItem *m_commentItem;
-    QString m_proitem;
-    QString m_pendingComment;
-    bool m_syntaxError;
-    bool m_contNextLine;
-    bool m_condition;
+    enum { ConditionTrue, ConditionFalse, ConditionElse };
+    int m_condition;
+    int m_prevCondition;
+    bool m_updateCondition;
     bool m_invertNext;
+    int m_skipLevel;
+    bool m_cumulative;
     QString m_lastVarName;
     ProVariable::VariableOperator m_variableOperator;
-    int m_lineNo;                                   // Error reporting
+    QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
 
@@ -202,12 +214,9 @@ public:
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
     QHash<QString, QString> m_properties;
     QString m_outputDir;
-    QString m_origfile;
 
     int m_prevLineNo;                               // Checking whether we're assigning the same TARGET
     ProFile *m_prevProFile;                         // See m_prevLineNo
-
-    bool m_verbose;
 };
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
@@ -221,6 +230,11 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_syntaxError = 0;
     m_lineNo = 0;
     m_contNextLine = false;
+    m_cumulative = true;
+    m_updateCondition = false;
+    m_condition = ConditionFalse;
+    m_invertNext = false;
+    m_skipLevel = 0;
 }
 
 bool ProFileEvaluator::Private::read(ProFile *pro)
@@ -512,15 +526,25 @@ void ProFileEvaluator::Private::updateItem()
 bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 {
     if (block->blockKind() == ProBlock::ScopeKind) {
-        m_invertNext = false;
-        m_condition = false;
+        m_updateCondition = true;
+        if (!m_skipLevel) {
+            m_prevCondition = m_condition;
+            m_condition = ConditionFalse;
+        }
+    } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
+        m_updateCondition = false;
+        if (m_condition != ConditionTrue)
+            ++m_skipLevel;
     }
     return true;
 }
 
 bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
 {
-    Q_UNUSED(block);
+    if (block->blockKind() & ProBlock::ScopeContentsKind) {
+        if (m_skipLevel)
+            --m_skipLevel;
+    }
     return true;
 }
 
@@ -546,12 +570,16 @@ bool ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
 
 bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
-    if (!m_condition) {
-        if (m_invertNext)
-            m_condition |= !isActiveConfig(cond->text(), true);
-        else
-            m_condition |= isActiveConfig(cond->text(), true);
+    if (!m_skipLevel) {
+        if (cond->text().toLower() == QLatin1String("else")) {
+            if (m_prevCondition == ConditionTrue)
+                m_condition = ConditionElse;
+        } else if (m_condition == ConditionFalse) {
+            if (isActiveConfig(cond->text(), true) ^ m_invertNext)
+                m_condition = ConditionTrue;
+        }
     }
+    m_invertNext = false;
     return true;
 }
 
@@ -574,10 +602,13 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
 
         const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
+            bool cumulative = m_cumulative;
+            m_cumulative = false;
             // This is what qmake does, everything set in the mkspec is also set
             // But this also creates a lot of problems
             evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
+            m_cumulative = cumulative;
         }
 
         QString fn = pro->fileName();
@@ -595,6 +626,9 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
         const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
+            bool cumulative = m_cumulative;
+            m_cumulative = false;
+
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"), &ok);
 
             QSet<QString> processed;
@@ -616,12 +650,32 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                 if (finished)
                     break;
             }
+
+            m_cumulative = cumulative;
         }
 
         m_profileStack.pop();
         ok = QDir::setCurrent(m_oldPath);
     }
     return ok;
+}
+
+static void replaceInList(QStringList *varlist,
+        const QRegExp &regexp, const QString &replace, bool global)
+{
+    for (QStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
+        if ((*varit).contains(regexp)) {
+            (*varit).replace(regexp, replace);
+            if ((*varit).isEmpty())
+                varit = varlist->erase(varit);
+            else
+                ++varit;
+            if(!global)
+                break;
+        } else {
+            ++varit;
+        }
+    }
 }
 
 bool ProFileEvaluator::Private::visitProValue(ProValue *value)
@@ -675,37 +729,53 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
     }
 
     switch (m_variableOperator) {
-        case ProVariable::UniqueAddOperator:    // *
-            insertUnique(&m_valuemap, varName, v, true);
-            insertUnique(&m_filevaluemap[currentProFile()], varName, v, true);
-            break;
         case ProVariable::SetOperator:          // =
-        case ProVariable::AddOperator:          // +
-            insertUnique(&m_valuemap, varName, v, false);
-            insertUnique(&m_filevaluemap[currentProFile()], varName, v, false);
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    m_valuemap[varName] = v;
+                    m_filevaluemap[currentProFile()][varName] = v;
+                }
+            } else {
+                // We are greedy for values.
+                m_valuemap[varName] += v;
+                m_filevaluemap[currentProFile()][varName] += v;
+            }
             break;
-        case ProVariable::RemoveOperator:       // -
-            // fix me: interaction between AddOperator and RemoveOperator
-            insertUnique(&m_valuemap, varName.prepend(QLatin1Char('-')), v, false);
-            insertUnique(&m_filevaluemap[currentProFile()],
-                         varName.prepend(QLatin1Char('-')), v, false);
+        case ProVariable::UniqueAddOperator:    // *=
+            if (!m_skipLevel || m_cumulative) {
+                insertUnique(&m_valuemap, varName, v);
+                insertUnique(&m_filevaluemap[currentProFile()], varName, v);
+            }
             break;
-        case ProVariable::ReplaceOperator:      // ~
+        case ProVariable::AddOperator:          // +=
+            if (!m_skipLevel || m_cumulative) {
+                m_valuemap[varName] += v;
+                m_filevaluemap[currentProFile()][varName] += v;
+            }
+            break;
+        case ProVariable::RemoveOperator:       // -=
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    removeEach(&m_valuemap, varName, v);
+                    removeEach(&m_filevaluemap[currentProFile()], varName, v);
+                }
+            } else {
+                // We are stingy with our values, too.
+            }
+            break;
+        case ProVariable::ReplaceOperator:      // ~=
             {
                 // DEFINES ~= s/a/b/?[gqi]
 
-/*              Create a superset by executing replacement + adding items that have changed
-                to original list. We're not sure if this is really the right approach, so for
-                the time being we will just do nothing ...
-
+                // FIXME: qmake variable-expands val first.
+                if (val.length() < 4 || val[0] != QLatin1Char('s')) {
+                    q->logMessage(format("the ~= operator can handle only the s/// function."));
+                    return false;
+                }
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
-                    q->logMessage(format("'~= operator '(function s///) expects 3 or 4 arguments."));
-                    return false;
-                }
-                if (func[0] != QLatin1String("s")) {
-                    q->logMessage(format("~= operator can only handle s/// function."));
+                    q->logMessage(format("the s/// function expects 3 or 4 arguments."));
                     return false;
                 }
 
@@ -722,19 +792,12 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
                 QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-                QStringList replaceList = replaceInList(m_valuemap.value(varName), regexp, replace,
-                                                        global);
-                // Add changed entries to list
-                foreach (const QString &entry, replaceList)
-                    if (!m_valuemap.value(varName).contains(entry))
-                        insertUnique(&m_valuemap, varName, QStringList() << entry, false);
-
-                replaceList = replaceInList(m_filevaluemap[currentProFile()].value(varName), regexp,
-                                      replace, global);
-                foreach (const QString &entry, replaceList)
-                    if (!m_filevaluemap[currentProFile()].value(varName).contains(entry))
-                        insertUnique(&m_filevaluemap[currentProFile()], varName,
-                                     QStringList() << entry, false); */
+                if (!m_skipLevel || m_cumulative) {
+                    // We could make a union of modified and unmodified values,
+                    // but this will break just as much as it fixes, so leave it as is.
+                    replaceInList(&m_valuemap[varName], regexp, replace, global);
+                    replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
+                }
             }
             break;
 
@@ -744,18 +807,22 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
 bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
-    m_lineNo = func->lineNumber();
-    bool result = true;
-    bool ok = true;
-    QString text = func->text();
-    int lparen = text.indexOf(QLatin1Char('('));
-    int rparen = text.lastIndexOf(QLatin1Char(')'));
-    QTC_ASSERT(lparen < rparen, return false);
-
-    QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
-    QString funcName = text.left(lparen);
-    ok &= evaluateConditionalFunction(funcName.trimmed(), arguments, &result);
-    return ok;
+    if (!m_skipLevel && (!m_updateCondition || m_condition == ConditionFalse)) {
+        QString text = func->text();
+        int lparen = text.indexOf(QLatin1Char('('));
+        int rparen = text.lastIndexOf(QLatin1Char(')'));
+        QTC_ASSERT(lparen < rparen, return false);
+        QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
+        QString funcName = text.left(lparen);
+        m_lineNo = func->lineNumber();
+        bool result = false;
+        if (!evaluateConditionalFunction(funcName.trimmed(), arguments, &result))
+            return false;
+        if (result ^ m_invertNext)
+            m_condition = ConditionTrue;
+    }
+    m_invertNext = false;
+    return true;
 }
 
 
@@ -2083,18 +2150,20 @@ void ProFileEvaluator::addProperties(const QHash<QString, QString> &properties)
 
 void ProFileEvaluator::logMessage(const QString &message)
 {
-    if (d->m_verbose)
+    if (d->m_verbose && !d->m_skipLevel)
         qWarning("%s", qPrintable(message));
 }
 
 void ProFileEvaluator::fileMessage(const QString &message)
 {
-    qWarning("%s", qPrintable(message));
+    if (!d->m_skipLevel)
+        qWarning("%s", qPrintable(message));
 }
 
 void ProFileEvaluator::errorMessage(const QString &message)
 {
-    qWarning("%s", qPrintable(message));
+    if (!d->m_skipLevel)
+        qWarning("%s", qPrintable(message));
 }
 
 // This function is unneeded and still retained. See log message for reason.
@@ -2114,6 +2183,11 @@ QStringList ProFileEvaluator::absFileNames(const QString &variableName)
 void ProFileEvaluator::setVerbose(bool on)
 {
     d->m_verbose = on;
+}
+
+void ProFileEvaluator::setCumulative(bool on)
+{
+    d->m_cumulative = on;
 }
 
 void ProFileEvaluator::setOutputDir(const QString &dir)

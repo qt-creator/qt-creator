@@ -132,17 +132,20 @@ static void unquote(QString *string)
 }
 
 static void insertUnique(QHash<QString, QStringList> *map,
-    const QString &key, const QStringList &value, bool unique = true)
+    const QString &key, const QStringList &value)
 {
     QStringList &sl = (*map)[key];
-    if (!unique) {
-        sl += value;
-    } else {
-        for (int i = 0; i < value.count(); ++i) {
-            if (!sl.contains(value.at(i)))
-                sl.append(value.at(i));
-        }
-    }
+    foreach (const QString &str, value)
+        if (!sl.contains(str))
+            sl.append(str);
+}
+
+static void removeEach(QHash<QString, QStringList> *map,
+    const QString &key, const QStringList &value)
+{
+    QStringList &sl = (*map)[key];
+    foreach (const QString &str, value)
+        sl.removeAll(str);
 }
 
 /*
