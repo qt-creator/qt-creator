@@ -46,14 +46,11 @@ namespace ProjectExplorer {
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppModelManagerInterface
-        : public QObject
+class CPPTOOLS_EXPORT CppModelManagerInterface: public QObject
 {
     Q_OBJECT
 
 public:
-    typedef QMap<QString, CPlusPlus::Document::Ptr> DocumentTable; // ### remove me
-
     class ProjectInfo
     {
     public:
@@ -89,8 +86,7 @@ public:
     virtual void GC() = 0;
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
 
-    virtual CPlusPlus::Document::Ptr document(const QString &fileName) const = 0;
-    virtual DocumentTable documents() const = 0;
+    virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;

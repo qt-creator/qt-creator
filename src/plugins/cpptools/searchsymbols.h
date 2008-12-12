@@ -43,6 +43,7 @@
 #include <QIcon>
 #include <QMetaType>
 #include <QString>
+#include <QSet>
 
 #include <functional>
 

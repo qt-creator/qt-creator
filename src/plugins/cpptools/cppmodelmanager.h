@@ -76,8 +76,7 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
 
-    virtual CPlusPlus::Document::Ptr document(const QString &fileName) const;
-    virtual DocumentTable documents() const;
+    virtual CPlusPlus::Snapshot snapshot() const;
     virtual void GC();
 
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
@@ -146,7 +145,7 @@ private:
     Core::ICore *m_core;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     CppHoverHandler *m_hoverHandler;
-    DocumentTable m_documents;
+    CPlusPlus::Snapshot m_snapshot;
 
     // cache
     bool m_dirty;

@@ -434,10 +434,12 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     //if (! expression.isEmpty())
         //qDebug() << "***** expression:" << expression;
 
-    if (Document::Ptr thisDocument = m_manager->document(fileName)) {
+    const Snapshot snapshot = m_manager->snapshot();
+
+    if (Document::Ptr thisDocument = snapshot.value(fileName)) {
         Symbol *symbol = thisDocument->findSymbolAt(line, column);
 
-        typeOfExpression.setDocuments(m_manager->documents());
+        typeOfExpression.setSnapshot(m_manager->snapshot());
 
         QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol,
                                                                          TypeOfExpression::Preprocess);
@@ -1034,7 +1036,7 @@ void CppCodeCompletion::cleanup()
 
     // Set empty map in order to avoid referencing old versions of the documents
     // until the next completion
-    typeOfExpression.setDocuments(QMap<QString, Document::Ptr>());
+    typeOfExpression.setSnapshot(Snapshot());
 }
 
 int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)

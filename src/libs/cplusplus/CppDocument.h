@@ -40,7 +40,7 @@
 
 #include <QByteArray>
 #include <QList>
-#include <QSet>
+#include <QMap>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
@@ -234,6 +234,16 @@ private:
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
+};
+
+class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
+{
+public:
+    Snapshot()
+    { }
+
+    ~Snapshot()
+    { }
 };
 
 } // end of namespace CPlusPlus

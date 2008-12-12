@@ -57,7 +57,7 @@ public:
     LookupContext(Symbol *symbol,
                   Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
-                  const QMap<QString, Document::Ptr> &documents);
+                  const Snapshot &documents);
 
     LookupContext(Symbol *symbol,
                   const LookupContext &context);
@@ -87,7 +87,7 @@ public:
     QList<Symbol *> resolveClassOrNamespace(Name *name) const
     { return resolveClassOrNamespace(name, visibleScopes()); }
 
-    QMap<QString, Document::Ptr> documents() const
+    Snapshot snapshot() const
     { return _documents; }
 
     enum ResolveMode {
@@ -140,7 +140,7 @@ private:
     Document::Ptr _thisDocument;
 
     // All documents.
-    QMap<QString, Document::Ptr> _documents;
+    Snapshot _documents;
 
     // Visible scopes.
     QList<Scope *> _visibleScopes;

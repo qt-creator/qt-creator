@@ -95,7 +95,7 @@ QList<Document::Ptr> WorkbenchIntegration::findDocuments(const QString &uiFileNa
 
     QList<Document::Ptr> docList;
     // take all docs
-    CppTools::CppModelManagerInterface::DocumentTable docTable = cppModelManager->documents();
+    CPlusPlus::Snapshot docTable = cppModelManager->snapshot();
     foreach (Document::Ptr doc, docTable) { // we go through all documents
         QStringList includes = doc->includedFiles();
         foreach (QString include, includes) {
@@ -253,7 +253,7 @@ Document::Ptr WorkbenchIntegration::findDefinition(Function *functionDeclaration
     QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
     LookupContext context(&control);
 
-    const QMap<QString, Document::Ptr> documents = cppModelManager->documents();
+    const Snapshot documents = cppModelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
         QList<Scope *> visibleScopes;
         visibleScopes.append(doc->globalSymbols());
