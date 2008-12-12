@@ -123,6 +123,7 @@ int qtGhVersion = QT_VERSION;
 #endif
 
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -291,7 +292,7 @@ static bool startsWith(const char *s, const char *t)
 #define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
 #define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
 // provoke segfault unconditionally
-#define qCheck(b) do { if (!b) qProvokeSegFaultHelper = *(char*)0; } while (0)
+#define qCheck(b) do { if (!(b)) qProvokeSegFaultHelper = *(char*)0; } while (0)
 
 const char *stripNamespace(const char *type)
 {
@@ -2146,6 +2147,61 @@ static void qDumpStdList(QDumper &d)
     d.disarm();
 }
 
+static void qDumpStdMap(QDumper &d)
+{
+    const std::map<int, int> &map =
+        *reinterpret_cast<const std::map<int, int> *>(d.data);
+    const char *keyType   = d.templateParameters[0];
+    const char *valueType = d.templateParameters[1];
+    const void *p = d.data;
+    qCheckAccess(p);
+    p = deref(p);
+
+    int nn = map.size();
+    qCheck(nn >= 0);
+    std::map<int, int>::const_iterator it = map.begin();
+    for (int i = 0; i < nn && i < 10 && it != map.end(); ++i, ++it)
+        qCheckAccess(it.operator->());
+
+    QByteArray strippedInnerType = stripPointerType(d.innertype);
+    P(d, "numchild", nn);
+    P(d, "value", "<" << nn << " items>");
+    P(d, "valuedisabled", "true");
+    P(d, "valueoffset", d.extraInt[2]);
+
+    if (d.dumpChildren) {
+        bool simpleKey = isSimpleType(keyType);
+        bool simpleValue = isShortKey(valueType);
+        int valueOffset = d.extraInt[2];
+
+        d << ",children=[";
+        std::map<int, int>::const_iterator it = map.begin();
+        for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
+            const void *node = it.operator->();
+            if (simpleKey) {
+                d.beginHash();
+                P(d, "type", valueType);
+                qDumpInnerValueHelper(d, keyType, node, "name");
+                P(d, "nameisindex", "1");
+                if (simpleValue)
+                    qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                P(d, "addr", addOffset(node, valueOffset));
+                d.endHash();
+            } else {
+                d.beginHash();
+                P(d, "name", "[" << i << "]");
+                P(d, "addr", it.operator->());
+                P(d, "type", "std::pair<const " << keyType << "," << valueType << " >");
+                d.endHash();
+            }
+        }
+        if (it != map.end())
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
@@ -2356,9 +2412,9 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdVectorBool(d);
             else if (isEqual(type, "std::list"))
                 qDumpStdList(d);
-            else if (isEqual(type, "string"))
-                qDumpStdString(d);
-            else if (isEqual(type, "std::string"))
+            else if (isEqual(type, "std::map"))
+                qDumpStdMap(d);
+            else if (isEqual(type, "std::string") || isEqual(type, "string"))
                 qDumpStdString(d);
             else if (isEqual(type, "std::wstring"))
                 qDumpStdWString(d);
