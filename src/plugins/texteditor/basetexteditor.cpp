@@ -2283,9 +2283,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     }
                 }
 
-                collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
-                collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
-                hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
+                if (!userData->ifdefedOut()) {
+                    collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
+                    collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
+                    hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
+                }
             }
 
             if (d->m_codeFoldingVisible) {
@@ -2318,10 +2320,12 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 bool collapseNext = nextBlockUserData
                                     && nextBlockUserData->collapseMode()
-                                    == TextBlockUserData::CollapseThis;
+                                    == TextBlockUserData::CollapseThis
+                                    && !nextBlockUserData->ifdefedOut();
 
                 bool nextHasClosingCollapse = nextBlockUserData
-                                              && nextBlockUserData->hasClosingCollapseInside();
+                                              && nextBlockUserData->hasClosingCollapseInside()
+                                              && nextBlockUserData->ifdefedOut();
 
                 bool drawBox = ((collapseAfter || collapseNext) && !nextHasClosingCollapse);
 
@@ -3397,9 +3401,12 @@ void BaseTextEditor::collapse()
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
+    QTextBlock curBlock = block;
     while (block.isValid()) {
         if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
-            if ((block.next().userState()) >> 8 <= (textCursor().block().userState() >> 8))
+            if (block == curBlock)
+                break;
+            if ((block.next().userState()) >> 8 <= (curBlock.previous().userState() >> 8))
                 break;
         }
         block = block.previous();
