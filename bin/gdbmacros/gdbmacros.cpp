@@ -2439,34 +2439,7 @@ void qDumpObjectData440(
     int extraInt2,
     int extraInt3)
 {
-    if (protocolVersion == -2) {
-        // close socket
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        d.flush();
-        d.disarm();
-    }
-
-    else if (protocolVersion == -1) {
-        // finalize Startup
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        d.disarm();
-    }
-
-    else if (protocolVersion == 0) {
-        QDumper d;
-        d.protocolVersion = protocolVersion;
-        d.token           = token;
-        // used to test whether error output gets through
-        //fprintf(stderr, "using stderr, qDebug follows: %d\n", token);
-        //qDebug() << "using qDebug, stderr already used: " << token;
-        d.disarm();
-    }
-
-    else if (protocolVersion == 1) {
+    if (protocolVersion == 1) {
         QDumper d;
         d.protocolVersion = protocolVersion;
         d.token           = token;
