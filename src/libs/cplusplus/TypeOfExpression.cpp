@@ -46,9 +46,9 @@ TypeOfExpression::TypeOfExpression():
 {
 }
 
-void TypeOfExpression::setDocuments(const QMap<QString, Document::Ptr> &documents)
+void TypeOfExpression::setSnapshot(const Snapshot &documents)
 {
-    m_documents = documents;
+    m_snapshot = documents;
     m_lookupContext = LookupContext();
 }
 
@@ -59,12 +59,12 @@ QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expr
 {
     QString code = expression;
     if (mode == Preprocess)
-        code = preprocessedExpression(expression, m_documents, document);
+        code = preprocessedExpression(expression, m_snapshot, document);
     Document::Ptr expressionDoc = documentForExpression(code);
     m_ast = extractExpressionAST(expressionDoc);
 
     m_lookupContext = LookupContext(lastVisibleSymbol, expressionDoc,
-                                    document, m_documents);
+                                    document, m_snapshot);
 
     ResolveExpression resolveExpression(m_lookupContext);
     return resolveExpression(m_ast);
@@ -103,10 +103,12 @@ Document::Ptr TypeOfExpression::documentForExpression(const QString &expression)
     return doc;
 }
 
-void TypeOfExpression::processEnvironment(QMap<QString, Document::Ptr> documents,
+void TypeOfExpression::processEnvironment(Snapshot documents,
                                           Document::Ptr doc, Environment *env,
                                           QSet<QString> *processed) const
 {
+    if (! doc)
+        return;
     if (processed->contains(doc->fileName()))
         return;
     processed->insert(doc->fileName());
@@ -120,7 +122,7 @@ void TypeOfExpression::processEnvironment(QMap<QString, Document::Ptr> documents
 }
 
 QString TypeOfExpression::preprocessedExpression(const QString &expression,
-                                                 QMap<QString, Document::Ptr> documents,
+                                                 Snapshot documents,
                                                  Document::Ptr thisDocument) const
 {
     Environment env;

@@ -58,7 +58,6 @@ SOURCES += attachexternaldialog.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
     gdboptionpage.cpp \
-    gdbtypemacros.cpp \
     gdbengine.h \
     moduleshandler.cpp \
     moduleswindow.cpp \
@@ -79,7 +78,6 @@ FORMS += attachexternaldialog.ui \
     breakcondition.ui \
     mode.ui \
     gdboptionpage.ui \
-    gdbtypemacros.ui \
     startexternaldialog.ui \
 
 RESOURCES += debugger.qrc

@@ -54,8 +54,8 @@ class OpenDocumentsFilter : public QuickOpen::IQuickOpenFilter
 
 public:
     OpenDocumentsFilter(Core::EditorManager *editorManager);
-    QString trName() const { return tr("Open document"); }
-    QString name() const { return "Open document"; }
+    QString trName() const { return tr("Open documents"); }
+    QString name() const { return "Open documents"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;

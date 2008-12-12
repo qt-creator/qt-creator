@@ -427,7 +427,9 @@ void CPPEditor::switchDeclarationDefinition()
     if (!m_modelManager)
         return;
 
-    Document::Ptr doc = m_modelManager->document(file()->fileName());
+    const Snapshot snapshot = m_modelManager->snapshot();
+
+    Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
         return;
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
@@ -445,7 +447,7 @@ void CPPEditor::switchDeclarationDefinition()
 
     if (f) {
         TypeOfExpression typeOfExpression;
-        typeOfExpression.setDocuments(m_modelManager->documents());
+        typeOfExpression.setSnapshot(m_modelManager->snapshot());
         QList<TypeOfExpression::Result> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
         const LookupContext &context = typeOfExpression.lookupContext();
 
@@ -474,10 +476,12 @@ void CPPEditor::jumpToDefinition()
     if (!m_modelManager)
         return;
 
+    const Snapshot snapshot = m_modelManager->snapshot();
+
     // Find the last symbol up to the cursor position
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
-    Document::Ptr doc = m_modelManager->document(file()->fileName());
+    Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
         return;
 
@@ -503,7 +507,7 @@ void CPPEditor::jumpToDefinition()
 
     // Evaluate the type of the expression
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setDocuments(m_modelManager->documents());
+    typeOfExpression.setSnapshot(m_modelManager->snapshot());
     QList<TypeOfExpression::Result> resolvedSymbols =
             typeOfExpression(expression, doc, lastSymbol);
 
@@ -572,7 +576,7 @@ Symbol *CPPEditor::findDefinition(Symbol *lastSymbol)
     QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
     LookupContext context(&control);
 
-    const QMap<QString, Document::Ptr> documents = m_modelManager->documents();
+    const Snapshot documents = m_modelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
         QList<Scope *> visibleScopes;
         visibleScopes.append(doc->globalSymbols());
@@ -744,7 +748,8 @@ void CPPEditor::unCommentSelection()
 
         QString endText = endBlock.text();
         int endPos = end - endBlock.position();
-        bool hasTrailingCharacters = !endText.mid(endPos).trimmed().isEmpty();
+        bool hasTrailingCharacters = !endText.left(endPos).remove(QLatin1String("//")).trimmed().isEmpty()
+                                     && !endText.mid(endPos).trimmed().isEmpty();
         if ((endPos <= endText.length() - 2
             && endText.at(endPos) == QLatin1Char('*')
              && endText.at(endPos+1) == QLatin1Char('/'))) {

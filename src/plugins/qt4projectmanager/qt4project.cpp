@@ -498,12 +498,8 @@ void Qt4Project::updateCodeModel()
         pinfo.sourceFiles = files;
 
         modelmanager->updateProjectInfo(pinfo);
-
-        modelmanager->GC();
         modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
-
-    // update info
 }
 
 

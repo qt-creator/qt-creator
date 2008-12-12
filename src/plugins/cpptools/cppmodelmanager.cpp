@@ -143,7 +143,7 @@ protected:
 
 private:
     QPointer<CppModelManager> m_modelManager;
-    CppModelManager::DocumentTable m_documents;
+    Snapshot m_snapshot;
     Environment env;
     pp m_proc;
     QStringList m_includePaths;
@@ -160,7 +160,7 @@ private:
 
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : m_modelManager(modelManager),
-    m_documents(modelManager->documents()),
+    m_snapshot(modelManager->snapshot()),
     m_proc(this, env)
 { }
 
@@ -340,7 +340,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
     processed->insert(fn);
 
     foreach (QString includedFile, doc->includedFiles()) {
-        mergeEnvironment(m_documents.value(includedFile), processed);
+        mergeEnvironment(m_snapshot.value(includedFile), processed);
     }
 
     foreach (const Macro macro, doc->definedMacros()) {
@@ -386,7 +386,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     }
 
     if (! contents.isEmpty()) {
-        Document::Ptr cachedDoc = m_documents.value(fileName);
+        Document::Ptr cachedDoc = m_snapshot.value(fileName);
         if (cachedDoc && m_currentDoc) {
             mergeEnvironment(cachedDoc);
         } else {
@@ -477,11 +477,8 @@ CppModelManager::CppModelManager(QObject *parent) :
 CppModelManager::~CppModelManager()
 { }
 
-Document::Ptr CppModelManager::document(const QString &fileName) const
-{ return m_documents.value(fileName); }
-
-CppModelManager::DocumentTable CppModelManager::documents() const
-{ return m_documents; }
+Snapshot CppModelManager::snapshot() const
+{ return m_snapshot; }
 
 void CppModelManager::ensureUpdated()
 {
@@ -672,7 +669,7 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 {
     const QString fileName = doc->fileName();
-    m_documents[fileName] = doc;
+    m_snapshot[fileName] = doc;
     QList<Core::IEditor *> openedEditors = m_core->editorManager()->openedEditors();
     foreach (Core::IEditor *editor, openedEditors) {
         if (editor->file()->fileName() == fileName) {
@@ -837,7 +834,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
 void CppModelManager::GC()
 {
-    DocumentTable documents = m_documents;
+    Snapshot documents = m_snapshot;
 
     QSet<QString> processed;
     QStringList todo = projectFiles();
@@ -868,7 +865,7 @@ void CppModelManager::GC()
     }
 
     emit aboutToRemoveFiles(removedFiles);
-    m_documents = documents;
+    m_snapshot = documents;
 }
 
 

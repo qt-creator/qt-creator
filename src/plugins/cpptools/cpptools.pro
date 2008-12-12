@@ -6,7 +6,6 @@ include(cpptools_dependencies.pri)
 
 # DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QT_NO_CAST_TO_ASCII
-unix:QMAKE_CXXFLAGS_DEBUG += -O3
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
 CONFIG += help

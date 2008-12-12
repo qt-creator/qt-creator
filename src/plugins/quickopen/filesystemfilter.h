@@ -56,8 +56,8 @@ class FileSystemFilter : public QuickOpen::IQuickOpenFilter
 
 public:
     FileSystemFilter(Core::EditorManager *editorManager, QuickOpenToolWindow *toolWindow);
-    QString trName() const { return tr("File in file system"); }
-    QString name() const { return "File in file system"; }
+    QString trName() const { return tr("Files in file system"); }
+    QString name() const { return "Files in file system"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;

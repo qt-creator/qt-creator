@@ -61,7 +61,7 @@ public:
      * Also clears the lookup context, so can be used to make sure references
      * to the documents previously used are removed.
      */
-    void setDocuments(const QMap<QString, Document::Ptr> &documents);
+    void setSnapshot(const Snapshot &documents);
 
     enum PreprocessMode {
         NoPreprocess,
@@ -100,15 +100,15 @@ private:
     ExpressionAST *extractExpressionAST(Document::Ptr doc) const;
     Document::Ptr documentForExpression(const QString &expression) const;
 
-    void processEnvironment(QMap<QString, CPlusPlus::Document::Ptr> documents,
+    void processEnvironment(CPlusPlus::Snapshot documents,
                             CPlusPlus::Document::Ptr doc, CPlusPlus::Environment *env,
                             QSet<QString> *processed) const;
 
     QString preprocessedExpression(const QString &expression,
-                                   QMap<QString, CPlusPlus::Document::Ptr> documents,
+                                   CPlusPlus::Snapshot documents,
                                    CPlusPlus::Document::Ptr thisDocument) const;
 
-    QMap<QString, Document::Ptr> m_documents;
+    Snapshot m_snapshot;
     ExpressionAST *m_ast;
     LookupContext m_lookupContext;
 };

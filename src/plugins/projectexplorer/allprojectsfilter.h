@@ -55,8 +55,8 @@ class AllProjectsFilter : public QuickOpen::BaseFileFilter
 
 public:
     AllProjectsFilter(ProjectExplorerPlugin *pe, Core::ICore *core);
-    QString trName() const { return tr("File in any project"); }
-    QString name() const { return "File in any project"; }
+    QString trName() const { return tr("Files in any project"); }
+    QString name() const { return "Files in any project"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 

@@ -114,7 +114,7 @@ bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     ui.setupUi(&dialog);
 
     ui.hiddenFilesFlag->setChecked(m_includeHidden);
-    ui.limitCheck->setChecked(!defaultActiveState());
+    ui.limitCheck->setChecked(!isIncludedByDefault());
     ui.shortcutEdit->setText(shortcutString());
 
     if (dialog.exec() == QDialog::Accepted) {
@@ -132,7 +132,7 @@ QByteArray FileSystemFilter::saveState() const
     QDataStream out(&value, QIODevice::WriteOnly);
     out << m_includeHidden;
     out << shortcutString();
-    out << defaultActiveState();
+    out << isIncludedByDefault();
     return value;
 }
 

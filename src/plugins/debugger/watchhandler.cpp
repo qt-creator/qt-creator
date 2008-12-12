@@ -411,7 +411,7 @@ static QString niceType(QString type)
                      "std::allocator<wchar_t> >", "std::wstring");
 
         // std::vector
-        static QRegExp re1("std::vector<(.*)\\s*,std::allocator<(.*)>\\s*>");
+        static QRegExp re1("std::vector<(.*), std::allocator<(.*)>\\s*>");
         re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re1.indexIn(type) == -1 || re1.cap(1) != re1.cap(2)) 
@@ -420,12 +420,23 @@ static QString niceType(QString type)
         }
 
         // std::list
-        static QRegExp re2("std::list<(.*)\\s*,std::allocator<(.*)>\\s*>");
+        static QRegExp re2("std::list<(.*), std::allocator<(.*)>\\s*>");
         re2.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re2.indexIn(type) == -1 || re2.cap(1) != re2.cap(2)) 
                 break;
             type.replace(re2.cap(0), "std::list<" + re2.cap(1) + ">");
+        }
+
+        // std::map
+        static QRegExp re3("std::map<(.*), (.*), std::less<(.*)\\s*>, "
+            "std::allocator<std::pair<const (.*), (.*)\\s*> > >");
+        re3.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re3.indexIn(type) == -1 || re3.cap(1) != re3.cap(3)
+                || re3.cap(1) != re3.cap(4) || re3.cap(2) != re3.cap(5)) 
+                break;
+            type.replace(re3.cap(0), "std::map<" + re3.cap(1) + ", " + re3.cap(2) + ">");
         }
 
         type.replace(" >", ">");
