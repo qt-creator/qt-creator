@@ -268,16 +268,14 @@ bool EditorGroup::restoreState(const QByteArray &state)
     EditorManager *em = EditorManager::instance();
     EditorList editors;
     in >> editors;
-    IEditor *currentEditor = 0;
-    IEditor *editor;
     int savedIndex = editors.currentEditorIndex;
+    if (savedIndex >= 0 && savedIndex < editors.count())
+        em->restoreEditor(editors.fileNameAt(savedIndex), editors.editorKindAt(savedIndex), this);
     for (int j = 0; j < editors.count(); ++j) {
-        editor = em->restoreEditor(editors.fileNameAt(j), editors.editorKindAt(j), this);
         if (j == savedIndex)
-            currentEditor = editor;
+            continue;
+        em->restoreEditor(editors.fileNameAt(j), editors.editorKindAt(j), this);
     }
-    if (currentEditor)
-        setCurrentEditor(currentEditor);
     return true;
 }
 
