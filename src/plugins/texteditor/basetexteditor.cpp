@@ -3404,7 +3404,7 @@ void BaseTextEditor::collapse()
     QTextBlock curBlock = block;
     while (block.isValid()) {
         if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
-            if (block == curBlock)
+            if (block == curBlock || block.next() == curBlock)
                 break;
             if ((block.next().userState()) >> 8 <= (curBlock.previous().userState() >> 8))
                 break;
