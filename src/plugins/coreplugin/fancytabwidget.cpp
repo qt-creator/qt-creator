@@ -98,8 +98,6 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
 
     // paint active tab last, since it overlaps the neighbors
     paintTab(&p, currentIndex());
-
-
 }
 
 // Handle hover events for mouse fade ins
