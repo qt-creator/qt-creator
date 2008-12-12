@@ -151,20 +151,18 @@ class Debugger::Internal::LocationMark
 public:
     LocationMark(const QString &fileName, int linenumber)
         : BaseTextMark(fileName, linenumber)
-    {
-    }
+    {}
     ~LocationMark();
 
     QIcon icon() const;
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
-    void removedFromEditor() { deleteLater(); }
-private:
+    void removedFromEditor() {}
 };
 
 LocationMark::~LocationMark()
 {
-    //qDebug() << "LOCATIONMARK DESTRUCTOR" << m_editor;
+    //qDebug() << "LOCATIONMARK DESTRUCTOR";
 }
 
 QIcon LocationMark::icon() const
