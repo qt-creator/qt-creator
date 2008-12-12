@@ -1045,31 +1045,24 @@
         \row
             \o Activate \gui Welcome mode
             \o Ctrl + 1
-
         \row
             \o Activate \gui Edit mode
             \o Ctrl + 2
-
         \row
             \o Activate \gui Debug mode
             \o Ctrl + 3
-
         \row
             \o Activate \gui Projects mode
             \o Ctrl + 4
-
         \row
             \o Activate \gui Help mode
             \o Ctrl + 5
-
         \row
             \o Activate \gui Output mode
             \o Ctrl + 6
-
         \row
             \o Find
             \o Ctrl + F
-
         \row
             \o Find next
             \o F3
@@ -1079,43 +1072,33 @@
                second press closes all secondary windows. \gui Debug mode or
                \gui Help mode: Switch to \gui Edit mode.)
             \o Esc
-
         \row
             \o Go to a line
             \o Ctrl + L
-
         \row
             \o Start debugging
             \o F5
-
         \row
             \o Stop debugging
             \o Shift + F5
-
-        \row
-            \o Toggle \gui{Application Output} pane
-            \o Alt + 3
-
         \row
             \o Toggle code declaration and definition
             \o F2
-
         \row
             \o Toggle header file and source file
             \o F4
-
         \row
             \o Toggle Side Bar
             \o Alt + 0
-
         \row
             \o Toggle \gui{Build Issues} pane
             \o Alt + 1
-
         \row
             \o Toggle \gui{Search Results} pane
             \o Alt + 2
-
+        \row
+            \o Toggle \gui{Application Output} pane
+            \o Alt + 3
         \row
             \o Toggle \gui{Compile Output} pane
             \o Alt + 4
