@@ -68,6 +68,7 @@ public:
     virtual bool contains(const QString &variableName) const;
     QStringList absFileNames(const QString &variableName);
     QStringList absFileName(const QString &name);
+    void setOutputDir(const QString &dir); // Default is empty
     void setVerbose(bool on);
 
     bool queryProFile(ProFile *pro);

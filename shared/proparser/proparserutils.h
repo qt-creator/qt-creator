@@ -85,6 +85,25 @@ struct Option
         Option::qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
         Option::field_sep = QLatin1Char(' ');
     }
+
+    enum StringFixFlags {
+        FixNone                 = 0x00,
+        FixEnvVars              = 0x01,
+        FixPathCanonicalize     = 0x02,
+        FixPathToLocalSeparators  = 0x04,
+        FixPathToTargetSeparators = 0x08
+    };
+    static QString fixString(QString string, uchar flags);
+
+    inline static QString fixPathToLocalOS(const QString &in, bool fix_env = true, bool canonical = true)
+    {
+        uchar flags = FixPathToLocalSeparators;
+        if (fix_env)
+            flags |= FixEnvVars;
+        if (canonical)
+            flags |= FixPathCanonicalize;
+        return fixString(in, flags);
+    }
 };
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
