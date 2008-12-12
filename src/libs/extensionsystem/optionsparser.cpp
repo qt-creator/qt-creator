@@ -129,7 +129,7 @@ bool OptionsParser::checkForNoLoadOption()
                                                              "The plugin '%1' does not exist.").arg(m_currentArg);
             m_hasError = true;
         } else {
-            m_pmPrivate->pluginSpecs.remove(spec);
+            m_pmPrivate->pluginSpecs.removeAll(spec);
             delete spec;
             m_isDependencyRefreshNeeded = true;
         }

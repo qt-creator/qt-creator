@@ -116,6 +116,8 @@ private slots:
     void gotoBlockEndWithSelection();
     void selectBlockUp();
     void selectBlockDown();
+    void moveLineUp();
+    void moveLineDown();
     void updateCurrentEditor(Core::IContext *object);
 
 private:
@@ -145,6 +147,8 @@ private:
     QAction *m_gotoBlockEndWithSelectionAction;
     QAction *m_selectBlockUpAction;
     QAction *m_selectBlockDownAction;
+    QAction *m_moveLineUpAction;
+    QAction *m_moveLineDownAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;

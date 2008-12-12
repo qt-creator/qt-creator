@@ -427,7 +427,9 @@ void CPPEditor::switchDeclarationDefinition()
     if (!m_modelManager)
         return;
 
-    Document::Ptr doc = m_modelManager->document(file()->fileName());
+    const Snapshot snapshot = m_modelManager->snapshot();
+
+    Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
         return;
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
@@ -445,7 +447,7 @@ void CPPEditor::switchDeclarationDefinition()
 
     if (f) {
         TypeOfExpression typeOfExpression;
-        typeOfExpression.setDocuments(m_modelManager->documents());
+        typeOfExpression.setSnapshot(m_modelManager->snapshot());
         QList<TypeOfExpression::Result> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
         const LookupContext &context = typeOfExpression.lookupContext();
 
@@ -474,26 +476,38 @@ void CPPEditor::jumpToDefinition()
     if (!m_modelManager)
         return;
 
+    const Snapshot snapshot = m_modelManager->snapshot();
+
     // Find the last symbol up to the cursor position
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
-    Document::Ptr doc = m_modelManager->document(file()->fileName());
+    Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
         return;
+
+    QTextCursor tc = textCursor();
+    unsigned lineno = tc.blockNumber() + 1;
+    foreach (const Document::Include &incl, doc->includes()) {
+        if (incl.line() == lineno) {
+            if (openCppEditorAt(incl.fileName(), 0, 0))
+                return; // done
+            break;
+        }
+    }
+
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
     if (!lastSymbol)
         return;
 
     // Get the expression under the cursor
     const int endOfName = endOfNameUnderCursor();
-    QTextCursor tc = textCursor();
     tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     // Evaluate the type of the expression
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setDocuments(m_modelManager->documents());
+    typeOfExpression.setSnapshot(m_modelManager->snapshot());
     QList<TypeOfExpression::Result> resolvedSymbols =
             typeOfExpression(expression, doc, lastSymbol);
 
@@ -515,7 +529,7 @@ void CPPEditor::jumpToDefinition()
             QList<Symbol *> candidates = context.resolve(namedType->name());
             if (!candidates.isEmpty()) {
                 Symbol *s = candidates.takeFirst();
-                openEditorAt(s->fileName(), s->line(), s->column());
+                openCppEditorAt(s->fileName(), s->line(), s->column());
             }
 #endif
         }
@@ -524,7 +538,7 @@ void CPPEditor::jumpToDefinition()
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
                 const QString fileName = QString::fromUtf8(macro.fileName);
-                if (TextEditor::BaseTextEditor::openEditorAt(fileName, macro.line, 0))
+                if (openCppEditorAt(fileName, macro.line, 0))
                     return; // done
             }
         }
@@ -562,7 +576,7 @@ Symbol *CPPEditor::findDefinition(Symbol *lastSymbol)
     QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
     LookupContext context(&control);
 
-    const QMap<QString, Document::Ptr> documents = m_modelManager->documents();
+    const Snapshot documents = m_modelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
         QList<Scope *> visibleScopes;
         visibleScopes.append(doc->globalSymbols());
@@ -734,7 +748,8 @@ void CPPEditor::unCommentSelection()
 
         QString endText = endBlock.text();
         int endPos = end - endBlock.position();
-        bool hasTrailingCharacters = !endText.mid(endPos).trimmed().isEmpty();
+        bool hasTrailingCharacters = !endText.left(endPos).remove(QLatin1String("//")).trimmed().isEmpty()
+                                     && !endText.mid(endPos).trimmed().isEmpty();
         if ((endPos <= endText.length() - 2
             && endText.at(endPos) == QLatin1Char('*')
              && endText.at(endPos+1) == QLatin1Char('/'))) {
@@ -826,8 +841,15 @@ int CPPEditor::endOfNameUnderCursor()
     return pos;
 }
 
+TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
+                                                    int line, int column)
+{
+    return TextEditor::BaseTextEditor::openEditorAt(fileName, line, column,
+                                                    Constants::C_CPPEDITOR);
+}
+
 bool CPPEditor::openEditorAt(Symbol *s)
 {
     const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-    return TextEditor::BaseTextEditor::openEditorAt(fileName, s->line(), s->column());
+    return openCppEditorAt(fileName, s->line(), s->column());
 }

@@ -77,7 +77,7 @@ LookupContext::LookupContext(Control *control)
 LookupContext::LookupContext(Symbol *symbol,
                              Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
-                             const QMap<QString, Document::Ptr> &documents)
+                             const Snapshot &documents)
     : _symbol(symbol),
       _expressionDocument(expressionDocument),
       _thisDocument(thisDocument),

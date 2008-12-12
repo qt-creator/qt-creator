@@ -80,7 +80,7 @@ enum DataDumperState
     DataDumperUnavailable,
 };
 
-// FIXME: Move to extra file?
+
 class GdbSettings
 {
 public:

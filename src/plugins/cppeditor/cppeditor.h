@@ -123,6 +123,9 @@ private:
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
+    TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
+                                             int column = 0);
+
     int previousBlockState(QTextBlock block) const;
     QTextCursor moveToPreviousToken(QTextCursor::MoveMode mode) const;
     QTextCursor moveToNextToken(QTextCursor::MoveMode mode) const;

@@ -402,18 +402,41 @@ bool WatchHandler::setData(const QModelIndex &idx,
 static QString niceType(QString type)
 {
     if (type.contains("std::")) {
-        static QRegExp re("std::vector<(.*)\\s*,std::allocator<(.*)>\\s*>");
-        re.setMinimal(true);
-
+        // std::string
         type.replace("std::basic_string<char, std::char_traits<char>, "
                      "std::allocator<char> >", "std::string");
+
+        // std::wstring
         type.replace("std::basic_string<wchar_t, std::char_traits<wchar_t>, "
                      "std::allocator<wchar_t> >", "std::wstring");
 
+        // std::vector
+        static QRegExp re1("std::vector<(.*), std::allocator<(.*)>\\s*>");
+        re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
-            if (re.indexIn(type) == -1 || re.cap(1) != re.cap(2)) 
+            if (re1.indexIn(type) == -1 || re1.cap(1) != re1.cap(2)) 
                 break;
-            type.replace(re.cap(0), "std::vector<" + re.cap(1) + ">");
+            type.replace(re1.cap(0), "std::vector<" + re1.cap(1) + ">");
+        }
+
+        // std::list
+        static QRegExp re2("std::list<(.*), std::allocator<(.*)>\\s*>");
+        re2.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re2.indexIn(type) == -1 || re2.cap(1) != re2.cap(2)) 
+                break;
+            type.replace(re2.cap(0), "std::list<" + re2.cap(1) + ">");
+        }
+
+        // std::map
+        static QRegExp re3("std::map<(.*), (.*), std::less<(.*)\\s*>, "
+            "std::allocator<std::pair<const (.*), (.*)\\s*> > >");
+        re3.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re3.indexIn(type) == -1 || re3.cap(1) != re3.cap(3)
+                || re3.cap(1) != re3.cap(4) || re3.cap(2) != re3.cap(5)) 
+                break;
+            type.replace(re3.cap(0), "std::map<" + re3.cap(1) + ", " + re3.cap(2) + ">");
         }
 
         type.replace(" >", ">");
@@ -865,8 +888,8 @@ void WatchHandler::watchExpression(const QString &exp)
     data.name = exp;
     data.iname = "watch." + exp;
     insertData(data);
+    emit watchModelUpdateRequested();
 }
-
 
 void WatchHandler::setDisplayedIName(const QString &iname, bool on)
 {

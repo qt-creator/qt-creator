@@ -434,12 +434,15 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     //if (! expression.isEmpty())
         //qDebug() << "***** expression:" << expression;
 
-    if (Document::Ptr thisDocument = m_manager->document(fileName)) {
+    const Snapshot snapshot = m_manager->snapshot();
+
+    if (Document::Ptr thisDocument = snapshot.value(fileName)) {
         Symbol *symbol = thisDocument->findSymbolAt(line, column);
 
-        typeOfExpression.setDocuments(m_manager->documents());
+        typeOfExpression.setSnapshot(m_manager->snapshot());
 
-        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol);
+        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, symbol,
+                                                                         TypeOfExpression::Preprocess);
         LookupContext context = typeOfExpression.lookupContext();
 
         if (!typeOfExpression.expressionAST() && (! m_completionOperator ||
@@ -963,8 +966,10 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             if (Function *function = symbol->type()->asFunction()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
-                if (!function->returnType().isValid()
-                    && (function->identity() && !function->identity()->isDestructorNameId())) {
+                const bool hasReturnType = function->returnType().isValid()  ||
+                                           function->returnType().isSigned() ||
+                                           function->returnType().isUnsigned();
+                if (! hasReturnType && (function->identity() && !function->identity()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
                 } else if (function->templateParameterCount() != 0) {
@@ -1033,7 +1038,7 @@ void CppCodeCompletion::cleanup()
 
     // Set empty map in order to avoid referencing old versions of the documents
     // until the next completion
-    typeOfExpression.setDocuments(QMap<QString, Document::Ptr>());
+    typeOfExpression.setSnapshot(Snapshot());
 }
 
 int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)

@@ -72,7 +72,7 @@ VersionDialog::VersionDialog(QWidget *parent)
         "<br/>"
         "Built on " __DATE__ " at " __TIME__ "<br />"
 #ifdef IDE_REVISION
-        "Using revision %5<br/>"
+        "From revision %5<br/>"
 #endif
         "<br/>"
         "<br/>"

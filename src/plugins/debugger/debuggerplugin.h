@@ -54,7 +54,6 @@ namespace Internal {
 class DebuggerManager;
 class DebugMode;
 class GdbOptionPage;
-class TypeMacroPage;
 class LocationMark;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -103,7 +102,6 @@ private:
 
     ExtensionSystem::PluginManager *m_pm;
     GdbOptionPage *m_generalOptionPage;
-    TypeMacroPage *m_typeMacroPage;
 
     QString m_previousMode;
     LocationMark *m_locationMark;

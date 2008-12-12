@@ -589,8 +589,13 @@ void Lexer::scan_helper(Token *tok)
                 tok->kind = classify(yytext, yylen, _qtMocRunEnabled);
             else
                 tok->kind = T_IDENTIFIER;
-            if (tok->kind == T_IDENTIFIER && control())
-                tok->identifier = control()->findOrInsertIdentifier(yytext, yylen);
+
+            if (tok->kind == T_IDENTIFIER) {
+                tok->kind = classifyOperator(yytext, yylen);
+
+                if (control())
+                    tok->identifier = control()->findOrInsertIdentifier(yytext, yylen);
+            }
             break;
         } else if (std::isdigit(ch)) {
             const char *yytext = _currentChar - 1;

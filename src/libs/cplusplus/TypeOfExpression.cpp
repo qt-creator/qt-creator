@@ -37,6 +37,7 @@
 #include <TranslationUnit.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/ResolveExpression.h>
+#include <cplusplus/pp.h>
 
 using namespace CPlusPlus;
 
@@ -45,21 +46,25 @@ TypeOfExpression::TypeOfExpression():
 {
 }
 
-void TypeOfExpression::setDocuments(const QMap<QString, Document::Ptr> &documents)
+void TypeOfExpression::setSnapshot(const Snapshot &documents)
 {
-    m_documents = documents;
+    m_snapshot = documents;
     m_lookupContext = LookupContext();
 }
 
 QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expression,
                                                              Document::Ptr document,
-                                                             Symbol *lastVisibleSymbol)
+                                                             Symbol *lastVisibleSymbol,
+                                                             PreprocessMode mode)
 {
-    Document::Ptr expressionDoc = documentForExpression(expression);
+    QString code = expression;
+    if (mode == Preprocess)
+        code = preprocessedExpression(expression, m_snapshot, document);
+    Document::Ptr expressionDoc = documentForExpression(code);
     m_ast = extractExpressionAST(expressionDoc);
 
     m_lookupContext = LookupContext(lastVisibleSymbol, expressionDoc,
-                                    document, m_documents);
+                                    document, m_snapshot);
 
     ResolveExpression resolveExpression(m_lookupContext);
     return resolveExpression(m_ast);
@@ -96,4 +101,37 @@ Document::Ptr TypeOfExpression::documentForExpression(const QString &expression)
     doc->setSource(bytes);
     doc->parse(Document::ParseExpression);
     return doc;
+}
+
+void TypeOfExpression::processEnvironment(Snapshot documents,
+                                          Document::Ptr doc, Environment *env,
+                                          QSet<QString> *processed) const
+{
+    if (! doc)
+        return;
+    if (processed->contains(doc->fileName()))
+        return;
+    processed->insert(doc->fileName());
+    foreach (const Document::Include &incl, doc->includes()) {
+        processEnvironment(documents,
+                           documents.value(incl.fileName()),
+                           env, processed);
+    }
+    foreach (const Macro &macro, doc->definedMacros())
+        env->bind(macro);
+}
+
+QString TypeOfExpression::preprocessedExpression(const QString &expression,
+                                                 Snapshot documents,
+                                                 Document::Ptr thisDocument) const
+{
+    Environment env;
+    QSet<QString> processed;
+    processEnvironment(documents, thisDocument,
+                       &env, &processed);
+    const QByteArray code = expression.toUtf8();
+    pp preproc(0, env);
+    QByteArray preprocessedCode;
+    preproc("<expression>", code, &preprocessedCode);
+    return QString::fromUtf8(preprocessedCode);
 }

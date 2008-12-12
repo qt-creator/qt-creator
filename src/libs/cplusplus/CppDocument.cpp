@@ -33,8 +33,6 @@
 
 #include "CppDocument.h"
 
-#include <utils/qtcassert.h>
-
 #include <Control.h>
 #include <TranslationUnit.h>
 #include <DiagnosticClient.h>
@@ -133,12 +131,16 @@ QString Document::fileName() const
 
 QStringList Document::includedFiles() const
 {
-    return _includedFiles;
+    QStringList files;
+    foreach (const Include &i, _includes)
+        files.append(i.fileName());
+    files.removeDuplicates();
+    return files;
 }
 
-void Document::addIncludeFile(const QString &fileName)
+void Document::addIncludeFile(const QString &fileName, unsigned line)
 {
-    _includedFiles.append(fileName);
+    _includes.append(Include(fileName, line));
 }
 
 void Document::appendMacro(const Macro &macro)
@@ -273,7 +275,7 @@ bool Document::parse(ParseMode mode)
 
 void Document::check()
 {
-    QTC_ASSERT(!_globalNamespace, return);
+    Q_ASSERT(!_globalNamespace);
 
     Semantic semantic(_control);
 

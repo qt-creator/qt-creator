@@ -183,7 +183,6 @@ DebuggerPlugin::DebuggerPlugin()
 {
     m_pm = 0;
     m_generalOptionPage = 0;
-    m_typeMacroPage = 0;
     m_locationMark = 0;
     m_manager = 0;
 }
@@ -202,7 +201,6 @@ void DebuggerPlugin::shutdown()
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
     removeObject(m_generalOptionPage);
-    removeObject(m_typeMacroPage);
 
     // FIXME: when using the line below, BreakWindow etc gets deleted twice.
     // so better leak for now...
@@ -211,9 +209,6 @@ void DebuggerPlugin::shutdown()
 
     delete m_generalOptionPage;
     m_generalOptionPage = 0;
-
-    delete m_typeMacroPage;
-    m_typeMacroPage = 0;
 
     delete m_locationMark;
     m_locationMark = 0;
@@ -409,13 +404,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     mdebug->addAction(cmd);
 
     m_generalOptionPage = 0;
-    m_typeMacroPage = 0;
 
     // FIXME:
     m_generalOptionPage = new GdbOptionPage(&theGdbSettings());
     addObject(m_generalOptionPage);
-    m_typeMacroPage = new TypeMacroPage(&theGdbSettings());
-    addObject(m_typeMacroPage);
 
     m_locationMark = 0;
 

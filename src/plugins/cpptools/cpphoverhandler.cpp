@@ -165,13 +165,25 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     QTextCursor tc(edit->document());
     tc.setPosition(pos);
 
+    const Snapshot documents = m_manager->snapshot();
+
     const int lineNumber = tc.block().blockNumber() + 1;
     const QString fileName = editor->file()->fileName();
-    Document::Ptr doc = m_manager->document(fileName);
+    Document::Ptr doc = documents.value(fileName);
     if (doc) {
         foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
             if (m.line() == lineNumber) {
                 m_toolTip = m.text();
+                break;
+            }
+        }
+    }
+
+    if (m_toolTip.isEmpty()) {
+        unsigned lineno = tc.blockNumber() + 1;
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (lineno == incl.line()) {
+                m_toolTip = incl.fileName();
                 break;
             }
         }
@@ -202,7 +214,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Symbol *lastSymbol = doc->findSymbolAt(line, column);
 
             TypeOfExpression typeOfExpression;
-            typeOfExpression.setDocuments(m_manager->documents());
+            typeOfExpression.setSnapshot(documents);
             QList<TypeOfExpression::Result> types = typeOfExpression(expression, doc, lastSymbol);
 
             if (!types.isEmpty()) {

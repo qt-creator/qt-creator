@@ -693,10 +693,10 @@ int PluginSpecPrivate::versionCompare(const QString &version1, const QString &ve
 }
 
 /*!
-    \fn bool PluginSpecPrivate::resolveDependencies(const QSet<PluginSpec *> &specs)
+    \fn bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     \internal
 */
-bool PluginSpecPrivate::resolveDependencies(const QSet<PluginSpec *> &specs)
+bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 {
     if (hasError)
         return false;

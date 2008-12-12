@@ -43,6 +43,9 @@
 
 namespace CPlusPlus {
 
+class Environment;
+class Macro;
+
 class CPLUSPLUS_EXPORT TypeOfExpression
 {
 public:
@@ -58,7 +61,12 @@ public:
      * Also clears the lookup context, so can be used to make sure references
      * to the documents previously used are removed.
      */
-    void setDocuments(const QMap<QString, Document::Ptr> &documents);
+    void setSnapshot(const Snapshot &documents);
+
+    enum PreprocessMode {
+        NoPreprocess,
+        Preprocess
+    };
 
     /**
      * Returns a list of possible fully specified types associated with the
@@ -73,7 +81,8 @@ public:
      * @param lastVisibleSymbol The last visible symbol in the document.
      */
     QList<Result> operator()(const QString &expression, Document::Ptr document,
-                             Symbol *lastVisibleSymbol);
+                             Symbol *lastVisibleSymbol,
+                             PreprocessMode mode = NoPreprocess);
 
     /**
      * Returns the AST of the last evaluated expression.
@@ -91,7 +100,15 @@ private:
     ExpressionAST *extractExpressionAST(Document::Ptr doc) const;
     Document::Ptr documentForExpression(const QString &expression) const;
 
-    QMap<QString, Document::Ptr> m_documents;
+    void processEnvironment(CPlusPlus::Snapshot documents,
+                            CPlusPlus::Document::Ptr doc, CPlusPlus::Environment *env,
+                            QSet<QString> *processed) const;
+
+    QString preprocessedExpression(const QString &expression,
+                                   CPlusPlus::Snapshot documents,
+                                   CPlusPlus::Document::Ptr thisDocument) const;
+
+    Snapshot m_snapshot;
     ExpressionAST *m_ast;
     LookupContext m_lookupContext;
 };
