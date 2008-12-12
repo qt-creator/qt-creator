@@ -225,12 +225,11 @@ void StackedEditorGroup::insertEditor(int index, IEditor *editor)
     m_widgetEditorMap.insert(editor->widget(), editor);
 
     QToolBar *toolBar = editor->toolBar();
-    if (toolBar)
+    if (toolBar) {
+        toolBar->setVisible(false); // will be made visible in setCurrentEditor
         m_toolBar->layout()->addWidget(toolBar);
-    connect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-
-    updateEditorStatus(editor);
-    updateToolBar(editor);
+    }
+    connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
     emit editorAdded(editor);
 }
@@ -284,23 +283,26 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
         const bool block = m_editorList->blockSignals(true);
         m_editorList->setCurrentIndex(indexOf(editor));
         m_editorList->blockSignals(block);
-
-        updateEditorStatus(editor);
-        updateToolBar(editor);
     }
     setEditorFocus(idx);
+
+    updateEditorStatus(editor);
+    updateToolBar(editor);
     if (editor != m_editorForInfoWidget) {
         m_infoWidget->hide();
         m_editorForInfoWidget = 0;
     }
 }
 
+void StackedEditorGroup::checkEditorStatus()
+{
+        IEditor *editor = qobject_cast<IEditor *>(sender());
+        if (editor == currentEditor())
+            updateEditorStatus(editor);
+}
+
 void StackedEditorGroup::updateEditorStatus(IEditor *editor)
 {
-    if (!editor)
-        editor = qobject_cast<IEditor *>(sender());
-    QTC_ASSERT(editor, return);
-
     static const QIcon lockedIcon(QLatin1String(":/qworkbench/images/locked.png"));
     static const QIcon unlockedIcon(QLatin1String(":/qworkbench/images/unlocked.png"));
 
@@ -325,8 +327,8 @@ void StackedEditorGroup::updateToolBar(IEditor *editor)
         toolBar = m_defaultToolBar;
     if (m_activeToolBar == toolBar)
         return;
-    m_activeToolBar->setVisible(false);
     toolBar->setVisible(true);
+    m_activeToolBar->setVisible(false);
     m_activeToolBar = toolBar;
 }
 

@@ -871,6 +871,7 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
     restoreEditorState(editor);
     QApplication::restoreOverrideCursor();
     ensureEditorManagerVisible();
+    setCurrentEditor(editor);
     return editor;
 }
 
@@ -1351,6 +1352,8 @@ bool EditorManager::restoreState(const QByteArray &state)
     if (!success)
         return false;
 
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
     bool editorChangesSuppressed = m_d->m_suppressEditorChanges;
     m_d->m_suppressEditorChanges = true;
 
@@ -1366,6 +1369,8 @@ bool EditorManager::restoreState(const QByteArray &state)
     m_d->m_suppressEditorChanges = editorChangesSuppressed;
     if (currentEditor())
         setCurrentEditor(currentEditor());// looks like a null-op but is not
+    
+    QApplication::restoreOverrideCursor();
 
     return true;
 }
