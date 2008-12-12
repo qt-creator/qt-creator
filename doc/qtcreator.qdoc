@@ -33,8 +33,8 @@
         \o \bold{Qt Designer Integration}: User interface forms can be designed
            within Qt Creator. Simply double-click on a \c{.ui} file within the
            \gui{Project Explorer} to launch the integration.
-        \o \bold{Navigation tools}: Powerful navigation tools let the user
-           navigate around files and classes with minimal keystrokes.
+        \o \bold{Locator}: A powerful navigation tool that lets the user locate
+           files and classes using minimal keystrokes.
         \o \bold{Support for qmake's .pro file format}: The project's \c{.pro}
            file is used as a project description file.
         \o \bold{Debugging Interface to GDB}: Applications can be debugged
@@ -527,23 +527,21 @@
     \title Navigating Quickly Around Your Code with Locator
 
     With Qt Creator, navigating to different locations in your project or on
-    your disk -- such as files, classes and methods -- is trivial using
-    \gui Locator: a smart line edit at the bottom left of the application
+    your disk, e.g., files, classes, methods, etc., is trivial using
+    \gui Locator -- a smart line edit at the bottom left of Qt Creator's
     window.
 
-    ### SCREENSHOT
+    \image qtcreator-locator.png
 
     Suppose you would like to open your project's \c{main.cpp} file, click on
-    on the input field 
+    \gui Locator or use \key{Ctrl+K}, type in the file name and then press
+    \key Return. The file will be opened in the editor. You can also type
+    part of a file name and use wildcard characters \c{*} and \c{?} to match
+    \e{any} number of \e{any} characters. A list of all files matching your
+    criteria will be displayed. 
 
-
-    To open for example the file \c{main.cpp} of your project, click into the
-    input field (or use \key{Ctrl+K} to get there), type the file name, and
-    finally press the \key{Return} key. The file will open in the editor.
-    You can also type only a part of a file name, and use the wildcard
-    characters \c{*} and \c{?} which match \c{any number of any characters} and
-    \c{any single character}, respectively - you will get a list of all matching
-    files to choose from.
+    \gui Locator not only allows you to navigate files on disk but also other
+    "locations", which are organized with \bold{Filters}.
 
     As mentioned above, files are not the only type of locations you can
     jump to. The different types of locations are organized in what we
