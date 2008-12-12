@@ -130,8 +130,6 @@ int qtGhVersion = QT_VERSION;
 #include <ctype.h>
 #include <stdio.h>
 
-//#include <sys/types.h>
-
 #ifdef Q_OS_WIN
 #   include <windows.h>
 #endif
@@ -173,9 +171,6 @@ public:
 
     // id of the thread that owns the object
     QThreadData *threadData;
-    void moveToThread_helper();
-    void setThreadData_helper(QThreadData *currentData, QThreadData *targetData);
-    void _q_reregisterTimers(void *pointer);
 
     struct Sender
     {
@@ -189,20 +184,12 @@ public:
 
     QList<QPointer<QObject> > eventFilters;
 
-    struct ExtraData
-    {
-#ifndef QT_NO_USERDATA
-        QVector<QObjectUserData *> userData;
-#endif
-        QList<QByteArray> propertyNames;
-        QList<QVariant> propertyValues;
-    };
+    struct ExtraData;
     ExtraData *extraData;
     mutable quint32 connectedSignals;
 
     QString objectName;
 
-    // Note: you must hold the signalSlotLock() before accessing the lists below or calling the functions
     struct Connection
     {
         QObject *receiver;
@@ -215,8 +202,6 @@ public:
     QObjectConnectionListVector *connectionLists;
     QList<Sender> senders;
     int *deleteWatch;
-
-    static QObjectPrivate *get(QObject *o) { return o->d_func(); }
 };
 
 #if defined(QT_BEGIN_NAMESPACE)
