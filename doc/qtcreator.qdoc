@@ -54,7 +54,7 @@
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
-       \o \l{Known Issues for Version 0.9 (Technical Preview)}
+       \o \l{Known Issues of Version 0.9 (Technical Preview)}
     \endlist
 
 */
@@ -577,7 +577,7 @@
 
     \image qtcreator-navigate-customfilter.png
 
-    The following table gives an overview on the currently available filters:
+    The following table lists the filters currently available:
 
     \table
         \header
@@ -1057,7 +1057,10 @@
             \o Find Next
             \o F3
         \row
-            \o Go back to Code Editor (May require more than one press)
+            \o Go back to Code Editor (\gui Edit mode: The first press gives
+               the editor focus, without closing secondary windows; the second
+               press closes all secondary windows. \gui Debug mode or \gui Help
+               mode: Switch to \gui Edit mode.)
             \o Esc
         \row
             \o Go to a Line
@@ -1131,7 +1134,7 @@
          The only solution for this problem is to boot another kernel.
 
       \o gdb sometimes takes very long to load debugging symbol,
-         especially from big libraries like libQtWebKit. Starting debugging
+         especially from big libraries like \c libQtWebKit. Starting debugging
          can take up to several minutes without visible progress.
 
       \o Paths or file names containing spaces or special characters like colons,
