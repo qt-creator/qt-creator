@@ -157,6 +157,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
         hbox->addWidget(closeButton);
 
 
+        m_infoWidget->setVisible(false);
         tl->addWidget(m_infoWidget);
     }
     tl->addWidget(m_container);
@@ -166,8 +167,6 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
     l->setMargin(0);
     l->addWidget(m_toplevel);
     setLayout(l);
-
-    m_toplevel->setVisible(false);
 }
 
 void StackedEditorGroup::showEditorInfoBar(const QString &kind,
@@ -261,10 +260,6 @@ void StackedEditorGroup::removeEditor(IEditor *editor)
             toolBar->setVisible(false);
             toolBar->setParent(0);
         }
-        if (m_container->count() == 0) {
-            m_toplevel->setVisible(false);
-            setFocus();
-        }
         emit editorRemoved(editor);
     }
 }
@@ -281,7 +276,6 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
         return;
-    m_toplevel->setVisible(true);
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     if (m_container->currentIndex() != idx) {
