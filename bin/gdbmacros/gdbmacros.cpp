@@ -2149,8 +2149,8 @@ static void qDumpStdList(QDumper &d)
 
 static void qDumpStdMap(QDumper &d)
 {
-    const std::map<int, int> &map =
-        *reinterpret_cast<const std::map<int, int> *>(d.data);
+    typedef std::map<int, int> DummyType;
+    const DummyType &map = *reinterpret_cast<const DummyType*>(d.data);
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
     const void *p = d.data;
@@ -2159,7 +2159,7 @@ static void qDumpStdMap(QDumper &d)
 
     int nn = map.size();
     qCheck(nn >= 0);
-    std::map<int, int>::const_iterator it = map.begin();
+    DummyType::const_iterator it = map.begin();
     for (int i = 0; i < nn && i < 10 && it != map.end(); ++i, ++it)
         qCheckAccess(it.operator->());
 
@@ -2175,7 +2175,7 @@ static void qDumpStdMap(QDumper &d)
         int valueOffset = d.extraInt[2];
 
         d << ",children=[";
-        std::map<int, int>::const_iterator it = map.begin();
+        it = map.begin();
         for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
             const void *node = it.operator->();
             if (simpleKey) {
