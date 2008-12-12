@@ -267,7 +267,7 @@ void testQMap()
     ggt[11] = QStringList() << "11";
     ggt[22] = QStringList() << "22";
 
-#if 0
+#if 1
     QMap<uint, float> gg0;
     gg0[11] = 11.0;
     gg0[22] = 22.0;
@@ -413,16 +413,31 @@ void testStdList()
 
 void testStdMap()
 {
+    std::map<QString, Foo> gg3;
+    gg3["22.0"] = Foo(22);
+    gg3["33.0"] = Foo(33);
+    gg3["44.0"] = Foo(44);
+
+#if 1
+    std::map<uint, uint> gg;
+    gg[11] = 1;
+    gg[22] = 2;
+    gg[33] = 3;
+    gg[44] = 4;
+    gg[55] = 5;
+
     std::map<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";
+    ggl[33] = QStringList() << "33";
+    ggl[44] = QStringList() << "44";
+    ggl[55] = QStringList() << "55";
 
     typedef std::map<uint, QStringList> T;
     T ggt;
     ggt[11] = QStringList() << "11";
     ggt[22] = QStringList() << "22";
 
-#if 0
     std::map<uint, float> gg0;
     gg0[11] = 11.0;
     gg0[22] = 22.0;
@@ -434,15 +449,11 @@ void testStdMap()
     std::map<int, QString> gg2;
     gg2[22] = "22.0";
 
-    std::map<QString, Foo> gg3;
-    gg3["22.0"] = Foo(22);
-    gg3["33.0"] = Foo(33);
-
     QObject ob;
     std::map<QString, QPointer<QObject> > map;
-    map.insert("Hallo", QPointer<QObject>(&ob));
-    map.insert("Welt", QPointer<QObject>(&ob));
-    map.insert(".", QPointer<QObject>(&ob));
+    map["Hallo"] = QPointer<QObject>(&ob);
+    map["Welt"] = QPointer<QObject>(&ob);
+    map["."] = QPointer<QObject>(&ob);
 #endif
 }
 
