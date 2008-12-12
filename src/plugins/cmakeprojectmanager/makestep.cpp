@@ -54,7 +54,7 @@ bool MakeStep::init(const QString &buildConfiguration)
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "make"); // TODO give full path here?
-    setArguments(buildConfiguration, QStringList()); // TODO
+    setArguments(buildConfiguration, value(buildConfiguration, "buildTargets").toStringList()); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }

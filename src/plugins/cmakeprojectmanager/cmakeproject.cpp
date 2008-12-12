@@ -50,6 +50,17 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
+
+// QtCreator CMake Generator wishlist:
+// Which make targets we need to build to get all executables
+// What is the make we need to call
+// What is the actual compiler executable
+// DEFINES
+
+// Open Questions
+// Who sets up the environment for cl.exe ? INCLUDEPATH and so on
+
+
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager), m_fileName(fileName), m_rootNode(new CMakeProjectNode(m_fileName))
 {
@@ -57,8 +68,10 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     m_file = new CMakeFile(this, fileName);
     QDir dir = QFileInfo(m_fileName).absoluteDir();
     QString cbpFile = findCbpFile(dir);
-    if (cbpFile.isEmpty())
-        cbpFile = createCbpFile(dir);
+    if (cbpFile.isEmpty()) {
+        createCbpFile(dir);
+        cbpFile = findCbpFile(dir);
+    }
 
     //TODO move this parsing to a seperate method, which is also called if the CMakeList.txt is updated
     CMakeCbpParser cbpparser;
@@ -111,7 +124,7 @@ QString CMakeProject::findCbpFile(const QDir &directory)
     return QString::null;
 }
 
-QString CMakeProject::createCbpFile(const QDir &directory)
+void CMakeProject::createCbpFile(const QDir &directory)
 {
     // We create a cbp file, only if we didn't find a cbp file in the base directory
     // Yet that can still override cbp files in subdirectories
@@ -124,8 +137,7 @@ QString CMakeProject::createCbpFile(const QDir &directory)
     QProcess cmake;
     cmake.setWorkingDirectory(directory.absolutePath());
     cmake.start("cmake", QStringList() << "-GCodeBlocks - Unix Makefiles");
-
-    return QString::null;
+    cmake.waitForFinished();
 }
 
 void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
@@ -261,17 +273,21 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertBuildStep(0, cmakeStep);
         insertBuildStep(1, makeStep);
 
+        addBuildConfiguration("AllTargets");
+        setActiveBuildConfiguration("AllTargets");
+        makeStep->setValue("AllTargets", "buildTargets", QStringList() << "all");
+
         // Create build configurations of m_targets
         qDebug()<<"Create build configurations of m_targets";
+        bool setActive = false;
         foreach(const CMakeTarget &ct, m_targets) {
-            addBuildConfiguration(ct.title);
-            makeStep->setValue(ct.title, "makeCommand", ct.makeCommand);
-            makeStep->setValue(ct.title, "makeCleanCommand", ct.makeCleanCommand);
-
             QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory));
-            // TODO set build configuration to build before it can be run
             addRunConfiguration(rc);
-            setActiveRunConfiguration(rc); // TODO what exactly shall be the active run configuration?
+            // The first one gets the honour of beeing the active one
+            if (!setActive) {
+                setActiveRunConfiguration(rc);
+                setActive = true;
+            }
         }
         setActiveBuildConfiguration("all");
 

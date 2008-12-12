@@ -102,7 +102,7 @@ public:
 
 private:
     QString findCbpFile(const QDir &);
-    QString createCbpFile(const QDir &);
+    void createCbpFile(const QDir &);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
