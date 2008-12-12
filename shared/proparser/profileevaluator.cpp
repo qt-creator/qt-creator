@@ -133,7 +133,6 @@ public:
 
     bool read(ProFile *pro);
 
-    void writeItem(const QList<ProItem *> &items, int index, QTextStream &out, QString indent);
     ProBlock *currentBlock();
     void updateItem();
     bool parseLine(const QString &line);
@@ -143,7 +142,6 @@ public:
     void enterScope(bool multiLine);
     void leaveScope();
     void finalizeBlock();
-    void cleanup();
 
     // implementation of AbstractProItemVisitor
     bool visitBeginProBlock(ProBlock *block);
@@ -157,6 +155,7 @@ public:
     bool visitProOperator(ProOperator *oper);
     bool visitProCondition(ProCondition *condition);
 
+    QStringList valuesDirect(const QString &variableName) const { return m_valuemap[variableName]; }
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
     QStringList values(const QString &variableName, const QHash<QString, QStringList> &place,
@@ -601,7 +600,7 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
             QSet<QString> processed;
             forever {
                 bool finished = true;
-                QStringList configs = values(QLatin1String("CONFIG"));
+                QStringList configs = valuesDirect(QLatin1String("CONFIG"));
                 for (int i = configs.size() - 1; i >= 0; --i) {
                     const QString config = configs[i].toLower();
                     if (!processed.contains(config)) {
@@ -709,8 +708,8 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                     q->logMessage(format("~= operator can only handle s/// function."));
                     return false;
                 }
-                bool global = false, quote = false, case_sense = false;
 
+                bool global = false, quote = false, case_sense = false;
                 if (func.count() == 4) {
                     global = func[3].indexOf(QLatin1Char('g')) != -1;
                     case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
@@ -1537,11 +1536,11 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 break;
             }
             if (args.count() == 1) {
-                //cond = isActiveConfig(args.first());
+                //cond = isActiveConfig(args.first()); XXX
                 break;
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
-            const QStringList &configs = m_valuemap.value(QLatin1String("CONFIG"));
+            const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
             for (int i = configs.size() - 1 && ok; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
@@ -2031,7 +2030,7 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
 
 ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
 {
-    QStringList templ = d->m_valuemap.value(QLatin1String("TEMPLATE"));
+    QStringList templ = values(QLatin1String("TEMPLATE"));
     if (templ.count() >= 1) {
         QString t = templ.last().toLower();
         if (t == QLatin1String("app"))
@@ -2133,10 +2132,10 @@ void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringL
     sourceFiles += visitor.values(QLatin1String("SOURCES"));
     sourceFiles += visitor.values(QLatin1String("HEADERS"));
     tsFileNames = visitor.values(QLatin1String("TRANSLATIONS"));
+
     QStringList trcodec = visitor.values(QLatin1String("CODEC"))
         + visitor.values(QLatin1String("DEFAULTCODEC"))
         + visitor.values(QLatin1String("CODECFORTR"));
-
     if (!trcodec.isEmpty())
         codecForTr = trcodec.last();
 
