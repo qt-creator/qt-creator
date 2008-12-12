@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "cpptools.h"
+#include "cpptoolsplugin.h"
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"

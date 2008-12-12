@@ -21,11 +21,11 @@ SOURCES += cppquickopenfilter.cpp \
     cppfunctionsfilter.cpp
 
 # Input
-SOURCES += cpptools.cpp \
+SOURCES += cpptoolsplugin.cpp \
     cppmodelmanager.cpp \
     cppcodecompletion.cpp \
     cpphoverhandler.cpp
-HEADERS += cpptools.h \
+HEADERS += cpptoolsplugin.h \
     cppmodelmanager.h \
     cppcodecompletion.h \
     cpphoverhandler.h \
