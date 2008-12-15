@@ -25,10 +25,18 @@ public:
         return unit;
     }
 
+    TranslationUnit *parseExpression(const QByteArray &source)
+    { return parse(source, TranslationUnit::ParseExpression); }
+
     TranslationUnit *parseStatement(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseStatement); }
 
 private slots:
+    // expressions
+    void simple_name();
+    void template_id();
+
+    // statements
     void if_statement();
     void if_else_statement();
     void while_statement();
@@ -36,6 +44,33 @@ private slots:
     void for_statement();
     void cpp_initializer_or_function_declaration();
 };
+
+void tst_AST::simple_name()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression("a"));
+    AST *ast = unit->ast();
+
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asSimpleName() != 0);
+    QCOMPARE(ast->asSimpleName()->identifier_token, 1U);
+}
+
+void tst_AST::template_id()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression("list<10>"));
+    AST *ast = unit->ast();
+
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asTemplateId() != 0);
+    QCOMPARE(ast->asTemplateId()->identifier_token, 1U);
+    QCOMPARE(ast->asTemplateId()->less_token, 2U);
+    QVERIFY(ast->asTemplateId()->template_arguments != 0);
+    QVERIFY(ast->asTemplateId()->template_arguments->template_argument != 0);
+    QVERIFY(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral() != 0);
+    QCOMPARE(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral()->token, 3U);
+    QVERIFY(ast->asTemplateId()->template_arguments->next == 0);
+    QCOMPARE(ast->asTemplateId()->greater_token, 4U);
+}
 
 void tst_AST::if_statement()
 {
