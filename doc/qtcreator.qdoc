@@ -592,7 +592,6 @@
     cached. Click \gui Refresh from the menu above to update the cached
     information.
 
-
     The following table lists the filters currently available:
 
     \table
@@ -607,16 +606,18 @@
         \row
             \o  Go to a symbol definition
             \o  Ctrl+K, :, Space, and the function name
+            \o  
         \row
             \o  Go to a help topic
             \o  Ctrl+K, ?, Space, and the topic
-            \o  \image qtcreator-locator-help.png
+            \o 
         \row
             \o  Go to an opened document
             \o  Ctrl+K, o, Space, and the document name.
         \row
             \o  Go to a file in the file system (browse the file system)
             \o  Ctrl+K, f, Space, and the file name.
+            \o  \image qtcreator-locator-filesystem.png
         \row
             \o  Go to a file in any project currently loaded
             \o  Ctrl+K, a, Space, and the function name.
@@ -624,17 +625,19 @@
         \row
             \o  Go to a file in the current project
             \o  Ctrl+K, p, Space, and the function name.
-
         \row
             \o  Go to a class definition
             \o  Ctrl+K, c, Space, and the class name.
             \o  \image qtcreator-locator-classes.png
-
         \row
             \o  Go to a method definition
             \o  Ctrl+K, m, Space, and the class name.
             \o  \image qtcreator-locator-methods.png
     \endtable
+
+    \note By default, if you press \key{Ctrl+K} and do not use a prefix to
+    specify a filter, three filters will be enabled: \c{o|, \c{l}, and \c{a}.
+
 */
 
 
@@ -793,7 +796,6 @@
 
     \section2 Threads
 
-    
     If a multi-threaded program is stopped, the \gui Thread view  or the
     combobox named \gui Thread in the debugger's status bar can be used to
     switch from one thread to another. The \gui Stack view will adjust itself
