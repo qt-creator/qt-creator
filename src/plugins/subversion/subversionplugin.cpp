@@ -1022,7 +1022,7 @@ Core::ICore *SubversionPlugin::coreInstance()
 
 SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 {
-    QTC_ASSERT(m_subversionPluginInstance, m_subversionPluginInstance);
+    QTC_ASSERT(m_subversionPluginInstance, return m_subversionPluginInstance);
     return m_subversionPluginInstance;
 }
 

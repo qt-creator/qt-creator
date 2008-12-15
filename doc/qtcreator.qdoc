@@ -33,8 +33,8 @@
         \o \bold{Qt Designer Integration}: User interface forms can be designed
            within Qt Creator. Simply double-click on a \c{.ui} file within the
            \gui{Project Explorer} to launch the integration.
-        \o \bold{Navigation tools}: Powerful navigation tools let the user
-           navigate around files and classes with minimal keystrokes.
+        \o \bold{Locator}: A powerful navigation tool that lets the user locate
+           files and classes using minimal keystrokes.
         \o \bold{Support for qmake's .pro file format}: The project's \c{.pro}
            file is used as a project description file.
         \o \bold{Debugging Interface to GDB}: Applications can be debugged
@@ -50,14 +50,15 @@
        \o \l{Creating a Project in Qt Creator}
        \o \l{Build Settings}
        \o \l{Writing a Simple Program with Qt Creator}
-       \o \l{Navigating Quickly Around Your Code}
+       \o \l{Navigating Quickly Around Your Code with Locator}
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
-       \o \l{Known Issues for Version 0.9 (Technical Preview)}
+       \o \l{Known Issues of Version 0.9 (Technical Preview)}
     \endlist
 
 */
+
 
 /*!
     \contentspage index.html
@@ -114,7 +115,7 @@
 
     The task pane in Qt Creator can display one of four different panes:
     \gui{Build Issues}, \gui{Search Results}, \gui{Application Output}, and
-    \gui{Compile}. These panes are available in all modes.
+    \gui{Compile Output}. These panes are available in all modes.
 
     \section2 Build Issues
 
@@ -142,8 +143,8 @@
 
     \section2 Compile
 
-    The \gui{Compile} pane provides all the output from the compiler. In other
-    words, it is a more verbose version of information displayed in the
+    The \gui{Compile Output} pane provides all the output from the compiler. In
+    other words, it is a more verbose version of information displayed in the
     \gui{Build Issues}
 
     \image qtcreator-compile-pane.png
@@ -168,18 +169,21 @@
     Qt Creator is fully integrated with Qt Designer to help you design user
     interface forms just like you would with the standalone version. The Qt
     Designer integration also includes project management and code completion.
+    For more information on Qt Designer, you can refer to
+    \l{The Designer Manual}.
 
     \image qtcreator-formedit.png
 
 
     \section1 Keyboard Navigation
    
-    Even though Qt Creator can be used with a mouse, it also caters to the
-    needs of developers who are more comfortable with the keyboard. A wide
-    range of \l{keyboard-shortcuts}{keyboard} and \l{Quick Navigation}
-    {navigation} shortcuts are available to help speed up the process of
-    developing your application.
+    Qt Creator caters not only to developers who are used to using the mouse,
+    but also to developers who are more comfortable with the keyboard. A wide
+    range of \l{keyboard-shortcuts}{keyboard} and
+    \l{Navigating Quickly Around Your Code with Locator}{navigation} shortcuts
+    are available to help speed up the process of developing your application.
 */
+
 
 /*!
     \contentspage index.html
@@ -191,37 +195,30 @@
 
     \table
         \row
-            \i \bold{Warning:} Qt Creator currently supports qmake only.
-               Makefile and CMake support is not yet available.
+            \i \note Qt Creator currently supports \c qmake only. \c Makefile
+               and \c CMake support is currently unavailable.
     \endtable
 
-    To modify the build settings of your project, switch to the
-    \gui{Build & Run} mode using the mouse or by pressing \key{Ctrl+4}.
+    To modify the build settings of your project, switch to the \gui{Projects}
+    mode using the mouse or with \key{Ctrl+4}.
 
-    \image qtcreator-buildsettings.png
+    \image qtcreator-buildsettingstab.png
 
     Action items to create, clone, or delete build configurations can be found
-    on the right of the dialog. You can have as many build configurations
-    as you need. By default Qt Creator creates a \bold{debug} and
-    \bold{release} build configuration. Both these configurations use the
+    at the bottom of the dialog. You can have as many build configurations as
+    needed. By default Qt Creator creates a \bold{debug} and \bold{release}
+    build configuration. Both these configurations use the
     \l{glossary-default-qt}{Default Qt Version}.
 
     In the tree on the left, a list of build configurations and their settings
-    are displayed. The screenshot below shows the \bold{debug} and
+    are displayed. The screenshot above shows the \bold{debug} and
     \bold{release} configurations and their corresponding settings:
     \bold{Build Environment} and \bold{Build Steps}.
-
-    \image qtcreator-buildsettingstab.png
 
     When you select a build configuration in the tree, a configuration page for
     general build settings will be displayed. Here you can specify which
     \l{glossary-project-qt}{Qt version} to use to build your project, whether
-    to \l{glossary-shadow-build}{shadow build} the project, and if a special
-    debugging helper is linked into the project or not.
-
-    The debugging helper enables the gdb integration to show the contents of
-    Qt data types. Enabling this option means that an additional file will be
-    compiled and linked to your project.
+    to \l{glossary-shadow-build}{shadow build} the project.
 
     \image qtcreator-buildenvironment.png
 
@@ -238,11 +235,14 @@
     \bold{Build Settings} page. Qt Creator will run the make command using the
     correct Qt version.
 
-    \note The default qmake arguments \c{-after SOURCES*=gdbmacros.cpp
-    -after QT*=network} are due to the debugging helper described above. If the
+    \note The \bold{Gdb Macros Build} step builds a small library along with your
+    project that is used for the custom display of Qt and STL objects in the
+    integrated debugger. The library is created and built in a "qtc-gdbmacros"
+    subfolder of your project's main directory, and loaded dynamically into your
+    application if you run it in the debugger. If the
     debugging helper seems to break your build or your application, you can
-    turn it off. You will still be able to debug applications, but the contents
-    of Qt data types will not be displayed properly.
+    remove the build step. You will still be able to debug applications, but the
+    contents of Qt and STL data types will not be displayed properly.
 
 
     \section1 Qt Version Management
@@ -269,6 +269,7 @@
     \l{glossary-default-qt}{default Qt version}. You can override this in the
     \gui{Build Configuration}.
 */
+
 
 /*!
     \contentspage index.html
@@ -319,7 +320,7 @@
 
         Lastly, specify the name of the class you would like to create. The
         \e{Header file}, \e{Source file} and \e{Form file} fields will update
-        themselves according to your choice of class name.
+        automatically according to your choice of class name.
 
         You also have to select the base class for your class, either a
         QWidget, QDialog or QMainWindow,  from the drop down box. Click
@@ -327,6 +328,7 @@
     
     \endtable
 */
+
 
 /*!
     \contentspage index.html
@@ -516,95 +518,129 @@
     
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
     \page creator-navigation.html
     \nextpage creator-debugging.html
 
-    \title Navigating Quickly Around Your Code
+    \title Navigating Quickly Around Your Code with Locator
 
     With Qt Creator, navigating to different locations in your project or on
-    your disk, such as files, classes and methods, is trivial using the input
-    field at the bottom left of the application window.
+    your disk, e.g., files, classes, methods, etc., is trivial using
+    \gui Locator -- a smart line edit at the bottom left of Qt Creator's
+    window.
 
-    ### SCREENSHOT
+    \image qtcreator-locator.png
 
-    To open for example the file \c{main.cpp} of your project, click into the
-    input field (or use \key{Ctrl+K} to get there), type the file name, and
-    finally press the \key{Return} key. The file will open in the editor.
-    You can also type only a part of a file name, and use the wildcard
-    characters \c{*} and \c{?} which match \c{any number of any characters} and
-    \c{any single character}, respectively - you will get a list of all matching
-    files to choose from.
+    Suppose you would like to open your project's \c{main.cpp} file, click on
+    \gui Locator or use \key{Ctrl+K}, type in the file name and then press
+    \key Return. The file will be opened in the editor. You can also type
+    part of a file name and use wildcard characters \c{*} and \c{?} to match
+    \e{any} number of \e{any} characters. A list of all files matching your
+    criteria will be displayed. 
 
-    As mentioned above, files are not the only type of locations you can
-    jump to. The different types of locations are organized in what we
-    call \c{filters}. There are filters for jumping to
+    \gui Locator not only allows you to navigate files on disk but also other
+    "locations", which are organized with \bold{Filters}. Currently there are
+    filters for:
+
     \list
-        \o files mentioned in your \c{.pro} files, such as source and header,
-           resource and \c{.ui} files,
-        \o a specific line in your current text document,
-        \o class and method definitions in your project or anywhere referenced
-           from your project,
-        \o help topics, including the Qt API reference documentation,
-        \o files anywhere on your hard disk (by browsing through the file system),
-        \o any open document,
-        \o files from a subdirectory structure you define.
+        \o  files anywhere on your hard disk (browsing through the file system),
+        \o  files from a subdirectory structure defined by you,
+        \o  files mentioned in your \c{.pro} files, such as source, header,
+            resource, and \c{.ui} files,
+        \o  any open document,
+        \o  class and method definitions in your project or anywhere referenced
+            from your project,
+        \o  help topics, including Qt's documentation, and,
+        \o  a specific line in the document displayed on your editor,
     \endlist
-    Some of these filters are not used by default if you just start typing in the
-    input field, but require you to type a "prefix" in front, that is
-    assigned to that filter. The prefix is usually a single character,
-    followed by a space. As an example, to jump to the definition of the class
-    \c{QDataStream} type \key{Ctrl+K}, \key{:}, \key{Space}, and the class name.
-    You find a full list of filters and their prefixes below.
+
+
+    Some of these filters require you to activate them by typing an assigned
+    \e prefix. This prefix is usually a single character followed by
+    \key{Space}. For example, to jump to the definition of the class
+    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream}, type:
+    \key{Ctrl+K} to activate \gui Locator. Then type colon (\key{:}) followed
+    by \key{Space} and the class name.
+
+
+    Below is a full list of \l{http://doc.trolltech.com/qdatastream.html}
+    {QDataStream} related output:
 
     \image qtcreator-navigate-popup.png
 
-    You can add filters that provide quick navigation to files in a
-    subdirectory structure that you define. This way you have quick access to
-    files that are not directly mentioned in your project, but still relate to it.
-    Click on the little magnifier glass in the input field and choose
-    \gui{Configure...} from the menu that appears. This opens the preferences
-    dialog for navigation filters. Click the \gui{Add} button to create a new
-    filter.  Give it a name, choose directories, set (a comma separated list of)
-    file patterns, and give it a prefix string. After closing the preferences
-    dialog the directories you specified are searched for files that match the
-    file patterns, and the information is cached. From now on you can jump to
-    these files by just typing part of the file name into the navigation input
-    field. You can force an update of the cached information about the files via
-    the \gui{Refresh} menu item in the magnifier menu.
+
+    Filters can be added to provide quick navigation around files in a
+    subdirectory structure defined by you. This way, you can acccess files you
+    need, that are not directly mentioned in your project. Click on 
+    \image qtcreator-locator-magnify.png
+     and choose \gui{Configure...} from the menu displayed.
+
+    \image qtcreator-locator-customize.png
+
+    This then displays the \gui Preferences dialog (\gui Options on Mac Os X)
+    for navigation filters. Click \gui Add to create a new filter. In the
+    \gui{Filter Configuration} dialog below, give your filter a name, select
+    your preferred directories, set file patterns with a comma separated list,
+    and specify a prefix string.
 
     \image qtcreator-navigate-customfilter.png
 
-    The following table gives an overview on the currently available filters:
+    After closing this dialog, \gui Locator will search the directories you
+    selected for files matching your file patterns, and the information will be
+    cached. Click \gui Refresh from the menu above to update the cached
+    information.
+
+    The following table lists the filters currently available:
 
     \table
         \header
-            \o Function
-            \o Key Combination
+            \o  Function
+            \o  Key Combination
+            \o  Screenshot
         \row
-            \o Go to a Line in the Current Document
-            \o Ctrl + K, l, Space, and the line number
+            \o  Go to a line in the current document
+            \o  Ctrl+K, l, Space, and the line number
+            \o  \image qtcreator-locator-line.png
         \row
-            \o Go to a Function Definitions
-            \o Ctrl + K, :, Space, and the function name
+            \o  Go to a symbol definition
+            \o  Ctrl+K, :, Space, and the function name
+            \o  \image qtcreator-locator-symbols.png
         \row
-            \o Go to a Help Topic
-            \o Ctrl + K, ?, Space, and the topic
+            \o  Go to a help topic
+            \o  Ctrl+K, ?, Space, and the topic
+            \o  \image qtcreator-locator-help.png
         \row
-            \o Go to an Already Opened Document
-            \o Ctrl + K, o, Space, and the document name.
+            \o  Go to an opened document
+            \o  Ctrl+K, o, Space, and the document name.
+            \o  \image qtcreator-locator-opendocs.png
         \row
-            \o Go to a File in the File System (browsing the file system)
-            \o Ctrl + K, f, Space, and the file name.
+            \o  Go to a file in the file system (browse the file system)
+            \o  Ctrl+K, f, Space, and the file name.
+            \o  \image qtcreator-locator-filesystem.png
         \row
-            \o Go to a File in any Loaded Project
-            \o Ctrl + K, a, Space, and the function name.
+            \o  Go to a file in any project currently loaded
+            \o  Ctrl+K, a, Space, and the function name.
+            \o  \image qtcreator-locator-files.png
         \row
-            \o Go to a File in the Current Project
-            \o Ctrl + K, p, Space, and the function name.
+            \o  Go to a file in the current project
+            \o  Ctrl+K, p, Space, and the function name.
+            \o  \image qtcreator-locator-current-project.png
+        \row
+            \o  Go to a class definition
+            \o  Ctrl+K, c, Space, and the class name.
+            \o  \image qtcreator-locator-classes.png
+        \row
+            \o  Go to a method definition
+            \o  Ctrl+K, m, Space, and the class name.
+            \o  \image qtcreator-locator-methods.png
     \endtable
+
+    \note By default, if you press \key{Ctrl+K} and do not use a prefix to
+    specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
+
 */
 
 
@@ -734,11 +770,9 @@
     To finish debugging, Press \key{Shift+F5}. A line of code can be executed
     as a whole with \key F10; to execute a function or a sub-function, use
     \key F11. Alternatively, you can continue running the program with \key F5.
-
-    ###REWORD    
-    There is also the possibility to continue execution until the current
-    function finishes, or, for advanced use, to jump to an arbitrary 
-    possition in the current function.
+    It is possible to continue executing your program until the current
+    function completes or jump to an arbitrary position in the current
+    function.
 
 
     \section2 Stack
@@ -765,7 +799,6 @@
 
     \section2 Threads
 
-    
     If a multi-threaded program is stopped, the \gui Thread view  or the
     combobox named \gui Thread in the debugger's status bar can be used to
     switch from one thread to another. The \gui Stack view will adjust itself
@@ -828,30 +861,25 @@
     \section2 Modules
 
     By default, the \gui Modules view is hidden as it is only useful with the
-    experimental delayed debug information loading feature. You can turn this
-    feature on by selecting \gui{Fast Debugger Start} 
+    experimental delayed loaing of debug information feature. You can turn
+    this feature on by selecting \gui{Fast Debugger Start} 
 
 
+    With this feature, debug information from the Qt library itself is not
+    loaded when the application starts up, thereby reducing the startup times
+    for some applications. You can then use the \gui Modules view to manually
+    load this information, if required.
 
-    The \gui Modules view is hidden by default and only useful in
-    connection with the experimental feature of delayed debug 
-    information loading. This feature is accessible by selecting
-    \gui{Debug} and \gui{Fast Debugger Start}. When using the
-    feature, debug information coming from the Qt library itself
-    are not loaded on application startup, thereby reducing the
-    startup times for some applications.  The \gui{Modules View}
-    can then be used to load this information manually if needed.
-    Note that the debugger may fail to set some breakpoints in
-    this scenarios.
+    \note In this scenario, some breakpoints may not be set by the debugger.
+
         
     \section2 Disassembler View and Registers View
 
-    Both the \gui{Disassembler View} and \gui{Registers View} are hidden
-    by default. The former shows the disassembled code of the current
-    function, the latter the current state of the CPU registers.
-    Both views are mainly useful in connection with the low-level
-    \gui{Step single instruction} and \gui{Step over single instruction}
-    commands.
+    By default, both the \gui Disassembler and \gui Registers view are hidden.
+    The \gui Disassembler view displays disassembled code for the current
+    function; the \gui Registers view displays the current state of the CPU's
+    registers. Both views are useful for low-level commands such as
+    \gui{Step Single Instruction} and \gui{Step Over Single Instruction}.
 
     \section1 A Walkthrough for the Debugger Frontend
 
@@ -974,6 +1002,7 @@
     the low-level structures visible again.
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-tips.html
@@ -1017,6 +1046,7 @@
 
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-glossary.html
@@ -1031,83 +1061,70 @@
         \header
             \o Function
             \o Key Combination
+
         \row
-            \o Activate Build & Run Mode
-            \o Ctrl + 4
+            \o Activate \gui Welcome mode
+            \o Ctrl + 1
         \row
-            \o Activate Debug Mode
-            \o Ctrl + 3
-        \row
-            \o Activate Edit Mode
+            \o Activate \gui Edit mode
             \o Ctrl + 2
         \row
-            \o Activate Help Mode
+            \o Activate \gui Debug mode
+            \o Ctrl + 3
+        \row
+            \o Activate \gui Projects mode
+            \o Ctrl + 4
+        \row
+            \o Activate \gui Help mode
             \o Ctrl + 5
         \row
-            \o Activate Output Mode
+            \o Activate \gui Output mode
             \o Ctrl + 6
-        \row
-            \o Activate Welcome Mode
-            \o Ctrl + 1
         \row
             \o Find
             \o Ctrl + F
         \row
-            \o Find Next
+            \o Find next
             \o F3
         \row
-            \o Go back to Code Editor (May require more than one press)
+            \o Go back to the code editor (\gui Edit mode: The first press
+               gives the editor focus, without closing secondary windows; the
+               second press closes all secondary windows. \gui Debug mode or
+               \gui Help mode: Switch to \gui Edit mode.)
             \o Esc
         \row
-            \o Go to a Line
+            \o Go to a line
             \o Ctrl + L
         \row
-            \o Start Debugging
+            \o Start debugging
             \o F5
         \row
-            \o Stop Debugging
+            \o Stop debugging
             \o Shift + F5
         \row
-            \o Toggle Application Output
-            \o Alt + 3
-        \row
-            \o Toggle Code Declaration and Definition
+            \o Toggle code declaration and definition
             \o F2
         \row
-            \o Toggle Header File and Source File
+            \o Toggle header file and source file
             \o F4
         \row
             \o Toggle Side Bar
             \o Alt + 0
         \row
-            \o Toggle Task List
+            \o Toggle \gui{Build Issues} pane
             \o Alt + 1
         \row
-            \o Toggle Search Results
+            \o Toggle \gui{Search Results} pane
             \o Alt + 2
         \row
-            \o Toggle Compile Output
+            \o Toggle \gui{Application Output} pane
+            \o Alt + 3
+        \row
+            \o Toggle \gui{Compile Output} pane
             \o Alt + 4
-        \row
-            \o Select Welcome Mode
-            \o Ctrl + 1
-        \row
-            \o Select Edit Mode
-            \o Ctrl + 2
-        \row
-            \o Select Debug Mode
-            \o Ctrl + 3
-        \row
-            \o Select Build & Run Mode
-            \o Ctrl + 4
-        \row
-            \o Select Help Mode
-            \o Ctrl + 5
-        \row
-            \o Select Output Mode
-            \o Ctrl + 6
     \endtable
 */
+
 
 /*!
     \contentspage index.html
@@ -1120,42 +1137,42 @@
     The development team is aware of those, there is no need to report them as bug.
 
     \list
-      \o The central editor sometimes loses it "changed" status marker.
+        \o  The central editor sometimes loses it "changed" status marker.
 
-      \o There is a kernel bug essentially making debugging unreliable
-         on 2.6.24 kernels for i386 (which is, unfortunately, the default
-         on Ubuntu 8.04).
-         See \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/}
-         for details.
-         The only solution for this problem is to boot another kernel.
+        \o  There is a kernel bug essentially making debugging unreliable on
+            2.6.24 kernels for i386 (which is, unfortunately, the default on
+            Ubuntu 8.04). See
+            \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/} for
+            details. The only solution to this problem is to boot another
+            kernel.
+        
+        \o  Gdb may take long to load debugging symbols, especially from large
+            libraries like \c libQtWebKit. Starting the debugging module can
+            take up to several minutes without visible progress.
 
-      \o gdb sometimes takes very long to load debugging symbol,
-         especially from big libraries like libQtWebKit. Starting debugging
-         can take up to several minutes without visible progress.
+        \o  Paths or file names containing spaces or special characters, e.g.,
+            colons, dollar signs, hash marks etc. may cause difficulties. This
+            is because some of the tools Qt Creator uses in the background have
+            restrictions on the characters allowed in file and directory names.
+            To be on the safe side, we recomment creating projects and project
+            items with names consisting of plain characters, numbers,
+            underscores, and hyphens.
 
-      \o Paths or file names containing spaces or special characters like colons,
-         dollar signs, hash marks etc. may create difficulties.
-         Some of the tools Qt Creator uses in the background to do the "real
-         work" have restrictions on the characters that are allowed in file
-         and directory names. To be on the safe side, it is strongly
-         recommended to create projects and project items only with names
-         consisting of plain characters, numbers, underscores, and hyphens.
+        \o  \c{.pro} files are reformatted if files have been added or removed.
+            Whitespace is not preserved.
 
-      \o \c .pro files are reformatted if files are added/removed.
-         Whitespace is not preserved.
+        \o  There is no IDE support for adding files to include (\c .pri) files.
 
-      \o No IDE support for adding files to include (\c .pri) files.
+        \o  There is no IDE support for adding/removing sub-projects. Project
+            hierarchies (SUBDIRS template) have to be created manually.
 
-      \o No IDE support for adding/removing sub-projects.
-         Project hierarchies (SUBDIRS template) have to be created by hand.
+        \o  The file system sidebar does not update automatically. As a
+            workaround, switch to another directory and then back.
 
-      \o The file system sidebar does not update automatically.
-         As a workaround you can switch to another directory and then back.
+        \o  The resource system of the embedded version of Qt Designer does not
+            interact with the project manager.
 
-      \o The resource system of the embedded version of Qt Designer
-         does not interact with the project management.
-
-      \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
+        \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
     \endlist
 */
 

@@ -283,3 +283,4 @@ int main(int argc, char **argv)
     QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
     return app.exec();
 }
+

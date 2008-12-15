@@ -25,7 +25,7 @@ SUBDIRS   = plugin_coreplugin \
 #            plugin_regexp \ # don't know what to do with this
             plugin_qtscripteditor \
             plugin_cpaster \
-            plugin_cmakeprojectmanager
+#            plugin_cmakeprojectmanager
 
 # These two plugins require private headers from Qt and therefore don't work
 # with an installed/released version of Qt.
