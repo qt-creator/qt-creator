@@ -85,6 +85,25 @@ struct Option
         Option::qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
         Option::field_sep = QLatin1Char(' ');
     }
+
+    enum StringFixFlags {
+        FixNone                 = 0x00,
+        FixEnvVars              = 0x01,
+        FixPathCanonicalize     = 0x02,
+        FixPathToLocalSeparators  = 0x04,
+        FixPathToTargetSeparators = 0x08
+    };
+    static QString fixString(QString string, uchar flags);
+
+    inline static QString fixPathToLocalOS(const QString &in, bool fix_env = true, bool canonical = true)
+    {
+        uchar flags = FixPathToLocalSeparators;
+        if (fix_env)
+            flags |= FixEnvVars;
+        if (canonical)
+            flags |= FixPathCanonicalize;
+        return fixString(in, flags);
+    }
 };
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
@@ -113,17 +132,20 @@ static void unquote(QString *string)
 }
 
 static void insertUnique(QHash<QString, QStringList> *map,
-    const QString &key, const QStringList &value, bool unique = true)
+    const QString &key, const QStringList &value)
 {
     QStringList &sl = (*map)[key];
-    if (!unique) {
-        sl += value;
-    } else {
-        for (int i = 0; i < value.count(); ++i) {
-            if (!sl.contains(value.at(i)))
-                sl.append(value.at(i));
-        }
-    }
+    foreach (const QString &str, value)
+        if (!sl.contains(str))
+            sl.append(str);
+}
+
+static void removeEach(QHash<QString, QStringList> *map,
+    const QString &key, const QStringList &value)
+{
+    QStringList &sl = (*map)[key];
+    foreach (const QString &str, value)
+        sl.removeAll(str);
 }
 
 /*

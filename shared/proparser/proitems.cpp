@@ -35,7 +35,6 @@
 #include "abstractproitemvisitor.h"
 
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 

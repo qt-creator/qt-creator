@@ -45,7 +45,9 @@
 QT_BEGIN_NAMESPACE
 
 class ProFile;
+class ProFileEvaluator;
 
+void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap);
 bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap);
 
 class ProFileEvaluator
@@ -66,7 +68,9 @@ public:
     virtual bool contains(const QString &variableName) const;
     QStringList absFileNames(const QString &variableName);
     QStringList absFileName(const QString &name);
-    void setVerbose(bool on);
+    void setVerbose(bool on); // Default is false
+    void setCumulative(bool on); // Default is true!
+    void setOutputDir(const QString &dir); // Default is empty
 
     bool queryProFile(ProFile *pro);
     bool accept(ProFile *pro);

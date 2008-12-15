@@ -31,7 +31,9 @@
 **
 ***************************************************************************/
 
-#include "cpptools.h"
+#include "cpptoolsplugin.h"
+
+#include "completionsettingspage.h"
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"
@@ -52,6 +54,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 
@@ -84,13 +87,14 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     // Objects
     m_modelManager = new CppModelManager(this);
     addAutoReleasedObject(m_modelManager);
-    CppCodeCompletion *cppcodecompletion = new CppCodeCompletion(m_modelManager, m_core);
-    addAutoReleasedObject(cppcodecompletion);
+    CppCodeCompletion *m_completion = new CppCodeCompletion(m_modelManager, m_core);
+    addAutoReleasedObject(m_completion);
     CppQuickOpenFilter *quickOpenFilter = new CppQuickOpenFilter(m_modelManager,
                                                                  m_core->editorManager());
     addAutoReleasedObject(quickOpenFilter);
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, m_core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, m_core->editorManager()));
+    addAutoReleasedObject(new CompletionSettingsPage(m_completion));
 
     // Menus
     Core::IActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
@@ -110,11 +114,33 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
+    // Restore settings
+    QSettings *settings = m_core->settings();
+    settings->beginGroup(QLatin1String("CppTools"));
+    settings->beginGroup(QLatin1String("Completion"));
+    const bool caseSensitive = settings->value(QLatin1String("CaseSensitive"), true).toBool();
+    m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    m_completion->setAutoInsertBraces(settings->value(QLatin1String("AutoInsertBraces"), true).toBool());
+    settings->endGroup();
+    settings->endGroup();
+
     return true;
 }
 
 void CppToolsPlugin::extensionsInitialized()
 {
+}
+
+void CppToolsPlugin::shutdown()
+{
+    // Save settings
+    QSettings *settings = m_core->settings();
+    settings->beginGroup(QLatin1String("CppTools"));
+    settings->beginGroup(QLatin1String("Completion"));
+    settings->setValue(QLatin1String("CaseSensitive"), m_completion->caseSensitivity() == Qt::CaseSensitive);
+    settings->setValue(QLatin1String("AutoInsertBraces"), m_completion->autoInsertBraces());
+    settings->endGroup();
+    settings->endGroup();
 }
 
 void CppToolsPlugin::switchHeaderSource()
@@ -150,7 +176,12 @@ QFileInfo CppToolsPlugin::findFile(const QDir &dir, const QString &name,
 }
 
 // Figure out file type
-enum FileType { HeaderFile, C_SourceFile, CPP_SourceFile, UnknownType };
+enum FileType {
+    HeaderFile,
+    C_SourceFile,
+    CPP_SourceFile,
+    UnknownType
+};
 
 static inline FileType fileType(const Core::MimeDatabase *mimeDatase, const  QFileInfo & fi)
 {

@@ -63,7 +63,7 @@ QString GeneralSettings::trCategory() const
 
 QWidget* GeneralSettings::createPage(QWidget *parent)
 {
-    m_page = new Ui_GeneralSettings();
+    m_page = new Ui_GeneralSettings;
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
@@ -77,7 +77,6 @@ QWidget* GeneralSettings::createPage(QWidget *parent)
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
 
-
     return w;
 }
 
@@ -89,7 +88,6 @@ void GeneralSettings::finished(bool accepted)
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
-
 }
 
 void GeneralSettings::resetInterfaceColor()

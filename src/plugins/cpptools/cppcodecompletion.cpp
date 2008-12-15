@@ -314,12 +314,37 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager, Core::ICore *core
     : ICompletionCollector(manager),
       m_core(core),
       m_manager(manager),
+      m_caseSensitivity(Qt::CaseSensitive),
+      m_autoInsertBraces(true),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL)
-{ }
+{
+}
 
 QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
-{ return m_icons.iconForSymbol(symbol); }
+{
+    return m_icons.iconForSymbol(symbol);
+}
+
+Qt::CaseSensitivity CppCodeCompletion::caseSensitivity() const
+{
+    return m_caseSensitivity;
+}
+
+void CppCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
+{
+    m_caseSensitivity = caseSensitivity;
+}
+
+bool CppCodeCompletion::autoInsertBraces() const
+{
+    return m_autoInsertBraces;
+}
+
+void CppCodeCompletion::setAutoInsertBraces(bool autoInsertBraces)
+{
+    m_autoInsertBraces = autoInsertBraces;
+}
 
 /*
   Searches beckward for an access operator.
@@ -705,14 +730,14 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
             continue;
         processed.insert(fn);
         if (Document::Ptr doc = context.document(fn)) {
-            foreach (const Macro macro, doc->definedMacros()) {
+            foreach (const Macro &macro, doc->definedMacros()) {
                 macroNames.insert(macro.name);
             }
             todo += doc->includedFiles();
         }
     }
 
-    foreach (const QByteArray macroName, macroNames) {
+    foreach (const QByteArray &macroName, macroNames) {
         TextEditor::CompletionItem item(this);
         item.m_text = QString::fromLatin1(macroName.constData(), macroName.length());
         item.m_icon = m_icons.macroIcon();
@@ -889,29 +914,25 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
              *
              * Meaning it allows any sequence of lower-case characters to preceed an
              * upper-case character. So for example gAC matches getActionController.
-             *
-             * The match is case-sensitive as soon as at least one upper-case character is
-             * present.
              */
             QString keyRegExp;
             keyRegExp += QLatin1Char('^');
             bool first = true;
-            Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive;
             foreach (const QChar &c, key) {
-                if (c.isLower()) {
-                    keyRegExp.append(c);
-                } else if (c.isUpper()) {
-                    sensitivity = Qt::CaseSensitive;
-                    if (!first) {
-                        keyRegExp.append("[a-z0-9_]*");
-                    }
-                    keyRegExp.append(c);
+                if (c.isUpper() && !first) {
+                    keyRegExp += QLatin1String("[a-z0-9_]*");
+                    keyRegExp += c;
+                } else if (m_caseSensitivity == Qt::CaseInsensitive && c.isLower()) {
+                    keyRegExp += QLatin1Char('[');
+                    keyRegExp += c;
+                    keyRegExp += c.toUpper();
+                    keyRegExp += QLatin1Char(']');
                 } else {
-                    keyRegExp.append(QRegExp::escape(c));
+                    keyRegExp += QRegExp::escape(c);
                 }
                 first = false;
             }
-            const QRegExp regExp(keyRegExp, sensitivity);
+            const QRegExp regExp(keyRegExp, Qt::CaseSensitive);
 
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (regExp.indexIn(item.m_text) == 0) {
@@ -962,7 +983,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (symbol) {
+        if (m_autoInsertBraces && symbol) {
             if (Function *function = symbol->type()->asFunction()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.

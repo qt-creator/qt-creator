@@ -64,6 +64,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
+    void shutdown();
     CppModelManager *cppModelManager() { return m_modelManager; }
     QString correspondingHeaderOrSource(const QString &fileName) const;
 
@@ -77,6 +78,7 @@ private:
     Core::ICore *m_core;
     int m_context;
     CppModelManager *m_modelManager;
+    CppCodeCompletion *m_completion;
 
     static CppToolsPlugin *m_instance;
 };

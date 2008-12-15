@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
+#include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -50,6 +51,15 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#include <sys/utsname.h>
+#elif defined(Q_OS_WIN32)
+#include <Windows.h>
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
 #else
@@ -57,6 +67,58 @@
 #endif
 
 QT_BEGIN_NAMESPACE
+
+///////////////////////////////////////////////////////////////////////
+//
+// Option
+//
+///////////////////////////////////////////////////////////////////////
+
+QString
+Option::fixString(QString string, uchar flags)
+{
+    // XXX Ripped out caching, so this will be slow. Should not matter for current uses.
+
+    //fix the environment variables
+    if (flags & Option::FixEnvVars) {
+        int rep;
+        QRegExp reg_variableName(QLatin1String("\\$\\(.*\\)"));
+        reg_variableName.setMinimal(true);
+        while ((rep = reg_variableName.indexIn(string)) != -1)
+            string.replace(rep, reg_variableName.matchedLength(),
+                           QString::fromLocal8Bit(qgetenv(string.mid(rep + 2, reg_variableName.matchedLength() - 3).toLatin1().constData()).constData()));
+    }
+
+    //canonicalize it (and treat as a path)
+    if (flags & Option::FixPathCanonicalize) {
+#if 0
+        string = QFileInfo(string).canonicalFilePath();
+#endif
+        string = QDir::cleanPath(string);
+    }
+
+    if (string.length() > 2 && string[0].isLetter() && string[1] == QLatin1Char(':'))
+        string[0] = string[0].toLower();
+
+    //fix separators
+    Q_ASSERT(!((flags & Option::FixPathToLocalSeparators) && (flags & Option::FixPathToTargetSeparators)));
+    if (flags & Option::FixPathToLocalSeparators) {
+#if defined(Q_OS_WIN32)
+        string = string.replace(QLatin1Char('/'), QLatin1Char('\\'));
+#else
+        string = string.replace(QLatin1Char('\\'), QLatin1Char('/'));
+#endif
+    } else if (flags & Option::FixPathToTargetSeparators) {
+        string = string.replace(QLatin1Char('/'), Option::dir_sep)
+                       .replace(QLatin1Char('\\'), Option::dir_sep);
+    }
+
+    if ((string.startsWith(QLatin1Char('"')) && string.endsWith(QLatin1Char('"'))) ||
+        (string.startsWith(QLatin1Char('\'')) && string.endsWith(QLatin1Char('\''))))
+        string = string.mid(1, string.length() - 2);
+
+    return string;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -69,9 +131,14 @@ class ProFileEvaluator::Private : public AbstractProItemVisitor
 public:
     Private(ProFileEvaluator *q_);
 
+    ProFileEvaluator *q;
+    int m_lineNo;                                   // Error reporting
+    bool m_verbose;
+
+    /////////////// Reading pro file
+
     bool read(ProFile *pro);
 
-    void writeItem(const QList<ProItem *> &items, int index, QTextStream &out, QString indent);
     ProBlock *currentBlock();
     void updateItem();
     bool parseLine(const QString &line);
@@ -81,7 +148,17 @@ public:
     void enterScope(bool multiLine);
     void leaveScope();
     void finalizeBlock();
-    void cleanup();
+
+    QStack<ProBlock *> m_blockstack;
+    ProBlock *m_block;
+
+    ProItem *m_commentItem;
+    QString m_proitem;
+    QString m_pendingComment;
+    bool m_syntaxError;
+    bool m_contNextLine;
+
+    /////////////// Evaluating pro file contents
 
     // implementation of AbstractProItemVisitor
     bool visitBeginProBlock(ProBlock *block);
@@ -95,8 +172,11 @@ public:
     bool visitProOperator(ProOperator *oper);
     bool visitProCondition(ProCondition *condition);
 
+    QStringList valuesDirect(const QString &variableName) const { return m_valuemap[variableName]; }
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
+    QStringList values(const QString &variableName, const QHash<QString, QStringList> &place,
+                       const ProFile *pro) const;
     QString propertyValue(const QString &val) const;
 
     bool isActiveConfig(const QString &config, bool regex = false);
@@ -117,33 +197,26 @@ public:
 
     QStringList qmakeFeaturePaths();
 
-    ProFileEvaluator *q;
-
-    QStack<ProBlock *> m_blockstack;
-    ProBlock *m_block;
-
-    ProItem *m_commentItem;
-    QString m_proitem;
-    QString m_pendingComment;
-    bool m_syntaxError;
-    bool m_contNextLine;
-    bool m_condition;
+    enum { ConditionTrue, ConditionFalse, ConditionElse };
+    int m_condition;
+    int m_prevCondition;
+    bool m_updateCondition;
     bool m_invertNext;
+    int m_skipLevel;
+    bool m_cumulative;
     QString m_lastVarName;
     ProVariable::VariableOperator m_variableOperator;
-    int m_lineNo;                                   // Error reporting
+    QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
 
     QHash<QString, QStringList> m_valuemap;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
     QHash<QString, QString> m_properties;
-    QString m_origfile;
+    QString m_outputDir;
 
     int m_prevLineNo;                               // Checking whether we're assigning the same TARGET
     ProFile *m_prevProFile;                         // See m_prevLineNo
-
-    bool m_verbose;
 };
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
@@ -157,6 +230,11 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_syntaxError = 0;
     m_lineNo = 0;
     m_contNextLine = false;
+    m_cumulative = true;
+    m_updateCondition = false;
+    m_condition = ConditionFalse;
+    m_invertNext = false;
+    m_skipLevel = 0;
 }
 
 bool ProFileEvaluator::Private::read(ProFile *pro)
@@ -448,15 +526,25 @@ void ProFileEvaluator::Private::updateItem()
 bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 {
     if (block->blockKind() == ProBlock::ScopeKind) {
-        m_invertNext = false;
-        m_condition = false;
+        m_updateCondition = true;
+        if (!m_skipLevel) {
+            m_prevCondition = m_condition;
+            m_condition = ConditionFalse;
+        }
+    } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
+        m_updateCondition = false;
+        if (m_condition != ConditionTrue)
+            ++m_skipLevel;
     }
     return true;
 }
 
 bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
 {
-    Q_UNUSED(block);
+    if (block->blockKind() & ProBlock::ScopeContentsKind) {
+        if (m_skipLevel)
+            --m_skipLevel;
+    }
     return true;
 }
 
@@ -482,12 +570,16 @@ bool ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
 
 bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
-    if (!m_condition) {
-        if (m_invertNext)
-            m_condition |= !isActiveConfig(cond->text(), true);
-        else
-            m_condition |= isActiveConfig(cond->text(), true);
+    if (!m_skipLevel) {
+        if (cond->text().toLower() == QLatin1String("else")) {
+            if (m_prevCondition == ConditionTrue)
+                m_condition = ConditionElse;
+        } else if (m_condition == ConditionFalse) {
+            if (isActiveConfig(cond->text(), true) ^ m_invertNext)
+                m_condition = ConditionTrue;
+        }
     }
+    m_invertNext = false;
     return true;
 }
 
@@ -508,12 +600,15 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
 
         m_profileStack.push(pro);
 
-        const QString mkspecDirectory = propertyValue("QMAKE_MKSPECS");
+        const QString mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
+            bool cumulative = m_cumulative;
+            m_cumulative = false;
             // This is what qmake does, everything set in the mkspec is also set
             // But this also creates a lot of problems
-            evaluateFile(mkspecDirectory + "/default/qmake.conf", &ok);
-            evaluateFile(mkspecDirectory + "/features/default_pre.prf", &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
+            m_cumulative = cumulative;
         }
 
         QString fn = pro->fileName();
@@ -529,19 +624,23 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     bool ok = true;
     m_lineNo = pro->lineNumber();
     if (m_profileStack.count() == 1 && !m_oldPath.isEmpty()) {
-        const QString mkspecDirectory = propertyValue("QMAKE_MKSPECS");
+        const QString &mkspecDirectory = propertyValue(QLatin1String("QMAKE_MKSPECS"));
         if (!mkspecDirectory.isEmpty()) {
-            evaluateFile(mkspecDirectory + "/features/default_post.prf", &ok);
+            bool cumulative = m_cumulative;
+            m_cumulative = false;
 
-            QStringList processed;
-            while (1) {
+            evaluateFile(mkspecDirectory + QLatin1String("/features/default_post.prf"), &ok);
+
+            QSet<QString> processed;
+            forever {
                 bool finished = true;
-                QStringList configs = values("CONFIG");
-                for (int i = configs.size()-1; i >= 0; --i) {
+                QStringList configs = valuesDirect(QLatin1String("CONFIG"));
+                for (int i = configs.size() - 1; i >= 0; --i) {
                     const QString config = configs[i].toLower();
                     if (!processed.contains(config)) {
-                        processed.append(config);
-                        evaluateFile(mkspecDirectory + "/features/" + config + ".prf", &ok);
+                        processed.insert(config);
+                        evaluateFile(mkspecDirectory + QLatin1String("/features/")
+                                     + config + QLatin1String(".prf"), &ok);
                         if (ok) {
                             finished = false;
                             break;
@@ -551,12 +650,32 @@ bool ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
                 if (finished)
                     break;
             }
+
+            m_cumulative = cumulative;
         }
 
         m_profileStack.pop();
         ok = QDir::setCurrent(m_oldPath);
     }
     return ok;
+}
+
+static void replaceInList(QStringList *varlist,
+        const QRegExp &regexp, const QString &replace, bool global)
+{
+    for (QStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
+        if ((*varit).contains(regexp)) {
+            (*varit).replace(regexp, replace);
+            if ((*varit).isEmpty())
+                varit = varlist->erase(varit);
+            else
+                ++varit;
+            if(!global)
+                break;
+        } else {
+            ++varit;
+        }
+    }
 }
 
 bool ProFileEvaluator::Private::visitProValue(ProValue *value)
@@ -610,41 +729,57 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
     }
 
     switch (m_variableOperator) {
-        case ProVariable::UniqueAddOperator:    // *
-            insertUnique(&m_valuemap, varName, v, true);
-            insertUnique(&m_filevaluemap[currentProFile()], varName, v, true);
-            break;
         case ProVariable::SetOperator:          // =
-        case ProVariable::AddOperator:          // +
-            insertUnique(&m_valuemap, varName, v, false);
-            insertUnique(&m_filevaluemap[currentProFile()], varName, v, false);
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    m_valuemap[varName] = v;
+                    m_filevaluemap[currentProFile()][varName] = v;
+                }
+            } else {
+                // We are greedy for values.
+                m_valuemap[varName] += v;
+                m_filevaluemap[currentProFile()][varName] += v;
+            }
             break;
-        case ProVariable::RemoveOperator:       // -
-            // fix me: interaction between AddOperator and RemoveOperator
-            insertUnique(&m_valuemap, varName.prepend(QLatin1Char('-')), v, false);
-            insertUnique(&m_filevaluemap[currentProFile()],
-                         varName.prepend(QLatin1Char('-')), v, false);
+        case ProVariable::UniqueAddOperator:    // *=
+            if (!m_skipLevel || m_cumulative) {
+                insertUnique(&m_valuemap, varName, v);
+                insertUnique(&m_filevaluemap[currentProFile()], varName, v);
+            }
             break;
-        case ProVariable::ReplaceOperator:      // ~
+        case ProVariable::AddOperator:          // +=
+            if (!m_skipLevel || m_cumulative) {
+                m_valuemap[varName] += v;
+                m_filevaluemap[currentProFile()][varName] += v;
+            }
+            break;
+        case ProVariable::RemoveOperator:       // -=
+            if (!m_cumulative) {
+                if (!m_skipLevel) {
+                    removeEach(&m_valuemap, varName, v);
+                    removeEach(&m_filevaluemap[currentProFile()], varName, v);
+                }
+            } else {
+                // We are stingy with our values, too.
+            }
+            break;
+        case ProVariable::ReplaceOperator:      // ~=
             {
                 // DEFINES ~= s/a/b/?[gqi]
 
-/*              Create a superset by executing replacement + adding items that have changed
-                to original list. We're not sure if this is really the right approach, so for
-                the time being we will just do nothing ...
-
+                // FIXME: qmake variable-expands val first.
+                if (val.length() < 4 || val[0] != QLatin1Char('s')) {
+                    q->logMessage(format("the ~= operator can handle only the s/// function."));
+                    return false;
+                }
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
-                    q->logMessage(format("'~= operator '(function s///) expects 3 or 4 arguments."));
+                    q->logMessage(format("the s/// function expects 3 or 4 arguments."));
                     return false;
                 }
-                if (func[0] != QLatin1String("s")) {
-                    q->logMessage(format("~= operator can only handle s/// function."));
-                    return false;
-                }
-                bool global = false, quote = false, case_sense = false;
 
+                bool global = false, quote = false, case_sense = false;
                 if (func.count() == 4) {
                     global = func[3].indexOf(QLatin1Char('g')) != -1;
                     case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
@@ -657,19 +792,12 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
                 QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-                QStringList replaceList = replaceInList(m_valuemap.value(varName), regexp, replace,
-                                                        global);
-                // Add changed entries to list
-                foreach (const QString &entry, replaceList)
-                    if (!m_valuemap.value(varName).contains(entry))
-                        insertUnique(&m_valuemap, varName, QStringList() << entry, false);
-
-                replaceList = replaceInList(m_filevaluemap[currentProFile()].value(varName), regexp,
-                                      replace, global);
-                foreach (const QString &entry, replaceList)
-                    if (!m_filevaluemap[currentProFile()].value(varName).contains(entry))
-                        insertUnique(&m_filevaluemap[currentProFile()], varName,
-                                     QStringList() << entry, false); */
+                if (!m_skipLevel || m_cumulative) {
+                    // We could make a union of modified and unmodified values,
+                    // but this will break just as much as it fixes, so leave it as is.
+                    replaceInList(&m_valuemap[varName], regexp, replace, global);
+                    replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
+                }
             }
             break;
 
@@ -679,18 +807,22 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
 bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
-    m_lineNo = func->lineNumber();
-    bool result = true;
-    bool ok = true;
-    QString text = func->text();
-    int lparen = text.indexOf(QLatin1Char('('));
-    int rparen = text.lastIndexOf(QLatin1Char(')'));
-    QTC_ASSERT(lparen < rparen, return false);
-
-    QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
-    QString funcName = text.left(lparen);
-    ok &= evaluateConditionalFunction(funcName.trimmed(), arguments, &result);
-    return ok;
+    if (!m_skipLevel && (!m_updateCondition || m_condition == ConditionFalse)) {
+        QString text = func->text();
+        int lparen = text.indexOf(QLatin1Char('('));
+        int rparen = text.lastIndexOf(QLatin1Char(')'));
+        QTC_ASSERT(lparen < rparen, return false);
+        QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
+        QString funcName = text.left(lparen);
+        m_lineNo = func->lineNumber();
+        bool result = false;
+        if (!evaluateConditionalFunction(funcName.trimmed(), arguments, &result))
+            return false;
+        if (result ^ m_invertNext)
+            m_condition = ConditionTrue;
+    }
+    m_invertNext = false;
+    return true;
 }
 
 
@@ -986,8 +1118,6 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     } else if (!current.isEmpty()) {
         unquote(&current);
         ret.append(current);
-        q->logMessage(format("Project Parser [var replace]: %1 -> [%2]\n")
-                    .arg(str).arg(ret.join(QLatin1String(","))));
     }
     return ret;
 }
@@ -1043,29 +1173,29 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
     static QHash<QString, int> *expands = 0;
     if (!expands) {
         expands = new QHash<QString, int>;
-        expands->insert(QLatin1String("member"), E_MEMBER);                //v (implemented)
-        expands->insert(QLatin1String("first"), E_FIRST);                  //v
-        expands->insert(QLatin1String("last"), E_LAST);                    //v
+        expands->insert(QLatin1String("member"), E_MEMBER);
+        expands->insert(QLatin1String("first"), E_FIRST);
+        expands->insert(QLatin1String("last"), E_LAST);
         expands->insert(QLatin1String("cat"), E_CAT);
-        expands->insert(QLatin1String("fromfile"), E_FROMFILE);
+        expands->insert(QLatin1String("fromfile"), E_FROMFILE); // implementation disabled (see comment below)
         expands->insert(QLatin1String("eval"), E_EVAL);
         expands->insert(QLatin1String("list"), E_LIST);
         expands->insert(QLatin1String("sprintf"), E_SPRINTF);
-        expands->insert(QLatin1String("join"), E_JOIN);                    //v
-        expands->insert(QLatin1String("split"), E_SPLIT);                  //v
-        expands->insert(QLatin1String("basename"), E_BASENAME);            //v
-        expands->insert(QLatin1String("dirname"), E_DIRNAME);              //v
+        expands->insert(QLatin1String("join"), E_JOIN);
+        expands->insert(QLatin1String("split"), E_SPLIT);
+        expands->insert(QLatin1String("basename"), E_BASENAME);
+        expands->insert(QLatin1String("dirname"), E_DIRNAME);
         expands->insert(QLatin1String("section"), E_SECTION);
         expands->insert(QLatin1String("find"), E_FIND);
-        expands->insert(QLatin1String("system"), E_SYSTEM);                //v
+        expands->insert(QLatin1String("system"), E_SYSTEM);
         expands->insert(QLatin1String("unique"), E_UNIQUE);
-        expands->insert(QLatin1String("quote"), E_QUOTE);                  //v
+        expands->insert(QLatin1String("quote"), E_QUOTE);
         expands->insert(QLatin1String("escape_expand"), E_ESCAPE_EXPAND);
         expands->insert(QLatin1String("upper"), E_UPPER);
         expands->insert(QLatin1String("lower"), E_LOWER);
         expands->insert(QLatin1String("re_escape"), E_RE_ESCAPE);
         expands->insert(QLatin1String("files"), E_FILES);
-        expands->insert(QLatin1String("prompt"), E_PROMPT);
+        expands->insert(QLatin1String("prompt"), E_PROMPT); // interactive, so cannot be implemented
         expands->insert(QLatin1String("replace"), E_REPLACE);
     }
     ExpandFunc func_t = ExpandFunc(expands->value(func.toLower()));
@@ -1083,7 +1213,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (func_t == E_SECTION) {
                 if (args.count() != 3 && args.count() != 4) {
                     q->logMessage(format("%1(var) section(var, sep, begin, end) "
-                        "requires three arguments.").arg(func));
+                        "requires three or four arguments.").arg(func));
                 } else {
                     var = args[0];
                     sep = args[1];
@@ -1114,9 +1244,19 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         }
+        case E_SPRINTF:
+            if(args.count() < 1) {
+                q->logMessage(format("sprintf(format, ...) requires at least one argument"));
+            } else {
+                QString tmp = args.at(0);
+                for (int i = 1; i < args.count(); ++i)
+                    tmp = tmp.arg(args.at(i));
+                ret = split_value_list(tmp);
+            }
+            break;
         case E_JOIN: {
             if (args.count() < 1 || args.count() > 4) {
-                q->logMessage(format("join(var, glue, before, after) requires four arguments."));
+                q->logMessage(format("join(var, glue, before, after) requires one to four arguments."));
             } else {
                 QString glue, before, after;
                 if (args.count() >= 2)
@@ -1132,10 +1272,10 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             break;
         }
         case E_SPLIT: {
-            if (args.count() < 2 || args.count() > 2) {
-                q->logMessage(format("split(var, sep) requires two arguments"));
+            if (args.count() != 2) {
+                q->logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
-                QString sep = args.at(1);
+                const QString &sep = (args.count() == 2) ? args[1] : QString(Option::field_sep);
                 foreach (const QString &var, values(args.first()))
                     foreach (const QString &splt, var.split(sep))
                         ret.append(splt);
@@ -1144,7 +1284,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
         }
         case E_MEMBER: {
             if (args.count() < 1 || args.count() > 3) {
-                q->logMessage(format("member(var, start, end) requires three arguments."));
+                q->logMessage(format("member(var, start, end) requires one to three arguments."));
             } else {
                 bool ok = true;
                 const QStringList var = values(args.first());
@@ -1206,8 +1346,85 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         }
-        case E_SYSTEM: {
-            if (m_condition) {
+        case E_CAT:
+            if (args.count() < 1 || args.count() > 2) {
+                q->logMessage(format("cat(file, singleline=true) requires one or two arguments."));
+            } else {
+                QString file = args[0];
+                file = Option::fixPathToLocalOS(file);
+
+                bool singleLine = true;
+                if (args.count() > 1)
+                    singleLine = (args[1].toLower() == QLatin1String("true"));
+
+                QFile qfile(file);
+                if (qfile.open(QIODevice::ReadOnly)) {
+                    QTextStream stream(&qfile);
+                    while (!stream.atEnd()) {
+                        ret += split_value_list(stream.readLine().trimmed());
+                        if (!singleLine)
+                            ret += QLatin1String("\n");
+                    }
+                    qfile.close();
+                }
+            }
+            break;
+#if 0 // Used only by Qt's configure for caching
+        case E_FROMFILE:
+            if (args.count() != 2) {
+                q->logMessage(format("fromfile(file, variable) requires two arguments."));
+            } else {
+                QString file = args[0], seek_variableName = args[1];
+
+                ProFile pro(Option::fixPathToLocalOS(file));
+
+                ProFileEvaluator visitor;
+                visitor.setVerbose(m_verbose);
+                visitor.setCumulative(m_cumulative);
+
+                if (!visitor.queryProFile(&pro))
+                    break;
+
+                if (!visitor.accept(&pro))
+                    break;
+
+                ret = visitor.values(seek_variableName);
+            }
+            break;
+#endif
+        case E_EVAL: {
+            if (args.count() != 1) {
+                q->logMessage(format("eval(variable) requires one argument"));
+
+            } else {
+                ret += values(args.at(0));
+            }
+            break; }
+        case E_LIST: {
+            static int x = 0;
+            QString tmp;
+            tmp.sprintf(".QMAKE_INTERNAL_TMP_variableName_%d", x++);
+            ret = QStringList(tmp);
+            QStringList lst;
+            foreach (const QString &arg, args)
+                lst += split_value_list(arg);
+            m_valuemap[tmp] = lst;
+            break; }
+        case E_FIND:
+            if (args.count() != 2) {
+                q->logMessage(format("find(var, str) requires two arguments."));
+            } else {
+                QRegExp regx(args[1]);
+                foreach (const QString &val, values(args.first()))
+                    if (regx.indexIn(val) != -1)
+                        ret += val;
+            }
+            break;
+#if 0 // Disabled, as it is relatively useless, too slow and dangerous.
+        case E_SYSTEM:
+            if (!m_skipLevel) { // FIXME: should exec only if the result is being used
+                                // (i.e., if this is nested into an assignment) - these
+                                // are less likely to have side effects
                 if (args.count() < 1 || args.count() > 2) {
                     q->logMessage(format("system(execute) requires one or two arguments."));
                 } else {
@@ -1231,10 +1448,112 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                     ret += split_value_list(output);
                 }
             }
-            break; }
+            break;
+#endif
+        case E_UNIQUE:
+            if(args.count() != 1) {
+                q->logMessage(format("unique(var) requires one argument."));
+            } else {
+                foreach (const QString &var, values(args.first()))
+                    if (!ret.contains(var))
+                        ret.append(var);
+            }
+            break;
         case E_QUOTE:
             for (int i = 0; i < args.count(); ++i)
                 ret += QStringList(args.at(i));
+            break;
+        case E_ESCAPE_EXPAND:
+            for (int i = 0; i < args.size(); ++i) {
+                QChar *i_data = args[i].data();
+                int i_len = args[i].length();
+                for (int x = 0; x < i_len; ++x) {
+                    if (*(i_data+x) == QLatin1Char('\\') && x < i_len-1) {
+                        if (*(i_data+x+1) == QLatin1Char('\\')) {
+                            ++x;
+                        } else {
+                            struct {
+                                char in, out;
+                            } mapped_quotes[] = {
+                                { 'n', '\n' },
+                                { 't', '\t' },
+                                { 'r', '\r' },
+                                { 0, 0 }
+                            };
+                            for (int i = 0; mapped_quotes[i].in; ++i) {
+                                if (*(i_data+x+1) == QLatin1Char(mapped_quotes[i].in)) {
+                                    *(i_data+x) = QLatin1Char(mapped_quotes[i].out);
+                                    if (x < i_len-2)
+                                        memmove(i_data+x+1, i_data+x+2, (i_len-x-2)*sizeof(QChar));
+                                    --i_len;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                ret.append(QString(i_data, i_len));
+            }
+            break;
+        case E_RE_ESCAPE:
+            for (int i = 0; i < args.size(); ++i)
+                ret += QRegExp::escape(args[i]);
+            break;
+        case E_UPPER:
+        case E_LOWER:
+            for (int i = 0; i < args.count(); ++i)
+                if (func_t == E_UPPER)
+                    ret += args[i].toUpper();
+                else
+                    ret += args[i].toLower();
+            break;
+        case E_FILES:
+            if (args.count() != 1 && args.count() != 2) {
+                q->logMessage(format("files(pattern, recursive=false) requires one or two arguments"));
+            } else {
+                bool recursive = false;
+                if (args.count() == 2)
+                    recursive = (args[1].toLower() == QLatin1String("true") || args[1].toInt());
+                QStringList dirs;
+                QString r = Option::fixPathToLocalOS(args[0]);
+                int slash = r.lastIndexOf(QDir::separator());
+                if (slash != -1) {
+                    dirs.append(r.left(slash));
+                    r = r.mid(slash+1);
+                } else {
+                    dirs.append(QString());
+                }
+
+                const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
+                for (int d = 0; d < dirs.count(); d++) {
+                    QString dir = dirs[d];
+                    if (!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
+                        dir += QLatin1Char('/');
+
+                    QDir qdir(dir);
+                    for (int i = 0; i < (int)qdir.count(); ++i) {
+                        if (qdir[i] == QLatin1String(".") || qdir[i] == QLatin1String(".."))
+                            continue;
+                        QString fname = dir + qdir[i];
+                        if (QFileInfo(fname).isDir()) {
+                            if (recursive)
+                                dirs.append(fname);
+                        }
+                        if (regex.exactMatch(qdir[i]))
+                            ret += fname;
+                    }
+                }
+            }
+            break;
+        case E_REPLACE:
+            if(args.count() != 3 ) {
+                q->logMessage(format("replace(var, before, after) requires three arguments"));
+            } else {
+                const QRegExp before(args[1]);
+                const QString after(args[2]);
+                foreach (QString val, values(args.first()))
+                    ret += val.replace(before, after);
+            }
             break;
         case 0:
             q->logMessage(format("'%1' is not a function").arg(func));
@@ -1284,11 +1603,11 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 break;
             }
             if (args.count() == 1) {
-                //cond = isActiveConfig(args.first());
+                //cond = isActiveConfig(args.first()); XXX
                 break;
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
-            const QStringList &configs = m_valuemap.value(QLatin1String("CONFIG"));
+            const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
             for (int i = configs.size() - 1 && ok; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
@@ -1301,7 +1620,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         }
         case CF_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
-                q->logMessage(format("contains(var, val) requires at least two arguments."));
+                q->logMessage(format("contains(var, val) requires two or three arguments."));
                 ok = false;
                 break;
             }
@@ -1333,7 +1652,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
         }
         case CF_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
-                q->logMessage(format("count(var, count) requires at least two arguments."));
+                q->logMessage(format("count(var, count) requires two or three arguments."));
                 ok = false;
                 break;
             }
@@ -1363,7 +1682,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             if (args.count() == 2) {
                 parseInto = args[1];
             } else if (args.count() != 1) {
-                q->logMessage(format("include(file) requires one argument."));
+                q->logMessage(format("include(file) requires one or two arguments."));
                 ok = false;
                 break;
             }
@@ -1381,7 +1700,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 QString sarg = args[1];
                 ignore_error = (sarg.toLower() == QLatin1String("true") || sarg.toInt());
             } else if (args.count() != 1) {
-                q->logMessage(format("load(feature) requires one argument."));
+                q->logMessage(format("load(feature) requires one or two arguments."));
                 ok = false;
                 break;
             }
@@ -1442,8 +1761,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 break;
             }
             QString file = args.first();
-
-            file = QDir::cleanPath(file);
+            file = Option::fixPathToLocalOS(file);
 
             if (QFile::exists(file)) {
                 cond = true;
@@ -1468,39 +1786,137 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
     return ok;
 }
 
+QStringList ProFileEvaluator::Private::values(const QString &variableName,
+                                              const QHash<QString, QStringList> &place,
+                                              const ProFile *pro) const
+{
+    if (variableName == QLatin1String("LITERAL_WHITESPACE")) //a real space in a token
+        return QStringList(QLatin1String("\t"));
+    if (variableName == QLatin1String("LITERAL_DOLLAR")) //a real $
+        return QStringList(QLatin1String("$"));
+    if (variableName == QLatin1String("LITERAL_HASH")) //a real #
+        return QStringList(QLatin1String("#"));
+    if (variableName == QLatin1String("OUT_PWD")) //the out going dir
+        return QStringList(m_outputDir);
+    if (variableName == QLatin1String("PWD") ||  //current working dir (of _FILE_)
+        variableName == QLatin1String("IN_PWD"))
+        return QStringList(getcwd());
+    if (variableName == QLatin1String("DIR_SEPARATOR"))
+        return QStringList(Option::dir_sep);
+    if (variableName == QLatin1String("DIRLIST_SEPARATOR"))
+        return QStringList(Option::dirlist_sep);
+    if (variableName == QLatin1String("_LINE_")) //parser line number
+        return QStringList(QString::number(m_lineNo));
+    if (variableName == QLatin1String("_FILE_")) //parser file; qmake is a bit weird here
+        return QStringList(m_profileStack.size() == 1 ? pro->fileName() : QFileInfo(pro->fileName()).fileName());
+    if (variableName == QLatin1String("_DATE_")) //current date/time
+        return QStringList(QDateTime::currentDateTime().toString());
+    if (variableName == QLatin1String("_PRO_FILE_"))
+        return QStringList(m_origfile);
+    if (variableName == QLatin1String("_PRO_FILE_PWD_"))
+        return  QStringList(QFileInfo(m_origfile).absolutePath());
+    if (variableName == QLatin1String("_QMAKE_CACHE_"))
+        return QStringList(); // FIXME?
+    if (variableName.startsWith(QLatin1String("QMAKE_HOST."))) {
+        QString ret, type = variableName.mid(11);
+#if defined(Q_OS_WIN32)
+        if (type == QLatin1String("os")) {
+            ret = QLatin1String("Windows");
+        } else if (type == QLatin1String("name")) {
+            DWORD name_length = 1024;
+            TCHAR name[1024];
+            if (GetComputerName(name, &name_length))
+                ret = QString::fromUtf16((ushort*)name, name_length);
+        } else if (type == QLatin1String("version") || type == QLatin1String("version_string")) {
+            QSysInfo::WinVersion ver = QSysInfo::WindowsVersion;
+            if (type == QLatin1String("version"))
+                ret = QString::number(ver);
+            else if (ver == QSysInfo::WV_Me)
+                ret = QLatin1String("WinMe");
+            else if (ver == QSysInfo::WV_95)
+                ret = QLatin1String("Win95");
+            else if (ver == QSysInfo::WV_98)
+                ret = QLatin1String("Win98");
+            else if (ver == QSysInfo::WV_NT)
+                ret = QLatin1String("WinNT");
+            else if (ver == QSysInfo::WV_2000)
+                ret = QLatin1String("Win2000");
+            else if (ver == QSysInfo::WV_2000)
+                ret = QLatin1String("Win2003");
+            else if (ver == QSysInfo::WV_XP)
+                ret = QLatin1String("WinXP");
+            else if (ver == QSysInfo::WV_VISTA)
+                ret = QLatin1String("WinVista");
+            else
+                ret = QLatin1String("Unknown");
+        } else if (type == QLatin1String("arch")) {
+            SYSTEM_INFO info;
+            GetSystemInfo(&info);
+            switch(info.wProcessorArchitecture) {
+#ifdef PROCESSOR_ARCHITECTURE_AMD64
+            case PROCESSOR_ARCHITECTURE_AMD64:
+                ret = QLatin1String("x86_64");
+                break;
+#endif
+            case PROCESSOR_ARCHITECTURE_INTEL:
+                ret = QLatin1String("x86");
+                break;
+            case PROCESSOR_ARCHITECTURE_IA64:
+#ifdef PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
+            case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
+#endif
+                ret = QLatin1String("IA64");
+                break;
+            default:
+                ret = QLatin1String("Unknown");
+                break;
+            }
+        }
+#elif defined(Q_OS_UNIX)
+        struct utsname name;
+        if (!uname(&name)) {
+            if (type == QLatin1String("os"))
+                ret = QString::fromLatin1(name.sysname);
+            else if (type == QLatin1String("name"))
+                ret = QString::fromLatin1(name.nodename);
+            else if (type == QLatin1String("version"))
+                ret = QString::fromLatin1(name.release);
+            else if (type == QLatin1String("version_string"))
+                ret = QString::fromLatin1(name.version);
+            else if (type == QLatin1String("arch"))
+                ret = QString::fromLatin1(name.machine);
+        }
+#endif
+        return QStringList(ret);
+    }
+
+    QStringList result = place[variableName];
+    if (result.isEmpty()) {
+        if (variableName == QLatin1String("TARGET")) {
+            result.append(QFileInfo(m_origfile).baseName());
+        } else if (variableName == QLatin1String("TEMPLATE")) {
+            result.append(QLatin1String("app"));
+        } else if (variableName == QLatin1String("QMAKE_DIR_SEP")) {
+            result.append(Option::dirlist_sep);
+        }
+    }
+    return result;
+}
+
 QStringList ProFileEvaluator::Private::values(const QString &variableName) const
 {
-    if (variableName == QLatin1String("TARGET")) {
-        QStringList list = m_valuemap.value(variableName);
-        if (!m_origfile.isEmpty())
-            list.append(QFileInfo(m_origfile).baseName());
-        return list;
-    }
-    if (variableName == QLatin1String("PWD")) {
-        return QStringList(getcwd());
-    }
-    return m_valuemap.value(variableName);
+    return values(variableName, m_valuemap, currentProFile());
 }
 
 QStringList ProFileEvaluator::Private::values(const QString &variableName, const ProFile *pro) const
 {
-    if (variableName == QLatin1String("TARGET")) {
-        QStringList list = m_filevaluemap[pro].value(variableName);
-        if (!m_origfile.isEmpty())
-            list.append(QFileInfo(m_origfile).baseName());
-        return list;
-    }
-    if (variableName == QLatin1String("PWD")) {
-        return QStringList(QFileInfo(pro->fileName()).absoluteFilePath());
-    }
-    return m_filevaluemap[pro].value(variableName);
+    return values(variableName, m_filevaluemap[pro], pro);
 }
 
 ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
 {
     QFileInfo fi(fileName);
     if (fi.exists()) {
-        logMessage(d->format("Reading %1\n").arg(fileName));
         ProFile *pro = new ProFile(fi.absoluteFilePath());
         if (d->read(pro))
             return pro;
@@ -1681,7 +2097,7 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
 
 ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
 {
-    QStringList templ = d->m_valuemap.value(QLatin1String("TEMPLATE"));
+    QStringList templ = values(QLatin1String("TEMPLATE"));
     if (templ.count() >= 1) {
         QString t = templ.last().toLower();
         if (t == QLatin1String("app"))
@@ -1734,18 +2150,20 @@ void ProFileEvaluator::addProperties(const QHash<QString, QString> &properties)
 
 void ProFileEvaluator::logMessage(const QString &message)
 {
-    if (d->m_verbose)
+    if (d->m_verbose && !d->m_skipLevel)
         qWarning("%s", qPrintable(message));
 }
 
 void ProFileEvaluator::fileMessage(const QString &message)
 {
-    qWarning("%s", qPrintable(message));
+    if (!d->m_skipLevel)
+        qWarning("%s", qPrintable(message));
 }
 
 void ProFileEvaluator::errorMessage(const QString &message)
 {
-    qWarning("%s", qPrintable(message));
+    if (!d->m_skipLevel)
+        qWarning("%s", qPrintable(message));
 }
 
 // This function is unneeded and still retained. See log message for reason.
@@ -1767,38 +2185,31 @@ void ProFileEvaluator::setVerbose(bool on)
     d->m_verbose = on;
 }
 
-bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap)
+void ProFileEvaluator::setCumulative(bool on)
+{
+    d->m_cumulative = on;
+}
+
+void ProFileEvaluator::setOutputDir(const QString &dir)
+{
+    d->m_outputDir = dir;
+}
+
+void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap)
 {
     QStringList sourceFiles;
     QString codecForTr;
     QString codecForSource;
     QStringList tsFileNames;
 
-    QFileInfo fi(fileName);
-    QDir rootPath;
-    if (!fi.exists())
-        return false;
-
-    rootPath.setPath(fi.absolutePath());
-    ProFile pro(fi.absoluteFilePath());
-
-    ProFileEvaluator visitor;
-    visitor.setVerbose(verbose);
-
-    if (!visitor.queryProFile(&pro))
-        return false;
-
-    if (!visitor.accept(&pro))
-        return false;
-
     // app/lib template
     sourceFiles += visitor.values(QLatin1String("SOURCES"));
     sourceFiles += visitor.values(QLatin1String("HEADERS"));
     tsFileNames = visitor.values(QLatin1String("TRANSLATIONS"));
+
     QStringList trcodec = visitor.values(QLatin1String("CODEC"))
         + visitor.values(QLatin1String("DEFAULTCODEC"))
         + visitor.values(QLatin1String("CODECFORTR"));
-
     if (!trcodec.isEmpty())
         codecForTr = trcodec.last();
 
@@ -1827,6 +2238,27 @@ bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QS
     varMap->insert("CODECFORTR", QStringList() << codecForTr);
     varMap->insert("CODECFORSRC", QStringList() << codecForSource);
     varMap->insert("TRANSLATIONS", tsFileNames);
+}
+
+bool evaluateProFile(const QString &fileName, bool verbose, QHash<QByteArray, QStringList> *varMap)
+{
+    QFileInfo fi(fileName);
+    if (!fi.exists())
+        return false;
+
+    ProFile pro(fi.absoluteFilePath());
+
+    ProFileEvaluator visitor;
+    visitor.setVerbose(verbose);
+
+    if (!visitor.queryProFile(&pro))
+        return false;
+
+    if (!visitor.accept(&pro))
+        return false;
+
+    evaluateProFile(visitor, varMap);
+
     return true;
 }
 

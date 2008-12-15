@@ -1783,22 +1783,25 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
 void ProjectExplorerPlugin::updateSessionMenu()
 {
     m_sessionMenu->clear();
+    QActionGroup *ag = new QActionGroup(m_sessionMenu);
+    connect(ag, SIGNAL(triggered(QAction *)), this, SLOT(setSession(QAction *)));
     const QString &activeSession = m_session->activeSession();
     foreach (const QString &session, m_session->sessions()) {
-        QAction *act = m_sessionMenu->addAction(session, this, SLOT(setSession()));
+        QAction *act = ag->addAction(session);
         act->setCheckable(true);
         if (session == activeSession)
             act->setChecked(true);
     }
+    m_sessionMenu->addActions(ag->actions());
     m_sessionMenu->addSeparator();
     m_sessionMenu->addAction(m_sessionManagerAction);
 
     m_sessionMenu->setEnabled(true);
 }
 
-void ProjectExplorerPlugin::setSession()
+void ProjectExplorerPlugin::setSession(QAction *action)
 {
-    QString session = static_cast<QAction *>(sender())->text();
+    QString session = action->text();
     if (session != m_session->activeSession())
         m_session->loadSession(session);
 }
