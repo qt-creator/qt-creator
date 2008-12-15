@@ -202,30 +202,23 @@
     To modify the build settings of your project, switch to the \gui{Projects}
     mode using the mouse or with \key{Ctrl+4}.
 
-    \image qtcreator-buildsettings.png
+    \image qtcreator-buildsettingstab.png
 
     Action items to create, clone, or delete build configurations can be found
-    on the right of the dialog. You can have as many build configurations as
+    at the bottom of the dialog. You can have as many build configurations as
     needed. By default Qt Creator creates a \bold{debug} and \bold{release}
     build configuration. Both these configurations use the
     \l{glossary-default-qt}{Default Qt Version}.
 
     In the tree on the left, a list of build configurations and their settings
-    are displayed. The screenshot below shows the \bold{debug} and
+    are displayed. The screenshot above shows the \bold{debug} and
     \bold{release} configurations and their corresponding settings:
     \bold{Build Environment} and \bold{Build Steps}.
-
-    \image qtcreator-buildsettingstab.png
 
     When you select a build configuration in the tree, a configuration page for
     general build settings will be displayed. Here you can specify which
     \l{glossary-project-qt}{Qt version} to use to build your project, whether
-    to \l{glossary-shadow-build}{shadow build} the project, and if a special
-    debugging helper is linked into the project or not.
-
-    The debugging helper enables the gdb integration to show the contents of
-    Qt data types. Enabling this option means that an additional file will be
-    compiled and linked to your project.
+    to \l{glossary-shadow-build}{shadow build} the project.
 
     \image qtcreator-buildenvironment.png
 
@@ -242,11 +235,14 @@
     \bold{Build Settings} page. Qt Creator will run the make command using the
     correct Qt version.
 
-    \note The default qmake arguments \c{-after SOURCES*=gdbmacros.cpp
-    -after QT*=network} are due to the debugging helper described above. If the
+    \note The \bold{Gdb Macros Build} step builds a small library along with your
+    project that is used for the custom display of Qt and STL objects in the
+    integrated debugger. The library is created and built in a "qtc-gdbmacros"
+    subfolder of your project's main directory, and loaded dynamically into your
+    application if you run it in the debugger. If the
     debugging helper seems to break your build or your application, you can
-    turn it off. You will still be able to debug applications, but the contents
-    of Qt data types will not be displayed properly.
+    remove the build step. You will still be able to debug applications, but the
+    contents of Qt and STL data types will not be displayed properly.
 
 
     \section1 Qt Version Management
