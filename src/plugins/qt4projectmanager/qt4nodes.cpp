@@ -700,7 +700,6 @@ void Qt4ProFileNode::update()
 
 void Qt4ProFileNode::fileChanged(const QString &filePath)
 {
-    qDebug()<<"+++++"<<filePath;
     CppTools::CppModelManagerInterface *modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
