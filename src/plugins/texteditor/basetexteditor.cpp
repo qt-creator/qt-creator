@@ -749,7 +749,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
 
 void BaseTextEditor::cleanWhitespace()
 {
-        d->m_document->cleanWhitespace();
+    d->m_document->cleanWhitespace();
 }
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
@@ -1286,7 +1286,7 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
 void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)
 {
-     d->m_document->setStorageSettings(storageSettings);
+    d->m_document->setStorageSettings(storageSettings);
 }
 
 //--------- BaseTextEditorPrivate -----------
@@ -2477,17 +2477,22 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
     extraAreaWidth(&markWidth);
 
     if (e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
-        int highlightBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
+        // Update which folder marker is highlighted
+        const int highlightBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
         d->extraAreaHighlightCollapseBlockNumber = -1;
-        if (TextBlockUserData::canCollapse(cursor.block())
+
+        if (d->m_codeFoldingVisible
+            && TextBlockUserData::canCollapse(cursor.block())
             && !TextBlockUserData::hasClosingCollapseInside(cursor.block().next())
             && collapseBox(cursor.block()).contains(e->pos()))
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
 
+        // Set whether the mouse cursor is a hand or normal arrow
         bool hand = (e->pos().x() <= markWidth || d->extraAreaHighlightCollapseBlockNumber >= 0);
         if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
             d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
 
+        // Start fading in or out the highlighted folding marker
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber) {
             d->extraAreaTimeLine->stop();
             d->extraAreaTimeLine->setDirection(d->extraAreaHighlightCollapseBlockNumber >= 0?
@@ -2504,12 +2509,12 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            if (TextBlockUserData::canCollapse(cursor.block())
+            if (d->m_codeFoldingVisible && TextBlockUserData::canCollapse(cursor.block())
                 && !TextBlockUserData::hasClosingCollapseInside(cursor.block().next())
                 && collapseBox(cursor.block()).contains(e->pos())) {
                 setTextCursor(cursor);
                 toggleBlockVisible(cursor.block());
-            } else if (e->pos().x() > markWidth) {
+            } else if (d->m_marksVisible && e->pos().x() > markWidth) {
                 QTextCursor selection = cursor;
                 selection.setVisualNavigation(true);
                 d->extraAreaSelectionAnchorBlockNumber = selection.blockNumber();
@@ -2519,7 +2524,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
             }
-        } else if (e->button() == Qt::RightButton) {
+        } else if (d->m_marksVisible && e->button() == Qt::RightButton) {
             QMenu * contextMenu = new QMenu(this);
             emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber() + 1, contextMenu);
             if (!contextMenu->isEmpty())
