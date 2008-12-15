@@ -220,7 +220,8 @@ public:
 
     void match(int kind, unsigned *token);
 
-    bool maybeFunctionCall(SimpleDeclarationAST *simpleDecl);
+    bool maybeFunctionCall(SimpleDeclarationAST *simpleDecl) const;
+    bool maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const;
 
 private:
     bool switchTemplateArguments(bool templateArguments);
