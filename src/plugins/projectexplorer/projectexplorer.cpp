@@ -406,16 +406,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 #endif
 
-#if 0
-    // recent projects menu
-    Core::IActionContainer *mrecent =
-        am->createMenu(Constants::M_RECENTPROJECTS);
-    mrecent->menu()->setTitle("Recent Projects");
-    mfile->addMenu(mrecent, Core::Constants::G_FILE_PROJECT);
-    connect(mfile->menu(), SIGNAL(aboutToShow()),
-        this, SLOT(updateRecentProjectMenu()));
-#endif
-
     // Default open action
     m_openFileAction = new QAction(tr("Open File"), this);
     cmd = am->registerAction(m_openFileAction, ProjectExplorer::Constants::OPENFILE,
@@ -424,6 +414,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 
     // Open With menu
     mfilec->addMenu(openWith, ProjectExplorer::Constants::G_FILE_OPEN);
+
+    // recent projects menu
+    Core::IActionContainer *mrecent =
+        am->createMenu(Constants::M_RECENTPROJECTS);
+    mrecent->menu()->setTitle("Recent Projects");
+    mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
+    connect(mfile->menu(), SIGNAL(aboutToShow()),
+        this, SLOT(updateRecentProjectMenu()));
 
     // unload action
     m_unloadAction = new QAction(tr("Unload Project"), this);
@@ -1498,8 +1496,7 @@ void ProjectExplorerPlugin::openRecentProject()
     QAction *a = qobject_cast<QAction*>(sender());
     if (m_recentProjectsActions.contains(a)) {
         const QString fileName = m_recentProjectsActions.value(a);
-        if (ProjectFileFactory *pf = findProjectFileFactory(fileName))
-            pf->open(fileName);
+        openProject(fileName);
     }
 }
 
