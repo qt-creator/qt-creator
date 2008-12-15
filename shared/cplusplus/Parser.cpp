@@ -1760,7 +1760,7 @@ bool Parser::parseReturnStatement(StatementAST *&node)
     return false;
 }
 
-bool Parser::maybeFunctionCall(SimpleDeclarationAST *simpleDecl)
+bool Parser::maybeFunctionCall(SimpleDeclarationAST *simpleDecl) const
 {
     if (! simpleDecl)
         return false;
@@ -1798,6 +1798,17 @@ bool Parser::maybeFunctionCall(SimpleDeclarationAST *simpleDecl)
     return true;
 }
 
+bool Parser::maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const
+{
+    if (! simpleDecl->declarators)  {
+        SpecifierAST *spec = simpleDecl->decl_specifier_seq;
+        if (spec && ! spec->next && spec->asNamedTypeSpecifier()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 {
     if (LA() == T_SEMICOLON)
@@ -1810,7 +1821,9 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
         SimpleDeclarationAST *simpleDecl = 0;
         if (stmt->declaration)
             simpleDecl = stmt->declaration->asSimpleDeclaration();
-        if (simpleDecl && simpleDecl->decl_specifier_seq && ! maybeFunctionCall(simpleDecl)) {
+
+        if (simpleDecl && simpleDecl->decl_specifier_seq &&
+                ! maybeFunctionCall(simpleDecl) && ! maybeSimpleExpression(simpleDecl)) {
             unsigned end_of_declaration_statement = cursor();
             rewind(start);
             StatementAST *expression = 0;
@@ -1827,6 +1840,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
             return true;
         }
     }
+
     blockErrors(blocked);
     rewind(start);
     return parseExpressionStatement(node);

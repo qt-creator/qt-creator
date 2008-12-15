@@ -31,6 +31,7 @@ public:
 private slots:
     void if_statement();
     void if_else_statement();
+    void cpp_initializer();
 };
 
 void tst_AST::if_statement()
@@ -49,6 +50,16 @@ void tst_AST::if_statement()
     QVERIFY(stmt->statement != 0);
     QCOMPARE(stmt->else_token, 0U);
     QVERIFY(stmt->else_statement == 0);
+
+    // check the `then' statement
+    ExpressionStatementAST *then_stmt = stmt->statement->asExpressionStatement();
+    QVERIFY(then_stmt != 0);
+    QVERIFY(then_stmt->expression != 0);
+    QCOMPARE(then_stmt->semicolon_token, 6U);
+
+    SimpleNameAST *id_expr = then_stmt->expression->asSimpleName();
+    QVERIFY(id_expr != 0);
+    QCOMPARE(id_expr->identifier_token, 5U);
 }
 
 void tst_AST::if_else_statement()
@@ -68,6 +79,14 @@ void tst_AST::if_else_statement()
     QCOMPARE(stmt->else_token, 7U);
     QVERIFY(stmt->else_statement != 0);
 }
+
+void tst_AST::cpp_initializer()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("QFileInfo fileInfo(foo);"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+}
+
 
 QTEST_APPLESS_MAIN(tst_AST)
 #include "tst_ast.moc"
