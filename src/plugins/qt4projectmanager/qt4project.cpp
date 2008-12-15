@@ -621,7 +621,22 @@ void Qt4Project::addDefaultBuild()
         // Restoring configuration
         // Do we already have a gdbmacrobuildstep?
         // If not add it and disable linking of debugging helper
-        // TODO
+
+        // Check for old link debugging helper setting in each buildConfiguration
+        // We add a gdbmacrosbuildstep if at least one has it
+        // TODO remove migration code from pre beta
+        foreach(const QString &bc, buildConfigurations()) {
+            QVariant v = value(bc, "addQDumper");
+            if (v.isValid() && v.toBool()) {
+                GdbMacrosBuildStep *gdbmacrostep = new GdbMacrosBuildStep(this);
+                insertBuildStep(0, gdbmacrostep);
+                break;
+            }
+        }
+
+        foreach(const QString &bc, buildConfigurations()) {
+            setValue(bc, "addQDumper", QVariant());
+        }
     }
 }
 
