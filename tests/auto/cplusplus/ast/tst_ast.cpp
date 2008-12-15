@@ -33,6 +33,7 @@ private slots:
     void if_else_statement();
     void while_statement();
     void while_condition_statement();
+    void for_statement();
     void cpp_initializer_or_function_declaration();
 };
 
@@ -168,6 +169,30 @@ void tst_AST::while_condition_statement()
     QCOMPARE(body_stmt->lbrace_token, 8U);
     QVERIFY(body_stmt->statements == 0);
     QCOMPARE(body_stmt->rbrace_token, 9U);
+}
+
+void tst_AST::for_statement()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("for (;;) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    ForStatementAST *stmt = ast->asForStatement();
+    QVERIFY(stmt != 0);
+    QCOMPARE(stmt->for_token, 1U);
+    QCOMPARE(stmt->lparen_token, 2U);
+    QVERIFY(stmt->initializer != 0);
+    QVERIFY(stmt->initializer->asExpressionStatement() != 0);
+    QCOMPARE(stmt->initializer->asExpressionStatement()->semicolon_token, 3U);
+    QVERIFY(stmt->condition == 0);
+    QCOMPARE(stmt->semicolon_token, 4U);
+    QVERIFY(stmt->expression == 0);
+    QCOMPARE(stmt->rparen_token, 5U);
+    QVERIFY(stmt->statement != 0);
+    QVERIFY(stmt->statement->asCompoundStatement() != 0);
+    QCOMPARE(stmt->statement->asCompoundStatement()->lbrace_token, 6U);
+    QVERIFY(stmt->statement->asCompoundStatement()->statements == 0);
+    QCOMPARE(stmt->statement->asCompoundStatement()->rbrace_token, 7U);
 }
 
 void tst_AST::cpp_initializer_or_function_declaration()
