@@ -311,7 +311,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
             rowInResult = findInResultInsertPosition(item.name);
         int rowInChanges = findInChangesInsertPosition(item.name);
 
-        qDebug()<<"addVariable "<<item.name<<existsInBaseEnvironment<<rowInResult<<rowInChanges;
+        //qDebug() << "addVariable " << item.name << existsInBaseEnvironment << rowInResult << rowInChanges;
 
         if (existsInBaseEnvironment) {
             m_items.insert(rowInChanges, item);
