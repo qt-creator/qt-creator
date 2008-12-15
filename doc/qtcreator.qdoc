@@ -611,7 +611,7 @@
         \row
             \o  Go to a symbol definition
             \o  Ctrl+K, :, Space, and the function name
-            \o  
+            \o  \image qtcreator-locator-symbols.png
         \row
             \o  Go to a help topic
             \o  Ctrl+K, ?, Space, and the topic
@@ -619,6 +619,7 @@
         \row
             \o  Go to an opened document
             \o  Ctrl+K, o, Space, and the document name.
+            \o  \image qtcreator-locator-opendocs.png
         \row
             \o  Go to a file in the file system (browse the file system)
             \o  Ctrl+K, f, Space, and the file name.
@@ -1006,6 +1007,7 @@
     the low-level structures visible again.
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-tips.html
@@ -1048,6 +1050,7 @@
     \endtable
 
 */
+
 
 /*!
     \contentspage index.html
@@ -1126,6 +1129,7 @@
             \o Alt + 4
     \endtable
 */
+
 
 /*!
     \contentspage index.html
