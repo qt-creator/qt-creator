@@ -59,6 +59,7 @@
 
 */
 
+
 /*!
     \contentspage index.html
     \page creator-quick-tour.html
@@ -183,6 +184,7 @@
     are available to help speed up the process of developing your application.
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-quick-tour.html
@@ -272,6 +274,7 @@
     \gui{Build Configuration}.
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-quick-tour.html
@@ -329,6 +332,7 @@
     
     \endtable
 */
+
 
 /*!
     \contentspage index.html
@@ -518,6 +522,7 @@
     
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
@@ -610,7 +615,7 @@
         \row
             \o  Go to a help topic
             \o  Ctrl+K, ?, Space, and the topic
-            \o 
+            \o  \image qtcreator-locator-help.png
         \row
             \o  Go to an opened document
             \o  Ctrl+K, o, Space, and the document name.
@@ -625,6 +630,7 @@
         \row
             \o  Go to a file in the current project
             \o  Ctrl+K, p, Space, and the function name.
+            \o  \image qtcreator-locator-current-project.png
         \row
             \o  Go to a class definition
             \o  Ctrl+K, c, Space, and the class name.
@@ -636,7 +642,7 @@
     \endtable
 
     \note By default, if you press \key{Ctrl+K} and do not use a prefix to
-    specify a filter, three filters will be enabled: \c{o|, \c{l}, and \c{a}.
+    specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
 
 */
 
