@@ -31,6 +31,8 @@ public:
 private slots:
     void if_statement();
     void if_else_statement();
+    void while_statement();
+    void while_condition_statement();
     void cpp_initializer_or_function_declaration();
 };
 
@@ -98,6 +100,66 @@ void tst_AST::if_else_statement()
     SimpleNameAST *b_id_expr = else_stmt->expression->asSimpleName();
     QVERIFY(b_id_expr != 0);
     QCOMPARE(b_id_expr->identifier_token, 8U);
+}
+
+void tst_AST::while_statement()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("while (a) { }"));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    WhileStatementAST *stmt = ast->asWhileStatement();
+    QVERIFY(stmt != 0);
+    QCOMPARE(stmt->while_token, 1U);
+    QCOMPARE(stmt->lparen_token, 2U);
+    QVERIFY(stmt->condition != 0);
+    QCOMPARE(stmt->rparen_token, 4U);
+    QVERIFY(stmt->statement != 0);
+
+    // check condition
+    QVERIFY(stmt->condition->asSimpleName() != 0);
+    QCOMPARE(stmt->condition->asSimpleName()->identifier_token, 3U);
+
+    // check the `body' statement
+    CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
+    QVERIFY(body_stmt != 0);
+    QCOMPARE(body_stmt->lbrace_token, 5U);
+    QVERIFY(body_stmt->statements == 0);
+    QCOMPARE(body_stmt->rbrace_token, 6U);
+}
+
+void tst_AST::while_condition_statement()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("while (int a = foo) { }"));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    WhileStatementAST *stmt = ast->asWhileStatement();
+    QVERIFY(stmt != 0);
+    QCOMPARE(stmt->while_token, 1U);
+    QCOMPARE(stmt->lparen_token, 2U);
+    QVERIFY(stmt->condition != 0);
+    QCOMPARE(stmt->rparen_token, 7U);
+    QVERIFY(stmt->statement != 0);
+
+    // check condition
+    ConditionAST *condition = stmt->condition->asCondition();
+    QVERIFY(condition != 0);
+    QVERIFY(condition->type_specifier != 0);
+    QVERIFY(condition->type_specifier->asSimpleSpecifier() != 0);
+    QCOMPARE(condition->type_specifier->asSimpleSpecifier()->specifier_token, 3U);
+    QVERIFY(condition->type_specifier->next == 0);
+    QVERIFY(condition->declarator != 0);
+    QVERIFY(condition->declarator->initializer != 0);
+
+    // check the `body' statement
+    CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
+    QVERIFY(body_stmt != 0);
+    QCOMPARE(body_stmt->lbrace_token, 8U);
+    QVERIFY(body_stmt->statements == 0);
+    QCOMPARE(body_stmt->rbrace_token, 9U);
 }
 
 void tst_AST::cpp_initializer_or_function_declaration()
