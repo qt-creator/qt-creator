@@ -605,7 +605,7 @@
             \o  Ctrl+K, l, Space, and the line number
             \o  \image qtcreator-locator-line.png
         \row
-            \o  Go to a function definition
+            \o  Go to a symbol definition
             \o  Ctrl+K, :, Space, and the function name
         \row
             \o  Go to a help topic
@@ -626,9 +626,14 @@
             \o  Ctrl+K, p, Space, and the function name.
 
         \row
-            \o  Go to a class in the current project
+            \o  Go to a class definition
             \o  Ctrl+K, c, Space, and the class name.
             \o  \image qtcreator-locator-classes.png
+
+        \row
+            \o  Go to a method definition
+            \o  Ctrl+K, m, Space, and the class name.
+            \o  \image qtcreator-locator-methods.png
     \endtable
 */
 
