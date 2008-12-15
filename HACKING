@@ -1,0 +1,179 @@
+Mailing List
+============
+You can ask questions about the source code on the QtCreator mailing list: qt-creator@trolltech.com
+
+Submitting Patches
+==================
+We currently prefer patches or git pull urls to be send to the qt-creator mailing list. 
+Note, that currently you need to sign a copyright assignment form before we can accept your code into the central repository.
+We are working on a better solution for that.
+
+API/ABI stability
+=================
+We currently do not gurantee any API nor ABI compatibility between releases.
+
+Coding Style
+============
+We prefer readeable code, one facet of readeable code is having a common 
+coding style, thus we ask you to follow the qt coding style, described below.
+
+Indentation
+  4 spaces, no tabs
+
+Declaring variables
+  Declare each variable on a separate line
+  Avoid short (e.g., a,rbarr,nughdeget) names whenever possible
+  Single character variable names are only okay for counters and temporaries, where the purpose of the variable is obvious 
+  Wait with declaring a variable until it is needed
+
+  Variables and functions start with a small letter. Each consecutive word in a variable's name starts with a capital letter 
+  Avoid abbreviations
+
+    // Wrong
+    int a, b;
+    char *c, *d;
+
+    // Correct
+    int height;
+    int width;
+    char *nameOfThis;
+    char *nameOfThat;
+
+Whitespace 
+  Use blank lines to group statements together where suited 
+  Always use only one blank line
+  Always use a single space after a keyword, and before a curly brace.
+
+    // Wrong
+    if(foo){
+    }
+
+    // Correct
+    if (foo) {
+    }
+
+  For pointers or references, always use a single space before '*' or '&', but never after. 
+  Avoid C-style casts when possible. 
+    // Wrong
+    char* blockOfMemory = (char* ) malloc(data.size());
+
+    // Correct
+    char *blockOfMemory = (char *)malloc(data.size());
+    char *blockOfMemory = reinterpret_cast<char *>(malloc(data.size()));
+
+Braces
+  As a base rule, the left curly brace goes on the same line as the start of the statement: 
+    // Wrong
+    if (codec)
+    {
+    }
+
+    // Correct
+    if (codec) {
+    }
+
+  Exception: Function implementations and class declarations always have the left brace on the start of a line:
+    static void foo(int g)
+    {
+        qDebug("foo: %i", g);
+    }
+
+    class Moo
+    {
+    };
+
+  Use curly braces when the body of a conditional statement contains more than one line, and also if a single line statement is somewhat complex. 
+    // Wrong
+    if (address.isEmpty()) {
+        return false;
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        qDebug("%i", i);
+    }
+
+    // Correct
+    if (address.isEmpty())
+        return false;
+
+    for (int i = 0; i < 10; ++i)
+        qDebug("%i", i);
+
+  Exception 1: Use braces also if the parent statement covers several lines / wraps 
+    // Correct
+    if (address.isEmpty() || !isValid()
+        || !codec) {
+        return false;
+    }
+
+  Exception 2: Use braces also in if-then-else blocks where either the if-code or the else-code covers several lines 
+    // Wrong
+    if (address.isEmpty())
+        --it;
+    else {
+        qDebug("%s", qPrintable(address));
+        ++it;
+    }
+
+    // Correct
+    if (address.isEmpty()) {
+        --it;
+    } else {
+        qDebug("%s", qPrintable(address));
+        ++it;
+    }
+
+    // Wrong
+    if (a)
+        if (b)
+            ...
+        else
+            ...
+
+    // Correct
+    if (a) {
+        if (b)
+            ...
+        else
+            ...
+    }
+
+  Use curly braces when the body of a conditional statement is empty 
+    // Wrong
+    while (a);
+
+    // Correct
+    while (a) {}
+
+Parentheses
+  Use parentheses to group expressions: 
+    // Wrong
+    if (a && b || c)
+
+    // Correct
+    if ((a && b) || c)
+
+    // Wrong
+    a + b & c
+
+    // Correct
+    (a + b) & c
+
+Line breaks 
+  Keep lines shorter than 100 characters; insert line breaks if necessary. 
+  Commas go at the end of a broken line; operators start at the beginning of the new line. The operator is at the end of the line to avoid having to scroll if your editor is too narrow. 
+    // Wrong
+    if (longExpression +
+        otherLongExpression +
+        otherOtherLongExpression) {
+    }
+
+    // Correct
+    if (longExpression
+        + otherLongExpression
+        + otherOtherLongExpression) {
+    }
+
+
+General exception 
+  Feel free to break a rule if it makes your code look bad.
