@@ -152,7 +152,15 @@ void tst_AST::while_condition_statement()
     QCOMPARE(condition->type_specifier->asSimpleSpecifier()->specifier_token, 3U);
     QVERIFY(condition->type_specifier->next == 0);
     QVERIFY(condition->declarator != 0);
+    QVERIFY(condition->declarator->core_declarator != 0);
+    QVERIFY(condition->declarator->core_declarator->asDeclaratorId() != 0);
+    QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name != 0);
+    QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName() != 0);
+    QCOMPARE(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName()->identifier_token, 4U);
+    QVERIFY(condition->declarator->postfix_declarators == 0);
     QVERIFY(condition->declarator->initializer != 0);
+    QVERIFY(condition->declarator->initializer->asSimpleName() != 0);
+    QCOMPARE(condition->declarator->initializer->asSimpleName()->identifier_token, 6U);
 
     // check the `body' statement
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
