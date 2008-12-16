@@ -1,17 +1,17 @@
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
-    \nextpage qtcreator-quick-tour.html
+    \nextpage creator-quick-tour.html
 
     \title Qt Creator Manual
 
-    \section1 Version 0.9 - Technical Preview
+    \section1 Version 0.9.1 (Beta)
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note Qt Creator is currently released as a Technical Preview. It is
+    \note The current version of Qt Creator is 0.9.1 (Beta). It is
     possible to edit source code, compile, run and debug applications; other
     features are still under development. Please send bug reports and
     suggestions to qt-creator@trolltech.com. To subscribe, send a
@@ -20,7 +20,8 @@
 
     \table
     \row
-    \o \inlineimage qtcreator.png
+    \o \inlineimage qtcreator-screenshots.png
+    \row
     \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
         \o \bold{Smart Code Editor}: The code editor provides syntax
@@ -54,7 +55,7 @@
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
-       \o \l{Known Issues of Version 0.9 (Technical Preview)}
+       \o \l{Known Issues of Version 0.9.1 (Beta)}
     \endlist
 
 */
@@ -94,8 +95,8 @@
     on the left provides different views to navigate between files.
 
     \o \gui{Debug Mode} - Provides various ways to inspect the state of the
-    program while debugging. See \l{qtcreator-debugging}{Debugging With Qt
-    Creator} for a hands-on description of how to use this mode.
+    program while debugging. See \l{Debugging With Qt Creator} for a hands-on
+    description of how to use this mode.
 
     \o \gui{Projects Mode} - Lets you configure how projects can be built and
     executed. Under the list of projects, there are tabs to configure the 
@@ -170,7 +171,7 @@
     interface forms just like you would with the standalone version. The Qt
     Designer integration also includes project management and code completion.
     For more information on Qt Designer, you can refer to
-    \l{The Designer Manual}.
+    \l{http://doc.trolltech.com/designer-manual.html}{The Designer Manual}.
 
     \image qtcreator-formedit.png
 
@@ -202,30 +203,23 @@
     To modify the build settings of your project, switch to the \gui{Projects}
     mode using the mouse or with \key{Ctrl+4}.
 
-    \image qtcreator-buildsettings.png
+    \image qtcreator-buildsettingstab.png
 
     Action items to create, clone, or delete build configurations can be found
-    on the right of the dialog. You can have as many build configurations as
+    at the bottom of the dialog. You can have as many build configurations as
     needed. By default Qt Creator creates a \bold{debug} and \bold{release}
     build configuration. Both these configurations use the
     \l{glossary-default-qt}{Default Qt Version}.
 
     In the tree on the left, a list of build configurations and their settings
-    are displayed. The screenshot below shows the \bold{debug} and
+    are displayed. The screenshot above shows the \bold{debug} and
     \bold{release} configurations and their corresponding settings:
     \bold{Build Environment} and \bold{Build Steps}.
-
-    \image qtcreator-buildsettingstab.png
 
     When you select a build configuration in the tree, a configuration page for
     general build settings will be displayed. Here you can specify which
     \l{glossary-project-qt}{Qt version} to use to build your project, whether
-    to \l{glossary-shadow-build}{shadow build} the project, and if a special
-    debugging helper is linked into the project or not.
-
-    The debugging helper enables the gdb integration to show the contents of
-    Qt data types. Enabling this option means that an additional file will be
-    compiled and linked to your project.
+    to \l{glossary-shadow-build}{shadow build} the project.
 
     \image qtcreator-buildenvironment.png
 
@@ -242,11 +236,14 @@
     \bold{Build Settings} page. Qt Creator will run the make command using the
     correct Qt version.
 
-    \note The default qmake arguments \c{-after SOURCES*=gdbmacros.cpp
-    -after QT*=network} are due to the debugging helper described above. If the
+    \note The \bold{Gdb Macros Build} step builds a small library along with your
+    project that is used for the custom display of Qt and STL objects in the
+    integrated debugger. The library is created and built in a "qtc-gdbmacros"
+    subfolder of your project's main directory, and loaded dynamically into your
+    application if you run it in the debugger. If the
     debugging helper seems to break your build or your application, you can
-    turn it off. You will still be able to debug applications, but the contents
-    of Qt data types will not be displayed properly.
+    remove the build step. You will still be able to debug applications, but the
+    contents of Qt and STL data types will not be displayed properly.
 
 
     \section1 Qt Version Management
@@ -288,16 +285,16 @@
 	    \i \inlineimage qtcreator-new-project.png
             \i \bold{Creating a New Project}
 
-    To create a new project, select \gui{New Project} from the \gui{File} menu.
-    You can create one of the following three projects:
+        To create a new project, select \gui{New Project} from the \gui{File} menu.
+        You can create one of the following three projects:
     
-    \list
-        \o Qt4 Console Application
-        \o Qt4 Gui Application
-        \o C++ Library
-    \endlist
+        \list
+            \o Qt4 Console Application
+            \o Qt4 Gui Application
+            \o C++ Library
+        \endlist
 
-    In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
+        In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
 
         \row
 	    \i \inlineimage qtcreator-intro-and-location.png
@@ -322,12 +319,18 @@
 	    \i \inlineimage qtcreator-class-info.png
             \i \bold{Specifying Class Information}
 
-        Lastly, specify the name of the class you would like to create. The
+        Specify the name of the class you would like to create. The
         \e{Header file}, \e{Source file} and \e{Form file} fields will update
         automatically according to your choice of class name.
 
         You also have to select the base class for your class, either a
-        QWidget, QDialog or QMainWindow,  from the drop down box. Click
+        QWidget, QDialog or QMainWindow,  from the drop down box.
+
+        \row
+	    \i \inlineimage qtcreator-new-project-summary.png
+            \i \bold{Creating the Project}
+
+        Finally, review the files that will be created for you. Click
         \gui{Done} and your project will be generated.
     
     \endtable
@@ -405,11 +408,18 @@
 
     \image qtcreator-textfinder-ui.png
 
-    Design the form above using a QLabel, QLineEdit, QPushButton and a
-    QTextEdit. We recommend that you use a QGridLayout to lay out the QLabel,
-    QLineEdit and QPushButton. The QTextEdit can then be added to a
-    QVBoxLayout, along with the QGridLayout. If you are new to designing forms
-    with \QD, you can take a look at the 
+    Design the form above using a \l{http://doc.trolltech.com/qlabel.html}
+    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit},
+    \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton} and a
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. We recommend that
+    you use a QGridLayout to lay out the
+    \l{http://doc.trolltech.com/qlabel.html}{QLabel},
+    \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit} and
+    \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton}. The
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit} can then be added to
+    a \l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}, along with
+    the \l{http://doc.trolltech.com/qgridlayout.html}{QGridLayout}. If you are
+    new to designing forms with \QD, you can take a look at the 
     \l{http://doc.trolltech.com/designer-manual.html}{Designer Manual}.
 
     \section2 The Header File
@@ -418,8 +428,9 @@
     constructor, a destructor, and the \c{Ui} object. We need to add a private
     slot, \c{on_findButton_clicked()}, to carry out our find operation. We
     also need a private function, \c{loadTextFile()}, to read and display the
-    contents of our input text file in the QTextEdit. This is done with the
-    following code:
+    contents of our input text file in the
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. This is done with
+    the following code:
 
     \code
     private slots:
@@ -453,12 +464,16 @@
     }
     \endcode
 
-    Basically, we load a text file using QFile, read it with QTextStream, and
-    then display it on \c{textEdit} with \l{QTextEdit::}{setPlainText()}.
+    Basically, we load a text file using
+    \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
+    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
+    then display it on \c{textEdit} with
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
 
     For the \c{on_findButton_clicked()} slot, we extract the search string and
-    use the \l{QTextEdit::}{find()} function to look for the search string
-    within the text file. The code snippet below further describes it:
+    use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
+    to look for the search string within the text file. The code snippet below
+    further describes it:
 
     \code
     void TextFinder::on_findButton_clicked()
@@ -500,7 +515,14 @@
     \image qtcreator-add-resource-wizard.png
 
     Enter "textfinder" in the \gui{Name} field and use the given \gui{Path}.
-    Then, click \gui{Done}.
+    Then, click \gui{Continue}.
+
+    \image qtcreator-add-resource-wizard2.png
+
+    On this page you can choose to which project you want to add the new file.
+    Make sure that \gui{Add to Project} is checked and
+    "TextFinder" is selected as the \gui{Project}, and click
+    \gui{Done}.
 
     Your resource file will now be displayed with the Resource Editor. Click
     on the \gui{Add} drop down box and select \gui{Add Prefix}. The prefix we
@@ -611,7 +633,7 @@
         \row
             \o  Go to a symbol definition
             \o  Ctrl+K, :, Space, and the function name
-            \o  
+            \o  \image qtcreator-locator-symbols.png
         \row
             \o  Go to a help topic
             \o  Ctrl+K, ?, Space, and the topic
@@ -619,6 +641,7 @@
         \row
             \o  Go to an opened document
             \o  Ctrl+K, o, Space, and the document name.
+            \o  \image qtcreator-locator-opendocs.png
         \row
             \o  Go to a file in the file system (browse the file system)
             \o  Ctrl+K, f, Space, and the file name.
@@ -899,9 +922,9 @@
             \i \bold{Setting a Breakpoint}
 
     First, we set a breakpoint on the line where we invoke
-    \l{QTextEdit::}{setPlainText()} by clicking between the line number and the
-    window border. Then, select \gui{Start Debugging} from the \gui{Debug} menu
-    or press \key{F5}.
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+    by clicking between the line number and the window border. Then, select
+    \gui{Start Debugging} from the \gui{Debug} menu or press \key{F5}.
     \endtable
 
     Breakpoints are visible in the \gui{Breakpoints} view, shown below, in
@@ -1006,6 +1029,7 @@
     the low-level structures visible again.
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-tips.html
@@ -1048,6 +1072,7 @@
     \endtable
 
 */
+
 
 /*!
     \contentspage index.html
@@ -1127,14 +1152,15 @@
     \endtable
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-keyboard-shortcuts.html
     \page creator-known-issues.html
 
-    \title Known Issues of Version 0.9 (Technical Preview)
+    \title Known Issues of Version 0.9.1 (Beta)
 
-    There are some known issues with the Technical Preview.
+    There are some known issues with Qt Creator 0.9.1 (Beta).
     The development team is aware of those, there is no need to report them as bug.
 
     \list

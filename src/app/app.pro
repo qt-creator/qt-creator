@@ -13,11 +13,14 @@ win32 {
 }
 linux-* {
     LIBS *= -lExtensionSystem -lAggregation
+    QT += svg dbus
+
 }
 
 TEMPLATE = app
 TARGET = $$IDE_APP_TARGET
 DESTDIR = ../../bin
+
 
 SOURCES += main.cpp
 

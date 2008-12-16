@@ -39,12 +39,14 @@ that you:
 \endlist
 
 
-
 \section1 Submitting Code
+
+Send your contributions to qt-creator@trolltech.com
 
 It is implicitly understood that all patches contributed to The Qt Creator
 Project are made under under the Gnu General Public License, version 2 or later
-and 
+and currently we require that you sign a copyright assignment form. We are
+working on a better solution.
 
 If you have a problem with that, don't contribute code.
 
@@ -54,12 +56,11 @@ ideas with the other developers on mailing list first.
 
 When you create the patch, please use git or use "diff -up" since we find
 that a lot easier to read than the other diff formats. Also please do not
-send patches that implements or fixes several different things; several
-patches is a much better option.
+send patches that implement or fixes several different things; several
+patches is a much better option. Or send as your a url to pull from.
 
 We also require you to provide a commit message entry with every patch,
-this describes in detail what the patch is doing.
-
+that describes in detail what the patch is doing.
 
 
 \section1 Code Constructs
@@ -207,10 +208,168 @@ Only one declaration on each line.
 
 
 \section2 Formatting
+   We are using the Qt Coding style, please follow the guidelines below.
 
-   Adapt the formatting of your code to the one used in the
-   other parts of Qt Creator. In case there is different formatting for
-   the same construct, use the one used more often.
+Indentation
+  4 spaces, no tabs
+
+Declaring variables
+  Declare each variable on a separate line
+  Avoid short (e.g., a,rbarr,nughdeget) names whenever possible
+  Single character variable names are only okay for counters and temporaries, where the purpose of the variable is obvious
+  Wait with declaring a variable until it is needed
+
+  Variables and functions start with a small letter. Each consecutive word in a variable's name starts with a capital letter
+  Avoid abbreviations
+
+    // Wrong
+    int a, b;
+    char *c, *d;
+
+    // Correct
+    int height;
+    int width;
+    char *nameOfThis;
+    char *nameOfThat;
+
+Whitespace
+  Use blank lines to group statements together where suited
+  Always use only one blank line
+  Always use a single space after a keyword, and before a curly brace.
+
+    // Wrong
+    if(foo){
+    }
+
+    // Correct
+    if (foo) {
+    }
+
+  For pointers or references, always use a single space before '*' or '&', but never after.
+  Avoid C-style casts when possible.
+    // Wrong
+    char* blockOfMemory = (char* ) malloc(data.size());
+
+    // Correct
+    char *blockOfMemory = (char *)malloc(data.size());
+    char *blockOfMemory = reinterpret_cast<char *>(malloc(data.size()));
+
+Braces
+  As a base rule, the left curly brace goes on the same line as the start of the statement:
+    // Wrong
+    if (codec)
+    {
+    }
+
+    // Correct
+    if (codec) {
+    }
+
+  Exception: Function implementations and class declarations always have the left brace on the start of a line:
+    static void foo(int g)
+    {
+        qDebug("foo: %i", g);
+    }
+
+    class Moo
+    {
+    };
+
+  Use curly braces when the body of a conditional statement contains more than one line, and also if a single line statement is somewhat complex.
+    // Wrong
+    if (address.isEmpty()) {
+        return false;
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        qDebug("%i", i);
+    }
+
+    // Correct
+    if (address.isEmpty())
+        return false;
+
+    for (int i = 0; i < 10; ++i)
+        qDebug("%i", i);
+
+  Exception 1: Use braces also if the parent statement covers several lines / wraps
+    // Correct
+    if (address.isEmpty() || !isValid()
+        || !codec) {
+        return false;
+    }
+
+  Exception 2: Use braces also in if-then-else blocks where either the if-code or the else-code covers several lines
+    // Wrong
+    if (address.isEmpty())
+        --it;
+    else {
+        qDebug("%s", qPrintable(address));
+        ++it;
+    }
+
+    // Correct
+    if (address.isEmpty()) {
+        --it;
+    } else {
+        qDebug("%s", qPrintable(address));
+        ++it;
+    }
+
+    // Wrong
+    if (a)
+        if (b)
+            ...
+        else
+            ...
+
+    // Correct
+    if (a) {
+        if (b)
+            ...
+        else
+            ...
+    }
+
+  Use curly braces when the body of a conditional statement is empty
+    // Wrong
+    while (a);
+
+    // Correct
+    while (a) {}
+
+Parentheses
+  Use parentheses to group expressions:
+    // Wrong
+    if (a && b || c)
+
+    // Correct
+    if ((a && b) || c)
+
+    // Wrong
+    a + b & c
+
+    // Correct
+    (a + b) & c
+
+Line breaks
+  Keep lines shorter than 100 characters; insert line breaks if necessary.
+  Commas go at the end of a broken line; operators start at the beginning of the new line. The operator is at the end of the line to avoid having to scroll if your editor is too narrow.
+    // Wrong
+    if (longExpression +
+        otherLongExpression +
+        otherOtherLongExpression) {
+    }
+
+    // Correct
+    if (longExpression
+        + otherLongExpression
+        + otherOtherLongExpression) {
+    }
+
+
+
+
 
 
 \section2 Declarations
@@ -226,6 +385,10 @@ Only one declaration on each line.
     If the same variable is used for all objects, use a static member.
 
   - Avoid global or static variables.
+
+
+\section2 API/ABI stability
+  We currently do not gurantee any API nor ABI compatibility between releases.
 
 
 \section2 File headers
