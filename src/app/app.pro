@@ -13,7 +13,8 @@ win32 {
 }
 linux-* {
     LIBS *= -lExtensionSystem -lAggregation
-    QT += svg dbus
+    ISGCC33=$$(GCC33)
+    !equals(ISGCC33, 1):QT += svg dbus
 
 }
 
