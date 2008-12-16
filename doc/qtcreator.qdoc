@@ -20,7 +20,8 @@
 
     \table
     \row
-    \o \inlineimage qtcreator.png
+    \o \inlineimage qtcreator-screenshots.png
+    \row
     \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
         \o \bold{Smart Code Editor}: The code editor provides syntax
