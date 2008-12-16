@@ -710,7 +710,7 @@
     default; the rarely used ones are hidden. To change the default settings,
     select \gui Debug and then select \gui View.
 
-    ####SCREENSHOT
+    \image qtcreator-debug-view.png
 
     Here, you can lock or unlock the location of your views as well as display
     or hide them. Among the views you can display are \gui Breakpoints,
@@ -810,13 +810,12 @@
     file name and line number of the corresponding source files. This data is
     shown in the \gui Stack view.
 
+    \image qtcreator-debug-stack.png
+
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
     frames will have corresponding source locations. These frames will be
     greyed out in the \gui Stack view.
-
-    ###SCREENSHOT
-
 
     If you click on a frame with a known source location, the text editor will
     jump to the corresponding location and update the \gui{Locals and Watchers}
