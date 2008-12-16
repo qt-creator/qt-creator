@@ -94,8 +94,8 @@
     on the left provides different views to navigate between files.
 
     \o \gui{Debug Mode} - Provides various ways to inspect the state of the
-    program while debugging. See \l{qtcreator-debugging}{Debugging With Qt
-    Creator} for a hands-on description of how to use this mode.
+    program while debugging. See \l{Debugging With Qt Creator} for a hands-on
+    description of how to use this mode.
 
     \o \gui{Projects Mode} - Lets you configure how projects can be built and
     executed. Under the list of projects, there are tabs to configure the 
@@ -170,7 +170,7 @@
     interface forms just like you would with the standalone version. The Qt
     Designer integration also includes project management and code completion.
     For more information on Qt Designer, you can refer to
-    \l{The Designer Manual}.
+    \l{http://doc.trolltech.com/designer-manual.html}{The Designer Manual}.
 
     \image qtcreator-formedit.png
 
@@ -407,11 +407,18 @@
 
     \image qtcreator-textfinder-ui.png
 
-    Design the form above using a QLabel, QLineEdit, QPushButton and a
-    QTextEdit. We recommend that you use a QGridLayout to lay out the QLabel,
-    QLineEdit and QPushButton. The QTextEdit can then be added to a
-    QVBoxLayout, along with the QGridLayout. If you are new to designing forms
-    with \QD, you can take a look at the 
+    Design the form above using a \l{http://doc.trolltech.com/qlabel.html}
+    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit},
+    \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton} and a
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. We recommend that
+    you use a QGridLayout to lay out the
+    \l{http://doc.trolltech.com/qlabel.html}{QLabel},
+    \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit} and
+    \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton}. The
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit} can then be added to
+    a \l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}, along with
+    the \l{http://doc.trolltech.com/qgridlayout.html}{QGridLayout}. If you are
+    new to designing forms with \QD, you can take a look at the 
     \l{http://doc.trolltech.com/designer-manual.html}{Designer Manual}.
 
     \section2 The Header File
@@ -420,8 +427,9 @@
     constructor, a destructor, and the \c{Ui} object. We need to add a private
     slot, \c{on_findButton_clicked()}, to carry out our find operation. We
     also need a private function, \c{loadTextFile()}, to read and display the
-    contents of our input text file in the QTextEdit. This is done with the
-    following code:
+    contents of our input text file in the
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. This is done with
+    the following code:
 
     \code
     private slots:
@@ -455,12 +463,16 @@
     }
     \endcode
 
-    Basically, we load a text file using QFile, read it with QTextStream, and
-    then display it on \c{textEdit} with \l{QTextEdit::}{setPlainText()}.
+    Basically, we load a text file using
+    \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
+    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
+    then display it on \c{textEdit} with
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
 
     For the \c{on_findButton_clicked()} slot, we extract the search string and
-    use the \l{QTextEdit::}{find()} function to look for the search string
-    within the text file. The code snippet below further describes it:
+    use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
+    to look for the search string within the text file. The code snippet below
+    further describes it:
 
     \code
     void TextFinder::on_findButton_clicked()
@@ -902,9 +914,9 @@
             \i \bold{Setting a Breakpoint}
 
     First, we set a breakpoint on the line where we invoke
-    \l{QTextEdit::}{setPlainText()} by clicking between the line number and the
-    window border. Then, select \gui{Start Debugging} from the \gui{Debug} menu
-    or press \key{F5}.
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+    by clicking between the line number and the window border. Then, select
+    \gui{Start Debugging} from the \gui{Debug} menu or press \key{F5}.
     \endtable
 
     Breakpoints are visible in the \gui{Breakpoints} view, shown below, in
