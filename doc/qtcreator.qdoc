@@ -318,12 +318,18 @@
 	    \i \inlineimage qtcreator-class-info.png
             \i \bold{Specifying Class Information}
 
-        Lastly, specify the name of the class you would like to create. The
+        Specify the name of the class you would like to create. The
         \e{Header file}, \e{Source file} and \e{Form file} fields will update
         automatically according to your choice of class name.
 
         You also have to select the base class for your class, either a
-        QWidget, QDialog or QMainWindow,  from the drop down box. Click
+        QWidget, QDialog or QMainWindow,  from the drop down box.
+
+        \row
+	    \i \inlineimage qtcreator-new-project-summary.png
+            \i \bold{Creating the Project}
+
+        Finally, review the files that will be created for you. Click
         \gui{Done} and your project will be generated.
     
     \endtable
