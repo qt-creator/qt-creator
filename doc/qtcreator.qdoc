@@ -284,16 +284,16 @@
 	    \i \inlineimage qtcreator-new-project.png
             \i \bold{Creating a New Project}
 
-    To create a new project, select \gui{New Project} from the \gui{File} menu.
-    You can create one of the following three projects:
+        To create a new project, select \gui{New Project} from the \gui{File} menu.
+        You can create one of the following three projects:
     
-    \list
-        \o Qt4 Console Application
-        \o Qt4 Gui Application
-        \o C++ Library
-    \endlist
+        \list
+            \o Qt4 Console Application
+            \o Qt4 Gui Application
+            \o C++ Library
+        \endlist
 
-    In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
+        In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
 
         \row
 	    \i \inlineimage qtcreator-intro-and-location.png
