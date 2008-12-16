@@ -67,7 +67,7 @@ public:
         {
             QHeaderView *treeHeader = header();
             treeHeader->setVisible(false);
-            treeHeader->setResizeMode(QHeaderView::ResizeToContents);
+            treeHeader->setResizeMode(QHeaderView::Stretch);
             treeHeader->setStretchLastSection(true);
         }
         setContextMenuPolicy(Qt::CustomContextMenu);
