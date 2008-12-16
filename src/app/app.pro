@@ -13,12 +13,14 @@ win32 {
 }
 linux-* {
     LIBS *= -lExtensionSystem -lAggregation
-    QMAKE_LFLAGS+=-Wl,--enable-new-dtags
+    QT += svg dbus
+
 }
 
 TEMPLATE = app
 TARGET = $$IDE_APP_TARGET
 DESTDIR = ../../bin
+
 
 SOURCES += main.cpp
 
