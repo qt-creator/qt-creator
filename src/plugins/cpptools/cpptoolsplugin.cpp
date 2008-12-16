@@ -37,7 +37,6 @@
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"
-#include "cpphoverhandler.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cppquickopenfilter.h"

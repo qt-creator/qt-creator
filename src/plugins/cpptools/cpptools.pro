@@ -25,14 +25,11 @@ SOURCES += cppquickopenfilter.cpp \
 # Input
 SOURCES += cpptoolsplugin.cpp \
     cppmodelmanager.cpp \
-    cppcodecompletion.cpp \
-    cpphoverhandler.cpp
+    cppcodecompletion.cpp
 HEADERS += cpptoolsplugin.h \
     cppmodelmanager.h \
     cppcodecompletion.h \
-    cpphoverhandler.h \
     cppmodelmanagerinterface.h \
     cpptoolseditorsupport.h \
     cpptoolsconstants.h
-RESOURCES += cpptools.qrc
 FORMS += completionsettingspage.ui

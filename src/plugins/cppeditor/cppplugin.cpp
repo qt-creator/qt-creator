@@ -32,12 +32,13 @@
 ***************************************************************************/
 
 #include "cppplugin.h"
+#include "cppclasswizard.h"
 #include "cppeditor.h"
+#include "cppeditoractionhandler.h"
 #include "cppeditorconstants.h"
 #include "cppeditorenums.h"
 #include "cppfilewizard.h"
-#include "cppclasswizard.h"
-#include "cppeditoractionhandler.h"
+#include "cpphoverhandler.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
@@ -170,6 +171,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_factory = new CppPluginEditorFactory(this);
     addObject(m_factory);
+
+    addAutoReleasedObject(new CppHoverHandler);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 

@@ -40,7 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 class QTimer;
-class QByteArray;
 QT_END_NAMESPACE
 
 namespace TextEditor {

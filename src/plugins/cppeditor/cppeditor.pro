@@ -8,6 +8,7 @@ HEADERS += cppplugin.h \
     cppeditor.h \
     cppeditoractionhandler.h \
     cpphighlighter.h \
+    cpphoverhandler.h \
     cppfilewizard.h \
     cppeditorconstants.h \
     cppeditorenums.h \
@@ -17,6 +18,7 @@ SOURCES += cppplugin.cpp \
     cppeditoractionhandler.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
+    cpphoverhandler.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp
 RESOURCES += cppeditor.qrc

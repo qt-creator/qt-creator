@@ -35,36 +35,47 @@
 #define CPPHOVERHANDLER_H
 
 #include <QtCore/QObject>
-#include <QtCore/QPoint>
 
 QT_BEGIN_NAMESPACE
 class QHelpEngineCore;
+class QPoint;
 QT_END_NAMESPACE
+
+namespace Core {
+class ICore;
+class IEditor;
+}
+
+namespace CppTools {
+class CppModelManagerInterface;
+}
 
 namespace TextEditor {
 class ITextEditor;
 }
 
-namespace CppTools {
+namespace CppEditor {
 namespace Internal {
-
-class CppModelManager;
 
 class CppHoverHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    CppHoverHandler(CppModelManager *manager, QObject *parent);
+    CppHoverHandler(QObject *parent = 0);
 
 public slots:
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
     void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
 
+private slots:
+    void editorOpened(Core::IEditor *editor);
+
 private:
     void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
 
-    CppModelManager *m_manager;
+    Core::ICore *m_core;
+    CppTools::CppModelManagerInterface *m_modelManager;
     QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;
@@ -72,6 +83,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace CppTools
+} // namespace CppEditor
 
 #endif // CPPHOVERHANDLER_H

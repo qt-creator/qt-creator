@@ -34,7 +34,6 @@
 #include <cplusplus/pp.h>
 
 #include "cppmodelmanager.h"
-#include "cpphoverhandler.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 
@@ -464,8 +463,6 @@ CppModelManager::CppModelManager(QObject *parent) :
     connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
 
-    m_hoverHandler = new CppHoverHandler(this, this);
-
     // Listen for editor closed and opened events so that we can keep track of changing files
     connect(m_core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
         this, SLOT(editorOpened(Core::IEditor *)));
@@ -633,14 +630,6 @@ void CppModelManager::editorOpened(Core::IEditor *editor)
         CppEditorSupport *editorSupport = new CppEditorSupport(this);
         editorSupport->setTextEditor(textEditor);
         m_editorSupport[textEditor] = editorSupport;
-
-        // ### move in CppEditorSupport
-        connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-                m_hoverHandler, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
-
-        // ### move in CppEditorSupport
-        connect(editor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*, int)),
-                m_hoverHandler, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
     }
 }
 

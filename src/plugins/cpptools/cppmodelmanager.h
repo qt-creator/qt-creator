@@ -60,7 +60,6 @@ namespace Internal {
 
 class CppEditorSupport;
 class CppPreprocessor;
-class CppHoverHandler;
 
 class CppModelManager : public CppModelManagerInterface
 {
@@ -144,7 +143,6 @@ private:
 private:
     Core::ICore *m_core;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
-    CppHoverHandler *m_hoverHandler;
     CPlusPlus::Snapshot m_snapshot;
 
     // cache

@@ -32,10 +32,13 @@
 ***************************************************************************/
 
 #include "cpphoverhandler.h"
-#include "cppmodelmanager.h"
+#include "cppeditor.h"
+#include "cppplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <debugger/debuggerconstants.h>
@@ -57,12 +60,16 @@
 #include <QtHelp/QHelpEngineCore>
 #include <QtCore/QtCore>
 
-using namespace CppTools::Internal;
+using namespace CppEditor::Internal;
 using namespace CPlusPlus;
 
-CppHoverHandler::CppHoverHandler(CppModelManager *manager, QObject *parent)
-    : QObject(parent), m_manager(manager), m_helpEngineNeedsSetup(false)
+CppHoverHandler::CppHoverHandler(QObject *parent)
+    : QObject(parent)
+    , m_core(CppPlugin::core())
+    , m_helpEngineNeedsSetup(false)
 {
+    m_modelManager = m_core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+
     QFileInfo fi(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings()->fileName());
     m_helpEngine = new QHelpEngineCore(fi.absolutePath()
                                        + QLatin1String("/helpcollection.qhc"), this);
@@ -70,6 +77,10 @@ CppHoverHandler::CppHoverHandler(CppModelManager *manager, QObject *parent)
     m_helpEngine->setupData();
     m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
+
+    // Listen for editor opened events in order to connect to tooltip/helpid requests
+    connect(m_core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+            this, SLOT(editorOpened(Core::IEditor *)));
 }
 
 void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
@@ -77,15 +88,27 @@ void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int p
     updateHelpIdAndTooltip(editor, pos);
 }
 
-void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
+void CppHoverHandler::editorOpened(Core::IEditor *editor)
 {
-    const int dbgcontext = m_manager->core()->
-        uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
-
-    if (m_manager->core()->hasContext(dbgcontext))
+    CPPEditorEditable *cppEditor = qobject_cast<CPPEditorEditable *>(editor);
+    if (!cppEditor)
         return;
 
-    if (! editor)
+    connect(cppEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
+            this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
+
+    connect(cppEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*, int)),
+            this, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
+}
+
+void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
+{
+    if (!editor)
+        return;
+
+    const int dbgcontext = m_core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
+
+    if (m_core->hasContext(dbgcontext))
         return;
 
     updateHelpIdAndTooltip(editor, pos);
@@ -158,6 +181,9 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     m_helpId.clear();
     m_toolTip.clear();
 
+    if (!m_modelManager)
+        return;
+
     TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
     if (!edit)
         return;
@@ -165,7 +191,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     QTextCursor tc(edit->document());
     tc.setPosition(pos);
 
-    const Snapshot documents = m_manager->snapshot();
+    const Snapshot documents = m_modelManager->snapshot();
 
     const int lineNumber = tc.block().blockNumber() + 1;
     const QString fileName = editor->file()->fileName();
@@ -261,7 +287,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
         m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
-                                          "<td><img src=\":/cpptools/images/f1.svg\"></td></tr></table>"))
+                                          "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
                     .arg(Qt::escape(m_toolTip));
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty()) {
