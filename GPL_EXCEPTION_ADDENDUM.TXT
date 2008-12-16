@@ -1,12 +1,12 @@
-Addendum to the Trolltech GPL Exception version 1.2
-===================================================
+Addendum to the Nokia Corporation GPL Exception version 1.3
+===========================================================
 
 
 --------------------------------------------------------------------------
 
-	        The "Artistic License"
+		The "Artistic License"
 
-			        Preamble
+				Preamble
 
 The intent of this document is to state the conditions under which a
 Package may be copied, such that the Copyright Holder maintains some
@@ -17,30 +17,30 @@ reasonable modifications.
 
 Definitions:
 
-       "Package" refers to the collection of files distributed by the
-       Copyright Holder, and derivatives of that collection of files
-       created through textual modification.
+	"Package" refers to the collection of files distributed by the
+	Copyright Holder, and derivatives of that collection of files
+	created through textual modification.
 
-       "Standard Version" refers to such a Package if it has not been
-       modified, or has been modified in accordance with the wishes
-       of the Copyright Holder as specified below.
+	"Standard Version" refers to such a Package if it has not been
+	modified, or has been modified in accordance with the wishes
+	of the Copyright Holder as specified below.
 
-       "Copyright Holder" is whoever is named in the copyright or
-       copyrights for the package.
+	"Copyright Holder" is whoever is named in the copyright or
+	copyrights for the package.
 
-       "You" is you, if you're thinking about copying or distributing
-       this Package.
+	"You" is you, if you're thinking about copying or distributing
+	this Package.
 
-       "Reasonable copying fee" is whatever you can justify on the
-       basis of media cost, duplication charges, time of people involved,
-       and so on.  (You will not be required to justify it to the
-       Copyright Holder, but only to the computing community at large
-       as a market that must bear the fee.)
+	"Reasonable copying fee" is whatever you can justify on the
+	basis of media cost, duplication charges, time of people involved,
+	and so on.  (You will not be required to justify it to the
+	Copyright Holder, but only to the computing community at large
+	as a market that must bear the fee.)
 
-       "Freely Available" means that no fee is charged for the item
-       itself, though there may be fees involved in handling the item.
-       It also means that recipients of the item may redistribute it
-       under the same conditions they received it.
+	"Freely Available" means that no fee is charged for the item
+	itself, though there may be fees involved in handling the item.
+	It also means that recipients of the item may redistribute it
+	under the same conditions they received it.
 
 1. You may make and give away verbatim copies of the source form of the
 Standard Version of this Package without restriction, provided that you
@@ -55,36 +55,36 @@ that you insert a prominent notice in each changed file stating how and
 when you changed that file, and provided that you do at least ONE of the
 following:
 
-a) place your modifications in the Public Domain or otherwise make them
-Freely Available, such as by posting said modifications to Usenet or
-an equivalent medium, or placing the modifications on a major archive
-site such as uunet.uu.net, or by allowing the Copyright Holder to include
-your modifications in the Standard Version of the Package.
+    a) place your modifications in the Public Domain or otherwise make them
+    Freely Available, such as by posting said modifications to Usenet or
+    an equivalent medium, or placing the modifications on a major archive
+    site such as uunet.uu.net, or by allowing the Copyright Holder to include
+    your modifications in the Standard Version of the Package.
 
-b) use the modified Package only within your corporation or organization.
+    b) use the modified Package only within your corporation or organization.
 
-c) rename any non-standard executables so the names do not conflict
-with standard executables, which must also be provided, and provide
-a separate manual page for each non-standard executable that clearly
-documents how it differs from the Standard Version.
+    c) rename any non-standard executables so the names do not conflict
+    with standard executables, which must also be provided, and provide
+    a separate manual page for each non-standard executable that clearly
+    documents how it differs from the Standard Version.
 
-d) make other distribution arrangements with the Copyright Holder.
+    d) make other distribution arrangements with the Copyright Holder.
 
 4. You may distribute the programs of this Package in object code or
 executable form, provided that you do at least ONE of the following:
 
-a) distribute a Standard Version of the executables and library files,
-together with instructions (in the manual page or equivalent) on where
-to get the Standard Version.
+    a) distribute a Standard Version of the executables and library files,
+    together with instructions (in the manual page or equivalent) on where
+    to get the Standard Version.
 
-b) accompany the distribution with the machine-readable source of
-the Package with your modifications.
+    b) accompany the distribution with the machine-readable source of
+    the Package with your modifications.
 
-c) give non-standard executables non-standard names, and clearly
-document the differences in manual pages (or equivalent), together
-with instructions on where to get the Standard Version.
+    c) give non-standard executables non-standard names, and clearly
+    document the differences in manual pages (or equivalent), together
+    with instructions on where to get the Standard Version.
 
-d) make other distribution arrangements with the Copyright Holder.
+    d) make other distribution arrangements with the Copyright Holder.
 
 5. You may charge a reasonable copying fee for any distribution of this
 Package.  You may charge any fee you choose for support of this
@@ -130,7 +130,7 @@ products derived from this software without specific prior written permission.
 IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
-                               The End
+				The End
 
 --------------------------------------------------------------------------
 
@@ -206,12 +206,12 @@ ADVISED OF THE POSSIBILITY THEREOF.
 its terms and conditions.
 
 7. This License Agreement shall be governed by and interpreted in all respects
-by the law of the State of Virginia, excluding conflict of law provisions.
-Nothing in this License Agreement shall be deemed to create any relationship of
-agency, partnership, or joint venture between CNRI and Licensee. This License
-Agreement does not grant permission to use CNRI trademarks or trade name in a
-trademark sense to endorse or promote products or services of Licensee, or any
-third party.
+by the law of the State of Virginia, excluding conflict of law
+provisions. Nothing in this License Agreement shall be deemed to create any
+relationship of agency, partnership, or joint venture between CNRI and
+Licensee. This License Agreement does not grant permission to use CNRI
+trademarks or trade name in a trademark sense to endorse or promote products or
+services of Licensee, or any third party.
 
 8. By clicking on the "ACCEPT" button where indicated, or by copying, installing
 or otherwise using Python 1.6b1, Licensee agrees to be bound by the terms and
@@ -227,22 +227,14 @@ The zlib/libpng License
 
 Copyright (c) <year> <copyright holders>
 
-This software is provided 'as-is', without any express or implied warranty. In
-no event will the authors be held liable for any damages arising from the use of
-this software.
+This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
-Permission is granted to anyone to use this software for any purpose, including
-commercial applications, and to alter it and redistribute it freely, subject to
-the following restrictions:
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
 
-1. The origin of this software must not be misrepresented; you must not claim
-that you wrote the original software. If you use this software in a product, an
-acknowledgment in the product documentation would be appreciated but is not
-required.
+    1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
 
-2. Altered source versions must be plainly marked as such, and must not be
-misrepresented as being the original software.
+    2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 
-3. This notice may not be removed or altered from any source distribution.
+    3. This notice may not be removed or altered from any source distribution.
 
 --------------------------------------------------------------------------
