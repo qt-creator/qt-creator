@@ -155,7 +155,7 @@ CPPEditor::CPPEditor(QWidget *parent) :
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingVisible(true);
-    baseTextDocument()->setSyntaxHighlighter(new CPPHighlighter);
+    baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 //    new QShortcut(QKeySequence("Ctrl+Alt+M"), this, SLOT(foo()), 0, Qt::WidgetShortcut);
 
 #ifdef WITH_TOKEN_MOVE_POSITION
@@ -683,7 +683,7 @@ const char *CPPEditorEditable::kind() const
 void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
-    CPPHighlighter *highlighter = qobject_cast<CPPHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
 

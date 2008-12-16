@@ -44,12 +44,12 @@ namespace Internal {
 
 class CPPEditor;
 
-class CPPHighlighter : public QSyntaxHighlighter
+class CppHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    CPPHighlighter(QTextDocument *document = 0);
+    CppHighlighter(QTextDocument *document = 0);
 
     virtual void highlightBlock(const QString &text);
 

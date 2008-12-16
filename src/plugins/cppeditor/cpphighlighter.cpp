@@ -44,13 +44,13 @@ using namespace CppEditor::Internal;
 using namespace TextEditor;
 using namespace CPlusPlus;
 
-CPPHighlighter::CPPHighlighter(QTextDocument *document) :
+CppHighlighter::CppHighlighter(QTextDocument *document) :
     QSyntaxHighlighter(document)
 {
     visualSpaceFormat.setForeground(Qt::lightGray);
 }
 
-void CPPHighlighter::highlightBlock(const QString &text)
+void CppHighlighter::highlightBlock(const QString &text)
 {
     QTextCharFormat emptyFormat;
 
@@ -200,7 +200,7 @@ void CPPHighlighter::highlightBlock(const QString &text)
 }
 
 
-bool CPPHighlighter::isPPKeyword(const QStringRef &text) const
+bool CppHighlighter::isPPKeyword(const QStringRef &text) const
 {
     switch (text.length())
     {
@@ -255,7 +255,7 @@ bool CPPHighlighter::isPPKeyword(const QStringRef &text) const
     return false;
 }
 
-bool CPPHighlighter::isQtKeyword(const QStringRef &text) const
+bool CppHighlighter::isQtKeyword(const QStringRef &text) const
 {
     switch (text.length()) {
     case 4:
@@ -290,7 +290,7 @@ bool CPPHighlighter::isQtKeyword(const QStringRef &text) const
     return false;
 }
 
-void CPPHighlighter::highlightWord(QStringRef word, int position, int length)
+void CppHighlighter::highlightWord(QStringRef word, int position, int length)
 {
     // try to highlight Qt 'identifiers' like QObject and Q_PROPERTY
     // but don't highlight words like 'Query'
