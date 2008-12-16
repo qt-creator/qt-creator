@@ -8,7 +8,6 @@ include(cpptools_dependencies.pri)
 DEFINES += QT_NO_CAST_TO_ASCII
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
-CONFIG += help
 HEADERS += cpptools_global.h \
     cppquickopenfilter.h \
     cppclassesfilter.h \
