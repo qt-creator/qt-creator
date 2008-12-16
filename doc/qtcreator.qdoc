@@ -5,13 +5,13 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 0.9 - Technical Preview
+    \section1 Version 0.9.1 (Beta)
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note Qt Creator is currently released as a Technical Preview. It is
+    \note The current version of Qt Creator is 0.9.1 (Beta). It is
     possible to edit source code, compile, run and debug applications; other
     features are still under development. Please send bug reports and
     suggestions to qt-creator@trolltech.com. To subscribe, send a
@@ -55,7 +55,7 @@
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
        \o \l{Glossary}
-       \o \l{Known Issues of Version 0.9 (Technical Preview)}
+       \o \l{Known Issues of Version 0.9.1 (Beta)}
     \endlist
 
 */
@@ -515,7 +515,14 @@
     \image qtcreator-add-resource-wizard.png
 
     Enter "textfinder" in the \gui{Name} field and use the given \gui{Path}.
-    Then, click \gui{Done}.
+    Then, click \gui{Continue}.
+
+    \image qtcreator-add-resource-wizard2.png
+
+    On this page you can choose to which project you want to add the new file.
+    Make sure that \gui{Add to Project} is checked and
+    "TextFinder" is selected as the \gui{Project}, and click
+    \gui{Done}.
 
     Your resource file will now be displayed with the Resource Editor. Click
     on the \gui{Add} drop down box and select \gui{Add Prefix}. The prefix we
@@ -1151,9 +1158,9 @@
     \previouspage creator-keyboard-shortcuts.html
     \page creator-known-issues.html
 
-    \title Known Issues of Version 0.9 (Technical Preview)
+    \title Known Issues of Version 0.9.1 (Beta)
 
-    There are some known issues with the Technical Preview.
+    There are some known issues with Qt Creator 0.9.1 (Beta).
     The development team is aware of those, there is no need to report them as bug.
 
     \list
