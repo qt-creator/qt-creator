@@ -1713,7 +1713,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 ok = false;
                 break;
             }
-            QString msg = args.first();
+            QString msg = fixEnvVariables(args.first());
             if (function == QLatin1String("error")) {
                 QStringList parents;
                 foreach (ProFile *proFile, m_profileStack)
@@ -2085,14 +2085,23 @@ bool ProFileEvaluator::contains(const QString &variableName) const
     return d->m_valuemap.contains(variableName);
 }
 
+inline QStringList fixEnvVariables(const QStringList &x)
+{
+    QStringList ret;
+    foreach (const QString &str, x)
+        ret << Option::fixString(str, Option::FixEnvVars);
+    return ret;
+}
+
+
 QStringList ProFileEvaluator::values(const QString &variableName) const
 {
-    return d->values(variableName);
+    return fixEnvVariables(d->values(variableName));
 }
 
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
-    return d->values(variableName, pro);
+    return fixEnvVariables(d->values(variableName, pro));
 }
 
 ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
