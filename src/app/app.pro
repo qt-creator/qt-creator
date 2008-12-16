@@ -13,7 +13,7 @@ win32 {
 }
 linux-* {
     LIBS *= -lExtensionSystem -lAggregation
-    QMAKE_FLAGS+=-Wl,--enable-new-dtags
+    QMAKE_LFLAGS+=-Wl,--enable-new-dtags
 }
 
 TEMPLATE = app
