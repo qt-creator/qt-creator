@@ -530,11 +530,15 @@ bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
         if (!m_skipLevel) {
             m_prevCondition = m_condition;
             m_condition = ConditionFalse;
+        } else {
+            Q_ASSERT(m_condition != ConditionTrue);
         }
     } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
         m_updateCondition = false;
         if (m_condition != ConditionTrue)
             ++m_skipLevel;
+        else
+            Q_ASSERT(!m_skipLevel);
     }
     return true;
 }
@@ -542,8 +546,14 @@ bool ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
 bool ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
 {
     if (block->blockKind() & ProBlock::ScopeContentsKind) {
-        if (m_skipLevel)
+        if (m_skipLevel) {
+            Q_ASSERT(m_condition != ConditionTrue);
             --m_skipLevel;
+        } else {
+            // Conditionals contained inside this block may have changed the state.
+            // So we reset it here to make an else following us do the right thing.
+            m_condition = ConditionTrue;
+        }
     }
     return true;
 }
@@ -572,8 +582,12 @@ bool ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
     if (!m_skipLevel) {
         if (cond->text().toLower() == QLatin1String("else")) {
+            // The state ConditionElse makes sure that subsequential elses are ignored.
+            // That's braindead, but qmake is like that.
             if (m_prevCondition == ConditionTrue)
                 m_condition = ConditionElse;
+            else if (m_prevCondition == ConditionFalse)
+                m_condition = ConditionTrue;
         } else if (m_condition == ConditionFalse) {
             if (isActiveConfig(cond->text(), true) ^ m_invertNext)
                 m_condition = ConditionTrue;
