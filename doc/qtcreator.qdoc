@@ -514,7 +514,14 @@
     \image qtcreator-add-resource-wizard.png
 
     Enter "textfinder" in the \gui{Name} field and use the given \gui{Path}.
-    Then, click \gui{Done}.
+    Then, click \gui{Continue}.
+
+    \image qtcreator-add-resource-wizard2.png
+
+    On this page you can choose to which project you want to add the new file.
+    Make sure that \gui{Add to Project} is checked and
+    "TextFinder" is selected as the \gui{Project}, and click
+    \gui{Done}.
 
     Your resource file will now be displayed with the Resource Editor. Click
     on the \gui{Add} drop down box and select \gui{Add Prefix}. The prefix we
