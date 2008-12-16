@@ -84,6 +84,9 @@ public:
     bool autoInsertBraces() const;
     void setAutoInsertBraces(bool autoInsertBraces);
 
+    bool isPartialCompletionEnabled() const;
+    void setPartialCompletionEnabled(bool partialCompletionEnabled);
+
 private:
     void addKeywords();
     void addMacros(const CPlusPlus::LookupContext &context);
@@ -134,6 +137,7 @@ private:
     CppModelManager *m_manager;
     Qt::CaseSensitivity m_caseSensitivity;
     bool m_autoInsertBraces;
+    bool m_partialCompletionEnabled;
 
     bool m_forcedCompletion;
 

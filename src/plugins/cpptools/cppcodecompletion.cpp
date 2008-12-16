@@ -346,6 +346,16 @@ void CppCodeCompletion::setAutoInsertBraces(bool autoInsertBraces)
     m_autoInsertBraces = autoInsertBraces;
 }
 
+bool CppCodeCompletion::isPartialCompletionEnabled() const
+{
+    return m_partialCompletionEnabled;
+}
+
+void CppCodeCompletion::setPartialCompletionEnabled(bool partialCompletionEnabled)
+{
+    m_partialCompletionEnabled = partialCompletionEnabled;
+}
+
 /*
   Searches beckward for an access operator.
 */
@@ -1030,7 +1040,7 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
     } else if (completionItems.count() == 1) {
         complete(completionItems.first());
         return true;
-    } else if (m_completionOperator != T_LPAREN) {
+    } else if (m_partialCompletionEnabled && m_completionOperator != T_LPAREN) {
         // Compute common prefix
         QString firstKey = completionItems.first().m_text;
         QString lastKey = completionItems.last().m_text;

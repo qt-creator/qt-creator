@@ -17,7 +17,7 @@
    <item>
     <widget class="QCheckBox" name="caseSensitive">
      <property name="text">
-      <string>Match completions &amp;case-sensitive</string>
+      <string>&amp;Case-sensitive completion</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -28,6 +28,16 @@
     <widget class="QCheckBox" name="autoInsertBraces">
      <property name="text">
       <string>&amp;Automatically insert braces</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="partiallyComplete">
+     <property name="text">
+      <string>Autocomplete common &amp;prefix</string>
      </property>
      <property name="checked">
       <bool>true</bool>
