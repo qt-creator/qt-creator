@@ -24,7 +24,6 @@ HEADERS += \
     LookupContext.h \
     pp-cctype.h \
     pp-engine.h \
-    pp-fwd.h \
     pp-macro-expander.h \
     pp-scanner.h \
     pp-client.h \
