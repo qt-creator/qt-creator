@@ -53,13 +53,27 @@
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
-#include <QtCore/QFileInfo>
+#include <QtGui/QMessageBox>
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+
+enum { debugSlotNavigation = 0 };
 
 using namespace Designer::Internal;
 using namespace CPlusPlus;
 using namespace TextEditor;
+
+static QString msgClassNotFound(const QString &uiClassName, const QList<Document::Ptr> &docList)
+{
+    QString files;
+    foreach (const Document::Ptr &doc, docList) {
+        if (!files.isEmpty())
+            files += QLatin1String(", ");
+        files += doc->fileName();
+    }
+    return WorkbenchIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
+}
 
 WorkbenchIntegration::WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
     qdesigner_internal::QDesignerIntegration(core, ::qobject_cast<QObject*>(parent)),
@@ -443,8 +457,20 @@ static QString addParameterNames(const QString &functionSignature, const QString
     return functionName;
 }
 
+
 void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const QString &signalSignature,
         const QStringList &parameterNames)
+{
+    QString errorMessage;
+    if (!navigateToSlot(objectName, signalSignature, parameterNames, &errorMessage) && !errorMessage.isEmpty()) {
+        QMessageBox::critical(m_few->designerEditor()->topLevel(), tr("Error finding source file"), errorMessage);
+    }
+}
+
+bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
+                                          const QString &signalSignature,
+                                          const QStringList &parameterNames,
+                                          QString *errorMessage)
 {
     const QString currentUiFile = m_few->activeFormWindow()->file()->fileName();
 
@@ -457,14 +483,22 @@ void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const Q
     const QString uicedName = QLatin1String("ui_") + fi.baseName() + QLatin1String(".h");
 
     QList<Document::Ptr> docList = findDocumentsIncluding(uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
-    if (docList.isEmpty())
-        return;
+
+    if (debugSlotNavigation)
+        qDebug() << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
+    if (docList.isEmpty()) {
+        *errorMessage = tr("No documents matching %1 could be found.").arg(uicedName);
+        return false;
+    }
 
     QDesignerFormWindowInterface *fwi = m_few->activeFormWindow()->formWindow();
 
     const QString uiClassName = fwi->mainContainer()->objectName();
 
-    foreach (Document::Ptr doc, docList) {
+    if (debugSlotNavigation)
+        qDebug() << "Checking docs for " << uiClassName;
+
+    foreach (const Document::Ptr &doc, docList) {
         QString namespaceName; // namespace of the class found
         Class *cl = findClass(doc->globalNamespace(), uiClassName, &namespaceName);
         if (cl) {
@@ -493,8 +527,10 @@ void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const Q
                 // jump to function definition
                 TextEditor::BaseTextEditor::openEditorAt(sourceDoc->fileName(), line);
             }
-            return;
+            return true;
         }
     }
+    *errorMessage = msgClassNotFound(uiClassName, docList);
+    return false;
 }
 

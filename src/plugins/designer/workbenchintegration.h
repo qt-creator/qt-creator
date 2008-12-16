@@ -57,6 +57,10 @@ public slots:
 private slots:
     void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
 private:
+    bool navigateToSlot(const QString &objectName,
+                        const QString &signalSignature,
+                        const QStringList &parameterNames,
+                        QString *errorMessage);
     FormEditorW *m_few;
 };
 
