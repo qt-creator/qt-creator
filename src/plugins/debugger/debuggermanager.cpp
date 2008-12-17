@@ -731,9 +731,9 @@ void DebuggerManager::collapseChildren(const QModelIndex &idx)
     watchHandler()->collapseChildren(idx);
 }
 
-void DebuggerManager::removeWatchExpression(const QString &iname)
+void DebuggerManager::removeWatchExpression(const QString &exp)
 {
-    watchHandler()->removeWatchExpression(iname);
+    watchHandler()->removeWatchExpression(exp);
 }
 
 QVariant DebuggerManager::sessionValue(const QString &name)

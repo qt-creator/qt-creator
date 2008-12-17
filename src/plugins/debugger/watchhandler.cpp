@@ -50,7 +50,7 @@
 #include <ctype.h>
 
 // creates debug output regarding pending watch data results
-//#define DEBUG_PENDING 1
+#define DEBUG_PENDING 1
 // creates debug output for accesses to the itemmodel
 //#define DEBUG_MODEL 1
 
@@ -964,12 +964,19 @@ void WatchHandler::showEditValue(const WatchData &data)
         w->show();
 }
 
-void WatchHandler::removeWatchExpression(const QString &iname)
+void WatchHandler::removeWatchExpression(const QString &exp)
 {
     MODEL_DEBUG("REMOVE WATCH: " << iname);
-    WatchData data = takeData(iname);
-    m_watchers.removeOne(data.iname);
+    m_watchers.removeOne(exp);
+    for (int i = m_completeSet.size(); --i >= 0;) {
+        const WatchData & data = m_completeSet.at(i);
+        if (data.iname.startsWith("watch.") && data.exp == exp) {
+            m_completeSet.takeAt(i);
+            break;
+        }
+    }
     saveWatchers();
+    rebuildModel();
     emit watchModelUpdateRequested();
 }
 

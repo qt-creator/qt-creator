@@ -62,24 +62,24 @@ BreakWindow::BreakWindow(QWidget *parent)
         this, SLOT(rowActivated(QModelIndex)));
 }
 
-void BreakWindow::keyPressEvent(QKeyEvent *event)
+void BreakWindow::keyPressEvent(QKeyEvent *ev)
 {
-    if (event->key() == Qt::Key_Delete)
+    if (ev->key() == Qt::Key_Delete)
         deleteBreakpoint(currentIndex());
-    QTreeView::keyPressEvent(event);
+    QTreeView::keyPressEvent(ev);
 }
 
-void BreakWindow::resizeEvent(QResizeEvent *event)
+void BreakWindow::resizeEvent(QResizeEvent *ev)
 {
     QHeaderView *hv = header();
-    int totalSize = event->size().width() - 180;
+    int totalSize = ev->size().width() - 180;
     hv->resizeSection(0, 60);
     hv->resizeSection(1, (totalSize * 30) / 100);
     hv->resizeSection(2, (totalSize * 30) / 100);
     hv->resizeSection(3, (totalSize * 30) / 100);
     hv->resizeSection(4, 70);
     hv->resizeSection(5, 50);
-    QTreeView::resizeEvent(event);
+    QTreeView::resizeEvent(ev);
 }
 
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)

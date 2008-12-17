@@ -63,7 +63,7 @@ public slots:
 
 signals:
     void requestWatchExpression(const QString &exp);
-    void requestRemoveWatchExpression(const QString &iname);
+    void requestRemoveWatchExpression(const QString &exp);
     void requestAssignValue(const QString &exp, const QString &value);
     void requestExpandChildren(const QModelIndex &idx);
     void requestCollapseChildren(const QModelIndex &idx);
@@ -74,6 +74,7 @@ private slots:
     void collapseNode(const QModelIndex &index);
 
 private:
+    void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void editItem(const QModelIndex &idx);
     void reset(); /* reimpl */

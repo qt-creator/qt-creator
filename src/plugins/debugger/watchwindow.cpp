@@ -87,6 +87,17 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
     emit requestCollapseChildren(idx);
 }
 
+void WatchWindow::keyPressEvent(QKeyEvent *ev)
+{
+    if (ev->key() == Qt::Key_Delete) {
+        QModelIndex idx = currentIndex();
+        QModelIndex idx1 = idx.sibling(idx.row(), 0);
+        QString exp = model()->data(idx1).toString();
+        emit requestRemoveWatchExpression(exp); 
+    }
+    QTreeView::keyPressEvent(ev);
+}
+
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
@@ -103,7 +114,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex idx = indexAt(ev->pos());
     QModelIndex mi0 = idx.sibling(idx.row(), 0);
     QString exp = model()->data(mi0).toString();
-    QString iname = model()->data(mi0, INameRole).toString();
     QModelIndex mi1 = idx.sibling(idx.row(), 0);
     QString value = model()->data(mi1).toString();
     bool visual = false;
@@ -134,7 +144,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         if (m_type == LocalsType)
             emit requestWatchExpression(exp);
         else
-            emit requestRemoveWatchExpression(iname);
+            emit requestRemoveWatchExpression(exp);
     else if (act == act4)
         model()->setData(mi0, !visual, VisualRole);
 }
