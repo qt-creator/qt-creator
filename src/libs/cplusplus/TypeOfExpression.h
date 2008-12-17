@@ -27,7 +27,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
 #ifndef CPLUSPLUS_TYPEOFEXPRESSION_H
