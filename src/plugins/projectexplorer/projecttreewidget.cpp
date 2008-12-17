@@ -27,7 +27,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
 
@@ -240,8 +240,7 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
     Node *node = m_model->nodeForIndex(current);
-    QTC_ASSERT(node, return);
-
+    // node might be 0. that's okay
     bool autoSync = autoSynchronization();
     setAutoSynchronization(false);
     m_explorer->setCurrentNode(node);

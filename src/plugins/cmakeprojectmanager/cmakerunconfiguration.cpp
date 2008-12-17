@@ -27,7 +27,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.2, included in the file GPL_EXCEPTION.txt in this package.
+** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
 
@@ -87,11 +87,15 @@ ProjectExplorer::Environment CMakeRunConfiguration::environment() const
 void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
     ProjectExplorer::ApplicationRunConfiguration::save(writer);
+    writer.saveValue("CMakeRunConfiguration.Target", m_target);
+    writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
 {
     ProjectExplorer::ApplicationRunConfiguration::restore(reader);
+    m_target = reader.restoreValue("CMakeRunConfiguration.Target").toString();
+    m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
