@@ -157,9 +157,9 @@ bool GdbMacrosBuildStepFactory::canCreate(const QString &name) const
 
 ProjectExplorer::BuildStep *GdbMacrosBuildStepFactory::create(ProjectExplorer::Project *pro, const QString &name) const
 {
-    QTC_ASSERT(name == Constants::GDBMACROSBUILDSTEP, return 0);
+    Q_ASSERT(name == Constants::GDBMACROSBUILDSTEP);
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    QTC_ASSERT(qt4project, return 0);
+    Q_ASSERT(qt4project);
     return new GdbMacrosBuildStep(qt4project);
 }
 

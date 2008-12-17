@@ -136,7 +136,7 @@ QStringList CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *pr
 // used to translate the types to names to display to the user
 QString CMakeRunConfigurationFactory::nameForType(const QString &type) const
 {
-    QTC_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION), /**/);
+    Q_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION));
 
     if (type == Constants::CMAKERUNCONFIGURATION)
         return "CMake"; // Doesn't happen
@@ -147,7 +147,7 @@ QString CMakeRunConfigurationFactory::nameForType(const QString &type) const
 QSharedPointer<ProjectExplorer::RunConfiguration> CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    QTC_ASSERT(pro, /**/);
+    Q_ASSERT(pro);
     if (type == Constants::CMAKERUNCONFIGURATION) {
         // Restoring, filename will be added by restoreSettings
         QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, QString::null, QString::null));

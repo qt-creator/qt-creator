@@ -123,13 +123,13 @@ void BuildStepsPage::updateBuildStepWidget(QTreeWidgetItem *newItem, QTreeWidget
 {
     if (oldItem == newItem)
         return;
-    QTC_ASSERT(m_pro, return);
+    Q_ASSERT(m_pro);
 
     if (newItem) {
         int row = m_ui->buildSettingsList->indexOfTopLevelItem(newItem);
         m_ui->buildSettingsWidget->setCurrentIndex(row);
         BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(m_ui->buildSettingsWidget->currentWidget());
-        QTC_ASSERT(widget, return);
+        Q_ASSERT(widget);
         widget->init(m_configuration);
     }
     updateBuildStepButtonsState();

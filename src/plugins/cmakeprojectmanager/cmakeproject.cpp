@@ -568,7 +568,7 @@ void CMakeCbpParser::parseUnit()
 
 void CMakeCbpParser::parseUnknownElement()
 {
-    QTC_ASSERT(isStartElement(), /**/);
+    Q_ASSERT(isStartElement());
 
     while (!atEnd()) {
         readNext();

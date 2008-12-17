@@ -411,7 +411,7 @@ BuildConfiguration * Project::getBuildConfiguration(const QString &name) const
 void Project::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    QTC_ASSERT(bc, return);
+    Q_ASSERT(bc);
     bc->setValue(name, value);
 }
 
@@ -445,13 +445,19 @@ QList<QSharedPointer<RunConfiguration> > Project::runConfigurations() const
 
 void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
 {
-    QTC_ASSERT(!m_runConfigurations.contains(runConfiguration), return);
+    if (m_runConfigurations.contains(runConfiguration)) {
+        qWarning()<<"Not adding already existing runConfiguration"<<runConfiguration->name();
+        return;
+    }
     m_runConfigurations.push_back(runConfiguration);
 }
 
 void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
 {
-    QTC_ASSERT(m_runConfigurations.contains(runConfiguration), /**/);
+    if(!m_runConfigurations.contains(runConfiguration)) {
+        qWarning()<<"Not removing runConfiguration"<<runConfiguration->name()<<"becasue it doesn't exist";
+        return;
+    }
     m_runConfigurations.removeOne(runConfiguration);
     if (m_activeRunConfiguration == runConfiguration) {
         if (m_runConfigurations.isEmpty())
@@ -470,7 +476,7 @@ void Project::setActiveRunConfiguration(QSharedPointer<RunConfiguration> runConf
 {
     if (runConfiguration == m_activeRunConfiguration)
         return;
-    QTC_ASSERT(m_runConfigurations.contains(runConfiguration) || runConfiguration == 0,  return);
+    Q_ASSERT(m_runConfigurations.contains(runConfiguration) || runConfiguration == 0);
     m_activeRunConfiguration = runConfiguration;
     emit activeRunConfigurationChanged();
 }

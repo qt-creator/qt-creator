@@ -234,7 +234,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
-    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
+    Q_ASSERT(!m_buildConfiguration.isNull());
     m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
 }

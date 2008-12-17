@@ -95,8 +95,8 @@ QString ApplicationRunConfigurationRunner::displayName() const
 RunControl* ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)
 {
     QSharedPointer<ApplicationRunConfiguration> rc = qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration);
-    QTC_ASSERT(rc, return 0);
-    QTC_ASSERT(mode == ProjectExplorer::Constants::RUNMODE, return 0);
+    Q_ASSERT(rc);
+    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE);
 
     ApplicationRunControl *runControl = new ApplicationRunControl(rc);
     return runControl;
@@ -130,7 +130,7 @@ ApplicationRunControl::~ApplicationRunControl()
 void ApplicationRunControl::start()
 {
     QSharedPointer<ApplicationRunConfiguration> rc = qSharedPointerCast<ApplicationRunConfiguration>(runConfiguration());
-    QTC_ASSERT(rc, return);
+    Q_ASSERT(rc);
 
     m_applicationLauncher.setEnvironment(rc->environment().toStringList());
     m_applicationLauncher.setWorkingDirectory(rc->workingDirectory());

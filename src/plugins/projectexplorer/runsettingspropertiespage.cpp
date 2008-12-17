@@ -274,9 +274,9 @@ void RunSettingsWidget::initRunConfigurationComboBox()
 
 void RunSettingsWidget::activateRunConfiguration(int index)
 {
-    QTC_ASSERT(m_project, return);
+    Q_ASSERT(m_project);
     const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();
-    QTC_ASSERT(index < runConfigurations.size(), return);
+    Q_ASSERT(index < runConfigurations.size());
     QSharedPointer<RunConfiguration> selectedRunConfiguration = runConfigurations.at(index);
 
     // Change the active run configuration of the project

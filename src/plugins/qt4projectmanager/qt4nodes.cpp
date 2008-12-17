@@ -90,7 +90,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_projectDir(QFileInfo(filePath).absolutePath()),
           m_fileWatcher(new FileWatcher(this))
 {
-    QTC_ASSERT(project, return);
+    Q_ASSERT(project);
     setFolderName(QFileInfo(filePath).baseName());
     setIcon(QIcon(":/qt4projectmanager/images/qt_project.png"));
     m_fileWatcher->addFile(filePath);
@@ -105,8 +105,8 @@ void Qt4PriFileNode::scheduleUpdate()
 
 void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
 {
-    QTC_ASSERT(includeFile, return);
-    QTC_ASSERT(reader, return);
+    Q_ASSERT(includeFile);
+    Q_ASSERT(reader);
 
     // add project file node
     if (m_fileNodes.isEmpty())
@@ -179,7 +179,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions() const
     const Qt4ProFileNode *proFileNode;
     while (!(proFileNode = qobject_cast<const Qt4ProFileNode*>(folderNode)))
         folderNode = folderNode->parentFolderNode();
-    QTC_ASSERT(proFileNode, return actions);
+    Q_ASSERT(proFileNode);
 
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:

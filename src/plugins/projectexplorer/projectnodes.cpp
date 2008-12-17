@@ -376,7 +376,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
   */
 void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder)
 {
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -412,7 +412,7 @@ void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNod
 void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
                                    FolderNode *parentFolder)
 {
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (!subFolders.isEmpty()) {
         const bool emitSignals = (parentFolder->projectNode() == this);
@@ -450,7 +450,7 @@ void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
   */
 void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    QTC_ASSERT(folder, return);
+    Q_ASSERT(folder);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);
@@ -482,7 +482,7 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
   */
 void ProjectNode::removeFileNodes(const QList<FileNode*> &files, FolderNode *folder)
 {
-    QTC_ASSERT(folder, return);
+    Q_ASSERT(folder);
 
     if (!files.isEmpty()) {
         const bool emitSignals = (folder->projectNode() == this);

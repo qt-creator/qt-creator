@@ -74,7 +74,7 @@ QKeySequence AllProjectsFind::defaultShortcut() const
 
 QStringList AllProjectsFind::files()
 {
-    QTC_ASSERT(m_plugin->session(), return QStringList());
+    Q_ASSERT(m_plugin->session());
     QList<QRegExp> filterRegs;
     QStringList nameFilters = fileNameFilters();
     foreach (const QString &filter, nameFilters) {
