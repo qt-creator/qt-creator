@@ -1195,10 +1195,18 @@
         \o  The file system sidebar does not update automatically. As a
             workaround, switch to another directory and then back.
 
-        \o  The resource system of the embedded version of Qt Designer does not
-            interact with the project manager.
-
         \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
+
+        \o Scopes in .pro files are ignored, and environment variables not expanded.
+
+        \o Code completion for generated UI header files is not updated properly
+           after the first time.
+
+        \o Code completion does not support typedefs (e.g. std::string) and
+           private classes (e.g. class MyClass::Data {};).
+
+        \o On Gnome, after minimizing Qt Creator and restoring again, the
+           application window does not repaint properly until resized.
     \endlist
 */
 
