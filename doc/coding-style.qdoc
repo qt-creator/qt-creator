@@ -108,6 +108,34 @@ in C++.
 \endcode
 
 
+\o Using Qt's foreach is ok in non-time critical code when using a QTL 
+   container. It is a nice way to keep line noise down and to give the
+   loop variable a proper name:
+
+\code
+        foreach (QWidget *widget, container)
+            doSomething(widget);
+
+        -VS-
+
+	Container::iterator end = container.end();
+	for (Container::iterator it = container.begin(); it != end; ++it)
+            doSomething(*it);
+\endcode
+   
+    If the loop variable can be made const, do so. This can prevent 
+    unnecessary detaching of shared data in some cases. So:
+
+\code
+        foreach (const QString &name, someListOfNames)
+            doSomething(name);
+        
+        - NOT -
+
+        foreach (QString name, someListOfNames)
+            doSomething(name);
+\endcode
+
 
 \section1 Formatting
 
