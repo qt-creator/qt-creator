@@ -240,8 +240,7 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
     Node *node = m_model->nodeForIndex(current);
-    QTC_ASSERT(node, return);
-
+    // node might be 0. that's okay
     bool autoSync = autoSynchronization();
     setAutoSynchronization(false);
     m_explorer->setCurrentNode(node);
