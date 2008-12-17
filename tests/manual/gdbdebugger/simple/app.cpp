@@ -416,6 +416,11 @@ void testStdMap()
     gg3["33.0"] = Foo(33);
     gg3["44.0"] = Foo(44);
 
+
+    std::map<const char *, Foo> m1;
+    m1["22.0"] = Foo(22);
+    m1["33.0"] = Foo(33);
+    m1["44.0"] = Foo(44);
 #if 1
     std::map<uint, uint> gg;
     gg[11] = 1;
