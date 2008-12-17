@@ -821,7 +821,7 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
 
 bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
 {
-    if (!m_skipLevel && (!m_updateCondition || m_condition == ConditionFalse)) {
+    if (!m_updateCondition || m_condition == ConditionFalse) {
         QString text = func->text();
         int lparen = text.indexOf(QLatin1Char('('));
         int rparen = text.lastIndexOf(QLatin1Char(')'));
@@ -829,10 +829,12 @@ bool ProFileEvaluator::Private::visitProFunction(ProFunction *func)
         QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
         QString funcName = text.left(lparen);
         m_lineNo = func->lineNumber();
-        bool result = false;
-        if (!evaluateConditionalFunction(funcName.trimmed(), arguments, &result))
+        bool result;
+        if (!evaluateConditionalFunction(funcName.trimmed(), arguments, &result)) {
+            m_invertNext = false;
             return false;
-        if (result ^ m_invertNext)
+        }
+        if (!m_skipLevel && (result ^ m_invertNext))
             m_condition = ConditionTrue;
     }
     m_invertNext = false;
@@ -1733,6 +1735,8 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             break;
         }
         case T_INCLUDE: {
+            if (m_skipLevel && !m_cumulative)
+                break;
             QString parseInto;
             if (args.count() == 2) {
                 parseInto = args[1];
@@ -1749,6 +1753,8 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             break;
         }
         case T_LOAD: {
+            if (m_skipLevel && !m_cumulative)
+                break;
             QString parseInto;
             bool ignore_error = false;
             if (args.count() == 2) {
