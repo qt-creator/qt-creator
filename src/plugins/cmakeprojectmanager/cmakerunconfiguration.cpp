@@ -87,11 +87,15 @@ ProjectExplorer::Environment CMakeRunConfiguration::environment() const
 void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
     ProjectExplorer::ApplicationRunConfiguration::save(writer);
+    writer.saveValue("CMakeRunConfiguration.Target", m_target);
+    writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
 {
     ProjectExplorer::ApplicationRunConfiguration::restore(reader);
+    m_target = reader.restoreValue("CMakeRunConfiguration.Target").toString();
+    m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
