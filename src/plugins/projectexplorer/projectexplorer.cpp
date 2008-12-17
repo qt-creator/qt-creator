@@ -1086,12 +1086,11 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
                     this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
             connect(control, SIGNAL(finished()),
                     this, SLOT(runControlFinished()));
-            control->start();
-
 
             if (m_runMode == ProjectExplorer::Constants::DEBUGMODE)
                 m_debuggingRunControl = control;
 
+            control->start();
             updateRunAction();
         }
     } else {
