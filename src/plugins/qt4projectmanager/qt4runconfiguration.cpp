@@ -149,7 +149,7 @@ QStringList Qt4RunConfiguration::commandLineArguments() const
 ProjectExplorer::Environment Qt4RunConfiguration::environment() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    QTC_ASSERT(pro, return ProjectExplorer::Environment());
+    Q_ASSERT(pro);
     return pro->environment(pro->activeBuildConfiguration());
 }
 
@@ -374,8 +374,8 @@ QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactory::cr
     (ProjectExplorer::Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    QTC_ASSERT(p, /**/);
-    QTC_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration", /**/);
+    Q_ASSERT(p);
+    Q_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration");
     // The right path is set in restoreSettings
     QSharedPointer<ProjectExplorer::RunConfiguration> rc(new Qt4RunConfiguration(p, QString::null));
     return rc;
@@ -418,7 +418,7 @@ bool Qt4RunConfigurationFactoryUser::canCreate(const QString &type) const
 QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactoryUser::create(ProjectExplorer::Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    QTC_ASSERT(p, /**/);
+    Q_ASSERT(p);
 
     QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
     return QSharedPointer<ProjectExplorer::RunConfiguration>(new Qt4RunConfiguration(p, fileName));

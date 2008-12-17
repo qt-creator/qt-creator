@@ -80,7 +80,7 @@ void BuildStep::copyBuildConfiguration(const QString &source, const QString &des
 void BuildStep::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
 {
     BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    QTC_ASSERT(bc, return);
+    Q_ASSERT(bc);
     bc->setValue(name, value);
 }
 

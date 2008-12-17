@@ -141,7 +141,7 @@ QString SessionFile::mimeType() const
 
 bool SessionFile::load(const QString &fileName)
 {
-    QTC_ASSERT(!fileName.isEmpty(), return false);
+    Q_ASSERT(!fileName.isEmpty());
 
     if (debug)
         qDebug() << "SessionFile::load " << fileName;
@@ -246,7 +246,7 @@ bool SessionFile::save(const QString &fileName)
     if (!fileName.isEmpty())
         m_fileName = fileName;
 
-    QTC_ASSERT(!m_fileName.isEmpty(), return false);
+    Q_ASSERT(!m_fileName.isEmpty());
 
     if (debug)
         qDebug() << "SessionFile - saving " << m_fileName;
@@ -493,7 +493,7 @@ void SessionManager::setStartupProject(Project *startupProject)
         qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->name() : "0");
 
     if (startupProject) {
-        QTC_ASSERT(m_file->m_projects.contains(startupProject), return);
+        Q_ASSERT(m_file->m_projects.contains(startupProject));
     }
 
     m_file->m_startupProject = startupProject;
@@ -566,7 +566,7 @@ void SessionManager::removeProject(Project *project)
 
 bool SessionManager::createImpl(const QString &fileName)
 {
-    QTC_ASSERT(!fileName.isEmpty(), return false);
+    Q_ASSERT(!fileName.isEmpty());
 
     if (debug)
         qDebug() << "SessionManager - creating new session " << fileName << " ...";
@@ -597,7 +597,7 @@ bool SessionManager::createImpl(const QString &fileName)
 
 bool SessionManager::loadImpl(const QString &fileName)
 {
-    QTC_ASSERT(!fileName.isEmpty(), return false);
+    Q_ASSERT(!fileName.isEmpty());
 
     if (debug)
         qDebug() << "SessionManager - loading session " << fileName << " ...";
@@ -803,7 +803,7 @@ Project *SessionManager::projectForNode(Node *node) const
     while (rootProjectNode && rootProjectNode->parentFolderNode() != m_sessionNode)
         rootProjectNode = rootProjectNode->parentFolderNode();
 
-    QTC_ASSERT(rootProjectNode, return 0);
+    Q_ASSERT(rootProjectNode);
 
     QList<Project *> projectList = projects();
     foreach (Project *p, projectList) {

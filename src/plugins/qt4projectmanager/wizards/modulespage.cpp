@@ -104,14 +104,14 @@ QString ModulesPage::deselectedModules() const
 void ModulesPage::setModuleSelected(const QString &module, bool selected) const
 {
     QCheckBox *checkBox = m_moduleCheckBoxMap[module];
-    QTC_ASSERT(checkBox, return);
+    Q_ASSERT(checkBox);
     checkBox->setCheckState(selected?Qt::Checked:Qt::Unchecked);
 }
 
 void ModulesPage::setModuleEnabled(const QString &module, bool enabled) const
 {
     QCheckBox *checkBox = m_moduleCheckBoxMap[module];
-    QTC_ASSERT(checkBox, return);
+    Q_ASSERT(checkBox);
     checkBox->setEnabled(enabled);
 }
 

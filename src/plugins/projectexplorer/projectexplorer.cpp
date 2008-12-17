@@ -787,7 +787,8 @@ void ProjectExplorerPlugin::setStartupProject(Project *project)
 
     if (!project)
         project = m_currentProject;
-    QTC_ASSERT(project, return);
+    if (!project)
+        return;
     m_session->setStartupProject(project);
     // NPE: Visually mark startup project
     updateActions();
@@ -1360,7 +1361,7 @@ void ProjectExplorerPlugin::runProject()
 void ProjectExplorerPlugin::debugProject()
 {
     Project *pro = startupProject();
-    if (!pro || m_debuggingRunControl)
+    if (!pro || m_debuggingRunControl )
         return;
 
     if (saveModifiedFiles(QList<Project *>() << pro)) {
@@ -1368,6 +1369,7 @@ void ProjectExplorerPlugin::debugProject()
         m_delayedRunConfiguration = pro->activeRunConfiguration();
         //NBS TODO make the build project step take into account project dependencies
         m_buildManager->buildProject(pro, pro->activeBuildConfiguration());
+        updateRunAction();
     }
 }
 
@@ -1534,7 +1536,8 @@ void ProjectExplorerPlugin::updateContextMenuActions()
 
 void ProjectExplorerPlugin::addNewFile()
 {
-    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType, return);
+    if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
+        return;
     const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
     m_core->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::FileWizard)
@@ -1544,7 +1547,8 @@ void ProjectExplorerPlugin::addNewFile()
 
 void ProjectExplorerPlugin::addExistingFiles()
 {
-    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == ProjectNodeType, return);
+    if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
+        return;
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(m_currentNode);
     const QString dir = QFileInfo(m_currentNode->path()).dir().absolutePath();
     QStringList fileNames = QFileDialog::getOpenFileNames(m_core->mainWindow(), tr("Add Existing Files"), dir);
@@ -1596,14 +1600,16 @@ void ProjectExplorerPlugin::addExistingFiles()
 
 void ProjectExplorerPlugin::openFile()
 {
-    QTC_ASSERT(m_currentNode, return);
+    if (m_currentNode)
+        return;
     m_core->editorManager()->openEditor(m_currentNode->path());
     m_core->editorManager()->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::removeFile()
 {
-    QTC_ASSERT(m_currentNode && m_currentNode->nodeType() == FileNodeType, return);
+    if (!m_currentNode && m_currentNode->nodeType() == FileNodeType)
+        return;
     FileNode *fileNode = qobject_cast<FileNode*>(m_currentNode);
 
     const QString filePath = m_currentNode->path();
@@ -1615,7 +1621,7 @@ void ProjectExplorerPlugin::removeFile()
 
         // remove from project
         ProjectNode *projectNode = fileNode->projectNode();
-        QTC_ASSERT(projectNode, return);
+        Q_ASSERT(projectNode);
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
             QMessageBox::warning(m_core->mainWindow(), tr("Remove file failed"),
@@ -1767,11 +1773,15 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
 
 void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
 {
-    QTC_ASSERT(action, return);
+    if (!action) {
+        qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
+        return;
+    }
     Core::IEditorFactory * const editorFactory = qVariantValue<Core::IEditorFactory *>(action->data());
-    QTC_ASSERT(m_core, return);
-    QTC_ASSERT(m_core->editorManager(), return);
-    QTC_ASSERT(editorFactory, return);
+    if (!editorFactory) {
+        qWarning() << "Editor Factory not attached to action, can't happen"<<editorFactory;
+        return;
+    }
     m_core->editorManager()->openEditor(currentNode()->path(), editorFactory->kind());
     m_core->editorManager()->ensureEditorManagerVisible();
 }

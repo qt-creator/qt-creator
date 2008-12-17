@@ -233,7 +233,7 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
                 qDebug("initializing for plugins");
             QStringList baseClasses;
             const int pluginBaseClassCount = sizeof(pluginBaseClasses)/sizeof(PluginBaseClasses);
-            QTC_ASSERT(defaultPluginBaseClass < pluginBaseClassCount, return);
+            Q_ASSERT(defaultPluginBaseClass < pluginBaseClassCount);
             for (int i = 0; i < pluginBaseClassCount; i++)
                 baseClasses.push_back(QLatin1String(pluginBaseClasses[i].name));
             m_filesPage->setBaseClassChoices(baseClasses);

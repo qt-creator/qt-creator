@@ -115,9 +115,9 @@ bool CMakeBuildStepFactory::canCreate(const QString &name) const
 
 ProjectExplorer::BuildStep *CMakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
-    QTC_ASSERT(name == Constants::CMAKESTEP, /**/);
+    Q_ASSERT(name == Constants::CMAKESTEP);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    QTC_ASSERT(pro, /**/);
+    Q_ASSERT(pro);
     return new CMakeStep(pro);
 }
 

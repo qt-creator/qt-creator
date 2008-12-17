@@ -176,7 +176,7 @@ QModelIndex DetailedModel::index(int row, int column, const QModelIndex &parent)
         result = createIndex(0, 0, m_rootNode);
     } else if (column == 0) {
         FolderNode *parentNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
-        QTC_ASSERT(parentNode, return result);
+        Q_ASSERT(parentNode);
         result = createIndex(row, 0, m_childNodes.value(parentNode).at(row));
     }
     return result;
@@ -189,7 +189,7 @@ QModelIndex DetailedModel::parent(const QModelIndex &index) const
     if (Node *node = nodeForIndex(index)) {
         if (FolderNode *parentFolderNode = node->parentFolderNode()) {
             if (FolderNode *grandParentFolderNode = parentFolderNode->parentFolderNode()) {
-                QTC_ASSERT(m_childNodes.contains(grandParentFolderNode), return parentIndex);
+                Q_ASSERT(m_childNodes.contains(grandParentFolderNode));
                 int row = m_childNodes.value(grandParentFolderNode).indexOf(parentFolderNode);
                 parentIndex = createIndex(row, 0, parentFolderNode);
             } else {
@@ -351,8 +351,8 @@ bool DetailedModel::canFetchMore(const QModelIndex & parent) const
 void DetailedModel::fetchMore(const QModelIndex & parent)
 {
     FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
-    QTC_ASSERT(folderNode, return);
-    QTC_ASSERT(!m_childNodes.contains(folderNode), return);
+    Q_ASSERT(folderNode);
+    Q_ASSERT(!m_childNodes.contains(folderNode));
 
     m_childNodes.insert(folderNode, childNodeList(folderNode));
 }
@@ -368,7 +368,7 @@ void DetailedModel::foldersAboutToBeAdded(FolderNode *parentFolder,
                            const QList<FolderNode*> &newFolders)
 {
     Q_UNUSED(newFolders);
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder))
         m_folderToAddTo = parentFolder;
@@ -386,7 +386,7 @@ void DetailedModel::foldersAdded()
 void DetailedModel::foldersAboutToBeRemoved(FolderNode *parentFolder,
                            const QList<FolderNode*> &staleFolders)
 {
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder)) {
         QList<Node*> newChildNodes = m_childNodes.value(parentFolder);
@@ -416,7 +416,7 @@ void DetailedModel::filesAboutToBeAdded(FolderNode *parentFolder,
                            const QList<FileNode*> &newFiles)
 {
     Q_UNUSED(newFiles);
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder))
         m_folderToAddTo = parentFolder;
@@ -434,7 +434,7 @@ void DetailedModel::filesAdded()
 void DetailedModel::filesAboutToBeRemoved(FolderNode *parentFolder,
                            const QList<FileNode*> &staleFiles)
 {
-    QTC_ASSERT(parentFolder, return);
+    Q_ASSERT(parentFolder);
 
     if (m_childNodes.contains(parentFolder)) {
         QList<Node*> newChildNodes = m_childNodes.value(parentFolder);
@@ -473,7 +473,7 @@ QModelIndex DetailedModel::indexForNode(const Node *node)
         // update internal cache
         if (canFetchMore(parentIndex))
             fetchMore(parentIndex);
-        QTC_ASSERT(m_childNodes.contains(parentFolder), return QModelIndex());
+        Q_ASSERT(m_childNodes.contains(parentFolder));
 
         int row = m_childNodes.value(parentFolder).indexOf(const_cast<Node*>(node));
         if (row >= 0)
@@ -506,7 +506,7 @@ void DetailedModel::addToChildNodes(FolderNode *parentFolder, QList<Node*> newCh
 {
     QList<Node*> childNodes = m_childNodes.value(parentFolder);
     QModelIndex parentIndex = indexForNode(parentFolder);
-    QTC_ASSERT(parentIndex.isValid(), return);
+    Q_ASSERT(parentIndex.isValid());
 
     // position -> nodes, with positions in decreasing order
     QList<QPair<int, QList<Node*> > > insertions;
@@ -550,14 +550,14 @@ void DetailedModel::addToChildNodes(FolderNode *parentFolder, QList<Node*> newCh
         endInsertRows();
     }
 
-    QTC_ASSERT(childNodes == newChildNodes, /**/);
+    Q_ASSERT(childNodes == newChildNodes);
 }
 
 void DetailedModel::removeFromChildNodes(FolderNode *parentFolder, QList<Node*> newChildNodes)
 {
     QList<Node*> childNodes = m_childNodes.value(parentFolder);
     QModelIndex parentIndex = indexForNode(parentFolder);
-    QTC_ASSERT(parentIndex.isValid(), return);
+    Q_ASSERT(parentIndex.isValid());
 
     // position -> nodes, with positions in decreasing order
     QList<QPair<int, QList<Node*> > > deletions;
@@ -600,7 +600,7 @@ void DetailedModel::removeFromChildNodes(FolderNode *parentFolder, QList<Node*> 
         endRemoveRows();
     }
 
-    QTC_ASSERT(childNodes == newChildNodes, /**/);
+    Q_ASSERT(childNodes == newChildNodes);
 }
 
 QList<FolderNode*> DetailedModel::recursiveSubFolders(FolderNode *parentFolder)
@@ -663,7 +663,7 @@ QModelIndex FlatModel::index(int row, int column, const QModelIndex &parent) con
         result = createIndex(0, 0, m_rootNode);
     } else if (parent.isValid() && column == 0) {
         FolderNode *parentNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
-        QTC_ASSERT(parentNode, return QModelIndex());
+        Q_ASSERT(parentNode);
         QHash<FolderNode*, QList<Node*> >::const_iterator it = m_childNodes.constFind(parentNode);
         if (it == m_childNodes.constEnd()) {
             fetchMore(parentNode);
@@ -690,9 +690,9 @@ QModelIndex FlatModel::parent(const QModelIndex &idx) const
                     fetchMore(grandParentNode);
                     it = m_childNodes.constFind(grandParentNode);
                 }
-                QTC_ASSERT(it != m_childNodes.constEnd(), return QModelIndex());
+                Q_ASSERT(it != m_childNodes.constEnd());
                 const int row = it.value().indexOf(parentNode);
-                QTC_ASSERT(row >= 0, return QModelIndex());
+                Q_ASSERT(row >= 0);
                 parentIndex = createIndex(row, 0, parentNode);
             } else {
                 // top level node, parent is session
@@ -850,8 +850,8 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
 
 void FlatModel::fetchMore(FolderNode *folderNode) const
 {
-    QTC_ASSERT(folderNode, return);
-    QTC_ASSERT(!m_childNodes.contains(folderNode), return);
+    Q_ASSERT(folderNode);
+    Q_ASSERT(!m_childNodes.contains(folderNode));
 
     QList<Node*> nodeList = childNodes(folderNode);
     m_childNodes.insert(folderNode, nodeList);
@@ -860,7 +860,7 @@ void FlatModel::fetchMore(FolderNode *folderNode) const
 void FlatModel::fetchMore(const QModelIndex &parent)
 {
     FolderNode *folderNode = qobject_cast<FolderNode*>(nodeForIndex(parent));
-    QTC_ASSERT(folderNode, return);
+    Q_ASSERT(folderNode);
 
     fetchMore(folderNode);
 }
