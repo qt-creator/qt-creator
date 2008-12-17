@@ -2155,6 +2155,14 @@ static void qDumpStdMap(QDumper &d)
     P(d, "valuedisabled", "true");
     P(d, "valueoffset", d.extraInt[2]);
 
+    // HACK: we need a properly const qualified version of the
+    // std::pair used. We extract it from the allocator parameter
+    // as it is there, and, equally importantly, in an order that
+    // gdb accepts when fed with it.
+    char *pairType = (char *)(d.templateParameters[3]) + 16;
+    pairType[strlen(pairType) - 2] = 0;
+    P(d, "pairtype", pairType);
+    
     if (d.dumpChildren) {
         bool simpleKey = isSimpleType(keyType);
         bool simpleValue = isShortKey(valueType);
@@ -2177,7 +2185,7 @@ static void qDumpStdMap(QDumper &d)
                 d.beginHash();
                 P(d, "name", "[" << i << "]");
                 P(d, "addr", it.operator->());
-                P(d, "type", "std::pair<const " << keyType << "," << valueType << " >");
+                P(d, "type", pairType);
                 d.endHash();
             }
         }

@@ -1362,7 +1362,7 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         QString msg = response.data.findChild("consolestreamoutput").data();
-        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)\\.(\\d+)");
+        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?");
         if (supported.indexIn(msg) == -1) {
             qDebug() << "UNSUPPORTED GDB VERSION " << msg;
             QStringList list = msg.split("\n");
@@ -1384,7 +1384,7 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
         } else {
             m_gdbVersion = 10000 * supported.cap(2).toInt()
                          +   100 * supported.cap(3).toInt()
-                         +     1 * supported.cap(4).toInt();
+                         +     1 * supported.cap(5).toInt();
             //qDebug() << "GDB VERSION " << m_gdbVersion;
         }
     }
@@ -3022,8 +3022,13 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
     } else if (outertype == "std::map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.
-        extraArgs[2] = "(size_t)&(('std::pair<const " + inners.at(0)
-            + "," + inners.at(1) + ">'*)0)->second";
+        // We read the type of the pair from the allocator argument because
+        // that gets the constness "right" (in the sense that gdb can
+        // read it back;
+        QString pairType = inners.at(3);
+        // remove 'std::allocator<...>':
+        pairType = pairType.mid(15, pairType.size() - 15 - 2);
+        extraArgs[2] = "(size_t)&(('" + pairType + "'*)0)->second";
         extraArgs[3] = "0";
     } else if (outertype == "std::basic_string") {
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
