@@ -1362,7 +1362,7 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         QString msg = response.data.findChild("consolestreamoutput").data();
-        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)\\.(\\d+)");
+        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?");
         if (supported.indexIn(msg) == -1) {
             qDebug() << "UNSUPPORTED GDB VERSION " << msg;
             QStringList list = msg.split("\n");
@@ -1384,7 +1384,7 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
         } else {
             m_gdbVersion = 10000 * supported.cap(2).toInt()
                          +   100 * supported.cap(3).toInt()
-                         +     1 * supported.cap(4).toInt();
+                         +     1 * supported.cap(5).toInt();
             //qDebug() << "GDB VERSION " << m_gdbVersion;
         }
     }

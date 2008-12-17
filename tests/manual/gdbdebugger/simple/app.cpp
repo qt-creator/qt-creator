@@ -74,8 +74,6 @@ uint qHash(const double & f)
     return int(f);
 }
 
-#define X myns
-X::QString str;
 
 class  Foo
 {
