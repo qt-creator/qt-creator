@@ -186,12 +186,22 @@ public:
 
     WatchData *findData(const QString &iname);
 
+    void loadSessionData();
+    void saveSessionData();
+
 signals:
     void watchModelUpdateRequested();
 
+    void sessionValueRequested(const QString &name, QVariant *value);
+    void setSessionValueRequested(const QString &name, const QVariant &value);
+
 private:
+    void reinitializeWatchersHelper();
     WatchData takeData(const QString &iname);
     QString toString() const;
+
+    void loadWatchers();
+    void saveWatchers();
 
     bool m_expandPointers;
     bool m_inChange;
@@ -203,6 +213,7 @@ private:
     QList<WatchData> m_completeSet;
     QList<WatchData> m_oldSet;
     QList<WatchData> m_displaySet;
+    QStringList m_watchers;
 
     void setDisplayedIName(const QString &iname, bool on);
     QSet<QString> m_expandedINames;  // those expanded in the treeview

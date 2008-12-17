@@ -888,6 +888,8 @@ void WatchHandler::watchExpression(const QString &exp)
     data.name = exp;
     data.iname = "watch." + exp;
     insertData(data);
+    m_watchers.append(exp);
+    saveWatchers();
     emit watchModelUpdateRequested();
 }
 
@@ -965,7 +967,9 @@ void WatchHandler::showEditValue(const WatchData &data)
 void WatchHandler::removeWatchExpression(const QString &iname)
 {
     MODEL_DEBUG("REMOVE WATCH: " << iname);
-    (void) takeData(iname);
+    WatchData data = takeData(iname);
+    m_watchers.removeOne(data.iname);
+    saveWatchers();
     emit watchModelUpdateRequested();
 }
 
@@ -973,19 +977,26 @@ void WatchHandler::reinitializeWatchers()
 {
     m_completeSet = initialSet();
     m_incompleteSet.clear();
+    reinitializeWatchersHelper();
+}
 
+void WatchHandler::reinitializeWatchersHelper()
+{
     // copy over all watchers and mark all watchers as incomplete
-    for (int i = 0, n = m_oldSet.size(); i < n; ++i) {
-        WatchData data = m_oldSet.at(i);
-        if (data.isWatcher()) {
-            data.level = -1;
-            data.row = -1;
-            data.parentIndex = -1;
-            data.variable.clear();
-            data.setAllNeeded();
-            data.valuedisabled = false;
-            insertData(data); // properly handles "neededChildren"
-        }
+    int i = 0;
+    foreach (const QString &exp, m_watchers) {
+        WatchData data;
+        data.level = -1;
+        data.row = -1;
+        data.parentIndex = -1;
+        data.variable.clear();
+        data.setAllNeeded();
+        data.valuedisabled = false;
+        data.iname = "watch." + QString::number(i);
+        data.name = exp;
+        data.exp = exp;
+        insertData(data);
+        ++i;
     }
 }
 
@@ -1179,4 +1190,30 @@ bool WatchHandler::checkIndex(int id) const
         return false;
     }
     return true;
+}
+
+void WatchHandler::loadWatchers()
+{
+    QVariant value;
+    sessionValueRequested("Watchers", &value);
+    m_watchers = value.toStringList();
+    qDebug() << "LOAD WATCHERS: " << m_watchers;
+    reinitializeWatchersHelper();
+}
+
+void WatchHandler::saveWatchers()
+{
+    qDebug() << "SAVE WATCHERS: " << m_watchers;
+    setSessionValueRequested("Watchers", m_watchers);
+}
+
+void WatchHandler::saveSessionData()
+{
+    saveWatchers();
+}
+
+void WatchHandler::loadSessionData()
+{
+    loadWatchers();
+    rebuildModel();
 }

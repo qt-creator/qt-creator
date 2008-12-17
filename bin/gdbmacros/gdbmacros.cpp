@@ -2157,6 +2157,7 @@ static void qDumpStdMap(QDumper &d)
 
     // HACK: we need a properly const qualified version of the
     // std::pair used. We extract it from the allocator parameter
+    // (#4, "std::allocator<std::pair<key, value> >")
     // as it is there, and, equally importantly, in an order that
     // gdb accepts when fed with it.
     char *pairType = (char *)(d.templateParameters[3]) + 16;

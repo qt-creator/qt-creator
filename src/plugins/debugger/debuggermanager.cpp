@@ -250,6 +250,10 @@ void DebuggerManager::init()
         this, SLOT(watchExpression(QString)));
     connect(watchersView, SIGNAL(requestRemoveWatchExpression(QString)),
         this, SLOT(removeWatchExpression(QString)));
+    connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
+        this, SIGNAL(sessionValueRequested(QString,QVariant*)));
+    connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
+        this, SIGNAL(setSessionValueRequested(QString,QVariant)));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
@@ -948,6 +952,7 @@ void DebuggerManager::aboutToSaveSession()
 void DebuggerManager::loadSessionData()
 {
     m_breakHandler->loadSessionData();
+    m_watchHandler->loadSessionData();
 
     QVariant value;
     querySessionValue(QLatin1String("UseFastStart"), &value);
@@ -964,6 +969,7 @@ void DebuggerManager::loadSessionData()
 void DebuggerManager::saveSessionData()
 {
     m_breakHandler->saveSessionData();
+    m_watchHandler->saveSessionData();
 
     setSessionValue(QLatin1String("UseFastStart"),
         m_useFastStartAction->isChecked());

@@ -116,7 +116,7 @@ private:
 
 void testArray()
 {
-    QString x[4];
+    QString x[20];
     x[0] = "a";
     x[1] = "b";
     x[2] = "c";
