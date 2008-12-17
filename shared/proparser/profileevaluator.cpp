@@ -1989,7 +1989,13 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName, boo
             break;
         }
     }
-    return fn.isEmpty() ? false : evaluateFile(fn, result);
+    if (fn.isEmpty())
+        return false;
+    bool cumulative = m_cumulative;
+    m_cumulative = false;
+    bool ok = evaluateFile(fn, result);
+    m_cumulative = cumulative;
+    return ok;
 }
 
 void ProFileEvaluator::Private::expandPatternHelper(const QString &relName, const QString &absName,
