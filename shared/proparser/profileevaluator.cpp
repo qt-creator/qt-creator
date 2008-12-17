@@ -1570,7 +1570,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         case 0:
-            q->logMessage(format("'%1' is not a function").arg(func));
+            q->logMessage(format("'%1' is not a recognized replace function").arg(func));
             break;
         default:
             q->logMessage(format("Function '%1' is not implemented").arg(func));
@@ -1591,26 +1591,67 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
     for (int i = 0; i < argumentsList.count(); ++i)
         args += expandVariableReferences(argumentsList[i]).join(sep);
 
-    enum ConditionFunc { CF_CONFIG = 1, CF_CONTAINS, CF_COUNT, CF_EXISTS, CF_INCLUDE,
-        CF_LOAD, CF_ISEMPTY, CF_SYSTEM, CF_MESSAGE};
+    enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
+                    T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
+                    T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
+                    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF };
 
     static QHash<QString, int> *functions = 0;
     if (!functions) {
         functions = new QHash<QString, int>;
-        functions->insert(QLatin1String("load"), CF_LOAD);         //v
-        functions->insert(QLatin1String("include"), CF_INCLUDE);   //v
-        functions->insert(QLatin1String("message"), CF_MESSAGE);   //v
-        functions->insert(QLatin1String("warning"), CF_MESSAGE);   //v
-        functions->insert(QLatin1String("error"), CF_MESSAGE);     //v
+        functions->insert(QLatin1String("requires"), T_REQUIRES);
+        functions->insert(QLatin1String("greaterThan"), T_GREATERTHAN);
+        functions->insert(QLatin1String("lessThan"), T_LESSTHAN);
+        functions->insert(QLatin1String("equals"), T_EQUALS);
+        functions->insert(QLatin1String("isEqual"), T_EQUALS);
+        functions->insert(QLatin1String("exists"), T_EXISTS);
+        functions->insert(QLatin1String("export"), T_EXPORT);
+        functions->insert(QLatin1String("clear"), T_CLEAR);
+        functions->insert(QLatin1String("unset"), T_UNSET);
+        functions->insert(QLatin1String("eval"), T_EVAL);
+        functions->insert(QLatin1String("CONFIG"), T_CONFIG);
+        functions->insert(QLatin1String("if"), T_IF);
+        functions->insert(QLatin1String("isActiveConfig"), T_CONFIG);
+        functions->insert(QLatin1String("system"), T_SYSTEM);
+        functions->insert(QLatin1String("return"), T_RETURN);
+        functions->insert(QLatin1String("break"), T_BREAK);
+        functions->insert(QLatin1String("next"), T_NEXT);
+        functions->insert(QLatin1String("defined"), T_DEFINED);
+        functions->insert(QLatin1String("contains"), T_CONTAINS);
+        functions->insert(QLatin1String("infile"), T_INFILE);
+        functions->insert(QLatin1String("count"), T_COUNT);
+        functions->insert(QLatin1String("isEmpty"), T_ISEMPTY);
+        functions->insert(QLatin1String("load"), T_LOAD);         //v
+        functions->insert(QLatin1String("include"), T_INCLUDE);   //v
+        functions->insert(QLatin1String("debug"), T_DEBUG);
+        functions->insert(QLatin1String("message"), T_MESSAGE);   //v
+        functions->insert(QLatin1String("warning"), T_MESSAGE);   //v
+        functions->insert(QLatin1String("error"), T_MESSAGE);     //v
     }
 
     bool cond = false;
     bool ok = true;
 
-    ConditionFunc func_t = (ConditionFunc)functions->value(function);
+    TestFunc func_t = (TestFunc)functions->value(function);
 
     switch (func_t) {
-        case CF_CONFIG: {
+#if 0
+        case T_INFILE:
+        case T_REQUIRES:
+        case T_GREATERTHAN:
+        case T_LESSTHAN:
+        case T_EQUALS:
+        case T_EXPORT:
+        case T_CLEAR:
+        case T_UNSET:
+        case T_EVAL:
+        case T_IF:
+        case T_RETURN:
+        case T_BREAK:
+        case T_NEXT:
+        case T_DEFINED:
+#endif
+        case T_CONFIG: {
             if (args.count() < 1 || args.count() > 2) {
                 q->logMessage(format("CONFIG(config) requires one or two arguments."));
                 ok = false;
@@ -1632,7 +1673,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             break;
         }
-        case CF_CONTAINS: {
+        case T_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
                 q->logMessage(format("contains(var, val) requires two or three arguments."));
                 ok = false;
@@ -1664,9 +1705,9 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
 
             break;
         }
-        case CF_COUNT: {
+        case T_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
-                q->logMessage(format("count(var, count) requires two or three arguments."));
+                q->logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
                 ok = false;
                 break;
             }
@@ -1691,7 +1732,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             cond = values(args.first()).count() == args[1].toInt();
             break;
         }
-        case CF_INCLUDE: {
+        case T_INCLUDE: {
             QString parseInto;
             if (args.count() == 2) {
                 parseInto = args[1];
@@ -1707,7 +1748,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             ok = evaluateFile(fileName, &ok);
             break;
         }
-        case CF_LOAD: {
+        case T_LOAD: {
             QString parseInto;
             bool ignore_error = false;
             if (args.count() == 2) {
@@ -1721,7 +1762,10 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             ok = evaluateFeatureFile( args.first(), &cond);
             break;
         }
-        case CF_MESSAGE: {
+        case T_DEBUG:
+            // Yup - do nothing. Nothing is going to enable debug output anyway.
+            break;
+        case T_MESSAGE: {
             if (args.count() != 1) {
                 q->logMessage(format("%1(message) requires one argument.").arg(function));
                 ok = false;
@@ -1744,7 +1788,8 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             break;
         }
-        case CF_SYSTEM: {
+#if 0 // Way too dangerous to enable.
+        case T_SYSTEM: {
             if (args.count() != 1) {
                 q->logMessage(format("system(exec) requires one argument."));
                 ok = false;
@@ -1753,7 +1798,8 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             ok = system(args.first().toLatin1().constData()) == 0;
             break;
         }
-        case CF_ISEMPTY: {
+#endif
+        case T_ISEMPTY: {
             if (args.count() != 1) {
                 q->logMessage(format("isEmpty(var) requires one argument."));
                 ok = false;
@@ -1768,7 +1814,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             break;
         }
-        case CF_EXISTS: {
+        case T_EXISTS: {
             if (args.count() != 1) {
                 q->logMessage(format("exists(file) requires one argument."));
                 ok = false;
@@ -1792,6 +1838,13 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
 
             break;
         }
+        case 0:
+            // This is too chatty currently (missing defineTest and defineReplace)
+            //q->logMessage(format("'%1' is not a recognized test function").arg(function));
+            break;
+        default:
+            q->logMessage(format("Function '%1' is not implemented").arg(function));
+            break;
     }
 
     if (result)
