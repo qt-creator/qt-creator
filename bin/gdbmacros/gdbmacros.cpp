@@ -2439,23 +2439,23 @@ void qDumpObjectData440(
         d.protocolVersion = protocolVersion;
         d.token           = token;
 
-        //qDebug() << "SOCKET: after connect: state: " << qDumperSocket.state();
-        // simpledumpers is a list of all available dumpers that are
-        // _not_ templates. templates currently require special
-        // hardcoded handling in the debugger plugin.
-        // don't mention them here in this list
-        d << "simpledumpers=["
+        // This is a list of all available dumpers. Note that some templates
+        // currently require special hardcoded handling in the debugger plugin.
+        // They are mentioned here nevertheless. For types that not listed
+        // here, dumpers won't be used.
+        d << "dumpers=["
             "\""NS"QByteArray\","
+            "\""NS"QDateTime\","
             "\""NS"QDir\","
-            "\""NS"QImage\","
             "\""NS"QFile\","
             "\""NS"QFileInfo\","
+            "\""NS"QHash\","
+            "\""NS"QHashNode\","
+            "\""NS"QImage\","
             "\""NS"QLocale\","
+            "\""NS"QMap\","
+            "\""NS"QMapNode\","
             "\""NS"QModelIndex\","
-            //"\""NS"QHash\","   // handled on GH side
-            //"\""NS"QHashNode\","
-            //"\""NS"QMap\","   // handled on GH side
-            //"\""NS"QMapNode\","
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
@@ -2465,15 +2465,20 @@ void qDumpObjectData440(
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
             #endif // PRIVATE_OBJECT_ALLOWED
+            "\""NS"QSet\","
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","
             "\""NS"QVariant\","
+            "\""NS"QVector\","
             "\""NS"QWidget\","
-            "\""NS"QDateTime\","
             "\"string\","
             "\"wstring\","
+            "\"std::basic_string\","
+            "\"std::list\","
+            "\"std::map\","
             "\"std::string\","
+            "\"std::vector\","
             "\"std::wstring\","
             // << "\""NS"QRegion\","
             "]";

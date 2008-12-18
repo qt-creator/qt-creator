@@ -2916,42 +2916,17 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
         return false;
     if (m_dataDumperState != DataDumperAvailable)
         return false;
+
+    // simple types
     if (m_availableSimpleDumpers.contains(type))
         return true;
 
+    // templates
     QString tmplate;
     QString inner;
-    if (extractTemplate(type, &tmplate, &inner)) {
-        if (type.startsWith(m_namespace)) {
-            tmplate = tmplate.mid(m_namespace.size());
-            if (tmplate == "QList")
-                return true;
-            if (tmplate == "QVector")
-                return true;
-            if (tmplate == "QHash")
-                return true;
-            if (tmplate == "QHashNode")
-                return true;
-            if (tmplate == "QMap")
-                return true;
-            if (tmplate == "QMapNode")
-                return true;
-            if (tmplate == "QSet")
-                return true;
-        }
-        if (tmplate == "std::list")
-            return true;
-        if (tmplate == "std::map")
-            return true;
-        if (tmplate == "std::vector" && inner != "bool")
-            return true;
-        if (tmplate == "std::basic_string") {
-            if (inner.startsWith("char@") || inner.startsWith("wchar_t@"))
-                return true;
-        }
-    }
-
-    return false;
+    if (!extractTemplate(type, &tmplate, &inner))
+        return false;
+    return m_availableSimpleDumpers.contains(tmplate);
 }
 
 void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
@@ -2968,7 +2943,7 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
         inners[i] = inners[i].simplified();
 
     QString outertype = isTemplate ? tmplate : data.type;
-
+    // adjust the data extract
     if (outertype == "QWidget")
         outertype = "QObject";
 
@@ -3334,7 +3309,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("customvaluecontents");
     GdbMi contents(output.data());
-    GdbMi simple = contents.findChild("simpledumpers");
+    GdbMi simple = contents.findChild("dumpers");
     m_namespace = contents.findChild("namespace").data();
     //qDebug() << "OUTPUT: " << output.toString();
     //qDebug() << "CONTENTS: " << contents.toString();
