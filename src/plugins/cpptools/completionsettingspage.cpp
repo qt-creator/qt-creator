@@ -42,8 +42,13 @@ using namespace CppTools::Internal;
 
 CompletionSettingsPage::CompletionSettingsPage(CppCodeCompletion *completion)
     : m_completion(completion)
-    , m_page(0)
+    , m_page(new Ui_CompletionSettingsPage)
 {
+}
+
+CompletionSettingsPage::~CompletionSettingsPage()
+{
+    delete m_page;
 }
 
 QString CompletionSettingsPage::name() const
@@ -63,7 +68,6 @@ QString CompletionSettingsPage::trCategory() const
 
 QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 {
-    m_page = new Ui_CompletionSettingsPage;
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
@@ -76,13 +80,11 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 
 void CompletionSettingsPage::finished(bool accepted)
 {
-    if (accepted) {
-        m_completion->setCaseSensitivity(
-                m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
-        m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());
-        m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
-    }
+    if (!accepted)
+        return;
 
-    delete m_page;
-    m_page = 0;
+    m_completion->setCaseSensitivity(
+            m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());
+    m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
 }

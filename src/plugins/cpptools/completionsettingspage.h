@@ -49,6 +49,7 @@ class CompletionSettingsPage : public Core::IOptionsPage
 {
 public:
     CompletionSettingsPage(CppCodeCompletion *completion);
+    ~CompletionSettingsPage();
 
     QString name() const;
     QString category() const;
