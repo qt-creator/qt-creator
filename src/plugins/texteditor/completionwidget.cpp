@@ -39,8 +39,9 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QEvent>
-#include <QtGui/QKeyEvent>
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QKeyEvent>
 #include <QtGui/QVBoxLayout>
 
 #include <limits.h>
@@ -130,6 +131,8 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
     layout->addWidget(this);
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_popupFrame->setMinimumSize(1, 1);
+    setMinimumSize(1, 1);
 }
 
 bool CompletionWidget::event(QEvent *e)
@@ -227,20 +230,15 @@ void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem
 
 void CompletionWidget::showCompletions(int startPos)
 {
-    const QPoint &pos = m_editor->cursorRect(startPos).bottomLeft();
-    m_popupFrame->move(pos.x() - 16, pos.y());
-    m_popupFrame->setMinimumSize(1, 1);
-    setMinimumSize(1, 1);
-
-    updateSize();
-
+    updatePositionAndSize(startPos);
     m_popupFrame->show();
     show();
     setFocus();
 }
 
-void CompletionWidget::updateSize()
+void CompletionWidget::updatePositionAndSize(int startPos)
 {
+    // Determine size by calculating the space of the visible items
     int visibleItems = m_model->rowCount();
     if (visibleItems > NUMBER_OF_VISIBLE_ITEMS)
         visibleItems = NUMBER_OF_VISIBLE_ITEMS;
@@ -254,10 +252,25 @@ void CompletionWidget::updateSize()
             shint = tmp;
     }
 
-    const int width = (shint.width() + (m_popupFrame->frameWidth() * 2) + 30);
-    const int height = (shint.height() * visibleItems) + m_popupFrame->frameWidth() * 2;
+    const int frameWidth = m_popupFrame->frameWidth();
+    const int width = shint.width() + frameWidth * 2 + 30;
+    const int height = shint.height() * visibleItems + frameWidth * 2;
 
-    m_popupFrame->resize(width, height);
+    // Determine the position, keeping the popup on the screen
+    const QRect cursorRect = m_editor->cursorRect(startPos);
+    const QDesktopWidget *desktop = QApplication::desktop();
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(this));
+
+    QPoint pos = cursorRect.bottomLeft();
+    pos.rx() -= 16 + frameWidth;    // Space for the icons
+
+    if (pos.y() + height > screen.bottom())
+        pos.setY(cursorRect.top() - height);
+
+    if (pos.x() + width > screen.right())
+        pos.setX(screen.right() - width);
+
+    m_popupFrame->setGeometry(pos.x(), pos.y(), width, height);
 }
 
 void CompletionWidget::completionActivated(const QModelIndex &index)
