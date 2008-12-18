@@ -84,6 +84,8 @@ public:
                              Symbol *lastVisibleSymbol,
                              PreprocessMode mode = NoPreprocess);
 
+    QString preprocess(const QString &expression, Document::Ptr document) const;
+
     /**
      * Returns the AST of the last evaluated expression.
      */
