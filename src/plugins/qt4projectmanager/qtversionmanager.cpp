@@ -1075,7 +1075,7 @@ void QtVersion::updateMkSpec() const
                 if (line.startsWith("QMAKESPEC_ORIGINAL")) {
                     const QList<QByteArray> &temp = line.split('=');
                     if (temp.size() == 2) {
-                        mkspec = temp.at(1);
+                        mkspec = temp.at(1).trimmed();
                     }
                     break;
                 }
