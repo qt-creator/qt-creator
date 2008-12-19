@@ -81,11 +81,11 @@ public:
     static int control(int key) { return key + 256; }
 
     void init();
-    void handleKey(int key);
-    void handleInsertMode(int key);
-    void handleCommandMode(int key);
-    void handleRegisterMode(int key);
-    void handleExMode(int key);
+    void handleKey(int key, const QString &text);
+    void handleInsertMode(int key, const QString &text);
+    void handleCommandMode(int key, const QString &text);
+    void handleRegisterMode(int key, const QString &text);
+    void handleExMode(int key, const QString &text);
     void finishMovement();
     void updateCommandBuffer();
     void search(const QString &needle, bool backwards);
@@ -153,7 +153,7 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
         key += 32;
     if ((keyEvent->modifiers() & Qt::ControlModifier) != 0)
         key += 256;
-    handleKey(key);
+    handleKey(key, keyEvent->text());
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = atEol() && m_mode == CommandMode;
@@ -176,14 +176,14 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     return true;
 }
 
-void FakeVimHandler::Private::handleKey(int key)
+void FakeVimHandler::Private::handleKey(int key, const QString &text)
 {
     if (m_mode == InsertMode)
-        handleInsertMode(key);
+        handleInsertMode(key, text);
     else if (m_mode == CommandMode)
-        handleCommandMode(key);
+        handleCommandMode(key, text);
     else if (m_mode == ExMode)
-        handleExMode(key);
+        handleExMode(key, text);
 }
 
 void FakeVimHandler::Private::finishMovement()
@@ -218,8 +218,10 @@ void FakeVimHandler::Private::showMessage(const QString &msg)
     emit q->commandBufferChanged(msg);
 }
 
-void FakeVimHandler::Private::handleCommandMode(int key)
+void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 {
+    Q_UNUSED(text)
+
     //qDebug() << "-> MODE: " << m_mode << " KEY: " << key;
     if (m_submode == RegisterSubMode) {
         m_register = key;
@@ -334,7 +336,7 @@ void FakeVimHandler::Private::handleCommandMode(int key)
     }    
 }
 
-void FakeVimHandler::Private::handleInsertMode(int key)
+void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
 {
     if (key == Key_Escape) {
         m_mode = CommandMode;
@@ -351,15 +353,15 @@ void FakeVimHandler::Private::handleInsertMode(int key)
         m_tc.insertBlock();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
-    } else if (key == Key_Tab) {
-        m_tc.insertText(QChar(9));
     } else {
-        m_tc.insertText(QChar(key));
+        m_tc.insertText(text);
     }    
 }
 
-void FakeVimHandler::Private::handleExMode(int key)
+void FakeVimHandler::Private::handleExMode(int key, const QString &text)
 {
+    Q_UNUSED(text)
+
     if (key == Key_Escape) {
         m_commandBuffer.clear();
         m_commandCode = 0;
