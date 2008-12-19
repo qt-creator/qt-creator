@@ -28,6 +28,9 @@ BranchDialog::BranchDialog(QWidget *parent) :
     m_localModel(0),
     m_remoteModel(0)
 {
+    setModal(true);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     m_ui->setupUi(this);
     m_checkoutButton = m_ui->buttonBox->addButton(tr("Checkout"), QDialogButtonBox::AcceptRole);
     connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(slotCheckoutSelectedBranch()));
