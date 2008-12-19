@@ -54,6 +54,8 @@ Qt4BuildConfigWidget::Qt4BuildConfigWidget(Qt4Project *project)
 {
     m_ui = new Ui::Qt4BuildConfigWidget();
     m_ui->setupUi(this);
+    m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
+    m_ui->shadowBuildDirEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
 
     connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
@@ -62,10 +64,10 @@ Qt4BuildConfigWidget::Qt4BuildConfigWidget(Qt4Project *project)
     connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(shadowBuildCheckBoxClicked(bool)));
 
-    connect(m_ui->shadowBuildButton, SIGNAL(clicked(bool)),
-            this, SLOT(shadowBuildButtonClicked()));
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
+            this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
 
-    connect(m_ui->shadowBuildLineEdit, SIGNAL(textEdited(QString)),
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed()),
             this, SLOT(shadowBuildLineEditTextChanged()));
 
     connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
@@ -102,10 +104,9 @@ void Qt4BuildConfigWidget::init(const QString &buildConfiguration)
 
     bool shadowBuild = m_pro->value(buildConfiguration, "useShadowBuild").toBool();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
-    m_ui->shadowBuildLineEdit->setEnabled(shadowBuild);
-    m_ui->shadowBuildLineEdit->setText(m_pro->buildDirectory(buildConfiguration));
+    m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
+    m_ui->shadowBuildDirEdit->setPath(m_pro->buildDirectory(buildConfiguration));
     shadowBuildLineEditTextChanged(); // Update the import label
-    m_ui->shadowBuildButton->setEnabled(shadowBuild);
 }
 
 void Qt4BuildConfigWidget::changeConfigName(const QString &newName)
@@ -145,47 +146,39 @@ void Qt4BuildConfigWidget::setupQtVersionsComboBox()
         this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
 }
 
-void Qt4BuildConfigWidget::shadowBuildButtonClicked()
+void Qt4BuildConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
-    QString initialDirectory = m_ui->shadowBuildLineEdit->text();
-    if (initialDirectory.isEmpty())
-        initialDirectory = QFileInfo(m_pro->file()->fileName()).absolutePath();
-
-    QString shadowBuildDirectory =
-        QFileDialog::getExistingDirectory(this, tr("Shadow Build Directory"), initialDirectory );
-
-    if (shadowBuildDirectory != QString::null)
-        m_ui->shadowBuildLineEdit->setText(shadowBuildDirectory);
-    shadowBuildLineEditTextChanged();
+    QString initialDirectory = QFileInfo(m_pro->file()->fileName()).absolutePath();
+    if (!initialDirectory.isEmpty())
+        m_ui->shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory);
 }
 
 void Qt4BuildConfigWidget::shadowBuildCheckBoxClicked(bool checked)
 {
-    m_ui->shadowBuildLineEdit->setEnabled(checked);
-    m_ui->shadowBuildButton->setEnabled(checked);
+    m_ui->shadowBuildDirEdit->setEnabled(checked);
     bool b = m_ui->shadowBuildCheckBox->isChecked();
     m_pro->setValue(m_buildConfiguration, "useShadowBuild", b);
     if (b)
-        m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildLineEdit->text());
+        m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
     else
         m_pro->setValue(m_buildConfiguration, "buildDirectory", QVariant(QString::null));
 }
 
 void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
 {
-    m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildLineEdit->text());
+    m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
     // if the directory already exists
     // check if we have a build in there and
     // offer to import it
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
-        QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildLineEdit->text());
+        QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
         if (!qtPath.isEmpty()) {
             m_ui->importLabel->setVisible(true);
         }
     }
 
-//    QFileInfo fi(m_ui->shadowBuildLineEdit->text());
+//    QFileInfo fi(m_ui->shadowBuildDirEdit->path());
 //    if (fi.exists()) {
 //        m_ui->shadowBuildLineEdit->setStyleSheet("");
 //        m_ui->shadowBuildLineEdit->setToolTip("");
@@ -198,7 +191,7 @@ void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
 void Qt4BuildConfigWidget::importLabelClicked()
 {
     if (m_ui->shadowBuildCheckBox->isChecked()) {
-        QString directory = m_ui->shadowBuildLineEdit->text();
+        QString directory = m_ui->shadowBuildDirEdit->path();
         if (!directory.isEmpty()) {
             QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
             QString qtPath = vm->findQtVersionFromMakefile(directory);

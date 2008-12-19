@@ -61,6 +61,7 @@ private slots:
     void setupQtVersionsComboBox();
     void shadowBuildCheckBoxClicked(bool checked);
     void shadowBuildButtonClicked();
+    void onBeforeBeforeShadowBuildDirBrowsed();
     void shadowBuildLineEditTextChanged();
     void importLabelClicked();
     void qtVersionComboBoxCurrentIndexChanged(const QString &);

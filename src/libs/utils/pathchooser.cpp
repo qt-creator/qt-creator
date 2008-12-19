@@ -90,6 +90,7 @@ struct PathChooserPrivate
     PathValidatingLineEdit *m_lineEdit;
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
+    QString m_initialBrowsePathOverride;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
@@ -143,9 +144,15 @@ void PathChooser::setPath(const QString &path)
 
 void PathChooser::slotBrowse()
 {
+    emit beforeBrowsing();
+
     QString predefined = path();
-    if (!predefined.isEmpty() && !QFileInfo(predefined).isDir())
-        predefined.clear();
+    if ((predefined.isEmpty() || !QFileInfo(predefined).isDir())
+            && !m_d->m_initialBrowsePathOverride.isNull()) {
+        predefined = m_d->m_initialBrowsePathOverride;
+        if (!QFileInfo(predefined).isDir())
+            predefined.clear();
+    }
 
     // Prompt for a file/dir
     QString dialogTitle;
@@ -269,6 +276,11 @@ void PathChooser::setExpectedKind(Kind expected)
 void PathChooser::setPromptDialogTitle(const QString &title)
 {
     m_d->m_dialogTitleOverride = title;
+}
+
+void PathChooser::setInitialBrowsePathBackup(const QString &path)
+{
+    m_d->m_initialBrowsePathOverride = path;
 }
 
 QString PathChooser::makeDialogTitle(const QString &title)
