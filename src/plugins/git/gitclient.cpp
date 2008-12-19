@@ -476,7 +476,7 @@ static inline QString trimFileSpecification(QString fileSpec)
         // Collapse the sequence of spaces
         const int filePos = colonIndex + 2;
         int nonBlankPos = filePos;
-        for ( ; fileSpec.at(nonBlankPos).isSpace(); nonBlankPos++);
+        for ( ; fileSpec.at(nonBlankPos).isSpace(); nonBlankPos++) ;
         if (nonBlankPos > filePos)
             fileSpec.remove(filePos, nonBlankPos - filePos);
     }

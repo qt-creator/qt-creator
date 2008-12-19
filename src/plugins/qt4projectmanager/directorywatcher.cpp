@@ -207,7 +207,8 @@ int FileWatcher::m_objectCount = 0;
 QHash<QString,int> FileWatcher::m_fileCount;
 QFileSystemWatcher *FileWatcher::m_watcher = 0;
 
-FileWatcher::FileWatcher(QObject *parent)
+FileWatcher::FileWatcher(QObject *parent) :
+    QObject(parent)
 {
     if (!m_watcher)
         m_watcher = new QFileSystemWatcher();

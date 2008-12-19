@@ -151,7 +151,7 @@ QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock)
             // Ask plugin to map back
             const QString fileName = m_plugin->fileNameFromPerforceName(diffFileName.trimmed(), &errorMessage);
             if (fileName.isEmpty())
-                qWarning(errorMessage.toUtf8().constData());
+                qWarning("%s", qPrintable(errorMessage));
             return fileName;
         }
     }
