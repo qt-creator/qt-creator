@@ -95,6 +95,7 @@ public:
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
+    void moveToFirstNonBlankOnLine();
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -285,6 +286,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             ++n;
         m_tc.movePosition(Left, KeepAnchor, n);
         finishMovement();
+    } else if (key == 'H') {
+        int firstPos = m_editor->cursorForPosition(QPoint(0, 0)).position();
+        m_tc.setPosition(firstPos, KeepAnchor);
+        m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
+        moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (key == 'i') {
         m_mode = InsertMode;
     } else if (key == 'j' || key == Key_Down) {
@@ -436,6 +443,18 @@ void FakeVimHandler::Private::search(const QString &needle, bool backwards)
     m_tc.movePosition(backwards ? Right : Left, MoveAnchor, 1);
 }
 
+void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
+{
+    QTextBlock block = m_tc.block();
+    QTextDocument *doc = m_tc.document();
+    int firstPos = m_tc.position();
+    for (int i = firstPos, n = firstPos + block.length(); i < n; ++i) {
+        if (!doc->characterAt(i).isSpace()) {
+            m_tc.setPosition(i, KeepAnchor);
+            return;
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
