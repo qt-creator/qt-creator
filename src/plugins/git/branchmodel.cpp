@@ -31,7 +31,7 @@ bool BranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
 static inline Qt::ItemFlags typeToModelFlags(BranchModel::Type t)
 {
     Qt::ItemFlags rc = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    if (t == BranchModel::BranchModel::LocalBranches)
+    if (t == BranchModel::LocalBranches)
         rc |= Qt::ItemIsUserCheckable;
     return rc;
 }
