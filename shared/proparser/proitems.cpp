@@ -275,6 +275,7 @@ ProFile::ProFile(const QString &fileName)
 
     QFileInfo fi(fileName);
     m_displayFileName = fi.fileName();
+    m_directoryName = fi.absolutePath();
 }
 
 ProFile::~ProFile()
@@ -289,6 +290,11 @@ QString ProFile::displayFileName() const
 QString ProFile::fileName() const
 {
     return m_fileName;
+}
+
+QString ProFile::directoryName() const
+{
+    return m_directoryName;
 }
 
 void ProFile::setModified(bool modified)

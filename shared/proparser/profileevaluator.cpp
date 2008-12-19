@@ -625,8 +625,7 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
             m_cumulative = cumulative;
         }
 
-        QString fn = pro->fileName();
-        ok = QDir::setCurrent(QFileInfo(fn).absolutePath());
+        ok = QDir::setCurrent(pro->directoryName());
     }
 
     return ok;
@@ -961,8 +960,7 @@ QString ProFileEvaluator::Private::currentFileName() const
 QString ProFileEvaluator::Private::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
-    QFileInfo fi(cur->fileName());
-    return fi.absolutePath();
+    return cur->directoryName();
 }
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)

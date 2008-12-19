@@ -209,6 +209,7 @@ public:
 
     QString displayFileName() const;
     QString fileName() const;
+    QString directoryName() const;
 
     void setModified(bool modified);
     bool isModified() const;
@@ -218,6 +219,7 @@ public:
 private:
     QString m_fileName;
     QString m_displayFileName;
+    QString m_directoryName;
     bool m_modified;
 };
 
