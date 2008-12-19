@@ -92,6 +92,7 @@ public:
     bool synchronousReset(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
+    bool synchronousStash(const QString &workingDirectory, QString *errorMessage);
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
@@ -104,6 +105,11 @@ public:
     QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar);
+
+    enum StashResult { StashUnchanged, StashCanceled, StashFailed,
+                       Stashed, NotStashed /* User did not want it */ };
+    StashResult ensureStash(const QString &workingDirectory, QString *errorMessage);
+    StashResult ensureStash(const QString &workingDirectory);
 
     bool getCommitData(const QString &workingDirectory,
                        QString *commitTemplate,
@@ -118,7 +124,7 @@ public:
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,
-                           bool untracked,
+                           bool untracked = false,
                            QString *output = 0,
                            QString *errorMessage = 0);
 

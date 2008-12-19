@@ -703,8 +703,17 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 void GitPlugin::pull()
 {
     const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->pull(workingDirectory);
+    if (workingDirectory.isEmpty())
+        return;
+
+    switch (m_gitClient->ensureStash(workingDirectory)) {
+        case GitClient::StashUnchanged:
+        case GitClient::Stashed:
+        case GitClient::NotStashed:
+            m_gitClient->pull(workingDirectory);
+        default:
+        break;
+    }
 }
 
 void GitPlugin::push()

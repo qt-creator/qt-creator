@@ -97,6 +97,7 @@ public:
 
     GitOutputWindow             *outputWindow() const;
 
+
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);
 

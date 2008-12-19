@@ -93,7 +93,7 @@ QString MakeBuildStepConfigWidget::displayName() const
     return "Make";
 }
 
-void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
+void MakeBuildStepConfigWidget::init(const QString & /* buildConfiguration */)
 {
     // TODO
 }
@@ -115,12 +115,12 @@ ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Projec
     return new MakeStep(pro);
 }
 
-QStringList MakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+QStringList MakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
 {
     return QStringList();
 }
 
-QString MakeBuildStepFactory::displayNameForName(const QString &name) const
+QString MakeBuildStepFactory::displayNameForName(const QString & /* name */) const
 {
     return "Make";
 }
