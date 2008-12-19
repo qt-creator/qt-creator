@@ -379,6 +379,23 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     return true;
 }
 
+bool GitClient::synchronousStash(const QString &workingDirectory, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory;
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("stash");
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable stash in %1: %2").arg(workingDirectory, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    return true;
+}
+
+
 void GitClient::executeGit(const QString &workingDirectory, const QStringList &arguments,
                            VCSBase::VCSBaseEditor* editor,
                            bool outputToWindow)
@@ -467,6 +484,60 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     return process.exitCode() == 0;
 }
 
+static inline int
+        askWithDetailedText(QWidget *parent,
+                            const QString &title, const QString &msg,
+                            const QString &inf,
+                            QMessageBox::StandardButton defaultButton,
+                            QMessageBox::StandardButtons buttons = QMessageBox::Yes|QMessageBox::No)
+{
+    QMessageBox msgBox(QMessageBox::Question, title, msg, buttons, parent);
+    msgBox.setDetailedText(inf);
+    msgBox.setDefaultButton(defaultButton);
+    return msgBox.exec();
+}
+
+// Convenience that pops up an msg box.
+GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory)
+{
+    QString errorMessage;
+    const StashResult sr = ensureStash(workingDirectory, &errorMessage);
+    if (sr == StashFailed) {
+        m_plugin->outputWindow()->append(errorMessage);
+        m_plugin->outputWindow()->popup();
+    }
+    return sr;
+}
+
+// Ensure that changed files are stashed before a pull or similar
+GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, QString *errorMessage)
+{
+    QString statusOutput;
+    switch (gitStatus(workingDirectory, false, &statusOutput, errorMessage)) {
+        case StatusChanged:
+        break;
+        case StatusUnchanged:
+        return StashUnchanged;
+        case StatusFailed:
+        return StashFailed;
+    }
+
+    const int answer = askWithDetailedText(m_core->mainWindow(), tr("Changes"),
+                             tr("You have modified files. Would you like to stash your changes?"),
+                             statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+    switch (answer) {
+        case QMessageBox::Cancel:
+            return StashCanceled;
+        case QMessageBox::Yes:
+            if (!synchronousStash(workingDirectory, errorMessage))
+                return StashFailed;
+            break;
+        case QMessageBox::No: // At your own risk, so.
+            return NotStashed;
+        }
+
+    return Stashed;
+ }
 
 // Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
 static inline QString trimFileSpecification(QString fileSpec)
@@ -701,18 +772,6 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     m_plugin->outputWindow()->append(message);
     m_plugin->outputWindow()->popup(false);
     return rc;
-}
-
-static inline bool askWithInformativeText(QWidget *parent,
-                                          const QString &title,
-                                          const QString &msg,
-                                          const QString &inf,
-                                          bool defaultValue)
-{
-    QMessageBox msgBox(QMessageBox::Question, title, msg, QMessageBox::Yes|QMessageBox::No, parent);
-    msgBox.setInformativeText(inf);
-    msgBox.setDefaultButton(defaultValue ? QMessageBox::Yes : QMessageBox::No);
-    return msgBox.exec() == QMessageBox::Yes;
 }
 
 /* Revert: This function can be called with a file list (to revert single
