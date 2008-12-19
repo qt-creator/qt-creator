@@ -351,6 +351,8 @@ void FakeVimHandler::Private::handleInsertMode(int key)
         m_tc.insertBlock();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
+    } else if (key == Key_Tab) {
+        m_tc.insertText(QChar(9));
     } else {
         m_tc.insertText(QChar(key));
     }    
