@@ -53,6 +53,7 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/SimpleLexer.h>
 
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
@@ -188,29 +189,36 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!edit)
         return;
 
-    QTextCursor tc(edit->document());
-    tc.setPosition(pos);
-
     const Snapshot documents = m_modelManager->snapshot();
-
-    const int lineNumber = tc.block().blockNumber() + 1;
     const QString fileName = editor->file()->fileName();
     Document::Ptr doc = documents.value(fileName);
-    if (doc) {
-        foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
-            if (m.line() == lineNumber) {
-                m_toolTip = m.text();
-                break;
-            }
-        }
+    if (! doc)
+        return; // nothing to do
 
-        if (m_toolTip.isEmpty()) {
-            unsigned lineno = tc.blockNumber() + 1;
-            foreach (const Document::Include &incl, doc->includes()) {
-                if (lineno == incl.line()) {
-                    m_toolTip = incl.fileName();
-                    break;
-                }
+    QTextCursor tc(edit->document());
+    tc.setPosition(pos);
+    const unsigned lineNumber = tc.block().blockNumber() + 1;
+
+    // Find the last symbol up to the cursor position
+    int line = 0, column = 0;
+    editor->convertPosition(tc.position(), &line, &column);
+    Symbol *lastSymbol = doc->findSymbolAt(line, column);
+
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.setSnapshot(documents);
+
+    foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
+        if (m.line() == lineNumber) {
+            m_toolTip = m.text();
+            break;
+        }
+    }
+
+    if (m_toolTip.isEmpty()) {
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (incl.line() == lineNumber) {
+                m_toolTip = incl.fileName();
+                break;
             }
         }
     }
@@ -233,43 +241,34 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
-        if (doc) {
-            // Find the last symbol up to the cursor position
-            int line = 0, column = 0;
-            editor->convertPosition(tc.position(), &line, &column);
-            Symbol *lastSymbol = doc->findSymbolAt(line, column);
+        const QList<TypeOfExpression::Result> types =
+                typeOfExpression(expression, doc, lastSymbol);
 
-            TypeOfExpression typeOfExpression;
-            typeOfExpression.setSnapshot(documents);
-            QList<TypeOfExpression::Result> types = typeOfExpression(expression, doc, lastSymbol);
+        if (!types.isEmpty()) {
+            FullySpecifiedType firstType = types.first().first;
+            FullySpecifiedType docType = firstType;
 
-            if (!types.isEmpty()) {
-                FullySpecifiedType firstType = types.first().first;
-                FullySpecifiedType docType = firstType;
+            if (const PointerType *pt = firstType->asPointerType()) {
+                docType = pt->elementType();
+            } else if (const ReferenceType *rt = firstType->asReferenceType()) {
+                docType = rt->elementType();
+            }
 
-                if (const PointerType *pt = firstType->asPointerType()) {
-                    docType = pt->elementType();
-                } else if (const ReferenceType *rt = firstType->asReferenceType()) {
-                    docType = rt->elementType();
-                }
+            m_helpId = buildHelpId(docType, types.first().second);
+            QString displayName = buildHelpId(firstType, types.first().second);
 
-
-                m_helpId = buildHelpId(docType, types.first().second);
-                QString displayName = buildHelpId(firstType, types.first().second);
-
-                if (!firstType->isClass() && !firstType->isNamedType()) {
-                    Overview overview;
-                    overview.setShowArgumentNames(true);
-                    overview.setShowReturnTypes(true);
-                    m_toolTip = overview.prettyType(firstType, displayName);
-                } else {
-                    m_toolTip = m_helpId;
-                }
+            if (!firstType->isClass() && !firstType->isNamedType()) {
+                Overview overview;
+                overview.setShowArgumentNames(true);
+                overview.setShowReturnTypes(true);
+                m_toolTip = overview.prettyType(firstType, displayName);
+            } else {
+                m_toolTip = m_helpId;
             }
         }
     }
 
-    if (doc && m_toolTip.isEmpty()) {
+    if (m_toolTip.isEmpty()) {
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             if (use.contains(pos)) {
                 m_toolTip = use.macro().toString();
@@ -285,12 +284,15 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         m_helpEngineNeedsSetup = false;
     }
 
+    if (! m_toolTip.isEmpty())
+        m_toolTip = Qt::escape(m_toolTip);
+
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
         m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
                                           "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
-                    .arg(Qt::escape(m_toolTip));
+                    .arg(m_toolTip);
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty()) {
-        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
+        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
     }
 }

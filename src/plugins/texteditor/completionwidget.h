@@ -74,7 +74,7 @@ private slots:
     void completionActivated(const QModelIndex &index);
 
 private:
-    void updateSize();
+    void updatePositionAndSize(int startPos);
 
     QPointer<QFrame> m_popupFrame;
     bool m_blockFocusOut;

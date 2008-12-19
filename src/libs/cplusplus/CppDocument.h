@@ -138,10 +138,10 @@ public:
         QString fileName() const
         { return _fileName; }
 
-        int line() const
+        unsigned line() const
         { return _line; }
 
-        int column() const
+        unsigned column() const
         { return _column; }
 
         QString text() const
@@ -150,8 +150,8 @@ public:
     private:
         int _level;
         QString _fileName;
-        int _line;
-        int _column;
+        unsigned _line;
+        unsigned _column;
         QString _text;
     };
 

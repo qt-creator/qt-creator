@@ -70,6 +70,12 @@ QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expr
     return resolveExpression(m_ast);
 }
 
+QString TypeOfExpression::preprocess(const QString &expression,
+                                     Document::Ptr document) const
+{
+    return preprocessedExpression(expression, m_snapshot, document);
+}
+
 ExpressionAST *TypeOfExpression::ast() const
 {
     return m_ast;
