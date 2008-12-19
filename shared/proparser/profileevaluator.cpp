@@ -188,7 +188,7 @@ public:
     QString format(const char *format) const;
 
     QString currentFileName() const;
-    QString getcwd() const;
+    QString currentDirectory() const;
     ProFile *currentProFile() const;
 
     bool evaluateConditionalFunction(const QString &function, const QString &arguments, bool *result);
@@ -958,7 +958,7 @@ QString ProFileEvaluator::Private::currentFileName() const
     return QString();
 }
 
-QString ProFileEvaluator::Private::getcwd() const
+QString ProFileEvaluator::Private::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
     QFileInfo fi(cur->fileName());
@@ -1747,7 +1747,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             QString fileName = args.first();
             // ### this breaks if we have include(c:/reallystupid.pri) but IMHO that's really bad style.
-            QDir currentProPath(getcwd());
+            QDir currentProPath(currentDirectory());
             fileName = QDir::cleanPath(currentProPath.absoluteFilePath(fileName));
             ok = evaluateFile(fileName, &ok);
             break;
@@ -1834,7 +1834,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 break;
             }
             //regular expression I guess
-            QString dirstr = getcwd();
+            QString dirstr = currentDirectory();
             int slsh = file.lastIndexOf(Option::dir_sep);
             if (slsh != -1) {
                 dirstr = file.left(slsh+1);
@@ -1873,7 +1873,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         return QStringList(m_outputDir);
     if (variableName == QLatin1String("PWD") ||  //current working dir (of _FILE_)
         variableName == QLatin1String("IN_PWD"))
-        return QStringList(getcwd());
+        return QStringList(currentDirectory());
     if (variableName == QLatin1String("DIR_SEPARATOR"))
         return QStringList(Option::dir_sep);
     if (variableName == QLatin1String("DIRLIST_SEPARATOR"))
