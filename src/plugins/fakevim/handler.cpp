@@ -287,8 +287,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Left, KeepAnchor, n);
         finishMovement();
     } else if (key == 'H') {
-        int firstPos = m_editor->cursorForPosition(QPoint(0, 0)).position();
-        m_tc.setPosition(firstPos, KeepAnchor);
+        m_tc = m_editor->cursorForPosition(QPoint(0, 0));
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
         moveToFirstNonBlankOnLine();
         finishMovement();
@@ -304,10 +303,15 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         finishMovement();
     } else if (key == 'L') {
-        QPoint point = m_editor->geometry().bottomRight();
-        int firstPos = m_editor->cursorForPosition(point).position();
-        m_tc.setPosition(firstPos, KeepAnchor);
+        int heigth = m_editor->height();
+        m_tc = m_editor->cursorForPosition(QPoint(0, heigth));
+        m_tc.movePosition(Up, KeepAnchor, qMax(count() - 1, 0));
         m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
+        moveToFirstNonBlankOnLine();
+        finishMovement();
+    } else if (key == 'M') {
+        int heigth = m_editor->height();
+        m_tc = m_editor->cursorForPosition(QPoint(0, heigth / 2));
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'n') {
