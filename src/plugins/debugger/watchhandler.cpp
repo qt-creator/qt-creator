@@ -1204,13 +1204,13 @@ void WatchHandler::loadWatchers()
     QVariant value;
     sessionValueRequested("Watchers", &value);
     m_watchers = value.toStringList();
-    qDebug() << "LOAD WATCHERS: " << m_watchers;
+    //qDebug() << "LOAD WATCHERS: " << m_watchers;
     reinitializeWatchersHelper();
 }
 
 void WatchHandler::saveWatchers()
 {
-    qDebug() << "SAVE WATCHERS: " << m_watchers;
+    //qDebug() << "SAVE WATCHERS: " << m_watchers;
     setSessionValueRequested("Watchers", m_watchers);
 }
 
