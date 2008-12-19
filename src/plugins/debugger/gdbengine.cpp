@@ -2961,11 +2961,11 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
 
     // in rare cases we need more or less:
     if (outertype == m_namespace + "QObject") {
-        extraArgs[extraArgCount++] = "(char*)&((('"
+        extraArgs[0] = "(char*)&((('"
             + m_namespace + "QObjectPrivate'*)&"
             + data.exp + ")->children)-(char*)&" + data.exp;
     } else if (outertype == m_namespace + "QVector") {
-        extraArgs[extraArgCount++] = "(char*)&(("
+        extraArgs[1] = "(char*)&(("
             + data.exp + ").d->array)-(char*)" + data.exp + ".d";
     } else if (outertype == m_namespace + "QObjectSlot"
             || outertype == m_namespace + "QObjectSignal") {
@@ -2976,16 +2976,16 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
         QString slotNumber = "-1";
         if (lastOpened != -1 && lastClosed != -1)
             slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
-        extraArgs[extraArgCount++] = slotNumber;
+        extraArgs[0] = slotNumber;
     } else if (outertype == m_namespace + "QMap") {
         QString nodetype = m_namespace + "QMapNode";
         nodetype += data.type.mid(m_namespace.size() + 4);
         //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype;
-        extraArgs[extraArgCount++] = sizeofTypeExpression(nodetype);
-        extraArgs[extraArgCount++] = "(size_t)&(('" + nodetype + "'*)0)->value";
+        extraArgs[2] = sizeofTypeExpression(nodetype);
+        extraArgs[3] = "(size_t)&(('" + nodetype + "'*)0)->value";
     } else if (outertype == m_namespace + "QMapNode") {
-        extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
-        extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
+        extraArgs[2] = sizeofTypeExpression(data.type);
+        extraArgs[3] = "(size_t)&(('" + data.type + "'*)0)->value";
     } else if (outertype == "std::vector") {
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
         if (inners.at(0) == "bool") {

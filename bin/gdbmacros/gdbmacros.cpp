@@ -2465,6 +2465,7 @@ void qDumpObjectData440(
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
             #endif // PRIVATE_OBJECT_ALLOWED
+            // << "\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
             "\""NS"QStringList\","
@@ -2480,7 +2481,6 @@ void qDumpObjectData440(
             "\"std::string\","
             "\"std::vector\","
             "\"std::wstring\","
-            // << "\""NS"QRegion\","
             "]";
         d << ",namespace=\""NS"\"";
         d.disarm();
