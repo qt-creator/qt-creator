@@ -91,6 +91,7 @@ private:
 signals:
     void validChanged();
     void changed();
+    void browsingFinished();
     void returnPressed();
 
 public slots:

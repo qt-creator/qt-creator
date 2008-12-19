@@ -167,13 +167,15 @@ void PathChooser::slotBrowse()
         ;
     }
 
-    // TODO make cross-platform
-    // Delete trailing slashes unless it is "/", only
+    // Delete trailing slashes unless it is "/"|"\\", only
     if (!newPath.isEmpty()) {
+        newPath = QDir::toNativeSeparators(newPath);
         if (newPath.size() > 1 && newPath.endsWith(QDir::separator()))
             newPath.truncate(newPath.size() - 1);
         setPath(newPath);
     }
+
+    emit browsingFinished();
 }
 
 bool PathChooser::isValid() const

@@ -109,30 +109,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="pathEdit"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QToolButton" name="browseButton">
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="mingwLabel">
         <property name="text">
          <string>MinGw Directory:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="mingwLineEdit"/>
-      </item>
-      <item row="3" column="2">
-       <widget class="QToolButton" name="mingwBrowseButton">
-        <property name="text">
-         <string>...</string>
         </property>
        </widget>
       </item>
@@ -152,6 +132,12 @@
       </item>
       <item row="5" column="1" colspan="2">
        <widget class="QComboBox" name="msvcComboBox"/>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="Core::Utils::PathChooser" name="qtPath" native="true"/>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="Core::Utils::PathChooser" name="mingwPath" native="true"/>
       </item>
      </layout>
     </widget>
@@ -179,34 +165,20 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>qtdirList</tabstop>
   <tabstop>delButton</tabstop>
   <tabstop>nameEdit</tabstop>
-  <tabstop>pathEdit</tabstop>
   <tabstop>defaultCombo</tabstop>
-  <tabstop>browseButton</tabstop>
  </tabstops>
- <resources>
-  <include location="../../libs/cplusplus/cplusplus.qrc"/>
-  <include location="../../libs/extensionsystem/pluginview.qrc"/>
-  <include location="../bookmarks/bookmarks.qrc"/>
-  <include location="../coreplugin/core.qrc"/>
-  <include location="../coreplugin/fancyactionbar.qrc"/>
-  <include location="../cppeditor/cppeditor.qrc"/>
-  <include location="../cpptools/cpptools.qrc"/>
-  <include location="../designer/designer.qrc"/>
-  <include location="../find/find.qrc"/>
-  <include location="../gdbdebugger/gdbdebugger.qrc"/>
-  <include location="../help/help.qrc"/>
-  <include location="../perforce/perforce.qrc"/>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
-  <include location="../../../shared/proparser/proparser.qrc"/>
-  <include location="qt4projectmanager.qrc"/>
-  <include location="wizards/wizards.qrc"/>
-  <include location="../quickopen/quickopen.qrc"/>
-  <include location="../resourceeditor/resourceeditor.qrc"/>
-  <include location="../texteditor/texteditor.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
