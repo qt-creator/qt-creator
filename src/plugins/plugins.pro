@@ -25,7 +25,8 @@ SUBDIRS   = plugin_coreplugin \
 #            plugin_regexp \ # don't know what to do with this
             plugin_qtscripteditor \
             plugin_cpaster \
-            plugin_cmakeprojectmanager
+            plugin_cmakeprojectmanager \
+            plugin_fakevim
 
 # These two plugins require private headers from Qt and therefore don't work
 # with an installed/released version of Qt.
@@ -114,6 +115,11 @@ plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
 plugin_debugger.depends += plugin_coreplugin
 plugin_debugger.depends += plugin_cppeditor
+
+plugin_fakevim.subdir = fakevim
+plugin_fakevim.depends = plugin_projectexplorer
+plugin_fakevim.depends += plugin_coreplugin
+plugin_fakevim.depends += plugin_cppeditor
 
 plugin_qtestlib.subdir = qtestlib
 plugin_qtestlib.depends = plugin_projectexplorer
