@@ -86,6 +86,7 @@ public:
     void blame(const QString &workingDirectory, const QString &fileName);
     void showCommit(const QString &workingDirectory, const QString &commit);
     void checkout(const QString &workingDirectory, const QString &file);
+    void checkoutBranch(const QString &workingDirectory, const QString &branch);
     void hardReset(const QString &workingDirectory, const QString &commit);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
@@ -93,6 +94,11 @@ public:
     bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     bool synchronousStash(const QString &workingDirectory, QString *errorMessage);
+    bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
+                              QString *output, QString *errorMessage);
+    bool synchronousShow(const QString &workingDirectory, const QString &id,
+                              QString *output, QString *errorMessage);
+
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 

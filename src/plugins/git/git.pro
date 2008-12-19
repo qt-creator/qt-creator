@@ -6,7 +6,6 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/vcsbase/vcsbase.pri)
 include(../../libs/utils/utils.pri)
-
 HEADERS += gitplugin.h \
     gitconstants.h \
     gitoutputwindow.h \
@@ -19,8 +18,9 @@ HEADERS += gitplugin.h \
     gitsubmiteditorwidget.h \
     gitsubmiteditor.h \
     gitversioncontrol.h \
-    gitsettings.h
-
+    gitsettings.h \
+    branchdialog.h \
+    branchmodel.h
 SOURCES += gitplugin.cpp \
     gitoutputwindow.cpp \
     gitclient.cpp \
@@ -32,8 +32,10 @@ SOURCES += gitplugin.cpp \
     gitsubmiteditorwidget.cpp \
     gitsubmiteditor.cpp \
     gitversioncontrol.cpp \
-    gitsettings.cpp
-
+    gitsettings.cpp \
+    branchdialog.cpp \
+    branchmodel.cpp
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
-    gitsubmitpanel.ui
+    gitsubmitpanel.ui \
+    branchdialog.ui

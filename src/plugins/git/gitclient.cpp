@@ -276,6 +276,13 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName)
     executeGit(workingDirectory, arguments, editor);
 }
 
+void GitClient::checkoutBranch(const QString &workingDirectory, const QString &branch)
+{
+    QStringList arguments(QLatin1String("checkout"));
+    arguments <<  branch;
+    executeGit(workingDirectory, arguments, 0, true);
+}
+
 void GitClient::checkout(const QString &workingDirectory, const QString &fileName)
 {
     // Passing an empty argument as the file name is very dangereous, since this makes
@@ -392,6 +399,41 @@ bool GitClient::synchronousStash(const QString &workingDirectory, QString *error
         *errorMessage = tr("Unable stash in %1: %2").arg(workingDirectory, QString::fromLocal8Bit(errorText));
         return false;
     }
+    return true;
+}
+
+bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
+                                     QString *output, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << branchArgs;
+    branchArgs.push_front(QLatin1String("branch"));
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = synchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to run branch command: %1: %2").arg(workingDirectory, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    *output = QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r'));
+    return true;
+}
+
+bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
+                                 QString *output, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << id;
+    QStringList args(QLatin1String("show"));
+    args << id;
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to run show: %1: %2").arg(workingDirectory, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    *output = QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r'));
     return true;
 }
 
