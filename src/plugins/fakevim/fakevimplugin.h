@@ -74,7 +74,6 @@ private:
     FakeVimHandler *m_handler;
     ExtensionSystem::PluginManager *m_pm;
     QAction *m_installHandlerAction;
-    int m_savedCursorWidth;
 };
 
 } // namespace Internal

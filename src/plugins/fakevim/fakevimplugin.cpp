@@ -157,10 +157,7 @@ void FakeVimPlugin::installHandler()
         return;
     plainTextEdit->removeEventFilter(m_handler);
     plainTextEdit->installEventFilter(m_handler);
-    QFont font = plainTextEdit->font();
-    //font.setFamily("Monospace");
-    m_savedCursorWidth = plainTextEdit->cursorWidth();
-    plainTextEdit->setCursorWidth(QFontMetrics(font).width(QChar('x')));
+    plainTextEdit->setOverwriteMode(true);
 
     //QMainWindow mw;
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
@@ -175,7 +172,7 @@ void FakeVimPlugin::removeHandler(QObject *ob)
     QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(ob);
     if (!plainTextEdit)
         return;
-    plainTextEdit->setCursorWidth(m_savedCursorWidth);
+    plainTextEdit->setOverwriteMode(false);
 }
 
 void FakeVimPlugin::showCommandBuffer(const QString &contents)
