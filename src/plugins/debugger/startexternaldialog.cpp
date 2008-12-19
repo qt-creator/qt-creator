@@ -42,6 +42,8 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent)
 {
     setupUi(this);
+    execFile->setExpectedKind(Core::Utils::PathChooser::File);
+    execFile->setPromptDialogTitle(tr("Select Executable"));
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     //execLabel->setHidden(false);
@@ -53,14 +55,11 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    connect(browseButton, SIGNAL(clicked()),
-        this, SLOT(onBrowseButton()));
 }
 
 void StartExternalDialog::setExecutableFile(const QString &str)
 {
-    execEdit->setText(str);
+    execFile->setPath(str);
 }
 
 void StartExternalDialog::setExecutableArguments(const QString &str)
@@ -70,7 +69,7 @@ void StartExternalDialog::setExecutableArguments(const QString &str)
 
 QString StartExternalDialog::executableFile() const
 {
-    return execEdit->text();
+    return execFile->path();
 }
 
 QString StartExternalDialog::executableArguments() const
@@ -115,11 +114,4 @@ QString StartExternalDialog::executableArguments() const
 
     return result;
     */
-}
-
-void StartExternalDialog::onBrowseButton()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select Executable"),
-        execEdit->text());
-    execEdit->setText(fileName);
 }

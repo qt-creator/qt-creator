@@ -138,8 +138,7 @@ QString PathChooser::path() const
 
 void PathChooser::setPath(const QString &path)
 {
-    const QString defaultPath = path.isEmpty() ? homePath() : path;
-    m_d->m_lineEdit->setText(QDir::toNativeSeparators(defaultPath));
+    m_d->m_lineEdit->setText(QDir::toNativeSeparators(path));
 }
 
 void PathChooser::slotBrowse()
