@@ -33,16 +33,18 @@
 
 #include "handler.h"
 
-#include <QDebug>
-#include <QKeyEvent>
-#include <QLineEdit>
-#include <QObject>
-#include <QPlainTextEdit>
-#include <QRegExp>
-#include <QStack>
-#include <QTextBlock>
-#include <QTextEdit>
-#include <QTextCursor>
+#include <QtCore/QDebug>
+#include <QtCore/QObject>
+#include <QtCore/QRegExp>
+#include <QtCore/QStack>
+
+#include <QtGui/QKeyEvent>
+#include <QtGui/QLineEdit>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QScrollBar>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
+#include <QtGui/QTextEdit>
 
 
 using namespace FakeVim::Internal;
@@ -66,9 +68,21 @@ const int ParagraphSeparator = 0x00002029;
 
 using namespace Qt;
 
-enum Mode { InsertMode, CommandMode, ExMode };
+enum Mode
+{
+    InsertMode,
+    CommandMode,
+    ExMode
+};
 
-enum SubMode { NoSubMode, RegisterSubMode, ChangeSubMode, DeleteSubMode };
+enum SubMode
+{
+    NoSubMode,
+    RegisterSubMode,
+    ChangeSubMode,
+    DeleteSubMode,
+    ZSubMode
+};
 
 class FakeVimHandler::Private
 {
@@ -95,6 +109,7 @@ public:
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
+
     void moveToFirstNonBlankOnLine();
 
     FakeVimHandler *q;
@@ -237,6 +252,23 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Down, KeepAnchor, count());
         m_registers[m_register] = m_tc.selectedText();
         finishMovement();
+    } else if (m_submode == ZSubMode) {
+        if (key == Key_Return) {
+    	    // cursor line to top of window, cursor on first non-blank
+    	    QRect rect = m_editor->cursorRect();
+            int blocksUp = rect.y() / rect.height();
+            int blockNumber = m_tc.block().blockNumber();
+            QScrollBar *scrollBar = m_editor->verticalScrollBar();
+            if (blockNumber != blocksUp) {
+                scrollBar->setValue(scrollBar->value() * blockNumber
+                    / (blockNumber - blocksUp));
+            }
+            moveToFirstNonBlankOnLine();
+            finishMovement();
+    	} else {
+            qDebug() << "Ignored z + " << key << text;
+        }
+        m_submode = NoSubMode;
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_count.isEmpty()) {
             m_tc.movePosition(StartOfLine, KeepAnchor);
@@ -346,12 +378,14 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.deleteChar();
         }
         finishMovement();
+    } else if (key == 'z') {
+        m_submode = ZSubMode;
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
     } else {
-        qDebug() << "Ignored" << key;
+        qDebug() << "Ignored" << key << text;
     }    
 }
 
@@ -457,6 +491,7 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 {
     QTextBlock block = m_tc.block();
     QTextDocument *doc = m_tc.document();
+    m_tc.movePosition(StartOfLine);
     int firstPos = m_tc.position();
     for (int i = firstPos, n = firstPos + block.length(); i < n; ++i) {
         if (!doc->characterAt(i).isSpace()) {
