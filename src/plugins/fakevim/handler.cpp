@@ -305,7 +305,6 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'L') {
         int heigth = m_editor->height();
         m_tc = m_editor->cursorForPosition(QPoint(0, heigth));
-        m_tc.movePosition(Up, KeepAnchor, qMax(count() - 1, 0));
         m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
         moveToFirstNonBlankOnLine();
         finishMovement();
