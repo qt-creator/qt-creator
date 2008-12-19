@@ -331,6 +331,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
+    } else if (key == Key_Delete) {
+        m_tc.deleteChar();
     } else {
         qDebug() << "Ignored" << key;
     }    
@@ -353,6 +355,8 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_tc.insertBlock();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
+    } else if (key == Key_Delete) {
+        m_tc.deleteChar();
     } else {
         m_tc.insertText(text);
     }    
