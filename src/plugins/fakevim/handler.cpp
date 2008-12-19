@@ -303,6 +303,13 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'l' || key == Key_Right) {
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         finishMovement();
+    } else if (key == 'L') {
+        QPoint point = m_editor->geometry().bottomRight();
+        int firstPos = m_editor->cursorForPosition(point).position();
+        m_tc.setPosition(firstPos, KeepAnchor);
+        m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
+        moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (key == 'n') {
         search(m_lastSearchString, m_lastSearchBackward);
     } else if (key == 'N') {
