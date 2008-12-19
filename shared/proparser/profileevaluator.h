@@ -66,8 +66,6 @@ public:
 
     ProFileEvaluator::TemplateType templateType();
     virtual bool contains(const QString &variableName) const;
-    QStringList absFileNames(const QString &variableName);
-    QStringList absFileName(const QString &name);
     void setVerbose(bool on); // Default is false
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty

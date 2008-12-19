@@ -2254,20 +2254,6 @@ void ProFileEvaluator::errorMessage(const QString &message)
         qWarning("%s", qPrintable(message));
 }
 
-// This function is unneeded and still retained. See log message for reason.
-QStringList ProFileEvaluator::absFileNames(const QString &variableName)
-{
-    QStringList sources_out;
-    QFileInfo fi(d->m_origfile);
-    QDir dir(fi.absoluteDir());
-    foreach (const QString &fn, values(variableName)) {
-        const QString absName = QDir::cleanPath(dir.absoluteFilePath(fn));
-        d->expandPatternHelper(fn, absName, sources_out);
-    }
-
-    return sources_out;
-}
-
 void ProFileEvaluator::setVerbose(bool on)
 {
     d->m_verbose = on;
