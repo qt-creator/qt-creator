@@ -55,6 +55,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <cstddef>
+#include <new>
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -97,6 +98,20 @@ private:
         BLOCK_SIZE = 8 * 1024,
         DEFAULT_BLOCK_COUNT = 8
     };
+};
+
+class CPLUSPLUS_EXPORT Managed
+{
+    Managed(const Managed &other);
+    void operator = (const Managed &other);
+
+public:
+    Managed();
+    virtual ~Managed();
+
+    void *operator new(size_t size, MemoryPool *pool);
+    void operator delete(void *);
+    void operator delete(void *, MemoryPool *);
 };
 
 CPLUSPLUS_END_NAMESPACE

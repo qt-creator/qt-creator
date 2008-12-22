@@ -381,15 +381,6 @@ UsingDirectiveAST *AST::asUsingDirective()
 WhileStatementAST *AST::asWhileStatement()
 { return dynamic_cast<WhileStatementAST *>(this); }
 
-void *AST::operator new(size_t size, MemoryPool *pool)
-{ return pool->allocate(size); }
-
-void AST::operator delete(void *)
-{ }
-
-void AST::operator delete(void *, MemoryPool *)
-{ }
-
 void AST::accept(ASTVisitor *visitor)
 {
     if (visitor->preVisit(this))

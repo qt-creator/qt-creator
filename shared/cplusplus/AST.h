@@ -55,12 +55,12 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
-#include <new>
+#include "MemoryPool.h"
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
-class CPLUSPLUS_EXPORT AST
+class CPLUSPLUS_EXPORT AST: public Managed
 {
     AST(const AST &other);
     void operator =(const AST &other);
@@ -73,10 +73,6 @@ public:
 
     static void accept(AST *ast, ASTVisitor *visitor)
     { if (ast) ast->accept(visitor); }
-
-    void *operator new(size_t size, MemoryPool *pool);
-    void operator delete(void *);
-    void operator delete(void *, MemoryPool *);
 
     virtual unsigned firstToken() const = 0;
     virtual unsigned lastToken() const = 0;
