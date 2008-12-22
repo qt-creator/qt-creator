@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = shared ast
+SUBDIRS = shared ast semantic
 CONFIG += ordered
