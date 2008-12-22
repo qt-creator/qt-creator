@@ -127,6 +127,13 @@ void tst_Semantic::function_declaration_2()
     FullySpecifiedType argTy = arg->type();
     QVERIFY(argTy->isReferenceType());
     QVERIFY(argTy->asReferenceType()->elementType().isConst());
+    NamedType *namedTy = argTy->asReferenceType()->elementType()->asNamedType();
+    QVERIFY(namedTy);
+    QVERIFY(namedTy->name());
+    Identifier *namedTypeId = namedTy->name()->asNameId()->identifier();
+    QVERIFY(namedTypeId);
+    QCOMPARE(QByteArray(namedTypeId->chars(), namedTypeId->size()),
+             QByteArray("QString"));
 
     QVERIFY(decl->name()->isNameId());
     Identifier *funId = decl->name()->asNameId()->identifier();
