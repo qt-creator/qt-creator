@@ -62,7 +62,7 @@ const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
     if (! (frame && frame->expanding_macro))
         return 0;
 
-    const QVector<QByteArray> &formals = frame->expanding_macro->formals;
+    const QVector<QByteArray> formals = frame->expanding_macro->formals();
     for (int index = 0; index < formals.size(); ++index) {
         const QByteArray formal = formals.at(index);
 
@@ -213,7 +213,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
             }
 
             Macro *macro = env.resolve (fast_name);
-            if (! macro || macro->hidden || env.hide_next)
+            if (! macro || macro->isHidden() || env.hide_next)
             {
                 if (fast_name.size () == 7 && fast_name [0] == 'd' && fast_name == "defined")
                     env.hide_next = true;
@@ -260,19 +260,19 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                 continue;
             }
 
-            if (! macro->function_like)
+            if (! macro->isFunctionLike())
             {
                 Macro *m = 0;
 
-                if (! macro->definition.isEmpty())
+                if (! macro->definition().isEmpty())
                 {
-                    macro->hidden = true;
+                    macro->setHidden(true);
 
                     QByteArray __tmp;
                     __tmp.reserve (256);
 
                     MacroExpander expand_macro (env);
-                    expand_macro (macro->definition.constBegin (), macro->definition.constEnd (), &__tmp);
+                    expand_macro (macro->definition(), &__tmp);
                     generated_lines += expand_macro.lines;
 
                     if (! __tmp.isEmpty ())
@@ -292,7 +292,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                             *__result += __tmp;
                     }
 
-                    macro->hidden = false;
+                    macro->setHidden(false);
                 }
 
                 if (! m)
@@ -348,9 +348,9 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
 
             pp_frame frame (macro, actuals);
             MacroExpander expand_macro (env, &frame);
-            macro->hidden = true;
-            expand_macro (macro->definition.constBegin (), macro->definition.constEnd (), __result);
-            macro->hidden = false;
+            macro->setHidden(true);
+            expand_macro (macro->definition(), __result);
+            macro->setHidden(false);
             generated_lines += expand_macro.lines;
         }
         else
@@ -366,8 +366,8 @@ const char *MacroExpander::skip_argument_variadics (QVector<QByteArray> const &_
 {
     const char *arg_end = skip_argument (__first, __last);
 
-    while (__macro->variadics && __first != arg_end && arg_end != __last && *arg_end == ','
-           && (__actuals.size () + 1) == __macro->formals.size ())
+    while (__macro->isVariadic() && __first != arg_end && arg_end != __last && *arg_end == ','
+           && (__actuals.size () + 1) == __macro->formals().size ())
     {
         arg_end = skip_argument (++arg_end, __last);
     }

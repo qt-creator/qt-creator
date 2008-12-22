@@ -88,6 +88,10 @@ namespace CPlusPlus {
         const char *operator () (const char *first, const char *last,
                                  QByteArray *result);
 
+        const char *operator () (const QByteArray &source,
+                                 QByteArray *result)
+        { return operator()(source.constBegin(), source.constEnd(), result); }
+
         const char *skip_argument_variadics (const QVector<QByteArray> &actuals,
                                              Macro *macro,
                                              const char *first, const char *last);

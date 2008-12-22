@@ -741,7 +741,7 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
         processed.insert(fn);
         if (Document::Ptr doc = context.document(fn)) {
             foreach (const Macro &macro, doc->definedMacros()) {
-                macroNames.insert(macro.name);
+                macroNames.insert(macro.name());
             }
             todo += doc->includedFiles();
         }
@@ -749,7 +749,7 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
 
     foreach (const QByteArray &macroName, macroNames) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QString::fromLatin1(macroName.constData(), macroName.length());
+        item.m_text = QString::fromUtf8(macroName.constData(), macroName.length());
         item.m_icon = m_icons.macroIcon();
         m_completions.append(item);
     }

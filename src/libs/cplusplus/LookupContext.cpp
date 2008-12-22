@@ -40,7 +40,6 @@
 #include <Control.h>
 #include <cplusplus/Overview.h>
 
-#include <QFile>
 #include <QtDebug>
 
 using namespace CPlusPlus;

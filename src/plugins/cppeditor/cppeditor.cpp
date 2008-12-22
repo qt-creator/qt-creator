@@ -543,8 +543,8 @@ void CPPEditor::jumpToDefinition()
         foreach (const Document::MacroUse use, doc->macroUses()) {
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
-                const QString fileName = QString::fromUtf8(macro.fileName);
-                if (openCppEditorAt(fileName, macro.line, 0))
+                const QString fileName = QString::fromUtf8(macro.fileName());
+                if (openCppEditorAt(fileName, macro.line(), 0))
                     return; // done
             }
         }

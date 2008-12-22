@@ -64,59 +64,110 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Macro
 {
 public:
-    QByteArray name;
-    QByteArray definition;
-    QVector<QByteArray> formals;
-    QByteArray fileName;
-    int line;
-    Macro *next;
-    unsigned hashcode;
-
-    union
-    {
-        unsigned state;
-
-        struct
-        {
-            unsigned hidden: 1;
-            unsigned function_like: 1;
-            unsigned variadics: 1;
-        };
-    };
-
-    inline Macro():
-            line(0),
-            next(0),
-            hashcode(0),
-            state(0)
+    Macro()
+        : _next(0),
+          _hashcode(0),
+          _line(0),
+          _state(0)
     { }
+
+    QByteArray name() const
+    { return _name; }
+
+    void setName(const QByteArray &name)
+    { _name = name; }
+
+    QByteArray definition() const
+    { return _definition; }
+
+    void setDefinition(const QByteArray &definition)
+    { _definition = definition; }
+
+    QVector<QByteArray> formals() const
+    { return _formals; }
+
+    void addFormal(const QByteArray &formal)
+    { _formals.append(formal); }
+
+    QByteArray fileName() const
+    { return _fileName; }
+
+    void setFileName(const QByteArray &fileName)
+    { _fileName = fileName; }
+
+    unsigned line() const
+    { return _line; }
+
+    void setLine(unsigned line)
+    { _line = line; }
+
+    bool isHidden() const
+    { return _hidden; }
+
+    void setHidden(bool isHidden)
+    { _hidden = isHidden; }
+
+    bool isFunctionLike() const
+    { return _functionLike; }
+
+    void setFunctionLike(bool isFunctionLike)
+    { _functionLike = isFunctionLike; }
+
+    bool isVariadic() const
+    { return _variadic; }
+
+    void setVariadic(bool isVariadic)
+    { _variadic = isVariadic; }
 
     QString toString() const
     {
         QString text;
-        if (hidden)
+        if (_hidden)
             text += QLatin1String("#undef ");
         else
             text += QLatin1String("#define ");
-        text += QString::fromUtf8(name.constData(), name.size());
-        if (function_like) {
+        text += QString::fromUtf8(_name.constData(), _name.size());
+        if (_functionLike) {
             text += QLatin1Char('(');
             bool first = true;
-            foreach (const QByteArray formal, formals) {
+            foreach (const QByteArray formal, _formals) {
                 if (! first)
                     text += QLatin1String(", ");
                 else
                     first = false;
                 text += QString::fromUtf8(formal.constData(), formal.size());
             }
-            if (variadics)
+            if (_variadic)
                 text += QLatin1String("...");
             text += QLatin1Char(')');
         }
         text += QLatin1Char(' ');
-        text += QString::fromUtf8(definition.constData(), definition.size());
+        text += QString::fromUtf8(_definition.constData(), _definition.size());
         return text;
     }
+
+// ### private
+    Macro *_next;
+    unsigned _hashcode;
+
+private:
+    QByteArray _name;
+    QByteArray _definition;
+    QVector<QByteArray> _formals;
+    QByteArray _fileName;
+    unsigned _line;
+
+    union
+    {
+        unsigned _state;
+
+        struct
+        {
+            unsigned _hidden: 1;
+            unsigned _functionLike: 1;
+            unsigned _variadic: 1;
+        };
+    };
 };
 
 } // namespace CPlusPlus

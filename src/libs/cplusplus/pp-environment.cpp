@@ -91,10 +91,10 @@ Macro *Environment::macroAt(unsigned index) const
 
 Macro *Environment::bind(const Macro &__macro)
 {
-    Q_ASSERT(! __macro.name.isEmpty());
+    Q_ASSERT(! __macro.name().isEmpty());
 
     Macro *m = new Macro (__macro);
-    m->hashcode = hash_code(m->name);
+    m->_hashcode = hash_code(m->name());
 
     if (++_macro_count == _allocated_macros) {
         if (! _allocated_macros)
@@ -110,8 +110,8 @@ Macro *Environment::bind(const Macro &__macro)
     if (! _hash || _macro_count > (_hash_count >> 1)) {
         rehash();
     } else {
-        const unsigned h = m->hashcode % _hash_count;
-        m->next = _hash[h];
+        const unsigned h = m->_hashcode % _hash_count;
+        m->_next = _hash[h];
         _hash[h] = m;
     }
 
@@ -121,10 +121,10 @@ Macro *Environment::bind(const Macro &__macro)
 Macro *Environment::remove(const QByteArray &name)
 {
     Macro macro;
-    macro.name = name;
-    macro.hidden = true;
-    macro.fileName = currentFile;
-    macro.line = currentLine;
+    macro.setName(name);
+    macro.setHidden(true);
+    macro.setFileName(currentFile);
+    macro.setLine(currentLine);
     return bind(macro);
 }
 
@@ -198,10 +198,10 @@ Macro *Environment::resolve (const QByteArray &name) const
         return 0;
 
     Macro *it = _hash[hash_code (name) % _hash_count];
-    for (; it; it = it->next) {
-        if (it->name != name)
+    for (; it; it = it->_next) {
+        if (it->name() != name)
             continue;
-        else if (it->hidden)
+        else if (it->isHidden())
             return 0;
         else break;
     }
@@ -229,8 +229,8 @@ void Environment::rehash()
 
     for (Macro **it = firstMacro(); it != lastMacro(); ++it) {
         Macro *m= *it;
-        const unsigned h = m->hashcode % _hash_count;
-        m->next = _hash[h];
+        const unsigned h = m->_hashcode % _hash_count;
+        m->_next = _hash[h];
         _hash[h] = m;
     }
 }

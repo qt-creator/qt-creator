@@ -600,19 +600,15 @@ void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
                 if (! m) {
                     result->append(spell);
                 } else {
-                    if (! m->function_like) {
+                    if (! m->isFunctionLike()) {
                         if (_dot->isNot(T_LPAREN)) {
                             if (client)
                                 client->startExpandingMacro(identifierToken->offset,
                                                             *m, spell);
 
-                            m->hidden = true;
-
-                            expand(m->definition.constBegin(),
-                                   m->definition.constEnd(),
-                                   result);
-
-                            m->hidden = false;
+                            m->setHidden(true);
+                            expand(m->definition(), result);
+                            m->setHidden(false);
 
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
@@ -624,13 +620,9 @@ void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
                             if (client)
                                 client->startExpandingMacro(identifierToken->offset,
                                                             *m, spell);
-                            m->hidden = true;
-
-                            expand(m->definition.constBegin(),
-                                   m->definition.constEnd(),
-                                   &tmp);
-
-                            m->hidden = false;
+                            m->setHidden(true);
+                            expand(m->definition(), &tmp);
+                            m->setHidden(false);
 
                             if (client)
                                 client->stopExpandingMacro(_dot->offset, *m);
@@ -641,7 +633,7 @@ void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
                             if (_dot->is(T_IDENTIFIER)) {
                                 const QByteArray id = tokenSpell(*_dot);
                                 Macro *macro = env.resolve(id);
-                                if (macro && macro->function_like)
+                                if (macro && macro->isFunctionLike())
                                     m = macro;
                             }
                             popState();
@@ -656,7 +648,7 @@ void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
                     // collect the actual arguments
                     if (_dot->isNot(T_LPAREN)) {
                         // ### warnng expected T_LPAREN
-                        result->append(m->name);
+                        result->append(m->name());
                         continue;
                     }
 
@@ -852,30 +844,30 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     }
 
     Macro macro;
-    macro.fileName = env.currentFile;
-    macro.line = env.currentLine;
-    macro.name = tokenText(*tk);
+    macro.setFileName(env.currentFile);
+    macro.setLine(env.currentLine);
+    macro.setName(tokenText(*tk));
     ++tk; // skip T_IDENTIFIER
 
     if (tk->is(T_LPAREN) && ! tk->whitespace) {
         // a function-like macro definition
-        macro.function_like = true;
+        macro.setFunctionLike(true);
 
         ++tk; // skip T_LPAREN
         if (tk->is(T_IDENTIFIER)) {
-            macro.formals.append(tokenText(*tk));
+            macro.addFormal(tokenText(*tk));
             ++tk; // skip T_IDENTIFIER
             while (tk->is(T_COMMA)) {
                 ++tk;// skip T_COMMA
                 if (tk->isNot(T_IDENTIFIER))
                     break;
-                macro.formals.append(tokenText(*tk));
+                macro.addFormal(tokenText(*tk));
                 ++tk; // skip T_IDENTIFIER
             }
         }
 
         if (tk->is(T_DOT_DOT_DOT)) {
-            macro.variadics = true;
+            macro.setVariadic(true);
             ++tk; // skip T_DOT_DOT_DOT
         }
 
@@ -887,32 +879,31 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
         ++tk; // skip T_RPAREN
     }
 
-    QByteArray macroId = macro.name;
-    const bool isQtWord = isQtReservedWord(macroId);
+    if (isQtReservedWord(macro.name())) {
+        QByteArray macroId = macro.name();
 
-    if (macro.function_like) {
-        macroId += '(';
-        for (int i = 0; i < macro.formals.size(); ++i) {
-            if (i != 0)
-                macroId += ", ";
-
-            const QByteArray formal = macro.formals.at(i);
-            macroId += formal;
+        if (macro.isFunctionLike()) {
+            macroId += '(';
+            bool fst = true;
+            foreach (const QByteArray formal, macro.formals()) {
+                if (! fst)
+                    macroId += ", ";
+                fst = false;
+                macroId += formal;
+            }
+            macroId += ')';
         }
-        macroId += ')';
-    }
 
-    if (isQtWord)
-        macro.definition = macroId;
-    else {
+        macro.setDefinition(macroId);
+    } else {
         // ### make me fast!
         const char *startOfDefinition = startOfToken(*tk);
         const char *endOfDefinition = startOfToken(*lastToken);
-        macro.definition.append(startOfDefinition,
-                                endOfDefinition - startOfDefinition);
-        macro.definition.replace("\\\n", " ");
-        macro.definition.replace('\n', ' ');
-        macro.definition = macro.definition.trimmed();
+        QByteArray definition(startOfDefinition,
+                              endOfDefinition - startOfDefinition);
+        definition.replace("\\\n", " ");
+        definition.replace('\n', ' ');
+        macro.setDefinition(definition.trimmed());
     }
 
     env.bind(macro);
