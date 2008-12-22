@@ -35,10 +35,12 @@
 #define CPLUSPLUS_PP_CLIENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
+#include <QtGlobal>
 
-#include <QByteArray>
-#include <QString>
-#include <QFile>
+QT_BEGIN_NAMESPACE
+class QByteArray;
+class QString;
+QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
@@ -56,11 +58,8 @@ public:
   };
 
 public:
-  Client()
-  { }
-
-  virtual ~Client()
-  { }
+  Client();
+  virtual ~Client();
 
   virtual void macroAdded(const Macro &macro) = 0;
   virtual void sourceNeeded(QString &fileName, IncludeType mode,

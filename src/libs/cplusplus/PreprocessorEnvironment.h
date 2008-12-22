@@ -90,13 +90,13 @@ public:
     { return _macros + _macro_count + 1; }
 
 private:
-    static unsigned hash_code (const QByteArray &s);
+    static unsigned hashCode(const QByteArray &s);
     void rehash();
 
 public:
     QByteArray currentFile;
     unsigned currentLine;
-    bool hide_next;
+    bool hideNext;
 
 private:
     Macro **_macros;

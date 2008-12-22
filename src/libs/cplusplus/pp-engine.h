@@ -53,7 +53,7 @@
 #ifndef CPLUSPLUS_PP_ENGINE_H
 #define CPLUSPLUS_PP_ENGINE_H
 
-#include "pp-client.h"
+#include "PreprocessorClient.h"
 
 #include <Token.h>
 #include <QVector>

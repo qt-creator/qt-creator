@@ -213,12 +213,12 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
             }
 
             Macro *macro = env.resolve (fast_name);
-            if (! macro || macro->isHidden() || env.hide_next)
+            if (! macro || macro->isHidden() || env.hideNext)
             {
                 if (fast_name.size () == 7 && fast_name [0] == 'd' && fast_name == "defined")
-                    env.hide_next = true;
+                    env.hideNext = true;
                 else
-                    env.hide_next = false;
+                    env.hideNext = false;
 
                 if (fast_name.size () == 8 && fast_name [0] == '_' && fast_name [1] == '_')
                 {

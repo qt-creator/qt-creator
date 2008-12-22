@@ -50,14 +50,40 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef CPLUSPLUS_PREPROCESSOR_H
-#define CPLUSPLUS_PREPROCESSOR_H
-
 #include "Macro.h"
-#include "PreprocessorClient.h"
-#include "PreprocessorEnvironment.h"
-#include "pp-scanner.h"
-#include "pp-macro-expander.h"
-#include "pp-engine.h"
 
-#endif // CPLUSPLUS_PREPROCESSOR_H
+using namespace CPlusPlus;
+
+Macro::Macro()
+    : _next(0),
+      _hashcode(0),
+      _line(0),
+      _state(0)
+{ }
+
+QString Macro::toString() const
+{
+    QString text;
+    if (_hidden)
+        text += QLatin1String("#undef ");
+    else
+        text += QLatin1String("#define ");
+    text += QString::fromUtf8(_name.constData(), _name.size());
+    if (_functionLike) {
+        text += QLatin1Char('(');
+        bool first = true;
+        foreach (const QByteArray formal, _formals) {
+            if (! first)
+                text += QLatin1String(", ");
+            else
+                first = false;
+            text += QString::fromUtf8(formal.constData(), formal.size());
+        }
+        if (_variadic)
+            text += QLatin1String("...");
+        text += QLatin1Char(')');
+    }
+    text += QLatin1Char(' ');
+    text += QString::fromUtf8(_definition.constData(), _definition.size());
+    return text;
+}

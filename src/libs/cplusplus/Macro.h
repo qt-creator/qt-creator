@@ -64,12 +64,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Macro
 {
 public:
-    Macro()
-        : _next(0),
-          _hashcode(0),
-          _line(0),
-          _state(0)
-    { }
+    Macro();
 
     QByteArray name() const
     { return _name; }
@@ -119,32 +114,7 @@ public:
     void setVariadic(bool isVariadic)
     { _variadic = isVariadic; }
 
-    QString toString() const
-    {
-        QString text;
-        if (_hidden)
-            text += QLatin1String("#undef ");
-        else
-            text += QLatin1String("#define ");
-        text += QString::fromUtf8(_name.constData(), _name.size());
-        if (_functionLike) {
-            text += QLatin1Char('(');
-            bool first = true;
-            foreach (const QByteArray formal, _formals) {
-                if (! first)
-                    text += QLatin1String(", ");
-                else
-                    first = false;
-                text += QString::fromUtf8(formal.constData(), formal.size());
-            }
-            if (_variadic)
-                text += QLatin1String("...");
-            text += QLatin1Char(')');
-        }
-        text += QLatin1Char(' ');
-        text += QString::fromUtf8(_definition.constData(), _definition.size());
-        return text;
-    }
+    QString toString() const;
 
 // ### private
     Macro *_next;

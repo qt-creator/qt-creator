@@ -50,16 +50,15 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "pp-environment.h"
-#include "pp.h"
-
+#include "PreprocessorEnvironment.h"
+#include "Macro.h"
 #include <cstring>
 
 using namespace CPlusPlus;
 
 Environment::Environment()
     : currentLine(0),
-      hide_next(false),
+      hideNext(false),
       _macros(0),
       _allocated_macros(0),
       _macro_count(-1),
@@ -94,7 +93,7 @@ Macro *Environment::bind(const Macro &__macro)
     Q_ASSERT(! __macro.name().isEmpty());
 
     Macro *m = new Macro (__macro);
-    m->_hashcode = hash_code(m->name());
+    m->_hashcode = hashCode(m->name());
 
     if (++_macro_count == _allocated_macros) {
         if (! _allocated_macros)
@@ -192,12 +191,12 @@ bool Environment::isBuiltinMacro(const QByteArray &s) const
     return false;
 }
 
-Macro *Environment::resolve (const QByteArray &name) const
+Macro *Environment::resolve(const QByteArray &name) const
 {
     if (! _macros)
         return 0;
 
-    Macro *it = _hash[hash_code (name) % _hash_count];
+    Macro *it = _hash[hashCode(name) % _hash_count];
     for (; it; it = it->_next) {
         if (it->name() != name)
             continue;
@@ -208,7 +207,7 @@ Macro *Environment::resolve (const QByteArray &name) const
     return it;
 }
 
-unsigned Environment::hash_code (const QByteArray &s)
+unsigned Environment::hashCode(const QByteArray &s)
 {
     unsigned hash_value = 0;
 
