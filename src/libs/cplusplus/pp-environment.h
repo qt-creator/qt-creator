@@ -50,8 +50,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_ENVIRONMENT_H
-#define PP_ENVIRONMENT_H
+#ifndef CPLUSPLUS_PP_ENVIRONMENT_H
+#define CPLUSPLUS_PP_ENVIRONMENT_H
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -108,4 +108,4 @@ private:
 
 } // namespace CPlusPlus
 
-#endif // PP_ENVIRONMENT_H
+#endif // CPLUSPLUS_PP_ENVIRONMENT_H

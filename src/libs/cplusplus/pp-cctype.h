@@ -50,8 +50,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_CCTYPE_H
-#define PP_CCTYPE_H
+#ifndef CPLUSPLUS_PP_CCTYPE_H
+#define CPLUSPLUS_PP_CCTYPE_H
 
 #include <CPlusPlusForwardDeclarations.h>
 
@@ -73,4 +73,4 @@ inline bool CPLUSPLUS_EXPORT pp_isspace (int __ch)
 
 } // namespace CPlusPlus
 
-#endif // PP_CCTYPE_H
+#endif // CPLUSPLUS_PP_CCTYPE_H

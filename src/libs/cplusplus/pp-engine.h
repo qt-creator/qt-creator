@@ -50,8 +50,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_ENGINE_H
-#define PP_ENGINE_H
+#ifndef CPLUSPLUS_PP_ENGINE_H
+#define CPLUSPLUS_PP_ENGINE_H
 
 #include "pp-client.h"
 
@@ -134,7 +134,7 @@ namespace CPlusPlus {
 #undef PP_DEFINE_BIN_OP
     };
 
-    class CPLUSPLUS_EXPORT pp
+    class CPLUSPLUS_EXPORT Preprocessor
     {
         Client *client;
         Environment &env;
@@ -182,7 +182,7 @@ namespace CPlusPlus {
         State createStateFromSource(const QByteArray &source) const;
 
     public:
-        pp(Client *client, Environment &env);
+        Preprocessor(Client *client, Environment &env);
 
         void operator()(const QByteArray &filename,
                         const QByteArray &source,
@@ -228,4 +228,4 @@ namespace CPlusPlus {
 
 } // namespace CPlusPlus
 
-#endif // PP_ENGINE_H
+#endif // CPLUSPLUS_PP_ENGINE_H

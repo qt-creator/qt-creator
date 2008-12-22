@@ -32,10 +32,25 @@
 ***************************************************************************/
 
 #include "pp.h"
+#include "pp-cctype.h"
 #include "pp-macro-expander.h"
 #include <QDateTime>
 
 using namespace CPlusPlus;
+
+inline static bool comment_p (const char *__first, const char *__last)
+{
+    if (__first == __last)
+        return false;
+
+    if (*__first != '/')
+        return false;
+
+    if (++__first == __last)
+        return false;
+
+    return (*__first == '/' || *__first == '*');
+}
 
 MacroExpander::MacroExpander (Environment &env, pp_frame *frame)
     : env(env), frame(frame),
@@ -137,7 +152,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
             __result->append(__first, next_pos - __first);
             __first = next_pos;
         }
-        else if (_PP_internal::comment_p (__first, __last))
+        else if (comment_p (__first, __last))
         {
             __first = skip_comment_or_divop (__first, __last);
             int n = skip_comment_or_divop.lines;

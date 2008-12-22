@@ -22,13 +22,13 @@ HEADERS += \
     TypePrettyPrinter.h \
     ResolveExpression.h \
     LookupContext.h \
+    pp.h \
     pp-cctype.h \
     pp-engine.h \
     pp-macro-expander.h \
     pp-scanner.h \
     pp-client.h \
     pp-environment.h \
-    pp-internal.h \
     pp-macro.h
 
 SOURCES += \
@@ -46,6 +46,7 @@ SOURCES += \
     LookupContext.cpp \
     pp-engine.cpp \
     pp-environment.cpp \
-    pp-macro-expander.cpp
+    pp-macro-expander.cpp \
+    pp-scanner.cpp
 
 RESOURCES += cplusplus.qrc

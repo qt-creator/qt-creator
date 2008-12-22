@@ -451,7 +451,7 @@ private:
 } // end of anonymous namespace
 
 
-pp::pp (Client *client, Environment &env)
+Preprocessor::Preprocessor(Client *client, Environment &env)
     : client(client),
       env(env),
       expand(env)
@@ -459,7 +459,7 @@ pp::pp (Client *client, Environment &env)
     resetIfLevel ();
 }
 
-void pp::pushState(const State &s)
+void Preprocessor::pushState(const State &s)
 {
     _savedStates.append(state());
     _source = s.source;
@@ -467,7 +467,7 @@ void pp::pushState(const State &s)
     _dot = s.dot;
 }
 
-pp::State pp::state() const
+Preprocessor::State Preprocessor::state() const
 {
     State state;
     state.source = _source;
@@ -476,7 +476,7 @@ pp::State pp::state() const
     return state;
 }
 
-void pp::popState()
+void Preprocessor::popState()
 {
     const State &state = _savedStates.last();
     _source = state.source;
@@ -485,7 +485,7 @@ void pp::popState()
     _savedStates.removeLast();
 }
 
-void pp::operator () (const QByteArray &filename,
+void Preprocessor::operator () (const QByteArray &filename,
                       const QByteArray &source,
                       QByteArray *result)
 {
@@ -497,7 +497,7 @@ void pp::operator () (const QByteArray &filename,
     env.currentFile = previousFile;
 }
 
-pp::State pp::createStateFromSource(const QByteArray &source) const
+Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
 {
     State state;
     state.source = source;
@@ -512,7 +512,7 @@ pp::State pp::createStateFromSource(const QByteArray &source) const
     return state;
 }
 
-void pp::operator()(const QByteArray &source, QByteArray *result)
+void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
 {
     pushState(createStateFromSource(source));
 
@@ -700,27 +700,27 @@ void pp::operator()(const QByteArray &source, QByteArray *result)
     env.currentLine = previousCurrentLine;
 }
 
-const char *pp::startOfToken(const Token &token) const
+const char *Preprocessor::startOfToken(const Token &token) const
 { return _source.constBegin() + token.begin(); }
 
-const char *pp::endOfToken(const Token &token) const
+const char *Preprocessor::endOfToken(const Token &token) const
 { return _source.constBegin() + token.end(); }
 
-QByteArray pp::tokenSpell(const Token &token) const
+QByteArray Preprocessor::tokenSpell(const Token &token) const
 {
     const QByteArray text = QByteArray::fromRawData(_source.constBegin() + token.offset,
                                                     token.length);
     return text;
 }
 
-QByteArray pp::tokenText(const Token &token) const
+QByteArray Preprocessor::tokenText(const Token &token) const
 {
     const QByteArray text(_source.constBegin() + token.offset,
                           token.length);
     return text;
 }
 
-void pp::processDirective(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processDirective(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
     ++tk; // skip T_POUND
@@ -771,7 +771,7 @@ void pp::processDirective(TokenIterator firstToken, TokenIterator lastToken)
     }
 }
 
-QVector<Token> pp::tokenize(const QByteArray &text) const
+QVector<Token> Preprocessor::tokenize(const QByteArray &text) const
 {
     QVector<Token> tokens;
     Lexer lex(text.constBegin(), text.constEnd());
@@ -784,7 +784,7 @@ QVector<Token> pp::tokenize(const QByteArray &text) const
     return tokens;
 }
 
-void pp::processInclude(bool skipCurentPath,
+void Preprocessor::processInclude(bool skipCurentPath,
                         TokenIterator firstToken, TokenIterator lastToken,
                         bool acceptMacros)
 {
@@ -836,7 +836,7 @@ void pp::processInclude(bool skipCurentPath,
     }
 }
 
-void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
 
@@ -921,7 +921,7 @@ void pp::processDefine(TokenIterator firstToken, TokenIterator lastToken)
         client->macroAdded(macro);
 }
 
-void pp::processIf(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processIf(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
 
@@ -948,7 +948,7 @@ void pp::processIf(TokenIterator firstToken, TokenIterator lastToken)
     }
 }
 
-void pp::processElse(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processElse(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
 
@@ -961,7 +961,7 @@ void pp::processElse(TokenIterator firstToken, TokenIterator lastToken)
     }
 }
 
-void pp::processElif(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processElif(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
     ++tk; // skip T_POUND
@@ -980,7 +980,7 @@ void pp::processElif(TokenIterator firstToken, TokenIterator lastToken)
     }
 }
 
-void pp::processEndif(TokenIterator, TokenIterator)
+void Preprocessor::processEndif(TokenIterator, TokenIterator)
 {
     if (iflevel == 0 && !skipping()) {
         // std::cerr << "*** WARNING #endif without #if" << std::endl;
@@ -992,7 +992,7 @@ void pp::processEndif(TokenIterator, TokenIterator)
     }
 }
 
-void pp::processIfdef(bool checkUndefined,
+void Preprocessor::processIfdef(bool checkUndefined,
                       TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
@@ -1013,7 +1013,7 @@ void pp::processIfdef(bool checkUndefined,
     }
 }
 
-void pp::processUndef(TokenIterator firstToken, TokenIterator lastToken)
+void Preprocessor::processUndef(TokenIterator firstToken, TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
 
@@ -1029,14 +1029,14 @@ void pp::processUndef(TokenIterator firstToken, TokenIterator lastToken)
     }
 }
 
-void pp::resetIfLevel ()
+void Preprocessor::resetIfLevel ()
 {
     iflevel = 0;
     _skipping[iflevel] = false;
     _true_test[iflevel] = false;
 }
 
-pp::PP_DIRECTIVE_TYPE pp::classifyDirective (const QByteArray &__directive) const
+Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective (const QByteArray &__directive) const
 {
     switch (__directive.size())
     {
@@ -1085,7 +1085,7 @@ pp::PP_DIRECTIVE_TYPE pp::classifyDirective (const QByteArray &__directive) cons
     return PP_UNKNOWN_DIRECTIVE;
 }
 
-bool pp::testIfLevel()
+bool Preprocessor::testIfLevel()
 {
     const bool result = !_skipping[iflevel++];
     _skipping[iflevel] = _skipping[iflevel - 1];
@@ -1093,10 +1093,10 @@ bool pp::testIfLevel()
     return result;
 }
 
-int pp::skipping() const
+int Preprocessor::skipping() const
 { return _skipping[iflevel]; }
 
-Value pp::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
+Value Preprocessor::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
                          const QByteArray &source) const
 {
     ExpressionEvaluator eval(&env);
@@ -1104,7 +1104,7 @@ Value pp::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
     return result;
 }
 
-bool pp::isQtReservedWord (const QByteArray &macroId) const
+bool Preprocessor::isQtReservedWord (const QByteArray &macroId) const
 {
     const int size = macroId.size();
     if      (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_SIGNALS")

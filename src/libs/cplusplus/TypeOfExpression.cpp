@@ -136,7 +136,7 @@ QString TypeOfExpression::preprocessedExpression(const QString &expression,
     processEnvironment(documents, thisDocument,
                        &env, &processed);
     const QByteArray code = expression.toUtf8();
-    pp preproc(0, env);
+    Preprocessor preproc(0, env);
     QByteArray preprocessedCode;
     preproc("<expression>", code, &preprocessedCode);
     return QString::fromUtf8(preprocessedCode);

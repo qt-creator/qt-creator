@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef PP_CLIENT_H
-#define PP_CLIENT_H
+#ifndef CPLUSPLUS_PP_CLIENT_H
+#define CPLUSPLUS_PP_CLIENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
 
@@ -79,4 +79,4 @@ public:
 
 } // namespace CPlusPlus
 
-#endif // PP_CLIENT_H
+#endif // CPLUSPLUS_PP_CLIENT_H
