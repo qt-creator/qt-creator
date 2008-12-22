@@ -124,8 +124,25 @@ public:
     void expand(Scope *scope, const QList<Scope *> &visibleScopes,
                 QList<Scope *> *expandedScopes) const;
 
+    void expandNamespace(Scope *scope,
+                         const QList<Scope *> &visibleScopes,
+                         QList<Scope *> *expandedScopes) const;
+
+    void expandClass(Scope *scope,
+                     const QList<Scope *> &visibleScopes,
+                     QList<Scope *> *expandedScopes) const;
+
+    void expandBlock(Scope *scope,
+                     const QList<Scope *> &visibleScopes,
+                     QList<Scope *> *expandedScopes) const;
+
+    void expandFunction(Scope *scope,
+                        const QList<Scope *> &visibleScopes,
+                        QList<Scope *> *expandedScopes) const;
+
 private:
     QList<Scope *> buildVisibleScopes();
+
 
 private:
     Control *_control;

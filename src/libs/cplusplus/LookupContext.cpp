@@ -274,129 +274,151 @@ void LookupContext::expand(const QList<Scope *> &scopes, QList<Scope *> *expande
     }
 }
 
+void LookupContext::expandNamespace(Scope *scope,
+                                    const QList<Scope *> &visibleScopes,
+                                    QList<Scope *> *expandedScopes) const
+{
+    Namespace *ns = scope->owner()->asNamespace();
+    if (! ns)
+        return;
+
+    if (Name *nsName = ns->name()) {
+        const QList<Symbol *> namespaceList = resolveNamespace(nsName, visibleScopes);
+        foreach (Symbol *otherNs, namespaceList) {
+            if (otherNs == ns)
+                continue;
+            expand(otherNs->asNamespace()->members(), visibleScopes, expandedScopes);
+        }
+    }
+
+    for (unsigned i = 0; i < scope->symbolCount(); ++i) { // ### make me fast
+        Symbol *symbol = scope->symbolAt(i);
+        if (Namespace *ns = symbol->asNamespace()) {
+            if (! ns->name()) {
+                expand(ns->members(), visibleScopes, expandedScopes);
+            }
+        } else if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
+            const QList<Symbol *> candidates = resolveNamespace(u->name(), visibleScopes);
+            for (int j = 0; j < candidates.size(); ++j) {
+                expand(candidates.at(j)->asNamespace()->members(),
+                       visibleScopes, expandedScopes);
+            }
+        } else if (Enum *e = symbol->asEnum()) {
+            expand(e->members(), visibleScopes, expandedScopes);
+        }
+    }
+}
+
+void LookupContext::expandClass(Scope *scope,
+                                const QList<Scope *> &visibleScopes,
+                                QList<Scope *> *expandedScopes) const
+{
+    Class *klass = scope->owner()->asClass();
+    if (! klass)
+        return;
+
+    for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+        Symbol *symbol = scope->symbolAt(i);
+        if (Class *nestedClass = symbol->asClass()) {
+            if (! nestedClass->name()) {
+                expand(nestedClass->members(), visibleScopes, expandedScopes);
+            }
+        } else if (Enum *e = symbol->asEnum()) {
+            expand(e->members(), visibleScopes, expandedScopes);
+        }
+    }
+
+    if (klass->baseClassCount()) {
+        QList<Scope *> classVisibleScopes = visibleScopes;
+        for (Scope *scope = klass->scope(); scope; scope = scope->enclosingScope()) {
+            if (scope->isNamespaceScope()) {
+                Namespace *enclosingNamespace = scope->owner()->asNamespace();
+                if (enclosingNamespace->name()) {
+                    const QList<Symbol *> nsList = resolveNamespace(enclosingNamespace->name(),
+                                                                    visibleScopes);
+                    foreach (Symbol *ns, nsList) {
+                        expand(ns->asNamespace()->members(), classVisibleScopes,
+                               &classVisibleScopes);
+                    }
+                }
+            }
+        }
+
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            BaseClass *baseClass = klass->baseClassAt(i);
+            Name *baseClassName = baseClass->name();
+            const QList<Symbol *> baseClassCandidates = resolveClass(baseClassName,
+                                                                     classVisibleScopes);
+            if (baseClassCandidates.isEmpty()) {
+                Overview overview;
+                qDebug() << "unresolved base class:" << overview.prettyName(baseClassName);
+            }
+
+            for (int j = 0; j < baseClassCandidates.size(); ++j) {
+                Class *baseClassSymbol = baseClassCandidates.at(j)->asClass();
+                expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
+            }
+        }
+    }
+}
+
+void LookupContext::expandBlock(Scope *scope,
+                                const QList<Scope *> &visibleScopes,
+                                QList<Scope *> *expandedScopes) const
+{
+    for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+        Symbol *symbol = scope->symbolAt(i);
+        if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
+            const QList<Symbol *> candidates = resolveNamespace(u->name(),
+                                                                visibleScopes);
+            for (int j = 0; j < candidates.size(); ++j) {
+                expand(candidates.at(j)->asNamespace()->members(),
+                       visibleScopes, expandedScopes);
+            }
+        }
+
+    }
+}
+
+void LookupContext::expandFunction(Scope *scope,
+                                   const QList<Scope *> &visibleScopes,
+                                   QList<Scope *> *expandedScopes) const
+{
+    Function *function = scope->owner()->asFunction();
+    if (! expandedScopes->contains(function->arguments()))
+        expandedScopes->append(function->arguments());
+    if (QualifiedNameId *q = function->name()->asQualifiedNameId()) {
+        Name *nestedNameSpec = 0;
+        if (q->nameCount() == 1 && q->isGlobal())
+            nestedNameSpec = q->nameAt(0);
+        else
+            nestedNameSpec = control()->qualifiedNameId(q->names(), q->nameCount() - 1,
+                                                        q->isGlobal());
+        const QList<Symbol *> candidates = resolveClassOrNamespace(nestedNameSpec, visibleScopes);
+        for (int j = 0; j < candidates.size(); ++j) {
+            expand(candidates.at(j)->asScopedSymbol()->members(),
+                   visibleScopes, expandedScopes);
+        }
+    }
+}
+
 void LookupContext::expand(Scope *scope,
                            const QList<Scope *> &visibleScopes,
                            QList<Scope *> *expandedScopes) const
 {
-    Overview overview;
-
-    if (expandedScopes->contains(scope)) {
-        //qDebug() << "skipped:" << overview.prettyName(scope->owner()->name());
+    if (expandedScopes->contains(scope))
         return;
-    }
 
     expandedScopes->append(scope);
 
     if (scope->isNamespaceScope()) {
-        Namespace *ns = scope->owner()->asNamespace();
-        Name *nsName = ns->name();
-        if (nsName) {
-            QList<Symbol *> namespaceList = resolveNamespace(nsName, visibleScopes);
-            foreach (Symbol *otherNs, namespaceList) {
-                if (otherNs == ns)
-                    continue;
-                expand(otherNs->asNamespace()->members(), visibleScopes, expandedScopes);
-            }
-            //qDebug() << "*** found:" << namespaceList.count() << "namespace aliases";
-        }
-        //qDebug() << "namespace scope" << overview.prettyName(ns->name())
-                //<< ns->fileName() << ns->line();
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) { // ### make me fast
-            Symbol *symbol = scope->symbolAt(i);
-            if (Namespace *ns = symbol->asNamespace()) {
-                if (! ns->name()) {
-                    expand(ns->members(), visibleScopes, expandedScopes);
-                }
-            } else if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
-                QList<Symbol *> candidates = resolveNamespace(u->name(), visibleScopes);
-                //qDebug() << "found:" << candidates.count() << "namespaces to import for:"
-                        //<< overview.prettyName(u->name());
-                for (int j = 0; j < candidates.size(); ++j) {
-                    expand(candidates.at(j)->asNamespace()->members(),
-                           visibleScopes, expandedScopes);
-                }
-            } else if (Enum *e = symbol->asEnum()) {
-                expand(e->members(), visibleScopes, expandedScopes);
-            }
-        }
+        expandNamespace(scope, visibleScopes, expandedScopes);
     } else if (scope->isClassScope()) {
-        Class *klass = scope->owner()->asClass();
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            Symbol *symbol = scope->symbolAt(i);
-            if (Class *nestedClass = symbol->asClass()) {
-                if (! nestedClass->name()) {
-                    expand(nestedClass->members(), visibleScopes, expandedScopes);
-                }
-            } else if (Enum *e = symbol->asEnum()) {
-                expand(e->members(), visibleScopes, expandedScopes);
-            }
-        }
-
-        if (klass->baseClassCount()) {
-            QList<Scope *> classVisibleScopes = visibleScopes;
-            for (Scope *scope = klass->scope(); scope; scope = scope->enclosingScope()) {
-                if (scope->isNamespaceScope()) {
-                    Namespace *enclosingNamespace = scope->owner()->asNamespace();
-                    if (enclosingNamespace->name()) {
-                        QList<Symbol *> nsList = resolveNamespace(enclosingNamespace->name(),
-                                                                  visibleScopes);
-                        foreach (Symbol *ns, nsList) {
-                            expand(ns->asNamespace()->members(), classVisibleScopes, &classVisibleScopes);
-                        }
-                    }
-                }
-            }
-
-            for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
-                BaseClass *baseClass = klass->baseClassAt(i);
-                Name *baseClassName = baseClass->name();
-                QList<Symbol *> baseClassCandidates = resolveClass(baseClassName, classVisibleScopes);
-                if (baseClassCandidates.isEmpty()) {
-                    Overview overview;
-                    qDebug() << "unresolved base class:" << overview.prettyName(baseClassName);
-                }
-                for (int j = 0; j < baseClassCandidates.size(); ++j) {
-                    Class *baseClassSymbol = baseClassCandidates.at(j)->asClass();
-                    expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
-                }
-            }
-        }
+        expandClass(scope, visibleScopes, expandedScopes);
     } else if (scope->isBlockScope()) {
-        //qDebug() << "block scope" << overview.prettyName(scope->owner()->name());
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            Symbol *symbol = scope->symbolAt(i);
-            if (UsingNamespaceDirective *u = symbol->asUsingNamespaceDirective()) {
-                QList<Symbol *> candidates = resolveNamespace(u->name(), visibleScopes);
-                //qDebug() << "found:" << candidates.count() << "namespaces to import for:"
-                        //<< overview.prettyName(u->name());
-                for (int j = 0; j < candidates.size(); ++j) {
-                    expand(candidates.at(j)->asNamespace()->members(),
-                           visibleScopes, expandedScopes);
-                }
-            }
-
-        }
+        expandBlock(scope, visibleScopes, expandedScopes);
     } else if (scope->isFunctionScope()) {
-        Function *function = scope->owner()->asFunction();
-        //qDebug() << "function scope" << overview.prettyName(function->name());
-        if (! expandedScopes->contains(function->arguments()))
-            expandedScopes->append(function->arguments());
-        if (QualifiedNameId *q = function->name()->asQualifiedNameId()) {
-            //qDebug() << "**** here:" << overview.prettyName(function->name());
-            Name *nestedNameSpec = 0;
-            if (q->nameCount() == 1 && q->isGlobal())
-                nestedNameSpec = q->nameAt(0);
-            else
-                nestedNameSpec = control()->qualifiedNameId(q->names(), q->nameCount() - 1,
-                                                            q->isGlobal());
-            QList<Symbol *> candidates = resolveClassOrNamespace(nestedNameSpec, visibleScopes);
-            //qDebug() << "**** found:" << candidates.count() << "class or namespace for:"
-                    //<< overview.prettyName(nestedNameSpec);
-            for (int j = 0; j < candidates.size(); ++j) {
-                expand(candidates.at(j)->asScopedSymbol()->members(),
-                       visibleScopes, expandedScopes);
-            }
-        }
+        expandFunction(scope, visibleScopes, expandedScopes);
     } else if (scope->isPrototypeScope()) {
         //qDebug() << "prototype scope" << overview.prettyName(scope->owner()->name());
     }
