@@ -695,7 +695,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         else
             moveToFirstNonBlankOnLine();
     } else if (key == 'j' || key == Key_Down) {
-        m_tc.movePosition(Down, KeepAnchor, count());
+        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode) {
+            m_tc.movePosition(Down, KeepAnchor, count());
+        } else {
+            m_tc.movePosition(StartOfLine, MoveAnchor);
+            m_tc.movePosition(Down, KeepAnchor, count()+1);
+        }
         finishMovement();
     } else if (key == 'J') {
         EditOperation op;
@@ -710,7 +715,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
                 m_tc.movePosition(Left, MoveAnchor, 1);
         }
     } else if (key == 'k' || key == Key_Up) {
-        m_tc.movePosition(Up, KeepAnchor, count());
+        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode) {
+            m_tc.movePosition(Up, KeepAnchor, count());
+        } else {
+            m_tc.movePosition(StartOfLine, MoveAnchor);
+            m_tc.movePosition(Down, MoveAnchor);
+            m_tc.movePosition(Up, KeepAnchor, count()+1);
+        }
         finishMovement();
     } else if (key == 'l' || key == Key_Right) {
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
