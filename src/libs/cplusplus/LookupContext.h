@@ -34,22 +34,12 @@
 #ifndef CPLUSPLUS_LOOKUPCONTEXT_H
 #define CPLUSPLUS_LOOKUPCONTEXT_H
 
-#include <SymbolVisitor.h>
 #include <cplusplus/CppDocument.h>
-
-#include <QList>
-#include <QSet>
-#include <QMap>
+#include <QPair>
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT LookupUtils
-{
-public:
-    static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
-};
-
-class CPLUSPLUS_EXPORT LookupContext: LookupUtils
+class CPLUSPLUS_EXPORT LookupContext
 {
 public:
     LookupContext(Control *control = 0);
@@ -142,7 +132,7 @@ public:
 
 private:
     QList<Scope *> buildVisibleScopes();
-
+    static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
 
 private:
     Control *_control;

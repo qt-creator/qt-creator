@@ -44,10 +44,7 @@
 
 using namespace CPlusPlus;
 
-/////////////////////////////////////////////////////////////////////
-// LookupUtils
-/////////////////////////////////////////////////////////////////////
-bool LookupUtils::isNameCompatibleWithIdentifier(Name *name, Identifier *id)
+bool LookupContext::isNameCompatibleWithIdentifier(Name *name, Identifier *id)
 {
     if (! name) {
         return false;

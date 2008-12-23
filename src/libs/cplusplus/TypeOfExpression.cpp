@@ -38,6 +38,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/pp.h>
+#include <QSet>
 
 using namespace CPlusPlus;
 
