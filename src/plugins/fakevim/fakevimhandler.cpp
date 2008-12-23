@@ -511,7 +511,7 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 
 bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 {
-    Q_UNUSED(text)
+    bool handled = true;
 
     if (m_submode == RegisterSubMode) {
         m_register = key;
@@ -834,9 +834,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             leaveVisualMode();
     } else {
         qDebug() << "Ignored in command mode: " << key << text;
-        return false;
+        if (text.isEmpty())
+            handled = false;
     }
-    return true;
+
+    return handled;
 }
 
 bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
