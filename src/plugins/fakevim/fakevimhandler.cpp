@@ -97,6 +97,7 @@ enum SubMode
     ChangeSubMode,
     DeleteSubMode,
     FilterSubMode,
+    YankSubMode,
     ZSubMode,
 };
 
@@ -263,6 +264,9 @@ public:
 
     // vi style configuration
     QHash<QString, QString> m_config;
+
+    // for restoring cursor position
+    int m_savedPosition;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent)
@@ -332,6 +336,7 @@ bool FakeVimHandler::Private::handleKey(int key, const QString &text)
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
+    m_savedPosition = m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, text);
     if (m_mode == CommandMode)
@@ -372,6 +377,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
+    } else if (m_submode == YankSubMode) {
+        m_registers[m_register] = m_tc.selectedText();
+        m_tc.setPosition(m_savedPosition);
+        m_submode = NoSubMode;
     }
     m_mvcount.clear();
     m_opcount.clear();
@@ -517,6 +526,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Down, KeepAnchor, count());
         m_registers[m_register] = m_tc.selectedText();
         finishMovement("d");
+    } else if (m_submode == YankSubMode && key == 'y') {
+        m_tc.movePosition(StartOfLine, MoveAnchor);
+        m_tc.movePosition(Down, KeepAnchor, count());
+        m_registers[m_register] = m_tc.selectedText();
+        finishMovement();
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
             // cursor line to top of window, cursor on first non-blank
@@ -779,6 +793,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.deleteChar();
         }
         finishMovement();
+    } else if (key == 'y') {
+        if (atEol())
+            m_tc.movePosition(Left, MoveAnchor, 1);
+        m_submode = YankSubMode;
     } else if (key == 'z') {
         m_submode = ZSubMode;
     } else if (key == '~' && !atEol()) {
@@ -945,7 +963,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     if (c == '\'' && !cmd.isEmpty()) {
         int mark = m_marks.value(cmd.at(0).unicode());
         if (!mark) { 
-            showMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
             return -1;
         }
         cmd = cmd.mid(1);
