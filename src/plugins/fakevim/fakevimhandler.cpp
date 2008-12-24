@@ -314,11 +314,13 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_fakeEnd)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
-    if (key >= Key_A && key <= Key_Z
-        && (ev->modifiers() & Qt::ShiftModifier) == 0)
-        key += 32;
-    if ((ev->modifiers() & Qt::ControlModifier) != 0)
+    if ((ev->modifiers() & Qt::ControlModifier) != 0) {
         key += 256;
+        key += 32; // make it lower case
+    } else if (key >= Key_A && key <= Key_Z
+        && (ev->modifiers() & Qt::ShiftModifier) == 0) {
+        key += 32;
+    }
     bool handled = handleKey(key, ev->text());
 
     // We fake vi-style end-of-line behaviour
