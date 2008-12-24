@@ -181,6 +181,7 @@ private:
     void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
+    void moveToDesiredColumn();
     void moveToNextWord(bool simple);
     void moveToWordBoundary(bool simple, bool forward);
     void handleFfTt(int key);
@@ -267,6 +268,7 @@ public:
 
     // for restoring cursor position
     int m_savedPosition;
+    int m_desiredColumn;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent)
@@ -283,6 +285,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_textedit = 0;
     m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
+    m_desiredColumn = 0;
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -392,6 +395,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 
     updateSelection();
     updateMiniBuffer();
+    m_desiredColumn = leftDist();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -610,8 +614,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(StartOfLine, KeepAnchor);
         finishMovement();
     } else if (key == '$' || key == Key_End) {
+        int submode = m_submode;
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
+        if (submode == NoSubMode)
+            m_desiredColumn = -1;
     } else if (key == ',') {
         // FIXME: use some other mechanism
         m_mode = PassingMode;
@@ -697,13 +704,16 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         else
             moveToFirstNonBlankOnLine();
     } else if (key == 'j' || key == Key_Down) {
+        int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode) {
             m_tc.movePosition(Down, KeepAnchor, count());
+            moveToDesiredColumn();
         } else {
             m_tc.movePosition(StartOfLine, MoveAnchor);
             m_tc.movePosition(Down, KeepAnchor, count()+1);
         }
         finishMovement();
+        m_desiredColumn = savedColumn;
     } else if (key == 'J') {
         EditOperation op;
         if (m_submode == NoSubMode) {
@@ -717,14 +727,17 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
                 m_tc.movePosition(Left, MoveAnchor, 1);
         }
     } else if (key == 'k' || key == Key_Up) {
+        int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode) {
             m_tc.movePosition(Up, KeepAnchor, count());
+            moveToDesiredColumn();
         } else {
             m_tc.movePosition(StartOfLine, MoveAnchor);
             m_tc.movePosition(Down, MoveAnchor);
             m_tc.movePosition(Up, KeepAnchor, count()+1);
         }
         finishMovement();
+        m_desiredColumn = savedColumn;
     } else if (key == 'l' || key == Key_Right) {
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         finishMovement();
@@ -1211,6 +1224,15 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
             return;
         }
     }
+}
+
+void FakeVimHandler::Private::moveToDesiredColumn()
+{
+   if (m_desiredColumn == -1 || m_tc.block().length() <= m_desiredColumn) {
+       m_tc.movePosition(EndOfLine, KeepAnchor);
+   } else {
+       m_tc.setPosition(m_tc.block().position() + m_desiredColumn, KeepAnchor);
+   }
 }
 
 static int charClass(QChar c, bool simple)
