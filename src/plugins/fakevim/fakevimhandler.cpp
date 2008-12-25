@@ -697,6 +697,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'i') {
         enterInsertMode();
         updateMiniBuffer();
+        if (atEol())
+            m_tc.movePosition(Left, MoveAnchor, 1);
     } else if (key == 'I') {
         enterInsertMode();
         if (m_gflag)
