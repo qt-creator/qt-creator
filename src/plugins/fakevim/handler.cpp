@@ -153,7 +153,7 @@ public:
     int m_commandCode; // ?, /, : ...
     QString m_commandBuffer;
 
-    bool m_lastSearchBackward;
+    bool m_lastSearchForward;
     QString m_lastSearchString;
 };
 
@@ -165,7 +165,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_subsubmode = NoSubSubMode;
     m_commandCode = 0;
     m_fakeEnd = false;
-    m_lastSearchBackward = false;
+    m_lastSearchForward = true;
     m_register = '"';
 }
 
@@ -386,9 +386,9 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'n') {
-        search(m_lastSearchString, m_lastSearchBackward);
+        search(m_lastSearchString, m_lastSearchForward);
     } else if (key == 'N') {
-        search(m_lastSearchString, !m_lastSearchBackward);
+        search(m_lastSearchString, !m_lastSearchForward);
     } else if (key == 'p') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
@@ -511,9 +511,9 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_mode = CommandMode;
     } else if (key == Key_Return
             && (m_commandCode == '/' || m_commandCode == '?')) {
-        m_lastSearchBackward = (m_commandCode == '?');
+        m_lastSearchForward = (m_commandCode == '/');
         m_lastSearchString = m_commandBuffer;
-        search(m_lastSearchString, m_lastSearchBackward);
+        search(m_lastSearchString, m_lastSearchForward);
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
