@@ -609,7 +609,7 @@ void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && thisClass != 0)
             --repeat;
-        if (repeat == -1)
+        if (repeat == 0)
             break;
         lastClass = thisClass;
         m_tc.movePosition(Right, KeepAnchor, 1);
