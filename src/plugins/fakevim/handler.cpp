@@ -624,8 +624,14 @@ void FakeVimHandler::Private::handleFfTt(int key)
         if (repeat == 0) {
             if (m_subsubdata == 't')
                 --pos;
-            if (m_subsubdata == 'T')
+            else if (m_subsubdata == 'T')
                 ++pos;
+            // FIXME: strange correction...
+            if (m_submode == DeleteSubMode && m_subsubdata == 'f')
+                ++pos;
+            if (m_submode == DeleteSubMode && m_subsubdata == 't')
+                ++pos;
+
             if (forward)
                 m_tc.movePosition(Right, KeepAnchor, pos - m_tc.position());
             else
