@@ -106,7 +106,9 @@ public:
     void search(const QString &needle, bool backwards);
     void showMessage(const QString &msg);
 
-    int count() const { return m_count.isEmpty() ? 1 : m_count.toInt(); }
+    int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
+    int opCount() const { return m_opcount.isEmpty() ? 1 : m_opcount.toInt(); }
+    int count() const { return mvCount() * opCount(); }
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
@@ -132,7 +134,8 @@ public:
     QTextCursor m_tc;
     QHash<int, QString> m_registers;
     int m_register;
-    QString m_count;
+    QString m_mvcount;
+    QString m_opcount;
 
     QStack<QString> m_undoStack;
     QStack<QString> m_redoStack;
@@ -228,7 +231,8 @@ void FakeVimHandler::Private::finishMovement()
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
     }
-    m_count.clear();
+    m_mvcount.clear();
+    m_opcount.clear();
     m_register = '"';
     m_tc.clearSelection();
     updateCommandBuffer();
@@ -275,11 +279,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         }
         m_submode = NoSubMode;
     } else if (key >= '0' && key <= '9') {
-        if (key == '0' && m_count.isEmpty()) {
+        if (key == '0' && m_mvcount.isEmpty()) {
             m_tc.movePosition(StartOfLine, KeepAnchor);
             finishMovement();
         } else {
-            m_count.append(QChar(key));
+            m_mvcount.append(QChar(key));
         }
     } else if (key == ':' || key == '/' || key == '?') {
         m_commandCode = key;
@@ -318,6 +322,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'd') {
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
+        m_opcount = m_mvcount;
+        m_mvcount.clear();
         m_submode = DeleteSubMode;
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
