@@ -85,6 +85,12 @@ enum SubMode
     ZSubMode
 };
 
+enum SubSubMode
+{
+    NoSubSubMode,
+    FtSubSubMode,  // used for f, F, t, T
+};
+
 class FakeVimHandler::Private
 {
 public:
@@ -103,7 +109,7 @@ public:
     void handleExMode(int key, const QString &text);
     void finishMovement();
     void updateCommandBuffer();
-    void search(const QString &needle, bool backwards);
+    void search(const QString &needle, bool forward);
     void showMessage(const QString &msg);
 
     int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
@@ -122,13 +128,15 @@ public:
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
-    void moveToNextWord(int repeat, bool simple);
-    void moveToWordBegin(int repeat, bool simple);
-    void moveToWordEnd(int repeat, bool simple);
+    void moveToNextWord(bool simple);
+    void moveToWordBoundary(bool simple, bool forward);
+    void handleFfTt(int key);
 
     FakeVimHandler *q;
     Mode m_mode;
     SubMode m_submode;
+    SubSubMode m_subsubmode;
+    int m_subsubdata;
     QString m_input;
     QPlainTextEdit *m_editor;
     QTextCursor m_tc;
@@ -153,6 +161,8 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
 {
     q = parent;
     m_mode = CommandMode;
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
     m_commandCode = 0;
     m_fakeEnd = false;
     m_lastSearchBackward = false;
@@ -278,6 +288,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             qDebug() << "Ignored z + " << key << text;
         }
         m_submode = NoSubMode;
+    } else if (m_subsubmode == FtSubSubMode) {
+        handleFfTt(key);
+        m_subsubmode = NoSubSubMode;
+        finishMovement();
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
             m_tc.movePosition(StartOfLine, KeepAnchor);
@@ -308,10 +322,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_mode = InsertMode;
     } else if (key == 'b') {
-        moveToWordBegin(count(), false);
+        moveToWordBoundary(false, false);
         finishMovement();
     } else if (key == 'B') {
-        moveToWordBegin(count(), true);
+        moveToWordBoundary(true, false);
         finishMovement();
     } else if (key == 'c') {
         m_submode = ChangeSubMode;
@@ -330,11 +344,14 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
     } else if (key == 'e') {
-        moveToWordEnd(count(), false);
+        moveToWordBoundary(false, true);
         finishMovement();
     } else if (key == 'E') {
-        moveToWordEnd(count(), true);
+        moveToWordBoundary(true, true);
         finishMovement();
+    } else if (key == 'f' || key == 'F') {
+        m_subsubmode = FtSubSubMode;
+        m_subsubdata = key;
     } else if (key == 'h' || key == Key_Left) {
         int n = qMin(count(), leftDist());
         if (m_fakeEnd && m_tc.block().length() > 1)
@@ -387,13 +404,16 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         }
     } else if (key == control('r')) {
         m_editor->redo();
+    } else if (key == 't' || key == 'T') {
+        m_subsubmode = FtSubSubMode;
+        m_subsubdata = key;
     } else if (key == 'u') {
         m_editor->undo();
     } else if (key == 'w') {
-        moveToNextWord(count(), false);
+        moveToNextWord(false);
         finishMovement();
     } else if (key == 'W') {
-        moveToNextWord(count(), true);
+        moveToNextWord(true);
         finishMovement();
     } else if (key == 'x') { // = "dl"
         if (atEol())
@@ -503,15 +523,15 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
     updateCommandBuffer();
 }
 
-void FakeVimHandler::Private::search(const QString &needle, bool backwards)
+void FakeVimHandler::Private::search(const QString &needle, bool forward)
 {
     //qDebug() << "NEEDLE " << needle << "BACKWARDS" << backwards;
     QTextCursor orig = m_tc;
     QTextDocument::FindFlags flags;
-    if (backwards)
+    if (!forward)
         flags = QTextDocument::FindBackward;
 
-    if (!backwards)
+    if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
     m_editor->setTextCursor(m_tc);
@@ -521,15 +541,15 @@ void FakeVimHandler::Private::search(const QString &needle, bool backwards)
         return;
     }
 
-    m_tc.setPosition(backwards ? lastPositionInDocument() - 1 : 0);
+    m_tc.setPosition(forward ? 0 : lastPositionInDocument() - 1);
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
         m_tc.movePosition(Left, MoveAnchor, needle.size() - 1);
-        if (backwards)
-            showMessage("search hit TOP, continuing at BOTTOM");
-        else
+        if (forward)
             showMessage("search hit BOTTOM, continuing at TOP");
+        else
+            showMessage("search hit TOP, continuing at BOTTOM");
         return;
     }
 
@@ -559,39 +579,20 @@ static int charClass(QChar c, bool simple)
     return c.isSpace() ? 0 : 1;
 }
 
-void FakeVimHandler::Private::moveToWordBegin(int repeat, bool simple)
+void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
 {
+    int repeat = count();
     QTextDocument *doc = m_tc.document();
+    int n = forward ? lastPositionInDocument() - 1 : 0;
     int lastClass = 0;
     while (true) {
-        m_tc.movePosition(Left, KeepAnchor, 1);
+        m_tc.movePosition(forward ? Right : Left, KeepAnchor, 1);
         QChar c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
         if (repeat == -1) {
-            m_tc.movePosition(Right, KeepAnchor, 1);
-            break;
-        }
-        lastClass = thisClass;
-        if (m_tc.position() == 0)
-            break;
-    }
-}
-
-void FakeVimHandler::Private::moveToWordEnd(int repeat, bool simple)
-{
-    QTextDocument *doc = m_tc.document();
-    int n = lastPositionInDocument() - 1;
-    int lastClass = 0;
-    while (true) {
-        m_tc.movePosition(Right, KeepAnchor, 1);
-        QChar c = doc->characterAt(m_tc.position());
-        int thisClass = charClass(c, simple);
-        if (thisClass != lastClass && lastClass != 0)
-            --repeat;
-        if (repeat == 0) {
-            m_tc.movePosition(Left, KeepAnchor, 1);
+            m_tc.movePosition(forward ? Left : Right, KeepAnchor, 1);
             break;
         }
         lastClass = thisClass;
@@ -600,9 +601,44 @@ void FakeVimHandler::Private::moveToWordEnd(int repeat, bool simple)
     }
 }
 
-void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
+void FakeVimHandler::Private::handleFfTt(int key)
+{
+    // m_subsubmode \in { 'f', 'F', 't', 'T' }
+    bool forward = m_subsubdata == 'f' || m_subsubdata == 't';
+    int repeat = count();
+    QTextDocument *doc = m_tc.document();
+    QTextBlock block = m_tc.block();
+    int n = block.position();
+    if (forward)
+        n += block.length();
+    int pos = m_tc.position();
+    while (true) {
+        pos += forward ? 1 : -1;
+        if (pos == n)
+            break;
+        int uc = doc->characterAt(pos).unicode();
+        if (uc == ParagraphSeparator)
+            break;
+        if (uc == key)
+            --repeat;
+        if (repeat == 0) {
+            if (m_subsubdata == 't')
+                --pos;
+            if (m_subsubdata == 'T')
+                ++pos;
+            if (forward)
+                m_tc.movePosition(Right, KeepAnchor, pos - m_tc.position());
+            else
+                m_tc.movePosition(Left, KeepAnchor, m_tc.position() - pos);
+            break;
+        }
+    }
+}
+
+void FakeVimHandler::Private::moveToNextWord(bool simple)
 {
     // FIXME: 'w' should stop on empty lines, too
+    int repeat = count();
     QTextDocument *doc = m_tc.document();
     int n = lastPositionInDocument() - 1;
     QChar c = doc->characterAt(m_tc.position());
