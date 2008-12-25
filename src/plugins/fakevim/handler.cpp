@@ -120,7 +120,9 @@ public:
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
-    void moveWord(int repeat, bool simple);
+    void moveToNextWord(int repeat, bool simple);
+    void moveToWordBegin(int repeat, bool simple);
+    void moveToWordEnd(int repeat, bool simple);
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -301,6 +303,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'A') {
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_mode = InsertMode;
+    } else if (key == 'b') {
+        moveToWordBegin(count(), false);
+        finishMovement();
+    } else if (key == 'B') {
+        moveToWordBegin(count(), true);
+        finishMovement();
     } else if (key == 'c') {
         m_submode = ChangeSubMode;
     } else if (key == 'C') {
@@ -314,6 +322,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
         m_tc.movePosition(EndOfLine, KeepAnchor);
+        finishMovement();
+    } else if (key == 'e') {
+        moveToWordEnd(count(), false);
+        finishMovement();
+    } else if (key == 'E') {
+        moveToWordEnd(count(), true);
         finishMovement();
     } else if (key == 'h' || key == Key_Left) {
         int n = qMin(count(), leftDist());
@@ -370,10 +384,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'u') {
         m_editor->undo();
     } else if (key == 'w') {
-        moveWord(count(), false);
+        moveToNextWord(count(), false);
         finishMovement();
     } else if (key == 'W') {
-        moveWord(count(), true);
+        moveToNextWord(count(), true);
         finishMovement();
     } else if (key == 'x') { // = "dl"
         if (atEol())
@@ -528,7 +542,43 @@ static int charClass(QChar c, bool simple)
     return c.isSpace() ? 0 : 1;
 }
 
-void FakeVimHandler::Private::moveWord(int repeat, bool simple)
+void FakeVimHandler::Private::moveToWordBegin(int repeat, bool simple)
+{
+    QTextDocument *doc = m_tc.document();
+    int n = lastPositionInDocument() - 1;
+    int lastClass = 0;
+    while (m_tc.position() < n) {
+        QChar c = doc->characterAt(m_tc.position());
+        int thisClass = charClass(c, simple);
+        if (thisClass != lastClass && thisClass != 0)
+            --repeat;
+        if (repeat == -1)
+            return;
+        lastClass = thisClass;
+        m_tc.movePosition(Right, KeepAnchor, 1);
+    }
+}
+
+void FakeVimHandler::Private::moveToWordEnd(int repeat, bool simple)
+{
+    QTextDocument *doc = m_tc.document();
+    int n = lastPositionInDocument() - 1;
+    int lastClass = 0;
+    while (m_tc.position() < n) {
+        QChar c = doc->characterAt(m_tc.position());
+        int thisClass = charClass(c, simple);
+        if (thisClass != lastClass && lastClass != 0)
+            --repeat;
+        if (repeat == -1) {
+            m_tc.movePosition(Left, KeepAnchor, 1);
+            return;
+        }
+        lastClass = thisClass;
+        m_tc.movePosition(Right, KeepAnchor, 1);
+    }
+}
+
+void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
 {
     // FIXME: 'w' should stop on empty lines, too
     QTextDocument *doc = m_tc.document();
