@@ -64,6 +64,7 @@ using namespace FakeVim::Internal;
 // FakeVimHandler
 //
 ///////////////////////////////////////////////////////////////////////
+
 const int ParagraphSeparator = 0x00002029;
 
 using namespace Qt;
@@ -109,6 +110,12 @@ public:
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
+
+	// all zero-based counting
+	int cursorLineOnScreen() const;
+	int linesOnScreen() const;
+	int cursorLineInDocument() const;
+	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
 
@@ -255,14 +262,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
             // cursor line to top of window, cursor on first non-blank
-            QRect rect = m_editor->cursorRect();
-            int blocksUp = rect.y() / rect.height();
-            int blockNumber = m_tc.block().blockNumber();
-            QScrollBar *scrollBar = m_editor->verticalScrollBar();
-            if (blockNumber != blocksUp) {
-                scrollBar->setValue(scrollBar->value() * blockNumber
-                    / (blockNumber - blocksUp));
-            }
+			scrollToLineInDocument(cursorLineInDocument());
             moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
@@ -380,6 +380,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'z') {
         m_submode = ZSubMode;
+    } else if (key == Key_PageDown || key == control('f')) {
+        m_tc.movePosition(Down, KeepAnchor, count() * (linesOnScreen() - 2));
+        finishMovement();
+    } else if (key == Key_PageUp || key == control('b')) {
+        m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
+        finishMovement();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
     } else if (key == Key_Delete) {
@@ -408,6 +414,12 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_tc.deletePreviousChar();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
+    } else if (key == Key_PageDown || key == control('f')) {
+        m_tc.movePosition(Down, KeepAnchor, count() * (linesOnScreen() - 2));
+        finishMovement();
+    } else if (key == Key_PageUp || key == control('b')) {
+        m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
+        finishMovement();
     } else {
         m_tc.insertText(text);
     }    
@@ -501,6 +513,32 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
             return;
         }
     }
+}
+
+int FakeVimHandler::Private::cursorLineOnScreen() const
+{
+	QRect rect = m_editor->cursorRect();
+	return rect.y() / rect.height();
+}
+
+int FakeVimHandler::Private::linesOnScreen() const
+{
+	QRect rect = m_editor->cursorRect();
+	//qDebug() <<  m_editor->height() / rect.height();
+	return m_editor->height() / rect.height();
+}
+
+int FakeVimHandler::Private::cursorLineInDocument() const
+{
+	//qDebug() << "CURSOR LINE IN DOCUMENT " << m_tc.block().blockNumber();
+	return m_tc.block().blockNumber();
+}
+
+void FakeVimHandler::Private::scrollToLineInDocument(int line)
+{
+	// FIXME: works only for QPlainTextEdit
+	QScrollBar *scrollBar = m_editor->verticalScrollBar();
+	scrollBar->setValue(line);
 }
 
 ///////////////////////////////////////////////////////////////////////
