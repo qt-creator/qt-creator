@@ -111,6 +111,8 @@ public:
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
 
+    int lastPositionInDocument() const;
+
 	// all zero-based counting
 	int cursorLineOnScreen() const;
 	int linesOnScreen() const;
@@ -118,6 +120,7 @@ public:
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
+    void moveWord(int repeat, bool simple);
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -366,6 +369,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_editor->redo();
     } else if (key == 'u') {
         m_editor->undo();
+    } else if (key == 'w') {
+        moveWord(count(), false);
+        finishMovement();
+    } else if (key == 'W') {
+        moveWord(count(), true);
+        finishMovement();
     } else if (key == 'x') { // = "dl"
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
@@ -481,12 +490,7 @@ void FakeVimHandler::Private::search(const QString &needle, bool backwards)
         return;
     }
 
-    int n = 0;
-    if (backwards) {
-        QTextBlock block = m_tc.block().document()->lastBlock();
-        n = block.position() + block.length() - 1;
-    }
-    m_tc.setPosition(n);
+    m_tc.setPosition(backwards ? lastPositionInDocument() - 1 : 0);
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
@@ -515,6 +519,33 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
     }
 }
 
+static int charClass(QChar c, bool simple)
+{
+    if (simple)
+        return c.isSpace() ? 0 : 1;
+    if (c.isLetterOrNumber() || c.unicode() == '_')
+        return 2;
+    return c.isSpace() ? 0 : 1;
+}
+
+void FakeVimHandler::Private::moveWord(int repeat, bool simple)
+{
+    // FIXME: 'w' should stop on empty lines, too
+    QTextDocument *doc = m_tc.document();
+    int n = lastPositionInDocument() - 1;
+    int lastClass = 0;
+    while (m_tc.position() < n) {
+        QChar c = doc->characterAt(m_tc.position());
+        int thisClass = charClass(c, simple);
+        if (thisClass != lastClass && thisClass != 0)
+            --repeat;
+        if (repeat == -1)
+            break;
+        lastClass = thisClass;
+        m_tc.movePosition(Right, KeepAnchor, 1);
+    }
+}
+
 int FakeVimHandler::Private::cursorLineOnScreen() const
 {
 	QRect rect = m_editor->cursorRect();
@@ -539,6 +570,12 @@ void FakeVimHandler::Private::scrollToLineInDocument(int line)
 	// FIXME: works only for QPlainTextEdit
 	QScrollBar *scrollBar = m_editor->verticalScrollBar();
 	scrollBar->setValue(line);
+}
+
+int FakeVimHandler::Private::lastPositionInDocument() const
+{
+    QTextBlock block = m_tc.block().document()->lastBlock();
+    return block.position() + block.length();
 }
 
 ///////////////////////////////////////////////////////////////////////
