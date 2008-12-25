@@ -403,6 +403,15 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'z') {
         m_submode = ZSubMode;
+    } else if (key == '~') {
+        m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
+        QString str = m_tc.selectedText();
+        for (int i = str.size(); --i >= 0; ) {
+            QChar c = str.at(i);
+            str[i] = c.isUpper() ? c.toLower() : c.toUpper();
+        }
+        m_tc.deleteChar();
+        m_tc.insertText(str);
     } else if (key == Key_PageDown || key == control('f')) {
         m_tc.movePosition(Down, KeepAnchor, count() * (linesOnScreen() - 2));
         finishMovement();
