@@ -545,17 +545,20 @@ static int charClass(QChar c, bool simple)
 void FakeVimHandler::Private::moveToWordBegin(int repeat, bool simple)
 {
     QTextDocument *doc = m_tc.document();
-    int n = lastPositionInDocument() - 1;
     int lastClass = 0;
-    while (m_tc.position() < n) {
+    while (true) {
+        m_tc.movePosition(Left, KeepAnchor, 1);
         QChar c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
-        if (thisClass != lastClass && thisClass != 0)
+        if (thisClass != lastClass && lastClass != 0)
             --repeat;
-        if (repeat == -1)
-            return;
+        if (repeat == -1) {
+            m_tc.movePosition(Right, KeepAnchor, 1);
+            break;
+        }
         lastClass = thisClass;
-        m_tc.movePosition(Right, KeepAnchor, 1);
+        if (m_tc.position() == 0)
+            break;
     }
 }
 
@@ -564,17 +567,19 @@ void FakeVimHandler::Private::moveToWordEnd(int repeat, bool simple)
     QTextDocument *doc = m_tc.document();
     int n = lastPositionInDocument() - 1;
     int lastClass = 0;
-    while (m_tc.position() < n) {
+    while (true) {
+        m_tc.movePosition(Right, KeepAnchor, 1);
         QChar c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
-        if (repeat == -1) {
+        if (repeat == 0) {
             m_tc.movePosition(Left, KeepAnchor, 1);
-            return;
+            break;
         }
         lastClass = thisClass;
-        m_tc.movePosition(Right, KeepAnchor, 1);
+        if (m_tc.position() == n)
+            break;
     }
 }
 
@@ -584,7 +589,7 @@ void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
     QTextDocument *doc = m_tc.document();
     int n = lastPositionInDocument() - 1;
     int lastClass = 0;
-    while (m_tc.position() < n) {
+    while (true) {
         QChar c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && thisClass != 0)
@@ -593,6 +598,8 @@ void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
             break;
         lastClass = thisClass;
         m_tc.movePosition(Right, KeepAnchor, 1);
+        if (m_tc.position() == n)
+            break;
     }
 }
 
