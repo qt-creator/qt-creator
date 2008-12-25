@@ -153,6 +153,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
 {
     q = parent;
     m_mode = CommandMode;
+    m_commandCode = 0;
     m_fakeEnd = false;
     m_lastSearchBackward = false;
     m_register = '"';
@@ -240,7 +241,6 @@ void FakeVimHandler::Private::finishMovement()
 
 void FakeVimHandler::Private::updateCommandBuffer()
 {
-    //qDebug() << "CMD" << m_commandBuffer;
     QString msg = QChar(m_commandCode ? m_commandCode : ' ') + m_commandBuffer;
     emit q->commandBufferChanged(msg);
 }
@@ -605,9 +605,10 @@ void FakeVimHandler::Private::moveToNextWord(int repeat, bool simple)
     // FIXME: 'w' should stop on empty lines, too
     QTextDocument *doc = m_tc.document();
     int n = lastPositionInDocument() - 1;
-    int lastClass = 0;
+    QChar c = doc->characterAt(m_tc.position());
+    int lastClass = charClass(c, simple);
     while (true) {
-        QChar c = doc->characterAt(m_tc.position());
+        c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && thisClass != 0)
             --repeat;
