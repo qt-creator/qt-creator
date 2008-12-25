@@ -428,6 +428,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.deletePreviousChar();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
+    } else if (key == Key_Escape) {
+        // harmless
     } else {
         qDebug() << "Ignored" << key << text;
     }    
