@@ -403,7 +403,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'z') {
         m_submode = ZSubMode;
-    } else if (key == '~') {
+    } else if (key == '~' && !atEol()) {
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         QString str = m_tc.selectedText();
         for (int i = str.size(); --i >= 0; ) {
