@@ -341,7 +341,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_submode = DeleteSubMode;
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
-        m_tc.movePosition(EndOfLine, KeepAnchor);
+        m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
+        m_tc.movePosition(Right, KeepAnchor, rightDist());
         finishMovement();
     } else if (key == 'e') {
         moveToWordBoundary(false, true);
