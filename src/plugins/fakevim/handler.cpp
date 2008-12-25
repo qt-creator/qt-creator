@@ -254,8 +254,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
-    	    // cursor line to top of window, cursor on first non-blank
-    	    QRect rect = m_editor->cursorRect();
+            // cursor line to top of window, cursor on first non-blank
+            QRect rect = m_editor->cursorRect();
             int blocksUp = rect.y() / rect.height();
             int blockNumber = m_tc.block().blockNumber();
             QScrollBar *scrollBar = m_editor->verticalScrollBar();
@@ -265,7 +265,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             }
             moveToFirstNonBlankOnLine();
             finishMovement();
-    	} else {
+        } else {
             qDebug() << "Ignored z + " << key << text;
         }
         m_submode = NoSubMode;
@@ -454,16 +454,18 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
 void FakeVimHandler::Private::search(const QString &needle, bool backwards)
 {
     //qDebug() << "NEEDLE " << needle << "BACKWARDS" << backwards;
-    //int startPos = m_tc.position();
+    QTextCursor orig = m_tc;
     QTextDocument::FindFlags flags;
     if (backwards)
         flags = QTextDocument::FindBackward;
 
-    m_tc.movePosition(backwards? Left : Right, MoveAnchor, 1);
+    if (!backwards)
+        m_tc.movePosition(Right, MoveAnchor, 1);
+
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
-        m_tc.movePosition(Left, MoveAnchor, needle.size());
+        m_tc.movePosition(Left, MoveAnchor, needle.size() - 1);
         return;
     }
 
@@ -476,7 +478,7 @@ void FakeVimHandler::Private::search(const QString &needle, bool backwards)
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
-        m_tc.movePosition(Left, MoveAnchor, needle.size());
+        m_tc.movePosition(Left, MoveAnchor, needle.size() - 1);
         if (backwards)
             showMessage("search hit TOP, continuing at BOTTOM");
         else
@@ -484,7 +486,7 @@ void FakeVimHandler::Private::search(const QString &needle, bool backwards)
         return;
     }
 
-    m_tc.movePosition(backwards ? Right : Left, MoveAnchor, 1);
+    m_tc = orig;
 }
 
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
