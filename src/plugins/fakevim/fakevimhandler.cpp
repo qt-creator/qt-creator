@@ -669,6 +669,33 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
                 handleKey(c.unicode(), QString(c));
     } else if (key == '=') {
         m_submode = IndentSubMode;
+    } else if (key == '%') {
+        bool undoFakeEOL = false;
+        if (atEol()) {
+            m_tc.movePosition(Left, KeepAnchor, 1);
+            undoFakeEOL = true;
+        }
+        TextEditor::TextBlockUserData::MatchType match
+            = TextEditor::TextBlockUserData::matchCursorForward(&m_tc);
+        if (match == TextEditor::TextBlockUserData::Match) {
+            if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
+                m_tc.movePosition(Left, KeepAnchor, 1);
+        } else {
+            if (undoFakeEOL)
+                m_tc.movePosition(Right, KeepAnchor, 1);
+            if (match == TextEditor::TextBlockUserData::NoMatch) {
+                // backward matching is according to the character before the cursor
+                bool undoMove = false;
+                if (!m_tc.atBlockEnd()) {
+                    m_tc.movePosition(Right, KeepAnchor, 1);
+                    undoMove = true;
+                }
+                match = TextEditor::TextBlockUserData::matchCursorBackward(&m_tc);
+                if (match != TextEditor::TextBlockUserData::Match && undoMove)
+                    m_tc.movePosition(Left, KeepAnchor, 1);
+            }
+        }
+        finishMovement();
     } else if (key == 'a') {
         m_mode = InsertMode;
         m_lastInsertion.clear();
