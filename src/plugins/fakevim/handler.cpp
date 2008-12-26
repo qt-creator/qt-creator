@@ -150,11 +150,22 @@ public:
 
     bool m_fakeEnd;
 
+    bool isSearchCommand() const
+        { return m_commandCode == '?' || m_commandCode == '/'; }
     int m_commandCode; // ?, /, : ...
+    
     QString m_commandBuffer;
 
     bool m_lastSearchForward;
-    QString m_lastSearchString;
+
+    // History for '/'
+    QString lastSearchString() const;
+    QStringList m_searchHistory;
+    int m_searchHistoryIndex;
+
+    // History for ':'
+    QStringList m_commandHistory;
+    int m_commandHistoryIndex;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent)
@@ -302,6 +313,13 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == ':' || key == '/' || key == '?') {
         m_commandCode = key;
         m_mode = ExMode;
+        if (isSearchCommand()) {
+            m_searchHistory.append(QString());
+            m_searchHistoryIndex = m_searchHistory.size() - 1;
+        } else {
+            m_commandHistory.append(QString());
+            m_commandHistoryIndex = m_commandHistory.size() - 1;
+        }
         updateCommandBuffer();
     } else if (key == '|') {
         m_tc.movePosition(StartOfLine, KeepAnchor);
@@ -387,9 +405,9 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'n') {
-        search(m_lastSearchString, m_lastSearchForward);
+        search(lastSearchString(), m_lastSearchForward);
     } else if (key == 'N') {
-        search(m_lastSearchString, !m_lastSearchForward);
+        search(lastSearchString(), !m_lastSearchForward);
     } else if (key == 'p') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
@@ -510,14 +528,23 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         }
         m_commandBuffer.clear();
         m_mode = CommandMode;
-    } else if (key == Key_Return
-            && (m_commandCode == '/' || m_commandCode == '?')) {
+    } else if (key == Key_Return && isSearchCommand()) {
         m_lastSearchForward = (m_commandCode == '/');
-        m_lastSearchString = m_commandBuffer;
-        search(m_lastSearchString, m_lastSearchForward);
+        m_searchHistory.append(m_commandBuffer);
+        search(lastSearchString(), m_lastSearchForward);
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
+    } else if (key == Key_Up && isSearchCommand()) {
+        if (m_searchHistoryIndex > 0) {
+            --m_searchHistoryIndex;
+            m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
+        }
+    } else if (key == Key_Down && isSearchCommand()) {
+        if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
+            ++m_searchHistoryIndex;
+            m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
+        }
     } else {
         m_commandBuffer += QChar(key);
     }
@@ -528,7 +555,7 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
 {
     //qDebug() << "NEEDLE " << needle << "BACKWARDS" << backwards;
     QTextCursor orig = m_tc;
-    QTextDocument::FindFlags flags;
+    QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!forward)
         flags = QTextDocument::FindBackward;
 
@@ -538,7 +565,8 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
-        m_tc.movePosition(Left, MoveAnchor, needle.size() - 1);
+        // the qMax seems to be needed for QPlainTextEdit only
+        m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
         return;
     }
 
@@ -546,7 +574,8 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
     m_editor->setTextCursor(m_tc);
     if (m_editor->find(needle, flags)) {
         m_tc = m_editor->textCursor();
-        m_tc.movePosition(Left, MoveAnchor, needle.size() - 1);
+        // the qMax seems to be needed for QPlainTextEdit only
+        m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
         if (forward)
             showMessage("search hit BOTTOM, continuing at TOP");
         else
@@ -694,6 +723,11 @@ int FakeVimHandler::Private::lastPositionInDocument() const
 {
     QTextBlock block = m_tc.block().document()->lastBlock();
     return block.position() + block.length();
+}
+
+QString FakeVimHandler::Private::lastSearchString() const
+{
+     return m_searchHistory.empty() ? QString() : m_searchHistory.back();
 }
 
 ///////////////////////////////////////////////////////////////////////
