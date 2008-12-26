@@ -97,6 +97,7 @@ enum SubMode
     ChangeSubMode,
     DeleteSubMode,
     FilterSubMode,
+    ReplaceSubMode,
     YankSubMode,
     ZSubMode,
 };
@@ -386,6 +387,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_registers[m_register] = m_tc.selectedText();
         m_tc.setPosition(m_savedPosition);
         m_submode = NoSubMode;
+    } else if (m_submode == ReplaceSubMode) {
+        m_submode = NoSubMode;
     }
     m_mvcount.clear();
     m_opcount.clear();
@@ -536,6 +539,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(StartOfLine, MoveAnchor);
         m_tc.movePosition(Down, KeepAnchor, count());
         m_registers[m_register] = m_tc.selectedText();
+        finishMovement();
+    } else if (m_submode == ReplaceSubMode) {
+        if (atEol())
+            m_tc.movePosition(Left, KeepAnchor, 1);
+        else
+            m_tc.deleteChar();
+        m_tc.insertText(text);
         finishMovement();
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
@@ -783,6 +793,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.movePosition(Left);
         }
         m_dotCommand = "p";
+    } else if (key == 'r') {
+        m_submode = ReplaceSubMode;
+        m_dotCommand = "r";
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
