@@ -53,6 +53,11 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
+#include <texteditor/basetexteditor.h>
+#include <texteditor/textblockiterator.h>
+#include <cppeditor/cppeditor.h>
+
+#include <indenter.h>
 
 using namespace FakeVim::Internal;
 using namespace FakeVim::Constants;
@@ -99,6 +104,7 @@ enum SubMode
     FilterSubMode,
     ReplaceSubMode,
     YankSubMode,
+    IndentSubMode,
     ZSubMode,
 };
 
@@ -181,6 +187,13 @@ private:
     int linesInDocument() const;
     void scrollToLineInDocument(int line);
 
+    // helper functions for indenting
+    bool isElectricCharacter(QChar c) const { return (c == '{' || c == '}' || c == '#'); }
+    int indentDist() const;
+    void insertIndent();
+    void indentRegion(QTextBlock first, QTextBlock last, QChar typedChar=0);
+    void indentCurrentLine(QChar typedChar);
+
     void moveToFirstNonBlankOnLine();
     void moveToDesiredColumn();
     void moveToNextWord(bool simple);
@@ -204,6 +217,7 @@ private:
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
+    TextEditor::BaseTextEditor *m_texteditor;
     bool m_wasReadOnly; // saves read-only state of document
 
     FakeVimHandler *q;
@@ -285,6 +299,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_gflag = false;
     m_textedit = 0;
     m_plaintextedit = 0;
+    m_texteditor = 0;
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
 
@@ -389,6 +404,17 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_tc.setPosition(m_savedPosition);
         m_submode = NoSubMode;
     } else if (m_submode == ReplaceSubMode) {
+        m_submode = NoSubMode;
+    } else if (m_submode == IndentSubMode) {
+        QTextDocument *doc = EDITOR(document());
+        int start = m_tc.selectionStart();
+        int end = m_tc.selectionEnd();
+        if (start > end)
+            std::swap(start, end);
+        QTextBlock startBlock = doc->findBlock(start);
+        indentRegion(doc->findBlock(start), doc->findBlock(end).next());
+        m_tc.setPosition(startBlock.position());
+        moveToFirstNonBlankOnLine();
         m_submode = NoSubMode;
     }
     m_mvcount.clear();
@@ -547,6 +573,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         else
             m_tc.deleteChar();
         m_tc.insertText(text);
+    } else if (m_submode == IndentSubMode && key == '=') {
+        indentRegion(m_tc.block(), m_tc.block().next());
         finishMovement();
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
@@ -639,6 +667,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         for (int i = count(); --i >= 0; )
             foreach (QChar c, m_dotCommand)
                 handleKey(c.unicode(), QString(c));
+    } else if (key == '=') {
+        m_submode = IndentSubMode;
     } else if (key == 'a') {
         m_mode = InsertMode;
         m_lastInsertion.clear();
@@ -769,15 +799,21 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         search(lastSearchString(), m_lastSearchForward);
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
-    } else if (key == 'o') {
+    } else if (key == 'o' || key == 'O') {
         enterInsertMode();
+        moveToFirstNonBlankOnLine();
+        int numSpaces = leftDist();
+        m_tc.movePosition(Up, MoveAnchor, 1);
+        if (key == 'o')
+            m_tc.movePosition(Down, MoveAnchor, 1);
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_tc.insertText("\n");
-    } else if (key == 'O') {
-        enterInsertMode();
         m_tc.movePosition(StartOfLine, MoveAnchor);
-        m_tc.movePosition(Left, MoveAnchor, 1);
-        m_tc.insertText("\n");
+        if (m_texteditor && m_texteditor->tabSettings().m_autoIndent) {
+            insertIndent();
+        } else {
+            m_tc.insertText(QString(numSpaces, ' '));
+        }
     } else if (key == 'p' || key == 'P') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
@@ -907,6 +943,7 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
+        indentRegion(m_tc.block(), m_tc.block().next());
     } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
         m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
@@ -932,6 +969,24 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
                 m_tc.deleteChar();
         }
         m_tc.insertText(text);
+        if (m_texteditor && m_texteditor->tabSettings().m_autoIndent && isElectricCharacter(text.at(0))) {
+            const QString leftText = m_tc.block().text()
+                .left(m_tc.position() - 1 - m_tc.block().position());
+            if (leftText.simplified().isEmpty())
+            {
+                if (m_tc.hasSelection())
+                {
+                    QTextDocument *doc = EDITOR(document());
+                    QTextBlock block = doc->findBlock(qMin(m_tc.selectionStart(),
+                                m_tc.selectionEnd()));
+                    const QTextBlock end = doc->findBlock(qMax(m_tc.selectionStart(),
+                                m_tc.selectionEnd())).next();
+                    indentRegion(block, end, text.at(0));
+                }
+                else
+                    indentCurrentLine(text.at(0));
+            }
+        }
     } else {
         return false;
     }
@@ -1253,6 +1308,65 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
             return;
         }
     }
+}
+
+int FakeVimHandler::Private::indentDist() const
+{
+    if (!m_texteditor)
+        return 0;
+
+    TextEditor::TabSettings ts = m_texteditor->tabSettings();
+    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
+    Indenter &indenter = Indenter::instance();
+    indenter.setIndentSize(ts.m_indentSize);
+    indenter.setTabSize(ts.m_tabSize);
+
+    QTextDocument *doc = EDITOR(document());
+    const TextEditor::TextBlockIterator current(m_tc.block());
+    const TextEditor::TextBlockIterator begin(doc->begin());
+    const TextEditor::TextBlockIterator end(m_tc.block().next());
+    return indenter.indentForBottomLine(current, begin, end, QChar(' '));
+}
+
+void FakeVimHandler::Private::insertIndent()
+{
+    const int indent = indentDist();
+    QString text;
+    for(int i = 0; i < indent; ++i)
+        text += ' ';
+    m_tc.insertText(text);
+}
+
+void FakeVimHandler::Private::indentRegion(QTextBlock begin, QTextBlock end, QChar typedChar)
+{
+    if (!m_texteditor)
+        return;
+
+    TextEditor::TabSettings ts = m_texteditor->tabSettings();
+    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
+    Indenter &indenter = Indenter::instance();
+    indenter.setIndentSize(ts.m_indentSize);
+    indenter.setTabSize(ts.m_tabSize);
+
+    QTextDocument *doc = EDITOR(document());
+    const TextEditor::TextBlockIterator docStart(doc->begin());
+    for(QTextBlock cur = begin; cur != end; cur = cur.next()) {
+        if (typedChar != 0 && cur.text().simplified().isEmpty()) {
+            m_tc.setPosition(cur.position(), KeepAnchor);
+            while (!m_tc.atBlockEnd())
+                m_tc.deleteChar();
+        } else {
+            const TextEditor::TextBlockIterator current(cur);
+            const TextEditor::TextBlockIterator next(cur.next());
+            const int indent = indenter.indentForBottomLine(current, docStart, next, typedChar);
+            ts.indentLine(cur, indent);
+        }
+    }
+}
+
+void FakeVimHandler::Private::indentCurrentLine(QChar typedChar)
+{
+    indentRegion(m_tc.block(), m_tc.block().next(), typedChar);
 }
 
 void FakeVimHandler::Private::moveToDesiredColumn()
