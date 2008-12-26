@@ -2452,6 +2452,7 @@ void qDumpObjectData440(
             "\""NS"QHash\","
             "\""NS"QHashNode\","
             "\""NS"QImage\","
+            "\""NS"QList\","
             "\""NS"QLocale\","
             "\""NS"QMap\","
             "\""NS"QMapNode\","
