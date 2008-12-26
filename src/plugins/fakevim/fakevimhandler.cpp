@@ -796,6 +796,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'r') {
         m_submode = ReplaceSubMode;
         m_dotCommand = "r";
+    } else if (key == 'R') {
+        m_mode = InsertMode;
+        m_submode = ReplaceSubMode;
+        m_dotCommand = "R";
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
@@ -888,15 +892,18 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_lastInsertion.clear();
     } else if (key == Key_Down) {
+        m_submode = NoSubMode;
         m_tc.movePosition(Down, MoveAnchor, 1);
         m_lastInsertion.clear();
     } else if (key == Key_Up) {
+        m_submode = NoSubMode;
         m_tc.movePosition(Up, MoveAnchor, 1);
         m_lastInsertion.clear();
     } else if (key == Key_Right) {
         m_tc.movePosition(Right, MoveAnchor, 1);
         m_lastInsertion.clear();
     } else if (key == Key_Return) {
+        m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
     } else if (key == Key_Backspace || key == control('h')) {
@@ -917,6 +924,12 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_tc.insertText(str);
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
+        if (m_submode == ReplaceSubMode) {
+            if (atEol())
+                m_submode = NoSubMode;
+            else
+                m_tc.deleteChar();
+        }
         m_tc.insertText(text);
     } else {
         return false;
