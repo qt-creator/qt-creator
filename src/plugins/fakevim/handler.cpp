@@ -50,13 +50,13 @@
 using namespace FakeVim::Internal;
 
 #define StartOfLine QTextCursor::StartOfLine
-#define EndOfLine QTextCursor::EndOfLine
-#define MoveAnchor QTextCursor::MoveAnchor
-#define KeepAnchor QTextCursor::KeepAnchor
-#define Up QTextCursor::Up
-#define Down QTextCursor::Down
-#define Right QTextCursor::Right
-#define Left QTextCursor::Left
+#define EndOfLine   QTextCursor::EndOfLine
+#define MoveAnchor  QTextCursor::MoveAnchor
+#define KeepAnchor  QTextCursor::KeepAnchor
+#define Up          QTextCursor::Up
+#define Down        QTextCursor::Down
+#define Right       QTextCursor::Right
+#define Left        QTextCursor::Left
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -64,6 +64,8 @@ using namespace FakeVim::Internal;
 // FakeVimHandler
 //
 ///////////////////////////////////////////////////////////////////////
+
+#define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
 const int ParagraphSeparator = 0x00002029;
 
@@ -138,7 +140,8 @@ public:
     SubSubMode m_subsubmode;
     int m_subsubdata;
     QString m_input;
-    QPlainTextEdit *m_editor;
+    QTextEdit *m_textedit;
+    QPlainTextEdit *m_plaintextedit;
     QTextCursor m_tc;
     QHash<int, QString> m_registers;
     int m_register;
@@ -190,11 +193,13 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     //qDebug() << "KEY: " << key << Qt::ShiftModifier;
 
     // Fake "End of line"
-    m_editor = qobject_cast<QPlainTextEdit *>(ob);
-    if (!m_editor)
+    m_textedit = qobject_cast<QTextEdit *>(ob);
+    m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
+    if (!m_textedit && !m_plaintextedit)
         return false;
 
-    m_tc = m_editor->textCursor();
+    m_tc = EDITOR(textCursor());
+
     if (m_fakeEnd) {
         //m_fakeEnd = false;
         m_tc.movePosition(Right, MoveAnchor, 1);
@@ -224,8 +229,8 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     //    << "  BLOCK LEN: " << m_tc.block().length()
     //    << "  LEFT: " << leftDist() << " RIGHT: " << rightDist();
 
-    m_editor->setTextCursor(m_tc);
-    m_editor->ensureCursorVisible();
+    EDITOR(setTextCursor(m_tc));
+    EDITOR(ensureCursorVisible());
     return true;
 }
 
@@ -378,7 +383,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Left, KeepAnchor, n);
         finishMovement();
     } else if (key == 'H') {
-        m_tc = m_editor->cursorForPosition(QPoint(0, 0));
+        m_tc = EDITOR(cursorForPosition(QPoint(0, 0)));
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
         moveToFirstNonBlankOnLine();
         finishMovement();
@@ -394,14 +399,14 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         finishMovement();
     } else if (key == 'L') {
-        int heigth = m_editor->height();
-        m_tc = m_editor->cursorForPosition(QPoint(0, heigth));
+        int heigth = EDITOR(height());
+        m_tc = EDITOR(cursorForPosition(QPoint(0, heigth)));
         m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'M') {
-        int heigth = m_editor->height();
-        m_tc = m_editor->cursorForPosition(QPoint(0, heigth / 2));
+        int heigth = EDITOR(height());
+        m_tc = EDITOR(cursorForPosition(QPoint(0, heigth / 2)));
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'n') {
@@ -422,12 +427,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.movePosition(Left);
         }
     } else if (key == control('r')) {
-        m_editor->redo();
+        EDITOR(redo());
     } else if (key == 't' || key == 'T') {
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == 'u') {
-        m_editor->undo();
+        EDITOR(undo());
     } else if (key == 'w') {
         moveToNextWord(false);
         finishMovement();
@@ -524,7 +529,10 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             m_tc.setPosition(m_tc.block().document()
                 ->findBlockByNumber(n - 1).position());
         } else if (m_commandBuffer == "q!" || m_commandBuffer == "q") {
-            q->quitRequested(m_editor);
+            if (m_textedit)
+                q->quitRequested(m_textedit);
+            else
+                q->quitRequested(m_plaintextedit);
         }
         m_commandBuffer.clear();
         m_mode = CommandMode;
@@ -562,18 +570,18 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
-    m_editor->setTextCursor(m_tc);
-    if (m_editor->find(needle, flags)) {
-        m_tc = m_editor->textCursor();
+    EDITOR(setTextCursor(m_tc));
+    if (EDITOR(find(needle, flags))) {
+        m_tc = EDITOR(textCursor());
         // the qMax seems to be needed for QPlainTextEdit only
         m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
         return;
     }
 
     m_tc.setPosition(forward ? 0 : lastPositionInDocument() - 1);
-    m_editor->setTextCursor(m_tc);
-    if (m_editor->find(needle, flags)) {
-        m_tc = m_editor->textCursor();
+    EDITOR(setTextCursor(m_tc));
+    if (EDITOR(find(needle, flags))) {
+        m_tc = EDITOR(textCursor());
         // the qMax seems to be needed for QPlainTextEdit only
         m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
         if (forward)
@@ -695,15 +703,15 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 
 int FakeVimHandler::Private::cursorLineOnScreen() const
 {
-	QRect rect = m_editor->cursorRect();
+	QRect rect = EDITOR(cursorRect());
 	return rect.y() / rect.height();
 }
 
 int FakeVimHandler::Private::linesOnScreen() const
 {
-	QRect rect = m_editor->cursorRect();
-	//qDebug() <<  m_editor->height() / rect.height();
-	return m_editor->height() / rect.height();
+	QRect rect = EDITOR(cursorRect());
+	//qDebug() <<  EDITOR(height()) / rect.height();
+	return EDITOR(height()) / rect.height();
 }
 
 int FakeVimHandler::Private::cursorLineInDocument() const
@@ -715,7 +723,7 @@ int FakeVimHandler::Private::cursorLineInDocument() const
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
 {
 	// FIXME: works only for QPlainTextEdit
-	QScrollBar *scrollBar = m_editor->verticalScrollBar();
+	QScrollBar *scrollBar = EDITOR(verticalScrollBar());
 	scrollBar->setValue(line);
 }
 
