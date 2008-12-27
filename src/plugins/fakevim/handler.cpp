@@ -374,8 +374,13 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == '$' || key == Key_End) {
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
+    } else if (key == 'a') {
+        m_lastInsertion.clear();
+        m_tc.movePosition(Right, MoveAnchor, 1);
+        m_mode = InsertMode;
     } else if (key == 'A') {
         m_tc.movePosition(EndOfLine, MoveAnchor);
+        m_lastInsertion.clear();
         m_mode = InsertMode;
     } else if (key == 'b') {
         moveToWordBoundary(false, false);
@@ -435,6 +440,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
     } else if (key == 'J') {
+        m_tc.beginEditBlock();
         if (m_submode == NoSubMode) {
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
                 m_tc.movePosition(EndOfLine);
@@ -445,6 +451,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             if (!m_gflag)
                 m_tc.movePosition(Left, MoveAnchor, 1);
         }
+        m_tc.endEditBlock();
     } else if (key == 'k' || key == Key_Up) {
         m_tc.movePosition(Up, KeepAnchor, count());
         finishMovement();
