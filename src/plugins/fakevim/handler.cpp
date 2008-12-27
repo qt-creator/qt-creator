@@ -290,7 +290,16 @@ void FakeVimHandler::Private::finishMovement()
 void FakeVimHandler::Private::updateMiniBuffer()
 {
     QString msg;
-    msg = QChar(m_commandCode ? m_commandCode : ' ') + m_commandBuffer;
+    msg = QChar(m_commandCode ? m_commandCode : ' ');
+    for (int i = 0; i != m_commandBuffer.size(); ++i) {
+        QChar c = m_commandBuffer.at(i);
+        if (c.unicode() < 64) {
+            msg += '^';
+            msg += QChar(c.unicode() + 64);
+        } else {
+            msg += c;
+        }
+    }
     int l = cursorLineInDocument();
     int w = columnsOnScreen();
     msg += QString(w, ' ');
@@ -632,6 +641,9 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
         }
+        updateMiniBuffer();
+    } else if (key == Key_Tab) {
+        m_commandBuffer += QChar(9);
         updateMiniBuffer();
     } else {
         m_commandBuffer += QChar(key);
