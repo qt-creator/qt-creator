@@ -112,7 +112,7 @@ public:
     void handleRegisterMode(int key, const QString &text);
     void handleExMode(int key, const QString &text);
     void finishMovement();
-    void updateCommandBuffer();
+    void updateMiniBuffer();
     void search(const QString &needle, bool forward);
     void showMessage(const QString &msg);
 
@@ -128,7 +128,9 @@ public:
 	// all zero-based counting
 	int cursorLineOnScreen() const;
 	int linesOnScreen() const;
+	int columnsOnScreen() const;
 	int cursorLineInDocument() const;
+	int cursorColumnInDocument() const;
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
@@ -209,9 +211,8 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     m_tc = EDITOR(textCursor());
 
     if (m_fakeEnd) {
-        //m_fakeEnd = false;
         m_tc.movePosition(Right, MoveAnchor, 1);
-        qDebug() << "Unfake EOL";
+        //qDebug() << "Unfake EOL";
     }
 
     if (key >= Key_A && key <= Key_Z
@@ -230,7 +231,7 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
 
     if (m_fakeEnd) {
         m_tc.movePosition(Left, MoveAnchor, 1);
-        qDebug() << "Fake EOL";
+        //qDebug() << "Fake EOL";
     }
 
     //qDebug() << "POS: " <<  m_tc.position()
@@ -271,19 +272,29 @@ void FakeVimHandler::Private::finishMovement()
     m_gflag = false;
     m_register = '"';
     m_tc.clearSelection();
-    updateCommandBuffer();
+    updateMiniBuffer();
 }
 
-void FakeVimHandler::Private::updateCommandBuffer()
+void FakeVimHandler::Private::updateMiniBuffer()
 {
-    QString msg = QChar(m_commandCode ? m_commandCode : ' ') + m_commandBuffer;
+    QString msg;
+    msg = QChar(m_commandCode ? m_commandCode : ' ') + m_commandBuffer;
+    int l = cursorLineInDocument();
+    int w = columnsOnScreen();
+    msg += QString(w, ' ');
+    msg = msg.left(w - 20);
+    QString pos = tr("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
+    msg += tr("%1").arg(pos, -12);
+    // FIXME: physical "-" logical
+    msg += tr("%1").arg(l * 100 / (m_tc.document()->blockCount() - 1), 4);
+    msg += '%';
     emit q->commandBufferChanged(msg);
 }
 
 void FakeVimHandler::Private::showMessage(const QString &msg)
 {
-    qDebug() << "MESSAGE" << msg;
-    emit q->commandBufferChanged(msg);
+    m_commandBuffer = msg;
+    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
@@ -335,7 +346,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_commandHistory.append(QString());
             m_commandHistoryIndex = m_commandHistory.size() - 1;
         }
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else if (key == '|') {
         m_tc.movePosition(StartOfLine, KeepAnchor);
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()) - 1);
@@ -555,13 +566,13 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else if (key == Key_Backspace) {
         if (m_commandBuffer.isEmpty())
             m_mode = CommandMode;
         else
             m_commandBuffer.chop(1);
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else if (key == Key_Return && m_commandCode == ':') {
         handleCommand(m_commandBuffer);
         m_commandBuffer.clear();
@@ -573,22 +584,22 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else if (key == Key_Up && isSearchCommand()) {
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
         }
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else if (key == Key_Down && isSearchCommand()) {
         if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
         }
-        updateCommandBuffer();
+        updateMiniBuffer();
     } else {
         m_commandBuffer += QChar(key);
-        updateCommandBuffer();
+        updateMiniBuffer();
     }
 }
 
@@ -783,14 +794,23 @@ int FakeVimHandler::Private::cursorLineOnScreen() const
 int FakeVimHandler::Private::linesOnScreen() const
 {
 	QRect rect = EDITOR(cursorRect());
-	//qDebug() <<  EDITOR(height()) / rect.height();
 	return EDITOR(height()) / rect.height();
+}
+
+int FakeVimHandler::Private::columnsOnScreen() const
+{
+	QRect rect = EDITOR(cursorRect());
+	return EDITOR(width()) / rect.width();
 }
 
 int FakeVimHandler::Private::cursorLineInDocument() const
 {
-	//qDebug() << "CURSOR LINE IN DOCUMENT " << m_tc.block().blockNumber();
 	return m_tc.block().blockNumber();
+}
+
+int FakeVimHandler::Private::cursorColumnInDocument() const
+{
+	return m_tc.position() - m_tc.block().position();
 }
 
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
@@ -837,7 +857,10 @@ void FakeVimHandler::addWidget(QWidget *widget)
 {
     widget->installEventFilter(this);
     QFont font = widget->font();
+    //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
+    //font.setFamily("Misc");
     font.setFamily("Monospace");
+    font.setStretch(QFont::SemiCondensed);
     widget->setFont(font);
     if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
         ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
