@@ -62,7 +62,7 @@ public:
 
 signals:
     void commandBufferChanged(const QString &msg);
-    void quitRequested(QObject *);
+    void quitRequested(QWidget *);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

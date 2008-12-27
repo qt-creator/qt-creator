@@ -375,13 +375,15 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
     } else if (key == 'a') {
-        m_lastInsertion.clear();
-        m_tc.movePosition(Right, MoveAnchor, 1);
         m_mode = InsertMode;
+        m_lastInsertion.clear();
+        m_tc.beginEditBlock();
+        m_tc.movePosition(Right, MoveAnchor, 1);
     } else if (key == 'A') {
+        m_mode = InsertMode;
+        m_tc.beginEditBlock();
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_lastInsertion.clear();
-        m_mode = InsertMode;
     } else if (key == 'b') {
         moveToWordBoundary(false, false);
         finishMovement();
@@ -390,8 +392,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'c') {
         m_submode = ChangeSubMode;
+        m_tc.beginEditBlock();
     } else if (key == 'C') {
         m_submode = ChangeSubMode;
+        m_tc.beginEditBlock();
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
     } else if (key == 'd') {
@@ -434,8 +438,9 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'i') {
-        m_lastInsertion.clear();
         m_mode = InsertMode;
+        m_tc.beginEditBlock();
+        m_lastInsertion.clear();
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
@@ -488,6 +493,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         }
     } else if (key == control('r')) {
         EDITOR(redo());
+    } else if (key == 's') {
+        m_submode = ChangeSubMode;
+        m_tc.beginEditBlock();
+        m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
+        finishMovement();
     } else if (key == 't' || key == 'T') {
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
@@ -542,10 +552,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
 {
     if (key == Key_Escape) {
-        m_mode = CommandMode;
         for (int i = 1; i < count(); ++i)
             m_tc.insertText(m_lastInsertion);
         m_tc.movePosition(Left, MoveAnchor, qMin(1, leftDist()));
+        m_mode = CommandMode;
+        m_tc.endEditBlock();
     } else if (key == Key_Left) {
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_lastInsertion.clear();
