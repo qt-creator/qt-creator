@@ -282,6 +282,7 @@ void FakeVimHandler::Private::updateCommandBuffer()
 
 void FakeVimHandler::Private::showMessage(const QString &msg)
 {
+    qDebug() << "MESSAGE" << msg;
     emit q->commandBufferChanged(msg);
 }
 
@@ -554,11 +555,13 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
+        updateCommandBuffer();
     } else if (key == Key_Backspace) {
         if (m_commandBuffer.isEmpty())
             m_mode = CommandMode;
         else
             m_commandBuffer.chop(1);
+        updateCommandBuffer();
     } else if (key == Key_Return && m_commandCode == ':') {
         handleCommand(m_commandBuffer);
         m_commandBuffer.clear();
@@ -570,20 +573,23 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_commandBuffer.clear();
         m_commandCode = 0;
         m_mode = CommandMode;
+        updateCommandBuffer();
     } else if (key == Key_Up && isSearchCommand()) {
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
         }
+        updateCommandBuffer();
     } else if (key == Key_Down && isSearchCommand()) {
         if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
         }
+        updateCommandBuffer();
     } else {
         m_commandBuffer += QChar(key);
+        updateCommandBuffer();
     }
-    updateCommandBuffer();
 }
 
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
@@ -598,15 +604,31 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
             q->quitRequested(m_textedit);
         else
             q->quitRequested(m_plaintextedit);
+    } else if (cmd.startsWith("w ") || cmd.startsWith("w! ")) {
+        bool forced = cmd.startsWith("w! ");
+        QString fileName = cmd.mid(forced ? 3 : 2);
+        QFile file(fileName);
+        bool exists = file.exists();
+        qDebug() << "FORCED: " << forced << exists << fileName;
+        if (exists && !forced) {
+            showMessage("E13: File exists (add ! to override)");
+        } else {
+            file.open(QIODevice::ReadWrite);
+            QTextStream ts(&file);
+            ts << EDITOR(toPlainText());
+            file.close();
+            file.open(QIODevice::ReadWrite);
+            QByteArray ba = file.readAll();
+            showMessage(tr("\"%1\" %2 %3L, %4C written")
+                .arg(fileName).arg(exists ? " " : " [New] ")
+                .arg(ba.count('\n')).arg(ba.size()));
+        }
     } else if (cmd.startsWith("r ")) {
         QString fileName = cmd.mid(2);
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
         QTextStream ts(&file);
-        if (m_textedit)
-            m_textedit->setText(ts.readAll());
-        else if (m_plaintextedit)
-            m_plaintextedit->setPlainText(ts.readAll());
+        EDITOR(setPlainText(ts.readAll()));
     }
 }
 
