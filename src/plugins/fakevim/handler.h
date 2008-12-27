@@ -52,8 +52,16 @@ public:
     FakeVimHandler(QObject *parent = 0);
     ~FakeVimHandler();
 
+    // The same handler can be installed on several widgets
+    void addWidget(QWidget *widget);
+    void removeWidget(QWidget *widget);
+
+    // This executes an "ex" style command taking context
+    // information from \p widget;
+    void handleCommand(QWidget *widget, const QString &cmd);
+
 signals:
-    void commandBufferChanged(const QString &);
+    void commandBufferChanged(const QString &msg);
     void quitRequested(QObject *);
 
 private:

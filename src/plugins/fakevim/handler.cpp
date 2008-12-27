@@ -34,8 +34,10 @@
 #include "handler.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QFile>
 #include <QtCore/QObject>
 #include <QtCore/QRegExp>
+#include <QtCore/QTextStream>
 #include <QtCore/QStack>
 
 #include <QtGui/QKeyEvent>
@@ -133,6 +135,7 @@ public:
     void moveToNextWord(bool simple);
     void moveToWordBoundary(bool simple, bool forward);
     void handleFfTt(int key);
+    void handleCommand(const QString &cmd);
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -184,6 +187,8 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_lastSearchForward = true;
     m_register = '"';
     m_gflag = false;
+    m_textedit = 0;
+    m_plaintextedit = 0;
 }
 
 bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
@@ -555,17 +560,7 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         else
             m_commandBuffer.chop(1);
     } else if (key == Key_Return && m_commandCode == ':') {
-        static QRegExp reGoto("^(\\d+)$");
-        if (reGoto.indexIn(m_commandBuffer) != -1) {
-            int n = reGoto.cap(1).toInt();
-            m_tc.setPosition(m_tc.block().document()
-                ->findBlockByNumber(n - 1).position());
-        } else if (m_commandBuffer == "q!" || m_commandBuffer == "q") {
-            if (m_textedit)
-                q->quitRequested(m_textedit);
-            else
-                q->quitRequested(m_plaintextedit);
-        }
+        handleCommand(m_commandBuffer);
         m_commandBuffer.clear();
         m_mode = CommandMode;
     } else if (key == Key_Return && isSearchCommand()) {
@@ -589,6 +584,30 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_commandBuffer += QChar(key);
     }
     updateCommandBuffer();
+}
+
+void FakeVimHandler::Private::handleCommand(const QString &cmd)
+{
+    static QRegExp reGoto("^(\\d+)$");
+    if (reGoto.indexIn(cmd) != -1) {
+        int n = reGoto.cap(1).toInt();
+        m_tc.setPosition(m_tc.block().document()
+            ->findBlockByNumber(n - 1).position());
+    } else if (cmd == "q!" || cmd == "q") {
+        if (m_textedit)
+            q->quitRequested(m_textedit);
+        else
+            q->quitRequested(m_plaintextedit);
+    } else if (cmd.startsWith("r ")) {
+        QString fileName = cmd.mid(2);
+        QFile file(fileName);
+        file.open(QIODevice::ReadOnly);
+        QTextStream ts(&file);
+        if (m_textedit)
+            m_textedit->setText(ts.readAll());
+        else if (m_plaintextedit)
+            m_plaintextedit->setPlainText(ts.readAll());
+    }
 }
 
 void FakeVimHandler::Private::search(const QString &needle, bool forward)
@@ -790,5 +809,32 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     if (ev->type() != QEvent::KeyPress)
         return QObject::eventFilter(ob, ev);
     return d->eventFilter(ob, ev);
+}
+
+void FakeVimHandler::addWidget(QWidget *widget)
+{
+    widget->installEventFilter(this);
+    QFont font = widget->font();
+    font.setFamily("Monospace");
+    widget->setFont(font);
+    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
+        ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        ed->setLineWrapMode(QTextEdit::NoWrap);
+    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
+        ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        ed->setLineWrapMode(QPlainTextEdit::NoWrap);
+    }
+}
+
+void FakeVimHandler::removeWidget(QWidget *widget)
+{
+    widget->removeEventFilter(this);
+}
+
+void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
+{
+    d->m_textedit = qobject_cast<QTextEdit *>(widget);
+    d->m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
+    d->handleCommand(cmd);
 }
 
