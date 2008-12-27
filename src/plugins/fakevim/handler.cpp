@@ -181,15 +181,14 @@ public:
     QStringList m_commandHistory;
     int m_commandHistoryIndex;
 
-    //
     // vi style configuration
-    //
     QHash<QString, QString> m_config;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent)
 {
     q = parent;
+
     m_mode = CommandMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
@@ -201,7 +200,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_textedit = 0;
     m_plaintextedit = 0;
 
-    // vi style configuration
     m_config[ConfigStartOfLine] = ConfigOn;
 }
 
@@ -212,7 +210,6 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     if (key == Key_Shift || key == Key_Alt || key == Key_Control
         || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
         return false;
-    //qDebug() << "KEY: " << key << Qt::ShiftModifier;
 
     // Fake "End of line"
     m_textedit = qobject_cast<QTextEdit *>(ob);
@@ -222,10 +219,8 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
 
     m_tc = EDITOR(textCursor());
 
-    if (m_fakeEnd) {
+    if (m_fakeEnd)
         m_tc.movePosition(Right, MoveAnchor, 1);
-        //qDebug() << "Unfake EOL";
-    }
 
     if (key >= Key_A && key <= Key_Z
         && (keyEvent->modifiers() & Qt::ShiftModifier) == 0)
@@ -235,20 +230,10 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     handleKey(key, keyEvent->text());
 
     // We fake vi-style end-of-line behaviour
-    m_fakeEnd = atEol() && m_mode == CommandMode;
+    m_fakeEnd = (atEol() && m_mode == CommandMode);
 
-    //qDebug() << "POS: " <<  m_tc.position()
-    //    << "  BLOCK LEN: " << m_tc.block().length()
-    //    << "  LEFT: " << leftDist() << " RIGHT: " << rightDist();
-
-    if (m_fakeEnd) {
+    if (m_fakeEnd)
         m_tc.movePosition(Left, MoveAnchor, 1);
-        //qDebug() << "Fake EOL";
-    }
-
-    //qDebug() << "POS: " <<  m_tc.position()
-    //    << "  BLOCK LEN: " << m_tc.block().length()
-    //    << "  LEFT: " << leftDist() << " RIGHT: " << rightDist();
 
     EDITOR(setTextCursor(m_tc));
     EDITOR(ensureCursorVisible());
@@ -322,7 +307,6 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 {
     Q_UNUSED(text)
 
-    //qDebug() << "-> MODE: " << m_mode << " KEY: " << key;
     if (m_submode == RegisterSubMode) {
         m_register = key;
         m_submode = NoSubMode;
@@ -473,14 +457,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
         finishMovement();
     } else if (key == 'L') {
-        int heigth = EDITOR(height());
-        m_tc = EDITOR(cursorForPosition(QPoint(0, heigth)));
+        m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()))));
         m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'M') {
-        int heigth = EDITOR(height());
-        m_tc = EDITOR(cursorForPosition(QPoint(0, heigth / 2)));
+        m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'n') {
@@ -668,7 +650,6 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
         QString fileName = cmd.mid(forced ? 3 : 2);
         QFile file(fileName);
         bool exists = file.exists();
-        qDebug() << "FORCED: " << forced << exists << fileName;
         if (exists && !forced) {
             showMessage("E13: File exists (add ! to override)");
         } else {
