@@ -404,9 +404,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
                 m_tc.movePosition(EndOfLine);
                 m_tc.deleteChar();
-                m_tc.insertText(" ");
+                if (!m_gflag)
+                    m_tc.insertText(" ");
             }
-            m_tc.movePosition(Left, MoveAnchor, 1);
+            if (!m_gflag)
+                m_tc.movePosition(Left, MoveAnchor, 1);
         }
     } else if (key == 'k' || key == Key_Up) {
         m_tc.movePosition(Up, KeepAnchor, count());

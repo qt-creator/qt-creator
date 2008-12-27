@@ -1,9 +1,14 @@
 
-load(qttest_p4)
+QT += testlib
+
+FAKEVIMSOURCE = /data/qt-creator/src/plugins/fakevim
+
+INCLUDEPATH += $$FAKEVIMSOURCE
 
 SOURCES += \
-    main.cpp \
-    handler.cpp
+	main.cpp \
+	$$FAKEVIMSOURCE/handler.cpp
 
-HEADER += \
-    handler.h
+HEADERS += \
+	$$FAKEVIMSOURCE/handler.h
+
