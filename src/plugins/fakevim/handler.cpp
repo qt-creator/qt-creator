@@ -156,6 +156,7 @@ public:
     bool isSearchCommand() const
         { return m_commandCode == '?' || m_commandCode == '/'; }
     int m_commandCode; // ?, /, : ...
+    int m_gflag;  // whether current command started with 'g'
     
     QString m_commandBuffer;
 
@@ -182,6 +183,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_fakeEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
+    m_gflag = false;
 }
 
 bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
@@ -261,6 +263,7 @@ void FakeVimHandler::Private::finishMovement()
     }
     m_mvcount.clear();
     m_opcount.clear();
+    m_gflag = false;
     m_register = '"';
     m_tc.clearSelection();
     updateCommandBuffer();
@@ -377,6 +380,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'f' || key == 'F') {
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
+    } else if (key == 'g') {
+        m_gflag = true;
     } else if (key == 'h' || key == Key_Left) {
         int n = qMin(count(), leftDist());
         if (m_fakeEnd && m_tc.block().length() > 1)
@@ -394,6 +399,15 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
+    } else if (key == 'J') {
+        if (m_submode == NoSubMode) {
+            for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
+                m_tc.movePosition(EndOfLine);
+                m_tc.deleteChar();
+                m_tc.insertText(" ");
+            }
+            m_tc.movePosition(Left, MoveAnchor, 1);
+        }
     } else if (key == 'k' || key == Key_Up) {
         m_tc.movePosition(Up, KeepAnchor, count());
         finishMovement();
