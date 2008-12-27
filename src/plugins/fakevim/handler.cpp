@@ -95,6 +95,9 @@ enum SubSubMode
     FtSubSubMode,  // used for f, F, t, T
 };
 
+static const QString ConfigStartOfLine = "startofline";
+static const QString ConfigOn = "on";
+
 class FakeVimHandler::Private
 {
 public:
@@ -131,6 +134,7 @@ public:
 	int columnsOnScreen() const;
 	int cursorLineInDocument() const;
 	int cursorColumnInDocument() const;
+    int linesInDocument() const { return m_tc.document()->blockCount(); }
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
@@ -176,6 +180,11 @@ public:
     // History for ':'
     QStringList m_commandHistory;
     int m_commandHistoryIndex;
+
+    //
+    // vi style configuration
+    //
+    QHash<QString, QString> m_config;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent)
@@ -191,6 +200,9 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_gflag = false;
     m_textedit = 0;
     m_plaintextedit = 0;
+
+    // vi style configuration
+    m_config[ConfigStartOfLine] = ConfigOn;
 }
 
 bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
@@ -399,6 +411,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_subsubdata = key;
     } else if (key == 'g') {
         m_gflag = true;
+    } else if (key == 'G') {
+        int n = m_mvcount.isEmpty() ? linesInDocument() : count();
+        m_tc.setPosition(m_tc.document()->findBlockByNumber(n - 1).position());
+        if (m_config.contains(ConfigStartOfLine))
+            moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (key == 'h' || key == Key_Left) {
         int n = qMin(count(), leftDist());
         if (m_fakeEnd && m_tc.block().length() > 1)
