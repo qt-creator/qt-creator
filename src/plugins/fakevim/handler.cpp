@@ -160,6 +160,7 @@ public:
     QString m_commandBuffer;
 
     bool m_lastSearchForward;
+    QString m_lastInsertion;
 
     // History for '/'
     QString lastSearchString() const;
@@ -388,6 +389,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'i') {
+        m_lastInsertion.clear();
         m_mode = InsertMode;
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
@@ -483,28 +485,42 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
 {
     if (key == Key_Escape) {
         m_mode = CommandMode;
-        m_tc.movePosition(Left, KeepAnchor, qMin(1, leftDist()));
+        for (int i = 1; i < count(); ++i)
+            m_tc.insertText(m_lastInsertion);
+        m_tc.movePosition(Left, MoveAnchor, qMin(1, leftDist()));
     } else if (key == Key_Left) {
         m_tc.movePosition(Left, MoveAnchor, 1);
+        m_lastInsertion.clear();
     } else if (key == Key_Down) {
         m_tc.movePosition(Down, MoveAnchor, 1);
+        m_lastInsertion.clear();
     } else if (key == Key_Up) {
         m_tc.movePosition(Up, MoveAnchor, 1);
+        m_lastInsertion.clear();
     } else if (key == Key_Right) {
         m_tc.movePosition(Right, MoveAnchor, 1);
+        m_lastInsertion.clear();
     } else if (key == Key_Return) {
         m_tc.insertBlock();
+        m_lastInsertion.clear();
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
+        m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
+        m_lastInsertion.clear();
     } else if (key == Key_PageDown || key == control('f')) {
         m_tc.movePosition(Down, KeepAnchor, count() * (linesOnScreen() - 2));
+        m_lastInsertion.clear();
+    } else if (key == Key_Backspace) {
         finishMovement();
     } else if (key == Key_PageUp || key == control('b')) {
         m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
+        m_lastInsertion.clear();
+    } else if (key == Key_Backspace) {
         finishMovement();
     } else {
+        m_lastInsertion.append(text);
         m_tc.insertText(text);
     }    
 }
