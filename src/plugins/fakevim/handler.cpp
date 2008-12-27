@@ -278,7 +278,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
     msg = QChar(m_commandCode ? m_commandCode : ' ');
     for (int i = 0; i != m_commandBuffer.size(); ++i) {
         QChar c = m_commandBuffer.at(i);
-        if (c.unicode() < 64) {
+        if (c.unicode() < 32) {
             msg += '^';
             msg += QChar(c.unicode() + 64);
         } else {
@@ -601,27 +601,44 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             m_commandBuffer.chop(1);
         updateMiniBuffer();
     } else if (key == Key_Return && m_commandCode == ':') {
-        handleCommand(m_commandBuffer);
-        m_commandBuffer.clear();
-        m_mode = CommandMode;
-    } else if (key == Key_Return && isSearchCommand()) {
-        m_lastSearchForward = (m_commandCode == '/');
-        m_searchHistory.append(m_commandBuffer);
-        search(lastSearchString(), m_lastSearchForward);
-        m_commandBuffer.clear();
-        m_commandCode = 0;
+        if (!m_commandBuffer.isEmpty()) {
+            m_commandHistory.takeLast();
+            m_commandHistory.append(m_commandBuffer);
+            handleCommand(m_commandBuffer);
+            m_commandBuffer.clear();
+            m_commandCode = 0;
+        }
         m_mode = CommandMode;
         updateMiniBuffer();
-    } else if (key == Key_Up && isSearchCommand()) {
-        if (m_searchHistoryIndex > 0) {
+    } else if (key == Key_Return && isSearchCommand()) {
+        if (!m_commandBuffer.isEmpty()) {
+            m_searchHistory.takeLast();
+            m_searchHistory.append(m_commandBuffer);
+            m_lastSearchForward = (m_commandCode == '/');
+            search(lastSearchString(), m_lastSearchForward);
+            m_commandBuffer.clear();
+            m_commandCode = 0;
+        }
+        m_mode = CommandMode;
+        updateMiniBuffer();
+    } else if (key == Key_Up) {
+        if (isSearchCommand() && m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
+        } else if (m_commandCode == ':' && m_commandHistoryIndex > 0) {
+            --m_commandHistoryIndex;
+            m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex);
         }
         updateMiniBuffer();
-    } else if (key == Key_Down && isSearchCommand()) {
-        if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
+    } else if (key == Key_Down) {
+        if (isSearchCommand()
+                && m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
+        } else if (m_commandCode == ':'
+                && m_commandHistoryIndex < m_commandHistory.size() - 1) {
+            ++m_commandHistoryIndex;
+            m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex); 
         }
         updateMiniBuffer();
     } else if (key == Key_Tab) {
