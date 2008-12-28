@@ -68,6 +68,7 @@ using namespace FakeVim::Internal;
 ///////////////////////////////////////////////////////////////////////
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
+#define THE_EDITOR (m_textedit ? (QWidget*)m_textedit : (QWidget*)m_plaintextedit)
 
 const int ParagraphSeparator = 0x00002029;
 
@@ -482,6 +483,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         search(lastSearchString(), m_lastSearchForward);
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
+    } else if (key == 'o') {
+        m_mode = InsertMode;
+        m_lastInsertion.clear();
+        //m_tc.beginEditBlock();  // FIXME: unusable due to drawing errors
+        m_tc.movePosition(EndOfLine, MoveAnchor);
+        m_tc.insertText("\n");
     } else if (key == 'p') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
@@ -732,10 +739,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             ->findBlockByNumber(beginLine - 1).position());
         showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") {
-        if (m_textedit)
-            q->quitRequested(m_textedit);
-        else
-            q->quitRequested(m_plaintextedit);
+        q->quitRequested(THE_EDITOR);
         showMessage(QString());
     } else if (reWrite.indexIn(cmd) != -1) {
         bool forced = cmd.startsWith("w!");
