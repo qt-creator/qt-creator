@@ -93,7 +93,10 @@ enum SubMode
 enum SubSubMode
 {
     NoSubSubMode,
-    FtSubSubMode,  // used for f, F, t, T
+    FtSubSubMode,       // used for f, F, t, T
+    MarkSubSubMode,     // used for m
+    BackTickSubSubMode, // used for ` 
+    TickSubSubMode      // used for '
 };
 
 static const QString ConfigStartOfLine = "startofline";
@@ -186,6 +189,9 @@ public:
     // History for ':'
     QStringList m_commandHistory;
     int m_commandHistoryIndex;
+
+    // marks as lines
+    QHash<int, int> m_marks;
 
     // vi style configuration
     QHash<QString, QString> m_config;
@@ -348,6 +354,20 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
         finishMovement();
+    } else if (m_subsubmode == MarkSubSubMode) {
+        m_marks[key] = m_tc.position();
+        m_subsubmode = NoSubSubMode;
+    } else if (m_subsubmode == BackTickSubSubMode
+            || m_subsubmode == TickSubSubMode) {
+        if (m_marks.contains(key)) {
+            m_tc.setPosition(m_marks[key]);
+            if (m_subsubmode == TickSubSubMode)
+                moveToFirstNonBlankOnLine();
+            finishMovement();
+        } else {
+            showMessage(tr("E20: Mark '%1' not set").arg(text));
+        }
+        m_subsubmode = NoSubSubMode;
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
             moveToFirstNonBlankOnLine();
@@ -366,6 +386,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_commandHistoryIndex = m_commandHistory.size() - 1;
         }
         updateMiniBuffer();
+    } else if (key == '`') {
+        m_subsubmode = BackTickSubSubMode;
+    } else if (key == '\'') {
+        m_subsubmode = TickSubSubMode;
     } else if (key == '|') {
         m_tc.movePosition(StartOfLine, KeepAnchor);
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()) - 1);
@@ -484,6 +508,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(Up, KeepAnchor, qMax(count(), 1));
         moveToFirstNonBlankOnLine();
         finishMovement();
+    } else if (key == 'm') {
+        m_subsubmode = MarkSubSubMode;
     } else if (key == 'M') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         moveToFirstNonBlankOnLine();
@@ -657,6 +683,8 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         m_mode = CommandMode;
         updateMiniBuffer();
     } else if (key == Key_Up && isSearchCommand()) {
+        // FIXME: This and the three cases below are wrong as vim
+        // takes only matching entires in the history into account.
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
