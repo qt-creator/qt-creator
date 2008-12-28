@@ -314,6 +314,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     // Fake "End of line"
     m_tc = EDITOR(textCursor());
+    m_tc.setVisualNavigation(true);
 
     if (m_fakeEnd)
         m_tc.movePosition(Right, MoveAnchor, 1);
