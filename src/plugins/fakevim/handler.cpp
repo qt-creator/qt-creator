@@ -350,7 +350,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
-            m_tc.movePosition(StartOfLine, KeepAnchor);
+            moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
             m_mvcount.append(QChar(key));
@@ -450,7 +450,10 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_lastInsertion.clear();
     } else if (key == 'I') {
         m_mode = InsertMode;
-        moveToFirstNonBlankOnLine();
+        if (m_gflag)
+            m_tc.movePosition(StartOfLine, KeepAnchor);
+        else
+            moveToFirstNonBlankOnLine();
         m_tc.clearSelection();
         m_tc.beginEditBlock();
         m_lastInsertion.clear();
