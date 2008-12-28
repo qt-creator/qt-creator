@@ -489,6 +489,13 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         //m_tc.beginEditBlock();  // FIXME: unusable due to drawing errors
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_tc.insertText("\n");
+    } else if (key == 'O') {
+        m_mode = InsertMode;
+        m_lastInsertion.clear();
+        //m_tc.beginEditBlock();  // FIXME: unusable due to drawing errors
+        m_tc.movePosition(StartOfLine, MoveAnchor);
+        m_tc.movePosition(Left, MoveAnchor, 1);
+        m_tc.insertText("\n");
     } else if (key == 'p') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
