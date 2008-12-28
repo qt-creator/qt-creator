@@ -448,6 +448,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_mode = InsertMode;
         m_tc.beginEditBlock();
         m_lastInsertion.clear();
+    } else if (key == 'I') {
+        m_mode = InsertMode;
+        moveToFirstNonBlankOnLine();
+        m_tc.clearSelection();
+        m_tc.beginEditBlock();
+        m_lastInsertion.clear();
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
