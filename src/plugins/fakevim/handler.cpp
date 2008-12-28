@@ -168,6 +168,8 @@ public:
     int m_gflag;  // whether current command started with 'g'
     
     QString m_commandBuffer;
+    QString m_currentFileName;
+    QString m_currentMessage;
 
     bool m_lastSearchForward;
     QString m_lastInsertion;
@@ -274,16 +276,23 @@ void FakeVimHandler::Private::finishMovement()
 
 void FakeVimHandler::Private::updateMiniBuffer()
 {
+    if (m_tc.isNull())
+        return;
     QString msg;
-    msg = QChar(m_commandCode ? m_commandCode : ' ');
-    for (int i = 0; i != m_commandBuffer.size(); ++i) {
-        QChar c = m_commandBuffer.at(i);
-        if (c.unicode() < 32) {
-            msg += '^';
-            msg += QChar(c.unicode() + 64);
-        } else {
-            msg += c;
+    if (m_currentMessage.isEmpty()) {
+        msg = QChar(m_commandCode ? m_commandCode : ' ');
+        for (int i = 0; i != m_commandBuffer.size(); ++i) {
+            QChar c = m_commandBuffer.at(i);
+            if (c.unicode() < 32) {
+                msg += '^';
+                msg += QChar(c.unicode() + 64);
+            } else {
+                msg += c;
+            }
         }
+    } else {
+        msg = m_currentMessage;
+        m_currentMessage.clear();
     }
     int l = cursorLineInDocument();
     int w = columnsOnScreen();
@@ -299,7 +308,8 @@ void FakeVimHandler::Private::updateMiniBuffer()
 
 void FakeVimHandler::Private::showMessage(const QString &msg)
 {
-    m_commandBuffer = msg;
+    //qDebug() << "MSG: " << msg;
+    m_currentMessage = msg;
     updateMiniBuffer();
 }
 
@@ -609,7 +619,6 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             m_commandCode = 0;
         }
         m_mode = CommandMode;
-        updateMiniBuffer();
     } else if (key == Key_Return && isSearchCommand()) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
@@ -621,26 +630,30 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         }
         m_mode = CommandMode;
         updateMiniBuffer();
-    } else if (key == Key_Up) {
-        if (isSearchCommand() && m_searchHistoryIndex > 0) {
+    } else if (key == Key_Up && isSearchCommand()) {
+        if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
-        } else if (m_commandCode == ':' && m_commandHistoryIndex > 0) {
+            updateMiniBuffer();
+        }
+    } else if (key == Key_Up && m_commandCode == ':') {
+        if (m_commandHistoryIndex > 0) {
             --m_commandHistoryIndex;
             m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex);
+            updateMiniBuffer();
         }
-        updateMiniBuffer();
-    } else if (key == Key_Down) {
-        if (isSearchCommand()
-                && m_searchHistoryIndex < m_searchHistory.size() - 1) {
+    } else if (key == Key_Down && isSearchCommand()) {
+        if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
-        } else if (m_commandCode == ':'
-                && m_commandHistoryIndex < m_commandHistory.size() - 1) {
+            updateMiniBuffer();
+        }
+    } else if (key == Key_Down && m_commandCode == ':') {
+        if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
             ++m_commandHistoryIndex;
             m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex); 
+            updateMiniBuffer();
         }
-        updateMiniBuffer();
     } else if (key == Key_Tab) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
@@ -653,18 +666,23 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
 {
     static QRegExp reGoto("^(\\d+)$");
+    static QRegExp reWrite("^w!?( (.*))?$");
     if (reGoto.indexIn(cmd) != -1) {
         int n = reGoto.cap(1).toInt();
         m_tc.setPosition(m_tc.block().document()
             ->findBlockByNumber(n - 1).position());
+        showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") {
         if (m_textedit)
             q->quitRequested(m_textedit);
         else
             q->quitRequested(m_plaintextedit);
-    } else if (cmd.startsWith("w ") || cmd.startsWith("w! ")) {
-        bool forced = cmd.startsWith("w! ");
-        QString fileName = cmd.mid(forced ? 3 : 2);
+        showMessage(QString());
+    } else if (reWrite.indexIn(cmd) != -1) {
+        bool forced = cmd.startsWith("w!");
+        QString fileName = reWrite.cap(2);
+        if (fileName.isEmpty())
+            fileName = m_currentFileName;
         QFile file(fileName);
         bool exists = file.exists();
         if (exists && !forced) {
@@ -681,11 +699,12 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
                 .arg(ba.count('\n')).arg(ba.size()));
         }
     } else if (cmd.startsWith("r ")) {
-        QString fileName = cmd.mid(2);
-        QFile file(fileName);
+        m_currentFileName = cmd.mid(2);
+        QFile file(m_currentFileName);
         file.open(QIODevice::ReadOnly);
         QTextStream ts(&file);
         EDITOR(setPlainText(ts.readAll()));
+        showMessage(QString());
     }
 }
 
