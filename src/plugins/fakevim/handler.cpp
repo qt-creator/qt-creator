@@ -134,7 +134,7 @@ public:
 	int columnsOnScreen() const;
 	int cursorLineInDocument() const;
 	int cursorColumnInDocument() const;
-    int linesInDocument() const { return m_tc.document()->blockCount(); }
+    int linesInDocument() const;
 	void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
@@ -142,6 +142,9 @@ public:
     void moveToWordBoundary(bool simple, bool forward);
     void handleFfTt(int key);
     void handleCommand(const QString &cmd);
+
+    // helper function for handleCommand. return 1 based line index.
+    int readLineCode(QString &cmd);
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -663,14 +666,70 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
     }
 }
 
-void FakeVimHandler::Private::handleCommand(const QString &cmd)
+// 1 based.
+int FakeVimHandler::Private::readLineCode(QString &cmd)
 {
-    static QRegExp reGoto("^(\\d+)$");
+    //qDebug() << "CMD: " << cmd;
+    if (cmd.isEmpty())
+        return -1;
+    QChar c = cmd.at(0);
+    cmd = cmd.mid(1);
+    if (c == '.')
+        return cursorLineInDocument() + 1;
+    if (c == '$')
+        return linesInDocument();
+    if (c == '-') {
+        int n = readLineCode(cmd);
+        return cursorLineInDocument() + 1 - (n == -1 ? 1 : n);
+    }
+    if (c == '+') {
+        int n = readLineCode(cmd);
+        return cursorLineInDocument() + 1 + (n == -1 ? 1 : n);
+    }
+    if (c.isDigit()) {
+        int n = c.unicode() - '0';
+        while (!cmd.isEmpty()) {
+            c = cmd.at(0);
+            if (!c.isDigit())
+                break;
+            cmd = cmd.mid(1);
+            n = n * 10 + (c.unicode() - '0');
+        }
+        //qDebug() << "N: " << n;
+        return n;
+    }
+    // not parsed
+    cmd = c + cmd;
+    return -1; 
+}
+
+void FakeVimHandler::Private::handleCommand(const QString &cmd0)
+{
+    QString cmd = cmd0;
+    if (cmd.startsWith("%"))
+        cmd = "1,$" + cmd.mid(1);
+
+    int beginLine = 0;
+    int endLine = linesInDocument();
+
+    int line = readLineCode(cmd);
+    if (line != -1)
+        beginLine = line;
+    
+    if (cmd.startsWith(',')) {
+        cmd = cmd.mid(1);
+        line = readLineCode(cmd);
+        if (line != -1)
+            endLine = line;
+    }
+
+    //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0;
+
     static QRegExp reWrite("^w!?( (.*))?$");
-    if (reGoto.indexIn(cmd) != -1) {
-        int n = reGoto.cap(1).toInt();
+
+    if (cmd.isEmpty()) {
         m_tc.setPosition(m_tc.block().document()
-            ->findBlockByNumber(n - 1).position());
+            ->findBlockByNumber(beginLine - 1).position());
         showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") {
         if (m_textedit)
@@ -705,6 +764,8 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
         QTextStream ts(&file);
         EDITOR(setPlainText(ts.readAll()));
         showMessage(QString());
+    } else {
+        showMessage("E492: Not an editor command: " + cmd0);
     }
 }
 
@@ -876,6 +937,11 @@ int FakeVimHandler::Private::cursorLineInDocument() const
 int FakeVimHandler::Private::cursorColumnInDocument() const
 {
 	return m_tc.position() - m_tc.block().position();
+}
+
+int FakeVimHandler::Private::linesInDocument() const
+{
+    return m_tc.isNull() ? 0 : m_tc.document()->blockCount();
 }
 
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
