@@ -70,6 +70,7 @@ private slots:
     void function_declaration_1();
     void function_declaration_2();
     void function_definition_1();
+    void nested_class_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -160,6 +161,52 @@ void tst_Semantic::function_definition_1()
     const QByteArray foo(funId->chars(), funId->size());
     QCOMPARE(foo, QByteArray("foo"));
 }
+
+void tst_Semantic::nested_class_1()
+{
+    QSharedPointer<Document> doc = document(
+"class Object {\n"
+"    class Data;\n"
+"    Data *d;\n"
+"};\n"
+"class Object::Data {\n"
+"   Object *q;\n"
+"};\n"
+    );
+    QCOMPARE(doc->globals->symbolCount(), 2U);
+
+    Class *classObject = doc->globals->symbolAt(0)->asClass();
+    QVERIFY(classObject);
+    QVERIFY(classObject->name());
+    NameId *classObjectNameId = classObject->name()->asNameId();
+    QVERIFY(classObjectNameId);
+    Identifier *objectId = classObjectNameId->identifier();
+    QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
+    QCOMPARE(classObject->baseClassCount(), 0U);
+    QEXPECT_FAIL("", "Requires support for forward classes", Continue);
+    QCOMPARE(classObject->members()->symbolCount(), 2U);
+
+    Class *classObjectData = doc->globals->symbolAt(1)->asClass();
+    QVERIFY(classObjectData);
+    QVERIFY(classObjectData->name());
+    QualifiedNameId *q = classObjectData->name()->asQualifiedNameId();
+    QVERIFY(q);
+    QCOMPARE(q->nameCount(), 2U);
+    QVERIFY(q->nameAt(0)->asNameId());
+    QVERIFY(q->nameAt(1)->asNameId());
+    QCOMPARE(q->nameAt(0), classObject->name());
+    QCOMPARE(doc->globals->lookat(q->nameAt(0)->asNameId()->identifier()), classObject);
+
+    Declaration *decl = classObjectData->memberAt(0)->asDeclaration();
+    QVERIFY(decl);
+    PointerType *ptrTy = decl->type()->asPointerType();
+    QVERIFY(ptrTy);
+    NamedType *namedTy = ptrTy->elementType()->asNamedType();
+    QVERIFY(namedTy);
+    QVERIFY(namedTy->name()->asNameId());
+    QCOMPARE(namedTy->name()->asNameId()->identifier(), objectId);
+}
+
 
 QTEST_APPLESS_MAIN(tst_Semantic)
 #include "tst_semantic.moc"
