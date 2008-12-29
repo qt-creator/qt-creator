@@ -942,6 +942,17 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         return cursorLineInDocument() + 1;
     if (c == '$')
         return linesInDocument();
+    if (c == '\'' && !cmd.isEmpty()) {
+        int mark = m_marks.value(cmd.at(0).unicode());
+        if (!mark) { 
+            showMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            return -1;
+        }
+        cmd = cmd.mid(1);
+        QTextCursor tc = m_tc;
+        tc.setPosition(mark);
+        return tc.block().blockNumber() + 1;
+    }
     if (c == '-') {
         int n = readLineCode(cmd);
         return cursorLineInDocument() + 1 - (n == -1 ? 1 : n);
