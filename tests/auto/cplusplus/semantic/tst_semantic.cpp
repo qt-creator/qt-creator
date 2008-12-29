@@ -11,6 +11,7 @@
 #include <CoreTypes.h>
 #include <Names.h>
 #include <Literals.h>
+#include <DiagnosticClient.h>
 
 CPLUSPLUS_USE_NAMESPACE
 
@@ -21,6 +22,9 @@ class tst_Semantic: public QObject
     Control control;
 
 public:
+    tst_Semantic()
+    { control.setDiagnosticClient(&diag); }
+
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode)
     {
@@ -36,7 +40,7 @@ public:
 
     public:
         Document(TranslationUnit *unit)
-            : unit(unit), globals(new Scope())
+            : unit(unit), globals(new Scope()), errorCount(0)
         { }
 
         ~Document()
@@ -56,12 +60,32 @@ public:
 
         TranslationUnit *unit;
         Scope *globals;
+        unsigned errorCount;
     };
+
+    class Diagnostic: public DiagnosticClient {
+    public:
+        int errorCount;
+
+        Diagnostic()
+            : errorCount(0)
+        { }
+
+        virtual void report(int, StringLiteral *,
+                            unsigned, unsigned,
+                            const char *, va_list)
+        { ++errorCount; }
+    };
+
+    Diagnostic diag;
+
 
     QSharedPointer<Document> document(const QByteArray &source)
     {
+        diag.errorCount = 0; // reset the error count.
         TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit);
         QSharedPointer<Document> doc(new Document(unit));
+        doc->errorCount = diag.errorCount;
         doc->check();
         return doc;
     }
@@ -76,6 +100,7 @@ private slots:
 void tst_Semantic::function_declaration_1()
 {
     QSharedPointer<Document> doc = document("void foo();");
+    QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->symbolCount(), 1U);
 
     Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
@@ -98,6 +123,7 @@ void tst_Semantic::function_declaration_1()
 void tst_Semantic::function_declaration_2()
 {
     QSharedPointer<Document> doc = document("void foo(const QString &s);");
+    QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->symbolCount(), 1U);
 
     Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
@@ -147,6 +173,7 @@ void tst_Semantic::function_declaration_2()
 void tst_Semantic::function_definition_1()
 {
     QSharedPointer<Document> doc = document("void foo() {}");
+    QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->symbolCount(), 1U);
 
     Function *funTy = doc->globals->symbolAt(0)->asFunction();
@@ -173,6 +200,7 @@ void tst_Semantic::nested_class_1()
 "   Object *q;\n"
 "};\n"
     );
+    QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->symbolCount(), 2U);
 
     Class *classObject = doc->globals->symbolAt(0)->asClass();
@@ -206,7 +234,6 @@ void tst_Semantic::nested_class_1()
     QVERIFY(namedTy->name()->asNameId());
     QCOMPARE(namedTy->name()->asNameId()->identifier(), objectId);
 }
-
 
 QTEST_APPLESS_MAIN(tst_Semantic)
 #include "tst_semantic.moc"
