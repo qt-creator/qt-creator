@@ -95,6 +95,7 @@ private slots:
     void function_declaration_2();
     void function_definition_1();
     void nested_class_1();
+    void typedef_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -233,6 +234,34 @@ void tst_Semantic::nested_class_1()
     QVERIFY(namedTy);
     QVERIFY(namedTy->name()->asNameId());
     QCOMPARE(namedTy->name()->asNameId()->identifier(), objectId);
+}
+
+void tst_Semantic::typedef_1()
+{
+    QSharedPointer<Document> doc = document(
+"typedef struct {\n"
+"   int x, y;\n"
+"} Point;\n"
+"int main() {\n"
+"   Point pt;\n"
+"   pt.x = 1;\n"
+"}\n"
+    );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 3U);
+
+    Class *anonStruct = doc->globals->symbolAt(0)->asClass();
+    QVERIFY(anonStruct);
+    QCOMPARE(anonStruct->memberCount(), 2U);
+
+    Declaration *typedefPointDecl = doc->globals->symbolAt(1)->asDeclaration();
+    QVERIFY(typedefPointDecl);
+    QVERIFY(typedefPointDecl->isTypedef());
+    QCOMPARE(typedefPointDecl->type()->asClass(), anonStruct);
+
+    Function *mainFun = doc->globals->symbolAt(2)->asFunction();
+    QVERIFY(mainFun);
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)
