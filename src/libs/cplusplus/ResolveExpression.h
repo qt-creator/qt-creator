@@ -130,15 +130,26 @@ private:
 
 class CPLUSPLUS_EXPORT SymbolsForDotAccess
 {
-    QList<ResolveExpression::Result> _blackList;
-
 public:
+    SymbolsForDotAccess();
+
     QList<Symbol *> operator()(NamedType *namedTy,
                                ResolveExpression::Result p,
                                const LookupContext &context);
 
     QList<Symbol *> operator()(ResolveExpression::Result p,
                                const LookupContext &context);
+
+private:
+    QList<Symbol *> symbolsForDotAccess(NamedType *namedTy,
+                                        ResolveExpression::Result p,
+                                        const LookupContext &context);
+
+    QList<Symbol *> symbolsForDotAccess(ResolveExpression::Result p,
+                                        const LookupContext &context);
+
+private:
+    QList<ResolveExpression::Result> _blackList;
 };
 
 

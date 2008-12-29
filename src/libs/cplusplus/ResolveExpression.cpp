@@ -794,9 +794,31 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+SymbolsForDotAccess::SymbolsForDotAccess()
+{ }
+
 QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
                                                 ResolveExpression::Result p,
                                                 const LookupContext &context)
+{
+    const QList<ResolveExpression::Result> previousBlackList = _blackList;
+    const QList<Symbol *> symbols = symbolsForDotAccess(namedTy, p, context);
+    _blackList = previousBlackList;
+    return symbols;
+}
+
+QList<Symbol *> SymbolsForDotAccess::operator()(ResolveExpression::Result p,
+                                                const LookupContext &context)
+{
+    const QList<ResolveExpression::Result> previousBlackList = _blackList;
+    const QList<Symbol *> symbols = symbolsForDotAccess(p, context);
+    _blackList = previousBlackList;
+    return symbols;
+}
+
+QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(NamedType *namedTy,
+                                                         ResolveExpression::Result p,
+                                                         const LookupContext &context)
 {
     QList<Symbol *> resolvedSymbols;
 
@@ -825,7 +847,7 @@ QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
                     // Boh b;
                     // b.
                     const ResolveExpression::Result r(decl->type(), decl);
-                    resolvedSymbols += operator()(r, context);
+                    resolvedSymbols += symbolsForDotAccess(r, context);
                 }
             }
         } else if (Declaration *decl = candidate->asDeclaration()) {
@@ -834,7 +856,7 @@ QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
                 // foo.
                 if (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope()) {
                     const ResolveExpression::Result r(funTy->returnType(), decl);
-                    resolvedSymbols += operator()(r, context);
+                    resolvedSymbols += symbolsForDotAccess(r, context);
                 }
             }
         }
@@ -843,16 +865,16 @@ QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
     return resolvedSymbols;
 }
 
-QList<Symbol *> SymbolsForDotAccess::operator()(ResolveExpression::Result p,
-                                                const LookupContext &context)
+QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(ResolveExpression::Result p,
+                                                         const LookupContext &context)
 {
     FullySpecifiedType ty = p.first;
 
     if (NamedType *namedTy = ty->asNamedType()) {
-        return operator()(namedTy, p, context);
+        return symbolsForDotAccess(namedTy, p, context);
     } else if (ReferenceType *refTy = ty->asReferenceType()) {
         const ResolveExpression::Result e(refTy->elementType(), p.second);
-        return operator()(e, context);
+        return symbolsForDotAccess(e, context);
     }
 
     return QList<Symbol *>();
