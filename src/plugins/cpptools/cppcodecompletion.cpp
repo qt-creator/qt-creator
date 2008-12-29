@@ -180,8 +180,6 @@ protected:
 } // namespace Internal
 } // namespace CppTools
 
-
-
 using namespace CppTools::Internal;
 
 FunctionArgumentWidget::FunctionArgumentWidget(Core::ICore *core)
@@ -581,11 +579,11 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
                                        const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
-    QTC_ASSERT(!results.isEmpty(), return false);
+    if (results.isEmpty())
+        return false;
 
+    const TypeOfExpression::Result p = results.first();
     QList<Symbol *> classObjectCandidates;
-
-    TypeOfExpression::Result p = results.first();
 
     if (m_completionOperator == T_ARROW)  {
         FullySpecifiedType ty = p.first;
@@ -666,13 +664,13 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
         }
 
         if (namedTy) {
-            const QList<Symbol *> classes =
-                    context.resolveClass(namedTy->name(),
-                                         context.visibleScopes(p));
-
-            foreach (Symbol *c, classes) {
-                if (! classObjectCandidates.contains(c))
-                    classObjectCandidates.append(c);
+            SymbolsForDotAccess symbolsForDotAccess;
+            const QList<Symbol *> symbols = symbolsForDotAccess(namedTy, p, context);
+            foreach (Symbol *symbol, symbols) {
+                if (classObjectCandidates.contains(symbol))
+                    continue;
+                if (Class *klass = symbol->asClass())
+                    classObjectCandidates.append(klass);
             }
         }
     }

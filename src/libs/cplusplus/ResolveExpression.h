@@ -128,6 +128,20 @@ private:
     QList<Result> _results;
 };
 
+class CPLUSPLUS_EXPORT SymbolsForDotAccess
+{
+    QList<ResolveExpression::Result> _blackList;
+
+public:
+    QList<Symbol *> operator()(NamedType *namedTy,
+                               ResolveExpression::Result p,
+                               const LookupContext &context);
+
+    QList<Symbol *> operator()(ResolveExpression::Result p,
+                               const LookupContext &context);
+};
+
+
 } // end of namespace CPlusPlus
 
 #endif // CPLUSPLUS_RESOLVEEXPRESSION_H

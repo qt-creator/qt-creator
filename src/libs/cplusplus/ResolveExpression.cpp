@@ -792,3 +792,69 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 {
     return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
+                                                ResolveExpression::Result p,
+                                                const LookupContext &context)
+{
+    QList<Symbol *> resolvedSymbols;
+
+    if (_blackList.contains(p))
+        return resolvedSymbols;
+
+    _blackList.append(p);
+
+    const QList<Symbol *> candidates =
+            context.resolve(namedTy->name(), context.visibleScopes(p));
+
+    foreach (Symbol *candidate, candidates) {
+        if (Class *klass = candidate->asClass()) {
+            if (resolvedSymbols.contains(klass))
+                continue; // we already know about `klass'
+            resolvedSymbols.append(klass);
+        } else if (candidate->isTypedef()) {
+            if (Declaration *decl = candidate->asDeclaration()) {
+                if (Class *asClass = decl->type()->asClass()) {
+                    // typedef struct { } Point;
+                    // Point pt;
+                    // pt.
+                    resolvedSymbols.append(asClass);
+                } else {
+                    // typedef Point Boh;
+                    // Boh b;
+                    // b.
+                    const ResolveExpression::Result r(decl->type(), decl);
+                    resolvedSymbols += operator()(r, context);
+                }
+            }
+        } else if (Declaration *decl = candidate->asDeclaration()) {
+            if (Function *funTy = decl->type()->asFunction()) {
+                // QString foo("ciao");
+                // foo.
+                if (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope()) {
+                    const ResolveExpression::Result r(funTy->returnType(), decl);
+                    resolvedSymbols += operator()(r, context);
+                }
+            }
+        }
+    }
+
+    return resolvedSymbols;
+}
+
+QList<Symbol *> SymbolsForDotAccess::operator()(ResolveExpression::Result p,
+                                                const LookupContext &context)
+{
+    FullySpecifiedType ty = p.first;
+
+    if (NamedType *namedTy = ty->asNamedType()) {
+        return operator()(namedTy, p, context);
+    } else if (ReferenceType *refTy = ty->asReferenceType()) {
+        const ResolveExpression::Result e(refTy->elementType(), p.second);
+        return operator()(e, context);
+    }
+
+    return QList<Symbol *>();
+}
+
