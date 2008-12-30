@@ -513,7 +513,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (m_completionOperator == T_LPAREN && completeFunction(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
             } if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
-                      completeMember(exprTy, resolvedTypes, context)) {
+                      completeMember(resolvedTypes, context)) {
                 return m_startPosition;
             } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
                 return m_startPosition;
@@ -575,8 +575,7 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
     return ! m_completions.isEmpty();
 }
 
-bool CppCodeCompletion::completeMember(FullySpecifiedType,
-                                       const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
     if (results.isEmpty())
@@ -593,10 +592,10 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
 
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveExpression resolveExpression(context);
+            SymbolsForDotAccess symbolsForDotAccess;
 
-            Name *className = namedTy->name();
-            const QList<Symbol *> candidates =
-                    context.resolveClass(className, context.visibleScopes(p));
+            const QList<Symbol *> candidates = symbolsForDotAccess(namedTy, p,
+                                                                   context);
 
             foreach (Symbol *classObject, candidates) {
                 const QList<TypeOfExpression::Result> overloads =
@@ -617,8 +616,7 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
                     if (PointerType *ptrTy = ty->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                             const QList<Symbol *> classes =
-                                    context.resolveClass(namedTy->name(),
-                                                         context.visibleScopes(p));
+                                    symbolsForDotAccess(namedTy, p, context);
 
                             foreach (Symbol *c, classes) {
                                 if (! classObjectCandidates.contains(c))
@@ -630,9 +628,10 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
             }
         } else if (PointerType *ptrTy = ty->asPointerType()) {
             if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                const QList<Symbol *> classes =
-                        context.resolveClass(namedTy->name(),
-                                             context.visibleScopes(p));
+                SymbolsForDotAccess symbolsForDotAccess;
+
+                const QList<Symbol *> classes = symbolsForDotAccess(namedTy, p,
+                                                                    context);
 
                 foreach (Symbol *c, classes) {
                     if (! classObjectCandidates.contains(c))
@@ -652,7 +651,7 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
             int length = m_editor->position() - m_startPosition + 1;
             m_editor->setCurPos(m_startPosition - 1);
             m_editor->replace(length, QLatin1String("->"));
-            m_startPosition++;
+            ++m_startPosition;
             namedTy = ptrTy->elementType()->asNamedType();
         } else {
             namedTy = ty->asNamedType();
