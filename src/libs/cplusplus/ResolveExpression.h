@@ -128,10 +128,10 @@ private:
     QList<Result> _results;
 };
 
-class CPLUSPLUS_EXPORT SymbolsForDotAccess
+class CPLUSPLUS_EXPORT ResolveClass
 {
 public:
-    SymbolsForDotAccess();
+    ResolveClass();
 
     QList<Symbol *> operator()(NamedType *namedTy,
                                ResolveExpression::Result p,
@@ -141,11 +141,11 @@ public:
                                const LookupContext &context);
 
 private:
-    QList<Symbol *> symbolsForDotAccess(NamedType *namedTy,
+    QList<Symbol *> resolveClass(NamedType *namedTy,
                                         ResolveExpression::Result p,
                                         const LookupContext &context);
 
-    QList<Symbol *> symbolsForDotAccess(ResolveExpression::Result p,
+    QList<Symbol *> resolveClass(ResolveExpression::Result p,
                                         const LookupContext &context);
 
 private:

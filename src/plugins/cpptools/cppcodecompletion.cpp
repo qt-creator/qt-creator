@@ -592,10 +592,9 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
 
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveExpression resolveExpression(context);
-            SymbolsForDotAccess symbolsForDotAccess;
+            ResolveClass resolveClass;
 
-            const QList<Symbol *> candidates = symbolsForDotAccess(namedTy, p,
-                                                                   context);
+            const QList<Symbol *> candidates = resolveClass(namedTy, p, context);
 
             foreach (Symbol *classObject, candidates) {
                 const QList<TypeOfExpression::Result> overloads =
@@ -616,7 +615,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                     if (PointerType *ptrTy = ty->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                             const QList<Symbol *> classes =
-                                    symbolsForDotAccess(namedTy, p, context);
+                                    resolveClass(namedTy, p, context);
 
                             foreach (Symbol *c, classes) {
                                 if (! classObjectCandidates.contains(c))
@@ -628,9 +627,9 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             }
         } else if (PointerType *ptrTy = ty->asPointerType()) {
             if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                SymbolsForDotAccess symbolsForDotAccess;
+                ResolveClass resolveClass;
 
-                const QList<Symbol *> classes = symbolsForDotAccess(namedTy, p,
+                const QList<Symbol *> classes = resolveClass(namedTy, p,
                                                                     context);
 
                 foreach (Symbol *c, classes) {
@@ -663,8 +662,8 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         }
 
         if (namedTy) {
-            SymbolsForDotAccess symbolsForDotAccess;
-            const QList<Symbol *> symbols = symbolsForDotAccess(namedTy, p, context);
+            ResolveClass resolveClass;
+            const QList<Symbol *> symbols = resolveClass(namedTy, p, context);
             foreach (Symbol *symbol, symbols) {
                 if (classObjectCandidates.contains(symbol))
                     continue;
@@ -715,8 +714,8 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
         completeClass(candidates, context);
     } else if (Symbol *symbol = result.second) {
         if (symbol->isTypedef()) {
-            SymbolsForDotAccess symbolsForDotAccess;
-            const QList<Symbol *> candidates = symbolsForDotAccess(result,
+            ResolveClass resolveClass;
+            const QList<Symbol *> candidates = resolveClass(result,
                                                                    context);
             completeClass(candidates, context);
         }
@@ -829,6 +828,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     if (results.isEmpty())
         return false;
 
+    ResolveClass resolveClass;
+
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
     o.setShowReturnTypes(false);
@@ -849,10 +850,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
         if (! namedTy) // not a class name.
             continue;
 
-        const QList<Scope *> visibleScopes = context.visibleScopes(p);
-
         const QList<Symbol *> classObjects =
-                context.resolveClass(namedTy->name(), visibleScopes);
+                resolveClass(namedTy, p, context);
 
         if (classObjects.isEmpty())
             continue;
@@ -860,6 +859,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
         Class *klass = classObjects.first()->asClass();
 
         QList<Scope *> todo;
+        const QList<Scope *> visibleScopes = context.visibleScopes(p);
         context.expand(klass->members(), visibleScopes, &todo);
 
         foreach (Scope *scope, todo) {

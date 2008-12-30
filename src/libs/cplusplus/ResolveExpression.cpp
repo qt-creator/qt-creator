@@ -427,7 +427,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
 
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
-    SymbolsForDotAccess symbolsForDotAcces;
+    ResolveClass symbolsForDotAcces;
     Scope dummy;
     Name *name = sem.check(ast, &dummy);
 
@@ -537,7 +537,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     _results.clear();
 
     const QList<Result> indexResults = operator()(ast->expression);
-    SymbolsForDotAccess symbolsForDotAcccess;
+    ResolveClass symbolsForDotAcccess;
 
     foreach (Result p, baseResults) {
         FullySpecifiedType ty = p.first;
@@ -595,7 +595,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                            unsigned accessOp,
                                            Name *memberName) const
 {
-    SymbolsForDotAccess symbolsForDotAccess;
+    ResolveClass resolveClass;
     QList<Result> results;
 
     if (accessOp == T_ARROW) {
@@ -607,7 +607,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
 
             if (NamedType *namedTy = ty->asNamedType()) {
                 const QList<Symbol *> classObjectCandidates =
-                        symbolsForDotAccess(namedTy, p, _context);
+                        resolveClass(namedTy, p, _context);
 
                 foreach (Symbol *classObject, classObjectCandidates) {
                     const QList<Result> overloads = resolveArrowOperator(p, namedTy,
@@ -667,10 +667,10 @@ ResolveExpression::resolveMember(const Result &p,
                                  Name *memberName,
                                  NamedType *namedTy) const
 {
-    SymbolsForDotAccess symbolsForDotAccess;
+    ResolveClass resolveClass;
 
     const QList<Symbol *> classObjectCandidates =
-            symbolsForDotAccess(namedTy, p, _context);
+            resolveClass(namedTy, p, _context);
 
     QList<Result> results;
     foreach (Symbol *classObject, classObjectCandidates) {
@@ -799,29 +799,29 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-SymbolsForDotAccess::SymbolsForDotAccess()
+ResolveClass::ResolveClass()
 { }
 
-QList<Symbol *> SymbolsForDotAccess::operator()(NamedType *namedTy,
+QList<Symbol *> ResolveClass::operator()(NamedType *namedTy,
                                                 ResolveExpression::Result p,
                                                 const LookupContext &context)
 {
     const QList<ResolveExpression::Result> previousBlackList = _blackList;
-    const QList<Symbol *> symbols = symbolsForDotAccess(namedTy, p, context);
+    const QList<Symbol *> symbols = resolveClass(namedTy, p, context);
     _blackList = previousBlackList;
     return symbols;
 }
 
-QList<Symbol *> SymbolsForDotAccess::operator()(ResolveExpression::Result p,
+QList<Symbol *> ResolveClass::operator()(ResolveExpression::Result p,
                                                 const LookupContext &context)
 {
     const QList<ResolveExpression::Result> previousBlackList = _blackList;
-    const QList<Symbol *> symbols = symbolsForDotAccess(p, context);
+    const QList<Symbol *> symbols = resolveClass(p, context);
     _blackList = previousBlackList;
     return symbols;
 }
 
-QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(NamedType *namedTy,
+QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
                                                          ResolveExpression::Result p,
                                                          const LookupContext &context)
 {
@@ -852,7 +852,7 @@ QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(NamedType *namedTy,
                     // Boh b;
                     // b.
                     const ResolveExpression::Result r(decl->type(), decl);
-                    resolvedSymbols += symbolsForDotAccess(r, context);
+                    resolvedSymbols += resolveClass(r, context);
                 }
             }
         } else if (Declaration *decl = candidate->asDeclaration()) {
@@ -861,7 +861,7 @@ QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(NamedType *namedTy,
                 // foo.
                 if (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope()) {
                     const ResolveExpression::Result r(funTy->returnType(), decl);
-                    resolvedSymbols += symbolsForDotAccess(r, context);
+                    resolvedSymbols += resolveClass(r, context);
                 }
             }
         }
@@ -870,16 +870,16 @@ QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(NamedType *namedTy,
     return resolvedSymbols;
 }
 
-QList<Symbol *> SymbolsForDotAccess::symbolsForDotAccess(ResolveExpression::Result p,
+QList<Symbol *> ResolveClass::resolveClass(ResolveExpression::Result p,
                                                          const LookupContext &context)
 {
     FullySpecifiedType ty = p.first;
 
     if (NamedType *namedTy = ty->asNamedType()) {
-        return symbolsForDotAccess(namedTy, p, context);
+        return resolveClass(namedTy, p, context);
     } else if (ReferenceType *refTy = ty->asReferenceType()) {
         const ResolveExpression::Result e(refTy->elementType(), p.second);
-        return symbolsForDotAccess(e, context);
+        return resolveClass(e, context);
     }
 
     return QList<Symbol *>();
