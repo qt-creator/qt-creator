@@ -515,7 +515,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             } if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_COLON_COLON && completeScope(exprTy, resolvedTypes, context)) {
+            } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
                 return m_startPosition;
             } else if (m_completionOperator == T_SIGNAL && completeSignal(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
@@ -682,32 +682,45 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
     return false;
 }
 
-bool CppCodeCompletion::completeScope(FullySpecifiedType exprTy,
-                                      const QList<TypeOfExpression::Result> &resolvedTypes,
+bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &results,
                                       const LookupContext &context)
 {
+    if (results.isEmpty())
+        return false; // nothing to do.
+
     // Search for a class or a namespace.
-    foreach (TypeOfExpression::Result p, resolvedTypes) {
-        if (p.first->isClass() || p.first->isNamespace()) {
-            exprTy = p.first;
+    TypeOfExpression::Result result(FullySpecifiedType(), 0);
+    foreach (result, results) {
+        FullySpecifiedType ty = result.first;
+
+        if (ty->isClass() || ty->isNamespace())
             break;
-        }
     }
 
-    if (exprTy->asNamespace()) {
+    FullySpecifiedType exprTy = result.first;
+    if (! exprTy) {
+        return false;
+    } else if (exprTy->asNamespace()) {
         QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+        foreach (TypeOfExpression::Result p, results) {
             if (Namespace *ns = p.first->asNamespace())
                 candidates.append(ns);
         }
         completeNamespace(candidates, context);
     } else if (exprTy->isClass()) {
         QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+        foreach (TypeOfExpression::Result p, results) {
             if (Class *k = p.first->asClass())
                 candidates.append(k);
         }
         completeClass(candidates, context);
+    } else if (Symbol *symbol = result.second) {
+        if (symbol->isTypedef()) {
+            SymbolsForDotAccess symbolsForDotAccess;
+            const QList<Symbol *> candidates = symbolsForDotAccess(result,
+                                                                   context);
+            completeClass(candidates, context);
+        }
     }
 
     return ! m_completions.isEmpty();
