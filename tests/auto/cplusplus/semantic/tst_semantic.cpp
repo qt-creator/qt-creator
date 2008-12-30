@@ -85,8 +85,8 @@ public:
         diag.errorCount = 0; // reset the error count.
         TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit);
         QSharedPointer<Document> doc(new Document(unit));
-        doc->errorCount = diag.errorCount;
         doc->check();
+        doc->errorCount = diag.errorCount;
         return doc;
     }
 
