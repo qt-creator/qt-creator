@@ -427,6 +427,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
 
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
+    SymbolsForDotAccess symbolsForDotAcces;
     Scope dummy;
     Name *name = sem.check(ast, &dummy);
 
@@ -435,7 +436,8 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
         if (symbol->isTypedef()) {
             if (NamedType *namedTy = symbol->type()->asNamedType()) {
                 LookupContext symbolContext(symbol, _context);
-                QList<Symbol *> resolvedClasses = symbolContext.resolveClass(namedTy->name());
+                const Result r(namedTy, symbol);
+                const QList<Symbol *> resolvedClasses = symbolsForDotAcces(r, _context);
                 if (resolvedClasses.count()) {
                     foreach (Symbol *s, resolvedClasses) {
                         addResult(s->type(), s);
@@ -535,6 +537,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     _results.clear();
 
     const QList<Result> indexResults = operator()(ast->expression);
+    SymbolsForDotAccess symbolsForDotAcccess;
 
     foreach (Result p, baseResults) {
         FullySpecifiedType ty = p.first;
@@ -548,9 +551,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
         } else if (ArrayType *arrTy = ty->asArrayType()) {
             addResult(arrTy->elementType(), contextSymbol);
         } else if (NamedType *namedTy = ty->asNamedType()) {
-            Name *className = namedTy->name();
-            const QList<Scope *> scopes = visibleScopes(p);
-            const QList<Symbol *> classObjectCandidates = _context.resolveClass(className, scopes);
+            const QList<Symbol *> classObjectCandidates =
+                    symbolsForDotAcccess(p, _context);
 
             foreach (Symbol *classObject, classObjectCandidates) {
                 const QList<Result> overloads = resolveArrayOperator(p, namedTy,
@@ -593,6 +595,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                            unsigned accessOp,
                                            Name *memberName) const
 {
+    SymbolsForDotAccess symbolsForDotAccess;
     QList<Result> results;
 
     if (accessOp == T_ARROW) {
@@ -603,9 +606,8 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                 ty = refTy->elementType();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                Name *className = namedTy->name();
-                const QList<Scope *> scopes = visibleScopes(p);
-                const QList<Symbol *> classObjectCandidates = _context.resolveClass(className, scopes);
+                const QList<Symbol *> classObjectCandidates =
+                        symbolsForDotAccess(namedTy, p, _context);
 
                 foreach (Symbol *classObject, classObjectCandidates) {
                     const QList<Result> overloads = resolveArrowOperator(p, namedTy,
@@ -665,12 +667,15 @@ ResolveExpression::resolveMember(const Result &p,
                                  Name *memberName,
                                  NamedType *namedTy) const
 {
+    SymbolsForDotAccess symbolsForDotAccess;
+
+    const QList<Symbol *> classObjectCandidates =
+            symbolsForDotAccess(namedTy, p, _context);
+
     QList<Result> results;
-    Name *className = namedTy->name();
-    const QList<Scope *> scopes = visibleScopes(p);
-    const QList<Symbol *> classObjectCandidates = _context.resolveClass(className, scopes);
     foreach (Symbol *classObject, classObjectCandidates) {
-        results += resolveMember(p, memberName, namedTy, classObject->asClass());
+        results += resolveMember(p, memberName, namedTy,
+                                 classObject->asClass());
     }
     return results;
 }
