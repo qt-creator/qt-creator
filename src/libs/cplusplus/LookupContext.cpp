@@ -32,13 +32,15 @@
 ***************************************************************************/
 
 #include "LookupContext.h"
+#include "ResolveExpression.h"
+#include "Overview.h"
+
 #include <CoreTypes.h>
 #include <Symbols.h>
 #include <Literals.h>
 #include <Names.h>
 #include <Scope.h>
 #include <Control.h>
-#include <cplusplus/Overview.h>
 
 #include <QtDebug>
 

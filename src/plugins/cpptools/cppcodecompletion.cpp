@@ -581,24 +581,36 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
     if (results.isEmpty())
         return false;
 
-    const TypeOfExpression::Result p = results.first();
+    TypeOfExpression::Result result = results.first();
     QList<Symbol *> classObjectCandidates;
 
     if (m_completionOperator == T_ARROW)  {
-        FullySpecifiedType ty = p.first;
+        FullySpecifiedType ty = result.first;
 
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
         if (NamedType *namedTy = ty->asNamedType()) {
+            // ### This code is pretty slow.
+            const QList<Symbol *> candidates = context.resolve(namedTy->name());
+            foreach (Symbol *candidate, candidates) {
+                if (candidate->isTypedef()) {
+                    ty = candidate->type();
+                    const ResolveExpression::Result r(ty, candidate);
+                    result = r;
+                    break;
+                }
+            }
+        }
+
+        if (NamedType *namedTy = ty->asNamedType()) {
             ResolveExpression resolveExpression(context);
             ResolveClass resolveClass;
 
-            const QList<Symbol *> candidates = resolveClass(namedTy, p, context);
-
+            const QList<Symbol *> candidates = resolveClass(result, context);
             foreach (Symbol *classObject, candidates) {
                 const QList<TypeOfExpression::Result> overloads =
-                        resolveExpression.resolveArrowOperator(p, namedTy,
+                        resolveExpression.resolveArrowOperator(result, namedTy,
                                                                classObject->asClass());
 
                 foreach (TypeOfExpression::Result r, overloads) {
@@ -615,7 +627,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                     if (PointerType *ptrTy = ty->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                             const QList<Symbol *> classes =
-                                    resolveClass(namedTy, p, context);
+                                    resolveClass(namedTy, result, context);
 
                             foreach (Symbol *c, classes) {
                                 if (! classObjectCandidates.contains(c))
@@ -629,17 +641,22 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                 ResolveClass resolveClass;
 
-                const QList<Symbol *> classes = resolveClass(namedTy, p,
-                                                                    context);
+                const QList<Symbol *> classes = resolveClass(namedTy, result,
+                                                             context);
 
                 foreach (Symbol *c, classes) {
                     if (! classObjectCandidates.contains(c))
                         classObjectCandidates.append(c);
                 }
+            } else if (Class *classTy = ptrTy->elementType()->asClass()) {
+                // typedef struct { int x } *Ptr;
+                // Ptr p;
+                // p->
+                classObjectCandidates.append(classTy);
             }
         }
     } else if (m_completionOperator == T_DOT) {
-        FullySpecifiedType ty = p.first;
+        FullySpecifiedType ty = result.first;
 
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
@@ -663,7 +680,8 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
 
         if (namedTy) {
             ResolveClass resolveClass;
-            const QList<Symbol *> symbols = resolveClass(namedTy, p, context);
+            const QList<Symbol *> symbols = resolveClass(namedTy, result,
+                                                         context);
             foreach (Symbol *symbol, symbols) {
                 if (classObjectCandidates.contains(symbol))
                     continue;

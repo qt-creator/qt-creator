@@ -427,7 +427,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
 
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
-    ResolveClass symbolsForDotAcces;
+    ResolveClass resolveClass;
     Scope dummy;
     Name *name = sem.check(ast, &dummy);
 
@@ -437,7 +437,8 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
             if (NamedType *namedTy = symbol->type()->asNamedType()) {
                 LookupContext symbolContext(symbol, _context);
                 const Result r(namedTy, symbol);
-                const QList<Symbol *> resolvedClasses = symbolsForDotAcces(r, _context);
+                const QList<Symbol *> resolvedClasses =
+                        resolveClass(r, _context);
                 if (resolvedClasses.count()) {
                     foreach (Symbol *s, resolvedClasses) {
                         addResult(s->type(), s);
@@ -555,8 +556,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
                     symbolsForDotAcccess(p, _context);
 
             foreach (Symbol *classObject, classObjectCandidates) {
-                const QList<Result> overloads = resolveArrayOperator(p, namedTy,
-                                                                     classObject->asClass());
+                const QList<Result> overloads =
+                        resolveArrayOperator(p, namedTy, classObject->asClass());
                 foreach (Result r, overloads) {
                     FullySpecifiedType ty = r.first;
                     Function *funTy = ty->asFunction();
@@ -803,8 +804,8 @@ ResolveClass::ResolveClass()
 { }
 
 QList<Symbol *> ResolveClass::operator()(NamedType *namedTy,
-                                                ResolveExpression::Result p,
-                                                const LookupContext &context)
+                                         ResolveExpression::Result p,
+                                         const LookupContext &context)
 {
     const QList<ResolveExpression::Result> previousBlackList = _blackList;
     const QList<Symbol *> symbols = resolveClass(namedTy, p, context);
@@ -813,7 +814,7 @@ QList<Symbol *> ResolveClass::operator()(NamedType *namedTy,
 }
 
 QList<Symbol *> ResolveClass::operator()(ResolveExpression::Result p,
-                                                const LookupContext &context)
+                                         const LookupContext &context)
 {
     const QList<ResolveExpression::Result> previousBlackList = _blackList;
     const QList<Symbol *> symbols = resolveClass(p, context);
@@ -822,8 +823,8 @@ QList<Symbol *> ResolveClass::operator()(ResolveExpression::Result p,
 }
 
 QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
-                                                         ResolveExpression::Result p,
-                                                         const LookupContext &context)
+                                           ResolveExpression::Result p,
+                                           const LookupContext &context)
 {
     QList<Symbol *> resolvedSymbols;
 
@@ -871,7 +872,7 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
 }
 
 QList<Symbol *> ResolveClass::resolveClass(ResolveExpression::Result p,
-                                                         const LookupContext &context)
+                                           const LookupContext &context)
 {
     FullySpecifiedType ty = p.first;
 
