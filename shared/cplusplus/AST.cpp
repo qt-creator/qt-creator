@@ -1165,8 +1165,9 @@ unsigned DestructorNameAST::firstToken() const
 
 unsigned DestructorNameAST::lastToken() const
 {
-    assert(0 && "review me");
-    return identifier_token + 1;
+    if (identifier_token)
+        return identifier_token + 1;
+    return tilde_token + 1;
 }
 
 void DoStatementAST::accept0(ASTVisitor *visitor)
