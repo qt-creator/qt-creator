@@ -1214,7 +1214,6 @@ unsigned ElaboratedTypeSpecifierAST::firstToken() const
 
 unsigned ElaboratedTypeSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     if (name)
         return name->lastToken();
     return classkey_token + 1;
@@ -1233,7 +1232,6 @@ unsigned EmptyDeclarationAST::firstToken() const
 
 unsigned EmptyDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     return semicolon_token + 1;
 }
 
@@ -1254,8 +1252,20 @@ unsigned EnumSpecifierAST::firstToken() const
 
 unsigned EnumSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rbrace_token + 1;
+    if (rbrace_token)
+        return rbrace_token + 1;
+
+    for (EnumeratorAST *it = enumerators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (lbrace_token)
+        return lbrace_token + 1;
+    if (name)
+        return name->lastToken();
+
+    return enum_token + 1;
 }
 
 void EnumeratorAST::accept0(ASTVisitor *visitor)
