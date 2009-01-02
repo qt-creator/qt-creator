@@ -1185,8 +1185,19 @@ unsigned DoStatementAST::firstToken() const
 
 unsigned DoStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else if (while_token)
+        return while_token + 1;
+    else if (statement)
+        return statement->lastToken();
+    return do_token + 1;
 }
 
 void ElaboratedTypeSpecifierAST::accept0(ASTVisitor *visitor)
