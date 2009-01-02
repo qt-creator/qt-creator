@@ -1004,11 +1004,10 @@ unsigned CtorInitializerAST::firstToken() const
 
 unsigned CtorInitializerAST::lastToken() const
 {
-    assert(0 && "review me");
-    for (MemInitializerAST *it = member_initializers; it;
-            it = it->next)
+    for (MemInitializerAST *it = member_initializers; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
+    }
     return colon_token + 1;
 }
 
@@ -1035,22 +1034,38 @@ unsigned DeclaratorAST::firstToken() const
         return core_declarator->firstToken();
     else if (postfix_declarators)
         return postfix_declarators->firstToken();
+    else if (attributes)
+        return attributes->firstToken();
+    else if (initializer)
+        return initializer->firstToken();
+    // ### assert?
     return 0;
 }
 
 unsigned DeclaratorAST::lastToken() const
 {
-    assert(0 && "review me");
-    for (PostfixDeclaratorAST *fx = postfix_declarators; fx; fx = fx->next) {
-        if (! fx->next)
-            return fx->lastToken();
+    if (initializer)
+        return initializer->lastToken();
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
     }
+
+    for (PostfixDeclaratorAST *it = postfix_declarators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     if (core_declarator)
         return core_declarator->lastToken();
-    for (PtrOperatorAST *ptr_op = ptr_operators; ptr_op; ptr_op = ptr_op->next) {
-        if (! ptr_op->next)
-            return ptr_op->lastToken();
+
+    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
     }
+
+    // ### assert?
     return 0;
 }
 
