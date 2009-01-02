@@ -1300,19 +1300,22 @@ void ExceptionDeclarationAST::accept0(ASTVisitor *visitor)
 
 unsigned ExceptionDeclarationAST::firstToken() const
 {
-    return type_specifier->firstToken();
+    if (type_specifier)
+        return type_specifier->firstToken();
+    if (declarator)
+        return declarator->firstToken();
+    return dot_dot_dot_token;
 }
 
 unsigned ExceptionDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     else if (declarator)
         return declarator->lastToken();
     for (SpecifierAST *it = type_specifier; it; it = it->next) {
         if (! it->next)
-            return type_specifier->lastToken();
+            return it->lastToken();
     }
     return 0;
 }
