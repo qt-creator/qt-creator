@@ -690,7 +690,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_gflag = true;
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
-        m_tc.setPosition(positionForLine(n), MoveAnchor);
+        m_tc.setPosition(positionForLine(n), KeepAnchor);
         if (m_config.contains(ConfigStartOfLine))
             moveToFirstNonBlankOnLine();
         finishMovement();
@@ -1245,7 +1245,7 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 {
     QTextBlock block = m_tc.block();
     QTextDocument *doc = m_tc.document();
-    m_tc.movePosition(StartOfLine);
+    m_tc.movePosition(StartOfLine, KeepAnchor);
     int firstPos = m_tc.position();
     for (int i = firstPos, n = firstPos + block.length(); i < n; ++i) {
         if (!doc->characterAt(i).isSpace()) {
