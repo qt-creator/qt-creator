@@ -1196,9 +1196,12 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
     const bool previousInFunctionBody = _inFunctionBody;
     _inFunctionBody = false;
 
+    unsigned colon_token = 0;
+
     if (LA() == T_COLON || LA() == T_LBRACE) {
         BaseSpecifierAST *base_clause = 0;
         if (LA() == T_COLON) {
+            colon_token = cursor();
             parseBaseClause(base_clause);
             if (LA() != T_LBRACE) {
                 _translationUnit->error(cursor(), "expected `{' before `%s'", tok().spell());
@@ -1216,6 +1219,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
         ast->classkey_token = classkey_token;
         ast->attributes = attributes;
         ast->name = name;
+        ast->colon_token = colon_token;
         ast->base_clause = base_clause;
 
         if (LA() == T_LBRACE)

@@ -444,6 +444,7 @@ public:
     unsigned classkey_token;
     SpecifierAST *attributes;
     NameAST *name;
+    unsigned colon_token;
     BaseSpecifierAST *base_clause;
     unsigned lbrace_token;
     DeclarationAST *member_specifiers;
