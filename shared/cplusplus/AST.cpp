@@ -1083,7 +1083,6 @@ unsigned DeclarationStatementAST::firstToken() const
 
 unsigned DeclarationStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     return declaration->lastToken();
 }
 
@@ -1101,7 +1100,6 @@ unsigned DeclaratorIdAST::firstToken() const
 
 unsigned DeclaratorIdAST::lastToken() const
 {
-    assert(0 && "review me");
     return name->lastToken();
 }
 
@@ -1120,7 +1118,6 @@ unsigned DeclaratorListAST::firstToken() const
 
 unsigned DeclaratorListAST::lastToken() const
 {
-    assert(0 && "review me");
     for (const DeclaratorListAST *it = this; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -1144,12 +1141,15 @@ unsigned DeleteExpressionAST::firstToken() const
 
 unsigned DeleteExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     else if (rbracket_token)
         return rbracket_token + 1;
-    return delete_token + 1;
+    else if (lbracket_token)
+        return lbracket_token + 1;
+    else if (delete_token)
+        return delete_token + 1;
+    return scope_token + 1;
 }
 
 void DestructorNameAST::accept0(ASTVisitor *visitor)
