@@ -410,8 +410,8 @@ protected:
 class CPLUSPLUS_EXPORT BinaryExpressionAST: public ExpressionAST
 {
 public:
-    unsigned binary_op_token;
     ExpressionAST *left_expression;
+    unsigned binary_op_token;
     ExpressionAST *right_expression;
 
 public:
