@@ -1940,15 +1940,12 @@ void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
 
 unsigned SimpleDeclarationAST::firstToken() const
 {
-    for (SpecifierAST *it = decl_specifier_seq; it; it = it->next) {
-        if (! it->next)
-            return it->firstToken();
-    }
-    for (DeclaratorListAST *it = declarators; it; it = it->next) {
-        if (! it->next)
-            return it->firstToken();
-    }
-    return semicolon_token;
+    if (decl_specifier_seq)
+        return decl_specifier_seq->firstToken();
+    else if (declarators)
+        return declarators->firstToken();
+    else
+        return semicolon_token;
 }
 
 unsigned SimpleDeclarationAST::lastToken() const
