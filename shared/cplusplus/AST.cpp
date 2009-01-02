@@ -1336,8 +1336,20 @@ unsigned ExceptionSpecificationAST::firstToken() const
 
 unsigned ExceptionSpecificationAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+
+    for (ExpressionListAST *it = type_ids; it; it = it->next) {
+        if (! it->next && it->expression)
+            return it->expression->lastToken();
+    }
+
+    if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+    else if (lparen_token)
+        return lparen_token + 1;
+
+    return throw_token + 1;
 }
 
 void ExpressionListAST::accept0(ASTVisitor *)
