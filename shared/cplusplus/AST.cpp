@@ -1282,10 +1282,9 @@ unsigned EnumeratorAST::firstToken() const
 
 unsigned EnumeratorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
-    if (equal_token)
+    else if (equal_token)
         return equal_token + 1;
     return identifier_token + 1;
 }
