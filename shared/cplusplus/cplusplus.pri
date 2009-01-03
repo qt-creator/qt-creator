@@ -35,7 +35,9 @@ HEADERS += \
     $$PWD/Token.h \
     $$PWD/TranslationUnit.h \
     $$PWD/Type.h \
-    $$PWD/TypeVisitor.h
+    $$PWD/TypeVisitor.h \
+    $$PWD/PrettyPrinter.h
+
 
 SOURCES += \
     $$PWD/AST.cpp \
@@ -69,5 +71,6 @@ SOURCES += \
     $$PWD/Token.cpp \
     $$PWD/TranslationUnit.cpp \
     $$PWD/Type.cpp \
-    $$PWD/TypeVisitor.cpp
+    $$PWD/TypeVisitor.cpp \
+    $$PWD/PrettyPrinter.cpp
 
