@@ -1631,7 +1631,6 @@ unsigned LinkageSpecificationAST::firstToken() const
 
 unsigned LinkageSpecificationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declaration)
         return declaration->lastToken();
     else if (extern_type)
@@ -1653,8 +1652,13 @@ unsigned MemInitializerAST::firstToken() const
 
 unsigned MemInitializerAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return name->lastToken();
 }
 
 void MemberAccessAST::accept0(ASTVisitor *visitor)
