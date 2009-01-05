@@ -1362,7 +1362,6 @@ unsigned ExpressionListAST::firstToken() const
 
 unsigned ExpressionListAST::lastToken() const
 {
-    assert(0 && "review me");
     for (const ExpressionListAST *it = this; it; it = it->next) {
         if (! it->next)
             return it->expression->lastToken();
@@ -1380,13 +1379,12 @@ void ExpressionOrDeclarationStatementAST::accept0(ASTVisitor *visitor)
 
 unsigned ExpressionOrDeclarationStatementAST::firstToken() const
 {
-    return expression->firstToken();
+    return declaration->firstToken();
 }
 
 unsigned ExpressionOrDeclarationStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return expression->lastToken();
+    return declaration->lastToken();
 }
 
 void ExpressionStatementAST::accept0(ASTVisitor *visitor)
@@ -1405,8 +1403,12 @@ unsigned ExpressionStatementAST::firstToken() const
 
 unsigned ExpressionStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return expression->lastToken();
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    // ### assert?
+    return 0;
 }
 
 void ForStatementAST::accept0(ASTVisitor *visitor)
@@ -1426,10 +1428,22 @@ unsigned ForStatementAST::firstToken() const
 
 unsigned ForStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (statement)
         return statement->lastToken();
-    return rparen_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (semicolon_token)
+        return semicolon_token + 1;
+    else if (condition)
+        return condition->lastToken();
+    else if (initializer)
+        return initializer->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+
+    return for_token + 1;
 }
 
 void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
