@@ -1606,8 +1606,15 @@ unsigned LinkageBodyAST::firstToken() const
 
 unsigned LinkageBodyAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rbrace_token + 1;
+    if (rbrace_token)
+        return rbrace_token + 1;
+
+    for (DeclarationAST *it = declarations; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return lbrace_token + 1;
 }
 
 void LinkageSpecificationAST::accept0(ASTVisitor *visitor)
