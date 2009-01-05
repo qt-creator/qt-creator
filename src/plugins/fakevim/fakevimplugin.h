@@ -67,7 +67,7 @@ private:
 
 private slots:
     void installHandler();
-    void removeHandler(QObject *ob);
+    void removeHandler(QWidget *widget);
     void showCommandBuffer(const QString &contents);
 
 private:
