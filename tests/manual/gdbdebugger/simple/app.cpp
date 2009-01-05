@@ -868,7 +868,7 @@ int main(int argc, char *argv[])
     testQVectorOfQList();
 
 
-    *(int *)0 = 0;
+    //*(int *)0 = 0;
 
     testQObject(argc, argv);
 

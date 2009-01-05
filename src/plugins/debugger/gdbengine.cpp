@@ -1616,7 +1616,7 @@ bool GdbEngine::startDebugger()
         sendCommand("attach " + QString::number(q->m_attachedPID));
     }
 
-    if (q->startMode() == q->startInternal) {
+    if (q->startMode() == q->startInternal || q->startMode() == q->startExternal) {
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         #ifdef Q_OS_MAC
         sendCommand("sharedlibrary apply-load-rules all");
