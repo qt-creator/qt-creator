@@ -2401,7 +2401,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
         if (usable)
             q->gotoLocation(frame.file, frame.line, true);
         else
-            qDebug() << "FULL NAME NOT USABLE 0: " << frame.file;
+            qDebug() << "FULL NAME NOT USABLE 0: " << frame.file << topFrame;
     }
 #endif
 }

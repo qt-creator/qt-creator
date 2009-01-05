@@ -49,12 +49,11 @@
 
 using namespace Debugger::Internal;
 
-AttachExternalDialog::AttachExternalDialog(QWidget *parent, const QString &pid)
+AttachExternalDialog::AttachExternalDialog(QWidget *parent)
   : QDialog(parent)
 {
     setupUi(this);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_defaultPID = pid;
     m_model = new QStandardItemModel(this);
 
     procView->setSortingEnabled(true);
@@ -65,8 +64,6 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent, const QString &pid)
     connect(procView, SIGNAL(activated(const QModelIndex &)),
         this, SLOT(procSelected(const QModelIndex &)));
 
-
-    pidLineEdit->setText(m_defaultPID);
     rebuildProcessList();
 }
 
@@ -91,7 +88,7 @@ static void insertItem(QStandardItem *root, const QString &pid,
     //qDebug() << "HANDLING " << pid;
     QStandardItem *parent = 0;
     const ProcData &proc = procs[pid];
-    if (1 || pid == "0") {
+    if (1 || pid == "0") { // FIXME: a real tree is not-so-nice to search
         parent = root;
     } else {
         if (!known.contains(proc.ppid))
@@ -148,6 +145,7 @@ void AttachExternalDialog::rebuildProcessList()
     procView->expandAll();
     procView->resizeColumnToContents(0);
     procView->resizeColumnToContents(1);
+    procView->sortByColumn(1, Qt::AscendingOrder);
 }
 
 #ifdef Q_OS_WINDOWS

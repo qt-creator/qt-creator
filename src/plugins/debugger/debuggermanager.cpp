@@ -804,8 +804,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
         m_workingDir = QString();
         m_attachedPID = -1;
     } else if (startMode() == attachExternal) {
-        QString pid;
-        AttachExternalDialog dlg(mainWindow(), pid);
+        AttachExternalDialog dlg(mainWindow());
         if (dlg.exec() != QDialog::Accepted)
             return false;
         m_executable = QString();
