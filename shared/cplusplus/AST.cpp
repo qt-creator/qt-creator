@@ -1696,7 +1696,6 @@ unsigned NamedTypeSpecifierAST::firstToken() const
 
 unsigned NamedTypeSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     return name->lastToken();
 }
 
@@ -1717,11 +1716,17 @@ unsigned NamespaceAST::firstToken() const
 
 unsigned NamespaceAST::lastToken() const
 {
-    assert(0 && "review me");
     if (linkage_body)
         return linkage_body->lastToken();
+
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     if (identifier_token)
         return identifier_token + 1;
+
     return namespace_token + 1;
 }
 
