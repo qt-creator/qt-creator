@@ -1769,8 +1769,11 @@ unsigned NestedDeclaratorAST::firstToken() const
 
 unsigned NestedDeclaratorAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (declarator)
+        return declarator->lastToken();
+    return lparen_token + 1;
 }
 
 void NestedExpressionAST::accept0(ASTVisitor *visitor)
