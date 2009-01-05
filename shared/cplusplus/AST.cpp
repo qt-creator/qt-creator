@@ -1529,8 +1529,13 @@ unsigned GotoStatementAST::firstToken() const
 
 unsigned GotoStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (identifier_token)
+        return identifier_token + 1;
+    else if (goto_token)
+        return goto_token + 1;
+    return 0;
 }
 
 void IfStatementAST::accept0(ASTVisitor *visitor)
