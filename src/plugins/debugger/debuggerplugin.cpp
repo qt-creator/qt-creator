@@ -63,10 +63,10 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/qplugin.h>
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
+#include <QtCore/QtPlugin>
 
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>

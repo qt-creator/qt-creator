@@ -33,25 +33,20 @@
 
 #include "helloworldplugin.h"
 
-#include "helloworldwindow.h"
-
-#include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
-
-#include <coreplugin/CoreTools>
-
-#include "helloworldplugin.h"
 
 using namespace HelloWorld::Internal;
 
@@ -77,29 +72,19 @@ HelloWorldPlugin::~HelloWorldPlugin()
     \a error_message can be used to pass an error message to the plugin system,
        if there was any.
 */
-bool HelloWorldPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_message)
 {
+    Q_UNUSED(arguments)
     Q_UNUSED(error_message)
 
     // Get the primary access point to the workbench.
     Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-
-    // Create our own widget that we want to show in a view in the IDE.
-    HelloWorldWindow *window = new HelloWorldWindow;
 
     // Create a unique context id for our own view, that will be used for the
     // menu entry later.
     QList<int> context = QList<int>()
         << core->uniqueIDManager()->uniqueIdentifier(
                 QLatin1String("HelloWorld.MainView"));
-
-    // Create a new view that contains our widget and register it with the
-    // plugin manager. The view will have the id "HelloWorld.HelloWorldWindow",
-    // and if it has focus it provides 'context' to the context list in
-    // Qt Creator. It will be put into the right dock widget area.
-    addAutoReleasedObject(new Core::BaseView("HelloWorld.HelloWorldWindow",
-                                             window, context,
-                                             Qt::RightDockWidgetArea));
 
     // Create an action to be triggered by a menu entry
     QAction *helloWorldAction = new QAction("Say \"&Hello World!\"", this);
@@ -126,13 +111,15 @@ bool HelloWorldPlugin::initialize(const QStringList & /*arguments*/, QString *er
             actionManager->actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(helloWorldMenu);
 
-    // Add a mode with a push button based on BaseMode. Like the BaseView, it will unregister
-    // itself from the plugin manager when it is deleted.
-    addAutoReleasedObject(new Core::BaseMode(tr("Hello world!"),
-                                             "HelloWorld.HelloWorldMode",
-                                             QIcon(),
-                                             0, // priority
-                                             new QPushButton(tr("Hello World PushButton!"))));
+    // Add a mode with a push button based on BaseMode. Like the BaseView,
+    // it will unregister itself from the plugin manager when it is deleted.
+    Core::BaseMode *baseMode = new Core::BaseMode;
+    baseMode->setUniqueModeName("HelloWorld.HelloWorldMode");
+    baseMode->setName(tr("Hello world!"));
+    baseMode->setIcon(QIcon());
+    baseMode->setPriority(0);
+    baseMode->setWidget(new QPushButton(tr("Hello World PushButton!")));
+    addAutoReleasedObject(baseMode);
 
     // Add the Hello World action command to the mode manager (with 0 priority)
     Core::ModeManager *modeManager = core->modeManager();
