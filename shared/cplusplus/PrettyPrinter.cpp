@@ -35,6 +35,7 @@
 #include "AST.h"
 #include <iostream>
 #include <string>
+#include <cassert>
 
 CPLUSPLUS_USE_NAMESPACE
 
