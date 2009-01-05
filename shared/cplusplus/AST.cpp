@@ -1554,14 +1554,19 @@ unsigned IfStatementAST::firstToken() const
 
 unsigned IfStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (else_statement)
         return else_statement->lastToken();
     else if (else_token)
         return else_token + 1;
     else if (statement)
         return statement->lastToken();
-    return rparen_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (condition)
+        return condition->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return if_token + 1;
 }
 
 void LabeledStatementAST::accept0(ASTVisitor *visitor)
