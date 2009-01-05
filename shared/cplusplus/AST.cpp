@@ -1675,9 +1675,10 @@ unsigned MemberAccessAST::firstToken() const
 
 unsigned MemberAccessAST::lastToken() const
 {
-    assert(0 && "review me");
     if (member_name)
         return member_name->lastToken();
+    else if (template_token)
+        return template_token + 1;
     return access_token + 1;
 }
 
