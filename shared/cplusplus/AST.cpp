@@ -1583,10 +1583,11 @@ unsigned LabeledStatementAST::firstToken() const
 
 unsigned LabeledStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (statement)
         return statement->lastToken();
-    return colon_token + 1;
+    else if (colon_token)
+        return colon_token + 1;
+    return label_token + 1;
 }
 
 void LinkageBodyAST::accept0(ASTVisitor *visitor)
