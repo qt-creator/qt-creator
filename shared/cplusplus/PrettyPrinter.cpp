@@ -1042,7 +1042,7 @@ bool PrettyPrinter::visit(TemplateTypeParameterAST *ast)
         for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
             accept(it);
             if (it->next)
-                out << ",. ";
+                out << ", ";
         }
         out << ' ';
     }
