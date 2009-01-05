@@ -165,14 +165,14 @@ void FakeVimPlugin::installHandler()
     //QMainWindow mw;
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
-    connect(m_handler, SIGNAL(quitRequested(QObject *)),
-        this, SLOT(removeHandler(QObject *)));
+    connect(m_handler, SIGNAL(quitRequested(QWidget *)),
+        this, SLOT(removeHandler(QWidget *)));
 }
 
-void FakeVimPlugin::removeHandler(QObject *ob)
+void FakeVimPlugin::removeHandler(QWidget *widget)
 {
-    ob->removeEventFilter(m_handler);
-    QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(ob);
+    widget->removeEventFilter(m_handler);
+    QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget);
     if (!plainTextEdit)
         return;
     plainTextEdit->setCursorWidth(m_savedCursorWidth);
