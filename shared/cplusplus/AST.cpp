@@ -1459,16 +1459,20 @@ unsigned FunctionDeclaratorAST::firstToken() const
 
 unsigned FunctionDeclaratorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (exception_specification)
         return exception_specification->lastToken();
-    else if (cv_qualifier_seq) {
-        for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
-            if (! it->next)
-                return it->lastToken();
-        }
+
+    for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
     }
-    return rparen_token + 1;
+
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (parameters)
+        return parameters->lastToken();
+
+    return lparen_token + 1;
 }
 
 void FunctionDefinitionAST::accept0(ASTVisitor *visitor)
