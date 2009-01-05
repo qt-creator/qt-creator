@@ -1744,8 +1744,15 @@ unsigned NamespaceAliasDefinitionAST::firstToken() const
 
 unsigned NamespaceAliasDefinitionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (name)
+        return name->lastToken();
+    else if (equal_token)
+        return equal_token + 1;
+    else if (namespace_name)
+        return namespace_name + 1;
+    return namespace_token + 1;
 }
 
 void NestedDeclaratorAST::accept0(ASTVisitor *visitor)
