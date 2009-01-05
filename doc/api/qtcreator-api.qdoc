@@ -1,0 +1,65 @@
+/*!
+    \page index.html
+    \title Qt Creator
+
+    Qt Creator is Qt Software's crossplatform IDE. The core of Qt Creator is
+    basically only a \l{Plugin Loader Framework}{plugin loader}.
+
+    \section1 Plugins
+
+    As already mentioned, Qt Creator is basically only a plugin loader framework
+    which gets its IDE functionality through plugins. The most important plugin
+    is the Core plugin which provides all the basic functionality needed
+    later to integrate e.g. editors or mode windows.
+
+    \table
+    \header
+    \o Plugin Name
+    \o Description
+
+    \row
+    \o \l{Core Plugin} {Core}
+    \o The core plugin. Provides the main window and managers for editors,
+    actions, mode windows and files, just to mention the most important ones.
+
+    \endtable
+
+*/
+
+/*!
+    \page classes.html
+    \title Qt Creator Classes and Namespaces
+
+    \section1 Classes
+
+    \generatelist classes
+
+    \section1 Namespaces
+
+    \generatelist{namespaces}
+*/
+
+/*!
+    \page interfaces.html
+    \title Interfaces
+    \generatelist mainclasses
+
+*/
+
+/*!
+    \page functions.html
+    \title Member Function Index
+    \generatelist functionindex
+*/
+
+/*!
+    \group pluginloader
+
+    \title Plugin Loader Framework
+*/
+
+/*!
+    \group qtc
+
+    \title Core Plugin
+*/
