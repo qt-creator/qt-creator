@@ -822,10 +822,12 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             }
 
             State mflags = bflags;
-            if (toolbutton->activeSubControls & SC_ToolButton)
-                bflags |= State_Sunken;
-            if (toolbutton->activeSubControls & SC_ToolButtonMenu)
-                mflags |= State_Sunken;
+            if (toolbutton->state & State_Sunken) {
+                if (toolbutton->activeSubControls & SC_ToolButton)
+                    bflags |= State_Sunken;
+                if (toolbutton->activeSubControls & SC_ToolButtonMenu)
+                    mflags |= State_Sunken;
+            }
 
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
