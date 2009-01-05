@@ -650,7 +650,7 @@ void GdbEngine::interruptInferior()
     if (m_gdbProc.state() == QProcess::NotRunning)
         return;
 
-    if (q->m_attachedPID) {
+    if (q->m_attachedPID > 0) {
         if (interruptProcess(q->m_attachedPID))
             qq->notifyInferiorStopped();
         return;
@@ -660,6 +660,7 @@ void GdbEngine::interruptInferior()
     sendCommand("-exec-interrupt", GdbExecInterrupt);
     qq->notifyInferiorStopped();
 #else
+    qDebug() << "CANNOT STOP INFERIOR" << m_gdbProc.pid();
     if (interruptChildProcess(m_gdbProc.pid()))
         qq->notifyInferiorStopped();
 #endif
@@ -672,9 +673,9 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
         qDebug() << "Cannot parse PID from " << pid0;
         return;
     }
-    if (pid == m_inferiorPid)
+    if (pid == q->m_attachedPID)
         return;
-    m_inferiorPid = pid;
+    q->m_attachedPID = pid;
     qq->notifyInferiorPidChanged(pid); 
 }
 
@@ -1514,7 +1515,6 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
-    m_inferiorPid = 0;
     QStringList gdbArgs;
 
     QFileInfo fi(q->m_executable);
