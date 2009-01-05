@@ -662,6 +662,24 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             ty = refTy->elementType();
 
         NamedType *namedTy = 0;
+
+        if (ArrayType *arrayTy = ty->asArrayType()) {
+            // Replace . with [0]. when `ty' is an array type.
+            FullySpecifiedType elementTy = arrayTy->elementType();
+
+            if (ReferenceType *refTy = elementTy->asReferenceType())
+                elementTy = refTy->elementType();
+
+            if (elementTy->isNamedType() || elementTy->isPointerType()) {
+                ty = elementTy;
+
+                const int length = m_editor->position() - m_startPosition + 1;
+                m_editor->setCurPos(m_startPosition - 1);
+                m_editor->replace(length, QLatin1String("[0]."));
+                m_startPosition += 3;
+            }
+        }
+
         if (PointerType *ptrTy = ty->asPointerType()) {
             // Replace . with ->
             int length = m_editor->position() - m_startPosition + 1;
