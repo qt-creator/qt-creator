@@ -57,6 +57,7 @@ private slots:
     void pageSelected(QTreeWidgetItem *cat);
     void accept();
     void reject();
+    void apply();
 
 private:
     QList<Core::IOptionsPage*> m_pages;
