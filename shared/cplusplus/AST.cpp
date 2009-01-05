@@ -1790,8 +1790,11 @@ unsigned NestedExpressionAST::firstToken() const
 
 unsigned NestedExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    return lparen_token + 1;
 }
 
 void NestedNameSpecifierAST::accept0(ASTVisitor *visitor)
@@ -1809,8 +1812,9 @@ unsigned NestedNameSpecifierAST::firstToken() const
 
 unsigned NestedNameSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
-    return scope_token + 1;
+    if (scope_token)
+        return scope_token + 1;
+    return class_or_namespace_name->lastToken();
 }
 
 void NewDeclaratorAST::accept0(ASTVisitor *visitor)
