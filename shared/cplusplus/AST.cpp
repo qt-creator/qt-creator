@@ -1500,12 +1500,20 @@ unsigned FunctionDefinitionAST::firstToken() const
 
 unsigned FunctionDefinitionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (function_body)
         return function_body->lastToken();
     else if (ctor_initializer)
         return ctor_initializer->lastToken();
-    return declarator->lastToken();
+    if (declarator)
+        return declarator->lastToken();
+
+    for (SpecifierAST *it = decl_specifier_seq; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    // ### assert
+    return 0;
 }
 
 void GotoStatementAST::accept0(ASTVisitor *visitor)
