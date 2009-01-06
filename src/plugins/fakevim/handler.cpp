@@ -167,7 +167,7 @@ public:
     void moveToNextWord(bool simple);
     void moveToWordBoundary(bool simple, bool forward);
     void handleFfTt(int key);
-    void handleCommand(const QString &cmd);
+    void handleExCommand(const QString &cmd);
 
     // helper function for handleCommand. return 1 based line index.
     int readLineCode(QString &cmd);
@@ -734,8 +734,7 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
-            handleCommand(m_commandBuffer);
-            m_commandBuffer.clear();
+            handleExCommand(m_commandBuffer);
             m_commandCode = 0;
         }
         m_mode = CommandMode;
@@ -745,7 +744,6 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             m_searchHistory.append(m_commandBuffer);
             m_lastSearchForward = (m_commandCode == '/');
             search(lastSearchString(), m_lastSearchForward);
-            m_commandBuffer.clear();
             m_commandCode = 0;
         }
         m_mode = CommandMode;
@@ -839,7 +837,7 @@ QTextCursor FakeVimHandler::Private::selectRange(int beginLine, int endLine)
     return tc;
 }
 
-void FakeVimHandler::Private::handleCommand(const QString &cmd0)
+void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
     if (cmd.startsWith("%"))
@@ -850,6 +848,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
 
     int line = readLineCode(cmd);
     if (line != -1)
+        m_mode = CommandMode;
         beginLine = line;
     
     if (cmd.startsWith(',')) {
@@ -881,6 +880,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             m_registers[reg.at(0).unicode()] = tc.selection().toPlainText();
         tc.removeSelectedText();
     } else if (reWrite.indexIn(cmd) != -1) { // :w
+        bool noArgs = (beginLine == -1);
         if (beginLine == -1)
             beginLine = 0;
         if (endLine == -1)
@@ -891,7 +891,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             fileName = m_currentFileName;
         QFile file(fileName);
         bool exists = file.exists();
-        if (exists && !forced) {
+        if (exists && !forced && !noArgs) {
             showMessage("E13: File exists (add ! to override)");
         } else {
             file.open(QIODevice::ReadWrite);
@@ -905,6 +905,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             m_commandBuffer = QString("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size());
+            m_mode = CommandMode;
             updateMiniBuffer();
         }
     } else if (cmd.startsWith("r ")) { // :r
@@ -916,6 +917,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
         EDITOR(setPlainText(data));
         m_commandBuffer = QString("\"%1\" %2L, %3C")
             .arg(m_currentFileName).arg(data.count('\n')).arg(data.size());
+        m_mode = CommandMode;
         updateMiniBuffer();
     } else {
         showMessage("E492: Not an editor command: " + cmd0);
@@ -1281,6 +1283,6 @@ void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
 {
     d->m_textedit = qobject_cast<QTextEdit *>(widget);
     d->m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
-    d->handleCommand(cmd);
+    d->handleExCommand(cmd);
 }
 
