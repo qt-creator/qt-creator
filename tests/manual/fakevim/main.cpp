@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     widget->resize(450, 350);
     widget->setFocus();
 
+
     FakeVimHandler fakeVim;
 
     QMainWindow mw;
@@ -40,9 +41,13 @@ int main(int argc, char *argv[])
     mw.move(0, 0);
     mw.show();
     
-    QFont font = mw.statusBar()->font();
+    QFont font = widget->font();
+    //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
+    //font.setFamily("Misc");
     font.setFamily("Monospace");
-    font.setStretch(QFont::SemiCondensed);
+    //font.setStretch(QFont::SemiCondensed);
+
+    widget->setFont(font);
     mw.statusBar()->setFont(font);
 
     QObject::connect(&fakeVim, SIGNAL(commandBufferChanged(QString)),

@@ -183,6 +183,10 @@ private:
     int readLineCode(QString &cmd);
     QTextCursor selectRange(int beginLine, int endLine);
 
+    void enterInsertMode();
+public:
+    void enterCommandMode();
+
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
@@ -601,17 +605,14 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'i') {
-        m_mode = InsertMode;
-        m_lastInsertion.clear();
+        enterInsertMode();
         updateMiniBuffer();
     } else if (key == 'I') {
-        m_mode = InsertMode;
+        enterInsertMode();
         if (m_gflag)
             m_tc.movePosition(StartOfLine, KeepAnchor);
         else
             moveToFirstNonBlankOnLine();
-        m_tc.clearSelection();
-        m_lastInsertion.clear();
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
@@ -649,13 +650,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
     } else if (key == 'o') {
-        m_mode = InsertMode;
-        m_lastInsertion.clear();
+        enterInsertMode();
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_tc.insertText("\n");
     } else if (key == 'O') {
-        m_mode = InsertMode;
-        m_lastInsertion.clear();
+        enterInsertMode();
         m_tc.movePosition(StartOfLine, MoveAnchor);
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_tc.insertText("\n");
@@ -747,7 +746,7 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         }
         recordInsert(m_tc.position() - m_lastInsertion.size(), data);
         m_tc.movePosition(Left, MoveAnchor, qMin(1, leftDist()));
-        m_mode = CommandMode;
+        enterCommandMode();
     } else if (key == Key_Left) {
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_lastInsertion.clear();
@@ -793,11 +792,11 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
     if (key == Key_Escape) {
         m_commandBuffer.clear();
         m_commandCode = 0;
-        m_mode = CommandMode;
+        enterCommandMode();
         updateMiniBuffer();
     } else if (key == Key_Backspace) {
         if (m_commandBuffer.isEmpty())
-            m_mode = CommandMode;
+            enterCommandMode();
         else
             m_commandBuffer.chop(1);
         updateMiniBuffer();
@@ -808,7 +807,7 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             handleExCommand(m_commandBuffer);
             m_commandCode = 0;
         }
-        m_mode = CommandMode;
+        enterCommandMode();
     } else if (key == Key_Return && isSearchCommand()) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
@@ -817,7 +816,7 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             search(lastSearchString(), m_lastSearchForward);
             m_commandCode = 0;
         }
-        m_mode = CommandMode;
+        enterCommandMode();
         updateMiniBuffer();
     } else if (key == Key_Up && isSearchCommand()) {
         // FIXME: This and the three cases below are wrong as vim
@@ -919,7 +918,6 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
     int line = readLineCode(cmd);
     if (line != -1)
-        m_mode = CommandMode;
         beginLine = line;
     
     if (cmd.startsWith(',')) {
@@ -976,7 +974,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             m_commandBuffer = QString("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size());
-            m_mode = CommandMode;
+            enterCommandMode();
             updateMiniBuffer();
         }
     } else if (cmd.startsWith("r ")) { // :r
@@ -988,7 +986,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         EDITOR(setPlainText(data));
         m_commandBuffer = QString("\"%1\" %2L, %3C")
             .arg(m_currentFileName).arg(data.count('\n')).arg(data.size());
-        m_mode = CommandMode;
+        enterCommandMode();
         updateMiniBuffer();
     } else {
         showMessage("E492: Not an editor command: " + cmd0);
@@ -1306,7 +1304,22 @@ void FakeVimHandler::Private::recordRemove(int position, const QString &data)
     m_undoStack.push(op);
     m_redoStack.clear();
 }
- 
+
+void FakeVimHandler::Private::enterInsertMode()
+{
+    EDITOR(setOverwriteMode(false));
+    m_mode = InsertMode;
+    m_lastInsertion.clear();
+}
+
+void FakeVimHandler::Private::enterCommandMode()
+{
+    if (editor())
+        EDITOR(setOverwriteMode(true));
+    m_mode = CommandMode;
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimHandler
@@ -1332,23 +1345,19 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 void FakeVimHandler::addWidget(QWidget *widget)
 {
     widget->installEventFilter(this);
-    QFont font = widget->font();
-    //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
-    //font.setFamily("Misc");
-    font.setFamily("Monospace");
-    font.setStretch(QFont::SemiCondensed);
-    widget->setFont(font);
+    d->enterCommandMode();
     if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
-        ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QTextEdit::NoWrap);
     } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
-        ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
 }
 
 void FakeVimHandler::removeWidget(QWidget *widget)
 {
+    d->enterCommandMode();
     widget->removeEventFilter(this);
 }
 
