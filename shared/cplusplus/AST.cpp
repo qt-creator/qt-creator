@@ -1860,7 +1860,6 @@ unsigned NewExpressionAST::firstToken() const
 
 unsigned NewExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (new_initializer)
         return new_initializer->lastToken();
     else if (new_type_id)
@@ -1869,7 +1868,12 @@ unsigned NewExpressionAST::lastToken() const
         return type_id->lastToken();
     else if (expression)
         return expression->lastToken();
-    return new_token + 1;
+    else if (new_token)
+        return new_token + 1;
+    else if (scope_token)
+        return scope_token + 1;
+    // ### assert?
+    return 0;
 }
 
 void NewInitializerAST::accept0(ASTVisitor *visitor)
@@ -1886,8 +1890,11 @@ unsigned NewInitializerAST::firstToken() const
 
 unsigned NewInitializerAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    return lparen_token + 1;
 }
 
 void NewTypeIdAST::accept0(ASTVisitor *visitor)
@@ -1907,7 +1914,6 @@ unsigned NewTypeIdAST::firstToken() const
 
 unsigned NewTypeIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (new_declarator)
         return new_declarator->lastToken();
     else if (new_initializer)
@@ -1916,6 +1922,8 @@ unsigned NewTypeIdAST::lastToken() const
         if (! it->next)
             return it->lastToken();
     }
+
+    // ### assert?
     return 0;
 }
 
@@ -1932,7 +1940,6 @@ unsigned NumericLiteralAST::firstToken() const
 
 unsigned NumericLiteralAST::lastToken() const
 {
-    assert(0 && "review me");
     return token + 1;
 }
 
@@ -1949,9 +1956,10 @@ unsigned OperatorAST::firstToken() const
 
 unsigned OperatorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (close_token)
         return close_token + 1;
+    else if (open_token)
+        return open_token + 1;
     return op_token + 1;
 }
 
@@ -1969,7 +1977,6 @@ unsigned OperatorFunctionIdAST::firstToken() const
 
 unsigned OperatorFunctionIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (op)
         return op->lastToken();
     return operator_token + 1;
@@ -1992,17 +1999,17 @@ unsigned ParameterDeclarationAST::firstToken() const
 
 unsigned ParameterDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     else if (equal_token)
         return equal_token + 1;
     else if (declarator)
         return declarator->lastToken();
-        for (SpecifierAST *it = type_specifier; it; it = it->next) {
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+    // ### assert?
     return 0;
 }
 
@@ -2024,7 +2031,6 @@ unsigned ParameterDeclarationClauseAST::firstToken() const
 
 unsigned ParameterDeclarationClauseAST::lastToken() const
 {
-    assert(0 && "review me");
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     return parameter_declarations->lastToken();
@@ -2046,7 +2052,6 @@ unsigned PointerAST::firstToken() const
 
 unsigned PointerAST::lastToken() const
 {
-    assert(0 && "review me");
     for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2075,12 +2080,23 @@ unsigned PointerToMemberAST::firstToken() const
 
 unsigned PointerToMemberAST::lastToken() const
 {
-    assert(0 && "review me");
     for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
-    return star_token + 1;
+
+    if (star_token)
+        return star_token + 1;
+
+    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (global_scope_token)
+        return global_scope_token + 1;
+
+    return 0;
 }
 
 void PostIncrDecrAST::accept0(ASTVisitor *visitor)
@@ -2096,7 +2112,6 @@ unsigned PostIncrDecrAST::firstToken() const
 
 unsigned PostIncrDecrAST::lastToken() const
 {
-    assert(0 && "review me");
     return incr_decr_token + 1;
 }
 
@@ -2116,7 +2131,6 @@ unsigned PostfixExpressionAST::firstToken() const
 
 unsigned PostfixExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     for (PostfixAST *it = postfix_expressions; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2143,12 +2157,18 @@ unsigned QualifiedNameAST::firstToken() const
 
 unsigned QualifiedNameAST::lastToken() const
 {
-    assert(0 && "review me");
     if (unqualified_name)
         return unqualified_name->lastToken();
-    else if (nested_name_specifier)
-        return nested_name_specifier->lastToken();
-    return global_scope_token + 1;
+
+    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (global_scope_token)
+        return global_scope_token + 1;
+
+    return 0;
 }
 
 void ReferenceAST::accept0(ASTVisitor *visitor)
