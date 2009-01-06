@@ -625,6 +625,7 @@ void MainWindow::registerDefaultActions()
     // Toggle Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(Constants::ICON_TOGGLE_SIDEBAR),
                                         tr("Toggle Sidebar"), this);
+    m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, m_globalContext);
 #ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+0"));

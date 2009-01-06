@@ -166,6 +166,7 @@ int NavigationWidget::storedWidth()
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)
 {
     m_toggleSideBarAction->setEnabled(holder);
+    m_toggleSideBarAction->setChecked(holder && isShown());
 }
 
 void NavigationWidget::resizeEvent(QResizeEvent *re)
@@ -281,8 +282,12 @@ void NavigationWidget::setShown(bool b)
     if (m_shown == b)
         return;
     m_shown = b;
-    if (NavigationWidgetPlaceHolder::m_current)
+    if (NavigationWidgetPlaceHolder::m_current) {
         NavigationWidgetPlaceHolder::m_current->setVisible(m_shown && !m_suppressed);
+        m_toggleSideBarAction->setChecked(m_shown);
+    } else {
+        m_toggleSideBarAction->setChecked(false);
+    }
 }
 
 bool NavigationWidget::isShown() const
