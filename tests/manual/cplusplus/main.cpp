@@ -119,6 +119,25 @@ public:
     }
 
 protected:
+    bool isEnumOrTypedefEnum(SpecifierAST *spec) {
+        if (! spec)
+            return false;
+        if (SimpleSpecifierAST *simpleSpec = spec->asSimpleSpecifier()) {
+            if (tokenKind(simpleSpec->specifier_token) == T_TYPEDEF)
+                return isEnumOrTypedefEnum(spec->next);
+        }
+        return spec->asEnumSpecifier() != 0;
+    }
+    virtual bool visit(SimpleDeclarationAST *ast) {
+        if (isEnumOrTypedefEnum(ast->decl_specifier_seq)) {
+            //remove(ast->firstToken(), ast->lastToken());
+            insertTextBefore(ast->firstToken(), "/* #REF# removed ");
+            insertTextAfter(ast->lastToken() - 1, "*/");
+            return true;
+        }
+        return true;
+    }
+
     virtual bool visit(AccessDeclarationAST *ast)
     {
         if (tokenKind(ast->access_specifier_token) == T_PRIVATE) {
@@ -164,7 +183,11 @@ protected:
         if (ast->lbrace_token)
             insertTextAfter(ast->lbrace_token, " Q_OBJECT\n");
 
-        return true;
+        for (DeclarationAST *it = ast->member_specifiers; it; it = it->next) {
+            accept(it);
+        }
+
+        return false;
     }
 };
 
