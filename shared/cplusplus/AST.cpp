@@ -2499,7 +2499,6 @@ unsigned ThisExpressionAST::firstToken() const
 
 unsigned ThisExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     return this_token + 1;
 }
 
@@ -2517,7 +2516,6 @@ unsigned ThrowExpressionAST::firstToken() const
 
 unsigned ThrowExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return throw_token + 1;
@@ -2539,7 +2537,6 @@ unsigned TranslationUnitAST::firstToken() const
 
 unsigned TranslationUnitAST::lastToken() const
 {
-    assert(0 && "review me");
     for (DeclarationAST *it = declarations; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2562,13 +2559,14 @@ unsigned TryBlockStatementAST::firstToken() const
 
 unsigned TryBlockStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     for (CatchClauseAST *it = catch_clause_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     if (statement)
         return statement->lastToken();
+
     return try_token + 1;
 }
 
@@ -2590,8 +2588,24 @@ unsigned TypeConstructorCallAST::firstToken() const
 
 unsigned TypeConstructorCallAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+
+    for (ExpressionListAST *it = expression_list; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (lparen_token)
+        return lparen_token + 1;
+
+
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return 0;
 }
 
 void TypeIdAST::accept0(ASTVisitor *visitor)
