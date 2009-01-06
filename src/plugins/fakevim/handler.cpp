@@ -118,7 +118,7 @@ public:
     void handleCommandMode(int key, const QString &text);
     void handleRegisterMode(int key, const QString &text);
     void handleExMode(int key, const QString &text);
-    void finishMovement();
+    void finishMovement(const QString &text = QString());
     void updateMiniBuffer();
     void search(const QString &needle, bool forward);
     void showMessage(const QString &msg);
@@ -184,6 +184,10 @@ public:
 
     bool m_lastSearchForward;
     QString m_lastInsertion;
+
+    // extra data for '.'
+    QString m_dotCount;
+    QString m_dotCommand;
 
     // history for '/'
     QString lastSearchString() const;
@@ -272,14 +276,18 @@ void FakeVimHandler::Private::handleKey(int key, const QString &text)
         handleExMode(key, text);
 }
 
-void FakeVimHandler::Private::finishMovement()
+void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 {
     if (m_submode == ChangeSubMode) {
+        if (!dotCommand.isEmpty())
+            m_dotCommand = "c" + dotCommand;
         m_registers[m_register] = m_tc.selectedText();
         m_tc.removeSelectedText();
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
+        if (!dotCommand.isEmpty())
+            m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = m_tc.selectedText();
         m_tc.removeSelectedText();
         m_submode = NoSubMode;
@@ -346,12 +354,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(StartOfLine, MoveAnchor);
         m_tc.movePosition(Down, KeepAnchor, count());
         m_registers[m_register] = m_tc.selectedText();
-        finishMovement();
+        finishMovement("c");
     } else if (m_submode == DeleteSubMode && key == 'd') {
         m_tc.movePosition(StartOfLine, MoveAnchor);
         m_tc.movePosition(Down, KeepAnchor, count());
         m_registers[m_register] = m_tc.selectedText();
-        finishMovement();
+        finishMovement("d");
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
             // cursor line to top of window, cursor on first non-blank
@@ -365,7 +373,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (m_subsubmode == FtSubSubMode) {
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
-        finishMovement();
+        finishMovement(QString(QChar(m_subsubdata)) + QChar(key));
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
         m_subsubmode = NoSubSubMode;
@@ -417,6 +425,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == '$' || key == Key_End) {
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
+    } else if (key == '.') {
+        qDebug() << "REPEATING" << m_dotCommand;
+        for (int i = count(); --i >= 0; )
+            foreach (QChar c, m_dotCommand)
+                handleKey(c.unicode(), QString(c));
     } else if (key == 'a') {
         m_mode = InsertMode;
         m_lastInsertion.clear();
@@ -438,23 +451,21 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.beginEditBlock();
     } else if (key == 'C') {
         m_submode = ChangeSubMode;
-        m_tc.beginEditBlock();
+        //m_tc.beginEditBlock();
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
+    } else if (key == 'd' && m_visualLineMode) {
+        leaveVisualLineMode();
+        int beginLine = lineForPosition(m_marks['<']);
+        int endLine = lineForPosition(m_marks['>']);
+        m_tc = selectRange(beginLine, endLine);
+        m_tc.removeSelectedText();
     } else if (key == 'd') {
-        if (m_visualLineMode) {
-            leaveVisualLineMode();
-            int beginLine = lineForPosition(m_marks['<']);
-            int endLine = lineForPosition(m_marks['>']);
-            m_tc = selectRange(beginLine, endLine);
-            m_tc.removeSelectedText();
-        } else {
-            if (atEol())
-                m_tc.movePosition(Left, MoveAnchor, 1);
-            m_opcount = m_mvcount;
-            m_mvcount.clear();
-            m_submode = DeleteSubMode;
-        }
+        if (atEol())
+            m_tc.movePosition(Left, MoveAnchor, 1);
+        m_opcount = m_mvcount;
+        m_mvcount.clear();
+        m_submode = DeleteSubMode;
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
@@ -490,7 +501,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'i') {
         m_mode = InsertMode;
-        m_tc.beginEditBlock();
+        //m_tc.beginEditBlock();
         m_lastInsertion.clear();
     } else if (key == 'I') {
         m_mode = InsertMode;
@@ -499,7 +510,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         else
             moveToFirstNonBlankOnLine();
         m_tc.clearSelection();
-        m_tc.beginEditBlock();
+        //m_tc.beginEditBlock();
         m_lastInsertion.clear();
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
@@ -568,9 +579,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         EDITOR(redo());
     } else if (key == 's') {
         m_submode = ChangeSubMode;
-        m_tc.beginEditBlock();
+        //m_tc.beginEditBlock();
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
-        finishMovement();
     } else if (key == 't' || key == 'T') {
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
@@ -580,16 +590,16 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         enterVisualLineMode();
     } else if (key == 'w') {
         moveToNextWord(false);
-        finishMovement();
+        finishMovement("w");
     } else if (key == 'W') {
         moveToNextWord(true);
-        finishMovement();
+        finishMovement("W");
     } else if (key == 'x') { // = "dl"
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
         m_submode = DeleteSubMode;
         m_tc.movePosition(Right, KeepAnchor, qMin(count(), rightDist()));
-        finishMovement();
+        finishMovement("l");
     } else if (key == 'X') {
         if (leftDist() > 0) {
             m_tc.movePosition(Left, KeepAnchor, qMin(count(), leftDist()));
