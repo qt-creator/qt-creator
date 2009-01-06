@@ -1352,8 +1352,12 @@ unsigned ExceptionSpecificationAST::lastToken() const
     return throw_token + 1;
 }
 
-void ExpressionListAST::accept0(ASTVisitor *)
-{ assert(0); }
+void ExpressionListAST::accept0(ASTVisitor *visitor)
+{
+    for (const ExpressionListAST *it = this; it; it = it->next) {
+        accept(it->expression, visitor);
+    }
+}
 
 unsigned ExpressionListAST::firstToken() const
 {
@@ -1821,9 +1825,11 @@ void NewDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         for (PtrOperatorAST *ptr_op = ptr_operators; ptr_op;
-                 ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next))
+                 ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next)) {
             accept(ptr_op, visitor);
-        // ### TODO accept the brackets
+        }
+
+        accept(declarator, visitor);
     }
 }
 
@@ -1834,10 +1840,14 @@ unsigned NewDeclaratorAST::firstToken() const
 
 unsigned NewDeclaratorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declarator)
         return declarator->lastToken();
-    assert(0); // ### implement me
+
+    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     return 0;
 }
 
@@ -2184,7 +2194,6 @@ unsigned ReferenceAST::firstToken() const
 
 unsigned ReferenceAST::lastToken() const
 {
-    assert(0 && "review me");
     return amp_token + 1;
 }
 
@@ -2202,8 +2211,11 @@ unsigned ReturnStatementAST::firstToken() const
 
 unsigned ReturnStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    return return_token + 1;
 }
 
 void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
@@ -2222,23 +2234,24 @@ unsigned SimpleDeclarationAST::firstToken() const
         return decl_specifier_seq->firstToken();
     else if (declarators)
         return declarators->firstToken();
-    else
-        return semicolon_token;
+    return semicolon_token;
 }
 
 unsigned SimpleDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (semicolon_token)
         return semicolon_token + 1;
+
     for (DeclaratorListAST *it = declarators; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     for (SpecifierAST *it = decl_specifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     return 0;
 }
 
@@ -2255,7 +2268,6 @@ unsigned SimpleNameAST::firstToken() const
 
 unsigned SimpleNameAST::lastToken() const
 {
-    assert(0 && "review me");
     return identifier_token + 1;
 }
 
@@ -2272,7 +2284,6 @@ unsigned SimpleSpecifierAST::firstToken() const
 
 unsigned SimpleSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     return specifier_token + 1;
 }
 
@@ -2290,7 +2301,6 @@ unsigned TypeofSpecifierAST::firstToken() const
 
 unsigned TypeofSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return typeof_token + 1;
@@ -2310,7 +2320,6 @@ unsigned SizeofExpressionAST::firstToken() const
 
 unsigned SizeofExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return sizeof_token + 1;
@@ -2330,7 +2339,6 @@ unsigned StringLiteralAST::firstToken() const
 
 unsigned StringLiteralAST::lastToken() const
 {
-    assert(0 && "review me");
     if (next)
         return next->lastToken();
     return token + 1;
@@ -2351,10 +2359,15 @@ unsigned SwitchStatementAST::firstToken() const
 
 unsigned SwitchStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (statement)
         return statement->lastToken();
-    return rparen_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (condition)
+        return condition->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return switch_token + 1;
 }
 
 void TemplateArgumentListAST::accept0(ASTVisitor *visitor)
@@ -2372,9 +2385,8 @@ unsigned TemplateArgumentListAST::firstToken() const
 
 unsigned TemplateArgumentListAST::lastToken() const
 {
-    assert(0 && "review me");
     for (const TemplateArgumentListAST *it = this; it; it = it->next) {
-        if (! it->next)
+        if (! it->next && it->template_argument)
             return it->template_argument->lastToken();
     }
     return 0;
@@ -2399,10 +2411,24 @@ unsigned TemplateDeclarationAST::firstToken() const
 
 unsigned TemplateDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declaration)
         return declaration->lastToken();
-    return greater_token + 1;
+    else if (greater_token)
+        return greater_token + 1;
+
+    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+    else if (template_token)
+        return template_token + 1;
+    else if (export_token)
+        return export_token + 1;
+
+    return 0;
 }
 
 void TemplateIdAST::accept0(ASTVisitor *visitor)
@@ -2421,8 +2447,18 @@ unsigned TemplateIdAST::firstToken() const
 
 unsigned TemplateIdAST::lastToken() const
 {
-    assert(0 && "review me");
-    return greater_token + 1;
+    if (greater_token)
+        return greater_token + 1;
+
+    for (TemplateArgumentListAST *it = template_arguments; it; it = it->next) {
+        if (! it->next && it->template_argument)
+            return it->template_argument->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+
+    return identifier_token + 1;
 }
 
 void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
@@ -2438,7 +2474,6 @@ unsigned TemplateTypeParameterAST::firstToken() const
 
 unsigned TemplateTypeParameterAST::lastToken() const
 {
-    assert(0 && "review me");
     if (type_id)
         return type_id->lastToken();
     else if (equal_token)
@@ -2447,7 +2482,18 @@ unsigned TemplateTypeParameterAST::lastToken() const
         return name->lastToken();
     else if (class_token)
         return class_token + 1;
-    return greater_token + 1;
+    else if (greater_token)
+        return greater_token + 1;
+
+    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+
+    return template_token + 1;
 }
 
 void ThisExpressionAST::accept0(ASTVisitor *visitor)
@@ -2463,7 +2509,6 @@ unsigned ThisExpressionAST::firstToken() const
 
 unsigned ThisExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     return this_token + 1;
 }
 
@@ -2481,7 +2526,6 @@ unsigned ThrowExpressionAST::firstToken() const
 
 unsigned ThrowExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return throw_token + 1;
@@ -2503,7 +2547,6 @@ unsigned TranslationUnitAST::firstToken() const
 
 unsigned TranslationUnitAST::lastToken() const
 {
-    assert(0 && "review me");
     for (DeclarationAST *it = declarations; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2526,13 +2569,14 @@ unsigned TryBlockStatementAST::firstToken() const
 
 unsigned TryBlockStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     for (CatchClauseAST *it = catch_clause_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     if (statement)
         return statement->lastToken();
+
     return try_token + 1;
 }
 
@@ -2554,8 +2598,24 @@ unsigned TypeConstructorCallAST::firstToken() const
 
 unsigned TypeConstructorCallAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+
+    for (ExpressionListAST *it = expression_list; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (lparen_token)
+        return lparen_token + 1;
+
+
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return 0;
 }
 
 void TypeIdAST::accept0(ASTVisitor *visitor)
@@ -2574,10 +2634,15 @@ unsigned TypeIdAST::firstToken() const
 
 unsigned TypeIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declarator)
         return declarator->lastToken();
-    return type_specifier->lastToken();
+
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return 0;
 }
 
 void TypeidExpressionAST::accept0(ASTVisitor *visitor)
@@ -2594,8 +2659,14 @@ unsigned TypeidExpressionAST::firstToken() const
 
 unsigned TypeidExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+
+    return typeid_token + 1;
 }
 
 void TypenameCallExpressionAST::accept0(ASTVisitor *visitor)
@@ -2615,8 +2686,20 @@ unsigned TypenameCallExpressionAST::firstToken() const
 
 unsigned TypenameCallExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+
+    for (ExpressionListAST *it = expression_list; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (lparen_token)
+        return lparen_token + 1;
+    else if (name)
+        return name->lastToken();
+
+    return typename_token + 1;
 }
 
 void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
@@ -2634,7 +2717,6 @@ unsigned TypenameTypeParameterAST::firstToken() const
 
 unsigned TypenameTypeParameterAST::lastToken() const
 {
-    assert(0 && "review me");
     if (type_id)
         return type_id->lastToken();
     else if (equal_token)
@@ -2658,7 +2740,6 @@ unsigned UnaryExpressionAST::firstToken() const
 
 unsigned UnaryExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return unary_op_token + 1;
@@ -2678,8 +2759,13 @@ unsigned UsingAST::firstToken() const
 
 unsigned UsingAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (name)
+        return name->lastToken();
+    else if (typename_token)
+        return typename_token + 1;
+    return using_token + 1;
 }
 
 void UsingDirectiveAST::accept0(ASTVisitor *visitor)
@@ -2696,8 +2782,13 @@ unsigned UsingDirectiveAST::firstToken() const
 
 unsigned UsingDirectiveAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (name)
+        return name->lastToken();
+    else if (namespace_token)
+        return namespace_token + 1;
+    return using_token + 1;
 }
 
 void WhileStatementAST::accept0(ASTVisitor *visitor)
@@ -2715,10 +2806,15 @@ unsigned WhileStatementAST::firstToken() const
 
 unsigned WhileStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (statement)
         return statement->lastToken();
-    return rparen_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (condition)
+        return condition->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return while_token + 1;
 }
 
 CPLUSPLUS_END_NAMESPACE
