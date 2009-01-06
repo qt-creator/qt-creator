@@ -46,6 +46,7 @@
 #include <QtGui/QScrollBar>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
 
@@ -131,6 +132,7 @@ public:
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
 
     int lastPositionInDocument() const;
+    int positionForLine(int line) const; // 1 based
 
     // all zero-based counting
     int cursorLineOnScreen() const;
@@ -149,6 +151,7 @@ public:
 
     // helper function for handleCommand. return 1 based line index.
     int readLineCode(QString &cmd);
+    QTextCursor selectRange(int beginLine, int endLine);
 
     FakeVimHandler *q;
     Mode m_mode;
@@ -360,7 +363,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (m_subsubmode == BackTickSubSubMode
             || m_subsubmode == TickSubSubMode) {
         if (m_marks.contains(key)) {
-            m_tc.setPosition(m_marks[key]);
+            m_tc.setPosition(m_marks[key], MoveAnchor);
             if (m_subsubmode == TickSubSubMode)
                 moveToFirstNonBlankOnLine();
             finishMovement();
@@ -453,7 +456,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_gflag = true;
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
-        m_tc.setPosition(m_tc.document()->findBlockByNumber(n - 1).position());
+        m_tc.setPosition(positionForLine(n), MoveAnchor);
         if (m_config.contains(ConfigStartOfLine))
             moveToFirstNonBlankOnLine();
         finishMovement();
@@ -754,6 +757,14 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     return -1; 
 }
 
+QTextCursor FakeVimHandler::Private::selectRange(int beginLine, int endLine)
+{
+    QTextCursor tc = m_tc;
+    tc.setPosition(positionForLine(beginLine), MoveAnchor);
+    tc.setPosition(positionForLine(endLine + 1), KeepAnchor);
+    return tc;
+}
+
 void FakeVimHandler::Private::handleCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
@@ -777,15 +788,29 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
     //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0;
 
     static QRegExp reWrite("^w!?( (.*))?$");
+    static QRegExp reDelete("^d( (.*))?$");
 
     if (cmd.isEmpty()) {
-        m_tc.setPosition(m_tc.block().document()
-            ->findBlockByNumber(beginLine - 1).position());
+        m_tc.setPosition(positionForLine(beginLine));
         showMessage(QString());
-    } else if (cmd == "q!" || cmd == "q") {
+    } else if (cmd == "q!" || cmd == "q") { // :q
         q->quitRequested(THE_EDITOR);
         showMessage(QString());
-    } else if (reWrite.indexIn(cmd) != -1) {
+    } else if (reDelete.indexIn(cmd) != -1) { // :d
+        if (beginLine == -1)
+            beginLine = cursorLineInDocument();
+        if (endLine == -1)
+            endLine = cursorLineInDocument();
+        QTextCursor tc = selectRange(beginLine, endLine);
+        QString reg = reDelete.cap(2);
+        if (!reg.isEmpty())
+            m_registers[reg.at(0).unicode()] = tc.selection().toPlainText();
+        tc.removeSelectedText();
+    } else if (reWrite.indexIn(cmd) != -1) { // :w
+        if (beginLine == -1)
+            beginLine = 0;
+        if (endLine == -1)
+            endLine = linesInDocument();
         bool forced = cmd.startsWith("w!");
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
@@ -796,8 +821,10 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             showMessage("E13: File exists (add ! to override)");
         } else {
             file.open(QIODevice::ReadWrite);
+            QTextCursor tc = selectRange(beginLine, endLine);
+            QString text = tc.selection().toPlainText();
             QTextStream ts(&file);
-            ts << EDITOR(toPlainText());
+            ts << text;
             file.close();
             file.open(QIODevice::ReadWrite);
             QByteArray ba = file.readAll();
@@ -1008,6 +1035,11 @@ int FakeVimHandler::Private::lastPositionInDocument() const
 QString FakeVimHandler::Private::lastSearchString() const
 {
      return m_searchHistory.empty() ? QString() : m_searchHistory.back();
+}
+
+int FakeVimHandler::Private::positionForLine(int line) const
+{
+    return m_tc.block().document()->findBlockByNumber(line - 1).position();
 }
 
 ///////////////////////////////////////////////////////////////////////
