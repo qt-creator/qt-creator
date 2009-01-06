@@ -76,7 +76,6 @@ FORMS += attachexternaldialog.ui \
     attachremotedialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
-    mode.ui \
     gdboptionpage.ui \
     startexternaldialog.ui \
 
