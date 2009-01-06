@@ -771,8 +771,8 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
     if (cmd.startsWith("%"))
         cmd = "1,$" + cmd.mid(1);
 
-    int beginLine = 0;
-    int endLine = linesInDocument();
+    int beginLine = -1;
+    int endLine = -1;
 
     int line = readLineCode(cmd);
     if (line != -1)
