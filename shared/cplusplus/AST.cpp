@@ -2052,7 +2052,6 @@ unsigned PointerAST::firstToken() const
 
 unsigned PointerAST::lastToken() const
 {
-    assert(0 && "review me");
     for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2081,12 +2080,23 @@ unsigned PointerToMemberAST::firstToken() const
 
 unsigned PointerToMemberAST::lastToken() const
 {
-    assert(0 && "review me");
     for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
-    return star_token + 1;
+
+    if (star_token)
+        return star_token + 1;
+
+    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (global_scope_token)
+        return global_scope_token + 1;
+
+    return 0;
 }
 
 void PostIncrDecrAST::accept0(ASTVisitor *visitor)
