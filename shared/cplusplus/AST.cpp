@@ -2112,7 +2112,6 @@ unsigned PostIncrDecrAST::firstToken() const
 
 unsigned PostIncrDecrAST::lastToken() const
 {
-    assert(0 && "review me");
     return incr_decr_token + 1;
 }
 
@@ -2132,7 +2131,6 @@ unsigned PostfixExpressionAST::firstToken() const
 
 unsigned PostfixExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     for (PostfixAST *it = postfix_expressions; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
@@ -2159,12 +2157,18 @@ unsigned QualifiedNameAST::firstToken() const
 
 unsigned QualifiedNameAST::lastToken() const
 {
-    assert(0 && "review me");
     if (unqualified_name)
         return unqualified_name->lastToken();
-    else if (nested_name_specifier)
-        return nested_name_specifier->lastToken();
-    return global_scope_token + 1;
+
+    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (global_scope_token)
+        return global_scope_token + 1;
+
+    return 0;
 }
 
 void ReferenceAST::accept0(ASTVisitor *visitor)
