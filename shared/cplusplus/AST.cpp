@@ -1914,7 +1914,6 @@ unsigned NewTypeIdAST::firstToken() const
 
 unsigned NewTypeIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (new_declarator)
         return new_declarator->lastToken();
     else if (new_initializer)
@@ -1923,6 +1922,8 @@ unsigned NewTypeIdAST::lastToken() const
         if (! it->next)
             return it->lastToken();
     }
+
+    // ### assert?
     return 0;
 }
 
@@ -1939,7 +1940,6 @@ unsigned NumericLiteralAST::firstToken() const
 
 unsigned NumericLiteralAST::lastToken() const
 {
-    assert(0 && "review me");
     return token + 1;
 }
 
@@ -1956,9 +1956,10 @@ unsigned OperatorAST::firstToken() const
 
 unsigned OperatorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (close_token)
         return close_token + 1;
+    else if (open_token)
+        return open_token + 1;
     return op_token + 1;
 }
 
@@ -1976,7 +1977,6 @@ unsigned OperatorFunctionIdAST::firstToken() const
 
 unsigned OperatorFunctionIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (op)
         return op->lastToken();
     return operator_token + 1;
