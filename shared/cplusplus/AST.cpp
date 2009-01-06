@@ -2707,7 +2707,6 @@ unsigned TypenameTypeParameterAST::firstToken() const
 
 unsigned TypenameTypeParameterAST::lastToken() const
 {
-    assert(0 && "review me");
     if (type_id)
         return type_id->lastToken();
     else if (equal_token)
