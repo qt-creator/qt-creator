@@ -1860,7 +1860,6 @@ unsigned NewExpressionAST::firstToken() const
 
 unsigned NewExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (new_initializer)
         return new_initializer->lastToken();
     else if (new_type_id)
@@ -1869,7 +1868,12 @@ unsigned NewExpressionAST::lastToken() const
         return type_id->lastToken();
     else if (expression)
         return expression->lastToken();
-    return new_token + 1;
+    else if (new_token)
+        return new_token + 1;
+    else if (scope_token)
+        return scope_token + 1;
+    // ### assert?
+    return 0;
 }
 
 void NewInitializerAST::accept0(ASTVisitor *visitor)
@@ -1886,8 +1890,11 @@ unsigned NewInitializerAST::firstToken() const
 
 unsigned NewInitializerAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    return lparen_token + 1;
 }
 
 void NewTypeIdAST::accept0(ASTVisitor *visitor)
