@@ -2437,8 +2437,18 @@ unsigned TemplateIdAST::firstToken() const
 
 unsigned TemplateIdAST::lastToken() const
 {
-    assert(0 && "review me");
-    return greater_token + 1;
+    if (greater_token)
+        return greater_token + 1;
+
+    for (TemplateArgumentListAST *it = template_arguments; it; it = it->next) {
+        if (! it->next && it->template_argument)
+            return it->template_argument->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+
+    return identifier_token + 1;
 }
 
 void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
