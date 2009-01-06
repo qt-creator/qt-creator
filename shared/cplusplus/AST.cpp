@@ -2624,10 +2624,15 @@ unsigned TypeIdAST::firstToken() const
 
 unsigned TypeIdAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declarator)
         return declarator->lastToken();
-    return type_specifier->lastToken();
+
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    return 0;
 }
 
 void TypeidExpressionAST::accept0(ASTVisitor *visitor)
