@@ -132,7 +132,8 @@ public:
     bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
 
     int lastPositionInDocument() const;
-    int positionForLine(int line) const; // 1 based
+    int positionForLine(int line) const; // 1 based line, 0 based pos
+    int lineForPosition(int pos) const;  // 1 based line, 0 based pos
 
     // all zero-based counting
     int cursorLineOnScreen() const;
@@ -184,14 +185,19 @@ public:
     bool m_lastSearchForward;
     QString m_lastInsertion;
 
-    // History for '/'
+    // history for '/'
     QString lastSearchString() const;
     QStringList m_searchHistory;
     int m_searchHistoryIndex;
 
-    // History for ':'
+    // history for ':'
     QStringList m_commandHistory;
     int m_commandHistoryIndex;
+
+    // visual line mode
+    void enterVisualLineMode();
+    void leaveVisualLineMode();
+    bool m_visualLineMode;
 
     // marks as lines
     QHash<int, int> m_marks;
@@ -214,6 +220,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_gflag = false;
     m_textedit = 0;
     m_plaintextedit = 0;
+    m_visualLineMode = false;
 
     m_config[ConfigStartOfLine] = ConfigOn;
 }
@@ -292,7 +299,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
     if (m_tc.isNull())
         return;
     QString msg;
-    if (m_currentMessage.isEmpty()) {
+    if (!m_currentMessage.isEmpty()) {
+        msg = m_currentMessage;
+        m_currentMessage.clear();
+    } else if (m_visualLineMode) {
+        msg = "-- VISUAL LINE--";
+    } else {
         msg = QChar(m_commandCode ? m_commandCode : ' ');
         for (int i = 0; i != m_commandBuffer.size(); ++i) {
             QChar c = m_commandBuffer.at(i);
@@ -303,9 +315,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
                 msg += c;
             }
         }
-    } else {
-        msg = m_currentMessage;
-        m_currentMessage.clear();
     }
     int l = cursorLineInDocument();
     int w = columnsOnScreen();
@@ -433,11 +442,19 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
     } else if (key == 'd') {
-        if (atEol())
-            m_tc.movePosition(Left, MoveAnchor, 1);
-        m_opcount = m_mvcount;
-        m_mvcount.clear();
-        m_submode = DeleteSubMode;
+        if (m_visualLineMode) {
+            leaveVisualLineMode();
+            int beginLine = lineForPosition(m_marks['<']);
+            int endLine = lineForPosition(m_marks['>']);
+            m_tc = selectRange(beginLine, endLine);
+            m_tc.removeSelectedText();
+        } else {
+            if (atEol())
+                m_tc.movePosition(Left, MoveAnchor, 1);
+            m_opcount = m_mvcount;
+            m_mvcount.clear();
+            m_submode = DeleteSubMode;
+        }
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
@@ -559,6 +576,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_subsubdata = key;
     } else if (key == 'u') {
         EDITOR(undo());
+    } else if (key == 'V') {
+        enterVisualLineMode();
     } else if (key == 'w') {
         moveToNextWord(false);
         finishMovement();
@@ -599,7 +618,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
     } else if (key == Key_Escape) {
-        // harmless
+        if (m_visualLineMode)
+            leaveVisualLineMode();
     } else {
         qDebug() << "Ignored" << key << text;
     }    
@@ -739,6 +759,15 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     if (c == '+') {
         int n = readLineCode(cmd);
         return cursorLineInDocument() + 1 + (n == -1 ? 1 : n);
+    }
+    if (c == '\'' && !cmd.isEmpty()) {
+        int pos = m_marks.value(cmd.at(0).unicode());
+        if (!pos) {
+             showMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+             return -1;
+        }
+        cmd = cmd.mid(1);
+        return lineForPosition(pos);
     }
     if (c.isDigit()) {
         int n = c.unicode() - '0';
@@ -1041,6 +1070,28 @@ int FakeVimHandler::Private::positionForLine(int line) const
 {
     return m_tc.block().document()->findBlockByNumber(line - 1).position();
 }
+
+int FakeVimHandler::Private::lineForPosition(int pos) const
+{
+    QTextCursor tc = m_tc;
+    tc.setPosition(pos);
+    return tc.block().blockNumber() + 1;
+}
+
+void FakeVimHandler::Private::enterVisualLineMode()
+{
+    m_visualLineMode = true;
+    m_marks['<'] = m_tc.position();
+    updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::leaveVisualLineMode()
+{
+    m_visualLineMode = false;
+    m_marks['>'] = m_tc.position();
+    updateMiniBuffer();
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
