@@ -343,8 +343,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- INSERT --";
     } else {
         msg = QChar(m_commandCode ? m_commandCode : ' ');
-        for (int i = 0; i != m_commandBuffer.size(); ++i) {
-            QChar c = m_commandBuffer.at(i);
+        foreach (QChar c, m_commandBuffer) {
             if (c.unicode() < 32) {
                 msg += '^';
                 msg += QChar(c.unicode() + 64);
@@ -352,16 +351,24 @@ void FakeVimHandler::Private::updateMiniBuffer()
                 msg += c;
             }
         }
+        msg += "  ";
     }
-    int L = linesInDocument();
+    int linesInDoc = linesInDocument();
     int l = cursorLineInDocument();
     int w = columnsOnScreen();
+    if (msg.size() > w - 20)
+        msg = ">" + msg.right(w - 19);
     msg += QString(w, ' ');
-    msg = msg.left(w - 20);
+    msg = msg.left(w - 19);
     QString pos = tr("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
-    msg += tr("%1").arg(pos, -12);
+    msg += tr("%1").arg(pos, -10);
     // FIXME: physical "-" logical
-    msg += L ? tr("%1%%").arg(l * 100 / L, 4) : QString("All");
+    if (linesInDoc != 0) {
+        msg += tr("%1").arg(l * 100 / linesInDoc, 4);
+        msg += "%";
+    } else {
+        msg += "All";
+    }
     emit q->commandBufferChanged(msg);
 }
 
@@ -895,9 +902,10 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
             file.close();
             file.open(QIODevice::ReadWrite);
             QByteArray ba = file.readAll();
-            showMessage(tr("\"%1\" %2 %3L, %4C written")
+            m_commandBuffer = QString("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
-                .arg(ba.count('\n')).arg(ba.size()));
+                .arg(ba.count('\n')).arg(ba.size());
+            updateMiniBuffer();
         }
     } else if (cmd.startsWith("r ")) { // :r
         m_currentFileName = cmd.mid(2);
