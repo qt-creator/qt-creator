@@ -1821,9 +1821,11 @@ void NewDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         for (PtrOperatorAST *ptr_op = ptr_operators; ptr_op;
-                 ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next))
+                 ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next)) {
             accept(ptr_op, visitor);
-        // ### TODO accept the brackets
+        }
+
+        accept(declarator, visitor);
     }
 }
 
@@ -1834,10 +1836,14 @@ unsigned NewDeclaratorAST::firstToken() const
 
 unsigned NewDeclaratorAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declarator)
         return declarator->lastToken();
-    assert(0); // ### implement me
+
+    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     return 0;
 }
 
