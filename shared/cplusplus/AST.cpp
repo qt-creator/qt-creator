@@ -2772,8 +2772,13 @@ unsigned UsingDirectiveAST::firstToken() const
 
 unsigned UsingDirectiveAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (name)
+        return name->lastToken();
+    else if (namespace_token)
+        return namespace_token + 1;
+    return using_token + 1;
 }
 
 void WhileStatementAST::accept0(ASTVisitor *visitor)
