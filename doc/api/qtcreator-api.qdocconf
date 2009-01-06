@@ -4,11 +4,13 @@ description             = Qt Creator API Documentation
 language                = Cpp
 
 headerdirs              = . \
+                          ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/core \
                           ../../src/plugins/core/actionmanager
 
 sourcedirs              = . \
+                          ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/core \
                           ../../src/plugins/core/actionmanager
@@ -20,8 +22,8 @@ imagedirs               = .
 
 indexes                 = $QTDIR/doc/html/qt.index
 
-outputdir               = ./html-api
-base                    = file:./html-api
+outputdir               = ./html
+base                    = file:./html
 versionsym              = 0.9.2
 codeindent              = 1
 

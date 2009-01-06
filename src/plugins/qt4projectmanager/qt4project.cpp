@@ -566,7 +566,6 @@ QStringList Qt4Project::files(FilesMode fileMode) const
         if (fileMode == AllFiles)
             files += m_projectFiles->generatedFiles[i];
     }
-    files += m_projectFiles->proFiles;
     return files;
 }
 

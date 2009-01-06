@@ -37,12 +37,12 @@
 
 /*!
     \namespace Aggregation
-    \brief Contains support for bundling related components, such that
-           each component exposes the properties and behavior of the
+    \brief The Aggregation namespace contains support for bundling related components,
+           such that each component exposes the properties and behavior of the
            other components to the outside.
 
     Components that are bundled to an Aggregate can be "cast" to each other
-    and have a coupled life cycle. See the documentation of Aggregate for
+    and have a coupled life cycle. See the documentation of Aggregation::Aggregate for
     details and examples.
 */
 

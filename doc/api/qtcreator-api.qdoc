@@ -3,7 +3,28 @@
     \title Qt Creator
 
     Qt Creator is Qt Software's crossplatform IDE. The core of Qt Creator is
-    basically only a \l{Plugin Loader Framework}{plugin loader}.
+    basically only a \l{ExtensionSystem}{plugin loader}.
+
+    \section1 Core Libraries
+
+    There are a few core libraries used by many parts of Qt Creator.
+
+    \table
+    \header
+    \o Library Name
+    \o Description
+
+    \row
+    \o \l{Aggregation}{Aggregation}
+    \o Adds functionality for "glueing" QObjects of different
+    types together, so you can "cast" between them.
+
+    \row
+    \o \l{ExtensionSystem}{ExtensionSystem}
+    \o Implements the plugin loader framework. Provides a base class for plugins and
+    basic mechanisms for plugin interaction like an object pool.
+
+    \endtable
 
     \section1 Plugins
 
@@ -18,44 +39,40 @@
     \o Description
 
     \row
-    \o \l{Core Plugin} {Core}
+    \o \l{Core} {Core}
     \o The core plugin. Provides the main window and managers for editors,
     actions, mode windows and files, just to mention the most important ones.
 
     \endtable
-
 */
 
 /*!
     \page classes.html
-    \title Qt Creator Classes and Namespaces
-
-    \section1 Classes
+    \title Qt Creator Classes
 
     \generatelist classes
-
-    \section1 Namespaces
-
-    \generatelist{namespaces}
 */
 
 /*!
-    \page interfaces.html
-    \title Interfaces
+    \page namespaces.html
+    \title Qt Creator Namespaces
+
+    \generatelist namespaces
+*/
+
+/*!
+    \page mainclasses.html
+    \title Qt Creator Main Classes
+
     \generatelist mainclasses
 
 */
 
 /*!
     \page functions.html
-    \title Member Function Index
+    \title Qt Creator Functions
+
     \generatelist functionindex
-*/
-
-/*!
-    \group pluginloader
-
-    \title Plugin Loader Framework
 */
 
 /*!

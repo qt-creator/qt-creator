@@ -38,6 +38,7 @@
 
 /*!
     \class ExtensionSystem::IPlugin
+    \mainclass
     \brief Base class for all plugins.
 
     The IPlugin class is an abstract class that must be implemented
