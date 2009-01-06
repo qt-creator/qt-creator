@@ -37,13 +37,18 @@
 #include <Scope.h>
 #include <Semantic.h>
 #include <TranslationUnit.h>
+#include <PrettyPrinter.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QList>
+#include <QFile>
+#include <QList>
+#include <QCoreApplication>
+#include <QStringList>
+#include <QFileInfo>
 #include <QtDebug>
 
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 class Rewrite
 {
@@ -191,8 +196,35 @@ protected:
     }
 };
 
-int main(int, char *[])
+int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
+
+    QStringList args = app.arguments();
+    const QString appName = args.first();
+    args.removeFirst();
+
+    bool test_rewriter = false;
+    bool test_pretty_printer = false;
+
+    foreach (QString arg, args) {
+        if (arg == QLatin1String("--test-rewriter"))
+            test_rewriter = true;
+        else if (arg == QLatin1String("--test-pretty-printer"))
+            test_pretty_printer = true;
+        else if (arg == QLatin1String("--help")) {
+            const QFileInfo appInfo(appName);
+            const QByteArray appFileName = QFile::encodeName(appInfo.fileName());
+
+            printf("Usage: %s [options]\n"
+                   "  --help                    Display ths information\n"
+                   "  --test-rewriter           Test the tree rewriter\n"
+                   "  --test-pretty-printer     Test the pretty printer\n",
+                   appFileName.constData());
+            return EXIT_SUCCESS;
+        }
+    }
+
     QFile in;
     if (! in.open(stdin, QFile::ReadOnly))
         return EXIT_FAILURE;
@@ -217,10 +249,14 @@ int main(int, char *[])
     }
 
     // test the rewriter
-    QByteArray out;
-    SimpleRefactor refactor(&control);
-    refactor(&unit, source, &out);
-    printf("%s\n", out.constData());
-
+    if (test_rewriter) {
+        QByteArray out;
+        SimpleRefactor refactor(&control);
+        refactor(&unit, source, &out);
+        printf("%s\n", out.constData());
+    } else if (test_pretty_printer) {
+        PrettyPrinter pp(&control, std::cout);
+        pp(unit.ast());
+    }
     return EXIT_SUCCESS;
 }
