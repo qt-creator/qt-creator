@@ -2649,8 +2649,14 @@ unsigned TypeidExpressionAST::firstToken() const
 
 unsigned TypeidExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+
+    return typeid_token + 1;
 }
 
 void TypenameCallExpressionAST::accept0(ASTVisitor *visitor)
