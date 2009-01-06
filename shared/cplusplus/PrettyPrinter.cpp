@@ -35,7 +35,7 @@
 #include "AST.h"
 #include <iostream>
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 CPLUSPLUS_USE_NAMESPACE
 
@@ -385,9 +385,13 @@ bool PrettyPrinter::visit(DeclaratorIdAST *ast)
     return false;
 }
 
-bool PrettyPrinter::visit(DeclaratorListAST *)
+bool PrettyPrinter::visit(DeclaratorListAST *ast)
 {
-    assert(0);
+    for (DeclaratorListAST *it = ast; it; it = it->next) {
+        accept(it->declarator);
+        if (it->next)
+            out << ", ";
+    }
     return false;
 }
 
@@ -1039,7 +1043,7 @@ bool PrettyPrinter::visit(TemplateTypeParameterAST *ast)
         for (DeclarationAST *it = ast->template_parameters; it; it = it->next) {
             accept(it);
             if (it->next)
-                out << ",. ";
+                out << ", ";
         }
         out << ' ';
     }

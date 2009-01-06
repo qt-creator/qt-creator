@@ -54,7 +54,8 @@ enum { debugLeaks = 0 };
 
 /*!
     \namespace ExtensionSystem
-    \brief Classes that belong to the core plugin system.
+    \brief The ExtensionSystem namespace provides
+    classes that belong to the core plugin system.
 
     The basic extension system contains of the plugin manager and its supporting classes,
     and the IPlugin interface that must be implemented by plugin providers.
@@ -444,11 +445,19 @@ void PluginManager::startTests()
 #endif
 }
 
+/*!
+ * \fn bool PluginManager::runningTests() const
+ * \internal
+ */
 bool PluginManager::runningTests() const
 {
     return !d->testSpecs.isEmpty();
 }
 
+/*!
+ * \fn QString PluginManager::testDataDirectory() const
+ * \internal
+ */
 QString PluginManager::testDataDirectory() const
 {
     QString s = QString::fromLocal8Bit(qgetenv("IDETESTDIR"));
