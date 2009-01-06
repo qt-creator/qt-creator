@@ -52,14 +52,15 @@
 
 using namespace FakeVim::Internal;
 
-#define StartOfLine QTextCursor::StartOfLine
-#define EndOfLine   QTextCursor::EndOfLine
-#define MoveAnchor  QTextCursor::MoveAnchor
-#define KeepAnchor  QTextCursor::KeepAnchor
-#define Up          QTextCursor::Up
-#define Down        QTextCursor::Down
-#define Right       QTextCursor::Right
-#define Left        QTextCursor::Left
+#define StartOfLine    QTextCursor::StartOfLine
+#define EndOfLine      QTextCursor::EndOfLine
+#define MoveAnchor     QTextCursor::MoveAnchor
+#define KeepAnchor     QTextCursor::KeepAnchor
+#define Up             QTextCursor::Up
+#define Down           QTextCursor::Down
+#define Right          QTextCursor::Right
+#define Left           QTextCursor::Left
+#define EndOfDocument  QTextCursor::End
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -78,7 +79,9 @@ enum Mode
 {
     InsertMode,
     CommandMode,
-    ExMode
+    ExMode,
+    SearchForwardMode,
+    SearchBackwardMode,
 };
 
 enum SubMode
@@ -87,7 +90,7 @@ enum SubMode
     RegisterSubMode,
     ChangeSubMode,
     DeleteSubMode,
-    ZSubMode
+    ZSubMode,
 };
 
 enum SubSubMode
@@ -147,7 +150,7 @@ private:
     void handleInsertMode(int key, const QString &text);
     void handleCommandMode(int key, const QString &text);
     void handleRegisterMode(int key, const QString &text);
-    void handleExMode(int key, const QString &text);
+    void handleMiniBufferModes(int key, const QString &text);
     void finishMovement(const QString &text = QString());
     void updateMiniBuffer();
     void updateSelection();
@@ -207,9 +210,8 @@ private:
     bool m_fakeEnd;
 
     QWidget *editor() const;
-    bool isSearchCommand() const
-        { return m_commandCode == '?' || m_commandCode == '/'; }
-    int m_commandCode; // ?, /, : ...
+    bool isSearchMode() const
+        { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
     int m_gflag;  // whether current command started with 'g'
     
     QString m_commandBuffer;
@@ -260,7 +262,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_mode = CommandMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandCode = 0;
     m_fakeEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
@@ -317,8 +318,9 @@ void FakeVimHandler::Private::handleKey(int key, const QString &text)
         handleInsertMode(key, text);
     else if (m_mode == CommandMode)
         handleCommandMode(key, text);
-    else if (m_mode == ExMode)
-        handleExMode(key, text);
+    else if (m_mode == ExMode || m_mode == SearchForwardMode
+            || m_mode == SearchBackwardMode)
+        handleMiniBufferModes(key, text);
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
@@ -413,7 +415,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
     } else if (m_mode == InsertMode) {
         msg = "-- INSERT --";
     } else {
-        msg = QChar(m_commandCode ? m_commandCode : ' ');
+        if (m_mode == SearchForwardMode) 
+            msg += '/';
+        else if (m_mode == SearchBackwardMode) 
+            msg += '?';
+        else if (m_mode == ExMode) 
+            msg += ':';
         foreach (QChar c, m_commandBuffer) {
             if (c.unicode() < 32) {
                 msg += '^';
@@ -502,17 +509,21 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         } else {
             m_mvcount.append(QChar(key));
         }
-    } else if (key == ':' || key == '/' || key == '?') {
-        m_commandCode = key;
+    } else if (key == ':') {
         m_mode = ExMode;
         m_commandBuffer.clear();
-        if (isSearchCommand()) {
-            m_searchHistory.append(QString());
-            m_searchHistoryIndex = m_searchHistory.size() - 1;
-        } else {
-            m_commandHistory.append(QString());
-            m_commandHistoryIndex = m_commandHistory.size() - 1;
+        if (m_visualMode != NoVisualMode) {
+            m_commandBuffer = "'<,'>";
+            leaveVisualMode();
         }
+        m_commandHistory.append(QString());
+        m_commandHistoryIndex = m_commandHistory.size() - 1;
+        updateMiniBuffer();
+    } else if (key == '/' || key == '?') {
+        m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
+        m_commandBuffer.clear();
+        m_searchHistory.append(QString());
+        m_searchHistoryIndex = m_searchHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '`') {
         m_subsubmode = BackTickSubSubMode;
@@ -785,13 +796,12 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     updateMiniBuffer();
 }
 
-void FakeVimHandler::Private::handleExMode(int key, const QString &text)
+void FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text)
 {
     Q_UNUSED(text)
 
     if (key == Key_Escape) {
         m_commandBuffer.clear();
-        m_commandCode = 0;
         enterCommandMode();
         updateMiniBuffer();
     } else if (key == Key_Backspace) {
@@ -800,25 +810,23 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
         else
             m_commandBuffer.chop(1);
         updateMiniBuffer();
-    } else if (key == Key_Return && m_commandCode == ':') {
+    } else if (key == Key_Return && m_mode == ExMode) {
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
             handleExCommand(m_commandBuffer);
-            m_commandCode = 0;
         }
         enterCommandMode();
-    } else if (key == Key_Return && isSearchCommand()) {
+    } else if (key == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
             m_searchHistory.append(m_commandBuffer);
-            m_lastSearchForward = (m_commandCode == '/');
+            m_lastSearchForward = (m_mode == SearchForwardMode);
             search(lastSearchString(), m_lastSearchForward);
-            m_commandCode = 0;
         }
         enterCommandMode();
         updateMiniBuffer();
-    } else if (key == Key_Up && isSearchCommand()) {
+    } else if (key == Key_Up && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entires in the history into account.
         if (m_searchHistoryIndex > 0) {
@@ -826,19 +834,19 @@ void FakeVimHandler::Private::handleExMode(int key, const QString &text)
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
             updateMiniBuffer();
         }
-    } else if (key == Key_Up && m_commandCode == ':') {
+    } else if (key == Key_Up && m_mode == ExMode) {
         if (m_commandHistoryIndex > 0) {
             --m_commandHistoryIndex;
             m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex);
             updateMiniBuffer();
         }
-    } else if (key == Key_Down && isSearchCommand()) {
+    } else if (key == Key_Down && isSearchMode()) {
         if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             m_commandBuffer = m_searchHistory.at(m_searchHistoryIndex);
             updateMiniBuffer();
         }
-    } else if (key == Key_Down && m_commandCode == ':') {
+    } else if (key == Key_Down && m_mode == ExMode) {
         if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
             ++m_commandHistoryIndex;
             m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex); 
@@ -875,6 +883,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     }
     if (c == '\'' && !cmd.isEmpty()) {
         int pos = m_marks.value(cmd.at(0).unicode());
+        qDebug() << " MARK: " << cmd.at(0) << pos << lineForPosition(pos);
         if (!pos) {
              showMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
              return -1;
@@ -903,7 +912,12 @@ QTextCursor FakeVimHandler::Private::selectRange(int beginLine, int endLine)
 {
     QTextCursor tc = m_tc;
     tc.setPosition(positionForLine(beginLine), MoveAnchor);
-    tc.setPosition(positionForLine(endLine + 1), KeepAnchor);
+    if (endLine == linesInDocument()) {
+        tc.setPosition(positionForLine(endLine), KeepAnchor);
+        tc.movePosition(EndOfLine, KeepAnchor);
+    } else {
+        tc.setPosition(positionForLine(endLine + 1), KeepAnchor);
+    }
     return tc;
 }
 
@@ -949,11 +963,13 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             m_registers[reg.at(0).unicode()] = tc.selection().toPlainText();
         tc.removeSelectedText();
     } else if (reWrite.indexIn(cmd) != -1) { // :w
+        enterCommandMode();
         bool noArgs = (beginLine == -1);
         if (beginLine == -1)
             beginLine = 0;
         if (endLine == -1)
             endLine = linesInDocument();
+        qDebug() << "LINES: " << beginLine << endLine;
         bool forced = cmd.startsWith("w!");
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
@@ -961,21 +977,21 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         QFile file(fileName);
         bool exists = file.exists();
         if (exists && !forced && !noArgs) {
-            showMessage("E13: File exists (add ! to override)");
-        } else {
-            file.open(QIODevice::ReadWrite);
+            showMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
+        } else if (file.open(QIODevice::ReadWrite)) {
             QTextCursor tc = selectRange(beginLine, endLine);
-            QString text = tc.selection().toPlainText();
-            QTextStream ts(&file);
-            ts << text;
+            qDebug() << "ANCHOR: " << tc.position() << tc.anchor()
+                << tc.selection().toPlainText();
+            { QTextStream ts(&file); ts << tc.selection().toPlainText(); }
             file.close();
-            file.open(QIODevice::ReadWrite);
+            file.open(QIODevice::ReadOnly);
             QByteArray ba = file.readAll();
             m_commandBuffer = QString("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size());
-            enterCommandMode();
             updateMiniBuffer();
+        } else {
+            showMessage(tr("Cannot open file '%1' for reading").arg(fileName));
         }
     } else if (cmd.startsWith("r ")) { // :r
         m_currentFileName = cmd.mid(2);
