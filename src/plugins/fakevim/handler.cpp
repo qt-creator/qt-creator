@@ -132,14 +132,14 @@ public:
 
     int lastPositionInDocument() const;
 
-	// all zero-based counting
-	int cursorLineOnScreen() const;
-	int linesOnScreen() const;
-	int columnsOnScreen() const;
-	int cursorLineInDocument() const;
-	int cursorColumnInDocument() const;
+    // all zero-based counting
+    int cursorLineOnScreen() const;
+    int linesOnScreen() const;
+    int columnsOnScreen() const;
+    int cursorLineInDocument() const;
+    int cursorColumnInDocument() const;
     int linesInDocument() const;
-	void scrollToLineInDocument(int line);
+    void scrollToLineInDocument(int line);
 
     void moveToFirstNonBlankOnLine();
     void moveToNextWord(bool simple);
@@ -343,7 +343,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (m_submode == ZSubMode) {
         if (key == Key_Return) {
             // cursor line to top of window, cursor on first non-blank
-			scrollToLineInDocument(cursorLineInDocument());
+            scrollToLineInDocument(cursorLineInDocument());
             moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
@@ -961,30 +961,30 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 
 int FakeVimHandler::Private::cursorLineOnScreen() const
 {
-	QRect rect = EDITOR(cursorRect());
-	return rect.y() / rect.height();
+    QRect rect = EDITOR(cursorRect());
+    return rect.y() / rect.height();
 }
 
 int FakeVimHandler::Private::linesOnScreen() const
 {
-	QRect rect = EDITOR(cursorRect());
-	return EDITOR(height()) / rect.height();
+    QRect rect = EDITOR(cursorRect());
+    return EDITOR(height()) / rect.height();
 }
 
 int FakeVimHandler::Private::columnsOnScreen() const
 {
-	QRect rect = EDITOR(cursorRect());
-	return EDITOR(width()) / rect.width();
+    QRect rect = EDITOR(cursorRect());
+    return EDITOR(width()) / rect.width();
 }
 
 int FakeVimHandler::Private::cursorLineInDocument() const
 {
-	return m_tc.block().blockNumber();
+    return m_tc.block().blockNumber();
 }
 
 int FakeVimHandler::Private::cursorColumnInDocument() const
 {
-	return m_tc.position() - m_tc.block().position();
+    return m_tc.position() - m_tc.block().position();
 }
 
 int FakeVimHandler::Private::linesInDocument() const
@@ -994,9 +994,9 @@ int FakeVimHandler::Private::linesInDocument() const
 
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
 {
-	// FIXME: works only for QPlainTextEdit
-	QScrollBar *scrollBar = EDITOR(verticalScrollBar());
-	scrollBar->setValue(line);
+    // FIXME: works only for QPlainTextEdit
+    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
+    scrollBar->setValue(line);
 }
 
 int FakeVimHandler::Private::lastPositionInDocument() const
