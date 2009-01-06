@@ -1999,17 +1999,17 @@ unsigned ParameterDeclarationAST::firstToken() const
 
 unsigned ParameterDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     else if (equal_token)
         return equal_token + 1;
     else if (declarator)
         return declarator->lastToken();
-        for (SpecifierAST *it = type_specifier; it; it = it->next) {
+    for (SpecifierAST *it = type_specifier; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+    // ### assert?
     return 0;
 }
 
@@ -2031,7 +2031,6 @@ unsigned ParameterDeclarationClauseAST::firstToken() const
 
 unsigned ParameterDeclarationClauseAST::lastToken() const
 {
-    assert(0 && "review me");
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     return parameter_declarations->lastToken();
