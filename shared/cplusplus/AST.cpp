@@ -2375,9 +2375,8 @@ unsigned TemplateArgumentListAST::firstToken() const
 
 unsigned TemplateArgumentListAST::lastToken() const
 {
-    assert(0 && "review me");
-    for (const TemplateArgumentListAST *it = this; it; it = it->next) {
-        if (! it->next)
+    for (TemplateArgumentListAST *it = this; it; it = it->next) {
+        if (! it->next && it->template_argument)
             return it->template_argument->lastToken();
     }
     return 0;
