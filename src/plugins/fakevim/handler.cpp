@@ -69,7 +69,6 @@ using namespace FakeVim::Internal;
 ///////////////////////////////////////////////////////////////////////
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
-#define THE_EDITOR (m_textedit ? (QWidget*)m_textedit : (QWidget*)m_plaintextedit)
 
 const int ParagraphSeparator = 0x00002029;
 
@@ -173,6 +172,7 @@ public:
 
     bool m_fakeEnd;
 
+    QWidget *editor();
     bool isSearchCommand() const
         { return m_commandCode == '?' || m_commandCode == '/'; }
     int m_commandCode; // ?, /, : ...
@@ -823,7 +823,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd0)
         m_tc.setPosition(positionForLine(beginLine));
         showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") { // :q
-        q->quitRequested(THE_EDITOR);
+        q->quitRequested(editor());
         showMessage(QString());
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         if (beginLine == -1)
@@ -1092,6 +1092,12 @@ void FakeVimHandler::Private::leaveVisualLineMode()
     updateMiniBuffer();
 }
 
+QWidget *FakeVimHandler::Private::editor()
+{
+    return m_textedit
+        ? static_cast<QWidget *>(m_textedit)
+        : static_cast<QWidget *>(m_plaintextedit);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
