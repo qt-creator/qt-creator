@@ -2676,8 +2676,20 @@ unsigned TypenameCallExpressionAST::firstToken() const
 
 unsigned TypenameCallExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
-    return rparen_token + 1;
+    if (rparen_token)
+        return rparen_token + 1;
+
+    for (ExpressionListAST *it = expression_list; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (lparen_token)
+        return lparen_token + 1;
+    else if (name)
+        return name->lastToken();
+
+    return typename_token + 1;
 }
 
 void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
