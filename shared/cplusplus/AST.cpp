@@ -2258,7 +2258,6 @@ unsigned SimpleNameAST::firstToken() const
 
 unsigned SimpleNameAST::lastToken() const
 {
-    assert(0 && "review me");
     return identifier_token + 1;
 }
 
@@ -2275,7 +2274,6 @@ unsigned SimpleSpecifierAST::firstToken() const
 
 unsigned SimpleSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     return specifier_token + 1;
 }
 
@@ -2293,7 +2291,6 @@ unsigned TypeofSpecifierAST::firstToken() const
 
 unsigned TypeofSpecifierAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return typeof_token + 1;
@@ -2313,7 +2310,6 @@ unsigned SizeofExpressionAST::firstToken() const
 
 unsigned SizeofExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return sizeof_token + 1;
@@ -2333,7 +2329,6 @@ unsigned StringLiteralAST::firstToken() const
 
 unsigned StringLiteralAST::lastToken() const
 {
-    assert(0 && "review me");
     if (next)
         return next->lastToken();
     return token + 1;
@@ -2354,10 +2349,15 @@ unsigned SwitchStatementAST::firstToken() const
 
 unsigned SwitchStatementAST::lastToken() const
 {
-    assert(0 && "review me");
     if (statement)
         return statement->lastToken();
-    return rparen_token + 1;
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (condition)
+        return condition->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return switch_token + 1;
 }
 
 void TemplateArgumentListAST::accept0(ASTVisitor *visitor)
