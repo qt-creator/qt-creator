@@ -99,6 +99,14 @@ enum SubSubMode
     TickSubSubMode      // used for '
 };
 
+enum VisualMode
+{
+    NoVisualMode,
+    VisualCharMode,
+    VisualLineMode,
+    VisualBlockMode,
+};
+
 static const QString ConfigStartOfLine = "startofline";
 static const QString ConfigOn = "on";
 
@@ -128,7 +136,9 @@ public:
     Private(FakeVimHandler *parent);
 
     bool eventFilter(QObject *ob, QEvent *ev);
+    void handleExCommand(const QString &cmd);
 
+private:
     static int shift(int key) { return key + 32; }
     static int control(int key) { return key + 256; }
 
@@ -140,6 +150,7 @@ public:
     void handleExMode(int key, const QString &text);
     void finishMovement(const QString &text = QString());
     void updateMiniBuffer();
+    void updateSelection();
     void search(const QString &needle, bool forward);
     void showMessage(const QString &msg);
 
@@ -167,20 +178,22 @@ public:
     void moveToNextWord(bool simple);
     void moveToWordBoundary(bool simple, bool forward);
     void handleFfTt(int key);
-    void handleExCommand(const QString &cmd);
 
     // helper function for handleCommand. return 1 based line index.
     int readLineCode(QString &cmd);
     QTextCursor selectRange(int beginLine, int endLine);
 
+public:
+    QTextEdit *m_textedit;
+    QPlainTextEdit *m_plaintextedit;
+
+private:
     FakeVimHandler *q;
     Mode m_mode;
     SubMode m_submode;
     SubSubMode m_subsubmode;
     int m_subsubdata;
     QString m_input;
-    QTextEdit *m_textedit;
-    QPlainTextEdit *m_plaintextedit;
     QTextCursor m_tc;
     QHash<int, QString> m_registers;
     int m_register;
@@ -225,9 +238,9 @@ public:
     int m_commandHistoryIndex;
 
     // visual line mode
-    void enterVisualLineMode();
-    void leaveVisualLineMode();
-    bool m_visualLineMode;
+    void enterVisualMode(VisualMode visualMode);
+    void leaveVisualMode();
+    VisualMode m_visualMode;
 
     // marks as lines
     QHash<int, int> m_marks;
@@ -250,7 +263,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_gflag = false;
     m_textedit = 0;
     m_plaintextedit = 0;
-    m_visualLineMode = false;
+    m_visualMode = NoVisualMode;
 
     m_config[ConfigStartOfLine] = ConfigOn;
 }
@@ -328,7 +341,42 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     m_gflag = false;
     m_register = '"';
     m_tc.clearSelection();
+
+    updateSelection();
     updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::updateSelection()
+{
+    QList<QTextEdit::ExtraSelection> selections;
+    if (m_visualMode != NoVisualMode) {
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = m_tc;
+        sel.format = m_tc.blockCharFormat();
+        sel.format.setFontWeight(QFont::Bold);
+        sel.format.setFontUnderline(true);
+        int pos = m_tc.position();
+        int anchor = m_marks['<'];
+        //qDebug() << "POS: " << pos << " ANCHOR: " << anchor;
+        if (m_visualMode == VisualCharMode) {
+            sel.cursor.setPosition(anchor, KeepAnchor);
+            selections.append(sel);
+        } else if (m_visualMode == VisualLineMode) {
+            sel.cursor.setPosition(qMin(pos, anchor), MoveAnchor);
+            sel.cursor.movePosition(StartOfLine, MoveAnchor);
+            sel.cursor.setPosition(qMax(pos, anchor), KeepAnchor);
+            sel.cursor.movePosition(EndOfLine, KeepAnchor);
+            selections.append(sel);
+        } else if (m_visualMode == VisualBlockMode) {
+            // FIXME: This shows lines right now...
+            sel.cursor.setPosition(qMin(pos, anchor), MoveAnchor);
+            sel.cursor.movePosition(StartOfLine, MoveAnchor);
+            sel.cursor.setPosition(qMax(pos, anchor), KeepAnchor);
+            sel.cursor.movePosition(EndOfLine, KeepAnchor);
+            selections.append(sel);
+        }
+    }
+    EDITOR(setExtraSelections(selections));
 }
 
 void FakeVimHandler::Private::updateMiniBuffer()
@@ -337,8 +385,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
     if (!m_currentMessage.isEmpty()) {
         msg = m_currentMessage;
         m_currentMessage.clear();
-    } else if (m_visualLineMode) {
+    } else if (m_visualMode == VisualCharMode) {
+        msg = "-- VISUAL --";
+    } else if (m_visualMode == VisualLineMode) {
         msg = "-- VISUAL LINE --";
+    } else if (m_visualMode == VisualBlockMode) {
+        msg = "-- VISUAL BLOCK --";
     } else if (m_mode == InsertMode) {
         msg = "-- INSERT --";
     } else {
@@ -488,18 +540,18 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_submode = ChangeSubMode;
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
-    } else if (key == 'd' && m_visualLineMode) {
-        leaveVisualLineMode();
-        int beginLine = lineForPosition(m_marks['<']);
-        int endLine = lineForPosition(m_marks['>']);
-        m_tc = selectRange(beginLine, endLine);
-        m_tc.removeSelectedText();
-    } else if (key == 'd') {
+    } else if (key == 'd' && m_visualMode == NoVisualMode) {
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
+    } else if (key == 'd') {
+        leaveVisualMode();
+        int beginLine = lineForPosition(m_marks['<']);
+        int endLine = lineForPosition(m_marks['>']);
+        m_tc = selectRange(beginLine, endLine);
+        m_tc.removeSelectedText();
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
@@ -615,8 +667,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_subsubdata = key;
     } else if (key == 'u') {
         undo();
+    } else if (key == 'v') {
+        enterVisualMode(VisualCharMode);
     } else if (key == 'V') {
-        enterVisualLineMode();
+        enterVisualMode(VisualLineMode);
+    } else if (key == control('v')) {
+        enterVisualMode(VisualBlockMode);
     } else if (key == 'w') {
         moveToNextWord(false);
         finishMovement("w");
@@ -657,8 +713,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
     } else if (key == Key_Escape) {
-        if (m_visualLineMode)
-            leaveVisualLineMode();
+        if (m_visualMode != NoVisualMode)
+            leaveVisualMode();
     } else {
         qDebug() << "Ignored" << key << text;
     }    
@@ -1135,16 +1191,16 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
     return tc.block().blockNumber() + 1;
 }
 
-void FakeVimHandler::Private::enterVisualLineMode()
+void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 {
-    m_visualLineMode = true;
+    m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
     updateMiniBuffer();
 }
 
-void FakeVimHandler::Private::leaveVisualLineMode()
+void FakeVimHandler::Private::leaveVisualMode()
 {
-    m_visualLineMode = false;
+    m_visualMode = NoVisualMode;
     m_marks['>'] = m_tc.position();
     updateMiniBuffer();
 }
