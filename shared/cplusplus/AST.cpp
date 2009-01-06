@@ -2464,7 +2464,6 @@ unsigned TemplateTypeParameterAST::firstToken() const
 
 unsigned TemplateTypeParameterAST::lastToken() const
 {
-    assert(0 && "review me");
     if (type_id)
         return type_id->lastToken();
     else if (equal_token)
@@ -2473,7 +2472,18 @@ unsigned TemplateTypeParameterAST::lastToken() const
         return name->lastToken();
     else if (class_token)
         return class_token + 1;
-    return greater_token + 1;
+    else if (greater_token)
+        return greater_token + 1;
+
+    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+
+    return template_token + 1;
 }
 
 void ThisExpressionAST::accept0(ASTVisitor *visitor)
