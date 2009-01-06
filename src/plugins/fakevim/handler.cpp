@@ -340,7 +340,9 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = m_currentMessage;
         m_currentMessage.clear();
     } else if (m_visualLineMode) {
-        msg = "-- VISUAL LINE--";
+        msg = "-- VISUAL LINE --";
+    } else if (m_mode == InsertMode) {
+        msg = "-- INSERT --";
     } else {
         msg = QChar(m_commandCode ? m_commandCode : ' ');
         for (int i = 0; i != m_commandBuffer.size(); ++i) {
@@ -463,6 +465,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_mode = InsertMode;
         m_lastInsertion.clear();
         m_tc.movePosition(Right, MoveAnchor, 1);
+        updateMiniBuffer();
     } else if (key == 'A') {
         m_mode = InsertMode;
         m_tc.movePosition(EndOfLine, MoveAnchor);
@@ -527,6 +530,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'i') {
         m_mode = InsertMode;
         m_lastInsertion.clear();
+        updateMiniBuffer();
     } else if (key == 'I') {
         m_mode = InsertMode;
         if (m_gflag)
@@ -701,7 +705,8 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     } else {
         m_lastInsertion.append(text);
         m_tc.insertText(text);
-    }    
+    }
+    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::handleExMode(int key, const QString &text)
