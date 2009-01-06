@@ -1352,8 +1352,12 @@ unsigned ExceptionSpecificationAST::lastToken() const
     return throw_token + 1;
 }
 
-void ExpressionListAST::accept0(ASTVisitor *)
-{ assert(0); }
+void ExpressionListAST::accept0(ASTVisitor *visitor)
+{
+    for (const ExpressionListAST *it = this; it; it = it->next) {
+        accept(it->expression, visitor);
+    }
+}
 
 unsigned ExpressionListAST::firstToken() const
 {
