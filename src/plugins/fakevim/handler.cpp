@@ -355,25 +355,40 @@ void FakeVimHandler::Private::updateSelection()
         sel.format = m_tc.blockCharFormat();
         sel.format.setFontWeight(QFont::Bold);
         sel.format.setFontUnderline(true);
-        int pos = m_tc.position();
-        int anchor = m_marks['<'];
-        //qDebug() << "POS: " << pos << " ANCHOR: " << anchor;
+        int cursorPos = m_tc.position();
+        int anchorPos = m_marks['<'];
+        //qDebug() << "POS: " << cursorPos << " ANCHOR: " << anchorPos;
         if (m_visualMode == VisualCharMode) {
-            sel.cursor.setPosition(anchor, KeepAnchor);
+            sel.cursor.setPosition(anchorPos, KeepAnchor);
             selections.append(sel);
         } else if (m_visualMode == VisualLineMode) {
-            sel.cursor.setPosition(qMin(pos, anchor), MoveAnchor);
+            sel.cursor.setPosition(qMin(cursorPos, anchorPos), MoveAnchor);
             sel.cursor.movePosition(StartOfLine, MoveAnchor);
-            sel.cursor.setPosition(qMax(pos, anchor), KeepAnchor);
+            sel.cursor.setPosition(qMax(cursorPos, anchorPos), KeepAnchor);
             sel.cursor.movePosition(EndOfLine, KeepAnchor);
             selections.append(sel);
         } else if (m_visualMode == VisualBlockMode) {
-            // FIXME: This shows lines right now...
-            sel.cursor.setPosition(qMin(pos, anchor), MoveAnchor);
-            sel.cursor.movePosition(StartOfLine, MoveAnchor);
-            sel.cursor.setPosition(qMax(pos, anchor), KeepAnchor);
-            sel.cursor.movePosition(EndOfLine, KeepAnchor);
-            selections.append(sel);
+            QTextCursor tc = m_tc;
+            tc.setPosition(anchorPos);
+            tc.movePosition(StartOfLine, MoveAnchor);
+            QTextBlock anchorBlock = tc.block();
+            QTextBlock cursorBlock = m_tc.block();
+            int anchorColumn = anchorPos - anchorBlock.position();
+            int cursorColumn = cursorPos - cursorBlock.position();
+            int startColumn = qMin(anchorColumn, cursorColumn);
+            int endColumn = qMax(anchorColumn, cursorColumn);
+            int endPos = cursorBlock.position();
+            while (tc.position() <= endPos) {
+                if (startColumn < tc.block().length() - 1) {
+                    int last = qMin(tc.block().length() - 1, endColumn);
+                    int len = last - startColumn + 1;
+                    sel.cursor = tc;
+                    sel.cursor.movePosition(Right, MoveAnchor, startColumn);
+                    sel.cursor.movePosition(Right, KeepAnchor, len);
+                    selections.append(sel);
+                }
+                tc.movePosition(Down, MoveAnchor, 1);
+            }
         }
     }
     EDITOR(setExtraSelections(selections));
@@ -1196,6 +1211,7 @@ void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
     m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
     updateMiniBuffer();
+    updateSelection();
 }
 
 void FakeVimHandler::Private::leaveVisualMode()
@@ -1203,6 +1219,7 @@ void FakeVimHandler::Private::leaveVisualMode()
     m_visualMode = NoVisualMode;
     m_marks['>'] = m_tc.position();
     updateMiniBuffer();
+    updateSelection();
 }
 
 QWidget *FakeVimHandler::Private::editor() const
