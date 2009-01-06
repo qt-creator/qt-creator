@@ -2730,7 +2730,6 @@ unsigned UnaryExpressionAST::firstToken() const
 
 unsigned UnaryExpressionAST::lastToken() const
 {
-    assert(0 && "review me");
     if (expression)
         return expression->lastToken();
     return unary_op_token + 1;
@@ -2750,8 +2749,13 @@ unsigned UsingAST::firstToken() const
 
 unsigned UsingAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (name)
+        return name->lastToken();
+    else if (typename_token)
+        return typename_token + 1;
+    return using_token + 1;
 }
 
 void UsingDirectiveAST::accept0(ASTVisitor *visitor)
