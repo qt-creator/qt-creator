@@ -2375,7 +2375,7 @@ unsigned TemplateArgumentListAST::firstToken() const
 
 unsigned TemplateArgumentListAST::lastToken() const
 {
-    for (TemplateArgumentListAST *it = this; it; it = it->next) {
+    for (const TemplateArgumentListAST *it = this; it; it = it->next) {
         if (! it->next && it->template_argument)
             return it->template_argument->lastToken();
     }
@@ -2401,10 +2401,24 @@ unsigned TemplateDeclarationAST::firstToken() const
 
 unsigned TemplateDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (declaration)
         return declaration->lastToken();
-    return greater_token + 1;
+    else if (greater_token)
+        return greater_token + 1;
+
+    for (DeclarationAST *it = template_parameters; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
+    if (less_token)
+        return less_token + 1;
+    else if (template_token)
+        return template_token + 1;
+    else if (export_token)
+        return export_token + 1;
+
+    return 0;
 }
 
 void TemplateIdAST::accept0(ASTVisitor *visitor)
