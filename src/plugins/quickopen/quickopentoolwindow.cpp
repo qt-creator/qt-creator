@@ -451,14 +451,25 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
 
 void QuickOpenToolWindow::filterSelected()
 {
-    const char * const TEXT = "<type here>";
+    QString searchText = "<type here>";
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
     IQuickOpenFilter *filter = action->data().value<IQuickOpenFilter*>();
     QTC_ASSERT(filter, return);
-    show(filter->shortcutString() + " " + TEXT,
+    QString currentText = m_fileLineEdit->text().trimmed();
+    // add shortcut string at front or replace existing shortcut string
+    if (!currentText.isEmpty()) {
+        searchText = currentText;
+        foreach (IQuickOpenFilter *otherfilter, m_quickOpenPlugin->filter()) {
+            if (currentText.startsWith(otherfilter->shortcutString() + " ")) {
+                searchText = currentText.mid(otherfilter->shortcutString().length()+1);
+                break;
+            }
+        }
+    }
+    show(filter->shortcutString() + " " + searchText,
          filter->shortcutString().length() + 1,
-         QString(TEXT).length());
+         searchText.length());
     updateCompletionList(m_fileLineEdit->text());
     m_fileLineEdit->setFocus();
 }
