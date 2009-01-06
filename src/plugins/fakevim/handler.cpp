@@ -102,6 +102,14 @@ enum SubSubMode
 static const QString ConfigStartOfLine = "startofline";
 static const QString ConfigOn = "on";
 
+struct EditOperation
+{
+    enum EditType { EditInsert, EditRemove } m_type;
+    int m_position;
+    int m_length;
+    QString m_data;
+};
+
 class FakeVimHandler::Private
 {
 public:
@@ -167,9 +175,6 @@ public:
     QString m_mvcount;
     QString m_opcount;
 
-    QStack<QString> m_undoStack;
-    QStack<QString> m_redoStack;
-
     bool m_fakeEnd;
 
     QWidget *editor();
@@ -184,6 +189,14 @@ public:
 
     bool m_lastSearchForward;
     QString m_lastInsertion;
+
+    // undo handling
+    void recordInsert(int position, const QString &data);
+    void recordRemove(int position, int length);
+    void undo();
+    void redo();
+    QStack<EditOperation> m_undoStack;
+    QStack<EditOperation> m_redoStack;
 
     // extra data for '.'
     QString m_dotCount;
@@ -433,11 +446,11 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'a') {
         m_mode = InsertMode;
         m_lastInsertion.clear();
-        m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
         m_tc.movePosition(Right, MoveAnchor, 1);
     } else if (key == 'A') {
         m_mode = InsertMode;
-        m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
         m_tc.movePosition(EndOfLine, MoveAnchor);
         m_lastInsertion.clear();
     } else if (key == 'b') {
@@ -448,7 +461,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'c') {
         m_submode = ChangeSubMode;
-        m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
     } else if (key == 'C') {
         m_submode = ChangeSubMode;
         //m_tc.beginEditBlock();
@@ -501,7 +514,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         finishMovement();
     } else if (key == 'i') {
         m_mode = InsertMode;
-        //m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
         m_lastInsertion.clear();
     } else if (key == 'I') {
         m_mode = InsertMode;
@@ -510,13 +523,13 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         else
             moveToFirstNonBlankOnLine();
         m_tc.clearSelection();
-        //m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
         m_lastInsertion.clear();
     } else if (key == 'j' || key == Key_Down) {
         m_tc.movePosition(Down, KeepAnchor, count());
         finishMovement();
     } else if (key == 'J') {
-        m_tc.beginEditBlock();
+        ///m_tc.beginEditBlock();
         if (m_submode == NoSubMode) {
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
                 m_tc.movePosition(EndOfLine);
@@ -527,7 +540,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             if (!m_gflag)
                 m_tc.movePosition(Left, MoveAnchor, 1);
         }
-        m_tc.endEditBlock();
+        ///m_tc.endEditBlock();
     } else if (key == 'k' || key == Key_Up) {
         m_tc.movePosition(Up, KeepAnchor, count());
         finishMovement();
@@ -576,7 +589,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.movePosition(Left);
         }
     } else if (key == control('r')) {
-        EDITOR(redo());
+        redo();
     } else if (key == 's') {
         m_submode = ChangeSubMode;
         //m_tc.beginEditBlock();
@@ -585,7 +598,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == 'u') {
-        EDITOR(undo());
+        undo();
     } else if (key == 'V') {
         enterVisualLineMode();
     } else if (key == 'w') {
@@ -638,11 +651,17 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
 {
     if (key == Key_Escape) {
-        for (int i = 1; i < count(); ++i)
+        // start with '1', as one instance was already physically inserted
+        // while typing
+        QString data = m_lastInsertion;
+        for (int i = 1; i < count(); ++i) {
             m_tc.insertText(m_lastInsertion);
+            data += m_lastInsertion;
+        }
+        recordInsert(m_tc.position() - m_lastInsertion.size(), data);
         m_tc.movePosition(Left, MoveAnchor, qMin(1, leftDist()));
         m_mode = CommandMode;
-        m_tc.endEditBlock();
+        ///m_tc.endEditBlock();
     } else if (key == Key_Left) {
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_lastInsertion.clear();
@@ -657,7 +676,7 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_lastInsertion.clear();
     } else if (key == Key_Return) {
         m_tc.insertBlock();
-        m_lastInsertion.clear();
+        m_lastInsertion += "\n";
     } else if (key == Key_Backspace) {
         m_tc.deletePreviousChar();
         m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
@@ -1109,6 +1128,73 @@ QWidget *FakeVimHandler::Private::editor()
         : static_cast<QWidget *>(m_plaintextedit);
 }
 
+void FakeVimHandler::Private::undo()
+{
+#if 0
+    EDITOR(undo());
+#else
+    if (m_undoStack.isEmpty())
+        return;
+    EditOperation op = m_undoStack.pop();
+    QTextCursor tc = m_tc;
+    tc.setPosition(op.m_position, MoveAnchor);
+    if (op.m_type == EditOperation::EditInsert) {
+        tc.setPosition(op.m_position + op.m_length, KeepAnchor);
+        tc.deleteChar();
+    } else {
+        tc.insertText(op.m_data);
+    }
+    m_redoStack.push(op);
+#endif
+}
+
+void FakeVimHandler::Private::redo()
+{
+#if 0
+    EDITOR(redo());
+#else
+    if (m_redoStack.isEmpty())
+        return;
+    EditOperation op = m_redoStack.pop();
+    QTextCursor tc = m_tc;
+    tc.setPosition(op.m_position, MoveAnchor);
+    if (op.m_type == EditOperation::EditInsert) {
+        tc.insertText(op.m_data);
+    } else {
+        tc.setPosition(op.m_position + op.m_length, KeepAnchor);
+        tc.deleteChar();
+    }
+    m_undoStack.push(op);
+#endif
+}
+
+void FakeVimHandler::Private::recordInsert(int position, const QString &data)
+{
+    qDebug() << "INSERT AT " << position << " DATA: " << data;
+    EditOperation op;
+    op.m_type = EditOperation::EditInsert;
+    op.m_position = position;
+    op.m_length = data.size();
+    op.m_data = data;
+    m_undoStack.push(op);
+    m_redoStack.clear();
+}
+
+void FakeVimHandler::Private::recordRemove(int position, int length)
+{
+    qDebug() << "REMOVE AT " << position << " LEN: " << length;
+    QTextCursor tc = m_tc;
+    tc.setPosition(position, MoveAnchor);
+    tc.setPosition(position + length, KeepAnchor);
+    EditOperation op;
+    op.m_type = EditOperation::EditRemove;
+    op.m_position = position;
+    op.m_length = length;
+    op.m_data = tc.selection().toPlainText();
+    m_undoStack.push(op);
+    m_redoStack.clear();
+}
+ 
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimHandler
