@@ -2184,7 +2184,6 @@ unsigned ReferenceAST::firstToken() const
 
 unsigned ReferenceAST::lastToken() const
 {
-    assert(0 && "review me");
     return amp_token + 1;
 }
 
@@ -2202,8 +2201,11 @@ unsigned ReturnStatementAST::firstToken() const
 
 unsigned ReturnStatementAST::lastToken() const
 {
-    assert(0 && "review me");
-    return semicolon_token + 1;
+    if (semicolon_token)
+        return semicolon_token + 1;
+    else if (expression)
+        return expression->lastToken();
+    return return_token + 1;
 }
 
 void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
@@ -2222,23 +2224,24 @@ unsigned SimpleDeclarationAST::firstToken() const
         return decl_specifier_seq->firstToken();
     else if (declarators)
         return declarators->firstToken();
-    else
-        return semicolon_token;
+    return semicolon_token;
 }
 
 unsigned SimpleDeclarationAST::lastToken() const
 {
-    assert(0 && "review me");
     if (semicolon_token)
         return semicolon_token + 1;
+
     for (DeclaratorListAST *it = declarators; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     for (SpecifierAST *it = decl_specifier_seq; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
     return 0;
 }
 
