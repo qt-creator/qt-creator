@@ -453,11 +453,20 @@ bool PrettyPrinter::visit(EnumSpecifierAST *ast)
         out << ' ';
         accept(ast->name);
     }
+    out << ' ';
     out << '{';
-    for (EnumeratorAST *it = ast->enumerators; it; it = it->next) {
-        accept(it);
-        if (it->next)
-            out << ", ";
+    if (ast->enumerators) {
+        indent();
+        newline();
+        for (EnumeratorAST *it = ast->enumerators; it; it = it->next) {
+            accept(it);
+            if (it->next) {
+                out << ", ";
+                newline();
+            }
+        }
+        deindent();
+        newline();
     }
     out << '}';
     return false;
@@ -599,9 +608,10 @@ bool PrettyPrinter::visit(IfStatementAST *ast)
     out << '(';
     accept(ast->condition);
     out << ')';
-    if (ast->statement->asCompoundStatement())
+    if (ast->statement->asCompoundStatement()) {
+        out << ' ';
         accept(ast->statement);
-    else {
+    } else {
         indent();
         newline();
         accept(ast->statement);
