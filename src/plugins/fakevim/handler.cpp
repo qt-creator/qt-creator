@@ -189,6 +189,7 @@ public:
     void showMessage(const QString &msg);
     void updateMiniBuffer();
     void updateSelection();
+    void quit();
 
 public:
     QTextEdit *m_textedit;
@@ -429,25 +430,26 @@ void FakeVimHandler::Private::updateMiniBuffer()
                 msg += c;
             }
         }
-        msg += "  ";
     }
+    int w = columnsOnScreen();
+    if (w > 1 && msg.size() > w - 20)
+        msg = ">" + msg.right(w - 19);
+    qDebug() << "W: " << w << " MSG: " << msg;
+    emit q->commandBufferChanged(msg);
+
     int linesInDoc = linesInDocument();
     int l = cursorLineInDocument();
-    int w = columnsOnScreen();
-    if (msg.size() > w - 20)
-        msg = ">" + msg.right(w - 19);
-    msg += QString(w, ' ');
-    msg = msg.left(w - 19);
+    QString status;
     QString pos = tr("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
-    msg += tr("%1").arg(pos, -10);
+    status += tr("%1").arg(pos, -10);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
-        msg += tr("%1").arg(l * 100 / linesInDoc, 4);
-        msg += "%";
+        status += tr("%1").arg(l * 100 / linesInDoc, 4);
+        status += "%";
     } else {
-        msg += "All";
+        status += "All";
     }
-    emit q->commandBufferChanged(msg);
+    emit q->statusDataChanged(status);
 }
 
 void FakeVimHandler::Private::showMessage(const QString &msg)
@@ -949,9 +951,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         m_tc.setPosition(positionForLine(beginLine));
         showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") { // :q
-        showMessage(QString());
-        EDITOR(setOverwriteMode(false));
-        q->quitRequested(editor());
+        quit();
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         if (beginLine == -1)
             beginLine = cursorLineInDocument();
@@ -1172,6 +1172,7 @@ int FakeVimHandler::Private::columnsOnScreen() const
     if (!editor())
         return 1;
     QRect rect = EDITOR(cursorRect());
+    qDebug() << "WID: " << EDITOR(width()) << "RECT: " << rect;
     return EDITOR(width()) / rect.width();
 }
 
@@ -1335,6 +1336,13 @@ void FakeVimHandler::Private::enterCommandMode()
     m_mode = CommandMode;
 }
 
+void FakeVimHandler::Private::quit()
+{
+    showMessage(QString());
+    EDITOR(setOverwriteMode(false));
+    q->quitRequested(editor());
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1387,3 +1395,8 @@ void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
     d->handleExCommand(cmd);
 }
 
+
+void FakeVimHandler::quit()
+{
+    d->quit();
+}

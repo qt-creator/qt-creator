@@ -160,14 +160,15 @@ void FakeVimPlugin::installHandler()
 void FakeVimPlugin::removeHandler(QWidget *widget)
 {
     m_handler->removeWidget(widget);
-    Core::EditorManager::instance()
-        ->hideEditorInfoBar(QLatin1String(Constants::MINI_BUFFER));
+    Core::EditorManager::instance()->hideEditorInfoBar(
+        QLatin1String(Constants::MINI_BUFFER));
 }
 
 void FakeVimPlugin::showCommandBuffer(const QString &contents)
 {
-    Core::EditorManager::instance()
-        ->showEditorInfoBar(QLatin1String(Constants::MINI_BUFFER), contents);
+    Core::EditorManager::instance()->showEditorInfoBar( 
+        QLatin1String(Constants::MINI_BUFFER), contents,
+        tr("Quit FakeVim"), m_handler, SLOT(quit()));
 }
 
 
