@@ -366,6 +366,7 @@ bool PrettyPrinter::visit(DeclaratorAST *ast)
             out << ' ';
     }
     if (ast->initializer) {
+        out << ' ';
         out << '=';
         out << ' ';
         accept(ast->initializer);
