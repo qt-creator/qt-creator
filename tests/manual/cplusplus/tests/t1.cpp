@@ -32,7 +32,7 @@ class Class {
   }
 
   void test_switch() {
-    switch (int k) {
+    switch (int k = 1) {
     case 'a': case 'b': case '\\':
       return 1;
     case 1|2: { return 3; } break;
