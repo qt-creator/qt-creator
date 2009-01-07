@@ -408,6 +408,19 @@ unsigned AttributeSpecifierAST::lastToken() const
     return attribute_token + 1;
 }
 
+AttributeSpecifierAST *AttributeSpecifierAST::clone(MemoryPool *pool) const
+{
+    AttributeSpecifierAST *ast = new (pool) AttributeSpecifierAST;
+    ast->attribute_token = attribute_token;
+    ast->first_lparen_token = first_lparen_token;
+    ast->second_lparen_token = second_lparen_token;
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
+    ast->first_rparen_token = first_rparen_token;
+    ast->second_rparen_token = second_rparen_token;
+    return ast;
+}
+
 void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -442,12 +455,35 @@ unsigned AttributeAST::lastToken() const
     return identifier_token + 1;
 }
 
+AttributeAST *AttributeAST::clone(MemoryPool *pool) const
+{
+    AttributeAST *ast = new (pool) AttributeAST;
+    ast->identifier_token = identifier_token;
+    ast->lparen_token = lparen_token;
+    ast->tag_token = tag_token;
+    if (expression_list)
+        ast->expression_list = expression_list->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void AttributeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         for (ExpressionListAST *it = expression_list; it; it = it->next)
             accept(it->expression, visitor);
     }
+}
+
+AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
+{
+    AccessDeclarationAST *ast = new (pool) AccessDeclarationAST;
+    ast->access_specifier_token = access_specifier_token;
+    ast->slots_token = slots_token;
+    ast->colon_token = colon_token;
+    return ast;
 }
 
 void AccessDeclarationAST::accept0(ASTVisitor *visitor)
@@ -468,6 +504,16 @@ unsigned AccessDeclarationAST::lastToken() const
     else if (slots_token)
         return slots_token + 1;
     return access_specifier_token + 1;
+}
+
+ArrayAccessAST *ArrayAccessAST::clone(MemoryPool *pool) const
+{
+    ArrayAccessAST *ast = new (pool) ArrayAccessAST;
+    ast->lbracket_token = lbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rbracket_token = rbracket_token;
+    return ast;
 }
 
 void ArrayAccessAST::accept0(ASTVisitor *visitor)
@@ -491,6 +537,16 @@ unsigned ArrayAccessAST::lastToken() const
     return lbracket_token + 1;
 }
 
+ArrayDeclaratorAST *ArrayDeclaratorAST::clone(MemoryPool *pool) const
+{
+    ArrayDeclaratorAST *ast = new (pool) ArrayDeclaratorAST;
+    ast->lbracket_token = lbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rbracket_token = rbracket_token;
+    return ast;
+}
+
 void ArrayDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -512,11 +568,20 @@ unsigned ArrayDeclaratorAST::lastToken() const
     return lbracket_token + 1;
 }
 
+ArrayInitializerAST *ArrayInitializerAST::clone(MemoryPool *pool) const
+{
+    ArrayInitializerAST *ast = new (pool) ArrayInitializerAST;
+    ast->lbrace_token = lbrace_token;
+    if (expression_list)
+        ast->expression_list = expression_list->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
+}
+
 void ArrayInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *expr = expression_list;expr;
-                 expr = expr->next)
+        for (ExpressionListAST *expr = expression_list; expr; expr = expr->next)
             accept(expr->expression, visitor);
     }
 }
@@ -537,6 +602,18 @@ unsigned ArrayInitializerAST::lastToken() const
     }
 
     return lbrace_token + 1;
+}
+
+AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
+{
+    AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;
+    ast->asm_token = asm_token;
+    if (cv_qualifier_seq)
+        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    ast->lparen_token = lparen_token;
+    ast->rparen_token = rparen_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
@@ -567,6 +644,18 @@ unsigned AsmDefinitionAST::lastToken() const
     }
 
     return asm_token + 1;
+}
+
+BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
+{
+    BaseSpecifierAST *ast = new (pool) BaseSpecifierAST;
+    ast->token_virtual = token_virtual;
+    ast->token_access_specifier = token_access_specifier;
+    if (name)
+        ast->name = name->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
 }
 
 void BaseSpecifierAST::accept0(ASTVisitor *visitor)
@@ -611,11 +700,33 @@ unsigned QtMethodAST::lastToken() const
     return method_token + 1;
 }
 
+QtMethodAST *QtMethodAST::clone(MemoryPool *pool) const
+{
+    QtMethodAST *ast = new (pool) QtMethodAST;
+    ast->method_token = method_token;
+    ast->lparen_token = lparen_token;
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 void QtMethodAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(declarator, visitor);
     }
+}
+
+BinaryExpressionAST *BinaryExpressionAST::clone(MemoryPool *pool) const
+{
+    BinaryExpressionAST *ast = new (pool) BinaryExpressionAST;
+    if (left_expression)
+        ast->left_expression = left_expression->clone(pool);
+    ast->binary_op_token = binary_op_token;
+    if (right_expression)
+        ast->right_expression = right_expression->clone(pool);
+    return ast;
 }
 
 void BinaryExpressionAST::accept0(ASTVisitor *visitor)
@@ -640,6 +751,13 @@ unsigned BinaryExpressionAST::lastToken() const
     return left_expression->lastToken();
 }
 
+BoolLiteralAST *BoolLiteralAST::clone(MemoryPool *pool) const
+{
+    BoolLiteralAST *ast = new (pool) BoolLiteralAST;
+    ast->token = token;
+    return ast;
+}
+
 void BoolLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -654,6 +772,14 @@ unsigned BoolLiteralAST::firstToken() const
 unsigned BoolLiteralAST::lastToken() const
 {
     return token + 1;
+}
+
+BreakStatementAST *BreakStatementAST::clone(MemoryPool *pool) const
+{
+    BreakStatementAST *ast = new (pool) BreakStatementAST;
+    ast->break_token = break_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void BreakStatementAST::accept0(ASTVisitor *visitor)
@@ -672,6 +798,16 @@ unsigned BreakStatementAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
     return break_token + 1;
+}
+
+CallAST *CallAST::clone(MemoryPool *pool) const
+{
+    CallAST *ast = new (pool) CallAST;
+    ast->lparen_token = lparen_token;
+    if (expression_list)
+        ast->expression_list = expression_list;
+    ast->rparen_token = rparen_token;
+    return ast;
 }
 
 void CallAST::accept0(ASTVisitor *visitor)
@@ -699,6 +835,18 @@ unsigned CallAST::lastToken() const
     return lparen_token + 1;
 }
 
+CaseStatementAST *CaseStatementAST::clone(MemoryPool *pool) const
+{
+    CaseStatementAST *ast = new (pool) CaseStatementAST;
+    ast->case_token = case_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->colon_token = colon_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
+}
+
 void CaseStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -721,6 +869,18 @@ unsigned CaseStatementAST::lastToken() const
     return case_token + 1;
 }
 
+CastExpressionAST *CastExpressionAST::clone(MemoryPool *pool) const
+{
+    CastExpressionAST *ast = new (pool) CastExpressionAST;
+    ast->lparen_token = lparen_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
 void CastExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -741,6 +901,21 @@ unsigned CastExpressionAST::lastToken() const
     else if (type_id)
         return type_id->lastToken();
     return lparen_token + 1;
+}
+
+CatchClauseAST *CatchClauseAST::clone(MemoryPool *pool) const
+{
+    CatchClauseAST *ast = new (pool) CatchClauseAST;
+    ast->catch_token = catch_token;
+    ast->lparen_token = lparen_token;
+    if (exception_declaration)
+        ast->exception_declaration = exception_declaration->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
 }
 
 void CatchClauseAST::accept0(ASTVisitor *visitor)
@@ -770,6 +945,24 @@ unsigned CatchClauseAST::lastToken() const
         return lparen_token + 1;
 
     return catch_token + 1;
+}
+
+ClassSpecifierAST *ClassSpecifierAST::clone(MemoryPool *pool) const
+{
+    ClassSpecifierAST *ast = new (pool) ClassSpecifierAST;
+    ast->classkey_token = classkey_token;
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
+    if (name)
+        ast->name = name->clone(pool);
+    ast->colon_token = colon_token;
+    if (base_clause)
+        ast->base_clause = base_clause->clone(pool);
+    ast->lbrace_token = lbrace_token;
+    if (member_specifiers)
+        ast->member_specifiers = member_specifiers->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
 }
 
 void ClassSpecifierAST::accept0(ASTVisitor *visitor)
@@ -822,6 +1015,16 @@ unsigned ClassSpecifierAST::lastToken() const
     return classkey_token + 1;
 }
 
+CompoundStatementAST *CompoundStatementAST::clone(MemoryPool *pool) const
+{
+    CompoundStatementAST *ast = new (pool) CompoundStatementAST;
+    ast->lbrace_token = lbrace_token;
+    if (statements)
+        ast->statements = statements->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
+}
+
 void CompoundStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -846,6 +1049,16 @@ unsigned CompoundStatementAST::lastToken() const
     }
 
     return lbrace_token + 1;
+}
+
+ConditionAST *ConditionAST::clone(MemoryPool *pool) const
+{
+    ConditionAST *ast = new (pool) ConditionAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    return ast;
 }
 
 void ConditionAST::accept0(ASTVisitor *visitor)
@@ -879,6 +1092,20 @@ unsigned ConditionAST::lastToken() const
     return 0;
 }
 
+ConditionalExpressionAST *ConditionalExpressionAST::clone(MemoryPool *pool) const
+{
+    ConditionalExpressionAST *ast = new (pool) ConditionalExpressionAST;
+    if (condition)
+        ast->condition = condition->clone(pool);
+    ast->question_token = question_token;
+    if (left_expression)
+        ast->left_expression = left_expression->clone(pool);
+    ast->colon_token = colon_token;
+    if (right_expression)
+        ast->right_expression = right_expression->clone(pool);
+    return ast;
+}
+
 void ConditionalExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -909,6 +1136,14 @@ unsigned ConditionalExpressionAST::lastToken() const
     return 0;
 }
 
+ContinueStatementAST *ContinueStatementAST::clone(MemoryPool *pool) const
+{
+    ContinueStatementAST *ast = new (pool) ContinueStatementAST;
+    ast->continue_token = continue_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 void ContinueStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -925,6 +1160,17 @@ unsigned ContinueStatementAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
     return continue_token + 1;
+}
+
+ConversionFunctionIdAST *ConversionFunctionIdAST::clone(MemoryPool *pool) const
+{
+    ConversionFunctionIdAST *ast = new (pool) ConversionFunctionIdAST;
+    ast->operator_token = operator_token;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (ptr_operators)
+        ast->ptr_operators = ptr_operators->clone(pool);
+    return ast;
 }
 
 void ConversionFunctionIdAST::accept0(ASTVisitor *visitor)
@@ -958,6 +1204,21 @@ unsigned ConversionFunctionIdAST::lastToken() const
     return operator_token + 1;
 }
 
+CppCastExpressionAST *CppCastExpressionAST::clone(MemoryPool *pool) const
+{
+    CppCastExpressionAST *ast = new (pool) CppCastExpressionAST;
+    ast->cast_token = cast_token;
+    ast->less_token = less_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    ast->greater_token = greater_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 void CppCastExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -988,6 +1249,15 @@ unsigned CppCastExpressionAST::lastToken() const
     return cast_token + 1;
 }
 
+CtorInitializerAST *CtorInitializerAST::clone(MemoryPool *pool) const
+{
+    CtorInitializerAST *ast = new (pool) CtorInitializerAST;
+    ast->colon_token = colon_token;
+    if (member_initializers)
+        ast->member_initializers = member_initializers->clone(pool);
+    return ast;
+}
+
 void CtorInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1009,6 +1279,22 @@ unsigned CtorInitializerAST::lastToken() const
             return it->lastToken();
     }
     return colon_token + 1;
+}
+
+DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
+{
+    DeclaratorAST *ast = new (pool) DeclaratorAST;
+    if (ptr_operators)
+        ast->ptr_operators = ptr_operators->clone(pool);
+    if (core_declarator)
+        ast->core_declarator = core_declarator->clone(pool);
+    if (postfix_declarators)
+        ast->postfix_declarators = postfix_declarators->clone(pool);
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    return ast;
 }
 
 void DeclaratorAST::accept0(ASTVisitor *visitor)
@@ -1069,6 +1355,14 @@ unsigned DeclaratorAST::lastToken() const
     return 0;
 }
 
+DeclarationStatementAST *DeclarationStatementAST::clone(MemoryPool *pool) const
+{
+    DeclarationStatementAST *ast = new (pool) DeclarationStatementAST;
+    if (declaration)
+        ast->declaration = declaration->clone(pool);
+    return ast;
+}
+
 void DeclarationStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1086,6 +1380,14 @@ unsigned DeclarationStatementAST::lastToken() const
     return declaration->lastToken();
 }
 
+DeclaratorIdAST *DeclaratorIdAST::clone(MemoryPool *pool) const
+{
+    DeclaratorIdAST *ast = new (pool) DeclaratorIdAST;
+    if (name)
+        ast->name = name->clone(pool);
+    return ast;
+}
+
 void DeclaratorIdAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1101,6 +1403,16 @@ unsigned DeclaratorIdAST::firstToken() const
 unsigned DeclaratorIdAST::lastToken() const
 {
     return name->lastToken();
+}
+
+DeclaratorListAST *DeclaratorListAST::clone(MemoryPool *pool) const
+{
+    DeclaratorListAST *ast = new (pool) DeclaratorListAST;
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
 }
 
 void DeclaratorListAST::accept0(ASTVisitor *visitor)
@@ -1123,6 +1435,18 @@ unsigned DeclaratorListAST::lastToken() const
             return it->lastToken();
     }
     return 0;
+}
+
+DeleteExpressionAST *DeleteExpressionAST::clone(MemoryPool *pool) const
+{
+    DeleteExpressionAST *ast = new (pool) DeleteExpressionAST;
+    ast->scope_token = scope_token;
+    ast->delete_token = delete_token;
+    ast->lbracket_token = lbracket_token;
+    ast->rbracket_token = rbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
 }
 
 void DeleteExpressionAST::accept0(ASTVisitor *visitor)
@@ -1152,6 +1476,14 @@ unsigned DeleteExpressionAST::lastToken() const
     return scope_token + 1;
 }
 
+DestructorNameAST *DestructorNameAST::clone(MemoryPool *pool) const
+{
+    DestructorNameAST *ast = new (pool) DestructorNameAST;
+    ast->tilde_token = tilde_token;
+    ast->identifier_token = identifier_token;
+    return ast;
+}
+
 void DestructorNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1168,6 +1500,21 @@ unsigned DestructorNameAST::lastToken() const
     if (identifier_token)
         return identifier_token + 1;
     return tilde_token + 1;
+}
+
+DoStatementAST *DoStatementAST::clone(MemoryPool *pool) const
+{
+    DoStatementAST *ast = new (pool) DoStatementAST;
+    ast->do_token = do_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    ast->while_token = while_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void DoStatementAST::accept0(ASTVisitor *visitor)
@@ -1200,6 +1547,15 @@ unsigned DoStatementAST::lastToken() const
     return do_token + 1;
 }
 
+ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifierAST::clone(MemoryPool *pool) const
+{
+    ElaboratedTypeSpecifierAST *ast = new (pool) ElaboratedTypeSpecifierAST;
+    ast->classkey_token = classkey_token;
+    if (name)
+        ast->name = name->clone(pool);
+    return ast;
+}
+
 void ElaboratedTypeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1219,6 +1575,13 @@ unsigned ElaboratedTypeSpecifierAST::lastToken() const
     return classkey_token + 1;
 }
 
+EmptyDeclarationAST *EmptyDeclarationAST::clone(MemoryPool *pool) const
+{
+    EmptyDeclarationAST *ast = new (pool) EmptyDeclarationAST;
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 void EmptyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1233,6 +1596,19 @@ unsigned EmptyDeclarationAST::firstToken() const
 unsigned EmptyDeclarationAST::lastToken() const
 {
     return semicolon_token + 1;
+}
+
+EnumSpecifierAST *EnumSpecifierAST::clone(MemoryPool *pool) const
+{
+    EnumSpecifierAST *ast = new (pool) EnumSpecifierAST;
+    ast->enum_token = enum_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->lbrace_token = lbrace_token;
+    if (enumerators)
+        ast->enumerators = enumerators->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
 }
 
 void EnumSpecifierAST::accept0(ASTVisitor *visitor)
@@ -1268,6 +1644,18 @@ unsigned EnumSpecifierAST::lastToken() const
     return enum_token + 1;
 }
 
+EnumeratorAST *EnumeratorAST::clone(MemoryPool *pool) const
+{
+    EnumeratorAST *ast = new (pool) EnumeratorAST;
+    ast->identifier_token = identifier_token;
+    ast->equal_token = equal_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void EnumeratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1287,6 +1675,17 @@ unsigned EnumeratorAST::lastToken() const
     else if (equal_token)
         return equal_token + 1;
     return identifier_token + 1;
+}
+
+ExceptionDeclarationAST *ExceptionDeclarationAST::clone(MemoryPool *pool) const
+{
+    ExceptionDeclarationAST *ast = new (pool) ExceptionDeclarationAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    ast->dot_dot_dot_token = dot_dot_dot_token;
+    return ast;
 }
 
 void ExceptionDeclarationAST::accept0(ASTVisitor *visitor)
@@ -1318,6 +1717,18 @@ unsigned ExceptionDeclarationAST::lastToken() const
             return it->lastToken();
     }
     return 0;
+}
+
+ExceptionSpecificationAST *ExceptionSpecificationAST::clone(MemoryPool *pool) const
+{
+    ExceptionSpecificationAST *ast = new (pool) ExceptionSpecificationAST;
+    ast->throw_token = throw_token;
+    ast->lparen_token = lparen_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
+    if (type_ids)
+        ast->type_ids = type_ids->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
 }
 
 void ExceptionSpecificationAST::accept0(ASTVisitor *visitor)
@@ -1352,6 +1763,16 @@ unsigned ExceptionSpecificationAST::lastToken() const
     return throw_token + 1;
 }
 
+ExpressionListAST *ExpressionListAST::clone(MemoryPool *pool) const
+{
+    ExpressionListAST *ast = new (pool) ExpressionListAST;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void ExpressionListAST::accept0(ASTVisitor *visitor)
 {
     for (const ExpressionListAST *it = this; it; it = it->next) {
@@ -1373,6 +1794,16 @@ unsigned ExpressionListAST::lastToken() const
     return 0;
 }
 
+ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatementAST::clone(MemoryPool *pool) const
+{
+    ExpressionOrDeclarationStatementAST *ast = new (pool) ExpressionOrDeclarationStatementAST;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    if (declaration)
+        ast->declaration = declaration->clone(pool);
+    return ast;
+}
+
 void ExpressionOrDeclarationStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1389,6 +1820,15 @@ unsigned ExpressionOrDeclarationStatementAST::firstToken() const
 unsigned ExpressionOrDeclarationStatementAST::lastToken() const
 {
     return declaration->lastToken();
+}
+
+ExpressionStatementAST *ExpressionStatementAST::clone(MemoryPool *pool) const
+{
+    ExpressionStatementAST *ast = new (pool) ExpressionStatementAST;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void ExpressionStatementAST::accept0(ASTVisitor *visitor)
@@ -1413,6 +1853,24 @@ unsigned ExpressionStatementAST::lastToken() const
         return expression->lastToken();
     // ### assert?
     return 0;
+}
+
+ForStatementAST *ForStatementAST::clone(MemoryPool *pool) const
+{
+    ForStatementAST *ast = new (pool) ForStatementAST;
+    ast->for_token = for_token;
+    ast->lparen_token = lparen_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    if (condition)
+        ast->condition = condition->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
 }
 
 void ForStatementAST::accept0(ASTVisitor *visitor)
@@ -1450,6 +1908,20 @@ unsigned ForStatementAST::lastToken() const
     return for_token + 1;
 }
 
+FunctionDeclaratorAST *FunctionDeclaratorAST::clone(MemoryPool *pool) const
+{
+    FunctionDeclaratorAST *ast = new (pool) FunctionDeclaratorAST;
+    ast->lparen_token = lparen_token;
+    if (parameters)
+        ast->parameters = parameters->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (cv_qualifier_seq)
+        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    if (exception_specification)
+        ast->exception_specification = exception_specification->clone(pool);
+    return ast;
+}
+
 void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1477,6 +1949,20 @@ unsigned FunctionDeclaratorAST::lastToken() const
         return parameters->lastToken();
 
     return lparen_token + 1;
+}
+
+FunctionDefinitionAST *FunctionDefinitionAST::clone(MemoryPool *pool) const
+{
+    FunctionDefinitionAST *ast = new (pool) FunctionDefinitionAST;
+    if (decl_specifier_seq)
+        ast->decl_specifier_seq = decl_specifier_seq->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    if (ctor_initializer)
+        ast->ctor_initializer = ctor_initializer->clone(pool);
+    if (function_body)
+        ast->function_body = function_body->clone(pool);
+    return ast;
 }
 
 void FunctionDefinitionAST::accept0(ASTVisitor *visitor)
@@ -1520,6 +2006,15 @@ unsigned FunctionDefinitionAST::lastToken() const
     return 0;
 }
 
+GotoStatementAST *GotoStatementAST::clone(MemoryPool *pool) const
+{
+    GotoStatementAST *ast = new (pool) GotoStatementAST;
+    ast->goto_token = goto_token;
+    ast->identifier_token = identifier_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 void GotoStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1540,6 +2035,22 @@ unsigned GotoStatementAST::lastToken() const
     else if (goto_token)
         return goto_token + 1;
     return 0;
+}
+
+IfStatementAST *IfStatementAST::clone(MemoryPool *pool) const
+{
+    IfStatementAST *ast = new (pool) IfStatementAST;
+    ast->if_token = if_token;
+    ast->lparen_token = lparen_token;
+    if (condition)
+        ast->condition = condition->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    ast->else_token = else_token;
+    if (else_statement)
+        ast->else_statement = else_statement->clone(pool);
+    return ast;
 }
 
 void IfStatementAST::accept0(ASTVisitor *visitor)
@@ -1573,6 +2084,16 @@ unsigned IfStatementAST::lastToken() const
     return if_token + 1;
 }
 
+LabeledStatementAST *LabeledStatementAST::clone(MemoryPool *pool) const
+{
+    LabeledStatementAST *ast = new (pool) LabeledStatementAST;
+    ast->label_token = label_token;
+    ast->colon_token = colon_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
+}
+
 void LabeledStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1592,6 +2113,16 @@ unsigned LabeledStatementAST::lastToken() const
     else if (colon_token)
         return colon_token + 1;
     return label_token + 1;
+}
+
+LinkageBodyAST *LinkageBodyAST::clone(MemoryPool *pool) const
+{
+    LinkageBodyAST *ast = new (pool) LinkageBodyAST;
+    ast->lbrace_token = lbrace_token;
+    if (declarations)
+        ast->declarations = declarations->clone(pool);
+    ast->rbrace_token = rbrace_token;
+    return ast;
 }
 
 void LinkageBodyAST::accept0(ASTVisitor *visitor)
@@ -1621,6 +2152,16 @@ unsigned LinkageBodyAST::lastToken() const
     return lbrace_token + 1;
 }
 
+LinkageSpecificationAST *LinkageSpecificationAST::clone(MemoryPool *pool) const
+{
+    LinkageSpecificationAST *ast = new (pool) LinkageSpecificationAST;
+    ast->extern_token = extern_token;
+    ast->extern_type = extern_type;
+    if (declaration)
+        ast->declaration = declaration->clone(pool);
+    return ast;
+}
+
 void LinkageSpecificationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1640,6 +2181,20 @@ unsigned LinkageSpecificationAST::lastToken() const
     else if (extern_type)
         return extern_type + 1;
     return extern_token + 1;
+}
+
+MemInitializerAST *MemInitializerAST::clone(MemoryPool *pool) const
+{
+    MemInitializerAST *ast = new (pool) MemInitializerAST;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
 }
 
 void MemInitializerAST::accept0(ASTVisitor *visitor)
@@ -1665,6 +2220,16 @@ unsigned MemInitializerAST::lastToken() const
     return name->lastToken();
 }
 
+MemberAccessAST *MemberAccessAST::clone(MemoryPool *pool) const
+{
+    MemberAccessAST *ast = new (pool) MemberAccessAST;
+    ast->access_token = access_token;
+    ast->template_token = template_token;
+    if (member_name)
+        ast->member_name = member_name->clone(pool);
+    return ast;
+}
+
 void MemberAccessAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1686,6 +2251,14 @@ unsigned MemberAccessAST::lastToken() const
     return access_token + 1;
 }
 
+NamedTypeSpecifierAST *NamedTypeSpecifierAST::clone(MemoryPool *pool) const
+{
+    NamedTypeSpecifierAST *ast = new (pool) NamedTypeSpecifierAST;
+    if (name)
+        ast->name = name->clone(pool);
+    return ast;
+}
+
 void NamedTypeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1701,6 +2274,18 @@ unsigned NamedTypeSpecifierAST::firstToken() const
 unsigned NamedTypeSpecifierAST::lastToken() const
 {
     return name->lastToken();
+}
+
+NamespaceAST *NamespaceAST::clone(MemoryPool *pool) const
+{
+    NamespaceAST *ast = new (pool) NamespaceAST;
+    ast->namespace_token = namespace_token;
+    ast->identifier_token = identifier_token;
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
+    if (linkage_body)
+        ast->linkage_body = linkage_body->clone(pool);
+    return ast;
 }
 
 void NamespaceAST::accept0(ASTVisitor *visitor)
@@ -1734,6 +2319,18 @@ unsigned NamespaceAST::lastToken() const
     return namespace_token + 1;
 }
 
+NamespaceAliasDefinitionAST *NamespaceAliasDefinitionAST::clone(MemoryPool *pool) const
+{
+    NamespaceAliasDefinitionAST *ast = new (pool) NamespaceAliasDefinitionAST;
+    ast->namespace_token = namespace_token;
+    ast->namespace_name = namespace_name;
+    ast->equal_token = equal_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 void NamespaceAliasDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1759,6 +2356,16 @@ unsigned NamespaceAliasDefinitionAST::lastToken() const
     return namespace_token + 1;
 }
 
+NestedDeclaratorAST *NestedDeclaratorAST::clone(MemoryPool *pool) const
+{
+    NestedDeclaratorAST *ast = new (pool) NestedDeclaratorAST;
+    ast->lparen_token = lparen_token;
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 void NestedDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1778,6 +2385,16 @@ unsigned NestedDeclaratorAST::lastToken() const
     else if (declarator)
         return declarator->lastToken();
     return lparen_token + 1;
+}
+
+NestedExpressionAST *NestedExpressionAST::clone(MemoryPool *pool) const
+{
+    NestedExpressionAST *ast = new (pool) NestedExpressionAST;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
 }
 
 void NestedExpressionAST::accept0(ASTVisitor *visitor)
@@ -1801,6 +2418,17 @@ unsigned NestedExpressionAST::lastToken() const
     return lparen_token + 1;
 }
 
+NestedNameSpecifierAST *NestedNameSpecifierAST::clone(MemoryPool *pool) const
+{
+    NestedNameSpecifierAST *ast = new (pool) NestedNameSpecifierAST;
+    if (class_or_namespace_name)
+        ast->class_or_namespace_name = class_or_namespace_name->clone(pool);
+    ast->scope_token = scope_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void NestedNameSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1819,6 +2447,16 @@ unsigned NestedNameSpecifierAST::lastToken() const
     if (scope_token)
         return scope_token + 1;
     return class_or_namespace_name->lastToken();
+}
+
+NewDeclaratorAST *NewDeclaratorAST::clone(MemoryPool *pool) const
+{
+    NewDeclaratorAST *ast = new (pool) NewDeclaratorAST;
+    if (ptr_operators)
+        ast->ptr_operators = ptr_operators->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    return ast;
 }
 
 void NewDeclaratorAST::accept0(ASTVisitor *visitor)
@@ -1849,6 +2487,22 @@ unsigned NewDeclaratorAST::lastToken() const
     }
 
     return 0;
+}
+
+NewExpressionAST *NewExpressionAST::clone(MemoryPool *pool) const
+{
+    NewExpressionAST *ast = new (pool) NewExpressionAST;
+    ast->scope_token = scope_token;
+    ast->new_token = new_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    if (new_type_id)
+        ast->new_type_id = new_type_id->clone(pool);
+    if (new_initializer)
+        ast->new_initializer = new_initializer->clone(pool);
+    return ast;
 }
 
 void NewExpressionAST::accept0(ASTVisitor *visitor)
@@ -1886,6 +2540,16 @@ unsigned NewExpressionAST::lastToken() const
     return 0;
 }
 
+NewInitializerAST *NewInitializerAST::clone(MemoryPool *pool) const
+{
+    NewInitializerAST *ast = new (pool) NewInitializerAST;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 void NewInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1905,6 +2569,28 @@ unsigned NewInitializerAST::lastToken() const
     else if (expression)
         return expression->lastToken();
     return lparen_token + 1;
+}
+
+TypeIdAST *TypeIdAST::clone(MemoryPool *pool) const
+{
+    TypeIdAST *ast = new (pool) TypeIdAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    return ast;
+}
+
+NewTypeIdAST *NewTypeIdAST::clone(MemoryPool *pool) const
+{
+    NewTypeIdAST *ast = new (pool) NewTypeIdAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (new_initializer)
+        ast->new_initializer = new_initializer->clone(pool);
+    if (new_declarator)
+        ast->new_declarator = new_declarator->clone(pool);
+    return ast;
 }
 
 void NewTypeIdAST::accept0(ASTVisitor *visitor)
@@ -1937,6 +2623,13 @@ unsigned NewTypeIdAST::lastToken() const
     return 0;
 }
 
+NumericLiteralAST *NumericLiteralAST::clone(MemoryPool *pool) const
+{
+    NumericLiteralAST *ast = new (pool) NumericLiteralAST;
+    ast->token = token;
+    return ast;
+}
+
 void NumericLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1951,6 +2644,15 @@ unsigned NumericLiteralAST::firstToken() const
 unsigned NumericLiteralAST::lastToken() const
 {
     return token + 1;
+}
+
+OperatorAST *OperatorAST::clone(MemoryPool *pool) const
+{
+    OperatorAST *ast = new (pool) OperatorAST;
+    ast->op_token = op_token;
+    ast->open_token = open_token;
+    ast->close_token = close_token;
+    return ast;
 }
 
 void OperatorAST::accept0(ASTVisitor *visitor)
@@ -1973,6 +2675,15 @@ unsigned OperatorAST::lastToken() const
     return op_token + 1;
 }
 
+OperatorFunctionIdAST *OperatorFunctionIdAST::clone(MemoryPool *pool) const
+{
+    OperatorFunctionIdAST *ast = new (pool) OperatorFunctionIdAST;
+    ast->operator_token = operator_token;
+    if (op)
+        ast->op = op->clone(pool);
+    return ast;
+}
+
 void OperatorFunctionIdAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1990,6 +2701,19 @@ unsigned OperatorFunctionIdAST::lastToken() const
     if (op)
         return op->lastToken();
     return operator_token + 1;
+}
+
+ParameterDeclarationAST *ParameterDeclarationAST::clone(MemoryPool *pool) const
+{
+    ParameterDeclarationAST *ast = new (pool) ParameterDeclarationAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    ast->equal_token = equal_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
 }
 
 void ParameterDeclarationAST::accept0(ASTVisitor *visitor)
@@ -2023,6 +2747,15 @@ unsigned ParameterDeclarationAST::lastToken() const
     return 0;
 }
 
+ParameterDeclarationClauseAST *ParameterDeclarationClauseAST::clone(MemoryPool *pool) const
+{
+    ParameterDeclarationClauseAST *ast = new (pool) ParameterDeclarationClauseAST;
+    if (parameter_declarations)
+        ast->parameter_declarations = parameter_declarations;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
+    return ast;
+}
+
 void ParameterDeclarationClauseAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2046,6 +2779,15 @@ unsigned ParameterDeclarationClauseAST::lastToken() const
     return parameter_declarations->lastToken();
 }
 
+PointerAST *PointerAST::clone(MemoryPool *pool) const
+{
+    PointerAST *ast = new (pool) PointerAST;
+    ast->star_token = star_token;
+    if (cv_qualifier_seq)
+        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    return ast;
+}
+
 void PointerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2067,6 +2809,18 @@ unsigned PointerAST::lastToken() const
             return it->lastToken();
     }
     return star_token + 1;
+}
+
+PointerToMemberAST *PointerToMemberAST::clone(MemoryPool *pool) const
+{
+    PointerToMemberAST *ast = new (pool) PointerToMemberAST;
+    ast->global_scope_token = global_scope_token;
+    if (nested_name_specifier)
+        ast->nested_name_specifier = nested_name_specifier->clone(pool);
+    ast->star_token = star_token;
+    if (cv_qualifier_seq)
+        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    return ast;
 }
 
 void PointerToMemberAST::accept0(ASTVisitor *visitor)
@@ -2109,6 +2863,13 @@ unsigned PointerToMemberAST::lastToken() const
     return 0;
 }
 
+PostIncrDecrAST *PostIncrDecrAST::clone(MemoryPool *pool) const
+{
+    PostIncrDecrAST *ast = new (pool) PostIncrDecrAST;
+    ast->incr_decr_token = incr_decr_token;
+    return ast;
+}
+
 void PostIncrDecrAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2123,6 +2884,16 @@ unsigned PostIncrDecrAST::firstToken() const
 unsigned PostIncrDecrAST::lastToken() const
 {
     return incr_decr_token + 1;
+}
+
+PostfixExpressionAST *PostfixExpressionAST::clone(MemoryPool *pool) const
+{
+    PostfixExpressionAST *ast = new (pool) PostfixExpressionAST;
+    if (base_expression)
+        ast->base_expression = base_expression->clone(pool);
+    if (postfix_expressions)
+        ast->postfix_expressions = postfix_expressions->clone(pool);
+    return ast;
 }
 
 void PostfixExpressionAST::accept0(ASTVisitor *visitor)
@@ -2146,6 +2917,17 @@ unsigned PostfixExpressionAST::lastToken() const
             return it->lastToken();
     }
     return base_expression->lastToken();
+}
+
+QualifiedNameAST *QualifiedNameAST::clone(MemoryPool *pool) const
+{
+    QualifiedNameAST *ast = new (pool) QualifiedNameAST;
+    ast->global_scope_token = global_scope_token;
+    if (nested_name_specifier)
+        ast->nested_name_specifier = nested_name_specifier->clone(pool);
+    if (unqualified_name)
+        ast->unqualified_name = unqualified_name->clone(pool);
+    return ast;
 }
 
 void QualifiedNameAST::accept0(ASTVisitor *visitor)
@@ -2181,6 +2963,13 @@ unsigned QualifiedNameAST::lastToken() const
     return 0;
 }
 
+ReferenceAST *ReferenceAST::clone(MemoryPool *pool) const
+{
+    ReferenceAST *ast = new (pool) ReferenceAST;
+    ast->amp_token = amp_token;
+    return ast;
+}
+
 void ReferenceAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2195,6 +2984,16 @@ unsigned ReferenceAST::firstToken() const
 unsigned ReferenceAST::lastToken() const
 {
     return amp_token + 1;
+}
+
+ReturnStatementAST *ReturnStatementAST::clone(MemoryPool *pool) const
+{
+    ReturnStatementAST *ast = new (pool) ReturnStatementAST;
+    ast->return_token = return_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void ReturnStatementAST::accept0(ASTVisitor *visitor)
@@ -2216,6 +3015,17 @@ unsigned ReturnStatementAST::lastToken() const
     else if (expression)
         return expression->lastToken();
     return return_token + 1;
+}
+
+SimpleDeclarationAST *SimpleDeclarationAST::clone(MemoryPool *pool) const
+{
+    SimpleDeclarationAST *ast = new (pool) SimpleDeclarationAST;
+    if (decl_specifier_seq)
+        ast->decl_specifier_seq = decl_specifier_seq->clone(pool);
+    if (declarators)
+        ast->declarators = declarators->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
@@ -2255,6 +3065,13 @@ unsigned SimpleDeclarationAST::lastToken() const
     return 0;
 }
 
+SimpleNameAST *SimpleNameAST::clone(MemoryPool *pool) const
+{
+    SimpleNameAST *ast = new (pool) SimpleNameAST;
+    ast->identifier_token = identifier_token;
+    return ast;
+}
+
 void SimpleNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2277,6 +3094,15 @@ void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
     }
 }
 
+SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
+{
+    SimpleSpecifierAST *ast = new (pool) SimpleSpecifierAST;
+    ast->specifier_token = specifier_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 unsigned SimpleSpecifierAST::firstToken() const
 {
     return specifier_token;
@@ -2285,6 +3111,17 @@ unsigned SimpleSpecifierAST::firstToken() const
 unsigned SimpleSpecifierAST::lastToken() const
 {
     return specifier_token + 1;
+}
+
+TypeofSpecifierAST *TypeofSpecifierAST::clone(MemoryPool *pool) const
+{
+    TypeofSpecifierAST *ast = new (pool) TypeofSpecifierAST;
+    ast->typeof_token = typeof_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
 }
 
 void TypeofSpecifierAST::accept0(ASTVisitor *visitor)
@@ -2306,6 +3143,15 @@ unsigned TypeofSpecifierAST::lastToken() const
     return typeof_token + 1;
 }
 
+SizeofExpressionAST *SizeofExpressionAST::clone(MemoryPool *pool) const
+{
+    SizeofExpressionAST *ast = new (pool) SizeofExpressionAST;
+    ast->sizeof_token = sizeof_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
 void SizeofExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2325,6 +3171,15 @@ unsigned SizeofExpressionAST::lastToken() const
     return sizeof_token + 1;
 }
 
+StringLiteralAST *StringLiteralAST::clone(MemoryPool *pool) const
+{
+    StringLiteralAST *ast = new (pool) StringLiteralAST;
+    ast->token = token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void StringLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2342,6 +3197,19 @@ unsigned StringLiteralAST::lastToken() const
     if (next)
         return next->lastToken();
     return token + 1;
+}
+
+SwitchStatementAST *SwitchStatementAST::clone(MemoryPool *pool) const
+{
+    SwitchStatementAST *ast = new (pool) SwitchStatementAST;
+    ast->switch_token = switch_token;
+    ast->lparen_token = lparen_token;
+    if (condition)
+        ast->condition = condition->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
 }
 
 void SwitchStatementAST::accept0(ASTVisitor *visitor)
@@ -2370,6 +3238,16 @@ unsigned SwitchStatementAST::lastToken() const
     return switch_token + 1;
 }
 
+TemplateArgumentListAST *TemplateArgumentListAST::clone(MemoryPool *pool) const
+{
+    TemplateArgumentListAST *ast = new (pool) TemplateArgumentListAST;
+    if (template_argument)
+        ast->template_argument = template_argument->clone(pool);
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
 void TemplateArgumentListAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2390,6 +3268,20 @@ unsigned TemplateArgumentListAST::lastToken() const
             return it->template_argument->lastToken();
     }
     return 0;
+}
+
+TemplateDeclarationAST *TemplateDeclarationAST::clone(MemoryPool *pool) const
+{
+    TemplateDeclarationAST *ast = new (pool) TemplateDeclarationAST;
+    ast->export_token = export_token;
+    ast->template_token = template_token;
+    ast->less_token = less_token;
+    if (template_parameters)
+        ast->template_parameters = template_parameters->clone(pool);
+    ast->greater_token = greater_token;
+    if (declaration)
+        ast->declaration = declaration->clone(pool);
+    return ast;
 }
 
 void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
@@ -2431,6 +3323,17 @@ unsigned TemplateDeclarationAST::lastToken() const
     return 0;
 }
 
+TemplateIdAST *TemplateIdAST::clone(MemoryPool *pool) const
+{
+    TemplateIdAST *ast = new (pool) TemplateIdAST;
+    ast->identifier_token = identifier_token;
+    ast->less_token = less_token;
+    if (template_arguments)
+        ast->template_arguments = template_arguments->clone(pool);
+    ast->greater_token = greater_token;
+    return ast;
+}
+
 void TemplateIdAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2459,6 +3362,23 @@ unsigned TemplateIdAST::lastToken() const
         return less_token + 1;
 
     return identifier_token + 1;
+}
+
+TemplateTypeParameterAST *TemplateTypeParameterAST::clone(MemoryPool *pool) const
+{
+    TemplateTypeParameterAST *ast = new (pool) TemplateTypeParameterAST;
+    ast->template_token = template_token;
+    ast->less_token = less_token;
+    if (template_parameters)
+        ast->template_parameters = template_parameters->clone(pool);
+    ast->greater_token = greater_token;
+    ast->class_token = class_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->equal_token = equal_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    return ast;
 }
 
 void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
@@ -2496,6 +3416,13 @@ unsigned TemplateTypeParameterAST::lastToken() const
     return template_token + 1;
 }
 
+ThisExpressionAST *ThisExpressionAST::clone(MemoryPool *pool) const
+{
+    ThisExpressionAST *ast = new (pool) ThisExpressionAST;
+    ast->this_token = this_token;
+    return ast;
+}
+
 void ThisExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2510,6 +3437,15 @@ unsigned ThisExpressionAST::firstToken() const
 unsigned ThisExpressionAST::lastToken() const
 {
     return this_token + 1;
+}
+
+ThrowExpressionAST *ThrowExpressionAST::clone(MemoryPool *pool) const
+{
+    ThrowExpressionAST *ast = new (pool) ThrowExpressionAST;
+    ast->throw_token = throw_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
 }
 
 void ThrowExpressionAST::accept0(ASTVisitor *visitor)
@@ -2529,6 +3465,14 @@ unsigned ThrowExpressionAST::lastToken() const
     if (expression)
         return expression->lastToken();
     return throw_token + 1;
+}
+
+TranslationUnitAST *TranslationUnitAST::clone(MemoryPool *pool) const
+{
+    TranslationUnitAST *ast = new (pool) TranslationUnitAST;
+    if (declarations)
+        ast->declarations = declarations->clone(pool);
+    return ast;
 }
 
 void TranslationUnitAST::accept0(ASTVisitor *visitor)
@@ -2552,6 +3496,17 @@ unsigned TranslationUnitAST::lastToken() const
             return it->lastToken();
     }
     return 0;
+}
+
+TryBlockStatementAST *TryBlockStatementAST::clone(MemoryPool *pool) const
+{
+    TryBlockStatementAST *ast = new (pool) TryBlockStatementAST;
+    ast->try_token = try_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    if (catch_clause_seq)
+        ast->catch_clause_seq = catch_clause_seq->clone(pool);
+    return ast;
 }
 
 void TryBlockStatementAST::accept0(ASTVisitor *visitor)
@@ -2578,6 +3533,18 @@ unsigned TryBlockStatementAST::lastToken() const
         return statement->lastToken();
 
     return try_token + 1;
+}
+
+TypeConstructorCallAST *TypeConstructorCallAST::clone(MemoryPool *pool) const
+{
+    TypeConstructorCallAST *ast = new (pool) TypeConstructorCallAST;
+    if (type_specifier)
+        ast->type_specifier = type_specifier->clone(pool);
+    ast->lparen_token = lparen_token;
+    if (expression_list)
+        ast->expression_list = expression_list;
+    ast->rparen_token = rparen_token;
+    return ast;
 }
 
 void TypeConstructorCallAST::accept0(ASTVisitor *visitor)
@@ -2645,6 +3612,17 @@ unsigned TypeIdAST::lastToken() const
     return 0;
 }
 
+TypeidExpressionAST *TypeidExpressionAST::clone(MemoryPool *pool) const
+{
+    TypeidExpressionAST *ast = new (pool) TypeidExpressionAST;
+    ast->typeid_token = typeid_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 void TypeidExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2667,6 +3645,19 @@ unsigned TypeidExpressionAST::lastToken() const
         return lparen_token + 1;
 
     return typeid_token + 1;
+}
+
+TypenameCallExpressionAST *TypenameCallExpressionAST::clone(MemoryPool *pool) const
+{
+    TypenameCallExpressionAST *ast = new (pool) TypenameCallExpressionAST;
+    ast->typename_token = typename_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->lparen_token = lparen_token;
+    if (expression_list)
+        ast->expression_list = expression_list;
+    ast->rparen_token = rparen_token;
+    return ast;
 }
 
 void TypenameCallExpressionAST::accept0(ASTVisitor *visitor)
@@ -2702,6 +3693,18 @@ unsigned TypenameCallExpressionAST::lastToken() const
     return typename_token + 1;
 }
 
+TypenameTypeParameterAST *TypenameTypeParameterAST::clone(MemoryPool *pool) const
+{
+    TypenameTypeParameterAST *ast = new (pool) TypenameTypeParameterAST;
+    ast->classkey_token = classkey_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->equal_token = equal_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    return ast;
+}
+
 void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2726,6 +3729,15 @@ unsigned TypenameTypeParameterAST::lastToken() const
     return classkey_token + 1;
 }
 
+UnaryExpressionAST *UnaryExpressionAST::clone(MemoryPool *pool) const
+{
+    UnaryExpressionAST *ast = new (pool) UnaryExpressionAST;
+    ast->unary_op_token = unary_op_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
 void UnaryExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2743,6 +3755,17 @@ unsigned UnaryExpressionAST::lastToken() const
     if (expression)
         return expression->lastToken();
     return unary_op_token + 1;
+}
+
+UsingAST *UsingAST::clone(MemoryPool *pool) const
+{
+    UsingAST *ast = new (pool) UsingAST;
+    ast->using_token = using_token;
+    ast->typename_token = typename_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
 }
 
 void UsingAST::accept0(ASTVisitor *visitor)
@@ -2768,6 +3791,17 @@ unsigned UsingAST::lastToken() const
     return using_token + 1;
 }
 
+UsingDirectiveAST *UsingDirectiveAST::clone(MemoryPool *pool) const
+{
+    UsingDirectiveAST *ast = new (pool) UsingDirectiveAST;
+    ast->using_token = using_token;
+    ast->namespace_token = namespace_token;
+    if (name)
+        ast->name = name->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 void UsingDirectiveAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -2789,6 +3823,19 @@ unsigned UsingDirectiveAST::lastToken() const
     else if (namespace_token)
         return namespace_token + 1;
     return using_token + 1;
+}
+
+WhileStatementAST *WhileStatementAST::clone(MemoryPool *pool) const
+{
+    WhileStatementAST *ast = new (pool) WhileStatementAST;
+    ast->while_token = while_token;
+    ast->lparen_token = lparen_token;
+    if (condition)
+        ast->condition = condition->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
 }
 
 void WhileStatementAST::accept0(ASTVisitor *visitor)
