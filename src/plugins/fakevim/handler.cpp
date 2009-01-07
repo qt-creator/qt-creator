@@ -431,10 +431,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
             }
         }
     }
-    int w = columnsOnScreen();
-    if (w > 1 && msg.size() > w - 20)
-        msg = ">" + msg.right(w - 19);
-    qDebug() << "W: " << w << " MSG: " << msg;
     emit q->commandBufferChanged(msg);
 
     int linesInDoc = linesInDocument();
@@ -1172,7 +1168,7 @@ int FakeVimHandler::Private::columnsOnScreen() const
     if (!editor())
         return 1;
     QRect rect = EDITOR(cursorRect());
-    qDebug() << "WID: " << EDITOR(width()) << "RECT: " << rect;
+    // qDebug() << "WID: " << EDITOR(width()) << "RECT: " << rect;
     return EDITOR(width()) / rect.width();
 }
 
