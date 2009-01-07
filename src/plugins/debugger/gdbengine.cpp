@@ -2983,6 +2983,7 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             nodetype  = m_namespace + "QMapNode";
             nodetype += data.type.mid(outertype.size());
         } else {
+            // FIXME: doesn't work for QMultiMap
             nodetype  = data.type + "::Node"; 
         }
         //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype

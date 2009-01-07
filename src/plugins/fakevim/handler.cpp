@@ -152,10 +152,7 @@ private:
     void handleRegisterMode(int key, const QString &text);
     void handleMiniBufferModes(int key, const QString &text);
     void finishMovement(const QString &text = QString());
-    void updateMiniBuffer();
-    void updateSelection();
     void search(const QString &needle, bool forward);
-    void showMessage(const QString &msg);
 
     int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
     int opCount() const { return m_opcount.isEmpty() ? 1 : m_opcount.toInt(); }
@@ -186,9 +183,12 @@ private:
     int readLineCode(QString &cmd);
     QTextCursor selectRange(int beginLine, int endLine);
 
-    void enterInsertMode();
 public:
+    void enterInsertMode();
     void enterCommandMode();
+    void showMessage(const QString &msg);
+    void updateMiniBuffer();
+    void updateSelection();
 
 public:
     QTextEdit *m_textedit;
@@ -816,7 +816,6 @@ void FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text
             m_commandHistory.append(m_commandBuffer);
             handleExCommand(m_commandBuffer);
         }
-        enterCommandMode();
     } else if (key == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
@@ -941,7 +940,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             endLine = line;
     }
 
-    //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0;
+    qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0;
 
     static QRegExp reWrite("^w!?( (.*))?$");
     static QRegExp reDelete("^d( (.*))?$");
@@ -950,8 +949,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         m_tc.setPosition(positionForLine(beginLine));
         showMessage(QString());
     } else if (cmd == "q!" || cmd == "q") { // :q
-        q->quitRequested(editor());
         showMessage(QString());
+        EDITOR(setOverwriteMode(false));
+        q->quitRequested(editor());
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         if (beginLine == -1)
             beginLine = cursorLineInDocument();
@@ -1369,11 +1369,14 @@ void FakeVimHandler::addWidget(QWidget *widget)
         //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
+    d->showMessage("vi emulation mode. Hit <Shift+Esc>:q<Return> to quit");
+    d->updateMiniBuffer();
 }
 
 void FakeVimHandler::removeWidget(QWidget *widget)
 {
-    d->enterCommandMode();
+    d->showMessage(QString());
+    d->updateMiniBuffer();
     widget->removeEventFilter(this);
 }
 
