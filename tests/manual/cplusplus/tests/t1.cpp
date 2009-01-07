@@ -30,6 +30,15 @@ class Class {
 
     while (x==2) if(a==1) c(); else if (a==2) c(); else c3();
   }
+
+  void test_switch() {
+    switch (int k) {
+    case 'a': case 'b': case '\\':
+      return 1;
+    default:
+      return 2;
+    }
+  }
 };
 
 class Derived: public Class {

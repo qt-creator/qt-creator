@@ -33,6 +33,7 @@
 
 #include "PrettyPrinter.h"
 #include "AST.h"
+#include "Token.h"
 #include <iostream>
 #include <string>
 #include <cassert>
@@ -813,7 +814,17 @@ bool PrettyPrinter::visit(NewTypeIdAST *ast)
 
 bool PrettyPrinter::visit(NumericLiteralAST *ast)
 {
-    out << spell(ast->token);
+    switch (tokenKind(ast->token)) {
+    case T_CHAR_LITERAL:
+        out << '\'' << spell(ast->token) << '\'';
+        break;
+    case T_WIDE_CHAR_LITERAL:
+        out << "L\'" << spell(ast->token) << '\'';
+        break;
+
+    default:
+        out << spell(ast->token);
+    }
     return false;
 }
 
