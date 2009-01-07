@@ -36,13 +36,11 @@ macx {
         SCHEMES.files = $$IDE_SOURCE_TREE/bin/schemes
         GDBDEBUGGER.path = Contents/Resources
         GDBDEBUGGER.files = $$IDE_SOURCE_TREE/bin/gdbmacros
-        DOC.path = Contents/Resources/doc
-        DOC.files = $$IDE_SOURCE_TREE/doc/qtcreator.qch
         LICENSE.path = Contents/Resources
         LICENSE.files = $$IDE_SOURCE_TREE/bin/license.txt
         RUNINTERMINAL.path = Contents/Resources
         RUNINTERMINAL.files = $$IDE_SOURCE_TREE/bin/runInTerminal.command
-        QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER DOC LICENSE RUNINTERMINAL
+        QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER LICENSE RUNINTERMINAL
         QMAKE_INFO_PLIST = $$PWD/Info.plist
 }
 !macx {
