@@ -772,6 +772,11 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                     removeEach(&m_valuemap, varName, v);
                     removeEach(&m_filevaluemap[currentProFile()], varName, v);
                 }
+            } else if (!m_skipLevel) {
+                // this is a hack for the moment to fix the
+                // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
+                insertUnique(&m_valuemap, QString("-%1").arg(varName), v);
+                insertUnique(&m_filevaluemap[currentProFile()], QString("-%1").arg(varName), v);
             } else {
                 // We are stingy with our values, too.
             }
