@@ -566,9 +566,8 @@ bool PrettyPrinter::visit(FunctionDeclaratorAST *ast)
     accept(ast->parameters);
     out << ')';
     for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
+        out << ' ';
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->exception_specification) {
         out << ' ';

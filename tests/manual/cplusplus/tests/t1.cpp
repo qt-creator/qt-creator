@@ -23,6 +23,8 @@ class Class {
 };
 
 class Derived: public Class {
+  operator bool() const volatile throw () { return 1; }
+  Derived &operator++() {}
 };
 
 class Derived2: public Class, public virtual Derived {};
