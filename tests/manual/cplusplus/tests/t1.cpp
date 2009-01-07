@@ -1,5 +1,5 @@
 
-class foo {
+class Class {
   int a, b;
 
   enum zoo { a, b };
@@ -8,5 +8,9 @@ class foo {
 
   void foo() {}
   inline void bar() {}
+
+  void another_foo() {
+    int a = static_cast<int>(1+2/3*4-5%6+(7&8));
+  }
 };
 
