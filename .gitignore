@@ -77,4 +77,5 @@ bin/QtConcurrent.dll
 bin/Utils.dll
 bin/qtcreator
 bin/qtcreator.exe
+doc/qtcreator.qch
 tests/manual/cplusplus/cplusplus0
