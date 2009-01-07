@@ -295,7 +295,10 @@ void testQMultiMap()
     gg0.insert(11, 11.0);
     gg0.insert(22, 22.0);
     gg0.insert(22, 33.0);
-
+    gg0.insert(22, 34.0);
+    gg0.insert(22, 35.0);
+    gg0.insert(22, 36.0);
+#if 1
     QMultiMap<QString, float> gg1;
     gg1.insert("22.0", 22.0);
 
@@ -313,6 +316,7 @@ void testQMultiMap()
     map.insert("Welt", QPointer<QObject>(&ob));
     map.insert(".", QPointer<QObject>(&ob));
     map.insert(".", QPointer<QObject>(&ob));
+#endif
 }
 
 void testQObject(int &argc, char *argv[])

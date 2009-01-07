@@ -2977,11 +2977,11 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
         if (lastOpened != -1 && lastClosed != -1)
             slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
         extraArgs[0] = slotNumber;
-    } else if (outertype == m_namespace + "QMap") {
+    } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
         QString nodetype;
         if (m_qtVersion >= (4 << 16) + (5 << 8) + 0) {
             nodetype  = m_namespace + "QMapNode";
-            nodetype += data.type.mid(m_namespace.size() + 4);
+            nodetype += data.type.mid(outertype.size());
         } else {
             nodetype  = data.type + "::Node"; 
         }
@@ -3552,8 +3552,9 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
                 //    << item.findChild("nameencoded").data()[1];
                 if (item.findChild("nameencoded").data()[0] == '1')
                     data1.name = QByteArray::fromBase64(data1.name.toUtf8());
-                if (item.findChild("nameisindex").data()[0] == '1')
-                    data1.name = '[' + data1.name + ']';
+                QString key = item.findChild("key").data();
+                if (!key.isEmpty())
+                    data1.name += " (" + key + ")";
                 setWatchDataType(data1, item.findChild("type"));
                 setWatchDataExpression(data1, item.findChild("exp"));
                 setWatchDataChildCount(data1, item.findChild("numchild"));
