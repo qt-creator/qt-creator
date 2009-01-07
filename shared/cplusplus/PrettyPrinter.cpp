@@ -1229,7 +1229,16 @@ bool PrettyPrinter::visit(WhileStatementAST *ast)
     out << '(';
     accept(ast->condition);
     out << ')';
-    accept(ast->statement);
+    out << ' ';
+    if (ast->statement && ast->statement->asCompoundStatement())
+        accept(ast->statement);
+    else {
+        indent();
+        newline();
+        accept(ast->statement);
+        deindent();
+        newline();
+    }
     return false;
 }
 

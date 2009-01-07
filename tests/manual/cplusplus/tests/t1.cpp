@@ -20,6 +20,16 @@ class Class {
     else if (b == 20) return 2;
     else if (c == 30) { x = 1; }
   }
+
+  void test_while() {
+    while (int a = 1) {
+      exit();
+    }
+
+    while (x==1) do_something_here();
+
+    while (x==2) if(a==1) c(); else if (a==2) c(); else c3();
+  }
 };
 
 class Derived: public Class {
