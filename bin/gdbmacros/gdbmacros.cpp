@@ -1367,14 +1367,22 @@ static void qDumpQMap(QDumper &d)
                     P(d, "addr", addOffset(node, valueOffset));
                 } else {
                     P(d, "name", "[" << i << "]");
-                    P(d, "type", NS"QMapNode<" << keyType << "," << valueType << " >");
+#if QT_VERSION >= 0x040500
                     // actually, any type (even 'char') will do...
-                    P(d, "exp", "*('"NS"QMapNode<" << keyType << "," << valueType << " >'*)" << node);
+                    P(d, "type", NS"QMapNode<"
+                        << keyType << "," << valueType << " >");
+                    P(d, "exp", "*('"NS"QMapNode<"
+                        << keyType << "," << valueType << " >'*)" << node);
+
                     //P(d, "exp", "*('"NS"QMapData'*)" << (void*)node);
                     //P(d, "exp", "*(char*)" << (void*)node);
-
                     // P(d, "addr", node);  does not work as gdb fails to parse
-                    // e.g. &((*('"NS"QMapNode<QString,Foo>'*)0x616658))
+#else 
+                    P(d, "type", NS"QMapData::Node<"
+                        << keyType << "," << valueType << " >");
+                    P(d, "exp", "*('"NS"QMapData::Node<"
+                        << keyType << "," << valueType << " >'*)" << node);
+#endif
                 }
             d.endHash();
 
@@ -2483,6 +2491,10 @@ void qDumpObjectData440(
             "\"std::vector\","
             "\"std::wstring\","
             "]";
+        d << ",qtversion=["
+            "\"" << ((QT_VERSION >> 16) & 255) << "\","
+            "\"" << ((QT_VERSION >> 8)  & 255) << "\","
+            "\"" << ((QT_VERSION)       & 255) << "\"]";
         d << ",namespace=\""NS"\"";
         d.disarm();
     }
