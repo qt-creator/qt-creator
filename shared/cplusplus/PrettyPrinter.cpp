@@ -198,7 +198,24 @@ bool PrettyPrinter::visit(CaseStatementAST *ast)
     out << "case ";
     accept(ast->expression);
     out << ':';
-    accept(ast->statement);
+    if (! ast->statement) {
+        newline();
+        return false;
+    }
+
+    if (ast->statement->asCompoundStatement()) {
+        out << ' ';
+        accept(ast->statement);
+    } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
+        newline();
+        accept(ast->statement);
+    } else {
+        indent();
+        newline();
+        accept(ast->statement);
+        deindent();
+        newline();
+    }
     return false;
 }
 

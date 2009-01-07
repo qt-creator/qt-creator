@@ -35,6 +35,11 @@ class Class {
     switch (int k) {
     case 'a': case 'b': case '\\':
       return 1;
+    case 1|2: { return 3; } break;
+    case x: break;
+    case y:
+      foo();
+      break;
     default:
       return 2;
     }
