@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
             const QByteArray appFileName = QFile::encodeName(appInfo.fileName());
 
             printf("Usage: %s [options]\n"
-                   "  --help                    Display ths information\n"
+                   "  --help                    Display this information\n"
                    "  --test-rewriter           Test the tree rewriter\n"
                    "  --test-pretty-printer     Test the pretty printer\n",
                    appFileName.constData());
