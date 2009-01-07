@@ -14,7 +14,8 @@ namespace Git {
         }
 
         class GitClient;
-        class BranchModel;
+        class LocalBranchModel;
+        class RemoteBranchModel;
 
         /* Branch dialog: Display a list of local branches at the top
          * and remote branches below. Offers to checkout/delete local
@@ -39,6 +40,7 @@ namespace Git {
             void slotCheckoutSelectedBranch();
             void slotDeleteSelectedBranch();
             void slotLocalBranchActivated();
+            void slotNewLocalBranchCreated(const QString &);
 
         private:
             bool ask(const QString &title, const QString &what, bool defaultButton);
@@ -51,8 +53,8 @@ namespace Git {
             QPushButton *m_checkoutButton;
             QPushButton *m_deleteButton;
 
-            BranchModel *m_localModel;
-            BranchModel *m_remoteModel;
+            LocalBranchModel *m_localModel;
+            RemoteBranchModel *m_remoteModel;
             QString m_repoDirectory;
         };
     } // namespace Internal

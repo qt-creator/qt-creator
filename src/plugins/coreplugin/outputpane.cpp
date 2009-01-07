@@ -488,13 +488,13 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text, 
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
     setStyleSheet(
-            "QPushButton { border-image: url(:/qworkbench/images/panel_button.png) 2 2 2 19 repeat;"
+            "QPushButton { border-image: url(:/qworkbench/images/panel_button.png) 2 2 2 19;"
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
-            "QPushButton:checked { border-image: url(:/qworkbench/images/panel_button_checked.png) 2 2 2 19 repeat } "
+            "QPushButton:checked { border-image: url(:/qworkbench/images/panel_button_checked.png) 2 2 2 19 } "
 #ifndef Q_WS_MAC // Mac UI's dont usually do hover
-            "QPushButton:checked:hover { border-image: url(:/qworkbench/images/panel_button_checked_hover.png) 2 2 2 19 repeat } "
-            "QPushButton:pressed:hover { border-image: url(:/qworkbench/images/panel_button_pressed.png) 2 2 2 19 repeat } "
-            "QPushButton:hover { border-image: url(:/qworkbench/images/panel_button_hover.png) 2 2 2 19 repeat } "
+            "QPushButton:checked:hover { border-image: url(:/qworkbench/images/panel_button_checked_hover.png) 2 2 2 19 } "
+            "QPushButton:pressed:hover { border-image: url(:/qworkbench/images/panel_button_pressed.png) 2 2 2 19 } "
+            "QPushButton:hover { border-image: url(:/qworkbench/images/panel_button_hover.png) 2 2 2 19 } "
 #endif
             );
 }
