@@ -43,6 +43,8 @@ class Class {
     default:
       return 2;
     }
+    s = L"ci\"aa\"ao" L"blah!";
+    s2 = "ciao \"ciao\" ciao";
   }
 };
 

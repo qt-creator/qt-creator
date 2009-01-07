@@ -1006,10 +1006,13 @@ bool PrettyPrinter::visit(SizeofExpressionAST *ast)
 
 bool PrettyPrinter::visit(StringLiteralAST *ast)
 {
-    out << '"' << spell(ast->token) << '"';
-    if (ast->next) {
-        out << ' ';
-        accept(ast->next);
+    for (StringLiteralAST *it = ast; it; it = it->next) {
+        if (tokenKind(ast->token) == T_STRING_LITERAL)
+            out << '"' << spell(ast->token) << '"';
+        else
+            out << "L\"" << spell(ast->token) << '"';
+        if (it->next)
+            out << ' ';
     }
     return false;
 }
