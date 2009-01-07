@@ -289,6 +289,32 @@ void testQMap()
 #endif
 }
 
+void testQMultiMap()
+{
+    QMultiMap<uint, float> gg0;
+    gg0.insert(11, 11.0);
+    gg0.insert(22, 22.0);
+    gg0.insert(22, 33.0);
+
+    QMultiMap<QString, float> gg1;
+    gg1.insert("22.0", 22.0);
+
+    QMultiMap<int, QString> gg2;
+    gg2.insert(22, "22.0");
+
+    QMultiMap<QString, Foo> gg3;
+    gg3.insert("22.0", Foo(22));
+    gg3.insert("33.0", Foo(33));
+    gg3.insert("22.0", Foo(22));
+
+    QObject ob;
+    QMultiMap<QString, QPointer<QObject> > map;
+    map.insert("Hallo", QPointer<QObject>(&ob));
+    map.insert("Welt", QPointer<QObject>(&ob));
+    map.insert(".", QPointer<QObject>(&ob));
+    map.insert(".", QPointer<QObject>(&ob));
+}
+
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -856,6 +882,7 @@ int main(int argc, char *argv[])
     testQHash();
     testQImage();
     testQMap();
+    testQMultiMap();
     testQString();
     testQSet();
     testQStringList();
