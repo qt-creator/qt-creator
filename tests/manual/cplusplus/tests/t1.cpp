@@ -22,3 +22,7 @@ class Class {
   }
 };
 
+class Derived: public Class {
+};
+
+class Derived2: public Class, public virtual Derived {};

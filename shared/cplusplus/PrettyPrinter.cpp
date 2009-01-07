@@ -145,12 +145,16 @@ bool PrettyPrinter::visit(AttributeAST *ast)
 bool PrettyPrinter::visit(BaseSpecifierAST *ast)
 {
     if (ast->token_virtual && ast->token_access_specifier) {
-        out << "virtual ";
+        out << "virtual";
+        out << ' ';
         out << spell(ast->token_access_specifier);
+        out << ' ';
     } else if (ast->token_virtual) {
         out << "virtual";
+        out << ' ';
     } else if (ast->token_access_specifier) {
         out << spell(ast->token_access_specifier);
+        out << ' ';
     }
     accept(ast->name);
     return false;
@@ -234,6 +238,7 @@ bool PrettyPrinter::visit(ClassSpecifierAST *ast)
                 out << ", ";
         }
     }
+    newline();
     out << '{';
     if (ast->member_specifiers) {
         indent();
