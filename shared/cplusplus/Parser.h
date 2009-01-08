@@ -214,6 +214,13 @@ public:
 
     bool parseObjCIdentifierList(IdentifierListAST *&node);
 
+    bool parseObjCPropertyDeclaration(DeclarationAST *&ast);
+    bool parseObjCProtocolRefs();
+    bool parseObjCClassInstanceVariables();
+    bool parseObjCInterfaceMemberDeclaration();
+    bool parseObjCInterfaceDeclList();
+    bool parseObjCMethodPrototype();
+
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
 

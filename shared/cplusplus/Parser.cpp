@@ -405,8 +405,8 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_AT_PROTOCOL:
         return parseObjCProtocolDeclaration(node);
 
-    case T_AT_END:
-        return parseObjCEndDeclaration(node);
+//    case T_AT_END:
+//        return parseObjCEndDeclaration(node);
 
     case T_AT_COMPATIBILITY_ALIAS:
         return parseObjCAliasDeclaration(node);
@@ -3298,6 +3298,40 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 
 bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&node)
 {
+    if (LA() != T_AT_INTERFACE)
+        return false;
+
+    unsigned interface_token = consumeToken();
+    unsigned interface_name_token = 0;
+    match(T_IDENTIFIER, &interface_name_token);
+    if (LA() == T_LPAREN) {
+        // category interface
+        unsigned lparen_token = consumeToken();
+        unsigned catagory_name_token = 0;
+        if (LA() == T_IDENTIFIER)
+            catagory_name_token = consumeToken();
+        unsigned rparen_token = 0;
+        match(T_RPAREN, &rparen_token);
+        parseObjCProtocolRefs();
+        parseObjCClassInstanceVariables();
+        parseObjCInterfaceDeclList();
+        unsigned end_token = 0;
+        match(T_AT_END, &end_token);
+        return true;
+    } else {
+        // class interface
+        unsigned colon_token = 0;
+        unsigned super_class_token = 0;
+        if (LA() == T_COLON) {
+            colon_token = consumeToken();
+            match(T_IDENTIFIER, &super_class_token);
+        }
+        parseObjCProtocolRefs();
+        parseObjCInterfaceDeclList();
+        unsigned end_token = 0;
+        match(T_AT_END, &end_token);
+        return true;
+    }
     return false;
 }
 
@@ -3345,5 +3379,74 @@ bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
     }
     return false;
 }
+
+bool Parser::parseObjCProtocolRefs()
+{
+    return false;
+}
+
+bool Parser::parseObjCClassInstanceVariables()
+{
+    return false;
+}
+
+bool Parser::parseObjCInterfaceDeclList()
+{
+    unsigned saved = cursor();
+    while (LA() != T_AT_END && parseObjCInterfaceMemberDeclaration()) {
+        if (saved == cursor())
+            consumeToken(); // skip a token
+    }
+    return true;
+}
+
+bool Parser::parseObjCInterfaceMemberDeclaration()
+{
+    switch (LA()) {
+    case T_SEMICOLON:
+        consumeToken();
+        return true;
+
+    case T_AT_REQUIRED:
+    case T_AT_OPTIONAL:
+        consumeToken();
+        return true;
+
+    case T_PLUS:
+    case T_MINUS:
+        return parseObjCMethodPrototype();
+
+    default: {
+        DeclarationAST *declaration = 0;
+        parseDeclaration(declaration);
+    } // default
+
+    } // switch
+
+    return true;
+}
+
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&ast)
+{
+    return false;
+}
+
+bool Parser::parseObjCMethodPrototype()
+{
+    if (LA() != T_PLUS && LA() != T_MINUS)
+        return false;
+
+    // instance or class method?
+    unsigned method_type_token = consumeToken();
+
+
+    SpecifierAST *attributes = 0, **attr = &attributes;
+    while (parseAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+
+    return false;
+}
+
+
 
 CPLUSPLUS_END_NAMESPACE
