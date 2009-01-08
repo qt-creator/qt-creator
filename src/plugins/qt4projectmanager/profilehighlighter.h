@@ -47,6 +47,13 @@ class ProFileHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
+    enum ProfileFormats {
+        ProfileVariableFormat,
+        ProfileFunctionFormat,
+        ProfileCommentFormat,
+        NumProfileFormats
+    };
+
     ProFileHighlighter(QTextDocument *document = 0);
     virtual void highlightBlock(const QString &text);
 
@@ -58,7 +65,6 @@ public:
 
 private:
     QTextCharFormat m_formats[NumProfileFormats];
-
 };
 
 } // namespace Internal

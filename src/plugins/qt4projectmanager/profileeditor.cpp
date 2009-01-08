@@ -132,8 +132,8 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     static QVector<QString> categories;
     if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_VARIABLE)
-                   << QLatin1String(TextEditor::Constants::C_FUNCTION)
+        categories << QLatin1String(TextEditor::Constants::C_TYPE)
+                   << QLatin1String(TextEditor::Constants::C_KEYWORD)
                    << QLatin1String(TextEditor::Constants::C_COMMENT);
     }
 

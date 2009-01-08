@@ -91,10 +91,6 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::black));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::green));
 
-    // Pro file categories
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_VARIABLE), tr("Variable"), Qt::blue));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_FUNCTION), tr("Function"), Qt::green));
-
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("TextEditor"),
                                               tr("Text Editor"),

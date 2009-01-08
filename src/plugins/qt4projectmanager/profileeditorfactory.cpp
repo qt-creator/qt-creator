@@ -36,7 +36,6 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditor.h"
-#include "qt4projectmanagerenums.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
