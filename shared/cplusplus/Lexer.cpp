@@ -122,6 +122,12 @@ bool Lexer::qtMocRunEnabled() const
 void Lexer::setQtMocRunEnabled(bool onoff)
 { _qtMocRunEnabled = onoff; }
 
+bool Lexer::objcEnabled() const
+{ return _objcEnabled; }
+
+void Lexer::setObjcEnabled(bool onoff)
+{ _objcEnabled = onoff; }
+
 bool Lexer::isIncremental() const
 { return _isIncremental; }
 
@@ -548,8 +554,53 @@ void Lexer::scan_helper(Token *tok)
         break;
 
     default: {
+        if (_objcEnabled) {
+            if (ch == '@' && _yychar >= 'a' && _yychar <= 'z') {
+                const char *yytext = _currentChar;
+
+                do {
+                    yyinp();
+                    if (! isalnum(_yychar))
+                        break;
+                } while (_yychar);
+
+                const int yylen = _currentChar - yytext;
+                tok->kind = classifyObjCAtKeyword(yytext, yylen);
+                break;
+            } else if (ch == '@' && _yychar == '"') {
+                // objc @string literals
+                ch = _yychar;
+                yyinp();
+                tok->kind = T_AT_STRING_LITERAL;
+
+                const char *yytext = _currentChar;
+
+                while (_yychar && _yychar != '"') {
+                    if (_yychar != '\\')
+                        yyinp();
+                    else {
+                        yyinp(); // skip `\\'
+
+                        if (_yychar)
+                            yyinp();
+                    }
+                }
+                // assert(_yychar == '"');
+
+                int yylen = _currentChar - yytext;
+
+                if (_yychar == '"')
+                    yyinp();
+
+                if (control())
+                    tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
+
+                break;
+            }
+        }
+
         if (ch == 'L' && (_yychar == '"' || _yychar == '\'')) {
-            // wide char literals
+            // wide char/string literals
             ch = _yychar;
             yyinp();
 

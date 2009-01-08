@@ -54,6 +54,7 @@ SOURCES += \
     $$PWD/DiagnosticClient.cpp \
     $$PWD/FullySpecifiedType.cpp \
     $$PWD/Keywords.cpp \
+    $$PWD/ObjectiveCAtKeywords.cpp \
     $$PWD/Lexer.cpp \
     $$PWD/LiteralTable.cpp \
     $$PWD/Literals.cpp \

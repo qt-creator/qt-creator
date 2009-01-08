@@ -62,7 +62,7 @@ static const char *token_names[] = {
 
     ("<identifier>"), ("<int literal>"), ("<float literal>"), ("<char literal>"),
     ("<wide char literal>"), ("<string literal>"), ("<wide char literal>"),
-    ("<angle string literal>"),
+    ("<@string literal>"), ("<angle string literal>"),
 
     ("&"), ("&&"), ("&="), ("->"), ("->*"), ("^"), ("^="), (":"), ("::"),
     (","), ("/"), ("/="), ("."), ("..."), (".*"), ("="), ("=="), ("!"),
@@ -84,7 +84,15 @@ static const char *token_names[] = {
     ("union"), ("unsigned"), ("using"), ("virtual"), ("void"),
     ("volatile"), ("wchar_t"), ("while"),
 
+    // gnu
     ("__attribute__"), ("__typeof__"),
+
+    // objc @keywords
+    ("@catch"), ("@class"), ("@compatibility_alias"), ("@defs"), ("@dynamic"),
+    ("@encode"), ("@end"), ("@finally"), ("@implementation"), ("@interface"),
+    ("@not_keyword"), ("@optional"), ("@package"), ("@private"), ("@property"),
+    ("@protected"), ("@protocol"), ("@public"), ("@required"), ("@selector"),
+    ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
 
     ("SIGNAL"), ("SLOT"), ("Q_SIGNALS"), ("Q_SLOTS")
 };
@@ -118,6 +126,7 @@ const char *Token::spell() const
     case T_FLOAT_LITERAL:
     case T_CHAR_LITERAL:
     case T_STRING_LITERAL:
+    case T_AT_STRING_LITERAL:
     case T_ANGLE_STRING_LITERAL:
     case T_WIDE_CHAR_LITERAL:
     case T_WIDE_STRING_LITERAL:
