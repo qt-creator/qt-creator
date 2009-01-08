@@ -90,6 +90,7 @@ struct PathChooserPrivate
     PathValidatingLineEdit *m_lineEdit;
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
+    QString m_initialBrowsePathOverride;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
@@ -138,15 +139,20 @@ QString PathChooser::path() const
 
 void PathChooser::setPath(const QString &path)
 {
-    const QString defaultPath = path.isEmpty() ? homePath() : path;
-    m_d->m_lineEdit->setText(QDir::toNativeSeparators(defaultPath));
+    m_d->m_lineEdit->setText(QDir::toNativeSeparators(path));
 }
 
 void PathChooser::slotBrowse()
 {
+    emit beforeBrowsing();
+
     QString predefined = path();
-    if (!predefined.isEmpty() && !QFileInfo(predefined).isDir())
-        predefined.clear();
+    if ((predefined.isEmpty() || !QFileInfo(predefined).isDir())
+            && !m_d->m_initialBrowsePathOverride.isNull()) {
+        predefined = m_d->m_initialBrowsePathOverride;
+        if (!QFileInfo(predefined).isDir())
+            predefined.clear();
+    }
 
     // Prompt for a file/dir
     QString dialogTitle;
@@ -167,13 +173,15 @@ void PathChooser::slotBrowse()
         ;
     }
 
-    // TODO make cross-platform
-    // Delete trailing slashes unless it is "/", only
+    // Delete trailing slashes unless it is "/"|"\\", only
     if (!newPath.isEmpty()) {
+        newPath = QDir::toNativeSeparators(newPath);
         if (newPath.size() > 1 && newPath.endsWith(QDir::separator()))
             newPath.truncate(newPath.size() - 1);
         setPath(newPath);
     }
+
+    emit browsingFinished();
 }
 
 bool PathChooser::isValid() const
@@ -268,6 +276,11 @@ void PathChooser::setExpectedKind(Kind expected)
 void PathChooser::setPromptDialogTitle(const QString &title)
 {
     m_d->m_dialogTitleOverride = title;
+}
+
+void PathChooser::setInitialBrowsePathBackup(const QString &path)
+{
+    m_d->m_initialBrowsePathOverride = path;
 }
 
 QString PathChooser::makeDialogTitle(const QString &title)

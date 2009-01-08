@@ -35,8 +35,7 @@
 #define CPPDOCUMENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
-
-#include "pp-macro.h"
+#include "Macro.h"
 
 #include <QByteArray>
 #include <QList>

@@ -36,8 +36,6 @@
 
 #include "namespace_global.h"
 
-#include <utils/qtcassert.h>
-
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMap>
 #include <QtCore/QString>
@@ -68,7 +66,7 @@ class Node
 protected:
     Node(File *file, Prefix *prefix) : m_file(file), m_prefix(prefix)
     {
-        QTC_ASSERT(m_prefix, return);
+        Q_ASSERT(m_prefix);
     }
 public:
     File *file() { return m_file; }

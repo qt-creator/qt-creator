@@ -47,6 +47,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     setupUi(this);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
+    connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
+
     splitter->setCollapsible(1, false);
     pageTree->header()->setVisible(false);
 
@@ -134,4 +136,10 @@ void SettingsDialog::reject()
     foreach (IOptionsPage *page, m_pages)
         page->finished(false);
     done(QDialog::Rejected);
+}
+
+void SettingsDialog::apply()
+{
+    foreach (IOptionsPage *page, m_pages)
+        page->finished(true);
 }

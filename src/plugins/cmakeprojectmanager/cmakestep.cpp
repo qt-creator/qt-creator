@@ -99,7 +99,7 @@ QString CMakeBuildStepConfigWidget::displayName() const
     return "CMake";
 }
 
-void CMakeBuildStepConfigWidget::init(const QString &buildConfiguration)
+void CMakeBuildStepConfigWidget::init(const QString & /*buildConfiguration */)
 {
     // TODO
 }
@@ -121,12 +121,12 @@ ProjectExplorer::BuildStep *CMakeBuildStepFactory::create(ProjectExplorer::Proje
     return new CMakeStep(pro);
 }
 
-QStringList CMakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+QStringList CMakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
 {
     return QStringList();
 }
 
-QString CMakeBuildStepFactory::displayNameForName(const QString &name) const
+QString CMakeBuildStepFactory::displayNameForName(const QString & /* name */) const
 {
     return "CMake";
 }

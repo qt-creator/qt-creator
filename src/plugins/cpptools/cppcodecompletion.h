@@ -96,12 +96,10 @@ private:
                           const QList<CPlusPlus::TypeOfExpression::Result> &,
                           const CPlusPlus::LookupContext &context);
 
-    bool completeMember(CPlusPlus::FullySpecifiedType exprTy,
-                        const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);
 
-    bool completeScope(CPlusPlus::FullySpecifiedType exprTy,
-                       const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeScope(const QList<CPlusPlus::TypeOfExpression::Result> &,
                        const CPlusPlus::LookupContext &context);
 
     void completeNamespace(const QList<CPlusPlus::Symbol *> &candidates,

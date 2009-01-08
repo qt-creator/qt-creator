@@ -33,8 +33,6 @@
 
 #include "resourcefile_p.h"
 
-#include <utils/qtcassert.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -119,7 +117,7 @@ bool ResourceFile::load()
         } else {
             p = m_prefix_list[idx];
         }
-        QTC_ASSERT(p, return false);
+        Q_ASSERT(p);
 
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file"))) {
@@ -251,7 +249,7 @@ bool ResourceFile::isEmpty() const
 QStringList ResourceFile::fileList(int pref_idx) const
 {
     QStringList result;
-    QTC_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count(), return result);
+    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     const FileList &abs_file_list = m_prefix_list.at(pref_idx)->file_list;
     foreach (const File *abs_file, abs_file_list)
         result.append(relativePath(abs_file->name));
@@ -261,9 +259,9 @@ QStringList ResourceFile::fileList(int pref_idx) const
 void ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
 {
     Prefix * const p = m_prefix_list[prefix_idx];
-    QTC_ASSERT(p, return);
+    Q_ASSERT(p);
     FileList &files = p->file_list;
-    QTC_ASSERT(file_idx >= -1 && file_idx <= files.size(), return);
+    Q_ASSERT(file_idx >= -1 && file_idx <= files.size());
     if (file_idx == -1)
         file_idx = files.size();
     files.insert(file_idx, new File(p, absolutePath(file)));
@@ -275,7 +273,7 @@ void ResourceFile::addPrefix(const QString &prefix, int prefix_idx)
     if (indexOfPrefix(fixed_prefix) != -1)
         return;
 
-    QTC_ASSERT(prefix_idx >= -1 && prefix_idx <= m_prefix_list.size(), return);
+    Q_ASSERT(prefix_idx >= -1 && prefix_idx <= m_prefix_list.size());
     if (prefix_idx == -1)
         prefix_idx = m_prefix_list.size();
     m_prefix_list.insert(prefix_idx, new Prefix(fixed_prefix));
@@ -283,7 +281,7 @@ void ResourceFile::addPrefix(const QString &prefix, int prefix_idx)
 
 void ResourceFile::removePrefix(int prefix_idx)
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     Prefix * const p = m_prefix_list.at(prefix_idx);
     delete p;
     m_prefix_list.removeAt(prefix_idx);
@@ -291,39 +289,39 @@ void ResourceFile::removePrefix(int prefix_idx)
 
 void ResourceFile::removeFile(int prefix_idx, int file_idx)
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list[prefix_idx]->file_list;
-    QTC_ASSERT(file_idx >= 0 && file_idx < fileList.count(), return);
+    Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
     delete fileList.at(file_idx);
     fileList.removeAt(file_idx);
 }
 
 void ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->name = fixPrefix(prefix);
 }
 
 void ResourceFile::replaceLang(int prefix_idx, const QString &lang)
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->lang = lang;
 }
 
 void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &alias)
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(prefix_idx)->file_list;
-    QTC_ASSERT(file_idx >= 0 && file_idx < fileList.count(), return);
+    Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
     fileList[file_idx]->alias = alias;
 }
 
 
 void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
 {
-    QTC_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count(), return);
+    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(pref_idx)->file_list;
-    QTC_ASSERT(file_idx >= 0 && file_idx < fileList.count(), return);
+    Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
     fileList[file_idx]->name = file;
 }
 
@@ -339,7 +337,7 @@ int ResourceFile::indexOfPrefix(const QString &prefix) const
 
 int ResourceFile::indexOfFile(int pref_idx, const QString &file) const
 {
-    QTC_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count(), return -1);
+    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     Prefix * const p = m_prefix_list.at(pref_idx);
     File equalFile(p, absolutePath(file));
     return p->file_list.indexOf(&equalFile);
@@ -373,16 +371,16 @@ bool ResourceFile::contains(const QString &prefix, const QString &file) const
         return false;
     if (file.isEmpty())
         return true;
-    QTC_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count(), return false);
+    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     Prefix * const p = m_prefix_list.at(pref_idx);
-    QTC_ASSERT(p, return false);
+    Q_ASSERT(p);
     File equalFile(p, absolutePath(file));
     return p->file_list.contains(&equalFile);
 }
 
 bool ResourceFile::contains(int pref_idx, const QString &file) const
 {
-    QTC_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count(), return false);
+    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     Prefix * const p = m_prefix_list.at(pref_idx);
     File equalFile(p, absolutePath(file));
     return p->file_list.contains(&equalFile);
@@ -412,49 +410,49 @@ int ResourceFile::prefixCount() const
 
 QString ResourceFile::prefix(int idx) const
 {
-    QTC_ASSERT((idx >= 0) && (idx < m_prefix_list.count()), return QString());
+    Q_ASSERT((idx >= 0) && (idx < m_prefix_list.count()));
     return m_prefix_list.at(idx)->name;
 }
 
 QString ResourceFile::lang(int idx) const
 {
-    QTC_ASSERT(idx >= 0 && idx < m_prefix_list.count(), return QString());
+    Q_ASSERT(idx >= 0 && idx < m_prefix_list.count());
     return m_prefix_list.at(idx)->lang;
 }
 
 int ResourceFile::fileCount(int prefix_idx) const
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return 0);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     return m_prefix_list.at(prefix_idx)->file_list.size();
 }
 
 QString ResourceFile::file(int prefix_idx, int file_idx) const
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return QString());
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(prefix_idx)->file_list;
-    QTC_ASSERT(file_idx >= 0 && file_idx < fileList.count(), return QString());
+    Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
     return fileList.at(file_idx)->name;
 }
 
 QString ResourceFile::alias(int prefix_idx, int file_idx) const
 {
-    QTC_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count(), return QString());
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(prefix_idx)->file_list;
-    QTC_ASSERT(file_idx >= 0 && file_idx < fileList.count(), return QString());
+    Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
     return fileList.at(file_idx)->alias;
 }
 
 void * ResourceFile::prefixPointer(int prefixIndex) const
 {
-    QTC_ASSERT(prefixIndex >= 0 && prefixIndex < m_prefix_list.count(), return 0);
+    Q_ASSERT(prefixIndex >= 0 && prefixIndex < m_prefix_list.count());
     return m_prefix_list.at(prefixIndex);
 }
 
 void * ResourceFile::filePointer(int prefixIndex, int fileIndex) const
 {
-    QTC_ASSERT(prefixIndex >= 0 && prefixIndex < m_prefix_list.count(), return 0);
+    Q_ASSERT(prefixIndex >= 0 && prefixIndex < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(prefixIndex)->file_list;
-    QTC_ASSERT(fileIndex >= 0 && fileIndex < fileList.count(), return 0);
+    Q_ASSERT(fileIndex >= 0 && fileIndex < fileList.count());
     return fileList.at(fileIndex);
 }
 
@@ -509,7 +507,7 @@ QModelIndex ResourceModel::index(int row, int column, const QModelIndex &parent)
         // File node
         Node * const node = reinterpret_cast<Node *>(pip);
         Prefix * const prefix = node->prefix();
-        QTC_ASSERT(prefix, return QModelIndex());
+        Q_ASSERT(prefix);
         if (row < 0 || row >= prefix->file_list.count())
             return QModelIndex();
         const int prefixIndex = m_resource_file.prefixPointerIndex(prefix);
@@ -521,7 +519,7 @@ QModelIndex ResourceModel::index(int row, int column, const QModelIndex &parent)
             return QModelIndex();
         internalPointer = m_resource_file.prefixPointer(row);
     }
-    QTC_ASSERT(internalPointer, return QModelIndex());
+    Q_ASSERT(internalPointer);
     return createIndex(row, 0, internalPointer);
 }
 
@@ -535,12 +533,12 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
         return QModelIndex();
     Node * const node = reinterpret_cast<Node *>(internalPointer);
     Prefix * const prefix = node->prefix();
-    QTC_ASSERT(prefix, return QModelIndex());
+    Q_ASSERT(prefix);
     bool const isFileNode = (prefix != node);
 
     if (isFileNode) {
         const int row = m_resource_file.prefixPointerIndex(prefix);
-        QTC_ASSERT(row >= 0, return QModelIndex());
+        Q_ASSERT(row >= 0);
         return createIndex(row, 0, prefix);
     } else {
         return QModelIndex();
@@ -553,7 +551,7 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
         void * const internalPointer = parent.internalPointer();
         Node * const node = reinterpret_cast<Node *>(internalPointer);
         Prefix * const prefix = node->prefix();
-        QTC_ASSERT(prefix, return 0);
+        Q_ASSERT(prefix);
         bool const isFileNode = (prefix != node);
 
         if (isFileNode) {
@@ -612,7 +610,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     Node * const node = reinterpret_cast<Node *>(internalPointer);
     Prefix const * const prefix = node->prefix();
     File const * const file = node->file();
-    QTC_ASSERT(prefix, return QVariant());
+    Q_ASSERT(prefix);
     bool const isFileNode = (prefix != node);
 
     QVariant result;
@@ -629,7 +627,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                     appendParenthesized(lang, stringRes);
             } else  {
                 // File node
-                QTC_ASSERT(file, return result);
+                Q_ASSERT(file);
                 stringRes = QFileInfo(file->name).fileName();
                 const QString alias = file->alias;
                 if (!alias.isEmpty())
@@ -641,7 +639,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         if (isFileNode) {
             // File node
-            QTC_ASSERT(file, return result);
+            Q_ASSERT(file);
             const QString path = m_resource_file.absolutePath(file->name);
             if (iconFileExtension(path)) {
                 const QIcon icon(path);
@@ -653,7 +651,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
         if (isFileNode) {
             // File node
-            QTC_ASSERT(file, return result);
+            Q_ASSERT(file);
             QString conv_file = m_resource_file.relativePath(file->name);
             QString stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
             const QString &alias_file = file->alias;
@@ -682,12 +680,12 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     void * const internalPointer = index.internalPointer();
     Node * const node = reinterpret_cast<Node *>(internalPointer);
     Prefix * const p = node->prefix();
-    QTC_ASSERT(p, return);
+    Q_ASSERT(p);
     bool const isFileNode = (p != node);
 
     if (isFileNode) {
         File *const f = node->file();
-        QTC_ASSERT(f, return);
+        Q_ASSERT(f);
         if (!f->alias.isEmpty())
             file = f->alias;
         else

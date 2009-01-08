@@ -50,20 +50,14 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_H
-#define PP_H
+#ifndef CPLUSPLUS_PREPROCESSOR_H
+#define CPLUSPLUS_PREPROCESSOR_H
 
-#include <cassert>
-#include <cstring>
-#include <cctype>
-
-#include "pp-cctype.h"
-#include "pp-internal.h"
-#include "pp-macro.h"
-#include "pp-environment.h"
+#include "Macro.h"
+#include "PreprocessorClient.h"
+#include "PreprocessorEnvironment.h"
 #include "pp-scanner.h"
 #include "pp-macro-expander.h"
 #include "pp-engine.h"
-#include "pp-client.h"
 
-#endif // PP_H
+#endif // CPLUSPLUS_PREPROCESSOR_H

@@ -112,4 +112,19 @@ void *MemoryPool::allocate_helper(size_t size)
     return addr;
 }
 
+Managed::Managed()
+{ }
+
+Managed::~Managed()
+{ }
+
+void *Managed::operator new(size_t size, MemoryPool *pool)
+{ return pool->allocate(size); }
+
+void Managed::operator delete(void *)
+{ }
+
+void Managed::operator delete(void *, MemoryPool *)
+{ }
+
 CPLUSPLUS_END_NAMESPACE

@@ -98,12 +98,12 @@ static void displayError(const QString &t) // No console on Windows.
 
 static void displayHelpText(const QString &t)
 {
-    qWarning(t.toUtf8().constData());
+    qWarning("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
 {
-    qCritical(t.toUtf8().constData());
+    qCritical("%s", qPrintable(t));
 }
 
 #endif

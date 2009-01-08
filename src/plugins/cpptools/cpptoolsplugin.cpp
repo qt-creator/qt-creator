@@ -163,7 +163,8 @@ QFileInfo CppToolsPlugin::findFile(const QDir &dir, const QString &name,
     if (debug)
         qDebug() << Q_FUNC_INFO << dir << name;
 
-    if (project) {
+    QFileInfo fileInSameDir(dir, name);
+    if (project && !fileInSameDir.isFile()) {
         QString pattern = QString(1, QLatin1Char('/'));
         pattern += name;
         const QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
@@ -173,7 +174,7 @@ QFileInfo CppToolsPlugin::findFile(const QDir &dir, const QString &name,
                 return QFileInfo(*it);
         return QFileInfo();
     }
-    return QFileInfo(dir, name);
+    return fileInSameDir;
 }
 
 // Figure out file type

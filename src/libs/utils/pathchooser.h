@@ -71,6 +71,8 @@ public:
 
     void setPromptDialogTitle(const QString &title);
 
+    void setInitialBrowsePathBackup(const QString &path);
+
     bool isValid() const;
     QString errorMessage() const;
 
@@ -91,6 +93,8 @@ private:
 signals:
     void validChanged();
     void changed();
+    void beforeBrowsing();
+    void browsingFinished();
     void returnPressed();
 
 public slots:

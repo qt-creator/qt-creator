@@ -31,52 +31,19 @@
 **
 ***************************************************************************/
 
-#ifndef PP_CLIENT_H
-#define PP_CLIENT_H
+#include "handler.h"
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <QtTest/QtTest>
+#include <QtCore/QSet>
 
-#include <QByteArray>
-#include <QString>
-#include <QFile>
-
-namespace CPlusPlus {
-
-class Macro;
-
-class CPLUSPLUS_EXPORT Client
+class tst_FakeVim : public QObject
 {
-  Client(const Client &other);
-  void operator=(const Client &other);
+    Q_OBJECT
 
-public:
-  enum IncludeType {
-    IncludeLocal,
-    IncludeGlobal
-  };
-
-public:
-  Client()
-  { }
-
-  virtual ~Client()
-  { }
-
-  virtual void macroAdded(const Macro &macro) = 0;
-  virtual void sourceNeeded(QString &fileName, IncludeType mode,
-                            unsigned line) = 0; // ### FIX the signature.
-
-  virtual void startExpandingMacro(unsigned offset,
-                                   const Macro &macro,
-                                   const QByteArray &originalTextt) = 0;
-
-  virtual void stopExpandingMacro(unsigned offset,
-                                  const Macro &macro) = 0;
-
-  virtual void startSkippingBlocks(unsigned offset) = 0;
-  virtual void stopSkippingBlocks(unsigned offset) = 0;
+private slots:
 };
 
-} // namespace CPlusPlus
 
-#endif // PP_CLIENT_H
+QTEST_MAIN(tst_FakeVim)
+
+#include "main.moc"

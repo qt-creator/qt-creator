@@ -368,6 +368,10 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
     , m_specifyPathString(tr("<specify a path>"))
 {
     m_ui.setupUi(this);
+    m_ui.qtPath->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui.qtPath->setPromptDialogTitle(tr("Select QTDIR"));
+    m_ui.mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui.qtPath->setPromptDialogTitle(tr("Select MinGW Directory"));
 
     m_ui.addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui.delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
@@ -385,19 +389,22 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
 
     connect(m_ui.nameEdit, SIGNAL(textEdited(const QString &)),
             this, SLOT(updateCurrentQtName()));
-    connect(m_ui.pathEdit, SIGNAL(textEdited(const QString &)),
+
+
+    connect(m_ui.qtPath, SIGNAL(changed()),
             this, SLOT(updateCurrentQtPath()));
-    connect(m_ui.mingwLineEdit, SIGNAL(textEdited(const QString &)),
+    connect(m_ui.mingwPath, SIGNAL(changed()),
             this, SLOT(updateCurrentMingwDirectory()));
 
     connect(m_ui.addButton, SIGNAL(clicked()),
             this, SLOT(addQtDir()));
     connect(m_ui.delButton, SIGNAL(clicked()),
             this, SLOT(removeQtDir()));
-    connect(m_ui.browseButton, SIGNAL(clicked()),
-            this, SLOT(browse()));
-    connect(m_ui.mingwBrowseButton, SIGNAL(clicked()),
-            this, SLOT(mingwBrowse()));
+
+    connect(m_ui.qtPath, SIGNAL(browsingFinished()),
+            this, SLOT(onQtBrowsed()));
+    connect(m_ui.mingwPath, SIGNAL(browsingFinished()),
+            this, SLOT(onMingwBrowsed()));
 
     connect(m_ui.qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
@@ -421,11 +428,11 @@ void QtDirWidget::addQtDir()
     item->setText(1, newVersion->path());
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
 
-    m_ui.nameEdit->setText(newVersion->name());
-    m_ui.pathEdit->setText(newVersion->path());
-
-    m_ui.defaultCombo->addItem(newVersion->name());
     m_ui.qtdirList->setCurrentItem(item);
+
+    m_ui.nameEdit->setText(newVersion->name());
+    m_ui.qtPath->setPath(newVersion->path());
+    m_ui.defaultCombo->addItem(newVersion->name());
     m_ui.nameEdit->setFocus();
     m_ui.nameEdit->selectAll();
 }
@@ -459,10 +466,14 @@ void QtDirWidget::updateState()
         && m_versions.at(m_ui.qtdirList->indexOfTopLevelItem(m_ui.qtdirList->currentItem()))->isSystemVersion());
     m_ui.delButton->setEnabled(enabled && !isSystemVersion);
     m_ui.nameEdit->setEnabled(enabled && !isSystemVersion);
-    m_ui.pathEdit->setEnabled(enabled && !isSystemVersion);
-    m_ui.browseButton->setEnabled(enabled && !isSystemVersion);
-    m_ui.mingwBrowseButton->setEnabled(enabled);
-    m_ui.mingwLineEdit->setEnabled(enabled);
+    m_ui.qtPath->setEnabled(enabled && !isSystemVersion);
+    m_ui.mingwPath->setEnabled(enabled);
+}
+
+void QtDirWidget::makeMingwVisible(bool visible)
+{
+    m_ui.mingwLabel->setVisible(visible);
+    m_ui.mingwPath->setVisible(visible);
 }
 
 void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
@@ -475,16 +486,12 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         if (t == QtVersion::MinGW) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
-            m_ui.mingwLineEdit->setVisible(true);
-            m_ui.mingwLabel->setVisible(true);
-            m_ui.mingwBrowseButton->setVisible(true);
-            m_ui.mingwLineEdit->setText(m_versions.at(index)->mingwDirectory());
+            makeMingwVisible(true);
+            m_ui.mingwPath->setPath(m_versions.at(index)->mingwDirectory());
         } else if (t == QtVersion::MSVC || t == QtVersion::WINCE){
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(true);
-            m_ui.mingwLineEdit->setVisible(false);
-            m_ui.mingwLabel->setVisible(false);
-            m_ui.mingwBrowseButton->setVisible(false);
+            makeMingwVisible(false);
             QList<MSVCEnvironment> msvcenvironments = MSVCEnvironment::availableVersions();
             if (msvcenvironments.count() == 0) {
                 m_ui.msvcLabel->setText(tr("No Visual Studio Installation found"));
@@ -506,9 +513,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         } else if (t == QtVersion::INVALID) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
-            m_ui.mingwLineEdit->setVisible(false);
-            m_ui.mingwLabel->setVisible(false);
-            m_ui.mingwBrowseButton->setVisible(false);
+            makeMingwVisible(false);
             if (!m_versions.at(index)->isInstalled())
                 m_ui.errorLabel->setText(tr("The Qt Version is not installed. Run make install")
                                            .arg(m_versions.at(index)->path()));
@@ -517,9 +522,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         } else { //QtVersion::Other
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
-            m_ui.mingwLineEdit->setVisible(false);
-            m_ui.mingwLabel->setVisible(false);
-            m_ui.mingwBrowseButton->setVisible(false);
+            makeMingwVisible(false);
             m_ui.errorLabel->setText("Found Qt version "
                                      + m_versions.at(index)->qtVersionString()
                                      + " using mkspec "
@@ -528,9 +531,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
     } else {
         m_ui.msvcComboBox->setVisible(false);
         m_ui.msvcLabel->setVisible(false);
-        m_ui.mingwLineEdit->setVisible(false);
-        m_ui.mingwLabel->setVisible(false);
-        m_ui.mingwBrowseButton->setVisible(false);
+        makeMingwVisible(false);
     }
 }
 
@@ -541,24 +542,21 @@ void QtDirWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
     }
     if (item) {
         m_ui.nameEdit->setText(item->text(0));
-        m_ui.pathEdit->setText(item->text(1));
+        m_ui.qtPath->setPath(item->text(1));
     } else {
         m_ui.nameEdit->clear();
-        m_ui.pathEdit->clear();
+        m_ui.qtPath->setPath(""); // clear()
     }
     showEnvironmentPage(item);
     updateState();
 }
 
-void QtDirWidget::browse()
+void QtDirWidget::onQtBrowsed()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select QTDIR"));
-
+    const QString dir = m_ui.qtPath->path();
     if (dir.isEmpty())
         return;
 
-    dir = QDir::toNativeSeparators(dir);
-    m_ui.pathEdit->setText(dir);
     updateCurrentQtPath();
     if (m_ui.nameEdit->text().isEmpty() || m_ui.nameEdit->text() == m_specifyNameString) {
         QStringList dirSegments = dir.split(QDir::separator(), QString::SkipEmptyParts);
@@ -569,14 +567,12 @@ void QtDirWidget::browse()
     updateState();
 }
 
-void QtDirWidget::mingwBrowse()
+void QtDirWidget::onMingwBrowsed()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select MinGW Directory"));
+    const QString dir = m_ui.mingwPath->path();
     if (dir.isEmpty())
         return;
 
-    dir = QDir::toNativeSeparators(dir);
-    m_ui.mingwLineEdit->setText(dir);
     updateCurrentMingwDirectory();
     updateState();
 }
@@ -647,7 +643,7 @@ void QtDirWidget::updateCurrentQtPath()
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
     Q_ASSERT(currentItem);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    m_versions[currentItemIndex]->setPath(m_ui.pathEdit->text());
+    m_versions[currentItemIndex]->setPath(m_ui.qtPath->path());
     currentItem->setText(1, m_versions[currentItemIndex]->path());
 
     showEnvironmentPage(currentItem);
@@ -658,7 +654,7 @@ void QtDirWidget::updateCurrentMingwDirectory()
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
     Q_ASSERT(currentItem);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    m_versions[currentItemIndex]->setMingwDirectory(m_ui.mingwLineEdit->text());
+    m_versions[currentItemIndex]->setMingwDirectory(m_ui.mingwPath->path());
 }
 
 void QtDirWidget::msvcVersionChanged()
@@ -1075,7 +1071,7 @@ void QtVersion::updateMkSpec() const
                 if (line.startsWith("QMAKESPEC_ORIGINAL")) {
                     const QList<QByteArray> &temp = line.split('=');
                     if (temp.size() == 2) {
-                        mkspec = temp.at(1);
+                        mkspec = temp.at(1).trimmed();
                     }
                     break;
                 }

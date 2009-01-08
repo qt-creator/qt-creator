@@ -128,6 +128,31 @@ private:
     QList<Result> _results;
 };
 
+class CPLUSPLUS_EXPORT ResolveClass
+{
+public:
+    ResolveClass();
+
+    QList<Symbol *> operator()(NamedType *namedTy,
+                               ResolveExpression::Result p,
+                               const LookupContext &context);
+
+    QList<Symbol *> operator()(ResolveExpression::Result p,
+                               const LookupContext &context);
+
+private:
+    QList<Symbol *> resolveClass(NamedType *namedTy,
+                                        ResolveExpression::Result p,
+                                        const LookupContext &context);
+
+    QList<Symbol *> resolveClass(ResolveExpression::Result p,
+                                        const LookupContext &context);
+
+private:
+    QList<ResolveExpression::Result> _blackList;
+};
+
+
 } // end of namespace CPlusPlus
 
 #endif // CPLUSPLUS_RESOLVEEXPRESSION_H

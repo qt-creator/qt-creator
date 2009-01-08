@@ -323,6 +323,7 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
     QPainter p(this);
 
     QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
+    rect = style()->visualRect(layoutDirection(), geometry(), rect);
     StyleHelper::verticalGradient(&p, rect, rect);
     p.setPen(StyleHelper::borderColor());
     p.drawLine(rect.topRight(), rect.bottomRight());

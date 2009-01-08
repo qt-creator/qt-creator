@@ -22,14 +22,14 @@ HEADERS += \
     TypePrettyPrinter.h \
     ResolveExpression.h \
     LookupContext.h \
+    PreprocessorClient.h \
+    PreprocessorEnvironment.h \
+    Macro.h \
+    pp.h \
     pp-cctype.h \
     pp-engine.h \
     pp-macro-expander.h \
-    pp-scanner.h \
-    pp-client.h \
-    pp-environment.h \
-    pp-internal.h \
-    pp-macro.h
+    pp-scanner.h
 
 SOURCES += \
     SimpleLexer.cpp \
@@ -44,8 +44,11 @@ SOURCES += \
     TypePrettyPrinter.cpp \
     ResolveExpression.cpp \
     LookupContext.cpp \
+    PreprocessorClient.cpp \
+    PreprocessorEnvironment.cpp \
+    Macro.cpp \
     pp-engine.cpp \
-    pp-environment.cpp \
-    pp-macro-expander.cpp
+    pp-macro-expander.cpp \
+    pp-scanner.cpp
 
 RESOURCES += cplusplus.qrc

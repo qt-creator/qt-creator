@@ -53,9 +53,6 @@ public:
 
     QString executableFile() const;
     QString executableArguments() const;
-
-private slots:
-    void onBrowseButton();
 };
 
 } // namespace Debugger

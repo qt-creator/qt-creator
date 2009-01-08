@@ -50,16 +50,15 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "pp-environment.h"
-#include "pp.h"
-
+#include "PreprocessorEnvironment.h"
+#include "Macro.h"
 #include <cstring>
 
 using namespace CPlusPlus;
 
 Environment::Environment()
     : currentLine(0),
-      hide_next(false),
+      hideNext(false),
       _macros(0),
       _allocated_macros(0),
       _macro_count(-1),
@@ -91,10 +90,10 @@ Macro *Environment::macroAt(unsigned index) const
 
 Macro *Environment::bind(const Macro &__macro)
 {
-    Q_ASSERT(! __macro.name.isEmpty());
+    Q_ASSERT(! __macro.name().isEmpty());
 
     Macro *m = new Macro (__macro);
-    m->hashcode = hash_code(m->name);
+    m->_hashcode = hashCode(m->name());
 
     if (++_macro_count == _allocated_macros) {
         if (! _allocated_macros)
@@ -110,8 +109,8 @@ Macro *Environment::bind(const Macro &__macro)
     if (! _hash || _macro_count > (_hash_count >> 1)) {
         rehash();
     } else {
-        const unsigned h = m->hashcode % _hash_count;
-        m->next = _hash[h];
+        const unsigned h = m->_hashcode % _hash_count;
+        m->_next = _hash[h];
         _hash[h] = m;
     }
 
@@ -121,10 +120,10 @@ Macro *Environment::bind(const Macro &__macro)
 Macro *Environment::remove(const QByteArray &name)
 {
     Macro macro;
-    macro.name = name;
-    macro.hidden = true;
-    macro.fileName = currentFile;
-    macro.line = currentLine;
+    macro.setName(name);
+    macro.setHidden(true);
+    macro.setFileName(currentFile);
+    macro.setLine(currentLine);
     return bind(macro);
 }
 
@@ -192,23 +191,23 @@ bool Environment::isBuiltinMacro(const QByteArray &s) const
     return false;
 }
 
-Macro *Environment::resolve (const QByteArray &name) const
+Macro *Environment::resolve(const QByteArray &name) const
 {
     if (! _macros)
         return 0;
 
-    Macro *it = _hash[hash_code (name) % _hash_count];
-    for (; it; it = it->next) {
-        if (it->name != name)
+    Macro *it = _hash[hashCode(name) % _hash_count];
+    for (; it; it = it->_next) {
+        if (it->name() != name)
             continue;
-        else if (it->hidden)
+        else if (it->isHidden())
             return 0;
         else break;
     }
     return it;
 }
 
-unsigned Environment::hash_code (const QByteArray &s)
+unsigned Environment::hashCode(const QByteArray &s)
 {
     unsigned hash_value = 0;
 
@@ -229,8 +228,8 @@ void Environment::rehash()
 
     for (Macro **it = firstMacro(); it != lastMacro(); ++it) {
         Macro *m= *it;
-        const unsigned h = m->hashcode % _hash_count;
-        m->next = _hash[h];
+        const unsigned h = m->_hashcode % _hash_count;
+        m->_next = _hash[h];
         _hash[h] = m;
     }
 }

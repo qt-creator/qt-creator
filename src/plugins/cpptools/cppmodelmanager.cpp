@@ -144,7 +144,7 @@ private:
     QPointer<CppModelManager> m_modelManager;
     Snapshot m_snapshot;
     Environment env;
-    pp m_proc;
+    Preprocessor m_proc;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
     QMap<QString, QByteArray> m_workingCopy;

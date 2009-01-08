@@ -42,6 +42,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
+#include <QLinkedList>
 #include <QLocale>
 #include <QMap>
 #include <QMetaObject>
@@ -1123,8 +1124,8 @@ static void qDumpQHash(QDumper &d)
         while (node != end) {
             d.beginHash();
                 if (simpleKey) {
-                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "name");
-                    P(d, "nameisindex", "1");
+                    P(d, "name", "[" << i << "]");
+                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
                     if (simpleValue)
                         qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                     P(d, "type", valueType);
@@ -1265,6 +1266,48 @@ static void qDumpQList(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQLinkedList(QDumper &d)
+{
+    // This uses the knowledge that QLinkedList<T> has only a single member
+    // of type  union { QLinkedListData *d; QLinkedListNode<T> *e; };
+    const QLinkedListData *ldata =
+        reinterpret_cast<const QLinkedListData*>(deref(d.data));
+    int nn = ldata->size;
+    if (nn < 0)
+        qCheck(false);
+
+    int n = nn;
+    P(d, "value", "<" << n << " items>");
+    P(d, "valuedisabled", "true");
+    P(d, "numchild", n);
+    P(d, "childtype", d.innertype);
+    if (d.dumpChildren) {
+        unsigned innerSize = d.extraInt[0];
+        bool innerTypeIsPointer = isPointerType(d.innertype);
+        QByteArray strippedInnerType = stripPointerType(d.innertype);
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
+
+        P(d, "childtype", d.innertype);
+        if (n > 1000)
+            n = 1000;
+        d << ",children=[";
+        const void *p = deref(ldata);
+        for (int i = 0; i != n; ++i) {
+            d.beginHash();
+            P(d, "name", "[" << i << "]");
+            const void *addr = addOffset(p, 2 * sizeof(void*));
+            qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
+            p = deref(p);
+            d.endHash();
+        }
+        if (n < nn)
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpQLocale(QDumper &d)
 {
     const QLocale &locale = *reinterpret_cast<const QLocale *>(d.data);
@@ -1307,6 +1350,42 @@ static void qDumpQLocale(QDumper &d)
 
         d << "]";
     }
+    d.disarm();
+}
+
+static void qDumpQMapNode(QDumper &d)
+{
+    const QMapData *h = reinterpret_cast<const QMapData *>(d.data);
+    const char *keyType   = d.templateParameters[0];
+    const char *valueType = d.templateParameters[1];
+
+    qCheckAccess(h->backward);
+    qCheckAccess(h->forward[0]);
+
+    P(d, "value", "");
+    P(d, "numchild", 2);
+    if (d.dumpChildren) {
+        //unsigned keySize = d.extraInt[0];
+        //unsigned valueSize = d.extraInt[1];
+        unsigned mapnodesize = d.extraInt[2];
+        unsigned valueOff = d.extraInt[3];
+
+        unsigned keyOffset = 2 * sizeof(void*) - mapnodesize;
+        unsigned valueOffset = 2 * sizeof(void*) - mapnodesize + valueOff;
+
+        d << ",children=[";
+        d.beginHash();
+        P(d, "name", "key");
+        qDumpInnerValue(d, keyType, addOffset(h, keyOffset));
+
+        d.endHash();
+        d.beginHash();
+        P(d, "name", "value");
+        qDumpInnerValue(d, valueType, addOffset(h, valueOffset));
+        d.endHash();
+        d << "]";
+    }
+
     d.disarm();
 }
 
@@ -1355,26 +1434,32 @@ static void qDumpQMap(QDumper &d)
 
         while (node != end) {
             d.beginHash();
+                P(d, "name", "[" << i << "]");
                 if (simpleKey) {
                     P(d, "type", valueType);
-                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "name");
-
-                    P(d, "nameisindex", "1");
+                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
                     if (simpleValue)
                         qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
 
                     P(d, "type", valueType);
                     P(d, "addr", addOffset(node, valueOffset));
                 } else {
-                    P(d, "name", "[" << i << "]");
-                    P(d, "type", NS"QMapNode<" << keyType << "," << valueType << " >");
+#if QT_VERSION >= 0x040500
                     // actually, any type (even 'char') will do...
-                    P(d, "exp", "*('"NS"QMapNode<" << keyType << "," << valueType << " >'*)" << node);
+                    P(d, "type", NS"QMapNode<"
+                        << keyType << "," << valueType << " >");
+                    P(d, "exp", "*('"NS"QMapNode<"
+                        << keyType << "," << valueType << " >'*)" << node);
+
                     //P(d, "exp", "*('"NS"QMapData'*)" << (void*)node);
                     //P(d, "exp", "*(char*)" << (void*)node);
-
                     // P(d, "addr", node);  does not work as gdb fails to parse
-                    // e.g. &((*('"NS"QMapNode<QString,Foo>'*)0x616658))
+#else 
+                    P(d, "type", NS"QMapData::Node<"
+                        << keyType << "," << valueType << " >");
+                    P(d, "exp", "*('"NS"QMapData::Node<"
+                        << keyType << "," << valueType << " >'*)" << node);
+#endif
                 }
             d.endHash();
 
@@ -1385,6 +1470,11 @@ static void qDumpQMap(QDumper &d)
     }
 
     d.disarm();
+}
+
+static void qDumpQMultiMap(QDumper &d)
+{
+    qDumpQMap(d);
 }
 
 static void qDumpQModelIndex(QDumper &d)
@@ -1426,42 +1516,6 @@ static void qDumpQModelIndex(QDumper &d)
     } else {
         P(d, "value", "<invalid>");
         P(d, "numchild", 0);
-    }
-
-    d.disarm();
-}
-
-static void qDumpQMapNode(QDumper &d)
-{
-    const QMapData *h = reinterpret_cast<const QMapData *>(d.data);
-    const char *keyType   = d.templateParameters[0];
-    const char *valueType = d.templateParameters[1];
-
-    qCheckAccess(h->backward);
-    qCheckAccess(h->forward[0]);
-
-    P(d, "value", "");
-    P(d, "numchild", 2);
-    if (d.dumpChildren) {
-        //unsigned keySize = d.extraInt[0];
-        //unsigned valueSize = d.extraInt[1];
-        unsigned mapnodesize = d.extraInt[2];
-        unsigned valueOff = d.extraInt[3];
-
-        unsigned keyOffset = 2 * sizeof(void*) - mapnodesize;
-        unsigned valueOffset = 2 * sizeof(void*) - mapnodesize + valueOff;
-
-        d << ",children=[";
-        d.beginHash();
-        P(d, "name", "key");
-        qDumpInnerValue(d, keyType, addOffset(h, keyOffset));
-
-        d.endHash();
-        d.beginHash();
-        P(d, "name", "value");
-        qDumpInnerValue(d, valueType, addOffset(h, valueOffset));
-        d.endHash();
-        d << "]";
     }
 
     d.disarm();
@@ -2345,6 +2399,8 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'L':
             if (isEqual(type, "QList"))
                 qDumpQList(d);
+            else if (isEqual(type, "QLinkedList"))
+                qDumpQLinkedList(d);
             else if (isEqual(type, "QLocale"))
                 qDumpQLocale(d);
             break;
@@ -2355,6 +2411,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQMapNode(d);
             else if (isEqual(type, "QModelIndex"))
                 qDumpQModelIndex(d);
+            else if (isEqual(type, "QMultiMap"))
+                qDumpQMultiMap(d);
             break;
         case 'O':
             if (isEqual(type, "QObject"))
@@ -2452,10 +2510,15 @@ void qDumpObjectData440(
             "\""NS"QHash\","
             "\""NS"QHashNode\","
             "\""NS"QImage\","
+            "\""NS"QLinkedList\","
+            "\""NS"QList\","
             "\""NS"QLocale\","
             "\""NS"QMap\","
             "\""NS"QMapNode\","
             "\""NS"QModelIndex\","
+            #if QT_VERSION >= 0x040500
+            "\""NS"QMultiMap\","
+            #endif
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
@@ -2465,6 +2528,7 @@ void qDumpObjectData440(
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
             #endif // PRIVATE_OBJECT_ALLOWED
+            // << "\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
             "\""NS"QStringList\","
@@ -2480,8 +2544,11 @@ void qDumpObjectData440(
             "\"std::string\","
             "\"std::vector\","
             "\"std::wstring\","
-            // << "\""NS"QRegion\","
             "]";
+        d << ",qtversion=["
+            "\"" << ((QT_VERSION >> 16) & 255) << "\","
+            "\"" << ((QT_VERSION >> 8)  & 255) << "\","
+            "\"" << ((QT_VERSION)       & 255) << "\"]";
         d << ",namespace=\""NS"\"";
         d.disarm();
     }

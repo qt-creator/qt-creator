@@ -147,9 +147,11 @@ void CurrentDocumentFind::updateCurrentFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
-    if (!impl)
+    if (!impl || impl == m_currentFind)
         return;
     removeFindSupportConnections();
+    if (m_currentFind)
+        m_currentFind->highlightAll(QString(), 0);
     m_currentWidget = candidate;
     m_currentFind = impl;
     if (m_currentFind) {

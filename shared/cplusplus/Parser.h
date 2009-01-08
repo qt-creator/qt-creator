@@ -203,6 +203,24 @@ public:
     bool parseUsingDirective(DeclarationAST *&node);
     bool parseWhileStatement(StatementAST *&node);
 
+    // ObjC++
+    bool parseObjCClassDeclaration(DeclarationAST *&node);
+    bool parseObjCInterfaceDeclaration(DeclarationAST *&node);
+    bool parseObjCProtocolDeclaration(DeclarationAST *&node);
+    bool parseObjCEndDeclaration(DeclarationAST *&node);
+    bool parseObjCAliasDeclaration(DeclarationAST *&node);
+    bool parseObjCPropertySynthesize(DeclarationAST *&node);
+    bool parseObjCPropertyDynamic(DeclarationAST *&node);
+
+    bool parseObjCIdentifierList(IdentifierListAST *&node);
+
+    bool parseObjCPropertyDeclaration(DeclarationAST *&ast);
+    bool parseObjCProtocolRefs();
+    bool parseObjCClassInstanceVariables();
+    bool parseObjCInterfaceMemberDeclaration();
+    bool parseObjCInterfaceDeclList();
+    bool parseObjCMethodPrototype();
+
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
 

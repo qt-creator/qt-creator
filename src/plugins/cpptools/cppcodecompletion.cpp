@@ -180,8 +180,6 @@ protected:
 } // namespace Internal
 } // namespace CppTools
 
-
-
 using namespace CppTools::Internal;
 
 FunctionArgumentWidget::FunctionArgumentWidget(Core::ICore *core)
@@ -515,9 +513,9 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (m_completionOperator == T_LPAREN && completeFunction(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
             } if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
-                      completeMember(exprTy, resolvedTypes, context)) {
+                      completeMember(resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_COLON_COLON && completeScope(exprTy, resolvedTypes, context)) {
+            } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
                 return m_startPosition;
             } else if (m_completionOperator == T_SIGNAL && completeSignal(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
@@ -577,32 +575,42 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
     return ! m_completions.isEmpty();
 }
 
-bool CppCodeCompletion::completeMember(FullySpecifiedType,
-                                       const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
-    QTC_ASSERT(!results.isEmpty(), return false);
+    if (results.isEmpty())
+        return false;
 
+    TypeOfExpression::Result result = results.first();
     QList<Symbol *> classObjectCandidates;
 
-    TypeOfExpression::Result p = results.first();
-
     if (m_completionOperator == T_ARROW)  {
-        FullySpecifiedType ty = p.first;
+        FullySpecifiedType ty = result.first;
 
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
         if (NamedType *namedTy = ty->asNamedType()) {
+            // ### This code is pretty slow.
+            const QList<Symbol *> candidates = context.resolve(namedTy->name());
+            foreach (Symbol *candidate, candidates) {
+                if (candidate->isTypedef()) {
+                    ty = candidate->type();
+                    const ResolveExpression::Result r(ty, candidate);
+                    result = r;
+                    break;
+                }
+            }
+        }
+
+        if (NamedType *namedTy = ty->asNamedType()) {
             ResolveExpression resolveExpression(context);
+            ResolveClass resolveClass;
 
-            Name *className = namedTy->name();
-            const QList<Symbol *> candidates =
-                    context.resolveClass(className, context.visibleScopes(p));
-
+            const QList<Symbol *> candidates = resolveClass(result, context);
             foreach (Symbol *classObject, candidates) {
                 const QList<TypeOfExpression::Result> overloads =
-                        resolveExpression.resolveArrowOperator(p, namedTy,
+                        resolveExpression.resolveArrowOperator(result, namedTy,
                                                                classObject->asClass());
 
                 foreach (TypeOfExpression::Result r, overloads) {
@@ -619,8 +627,7 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
                     if (PointerType *ptrTy = ty->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                             const QList<Symbol *> classes =
-                                    context.resolveClass(namedTy->name(),
-                                                         context.visibleScopes(p));
+                                    resolveClass(namedTy, result, context);
 
                             foreach (Symbol *c, classes) {
                                 if (! classObjectCandidates.contains(c))
@@ -632,29 +639,53 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
             }
         } else if (PointerType *ptrTy = ty->asPointerType()) {
             if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                const QList<Symbol *> classes =
-                        context.resolveClass(namedTy->name(),
-                                             context.visibleScopes(p));
+                ResolveClass resolveClass;
+
+                const QList<Symbol *> classes = resolveClass(namedTy, result,
+                                                             context);
 
                 foreach (Symbol *c, classes) {
                     if (! classObjectCandidates.contains(c))
                         classObjectCandidates.append(c);
                 }
+            } else if (Class *classTy = ptrTy->elementType()->asClass()) {
+                // typedef struct { int x } *Ptr;
+                // Ptr p;
+                // p->
+                classObjectCandidates.append(classTy);
             }
         }
     } else if (m_completionOperator == T_DOT) {
-        FullySpecifiedType ty = p.first;
+        FullySpecifiedType ty = result.first;
 
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
         NamedType *namedTy = 0;
+
+        if (ArrayType *arrayTy = ty->asArrayType()) {
+            // Replace . with [0]. when `ty' is an array type.
+            FullySpecifiedType elementTy = arrayTy->elementType();
+
+            if (ReferenceType *refTy = elementTy->asReferenceType())
+                elementTy = refTy->elementType();
+
+            if (elementTy->isNamedType() || elementTy->isPointerType()) {
+                ty = elementTy;
+
+                const int length = m_editor->position() - m_startPosition + 1;
+                m_editor->setCurPos(m_startPosition - 1);
+                m_editor->replace(length, QLatin1String("[0]."));
+                m_startPosition += 3;
+            }
+        }
+
         if (PointerType *ptrTy = ty->asPointerType()) {
             // Replace . with ->
             int length = m_editor->position() - m_startPosition + 1;
             m_editor->setCurPos(m_startPosition - 1);
             m_editor->replace(length, QLatin1String("->"));
-            m_startPosition++;
+            ++m_startPosition;
             namedTy = ptrTy->elementType()->asNamedType();
         } else {
             namedTy = ty->asNamedType();
@@ -666,13 +697,14 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
         }
 
         if (namedTy) {
-            const QList<Symbol *> classes =
-                    context.resolveClass(namedTy->name(),
-                                         context.visibleScopes(p));
-
-            foreach (Symbol *c, classes) {
-                if (! classObjectCandidates.contains(c))
-                    classObjectCandidates.append(c);
+            ResolveClass resolveClass;
+            const QList<Symbol *> symbols = resolveClass(namedTy, result,
+                                                         context);
+            foreach (Symbol *symbol, symbols) {
+                if (classObjectCandidates.contains(symbol))
+                    continue;
+                if (Class *klass = symbol->asClass())
+                    classObjectCandidates.append(klass);
             }
         }
     }
@@ -684,32 +716,45 @@ bool CppCodeCompletion::completeMember(FullySpecifiedType,
     return false;
 }
 
-bool CppCodeCompletion::completeScope(FullySpecifiedType exprTy,
-                                      const QList<TypeOfExpression::Result> &resolvedTypes,
+bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &results,
                                       const LookupContext &context)
 {
+    if (results.isEmpty())
+        return false; // nothing to do.
+
     // Search for a class or a namespace.
-    foreach (TypeOfExpression::Result p, resolvedTypes) {
-        if (p.first->isClass() || p.first->isNamespace()) {
-            exprTy = p.first;
+    TypeOfExpression::Result result(FullySpecifiedType(), 0);
+    foreach (result, results) {
+        FullySpecifiedType ty = result.first;
+
+        if (ty->isClass() || ty->isNamespace())
             break;
-        }
     }
 
-    if (exprTy->asNamespace()) {
+    FullySpecifiedType exprTy = result.first;
+    if (! exprTy) {
+        return false;
+    } else if (exprTy->asNamespace()) {
         QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+        foreach (TypeOfExpression::Result p, results) {
             if (Namespace *ns = p.first->asNamespace())
                 candidates.append(ns);
         }
         completeNamespace(candidates, context);
     } else if (exprTy->isClass()) {
         QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+        foreach (TypeOfExpression::Result p, results) {
             if (Class *k = p.first->asClass())
                 candidates.append(k);
         }
         completeClass(candidates, context);
+    } else if (Symbol *symbol = result.second) {
+        if (symbol->isTypedef()) {
+            ResolveClass resolveClass;
+            const QList<Symbol *> candidates = resolveClass(result,
+                                                                   context);
+            completeClass(candidates, context);
+        }
     }
 
     return ! m_completions.isEmpty();
@@ -741,7 +786,7 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
         processed.insert(fn);
         if (Document::Ptr doc = context.document(fn)) {
             foreach (const Macro &macro, doc->definedMacros()) {
-                macroNames.insert(macro.name);
+                macroNames.insert(macro.name());
             }
             todo += doc->includedFiles();
         }
@@ -749,7 +794,7 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
 
     foreach (const QByteArray &macroName, macroNames) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QString::fromLatin1(macroName.constData(), macroName.length());
+        item.m_text = QString::fromUtf8(macroName.constData(), macroName.length());
         item.m_icon = m_icons.macroIcon();
         m_completions.append(item);
     }
@@ -819,6 +864,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     if (results.isEmpty())
         return false;
 
+    ResolveClass resolveClass;
+
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
     o.setShowReturnTypes(false);
@@ -839,10 +886,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
         if (! namedTy) // not a class name.
             continue;
 
-        const QList<Scope *> visibleScopes = context.visibleScopes(p);
-
         const QList<Symbol *> classObjects =
-                context.resolveClass(namedTy->name(), visibleScopes);
+                resolveClass(namedTy, p, context);
 
         if (classObjects.isEmpty())
             continue;
@@ -850,6 +895,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
         Class *klass = classObjects.first()->asClass();
 
         QList<Scope *> todo;
+        const QList<Scope *> visibleScopes = context.visibleScopes(p);
         context.expand(klass->members(), visibleScopes, &todo);
 
         foreach (Scope *scope, todo) {

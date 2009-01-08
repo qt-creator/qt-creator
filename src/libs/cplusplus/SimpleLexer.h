@@ -91,6 +91,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool enabled);
 
+    bool objcEnabled() const;
+    void setObjcEnabled(bool onoff);
+
     QList<SimpleToken> operator()(const QString &text, int state = 0);
 
     int state() const
@@ -100,6 +103,7 @@ private:
     int _lastState;
     bool _skipComments: 1;
     bool _qtMocRunEnabled: 1;
+    bool _objcEnabled: 1;
 };
 
 } // end of namespace CPlusPlus

@@ -48,7 +48,7 @@ class AttachExternalDialog : public QDialog, Ui::AttachExternalDialog
     Q_OBJECT
 
 public:
-    explicit AttachExternalDialog(QWidget *parent, const QString &pid);
+    explicit AttachExternalDialog(QWidget *parent);
     int attachPID() const;
 
 private slots:
@@ -56,7 +56,6 @@ private slots:
     void procSelected(const QModelIndex &);
 
 private:
-    QString m_defaultPID;
     QStandardItemModel *m_model;
 };
 

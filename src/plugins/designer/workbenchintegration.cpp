@@ -59,6 +59,7 @@
 #include <QtCore/QDebug>
 
 enum { debugSlotNavigation = 0 };
+enum { indentation = 4 };
 
 using namespace Designer::Internal;
 using namespace CPlusPlus;
@@ -73,6 +74,12 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
         files += doc->fileName();
     }
     return WorkbenchIntegration::tr("The class definition of '%1' could not be found in %2.").arg(uiClassName, files);
+}
+
+static inline CppTools::CppModelManagerInterface *cppModelManagerInstance()
+{
+    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    return core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
 }
 
 WorkbenchIntegration::WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
@@ -101,18 +108,13 @@ QWidget *WorkbenchIntegration::containerWindow(QWidget * /*widget*/) const
     return fw->integrationContainer();
 }
 
-static QList<Document::Ptr> findDocumentsIncluding(const QString &fileName, bool checkFileNameOnly)
+static QList<Document::Ptr> findDocumentsIncluding(const CPlusPlus::Snapshot &docTable,
+                                                   const QString &fileName, bool checkFileNameOnly)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    CppTools::CppModelManagerInterface *cppModelManager =
-        core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
-
     QList<Document::Ptr> docList;
-    // take all docs
-    CPlusPlus::Snapshot docTable = cppModelManager->snapshot();
-    foreach (Document::Ptr doc, docTable) { // we go through all documents
-        QStringList includes = doc->includedFiles();
-        foreach (QString include, includes) {
+    foreach (const Document::Ptr &doc, docTable) { // we go through all documents
+        const QStringList includes = doc->includedFiles();
+        foreach (const QString &include, includes) {
             if (checkFileNameOnly) {
                 const QFileInfo fi(include);
                 if (fi.fileName() == fileName) { // we are only interested in docs which includes fileName only
@@ -127,78 +129,79 @@ static QList<Document::Ptr> findDocumentsIncluding(const QString &fileName, bool
     return docList;
 }
 
-static Class *findClass(Namespace *parentNameSpace, const QString &uiClassName, QString *namespaceName)
+// Check for a class name where haystack is a member class of an object.
+// So, haystack can be shorter (can have some namespaces omitted because of a
+// "using namespace" declaration, for example, comparing
+// "foo::Ui::form", against "using namespace foo; Ui::form".
+
+static bool matchMemberClassName(const QString &needle, const QString &hayStack)
 {
-    // construct proper ui class name, take into account namespaced ui class name
-    QString className1;
-    QString className2;
-    int indexOfScope = uiClassName.lastIndexOf(QLatin1String("::"));
-    if (indexOfScope < 0) {
-        className1 = QLatin1String("Ui::") + uiClassName;
-        className2 = QLatin1String("Ui_") + uiClassName;
-    } else {
-        className1 = uiClassName.left(indexOfScope + 2) + QLatin1String("Ui::") + uiClassName.mid(indexOfScope + 2);
-        className2 = uiClassName.left(indexOfScope + 2) + QLatin1String("Ui_") + uiClassName.mid(indexOfScope + 2);
-    }
+    if (needle == hayStack)
+        return true;
+    if (!needle.endsWith(hayStack))
+        return false;
+    // Check if there really is a separator "::"
+    const int separatorPos = needle.size() - hayStack.size() - 1;
+    return separatorPos > 1 && needle.at(separatorPos) == QLatin1Char(':');
+}
 
-    for (unsigned i = 0; i < parentNameSpace->memberCount(); i++) { // we go through all namespace members
-        if (Class *cl = parentNameSpace->memberAt(i)->asClass()) { // we have found a class - we are interested in classes only
-            Overview o;
-            QString className = o.prettyName(cl->name());
-            for (unsigned j = 0; j < cl->memberCount(); j++) { // we go through class members
-                const Declaration *decl = cl->memberAt(j)->asDeclaration();
-                if (decl) { // we want to know if the class contains a member (so we look into a declaration) of uiClassName type
-                    NamedType *nt = decl->type()->asNamedType();
+// Find class definition in namespace
+static const Class *findClass(const Namespace *parentNameSpace, const QString &className, QString *namespaceName)
+{
+    if (debugSlotNavigation)
+        qDebug() << Q_FUNC_INFO << className;
 
+    const Overview o;
+    const unsigned namespaceMemberCount = parentNameSpace->memberCount();
+    for (unsigned i = 0; i < namespaceMemberCount; i++) { // we go through all namespace members
+        const Symbol *sym = parentNameSpace->memberAt(i);
+        // we have found a class - we are interested in classes only
+        if (const Class *cl = sym->asClass()) {
+            const unsigned classMemberCount = cl->memberCount();
+            for (unsigned j = 0; j < classMemberCount; j++) // we go through class members
+                if (const Declaration *decl = cl->memberAt(j)->asDeclaration()) {
+                // we want to know if the class contains a member (so we look into
+                // a declaration) of uiClassName type
+                    const NamedType *nt = decl->type()->asNamedType();
                     // handle pointers to member variables
                     if (PointerType *pt = decl->type()->asPointerType())
                         nt = pt->elementType()->asNamedType();
 
-                    if (nt) {
-                        Overview typeOverview;
-                        const QString memberClass = typeOverview.prettyName(nt->name());
-                        if (memberClass == className1 || memberClass == className2) // names match
+                    if (nt && matchMemberClassName(className, o.prettyName(nt->name())))
                             return cl;
-                        // memberClass can be shorter (can have some namespaces cut because of e.g. "using namespace" declaration)
-                        if (memberClass == className1.right(memberClass.length())) { // memberClass lenght <= className length
-                            const QString namespacePrefix = className1.left(className1.length() - memberClass.length());
-                            if (namespacePrefix.right(2) == QLatin1String("::"))
-                                return cl;
-                        }
-                        // the same as above but for className2
-                        if (memberClass == className2.right(memberClass.length())) { // memberClass lenght <= className length
-                            const QString namespacePrefix = className2.left(className1.length() - memberClass.length());
-                            if (namespacePrefix.right(2) == QLatin1String("::"))
-                                return cl;
-                        }
-                    }
+                } // decl
+        } else {
+            // Check namespaces
+            if (const Namespace *ns = sym->asNamespace()) {
+                QString tempNS = *namespaceName;
+                tempNS += o.prettyName(ns->name());
+                tempNS += QLatin1String("::");
+                if (const Class *cl = findClass(ns, className, &tempNS)) {
+                    *namespaceName = tempNS;
+                    return cl;
                 }
-            }
-        } else if (Namespace *ns = parentNameSpace->memberAt(i)->asNamespace()) {
-            Overview o;
-            QString tempNS = *namespaceName + o.prettyName(ns->name()) + QLatin1String("::");
-            Class *cl = findClass(ns, uiClassName, &tempNS);
-            if (cl) {
-                *namespaceName = tempNS;
-                return cl;
-            }
-        }
-    }
+            } // member is namespave
+        } // member is no class
+    } // for members
     return 0;
 }
 
-static Function *findDeclaration(Class *cl, const QString &functionName)
+static const Function *findDeclaration(const Class *cl, const QString &functionName)
 {
     const QString funName = QString::fromUtf8(QMetaObject::normalizedSignature(functionName.toUtf8()));
-    for (unsigned j = 0; j < cl->memberCount(); j++) { // go through all members
-        const Declaration *decl = cl->memberAt(j)->asDeclaration();
-        if (decl) { // we are interested only in declarations (can be decl of method or of a field)
-            Function *fun = decl->type()->asFunction();
-            if (fun) { // we are only interested in declarations of methods
-                Overview overview;
-                QString memberFunction = overview.prettyName(fun->name()) + QLatin1Char('(');
-                for (uint i = 0; i < fun->argumentCount(); i++) { // we build argument types string
-                    Argument *arg = fun->argumentAt(i)->asArgument();
+    const unsigned mCount = cl->memberCount();
+    // we are interested only in declarations (can be decl of method or of a field)
+    // we are only interested in declarations of methods
+    const Overview overview;
+    for (unsigned j = 0; j < mCount; j++) { // go through all members
+        if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
+            if (const Function *fun = decl->type()->asFunction()) {
+                // Format signature
+                QString memberFunction = overview.prettyName(fun->name());
+                memberFunction += QLatin1Char('(');
+                const uint aCount = fun->argumentCount();
+                for (uint i = 0; i < aCount; i++) { // we build argument types string
+                    const Argument *arg = fun->argumentAt(i)->asArgument();
                     if (i > 0)
                         memberFunction += QLatin1Char(',');
                     memberFunction += overview.prettyType(arg->type());
@@ -209,19 +212,18 @@ static Function *findDeclaration(Class *cl, const QString &functionName)
                 if (memberFunction == funName) // we match function names and argument lists
                     return fun;
             }
-        }
     }
     return 0;
 }
 
 // TODO: remove me, see below
-static bool isCompatible(Name *name, Name *otherName)
+static bool isCompatible(const Name *name, const Name *otherName)
 {
-    if (NameId *nameId = name->asNameId()) {
-        if (TemplateNameId *otherTemplId = otherName->asTemplateNameId())
+    if (const NameId *nameId = name->asNameId()) {
+        if (const TemplateNameId *otherTemplId = otherName->asTemplateNameId())
             return nameId->identifier()->isEqualTo(otherTemplId->identifier());
-    } else if (TemplateNameId *templId = name->asTemplateNameId()) {
-        if (NameId *otherNameId = otherName->asNameId())
+    } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
+        if (const NameId *otherNameId = otherName->asNameId())
             return templId->identifier()->isEqualTo(otherNameId->identifier());
     }
 
@@ -229,7 +231,7 @@ static bool isCompatible(Name *name, Name *otherName)
 }
 
 // TODO: remove me, see below
-static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNameId *declarationName)
+static bool isCompatible(const Function *definition, const Symbol *declaration, const QualifiedNameId *declarationName)
 {
     Function *declTy = declaration->type()->asFunction();
     if (! declTy)
@@ -269,11 +271,9 @@ static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNam
 }
 
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this method
-static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
+static Document::Ptr findDefinition(const Function *functionDeclaration, int *line)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    CppTools::CppModelManagerInterface *cppModelManager =
-        core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+    CppTools::CppModelManagerInterface *cppModelManager = cppModelManagerInstance();
     if (!cppModelManager)
         return Document::Ptr();
 
@@ -286,7 +286,8 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
                 if (QualifiedNameId *q = scopeOwnerName->asQualifiedNameId()) {
                     for (unsigned i = 0; i < q->nameCount(); ++i) {
                         qualifiedName.prepend(q->nameAt(i));
-                    }
+
+}
                 } else {
                     qualifiedName.prepend(scopeOwnerName);
                 }
@@ -299,7 +300,6 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
     Control control;
     QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
     LookupContext context(&control);
-
     const Snapshot documents = cppModelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
         QList<Scope *> visibleScopes;
@@ -368,71 +368,80 @@ static int findClassEndPosition(const QString &headerContents, int classStartPos
     return -1;
 }
 
-static void addDeclaration(const QString &docFileName, Class *cl, const QString &functionName)
+static inline ITextEditable *editableAt(const QString &fileName, int line, int column)
 {
-    // functionName comes already with argument names (if designer managed to do that)
-    for (unsigned j = 0; j < cl->memberCount(); j++) { // go through all members
-        const Declaration *decl = cl->memberAt(j)->asDeclaration();
-        if (decl) { // we want to find any method which is a private slot (then we don't need to add "private slots:" statement)
-            Function *fun = decl->type()->asFunction();
-            if (fun) { // we are only interested in declarations of methods
+    return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
+}
+
+static void addDeclaration(const QString &docFileName, const Class *cl, const QString &functionName)
+{
+    QString declaration = QLatin1String("void ");
+    declaration += functionName;
+    declaration += QLatin1String(";\n");
+
+    // functionName comes already with argument names (if designer managed to
+    // do that).  First, let's try to find any method which is a private slot
+    // (then we don't need to add "private slots:" statement)
+    const unsigned mCount = cl->memberCount();
+    for (unsigned j = 0; j < mCount; j++) { // go through all members
+        if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
+            if (const Function *fun = decl->type()->asFunction())  {
+                // we are only interested in declarations of methods.
+                // fun->column() returns always 0, what can cause trouble in case in one
+                // line if there is: "private slots: void foo();"
                 if (fun->isSlot() && fun->isPrivate()) {
-                    ITextEditable *editable = qobject_cast<ITextEditable *>(
-                                TextEditor::BaseTextEditor::openEditorAt(docFileName, fun->line(), fun->column()));
-                    // fun->column() raturns always 0, what can cause trouble in case in one
-                    // line there is: "private slots: void foo();"
-                    if (editable) {
-                        editable->insert(QLatin1String("void ") + functionName + QLatin1String(";\n    "));
-                    }
+                    if (ITextEditable *editable = editableAt(docFileName, fun->line(), fun->column()))
+                        editable->insert(declaration + QLatin1String("    "));
                     return;
                 }
             }
-        }
     }
 
     // We didn't find any method under "private slots:", let's add "private slots:". Below code
     // adds "private slots:" by the end of the class definition.
 
-    ITextEditable *editable = qobject_cast<ITextEditable *>(
-                       TextEditor::BaseTextEditor::openEditorAt(docFileName, cl->line(), cl->column()));
-    if (editable) {
+    if (ITextEditable *editable = editableAt(docFileName, cl->line(), cl->column())) {
         int classEndPosition = findClassEndPosition(editable->contents(), editable->position());
         if (classEndPosition >= 0) {
             int line, column;
             editable->convertPosition(classEndPosition, &line, &column); // converts back position into a line and column
             editable->gotoLine(line, column);  // go to position (we should be just before closing } of the class)
-            editable->insert(QLatin1String("\nprivate slots:\n    ")
-                      + QLatin1String("void ") + functionName + QLatin1String(";\n"));
+            editable->insert(QLatin1String("\nprivate slots:\n    ") + declaration);
         }
     }
 }
 
-static Document::Ptr addDefinition(const QString &headerFileName, const QString &className,
-                  const QString &functionName, int *line)
+static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
+                                   const QString &headerFileName, const QString &className,
+                                   const QString &functionName, int *line)
 {
+    QString definition = QLatin1String("\nvoid ");
+    definition += className;
+    definition += QLatin1String("::");
+    definition += functionName;
+    definition += QLatin1String("\n{\n");
+    definition += QString(indentation, QLatin1Char(' '));
+    definition += QLatin1String("\n}\n");
+
     // we find all documents which include headerFileName
-    QList<Document::Ptr> docList = findDocumentsIncluding(headerFileName, false);
+    const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, headerFileName, false);
     if (docList.isEmpty())
         return Document::Ptr();
 
     QFileInfo headerFI(headerFileName);
     const QString headerBaseName = headerFI.baseName();
     const QString headerAbsolutePath = headerFI.absolutePath();
-    foreach (Document::Ptr doc, docList) {
-        QFileInfo sourceFI(doc->fileName());
+    foreach (const Document::Ptr &doc, docList) {
+        const QFileInfo sourceFI(doc->fileName());
         // we take only those documents which has the same filename and path (maybe we don't need to compare the path???)
         if (headerBaseName == sourceFI.baseName() && headerAbsolutePath == sourceFI.absolutePath()) {
-            ITextEditable *editable = qobject_cast<ITextEditable *>(
-                            TextEditor::BaseTextEditor::openEditorAt(doc->fileName(), 0));
-            if (editable) {
+            if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
                 const QString contents = editable->contents();
                 int column;
                 editable->convertPosition(contents.length(), line, &column);
                 editable->gotoLine(*line, column);
-                editable->insert(QLatin1String("\nvoid ") + className + QLatin1String("::") +
-                                 functionName + QLatin1String("\n  {\n\n  }\n"));
+                editable->insert(definition);
                 *line += 1;
-
             }
             return doc;
         }
@@ -440,31 +449,82 @@ static Document::Ptr addDefinition(const QString &headerFileName, const QString 
     return Document::Ptr();
 }
 
+// Insert the parameter names into a signature, "void foo(bool)" ->
+// "void foo(bool checked)"
 static QString addParameterNames(const QString &functionSignature, const QStringList &parameterNames)
 {
-    QString functionName = functionSignature.left(functionSignature.indexOf(QLatin1Char('(')) + 1);
-    QString argumentsString = functionSignature.mid(functionSignature.indexOf(QLatin1Char('(')) + 1);
-    argumentsString = argumentsString.left(argumentsString.indexOf(QLatin1Char(')')));
+    const int firstParen = functionSignature.indexOf(QLatin1Char('('));
+    QString functionName = functionSignature.left(firstParen + 1);
+    QString argumentsString = functionSignature.mid(firstParen + 1);
+    const int lastParen = argumentsString.lastIndexOf(QLatin1Char(')'));
+    if (lastParen != -1)
+        argumentsString.truncate(lastParen);
     const QStringList arguments = argumentsString.split(QLatin1Char(','), QString::SkipEmptyParts);
-    for (int i = 0; i < arguments.count(); ++i) {
+    const int pCount = parameterNames.count();
+    const int aCount = arguments.count();
+    for (int i = 0; i < aCount; ++i) {
         if (i > 0)
             functionName += QLatin1String(", ");
         functionName += arguments.at(i);
-        if (i < parameterNames.count())
-            functionName += QLatin1Char(' ') + parameterNames.at(i);
+        if (i < pCount) {
+            functionName += QLatin1Char(' ');
+            functionName += parameterNames.at(i);
+        }
     }
     functionName += QLatin1Char(')');
     return functionName;
 }
 
+// Recursively find a class definition in the document passed on or in its
+// included files (going down [maxIncludeDepth] includes) and return a pair
+// of <Class*, Document>.
+
+typedef QPair<const Class *, Document::Ptr> ClassDocumentPtrPair;
+
+static ClassDocumentPtrPair
+        findClassRecursively(const CPlusPlus::Snapshot &docTable,
+                             const Document::Ptr &doc, const QString &className,
+                             unsigned maxIncludeDepth, QString *namespaceName)
+{
+    if (debugSlotNavigation)
+        qDebug() << Q_FUNC_INFO << doc->fileName() << maxIncludeDepth;
+    // Check document
+    if (const Class *cl = findClass(doc->globalNamespace(), className, namespaceName))
+        return ClassDocumentPtrPair(cl, doc);
+    if (maxIncludeDepth) {
+        // Check the includes
+        const unsigned recursionMaxIncludeDepth = maxIncludeDepth - 1u;
+        foreach (const QString &include, doc->includedFiles()) {
+            const CPlusPlus::Snapshot::const_iterator it = docTable.constFind(include);
+            if (it != docTable.constEnd()) {
+                const Document::Ptr includeDoc = it.value();
+                const ClassDocumentPtrPair irc = findClassRecursively(docTable, it.value(), className, recursionMaxIncludeDepth, namespaceName);
+                if (irc.first)
+                    return irc;
+            }
+        }
+    }
+    return ClassDocumentPtrPair(0, Document::Ptr());
+}
 
 void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const QString &signalSignature,
         const QStringList &parameterNames)
 {
     QString errorMessage;
     if (!navigateToSlot(objectName, signalSignature, parameterNames, &errorMessage) && !errorMessage.isEmpty()) {
-        QMessageBox::critical(m_few->designerEditor()->topLevel(), tr("Error finding source file"), errorMessage);
+        QMessageBox::warning(m_few->designerEditor()->topLevel(), tr("Error finding/adding a slot."), errorMessage);
     }
+}
+
+// Build name of the class as generated by uic, insert Ui namespace
+// "foo::bar::form" -> "foo::bar::Ui::form"
+
+static inline QString uiClassName(QString formObjectName)
+{
+    const int indexOfScope = formObjectName.lastIndexOf(QLatin1String("::"));
+    const int uiNameSpaceInsertionPos = indexOfScope >= 0 ? indexOfScope : 0;
+    formObjectName.insert(uiNameSpaceInsertionPos, QLatin1String("Ui::"));
+    return formObjectName;
 }
 
 bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
@@ -482,7 +542,10 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     const QFileInfo fi(currentUiFile);
     const QString uicedName = QLatin1String("ui_") + fi.baseName() + QLatin1String(".h");
 
-    QList<Document::Ptr> docList = findDocumentsIncluding(uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
+    // take all docs
+
+    const CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
+    QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
 
     if (debugSlotNavigation)
         qDebug() << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
@@ -493,44 +556,63 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
 
     QDesignerFormWindowInterface *fwi = m_few->activeFormWindow()->formWindow();
 
-    const QString uiClassName = fwi->mainContainer()->objectName();
+    const QString uiClass = uiClassName(fwi->mainContainer()->objectName());
 
     if (debugSlotNavigation)
-        qDebug() << "Checking docs for " << uiClassName;
+        qDebug() << "Checking docs for " << uiClass;
 
-    foreach (const Document::Ptr &doc, docList) {
-        QString namespaceName; // namespace of the class found
-        Class *cl = findClass(doc->globalNamespace(), uiClassName, &namespaceName);
-        if (cl) {
-            Overview o;
-            const QString className = namespaceName + o.prettyName(cl->name());
+    // Find the class definition in the file itself or in the directly
+    // included files (order 1).
+    QString namespaceName;
+    const Class *cl;
+    Document::Ptr doc;
 
-            QString functionName = QLatin1String("on_") + objectName + QLatin1Char('_') + signalSignature;
-            QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
-            Function *fun = findDeclaration(cl, functionName);
-            int line = 0;
-            Document::Ptr sourceDoc;
-            if (!fun) {
-                // add function declaration to cl
-                addDeclaration(doc->fileName(), cl, functionNameWithParameterNames);
-
-                // add function definition to cpp file
-                sourceDoc = addDefinition(doc->fileName(), className, functionNameWithParameterNames, &line);
-            } else {
-                sourceDoc = findDefinition(fun, &line);
-                if (!sourceDoc) {
-                    // add function definition to cpp file
-                    sourceDoc = addDefinition(doc->fileName(), className, functionNameWithParameterNames, &line);
-                }
-            }
-            if (sourceDoc) {
-                // jump to function definition
-                TextEditor::BaseTextEditor::openEditorAt(sourceDoc->fileName(), line);
-            }
-            return true;
+    foreach (const Document::Ptr &d, docList) {
+        const ClassDocumentPtrPair cd = findClassRecursively(docTable, d, uiClass, 1u , &namespaceName);
+        if (cd.first) {
+            cl = cd.first;
+            doc = cd.second;
+            break;
         }
     }
-    *errorMessage = msgClassNotFound(uiClassName, docList);
-    return false;
-}
+    if (!cl) {
+        *errorMessage = msgClassNotFound(uiClass, docList);
+        return false;
+    }
 
+    Overview o;
+    const QString className = namespaceName + o.prettyName(cl->name());
+
+    const QString functionName = QLatin1String("on_") + objectName + QLatin1Char('_') + signalSignature;
+    const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
+
+    if (debugSlotNavigation)
+        qDebug() << "Found " << uiClass << doc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
+
+    int line = 0;
+    Document::Ptr sourceDoc;
+
+    if (const Function *fun = findDeclaration(cl, functionName)) {
+        sourceDoc = findDefinition(fun, &line);
+        if (!sourceDoc) {
+            // add function definition to cpp file
+            sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);
+        }
+    } else {
+        // add function declaration to cl
+        addDeclaration(doc->fileName(), cl, functionNameWithParameterNames);
+
+        // add function definition to cpp file
+        sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);
+    }
+
+    if (!sourceDoc) {
+        *errorMessage = tr("Unable to add the method definition.");
+        return false;
+    }
+
+    // jump to function definition, position within code
+    TextEditor::BaseTextEditor::openEditorAt(sourceDoc->fileName(), line + 2, indentation);
+
+    return true;
+}

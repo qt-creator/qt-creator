@@ -1,7 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>resources/logo.png</file>
-    <file>resources/watermark.png</file>
-    <file>resources/license.txt</file>
-</qresource>
-</RCC>

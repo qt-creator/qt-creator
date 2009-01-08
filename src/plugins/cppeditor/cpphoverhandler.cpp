@@ -72,10 +72,16 @@ CppHoverHandler::CppHoverHandler(QObject *parent)
     m_modelManager = m_core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
 
     QFileInfo fi(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings()->fileName());
-    m_helpEngine = new QHelpEngineCore(fi.absolutePath()
+    // FIXME shouldn't the help engine create the directory if it doesn't exist?
+    QDir directory(fi.absolutePath()+"/qtcreator");
+    if (!directory.exists())
+        directory.mkpath(directory.absolutePath());
+
+    m_helpEngine = new QHelpEngineCore(directory.absolutePath()
                                        + QLatin1String("/helpcollection.qhc"), this);
     //m_helpEngine->setAutoSaveFilter(false);
-    m_helpEngine->setupData();
+    if (!m_helpEngine->setupData())
+        qWarning() << "Could not initialize help engine:" << m_helpEngine->error();
     m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
 
@@ -271,8 +277,9 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (m_toolTip.isEmpty()) {
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             if (use.contains(pos)) {
-                m_toolTip = use.macro().toString();
-                m_helpId = use.macro().name;
+                const Macro m = use.macro();
+                m_toolTip = m.toString();
+                m_helpId = m.name();
                 break;
             }
         }

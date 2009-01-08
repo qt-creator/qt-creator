@@ -62,8 +62,15 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
         return false;
     }
 
+    // Build the ui class (Ui::Foo) name relative to the namespace (which is the same):
+    const QString colonColon = QLatin1String("::");
+    const int lastSeparator = uiClassName.lastIndexOf(colonColon);
+    if (lastSeparator != -1)
+        uiClassName.remove(0, lastSeparator + colonColon.size());
+    uiClassName.insert(0, QLatin1String(uiNamespaceC) + colonColon);
+
     // Do we have namespaces?
-    QStringList namespaceList = className.split(QLatin1String("::"));
+    QStringList namespaceList = className.split(colonColon);
     if (namespaceList.empty()) // Paranoia!
         return false;
 
@@ -94,18 +101,21 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
         }
     }
 
+    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
+
     // Forward-declare the UI class
     if (embedding == PointerAggregatedUiClass) {
-          headerStr << "\nnamespace " <<  uiNamespaceC << " {\n"
-            << indent << "class " << uiClassName << ";\n}\n";
+          headerStr << '\n'
+                  << namespaceIndent << "namespace " <<  uiNamespaceC << " {\n"
+                  << namespaceIndent << indent << "class " << FormTemplateWizardPagePage::stripNamespaces(uiClassName) << ";\n"
+                  << namespaceIndent << "}\n";
     }
 
-    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
     // Class declaration
     headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName
               << " : public " << formBaseClass;
     if (embedding == InheritedUiClass) {
-        headerStr << ", private " << uiNamespaceC << "::" <<  uiClassName;
+        headerStr << ", private " << uiClassName;
     }
     headerStr << " {\n" << namespaceIndent << indent << "Q_OBJECT\n"
               << namespaceIndent << indent << "Q_DISABLE_COPY(" << unqualifiedClassName << ")\n"
@@ -120,7 +130,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     // Member variable
     if (embedding != InheritedUiClass) {
         headerStr << '\n' << namespaceIndent << "private:\n"
-                  << namespaceIndent << indent << uiNamespaceC << "::" <<  uiClassName << ' ';
+                  << namespaceIndent << indent << uiClassName << ' ';
         if (embedding == PointerAggregatedUiClass)
             headerStr << '*';
         headerStr << uiMemberC << ";\n";
@@ -140,7 +150,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
     if (embedding == PointerAggregatedUiClass)
-        sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " <<  uiNamespaceC << "::" <<  uiClassName << ")\n";
+        sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " << uiClassName << ")\n";
     sourceStr <<  namespaceIndent << "{\n" <<  namespaceIndent << indent;
     if (embedding != InheritedUiClass)
         sourceStr << uiMemberC << (embedding == PointerAggregatedUiClass ? "->" : ".");

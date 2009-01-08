@@ -41,7 +41,7 @@ namespace Constants {
 
 #define IDE_VERSION_MAJOR 0
 #define IDE_VERSION_MINOR 9
-#define IDE_VERSION_RELEASE 1
+#define IDE_VERSION_RELEASE 2
 
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
@@ -52,7 +52,7 @@ namespace Constants {
 
 const char * const IDE_VERSION_LONG      = IDE_VERSION;
 const char * const IDE_AUTHOR            = "Nokia Corporation";
-const char * const IDE_YEAR              = "2008";
+const char * const IDE_YEAR              = "2009";
 
 #ifdef IDE_REVISION
 const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);

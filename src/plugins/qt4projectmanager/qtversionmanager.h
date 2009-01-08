@@ -149,8 +149,9 @@ private slots:
     void addQtDir();
     void removeQtDir();
     void updateState();
-    void browse();
-    void mingwBrowse();
+    void makeMingwVisible(bool visible);
+    void onQtBrowsed();
+    void onMingwBrowsed();
     void defaultChanged(int index);
     void updateCurrentQtName();
     void updateCurrentQtPath();

@@ -50,62 +50,96 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_ENVIRONMENT_H
-#define PP_ENVIRONMENT_H
+#ifndef PP_MACRO_H
+#define PP_MACRO_H
 
-#include "CPlusPlusForwardDeclarations.h"
+#include <CPlusPlusForwardDeclarations.h>
 
-#include <QVector>
 #include <QByteArray>
+#include <QVector>
+#include <QString>
 
 namespace CPlusPlus {
 
-class Macro;
-
-class CPLUSPLUS_EXPORT Environment
+class CPLUSPLUS_EXPORT Macro
 {
 public:
-    Environment();
-    ~Environment();
+    Macro();
 
-    unsigned macroCount() const;
-    Macro *macroAt(unsigned index) const;
+    QByteArray name() const
+    { return _name; }
 
-    Macro *bind(const Macro &macro);
-    Macro *remove(const QByteArray &name);
+    void setName(const QByteArray &name)
+    { _name = name; }
 
-    Macro *resolve(const QByteArray &name) const;
-    bool isBuiltinMacro(const QByteArray &name) const;
+    QByteArray definition() const
+    { return _definition; }
 
-    const Macro *const *firstMacro() const
-    { return _macros; }
+    void setDefinition(const QByteArray &definition)
+    { _definition = definition; }
 
-    Macro **firstMacro()
-    { return _macros; }
+    QVector<QByteArray> formals() const
+    { return _formals; }
 
-    const Macro *const *lastMacro() const
-    { return _macros + _macro_count + 1; }
+    void addFormal(const QByteArray &formal)
+    { _formals.append(formal); }
 
-    Macro **lastMacro()
-    { return _macros + _macro_count + 1; }
+    QByteArray fileName() const
+    { return _fileName; }
+
+    void setFileName(const QByteArray &fileName)
+    { _fileName = fileName; }
+
+    unsigned line() const
+    { return _line; }
+
+    void setLine(unsigned line)
+    { _line = line; }
+
+    bool isHidden() const
+    { return _hidden; }
+
+    void setHidden(bool isHidden)
+    { _hidden = isHidden; }
+
+    bool isFunctionLike() const
+    { return _functionLike; }
+
+    void setFunctionLike(bool isFunctionLike)
+    { _functionLike = isFunctionLike; }
+
+    bool isVariadic() const
+    { return _variadic; }
+
+    void setVariadic(bool isVariadic)
+    { _variadic = isVariadic; }
+
+    QString toString() const;
+
+// ### private
+    Macro *_next;
+    unsigned _hashcode;
 
 private:
-    static unsigned hash_code (const QByteArray &s);
-    void rehash();
+    QByteArray _name;
+    QByteArray _definition;
+    QVector<QByteArray> _formals;
+    QByteArray _fileName;
+    unsigned _line;
 
-public:
-    QByteArray currentFile;
-    unsigned currentLine;
-    bool hide_next;
+    union
+    {
+        unsigned _state;
 
-private:
-    Macro **_macros;
-    int _allocated_macros;
-    int _macro_count;
-    Macro **_hash;
-    int _hash_count;
+        struct
+        {
+            unsigned _hidden: 1;
+            unsigned _functionLike: 1;
+            unsigned _variadic: 1;
+        };
+    };
 };
 
 } // namespace CPlusPlus
 
-#endif // PP_ENVIRONMENT_H
+#endif // PP_MACRO_H

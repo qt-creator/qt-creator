@@ -40,6 +40,7 @@
 #include "giteditor.h"
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
+#include "branchdialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -401,7 +402,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Branch"), this));
 
-    m_branchListAction = new QAction(tr("List branches"), this);
+    m_branchListAction = new QAction(tr("Branches..."), this);
     command = actionManager->registerAction(m_branchListAction, "Git.BranchList", globalcontext);
     command->setAttribute(Core::ICommand::CA_UpdateText);
     connect(m_branchListAction, SIGNAL(triggered()), this, SLOT(branchList()));
@@ -494,7 +495,6 @@ QString GitPlugin::getWorkingDirectory()
         qDebug() << Q_FUNC_INFO << "file" << workingDirectory;
 
     if (workingDirectory.isEmpty()) {
-        m_outputWindow->clearContents();
         m_outputWindow->append(tr("Could not find working directory"));
         m_outputWindow->popup(false);
         return QString();
@@ -703,8 +703,17 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 void GitPlugin::pull()
 {
     const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->pull(workingDirectory);
+    if (workingDirectory.isEmpty())
+        return;
+
+    switch (m_gitClient->ensureStash(workingDirectory)) {
+        case GitClient::StashUnchanged:
+        case GitClient::Stashed:
+        case GitClient::NotStashed:
+            m_gitClient->pull(workingDirectory);
+        default:
+        break;
+    }
 }
 
 void GitPlugin::push()
@@ -731,8 +740,21 @@ void GitPlugin::stashPop()
 void GitPlugin::branchList()
 {
     const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->branchList(workingDirectory);
+    if (workingDirectory.isEmpty())
+        return;
+#ifndef USE_BRANCHDIALOG
+    QString errorMessage;
+    BranchDialog dialog(m_core->mainWindow());
+
+    if (!dialog.init(m_gitClient, workingDirectory, &errorMessage)) {
+        m_outputWindow->append(errorMessage);
+        m_outputWindow->popup(false);
+        return;
+    }
+    dialog.exec();
+#else
+    m_gitClient->branchList(workingDirectory);
+#endif
 }
 
 void GitPlugin::stashList()

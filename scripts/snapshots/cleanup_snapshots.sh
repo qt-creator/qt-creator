@@ -2,8 +2,8 @@
 
 ## Open script-dir-homed subshell
 (
-ABS_SCRIPT_DIR=`pwd`/`dirname "$0"`
-cd "${ABS_SCRIPT_DIR}"
+ABS_SCRIPT_DIR=$(cd $(dirname $(which "$0")) && pwd)
+cd "${ABS_SCRIPT_DIR}" || exit 1
 
 
 ## Internal config

@@ -60,7 +60,7 @@ private slots:
     void changeConfigName(const QString &newName);
     void setupQtVersionsComboBox();
     void shadowBuildCheckBoxClicked(bool checked);
-    void shadowBuildButtonClicked();
+    void onBeforeBeforeShadowBuildDirBrowsed();
     void shadowBuildLineEditTextChanged();
     void importLabelClicked();
     void qtVersionComboBoxCurrentIndexChanged(const QString &);

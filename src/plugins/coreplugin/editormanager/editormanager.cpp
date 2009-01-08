@@ -319,6 +319,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     IActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
     medit->addMenu(advancedMenu, Constants::G_EDIT_FORMAT);
     advancedMenu->menu()->setTitle(tr("&Advanced"));
+
     cmd = am->registerAction(m_d->m_openInExternalEditorAction, Constants::OPEN_IN_EXTERNAL_EDITOR, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
     advancedMenu->addAction(cmd);

@@ -49,12 +49,12 @@ QKeySequence INavigationWidgetFactory::activationSequence()
 }
 
 
-void INavigationWidgetFactory::saveSettings(int position, QWidget *widget)
+void INavigationWidgetFactory::saveSettings(int /* position */, QWidget * /* widget */)
 {
 
 }
 
-void INavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
+void INavigationWidgetFactory::restoreSettings(int /* position */, QWidget * /* widget */)
 {
 
 }

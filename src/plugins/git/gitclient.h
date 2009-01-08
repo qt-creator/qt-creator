@@ -86,12 +86,19 @@ public:
     void blame(const QString &workingDirectory, const QString &fileName);
     void showCommit(const QString &workingDirectory, const QString &commit);
     void checkout(const QString &workingDirectory, const QString &file);
+    void checkoutBranch(const QString &workingDirectory, const QString &branch);
     void hardReset(const QString &workingDirectory, const QString &commit);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
+    bool synchronousStash(const QString &workingDirectory, QString *errorMessage);
+    bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
+                              QString *output, QString *errorMessage);
+    bool synchronousShow(const QString &workingDirectory, const QString &id,
+                              QString *output, QString *errorMessage);
+
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
@@ -104,6 +111,11 @@ public:
     QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar);
+
+    enum StashResult { StashUnchanged, StashCanceled, StashFailed,
+                       Stashed, NotStashed /* User did not want it */ };
+    StashResult ensureStash(const QString &workingDirectory, QString *errorMessage);
+    StashResult ensureStash(const QString &workingDirectory);
 
     bool getCommitData(const QString &workingDirectory,
                        QString *commitTemplate,
@@ -118,7 +130,7 @@ public:
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,
-                           bool untracked,
+                           bool untracked = false,
                            QString *output = 0,
                            QString *errorMessage = 0);
 

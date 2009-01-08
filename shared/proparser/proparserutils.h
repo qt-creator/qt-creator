@@ -173,7 +173,12 @@ static QStringList replaceInList(const QStringList &varList, const QRegExp &rege
 }
 */
 
-inline QStringList splitPathList(const QString paths)
+inline QString fixEnvVariables(const QString &x)
+{
+    return Option::fixString(x, Option::FixEnvVars);
+}
+
+inline QStringList splitPathList(const QString &paths)
 {
     return paths.split(Option::dirlist_sep);
 }

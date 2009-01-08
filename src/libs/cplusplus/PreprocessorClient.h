@@ -30,49 +30,52 @@
 ** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-/*
-  Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
 
-  Permission to use, copy, modify, distribute, and sell this software and its
-  documentation for any purpose is hereby granted without fee, provided that
-  the above copyright notice appear in all copies and that both that
-  copyright notice and this permission notice appear in supporting
-  documentation.
+#ifndef CPLUSPLUS_PP_CLIENT_H
+#define CPLUSPLUS_PP_CLIENT_H
 
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
+#include <CPlusPlusForwardDeclarations.h>
+#include <QtGlobal>
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-  KDEVELOP TEAM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-  AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-#ifndef PP_INTERNAL_H
-#define PP_INTERNAL_H
-
-#include <QByteArray>
+QT_BEGIN_NAMESPACE
+class QByteArray;
+class QString;
+QT_END_NAMESPACE
 
 namespace CPlusPlus {
-namespace _PP_internal {
 
-inline bool comment_p (const char *__first, const char *__last)
+class Macro;
+
+class CPLUSPLUS_EXPORT Client
 {
-    if (__first == __last)
-        return false;
+  Client(const Client &other);
+  void operator=(const Client &other);
 
-    if (*__first != '/')
-        return false;
+public:
+  enum IncludeType {
+    IncludeLocal,
+    IncludeGlobal
+  };
 
-    if (++__first == __last)
-        return false;
+public:
+  Client();
+  virtual ~Client();
 
-    return (*__first == '/' || *__first == '*');
-}
+  virtual void macroAdded(const Macro &macro) = 0;
+  virtual void sourceNeeded(QString &fileName, IncludeType mode,
+                            unsigned line) = 0; // ### FIX the signature.
 
-} // _PP_internal
+  virtual void startExpandingMacro(unsigned offset,
+                                   const Macro &macro,
+                                   const QByteArray &originalTextt) = 0;
+
+  virtual void stopExpandingMacro(unsigned offset,
+                                  const Macro &macro) = 0;
+
+  virtual void startSkippingBlocks(unsigned offset) = 0;
+  virtual void stopSkippingBlocks(unsigned offset) = 0;
+};
+
 } // namespace CPlusPlus
 
-#endif // PP_INTERNAL_H
+#endif // CPLUSPLUS_PP_CLIENT_H

@@ -1603,7 +1603,6 @@ namespace TextEditor {
             int firstColumn;
             int lastColumn;
         };
-
     }
 }
 

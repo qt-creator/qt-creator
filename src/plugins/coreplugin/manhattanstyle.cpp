@@ -822,10 +822,12 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             }
 
             State mflags = bflags;
-            if (toolbutton->activeSubControls & SC_ToolButton)
-                bflags |= State_Sunken;
-            if (toolbutton->activeSubControls & SC_ToolButtonMenu)
-                mflags |= State_Sunken;
+            if (toolbutton->state & State_Sunken) {
+                if (toolbutton->activeSubControls & SC_ToolButton)
+                    bflags |= State_Sunken;
+                if (toolbutton->activeSubControls & SC_ToolButtonMenu)
+                    mflags |= State_Sunken;
+            }
 
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
@@ -894,11 +896,12 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 tool.rect = tool.rect.adjusted(2, 2, -2, -2);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, painter, widget);
             } else if (toolbutton->features & QStyleOptionToolButton::HasMenu) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, toolbutton, widget);
+                int arrowSize = 6;
                 QRect ir = toolbutton->rect.adjusted(1, 1, -1, -1);
                 QStyleOptionToolButton newBtn = *toolbutton;
                 newBtn.palette = panelPalette(option->palette);
-                newBtn.rect = QRect(ir.right() + 5 - mbi, ir.height() - mbi + 4, mbi - 6, mbi - 6);
+                newBtn.rect = QRect(ir.right() - arrowSize - 1,
+                                    ir.height() - arrowSize - 2, arrowSize, arrowSize);
                 QWindowsStyle::drawPrimitive(PE_IndicatorArrowDown, &newBtn, painter, widget);
             }
         }

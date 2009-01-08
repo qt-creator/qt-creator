@@ -101,7 +101,7 @@ bool ModifyPropertyCommand::mergeWith(const QUndoCommand * command)
 
 void ModifyPropertyCommand::undo()
 {
-    QTC_ASSERT(m_view, return);
+    Q_ASSERT(m_view);
 
     // Save current text in m_after for redo()
     m_after = m_view->getCurrentValue(m_property);
@@ -117,7 +117,7 @@ void ModifyPropertyCommand::redo()
         return;
 
     // Bring back text before undo
-    QTC_ASSERT(m_view, return);
+    Q_ASSERT(m_view);
     m_view->changeValue(makeIndex(), m_property, m_after);
 }
 
@@ -144,7 +144,7 @@ void RemoveEntryCommand::undo()
 {
     if (m_entry == 0) {
         m_entry->restore();
-        QTC_ASSERT(m_view != 0, return);
+        Q_ASSERT(m_view != 0);
         const QModelIndex index = makeIndex();
         m_view->setExpanded(index, m_isExpanded);
         m_view->setCurrentIndex(index);

@@ -35,6 +35,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QHash>
 #include <QtCore/QLibrary>
+#include <QtCore/QLinkedList>
+#include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
@@ -191,6 +193,43 @@ void testIO()
     std::cerr << "std::cerr 3\n";
 }
 
+void testQLinkedList()
+{
+#if 1
+    QLinkedList<int> li;
+    QLinkedList<uint> lu;
+
+    for (int i = 0; i != 3; ++i)
+        li.append(i);
+    li.append(102);
+
+
+    lu.append(102);
+    lu.append(102);
+    lu.append(102);
+
+    QLinkedList<Foo *> lpi;
+    lpi.append(new Foo(1));
+    lpi.append(0);
+    lpi.append(new Foo(3));
+
+    QLinkedList<qulonglong> l;
+    l.append(42);
+    l.append(43);
+    l.append(44);
+    l.append(45);
+
+    QLinkedList<Foo> f;
+    f.append(Foo(1));
+    f.append(Foo(2));
+#endif
+
+    QLinkedList<std::string> v;
+    v.push_back("aa");
+    v.push_back("bb");
+    v.push_back("cc");
+    v.push_back("dd");
+ }
 
 void testQList()
 {
@@ -285,6 +324,36 @@ void testQMap()
     QMap<QString, QPointer<QObject> > map;
     map.insert("Hallo", QPointer<QObject>(&ob));
     map.insert("Welt", QPointer<QObject>(&ob));
+    map.insert(".", QPointer<QObject>(&ob));
+#endif
+}
+
+void testQMultiMap()
+{
+    QMultiMap<uint, float> gg0;
+    gg0.insert(11, 11.0);
+    gg0.insert(22, 22.0);
+    gg0.insert(22, 33.0);
+    gg0.insert(22, 34.0);
+    gg0.insert(22, 35.0);
+    gg0.insert(22, 36.0);
+#if 1
+    QMultiMap<QString, float> gg1;
+    gg1.insert("22.0", 22.0);
+
+    QMultiMap<int, QString> gg2;
+    gg2.insert(22, "22.0");
+
+    QMultiMap<QString, Foo> gg3;
+    gg3.insert("22.0", Foo(22));
+    gg3.insert("33.0", Foo(33));
+    gg3.insert("22.0", Foo(22));
+
+    QObject ob;
+    QMultiMap<QString, QPointer<QObject> > map;
+    map.insert("Hallo", QPointer<QObject>(&ob));
+    map.insert("Welt", QPointer<QObject>(&ob));
+    map.insert(".", QPointer<QObject>(&ob));
     map.insert(".", QPointer<QObject>(&ob));
 #endif
 }
@@ -850,12 +919,14 @@ int main(int argc, char *argv[])
 
     testPlugin();
     testQList();
+    testQLinkedList();
     testNamespace();
     //return 0;
     testQByteArray();
     testQHash();
     testQImage();
     testQMap();
+    testQMultiMap();
     testQString();
     testQSet();
     testQStringList();
@@ -868,7 +939,7 @@ int main(int argc, char *argv[])
     testQVectorOfQList();
 
 
-    *(int *)0 = 0;
+    //*(int *)0 = 0;
 
     testQObject(argc, argv);
 
