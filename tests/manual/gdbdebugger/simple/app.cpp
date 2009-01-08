@@ -208,6 +208,11 @@ void testQLinkedList()
     lu.append(102);
     lu.append(102);
 
+    QLinkedList<Foo *> lpi;
+    lpi.append(new Foo(1));
+    lpi.append(0);
+    lpi.append(new Foo(3));
+
     QLinkedList<qulonglong> l;
     l.append(42);
     l.append(43);

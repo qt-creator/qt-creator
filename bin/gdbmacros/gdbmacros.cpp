@@ -42,6 +42,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
+#include <QLinkedList>
 #include <QLocale>
 #include <QMap>
 #include <QMetaObject>
@@ -1265,6 +1266,48 @@ static void qDumpQList(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQLinkedList(QDumper &d)
+{
+    // This uses the knowledge that QLinkedList<T> has only a single member
+    // of type  union { QLinkedListData *d; QLinkedListNode<T> *e; };
+    const QLinkedListData *ldata =
+        reinterpret_cast<const QLinkedListData*>(deref(d.data));
+    int nn = ldata->size;
+    if (nn < 0)
+        qCheck(false);
+
+    int n = nn;
+    P(d, "value", "<" << n << " items>");
+    P(d, "valuedisabled", "true");
+    P(d, "numchild", n);
+    P(d, "childtype", d.innertype);
+    if (d.dumpChildren) {
+        unsigned innerSize = d.extraInt[0];
+        bool innerTypeIsPointer = isPointerType(d.innertype);
+        QByteArray strippedInnerType = stripPointerType(d.innertype);
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
+
+        P(d, "childtype", d.innertype);
+        if (n > 1000)
+            n = 1000;
+        d << ",children=[";
+        const void *p = deref(ldata);
+        for (int i = 0; i != n; ++i) {
+            d.beginHash();
+            P(d, "name", "[" << i << "]");
+            const void *addr = addOffset(p, 2 * sizeof(void*));
+            qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
+            p = deref(p);
+            d.endHash();
+        }
+        if (n < nn)
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpQLocale(QDumper &d)
 {
     const QLocale &locale = *reinterpret_cast<const QLocale *>(d.data);
@@ -2356,6 +2399,8 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'L':
             if (isEqual(type, "QList"))
                 qDumpQList(d);
+            else if (isEqual(type, "QLinkedList"))
+                qDumpQLinkedList(d);
             else if (isEqual(type, "QLocale"))
                 qDumpQLocale(d);
             break;
@@ -2367,7 +2412,7 @@ static void handleProtocolVersion2and3(QDumper & d)
             else if (isEqual(type, "QModelIndex"))
                 qDumpQModelIndex(d);
             else if (isEqual(type, "QMultiMap"))
-                qDumpQMap(d);
+                qDumpQMultiMap(d);
             break;
         case 'O':
             if (isEqual(type, "QObject"))
@@ -2465,6 +2510,7 @@ void qDumpObjectData440(
             "\""NS"QHash\","
             "\""NS"QHashNode\","
             "\""NS"QImage\","
+            "\""NS"QLinkedList\","
             "\""NS"QList\","
             "\""NS"QLocale\","
             "\""NS"QMap\","
