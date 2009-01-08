@@ -5,7 +5,6 @@ include(../../qworkbenchplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 HEADERS = qt4projectmanagerplugin.h \
     qt4projectmanager.h \
-    qt4projectmanagerenums.h \
     qtversionmanager.h \
     qt4project.h \
     qt4nodes.h \
@@ -45,7 +44,6 @@ HEADERS = qt4projectmanagerplugin.h \
     projectloadwizard.h \
     directorywatcher.h \
     gdbmacrosbuildstep.h
-
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qtversionmanager.cpp \
@@ -84,7 +82,6 @@ SOURCES = qt4projectmanagerplugin.cpp \
     projectloadwizard.cpp \
     directorywatcher.cpp \
     gdbmacrosbuildstep.cpp
-
 FORMS = qtversionmanager.ui \
     envvariablespage.ui \
     enveditdialog.ui \

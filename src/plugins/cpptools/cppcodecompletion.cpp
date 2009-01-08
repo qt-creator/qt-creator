@@ -723,7 +723,7 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
         return false; // nothing to do.
 
     // Search for a class or a namespace.
-    TypeOfExpression::Result result(FullySpecifiedType(), 0);
+    TypeOfExpression::Result result;
     foreach (result, results) {
         FullySpecifiedType ty = result.first;
 
@@ -751,8 +751,7 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
     } else if (Symbol *symbol = result.second) {
         if (symbol->isTypedef()) {
             ResolveClass resolveClass;
-            const QList<Symbol *> candidates = resolveClass(result,
-                                                                   context);
+            const QList<Symbol *> candidates = resolveClass(result, context);
             completeClass(candidates, context);
         }
     }

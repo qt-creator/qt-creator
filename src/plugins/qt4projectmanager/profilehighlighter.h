@@ -34,8 +34,6 @@
 #ifndef PROFILEHIGHLIGHTER_H
 #define PROFILEHIGHLIGHTER_H
 
-#include "qt4projectmanagerenums.h"
-
 #include <QtCore/QtAlgorithms>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCharFormat>
@@ -47,6 +45,13 @@ class ProFileHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
+    enum ProfileFormats {
+        ProfileVariableFormat,
+        ProfileFunctionFormat,
+        ProfileCommentFormat,
+        NumProfileFormats
+    };
+
     ProFileHighlighter(QTextDocument *document = 0);
     virtual void highlightBlock(const QString &text);
 
@@ -58,7 +63,6 @@ public:
 
 private:
     QTextCharFormat m_formats[NumProfileFormats];
-
 };
 
 } // namespace Internal

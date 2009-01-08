@@ -91,9 +91,6 @@ const char * const C_REMOVED_LINE        = "RemovedLine";
 const char * const C_DIFF_FILE           = "DiffFile";
 const char * const C_DIFF_LOCATION       = "DiffLocation";
 
-const char * const C_VARIABLE            = "Variable";
-const char * const C_FUNCTION            = "Function";
-
 } // namespace Constants
 } // namespace TextEditor
 
