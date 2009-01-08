@@ -232,6 +232,7 @@ private:
     void recordRemove(int position, const QString &data);
     void recordRemove(int position, int length);
     void recordMove(int position, int nestedCount);
+    void removeSelectedText(QTextCursor &tc);
     void undo();
     void redo();
     QStack<EditOperation> m_undoStack;
@@ -349,7 +350,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
         m_registers[m_register] = m_tc.selectedText();
-        m_tc.removeSelectedText();
+        removeSelectedText(m_tc);
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
@@ -357,7 +358,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             m_dotCommand = "d" + dotCommand;
         recordRemove(qMin(m_tc.position(), m_tc.anchor()), m_tc.selectedText());
         m_registers[m_register] = m_tc.selectedText();
-        m_tc.removeSelectedText();
+        removeSelectedText(m_tc);
         m_submode = NoSubMode;
         if (atEol())
             m_tc.movePosition(Left, MoveAnchor, 1);
@@ -620,7 +621,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
         m_tc = selectRange(beginLine, endLine);
-        m_tc.removeSelectedText();
+        removeSelectedText(m_tc);
     } else if (key == 'D') {
         m_submode = DeleteSubMode;
         m_tc.movePosition(Down, KeepAnchor, qMax(count() - 1, 0));
@@ -734,6 +735,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_subsubdata = key;
     } else if (key == 'u') {
         undo();
+    } else if (key == 'U') {
+        // FIXME: this is non-vim, but as Ctrl-R is taken globally
+        // we have a substitute here
+        redo();
     } else if (key == 'v') {
         enterVisualMode(VisualCharMode);
     } else if (key == 'V') {
@@ -1071,6 +1076,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
         m_tc.setPosition(positionForLine(beginLine));
         EditOperation op;
+        // FIXME: broken for "upward selection"
         op.m_position = m_tc.position();
         op.m_from = text;
         op.m_to = result;
@@ -1346,6 +1352,7 @@ void FakeVimHandler::Private::undo()
             m_tc.setPosition(op.m_position, MoveAnchor);
         }
         m_redoStack.push(op);
+        showBlackMessage(QString());
     }
 #endif
 }
@@ -1374,8 +1381,18 @@ void FakeVimHandler::Private::redo()
             m_tc.setPosition(op.m_position, MoveAnchor);
         }
         m_undoStack.push(op);
+        showBlackMessage(QString());
     }
 #endif
+}
+
+void FakeVimHandler::Private::removeSelectedText(QTextCursor &tc)
+{
+    EditOperation op;
+    op.m_position = qMin(tc.position(), tc.anchor());
+    op.m_from = tc.selection().toPlainText();
+    recordOperation(op);
+    tc.removeSelectedText();
 }
 
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
