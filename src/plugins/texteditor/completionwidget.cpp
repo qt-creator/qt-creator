@@ -260,9 +260,9 @@ void CompletionWidget::updatePositionAndSize(int startPos)
     const QRect cursorRect = m_editor->cursorRect(startPos);
     const QDesktopWidget *desktop = QApplication::desktop();
 #ifdef Q_OS_MAC
-    const QRect screen = desktop->availableGeometry(desktop->screenNumber(this));
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editorWidget));
 #else
-    const QRect screen = desktop->screenGeometry(desktop->screenNumber(this));
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editorWidget));
 #endif
 
     QPoint pos = cursorRect.bottomLeft();
