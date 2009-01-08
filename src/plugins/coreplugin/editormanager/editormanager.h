@@ -65,6 +65,7 @@ enum MakeWritableResult {
 };
 
 struct EditorManagerPrivate;
+
 namespace Internal {
 class OpenEditorsWindow;
 class EditorSplitter;
@@ -224,7 +225,8 @@ private:
 
 namespace Internal {
 
-class EditorClosingCoreListener : public ICoreListener {
+class EditorClosingCoreListener : public ICoreListener
+{
     Q_OBJECT
 
 public:

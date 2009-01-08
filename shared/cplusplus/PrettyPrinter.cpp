@@ -33,8 +33,10 @@
 
 #include "PrettyPrinter.h"
 #include "AST.h"
+#include "Token.h"
 #include <iostream>
 #include <string>
+#include <cassert>
 
 CPLUSPLUS_USE_NAMESPACE
 
@@ -144,12 +146,16 @@ bool PrettyPrinter::visit(AttributeAST *ast)
 bool PrettyPrinter::visit(BaseSpecifierAST *ast)
 {
     if (ast->token_virtual && ast->token_access_specifier) {
-        out << "virtual ";
+        out << "virtual";
+        out << ' ';
         out << spell(ast->token_access_specifier);
+        out << ' ';
     } else if (ast->token_virtual) {
         out << "virtual";
+        out << ' ';
     } else if (ast->token_access_specifier) {
         out << spell(ast->token_access_specifier);
+        out << ' ';
     }
     accept(ast->name);
     return false;
@@ -192,7 +198,24 @@ bool PrettyPrinter::visit(CaseStatementAST *ast)
     out << "case ";
     accept(ast->expression);
     out << ':';
-    accept(ast->statement);
+    if (! ast->statement) {
+        newline();
+        return false;
+    }
+
+    if (ast->statement->asCompoundStatement()) {
+        out << ' ';
+        accept(ast->statement);
+    } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
+        newline();
+        accept(ast->statement);
+    } else {
+        indent();
+        newline();
+        accept(ast->statement);
+        deindent();
+        newline();
+    }
     return false;
 }
 
@@ -233,6 +256,7 @@ bool PrettyPrinter::visit(ClassSpecifierAST *ast)
                 out << ", ";
         }
     }
+    newline();
     out << '{';
     if (ast->member_specifiers) {
         indent();
@@ -365,6 +389,7 @@ bool PrettyPrinter::visit(DeclaratorAST *ast)
             out << ' ';
     }
     if (ast->initializer) {
+        out << ' ';
         out << '=';
         out << ' ';
         accept(ast->initializer);
@@ -451,11 +476,20 @@ bool PrettyPrinter::visit(EnumSpecifierAST *ast)
         out << ' ';
         accept(ast->name);
     }
+    out << ' ';
     out << '{';
-    for (EnumeratorAST *it = ast->enumerators; it; it = it->next) {
-        accept(it);
-        if (it->next)
-            out << ", ";
+    if (ast->enumerators) {
+        indent();
+        newline();
+        for (EnumeratorAST *it = ast->enumerators; it; it = it->next) {
+            accept(it);
+            if (it->next) {
+                out << ", ";
+                newline();
+            }
+        }
+        deindent();
+        newline();
     }
     out << '}';
     return false;
@@ -550,9 +584,8 @@ bool PrettyPrinter::visit(FunctionDeclaratorAST *ast)
     accept(ast->parameters);
     out << ')';
     for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
+        out << ' ';
         accept(it);
-        if (it->next)
-            out << ' ';
     }
     if (ast->exception_specification) {
         out << ' ';
@@ -597,9 +630,10 @@ bool PrettyPrinter::visit(IfStatementAST *ast)
     out << '(';
     accept(ast->condition);
     out << ')';
-    if (ast->statement->asCompoundStatement())
+    if (ast->statement->asCompoundStatement()) {
+        out << ' ';
         accept(ast->statement);
-    else {
+    } else {
         indent();
         newline();
         accept(ast->statement);
@@ -797,7 +831,17 @@ bool PrettyPrinter::visit(NewTypeIdAST *ast)
 
 bool PrettyPrinter::visit(NumericLiteralAST *ast)
 {
-    out << spell(ast->token);
+    switch (tokenKind(ast->token)) {
+    case T_CHAR_LITERAL:
+        out << '\'' << spell(ast->token) << '\'';
+        break;
+    case T_WIDE_CHAR_LITERAL:
+        out << "L\'" << spell(ast->token) << '\'';
+        break;
+
+    default:
+        out << spell(ast->token);
+    }
     return false;
 }
 
@@ -962,10 +1006,13 @@ bool PrettyPrinter::visit(SizeofExpressionAST *ast)
 
 bool PrettyPrinter::visit(StringLiteralAST *ast)
 {
-    out << '"' << spell(ast->token) << '"';
-    if (ast->next) {
-        out << ' ';
-        accept(ast->next);
+    for (StringLiteralAST *it = ast; it; it = it->next) {
+        if (tokenKind(ast->token) == T_STRING_LITERAL)
+            out << '"' << spell(ast->token) << '"';
+        else
+            out << "L\"" << spell(ast->token) << '"';
+        if (it->next)
+            out << ' ';
     }
     return false;
 }
@@ -1213,7 +1260,16 @@ bool PrettyPrinter::visit(WhileStatementAST *ast)
     out << '(';
     accept(ast->condition);
     out << ')';
-    accept(ast->statement);
+    out << ' ';
+    if (ast->statement && ast->statement->asCompoundStatement())
+        accept(ast->statement);
+    else {
+        indent();
+        newline();
+        accept(ast->statement);
+        deindent();
+        newline();
+    }
     return false;
 }
 

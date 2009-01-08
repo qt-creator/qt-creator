@@ -58,8 +58,9 @@ bool BranchDialog::init(GitClient *client, const QString &workingDirectory, QStr
     }
     m_ui->repositoryFieldLabel->setText(m_repoDirectory);
 
-    m_localModel = new BranchModel(client, BranchModel::LocalBranches, this);
-    m_remoteModel = new BranchModel(client, BranchModel::RemoteBranches, this);
+    m_localModel = new LocalBranchModel(client, this);
+    connect(m_localModel, SIGNAL(newBranchCreated(QString)), this, SLOT(slotNewLocalBranchCreated(QString)));
+    m_remoteModel = new RemoteBranchModel(client, this);
     if (!m_localModel->refresh(workingDirectory, errorMessage)
         || !m_remoteModel->refresh(workingDirectory, errorMessage))
         return false;
@@ -93,11 +94,21 @@ void BranchDialog::slotEnableButtons()
     const int selectedLocalRow = selectedLocalBranchIndex();
     const int currentLocalBranch = m_localModel->currentBranch();
 
-    const bool hasSelection = selectedLocalRow != -1;
+    const bool hasSelection = selectedLocalRow != -1 && !m_localModel->isNewBranchRow(selectedLocalRow);
     const bool currentIsNotSelected = hasSelection && selectedLocalRow != currentLocalBranch;
 
     m_checkoutButton->setEnabled(currentIsNotSelected);
     m_deleteButton->setEnabled(currentIsNotSelected);
+}
+
+void BranchDialog::slotNewLocalBranchCreated(const QString &b)
+{
+    // Select the newly created branch
+    const int row = m_localModel->findBranchByName(b);
+    if (row != -1) {
+        const QModelIndex index = m_localModel->index(row);
+        m_ui->localBranchListView->selectionModel()->select(index, QItemSelectionModel::Select);
+    }
 }
 
 bool BranchDialog::ask(const QString &title, const QString &what, bool defaultButton)

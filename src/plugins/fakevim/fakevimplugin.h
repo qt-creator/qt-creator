@@ -44,8 +44,21 @@ class QCursor;
 class QAbstractItemView;
 QT_END_NAMESPACE
 
-namespace Core { class IEditor; }
-namespace TextEditor { class ITextEditor; }
+
+namespace Core {
+
+class ICore;
+class IEditor;
+
+} // namespace Core
+
+
+namespace TextEditor {
+
+class ITextEditor;
+
+} // namespace TextEditor
+
 
 namespace FakeVim {
 namespace Internal {
@@ -72,9 +85,8 @@ private slots:
 
 private:
     FakeVimHandler *m_handler;
-    ExtensionSystem::PluginManager *m_pm;
     QAction *m_installHandlerAction;
-    int m_savedCursorWidth;
+    Core::ICore *m_core;
 };
 
 } // namespace Internal

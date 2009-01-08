@@ -70,11 +70,8 @@ src/xml/lib/
 
 # Binaries
 # --------
-bin/Aggregation.dll
-bin/CodeModel.dll
-bin/ExtensionSystem.dll
-bin/QtConcurrent.dll
-bin/Utils.dll
+bin/*.dll
 bin/qtcreator
 bin/qtcreator.exe
+doc/qtcreator.qch
 tests/manual/cplusplus/cplusplus0

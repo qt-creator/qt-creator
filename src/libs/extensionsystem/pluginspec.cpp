@@ -221,7 +221,7 @@ QList<PluginDependency> PluginSpec::dependencies() const
 }
 
 /*!
-    \fn PluginOptionDescriptions optionDescriptions() const
+    \fn PluginSpec::PluginArgumentDescriptions PluginSpec::argumentDescriptions() const
     Returns a list of descriptions of command line arguments the plugin processes.
 */
 

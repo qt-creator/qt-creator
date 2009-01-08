@@ -1,0 +1,231 @@
+project                 = Qt Creator API
+description             = Qt Creator API Documentation
+
+language                = Cpp
+
+headerdirs              = . \
+                          ../../src/libs/aggregation \
+                          ../../src/libs/extensionsystem \
+                          ../../src/plugins/core \
+                          ../../src/plugins/core/actionmanager
+
+sourcedirs              = . \
+                          ../../src/libs/aggregation \
+                          ../../src/libs/extensionsystem \
+                          ../../src/plugins/core \
+                          ../../src/plugins/core/actionmanager
+
+headers.fileextesnions  = "*.h"
+sources.fileextensions  = "*.cpp *.qdoc"
+
+imagedirs               = .
+
+indexes                 = $QTDIR/doc/html/qt.index
+
+outputdir               = ./html
+base                    = file:./html
+versionsym              = 0.9.2
+codeindent              = 1
+
+## compat.qdocconf
+alias.i				= e
+alias.include			= input
+
+macro.0                         = "\\\\0"
+macro.b                         = "\\\\b"
+macro.n                         = "\\\\n"
+macro.r                         = "\\\\r"
+macro.i                         = "\\o"
+macro.i11                       = "\\o{1,1}"
+macro.i12                       = "\\o{1,2}"
+macro.i13                       = "\\o{1,3}"
+macro.i14                       = "\\o{1,4}"
+macro.i15                       = "\\o{1,5}"
+macro.i16                       = "\\o{1,6}"
+macro.i17                       = "\\o{1,7}"
+macro.i18                       = "\\o{1,8}"
+macro.i19                       = "\\o{1,9}"
+macro.i21                       = "\\o{2,1}"
+macro.i31                       = "\\o{3,1}"
+macro.i41                       = "\\o{4,1}"
+macro.i51                       = "\\o{5,1}"
+macro.i61                       = "\\o{6,1}"
+macro.i71                       = "\\o{7,1}"
+macro.i81                       = "\\o{8,1}"
+macro.i91                       = "\\o{9,1}"
+macro.img                       = "\\image"
+macro.endquote                  = "\\endquotation"
+macro.relatesto                 = "\\relates"
+
+spurious			= "Missing comma in .*" \
+				  "Missing pattern .*"
+
+## macros.qdocconf
+macro.aring.HTML        = "&aring;"
+macro.Auml.HTML         = "&Auml;"
+macro.author            = "\\bold{Author:}"
+macro.br.HTML           = "<br />"
+macro.BR.HTML           = "<br />"
+macro.aacute.HTML       = "&aacute;"
+macro.eacute.HTML       = "&eacute;"
+macro.iacute.HTML       = "&iacute;"
+macro.gui               = "\\bold"
+macro.hr.HTML           = "<hr />"
+macro.key               = "\\bold"
+macro.menu              = "\\bold"
+macro.note              = "\\bold{Note:}"
+macro.oslash.HTML       = "&oslash;"
+macro.ouml.HTML         = "&ouml;"
+macro.QA                = "\\e{Qt Assistant}"
+macro.QD                = "\\e{Qt Designer}"
+macro.QL                = "\\e{Qt Linguist}"
+macro.param             = "\\e"
+macro.raisedaster.HTML  = "<sup>*</sup>"
+macro.reg.HTML          = "<sup>&reg;</sup>"
+macro.return            = "Returns"
+macro.starslash         = "\\c{*/}"
+macro.uuml.HTML         = "&uuml;"
+macro.mdash.HTML        = "&mdash;"
+
+## qt-cpp-ignore.qdocconf
+Cpp.ignoretokens        = QAXFACTORY_EXPORT \
+                          QDESIGNER_COMPONENTS_LIBRARY \
+                          QDESIGNER_EXTENSION_LIBRARY \
+                          QDESIGNER_SDK_LIBRARY \
+                          QDESIGNER_SHARED_LIBRARY \
+                          QDESIGNER_UILIB_LIBRARY \
+                          QM_EXPORT_CANVAS \
+                          QM_EXPORT_DNS \
+                          QM_EXPORT_DOM \
+                          QM_EXPORT_FTP \
+                          QM_EXPORT_HTTP \
+                          QM_EXPORT_ICONVIEW \
+                          QM_EXPORT_NETWORK \
+                          QM_EXPORT_OPENGL \
+                          QM_EXPORT_SQL \
+                          QM_EXPORT_TABLE \
+                          QM_EXPORT_WORKSPACE \
+                          QM_EXPORT_XML \
+                          QT_ASCII_CAST_WARN \
+                          QT_ASCII_CAST_WARN_CONSTRUCTOR \
+                          QT_BEGIN_HEADER \
+                          QT_DESIGNER_STATIC \
+                          QT_END_HEADER \
+                          QT_FASTCALL \
+                          QT_WIDGET_PLUGIN_EXPORT \
+                          Q_COMPAT_EXPORT \
+                          Q_CORE_EXPORT \
+                          Q_EXPLICIT \
+                          Q_EXPORT \
+                          Q_EXPORT_CODECS_CN \
+                          Q_EXPORT_CODECS_JP \
+                          Q_EXPORT_CODECS_KR \
+                          Q_EXPORT_PLUGIN \
+                          Q_GFX_INLINE \
+                          Q_AUTOTEST_EXPORT \
+                          Q_GUI_EXPORT \
+                          Q_GUI_EXPORT_INLINE \
+                          Q_GUI_EXPORT_STYLE_CDE \
+                          Q_GUI_EXPORT_STYLE_COMPACT \
+                          Q_GUI_EXPORT_STYLE_MAC \
+                          Q_GUI_EXPORT_STYLE_MOTIF \
+                          Q_GUI_EXPORT_STYLE_MOTIFPLUS \
+                          Q_GUI_EXPORT_STYLE_PLATINUM \
+                          Q_GUI_EXPORT_STYLE_POCKETPC \
+                          Q_GUI_EXPORT_STYLE_SGI \
+                          Q_GUI_EXPORT_STYLE_WINDOWS \
+                          Q_GUI_EXPORT_STYLE_WINDOWSXP \
+                          QHELP_EXPORT \
+                          Q_INLINE_TEMPLATE \
+                          Q_INTERNAL_WIN_NO_THROW \
+                          Q_NETWORK_EXPORT \
+                          Q_OPENGL_EXPORT \
+                          Q_OUTOFLINE_TEMPLATE \
+                          Q_SQL_EXPORT \
+                          Q_SVG_EXPORT \
+                          Q_SCRIPT_EXPORT \
+                          Q_SCRIPTTOOLS_EXPORT \
+                          Q_TESTLIB_EXPORT \
+                          Q_TYPENAME \
+                          Q_XML_EXPORT \
+                          Q_XMLSTREAM_EXPORT \
+                          Q_XMLPATTERNS_EXPORT \
+                          QDBUS_EXPORT \
+                          QT_BEGIN_NAMESPACE \
+                          QT_BEGIN_INCLUDE_NAMESPACE \
+                          QT_END_NAMESPACE \
+                          QT_END_INCLUDE_NAMESPACE \
+                          PHONON_EXPORT
+Cpp.ignoredirectives    = Q_DECLARE_HANDLE \
+                          Q_DECLARE_INTERFACE \
+                          Q_DECLARE_METATYPE \
+                          Q_DECLARE_OPERATORS_FOR_FLAGS \
+                          Q_DECLARE_PRIVATE \
+                          Q_DECLARE_PUBLIC \
+                          Q_DECLARE_SHARED \
+                          Q_DECLARE_TR_FUNCTIONS \
+                          Q_DECLARE_TYPEINFO \
+                          Q_DISABLE_COPY \
+                          QT_FORWARD_DECLARE_CLASS \
+                          Q_DUMMY_COMPARISON_OPERATOR \
+                          Q_ENUMS \
+                          Q_FLAGS \
+                          Q_INTERFACES \
+                          __attribute__ \
+                          K_DECLARE_PRIVATE \
+                          PHONON_OBJECT \
+                          PHONON_HEIR
+
+## qt-html-templates.qdocconf
+HTML.stylesheets        = classic.css
+HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
+                          "<tr>\n" \
+                          "<td align=\"left\" valign=\"top\" width=\"32\">" \
+                          "<a href=\"http://www.trolltech.com/products/qt\"><img src=\"images/qt-logo.png\" align=\"left\" border=\"0\" /></a>" \
+                          "</td>\n" \
+                          "<td width=\"1\">&nbsp;&nbsp;</td>" \
+                          "<td class=\"postheader\" valign=\"center\">" \
+                          "<a href=\"index.html\">" \
+                          "<font color=\"#004faf\">Home</font></a>&nbsp;&middot;" \
+                          " <a href=\"namespaces.html\">" \
+                          "<font color=\"#004faf\">All&nbsp;Namespaces</font></a>&nbsp;&middot;" \
+                          " <a href=\"classes.html\">" \
+                          "<font color=\"#004faf\">All&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"mainclasses.html\">" \
+                          "<font color=\"#004faf\">Main&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"groups.html\">" \
+                          "<font color=\"#004faf\">Grouped&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"modules.html\">" \
+                          "<font color=\"#004faf\">Modules</font></a>&nbsp;&middot;" \
+                          " <a href=\"functions.html\">" \
+                          "<font color=\"#004faf\">Functions</font></a>" \
+                          "</td>\n" \
+                          "<td align=\"right\" valign=\"top\" width=\"230\"></td></tr></table>"
+
+HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
+                          "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
+                          "<td width=\"30%\" align=\"left\">Copyright &copy; %THISYEAR% Nokia Corporation " \
+                          "and/or its subsidiary(-ies)</td>\n" \
+                          "<td width=\"40%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
+                          "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt \\version</div></td>\n" \
+                          "</tr></table></div></address>"
+
+## qt-defines.qdocconf
+defines                 = Q_QDOC \
+                          QT_.*_SUPPORT \
+                          QT_.*_LIB \
+                          QT_COMPAT \
+                          QT_KEYPAD_NAVIGATION \
+                          QT3_SUPPORT \
+                          Q_WS_.* \
+                          Q_OS_.* \
+                          Q_BYTE_ORDER \
+			  QT_DEPRECATED \
+                          Q_NO_USING_KEYWORD \
+                          __cplusplus
+
+# Files not referenced in any qdoc file (last four needed by qtdemo)
+# See also qhp.Qt.extraFiles
+extraimages.HTML        = qt-logo \
+                          trolltech-logo
+                             

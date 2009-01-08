@@ -2,6 +2,8 @@
 #include "gitclient.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QRegExp>
+#include <QtCore/QTimer>
 
 enum { debug = 0 };
 
@@ -10,7 +12,7 @@ namespace Git {
 
 // Parse a branch line: " *name sha description".  Return  true if it is
 // the current one
-bool BranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
+bool RemoteBranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << lineIn;
@@ -28,40 +30,41 @@ bool BranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
     return true;
 }
 
-static inline Qt::ItemFlags typeToModelFlags(BranchModel::Type t)
-{
-    Qt::ItemFlags rc = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    if (t == BranchModel::LocalBranches)
-        rc |= Qt::ItemIsUserCheckable;
-    return rc;
-}
-
-// --- BranchModel
-BranchModel::BranchModel(GitClient *client, Type type, QObject *parent) :
+// ------ RemoteBranchModel
+RemoteBranchModel::RemoteBranchModel(GitClient *client, QObject *parent) :
     QAbstractListModel(parent),
-    m_type(type),
-    m_flags(typeToModelFlags(type)),
-    m_client(client),
-    m_currentBranch(-1)
+    m_flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled),
+    m_client(client)
 {
 }
 
-int BranchModel::currentBranch() const
+bool RemoteBranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
-    return m_currentBranch;
+    int currentBranch;
+    return refreshBranches(workingDirectory, true, &currentBranch, errorMessage);
 }
 
-QString BranchModel::branchName(int row) const
+QString RemoteBranchModel::branchName(int row) const
 {
     return m_branches.at(row).name;
 }
 
-int BranchModel::rowCount(const QModelIndex & /* parent */) const
+QString RemoteBranchModel::workingDirectory() const
+{
+    return m_workingDirectory;
+}
+
+int RemoteBranchModel::branchCount() const
 {
     return m_branches.size();
 }
 
-QVariant BranchModel::data(const QModelIndex &index, int role) const
+int RemoteBranchModel::rowCount(const QModelIndex & /* parent */) const
+{
+    return branchCount();
+}
+
+QVariant RemoteBranchModel::data(const QModelIndex &index, int role) const
 {
     const int row = index.row();
     switch (role) {
@@ -72,52 +75,18 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             m_branches.at(row).toolTip = toolTip(m_branches.at(row).currentSHA);
         return m_branches.at(row).toolTip;
         break;
-        case Qt::CheckStateRole:
-        if (m_type == RemoteBranches)
-            return QVariant();
-        return row == m_currentBranch ? Qt::Checked : Qt::Unchecked;
         default:
         break;
     }
     return QVariant();
 }
 
-Qt::ItemFlags BranchModel::flags(const QModelIndex & /*index */) const
+Qt::ItemFlags RemoteBranchModel::flags(const QModelIndex & /* index */) const
 {
     return m_flags;
 }
 
-bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
-{
-    // Run branch command with verbose.
-    QStringList branchArgs(QLatin1String("-v"));
-    QString output;
-    if (m_type == RemoteBranches)
-        branchArgs.push_back(QLatin1String("-r"));
-    if (!m_client->synchronousBranchCmd(workingDirectory, branchArgs, &output, errorMessage))
-        return false;
-    if (debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << output;
-    // Parse output
-    m_workingDirectory = workingDirectory;
-    m_branches.clear();
-    m_currentBranch = -1;
-    const QStringList branches = output.split(QLatin1Char('\n'));
-    const int branchCount = branches.size();
-    bool isCurrent;
-    for (int b = 0; b < branchCount; b++) {
-        Branch newBranch;
-        if (newBranch.parse(branches.at(b), &isCurrent)) {
-            m_branches.push_back(newBranch);
-            if (isCurrent)
-                m_currentBranch = b;
-        }
-    }
-    reset();
-    return true;
-}
-
-QString BranchModel::toolTip(const QString &sha) const
+QString RemoteBranchModel::toolTip(const QString &sha) const
 {
     // Show the sha description excluding diff as toolTip
     QString output;
@@ -129,6 +98,153 @@ QString BranchModel::toolTip(const QString &sha) const
     if (diffPos != -1)
         output.remove(diffPos, output.size() - diffPos);
     return output;
+}
+
+bool RemoteBranchModel::runGitBranchCommand(const QString &workingDirectory, const QStringList &additionalArgs, QString *output, QString *errorMessage)
+{
+    return m_client->synchronousBranchCmd(workingDirectory, additionalArgs, output, errorMessage);
+}
+
+bool RemoteBranchModel::refreshBranches(const QString &workingDirectory, bool remoteBranches,
+                                        int *currentBranch, QString *errorMessage)
+{
+    // Run branch command with verbose.
+    QStringList branchArgs(QLatin1String("-v"));
+    QString output;
+    *currentBranch = -1;
+    if (remoteBranches)
+        branchArgs.push_back(QLatin1String("-r"));
+    if (!runGitBranchCommand(workingDirectory, branchArgs, &output, errorMessage))
+        return false;
+    if (debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << output;
+    // Parse output
+    m_workingDirectory = workingDirectory;
+    m_branches.clear();
+    const QStringList branches = output.split(QLatin1Char('\n'));
+    const int branchCount = branches.size();
+    bool isCurrent;
+    for (int b = 0; b < branchCount; b++) {
+        Branch newBranch;
+        if (newBranch.parse(branches.at(b), &isCurrent)) {
+            m_branches.push_back(newBranch);
+            if (isCurrent)
+                *currentBranch = b;
+        }
+    }
+    reset();
+    return true;
+}
+
+int RemoteBranchModel::findBranchByName(const QString &name) const
+{
+    const int count = branchCount();
+    for (int i = 0; i < count; i++)
+        if (branchName(i) == name)
+            return i;
+    return -1;
+}
+
+// --- LocalBranchModel
+LocalBranchModel::LocalBranchModel(GitClient *client, QObject *parent) :
+    RemoteBranchModel(client, parent),
+    m_typeHere(tr("<New branch>")),
+    m_typeHereToolTip(tr("Type to create a new branch")),
+    m_currentBranch(-1)
+{
+}
+
+int LocalBranchModel::currentBranch() const
+{
+    return m_currentBranch;
+}
+
+bool LocalBranchModel::isNewBranchRow(int row) const
+{
+    return row >= branchCount();
+}
+
+Qt::ItemFlags LocalBranchModel::flags(const QModelIndex & index) const
+{
+    if (isNewBranchRow(index))
+        return Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsEnabled| Qt::ItemIsUserCheckable;
+    return RemoteBranchModel::flags(index) | Qt::ItemIsUserCheckable;
+}
+
+int LocalBranchModel::rowCount(const QModelIndex & /* parent */) const
+{
+    return branchCount() + 1;
+}
+
+QVariant LocalBranchModel::data(const QModelIndex &index, int role) const
+{
+    if (isNewBranchRow(index)) {
+        switch (role) {
+        case Qt::DisplayRole:
+            return m_typeHere;
+        case Qt::ToolTipRole:
+            return m_typeHereToolTip;
+        case Qt::CheckStateRole:
+            return QVariant(false);
+        }
+        return QVariant();
+    }
+
+    if (role == Qt::CheckStateRole)
+        return index.row() == m_currentBranch ? Qt::Checked : Qt::Unchecked;
+    return RemoteBranchModel::data(index, role);
+}
+
+bool LocalBranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
+{
+    return refreshBranches(workingDirectory, false, &m_currentBranch, errorMessage);
+}
+
+bool LocalBranchModel::checkNewBranchName(const QString &name) const
+{
+    // Syntax
+    const QRegExp pattern(QLatin1String("[a-zA-Z0-9-_]+"));
+    if (!pattern.exactMatch(name))
+        return false;
+    // existing
+    if (findBranchByName(name) != -1)
+        return false;
+    return true;
+}
+
+bool LocalBranchModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    // Verify
+    if (role != Qt::EditRole || index.row() < branchCount())
+        return false;
+    const QString branchName = value.toString();
+    const bool ok = checkNewBranchName(branchName);
+    if (debug)
+        qDebug() << Q_FUNC_INFO << branchName << ok;
+    if (!ok)
+        return false;
+    // Create
+    QString output;
+    QString errorMessage;
+    if (!runGitBranchCommand(workingDirectory(), QStringList(branchName), &output, &errorMessage))
+        return false;
+    m_newBranch = branchName;
+    // Start a delayed complete refresh and return true for now.
+    QTimer::singleShot(0, this, SLOT(slotNewBranchDelayedRefresh()));
+    return true;
+}
+
+void LocalBranchModel::slotNewBranchDelayedRefresh()
+{
+    if (debug)
+        qDebug() << Q_FUNC_INFO;
+
+    QString errorMessage;
+    if (!refresh(workingDirectory(), &errorMessage)) {
+        qWarning("%s", qPrintable(errorMessage));
+        return;
+    }
+    emit newBranchCreated(m_newBranch);
 }
 
 }

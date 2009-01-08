@@ -333,6 +333,7 @@ private:
 
     QStringList m_availableSimpleDumpers;
     QString m_namespace; // namespace used in "namespaced Qt";
+    int m_qtVersion; // Qt version used in the debugged program
     
     DataDumperState m_dataDumperState; // state of qt creator dumpers
     QList<GdbMi> m_currentFunctionArgs;

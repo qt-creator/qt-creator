@@ -38,6 +38,7 @@
 
 /*!
     \class ExtensionSystem::IPlugin
+    \mainclass
     \brief Base class for all plugins.
 
     The IPlugin class is an abstract class that must be implemented
@@ -304,7 +305,7 @@ void IPlugin::addObject(QObject *obj)
     plugin pool. Usually, registered objects must be removed from
     the object pool and deleted by hand.
     Objects added to the pool via addAutoReleasedObject are automatically
-    removed and deleted in \i reverse order of registration when
+    removed and deleted in reverse order of registration when
     the IPlugin instance is destroyed.
     \sa PluginManager::addObject()
 */

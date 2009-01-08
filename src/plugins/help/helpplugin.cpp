@@ -83,7 +83,8 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
     bool needsSetup = false;
     {
         QHelpEngineCore hc(m_helpEngine->collectionFile());
-        hc.setupData();
+        if (!hc.setupData())
+            qWarning() << "Could not initialize help engine:" << hc.error();
         foreach (const QString &fileName, fileNames) {
             if (!QFile::exists(fileName))
                 continue;
@@ -132,7 +133,7 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
     QFileInfo fi(m_core->settings()->fileName());
-    QDir directory(fi.absolutePath());
+    QDir directory(fi.absolutePath()+"/qtcreator");
     if (!directory.exists())
         directory.mkpath(directory.absolutePath());
     m_helpEngine = new QHelpEngine(directory.absolutePath()

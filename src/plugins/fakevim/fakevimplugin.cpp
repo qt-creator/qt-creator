@@ -75,6 +75,7 @@ namespace FakeVim {
 namespace Constants {
 
 const char * const INSTALL_HANDLER        = "FakeVim.InstallHandler";
+const char * const MINI_BUFFER            = "FakeVim.MiniBuffer";
 const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 
 } // namespace Constants
@@ -89,7 +90,7 @@ const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 
 FakeVimPlugin::FakeVimPlugin()
 {
-    m_pm = 0;
+    m_core = 0;
     m_handler = 0;
 }
 
@@ -109,12 +110,10 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_mess
 
     m_handler = new FakeVimHandler;
 
-    m_pm = ExtensionSystem::PluginManager::instance();
+    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    QTC_ASSERT(m_core, return false);
 
-    ICore *core = m_pm->getObject<Core::ICore>();
-    QTC_ASSERT(core, return false);
-
-    Core::ActionManagerInterface *actionManager = core->actionManager();
+    Core::ActionManagerInterface *actionManager = m_core->actionManager();
     QTC_ASSERT(actionManager, return false);
 
     QList<int> globalcontext;
@@ -143,44 +142,33 @@ void FakeVimPlugin::extensionsInitialized()
 
 void FakeVimPlugin::installHandler()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    if (!core || !core->editorManager())
+    if (!m_core || !m_core->editorManager())
         return;
-    Core::IEditor *editor = core->editorManager()->currentEditor();
+    Core::IEditor *editor = m_core->editorManager()->currentEditor();
     ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
         return;
 
-    QWidget *widget = textEditor->widget();
-    QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget);
-    if (!plainTextEdit)
-        return;
-    plainTextEdit->removeEventFilter(m_handler);
-    plainTextEdit->installEventFilter(m_handler);
-    QFont font = plainTextEdit->font();
-    //font.setFamily("Monospace");
-    m_savedCursorWidth = plainTextEdit->cursorWidth();
-    plainTextEdit->setCursorWidth(QFontMetrics(font).width(QChar('x')));
-
-    //QMainWindow mw;
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
         this, SLOT(removeHandler(QWidget *)));
+
+    m_handler->addWidget(textEditor->widget());
 }
 
 void FakeVimPlugin::removeHandler(QWidget *widget)
 {
-    widget->removeEventFilter(m_handler);
-    QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget);
-    if (!plainTextEdit)
-        return;
-    plainTextEdit->setCursorWidth(m_savedCursorWidth);
+    m_handler->removeWidget(widget);
+    Core::EditorManager::instance()->hideEditorInfoBar(
+        QLatin1String(Constants::MINI_BUFFER));
 }
 
 void FakeVimPlugin::showCommandBuffer(const QString &contents)
 {
-    //qDebug() << "CMD: " << contents;
+    Core::EditorManager::instance()->showEditorInfoBar( 
+        QLatin1String(Constants::MINI_BUFFER), contents,
+        tr("Quit FakeVim"), m_handler, SLOT(quit()));
 }
 
 

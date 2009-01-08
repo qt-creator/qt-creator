@@ -2944,8 +2944,8 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
 
     QString outertype = isTemplate ? tmplate : data.type;
     // adjust the data extract
-    if (outertype == "QWidget")
-        outertype = "QObject";
+    if (outertype == m_namespace + "QWidget")
+        outertype = m_namespace + "QObject";
 
     QString extraArgs[4];
     extraArgs[0] = "0";
@@ -2977,10 +2977,17 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
         if (lastOpened != -1 && lastClosed != -1)
             slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
         extraArgs[0] = slotNumber;
-    } else if (outertype == m_namespace + "QMap") {
-        QString nodetype = m_namespace + "QMapNode";
-        nodetype += data.type.mid(m_namespace.size() + 4);
-        //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype;
+    } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
+        QString nodetype;
+        if (m_qtVersion >= (4 << 16) + (5 << 8) + 0) {
+            nodetype  = m_namespace + "QMapNode";
+            nodetype += data.type.mid(outertype.size());
+        } else {
+            // FIXME: doesn't work for QMultiMap
+            nodetype  = data.type + "::Node"; 
+        }
+        //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
+        //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
         extraArgs[2] = sizeofTypeExpression(nodetype);
         extraArgs[3] = "(size_t)&(('" + nodetype + "'*)0)->value";
     } else if (outertype == m_namespace + "QMapNode") {
@@ -3311,6 +3318,16 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     GdbMi contents(output.data());
     GdbMi simple = contents.findChild("dumpers");
     m_namespace = contents.findChild("namespace").data();
+    GdbMi qtversion = contents.findChild("qtversion");
+    if (qtversion.children().size() == 3) {
+        m_qtVersion = (qtversion.childAt(0).data().toInt() << 16)
+                    + (qtversion.childAt(1).data().toInt() << 8)
+                    + qtversion.childAt(2).data().toInt();
+        //qDebug() << "FOUND QT VERSION: " << qtversion.toString() << m_qtVersion;
+    } else {
+        m_qtVersion = 0;
+    }
+    
     //qDebug() << "OUTPUT: " << output.toString();
     //qDebug() << "CONTENTS: " << contents.toString();
     //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
@@ -3536,8 +3553,9 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
                 //    << item.findChild("nameencoded").data()[1];
                 if (item.findChild("nameencoded").data()[0] == '1')
                     data1.name = QByteArray::fromBase64(data1.name.toUtf8());
-                if (item.findChild("nameisindex").data()[0] == '1')
-                    data1.name = '[' + data1.name + ']';
+                QString key = item.findChild("key").data();
+                if (!key.isEmpty())
+                    data1.name += " (" + key + ")";
                 setWatchDataType(data1, item.findChild("type"));
                 setWatchDataExpression(data1, item.findChild("exp"));
                 setWatchDataChildCount(data1, item.findChild("numchild"));
@@ -3951,6 +3969,9 @@ void GdbEngine::tryLoadCustomDumpers()
         sendCommand("sharedlibrary " + dotEscape(lib));
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 1");
+    } else {
+        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
+            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 #if defined(Q_OS_MAC)
@@ -3964,6 +3985,9 @@ void GdbEngine::tryLoadCustomDumpers()
         sendCommand("sharedlibrary " + dotEscape(lib));
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 1");
+    } else {
+        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
+            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 #if defined(Q_OS_WIN)
@@ -3977,6 +4001,9 @@ void GdbEngine::tryLoadCustomDumpers()
         sendCommand("sharedlibrary " + dotEscape(lib));
         if (qq->useFastStart())
             sendCommand("set stop-on-solib-events 1");
+    } else {
+        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
+            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 
