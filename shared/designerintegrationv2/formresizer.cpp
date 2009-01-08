@@ -35,7 +35,7 @@
 #include "sizehandlerect.h"
 #include "widgethostconstants.h"
 
-#include <utils/qtcassert.h>
+#include <QtCore/QDebug>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -143,7 +143,7 @@ void FormResizer::setFormWindow(QDesignerFormWindowInterface *fw)
     if (debugFormResizer)
         qDebug() << "FormResizer::setFormWindow " << fw;
     QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(m_frame->layout());
-    QTC_ASSERT(layout, return);
+    Q_ASSERT(layout);
     if (layout->count())
         delete layout->takeAt(0);
     m_formWindow = fw;
