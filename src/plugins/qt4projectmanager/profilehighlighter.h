@@ -34,8 +34,6 @@
 #ifndef PROFILEHIGHLIGHTER_H
 #define PROFILEHIGHLIGHTER_H
 
-#include "qt4projectmanagerenums.h"
-
 #include <QtCore/QtAlgorithms>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCharFormat>
