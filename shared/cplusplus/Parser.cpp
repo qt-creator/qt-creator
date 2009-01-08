@@ -3328,6 +3328,21 @@ bool Parser::parseObjCPropertyDynamic(DeclarationAST *&node)
 
 bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
 {
+    if (LA() == T_IDENTIFIER) {
+        IdentifierListAST **it = &node;
+        IdentifierListAST *id = new (_pool) IdentifierListAST;
+        id->identifier_token = consumeToken();
+        *it = id;
+        while (LA() == T_COMMA) {
+            consumeToken();
+            if (LA() == T_IDENTIFIER) {
+                it = &(*it)->next;
+                IdentifierListAST *id = new (_pool) IdentifierListAST;
+                id->identifier_token = consumeToken();
+                *it = id;
+            }
+        }
+    }
     return false;
 }
 
