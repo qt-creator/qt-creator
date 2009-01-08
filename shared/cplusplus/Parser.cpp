@@ -395,6 +395,28 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_EXPORT:
         return parseTemplateDeclaration(node);
 
+    // objc++
+    case T_AT_CLASS:
+        return parseObjCClassDeclaration(node);
+
+    case T_AT_INTERFACE:
+        return parseObjCInterfaceDeclaration(node);
+
+    case T_AT_PROTOCOL:
+        return parseObjCProtocolDeclaration(node);
+
+    case T_AT_END:
+        return parseObjCEndDeclaration(node);
+
+    case T_AT_COMPATIBILITY_ALIAS:
+        return parseObjCAliasDeclaration(node);
+
+    case T_AT_SYNTHESIZE:
+        return parseObjCPropertySynthesize(node);
+
+    case T_AT_DYNAMIC:
+        return parseObjCPropertyDynamic(node);
+
     default:
         if (LA() == T_EXTERN && LA(2) == T_TEMPLATE)
             return parseTemplateDeclaration(node);
@@ -3258,6 +3280,41 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
         node = ast;
         return true;
     }
+    return false;
+}
+
+bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCProtocolDeclaration(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCEndDeclaration(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCAliasDeclaration(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCPropertySynthesize(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCPropertyDynamic(DeclarationAST *&node)
+{
     return false;
 }
 
