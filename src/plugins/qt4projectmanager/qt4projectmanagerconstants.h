@@ -77,6 +77,7 @@ const char * const QMAKESTEP  = "trolltech.qt4projectmanager.qmake";
 const char * const MAKESTEP   = "trolltech.qt4projectmanager.make";
 const char * const GDBMACROSBUILDSTEP = "trolltech.qt4projectmanager.gdbmaros";
 const char * const QT4RUNSTEP = "trolltech.qt4projectmanager.qt4runstep";
+const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelperrunstep";
 
 // build parsers
 const char * const BUILD_PARSER_MSVC    = "BuildParser.MSVC";
