@@ -3376,6 +3376,7 @@ bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
                 *it = id;
             }
         }
+        return true;
     }
     return false;
 }
