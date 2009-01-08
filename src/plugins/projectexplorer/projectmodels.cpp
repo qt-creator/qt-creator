@@ -1144,7 +1144,7 @@ void FlatModel::foldersAboutToBeRemoved(FolderNode *parentFolder, const QList<Fo
     FolderNode *folderNode = visibleFolderNode(parentFolder);
     QList<Node *> newNodeList = childNodes(folderNode, blackList);
 
-    removed(parentFolder, newNodeList);
+    removed(folderNode, newNodeList);
     removeFromCache(staleFolders);
 }
 
