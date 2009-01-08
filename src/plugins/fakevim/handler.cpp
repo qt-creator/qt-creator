@@ -226,6 +226,7 @@ private:
     void recordInsert(int position, const QString &data);
     void recordRemove(int position, const QString &data);
     void recordRemove(int position, int length);
+    void recordMove(int position, int nestedCount);
     void undo();
     void redo();
     QStack<EditOperation> m_undoStack;
@@ -671,8 +672,8 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
         if (n > 0) {
-            m_tc.movePosition(Down);
             m_tc.movePosition(StartOfLine);
+            m_tc.movePosition(Down);
             m_tc.insertText(text);
             m_tc.movePosition(Up, MoveAnchor, n);
         } else {
@@ -680,6 +681,7 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             m_tc.insertText(text);
             m_tc.movePosition(Left);
         }
+        m_dotCommand = "p";
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
@@ -1290,6 +1292,15 @@ void FakeVimHandler::Private::redo()
     }
     m_undoStack.push(op);
 #endif
+}
+
+void FakeVimHandler::Private::recordMove(int position, int nestedCount)
+{
+    EditOperation op;
+    op.m_position = position;
+    op.m_itemCount = nestedCount;
+    m_undoStack.push(op);
+    m_redoStack.clear();
 }
 
 void FakeVimHandler::Private::recordInsert(int position, const QString &data)

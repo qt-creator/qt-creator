@@ -35,6 +35,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QHash>
 #include <QtCore/QLibrary>
+#include <QtCore/QLinkedList>
+#include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
@@ -191,6 +193,38 @@ void testIO()
     std::cerr << "std::cerr 3\n";
 }
 
+void testQLinkedList()
+{
+#if 1
+    QLinkedList<int> li;
+    QLinkedList<uint> lu;
+
+    for (int i = 0; i != 3; ++i)
+        li.append(i);
+    li.append(102);
+
+
+    lu.append(102);
+    lu.append(102);
+    lu.append(102);
+
+    QLinkedList<qulonglong> l;
+    l.append(42);
+    l.append(43);
+    l.append(44);
+    l.append(45);
+
+    QLinkedList<Foo> f;
+    f.append(Foo(1));
+    f.append(Foo(2));
+#endif
+
+    QLinkedList<std::string> v;
+    v.push_back("aa");
+    v.push_back("bb");
+    v.push_back("cc");
+    v.push_back("dd");
+ }
 
 void testQList()
 {
@@ -880,6 +914,7 @@ int main(int argc, char *argv[])
 
     testPlugin();
     testQList();
+    testQLinkedList();
     testNamespace();
     //return 0;
     testQByteArray();
