@@ -33,6 +33,7 @@
 
 #include "deployhelper.h"
 #include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <QDebug>
 #include <QDir>
@@ -183,7 +184,7 @@ void DeployHelperRunStep::readyRead()
 
 QString DeployHelperRunStep::name()
 {
-    return "trolltech.qt4projectmanager.deployhelperrunstep";
+    return Constants::DEPLOYHELPERRUNSTEP;
 }
 
 QString DeployHelperRunStep::displayName()

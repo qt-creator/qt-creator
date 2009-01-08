@@ -68,6 +68,7 @@ Parser::Parser(TranslationUnit *unit)
       _tokenIndex(1),
       _templateArguments(0),
       _qtMocRunEnabled(false),
+      _objcEnabled(false),
       _inFunctionBody(false)
 { }
 
@@ -2532,7 +2533,16 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
+    case T_AT_ENCODE:
+    case T_AT_PROTOCOL:
+    case T_AT_SELECTOR:
+    case T_AT_STRING_LITERAL:
+        return parseObjCExpression(node);
+
     default: {
+        if (_objcEnabled && LA() == T_LBRACKET)
+            return parseObjCExpression(node);
+
         unsigned startOfName = cursor();
         NameAST *name = 0;
         if (parseName(name)) {
@@ -3296,17 +3306,17 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
     return true;
 }
 
-bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&)
 {
     if (LA() != T_AT_INTERFACE)
         return false;
 
-    unsigned interface_token = consumeToken();
+    /*unsigned interface_token = */ consumeToken();
     unsigned interface_name_token = 0;
     match(T_IDENTIFIER, &interface_name_token);
     if (LA() == T_LPAREN) {
         // category interface
-        unsigned lparen_token = consumeToken();
+        /*unsigned lparen_token = */ consumeToken();
         unsigned catagory_name_token = 0;
         if (LA() == T_IDENTIFIER)
             catagory_name_token = consumeToken();
@@ -3335,27 +3345,27 @@ bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&node)
     return false;
 }
 
-bool Parser::parseObjCProtocolDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCProtocolDeclaration(DeclarationAST *&)
 {
     return false;
 }
 
-bool Parser::parseObjCEndDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCEndDeclaration(DeclarationAST *&)
 {
     return false;
 }
 
-bool Parser::parseObjCAliasDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCAliasDeclaration(DeclarationAST *&)
 {
     return false;
 }
 
-bool Parser::parseObjCPropertySynthesize(DeclarationAST *&node)
+bool Parser::parseObjCPropertySynthesize(DeclarationAST *&)
 {
     return false;
 }
 
-bool Parser::parseObjCPropertyDynamic(DeclarationAST *&node)
+bool Parser::parseObjCPropertyDynamic(DeclarationAST *&)
 {
     return false;
 }
@@ -3376,6 +3386,7 @@ bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
                 *it = id;
             }
         }
+        return true;
     }
     return false;
 }
@@ -3418,15 +3429,16 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
 
     default: {
         DeclarationAST *declaration = 0;
-        parseDeclaration(declaration);
+        if (parseDeclaration(declaration))
+            return true;
     } // default
 
     } // switch
 
-    return true;
+    return false;
 }
 
-bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&ast)
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&)
 {
     return false;
 }
@@ -3437,8 +3449,7 @@ bool Parser::parseObjCMethodPrototype()
         return false;
 
     // instance or class method?
-    unsigned method_type_token = consumeToken();
-
+    /*unsigned method_type_token = */ consumeToken();
 
     SpecifierAST *attributes = 0, **attr = &attributes;
     while (parseAttributeSpecifier(*attr))
@@ -3447,6 +3458,135 @@ bool Parser::parseObjCMethodPrototype()
     return false;
 }
 
+bool Parser::parseObjCExpression(ExpressionAST *&node)
+{
+    switch (LA()) {
+    case T_LBRACKET:
+        return parseObjCMessageExpression(node);
 
+    case T_AT_STRING_LITERAL:
+        return parseObjCStringLiteral(node);
+
+    case T_AT_ENCODE:
+        return parseObjCEncodeExpression(node);
+
+    case T_AT_PROTOCOL:
+        return parseObjCProtocolExpression(node);
+
+    case T_AT_SELECTOR:
+        return parseObjCSelectorExpression(node);
+    }
+    return false;
+}
+
+bool Parser::parseObjCMessageExpression(ExpressionAST *&)
+{
+    if (LA() != T_LBRACKET)
+        return false;
+
+    /*unsigned lbracket_token = */ consumeToken();
+    ExpressionAST *receiver = 0;
+    parseObjCMessageReceiver(receiver);
+    parseObjCMessageArguments();
+    unsigned rbracket_token = 0;
+    match(T_RBRACKET, &rbracket_token);
+    return true;
+}
+
+bool Parser::parseObjCStringLiteral(ExpressionAST *&)
+{
+    if (LA() != T_AT_STRING_LITERAL)
+        return false;
+
+    do {
+        consumeToken();
+    } while (LA() == T_AT_STRING_LITERAL);
+
+    return true;
+}
+
+bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_ENCODE)
+        return false;
+
+    /*unsigned encode_token = */ consumeToken();
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    SpecifierAST *type_specifier = 0;
+    parseSimpleTypeSpecifier(type_specifier);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_PROTOCOL)
+        return false;
+
+    /*unsigned protocol_token = */ consumeToken();
+    unsigned protocol_name_token = 0, lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    match(T_IDENTIFIER, &protocol_name_token);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_SELECTOR)
+        return false;
+
+    /*unsigned selector_token = */ consumeToken();
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    while (LA(1) == T_IDENTIFIER && LA(2) == T_COLON) {
+        /*unsigned identifier_token = */ consumeToken();
+        /*unsigned colon_token = */ consumeToken();
+    }
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
+{
+    // ### expression or simple-type-specifier.
+    return parseExpression(node);
+}
+
+bool Parser::parseObjCMessageArguments()
+{
+    if (LA() != T_IDENTIFIER && LA() != T_COLON)
+        return false;
+
+    unsigned selector_name_token = 0;
+
+    if (LA() == T_IDENTIFIER)
+        selector_name_token = consumeToken();
+
+    if (LA() == T_COLON) {
+        /*unsigned colon_token = */ consumeToken();
+
+        ExpressionAST *expr = 0;
+        parseAssignmentExpression(expr);
+
+        while ((LA() == T_IDENTIFIER && LA(2) == T_COLON) || LA() == T_COLON) {
+            if (LA() == T_IDENTIFIER)
+                consumeToken();
+
+            if (LA() == T_COLON)
+                consumeToken();
+
+            parseAssignmentExpression(expr);
+        }
+
+        while (LA() == T_COMMA) {
+            consumeToken();
+            parseAssignmentExpression(expr);
+        }
+    }
+
+    return true;
+}
 
 CPLUSPLUS_END_NAMESPACE
