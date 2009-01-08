@@ -1078,7 +1078,8 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
             RunControl *control = runner->run(m_delayedRunConfiguration, m_runMode);
             m_outputPane->createNewOutputWindow(control);
-            m_outputPane->popup(false);
+            if (m_runMode == ProjectExplorer::Constants::RUNMODE)
+                m_outputPane->popup(false);
             m_outputPane->showTabFor(control);
 
             connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
