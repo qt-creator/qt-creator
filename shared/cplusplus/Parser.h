@@ -214,12 +214,22 @@ public:
 
     bool parseObjCIdentifierList(IdentifierListAST *&node);
 
-    bool parseObjCPropertyDeclaration(DeclarationAST *&ast);
+    bool parseObjCPropertyDeclaration(DeclarationAST *&node);
     bool parseObjCProtocolRefs();
     bool parseObjCClassInstanceVariables();
     bool parseObjCInterfaceMemberDeclaration();
     bool parseObjCInterfaceDeclList();
     bool parseObjCMethodPrototype();
+
+    bool parseObjCExpression(ExpressionAST *&node);
+    bool parseObjCMessageExpression(ExpressionAST *&node);
+    bool parseObjCStringLiteral(ExpressionAST *&node);
+    bool parseObjCEncodeExpression(ExpressionAST *&node);
+    bool parseObjCProtocolExpression(ExpressionAST *&node);
+    bool parseObjCSelectorExpression(ExpressionAST *&node);
+
+    bool parseObjCMessageReceiver(ExpressionAST *&node);
+    bool parseObjCMessageArguments();
 
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
@@ -245,8 +255,8 @@ private:
     bool switchTemplateArguments(bool templateArguments);
     bool blockErrors(bool block);
 
-    inline const Token &tok() const
-    { return _translationUnit->tokenAt(_tokenIndex); }
+    inline const Token &tok(int i = 1) const
+    { return _translationUnit->tokenAt(_tokenIndex + i - 1); }
 
     inline int LA(int n = 1) const
     { return _translationUnit->tokenKind(_tokenIndex + n - 1); }
@@ -267,6 +277,7 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;
+    bool _objcEnabled: 1;
     bool _inFunctionBody: 1;
 
 private:
