@@ -98,7 +98,7 @@ enum SubSubMode
     NoSubSubMode,
     FtSubSubMode,       // used for f, F, t, T
     MarkSubSubMode,     // used for m
-    BackTickSubSubMode, // used for ` 
+    BackTickSubSubMode, // used for `
     TickSubSubMode      // used for '
 };
 
@@ -146,11 +146,11 @@ private:
     static int control(int key) { return key + 256; }
 
     void init();
-    void handleKey(int key, const QString &text);
-    void handleInsertMode(int key, const QString &text);
-    void handleCommandMode(int key, const QString &text);
-    void handleRegisterMode(int key, const QString &text);
-    void handleMiniBufferModes(int key, const QString &text);
+    bool handleKey(int key, const QString &text);
+    bool handleInsertMode(int key, const QString &text);
+    bool handleCommandMode(int key, const QString &text);
+    bool handleRegisterMode(int key, const QString &text);
+    bool handleMiniBufferModes(int key, const QString &text);
     void finishMovement(const QString &text = QString());
     void search(const QString &needle, bool forward);
 
@@ -214,7 +214,7 @@ private:
     bool isSearchMode() const
         { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
     int m_gflag;  // whether current command started with 'g'
-    
+
     QString m_commandBuffer;
     QString m_currentFileName;
     QString m_currentMessage;
@@ -312,17 +312,18 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
     return true;
 }
 
-void FakeVimHandler::Private::handleKey(int key, const QString &text)
+bool FakeVimHandler::Private::handleKey(int key, const QString &text)
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
     if (m_mode == InsertMode)
-        handleInsertMode(key, text);
-    else if (m_mode == CommandMode)
-        handleCommandMode(key, text);
-    else if (m_mode == ExMode || m_mode == SearchForwardMode
+        return handleInsertMode(key, text);
+    if (m_mode == CommandMode)
+        return handleCommandMode(key, text);
+    if (m_mode == ExMode || m_mode == SearchForwardMode
             || m_mode == SearchBackwardMode)
-        handleMiniBufferModes(key, text);
+        return handleMiniBufferModes(key, text);
+    return false;
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
@@ -417,11 +418,11 @@ void FakeVimHandler::Private::updateMiniBuffer()
     } else if (m_mode == InsertMode) {
         msg = "-- INSERT --";
     } else {
-        if (m_mode == SearchForwardMode) 
+        if (m_mode == SearchForwardMode)
             msg += '/';
-        else if (m_mode == SearchBackwardMode) 
+        else if (m_mode == SearchBackwardMode)
             msg += '?';
-        else if (m_mode == ExMode) 
+        else if (m_mode == ExMode)
             msg += ':';
         foreach (QChar c, m_commandBuffer) {
             if (c.unicode() < 32) {
@@ -456,7 +457,7 @@ void FakeVimHandler::Private::showMessage(const QString &msg)
     updateMiniBuffer();
 }
 
-void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
+bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
 {
     Q_UNUSED(text)
 
@@ -742,10 +743,12 @@ void FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
             leaveVisualMode();
     } else {
         qDebug() << "Ignored" << key << text;
-    }    
+        return false;
+    }
+    return true;
 }
 
-void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
+bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
 {
     if (key == Key_Escape) {
         // start with '1', as one instance was already physically inserted
@@ -789,14 +792,17 @@ void FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
         m_lastInsertion.clear();
     } else if (key == Key_Backspace) {
         finishMovement();
-    } else {
+    } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         m_tc.insertText(text);
+    } else {
+        return false;
     }
     updateMiniBuffer();
+    return true;
 }
 
-void FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text)
+bool FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text)
 {
     Q_UNUSED(text)
 
@@ -848,7 +854,7 @@ void FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text
     } else if (key == Key_Down && m_mode == ExMode) {
         if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
             ++m_commandHistoryIndex;
-            m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex); 
+            m_commandBuffer = m_commandHistory.at(m_commandHistoryIndex);
             updateMiniBuffer();
         }
     } else if (key == Key_Tab) {
@@ -858,6 +864,7 @@ void FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text
         m_commandBuffer += QChar(key);
         updateMiniBuffer();
     }
+    return true;
 }
 
 // 1 based.
@@ -904,7 +911,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     }
     // not parsed
     cmd = c + cmd;
-    return -1; 
+    return -1;
 }
 
 QTextCursor FakeVimHandler::Private::selectRange(int beginLine, int endLine)
@@ -932,7 +939,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     int line = readLineCode(cmd);
     if (line != -1)
         beginLine = line;
-    
+
     if (cmd.startsWith(',')) {
         cmd = cmd.mid(1);
         line = readLineCode(cmd);
