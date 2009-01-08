@@ -80,6 +80,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool objcEnabled() const;
+    void setObjcEnabled(bool onoff);
+
     void scan(Token *tok);
 
     inline void operator()(Token *tok)
@@ -112,6 +115,7 @@ private:
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
     static int classify(const char *string, int length, bool q);
+    static int classifyObjCAtKeyword(const char *s, int n);
     static int classifyOperator(const char *string, int length);
 
     inline void yyinp()
@@ -143,6 +147,7 @@ private:
             unsigned _scanKeywords: 1;
             unsigned _scanAngleStringLiteralTokens: 1;
             unsigned _qtMocRunEnabled: 1;
+            unsigned _objcEnabled: 1;
         };
     };
     unsigned _currentLine;
