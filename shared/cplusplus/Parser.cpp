@@ -3285,7 +3285,15 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 {
-    return false;
+    if (LA() != T_AT_CLASS)
+        return false;
+
+    ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
+    ast->class_token = consumeToken();
+    parseObjCIdentifierList(ast->identifier_list);
+    match(T_SEMICOLON, &ast->semicolon_token);
+    node = ast;
+    return true;
 }
 
 bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&node)
@@ -3314,6 +3322,11 @@ bool Parser::parseObjCPropertySynthesize(DeclarationAST *&node)
 }
 
 bool Parser::parseObjCPropertyDynamic(DeclarationAST *&node)
+{
+    return false;
+}
+
+bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
 {
     return false;
 }

@@ -185,6 +185,10 @@ public:
     virtual bool visit(WhileStatementAST *) { return true; }
     virtual bool visit(QtMethodAST *) { return true; }
 
+    // ObjC++
+    virtual bool visit(IdentifierListAST *) { return true; }
+    virtual bool visit(ObjCClassDeclarationAST *) { return true; }
+
 private:
     Control *_control;
 };

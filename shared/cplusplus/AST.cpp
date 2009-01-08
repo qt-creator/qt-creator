@@ -3864,4 +3864,71 @@ unsigned WhileStatementAST::lastToken() const
     return while_token + 1;
 }
 
+// ObjC++
+unsigned IdentifierListAST::firstToken() const
+{
+    return identifier_token;
+}
+
+unsigned IdentifierListAST::lastToken() const
+{
+    for (const IdentifierListAST *it = this; it; it = it->next) {
+        if (! it->next && it->identifier_token) {
+            return it->identifier_token + 1;
+        }
+    }
+    // ### assert?
+    return 0;
+}
+
+IdentifierListAST *IdentifierListAST::clone(MemoryPool *pool) const
+{
+    IdentifierListAST *ast = new (pool) IdentifierListAST;
+    ast->identifier_token = identifier_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
+void IdentifierListAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+}
+
+unsigned ObjCClassDeclarationAST::firstToken() const
+{
+    return class_token;
+}
+
+unsigned ObjCClassDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+
+    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->identifier_token)
+            return it->identifier_token + 1;
+    }
+
+    return class_token + 1;
+}
+
+ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
+{
+    ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
+    ast->class_token = class_token;
+    if (identifier_list)
+        ast->identifier_list = identifier_list->clone(pool);
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
+void ObjCClassDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+}
+
+
 CPLUSPLUS_END_NAMESPACE

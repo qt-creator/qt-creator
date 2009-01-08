@@ -212,6 +212,8 @@ public:
     bool parseObjCPropertySynthesize(DeclarationAST *&node);
     bool parseObjCPropertyDynamic(DeclarationAST *&node);
 
+    bool parseObjCIdentifierList(IdentifierListAST *&node);
+
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
 

@@ -167,6 +167,10 @@ class UsingDirectiveAST;
 class WhileStatementAST;
 class QtMethodAST;
 
+// ObjC++
+class IdentifierListAST;
+class ObjCClassDeclarationAST;
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 

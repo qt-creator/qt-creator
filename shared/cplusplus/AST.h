@@ -1928,6 +1928,41 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+
+// ObjC++
+class CPLUSPLUS_EXPORT IdentifierListAST: public AST
+{
+public:
+    unsigned identifier_token;
+    IdentifierListAST *next;
+
+public:
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual IdentifierListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned class_token;
+    IdentifierListAST *identifier_list;
+    unsigned semicolon_token;
+
+public:
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCClassDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER
 
