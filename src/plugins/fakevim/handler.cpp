@@ -299,7 +299,7 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
         key += 32;
     if ((keyEvent->modifiers() & Qt::ControlModifier) != 0)
         key += 256;
-    handleKey(key, keyEvent->text());
+    bool handled = handleKey(key, keyEvent->text());
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEol() && m_mode == CommandMode);
@@ -309,7 +309,7 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
 
     EDITOR(setTextCursor(m_tc));
     EDITOR(ensureCursorVisible());
-    return true;
+    return handled;
 }
 
 bool FakeVimHandler::Private::handleKey(int key, const QString &text)
@@ -669,16 +669,18 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_tc.movePosition(StartOfLine, MoveAnchor);
         m_tc.movePosition(Left, MoveAnchor, 1);
         m_tc.insertText("\n");
-    } else if (key == 'p') {
+    } else if (key == 'p' || key == 'P') {
         QString text = m_registers[m_register];
         int n = text.count(QChar(ParagraphSeparator));
         if (n > 0) {
             m_tc.movePosition(StartOfLine);
-            m_tc.movePosition(Down);
+            if (key == 'p')
+                m_tc.movePosition(Down);
             m_tc.insertText(text);
             m_tc.movePosition(Up, MoveAnchor, n);
         } else {
-            m_tc.movePosition(Right);
+            if (key == 'p')
+                m_tc.movePosition(Right);
             m_tc.insertText(text);
             m_tc.movePosition(Left);
         }
