@@ -136,6 +136,14 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_mess
 
     connect(m_installHandlerAction, SIGNAL(triggered()),
         this, SLOT(installHandler()));
+
+    // EditorManager
+    QObject *editorManager = m_core->editorManager();
+    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+        this, SLOT(editorAboutToClose(Core::IEditor*)));
+    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+        this, SLOT(editorOpened(Core::IEditor*)));
+
     return true;
 }
 
@@ -145,14 +153,12 @@ void FakeVimPlugin::extensionsInitialized()
 
 void FakeVimPlugin::installHandler()
 {
-    if (!m_core || !m_core->editorManager())
-        return;
+    if (Core::IEditor *editor = m_core->editorManager()->currentEditor())
+        installHandler(editor->widget());
+}
 
-    Core::IEditor *editor = m_core->editorManager()->currentEditor();
-    ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
-    if (!textEditor)
-        return;
-
+void FakeVimPlugin::installHandler(QWidget *widget)
+{
     connect(m_handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(showExtraInformation(QString)));
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
@@ -160,11 +166,9 @@ void FakeVimPlugin::installHandler()
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
         this, SLOT(removeHandler(QWidget *)));
 
-    m_handler->addWidget(textEditor->widget());
+    m_handler->addWidget(widget);
 
-    BaseTextEditor *baseTextEditor =
-        qobject_cast<BaseTextEditor *>(editor->widget());
-
+    BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(widget);
     if (baseTextEditor) {
         using namespace TextEditor;
         using namespace FakeVim::Constants;
@@ -184,9 +188,21 @@ void FakeVimPlugin::installHandler()
 
 void FakeVimPlugin::removeHandler(QWidget *widget)
 {
-    m_handler->removeWidget(widget);
+    //m_handler->removeWidget(widget);
     Core::EditorManager::instance()->hideEditorInfoBar(
         QLatin1String(Constants::MINI_BUFFER));
+}
+
+void FakeVimPlugin::editorOpened(Core::IEditor *editor)
+{
+    //qDebug() << "OPENING: " << editor << editor->widget();
+    //installHandler(editor->widget()); 
+}
+
+void FakeVimPlugin::editorAboutToClose(Core::IEditor *editor)
+{
+    //qDebug() << "CLOSING: " << editor << editor->widget();
+    removeHandler(editor->widget()); 
 }
 
 void FakeVimPlugin::showCommandBuffer(const QString &contents)

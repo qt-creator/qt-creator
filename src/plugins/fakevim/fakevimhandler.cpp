@@ -291,8 +291,12 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
     int key = ev->key();
 
+    // FIXME
     if (m_mode == PassingMode && key != Qt::Key_Control && key != Qt::Key_Shift) {
-        enterCommandMode();
+        if (key == ',') { // use ',,' to leave, too.
+            quit();
+            return true;
+        }
         return false;
     }
 
@@ -1109,6 +1113,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 info += key + ": " + m_config.value(key) + "\n";
             emit q->extraInformationChanged(info);
         }
+        enterCommandMode();
+        updateMiniBuffer();
     } else {
         showRedMessage("E492: Not an editor command: " + cmd0);
     }
