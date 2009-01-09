@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "handler.h"
+#include "fakevimhandler.h"
 
 #include "fakevimconstants.h"
 

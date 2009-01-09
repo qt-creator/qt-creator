@@ -11,10 +11,10 @@ include(../../plugins/texteditor/texteditor.pri)
 QT += gui
 
 SOURCES += \
-    handler.cpp \
+    fakevimhandler.cpp \
     fakevimplugin.cpp
 
 HEADERS += \
-    handler.h \
-    fakevimplugin.h \
-    fakevimconstants.h
+    fakevimconstants.h \
+    fakevimhandler.h \
+    fakevimplugin.h

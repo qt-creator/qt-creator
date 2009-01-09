@@ -84,7 +84,7 @@ private slots:
     void removeHandler(QWidget *widget);
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
-    void initializeConfiguaration(QHash<QString, QString> *config);
+    void initializeConfiguration(QHash<QString, QString> *config);
 
 private:
     FakeVimHandler *m_handler;

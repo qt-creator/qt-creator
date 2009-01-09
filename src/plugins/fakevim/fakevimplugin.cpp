@@ -33,7 +33,8 @@
 
 #include "fakevimplugin.h"
 
-#include "handler.h"
+#include "fakevimconstants.h"
+#include "fakevimhandler.h"
 
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/coreconstants.h>
@@ -181,7 +182,7 @@ void FakeVimPlugin::showExtraInformation(const QString &text)
     QMessageBox::information(0, tr("FakeVim Information"), text);
 }
 
-void FakeVimPlugin::initializeConfiguaration(QHash<QString, QString> *config)
+void FakeVimPlugin::initializeConfiguration(QHash<QString, QString> *config)
 {
     qDebug() << "INIT CONFIG";
    //set shiftwidth=4
