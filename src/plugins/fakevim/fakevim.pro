@@ -16,4 +16,5 @@ SOURCES += \
 
 HEADERS += \
     handler.h \
-    fakevimplugin.h
+    fakevimplugin.h \
+    fakevimconstants.h

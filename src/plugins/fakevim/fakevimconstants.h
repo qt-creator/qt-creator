@@ -31,55 +31,23 @@
 **
 ***************************************************************************/
 
-#ifndef FAKEVIM_HANDLER_H
-#define FAKEVIM_HANDLER_H
-
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QString;
-class QEvent;
-template <class Key, class Value> class QHash;
-QT_END_NAMESPACE
+#ifndef FAKEVIMCONSTANTS_H
+#define FAKEVIMCONSTANTS_H
 
 namespace FakeVim {
-namespace Internal {
+namespace Constants {
 
-class FakeVimHandler : public QObject
-{
-    Q_OBJECT
+const char * const ConfigOn          = "on";
+const char * const ConfigOff         = "off";
 
-public:
-    FakeVimHandler(QObject *parent = 0);
-    ~FakeVimHandler();
+const char * const ConfigStartOfLine = "startofline";
+const char * const ConfigTabStop     = "tabstop";
+const char * const ConfigSmartTab    = "smarttab";
+const char * const ConfigShiftWidth  = "shiftwidth";
+const char * const ConfigExpandTab   = "expandtab";
 
-public slots:
-    // The same handler can be installed on several widgets
-    // FIXME: good idea?
-    void addWidget(QWidget *widget);
-    void removeWidget(QWidget *widget);
-
-    // This executes an "ex" style command taking context
-    // information from \p widget;
-    void handleCommand(QWidget *widget, const QString &cmd);
-    void quit();
-
-signals:
-    void commandBufferChanged(const QString &msg);
-    void statusDataChanged(const QString &msg);
-    void extraInformationChanged(const QString &msg);
-    void quitRequested(QWidget *);
-    void configurationNeeded(QHash<QString, QString> *config);
-
-private:
-    bool eventFilter(QObject *ob, QEvent *ev);
-
-    class Private;
-    friend class Private;
-    Private *d;
-};
-
-} // namespace Internal
+} // namespace Constants
 } // namespace FakeVim
 
-#endif // FAKEVIM_H
+#endif // FAKEVIMCONSTANTS_H
+

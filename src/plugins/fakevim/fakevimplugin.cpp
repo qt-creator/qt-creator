@@ -156,6 +156,8 @@ void FakeVimPlugin::installHandler()
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
         this, SLOT(removeHandler(QWidget *)));
+    connect(m_handler, SIGNAL(configurationNeeded(QHash<QString, QString> *)),
+        this, SLOT(initializeConfiguration(QHash<QString, QString> *)));
 
     m_handler->addWidget(textEditor->widget());
 }
@@ -177,6 +179,14 @@ void FakeVimPlugin::showCommandBuffer(const QString &contents)
 void FakeVimPlugin::showExtraInformation(const QString &text)
 {
     QMessageBox::information(0, tr("FakeVim Information"), text);
+}
+
+void FakeVimPlugin::initializeConfiguaration(QHash<QString, QString> *config)
+{
+    qDebug() << "INIT CONFIG";
+   //set shiftwidth=4
+   //set expandtab
+   //set smarttab
 }
 
 

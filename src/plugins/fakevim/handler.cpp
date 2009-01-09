@@ -33,6 +33,8 @@
 
 #include "handler.h"
 
+#include "fakevimconstants.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -53,6 +55,7 @@
 
 
 using namespace FakeVim::Internal;
+using namespace FakeVim::Constants;
 
 #define StartOfLine    QTextCursor::StartOfLine
 #define EndOfLine      QTextCursor::EndOfLine
@@ -113,9 +116,6 @@ enum VisualMode
     VisualLineMode,
     VisualBlockMode,
 };
-
-static const QString ConfigStartOfLine = "startofline";
-static const QString ConfigOn = "on";
 
 struct EditOperation
 {
@@ -282,6 +282,12 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_visualMode = NoVisualMode;
 
     m_config[ConfigStartOfLine] = ConfigOn;
+    m_config[ConfigTabStop]     = 8;
+    m_config[ConfigSmartTab]    = ConfigOff;
+    m_config[ConfigShiftWidth]  = 8;
+    m_config[ConfigExpandTab]   = ConfigOff;
+
+    emit q->configurationNeeded(&m_config);
 }
 
 bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
