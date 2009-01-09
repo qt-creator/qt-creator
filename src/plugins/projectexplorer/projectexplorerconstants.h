@@ -56,6 +56,8 @@ const char * const CLEANSESSION         = "ProjectExplorer.CleanSession";
 const char * const BUILDCONFIGURATIONMENU = "ProjectExplorer.BuildConfigurationMenu";
 const char * const CANCELBUILD          = "ProjectExplorer.CancelBuild";
 const char * const RUNCONFIGURATIONMENU = "ProjectExplorer.RunConfigurationMenu";
+const char * const RUN                  = "ProjectExplorer.Run";
+const char * const STOP                 = "ProjectExplorer.Stop";
 const char * const DEBUG                = "ProjectExplorer.Debug";
 const char * const DEPENDENCIES         = "ProjectExplorer.Dependencies";
 const char * const FINDINALLPROJECTS    = "ProjectExplorer.FindInAllProjects";
@@ -67,7 +69,7 @@ const char * const OPENFILE             = "ProjectExplorer.OpenFile";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 
-//Run modes
+// Run modes
 const char * const RUNMODE              = "ProjectExplorer.RunMode";
 const char * const DEBUGMODE            = "ProjectExplorer.DebugMode";
 
@@ -75,8 +77,6 @@ const char * const DEBUGMODE            = "ProjectExplorer.DebugMode";
 const int          P_ACTION_RUN            = 100;
 const int          P_ACTION_DEBUG          = 90;
 const int          P_ACTION_BUILDSESSION   = 80;
-
-const char * const RUN                  = "ProjectExplorer.Run";
 
 // context
 const char * const C_PROJECTEXPLORER    = "Project Explorer";

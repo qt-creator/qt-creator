@@ -200,7 +200,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
-    m_outputPane = new OutputPane();
+    m_outputPane = new OutputPane(m_core);
     addAutoReleasedObject(m_outputPane);
     connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
             m_outputPane, SLOT(projectRemoved()));

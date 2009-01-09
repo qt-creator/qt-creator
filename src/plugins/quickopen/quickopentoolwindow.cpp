@@ -261,7 +261,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
      m_configureAction(new QAction(tr("Configure..."), this)),
      m_fileLineEdit(new Core::Utils::FancyLineEdit)
 {
-    // Explcitly hide the completion list popup.
+    // Explicitly hide the completion list popup.
     m_completionList->hide();
 
     setWindowTitle("Locate...");

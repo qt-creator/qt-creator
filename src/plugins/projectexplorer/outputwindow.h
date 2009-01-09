@@ -48,6 +48,10 @@ QT_BEGIN_NAMESPACE
 class QTabWidget;
 QT_END_NAMESPACE
 
+namespace Core {
+class ICore;
+}
+
 namespace ProjectExplorer {
 
 class RunControl;
@@ -61,7 +65,7 @@ class OutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    OutputPane();
+    OutputPane(Core::ICore *core);
     ~OutputPane();
 
     QWidget *outputWidget(QWidget *);
@@ -77,9 +81,9 @@ public:
     void appendOutput(const QString &out);
 
     // ApplicationOutputspecifics
-    void createNewOutputWindow(RunControl *);
-    void appendOutput(RunControl *, const QString &out);
-    void showTabFor(RunControl *);
+    void createNewOutputWindow(RunControl *rc);
+    void appendOutput(RunControl *rc, const QString &out);
+    void showTabFor(RunControl *rc);
     
 public slots:
     void projectRemoved();
@@ -99,16 +103,17 @@ private:
     QWidget *m_mainWidget;
     QTabWidget *m_tabWidget;
     QHash<RunControl *, OutputWindow *> m_outputWindows;
+    QAction *m_stopAction;
 //    QToolButton *m_insertLineButton;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
 };
 
 
-
 class OutputWindow : public QPlainTextEdit
 {
     Q_OBJECT
+
 public:
     OutputWindow(QWidget *parent = 0);
     ~OutputWindow();
