@@ -3303,21 +3303,21 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
     return false;
 }
 
-bool Parser::parseObjCClassImplementation(DeclarationAST *&node)
+bool Parser::parseObjCClassImplementation(DeclarationAST *&)
 {
     if (LA() != T_AT_IMPLEMENTATION)
         return false;
 
-    unsigned implementation_token = consumeToken();
+    /*unsigned implementation_token = */ consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
     if (LA() == T_COLON) {
-        unsigned colon_token = consumeToken();
+        /*unsigned colon_token = */ consumeToken();
         unsigned superclass_name_token = 0;
         match(T_IDENTIFIER, &superclass_name_token);
     } else if (LA() == T_LPAREN) {
-        unsigned lparen_token = consumeToken();
+        /*unsigned lparen_token = */ consumeToken();
         unsigned category_name_token = 0;
         if (LA() == T_IDENTIFIER)
             category_name_token = consumeToken();
@@ -3704,7 +3704,7 @@ bool Parser::parseObjCMethodSignature()
     if (LA() != T_PLUS && LA() != T_MINUS)
         return false;
 
-    unsigned method_type_token = consumeToken();
+    /*unsigned method_type_token = */ consumeToken();
     parseObjCTypeName();
 
     bool first = true;
