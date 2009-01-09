@@ -146,6 +146,7 @@ public:
     void handleExCommand(const QString &cmd);
 
 private:
+    friend class FakeVimHandler;
     static int shift(int key) { return key + 32; }
     static int control(int key) { return key + 256; }
 
@@ -187,7 +188,6 @@ private:
     int readLineCode(QString &cmd);
     QTextCursor selectRange(int beginLine, int endLine);
 
-public:
     void setWidget(QWidget *ob);
     void enterInsertMode();
     void enterCommandMode();
@@ -203,7 +203,6 @@ public:
     QPlainTextEdit *m_plaintextedit;
     bool m_wasReadOnly; // saves read-only state of document
 
-private:
     FakeVimHandler *q;
     Mode m_mode;
     SubMode m_submode;
@@ -282,12 +281,10 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_visualMode = NoVisualMode;
 
     m_config[ConfigStartOfLine] = ConfigOn;
-    m_config[ConfigTabStop]     = 8;
+    m_config[ConfigTabStop]     = "8";
     m_config[ConfigSmartTab]    = ConfigOff;
-    m_config[ConfigShiftWidth]  = 8;
+    m_config[ConfigShiftWidth]  = "8";
     m_config[ConfigExpandTab]   = ConfigOff;
-
-    emit q->configurationNeeded(&m_config);
 }
 
 bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
@@ -849,6 +846,10 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     } else if (key == Key_PageUp || key == control('b')) {
         m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
+    } else if (key == Key_Tab && m_config[ConfigExpandTab] == ConfigOn) {
+        QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
+        m_lastInsertion.append(str);
+        m_tc.insertText(str);
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         m_tc.insertText(text);
@@ -1555,6 +1556,11 @@ void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
 {
     d->setWidget(widget);
     d->handleExCommand(cmd);
+}
+
+void FakeVimHandler::setConfigValue(const QString &key, const QString &value)
+{
+    d->m_config[key] = value;
 }
 
 void FakeVimHandler::quit()

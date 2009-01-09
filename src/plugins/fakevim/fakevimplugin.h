@@ -40,9 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QCursor;
-class QAbstractItemView;
-template <class Key, class Value> class QHash;
 QT_END_NAMESPACE
 
 
@@ -84,7 +81,6 @@ private slots:
     void removeHandler(QWidget *widget);
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
-    void initializeConfiguration(QHash<QString, QString> *config);
 
 private:
     FakeVimHandler *m_handler;

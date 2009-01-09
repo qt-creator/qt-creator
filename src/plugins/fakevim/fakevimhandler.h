@@ -39,7 +39,6 @@
 QT_BEGIN_NAMESPACE
 class QString;
 class QEvent;
-template <class Key, class Value> class QHash;
 QT_END_NAMESPACE
 
 namespace FakeVim {
@@ -63,13 +62,13 @@ public slots:
     // information from \p widget;
     void handleCommand(QWidget *widget, const QString &cmd);
     void quit();
+    void setConfigValue(const QString &key, const QString &value);
 
 signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void quitRequested(QWidget *);
-    void configurationNeeded(QHash<QString, QString> *config);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

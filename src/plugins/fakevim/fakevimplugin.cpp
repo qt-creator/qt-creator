@@ -51,6 +51,8 @@
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
 
@@ -67,7 +69,6 @@
 
 
 using namespace FakeVim::Internal;
-//using namespace FakeVim::Constants;
 using namespace TextEditor;
 using namespace Core;
 using namespace ProjectExplorer;
@@ -146,6 +147,7 @@ void FakeVimPlugin::installHandler()
 {
     if (!m_core || !m_core->editorManager())
         return;
+
     Core::IEditor *editor = m_core->editorManager()->currentEditor();
     ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
@@ -157,10 +159,27 @@ void FakeVimPlugin::installHandler()
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
         this, SLOT(removeHandler(QWidget *)));
-    connect(m_handler, SIGNAL(configurationNeeded(QHash<QString, QString> *)),
-        this, SLOT(initializeConfiguration(QHash<QString, QString> *)));
 
     m_handler->addWidget(textEditor->widget());
+
+    BaseTextEditor *baseTextEditor =
+        qobject_cast<BaseTextEditor *>(editor->widget());
+
+    if (baseTextEditor) {
+        using namespace TextEditor;
+        using namespace FakeVim::Constants;
+        TabSettings settings = baseTextEditor->tabSettings();
+        m_handler->setConfigValue(ConfigTabStop,
+            QString::number(settings.m_tabSize));
+        m_handler->setConfigValue(ConfigShiftWidth,
+            QString::number(settings.m_indentSize));
+        m_handler->setConfigValue(ConfigExpandTab,
+            settings.m_spacesForTabs ? ConfigOn : ConfigOff);
+        m_handler->setConfigValue(ConfigSmartTab,
+            settings.m_smartBackspace ? ConfigOn : ConfigOff); 
+        //m_handler->setConfigValue(ConfigSmartTab,
+        //    settings.m_autoIndent ? ConfigOn : ConfigOff); 
+    }
 }
 
 void FakeVimPlugin::removeHandler(QWidget *widget)
@@ -181,15 +200,6 @@ void FakeVimPlugin::showExtraInformation(const QString &text)
 {
     QMessageBox::information(0, tr("FakeVim Information"), text);
 }
-
-void FakeVimPlugin::initializeConfiguration(QHash<QString, QString> *config)
-{
-    qDebug() << "INIT CONFIG";
-   //set shiftwidth=4
-   //set expandtab
-   //set smarttab
-}
-
 
 //#include "fakevimplugin.moc"
 
