@@ -48,6 +48,10 @@ QT_BEGIN_NAMESPACE
 class QTabWidget;
 QT_END_NAMESPACE
 
+namespace Core {
+class ICore;
+}
+
 namespace ProjectExplorer {
 
 class RunControl;
@@ -61,7 +65,7 @@ class OutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    OutputPane();
+    OutputPane(Core::ICore *core);
     ~OutputPane();
 
     QWidget *outputWidget(QWidget *);
@@ -99,6 +103,7 @@ private:
     QWidget *m_mainWidget;
     QTabWidget *m_tabWidget;
     QHash<RunControl *, OutputWindow *> m_outputWindows;
+    QAction *m_stopAction;
 //    QToolButton *m_insertLineButton;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
