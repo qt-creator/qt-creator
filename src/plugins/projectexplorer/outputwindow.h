@@ -77,9 +77,9 @@ public:
     void appendOutput(const QString &out);
 
     // ApplicationOutputspecifics
-    void createNewOutputWindow(RunControl *);
-    void appendOutput(RunControl *, const QString &out);
-    void showTabFor(RunControl *);
+    void createNewOutputWindow(RunControl *rc);
+    void appendOutput(RunControl *rc, const QString &out);
+    void showTabFor(RunControl *rc);
     
 public slots:
     void projectRemoved();
@@ -105,10 +105,10 @@ private:
 };
 
 
-
 class OutputWindow : public QPlainTextEdit
 {
     Q_OBJECT
+
 public:
     OutputWindow(QWidget *parent = 0);
     ~OutputWindow();
