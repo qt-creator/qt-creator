@@ -218,33 +218,18 @@ bool LocalBranchModel::setData(const QModelIndex &index, const QVariant &value, 
     if (role != Qt::EditRole || index.row() < branchCount())
         return false;
     const QString branchName = value.toString();
-    const bool ok = checkNewBranchName(branchName);
-    if (debug)
-        qDebug() << Q_FUNC_INFO << branchName << ok;
-    if (!ok)
-        return false;
-    // Create
-    QString output;
-    QString errorMessage;
-    if (!runGitBranchCommand(workingDirectory(), QStringList(branchName), &output, &errorMessage))
-        return false;
-    m_newBranch = branchName;
-    // Start a delayed complete refresh and return true for now.
-    QTimer::singleShot(0, this, SLOT(slotNewBranchDelayedRefresh()));
+    // Delay the signal as we don't ourselves to be reset while
+    // in setData().
+    if (checkNewBranchName(branchName)) {
+        m_newBranch = branchName;
+        QTimer::singleShot(0, this, SLOT(slotNewBranchDelayedRefresh()));
+    }
     return true;
 }
 
 void LocalBranchModel::slotNewBranchDelayedRefresh()
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO;
-
-    QString errorMessage;
-    if (!refresh(workingDirectory(), &errorMessage)) {
-        qWarning("%s", qPrintable(errorMessage));
-        return;
-    }
-    emit newBranchCreated(m_newBranch);
+    emit newBranchEntered(m_newBranch);
 }
 
 }

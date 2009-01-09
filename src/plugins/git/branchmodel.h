@@ -87,6 +87,7 @@ public:
 
 signals:
     void newBranchCreated(const QString &);
+    void newBranchEntered(const QString &);
 
 private slots:
     void slotNewBranchDelayedRefresh();

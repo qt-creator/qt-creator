@@ -3,8 +3,10 @@
 
 #include <QtGui/QDialog>
 
+
 QT_BEGIN_NAMESPACE
 class QPushButton;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Git {
@@ -40,10 +42,12 @@ namespace Git {
             void slotCheckoutSelectedBranch();
             void slotDeleteSelectedBranch();
             void slotLocalBranchActivated();
-            void slotNewLocalBranchCreated(const QString &);
+            void slotRemoteBranchActivated(const QModelIndex &);
+            void slotCreateLocalBranch(const QString &branchName);
 
         private:
             bool ask(const QString &title, const QString &what, bool defaultButton);
+            void selectLocalBranch(const QString &b);
 
             int selectedLocalBranchIndex() const;
             int selectedRemoteBranchIndex() const;
