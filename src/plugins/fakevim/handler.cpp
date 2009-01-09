@@ -1004,6 +1004,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
     static QRegExp reWrite("^w!?( (.*))?$");
     static QRegExp reDelete("^d( (.*))?$");
+    static QRegExp reSet("^set?( (.*))?$");
 
     if (cmd.isEmpty()) {
         m_tc.setPosition(positionForLine(beginLine));
@@ -1093,6 +1094,14 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         redo();
         enterCommandMode();
         updateMiniBuffer();
+    } else if (reSet.indexIn(cmd) != -1) { // :set
+        QString arg = reSet.cap(2);
+        if (arg.isEmpty()) {
+            QString info;
+            foreach (const QString &key, m_config.keys())
+                info += key + ": " + m_config.value(key) + "\n";
+            emit q->extraInformationChanged(info);
+        }
     } else {
         showRedMessage("E492: Not an editor command: " + cmd0);
     }

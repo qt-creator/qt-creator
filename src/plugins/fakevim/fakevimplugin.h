@@ -82,6 +82,7 @@ private slots:
     void installHandler();
     void removeHandler(QWidget *widget);
     void showCommandBuffer(const QString &contents);
+    void showExtraInformation(const QString &msg);
 
 private:
     FakeVimHandler *m_handler;

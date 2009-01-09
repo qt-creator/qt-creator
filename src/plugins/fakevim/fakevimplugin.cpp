@@ -59,6 +59,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
 
+#include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
@@ -149,6 +150,8 @@ void FakeVimPlugin::installHandler()
     if (!textEditor)
         return;
 
+    connect(m_handler, SIGNAL(extraInformationChanged(QString)),
+        this, SLOT(showExtraInformation(QString)));
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
@@ -169,6 +172,11 @@ void FakeVimPlugin::showCommandBuffer(const QString &contents)
     Core::EditorManager::instance()->showEditorInfoBar( 
         QLatin1String(Constants::MINI_BUFFER), contents,
         tr("Quit FakeVim"), m_handler, SLOT(quit()));
+}
+
+void FakeVimPlugin::showExtraInformation(const QString &text)
+{
+    QMessageBox::information(0, tr("FakeVim Information"), text);
 }
 
 

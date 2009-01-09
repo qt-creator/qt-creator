@@ -66,6 +66,7 @@ public slots:
 signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
+    void extraInformationChanged(const QString &msg);
     void quitRequested(QWidget *);
 
 private:
