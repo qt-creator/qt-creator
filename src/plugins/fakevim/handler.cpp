@@ -84,6 +84,7 @@ enum Mode
     ExMode,
     SearchForwardMode,
     SearchBackwardMode,
+    PassingMode, // lets keyevents to be passed to the main application
 };
 
 enum SubMode
@@ -200,6 +201,7 @@ public:
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
+    bool m_wasReadOnly; // saves read-only state of document
 
 private:
     FakeVimHandler *q;
@@ -284,8 +286,13 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
 
 bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-    int key = keyEvent->key();
+    int key = ev->key();
+
+    if (m_mode == PassingMode && key != Qt::Key_Control && key != Qt::Key_Shift) {
+        enterCommandMode();
+        return false;
+    }
+
     if (key == Key_Shift || key == Key_Alt || key == Key_Control
         || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
         return false;
@@ -297,11 +304,11 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
     if (key >= Key_A && key <= Key_Z
-        && (keyEvent->modifiers() & Qt::ShiftModifier) == 0)
+        && (ev->modifiers() & Qt::ShiftModifier) == 0)
         key += 32;
-    if ((keyEvent->modifiers() & Qt::ControlModifier) != 0)
+    if ((ev->modifiers() & Qt::ControlModifier) != 0)
         key += 256;
-    bool handled = handleKey(key, keyEvent->text());
+    bool handled = handleKey(key, ev->text());
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEol() && m_mode == CommandMode);
@@ -316,8 +323,8 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
 bool FakeVimHandler::Private::handleKey(int key, const QString &text)
 {
-    qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
-    qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
+    //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
+    //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
     if (m_mode == InsertMode)
         return handleInsertMode(key, text);
     if (m_mode == CommandMode)
@@ -422,7 +429,9 @@ void FakeVimHandler::Private::updateSelection()
 void FakeVimHandler::Private::updateMiniBuffer()
 {
     QString msg;
-    if (!m_currentMessage.isEmpty()) {
+    if (m_mode == PassingMode) {
+        msg = "-- PASSING --";
+    } else if (!m_currentMessage.isEmpty()) {
         msg = m_currentMessage;
         m_currentMessage.clear();
     } else if (m_mode == CommandMode && m_visualMode != NoVisualMode) {
@@ -580,6 +589,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == '$' || key == Key_End) {
         m_tc.movePosition(EndOfLine, KeepAnchor);
         finishMovement();
+    } else if (key == ',') {
+        // FIXME: use some other mechanism
+        m_mode = PassingMode;
+        updateMiniBuffer();
     } else if (key == '.') {
         qDebug() << "REPEATING" << m_dotCommand;
         for (int i = count(); --i >= 0; )
@@ -1482,13 +1495,12 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 
     if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
-        bool handleIt = kev->key() == Qt::Key_Escape
-            || (kev->key() == Key_B && kev->modifiers() == Qt::ControlModifier)
-            || (kev->key() == Key_F && kev->modifiers() == Qt::ControlModifier)
-            || (kev->key() == Key_R && kev->modifiers() == Qt::ControlModifier)
-            || (kev->key() == Key_V && kev->modifiers() == Qt::ControlModifier);
-        if (handleIt) {
-            d->handleEvent(kev);
+        int key = kev->key();
+        int mods = kev->modifiers();
+        bool handleIt = (key == Qt::Key_Escape)
+            || (key >= Key_A && key <= Key_Z && mods == Qt::ControlModifier);
+        if (handleIt && d->handleEvent(kev)) {
+            d->enterCommandMode();
             ev->accept();
             return true;
         }
@@ -1505,20 +1517,27 @@ void FakeVimHandler::addWidget(QWidget *widget)
     if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
         //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QTextEdit::NoWrap);
+        d->m_wasReadOnly = ed->isReadOnly();
     } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
         //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QPlainTextEdit::NoWrap);
+        d->m_wasReadOnly = ed->isReadOnly();
     }
-    //d->showBlackMessage("vi emulation mode. Hit <Shift+Esc>:q<Return> to quit");
     d->showBlackMessage("vi emulation mode.");
     d->updateMiniBuffer();
 }
 
 void FakeVimHandler::removeWidget(QWidget *widget)
 {
+    d->setWidget(widget);
     d->showBlackMessage(QString());
     d->updateMiniBuffer();
     widget->removeEventFilter(this);
+    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
+        ed->setReadOnly(d->m_wasReadOnly);
+    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
+        ed->setReadOnly(d->m_wasReadOnly);
+    }
 }
 
 void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
