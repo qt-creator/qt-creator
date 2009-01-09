@@ -141,7 +141,7 @@ class FakeVimHandler::Private
 public:
     Private(FakeVimHandler *parent);
 
-    bool eventFilter(QObject *ob, QEvent *ev);
+    bool handleEvent(QKeyEvent *ev);
     void handleExCommand(const QString &cmd);
 
 private:
@@ -187,6 +187,7 @@ private:
     QTextCursor selectRange(int beginLine, int endLine);
 
 public:
+    void setWidget(QWidget *ob);
     void enterInsertMode();
     void enterCommandMode();
     void showRedMessage(const QString &msg);
@@ -194,6 +195,7 @@ public:
     void updateMiniBuffer();
     void updateSelection();
     void quit();
+    QWidget *editor() const;
 
 public:
     QTextEdit *m_textedit;
@@ -214,7 +216,6 @@ private:
 
     bool m_fakeEnd;
 
-    QWidget *editor() const;
     bool isSearchMode() const
         { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
     int m_gflag;  // whether current command started with 'g'
@@ -281,7 +282,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_config[ConfigStartOfLine] = ConfigOn;
 }
 
-bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
+bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
     int key = keyEvent->key();
@@ -290,11 +291,6 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
         return false;
 
     // Fake "End of line"
-    m_textedit = qobject_cast<QTextEdit *>(ob);
-    m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
-    if (!m_textedit && !m_plaintextedit)
-        return false;
-
     m_tc = EDITOR(textCursor());
 
     if (m_fakeEnd)
@@ -320,8 +316,8 @@ bool FakeVimHandler::Private::eventFilter(QObject *ob, QEvent *ev)
 
 bool FakeVimHandler::Private::handleKey(int key, const QString &text)
 {
-    //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
-    //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
+    qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
+    qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
     if (m_mode == InsertMode)
         return handleInsertMode(key, text);
     if (m_mode == CommandMode)
@@ -1454,6 +1450,11 @@ void FakeVimHandler::Private::quit()
     q->quitRequested(editor());
 }
 
+void FakeVimHandler::Private::setWidget(QWidget *ob)
+{
+    m_textedit = qobject_cast<QTextEdit *>(ob);
+    m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1472,14 +1473,34 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    if (ev->type() != QEvent::KeyPress)
-        return QObject::eventFilter(ob, ev);
-    return d->eventFilter(ob, ev);
+    //if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride)
+    //    qDebug() << ob << ev->type() << qApp << d->editor()
+    //        << QEvent::KeyPress << QEvent::ShortcutOverride;
+
+    if (ev->type() == QEvent::KeyPress && ob == d->editor())
+        return d->handleEvent(static_cast<QKeyEvent *>(ev));
+
+    if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
+        QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
+        bool handleIt = kev->key() == Qt::Key_Escape
+            || (kev->key() == Key_B && kev->modifiers() == Qt::ControlModifier)
+            || (kev->key() == Key_F && kev->modifiers() == Qt::ControlModifier)
+            || (kev->key() == Key_R && kev->modifiers() == Qt::ControlModifier)
+            || (kev->key() == Key_V && kev->modifiers() == Qt::ControlModifier);
+        if (handleIt) {
+            d->handleEvent(kev);
+            ev->accept();
+            return true;
+        }
+    }
+
+    return QObject::eventFilter(ob, ev);
 }
 
 void FakeVimHandler::addWidget(QWidget *widget)
 {
     widget->installEventFilter(this);
+    d->setWidget(widget);
     d->enterCommandMode();
     if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
         //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
@@ -1488,7 +1509,8 @@ void FakeVimHandler::addWidget(QWidget *widget)
         //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         ed->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
-    d->showBlackMessage("vi emulation mode. Hit <Shift+Esc>:q<Return> to quit");
+    //d->showBlackMessage("vi emulation mode. Hit <Shift+Esc>:q<Return> to quit");
+    d->showBlackMessage("vi emulation mode.");
     d->updateMiniBuffer();
 }
 
@@ -1501,8 +1523,7 @@ void FakeVimHandler::removeWidget(QWidget *widget)
 
 void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
 {
-    d->m_textedit = qobject_cast<QTextEdit *>(widget);
-    d->m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
+    d->setWidget(widget);
     d->handleExCommand(cmd);
 }
 
