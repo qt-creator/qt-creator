@@ -789,7 +789,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == Key_PageUp || key == control('b')) {
         m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
         finishMovement();
-    } else if (key == Key_Backspace) {
+    } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
@@ -831,7 +831,7 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     } else if (key == Key_Return) {
         m_tc.insertBlock();
         m_lastInsertion += "\n";
-    } else if (key == Key_Backspace) {
+    } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
         m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
     } else if (key == Key_Delete) {
@@ -840,13 +840,9 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     } else if (key == Key_PageDown || key == control('f')) {
         m_tc.movePosition(Down, KeepAnchor, count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
-    } else if (key == Key_Backspace) {
-        finishMovement();
     } else if (key == Key_PageUp || key == control('b')) {
         m_tc.movePosition(Up, KeepAnchor, count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
-    } else if (key == Key_Backspace) {
-        finishMovement();
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         m_tc.insertText(text);
