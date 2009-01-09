@@ -83,7 +83,7 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_LABEL), tr("Label"), Qt::darkRed));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_COMMENT), tr("Comment"), Qt::darkGreen));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::lightGray));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
 
     // Diff categories
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"),  Qt::blue));
