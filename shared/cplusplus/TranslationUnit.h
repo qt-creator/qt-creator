@@ -102,6 +102,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool objCEnabled() const;
+    void setObjCEnabled(bool onoff);
+
     void warning(unsigned index, const char *fmt, ...);
     void error(unsigned index, const char *fmt, ...);
     void fatal(unsigned index, const char *fmt, ...);
@@ -187,6 +190,7 @@ private:
             unsigned _blockErrors: 1;
             unsigned _skipFunctionBody: 1;
             unsigned _qtMocRunEnabled: 1;
+            unsigned _objCEnabled: 1;
         };
     };
 };

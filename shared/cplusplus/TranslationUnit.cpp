@@ -92,6 +92,12 @@ bool TranslationUnit::qtMocRunEnabled() const
 void TranslationUnit::setQtMocRunEnabled(bool onoff)
 { _qtMocRunEnabled = onoff; }
 
+bool TranslationUnit::objCEnabled() const
+{ return _objCEnabled; }
+
+void TranslationUnit::setObjCEnabled(bool onoff)
+{ _objCEnabled = onoff; }
+
 Control *TranslationUnit::control() const
 { return _control; }
 
@@ -164,6 +170,7 @@ void TranslationUnit::tokenize()
 
     Lexer lex(this);
     lex.setQtMocRunEnabled(_qtMocRunEnabled);
+    lex.setObjCEnabled(_objCEnabled);
 
     std::stack<unsigned> braces;
     _tokens->push_back(Token()); // the first token needs to be invalid!
@@ -228,6 +235,7 @@ bool TranslationUnit::parse(ParseMode mode)
 
     Parser parser(this);
     parser.setQtMocRunEnabled(_qtMocRunEnabled);
+    parser.setObjCEnabled(_objCEnabled);
 
     bool parsed = false;
 
