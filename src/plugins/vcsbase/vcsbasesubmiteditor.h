@@ -126,6 +126,10 @@ public:
     static QIcon diffIcon();
     static QIcon submitIcon();
 
+    // Utility returning all project files in case submit lists need to
+    // be restricted to them
+    static QStringList currentProjectFiles(bool nativeSeparators, QString *name = 0);
+
 signals:
     void diffSelectedFiles(const QStringList &files);
 

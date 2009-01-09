@@ -42,11 +42,15 @@
 #include <utils/submiteditorwidget.h>
 #include <find/basetextfind.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+
 #include <QtGui/QToolBar>
 #include <QtGui/QStyle>
 #include <QtCore/QPointer>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
@@ -299,4 +303,32 @@ QIcon VCSBaseSubmitEditor::submitIcon()
     return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
 }
 
+QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
+{
+    if (name)
+        name->clear();
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    if (!projectExplorer)
+        return QStringList();
+    QStringList files;
+    if (const ProjectExplorer::Project *currentProject = projectExplorer->currentProject()) {
+        files << currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        if (name)
+            *name = currentProject->name();
+    } else {
+        if (const ProjectExplorer::SessionManager *session = projectExplorer->session()) {
+            if (name)
+                *name = session->file()->fileName();
+        const QList<ProjectExplorer::Project *> projects = session->projects();
+        foreach (ProjectExplorer::Project *project, projects)
+            files << project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        }
+    }
+    if (nativeSeparators && !files.empty()) {
+        const QStringList::iterator end = files.end();
+        for (QStringList::iterator it = files.begin(); it != end; ++it)
+            *it = QDir::toNativeSeparators(*it);
+    }
+    return files;
+}
 } // namespace VCSBase

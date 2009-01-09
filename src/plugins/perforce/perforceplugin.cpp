@@ -463,22 +463,8 @@ void PerforcePlugin::diffCurrentFile()
 
 void PerforcePlugin::diffCurrentProject()
 {
-    QTC_ASSERT(m_projectExplorer, return);
-    QStringList files;
     QString name;
-    ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
-    if (currentProject) {
-        files << currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-        name = currentProject->name();
-    } else if (m_projectExplorer->session()) {
-        name = m_projectExplorer->session()->file()->fileName();
-        QList<ProjectExplorer::Project *> projects = m_projectExplorer->session()->projects();
-        foreach (ProjectExplorer::Project *project, projects)
-            files << project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    }
-    QStringList nativeFiles;
-    foreach (const QString &f, files)
-        nativeFiles << QDir::toNativeSeparators(f);
+    const QStringList nativeFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true, &name);
     p4Diff(nativeFiles, name);
 }
 
@@ -538,23 +524,8 @@ void PerforcePlugin::submit()
     m_changeTmpFile->seek(0);
 
     // Assemble file list of project
-    QTC_ASSERT(m_projectExplorer, return);
-    QStringList files;
     QString name;
-    ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
-    if (currentProject) {
-        files << currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-        name = currentProject->name();
-    } else if (m_projectExplorer->session()) {
-        name = m_projectExplorer->session()->file()->fileName();
-        QList<ProjectExplorer::Project *> projects = m_projectExplorer->session()->projects();
-        foreach (ProjectExplorer::Project *project, projects)
-            files << project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    }
-    QStringList nativeFiles;
-    foreach (const QString &f, files)
-        nativeFiles << QDir::toNativeSeparators(f);
-
+    const QStringList nativeFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true, &name);
     PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles,
                                         CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result2.error) {

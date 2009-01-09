@@ -65,8 +65,6 @@ const char *const kGitCommand = "git";
 const char *const kGitDirectoryC = ".git";
 const char *const kBranchIndicatorC = "# On branch";
 
-enum { untrackedFilesInCommit = 0 };
-
 static inline QString msgServerFailure()
 {
     return GitClient::tr(
@@ -631,7 +629,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     # Changed but not updated:
     #<tab>modified:<blanks>git.pro
     # Untracked files:
-    #<tab>modified:<blanks>git.pro
+    #<tab>git.pro
     \endcode
 */
 static bool parseFiles(const QString &output, CommitData *d)
@@ -677,7 +675,7 @@ static bool parseFiles(const QString &output, CommitData *d)
                                 d->unstagedFiles.push_back(trimFileSpecification(fileSpec));
                                 break;
                             case UntrackedFiles:
-                                d->untrackedFiles.push_back(QLatin1String("untracked: ") + fileSpec);
+                                d->untrackedFiles.push_back(fileSpec);
                                 break;
                             case None:
                                 break;
@@ -689,6 +687,25 @@ static bool parseFiles(const QString &output, CommitData *d)
         }
     }
     return !d->stagedFiles.empty() || !d->unstagedFiles.empty() || !d->untrackedFiles.empty();
+}
+
+// Filter out untracked files that are not part of the project
+static void filterUntrackedFilesOfProject(const QString &repoDir, QStringList *l)
+{
+    if (l->empty())
+        return;
+    const QStringList nativeProjectFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true);
+    if (nativeProjectFiles.empty())
+        return;
+    const QDir repoDirectory(repoDir);
+    for (QStringList::iterator it = l->begin(); it != l->end(); ) {
+        const QString path = QDir::toNativeSeparators(repoDirectory.absoluteFilePath(*it));
+        if (nativeProjectFiles.contains(path)) {
+            ++it;
+        } else {
+            it = l->erase(it);
+        }
+    }
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
@@ -726,7 +743,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     // Run status. Note that it has exitcode 1 if there are no added files.
     QString output;
-    switch (gitStatus(repoDirectory, untrackedFilesInCommit, &output, errorMessage)) {
+    switch (gitStatus(repoDirectory, true, &output, errorMessage)) {
     case  StatusChanged:
         break;
     case StatusUnchanged:
@@ -757,6 +774,16 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (!parseFiles(output, d)) {
         *errorMessage = msgParseFilesFailed();
         return false;
+    }
+    // Filter out untracked files that are not part of the project and,
+    // for symmetry, insert the prefix "untracked:" (as "added:" or ":modified"
+    // for staged files).
+    filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
+    if (!d->untrackedFiles.empty()) {
+        const QString untrackedPrefix = QLatin1String("untracked: ");
+        const QStringList::iterator pend = d->untrackedFiles.end();
+        for (QStringList::iterator it = d->untrackedFiles.begin(); it != pend; ++it)
+            it->insert(0, untrackedPrefix);
     }
 
     d->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
@@ -853,8 +880,8 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
     case StatusFailed:
         return RevertFailed;
     }
-    CommitData d;
-    if (!parseFiles(output, &d)) {
+    CommitData data;
+    if (!parseFiles(output, &data)) {
         *errorMessage = msgParseFilesFailed();
         return RevertFailed;
     }
@@ -870,8 +897,8 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
 
     // From the status output, determine all modified [un]staged files.
     const QString modifiedPattern = QLatin1String("modified: ");
-    const QStringList allStagedFiles = GitSubmitEditor::statusListToFileList(d.stagedFiles.filter(modifiedPattern));
-    const QStringList allUnstagedFiles = GitSubmitEditor::statusListToFileList(d.unstagedFiles.filter(modifiedPattern));
+    const QStringList allStagedFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles.filter(modifiedPattern));
+    const QStringList allUnstagedFiles = GitSubmitEditor::statusListToFileList(data.unstagedFiles.filter(modifiedPattern));
     // Unless a directory was passed, filter all modified files for the
     // argument file list.
     QStringList stagedFiles = allStagedFiles;
@@ -882,7 +909,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
         unstagedFiles = allUnstagedFiles.toSet().intersect(filesSet).toList();
     }
     if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << d.stagedFiles << d.unstagedFiles << allStagedFiles << allUnstagedFiles << stagedFiles << unstagedFiles;
+        qDebug() << Q_FUNC_INFO << data.stagedFiles << data.unstagedFiles << allStagedFiles << allUnstagedFiles << stagedFiles << unstagedFiles;
 
     if (stagedFiles.empty() && unstagedFiles.empty())
         return RevertUnchanged;
