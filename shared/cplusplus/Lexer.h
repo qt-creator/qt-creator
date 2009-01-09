@@ -80,8 +80,8 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
-    bool objcEnabled() const;
-    void setObjcEnabled(bool onoff);
+    bool objCEnabled() const;
+    void setObjCEnabled(bool onoff);
 
     void scan(Token *tok);
 
@@ -147,7 +147,7 @@ private:
             unsigned _scanKeywords: 1;
             unsigned _scanAngleStringLiteralTokens: 1;
             unsigned _qtMocRunEnabled: 1;
-            unsigned _objcEnabled: 1;
+            unsigned _objCEnabled: 1;
         };
     };
     unsigned _currentLine;

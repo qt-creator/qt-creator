@@ -122,11 +122,11 @@ bool Lexer::qtMocRunEnabled() const
 void Lexer::setQtMocRunEnabled(bool onoff)
 { _qtMocRunEnabled = onoff; }
 
-bool Lexer::objcEnabled() const
-{ return _objcEnabled; }
+bool Lexer::objCEnabled() const
+{ return _objCEnabled; }
 
-void Lexer::setObjcEnabled(bool onoff)
-{ _objcEnabled = onoff; }
+void Lexer::setObjCEnabled(bool onoff)
+{ _objCEnabled = onoff; }
 
 bool Lexer::isIncremental() const
 { return _isIncremental; }
@@ -554,7 +554,7 @@ void Lexer::scan_helper(Token *tok)
         break;
 
     default: {
-        if (_objcEnabled) {
+        if (_objCEnabled) {
             if (ch == '@' && _yychar >= 'a' && _yychar <= 'z') {
                 const char *yytext = _currentChar;
 

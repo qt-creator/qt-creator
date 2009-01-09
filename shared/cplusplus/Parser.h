@@ -70,6 +70,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool objCEnabled() const;
+    void setObjCEnabled(bool onoff);
+
     bool parseTranslationUnit(TranslationUnitAST *&node);
 
 public:
@@ -204,6 +207,7 @@ public:
     bool parseWhileStatement(StatementAST *&node);
 
     // ObjC++
+    bool parseObjCClassImplementation(DeclarationAST *&node);
     bool parseObjCClassDeclaration(DeclarationAST *&node);
     bool parseObjCInterfaceDeclaration(DeclarationAST *&node);
     bool parseObjCProtocolDeclaration(DeclarationAST *&node);
@@ -230,6 +234,14 @@ public:
 
     bool parseObjCMessageReceiver(ExpressionAST *&node);
     bool parseObjCMessageArguments();
+
+    bool parseObjCMethodSignature();
+    bool parseObjCMethodDefinitionList();
+    bool parseObjCAtProperty();
+    bool parseObjCTypeName();
+    bool parseObjCProtocolQualifiers();
+
+    bool lookAtObjCSelector() const;
 
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
@@ -277,8 +289,9 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;
-    bool _objcEnabled: 1;
+    bool _objCEnabled: 1;
     bool _inFunctionBody: 1;
+    bool _inObjCImplementationContext: 1;
 
 private:
     Parser(const Parser& source);

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-workdir=/home/berlin/workdir
-destdir=/home/sping/install
+workdir=/home/berlin/dev/qt-4.4.3-temp
+destdir=/home/berlin/dev/qt-4.4.3-shipping
 dir=qt-x11-opensource-src-4.4.3
-file="${dir}.tar.gz"
+file_tar="${dir}.tar"
+file_tar_gz="${file_tar}.gz"
 [ -z ${MAKE} ] && MAKE=make
 envpath=/usr/bin:/bin
 
@@ -34,13 +35,13 @@ setup() {
 }
 
 download() {
-	[ -f "${file}" ] && return
+	[ -f "${file_tar_gz}" ] && return
 	case `rand_range 1 2` in
 	1)
-		mirror=http://ftp.ntua.gr/pub/X11/Qt/qt/source/
+		mirror=http://ftp.ntua.gr/pub/X11/Qt/qt/source
 		;;
 	*)
-		mirror=http://wftp.tu-chemnitz.de/pub/Qt/qt/source/
+		mirror=http://wftp.tu-chemnitz.de/pub/Qt/qt/source
 		;;
 	esac
 	wget "${mirror}/${file}" || die "Download failed"
@@ -48,7 +49,8 @@ download() {
 
 unpack() {
 	[ -d "${dir}" ] && return
-	tar -xf "${file}"
+	gzip -d "${file_tar_gz}" || die "gunzip failed"
+	tar -xf "${file_tar}" || die "untar failed"
 }
 
 build() {

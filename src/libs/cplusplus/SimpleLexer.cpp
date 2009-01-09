@@ -58,7 +58,7 @@ SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
       _qtMocRunEnabled(true),
-      _objcEnabled(false)
+      _objCEnabled(false)
 { }
 
 SimpleLexer::~SimpleLexer()
@@ -74,15 +74,14 @@ void SimpleLexer::setQtMocRunEnabled(bool enabled)
     _qtMocRunEnabled = enabled;
 }
 
-
-bool SimpleLexer::objcEnabled() const
+bool SimpleLexer::objCEnabled() const
 {
-    return _objcEnabled;
+    return _objCEnabled;
 }
 
-void SimpleLexer::setObjcEnabled(bool onoff)
+void SimpleLexer::setObjCEnabled(bool onoff)
 {
-    _objcEnabled = onoff;
+    _objCEnabled = onoff;
 }
 
 bool SimpleLexer::skipComments() const
@@ -105,7 +104,7 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
 
     Lexer lex(firstChar, lastChar);
     lex.setQtMocRunEnabled(_qtMocRunEnabled);
-    lex.setObjcEnabled(_objcEnabled);
+    lex.setObjCEnabled(_objCEnabled);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
