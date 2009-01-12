@@ -44,7 +44,6 @@
 #include <QtCore/QSettings>
 
 #include <QtGui/QMainWindow>
-#include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 
 #include <QtScript/QScriptEngine>
@@ -80,11 +79,6 @@ Core::EditorManager *CorePrototype::editorManager() const
 QMainWindow *CorePrototype::mainWindow() const
 {
     return callee()->mainWindow();
-}
-
-QStatusBar *CorePrototype::statusBar() const
-{
-     return callee()->statusBar();
 }
 
 QSettings *CorePrototype::settings() const

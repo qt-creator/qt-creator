@@ -31,46 +31,32 @@
 **
 ***************************************************************************/
 
-#include "filewizarddialog.h"
-#include "filewizardpage.h"
+#ifndef SUBMITMODEL_H
+#define SUBMITMODEL_H
 
-#include <QtGui/QAbstractButton>
+#include "vcsbase_global.h"
 
-namespace Core {
-namespace Utils {
+#include <QtGui/QStandardItemModel>
 
-FileWizardDialog::FileWizardDialog(QWidget *parent) :
-    QWizard(parent),
-    m_filePage(new FileWizardPage)
+namespace VCSBase {
+
+/* A 2-column (checkable, state, file name) model to be used to list the files-
+ * in the submit editor. Provides header items and a convience to add files. */
+
+class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setOption(QWizard::NoCancelButton, false);
-    setOption(QWizard::NoDefaultButton, false);
-    setPixmap(QWizard::WatermarkPixmap, QPixmap(QLatin1String(":/core/images/qtwatermark.png")));
-    addPage(m_filePage);
-    connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));
-}
+    Q_OBJECT
+public:
+    explicit SubmitFileModel(QObject *parent = 0);
 
-QString FileWizardDialog::name() const
-{
-    return m_filePage->name();
-}
+    // Convenience to add a file plus status text.
+    QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(), bool checked = true);
 
-QString FileWizardDialog::path() const
-{
-    return m_filePage->path();
-}
-
-void FileWizardDialog::setPath(const QString &path)
-{
-    m_filePage->setPath(path);
+    // Filter for entries contained in the filter list. Returns the
+    // number of deleted entries.
+    unsigned filter(const QStringList &filter, int column);
+};
 
 }
 
-void FileWizardDialog::setName(const QString &name)
-{
-    m_filePage->setName(name);
-}
-
-} // namespace Utils
-} // namespace Core
+#endif // SUBMITMODEL_H

@@ -1949,6 +1949,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
 {
 public:
+    SpecifierAST *attributes;
     unsigned class_token;
     IdentifierListAST *identifier_list;
     unsigned semicolon_token;

@@ -358,13 +358,13 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
 
     QToolButton *split = new QToolButton;
     split->setProperty("type", QLatin1String("dockbutton"));
-    split->setIcon(QIcon(":/qworkbench/images/splitbutton_horizontal.png"));
+    split->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
     split->setToolTip(tr("Split"));
     connect(split, SIGNAL(clicked(bool)), this, SIGNAL(split()));
 
     QToolButton *close = new QToolButton;
     close->setProperty("type", QLatin1String("dockbutton"));
-    close->setIcon(QIcon(":/qworkbench/images/closebutton.png"));
+    close->setIcon(QIcon(":/core/images/closebutton.png"));
     close->setToolTip(tr("Close"));
 
     connect(close, SIGNAL(clicked(bool)), this, SIGNAL(close()));

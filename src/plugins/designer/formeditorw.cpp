@@ -715,7 +715,7 @@ void FormEditorW::print()
         painter.drawPixmap(0, 0, pixmap);
         m_core->mainWindow()->setCursor(oldCursor);
 
-        m_core->statusBar()->showMessage(tr("Printed %1...").arg(QFileInfo(fw->fileName()).fileName()));
+//        m_core->statusBar()->showMessage(tr("Printed %1...").arg(QFileInfo(fw->fileName()).fileName()));
     } while (false);
     m_core->printer()->setFullPage(oldFullPage);
     m_core->printer()->setOrientation(oldOrientation);

@@ -484,6 +484,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
+    // dependencies action
+    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
+    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, globalcontext);
+    mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
 
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
@@ -554,11 +558,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     modeManager->addAction(cmd, Constants::P_ACTION_DEBUG, m_runConfigurationMenu);
-
-    // dependencies action
-    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
-    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, pecontext);
-    msessionContextMenu->addAction(cmd, Constants::G_SESSION_CONFIG);
 
     // add new file action
     m_addNewFileAction = new QAction(tr("Add New..."), this);

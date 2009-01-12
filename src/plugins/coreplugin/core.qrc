@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/qworkbench" >
+    <qresource prefix="/core" >
         <file>html/images/bg_site_header_dark_grey.png</file>
         <file>html/images/body_bg_circles_bottom_right.png</file>
         <file>html/images/body_bg_gradient.png</file>

@@ -36,6 +36,8 @@
 #include "gitconstants.h"
 #include "commitdata.h"
 
+#include <vcsbase/submitfilemodel.h>
+
 #include <QtCore/QDebug>
 
 namespace Git {
@@ -52,14 +54,14 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
     return static_cast<GitSubmitEditorWidget *>(widget());
 }
 
-QStringList GitSubmitEditor::statusListToFileList(const QStringList &rawList)
+static void addStateFileListToModel(const QList<CommitData::StateFilePair> &l,
+                                    VCSBase::SubmitFileModel *model,
+                                    bool checked)
 {
-    if (rawList.empty())
-        return rawList;
-    QStringList rc;
-    foreach (const QString &rf, rawList)
-        rc.push_back(fileFromStatusLine(rf));
-    return rc;
+    typedef QList<CommitData::StateFilePair>::const_iterator ConstIterator;
+    const ConstIterator cend = l.constEnd();
+    for (ConstIterator it = l.constBegin(); it != cend; ++it)
+        model->addFile(it->second, it->first, checked);
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -67,28 +69,21 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     submitEditorWidget()->setPanelData(d.panelData);
     submitEditorWidget()->setPanelInfo(d.panelInfo);
 
-    addFiles(d.stagedFiles, true, true);
-    // Not Updated: Initially unchecked
-    addFiles(d.unstagedFiles, false, true);
-    addFiles(d.untrackedFiles, false, true);
+    VCSBase::SubmitFileModel *model = new VCSBase::SubmitFileModel(this);
+    addStateFileListToModel(d.stagedFiles, model, true);
+    addStateFileListToModel(d.unstagedFiles, model, false);
+    if (!d.untrackedFiles.empty()) {
+        const QString untrackedSpec = QLatin1String("untracked");
+        const QStringList::const_iterator cend = d.untrackedFiles.constEnd();
+        for (QStringList::const_iterator it = d.untrackedFiles.constBegin(); it != cend; ++it)
+            model->addFile(*it, untrackedSpec, false);
+    }
+    setFileModel(model);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 {
     return const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->panelData();
-}
-
-QString GitSubmitEditor::fileFromStatusLine(const QString &line)
-{
-    QString rc = line;
-    // "modified:   mainwindow.cpp"
-    const int index = rc.indexOf(QLatin1Char(':'));
-    if (index != -1)
-        rc.remove(0, index + 1);
-    const QChar blank(' ');
-    while (rc.startsWith(blank))
-        rc.remove(0, 1);
-    return rc;
 }
 
 } // namespace Internal

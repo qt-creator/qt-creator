@@ -36,6 +36,7 @@
 #include "buildstepspage.h"
 #include "project.h"
 
+#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
@@ -102,9 +103,9 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     m_ui.splitter->setStretchFactor(1,10);
     m_ui.buildSettingsList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    m_ui.addButton->setIcon(QIcon(":/qworkbench/images/plus.png"));
+    m_ui.addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui.addButton->setText("");
-    m_ui.removeButton->setIcon(QIcon(":/qworkbench/images/minus.png"));
+    m_ui.removeButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
     m_ui.removeButton->setText("");
 
     QMenu *addButtonMenu = new QMenu(this);

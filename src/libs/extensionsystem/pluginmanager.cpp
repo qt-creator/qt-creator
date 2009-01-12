@@ -54,8 +54,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \namespace ExtensionSystem
-    \brief The ExtensionSystem namespace provides
-    classes that belong to the core plugin system.
+    \brief The ExtensionSystem namespace provides classes that belong to the core plugin system.
 
     The basic extension system contains of the plugin manager and its supporting classes,
     and the IPlugin interface that must be implemented by plugin providers.

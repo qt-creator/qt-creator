@@ -86,10 +86,10 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
 
     // Diff categories
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"),  Qt::blue));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"), QColor(0, 170, 0)));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_REMOVED_LINE), tr("Removed Line"), Qt::red));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::black));
-    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::green));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
 
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("TextEditor"),

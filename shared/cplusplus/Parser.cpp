@@ -403,39 +403,48 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_EXPORT:
         return parseTemplateDeclaration(node);
 
-    // objc++
-    case T_AT_IMPLEMENTATION:
-        return parseObjCClassImplementation(node);
-
+    // ObjcC++
     case T_AT_CLASS:
         return parseObjCClassDeclaration(node);
 
     case T_AT_INTERFACE:
-        return parseObjCInterfaceDeclaration(node);
+        return parseObjCInterface(node);
 
     case T_AT_PROTOCOL:
-        return parseObjCProtocolDeclaration(node);
+        return parseObjCProtocol(node);
+
+    case T_AT_IMPLEMENTATION:
+        return parseObjCImplementation(node);
 
     case T_AT_END:
-        return parseObjCEndDeclaration(node);
+        return parseObjCEnd(node);
 
-    case T_AT_COMPATIBILITY_ALIAS:
-        return parseObjCAliasDeclaration(node);
+    default: {
+        if (_objCEnabled && LA() == T___ATTRIBUTE__) {
+            const unsigned start = cursor();
+            SpecifierAST *attributes = 0, **attr = &attributes;
+            while (parseAttributeSpecifier(*attr))
+                attr = &(*attr)->next;
+            if (LA() == T_AT_INTERFACE)
+                return parseObjCInterface(node, attributes);
+            else if (LA() == T_AT_PROTOCOL)
+                return parseObjCProtocol(node, attributes);
+            else if (LA() == T_AT_PROPERTY)
+                return parseObjCPropertyDeclaration(node, attributes);
+            rewind(start);
+        }
 
-    case T_AT_SYNTHESIZE:
-        return parseObjCPropertySynthesize(node);
-
-    case T_AT_DYNAMIC:
-        return parseObjCPropertyDynamic(node);
-
-    default:
         if (LA() == T_EXTERN && LA(2) == T_TEMPLATE)
             return parseTemplateDeclaration(node);
         else if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL)
             return parseLinkageSpecification(node);
         else
             return parseSimpleDeclaration(node);
+    }   break; // default
+
     } // end switch
+
+    return false;
 }
 
 bool Parser::parseLinkageSpecification(DeclarationAST *&node)
@@ -2543,16 +2552,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
-    case T_AT_ENCODE:
-    case T_AT_PROTOCOL:
-    case T_AT_SELECTOR:
-    case T_AT_STRING_LITERAL:
-        return parseObjCExpression(node);
-
     default: {
-        if (_objCEnabled && LA() == T_LBRACKET)
-            return parseObjCExpression(node);
-
         unsigned startOfName = cursor();
         NameAST *name = 0;
         if (parseName(name)) {
@@ -3303,491 +3303,6 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
     return false;
 }
 
-bool Parser::parseObjCClassImplementation(DeclarationAST *&)
-{
-    if (LA() != T_AT_IMPLEMENTATION)
-        return false;
-
-    /*unsigned implementation_token = */ consumeToken();
-    unsigned identifier_token = 0;
-    match(T_IDENTIFIER, &identifier_token);
-
-    if (LA() == T_COLON) {
-        /*unsigned colon_token = */ consumeToken();
-        unsigned superclass_name_token = 0;
-        match(T_IDENTIFIER, &superclass_name_token);
-    } else if (LA() == T_LPAREN) {
-        /*unsigned lparen_token = */ consumeToken();
-        unsigned category_name_token = 0;
-        if (LA() == T_IDENTIFIER)
-            category_name_token = consumeToken();
-        unsigned rparen_token = 0;
-        match(T_RPAREN, &rparen_token);
-    }
-
-    _inObjCImplementationContext = true;
-    parseObjCMethodDefinitionList();
-    return true;
-}
-
-bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
-{
-    if (LA() != T_AT_CLASS)
-        return false;
-
-    ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
-    ast->class_token = consumeToken();
-    parseObjCIdentifierList(ast->identifier_list);
-    match(T_SEMICOLON, &ast->semicolon_token);
-    node = ast;
-    return true;
-}
-
-bool Parser::parseObjCInterfaceDeclaration(DeclarationAST *&)
-{
-    if (LA() != T_AT_INTERFACE)
-        return false;
-
-    /*unsigned interface_token = */ consumeToken();
-    unsigned interface_name_token = 0;
-    match(T_IDENTIFIER, &interface_name_token);
-    if (LA() == T_LPAREN) {
-        // category interface
-        /*unsigned lparen_token = */ consumeToken();
-        unsigned catagory_name_token = 0;
-        if (LA() == T_IDENTIFIER)
-            catagory_name_token = consumeToken();
-        unsigned rparen_token = 0;
-        match(T_RPAREN, &rparen_token);
-        parseObjCProtocolRefs();
-        parseObjCClassInstanceVariables();
-        parseObjCInterfaceDeclList();
-        unsigned end_token = 0;
-        match(T_AT_END, &end_token);
-        return true;
-    } else {
-        // class interface
-        unsigned colon_token = 0;
-        unsigned super_class_token = 0;
-        if (LA() == T_COLON) {
-            colon_token = consumeToken();
-            match(T_IDENTIFIER, &super_class_token);
-        }
-        parseObjCProtocolRefs();
-        parseObjCInterfaceDeclList();
-        unsigned end_token = 0;
-        match(T_AT_END, &end_token);
-        return true;
-    }
-    return false;
-}
-
-bool Parser::parseObjCProtocolDeclaration(DeclarationAST *&)
-{
-    return false;
-}
-
-bool Parser::parseObjCEndDeclaration(DeclarationAST *&)
-{
-    if (LA() != T_AT_END)
-        return false;
-
-    unsigned end_token = consumeToken();
-
-    if (! _inObjCImplementationContext) {
-        _translationUnit->warning(end_token,
-            "@end must appear in an @implementation context");
-    }
-
-    _inObjCImplementationContext = false;
-    return true;
-}
-
-bool Parser::parseObjCAliasDeclaration(DeclarationAST *&)
-{
-    return false;
-}
-
-bool Parser::parseObjCPropertySynthesize(DeclarationAST *&)
-{
-    return false;
-}
-
-bool Parser::parseObjCPropertyDynamic(DeclarationAST *&)
-{
-    return false;
-}
-
-bool Parser::parseObjCIdentifierList(IdentifierListAST *&node)
-{
-    if (LA() == T_IDENTIFIER) {
-        IdentifierListAST **it = &node;
-        IdentifierListAST *id = new (_pool) IdentifierListAST;
-        id->identifier_token = consumeToken();
-        *it = id;
-        while (LA() == T_COMMA) {
-            consumeToken();
-            if (LA() == T_IDENTIFIER) {
-                it = &(*it)->next;
-                IdentifierListAST *id = new (_pool) IdentifierListAST;
-                id->identifier_token = consumeToken();
-                *it = id;
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
-bool Parser::parseObjCProtocolRefs()
-{
-    return false;
-}
-
-bool Parser::parseObjCClassInstanceVariables()
-{
-    return false;
-}
-
-bool Parser::parseObjCInterfaceDeclList()
-{
-    unsigned saved = cursor();
-    while (LA() != T_AT_END && parseObjCInterfaceMemberDeclaration()) {
-        if (saved == cursor())
-            consumeToken(); // skip a token
-    }
-    return true;
-}
-
-bool Parser::parseObjCInterfaceMemberDeclaration()
-{
-    switch (LA()) {
-    case T_SEMICOLON:
-        consumeToken();
-        return true;
-
-    case T_AT_REQUIRED:
-    case T_AT_OPTIONAL:
-        consumeToken();
-        return true;
-
-    case T_PLUS:
-    case T_MINUS:
-        return parseObjCMethodPrototype();
-
-    default: {
-        DeclarationAST *declaration = 0;
-        if (parseDeclaration(declaration))
-            return true;
-    } // default
-
-    } // switch
-
-    return false;
-}
-
-bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&)
-{
-    return false;
-}
-
-bool Parser::parseObjCMethodPrototype()
-{
-    if (LA() != T_PLUS && LA() != T_MINUS)
-        return false;
-
-    // instance or class method?
-    /*unsigned method_type_token = */ consumeToken();
-
-    SpecifierAST *attributes = 0, **attr = &attributes;
-    while (parseAttributeSpecifier(*attr))
-        attr = &(*attr)->next;
-
-    return false;
-}
-
-bool Parser::parseObjCExpression(ExpressionAST *&node)
-{
-    switch (LA()) {
-    case T_LBRACKET:
-        return parseObjCMessageExpression(node);
-
-    case T_AT_STRING_LITERAL:
-        return parseObjCStringLiteral(node);
-
-    case T_AT_ENCODE:
-        return parseObjCEncodeExpression(node);
-
-    case T_AT_PROTOCOL:
-        return parseObjCProtocolExpression(node);
-
-    case T_AT_SELECTOR:
-        return parseObjCSelectorExpression(node);
-    }
-    return false;
-}
-
-bool Parser::parseObjCMessageExpression(ExpressionAST *&)
-{
-    if (LA() != T_LBRACKET)
-        return false;
-
-    /*unsigned lbracket_token = */ consumeToken();
-    ExpressionAST *receiver = 0;
-    parseObjCMessageReceiver(receiver);
-    parseObjCMessageArguments();
-    unsigned rbracket_token = 0;
-    match(T_RBRACKET, &rbracket_token);
-    return true;
-}
-
-bool Parser::parseObjCStringLiteral(ExpressionAST *&)
-{
-    if (LA() != T_AT_STRING_LITERAL)
-        return false;
-
-    do {
-        consumeToken();
-    } while (LA() == T_AT_STRING_LITERAL);
-
-    return true;
-}
-
-bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
-{
-    if (LA() != T_AT_ENCODE)
-        return false;
-
-    /*unsigned encode_token = */ consumeToken();
-    unsigned lparen_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
-    SpecifierAST *type_specifier = 0;
-    parseSimpleTypeSpecifier(type_specifier);
-    match(T_RPAREN, &rparen_token);
-    return true;
-}
-
-bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
-{
-    if (LA() != T_AT_PROTOCOL)
-        return false;
-
-    /*unsigned protocol_token = */ consumeToken();
-    unsigned protocol_name_token = 0, lparen_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
-    match(T_IDENTIFIER, &protocol_name_token);
-    match(T_RPAREN, &rparen_token);
-    return true;
-}
-
-bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
-{
-    if (LA() != T_AT_SELECTOR)
-        return false;
-
-    /*unsigned selector_token = */ consumeToken();
-    unsigned lparen_token = 0, rparen_token = 0;
-    match(T_LPAREN, &lparen_token);
-    while (LA(1) == T_IDENTIFIER && LA(2) == T_COLON) {
-        /*unsigned identifier_token = */ consumeToken();
-        /*unsigned colon_token = */ consumeToken();
-    }
-    match(T_RPAREN, &rparen_token);
-    return true;
-}
-
-bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
-{
-    // ### expression or simple-type-specifier.
-    return parseExpression(node);
-}
-
-bool Parser::parseObjCMessageArguments()
-{
-    if (LA() != T_IDENTIFIER && LA() != T_COLON)
-        return false;
-
-    unsigned selector_name_token = 0;
-
-    if (LA() == T_IDENTIFIER)
-        selector_name_token = consumeToken();
-
-    if (LA() == T_COLON) {
-        /*unsigned colon_token = */ consumeToken();
-
-        ExpressionAST *expr = 0;
-        parseAssignmentExpression(expr);
-
-        while ((LA() == T_IDENTIFIER && LA(2) == T_COLON) || LA() == T_COLON) {
-            if (LA() == T_IDENTIFIER)
-                consumeToken();
-
-            if (LA() == T_COLON)
-                consumeToken();
-
-            parseAssignmentExpression(expr);
-        }
-
-        while (LA() == T_COMMA) {
-            consumeToken();
-            parseAssignmentExpression(expr);
-        }
-    }
-
-    return true;
-}
-
-bool Parser::parseObjCMethodDefinitionList()
-{
-    bool done = false;
-    while (! done) {
-        switch (LA()) {
-        case T_EOF_SYMBOL:
-        case T_AT_END:
-            done = true;
-            break;
-
-        case T_PLUS:
-        case T_MINUS:
-            parseObjCMethodSignature();
-            if (LA() == T_SEMICOLON)
-                consumeToken();
-            break;
-
-        case T_AT_PROPERTY:
-            parseObjCAtProperty();
-            break;
-
-        case T_SEMICOLON:
-            consumeToken();
-            break;
-
-        case T_AT_OPTIONAL:
-            consumeToken();
-            break;
-
-        case T_AT_REQUIRED:
-            consumeToken();
-            break;
-
-        case T_TEMPLATE:
-        case T_NAMESPACE: {
-            DeclarationAST *declaration = 0;
-            parseDeclaration(declaration);
-        }   break;
-
-        default: {
-            unsigned start = cursor();
-            DeclarationAST *declaration = 0;
-            if (LA(1) == T_EXTERN && LA(2) == T_STRING_LITERAL) {
-                parseLinkageSpecification(declaration);
-            } else if (parseBlockDeclaration(declaration)) {
-                // ### accept the declaration.
-            } else {
-                if (cursor() == start) {
-                    _translationUnit->error(cursor(),
-                            "stray `%s' between Objective-C++ methods",
-                            tok().spell());
-                    consumeToken();
-                }
-            }
-        }   break; // default
-
-        } // switch
-    }
-
-    return true;
-}
-
-bool Parser::parseObjCMethodSignature()
-{
-    if (LA() != T_PLUS && LA() != T_MINUS)
-        return false;
-
-    /*unsigned method_type_token = */ consumeToken();
-    parseObjCTypeName();
-
-    bool first = true;
-
-    while (lookAtObjCSelector() || LA() == T_COLON) {
-        if (LA() != T_COLON)
-            /*selector_name_token = */ consumeToken();
-
-        SpecifierAST *attributes = 0, **attr = &attributes;
-        while (parseAttributeSpecifier(*attr))
-            attr = &(*attr)->next;
-
-        if (first) {
-            first = false;
-
-            if (LA() != T_COLON)
-                break;
-        }
-
-        unsigned colon_token = 0;
-        match(T_COLON, &colon_token);
-
-        parseObjCTypeName();
-
-        unsigned identifier_token = 0;
-        match(T_IDENTIFIER, &identifier_token);
-
-        while (parseAttributeSpecifier(*attr))
-            attr = &(*attr)->next;
-    }
-
-    // parse the method tail parameters.
-    while (LA() == T_COMMA) {
-        consumeToken();
-
-        if (LA() == T_DOT_DOT_DOT) {
-            consumeToken();
-            break;
-        }
-
-        DeclarationAST *parameter_declaration = 0;
-        parseParameterDeclaration(parameter_declaration);
-    }
-
-    return true;
-}
-
-bool Parser::parseObjCTypeName()
-{
-    if (LA() != T_LPAREN)
-        return false;
-
-    /*unsigned lparen_token = */ consumeToken();
-
-    parseObjCProtocolQualifiers();
-
-    ExpressionAST *type_id = 0;
-    if (LA() != T_RPAREN)
-        parseTypeId(type_id);
-
-    SpecifierAST *attributes = 0, **attr = &attributes;
-    while (parseAttributeSpecifier(*attr))
-        attr = &(*attr)->next;
-
-    unsigned rparen_token = 0;
-    match(T_RPAREN, &rparen_token);
-    return true;
-}
-
-bool Parser::parseObjCAtProperty()
-{
-    if (LA() != T_AT_PROPERTY)
-        return false;
-
-    /*unsigned property_token = */ consumeToken();
-    return true;
-}
-
-bool Parser::parseObjCProtocolQualifiers()
-{
-    return false;
-}
-
 bool Parser::lookAtObjCSelector() const
 {
     switch (LA()) {
@@ -3812,4 +3327,427 @@ bool Parser::lookAtObjCSelector() const
 
     return false;
 }
+
+// objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
+//
+bool Parser::parseObjCClassDeclaration(DeclarationAST *&)
+{
+    if (LA() != T_AT_CLASS)
+        return false;
+
+    /*unsigned objc_class_token = */ consumeToken();
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+    while (LA() == T_COMMA) {
+        consumeToken(); // skip T_COMMA
+        match(T_IDENTIFIER, &identifier_token);
+    }
+
+    unsigned semicolon_token = 0;
+    match(T_SEMICOLON, &semicolon_token);
+    return true;
+}
+
+// objc-interface ::= attribute-specifier-list-opt objc-class-interface
+// objc-interface ::= objc-category-interface
+//
+// objc-class-interface ::= T_AT_INTERFACE T_IDENTIFIER (T_COLON T_IDENTIFIER)?
+//                          objc-protocol-refs-opt
+//                          objc-class-instance-variables-opt
+//                          objc-interface-declaration-list
+//                          T_AT_END
+//
+// objc-category-interface ::= T_AT_INTERFACE T_IDENTIFIER
+//                             T_LPAREN T_IDENTIFIER? T_RPAREN
+//                             objc-protocol-refs-opt
+//                             objc-interface-declaration-list
+//                             T_AT_END
+//
+bool Parser::parseObjCInterface(DeclarationAST *&,
+                                SpecifierAST *attributes)
+{
+    if (! attributes && LA() == T___ATTRIBUTE__) {
+        SpecifierAST **attr = &attributes;
+        while (parseAttributeSpecifier(*attr))
+            attr = &(*attr)->next;
+    }
+
+    if (LA() != T_AT_INTERFACE)
+        return false;
+
+    /*unsigned objc_interface_token = */ consumeToken();
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+
+    if (LA() == T_LPAREN) {
+        // a category interface
+
+        if (attributes)
+            _translationUnit->error(attributes->firstToken(),
+                                    "invalid attributes for category interface declaration");
+
+        unsigned lparen_token = 0, rparen_token = 0;
+        match(T_LPAREN, &lparen_token);
+        if (LA() == T_IDENTIFIER)
+            consumeToken();
+
+        match(T_RPAREN, &rparen_token);
+
+        parseObjCProtocolRefs();
+        while (parseObjCInterfaceMemberDeclaration()) {
+        }
+        unsigned objc_end_token = 0;
+        match(T_AT_END, &objc_end_token);
+        return true;
+    }
+
+    // a class interface declaration
+    if (LA() == T_COLON) {
+        consumeToken();
+        unsigned identifier_token = 0;
+        match(T_IDENTIFIER, &identifier_token);
+    }
+
+    parseObjCProtocolRefs();
+    parseObjClassInstanceVariables();
+    while (parseObjCInterfaceMemberDeclaration()) {
+    }
+    unsigned objc_end_token = 0;
+    match(T_AT_END, &objc_end_token);
+    return true;
+}
+
+// objc-protocol ::= T_AT_PROTOCOL (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
+//
+bool Parser::parseObjCProtocol(DeclarationAST *&,
+                               SpecifierAST *attributes)
+{
+    if (! attributes && LA() == T___ATTRIBUTE__) {
+        SpecifierAST **attr = &attributes;
+        while (parseAttributeSpecifier(*attr))
+            attr = &(*attr)->next;
+    }
+
+    if (LA() != T_AT_PROTOCOL)
+        return false;
+
+    /*unsigned objc_protocol_token = */ consumeToken();
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+
+    if (LA() == T_COMMA || LA() == T_SEMICOLON) {
+        // a protocol forward declaration
+
+        while (LA() == T_COMMA) {
+            consumeToken();
+            match(T_IDENTIFIER, &identifier_token);
+        }
+        unsigned semicolon_token = 0;
+        match(T_SEMICOLON, &semicolon_token);
+        return true;
+    }
+
+    // a protocol definition
+    parseObjCProtocolRefs();
+
+    while (parseObjCInterfaceMemberDeclaration()) {
+    }
+
+    unsigned objc_end_token = 0;
+    match(T_AT_END, &objc_end_token);
+
+    return true;
+}
+
+// objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER (T_COLON T_IDENTIFIER)?
+//                         objc-class-instance-variables-opt
+// objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER T_LPAREN T_IDENTIFIER T_RPAREN
+//
+bool Parser::parseObjCImplementation(DeclarationAST *&)
+{
+    if (LA() != T_AT_IMPLEMENTATION)
+        return false;
+
+    consumeToken();
+
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+
+    if (LA() == T_LPAREN) {
+        // a category implementation
+        unsigned lparen_token = 0, rparen_token = 0;
+        unsigned category_name_token = 0;
+        match(T_LPAREN, &lparen_token);
+        match(T_IDENTIFIER, &category_name_token);
+        match(T_RPAREN, &rparen_token);
+        return true;
+    }
+
+    // a class implementation
+    if (LA() == T_COLON) {
+        consumeToken();
+        unsigned super_class_name_token = 0;
+        match(T_IDENTIFIER, &super_class_name_token);
+    }
+
+    parseObjClassInstanceVariables();
+    return true;
+}
+
+// objc-protocol-refs ::= T_LESS (T_IDENTIFIER @ T_COMMA) T_GREATER
+//
+bool Parser::parseObjCProtocolRefs()
+{
+    if (LA() != T_LESS)
+        return false;
+    unsigned less_token = 0, greater_token = 0;
+    unsigned identifier_token = 0;
+    match(T_LESS, &less_token);
+    match(T_IDENTIFIER, &identifier_token);
+    while (LA() == T_COMMA) {
+        consumeToken();
+        match(T_IDENTIFIER, &identifier_token);
+    }
+    match(T_GREATER, &greater_token);
+    return true;
+}
+
+// objc-class-instance-variables ::= T_LBRACE
+//                                   objc-instance-variable-decl-list-opt
+//                                   T_RBRACE
+//
+bool Parser::parseObjClassInstanceVariables()
+{
+    if (LA() != T_LBRACE)
+        return false;
+
+    unsigned lbrace_token =  0, rbrace_token = 0;
+
+    match(T_LBRACE, &lbrace_token);
+    while (LA()) {
+        if (LA() == T_RBRACE)
+            break;
+
+        const unsigned start = cursor();
+
+        DeclarationAST *declaration = 0;
+        parseObjCInstanceVariableDeclaration(declaration);
+
+        if (start == cursor()) {
+            // skip stray token.
+            _translationUnit->error(cursor(), "skip stray token `%s'", tok().spell());
+            consumeToken();
+        }
+    }
+
+    match(T_RBRACE, &rbrace_token);
+    return true;
+}
+
+// objc-interface-declaration ::= T_AT_REQUIRED
+// objc-interface-declaration ::= T_AT_OPTIONAL
+// objc-interface-declaration ::= T_SEMICOLON
+// objc-interface-declaration ::= objc-property-declaration
+// objc-interface-declaration ::= objc-method-prototype
+bool Parser::parseObjCInterfaceMemberDeclaration()
+{
+    switch (LA()) {
+    case T_AT_REQUIRED:
+    case T_AT_OPTIONAL:
+        consumeToken();
+        return true;
+
+    case T_SEMICOLON:
+        consumeToken();
+        return true;
+
+    case T_AT_PROPERTY: {
+        DeclarationAST *declaration = 0;
+        return parseObjCPropertyDeclaration(declaration);
+    }
+
+    case T_PLUS:
+    case T_MINUS:
+        return parseObjCMethodPrototype();
+
+    default:
+        return false;
+    }
+}
+
+// objc-instance-variable-declaration ::= objc-visibility-specifier
+// objc-instance-variable-declaration ::= block-declaration
+//
+bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
+{
+    switch (LA()) {
+    case T_AT_PRIVATE:
+    case T_AT_PROTECTED:
+    case T_AT_PUBLIC:
+    case T_AT_PACKAGE:
+        consumeToken();
+        return true;
+
+    default:
+        return parseBlockDeclaration(node);
+    }
+}
+
+// objc-property-declaration ::=
+//    T_AT_PROPERTY T_LPAREN (property-attribute @ T_COMMA) T_RPAREN simple-declaration
+//
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
+{
+    if (LA() != T_AT_PROPERTY)
+        return false;
+
+    /*unsigned objc_property_token = */ consumeToken();
+
+    if (LA() == T_LPAREN) {
+        unsigned lparen_token = 0, rparen_token = 0;
+        match(T_LPAREN, &lparen_token);
+        while (parseObjCPropertyAttribute()) {
+        }
+        match(T_RPAREN, &rparen_token);
+    }
+
+    DeclarationAST *simple_declaration = 0;
+    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ false);
+    return true;
+}
+
+// objc-method-prototype ::= (T_PLUS | T_MINUS) objc-method-decl objc-method-attrs-opt
+//
+// objc-method-decl ::= objc-type-name? objc-selector
+// objc-method-decl ::= objc-type-name? objc-keyword-decl-list objc-parmlist-opt
+//
+bool Parser::parseObjCMethodPrototype()
+{
+    if (LA() != T_PLUS && LA() != T_MINUS)
+        return false;
+
+    /*unsigned method_type_token = */ consumeToken();
+
+    parseObjCTypeName();
+
+    if ((lookAtObjCSelector() && LA(2) == T_COLON) || LA() == T_COLON) {
+        while (parseObjCKeywordDeclaration()) {
+        }
+
+        while (LA() == T_COMMA) {
+            consumeToken();
+
+            if (LA() == T_DOT_DOT_DOT) {
+                consumeToken();
+                break;
+            }
+
+            DeclarationAST *parameter_declaration = 0;
+            parseParameterDeclaration(parameter_declaration);
+        }
+    } else if (lookAtObjCSelector()) {
+        parseObjCSelector();
+    } else {
+        _translationUnit->error(cursor(), "expected a selector");
+    }
+
+    SpecifierAST *attributes = 0, **attr = &attributes;
+    while (parseAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+
+    return true;
+}
+
+// objc-property-attribute ::= getter '=' identifier
+// objc-property-attribute ::= setter '=' identifier ':'
+// objc-property-attribute ::= readonly
+// objc-property-attribute ::= readwrite
+// objc-property-attribute ::= assign
+// objc-property-attribute ::= retain
+// objc-property-attribute ::= copy
+// objc-property-attribute ::= nonatomic
+bool Parser::parseObjCPropertyAttribute()
+{
+    if (LA() != T_IDENTIFIER)
+        return false;
+
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+    if (LA() == T_EQUAL) {
+        consumeToken();
+        match(T_IDENTIFIER, &identifier_token);
+        if (LA() == T_COLON)
+            consumeToken();
+    }
+
+    return true;
+}
+
+// objc-type-name ::= T_LPAREN objc-type-qualifiers-opt type-id T_RPAREN
+//
+bool Parser::parseObjCTypeName()
+{
+    if (LA() != T_LPAREN)
+        return false;
+
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    parseObjCTypeQualifiers();
+    ExpressionAST *type_id = 0;
+    parseTypeId(type_id);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+// objc-selector ::= T_IDENTIFIER | keyword
+//
+bool Parser::parseObjCSelector()
+{
+    if (! lookAtObjCSelector())
+        return false;
+
+    consumeToken();
+    return true;
+}
+
+// objc-keyword-decl ::= objc-selector? T_COLON objc-type-name? objc-keyword-attributes-opt T_IDENTIFIER
+//
+bool Parser::parseObjCKeywordDeclaration()
+{
+    if (! (LA() == T_COLON || (lookAtObjCSelector() && LA(2) == T_COLON)))
+        return false;
+
+    parseObjCSelector();
+
+    unsigned colon_token = 0;
+    match(T_COLON, &colon_token);
+
+    parseObjCTypeName();
+
+    SpecifierAST *attributes = 0, **attr = &attributes;
+    while (parseAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+
+    return true;
+}
+
+bool Parser::parseObjCTypeQualifiers()
+{
+    return false;
+}
+
+// objc-end: T_AT_END
+bool Parser::parseObjCEnd(DeclarationAST *&)
+{
+    if (LA() != T_AT_END)
+        return false;
+
+    consumeToken();
+    return true;
+}
+
+
 CPLUSPLUS_END_NAMESPACE

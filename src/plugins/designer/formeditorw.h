@@ -89,7 +89,7 @@ class SettingsPage;
   * Requesting an editor via instance() will fully initialize the class.
   * This is based on the assumption that the Designer settings work with
   * no plugins loaded. If that does not work, full initialization can be
-  * triggered by connection to the ICore::settingsDialogRequested() signal.
+  * triggered by connection to the ICore::optionsDialogRequested() signal.
   */
 class FormEditorW : public QObject
 {

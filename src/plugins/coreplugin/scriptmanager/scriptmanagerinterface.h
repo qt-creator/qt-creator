@@ -44,7 +44,7 @@ namespace Core {
 
 /* Script Manager.
  * Provides a script engine that is initialized with
- * QWorkBenchs interfaces and allows for running scripts.
+ * Qt Creator's interfaces and allows for running scripts.
  * @{todo} Should it actually manage script files, too? */
 
 class CORE_EXPORT ScriptManagerInterface : public QObject

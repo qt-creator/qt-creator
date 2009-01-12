@@ -35,6 +35,7 @@
 #define COMMITDATA_H
 
 #include <QtCore/QStringList>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -68,11 +69,24 @@ QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 
 struct CommitData
 {
+    // A pair of state string/file name ('modified', 'file.cpp').
+    typedef QPair<QString, QString> StateFilePair;
+
     void clear();
+    // Parse the files and the branch of panelInfo
+    // from a git status output
+    bool parseFilesFromStatus(const QString &output);
+
+    // Convenience to retrieve the file names from
+    // the specification list. Optionally filter for a certain state
+    QStringList stagedFileNames(const QString &stateFilter = QString()) const;
+    QStringList unstagedFileNames(const QString &stateFilter = QString()) const;
+
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
-    QStringList stagedFiles;
-    QStringList unstagedFiles;
+
+    QList<StateFilePair> stagedFiles;
+    QList<StateFilePair> unstagedFiles;
     QStringList untrackedFiles;
 };
 

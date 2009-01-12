@@ -55,7 +55,6 @@ class CorePrototype : public QObject, public QScriptable
     Q_PROPERTY(Core::EditorManager* editorManager READ editorManager DESIGNABLE false SCRIPTABLE true STORED false)
 
     Q_PROPERTY(QMainWindow* mainWindow READ mainWindow DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QStatusBar* statusBar READ statusBar DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QSettings* settings READ settings DESIGNABLE false SCRIPTABLE true STORED false)
 
 public:
@@ -68,7 +67,6 @@ public:
     Core::EditorManager *editorManager() const;
 
     QMainWindow *mainWindow() const;
-    QStatusBar *statusBar() const;
     QSettings *settings() const;
 
 public slots:

@@ -209,7 +209,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     n.widget = ptw;
     QToolButton *toggleSync = new QToolButton;
     toggleSync->setProperty("type", "dockbutton");
-    toggleSync->setIcon(QIcon(":/qworkbench/images/linkicon.png"));
+    toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
     toggleSync->setCheckable(true);
     toggleSync->setChecked(ptw->autoSynchronization());
     toggleSync->setToolTip(tr("Synchronize with Editor"));

@@ -602,7 +602,7 @@ void GitPlugin::startCommit()
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
-    m_submitOrigCommitFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles);
+    m_submitOrigCommitFiles = data.stagedFileNames();
 
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;

@@ -42,7 +42,8 @@
 
 using namespace Core::Internal;
 
-GeneralSettings::GeneralSettings()
+GeneralSettings::GeneralSettings():
+    m_dialog(0)
 {
 }
 
@@ -61,7 +62,7 @@ QString GeneralSettings::trCategory() const
     return tr("Environment");
 }
 
-QWidget* GeneralSettings::createPage(QWidget *parent)
+QWidget *GeneralSettings::createPage(QWidget *parent)
 {
     m_page = new Ui_GeneralSettings;
     QWidget *w = new QWidget(parent);

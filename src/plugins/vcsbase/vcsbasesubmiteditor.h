@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class QIcon;
+class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -90,6 +91,7 @@ struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
 class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
+    Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
 public:
     typedef QList<int> Context;
 
@@ -99,6 +101,9 @@ protected:
 
 public:
     virtual ~VCSBaseSubmitEditor();
+
+    int fileNameColumn() const;
+    void setFileNameColumn(int c);
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);
@@ -119,8 +124,8 @@ public:
 
     QStringList checkedFiles() const;
 
-    void setFileList(const QStringList&);
-    void addFiles(const QStringList&, bool checked = true, bool userCheckable = true);
+    void setFileModel(QAbstractItemModel *m);
+    QAbstractItemModel *fileModel() const;
 
     // Utilities returning some predefined icons for actions
     static QIcon diffIcon();
@@ -139,11 +144,6 @@ private slots:
     void slotDescriptionChanged();
 
 protected:
-    /* Implemented this to extract the real file list from the status
-     * output of the versioning system as displayed in the file list
-     * for example "M foo.cpp" -> "foo.cpp". */
-    virtual QStringList vcsFileListToFileList(const QStringList &) const = 0;
-
     /* These hooks allow for modifying the contents that goes to
      * the file. The default implementation uses the text
      * of the description editor. */

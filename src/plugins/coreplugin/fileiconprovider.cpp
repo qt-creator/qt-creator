@@ -48,7 +48,7 @@ using namespace Core;
 FileIconProvider *FileIconProvider::m_instance = 0;
 
 FileIconProvider::FileIconProvider()
-    : m_unknownFileIcon(QLatin1String(":/qworkbench/images/unknownfile.png"))
+    : m_unknownFileIcon(QLatin1String(":/core/images/unknownfile.png"))
 {
 }
 

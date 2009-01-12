@@ -133,7 +133,6 @@ private:
     SubversionResponse runSvn(const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
     void showOutput(const QString &output, bool bringToForeground = true);
-    QStringList parseStatusOutput(const QString &output) const;
     void annotate(const QString &file);
     void filelog(const QString &file);
     bool managesDirectory(const QDir &directory) const;

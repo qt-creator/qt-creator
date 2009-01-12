@@ -39,6 +39,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+namespace VCSBase {
+    class SubmitFileModel;
+}
+
 namespace Perforce {
 namespace Internal {
 
@@ -66,7 +70,6 @@ public:
     static QString fileFromChangeLine(const QString &line);
 
 protected:
-    virtual QStringList vcsFileListToFileList(const QStringList &) const;
     virtual QString fileContents() const;
     virtual bool setFileContents(const QString &contents);
 
@@ -77,6 +80,7 @@ private:
     void updateEntries();
 
     QMap<QString, QString> m_entries;
+    VCSBase::SubmitFileModel *m_fileModel;
 };
 
 } // namespace Internal

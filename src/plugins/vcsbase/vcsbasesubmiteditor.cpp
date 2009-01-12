@@ -129,6 +129,16 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete m_d;
 }
 
+int VCSBaseSubmitEditor::fileNameColumn() const
+{
+    return m_d->m_widget->fileNameColumn();
+}
+
+void VCSBaseSubmitEditor::setFileNameColumn(int c)
+{
+    m_d->m_widget->setFileNameColumn(c);
+}
+
 void VCSBaseSubmitEditor::slotDescriptionChanged()
 {
 }
@@ -246,22 +256,22 @@ bool VCSBaseSubmitEditor::restoreState(const QByteArray &/*state*/)
 
 QStringList VCSBaseSubmitEditor::checkedFiles() const
 {
-    return vcsFileListToFileList(m_d->m_widget->checkedFiles());
+    return m_d->m_widget->checkedFiles();
 }
 
-void VCSBaseSubmitEditor::setFileList(const QStringList &l)
+void VCSBaseSubmitEditor::setFileModel(QAbstractItemModel *m)
 {
-    m_d->m_widget->setFileList(l);
+    m_d->m_widget->setFileModel(m);
 }
 
-void VCSBaseSubmitEditor::addFiles(const QStringList& list, bool checked, bool userCheckable)
+QAbstractItemModel *VCSBaseSubmitEditor::fileModel() const
 {
-     m_d->m_widget->addFiles(list, checked, userCheckable);
+    return m_d->m_widget->fileModel();
 }
 
 void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
 {
-     emit diffSelectedFiles(vcsFileListToFileList(rawList));
+     emit diffSelectedFiles(rawList);
 }
 
 bool VCSBaseSubmitEditor::save(const QString &fileName)

@@ -39,14 +39,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QListWidget" name="fileList">
-        <property name="font">
-         <font/>
-        </property>
-        <property name="textElideMode">
-         <enum>Qt::ElideNone</enum>
-        </property>
-       </widget>
+       <widget class="QTreeView" name="fileView"/>
       </item>
      </layout>
     </widget>

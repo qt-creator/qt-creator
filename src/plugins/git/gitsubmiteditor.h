@@ -54,13 +54,6 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
 
-    static QString fileFromStatusLine(const QString &line);
-    static QStringList statusListToFileList(const QStringList &);
-
-protected:
-    virtual QStringList vcsFileListToFileList(const QStringList &l) const
-    { return statusListToFileList(l); }
-
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
 };

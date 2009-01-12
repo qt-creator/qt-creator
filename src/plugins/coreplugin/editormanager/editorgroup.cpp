@@ -118,7 +118,7 @@ QVariant EditorModel::data(const QModelIndex &index, int role) const
                 : editor->displayName();
     case Qt::DecorationRole:
         return editor->file()->isReadOnly()
-                ? QIcon(QLatin1String(":/qworkbench/images/locked.png"))
+                ? QIcon(QLatin1String(":/core/images/locked.png"))
                 : QIcon();
     case Qt::ToolTipRole:
         return editor->file()->fileName().isEmpty()

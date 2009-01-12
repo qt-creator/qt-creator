@@ -355,7 +355,7 @@ void HelpPlugin::createRightPaneSideBar()
 
     QToolButton *closeButton = new QToolButton();
     closeButton->setProperty("type", QLatin1String("dockbutton"));
-    closeButton->setIcon(QIcon(":/qworkbench/images/closebutton.png"));
+    closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
 
     // Dummy layout to align the close button to the right
     QHBoxLayout *hboxLayout = new QHBoxLayout();

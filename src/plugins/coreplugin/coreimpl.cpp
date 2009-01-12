@@ -84,11 +84,6 @@ MessageManager *CoreImpl::messageManager() const
     return m_mainwindow->messageManager();
 }
 
-ViewManagerInterface *CoreImpl::viewManager() const
-{
-    return m_mainwindow->viewManager();
-}
-
 ExtensionSystem::PluginManager *CoreImpl::pluginManager() const
 {
     return m_mainwindow->pluginManager();
@@ -148,15 +143,6 @@ QString CoreImpl::resourcePath() const
 #endif
 }
 
-QString CoreImpl::libraryPath() const
-{
-#if defined(Q_OS_MAC)
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../PlugIns"));
-#else
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../lib"));
-#endif
-}
-
 IContext *CoreImpl::currentContextObject() const
 {
     return m_mainwindow->currentContextObject();
@@ -167,12 +153,6 @@ QMainWindow *CoreImpl::mainWindow() const
 {
     return m_mainwindow;
 }
-
-QStatusBar *CoreImpl::statusBar() const
-{
-    return m_mainwindow->statusBar();
-}
-
 
 // adds and removes additional active contexts, this context is appended to the
 // currently active contexts. call updateContext after changing

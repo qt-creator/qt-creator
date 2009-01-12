@@ -109,7 +109,6 @@ public:
     Core::FileManager *fileManager() const;
     Core::UniqueIDManager *uniqueIDManager() const;
     Core::MessageManager *messageManager() const;
-    Core::ViewManagerInterface *viewManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManagerInterface *progressManager() const;

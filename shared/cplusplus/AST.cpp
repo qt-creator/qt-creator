@@ -3898,6 +3898,8 @@ void IdentifierListAST::accept0(ASTVisitor *visitor)
 
 unsigned ObjCClassDeclarationAST::firstToken() const
 {
+    if (attributes)
+        return attributes->firstToken();
     return class_token;
 }
 
@@ -3911,12 +3913,19 @@ unsigned ObjCClassDeclarationAST::lastToken() const
             return it->identifier_token + 1;
     }
 
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     return class_token + 1;
 }
 
 ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
     ast->class_token = class_token;
     if (identifier_list)
         ast->identifier_list = identifier_list->clone(pool);
@@ -3927,6 +3936,9 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 void ObjCClassDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        for (SpecifierAST *it = attributes; it; it = it->next) {
+            accept(it, visitor);
+        }
     }
 }
 
