@@ -42,6 +42,8 @@ QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QListWidgetItem;
 class QAction;
+class QAbstractItemModel;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -51,8 +53,9 @@ struct SubmitEditorWidgetPrivate;
 
 /* The submit editor presents the commit message in a text editor and an
  * checkable list of modified files in a list window. The user can delete
- * files from the list by pressing unchecking them or diff the selection
- * by doubleclicking.
+ * files from the list by unchecking them or diff the selection
+ * by doubleclicking. A list model which contains the file in a column
+ * specified by fileNameColumn should be set using setFileModel().
  *
  * Additionally, standard creator actions  can be registered:
  * Undo/redo will be set up to work with the description editor.
@@ -71,7 +74,7 @@ class QWORKBENCH_UTILS_EXPORT SubmitEditorWidget : public QWidget
     Q_OBJECT
     Q_DISABLE_COPY(SubmitEditorWidget)
     Q_PROPERTY(QString descriptionText READ descriptionText WRITE setDescriptionText DESIGNABLE true)
-    Q_PROPERTY(QStringList fileList READ fileList WRITE setFileList DESIGNABLE true)
+    Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
 public:
     explicit SubmitEditorWidget(QWidget *parent = 0);
     virtual ~SubmitEditorWidget();
@@ -86,10 +89,11 @@ public:
     // Should be used to normalize newlines.
     QString trimmedDescriptionText() const;
 
-    // The raw file list
-    QStringList fileList() const;
-    void addFiles(const QStringList&, bool checked = true, bool userCheckable = true);
-    void setFileList(const QStringList&);
+    int fileNameColumn() const;
+    void setFileNameColumn(int c);
+
+    void setFileModel(QAbstractItemModel *model);
+    QAbstractItemModel *fileModel() const;
 
     // Files to be included in submit
     QStringList checkedFiles() const;
@@ -110,11 +114,16 @@ protected:
 
 private slots:
     void triggerDiffSelected();
-    void fileItemChanged(QListWidgetItem *);
-    void fileSelectionChanged();
+    void diffActivated(const QModelIndex &index);
+    void diffActivatedDelayed();
+    void fileDataChanged (const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void updateActions();
+    void updateSubmitAction();
+    void updateDiffAction();
 
 private:
-    void addFilesUnblocked(const QStringList &list, bool checked, bool userCheckable);
+    bool hasSelection() const;
+    bool hasCheckedFiles() const;
 
     SubmitEditorWidgetPrivate *m_d;
 };

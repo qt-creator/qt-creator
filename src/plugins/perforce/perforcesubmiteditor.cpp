@@ -36,6 +36,7 @@
 #include "perforceplugin.h"
 #include "perforceconstants.h"
 
+#include <vcsbase/submitfilemodel.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -43,23 +44,19 @@
 namespace Perforce {
 namespace Internal {
 
+enum { FileSpecRole = Qt::UserRole + 1 };
+
 PerforceSubmitEditor::PerforceSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VCSBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent))
+    VCSBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent)),
+    m_fileModel(new VCSBase::SubmitFileModel(this))
 {
     setDisplayName(tr("Perforce Submit"));
+    setFileModel(m_fileModel);
 }
 
 PerforceSubmitEditorWidget *PerforceSubmitEditor::submitEditorWidget()
 {
     return static_cast<PerforceSubmitEditorWidget *>(widget());
-}
-
-QStringList PerforceSubmitEditor::vcsFileListToFileList(const QStringList &rawList) const
-{
-    QStringList rc;
-    foreach (const QString &rf, rawList)
-        rc.push_back(fileFromChangeLine(rf));
-    return rc;
 }
 
 QString PerforceSubmitEditor::fileContents() const
@@ -121,25 +118,7 @@ bool PerforceSubmitEditor::parseText(QString text)
 
 void PerforceSubmitEditor::restrictToProjectFiles(const QStringList &knownProjectFiles)
 {
-    QStringList allFiles = submitEditorWidget()->fileList();
-    const int oldSize = allFiles.size();
-    for (int i = oldSize - 1; i >= 0; i--)
-        if (!knownProjectFiles.contains(fileFromChangeLine(allFiles.at(i))))
-            allFiles.removeAt(i);
-    if (allFiles.size() != oldSize)
-        submitEditorWidget()->setFileList(allFiles);
-    if (Perforce::Constants::debug)
-        qDebug() << Q_FUNC_INFO << oldSize << "->" << allFiles.size();
-}
-
-QString PerforceSubmitEditor::fileFromChangeLine(const QString &line)
-{
-    QString rc = line;
-    // " foo.cpp#add"
-    const int index = rc.lastIndexOf(QLatin1Char('#'));
-    if (index != -1)
-        rc.truncate(index);
-    return rc.trimmed();
+    m_fileModel->filter(knownProjectFiles, fileNameColumn());
 }
 
 void PerforceSubmitEditor::updateFields()
@@ -161,12 +140,15 @@ void PerforceSubmitEditor::updateFields()
     widget->setDescriptionText(lines.join(newLine));
 
     lines = m_entries.value(QLatin1String("Files")).split(newLine);
-    lines.replaceInStrings(leadingTabPattern, QString());
-    QStringList fileList;
-    foreach (const QString &line, lines)
-        if (!line.isEmpty())
-            fileList.push_back(line);
-    widget->setFileList(fileList);
+    // split up "file#add" and store complete spec line as user data
+    foreach (const QString &specLine, lines) {
+        const QStringList list = specLine.split(QLatin1Char('#'));
+        if (list.size() == 2) {
+            const QString file = list.at(0).trimmed();
+            const QString state = list.at(1).trimmed();
+            m_fileModel->addFile(file, state).at(0)->setData(specLine, FileSpecRole);
+        }
+    }
 }
 
 void PerforceSubmitEditor::updateEntries()
@@ -181,13 +163,14 @@ void PerforceSubmitEditor::updateEntries()
     lines.replaceInStrings(QRegExp(QLatin1String("^")), tab);
     m_entries.insert(QLatin1String("Description"), newLine + lines.join(newLine) + QLatin1String("\n\n"));
     QString files = newLine;
-    // Files
-    const QStringList fileList = submitEditorWidget()->fileList();
-    const int count = fileList.size();
-    for (int i = 0; i < count; i++) {
-        files += tab;
-        files += fileList.at(i);
-        files += newLine;
+    // Re-build the file spec '<tab>file#add' from the user data
+    const int count = m_fileModel->rowCount();
+    for (int r = 0; r < count; r++) {
+        const QStandardItem *item = m_fileModel->item(r, 0);
+        if (item->checkState() == Qt::Checked) {
+            files += item->data(FileSpecRole).toString();
+            files += newLine;
+        }
     }
     files += newLine;
     m_entries.insert(QLatin1String("Files"), files);

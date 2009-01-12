@@ -31,33 +31,32 @@
 **
 ***************************************************************************/
 
-#ifndef SUBVERSIONSUBMITEDITOR_H
-#define SUBVERSIONSUBMITEDITOR_H
+#ifndef SUBMITMODEL_H
+#define SUBMITMODEL_H
 
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
+#include "vcsbase_global.h"
 
-#include <vcsbase/vcsbasesubmiteditor.h>
+#include <QtGui/QStandardItemModel>
 
-namespace Subversion {
-namespace Internal {
+namespace VCSBase {
 
-class SubversionSubmitEditor : public VCSBase::VCSBaseSubmitEditor
+/* A 2-column (checkable, state, file name) model to be used to list the files-
+ * in the submit editor. Provides header items and a convience to add files. */
+
+class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
-                           QWidget *parentWidget = 0);
+    explicit SubmitFileModel(QObject *parent = 0);
 
-    static QString fileFromStatusLine(const QString &statusLine);
+    // Convenience to add a file plus status text.
+    QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(), bool checked = true);
 
-    // A list of ( 'A','M','D') status indicators and file names.
-    typedef QPair<QString, QString> StatusFilePair;
-
-    void setStatusList(const QList<StatusFilePair> &statusOutput);
+    // Filter for entries contained in the filter list. Returns the
+    // number of deleted entries.
+    unsigned filter(const QStringList &filter, int column);
 };
 
-} // namespace Internal
-} // namespace Subversion
+}
 
-#endif // SUBVERSIONSUBMITEDITOR_H
+#endif // SUBMITMODEL_H

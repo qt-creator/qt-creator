@@ -139,6 +139,29 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+// Parse "svn status" output for added/modified/deleted files
+// "M<7blanks>file"
+typedef QList<SubversionSubmitEditor::StatusFilePair> StatusList;
+
+StatusList parseStatusOutput(const QString &output)
+{
+    StatusList changeSet;
+    const QString newLine = QString(QLatin1Char('\n'));
+    const QStringList list = output.split(newLine, QString::SkipEmptyParts);
+    foreach (const QString &l, list) {
+        const QString line =l.trimmed();
+        if (line.size() > 8) {
+            const QChar state = line.at(0);
+            if (state == QLatin1Char('A') || state == QLatin1Char('D') || state == QLatin1Char('M')) {
+                const QString fileName = line.mid(7);
+                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName));
+            }
+
+        }
+    }
+    return changeSet;
+}
+
 // ------------- SubversionPlugin
 Core::ICore *SubversionPlugin::m_coreInstance = 0;
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
@@ -694,7 +717,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     if (response.error)
         return;
     // Get list of added/modified/deleted files
-    const QStringList statusOutput = parseStatusOutput(response.stdOut);
+    const StatusList statusOutput = parseStatusOutput(response.stdOut);
     if (statusOutput.empty()) {
         showOutput(tr("There are no modified files."), true);
         return;
@@ -717,22 +740,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     m_changeTmpFile->seek(0);
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_changeTmpFile->fileName());
-    editor->setFileList(statusOutput);
-}
-
-// Parse "status" output for added/modified/deleted files
-QStringList SubversionPlugin::parseStatusOutput(const QString &output) const
-{
-    QStringList changeSet;
-    const QString newLine = QString(QLatin1Char('\n'));
-    const QStringList list = output.split(newLine, QString::SkipEmptyParts);
-    foreach (const QString &l, list) {
-        QString line(l.trimmed());
-        if (line.startsWith(QLatin1Char('A')) || line.startsWith(QLatin1Char('D'))
-            || line.startsWith(QLatin1Char('M')))
-            changeSet.append(line);
-    }
-    return changeSet;
+    editor->setStatusList(statusOutput);
 }
 
 bool SubversionPlugin::commit(const QString &messageFile,

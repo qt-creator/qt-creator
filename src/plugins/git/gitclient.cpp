@@ -622,73 +622,6 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     return StatusChanged;
 }
 
-/* Parse a git status file list:
- * \code
-    # Changes to be committed:
-    #<tab>modified:<blanks>git.pro
-    # Changed but not updated:
-    #<tab>modified:<blanks>git.pro
-    # Untracked files:
-    #<tab>git.pro
-    \endcode
-*/
-static bool parseFiles(const QString &output, CommitData *d)
-{
-    enum State { None, CommitFiles, NotUpdatedFiles, UntrackedFiles };
-
-    const QStringList lines = output.split(QLatin1Char('\n'));
-    const QString branchIndicator = QLatin1String(kBranchIndicatorC);
-    const QString commitIndicator = QLatin1String("# Changes to be committed:");
-    const QString notUpdatedIndicator = QLatin1String("# Changed but not updated:");
-    const QString untrackedIndicator = QLatin1String("# Untracked files:");
-
-    State s = None;
-    // Match added/changed-not-updated files: "#<tab>modified: foo.cpp"
-    QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+.+"));
-    QTC_ASSERT(filesPattern.isValid(), return false);
-
-    const QStringList::const_iterator cend = lines.constEnd();
-    for (QStringList::const_iterator it =  lines.constBegin(); it != cend; ++it) {
-        const QString line = *it;
-        if (line.startsWith(branchIndicator)) {
-            d->panelInfo.branch = line.mid(branchIndicator.size() + 1);
-        } else {
-            if (line.startsWith(commitIndicator)) {
-                s = CommitFiles;
-            } else {
-                if (line.startsWith(notUpdatedIndicator)) {
-                    s = NotUpdatedFiles;
-                } else {
-                    if (line.startsWith(untrackedIndicator)) {
-                        // Now match untracked: "#<tab>foo.cpp"
-                        s = UntrackedFiles;
-                        filesPattern = QRegExp(QLatin1String("#\\t.+"));
-                        QTC_ASSERT(filesPattern.isValid(), return false);
-                    } else {
-                        if (filesPattern.exactMatch(line)) {
-                            const QString fileSpec = line.mid(2).trimmed();
-                            switch (s) {
-                            case CommitFiles:
-                                d->stagedFiles.push_back(trimFileSpecification(fileSpec));
-                            break;
-                            case NotUpdatedFiles:
-                                d->unstagedFiles.push_back(trimFileSpecification(fileSpec));
-                                break;
-                            case UntrackedFiles:
-                                d->untrackedFiles.push_back(fileSpec);
-                                break;
-                            case None:
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return !d->stagedFiles.empty() || !d->unstagedFiles.empty() || !d->untrackedFiles.empty();
-}
-
 // Filter out untracked files that are not part of the project
 static void filterUntrackedFilesOfProject(const QString &repoDir, QStringList *l)
 {
@@ -771,20 +704,12 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #
     //    #       list of files...
 
-    if (!parseFiles(output, d)) {
+    if (!d->parseFilesFromStatus(output)) {
         *errorMessage = msgParseFilesFailed();
         return false;
     }
-    // Filter out untracked files that are not part of the project and,
-    // for symmetry, insert the prefix "untracked:" (as "added:" or ":modified"
-    // for staged files).
+    // Filter out untracked files that are not part of the project
     filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
-    if (!d->untrackedFiles.empty()) {
-        const QString untrackedPrefix = QLatin1String("untracked: ");
-        const QStringList::iterator pend = d->untrackedFiles.end();
-        for (QStringList::iterator it = d->untrackedFiles.begin(); it != pend; ++it)
-            it->insert(0, untrackedPrefix);
-    }
 
     d->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
     d->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
@@ -881,7 +806,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
         return RevertFailed;
     }
     CommitData data;
-    if (!parseFiles(output, &data)) {
+    if (!data.parseFilesFromStatus(output)) {
         *errorMessage = msgParseFilesFailed();
         return RevertFailed;
     }
@@ -896,9 +821,9 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
     }
 
     // From the status output, determine all modified [un]staged files.
-    const QString modifiedPattern = QLatin1String("modified: ");
-    const QStringList allStagedFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles.filter(modifiedPattern));
-    const QStringList allUnstagedFiles = GitSubmitEditor::statusListToFileList(data.unstagedFiles.filter(modifiedPattern));
+    const QString modifiedState = QLatin1String("modified");
+    const QStringList allStagedFiles = data.stagedFileNames(modifiedState);
+    const QStringList allUnstagedFiles = data.unstagedFileNames(modifiedState);
     // Unless a directory was passed, filter all modified files for the
     // argument file list.
     QStringList stagedFiles = allStagedFiles;

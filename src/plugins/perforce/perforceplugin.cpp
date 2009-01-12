@@ -494,19 +494,19 @@ void PerforcePlugin::submit()
     QTC_ASSERT(m_coreInstance, return);
 
     if (!checkP4Command()) {
-        showOutput(tr("No p4 executable specified!"));
+        showOutput(tr("No p4 executable specified!"), true);
         return;
     }
 
     if (m_changeTmpFile) {
-        showOutput(tr("Another submit is currently executed."));
+        showOutput(tr("Another submit is currently executed."), true);
         m_perforceOutputWindow->popup(false);
         return;
     }
 
     m_changeTmpFile = new QTemporaryFile(this);
     if (!m_changeTmpFile->open()) {
-        showOutput(tr("Cannot create temporary file."));
+        showOutput(tr("Cannot create temporary file."), true);
         delete m_changeTmpFile;
         m_changeTmpFile = 0;
         return;
@@ -970,7 +970,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             QByteArray change = m_changeTmpFile->readAll();
             m_changeTmpFile->close();
             if (!checkP4Command()) {
-                showOutput(tr("No p4 executable specified!"));
+                showOutput(tr("No p4 executable specified!"), true);
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
                 return false;
@@ -981,8 +981,8 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             proc.start(m_settings.p4Command,
                 basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
-            if (!proc.waitForStarted(3000)) {
-                showOutput(tr("Cannot execute p4 submit."));
+            if (!proc.waitForStarted(p4Timeout)) {
+                showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
@@ -992,7 +992,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             proc.closeWriteChannel();
 
             if (!proc.waitForFinished()) {
-                showOutput(tr("Cannot execute p4 submit."));
+                showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
@@ -1000,7 +1000,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             }
             QString output = QString::fromUtf8(proc.readAll());
             showOutput(output);
-            if (output.contains("Out of date files must be resolved or reverted")) {
+            if (output.contains("Out of date files must be resolved or reverted"), true) {
                 QMessageBox::warning(editor->widget(), "Pending change", "Could not submit the change, because your workspace was out of date. Created a pending submit instead.");
             }
             QApplication::restoreOverrideCursor();
