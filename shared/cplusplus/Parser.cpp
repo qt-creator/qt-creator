@@ -3327,12 +3327,12 @@ bool Parser::lookAtObjCSelector() const
 
 // objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
-bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
+bool Parser::parseObjCClassDeclaration(DeclarationAST *&)
 {
     if (LA() != T_AT_CLASS)
         return false;
 
-    unsigned objc_class_token = consumeToken();
+    /*unsigned objc_class_token = */ consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
     while (LA() == T_COMMA) {
@@ -3360,7 +3360,7 @@ bool Parser::parseObjCClassDeclaration(DeclarationAST *&node)
 //                             objc-interface-declaration-list
 //                             T_AT_END
 //
-bool Parser::parseObjCInterface(DeclarationAST *&node,
+bool Parser::parseObjCInterface(DeclarationAST *&,
                                 SpecifierAST *attributes)
 {
     if (! attributes && LA() == T___ATTRIBUTE__) {
@@ -3372,7 +3372,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
     if (LA() != T_AT_INTERFACE)
         return false;
 
-    unsigned objc_interface_token = consumeToken();
+    /*unsigned objc_interface_token = */ consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
@@ -3416,7 +3416,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
 
 // objc-protocol ::= T_AT_PROTOCOL (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
-bool Parser::parseObjCProtocol(DeclarationAST *&node,
+bool Parser::parseObjCProtocol(DeclarationAST *&,
                                SpecifierAST *attributes)
 {
     if (! attributes && LA() == T___ATTRIBUTE__) {
@@ -3428,7 +3428,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
     if (LA() != T_AT_PROTOCOL)
         return false;
 
-    unsigned objc_protocol_token = consumeToken();
+    /*unsigned objc_protocol_token = */ consumeToken();
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
@@ -3564,7 +3564,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
     if (LA() != T_AT_PROPERTY)
         return false;
 
-    unsigned objc_property_token = consumeToken();
+    /*unsigned objc_property_token = */ consumeToken();
 
     if (LA() == T_LPAREN) {
         unsigned lparen_token = 0, rparen_token = 0;
@@ -3589,7 +3589,7 @@ bool Parser::parseObjCMethodPrototype()
     if (LA() != T_PLUS && LA() != T_MINUS)
         return false;
 
-    unsigned method_type_token = consumeToken();
+    /*unsigned method_type_token = */ consumeToken();
 
     parseObjCTypeName();
 
