@@ -38,7 +38,6 @@
 
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
-#include "viewmanagerinterface.h"
 
 #include <utils/qtcassert.h>
 

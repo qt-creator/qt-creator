@@ -6,14 +6,14 @@ language                = Cpp
 headerdirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
-                          ../../src/plugins/core \
-                          ../../src/plugins/core/actionmanager
+                          ../../src/plugins/coreplugin \
+                          ../../src/plugins/coreplugin/actionmanager
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
-                          ../../src/plugins/core \
-                          ../../src/plugins/core/actionmanager
+                          ../../src/plugins/coreplugin \
+                          ../../src/plugins/coreplugin/actionmanager
 
 headers.fileextesnions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"

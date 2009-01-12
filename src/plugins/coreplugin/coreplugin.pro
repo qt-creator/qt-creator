@@ -73,7 +73,8 @@ SOURCES += mainwindow.cpp \
     rightpane.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
-    mimedatabase.cpp
+    mimedatabase.cpp \
+    icore.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     editmode.h \

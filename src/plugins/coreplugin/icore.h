@@ -56,7 +56,6 @@ class FileManager;
 class MessageManager;
 class IEditor;
 class UniqueIDManager;
-class ViewManagerInterface;
 class EditorManager;
 class ProgressManagerInterface;
 class ScriptManagerInterface;
@@ -86,7 +85,6 @@ public:
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;
-    virtual ViewManagerInterface *viewManager() const = 0;
     virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
     virtual ProgressManagerInterface *progressManager() const = 0;
@@ -100,20 +98,17 @@ public:
     virtual QPrinter *printer() const = 0;
 
     virtual QString resourcePath() const = 0;
-    virtual QString libraryPath() const = 0;
-
-    virtual IContext *currentContextObject() const = 0;
 
     virtual QMainWindow *mainWindow() const = 0;
-    virtual QStatusBar *statusBar() const = 0;
 
     // adds and removes additional active contexts, this context is appended to the
     // currently active contexts. call updateContext after changing
+    virtual IContext *currentContextObject() const = 0;
     virtual void addAdditionalContext(int context) = 0;
     virtual void removeAdditionalContext(int context) = 0;
     virtual bool hasContext(int context) const = 0;
-    virtual void addContextObject(IContext *contex) = 0;
-    virtual void removeContextObject(IContext *contex) = 0;
+    virtual void addContextObject(IContext *context) = 0;
+    virtual void removeContextObject(IContext *context) = 0;
 
     virtual void updateContext() = 0;
 
@@ -122,7 +117,7 @@ public:
 signals:
     void coreOpened();
     void saveSettingsRequested();
-    void settingsDialogRequested();
+    void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(Core::IContext *context);
     void contextChanged(Core::IContext *context);

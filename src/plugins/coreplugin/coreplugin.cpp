@@ -37,7 +37,6 @@
 #include "editormanager.h"
 #include "mainwindow.h"
 #include "modemanager.h"
-#include "viewmanager.h"
 #include "fileiconprovider.h"
 
 #include <QtCore/qplugin.h>

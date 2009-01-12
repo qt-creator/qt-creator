@@ -60,7 +60,6 @@ public:
     FileManager *fileManager() const ;
     UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;
-    ViewManagerInterface *viewManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
     ProgressManagerInterface *progressManager() const;
@@ -74,12 +73,10 @@ public:
     QPrinter *printer() const;
 
     QString resourcePath() const;
-    QString libraryPath() const;
 
     IContext *currentContextObject() const;
 
     QMainWindow *mainWindow() const;
-    QStatusBar *statusBar() const;
 
     // adds and removes additional active contexts, this context is appended to the
     // currently active contexts. call updateContext after changing

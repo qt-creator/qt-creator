@@ -783,7 +783,7 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
 
 void MainWindow::showOptionsDialog(const QString &category, const QString &page)
 {
-    emit m_coreImpl->settingsDialogRequested();
+    emit m_coreImpl->optionsDialogRequested();
     SettingsDialog dlg(this, category, page);
     dlg.exec();
 }
@@ -838,11 +838,6 @@ MessageManager *MainWindow::messageManager() const
 VCSManager *MainWindow::vcsManager() const
 {
     return m_vcsManager;
-}
-
-ViewManagerInterface *MainWindow::viewManager() const
-{
-    return m_viewManager;
 }
 
 EditorManager *MainWindow::editorManager() const
