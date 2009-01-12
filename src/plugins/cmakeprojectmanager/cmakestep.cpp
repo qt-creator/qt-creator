@@ -55,7 +55,8 @@ bool CMakeStep::init(const QString &buildConfiguration)
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "cmake"); // TODO give full path here?
-    setArguments(buildConfiguration, QStringList() << "-GUnix Makefiles"); // TODO
+    QString sourceDir = QFileInfo(m_pro->file()->fileName()).absolutePath();
+    setArguments(buildConfiguration, QStringList() << sourceDir << "-GUnix Makefiles"); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
@@ -72,12 +73,12 @@ void CMakeStep::run(QFutureInterface<bool> &fi)
 
 QString CMakeStep::name()
 {
-    return "CMake";
+    return Constants::CMAKESTEP;
 }
 
 QString CMakeStep::displayName()
 {
-    return Constants::CMAKESTEP;
+    return "CMake";
 }
 
 ProjectExplorer::BuildStepConfigWidget *CMakeStep::createConfigWidget()

@@ -46,6 +46,7 @@ class CMakeBuildStepConfigWidget;
 
 class CMakeStep : public ProjectExplorer::AbstractProcessStep
 {
+    Q_OBJECT
 public:
     CMakeStep(CMakeProject *pro);
     ~CMakeStep();
