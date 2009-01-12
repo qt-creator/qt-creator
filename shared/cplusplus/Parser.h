@@ -206,45 +206,31 @@ public:
     bool parseUsingDirective(DeclarationAST *&node);
     bool parseWhileStatement(StatementAST *&node);
 
-    // ObjC++
-    bool parseObjCClassImplementation(DeclarationAST *&node);
-    bool parseObjCClassDeclaration(DeclarationAST *&node);
-    bool parseObjCInterfaceDeclaration(DeclarationAST *&node);
-    bool parseObjCProtocolDeclaration(DeclarationAST *&node);
-    bool parseObjCEndDeclaration(DeclarationAST *&node);
-    bool parseObjCAliasDeclaration(DeclarationAST *&node);
-    bool parseObjCPropertySynthesize(DeclarationAST *&node);
-    bool parseObjCPropertyDynamic(DeclarationAST *&node);
-
-    bool parseObjCIdentifierList(IdentifierListAST *&node);
-
-    bool parseObjCPropertyDeclaration(DeclarationAST *&node);
-    bool parseObjCProtocolRefs();
-    bool parseObjCClassInstanceVariables();
-    bool parseObjCInterfaceMemberDeclaration();
-    bool parseObjCInterfaceDeclList();
-    bool parseObjCMethodPrototype();
-
-    bool parseObjCExpression(ExpressionAST *&node);
-    bool parseObjCMessageExpression(ExpressionAST *&node);
-    bool parseObjCStringLiteral(ExpressionAST *&node);
-    bool parseObjCEncodeExpression(ExpressionAST *&node);
-    bool parseObjCProtocolExpression(ExpressionAST *&node);
-    bool parseObjCSelectorExpression(ExpressionAST *&node);
-
-    bool parseObjCMessageReceiver(ExpressionAST *&node);
-    bool parseObjCMessageArguments();
-
-    bool parseObjCMethodSignature();
-    bool parseObjCMethodDefinitionList();
-    bool parseObjCAtProperty();
-    bool parseObjCTypeName();
-    bool parseObjCProtocolQualifiers();
-
-    bool lookAtObjCSelector() const;
-
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
+
+    // ObjC++
+    bool parseObjCClassDeclaration(DeclarationAST *&node);
+    bool parseObjCInterface(DeclarationAST *&node,
+                            SpecifierAST *attributes = 0);
+    bool parseObjCProtocol(DeclarationAST *&node,
+                           SpecifierAST *attributes = 0);
+
+    bool parseObjCProtocolRefs();
+    bool parseObjClassInstanceVariables();
+    bool parseObjCInterfaceMemberDeclaration();
+    bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
+    bool parseObjCPropertyDeclaration(DeclarationAST *&node,
+                                      SpecifierAST *attributes = 0);
+    bool parseObjCMethodPrototype();
+    bool parseObjCPropertyAttribute();
+    bool parseObjCTypeName();
+    bool parseObjCSelector();
+    bool parseObjCKeywordDeclaration();
+    bool parseObjCTypeQualifiers();
+    bool parseObjCEnd(DeclarationAST *&node);
+
+    bool lookAtObjCSelector() const;
 
     bool skipUntil(int token);
     bool skipUntilDeclaration();

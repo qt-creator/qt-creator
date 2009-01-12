@@ -20,10 +20,14 @@ public:
     {
         StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
+        unit->setObjCEnabled(true);
         unit->setSource(source.constData(), source.length());
         unit->parse(mode);
         return unit;
     }
+
+    TranslationUnit *parseDeclaration(const QByteArray &source)
+    { return parse(source, TranslationUnit::ParseDeclaration); }
 
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
@@ -43,6 +47,11 @@ private slots:
     void while_condition_statement();
     void for_statement();
     void cpp_initializer_or_function_declaration();
+
+    // objc++
+    void objc_attributes_followed_by_at_keyword();
+    void objc_protocol_forward_declaration_1();
+    void objc_protocol_definition_1();
 };
 
 void tst_AST::simple_name()
@@ -293,6 +302,31 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QCOMPARE(param->type_specifier->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
 }
 
+void tst_AST::objc_attributes_followed_by_at_keyword()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+"__attribute__((deprecated)) @interface foo <bar>\n"
+"{\n"
+" int a, b;\n"
+"}\n"
+"+ (id) init;\n"
+"- (id) init:(int)a foo:(int)b, c;\n"
+"@end\n"
+    ));
+    AST *ast = unit->ast();
+}
+
+void tst_AST::objc_protocol_forward_declaration_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo;"));
+    AST *ast = unit->ast();
+}
+
+void tst_AST::objc_protocol_definition_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo <ciao, bar> @end"));
+    AST *ast = unit->ast();
+}
 
 QTEST_APPLESS_MAIN(tst_AST)
 #include "tst_ast.moc"
