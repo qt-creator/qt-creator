@@ -60,18 +60,25 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+
+    void setUserArguments(const QString &buildConfiguration, const QString &arguments);
+    QString userArguments(const QString &buildConfiguration) const;
 private:
     CMakeProject *m_pro;
 };
 
 class CMakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
 public:
     CMakeBuildStepConfigWidget(CMakeStep *cmakeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+private slots:
+    void argumentsLineEditChanged();
 private:
     CMakeStep *m_cmakeStep;
+    QString m_buildConfiguration;
     QLineEdit *m_arguments;
 };
 

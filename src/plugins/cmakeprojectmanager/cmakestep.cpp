@@ -57,8 +57,14 @@ bool CMakeStep::init(const QString &buildConfiguration)
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "cmake"); // TODO give full path here?
+
     QString sourceDir = QFileInfo(m_pro->file()->fileName()).absolutePath();
-    setArguments(buildConfiguration, QStringList() << sourceDir << "-GUnix Makefiles"); // TODO
+    setArguments(buildConfiguration,
+                 QStringList()
+                 << sourceDir
+                 << "-GUnix Makefiles"
+                 << value(buildConfiguration, "userArguments").toStringList()); // TODO
+
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
@@ -93,6 +99,16 @@ bool CMakeStep::immutable() const
     return true;
 }
 
+QString CMakeStep::userArguments(const QString &buildConfiguration) const
+{
+    return ProjectExplorer::Environment::joinArgumentList(value(buildConfiguration, "userArguments").toStringList());
+}
+
+void CMakeStep::setUserArguments(const QString &buildConfiguration, const QString &arguments)
+{
+    setValue(buildConfiguration, "userArguments", ProjectExplorer::Environment::parseCombinedArgString(arguments));
+}
+
 //
 // CMakeBuildStepConfigWidget
 //
@@ -104,6 +120,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeStep *cmakeStep)
     setLayout(fl);
     m_arguments = new QLineEdit(this);
     fl->addRow("Additional arguments", m_arguments);
+    connect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
 }
 
 QString CMakeBuildStepConfigWidget::displayName() const
@@ -111,9 +128,17 @@ QString CMakeBuildStepConfigWidget::displayName() const
     return "CMake";
 }
 
-void CMakeBuildStepConfigWidget::init(const QString & /*buildConfiguration */)
+void CMakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 {
-    // TODO
+    m_buildConfiguration = buildConfiguration;
+    disconnect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
+    m_arguments->setText(m_cmakeStep->userArguments(buildConfiguration));
+    connect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
+}
+
+void CMakeBuildStepConfigWidget::argumentsLineEditChanged()
+{
+    m_cmakeStep->setUserArguments(m_buildConfiguration, m_arguments->text());
 }
 
 //
