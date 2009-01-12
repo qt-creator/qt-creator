@@ -222,6 +222,7 @@ public:
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
                                       SpecifierAST *attributes = 0);
+    bool parseObjCImplementation(DeclarationAST *&node);
     bool parseObjCMethodPrototype();
     bool parseObjCPropertyAttribute();
     bool parseObjCTypeName();

@@ -413,6 +413,9 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_AT_PROTOCOL:
         return parseObjCProtocol(node);
 
+    case T_AT_IMPLEMENTATION:
+        return parseObjCImplementation(node);
+
     case T_AT_END:
         return parseObjCEnd(node);
 
@@ -3456,6 +3459,40 @@ bool Parser::parseObjCProtocol(DeclarationAST *&,
     return true;
 }
 
+// objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER (T_COLON T_IDENTIFIER)?
+//                         objc-class-instance-variables-opt
+// objc-implementation ::= T_AT_IMPLEMENTAION T_IDENTIFIER T_LPAREN T_IDENTIFIER T_RPAREN
+//
+bool Parser::parseObjCImplementation(DeclarationAST *&)
+{
+    if (LA() != T_AT_IMPLEMENTATION)
+        return false;
+
+    consumeToken();
+
+    unsigned identifier_token = 0;
+    match(T_IDENTIFIER, &identifier_token);
+
+    if (LA() == T_LPAREN) {
+        // a category implementation
+        unsigned lparen_token = 0, rparen_token = 0;
+        unsigned category_name_token = 0;
+        match(T_LPAREN, &lparen_token);
+        match(T_IDENTIFIER, &category_name_token);
+        match(T_RPAREN, &rparen_token);
+        return true;
+    }
+
+    // a class implementation
+    if (LA() == T_COLON) {
+        consumeToken();
+        unsigned super_class_name_token = 0;
+        match(T_IDENTIFIER, &super_class_name_token);
+    }
+
+    parseObjClassInstanceVariables();
+    return true;
+}
 
 // objc-protocol-refs ::= T_LESS (T_IDENTIFIER @ T_COMMA) T_GREATER
 //
