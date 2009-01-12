@@ -71,7 +71,7 @@ void MakeStep::run(QFutureInterface<bool> &fi)
 
 QString MakeStep::name()
 {
-    return Constants::CMAKESTEP;
+    return Constants::MAKESTEP;
 }
 
 QString MakeStep::displayName()

@@ -37,6 +37,8 @@
 #include "cmakeprojectconstants.h"
 
 #include <utils/qtcassert.h>
+#include <QtGui/QFormLayout>
+#include <QtGui/QLineEdit>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -83,7 +85,7 @@ QString CMakeStep::displayName()
 
 ProjectExplorer::BuildStepConfigWidget *CMakeStep::createConfigWidget()
 {
-    return new CMakeBuildStepConfigWidget();
+    return new CMakeBuildStepConfigWidget(this);
 }
 
 bool CMakeStep::immutable() const
@@ -94,6 +96,15 @@ bool CMakeStep::immutable() const
 //
 // CMakeBuildStepConfigWidget
 //
+
+CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeStep *cmakeStep)
+    : m_cmakeStep(cmakeStep)
+{
+    QFormLayout *fl = new QFormLayout(this);
+    setLayout(fl);
+    m_arguments = new QLineEdit(this);
+    fl->addRow("Additional arguments", m_arguments);
+}
 
 QString CMakeBuildStepConfigWidget::displayName() const
 {

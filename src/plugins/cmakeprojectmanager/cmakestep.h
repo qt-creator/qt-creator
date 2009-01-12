@@ -37,6 +37,8 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
 
+class QLineEdit;
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -65,8 +67,12 @@ private:
 class CMakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 {
 public:
+    CMakeBuildStepConfigWidget(CMakeStep *cmakeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+private:
+    CMakeStep *m_cmakeStep;
+    QLineEdit *m_arguments;
 };
 
 class CMakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
