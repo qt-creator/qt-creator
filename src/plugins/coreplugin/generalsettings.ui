@@ -77,7 +77,7 @@
           </property>
           <property name="icon">
            <iconset resource="core.qrc">
-            <normaloff>:/qworkbench/images/reset.png</normaloff>:/qworkbench/images/reset.png</iconset>
+            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
           </property>
          </widget>
         </item>
@@ -118,7 +118,7 @@
           </property>
           <property name="icon">
            <iconset resource="core.qrc">
-            <normaloff>:/qworkbench/images/reset.png</normaloff>:/qworkbench/images/reset.png</iconset>
+            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
           </property>
          </widget>
         </item>

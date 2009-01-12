@@ -46,7 +46,7 @@ FileWizardDialog::FileWizardDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
-    setPixmap(QWizard::WatermarkPixmap, QPixmap(QLatin1String(":/qworkbench/images/qtwatermark.png")));
+    setPixmap(QWizard::WatermarkPixmap, QPixmap(QLatin1String(":/core/images/qtwatermark.png")));
     addPage(m_filePage);
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));
 }

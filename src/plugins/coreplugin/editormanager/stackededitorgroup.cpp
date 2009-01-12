@@ -103,7 +103,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
         m_lockButton->setProperty("type", QLatin1String("dockbutton"));
 
         m_closeButton->setAutoRaise(true);
-        m_closeButton->setIcon(QIcon(":/qworkbench/images/closebutton.png"));
+        m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
         m_closeButton->setProperty("type", QLatin1String("dockbutton"));
 
         QToolBar *rightToolBar = new QToolBar;
@@ -150,7 +150,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
 
         QToolButton *closeButton = new QToolButton;
         closeButton->setAutoRaise(true);
-        closeButton->setIcon(QIcon(":/qworkbench/images/clear.png"));
+        closeButton->setIcon(QIcon(":/core/images/clear.png"));
         closeButton->setToolTip(tr("Close"));
         connect(closeButton, SIGNAL(clicked()), m_infoWidget, SLOT(hide()));
 
@@ -303,8 +303,8 @@ void StackedEditorGroup::checkEditorStatus()
 
 void StackedEditorGroup::updateEditorStatus(IEditor *editor)
 {
-    static const QIcon lockedIcon(QLatin1String(":/qworkbench/images/locked.png"));
-    static const QIcon unlockedIcon(QLatin1String(":/qworkbench/images/unlocked.png"));
+    static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
+    static const QIcon unlockedIcon(QLatin1String(":/core/images/unlocked.png"));
 
     if (editor->file()->isReadOnly()) {
         m_lockButton->setIcon(lockedIcon);

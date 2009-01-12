@@ -81,7 +81,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     addWidget(spacerItem);
     QToolButton *close = new QToolButton;
     close->setProperty("type", QLatin1String("dockbutton"));
-    close->setIcon(QIcon(":/qworkbench/images/closebutton.png"));
+    close->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
     addWidget(close);
 

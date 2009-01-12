@@ -102,11 +102,11 @@ public:
     {
         style = QStyleFactory::create(baseStyleName);
         QTC_ASSERT(style, /**/);
-        buttonImage_pressed = QImage(":/qworkbench/images/pushbutton_pressed.png");
-        buttonImage = QImage(":/qworkbench/images/pushbutton.png");
+        buttonImage_pressed = QImage(":/core/images/pushbutton_pressed.png");
+        buttonImage = QImage(":/core/images/pushbutton.png");
 
-        lineeditImage = QImage(":/qworkbench/images/inputfield.png");
-        lineeditImage_disabled = QImage(":/qworkbench/images/inputfield_disabled.png");
+        lineeditImage = QImage(":/core/images/inputfield.png");
+        lineeditImage_disabled = QImage(":/core/images/inputfield_disabled.png");
     }
 
     ~ManhattanStylePrivate()
@@ -345,7 +345,7 @@ void ManhattanStyle::polish(QPalette &pal)
 QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                                  const QWidget *widget) const
 {
-    static const QIcon closeButton(":/qworkbench/images/closebutton.png");
+    static const QIcon closeButton(":/core/images/closebutton.png");
     QIcon icon;
     switch (standardIcon) {
     case QStyle::SP_TitleBarCloseButton:
@@ -360,7 +360,7 @@ QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, co
 QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                        const QWidget *widget) const
 {
-    static const QPixmap closeButton(":/qworkbench/images/closebutton.png");
+    static const QPixmap closeButton(":/core/images/closebutton.png");
     QPixmap pixmap;
     switch (standardPixmap) {
     case QStyle::SP_TitleBarCloseButton:

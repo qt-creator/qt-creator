@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef QWORKBENCHPLUGIN_H
-#define QWORKBENCHPLUGIN_H
+#ifndef COREPLUGIN_H
+#define COREPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 
@@ -68,4 +68,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // QWORKBENCHPLUGIN_H
+#endif // COREPLUGIN_H

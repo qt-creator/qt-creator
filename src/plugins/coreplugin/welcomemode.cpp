@@ -92,16 +92,16 @@ WelcomeModePrivate::WelcomeModePrivate() :
 #else
     m_label(new QLabel),
 #endif
-    m_htmlTemplate(readFile(QLatin1String(":/qworkbench/html/welcome.html"))),
-    m_sessionHtmlTemplate(readFile(QLatin1String(":/qworkbench/html/recent_sessions.html"))),
-    m_projectHtmlTemplate(readFile(QLatin1String(":/qworkbench/html/recent_projects.html"))),
-    m_baseUrl(QUrl(QLatin1String("qrc:/qworkbench/html/welcome.html")))
+    m_htmlTemplate(readFile(QLatin1String(":/core/html/welcome.html"))),
+    m_sessionHtmlTemplate(readFile(QLatin1String(":/core/html/recent_sessions.html"))),
+    m_projectHtmlTemplate(readFile(QLatin1String(":/core/html/recent_projects.html"))),
+    m_baseUrl(QUrl(QLatin1String("qrc:/core/html/welcome.html")))
 {
 }
 
 #if defined(QT_NO_WEBKIT)
 
-const char *LABEL = "<center><table><tr><td><img src=\":/qworkbench/html/images/product_logo.png\"/></td><td width=300>"
+const char *LABEL = "<center><table><tr><td><img src=\":/core/html/images/product_logo.png\"/></td><td width=300>"
                     "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
                     "developers to create graphically appealing applications for desktop, "
                     "embedded, and mobile devices. "
@@ -172,7 +172,7 @@ QString WelcomeMode::name() const
 
 QIcon WelcomeMode::icon() const
 {
-    return QIcon(QLatin1String(":/qworkbench/images/qtcreator_logo_32.png"));
+    return QIcon(QLatin1String(":/core/images/qtcreator_logo_32.png"));
 }
 
 int WelcomeMode::priority() const

@@ -36,6 +36,7 @@
 #include "ui_buildstepspage.h"
 #include "project.h"
 
+#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -50,8 +51,8 @@ BuildStepsPage::BuildStepsPage(Project *project) :
     m_ui->setupUi(this);
 
     m_ui->buildStepAddButton->setMenu(new QMenu(this));
-    m_ui->buildStepAddButton->setIcon(QIcon(":/qworkbench/images/plus.png"));
-    m_ui->buildStepRemoveToolButton->setIcon(QIcon(":/qworkbench/images/minus.png"));
+    m_ui->buildStepAddButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
+    m_ui->buildStepRemoveToolButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
     m_ui->buildStepUpToolButton->setArrowType(Qt::UpArrow);
     m_ui->buildStepDownToolButton->setArrowType(Qt::DownArrow);
 
