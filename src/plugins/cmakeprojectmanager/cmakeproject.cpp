@@ -320,6 +320,8 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         qDebug()<<"Create run configurations of m_targets";
         bool setActive = false;
         foreach(const CMakeTarget &ct, m_targets) {
+            if (ct.executable.isEmpty())
+                continue;
             QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory));
             addRunConfiguration(rc);
             // The first one gets the honour of beeing the active one
@@ -501,7 +503,7 @@ void CMakeCbpParser::parseTarget()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_targetType || m_target.title == "all") {
+            if (m_targetType || m_target.title == "all" || m_target.title == "install") {
                 m_targets.append(m_target);
             }
             return;
