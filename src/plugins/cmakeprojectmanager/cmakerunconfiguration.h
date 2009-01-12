@@ -71,7 +71,7 @@ private:
  * QString nameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
-class CMakeRunConfigurationFactory : public QObject
+class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT;
 public:
