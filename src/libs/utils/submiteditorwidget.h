@@ -116,7 +116,6 @@ private slots:
     void triggerDiffSelected();
     void diffActivated(const QModelIndex &index);
     void diffActivatedDelayed();
-    void fileDataChanged (const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void updateActions();
     void updateSubmitAction();
     void updateDiffAction();
