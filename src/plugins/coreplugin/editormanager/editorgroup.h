@@ -127,6 +127,7 @@ namespace Internal {
 // Also used by StackedEditorGroup
 class EditorModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     EditorModel(QObject *parent) : QAbstractItemModel(parent) {}
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -137,30 +138,16 @@ public:
 
     void addEditor(IEditor *editor) { insertEditor(rowCount(), editor); }
 
-    void insertEditor(int index, IEditor *editor)
-    {
-        beginInsertRows(QModelIndex(), index, index);
-        m_editors.insert(index, editor);
-        endInsertRows();
-    }
-
-    void removeEditor(IEditor *editor)
-    {
-        int index = m_editors.indexOf(editor);
-        beginRemoveRows(QModelIndex(), index, index);
-        m_editors.removeAt(index);
-        endRemoveRows();
-    }
-
-    void emitDataChanged(IEditor *editor)
-    {
-        int idx = m_editors.indexOf(editor);
-        QModelIndex mindex = index(idx, 0);
-        emit dataChanged(mindex, mindex);
-    }
+    void insertEditor(int index, IEditor *editor);
+    void removeEditor(IEditor *editor);
+    void emitDataChanged(IEditor *editor);
 
     QList<IEditor *> editors() const { return m_editors; }
     QModelIndex indexOf(IEditor *editor) const;
+    QModelIndex indexOf(const QString &filename) const;
+
+private slots:
+    void itemChanged();
 private:
     QList<IEditor *> m_editors;
 };

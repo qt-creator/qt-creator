@@ -118,7 +118,8 @@ EditorManagerPlaceHolder* EditorManagerPlaceHolder::current()
 
 // ---------------- EditorManager
 
-struct Core::EditorManagerPrivate {
+namespace Core {
+struct EditorManagerPrivate {
     struct EditLocation {
         QPointer<IEditor> editor;
         QString fileName;
@@ -161,8 +162,10 @@ struct Core::EditorManagerPrivate {
     QString fileFilters;
     QString selectedFilter;
 
+    EditorModel *m_editorModel;
     QString m_externalEditor;
 };
+}
 
 EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_splitter(0),
@@ -183,7 +186,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_windowPopup(0),
     m_coreListener(0)
 {
-
+    m_editorModel = new EditorModel(parent);
 }
 
 EditorManagerPrivate::~EditorManagerPrivate()
@@ -408,6 +411,7 @@ void EditorManager::updateEditorHistory()
 bool EditorManager::registerEditor(IEditor *editor)
 {
     if (editor) {
+        m_d->m_editorModel->addEditor(editor);
         if (!hasDuplicate(editor)) {
             m_d->m_core->fileManager()->addFile(editor->file());
             m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
@@ -422,6 +426,7 @@ bool EditorManager::registerEditor(IEditor *editor)
 bool EditorManager::unregisterEditor(IEditor *editor)
 {
     if (editor) {
+        m_d->m_editorModel->removeEditor(editor);
         if (!hasDuplicate(editor))
             m_d->m_core->fileManager()->removeFile(editor->file());
         m_d->m_editorHistory.removeAll(editor);
@@ -1171,6 +1176,7 @@ void EditorManager::updateActions()
 
 QList<IEditor*> EditorManager::openedEditors() const
 {
+    return m_d->m_editorModel->editors();
     QList<IEditor*> editors;
     const QList<EditorGroup*> groups = m_d->m_splitter->groups();
     foreach (EditorGroup *group, groups) {
@@ -1178,6 +1184,12 @@ QList<IEditor*> EditorManager::openedEditors() const
     }
     return editors;
 }
+
+Internal::EditorModel *EditorManager::openedEditorsModel() const
+{
+    return m_d->m_editorModel;
+}
+
 
 QList<EditorGroup *> EditorManager::editorGroups() const
 {

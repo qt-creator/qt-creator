@@ -68,10 +68,12 @@ struct EditorManagerPrivate;
 
 namespace Internal {
 class OpenEditorsWindow;
+class EditorModel;
 class EditorSplitter;
 
 class EditorClosingCoreListener;
 class OpenEditorsViewFactory;
+
 } // namespace Internal
 
 class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
@@ -119,6 +121,9 @@ public:
     EditorGroup *currentEditorGroup() const;
 
     QList<IEditor*> openedEditors() const;
+
+    Internal::EditorModel *openedEditorsModel() const;
+
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
     QList<EditorGroup *> editorGroups() const;
     QList<IEditor*> editorHistory() const;

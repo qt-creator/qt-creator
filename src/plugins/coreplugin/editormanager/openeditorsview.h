@@ -59,19 +59,14 @@ public:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
-    void registerEditor(Core::IEditor *editor);
-    void unregisterEditors(QList<Core::IEditor *> editors);
-    void updateEditorList();
-    void selectEditor(QTreeWidgetItem *item = 0);
-    void updateEditor();
+    void selectEditor(const QModelIndex &);
+    void selectEditor();
     void closeEditors();
     void closeAllEditors();
-    void updateCurrentItem(QTreeWidgetItem *currentItem = 0);
+    void updateCurrentItem(Core::IEditor*);
     void putFocusToEditorList();
 
 private:
-    static void updateItem(QTreeWidgetItem *item, Core::IEditor *editor);
-
     Ui::OpenEditorsView m_ui;
     QWidget *m_widget;
 };

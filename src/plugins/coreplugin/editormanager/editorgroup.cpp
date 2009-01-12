@@ -93,8 +93,38 @@ int EditorModel::columnCount(const QModelIndex &parent) const
 
 int EditorModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    return m_editors.count();
+    if (!parent.isValid())
+        return m_editors.count();
+    return 0;
+}
+
+void EditorModel::insertEditor(int index, IEditor *editor)
+{
+    beginInsertRows(QModelIndex(), index, index);
+    m_editors.insert(index, editor);
+    connect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+    endInsertRows();
+}
+
+void EditorModel::removeEditor(IEditor *editor)
+{
+    int idx = m_editors.indexOf(editor);
+    if (idx < 0)
+        return;
+    beginRemoveRows(QModelIndex(), idx, idx);
+    m_editors.removeAt(idx);
+    endRemoveRows();
+    disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+}
+
+
+void EditorModel::emitDataChanged(IEditor *editor)
+{
+    int idx = m_editors.indexOf(editor);
+    if (idx < 0)
+        return;
+    QModelIndex mindex = index(idx, 0);
+    emit dataChanged(mindex, mindex);
 }
 
 QModelIndex EditorModel::index(int row, int column, const QModelIndex &parent) const
@@ -136,8 +166,22 @@ QModelIndex EditorModel::indexOf(IEditor *editor) const
 {
     int idx = m_editors.indexOf(editor);
     if (idx < 0)
-        return QModelIndex();
+        return indexOf(editor->file()->fileName());
     return createIndex(idx, 0);
+}
+
+QModelIndex EditorModel::indexOf(const QString &fileName) const
+{
+    for (int i = 0; i < m_editors.count(); ++i)
+        if (m_editors.at(i)->file()->fileName() == fileName)
+            return createIndex(i, 0);
+    return QModelIndex();
+}
+
+
+void EditorModel::itemChanged()
+{
+    emitDataChanged(qobject_cast<IEditor*>(sender()));
 }
 
 //================EditorGroupContext===============
