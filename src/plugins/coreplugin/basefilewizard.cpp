@@ -503,7 +503,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 
 QPixmap BaseFileWizard::watermark()
 {
-    return QPixmap(QLatin1String(":/qworkbench/images/qtwatermark.png"));
+    return QPixmap(QLatin1String(":/core/images/qtwatermark.png"));
 }
 
 void BaseFileWizard::setupWizard(QWizard *w)

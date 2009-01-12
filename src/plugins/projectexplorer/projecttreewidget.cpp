@@ -159,7 +159,7 @@ ProjectTreeWidget::ProjectTreeWidget(Core::ICore *core, QWidget *parent)
 
     m_toggleSync = new QToolButton;
     m_toggleSync->setProperty("type", "dockbutton");
-    m_toggleSync->setIcon(QIcon(":/qworkbench/images/linkicon.png"));
+    m_toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));

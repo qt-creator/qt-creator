@@ -172,8 +172,8 @@ void OpenEditorsWidget::updateCurrentItem(QTreeWidgetItem *currentItem)
 //todo: this is almost duplicated in openeditorswindow
 void OpenEditorsWidget::updateItem(QTreeWidgetItem *item, IEditor *editor)
 {
-    static const QIcon lockedIcon(QLatin1String(":/qworkbench/images/locked.png"));
-    static const QIcon emptyIcon(QLatin1String(":/qworkbench/images/empty14.png"));
+    static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
+    static const QIcon emptyIcon(QLatin1String(":/core/images/empty14.png"));
     QString title = editor->displayName();
     if (editor->file()->isModified())
         title += tr("*");

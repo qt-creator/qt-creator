@@ -248,6 +248,7 @@ int main(int argc, char *argv[])
     Control control;
     StringLiteral *fileId = control.findOrInsertFileName("<stdin>");
     TranslationUnit unit(&control, fileId);
+    unit.setObjCEnabled(true);
     unit.setSource(source.constData(), source.size());
     unit.parse();
     if (! unit.ast())

@@ -149,7 +149,7 @@ MainWindow::MainWindow() :
     m_toggleSideBarButton(new QToolButton)
 {
     setWindowTitle(tr("Qt Creator"));
-    qApp->setWindowIcon(QIcon(":/qworkbench/images/qtcreator_logo_128.png"));
+    qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
     setDockNestingEnabled(true);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
