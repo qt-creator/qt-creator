@@ -51,7 +51,7 @@ class ICommand;
 
 namespace Internal {
 
-class ActionManager;
+class ActionManagerPrivate;
 class Command;
 class MainWindow;
 
@@ -101,7 +101,7 @@ private:
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
 
     QList<ShortcutItem *> m_scitems;
-    ActionManager *m_am;
+    ActionManagerPrivate *m_am;
     int m_key[4], m_keyNum;
     Ui_ShortcutSettings *m_page;
 };

@@ -33,7 +33,7 @@
 
 #include "shortcutsettings.h"
 #include "ui_shortcutsettings.h"
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 #include "command.h"
 #include "coreconstants.h"
 #include "coreimpl.h"
@@ -281,7 +281,7 @@ void ShortcutSettings::initialize()
 {
     QMap<QString, QTreeWidgetItem *> categories;
 
-    m_am = ActionManager::instance();
+    m_am = ActionManagerPrivate::instance();
     UniqueIDManager *uidm =
         CoreImpl::instance()->uniqueIDManager();
 

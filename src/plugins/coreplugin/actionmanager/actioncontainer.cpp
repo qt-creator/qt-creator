@@ -32,6 +32,8 @@
 ***************************************************************************/
 
 #include "actioncontainer.h"
+#include "actionmanager_p.h"
+
 #include "command.h"
 #include "coreimpl.h"
 
@@ -181,7 +183,7 @@ void ActionContainer::appendGroup(const QString &group, bool global)
     int gid = idmanager->uniqueIdentifier(group);
     m_groups << gid;
     if (global)
-        ActionManager::instance()->registerGlobalGroup(gid, m_id);
+        ActionManagerPrivate::instance()->registerGlobalGroup(gid, m_id);
 }
 
 /*!
@@ -220,7 +222,7 @@ void ActionContainer::addAction(ICommand *action, const QString &group)
     if (!canAddAction(action))
         return;
 
-    ActionManager *am = ActionManager::instance();
+    ActionManagerPrivate *am = ActionManagerPrivate::instance();
     Action *a = static_cast<Action *>(action);
     if (a->stateFlags() & Command::CS_PreLocation) {
         QList<CommandLocation> locs = a->locations();
@@ -251,7 +253,7 @@ void ActionContainer::addMenu(IActionContainer *menu, const QString &group)
     if (!canAddMenu(menu))
         return;
 
-    ActionManager *am = ActionManager::instance();
+    ActionManagerPrivate *am = ActionManagerPrivate::instance();
     MenuActionContainer *mc = static_cast<MenuActionContainer *>(menu);
     if (mc->hasState(ActionContainer::CS_PreLocation)) {
         CommandLocation loc = mc->location();
@@ -396,7 +398,7 @@ void ActionContainer::addMenu(IActionContainer *menu, int pos, bool setpos)
 */
 QAction *ActionContainer::beforeAction(int pos, int *prevKey) const
 {
-    ActionManager *am = ActionManager::instance();
+    ActionManagerPrivate *am = ActionManagerPrivate::instance();
 
     int baId = -1;
 

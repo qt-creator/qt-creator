@@ -101,7 +101,7 @@ HEADERS += mainwindow.h \
     actionmanager/iactioncontainer.h \
     actionmanager/actionmanagerinterface.h \
     actionmanager/icommand.h \
-    actionmanager/actionmanager.h \
+    actionmanager/actionmanager_p.h \
     actionmanager/command.h \
     actionmanager/actioncontainer.h \
     actionmanager/commandsfile.h \

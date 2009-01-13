@@ -49,7 +49,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/progressmanager/progressmanagerinterface.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <qtconcurrent/QtConcurrentTools>
 
 using namespace QuickOpen;

@@ -34,7 +34,7 @@
 #ifndef ACTIONCONTAINER_H
 #define ACTIONCONTAINER_H
 
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 
 #include <coreplugin/actionmanager/iactioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>

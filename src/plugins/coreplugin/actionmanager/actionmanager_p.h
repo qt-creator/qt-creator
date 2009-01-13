@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef ACTIONMANAGER_H
-#define ACTIONMANAGER_H
+#ifndef ACTIONMANAGERPRIVATE_H
+#define ACTIONMANAGERPRIVATE_H
 
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 
@@ -60,16 +60,16 @@ class ActionContainer;
 class MainWindow;
 class Command;
 
-class ActionManager : public Core::ActionManagerInterface
+class ActionManagerPrivate : public Core::ActionManagerInterface
 {
     Q_OBJECT
 
 public:
-    ActionManager(MainWindow *mainWnd, UniqueIDManager *uidmgr);
-    ~ActionManager();
+    ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr);
+    ~ActionManagerPrivate();
 
     void setContext(const QList<int> &context);
-    static ActionManager* instance();
+    static ActionManagerPrivate* instance();
 
     void saveSettings(QSettings *settings);
     QList<int> defaultGroups() const;
@@ -107,7 +107,7 @@ private:
     ICommand *registerOverridableAction(QAction *action, const QString &id,
         bool checkUnique);
 
-    static ActionManager* m_instance;
+    static ActionManagerPrivate* m_instance;
     QList<int> m_defaultGroups;
 
     typedef QHash<int, Command *> IdCmdMap;
@@ -127,4 +127,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // ACTIONMANAGER_H
+#endif // ACTIONMANAGERPRIVATE_H

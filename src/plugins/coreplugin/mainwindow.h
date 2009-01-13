@@ -74,7 +74,7 @@ class ViewManagerInterface;
 
 namespace Internal {
 
-class ActionManager;
+class ActionManagerPrivate;
 class CoreImpl;
 class FancyTabWidget;
 class GeneralSettings;
@@ -176,7 +176,7 @@ private:
     QList<int> m_additionalContexts;
     QSettings *m_settings;
     mutable QPrinter *m_printer;
-    ActionManager *m_actionManager;
+    ActionManagerPrivate *m_actionManager;
     EditorManager *m_editorManager;
     FileManager *m_fileManager;
     MessageManager *m_messageManager;

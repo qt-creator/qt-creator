@@ -33,7 +33,7 @@
 
 #include "mainwindow.h"
 #include "actioncontainer.h"
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 #include "basemode.h"
 #include "coreimpl.h"
 #include "coreconstants.h"
@@ -115,7 +115,7 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_printer(0),
-    m_actionManager(new ActionManager(this, m_uniqueIDManager)),
+    m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
     m_editorManager(0),
     m_fileManager(new FileManager(m_coreImpl, this)),
     m_progressManager(new ProgressManager()),
@@ -362,9 +362,9 @@ QStatusBar *MainWindow::statusBar() const
 
 void MainWindow::registerDefaultContainers()
 {
-    ActionManager *am = m_actionManager;
+    ActionManagerPrivate *am = m_actionManager;
 
-    IActionContainer *menubar = m_actionManager->createMenuBar(Constants::MENU_BAR);
+    IActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
 
 #ifndef Q_WS_MAC // System menu bar on Mac
     setMenuBar(menubar->menuBar());
@@ -427,7 +427,7 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_ABOUT, true);
 }
 
-static ICommand *createSeparator(ActionManager *am, QObject *parent,
+static ICommand *createSeparator(ActionManagerPrivate *am, QObject *parent,
                                  const QString &name,
                                  const QList<int> &context)
 {
@@ -439,7 +439,7 @@ static ICommand *createSeparator(ActionManager *am, QObject *parent,
 
 void MainWindow::registerDefaultActions()
 {
-    ActionManager *am = m_actionManager;
+    ActionManagerPrivate *am = m_actionManager;
     IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
     IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     IActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);

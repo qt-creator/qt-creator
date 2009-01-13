@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 #include "mainwindow.h"
 #include "actioncontainer.h"
 #include "command.h"
@@ -146,7 +146,7 @@ namespace {
 using namespace Core;
 using namespace Core::Internal;
 
-ActionManager* ActionManager::m_instance = 0;
+ActionManagerPrivate* ActionManagerPrivate::m_instance = 0;
 
 /*!
     \class ActionManager
@@ -159,7 +159,7 @@ ActionManager* ActionManager::m_instance = 0;
 /*!
     ...
 */
-ActionManager::ActionManager(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
+ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
     ActionManagerInterface(mainWnd),
     m_mainWnd(mainWnd)
 {
@@ -173,7 +173,7 @@ ActionManager::ActionManager(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
 /*!
     ...
 */
-ActionManager::~ActionManager()
+ActionManagerPrivate::~ActionManagerPrivate()
 {
     qDeleteAll(m_idCmdMap.values());
     qDeleteAll(m_idContainerMap.values());
@@ -182,7 +182,7 @@ ActionManager::~ActionManager()
 /*!
     ...
 */
-ActionManager* ActionManager::instance()
+ActionManagerPrivate* ActionManagerPrivate::instance()
 {
     return m_instance;
 }
@@ -190,7 +190,7 @@ ActionManager* ActionManager::instance()
 /*!
     ...
 */
-QList<int> ActionManager::defaultGroups() const
+QList<int> ActionManagerPrivate::defaultGroups() const
 {
     return m_defaultGroups;
 }
@@ -198,7 +198,7 @@ QList<int> ActionManager::defaultGroups() const
 /*!
     ...
 */
-QList<Command *> ActionManager::commands() const
+QList<Command *> ActionManagerPrivate::commands() const
 {
     return m_idCmdMap.values();
 }
@@ -206,7 +206,7 @@ QList<Command *> ActionManager::commands() const
 /*!
     ...
 */
-QList<ActionContainer *> ActionManager::containers() const
+QList<ActionContainer *> ActionManagerPrivate::containers() const
 {
     return m_idContainerMap.values();
 }
@@ -214,7 +214,7 @@ QList<ActionContainer *> ActionManager::containers() const
 /*!
     ...
 */
-void ActionManager::registerGlobalGroup(int groupId, int containerId)
+void ActionManagerPrivate::registerGlobalGroup(int groupId, int containerId)
 {
     if (m_globalgroups.contains(groupId)) {
         qWarning() << "registerGlobalGroup: Global group "
@@ -228,7 +228,7 @@ void ActionManager::registerGlobalGroup(int groupId, int containerId)
 /*!
     ...
 */
-bool ActionManager::hasContext(int context) const
+bool ActionManagerPrivate::hasContext(int context) const
 {
     return m_context.contains(context);
 }
@@ -236,7 +236,7 @@ bool ActionManager::hasContext(int context) const
 /*!
     ...
 */
-void ActionManager::setContext(const QList<int> &context)
+void ActionManagerPrivate::setContext(const QList<int> &context)
 {
     // here are possibilities for speed optimization if necessary:
     // let commands (de-)register themselves for contexts
@@ -254,7 +254,7 @@ void ActionManager::setContext(const QList<int> &context)
 /*!
     \internal
 */
-bool ActionManager::hasContext(QList<int> context) const
+bool ActionManagerPrivate::hasContext(QList<int> context) const
 {
     for (int i=0; i<m_context.count(); ++i) {
         if (context.contains(m_context.at(i)))
@@ -266,7 +266,7 @@ bool ActionManager::hasContext(QList<int> context) const
 /*!
     ...
 */
-IActionContainer *ActionManager::createMenu(const QString &id)
+IActionContainer *ActionManagerPrivate::createMenu(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -287,7 +287,7 @@ IActionContainer *ActionManager::createMenu(const QString &id)
 /*!
     ...
 */
-IActionContainer *ActionManager::createMenuBar(const QString &id)
+IActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -308,7 +308,7 @@ IActionContainer *ActionManager::createMenuBar(const QString &id)
 /*!
     ...
 */
-ICommand *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context)
+ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
 {
     OverrideableAction *a = 0;
     ICommand *c = registerOverridableAction(action, id, false);
@@ -321,7 +321,7 @@ ICommand *ActionManager::registerAction(QAction *action, const QString &id, cons
 /*!
     ...
 */
-ICommand *ActionManager::registerAction(QAction *action, const QString &id)
+ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &id)
 {
     return registerOverridableAction(action, id, true);
 }
@@ -329,7 +329,7 @@ ICommand *ActionManager::registerAction(QAction *action, const QString &id)
 /*!
     \internal
 */
-ICommand *ActionManager::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
+ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
 {
     OverrideableAction *a = 0;
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -378,7 +378,7 @@ ICommand *ActionManager::registerOverridableAction(QAction *action, const QStrin
 /*!
     ...
 */
-ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
+ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
 {
     Shortcut *sc = 0;
     int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -416,9 +416,9 @@ ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id
 }
 
 /*!
-    \fn void ActionManager::addAction(Core::ICommand *action, const QString &globalGroup)
+    \fn void ActionManagerPrivate::addAction(Core::ICommand *action, const QString &globalGroup)
 */
-void ActionManager::addAction(ICommand *action, const QString &globalGroup)
+void ActionManagerPrivate::addAction(ICommand *action, const QString &globalGroup)
 {
     const int gid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(globalGroup);
     if (!m_globalgroups.contains(gid)) {
@@ -435,10 +435,10 @@ void ActionManager::addAction(ICommand *action, const QString &globalGroup)
 }
 
 /*!
-    \fn void ActionManager::addMenu(Core::IActionContainer *menu, const QString &globalGroup)
+    \fn void ActionManagerPrivate::addMenu(Core::IActionContainer *menu, const QString &globalGroup)
 
 */
-void ActionManager::addMenu(IActionContainer *menu, const QString &globalGroup)
+void ActionManagerPrivate::addMenu(IActionContainer *menu, const QString &globalGroup)
 {
     const int gid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(globalGroup);
     if (!m_globalgroups.contains(gid)) {
@@ -457,13 +457,13 @@ void ActionManager::addMenu(IActionContainer *menu, const QString &globalGroup)
 /*!
     ...
 */
-ICommand *ActionManager::command(const QString &id) const
+ICommand *ActionManagerPrivate::command(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
     if (it == m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManager::command(): failed to find :" << id << '/' << uid;
+            qWarning() << "ActionManagerPrivate::command(): failed to find :" << id << '/' << uid;
         return 0;
     }
     return it.value();
@@ -472,13 +472,13 @@ ICommand *ActionManager::command(const QString &id) const
 /*!
     ...
 */
-IActionContainer *ActionManager::actionContainer(const QString &id) const
+IActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it =  m_idContainerMap.constFind(uid);
     if ( it == m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManager::actionContainer(): failed to find :" << id << '/' << uid;
+            qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :" << id << '/' << uid;
         return 0;
     }
     return it.value();
@@ -487,12 +487,12 @@ IActionContainer *ActionManager::actionContainer(const QString &id) const
 /*!
     ...
 */
-ICommand *ActionManager::command(int uid) const
+ICommand *ActionManagerPrivate::command(int uid) const
 {
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
     if (it == m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManager::command(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << '/' << uid;
+            qWarning() << "ActionManagerPrivate::command(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << '/' << uid;
         return 0;
     }
     return it.value();
@@ -501,12 +501,12 @@ ICommand *ActionManager::command(int uid) const
 /*!
     ...
 */
-IActionContainer *ActionManager::actionContainer(int uid) const
+IActionContainer *ActionManagerPrivate::actionContainer(int uid) const
 {
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
     if (it == m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManager::actionContainer(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << uid;
+            qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << uid;
         return 0;
     }
     return it.value();
@@ -519,7 +519,7 @@ static const char *sequenceKey = "Keysequence";
 /*!
     \internal
 */
-void ActionManager::initialize()
+void ActionManagerPrivate::initialize()
 {
     QSettings *settings = m_mainWnd->settings();
     const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
@@ -539,7 +539,7 @@ void ActionManager::initialize()
 /*!
     ...
 */
-void ActionManager::saveSettings(QSettings *settings)
+void ActionManagerPrivate::saveSettings(QSettings *settings)
 {
     settings->beginWriteArray(QLatin1String(settingsGroup));
     int count = 0;
