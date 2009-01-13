@@ -35,6 +35,8 @@
 
 #include "fakevimconstants.h"
 
+#include <texteditor/basetexteditor.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -1485,6 +1487,9 @@ void FakeVimHandler::Private::setWidget(QWidget *ob)
 {
     m_textedit = qobject_cast<QTextEdit *>(ob);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
+    TextEditor::BaseTextEditor* editor = qobject_cast<TextEditor::BaseTextEditor*>(ob);
+    if (editor)
+        m_currentFileName = editor->file()->fileName();
 }
 
 ///////////////////////////////////////////////////////////////////////
