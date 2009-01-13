@@ -55,7 +55,7 @@ class PluginManager;
 
 namespace Core {
 
-class ActionManagerInterface;
+class ActionManager;
 class BaseMode;
 class BaseView;
 class EditorManager;
@@ -64,7 +64,7 @@ class IContext;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
-class ProgressManagerInterface;
+class ProgressManager;
 class RightPaneWidget;
 class ScriptManagerInterface;
 class UniqueIDManager;
@@ -74,13 +74,13 @@ class ViewManagerInterface;
 
 namespace Internal {
 
-class ActionManager;
+class ActionManagerPrivate;
 class CoreImpl;
 class FancyTabWidget;
 class GeneralSettings;
 class NavigationWidget;
 class OutputPane;
-class ProgressManager;
+class ProgressManagerPrivate;
 class ShortcutSettings;
 class ViewManager;
 class VersionDialog;
@@ -105,13 +105,13 @@ public:
 
     //ICore
     inline ExtensionSystem::PluginManager *pluginManager() { return m_pluginManager; }
-    Core::ActionManagerInterface *actionManager() const;
+    Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;
     Core::UniqueIDManager *uniqueIDManager() const;
     Core::MessageManager *messageManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     Core::EditorManager *editorManager() const;
-    Core::ProgressManagerInterface *progressManager() const;
+    Core::ProgressManager *progressManager() const;
     Core::ScriptManagerInterface *scriptManager() const;
     Core::VariableManager *variableManager() const;
     Core::ModeManager *modeManager() const;
@@ -176,11 +176,11 @@ private:
     QList<int> m_additionalContexts;
     QSettings *m_settings;
     mutable QPrinter *m_printer;
-    ActionManager *m_actionManager;
+    ActionManagerPrivate *m_actionManager;
     EditorManager *m_editorManager;
     FileManager *m_fileManager;
     MessageManager *m_messageManager;
-    ProgressManager *m_progressManager;
+    ProgressManagerPrivate *m_progressManager;
     ScriptManagerInterface *m_scriptManager;
     VariableManager *m_variableManager;
     VCSManager *m_vcsManager;

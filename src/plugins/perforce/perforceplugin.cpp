@@ -43,7 +43,7 @@
 #include "perforceversioncontrol.h"
 #include "settingspage.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/filemanager.h>
@@ -179,11 +179,7 @@ PerforcePlugin::PerforcePlugin() :
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::SUBMIT_MIMETYPE,
     Perforce::Constants::PERFORCESUBMITEDITOR_KIND,
-    Perforce::Constants::C_PERFORCESUBMITEDITOR,
-    Core::Constants::UNDO,
-    Core::Constants::REDO,
-    Perforce::Constants::SUBMIT_CURRENT,
-    Perforce::Constants::DIFF_SELECTED
+    Perforce::Constants::C_PERFORCESUBMITEDITOR
 };
 
 bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -229,7 +225,7 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
 
     //register actions
-    Core::ActionManagerInterface *am = m_coreInstance->actionManager();
+    Core::ActionManager *am = m_coreInstance->actionManager();
 
     Core::IActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
@@ -558,12 +554,8 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
     PerforceSubmitEditor *submitEditor = dynamic_cast<PerforceSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     submitEditor->restrictToProjectFiles(depotFileNames);
+    submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiff(QStringList)));
-    // The actions are for some reason enabled by the context switching
-    // mechanism. Disable them correctly.
-    m_diffSelectedFiles->setEnabled(false);
-    m_undoAction->setEnabled(false);
-    m_redoAction->setEnabled(false);
     return editor;
 }
 

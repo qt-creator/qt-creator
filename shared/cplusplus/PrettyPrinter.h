@@ -66,6 +66,7 @@ protected:
     virtual bool visit(CastExpressionAST *ast);
     virtual bool visit(CatchClauseAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);
+    virtual bool visit(CompoundLiteralAST *ast);
     virtual bool visit(CompoundStatementAST *ast);
     virtual bool visit(ConditionAST *ast);
     virtual bool visit(ConditionalExpressionAST *ast);

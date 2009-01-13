@@ -39,7 +39,7 @@
 #include <indenter.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textblockiterator.h>

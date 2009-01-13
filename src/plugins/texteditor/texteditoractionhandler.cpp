@@ -40,7 +40,7 @@
 #include <quickopen/quickopenmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
@@ -111,7 +111,7 @@ void TextEditorActionHandler::createActions()
     m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::IActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);

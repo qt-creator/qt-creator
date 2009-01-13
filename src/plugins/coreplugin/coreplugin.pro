@@ -99,9 +99,9 @@ HEADERS += mainwindow.h \
     editormanager/ieditor.h \
     editormanager/ieditorfactory.h \
     actionmanager/iactioncontainer.h \
-    actionmanager/actionmanagerinterface.h \
-    actionmanager/icommand.h \
     actionmanager/actionmanager.h \
+    actionmanager/icommand.h \
+    actionmanager/actionmanager_p.h \
     actionmanager/command.h \
     actionmanager/actioncontainer.h \
     actionmanager/commandsfile.h \
@@ -112,11 +112,11 @@ HEADERS += mainwindow.h \
     dialogs/openwithdialog.h \
     dialogs/iwizard.h \
     dialogs/ioptionspage.h \
-    progressmanager/progressmanager.h \
+    progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \
     progressmanager/progresspie.h \
     progressmanager/futureprogress.h \
-    progressmanager/progressmanagerinterface.h \
+    progressmanager/progressmanager.h \
     icontext.h \
     icore.h \
     ifile.h \

@@ -64,7 +64,7 @@ void CoreImpl::showOptionsDialog(const QString &group, const QString &page)
     m_mainwindow->showOptionsDialog(group, page);
 }
 
-ActionManagerInterface *CoreImpl::actionManager() const
+ActionManager *CoreImpl::actionManager() const
 {
     return m_mainwindow->actionManager();
 }
@@ -94,7 +94,7 @@ EditorManager *CoreImpl::editorManager() const
     return m_mainwindow->editorManager();
 }
 
-ProgressManagerInterface *CoreImpl::progressManager() const
+ProgressManager *CoreImpl::progressManager() const
 {
     return m_mainwindow->progressManager();
 }

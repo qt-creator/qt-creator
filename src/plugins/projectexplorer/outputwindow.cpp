@@ -35,7 +35,7 @@
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <find/basetextfind.h>
@@ -78,7 +78,7 @@ OutputPane::OutputPane(Core::ICore *core)
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::ActionManagerInterface *am = core->actionManager();
+    Core::ActionManager *am = core->actionManager();
     QList<int> globalcontext;
     globalcontext.append(Core::Constants::C_GLOBAL_ID);
 

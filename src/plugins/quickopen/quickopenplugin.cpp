@@ -48,7 +48,7 @@
 #include <coreplugin/baseview.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
 
@@ -246,7 +246,7 @@ void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
         filters = m_filter;
     QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
     Core::FutureProgress *progress = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
-            ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManagerInterface::CloseOnSuccess);
+            ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 

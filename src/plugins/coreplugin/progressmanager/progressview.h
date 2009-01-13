@@ -34,7 +34,7 @@
 #ifndef PROGRESSVIEW_H
 #define PROGRESSVIEW_H
 
-#include "progressmanagerinterface.h"
+#include "progressmanager.h"
 
 #include <QtCore/QFuture>
 #include <QtGui/QWidget>
@@ -59,7 +59,7 @@ public:
     FutureProgress *addTask(const QFuture<void> &future,
                             const QString &title,
                             const QString &type,
-                            ProgressManagerInterface::PersistentType persistency);
+                            ProgressManager::PersistentType persistency);
 
 private slots:
     void slotFinished();

@@ -1621,8 +1621,7 @@ bool Parser::parseInitializerClause(ExpressionAST *&node)
         ArrayInitializerAST *ast = new (_pool) ArrayInitializerAST;
         ast->lbrace_token = consumeToken();
         parseInitializerList(ast->expression_list);
-        if (LA() == T_RBRACE)
-            ast->rbrace_token = consumeToken();
+        match(T_RBRACE, &ast->rbrace_token);
         node = ast;
         return true;
     }
@@ -2702,8 +2701,30 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
                 return true;
             }
         }
-        blockErrors(blocked);
         rewind(start);
+
+        // look for compound literals
+        if (LA() == T_LPAREN) {
+            unsigned lparen_token = consumeToken();
+            ExpressionAST *type_id = 0;
+            if (parseTypeId(type_id) && LA() == T_RPAREN) {
+                unsigned rparen_token = consumeToken();
+                if (LA() == T_LBRACE) {
+                    blockErrors(blocked);
+
+                    CompoundLiteralAST *ast = new (_pool) CompoundLiteralAST;
+                    ast->lparen_token = lparen_token;
+                    ast->type_id = type_id;
+                    ast->rparen_token = rparen_token;
+                    parseInitializerClause(ast->initializer);
+                    node = ast;
+                    return true;
+                }
+            }
+            rewind(start);
+        }
+
+        blockErrors(blocked);
         return parsePrimaryExpression(node);
     }
 }
@@ -3552,6 +3573,9 @@ bool Parser::parseObjClassInstanceVariables()
 bool Parser::parseObjCInterfaceMemberDeclaration()
 {
     switch (LA()) {
+    case T_AT_END:
+        return false;
+
     case T_AT_REQUIRED:
     case T_AT_OPTIONAL:
         consumeToken();
@@ -3570,9 +3594,20 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
     case T_MINUS:
         return parseObjCMethodPrototype();
 
-    default:
-        return false;
+    case T_ENUM:
+    case T_CLASS:
+    case T_STRUCT:
+    case T_UNION: {
+        DeclarationAST *declaration = 0;
+        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
     }
+
+    default: {
+        DeclarationAST *declaration = 0;
+        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
+    } // default
+
+    } // switch
 }
 
 // objc-instance-variable-declaration ::= objc-visibility-specifier
@@ -3589,7 +3624,7 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
         return true;
 
     default:
-        return parseBlockDeclaration(node);
+        return parseSimpleDeclaration(node, true);
     }
 }
 
@@ -3612,7 +3647,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
     }
 
     DeclarationAST *simple_declaration = 0;
-    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ false);
+    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ true);
     return true;
 }
 
@@ -3736,6 +3771,19 @@ bool Parser::parseObjCKeywordDeclaration()
 
 bool Parser::parseObjCTypeQualifiers()
 {
+    if (LA() != T_IDENTIFIER)
+        return false;
+
+    Identifier *id = tok().identifier;
+    if (! strcmp("in", id->chars())  ||
+        ! strcmp("out", id->chars()) ||
+        ! strcmp("inout", id->chars()) ||
+        ! strcmp("bycopy", id->chars()) ||
+        ! strcmp("byref", id->chars()) ||
+        ! strcmp("oneway", id->chars())) {
+        consumeToken();
+        return true;
+    }
     return false;
 }
 

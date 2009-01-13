@@ -34,7 +34,7 @@
 #include "basefilefind.h"
 
 #include <coreplugin/stylehelper.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <find/textfindconstants.h>
 #include <texteditor/itexteditor.h>

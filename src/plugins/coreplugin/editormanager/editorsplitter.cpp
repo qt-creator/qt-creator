@@ -41,7 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -72,7 +72,7 @@ void EditorSplitter::registerActions()
     const QList<int> editorManagerContext =
             QList<int>() << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
-    ActionManagerInterface *am = m_core->actionManager();
+    ActionManager *am = m_core->actionManager();
     IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     ICommand *cmd;
 

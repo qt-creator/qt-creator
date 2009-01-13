@@ -52,7 +52,7 @@ bool QHelpProjectManager::init(ExtensionSystem::PluginManager *pm, QString *erro
 {
     m_pm = pm;
     m_core = m_pm->interface<QWorkbench::ICore>();
-    QWorkbench::ActionManagerInterface *am = m_core->actionManager();
+    QWorkbench::ActionManager *am = m_core->actionManager();
 
     m_projectContext = m_core->uniqueIDManager()->
         uniqueIdentifier(QLatin1String("QHelpProject"));

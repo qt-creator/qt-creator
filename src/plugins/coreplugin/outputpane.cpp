@@ -37,7 +37,7 @@
 #include "mainwindow.h"
 #include "modemanager.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/iactioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
@@ -210,7 +210,7 @@ void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
     m_pluginManager = pm;
     m_core = core;
 
-    ActionManagerInterface *am = m_core->actionManager();
+    ActionManager *am = m_core->actionManager();
     IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     // Window->Output Panes

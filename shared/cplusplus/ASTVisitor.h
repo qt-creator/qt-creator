@@ -104,6 +104,7 @@ public:
     virtual bool visit(CastExpressionAST *) { return true; }
     virtual bool visit(CatchClauseAST *) { return true; }
     virtual bool visit(ClassSpecifierAST *) { return true; }
+    virtual bool visit(CompoundLiteralAST *) { return true; }
     virtual bool visit(CompoundStatementAST *) { return true; }
     virtual bool visit(ConditionAST *) { return true; }
     virtual bool visit(ConditionalExpressionAST *) { return true; }

@@ -35,7 +35,7 @@
 #define COMMAND_H
 
 #include "icommand.h"
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>

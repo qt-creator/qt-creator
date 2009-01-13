@@ -40,7 +40,7 @@
 #include "projectexplorer.h"
 #include "taskwindow.h"
 
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -178,7 +178,7 @@ void BuildManager::startBuildQueue()
 {
     if (!m_running) {
         // Progress Reporting
-        Core::ProgressManagerInterface *progressManager =
+        Core::ProgressManager *progressManager =
                 ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->progressManager();
         m_progressFutureInterface = new QFutureInterface<void>;
         m_progressWatcher.setFuture(m_progressFutureInterface->future());

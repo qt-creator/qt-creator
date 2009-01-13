@@ -606,7 +606,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
                             CppTools::Constants::TASK_INDEX,
-                            Core::ProgressManagerInterface::CloseOnSuccess);
+                            Core::ProgressManager::CloseOnSuccess);
         }
         return result;
     }

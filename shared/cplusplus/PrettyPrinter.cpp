@@ -1281,3 +1281,13 @@ bool PrettyPrinter::visit(QtMethodAST *ast)
     out << ')';
     return false;
 }
+
+bool PrettyPrinter::visit(CompoundLiteralAST *ast)
+{
+    out << '(';
+    accept(ast->type_id);
+    out << ')';
+    out << ' ';
+    accept(ast->initializer);
+    return false;
+}

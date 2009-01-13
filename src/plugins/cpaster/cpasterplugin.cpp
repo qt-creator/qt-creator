@@ -43,7 +43,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/itexteditor.h>
 #include <coreplugin/messageoutputwindow.h>
@@ -95,7 +95,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     addObject(m_settingsPage);
 
     //register actions
-    Core::ActionManagerInterface *actionManager = gCoreInstance->actionManager();
+    Core::ActionManager *actionManager = gCoreInstance->actionManager();
 
     Core::IActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);

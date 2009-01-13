@@ -66,7 +66,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -155,7 +155,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     m_core = pm->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     addObject(this);
 

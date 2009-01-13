@@ -38,7 +38,7 @@
 #include "findtoolwindow.h"
 #include "searchresultwindow.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/iactioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/coreconstants.h>
@@ -126,7 +126,7 @@ void FindPlugin::openFindFilter()
 
 void FindPlugin::setupMenu()
 {
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::IActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
@@ -149,7 +149,7 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::ICommand *cmd;

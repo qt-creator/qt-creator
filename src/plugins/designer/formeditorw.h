@@ -65,7 +65,7 @@ namespace qdesigner_internal {
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionManagerInterface;
+class ActionManager;
 class IActionContainer;
 class ICore;
 class IEditor;
@@ -142,7 +142,7 @@ private:
     typedef QList<FormWindowEditor *> EditorList;
 
     void setupActions();
-    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManagerInterface *am,
+    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);

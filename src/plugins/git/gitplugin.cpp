@@ -47,7 +47,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
@@ -210,14 +210,10 @@ GitPlugin *GitPlugin::instance()
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_KIND,
-    Git::Constants::C_GITSUBMITEDITOR,
-    Core::Constants::UNDO,
-    Core::Constants::REDO,
-    Git::Constants::SUBMIT_CURRENT,
-    Git::Constants::DIFF_SELECTED
+    Git::Constants::C_GITSUBMITEDITOR
 };
 
-static Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
+static Core::ICommand *createSeparator(Core::ActionManager *am,
                                        const QList<int> &context,
                                        const QString &id,
                                        QObject *parent)
@@ -267,7 +263,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     addObject(m_versionControl);
 
     //register actions
-    Core::ActionManagerInterface *actionManager = m_core->actionManager();
+    Core::ActionManager *actionManager = m_core->actionManager();
 
     Core::IActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
@@ -640,10 +636,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     QTC_ASSERT(submitEditor, return 0);
     // The actions are for some reason enabled by the context switching
     // mechanism. Disable them correctly.
-    m_submitCurrentAction->setEnabled(!cd.stagedFiles.empty());
-    m_diffSelectedFilesAction->setEnabled(false);
-    m_undoAction->setEnabled(false);
-    m_redoAction->setEnabled(false);
+    submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     connect(submitEditor, SIGNAL(diffStaged(QStringList)), this, SLOT(submitEditorDiffStaged(QStringList)));
     connect(submitEditor, SIGNAL(diffUnstaged(QStringList)), this, SLOT(submitEditorDiffUnstaged(QStringList)));

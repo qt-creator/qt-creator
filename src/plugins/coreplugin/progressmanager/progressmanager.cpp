@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "progressmanager.h"
+#include "progressmanager_p.h"
 #include "progressview.h"
 #include "coreimpl.h"
 #include "baseview.h"
@@ -44,23 +44,23 @@
 using namespace Core;
 using namespace Core::Internal;
 
-ProgressManager::ProgressManager(QObject *parent)
-  : ProgressManagerInterface(parent)
+ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
+  : ProgressManager(parent)
 {
     m_progressView = new ProgressView;
     ICore *core = CoreImpl::instance();
     connect(core, SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
 }
 
-ProgressManager::~ProgressManager()
+ProgressManagerPrivate::~ProgressManagerPrivate()
 {
 }
 
-void ProgressManager::init()
+void ProgressManagerPrivate::init()
 {
 }
 
-void ProgressManager::cancelTasks(const QString &type)
+void ProgressManagerPrivate::cancelTasks(const QString &type)
 {
     QMap<QFutureWatcher<void> *, QString>::iterator task = m_runningTasks.begin();
     while (task != m_runningTasks.end()) {
@@ -75,7 +75,7 @@ void ProgressManager::cancelTasks(const QString &type)
     }
 }
 
-void ProgressManager::cancelAllRunningTasks()
+void ProgressManagerPrivate::cancelAllRunningTasks()
 {
     QMap<QFutureWatcher<void> *, QString>::const_iterator task = m_runningTasks.constBegin();
     while (task != m_runningTasks.constEnd()) {
@@ -87,7 +87,7 @@ void ProgressManager::cancelAllRunningTasks()
     m_runningTasks.clear();
 }
 
-FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency)
+FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency)
 {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
     m_runningTasks.insert(watcher, type);
@@ -96,12 +96,12 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     return m_progressView->addTask(future, title, type, persistency);
 }
 
-QWidget *ProgressManager::progressView()
+QWidget *ProgressManagerPrivate::progressView()
 {
     return m_progressView;
 }
 
-void ProgressManager::taskFinished()
+void ProgressManagerPrivate::taskFinished()
 {
     QObject *taskObject = sender();
     QTC_ASSERT(taskObject, return);
