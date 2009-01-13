@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef SCRIPTMANAGERINTERFACE_H
-#define SCRIPTMANAGERINTERFACE_H
+#ifndef SCRIPTMANAGER_H
+#define SCRIPTMANAGER_H
 
 #include <coreplugin/core_global.h>
 
@@ -47,7 +47,7 @@ namespace Core {
  * Qt Creator's interfaces and allows for running scripts.
  * @{todo} Should it actually manage script files, too? */
 
-class CORE_EXPORT ScriptManagerInterface : public QObject
+class CORE_EXPORT ScriptManager : public QObject
 {
     Q_OBJECT
 public:
@@ -60,8 +60,8 @@ public:
     };
     typedef QList<StackFrame> Stack;
 
-    ScriptManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ScriptManagerInterface() { }
+    ScriptManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ScriptManager() { }
 
     // Access the engine (for plugins to wrap additional interfaces).
     virtual QScriptEngine &scriptEngine() = 0;
@@ -73,4 +73,4 @@ public:
 
 } // namespace Core
 
-#endif // SCRIPTMANAGERINTERFACE_H
+#endif // SCRIPTMANAGER_H

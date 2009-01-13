@@ -183,7 +183,7 @@ namespace Core {
 namespace Internal {
 
 ScriptManagerPrivate::ScriptManagerPrivate(QObject *parent, ICore *core)  :
-    ScriptManagerInterface(parent),
+    ScriptManager(parent),
     m_core(core),
     m_initialized(false)
 {

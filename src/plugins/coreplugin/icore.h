@@ -58,7 +58,7 @@ class IEditor;
 class UniqueIDManager;
 class EditorManager;
 class ProgressManager;
-class ScriptManagerInterface;
+class ScriptManager;
 class VariableManager;
 class IContext;
 class VCSManager;
@@ -88,7 +88,7 @@ public:
     virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
     virtual ProgressManager *progressManager() const = 0;
-    virtual ScriptManagerInterface *scriptManager() const = 0;
+    virtual ScriptManager *scriptManager() const = 0;
     virtual VariableManager *variableManager() const = 0;
     virtual VCSManager *vcsManager() const = 0;
     virtual ModeManager *modeManager() const = 0;

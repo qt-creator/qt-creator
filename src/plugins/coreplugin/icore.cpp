@@ -106,7 +106,7 @@
 */
 
 /*!
-    \fn ScriptManagerInterface *ICore::scriptManager() const
+    \fn ScriptManager *ICore::scriptManager() const
     \internal
 */
 

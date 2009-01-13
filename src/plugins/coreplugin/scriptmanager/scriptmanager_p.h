@@ -34,7 +34,7 @@
 #ifndef SCRIPTMANAGER_P_H
 #define SCRIPTMANAGER_P_H
 
-#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
+#include <coreplugin/scriptmanager/scriptmanager.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QObject>
@@ -44,7 +44,7 @@
 namespace Core {
 namespace Internal {
 
-class ScriptManagerPrivate : public Core::ScriptManagerInterface
+class ScriptManagerPrivate : public Core::ScriptManager
 {
     Q_OBJECT
 

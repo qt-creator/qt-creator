@@ -36,7 +36,7 @@
 #include "qtscripteditor.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
+#include <coreplugin/scriptmanager/scriptmanager.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
@@ -79,7 +79,7 @@ void QtScriptEditorActionHandler::updateActions(UpdateMode um)
 
 void QtScriptEditorActionHandler::run()
 {
-    typedef Core::ScriptManagerInterface::Stack Stack;
+    typedef Core::ScriptManager::Stack Stack;
     if (!currentEditor())
         return;
 

@@ -99,7 +99,7 @@ ProgressManager *CoreImpl::progressManager() const
     return m_mainwindow->progressManager();
 }
 
-ScriptManagerInterface *CoreImpl::scriptManager() const
+ScriptManager *CoreImpl::scriptManager() const
 {
     return m_mainwindow->scriptManager();
 }

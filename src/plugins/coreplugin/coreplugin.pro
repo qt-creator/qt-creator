@@ -132,7 +132,7 @@ HEADERS += mainwindow.h \
     versiondialog.h \
     scriptmanager/metatypedeclarations.h \
     scriptmanager/qworkbench_wrapper.h \
-    scriptmanager/scriptmanagerinterface.h \
+    scriptmanager/scriptmanager.h \
     scriptmanager/scriptmanager_p.h \
     core_global.h \
     basemode.h \

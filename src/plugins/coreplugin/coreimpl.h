@@ -63,7 +63,7 @@ public:
     ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
     ProgressManager *progressManager() const;
-    ScriptManagerInterface *scriptManager() const;
+    ScriptManager *scriptManager() const;
     VariableManager *variableManager() const;
     VCSManager *vcsManager() const;
     ModeManager *modeManager() const;

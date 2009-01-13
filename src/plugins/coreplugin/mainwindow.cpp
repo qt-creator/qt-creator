@@ -850,7 +850,7 @@ ProgressManager *MainWindow::progressManager() const
     return m_progressManager;
 }
 
-ScriptManagerInterface *MainWindow::scriptManager() const
+ScriptManager *MainWindow::scriptManager() const
 {
      return m_scriptManager;
 }

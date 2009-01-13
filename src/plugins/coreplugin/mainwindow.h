@@ -66,7 +66,7 @@ class MimeDatabase;
 class ModeManager;
 class ProgressManager;
 class RightPaneWidget;
-class ScriptManagerInterface;
+class ScriptManager;
 class UniqueIDManager;
 class VariableManager;
 class VCSManager;
@@ -112,7 +112,7 @@ public:
     ExtensionSystem::PluginManager *pluginManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManager *progressManager() const;
-    Core::ScriptManagerInterface *scriptManager() const;
+    Core::ScriptManager *scriptManager() const;
     Core::VariableManager *variableManager() const;
     Core::ModeManager *modeManager() const;
     Core::MimeDatabase *mimeDatabase() const;
@@ -181,7 +181,7 @@ private:
     FileManager *m_fileManager;
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
-    ScriptManagerInterface *m_scriptManager;
+    ScriptManager *m_scriptManager;
     VariableManager *m_variableManager;
     VCSManager *m_vcsManager;
     ViewManager *m_viewManager;
