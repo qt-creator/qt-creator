@@ -55,7 +55,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-#include <QtGui/QDockWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QVBoxLayout>
@@ -178,27 +177,6 @@ QToolBar *DebugMode::createToolBar()
     stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     debugToolBar->addWidget(stretch);
 
-    QMenu *viewMenu = new QMenu(debugToolBar);
-    m_toggleLockedAction = new QAction(tr("Locked"), viewMenu);
-    m_toggleLockedAction->setCheckable(true);
-    m_toggleLockedAction->setChecked(true);
-    connect(m_toggleLockedAction, SIGNAL(toggled(bool)),
-        m_manager, SLOT(setLocked(bool)));
-    foreach (QDockWidget *dockWidget, managerAccess->dockWidgets())
-        viewMenu->addAction(dockWidget->toggleViewAction());
-    viewMenu->addSeparator();
-    viewMenu->addAction(m_toggleLockedAction);
-    viewMenu->addSeparator();
-
-    QAction *resetToSimpleAction = viewMenu->addAction(tr("Reset to default layout"));
-    connect(resetToSimpleAction, SIGNAL(triggered()),
-        m_manager, SLOT(setSimpleDockWidgetArrangement()));
-    QToolButton *viewMenuButton = new QToolButton(debugToolBar);
-    viewMenuButton->setText(tr("View "));
-    viewMenuButton->setPopupMode(QToolButton::InstantPopup);
-    viewMenuButton->setMenu(viewMenu);
-    debugToolBar->addWidget(viewMenuButton);
-
     return debugToolBar;
 }
 
@@ -220,7 +198,7 @@ void DebugMode::writeSettings() const
     QTC_ASSERT(m_manager->mainWindow(), return);
     s->beginGroup(QLatin1String("DebugMode"));
     s->setValue(QLatin1String("State"), m_manager->mainWindow()->saveState());
-    s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());
+    //s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());
     s->endGroup();
 }
 
@@ -229,7 +207,7 @@ void DebugMode::readSettings()
     QSettings *s = settings();
     s->beginGroup(QLatin1String("DebugMode"));
     m_manager->mainWindow()->restoreState(s->value(QLatin1String("State"), QByteArray()).toByteArray());
-    m_toggleLockedAction->setChecked(s->value(QLatin1String("Locked"), true).toBool());
+    //m_toggleLockedAction->setChecked(s->value(QLatin1String("Locked"), true).toBool());
     s->endGroup();
 }
 

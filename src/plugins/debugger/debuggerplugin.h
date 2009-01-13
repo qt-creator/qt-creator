@@ -108,6 +108,7 @@ private:
     int m_gdbRunningContext;
 
     QAction *m_breakpointMarginAction;
+    QAction *m_toggleLockedAction;
     int m_breakpointMarginActionLineNumber;
     QString m_breakpointMarginActionFileName;
 };

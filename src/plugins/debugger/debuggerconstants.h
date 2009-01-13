@@ -50,9 +50,7 @@ const char * const NEXT                 = "Debugger.NextLine";
 const char * const STEPI                = "Debugger.StepInstruction";
 const char * const NEXTI                = "Debugger.NextInstruction";
 
-const char * const M_VIEW_DEBUG         = "Debugger.Menu.View.Debug";
-const char * const G_DEBUG              = "Debugger.Group.Debug";
-const char * const G_VIEW_DEBUG         = "Debugger.Group.View.Debug";
+const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 
 const char * const C_GDBDEBUGGER        = "Gdb Debugger";
 const char * const GDBRUNNING           = "Gdb.Running";

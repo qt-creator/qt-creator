@@ -68,6 +68,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QtPlugin>
 
+#include <QtGui/QDockWidget>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
@@ -227,8 +228,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     ICore *core = m_pm->getObject<Core::ICore>();
     QTC_ASSERT(core, return false);
 
-    Core::ActionManager *actionManager = core->actionManager();
-    QTC_ASSERT(actionManager, return false);
+    Core::ActionManager *am = core->actionManager();
+    QTC_ASSERT(am, return false);
 
     Core::UniqueIDManager *uidm = core->uniqueIDManager();
     QTC_ASSERT(uidm, return false);
@@ -257,26 +258,26 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
         this, SLOT(breakpointMarginActionTriggered()));
 
     //Core::IActionContainer *mcppcontext =
-    //    actionManager->actionContainer(CppEditor::Constants::M_CONTEXT);
+    //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
 
     Core::IActionContainer *mdebug =
-        actionManager->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+        am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
     Core::ICommand *cmd = 0;
-    cmd = actionManager->registerAction(m_manager->m_startExternalAction,
+    cmd = am->registerAction(m_manager->m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
 #ifndef Q_OS_WIN
-    cmd = actionManager->registerAction(m_manager->m_attachExternalAction,
+    cmd = am->registerAction(m_manager->m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 #endif
 
-    cmd = actionManager->registerAction(m_manager->m_continueAction,
+    cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>()<< m_gdbRunningContext);
 
-    cmd = actionManager->registerAction(m_manager->m_stopAction,
+    cmd = am->registerAction(m_manager->m_stopAction,
         Constants::INTERRUPT, globalcontext);
     cmd->setAttribute(Core::ICommand::CA_UpdateText);
     cmd->setAttribute(Core::ICommand::CA_UpdateIcon);
@@ -284,7 +285,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     cmd->setDefaultText(tr("Stop Debugger/Interrupt Debugger"));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    cmd = actionManager->registerAction(m_manager->m_resetAction,
+    cmd = am->registerAction(m_manager->m_resetAction,
         Constants::RESET, globalcontext);
     cmd->setAttribute(Core::ICommand::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
@@ -293,113 +294,138 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = actionManager->registerAction(sep,
-        QLatin1String("GdbDebugger.Sep1"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep1"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_nextAction,
+    cmd = am->registerAction(m_manager->m_nextAction,
         Constants::NEXT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_stepAction,
+    cmd = am->registerAction(m_manager->m_stepAction,
         Constants::STEP, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_stepOutAction,
+    cmd = am->registerAction(m_manager->m_stepOutAction,
         Constants::STEPOUT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_nextIAction,
+    cmd = am->registerAction(m_manager->m_nextIAction,
         Constants::NEXTI, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXTI_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_stepIAction,
+    cmd = am->registerAction(m_manager->m_stepIAction,
         Constants::STEPI, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPI_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_runToLineAction,
+    cmd = am->registerAction(m_manager->m_runToLineAction,
         Constants::RUN_TO_LINE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_runToFunctionAction,
+    cmd = am->registerAction(m_manager->m_runToFunctionAction,
         Constants::RUN_TO_FUNCTION, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_jumpToLineAction,
+    cmd = am->registerAction(m_manager->m_jumpToLineAction,
         Constants::JUMP_TO_LINE, debuggercontext);
     mdebug->addAction(cmd);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = actionManager->registerAction(sep,
-        QLatin1String("GdbDebugger.Sep3"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep3"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_breakAction,
+    cmd = am->registerAction(m_manager->m_breakAction,
         Constants::TOGGLE_BREAK, cppeditorcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     mdebug->addAction(cmd);
     //mcppcontext->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_breakByFunctionAction,
+    cmd = am->registerAction(m_manager->m_breakByFunctionAction,
         Constants::BREAK_BY_FUNCTION, globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_breakAtMainAction,
+    cmd = am->registerAction(m_manager->m_breakAtMainAction,
         Constants::BREAK_AT_MAIN, globalcontext);
     mdebug->addAction(cmd);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = actionManager->registerAction(sep,
-        QLatin1String("GdbDebugger.Sep2"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep2"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_skipKnownFramesAction,
+    cmd = am->registerAction(m_manager->m_skipKnownFramesAction,
         Constants::SKIP_KNOWN_FRAMES, globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_useCustomDumpersAction,
+    cmd = am->registerAction(m_manager->m_useCustomDumpersAction,
         Constants::USE_CUSTOM_DUMPERS, globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_useFastStartAction,
+    cmd = am->registerAction(m_manager->m_useFastStartAction,
         Constants::USE_FAST_START, globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_useToolTipsAction,
+    cmd = am->registerAction(m_manager->m_useToolTipsAction,
         Constants::USE_TOOL_TIPS, globalcontext);
     mdebug->addAction(cmd);
 
 #ifdef QT_DEBUG
-    cmd = actionManager->registerAction(m_manager->m_dumpLogAction,
+    cmd = am->registerAction(m_manager->m_dumpLogAction,
         Constants::DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_debugDumpersAction,
+    cmd = am->registerAction(m_manager->m_debugDumpersAction,
         Constants::DEBUG_DUMPERS, debuggercontext);
     mdebug->addAction(cmd);
 #endif
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = actionManager->registerAction(sep,
-        QLatin1String("GdbDebugger.Sep4"), globalcontext);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep4"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = actionManager->registerAction(m_manager->m_watchAction,
+    cmd = am->registerAction(m_manager->m_watchAction,
         Constants::ADD_TO_WATCH, cppeditorcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
     mdebug->addAction(cmd);
+
+    // Views menu
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep5"), globalcontext);
+    mdebug->addAction(cmd);
+    IActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
+    QMenu *m = viewsMenu->menu();
+    m->setEnabled(true);
+    m->setTitle(tr("&Views"));
+    mdebug->addMenu(viewsMenu, Core::Constants::G_DEFAULT_THREE);
+
+    m_toggleLockedAction = new QAction(tr("Locked"), this);
+    m_toggleLockedAction->setCheckable(true);
+    m_toggleLockedAction->setChecked(true);
+    connect(m_toggleLockedAction, SIGNAL(toggled(bool)),
+        m_manager, SLOT(setLocked(bool)));
+    foreach (QDockWidget *dockWidget, m_manager->dockWidgets()) {
+        cmd = am->registerAction(dockWidget->toggleViewAction(),
+            "Debugger." + dockWidget->objectName(), debuggercontext);
+        viewsMenu->addAction(cmd);
+        //m->addAction(dockWidget->toggleViewAction());
+    }
+    m->addSeparator();
+    m->addAction(m_toggleLockedAction);
+    m->addSeparator();
+
+    QAction *resetToSimpleAction = viewsMenu->menu()->addAction(tr("Reset to default layout"));
+    connect(resetToSimpleAction, SIGNAL(triggered()),
+        m_manager, SLOT(setSimpleDockWidgetArrangement()));
+
 
     m_generalOptionPage = 0;
 

@@ -64,9 +64,9 @@
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
-#include <QtGui/QTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextEdit>
 
 
 using namespace FakeVim::Internal;
@@ -280,7 +280,6 @@ FakeVimPlugin::~FakeVimPlugin()
 {
     delete d;
 }
-
 
 bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_message)
 {

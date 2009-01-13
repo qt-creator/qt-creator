@@ -76,7 +76,6 @@ private:
     void readSettings();
 
     QPointer<DebuggerManager> m_manager;
-    QAction *m_toggleLockedAction;
 };
 
 } // namespace Internal
