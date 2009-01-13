@@ -648,6 +648,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == Key_Return) {
         m_tc.movePosition(StartOfLine);
         m_tc.movePosition(Down);
+        finishMovement();
     } else if (key == Key_Home) {
         m_tc.movePosition(StartOfLine, KeepAnchor);
         finishMovement();
