@@ -192,7 +192,7 @@ void FakeVimPlugin::installHandler(QWidget *widget)
 void FakeVimPlugin::removeHandler(QWidget *widget)
 {
     Q_UNUSED(widget);
-    //m_handler->removeWidget(widget);
+    m_handler->removeWidget(widget);
     Core::EditorManager::instance()->hideEditorInfoBar(
         QLatin1String(Constants::MINI_BUFFER));
 }
