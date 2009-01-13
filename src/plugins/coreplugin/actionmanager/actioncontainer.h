@@ -62,7 +62,7 @@ public:
     bool hasState(ContainerState state) const;
 
     QAction *insertLocation(const QString &group) const;
-    void appendGroup(const QString &group, bool global = false);
+    void appendGroup(const QString &group);
     void addAction(ICommand *action, const QString &group = QString());
     void addMenu(IActionContainer *menu, const QString &group = QString());
 

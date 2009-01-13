@@ -54,93 +54,146 @@ namespace {
 /*!
     \class Core::ActionManager
     \mainclass
-    \ingroup qwb
-    \inheaderfile actionmanager.h
 
-    \brief All actions should be registered in the ActionManager, since this enables the user to
-    e.g. change their shortcuts at a central place.
+    \brief The action manager is responsible for registration of menus and
+    menu items and keyboard shortcuts.
 
     The ActionManager is the central bookkeeper of actions and their shortcuts and layout.
-    You get the only implementation of this class from the core interface (ICore::actionManager()).
+    You get the only implementation of this class from the core interface
+    ICore::actionManager() method, e.g.
+    \code
+        ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager()
+    \endcode
 
     The main reasons for the need of this class is to provide a central place where the user
     can specify all his keyboard shortcuts, and to provide a solution for actions that should
     behave differently in different contexts (like the copy/replace/undo/redo actions).
 
     All actions that are registered with the same string id (but different context lists)
-    are considered to be overloads of the same command. The action that is visible to the user
-    is the one returned by ICommand::action(). (If you provide yourself a user visible
-    representation of your action be sure to always use ICommand::action() for this.)
-    If this action is invoked by the user, the signal is forwarded to the registered action that
-    is valid for the current context.
+    are considered to be overloads of the same command, represented by an instance
+    of the ICommand class.
+    The action that is visible to the user is the one returned by ICommand::action().
+    If you provide yourself a user visible representation of your action you need
+    to use ICommand::action() for this.
+    When this action is invoked by the user,
+    the signal is forwarded to the registered action that is valid for the current context.
 
-    You use this class also to add items to registered
-    action containers like the applications menu bar. For this you register your action via the
+    So to register a globally active action "My Action"
+    put the following in your plugin's IPlugin::initialize method:
+    \code
+        Core::ActionManager *am = ExtensionSystem::PluginManager::instance()
+            ->getObject<Core::ICore>()->actionManager();
+        QAction *myAction = new QAction(tr("My Action"), this);
+        Core::ICommand *cmd = am->registerAction(myAction,
+                                                 "myplugin.myaction",
+                                                 QList<int>() << C_GLOBAL_ID);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
+        connect(myAction, SIGNAL(triggered()), this, SLOT(performMyAction()));
+    \endcode
+
+    So the \c connect is done to your own QAction instance. If you create e.g.
+    a tool button that should represent the action you add the action
+    from ICommand::action() to it:
+    \code
+        QToolButton *myButton = new QToolButton(someParentWidget);
+        myButton->setDefaultAction(cmd->action());
+    \endcode
+
+    Also use the ActionManager to add items to registered
+    action containers like the applications menu bar or menus in that menu bar.
+    To do this, you register your action via the
     registerAction methods, get the action container for a specific id (like specified in
-    Core::Constants) with a call of
+    the Core::Constants namespace) with a call of
     actionContainer(const QString&) and add your command to this container.
 
-    Guidelines:
+    Following the example adding "My Action" to the "Tools" menu would be done by
+    \code
+        am->actionContainer(Core::M_TOOLS)->addAction(cmd);
+    \endcode
+
+    Important guidelines:
     \list
     \o Always register your actions and shortcuts!
+    \o Register your actions and shortcuts during your plugin's IPlugin::initialize
+       or IPlugin::extensionsInitialized methods, otherwise the shortcuts won't appear
+       in the keyboard settings dialog from the beginning.
     \o When registering an action with cmd=registerAction(action, id, contexts) be sure to connect
        your own action connect(action, SIGNAL...) but make cmd->action() visible to the user, i.e.
        widget->addAction(cmd->action()).
     \o Use this class to add actions to the applications menus
     \endlist
 
-    \sa Core::ICore, Core::ICommand
+    \sa Core::ICore
+    \sa Core::ICommand
     \sa Core::IActionContainer
+    \sa Core::IContext
 */
 
 /*!
-    \fn virtual IActionContainer *ActionManager::createMenu(const QString &id) = 0
-    ...
+    \fn IActionContainer *ActionManager::createMenu(const QString &id)
+    \brief Creates a new menu with the given string \a id.
+
+    Returns a new IActionContainer that you can use to get the QMenu instance
+    or to add menu items to the menu. The ActionManager owns
+    the returned IActionContainer.
+    Add your menu to some other menu or a menu bar via the
+    ActionManager::actionContainer and IActionContainer::addMenu methods.
 */
 
 /*!
-    \fn virtual IActionContainer *ActionManager::createMenuBar(const QString &id) = 0
-    ...
+    \fn IActionContainer *ActionManager::createMenuBar(const QString &id)
+    \brief Creates a new menu bar with the given string \a id.
+
+    Returns a new IActionContainer that you can use to get the QMenuBar instance
+    or to add menus to the menu bar. The ActionManager owns
+    the returned IActionContainer.
 */
 
 /*!
-    \fn virtual ICommand *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context) = 0
-    ...
+    \fn ICommand *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context)
+    \brief Makes an \a action known to the system under the specified string \a id.
+
+    Returns a command object that represents the action in the application and is
+    owned by the ActionManager. You can registered several actions with the
+    same \a id as long as the \a context is different. In this case
+    a trigger of the actual action is forwarded to the registered QAction
+    for the currently active context.
 */
 
 /*!
-    \fn virtual ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0
-    ...
+    \fn ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
+    \brief Makes a \a shortcut known to the system under the specified string \a id.
+
+    Returns a command object that represents the shortcut in the application and is
+    owned by the ActionManager. You can registered several shortcuts with the
+    same \a id as long as the \a context is different. In this case
+    a trigger of the actual shortcut is forwarded to the registered QShortcut
+    for the currently active context.
 */
 
 /*!
-    \fn virtual ICommand *ActionManager::registerAction(QAction *action, const QString &id) = 0
-    ...
+    \fn ICommand *ActionManager::command(const QString &id) const
+    \brief Returns the ICommand object that is known to the system
+    under the given string \a id.
+
+    \sa ActionManager::registerAction()
 */
 
 /*!
-    \fn virtual void ActionManager::addAction(ICommand *action, const QString &globalGroup) = 0
-    ...
-*/
+    \fn IActionContainer *ActionManager::actionContainer(const QString &id) const
+    \brief Returns the IActionContainter object that is know to the system
+    under the given string \a id.
 
-/*!
-    \fn virtual void ActionManager::addMenu(IActionContainer *menu, const QString &globalGroup) = 0
-    ...
+    \sa ActionManager::createMenu()
+    \sa ActionManager::createMenuBar()
 */
-
 /*!
-    \fn virtual ICommand *ActionManager::command(const QString &id) const = 0
-    ...
+    \fn ActionManager::ActionManager(QObject *parent)
+    \internal
 */
-
 /*!
-    \fn virtual IActionContainer *ActionManager::actionContainer(const QString &id) const = 0
-    ...
-*/
-
-/*!
-    \fn virtual ActionManager::~ActionManager()
-    ...
+    \fn ActionManager::~ActionManager()
+    \internal
 */
 
 using namespace Core;
@@ -149,16 +202,11 @@ using namespace Core::Internal;
 ActionManagerPrivate* ActionManagerPrivate::m_instance = 0;
 
 /*!
-    \class ActionManager
-    \ingroup qwb
-    \inheaderfile actionmanager.h
-
-    \sa ActionContainer
+    \class ActionManagerPrivate
+    \inheaderfile actionmanager_p.h
+    \internal
 */
 
-/*!
-    ...
-*/
 ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
     ActionManager(mainWnd),
     m_mainWnd(mainWnd)
@@ -170,72 +218,37 @@ ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager 
 
 }
 
-/*!
-    ...
-*/
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     qDeleteAll(m_idCmdMap.values());
     qDeleteAll(m_idContainerMap.values());
 }
 
-/*!
-    ...
-*/
 ActionManagerPrivate* ActionManagerPrivate::instance()
 {
     return m_instance;
 }
 
-/*!
-    ...
-*/
 QList<int> ActionManagerPrivate::defaultGroups() const
 {
     return m_defaultGroups;
 }
 
-/*!
-    ...
-*/
 QList<Command *> ActionManagerPrivate::commands() const
 {
     return m_idCmdMap.values();
 }
 
-/*!
-    ...
-*/
 QList<ActionContainer *> ActionManagerPrivate::containers() const
 {
     return m_idContainerMap.values();
 }
 
-/*!
-    ...
-*/
-void ActionManagerPrivate::registerGlobalGroup(int groupId, int containerId)
-{
-    if (m_globalgroups.contains(groupId)) {
-        qWarning() << "registerGlobalGroup: Global group "
-            << m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(groupId)
-            << " already registered";
-    } else {
-        m_globalgroups.insert(groupId, containerId);
-    }
-}
-
-/*!
-    ...
-*/
 bool ActionManagerPrivate::hasContext(int context) const
 {
     return m_context.contains(context);
 }
 
-/*!
-    ...
-*/
 void ActionManagerPrivate::setContext(const QList<int> &context)
 {
     // here are possibilities for speed optimization if necessary:
@@ -251,9 +264,6 @@ void ActionManagerPrivate::setContext(const QList<int> &context)
         it.value()->update();
 }
 
-/*!
-    \internal
-*/
 bool ActionManagerPrivate::hasContext(QList<int> context) const
 {
     for (int i=0; i<m_context.count(); ++i) {
@@ -263,9 +273,6 @@ bool ActionManagerPrivate::hasContext(QList<int> context) const
     return false;
 }
 
-/*!
-    ...
-*/
 IActionContainer *ActionManagerPrivate::createMenu(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -284,9 +291,6 @@ IActionContainer *ActionManagerPrivate::createMenu(const QString &id)
     return mc;
 }
 
-/*!
-    ...
-*/
 IActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -305,9 +309,6 @@ IActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
     return mbc;
 }
 
-/*!
-    ...
-*/
 ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
 {
     OverrideableAction *a = 0;
@@ -318,17 +319,6 @@ ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &i
     return a;
 }
 
-/*!
-    ...
-*/
-ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &id)
-{
-    return registerOverridableAction(action, id, true);
-}
-
-/*!
-    \internal
-*/
 ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
 {
     OverrideableAction *a = 0;
@@ -375,9 +365,6 @@ ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const
     return a;
 }
 
-/*!
-    ...
-*/
 ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
 {
     Shortcut *sc = 0;
@@ -415,48 +402,6 @@ ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStr
     return sc;
 }
 
-/*!
-    \fn void ActionManagerPrivate::addAction(Core::ICommand *action, const QString &globalGroup)
-*/
-void ActionManagerPrivate::addAction(ICommand *action, const QString &globalGroup)
-{
-    const int gid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(globalGroup);
-    if (!m_globalgroups.contains(gid)) {
-        qWarning() << "addAction: Unknown global group " << globalGroup;
-        return;
-    }
-
-    const int cid = m_globalgroups.value(gid);
-    if (IActionContainer *aci = actionContainer(cid)) {
-        aci->addAction(action, globalGroup);
-    } else {
-        qWarning() << "addAction: Cannot find container." << cid << '/' << gid;
-    }
-}
-
-/*!
-    \fn void ActionManagerPrivate::addMenu(Core::IActionContainer *menu, const QString &globalGroup)
-
-*/
-void ActionManagerPrivate::addMenu(IActionContainer *menu, const QString &globalGroup)
-{
-    const int gid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(globalGroup);
-    if (!m_globalgroups.contains(gid)) {
-        qWarning() << "addAction: Unknown global group " << globalGroup;
-        return;
-    }
-
-    const int cid = m_globalgroups.value(gid);
-    if (IActionContainer *aci = actionContainer(cid)) {
-        aci->addMenu(menu, globalGroup);
-    } else {
-        qWarning() << "addAction: Cannot find container." << cid << '/' << gid;
-    }
-}
-
-/*!
-    ...
-*/
 ICommand *ActionManagerPrivate::command(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -469,9 +414,6 @@ ICommand *ActionManagerPrivate::command(const QString &id) const
     return it.value();
 }
 
-/*!
-    ...
-*/
 IActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
@@ -484,9 +426,6 @@ IActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
     return it.value();
 }
 
-/*!
-    ...
-*/
 ICommand *ActionManagerPrivate::command(int uid) const
 {
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
@@ -498,9 +437,6 @@ ICommand *ActionManagerPrivate::command(int uid) const
     return it.value();
 }
 
-/*!
-    ...
-*/
 IActionContainer *ActionManagerPrivate::actionContainer(int uid) const
 {
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -516,9 +452,6 @@ static const char *settingsGroup = "KeyBindings";
 static const char *idKey = "ID";
 static const char *sequenceKey = "Keysequence";
 
-/*!
-    \internal
-*/
 void ActionManagerPrivate::initialize()
 {
     QSettings *settings = m_mainWnd->settings();
@@ -536,9 +469,6 @@ void ActionManagerPrivate::initialize()
     settings->endArray();
 }
 
-/*!
-    ...
-*/
 void ActionManagerPrivate::saveSettings(QSettings *settings)
 {
     settings->beginWriteArray(QLatin1String(settingsGroup));

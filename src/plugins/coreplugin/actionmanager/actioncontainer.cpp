@@ -177,13 +177,11 @@ bool ActionContainer::hasState(ContainerState state) const
 /*!
     ...
 */
-void ActionContainer::appendGroup(const QString &group, bool global)
+void ActionContainer::appendGroup(const QString &group)
 {
     UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
     int gid = idmanager->uniqueIdentifier(group);
     m_groups << gid;
-    if (global)
-        ActionManagerPrivate::instance()->registerGlobalGroup(gid, m_id);
 }
 
 /*!

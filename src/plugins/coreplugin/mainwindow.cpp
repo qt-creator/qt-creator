@@ -398,7 +398,7 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_COPYPASTE);
     medit->appendGroup(Constants::G_EDIT_SELECTALL);
     medit->appendGroup(Constants::G_EDIT_FORMAT);
-    medit->appendGroup(Constants::G_EDIT_FIND, true);
+    medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
     //Tools Menu
@@ -417,14 +417,14 @@ void MainWindow::registerDefaultContainers()
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE_GROUPS);
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
-    mwindow->appendGroup(Constants::G_WINDOW_LIST, true);
+    mwindow->appendGroup(Constants::G_WINDOW_LIST);
 
     //Help Menu
     ac = am->createMenu(Constants::M_HELP);
     menubar->addMenu(ac, Constants::G_HELP);
     ac->menu()->setTitle(tr("&Help"));
-    ac->appendGroup(Constants::G_HELP_HELP, true);
-    ac->appendGroup(Constants::G_HELP_ABOUT, true);
+    ac->appendGroup(Constants::G_HELP_HELP);
+    ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
 static ICommand *createSeparator(ActionManagerPrivate *am, QObject *parent,
@@ -511,7 +511,7 @@ void MainWindow::registerDefaultActions()
 
     //Save Action
     QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);
-    cmd = am->registerAction(tmpaction, Constants::SAVE);
+    cmd = am->registerAction(tmpaction, Constants::SAVE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
     cmd->setAttribute(ICommand::CA_UpdateText);
     cmd->setDefaultText(tr("&Save"));
@@ -519,7 +519,7 @@ void MainWindow::registerDefaultActions()
 
     //Save As Action
     tmpaction = new QAction(tr("Save &As..."), this);
-    cmd = am->registerAction(tmpaction, Constants::SAVEAS);
+    cmd = am->registerAction(tmpaction, Constants::SAVEAS, m_globalContext);
 #ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
@@ -538,7 +538,7 @@ void MainWindow::registerDefaultActions()
 
     //Print Action
     tmpaction = new QAction(tr("&Print..."), this);
-    cmd = am->registerAction(tmpaction, Constants::PRINT);
+    cmd = am->registerAction(tmpaction, Constants::PRINT, m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     //Exit Action
@@ -550,7 +550,7 @@ void MainWindow::registerDefaultActions()
 
     //Undo Action
     tmpaction = new QAction(QIcon(Constants::ICON_UNDO), tr("&Undo"), this);
-    cmd = am->registerAction(tmpaction, Constants::UNDO);
+    cmd = am->registerAction(tmpaction, Constants::UNDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
     cmd->setAttribute(ICommand::CA_UpdateText);
     cmd->setDefaultText(tr("&Undo"));
@@ -558,7 +558,7 @@ void MainWindow::registerDefaultActions()
 
     //Redo Action
     tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
-    cmd = am->registerAction(tmpaction, Constants::REDO);
+    cmd = am->registerAction(tmpaction, Constants::REDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
     cmd->setAttribute(ICommand::CA_UpdateText);
     cmd->setDefaultText(tr("&Redo"));
@@ -566,31 +566,31 @@ void MainWindow::registerDefaultActions()
 
     //Cut Action
     tmpaction = new QAction(QIcon(Constants::ICON_CUT), tr("Cu&t"), this);
-    cmd = am->registerAction(tmpaction, Constants::CUT);
+    cmd = am->registerAction(tmpaction, Constants::CUT, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Copy Action
     tmpaction = new QAction(QIcon(Constants::ICON_COPY), tr("&Copy"), this);
-    cmd = am->registerAction(tmpaction, Constants::COPY);
+    cmd = am->registerAction(tmpaction, Constants::COPY, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Paste Action
     tmpaction = new QAction(QIcon(Constants::ICON_PASTE), tr("&Paste"), this);
-    cmd = am->registerAction(tmpaction, Constants::PASTE);
+    cmd = am->registerAction(tmpaction, Constants::PASTE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Select All
     tmpaction = new QAction(tr("&Select All"), this);
-    cmd = am->registerAction(tmpaction, Constants::SELECTALL);
+    cmd = am->registerAction(tmpaction, Constants::SELECTALL, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
 
     //Goto Action
     tmpaction = new QAction(tr("&Go To Line..."), this);
-    cmd = am->registerAction(tmpaction, Constants::GOTO);
+    cmd = am->registerAction(tmpaction, Constants::GOTO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
 

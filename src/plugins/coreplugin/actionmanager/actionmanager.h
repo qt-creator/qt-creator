@@ -63,11 +63,6 @@ public:
     virtual ICommand *registerAction(QAction *action, const QString &id, const QList<int> &context) = 0;
     virtual ICommand *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
 
-    virtual ICommand *registerAction(QAction *action, const QString &id) = 0;
-
-    virtual void addAction(ICommand *action, const QString &globalGroup) = 0;
-    virtual void addMenu(IActionContainer *menu, const QString &globalGroup) = 0;
-
     virtual ICommand *command(const QString &id) const = 0;
     virtual IActionContainer *actionContainer(const QString &id) const = 0;
 };

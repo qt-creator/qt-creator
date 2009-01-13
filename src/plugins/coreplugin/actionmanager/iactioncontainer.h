@@ -70,7 +70,7 @@ public:
     virtual QMenuBar *menuBar() const = 0;
 
     virtual QAction *insertLocation(const QString &group) const = 0;
-    virtual void appendGroup(const QString &group, bool global = false) = 0;
+    virtual void appendGroup(const QString &group) = 0;
     virtual void addAction(Core::ICommand *action, const QString &group = QString()) = 0;
     virtual void addMenu(Core::IActionContainer *menu, const QString &group = QString()) = 0;
 

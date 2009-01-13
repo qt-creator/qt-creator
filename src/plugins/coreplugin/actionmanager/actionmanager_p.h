@@ -82,8 +82,6 @@ public:
     ICommand *command(int uid) const;
     IActionContainer *actionContainer(int uid) const;
 
-    void registerGlobalGroup(int groupId, int containerId);
-
     void initialize();
 
     //ActionManager Interface
@@ -92,12 +90,8 @@ public:
 
     ICommand *registerAction(QAction *action, const QString &id,
         const QList<int> &context);
-    ICommand *registerAction(QAction *action, const QString &id);
     ICommand *registerShortcut(QShortcut *shortcut, const QString &id,
         const QList<int> &context);
-
-    void addAction(Core::ICommand *action, const QString &globalGroup);
-    void addMenu(Core::IActionContainer *menu, const QString &globalGroup);
 
     Core::ICommand *command(const QString &id) const;
     Core::IActionContainer *actionContainer(const QString &id) const;
@@ -116,9 +110,9 @@ private:
     typedef QHash<int, ActionContainer *> IdContainerMap;
     IdContainerMap m_idContainerMap;
 
-    typedef QMap<int, int> GlobalGroupMap;
-    GlobalGroupMap m_globalgroups;
-
+//    typedef QMap<int, int> GlobalGroupMap;
+//    GlobalGroupMap m_globalgroups;
+//
     QList<int> m_context;
 
     MainWindow *m_mainWnd;
