@@ -112,7 +112,7 @@ HEADERS += mainwindow.h \
     dialogs/openwithdialog.h \
     dialogs/iwizard.h \
     dialogs/ioptionspage.h \
-    progressmanager/progressmanager.h \
+    progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \
     progressmanager/progresspie.h \
     progressmanager/futureprogress.h \

@@ -49,7 +49,7 @@
 #include "newdialog.h"
 #include "outputpane.h"
 #include "plugindialog.h"
-#include "progressmanager.h"
+#include "progressmanager_p.h"
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
@@ -118,7 +118,7 @@ MainWindow::MainWindow() :
     m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
     m_editorManager(0),
     m_fileManager(new FileManager(m_coreImpl, this)),
-    m_progressManager(new ProgressManager()),
+    m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManager(this, m_coreImpl)),
     m_variableManager(new VariableManager(this)),
     m_vcsManager(new VCSManager()),

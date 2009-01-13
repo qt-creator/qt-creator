@@ -49,7 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/progressmanagerinterface.h>
 
 #include <utils/qtcassert.h>
 

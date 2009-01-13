@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef PROGRESSMANAGER_H
-#define PROGRESSMANAGER_H
+#ifndef PROGRESSMANAGER_P_H
+#define PROGRESSMANAGER_P_H
 
 #include "progressmanagerinterface.h"
 
@@ -45,12 +45,12 @@ namespace Internal {
 
 class ProgressView;
 
-class ProgressManager : public Core::ProgressManagerInterface
+class ProgressManagerPrivate : public Core::ProgressManagerInterface
 {
     Q_OBJECT
 public:
-    ProgressManager(QObject *parent = 0);
-    ~ProgressManager();
+    ProgressManagerPrivate(QObject *parent = 0);
+    ~ProgressManagerPrivate();
     void init();
 
     FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency);
@@ -71,4 +71,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // PROGRESSMANAGER_H
+#endif // PROGRESSMANAGER_P_H

@@ -80,7 +80,7 @@ class FancyTabWidget;
 class GeneralSettings;
 class NavigationWidget;
 class OutputPane;
-class ProgressManager;
+class ProgressManagerPrivate;
 class ShortcutSettings;
 class ViewManager;
 class VersionDialog;
@@ -180,7 +180,7 @@ private:
     EditorManager *m_editorManager;
     FileManager *m_fileManager;
     MessageManager *m_messageManager;
-    ProgressManager *m_progressManager;
+    ProgressManagerPrivate *m_progressManager;
     ScriptManagerInterface *m_scriptManager;
     VariableManager *m_variableManager;
     VCSManager *m_vcsManager;
