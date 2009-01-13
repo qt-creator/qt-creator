@@ -54,7 +54,7 @@
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
 
-#include "scriptmanager.h"
+#include "scriptmanager_p.h"
 #include "settingsdialog.h"
 #include "stylehelper.h"
 #include "variablemanager.h"
@@ -119,7 +119,7 @@ MainWindow::MainWindow() :
     m_editorManager(0),
     m_fileManager(new FileManager(m_coreImpl, this)),
     m_progressManager(new ProgressManagerPrivate()),
-    m_scriptManager(new ScriptManager(this, m_coreImpl)),
+    m_scriptManager(new ScriptManagerPrivate(this, m_coreImpl)),
     m_variableManager(new VariableManager(this)),
     m_vcsManager(new VCSManager()),
     m_viewManager(0),

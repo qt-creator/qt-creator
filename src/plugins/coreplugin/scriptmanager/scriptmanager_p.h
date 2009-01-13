@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef SCRIPTMANAGER_H
-#define SCRIPTMANAGER_H
+#ifndef SCRIPTMANAGER_P_H
+#define SCRIPTMANAGER_P_H
 
 #include <coreplugin/scriptmanager/scriptmanagerinterface.h>
 #include <coreplugin/icore.h>
@@ -44,12 +44,12 @@
 namespace Core {
 namespace Internal {
 
-class ScriptManager : public Core::ScriptManagerInterface
+class ScriptManagerPrivate : public Core::ScriptManagerInterface
 {
     Q_OBJECT
 
 public:
-    ScriptManager(QObject *parent, ICore *core);
+    ScriptManagerPrivate(QObject *parent, ICore *core);
 
     virtual QScriptEngine &scriptEngine();
 
@@ -69,4 +69,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // SCRIPTMANAGER_H
+#endif // SCRIPTMANAGER_P_H
