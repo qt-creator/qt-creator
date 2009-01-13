@@ -31,28 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef GIT_CONSTANTS_H
-#define GIT_CONSTANTS_H
+#ifndef GITCOMMAND_H
+#define GITCOMMAND_H
+
+#include <projectexplorer/environment.h>
+
+#include <QtCore/QObject>
 
 namespace Git {
-namespace Constants {
+namespace Internal {
 
-const char * const GIT_COMMAND_LOG_EDITOR_KIND = "Git Command Log Editor";
-const char * const GIT_LOG_EDITOR_KIND = "Git File Log Editor";
-const char * const GIT_BLAME_EDITOR_KIND = "Git Annotation Editor";
-const char * const GIT_DIFF_EDITOR_KIND = "Git Diff Editor";
+class GitCommand : public QObject
+{
+    Q_OBJECT
+public:
+    explicit GitCommand(const QString &workingDirectory,
+                        ProjectExplorer::Environment &environment);
 
-const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
-const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
-const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
-const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
-const char * const GIT_BINARY = "git";
 
-const char * const DIFF_FILE_INDICATOR = "--- ";
-enum { debug = 0 };
+    void addJob(const QStringList &arguments);
+    void execute();
 
-} // namespace Constants
+private:
+    void run();
+
+Q_SIGNALS:
+    void outputData(const QByteArray&);
+    void errorText(const QString&);
+
+private:
+    struct Job {
+        explicit Job(const QStringList &a);
+
+        QStringList arguments;
+    };
+
+    QStringList environment() const;
+
+    const QString m_workingDirectory;
+    const QStringList m_environment;
+
+    QList<Job> m_jobs;
+};
+
+} // namespace Internal
 } // namespace Git
-
-#endif // GIT_CONSTANTS_H
+#endif // GITCOMMAND_H
