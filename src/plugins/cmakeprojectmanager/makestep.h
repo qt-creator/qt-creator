@@ -36,9 +36,11 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {

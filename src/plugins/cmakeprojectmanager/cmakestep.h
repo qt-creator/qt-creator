@@ -37,7 +37,9 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
 
+QT_BEGIN_NAMESPACE
 class QLineEdit;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {
