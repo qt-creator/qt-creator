@@ -65,7 +65,7 @@ public:
     explicit Environment(QStringList env);
     static Environment systemEnvironment();
 
-    QStringList toStringList();
+    QStringList toStringList() const;
     QString value(const QString &key) const;
     void set(const QString &key, const QString &value);
     void unset(const QString &key);

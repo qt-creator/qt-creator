@@ -38,7 +38,6 @@
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <projectexplorer/environment.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -79,7 +78,8 @@ public:
     static QString findRepositoryForDirectory(const QString &dir);
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
-    void diff(const QString &workingDirectory, const QStringList &diffArgs, const QStringList &fileNames);
+    void diff(const QString &workingDirectory, const QStringList &diffArgs,
+              const QStringList &unstagedFileNames, const QStringList &stagedFileNames= QStringList());
 
     void status(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QString &fileName);
@@ -154,11 +154,14 @@ private:
                                                  const char *registerDynamicProperty,
                                                  const QString &dynamicPropertyValue) const;
 
+    GitCommand *createCommand(const QString &workingDirectory,
+                             VCSBase::VCSBaseEditor* editor = 0,
+                             bool outputToWindow = false);
 
     void executeGit(const QString &workingDirectory,
-                                           const QStringList &arguments,
-                                           VCSBase::VCSBaseEditor* editor = 0,
-                                           bool outputToWindow = false);
+                    const QStringList &arguments,
+                    VCSBase::VCSBaseEditor* editor = 0,
+                    bool outputToWindow = false);
 
     bool synchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,
@@ -175,24 +178,6 @@ private:
     GitSettings   m_settings;
 };
 
-class GitCommand : public QObject
-{
-    Q_OBJECT
-public:
-    GitCommand();
-    ~GitCommand();
-    void execute(const QStringList &arguments,
-                 const QString &workingDirectory,
-                 const ProjectExplorer::Environment &environment);
-    void run(const QStringList &arguments,
-                 const QString &workingDirectory,
-                 const ProjectExplorer::Environment &environment);
-
-Q_SIGNALS:
-    void outputData(const QByteArray&);
-    void outputText(const QString&);
-    void errorText(const QString&);
-};
 
 } // namespace Internal
 } // namespace Git

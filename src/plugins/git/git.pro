@@ -20,7 +20,8 @@ HEADERS += gitplugin.h \
     gitversioncontrol.h \
     gitsettings.h \
     branchdialog.h \
-    branchmodel.h
+    branchmodel.h \
+    gitcommand.h
 SOURCES += gitplugin.cpp \
     gitoutputwindow.cpp \
     gitclient.cpp \
@@ -34,7 +35,8 @@ SOURCES += gitplugin.cpp \
     gitversioncontrol.cpp \
     gitsettings.cpp \
     branchdialog.cpp \
-    branchmodel.cpp
+    branchmodel.cpp \
+    gitcommand.cpp
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \

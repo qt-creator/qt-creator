@@ -48,16 +48,14 @@ enum FileType { StagedFile , UnstagedFile, UntrackedFile };
 
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
- * option for staged files. So, we set the file list to
- * single selection and sort the files manual according to a type
- * flag we add to the model. */
+ * option for staged files. So, we sort apart the diff file lists
+ * according to a type flag we add to the model. */
 
 GitSubmitEditor::GitSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent) :
     VCSBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0)
 {
     setDisplayName(tr("Git Commit"));
-    setFileListSelectionMode(QAbstractItemView::SingleSelection);
     connect(this, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiffSelected(QStringList)));
 }
 
@@ -102,22 +100,29 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
 
 void GitSubmitEditor::slotDiffSelected(const QStringList &files)
 {
-    QList<QStandardItem *> fileRow = m_model->findRow(files.front(), fileNameColumn());
-    if (fileRow.empty())
-        return;
-    const FileType ft = static_cast<FileType>(fileRow.front()->data(FileTypeRole).toInt());
-    switch (ft) {
-        case StagedFile:
-            emit diffStaged(files);
-            break;
-        case UnstagedFile:
-            emit diffUnstaged(files);
-            break;
-        case UntrackedFile:
-            break;
+    // Sort it apart into staged/unstaged files
+    QStringList unstagedFiles;
+    QStringList stagedFiles;
+    const int fileColumn = fileNameColumn();
+    const int rowCount = m_model->rowCount();
+    for (int r = 0; r < rowCount; r++) {
+        const QString fileName = m_model->item(r, fileColumn)->text();
+        if (files.contains(fileName)) {
+            const FileType ft = static_cast<FileType>(m_model->item(r, 0)->data(FileTypeRole).toInt());
+            switch (ft) {
+            case StagedFile:
+                stagedFiles.push_back(fileName);
+                break;
+            case UnstagedFile:
+                unstagedFiles.push_back(fileName);
+                break;
+            case UntrackedFile:
+                break;
+            }
+        }
     }
-
-
+    if (!unstagedFiles.empty() || !stagedFiles.empty())
+        emit diff(unstagedFiles, stagedFiles);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const

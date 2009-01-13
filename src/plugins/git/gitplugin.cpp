@@ -446,16 +446,9 @@ void GitPlugin::extensionsInitialized()
     m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
-void GitPlugin::submitEditorDiffStaged(const QStringList &files)
+void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
 {
-    if (!files.empty())
-        m_gitClient->diff(m_submitRepository, QStringList(QLatin1String("--cached")), files);
-}
-
-void GitPlugin::submitEditorDiffUnstaged(const QStringList &files)
-{
-    if (!files.empty())
-        m_gitClient->diff(m_submitRepository, QStringList(), files);
+    m_gitClient->diff(m_submitRepository, QStringList(), unstaged, staged);
 }
 
 void GitPlugin::diffCurrentFile()
@@ -638,8 +631,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     // mechanism. Disable them correctly.
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
-    connect(submitEditor, SIGNAL(diffStaged(QStringList)), this, SLOT(submitEditorDiffStaged(QStringList)));
-    connect(submitEditor, SIGNAL(diffUnstaged(QStringList)), this, SLOT(submitEditorDiffUnstaged(QStringList)));
+    connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     return editor;
 }
 

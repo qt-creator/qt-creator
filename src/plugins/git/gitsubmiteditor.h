@@ -59,8 +59,7 @@ public:
     GitSubmitEditorPanelData panelData() const;
 
 signals:
-    void diffStaged(const QStringList &);
-    void diffUnstaged(const QStringList &);
+    void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
 
 private slots:
     void slotDiffSelected(const QStringList &);
