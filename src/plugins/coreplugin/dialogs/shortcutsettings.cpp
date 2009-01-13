@@ -120,14 +120,14 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     return w;
 }
 
-void ShortcutSettings::finished(bool accepted)
+void ShortcutSettings::apply()
 {
-    if (accepted) {
-        foreach (ShortcutItem *item, m_scitems) {
-            item->m_cmd->setKeySequence(item->m_key);
-        }
-    }
+    foreach (ShortcutItem *item, m_scitems)
+        item->m_cmd->setKeySequence(item->m_key);
+}
 
+void ShortcutSettings::finish()
+{
     qDeleteAll(m_scitems);
     m_scitems.clear();
 }

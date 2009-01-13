@@ -66,7 +66,8 @@ public:
     QString trCategory() const { return tr(Constants::QUICKOPEN_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+    void apply();
+    void finish();
 
 private slots:
     void updateButtonStates();

@@ -78,11 +78,8 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void CompletionSettingsPage::finished(bool accepted)
+void CompletionSettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_completion->setCaseSensitivity(
             m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
     m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());

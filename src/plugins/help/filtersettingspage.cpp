@@ -173,8 +173,10 @@ void FilterSettingsPage::removeFilter()
         m_ui.filterWidget->setCurrentRow(0);
 }
 
-void FilterSettingsPage::finished(bool)
+void FilterSettingsPage::apply()
 {    
+    // This is handled via HelpPlugin::checkForHelpChanges, which is connected
+    // to DocSettingsPage::apply.
 }
 
 bool FilterSettingsPage::applyChanges()

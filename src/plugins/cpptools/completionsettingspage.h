@@ -56,7 +56,8 @@ public:
     QString trCategory() const;
 
     QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+    void apply();
+    void finish() { }
 
 private:
     CppCodeCompletion *m_completion;

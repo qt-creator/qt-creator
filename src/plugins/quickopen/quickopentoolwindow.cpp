@@ -313,7 +313,7 @@ bool QuickOpenToolWindow::isShowingTypeHereMessage() const
 void QuickOpenToolWindow::updateFilterList()
 {
     m_filterMenu->clear();
-    foreach (IQuickOpenFilter *filter, m_quickOpenPlugin->filter()) {
+    foreach (IQuickOpenFilter *filter, m_quickOpenPlugin->filters()) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
             QAction *action = m_filterMenu->addAction(filter->trName(), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
@@ -379,7 +379,7 @@ void QuickOpenToolWindow::textEdited(const QString &text)
 
 QList<IQuickOpenFilter*> QuickOpenToolWindow::filtersFor(const QString &text, QString &searchText)
 {
-    QList<IQuickOpenFilter*> filters = m_quickOpenPlugin->filter();
+    QList<IQuickOpenFilter*> filters = m_quickOpenPlugin->filters();
     int whiteSpace = text.indexOf(" ");
     QString prefix;
     if (whiteSpace >= 0)
@@ -460,7 +460,7 @@ void QuickOpenToolWindow::filterSelected()
     // add shortcut string at front or replace existing shortcut string
     if (!currentText.isEmpty()) {
         searchText = currentText;
-        foreach (IQuickOpenFilter *otherfilter, m_quickOpenPlugin->filter()) {
+        foreach (IQuickOpenFilter *otherfilter, m_quickOpenPlugin->filters()) {
             if (currentText.startsWith(otherfilter->shortcutString() + " ")) {
                 searchText = currentText.mid(otherfilter->shortcutString().length()+1);
                 break;

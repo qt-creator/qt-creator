@@ -81,11 +81,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     return w;
 }
 
-void GeneralSettings::finished(bool accepted)
+void GeneralSettings::apply()
 {
-    if (!accepted)
-        return;
-
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());

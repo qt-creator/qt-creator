@@ -61,10 +61,10 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    QList<IQuickOpenFilter*> filter();
-    QList<IQuickOpenFilter*> customFilter();
-    void setFilter(QList<IQuickOpenFilter*> f);
-    void setCustomFilter(QList<IQuickOpenFilter*> f);
+    QList<IQuickOpenFilter*> filters();
+    QList<IQuickOpenFilter*> customFilters();
+    void setFilters(QList<IQuickOpenFilter*> f);
+    void setCustomFilters(QList<IQuickOpenFilter*> f);
     int refreshInterval();
     void setRefreshInterval(int interval);
 
@@ -83,8 +83,8 @@ private:
     QuickOpenToolWindow *m_quickOpenToolWindow;
     SettingsPage *m_settingsPage;
 
-    QList<IQuickOpenFilter*> m_filter;
-    QList<IQuickOpenFilter*> m_customFilter;
+    QList<IQuickOpenFilter*> m_filters;
+    QList<IQuickOpenFilter*> m_customFilters;
     int m_refreshInterval;
     QTimer m_refreshTimer;
     OpenDocumentsFilter *m_openDocumentsFilter;
