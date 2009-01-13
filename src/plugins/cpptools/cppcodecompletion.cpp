@@ -916,7 +916,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     unsigned count = fun->argumentCount();
                     while (true) {
-                        TextEditor::CompletionItem i = item;
+                        TextEditor::CompletionItem ci = item;
 
                         QString signature;
                         signature += overview.prettyName(fun->name());
@@ -937,8 +937,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                         if (! signatures.contains(signature)) {
                             signatures.insert(signature);
 
-                            i.m_text = signature; // fix the completion item.
-                            m_completions.append(i);
+                            ci.m_text = signature; // fix the completion item.
+                            m_completions.append(ci);
                         }
 
                         if (count && fun->argumentAt(count - 1)->asArgument()->hasInitializer())
