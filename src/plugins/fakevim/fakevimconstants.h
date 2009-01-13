@@ -45,6 +45,7 @@ const char * const ConfigTabStop     = "tabstop";
 const char * const ConfigSmartTab    = "smarttab";
 const char * const ConfigShiftWidth  = "shiftwidth";
 const char * const ConfigExpandTab   = "expandtab";
+const char * const ConfigAutoIndent  = "autoindent";
 
 } // namespace Constants
 } // namespace FakeVim

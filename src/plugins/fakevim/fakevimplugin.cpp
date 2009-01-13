@@ -181,8 +181,8 @@ void FakeVimPlugin::installHandler(QWidget *widget)
             settings.m_spacesForTabs ? ConfigOn : ConfigOff);
         m_handler->setConfigValue(ConfigSmartTab,
             settings.m_smartBackspace ? ConfigOn : ConfigOff); 
-        //m_handler->setConfigValue(ConfigSmartTab,
-        //    settings.m_autoIndent ? ConfigOn : ConfigOff); 
+        m_handler->setConfigValue(ConfigAutoIndent,
+            settings.m_autoIndent ? ConfigOn : ConfigOff); 
     }
 }
 
