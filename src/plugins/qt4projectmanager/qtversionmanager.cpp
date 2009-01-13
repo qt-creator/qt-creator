@@ -162,11 +162,8 @@ void QtVersionManager::updateUniqueIdToIndexMap()
         m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
 }
 
-void QtVersionManager::finished(bool accepted)
+void QtVersionManager::apply()
 {
-    if (!accepted)
-        return;
-
     m_widget->finish();
     QList<QtVersion*> newVersions = m_widget->versions();
     bool versionPathsChanged = m_versions.size() != newVersions.size();

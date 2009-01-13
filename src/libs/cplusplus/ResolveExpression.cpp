@@ -425,6 +425,12 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
     return false;
 }
 
+bool ResolveExpression::visit(CompoundLiteralAST *ast)
+{
+    accept(ast->type_id);
+    return false;
+}
+
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
     ResolveClass resolveClass;

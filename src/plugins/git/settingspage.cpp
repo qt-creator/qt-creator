@@ -95,11 +95,10 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     return m_widget;
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    if (!accepted || !m_widget)
+    if (!m_widget)
         return;
 
     GitPlugin::instance()->setSettings(m_widget->settings());
 }
-

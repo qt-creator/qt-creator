@@ -105,14 +105,12 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void GeneralSettingsPage::finished(bool accepted)
+void GeneralSettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     TabSettings newTabSettings;
     StorageSettings newStorageSettings;
     DisplaySettings newDisplaySettings;
+
     settingsFromUI(newTabSettings, newStorageSettings, newDisplaySettings);
 
     if (newTabSettings != m_d->m_tabSettings) {

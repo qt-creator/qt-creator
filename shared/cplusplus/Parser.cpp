@@ -57,6 +57,7 @@
 #include "AST.h"
 #include "Literals.h"
 #include <cstdlib>
+#include <cstring>
 #include <cassert>
 
 CPLUSPLUS_BEGIN_NAMESPACE

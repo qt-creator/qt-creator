@@ -435,13 +435,8 @@ void FontSettingsPage::delayedChange()
     emit changed(d_ptr->m_value);
 }
 
-void FontSettingsPage::finished(bool accepted)
+void FontSettingsPage::apply()
 {
-    if (!accepted) {
-        d_ptr->m_value = d_ptr->m_lastValue;
-        return;
-    }
-
     d_ptr->m_value.setFamily(d_ptr->ui.familyComboBox->currentText());
 
     bool ok = true;
@@ -458,6 +453,12 @@ void FontSettingsPage::finished(bool accepted)
 
         QTimer::singleShot(0, this, SLOT(delayedChange()));
     }
+}
+
+void FontSettingsPage::finish()
+{
+    // If changes were applied, these are equal. Otherwise restores last value.
+    d_ptr->m_value = d_ptr->m_lastValue;
 }
 
 const FontSettings &FontSettingsPage::fontSettings() const

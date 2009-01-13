@@ -54,7 +54,8 @@ public:
     virtual QString trCategory() const = 0;
 
     virtual QWidget *createPage(QWidget *parent) = 0;
-    virtual void finished(bool accepted) = 0;
+    virtual void apply() = 0;
+    virtual void finish() = 0;
 };
 
 } // namespace Core

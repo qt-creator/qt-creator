@@ -126,20 +126,22 @@ void SettingsDialog::pageSelected(QTreeWidgetItem *)
 
 void SettingsDialog::accept()
 {
-    foreach (IOptionsPage *page, m_pages)
-        page->finished(true);
+    foreach (IOptionsPage *page, m_pages) {
+        page->apply();
+        page->finish();
+    }
     done(QDialog::Accepted);
 }
 
 void SettingsDialog::reject()
 {
     foreach (IOptionsPage *page, m_pages)
-        page->finished(false);
+        page->finish();
     done(QDialog::Rejected);
 }
 
 void SettingsDialog::apply()
 {
     foreach (IOptionsPage *page, m_pages)
-        page->finished(true);
+        page->apply();
 }

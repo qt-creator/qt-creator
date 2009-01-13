@@ -86,11 +86,8 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_username = m_ui.userEdit->text();
     m_server = QUrl(m_ui.serverEdit->text());
     m_copy = m_ui.clipboardBox->isChecked();

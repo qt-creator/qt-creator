@@ -122,11 +122,8 @@ void GdbOptionPage::onScriptFileChanged()
     m_settings->m_scriptFile = m_ui.scriptFileChooser->path();
 }
 
-void GdbOptionPage::finished(bool accepted)
+void GdbOptionPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_settings->m_gdbCmd   = m_ui.gdbLocationChooser->path();
     m_settings->m_gdbEnv   = m_ui.environmentEdit->text();
     m_settings->m_autoRun  = m_ui.autoStartBox->isChecked();

@@ -71,7 +71,7 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
-        foreach (IQuickOpenFilter *filter, m_plugin->filter()) {
+        foreach (IQuickOpenFilter *filter, m_plugin->filters()) {
             if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
                 FilterEntry entry(this,
                                   filter->shortcutString(),
