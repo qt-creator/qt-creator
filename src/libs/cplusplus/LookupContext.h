@@ -134,6 +134,10 @@ private:
     QList<Scope *> buildVisibleScopes();
     static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
 
+    static bool maybeValidSymbol(Symbol *symbol,
+                                 ResolveMode mode,
+                                 const QList<Symbol *> &candidates);
+
 private:
     Control *_control;
 
