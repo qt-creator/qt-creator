@@ -72,7 +72,7 @@ void SnippetsPlugin::extensionsInitialized()
 bool SnippetsPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     QList<int> context;
     context << m_core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);

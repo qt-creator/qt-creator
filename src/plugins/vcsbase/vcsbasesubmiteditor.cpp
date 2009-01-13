@@ -37,7 +37,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/submiteditorwidget.h>
 #include <find/basetextfind.h>

@@ -48,7 +48,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
@@ -207,7 +207,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     const QList<int> editManagerContext =
             QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
-    ActionManagerInterface *am = m_d->m_core->actionManager();
+    ActionManager *am = m_d->m_core->actionManager();
     IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
     //Revert to saved

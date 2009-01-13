@@ -99,7 +99,7 @@ HEADERS += mainwindow.h \
     editormanager/ieditor.h \
     editormanager/ieditorfactory.h \
     actionmanager/iactioncontainer.h \
-    actionmanager/actionmanagerinterface.h \
+    actionmanager/actionmanager.h \
     actionmanager/icommand.h \
     actionmanager/actionmanager_p.h \
     actionmanager/command.h \

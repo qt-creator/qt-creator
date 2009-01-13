@@ -52,15 +52,15 @@ namespace {
 }
 
 /*!
-    \class Core::ActionManagerInterface
+    \class Core::ActionManager
     \mainclass
     \ingroup qwb
-    \inheaderfile actionmanagerinterface.h
+    \inheaderfile actionmanager.h
 
     \brief All actions should be registered in the ActionManager, since this enables the user to
     e.g. change their shortcuts at a central place.
 
-    The ActionManagerInterface is the central bookkeeper of actions and their shortcuts and layout.
+    The ActionManager is the central bookkeeper of actions and their shortcuts and layout.
     You get the only implementation of this class from the core interface (ICore::actionManager()).
 
     The main reasons for the need of this class is to provide a central place where the user
@@ -94,52 +94,52 @@ namespace {
 */
 
 /*!
-    \fn virtual IActionContainer *ActionManagerInterface::createMenu(const QString &id) = 0
+    \fn virtual IActionContainer *ActionManager::createMenu(const QString &id) = 0
     ...
 */
 
 /*!
-    \fn virtual IActionContainer *ActionManagerInterface::createMenuBar(const QString &id) = 0
+    \fn virtual IActionContainer *ActionManager::createMenuBar(const QString &id) = 0
     ...
 */
 
 /*!
-    \fn virtual ICommand *ActionManagerInterface::registerAction(QAction *action, const QString &id, const QList<int> &context) = 0
+    \fn virtual ICommand *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context) = 0
     ...
 */
 
 /*!
-    \fn virtual ICommand *ActionManagerInterface::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0
+    \fn virtual ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0
     ...
 */
 
 /*!
-    \fn virtual ICommand *ActionManagerInterface::registerAction(QAction *action, const QString &id) = 0
+    \fn virtual ICommand *ActionManager::registerAction(QAction *action, const QString &id) = 0
     ...
 */
 
 /*!
-    \fn virtual void ActionManagerInterface::addAction(ICommand *action, const QString &globalGroup) = 0
+    \fn virtual void ActionManager::addAction(ICommand *action, const QString &globalGroup) = 0
     ...
 */
 
 /*!
-    \fn virtual void ActionManagerInterface::addMenu(IActionContainer *menu, const QString &globalGroup) = 0
+    \fn virtual void ActionManager::addMenu(IActionContainer *menu, const QString &globalGroup) = 0
     ...
 */
 
 /*!
-    \fn virtual ICommand *ActionManagerInterface::command(const QString &id) const = 0
+    \fn virtual ICommand *ActionManager::command(const QString &id) const = 0
     ...
 */
 
 /*!
-    \fn virtual IActionContainer *ActionManagerInterface::actionContainer(const QString &id) const = 0
+    \fn virtual IActionContainer *ActionManager::actionContainer(const QString &id) const = 0
     ...
 */
 
 /*!
-    \fn virtual ActionManagerInterface::~ActionManagerInterface()
+    \fn virtual ActionManager::~ActionManager()
     ...
 */
 
@@ -160,7 +160,7 @@ ActionManagerPrivate* ActionManagerPrivate::m_instance = 0;
     ...
 */
 ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
-    ActionManagerInterface(mainWnd),
+    ActionManager(mainWnd),
     m_mainWnd(mainWnd)
 {
     m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_ONE);

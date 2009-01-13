@@ -36,7 +36,7 @@
 #include "fakevimconstants.h"
 #include "fakevimhandler.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -116,7 +116,7 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_mess
     m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
     QTC_ASSERT(m_core, return false);
 
-    Core::ActionManagerInterface *actionManager = m_core->actionManager();
+    Core::ActionManager *actionManager = m_core->actionManager();
     QTC_ASSERT(actionManager, return false);
 
     QList<int> globalcontext;

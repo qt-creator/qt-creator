@@ -53,7 +53,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
 #include <utils/qtcassert.h>
@@ -289,7 +289,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addObject(m_subversionOutputWindow);
 
     //register actions
-    Core::ActionManagerInterface *ami = m_coreInstance->actionManager();
+    Core::ActionManager *ami = m_coreInstance->actionManager();
     Core::IActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
     Core::IActionContainer *subversionMenu =

@@ -35,7 +35,7 @@
 #include "qtscripteditorconstants.h"
 #include "qtscripteditor.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/scriptmanager/scriptmanagerinterface.h>
 
 #include <QtGui/QAction>

@@ -50,7 +50,7 @@ QT_END_NAMESPACE
 namespace Core {
 
 // forward declarations
-class ActionManagerInterface;
+class ActionManager;
 class IFile;
 class FileManager;
 class MessageManager;
@@ -81,7 +81,7 @@ public:
     virtual void showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString()) = 0;
 
-    virtual ActionManagerInterface *actionManager() const = 0;
+    virtual ActionManager *actionManager() const = 0;
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;

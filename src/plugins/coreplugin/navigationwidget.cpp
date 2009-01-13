@@ -38,7 +38,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <extensionsystem/ExtensionSystemInterfaces>
 
 #include <QtGui/QAction>
@@ -316,7 +316,7 @@ void NavigationWidget::objectAdded(QObject * obj)
         return;
 
     Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = core->actionManager();
+    Core::ActionManager *am = core->actionManager();
     QList<int> navicontext = QList<int>() << core->uniqueIDManager()->
         uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE);
 

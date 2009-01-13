@@ -49,7 +49,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -165,7 +165,7 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(m_bookmarkWidget, SIGNAL(addBookmark()),
         this, SLOT(addBookmark()));
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     Core::ICommand *cmd;
 
     // Add Home, Previous and Next actions (used in the toolbar)
@@ -607,7 +607,7 @@ void HelpPlugin::activateSearch()
 QToolBar *HelpPlugin::createToolBar()
 {
     QToolBar *toolWidget = new QToolBar;
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     toolWidget->addAction(am->command(QLatin1String("Help.Home"))->action());
     toolWidget->addAction(am->command(QLatin1String("Help.Previous"))->action());
     toolWidget->addAction(am->command(QLatin1String("Help.Next"))->action());

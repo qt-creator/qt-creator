@@ -40,7 +40,7 @@
 #include "gdbengine.h"
 #include "mode.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -227,7 +227,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     ICore *core = m_pm->getObject<Core::ICore>();
     QTC_ASSERT(core, return false);
 
-    Core::ActionManagerInterface *actionManager = core->actionManager();
+    Core::ActionManager *actionManager = core->actionManager();
     QTC_ASSERT(actionManager, return false);
 
     Core::UniqueIDManager *uidm = core->uniqueIDManager();

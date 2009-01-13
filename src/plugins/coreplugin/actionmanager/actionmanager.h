@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef ACTIONMANAGERINTERFACE_H
-#define ACTIONMANAGERINTERFACE_H
+#ifndef ACTIONMANAGER_H
+#define ACTIONMANAGER_H
 
 #include "coreplugin/core_global.h"
 
@@ -50,12 +50,12 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class CORE_EXPORT ActionManagerInterface : public QObject
+class CORE_EXPORT ActionManager : public QObject
 {
     Q_OBJECT
 public:
-    ActionManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ActionManagerInterface() {}
+    ActionManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ActionManager() {}
 
     virtual IActionContainer *createMenu(const QString &id) = 0;
     virtual IActionContainer *createMenuBar(const QString &id) = 0;
@@ -74,4 +74,4 @@ public:
 
 } // namespace Core
 
-#endif // ACTIONMANAGERINTERFACE_H
+#endif // ACTIONMANAGER_H

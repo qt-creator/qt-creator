@@ -815,7 +815,7 @@ void MainWindow::openFileWith()
     }
 }
 
-ActionManagerInterface *MainWindow::actionManager() const
+ActionManager *MainWindow::actionManager() const
 {
     return m_actionManager;
 }

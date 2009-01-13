@@ -42,7 +42,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
@@ -68,7 +68,7 @@ void BookmarksPlugin::extensionsInitialized()
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     QList<int> context = QList<int>() << m_core->uniqueIDManager()->
         uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);

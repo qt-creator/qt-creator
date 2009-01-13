@@ -51,7 +51,7 @@
 */
 
 /*!
-    \fn ActionManagerInterface *ICore::actionManager() const
+    \fn ActionManager *ICore::actionManager() const
     \brief Returns the application's action manager.
 
     The action manager is responsible for registration of menus and

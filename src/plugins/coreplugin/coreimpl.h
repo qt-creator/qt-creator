@@ -56,7 +56,7 @@ public:
     void showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString());
 
-    ActionManagerInterface *actionManager() const;
+    ActionManager *actionManager() const;
     FileManager *fileManager() const ;
     UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;

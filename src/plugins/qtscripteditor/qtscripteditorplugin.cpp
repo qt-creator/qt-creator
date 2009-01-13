@@ -42,7 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -131,7 +131,7 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 
 void QtScriptEditorPlugin::registerActions(Core::ICore *core)
 {
-    Core::ActionManagerInterface *am = core->actionManager();
+    Core::ActionManager *am = core->actionManager();
     Core::IActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);

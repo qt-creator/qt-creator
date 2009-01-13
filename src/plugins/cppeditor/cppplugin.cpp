@@ -44,7 +44,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/completionsupport.h>
@@ -194,7 +194,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     QList<int> context;
     context << m_core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::ICommand *cmd;

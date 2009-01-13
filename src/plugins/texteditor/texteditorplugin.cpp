@@ -46,7 +46,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -120,7 +120,7 @@ bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     int contextId = m_core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     QList<int> context = QList<int>() << contextId;
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     // Add shortcut for invoking automatic completion
     QShortcut *completionShortcut = new QShortcut(m_core->mainWindow());

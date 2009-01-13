@@ -41,7 +41,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
@@ -99,7 +99,7 @@ static inline QIcon designerIcon(const QString &iconName)
 // Create an action to activate a designer tool
 static inline QAction *createEditModeAction(QActionGroup *ag,
                                      const QList<int> &context,
-                                     Core::ActionManagerInterface *am,
+                                     Core::ActionManager *am,
                                      Core::IActionContainer *medit,
                                      const QString &actionName,
                                      const QString &name,
@@ -124,7 +124,7 @@ static inline QAction *createEditModeAction(QActionGroup *ag,
 
 // Create a menu separato
 static inline QAction * createSeparator(QObject *parent,
-                                 Core::ActionManagerInterface *am,
+                                 Core::ActionManager *am,
                                  const QList<int> &context,
                                  Core::IActionContainer *container,
                                  const QString &name = QString(),
@@ -139,7 +139,7 @@ static inline QAction * createSeparator(QObject *parent,
 
 // Create a tool action
 static inline void addToolAction(QAction *a,
-                   Core::ActionManagerInterface *am,
+                   Core::ActionManager *am,
                    const QList<int> &context,
                    const QString &name,
                    Core::IActionContainer *c1,
@@ -305,7 +305,7 @@ void FormEditorW::deleteInstance()
 
 void FormEditorW::setupActions()
 {
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     Core::ICommand *command;
 
     //menus
@@ -443,7 +443,7 @@ QToolBar *FormEditorW::createEditorToolBar() const
 {
     QToolBar *rc = new QToolBar;
     rc->addSeparator();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     const QStringList::const_iterator cend = m_toolActionIds.constEnd();
     for (QStringList::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
         Core::ICommand *cmd = am->command(*it);
@@ -457,7 +457,7 @@ QToolBar *FormEditorW::createEditorToolBar() const
     return rc;
 }
 
-Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManagerInterface *am,
+Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,
                                                             QActionGroup *actionGroup)
 {
     const QString menuId = QLatin1String(M_FORMEDITOR_PREVIEW);

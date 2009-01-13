@@ -34,7 +34,7 @@
 #ifndef ACTIONMANAGERPRIVATE_H
 #define ACTIONMANAGERPRIVATE_H
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QHash>
@@ -60,7 +60,7 @@ class ActionContainer;
 class MainWindow;
 class Command;
 
-class ActionManagerPrivate : public Core::ActionManagerInterface
+class ActionManagerPrivate : public Core::ActionManager
 {
     Q_OBJECT
 

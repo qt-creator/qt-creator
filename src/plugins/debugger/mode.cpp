@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/findplaceholder.h>
@@ -151,7 +151,7 @@ QToolBar *DebugMode::createToolBar()
     IDebuggerManagerAccessForDebugMode *managerAccess =
         m_manager->debugModeInterface();
 
-    Core::ActionManagerInterface *am =
+    Core::ActionManager *am =
             ExtensionSystem::PluginManager::instance()
             ->getObject<Core::ICore>()->actionManager();
     QToolBar *debugToolBar = new QToolBar;

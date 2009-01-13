@@ -39,7 +39,7 @@
 
 #include <aggregation/aggregate.h>
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreimpl.h>
@@ -140,7 +140,7 @@ void ModeManager::objectAdded(QObject *obj)
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->name());
 
     // Register mode shortcut
-    ActionManagerInterface *am = m_mainWindow->actionManager();
+    ActionManager *am = m_mainWindow->actionManager();
     const QString shortcutId = QLatin1String("QtCreator.Mode.") + mode->uniqueModeName();
     QShortcut *shortcut = new QShortcut(m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to %1 mode").arg(mode->name()));

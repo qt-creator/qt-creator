@@ -55,7 +55,7 @@ class PluginManager;
 
 namespace Core {
 
-class ActionManagerInterface;
+class ActionManager;
 class BaseMode;
 class BaseView;
 class EditorManager;
@@ -105,7 +105,7 @@ public:
 
     //ICore
     inline ExtensionSystem::PluginManager *pluginManager() { return m_pluginManager; }
-    Core::ActionManagerInterface *actionManager() const;
+    Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;
     Core::UniqueIDManager *uniqueIDManager() const;
     Core::MessageManager *messageManager() const;

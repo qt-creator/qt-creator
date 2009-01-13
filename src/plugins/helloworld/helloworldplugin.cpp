@@ -91,7 +91,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     connect(helloWorldAction, SIGNAL(triggered()), SLOT(sayHelloWorld()));
 
     // Register the action with the action manager
-    Core::ActionManagerInterface *actionManager = core->actionManager();
+    Core::ActionManager *actionManager = core->actionManager();
     Core::ICommand *command =
             actionManager->registerAction(
                     helloWorldAction, "HelloWorld.HelloWorldAction", context);

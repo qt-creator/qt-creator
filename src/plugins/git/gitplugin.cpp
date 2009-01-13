@@ -47,7 +47,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
@@ -213,7 +213,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::C_GITSUBMITEDITOR
 };
 
-static Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
+static Core::ICommand *createSeparator(Core::ActionManager *am,
                                        const QList<int> &context,
                                        const QString &id,
                                        QObject *parent)
@@ -263,7 +263,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     addObject(m_versionControl);
 
     //register actions
-    Core::ActionManagerInterface *actionManager = m_core->actionManager();
+    Core::ActionManager *actionManager = m_core->actionManager();
 
     Core::IActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);

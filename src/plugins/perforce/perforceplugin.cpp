@@ -43,7 +43,7 @@
 #include "perforceversioncontrol.h"
 #include "settingspage.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/filemanager.h>
@@ -225,7 +225,7 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
 
     //register actions
-    Core::ActionManagerInterface *am = m_coreInstance->actionManager();
+    Core::ActionManager *am = m_coreInstance->actionManager();
 
     Core::IActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
