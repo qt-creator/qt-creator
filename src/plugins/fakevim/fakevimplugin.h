@@ -36,34 +36,12 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtGui/QTextEdit>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-
-namespace Core {
-
-class ICore;
-class IEditor;
-
-} // namespace Core
-
-
-namespace TextEditor {
-
-class ITextEditor;
-
-} // namespace TextEditor
-
-
 namespace FakeVim {
 namespace Internal {
 
 class FakeVimHandler;
+
+class FakeVimPluginPrivate;
 
 class FakeVimPlugin : public ExtensionSystem::IPlugin
 {
@@ -74,25 +52,14 @@ public:
     ~FakeVimPlugin();
 
 private:
+    // implementation of ExtensionSystem::IPlugin
     bool initialize(const QStringList &arguments, QString *error_message);
     void shutdown();
     void extensionsInitialized();
 
-private slots:
-    void installHandler();
-    void installHandler(QWidget *widget);
-    void removeHandler(QWidget *widget);
-    void showCommandBuffer(const QString &contents);
-    void showExtraInformation(const QString &msg);
-    void editorOpened(Core::IEditor *);
-    void editorAboutToClose(Core::IEditor *);
-    void changeSelection(QWidget *widget,
-        const QList<QTextEdit::ExtraSelection> &selections);
-
 private:
-    FakeVimHandler *m_handler;
-    QAction *m_installHandlerAction;
-    Core::ICore *m_core;
+    friend class FakeVimPluginPrivate;
+    FakeVimPluginPrivate *d;
 };
 
 } // namespace Internal

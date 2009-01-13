@@ -57,13 +57,14 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
@@ -87,26 +88,65 @@ const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 
 ///////////////////////////////////////////////////////////////////////
 //
-// FakeVimPlugin
+// FakeVimPluginPrivate
 //
 ///////////////////////////////////////////////////////////////////////
 
-FakeVimPlugin::FakeVimPlugin()
+namespace FakeVim {
+namespace Internal {
+
+class FakeVimPluginPrivate : public QObject
 {
-    m_core = 0;
+    Q_OBJECT
+
+public:
+    FakeVimPluginPrivate(FakeVimPlugin *);
+    ~FakeVimPluginPrivate();
+    friend class FakeVimPlugin;
+
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void shutdown();
+
+private slots:
+    void installHandler();
+    void installHandler(QWidget *widget);
+    void removeHandler(QWidget *widget);
+    void showCommandBuffer(const QString &contents);
+    void showExtraInformation(const QString &msg);
+    void editorOpened(Core::IEditor *);
+    void editorAboutToClose(Core::IEditor *);
+    void changeSelection(QWidget *widget,
+        const QList<QTextEdit::ExtraSelection> &selections);
+
+private:
+    FakeVimPlugin *q;
+    FakeVimHandler *m_handler;
+    QAction *m_installHandlerAction; 
+    Core::ICore *m_core;
+};
+
+} // namespace Internal
+} // namespace FakeVim
+
+FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
+{       
+    q = plugin;
     m_handler = 0;
+    m_installHandlerAction = 0;
+    m_core = 0;
 }
 
-FakeVimPlugin::~FakeVimPlugin()
-{}
+FakeVimPluginPrivate::~FakeVimPluginPrivate()
+{
+}
 
-void FakeVimPlugin::shutdown()
+void FakeVimPluginPrivate::shutdown()
 {
     delete m_handler;
     m_handler = 0;
 }
 
-bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *error_message)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(error_message);
@@ -147,17 +187,13 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_mess
     return true;
 }
 
-void FakeVimPlugin::extensionsInitialized()
-{
-}
-
-void FakeVimPlugin::installHandler()
+void FakeVimPluginPrivate::installHandler()
 {
     if (Core::IEditor *editor = m_core->editorManager()->currentEditor())
         installHandler(editor->widget());
 }
 
-void FakeVimPlugin::installHandler(QWidget *widget)
+void FakeVimPluginPrivate::installHandler(QWidget *widget)
 {
     connect(m_handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(showExtraInformation(QString)));
@@ -189,7 +225,7 @@ void FakeVimPlugin::installHandler(QWidget *widget)
     }
 }
 
-void FakeVimPlugin::removeHandler(QWidget *widget)
+void FakeVimPluginPrivate::removeHandler(QWidget *widget)
 {
     Q_UNUSED(widget);
     m_handler->removeWidget(widget);
@@ -197,38 +233,69 @@ void FakeVimPlugin::removeHandler(QWidget *widget)
         QLatin1String(Constants::MINI_BUFFER));
 }
 
-void FakeVimPlugin::editorOpened(Core::IEditor *editor)
+void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
     Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
     //installHandler(editor->widget()); 
 }
 
-void FakeVimPlugin::editorAboutToClose(Core::IEditor *editor)
+void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 {
     //qDebug() << "CLOSING: " << editor << editor->widget();
     removeHandler(editor->widget()); 
 }
 
-void FakeVimPlugin::showCommandBuffer(const QString &contents)
+void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
     Core::EditorManager::instance()->showEditorInfoBar( 
         QLatin1String(Constants::MINI_BUFFER), contents,
         tr("Quit FakeVim"), m_handler, SLOT(quit()));
 }
 
-void FakeVimPlugin::showExtraInformation(const QString &text)
+void FakeVimPluginPrivate::showExtraInformation(const QString &text)
 {
     QMessageBox::information(0, tr("FakeVim Information"), text);
 }
 
-void FakeVimPlugin::changeSelection(QWidget *widget,
+void FakeVimPluginPrivate::changeSelection(QWidget *widget,
     const QList<QTextEdit::ExtraSelection> &selection)
 {
     if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget))
         bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
 }
 
-//#include "fakevimplugin.moc"
+
+///////////////////////////////////////////////////////////////////////
+//
+// FakeVimPlugin
+//
+///////////////////////////////////////////////////////////////////////
+
+FakeVimPlugin::FakeVimPlugin()
+    : d(new FakeVimPluginPrivate(this))
+{}
+
+FakeVimPlugin::~FakeVimPlugin()
+{
+    delete d;
+}
+
+
+bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_message)
+{
+    return d->initialize(arguments, error_message);
+}
+
+void FakeVimPlugin::shutdown()
+{
+    d->shutdown();
+}
+
+void FakeVimPlugin::extensionsInitialized()
+{
+}
+
+#include "fakevimplugin.moc"
 
 Q_EXPORT_PLUGIN(FakeVimPlugin)
