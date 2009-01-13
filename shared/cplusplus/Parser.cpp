@@ -3573,6 +3573,9 @@ bool Parser::parseObjClassInstanceVariables()
 bool Parser::parseObjCInterfaceMemberDeclaration()
 {
     switch (LA()) {
+    case T_AT_END:
+        return false;
+
     case T_AT_REQUIRED:
     case T_AT_OPTIONAL:
         consumeToken();
@@ -3591,9 +3594,20 @@ bool Parser::parseObjCInterfaceMemberDeclaration()
     case T_MINUS:
         return parseObjCMethodPrototype();
 
-    default:
-        return false;
+    case T_ENUM:
+    case T_CLASS:
+    case T_STRUCT:
+    case T_UNION: {
+        DeclarationAST *declaration = 0;
+        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
     }
+
+    default: {
+        DeclarationAST *declaration = 0;
+        return parseSimpleDeclaration(declaration, /*accept struct declarators */ true);
+    } // default
+
+    } // switch
 }
 
 // objc-instance-variable-declaration ::= objc-visibility-specifier
@@ -3610,7 +3624,7 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
         return true;
 
     default:
-        return parseBlockDeclaration(node);
+        return parseSimpleDeclaration(node, true);
     }
 }
 
@@ -3633,7 +3647,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&, SpecifierAST *)
     }
 
     DeclarationAST *simple_declaration = 0;
-    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ false);
+    parseSimpleDeclaration(simple_declaration, /*accept-struct-declarators = */ true);
     return true;
 }
 
@@ -3757,6 +3771,19 @@ bool Parser::parseObjCKeywordDeclaration()
 
 bool Parser::parseObjCTypeQualifiers()
 {
+    if (LA() != T_IDENTIFIER)
+        return false;
+
+    Identifier *id = tok().identifier;
+    if (! strcmp("in", id->chars())  ||
+        ! strcmp("out", id->chars()) ||
+        ! strcmp("inout", id->chars()) ||
+        ! strcmp("bycopy", id->chars()) ||
+        ! strcmp("byref", id->chars()) ||
+        ! strcmp("oneway", id->chars())) {
+        consumeToken();
+        return true;
+    }
     return false;
 }
 
