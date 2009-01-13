@@ -90,8 +90,12 @@ private slots:
     void gotoLocation(const QString &fileName, int line, bool setMarker);
 
     void breakpointMarginActionTriggered();
+    void focusCurrentEditor(Core::IMode *mode);
 
 private:
+    void readSettings();
+    void writeSettings() const;
+
     friend class DebuggerManager;
     friend class DebugMode; // FIXME: Just a hack now so that it can access the views
 

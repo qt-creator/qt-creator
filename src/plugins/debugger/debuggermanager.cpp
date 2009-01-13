@@ -483,11 +483,6 @@ IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
     return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
 }
 
-IDebuggerManagerAccessForDebugMode *DebuggerManager::debugModeInterface()
-{
-    return dynamic_cast<IDebuggerManagerAccessForDebugMode *>(this);
-}
-
 void DebuggerManager::createDockWidgets()
 {
     QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);

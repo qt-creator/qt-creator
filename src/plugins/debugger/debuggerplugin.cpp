@@ -38,14 +38,19 @@
 #include "debuggerrunner.h"
 #include "gdboptionpage.h"
 #include "gdbengine.h"
-#include "mode.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/navigationwidget.h>
+#include <coreplugin/outputpane.h>
+#include <coreplugin/rightpane.h>
 #include <coreplugin/uniqueidmanager.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -69,17 +74,17 @@
 #include <QtCore/QtPlugin>
 
 #include <QtGui/QDockWidget>
+#include <QtGui/QMainWindow>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
 
-using namespace Debugger::Internal;
-using namespace Debugger::Constants;
-using namespace TextEditor;
 using namespace Core;
+using namespace Debugger::Constants;
+using namespace Debugger::Internal;
 using namespace ProjectExplorer;
-using namespace CPlusPlus;
+using namespace TextEditor;
 
 
 namespace Debugger {
@@ -138,6 +143,39 @@ const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
 } // namespace Debugger
 
 
+namespace Debugger {
+namespace Internal {
+
+class DebugMode : public Core::BaseMode
+{
+    Q_OBJECT
+
+public:
+    DebugMode(QObject *parent = 0);
+    ~DebugMode();
+
+    // IMode
+    void activated() {}
+    void shutdown() {}
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+DebugMode::DebugMode(QObject *parent)
+  : BaseMode(tr("Debug"), Constants::MODE_DEBUG,
+             QIcon(":/fancyactionbar/images/mode_Debug.png"),
+             Constants::P_MODE_DEBUG, 0, parent)
+{
+}
+
+DebugMode::~DebugMode()
+{
+    // Make sure the editor manager does not get deleted
+    EditorManager::instance()->setParent(0);
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LocationMark
@@ -172,6 +210,7 @@ QIcon LocationMark::icon() const
     return icon;
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPlugin
@@ -184,10 +223,16 @@ DebuggerPlugin::DebuggerPlugin()
     m_generalOptionPage = 0;
     m_locationMark = 0;
     m_manager = 0;
+    m_debugMode = 0;
 }
 
 DebuggerPlugin::~DebuggerPlugin()
 {}
+
+static QSettings *settings()
+{
+    return ExtensionSystem::PluginManager::instance()->getObject<ICore>()->settings();
+}
 
 void DebuggerPlugin::shutdown()
 {
@@ -196,6 +241,8 @@ void DebuggerPlugin::shutdown()
     QTC_ASSERT(m_manager, /**/);
     if (m_manager)
         m_manager->shutdown();
+
+    writeSettings();
 
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
@@ -435,11 +482,97 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     m_locationMark = 0;
 
-    m_debugMode = new DebugMode(m_manager, this);
+
+    //
+    // Debug mode setup
+    //
+    m_debugMode = new DebugMode(this);
     //addAutoReleasedObject(m_debugMode);
-    addObject(m_debugMode);
 
     addAutoReleasedObject(new DebuggerRunner(m_manager));
+
+    QList<int> context;
+    context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
+    context.append(uidm->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER));
+    context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
+    m_debugMode->setContext(context);
+
+    QBoxLayout *editorHolderLayout = new QVBoxLayout;
+    editorHolderLayout->setMargin(0);
+    editorHolderLayout->setSpacing(0);
+    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(m_debugMode));
+    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(m_debugMode));
+
+    QWidget *editorAndFindWidget = new QWidget;
+    editorAndFindWidget->setLayout(editorHolderLayout);
+
+    MiniSplitter *rightPaneSplitter = new MiniSplitter;
+    rightPaneSplitter->addWidget(editorAndFindWidget);
+    rightPaneSplitter->addWidget(new RightPanePlaceHolder(m_debugMode));
+    rightPaneSplitter->setStretchFactor(0, 1);
+    rightPaneSplitter->setStretchFactor(1, 0);
+
+    QWidget *centralWidget = new QWidget;
+
+    m_manager->mainWindow()->setCentralWidget(centralWidget);
+
+    MiniSplitter *splitter = new MiniSplitter;
+    splitter->addWidget(m_manager->mainWindow());
+    splitter->addWidget(new OutputPanePlaceHolder(m_debugMode));
+    splitter->setStretchFactor(0, 10);
+    splitter->setStretchFactor(1, 0);
+    splitter->setOrientation(Qt::Vertical);
+
+    MiniSplitter *splitter2 = new MiniSplitter;
+    splitter2 = new MiniSplitter;
+    splitter2->addWidget(new NavigationWidgetPlaceHolder(m_debugMode));
+    splitter2->addWidget(splitter);
+    splitter2->setStretchFactor(0, 0);
+    splitter2->setStretchFactor(1, 1);
+
+    m_debugMode->setWidget(splitter2);
+
+    QToolBar *debugToolBar = new QToolBar;
+    debugToolBar->addAction(am->command(ProjectExplorer::Constants::DEBUG)->action());
+    debugToolBar->addAction(am->command(Constants::INTERRUPT)->action());
+    debugToolBar->addAction(am->command(Constants::NEXT)->action());
+    debugToolBar->addAction(am->command(Constants::STEP)->action());
+    debugToolBar->addAction(am->command(Constants::STEPOUT)->action());
+    debugToolBar->addSeparator();
+    debugToolBar->addAction(am->command(Constants::STEPI)->action());
+    debugToolBar->addAction(am->command(Constants::NEXTI)->action());
+    debugToolBar->addSeparator();
+    debugToolBar->addWidget(new QLabel(tr("Threads:")));
+
+    QComboBox *threadBox = new QComboBox;
+    threadBox->setModel(m_manager->threadsModel());
+    connect(threadBox, SIGNAL(activated(int)),
+        m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
+    debugToolBar->addWidget(threadBox);
+    debugToolBar->addWidget(m_manager->statusLabel());
+
+    QWidget *stretch = new QWidget;
+    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    debugToolBar->addWidget(stretch);
+
+    QBoxLayout *toolBarAddingLayout = new QVBoxLayout(centralWidget);
+    toolBarAddingLayout->setMargin(0);
+    toolBarAddingLayout->setSpacing(0);
+    toolBarAddingLayout->addWidget(rightPaneSplitter);
+    toolBarAddingLayout->addWidget(debugToolBar);
+
+    m_manager->createDockWidgets();
+    m_manager->setSimpleDockWidgetArrangement();
+    readSettings();
+
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(focusCurrentEditor(Core::IMode*)));
+    m_debugMode->widget()->setFocusProxy(EditorManager::instance());
+    addObject(m_debugMode);
+
+    //
+    //  Connections
+    //
 
     // ProjectExplorer
     connect(projectExplorer()->session(), SIGNAL(sessionLoaded()),
@@ -593,7 +726,7 @@ void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        ExpressionUnderCursor expressionUnderCursor;
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
     }
     //qDebug() << " TOOLTIP  EXPR " << expr;
@@ -621,13 +754,13 @@ void DebuggerPlugin::querySessionValue(const QString &name, QVariant *value)
 void DebuggerPlugin::setConfigValue(const QString &name, const QVariant &value)
 {
     QTC_ASSERT(m_debugMode, return);
-    m_debugMode->settings()->setValue(name, value);
+    settings()->setValue(name, value);
 }
 
 void DebuggerPlugin::queryConfigValue(const QString &name, QVariant *value)
 {
     QTC_ASSERT(m_debugMode, return);
-    *value = m_debugMode->settings()->value(name);
+    *value = settings()->value(name);
 }
 
 void DebuggerPlugin::resetLocation()
@@ -660,6 +793,37 @@ void DebuggerPlugin::changeStatus(int status)
         core->removeAdditionalContext(m_gdbRunningContext);
         core->updateContext();
     }
+}
+
+void DebuggerPlugin::writeSettings() const
+{
+    QSettings *s = settings();
+    QTC_ASSERT(m_manager, return);
+    QTC_ASSERT(m_manager->mainWindow(), return);
+    s->beginGroup(QLatin1String("DebugMode"));
+    s->setValue(QLatin1String("State"), m_manager->mainWindow()->saveState());
+    s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());
+    s->endGroup();
+}
+
+void DebuggerPlugin::readSettings()
+{
+    QSettings *s = settings();
+    s->beginGroup(QLatin1String("DebugMode"));
+    m_manager->mainWindow()->restoreState(s->value(QLatin1String("State"), QByteArray()).toByteArray());
+    m_toggleLockedAction->setChecked(s->value(QLatin1String("Locked"), true).toBool());
+    s->endGroup();
+}
+
+void DebuggerPlugin::focusCurrentEditor(IMode *mode)
+{
+    if (mode != m_debugMode)
+        return;
+
+    EditorManager *editorManager = EditorManager::instance();
+
+    if (editorManager->currentEditor())
+        editorManager->currentEditor()->widget()->setFocus();
 }
 
 #include "debuggerplugin.moc"
