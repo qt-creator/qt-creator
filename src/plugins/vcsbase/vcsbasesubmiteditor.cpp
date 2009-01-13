@@ -57,17 +57,6 @@
 enum { debug = 0 };
 enum { wantToolBar = 0 };
 
-static inline QAction *actionFromId(const Core::ICore *core, const char *id)
-{
-    QAction *rc = 0;
-    if (id)
-       if (const Core::ICommand *cmd = core->actionManager()->command(id))
-            rc = cmd->action();
-    if (debug)
-        qDebug() << Q_FUNC_INFO << id << rc;
-    return rc;
-}
-
 namespace VCSBase {
 
 struct VCSBaseSubmitEditorPrivate {
@@ -83,10 +72,8 @@ struct VCSBaseSubmitEditorPrivate {
     VCSBase::Internal::SubmitEditorFile *m_file;
     QList<int> m_contexts;
 
-    QPointer<QAction> m_undoAction;
-    QPointer<QAction> m_redoAction;
-    QPointer<QAction> m_submitAction;
     QPointer<QAction> m_diffAction;
+    QPointer<QAction> m_submitAction;
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
@@ -96,11 +83,7 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q)),
-    m_undoAction(actionFromId(m_core, m_parameters->undoActionId)),
-    m_redoAction(actionFromId(m_core, m_parameters->redoActionId)),
-    m_submitAction(actionFromId(m_core, m_parameters->submitActionId)),
-    m_diffAction(actionFromId(m_core, m_parameters->diffActionId))
+    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q))
 {
     m_contexts << m_core->uniqueIDManager()->uniqueIdentifier(m_parameters->context);
 }
@@ -113,7 +96,6 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     // We are always clean to prevent the editor manager from asking to save.
     connect(m_d->m_file, SIGNAL(saveMe(QString)), this, SLOT(save(QString)));
 
-    m_d->m_widget->registerActions(m_d->m_undoAction, m_d->m_redoAction,  m_d->m_submitAction, m_d->m_diffAction);
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
@@ -129,6 +111,20 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete m_d;
 }
 
+void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
+                                          QAction *submitAction, QAction *diffAction)\
+{
+    m_d->m_widget->registerActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
+    m_d->m_diffAction = diffAction;
+    m_d->m_submitAction = submitAction;
+}
+
+void VCSBaseSubmitEditor::unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
+                           QAction *submitAction, QAction *diffAction)
+{
+    m_d->m_widget->unregisterActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
+    m_d->m_diffAction = m_d->m_submitAction = 0;
+}
 int VCSBaseSubmitEditor::fileNameColumn() const
 {
     return m_d->m_widget->fileNameColumn();

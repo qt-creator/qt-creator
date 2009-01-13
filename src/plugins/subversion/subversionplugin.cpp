@@ -245,11 +245,7 @@ void SubversionPlugin::cleanChangeTmpFile()
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR,
-    Core::Constants::UNDO,
-    Core::Constants::REDO,
-    Subversion::Constants::SUBMIT_CURRENT,
-    Subversion::Constants::DIFF_SELECTED
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -529,11 +525,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     Core::IEditor *editor = m_coreInstance->editorManager()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
-    // The actions are for some reason enabled by the context switching
-    // mechanism. Disable them correctly.
-    m_submitDiffAction->setEnabled(false);
-    m_submitUndoAction->setEnabled(false);
-    m_submitRedoAction->setEnabled(false);
+    submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffFiles(QStringList)));
 
     return submitEditor;
