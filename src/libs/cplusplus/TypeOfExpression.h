@@ -54,6 +54,8 @@ public:
 public:
     TypeOfExpression();
 
+    Snapshot snapshot() const;
+
     /**
      * Sets the documents used to evaluate expressions. Should be set before
      * calling this functor.
