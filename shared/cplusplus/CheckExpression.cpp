@@ -333,6 +333,13 @@ bool CheckExpression::visit(QtMethodAST *ast)
     return false;
 }
 
+bool CheckExpression::visit(CompoundLiteralAST *ast)
+{
+    /*FullySpecifiedType exprTy = */ semantic()->check(ast->type_id, _scope);
+    /*FullySpecifiedType initTy = */ semantic()->check(ast->initializer, _scope);
+    return false;
+}
+
 bool CheckExpression::visit(CallAST *ast)
 {
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
