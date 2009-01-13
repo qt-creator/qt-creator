@@ -47,6 +47,11 @@ TypeOfExpression::TypeOfExpression():
 {
 }
 
+Snapshot TypeOfExpression::snapshot() const
+{
+    return m_snapshot;
+}
+
 void TypeOfExpression::setSnapshot(const Snapshot &documents)
 {
     m_snapshot = documents;

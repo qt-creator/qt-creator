@@ -77,7 +77,7 @@ namespace Internal {
 class FunctionArgumentWidget : public QLabel {
 public:
     FunctionArgumentWidget(Core::ICore *core);
-    void showFunctionHint(Function *functionSymbol);
+    void showFunctionHint(Function *functionSymbol, const Snapshot &snapshot);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -94,6 +94,7 @@ private:
 
     QFrame *m_popupFrame;
     Function *m_item;
+    Snapshot m_snapshot;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -212,9 +213,11 @@ FunctionArgumentWidget::FunctionArgumentWidget(Core::ICore *core)
     setMargin(1);
 }
 
-void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol)
+void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
+                                              const Snapshot &snapshot)
 {
     m_item = functionSymbol;
+    m_snapshot = snapshot;
     m_startpos = m_editor->position();
 
     // update the text
@@ -1023,7 +1026,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             QTC_ASSERT(function, return);
 
             m_functionArgumentWidget = new FunctionArgumentWidget(m_core);
-            m_functionArgumentWidget->showFunctionHint(function);
+            m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.snapshot());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         QString toInsert = item.m_text;
