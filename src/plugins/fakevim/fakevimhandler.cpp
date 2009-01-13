@@ -35,6 +35,8 @@
 
 #include "fakevimconstants.h"
 
+#include <coreplugin/filemanager.h>
+#include <coreplugin/icore.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QDebug>
@@ -206,6 +208,7 @@ public:
     bool m_wasReadOnly; // saves read-only state of document
 
     FakeVimHandler *q;
+    Core::ICore *m_core;
     Mode m_mode;
     SubMode m_submode;
     SubSubMode m_subsubmode;
@@ -225,6 +228,7 @@ public:
 
     QString m_commandBuffer;
     QString m_currentFileName;
+    Core::IFile* m_currentFile;
     QString m_currentMessage;
 
     bool m_lastSearchForward;
@@ -281,6 +285,8 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_textedit = 0;
     m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
+
+    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -1050,12 +1056,18 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         bool exists = file.exists();
         if (exists && !forced && !noArgs) {
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
-        } else if (file.open(QIODevice::ReadWrite)) {
-            QTextCursor tc = selectRange(beginLine, endLine);
-            qDebug() << "ANCHOR: " << tc.position() << tc.anchor()
-                << tc.selection().toPlainText();
-            { QTextStream ts(&file); ts << tc.selection().toPlainText(); }
-            file.close();
+        } else if (m_currentFile || file.open(QIODevice::ReadWrite)) {
+            if(m_currentFile) {
+                m_core->fileManager()->blockFileChange(m_currentFile);
+                m_currentFile->save(fileName);
+                m_core->fileManager()->unblockFileChange(m_currentFile);
+            } else {
+                QTextCursor tc = selectRange(beginLine, endLine);
+                qDebug() << "ANCHOR: " << tc.position() << tc.anchor()
+                    << tc.selection().toPlainText();
+                { QTextStream ts(&file); ts << tc.selection().toPlainText(); }
+                file.close();
+            }
             file.open(QIODevice::ReadOnly);
             QByteArray ba = file.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
@@ -1488,8 +1500,10 @@ void FakeVimHandler::Private::setWidget(QWidget *ob)
     m_textedit = qobject_cast<QTextEdit *>(ob);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
     TextEditor::BaseTextEditor* editor = qobject_cast<TextEditor::BaseTextEditor*>(ob);
-    if (editor)
-        m_currentFileName = editor->file()->fileName();
+    if (editor) {
+        m_currentFile = editor->file();
+        m_currentFileName = m_currentFile->fileName();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////
