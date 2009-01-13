@@ -38,6 +38,10 @@
 
 #include <QtCore/QStringList>
 
+namespace VCSBase {
+    class SubmitFileModel;
+}
+
 namespace Git {
 namespace Internal {
 
@@ -54,8 +58,17 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
 
+signals:
+    void diffStaged(const QStringList &);
+    void diffUnstaged(const QStringList &);
+
+private slots:
+    void slotDiffSelected(const QStringList &);
+
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
+
+    VCSBase::SubmitFileModel *m_model;
 };
 
 } // namespace Internal

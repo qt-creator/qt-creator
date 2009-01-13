@@ -450,19 +450,24 @@ void GitPlugin::extensionsInitialized()
     m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
-void GitPlugin::submitEditorDiff(const QStringList &files)
+void GitPlugin::submitEditorDiffStaged(const QStringList &files)
 {
-    if (files.empty())
-        return;
-    m_gitClient->diff(m_submitRepository, files);
+    if (!files.empty())
+        m_gitClient->diff(m_submitRepository, QStringList(QLatin1String("--cached")), files);
+}
+
+void GitPlugin::submitEditorDiffUnstaged(const QStringList &files)
+{
+    if (!files.empty())
+        m_gitClient->diff(m_submitRepository, QStringList(), files);
 }
 
 void GitPlugin::diffCurrentFile()
 {
-    QFileInfo fileInfo = currentFile();
-    QString fileName = fileInfo.fileName();
-    QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->diff(workingDirectory, fileName);
+    const QFileInfo fileInfo = currentFile();
+    const QString fileName = fileInfo.fileName();
+    const QString workingDirectory = fileInfo.absolutePath();
+    m_gitClient->diff(workingDirectory, QStringList(), fileName);
 }
 
 void GitPlugin::diffCurrentProject()
@@ -470,7 +475,7 @@ void GitPlugin::diffCurrentProject()
     QString workingDirectory = getWorkingDirectory();
     if (workingDirectory.isEmpty())
         return;
-    m_gitClient->diff(workingDirectory, QString());
+    m_gitClient->diff(workingDirectory, QStringList(), QString());
 }
 
 QFileInfo GitPlugin::currentFile() const
@@ -640,7 +645,8 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     m_undoAction->setEnabled(false);
     m_redoAction->setEnabled(false);
     submitEditor->setCommitData(cd);
-    connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(submitEditorDiff(QStringList)));
+    connect(submitEditor, SIGNAL(diffStaged(QStringList)), this, SLOT(submitEditorDiffStaged(QStringList)));
+    connect(submitEditor, SIGNAL(diffUnstaged(QStringList)), this, SLOT(submitEditorDiffUnstaged(QStringList)));
     return editor;
 }
 

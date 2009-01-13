@@ -130,6 +130,11 @@ static inline bool addStateFileSpecification(const QString &line, QList<CommitDa
     \endcode
 */
 
+bool CommitData::filesEmpty() const
+{
+    return stagedFiles.empty() && unstagedFiles.empty() && untrackedFiles.empty();
+}
+
 bool CommitData::parseFilesFromStatus(const QString &output)
 {
     enum State { None, CommitFiles, NotUpdatedFiles, UntrackedFiles };
@@ -183,7 +188,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
             }
         }
     }
-    return !stagedFiles.empty() || !unstagedFiles.empty() || !untrackedFiles.empty();
+    return true;
 }
 
 // Convert a spec pair list to a list of file names, optionally

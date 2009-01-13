@@ -184,12 +184,14 @@ VCSBase::VCSBaseEditor
     return rc;
 }
 
-void GitClient::diff(const QString &workingDirectory, const QStringList &fileNames)
+void GitClient::diff(const QString &workingDirectory,
+                     const QStringList &diffArgs,
+                     const QStringList &fileNames)
 {
       if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileNames;
     QStringList arguments;
-    arguments << QLatin1String("diff") << QLatin1String("--") << fileNames;
+    arguments << QLatin1String("diff") << diffArgs << QLatin1String("--") << fileNames;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff");
@@ -199,14 +201,16 @@ void GitClient::diff(const QString &workingDirectory, const QStringList &fileNam
 
 }
 
-void GitClient::diff(const QString &workingDirectory, const QString &fileName)
+void GitClient::diff(const QString &workingDirectory,
+                     const QStringList &diffArgs,
+                     const QString &fileName)
 {
     if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileName;
     QStringList arguments;
     arguments << QLatin1String("diff");
     if (!fileName.isEmpty())
-        arguments << QLatin1String("--") << fileName;
+        arguments << diffArgs << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);
@@ -710,6 +714,10 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     }
     // Filter out untracked files that are not part of the project
     filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
+    if (d->filesEmpty()) {
+        *errorMessage = msgNoChangedFiles();
+        return false;
+    }
 
     d->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
     d->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));

@@ -139,6 +139,17 @@ void VCSBaseSubmitEditor::setFileNameColumn(int c)
     m_d->m_widget->setFileNameColumn(c);
 }
 
+QAbstractItemView::SelectionMode VCSBaseSubmitEditor::fileListSelectionMode() const
+{
+    return m_d->m_widget->fileListSelectionMode();
+}
+
+void VCSBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
+{
+    m_d->m_widget->setFileListSelectionMode(sm);
+}
+
+
 void VCSBaseSubmitEditor::slotDescriptionChanged()
 {
 }

@@ -108,7 +108,8 @@ public slots:
 private slots:
     void                        diffCurrentFile();
     void                        diffCurrentProject();
-    void                        submitEditorDiff(const QStringList &);
+    void                        submitEditorDiffUnstaged(const QStringList &);
+    void                        submitEditorDiffStaged(const QStringList &);
     void                        submitCurrentLog();
     void                        statusFile();
     void                        statusProject();

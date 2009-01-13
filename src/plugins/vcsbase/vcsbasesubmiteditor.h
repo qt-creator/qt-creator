@@ -39,6 +39,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QList>
+#include <QtGui/QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -92,6 +93,7 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
+    Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
 public:
     typedef QList<int> Context;
 
@@ -104,6 +106,9 @@ public:
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);
+
+    QAbstractItemView::SelectionMode fileListSelectionMode() const;
+    void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);

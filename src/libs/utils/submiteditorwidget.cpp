@@ -234,6 +234,16 @@ void SubmitEditorWidget::setFileNameColumn(int c)
     m_d->m_fileNameColumn = c;
 }
 
+QAbstractItemView::SelectionMode SubmitEditorWidget::fileListSelectionMode() const
+{
+    return m_d->m_ui.fileView->selectionMode();
+}
+
+void SubmitEditorWidget::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
+{
+    m_d->m_ui.fileView->setSelectionMode(sm);
+}
+
 void SubmitEditorWidget::setFileModel(QAbstractItemModel *model)
 {
     m_d->m_ui.fileView->clearSelection(); // trigger the change signals
