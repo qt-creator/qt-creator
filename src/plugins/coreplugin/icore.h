@@ -57,7 +57,7 @@ class MessageManager;
 class IEditor;
 class UniqueIDManager;
 class EditorManager;
-class ProgressManagerInterface;
+class ProgressManager;
 class ScriptManagerInterface;
 class VariableManager;
 class IContext;
@@ -87,7 +87,7 @@ public:
     virtual MessageManager *messageManager() const = 0;
     virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
-    virtual ProgressManagerInterface *progressManager() const = 0;
+    virtual ProgressManager *progressManager() const = 0;
     virtual ScriptManagerInterface *scriptManager() const = 0;
     virtual VariableManager *variableManager() const = 0;
     virtual VCSManager *vcsManager() const = 0;

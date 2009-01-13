@@ -62,7 +62,7 @@ public:
     MessageManager *messageManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
-    ProgressManagerInterface *progressManager() const;
+    ProgressManager *progressManager() const;
     ScriptManagerInterface *scriptManager() const;
     VariableManager *variableManager() const;
     VCSManager *vcsManager() const;

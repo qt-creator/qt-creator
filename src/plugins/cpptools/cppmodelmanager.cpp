@@ -49,7 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -606,7 +606,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
                             CppTools::Constants::TASK_INDEX,
-                            Core::ProgressManagerInterface::CloseOnSuccess);
+                            Core::ProgressManager::CloseOnSuccess);
         }
         return result;
     }

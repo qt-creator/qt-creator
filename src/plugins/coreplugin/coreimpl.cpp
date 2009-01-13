@@ -94,7 +94,7 @@ EditorManager *CoreImpl::editorManager() const
     return m_mainwindow->editorManager();
 }
 
-ProgressManagerInterface *CoreImpl::progressManager() const
+ProgressManager *CoreImpl::progressManager() const
 {
     return m_mainwindow->progressManager();
 }

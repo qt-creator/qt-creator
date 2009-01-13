@@ -98,7 +98,7 @@
 */
 
 /*!
-    \fn ProgressManagerInterface *ICore::progressManager() const
+    \fn ProgressManager *ICore::progressManager() const
     \brief Returns the application's progress manager.
 
     Use the progress manager to register a concurrent task to

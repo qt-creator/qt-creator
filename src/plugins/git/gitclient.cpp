@@ -43,7 +43,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
@@ -999,7 +999,7 @@ void GitCommand::execute(const QStringList &arguments,
     Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
     core->progressManager()->addTask(task, taskName
                             , QLatin1String("Git.action")
-                            , Core::ProgressManagerInterface::CloseOnSuccess);
+                            , Core::ProgressManager::CloseOnSuccess);
 }
 
 void GitCommand::run(const QStringList &arguments,

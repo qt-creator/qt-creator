@@ -45,7 +45,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
 
 #include <texteditor/itexteditor.h>
@@ -161,7 +161,7 @@ bool SessionFile::load(const QString &fileName)
 
     m_core->progressManager()->addTask(future.future(), tr("Session"),
        QLatin1String("ProjectExplorer.SessionFile.Load"),
-       Core::ProgressManagerInterface::CloseOnSuccess);
+       Core::ProgressManager::CloseOnSuccess);
 
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
     foreach (const QString &key, keys) {

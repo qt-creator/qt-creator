@@ -45,7 +45,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
-  : ProgressManagerInterface(parent)
+  : ProgressManager(parent)
 {
     m_progressView = new ProgressView;
     ICore *core = CoreImpl::instance();

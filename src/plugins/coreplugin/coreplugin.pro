@@ -116,7 +116,7 @@ HEADERS += mainwindow.h \
     progressmanager/progressview.h \
     progressmanager/progresspie.h \
     progressmanager/futureprogress.h \
-    progressmanager/progressmanagerinterface.h \
+    progressmanager/progressmanager.h \
     icontext.h \
     icore.h \
     ifile.h \

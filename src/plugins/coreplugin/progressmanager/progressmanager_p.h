@@ -34,7 +34,7 @@
 #ifndef PROGRESSMANAGER_P_H
 #define PROGRESSMANAGER_P_H
 
-#include "progressmanagerinterface.h"
+#include "progressmanager.h"
 
 #include <QtCore/QPointer>
 #include <QtCore/QList>
@@ -45,7 +45,7 @@ namespace Internal {
 
 class ProgressView;
 
-class ProgressManagerPrivate : public Core::ProgressManagerInterface
+class ProgressManagerPrivate : public Core::ProgressManager
 {
     Q_OBJECT
 public:

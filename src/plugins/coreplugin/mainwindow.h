@@ -64,7 +64,7 @@ class IContext;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
-class ProgressManagerInterface;
+class ProgressManager;
 class RightPaneWidget;
 class ScriptManagerInterface;
 class UniqueIDManager;
@@ -111,7 +111,7 @@ public:
     Core::MessageManager *messageManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     Core::EditorManager *editorManager() const;
-    Core::ProgressManagerInterface *progressManager() const;
+    Core::ProgressManager *progressManager() const;
     Core::ScriptManagerInterface *scriptManager() const;
     Core::VariableManager *variableManager() const;
     Core::ModeManager *modeManager() const;

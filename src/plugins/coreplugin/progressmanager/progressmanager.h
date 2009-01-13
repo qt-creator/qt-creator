@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef PROGRESSMANAGERINTERFACE_H
-#define PROGRESSMANAGERINTERFACE_H
+#ifndef PROGRESSMANAGER_H
+#define PROGRESSMANAGER_H
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -43,14 +43,14 @@
 
 namespace Core {
 
-class CORE_EXPORT ProgressManagerInterface : public QObject
+class CORE_EXPORT ProgressManager : public QObject
 {
     Q_OBJECT
 public:
     enum PersistentType { CloseOnSuccess, KeepOnFinish };
 
-    ProgressManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ProgressManagerInterface() {}
+    ProgressManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ProgressManager() {}
 
     virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency = KeepOnFinish) = 0;
 
@@ -60,4 +60,4 @@ public slots:
 
 } // namespace Core
 
-#endif //PROGRESSMANAGERINTERFACE_H
+#endif //PROGRESSMANAGER_H

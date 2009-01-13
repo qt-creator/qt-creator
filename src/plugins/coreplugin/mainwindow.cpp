@@ -845,7 +845,7 @@ EditorManager *MainWindow::editorManager() const
     return m_editorManager;
 }
 
-ProgressManagerInterface *MainWindow::progressManager() const
+ProgressManager *MainWindow::progressManager() const
 {
     return m_progressManager;
 }
