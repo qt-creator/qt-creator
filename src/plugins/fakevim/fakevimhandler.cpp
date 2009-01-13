@@ -474,7 +474,7 @@ void FakeVimHandler::Private::updateSelection()
             }
         }
     }
-    EDITOR(setExtraSelections(selections));
+    emit q->selectionChanged(editor(), selections);
 }
 
 void FakeVimHandler::Private::updateMiniBuffer()

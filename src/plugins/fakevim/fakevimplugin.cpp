@@ -165,14 +165,17 @@ void FakeVimPlugin::installHandler(QWidget *widget)
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
         this, SLOT(removeHandler(QWidget *)));
+    connect(m_handler,
+        SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
+        this, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
 
     m_handler->addWidget(widget);
 
-    BaseTextEditor *baseTextEditor = qobject_cast<BaseTextEditor *>(widget);
-    if (baseTextEditor) {
+    BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget);
+    if (bt) {
         using namespace TextEditor;
         using namespace FakeVim::Constants;
-        TabSettings settings = baseTextEditor->tabSettings();
+        TabSettings settings = bt->tabSettings();
         m_handler->setConfigValue(ConfigTabStop,
             QString::number(settings.m_tabSize));
         m_handler->setConfigValue(ConfigShiftWidth,
@@ -217,6 +220,13 @@ void FakeVimPlugin::showCommandBuffer(const QString &contents)
 void FakeVimPlugin::showExtraInformation(const QString &text)
 {
     QMessageBox::information(0, tr("FakeVim Information"), text);
+}
+
+void FakeVimPlugin::changeSelection(QWidget *widget,
+    const QList<QTextEdit::ExtraSelection> &selection)
+{
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget))
+        bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
 }
 
 //#include "fakevimplugin.moc"

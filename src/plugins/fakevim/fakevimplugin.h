@@ -37,6 +37,8 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QList>
+#include <QtGui/QTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -84,6 +86,8 @@ private slots:
     void showExtraInformation(const QString &msg);
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
+    void changeSelection(QWidget *widget,
+        const QList<QTextEdit::ExtraSelection> &selections);
 
 private:
     FakeVimHandler *m_handler;
