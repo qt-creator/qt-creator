@@ -415,8 +415,8 @@ void LookupContext::expandClass(Scope *scope,
             }
 
             for (int j = 0; j < baseClassCandidates.size(); ++j) {
-                Class *baseClassSymbol = baseClassCandidates.at(j)->asClass();
-                expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
+                if (Class *baseClassSymbol = baseClassCandidates.at(j)->asClass())
+                    expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
             }
         }
     }
