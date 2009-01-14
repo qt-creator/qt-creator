@@ -9,7 +9,11 @@ unix {
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$OUT_PWD/doc/qtcreator.qch
 
+unix {
+html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
+} else {
 html_docs.commands = \"$$QDOC $$PWD/qtcreator.qdocconf\"
+}
 html_docs.depends += $$PWD/qtcreator.qdoc $$PWD/qtcreator.qdocconf
 html_docs.files = $$QHP_FILE
 
