@@ -141,7 +141,7 @@ void ApplicationRunControl::start()
                                 m_executable, rc->commandLineArguments());
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1").arg(m_executable));
+    emit addToOutputWindow(this, tr("Starting %1...").arg(m_executable));
 }
 
 void ApplicationRunControl::stop()
