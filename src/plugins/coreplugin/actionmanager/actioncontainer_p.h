@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef ACTIONCONTAINER_H
-#define ACTIONCONTAINER_H
+#ifndef ACTIONCONTAINER_P_H
+#define ACTIONCONTAINER_P_H
 
 #include "actionmanager_p.h"
 
@@ -42,7 +42,7 @@
 namespace Core {
 namespace Internal {
 
-class ActionContainer : public Core::IActionContainer
+class ActionContainerPrivate : public Core::IActionContainer
 {
 public:
     enum ContainerState {
@@ -52,8 +52,8 @@ public:
         CS_UserDefined  = 0x040000
     };
 
-    ActionContainer(int id);
-    virtual ~ActionContainer() {}
+    ActionContainerPrivate(int id);
+    virtual ~ActionContainerPrivate() {}
 
     void setEmptyAction(EmptyAction ea);
     bool hasEmptyAction(EmptyAction ea) const;
@@ -96,7 +96,7 @@ private:
     QList<ICommand *> m_commands;
 };
 
-class MenuActionContainer : public ActionContainer
+class MenuActionContainer : public ActionContainerPrivate
 {
 public:
     MenuActionContainer(int id);
@@ -118,7 +118,7 @@ private:
     CommandLocation m_location;
 };
 
-class MenuBarActionContainer : public ActionContainer
+class MenuBarActionContainer : public ActionContainerPrivate
 {
 public:
     MenuBarActionContainer(int id);
@@ -139,4 +139,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // ACTIONCONTAINER_H
+#endif // ACTIONCONTAINER_P_H

@@ -56,7 +56,7 @@ class UniqueIDManager;
 
 namespace Internal {
 
-class ActionContainer;
+class ActionContainerPrivate;
 class MainWindow;
 class Command;
 
@@ -75,7 +75,7 @@ public:
     QList<int> defaultGroups() const;
 
     QList<Command *> commands() const;
-    QList<ActionContainer *> containers() const;
+    QList<ActionContainerPrivate *> containers() const;
 
     bool hasContext(int context) const;
 
@@ -107,7 +107,7 @@ private:
     typedef QHash<int, Command *> IdCmdMap;
     IdCmdMap m_idCmdMap;
 
-    typedef QHash<int, ActionContainer *> IdContainerMap;
+    typedef QHash<int, ActionContainerPrivate *> IdContainerMap;
     IdContainerMap m_idContainerMap;
 
 //    typedef QMap<int, int> GlobalGroupMap;

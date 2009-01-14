@@ -32,7 +32,7 @@
 ***************************************************************************/
 
 #include "mainwindow.h"
-#include "actioncontainer.h"
+#include "iactioncontainer.h"
 #include "actionmanager_p.h"
 #include "basemode.h"
 #include "coreimpl.h"

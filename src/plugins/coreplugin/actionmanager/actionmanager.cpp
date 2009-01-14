@@ -33,7 +33,7 @@
 
 #include "actionmanager_p.h"
 #include "mainwindow.h"
-#include "actioncontainer.h"
+#include "actioncontainer_p.h"
 #include "command.h"
 #include "uniqueidmanager.h"
 
@@ -238,7 +238,7 @@ QList<Command *> ActionManagerPrivate::commands() const
     return m_idCmdMap.values();
 }
 
-QList<ActionContainer *> ActionManagerPrivate::containers() const
+QList<ActionContainerPrivate *> ActionManagerPrivate::containers() const
 {
     return m_idContainerMap.values();
 }
