@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
-    <height>233</height>
+    <width>465</width>
+    <height>372</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,6 +72,58 @@
        <widget class="Core::Utils::PathChooser" name="gdbLocationChooser" native="true"/>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxUseCustomDumpers">
+     <property name="toolTip">
+      <string>Checking this will make the debugger try to use code to format certain data (QObject, QString, std::string etc.) nicely.</string>
+     </property>
+     <property name="text">
+      <string>Use custom display for Qt and Standard Library objects</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxFastStart">
+     <property name="toolTip">
+      <string>Checking this will make the debugger start fast by loading only very few debug symbols on start up. This might lead to situations where breakpoints can not be set properly. So uncheck this option if you experience breakpoint related problems.</string>
+     </property>
+     <property name="text">
+      <string>Fast debugger start</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
+     <property name="toolTip">
+      <string>fter checking this option 'Step Into' combines in certain situations several steps, leading to 'less noisy' debugging. So will, e.g., the atomic 
+reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.
+</string>
+     </property>
+     <property name="text">
+      <string>Skip known frames when stepping</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxUseToolTips">
+     <property name="toolTip">
+      <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
+     </property>
+     <property name="text">
+      <string>Use tooltips while debugging</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxDebugDumpers">
+     <property name="toolTip">
+      <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
+     </property>
+     <property name="text">
+      <string>Debug Custom Dumpers</string>
+     </property>
     </widget>
    </item>
    <item>

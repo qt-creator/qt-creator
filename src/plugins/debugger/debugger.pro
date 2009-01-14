@@ -26,7 +26,6 @@ HEADERS += attachexternaldialog.h \
     disassemblerwindow.h \
     gdbengine.h \
     gdbmi.h \
-    gdboptionpage.h \
     idebuggerengine.h \
     imports.h \
     moduleshandler.h \
@@ -55,7 +54,6 @@ SOURCES += attachexternaldialog.cpp \
     disassemblerwindow.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
-    gdboptionpage.cpp \
     gdbengine.h \
     moduleshandler.cpp \
     moduleswindow.cpp \
