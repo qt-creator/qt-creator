@@ -848,9 +848,7 @@ ProFileReader *Qt4PriFileNode::createProFileReader() const
         reader->setQtVersion(version);
     }
 
-    QHash<QString,QStringList> variables;
-    variables.insert(QLatin1String("OUT_PWD"), QStringList(m_qt4ProFileNode->buildDir()));
-    reader->addVariables(variables);
+    reader->setOutputDir(m_qt4ProFileNode->buildDir());
 
     return reader;
 }
