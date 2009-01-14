@@ -58,13 +58,12 @@ public:
     QString category() const;
     QString trCategory() const;
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish();
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
 
 private:
     QDesignerOptionsPageInterface *m_designerPage;
-    bool m_applyOnFinish;
 };
 
 } // namespace Internal
