@@ -34,7 +34,7 @@
 #include "actionmanager_p.h"
 #include "mainwindow.h"
 #include "actioncontainer_p.h"
-#include "command.h"
+#include "command_p.h"
 #include "uniqueidmanager.h"
 
 #include <coreplugin/coreconstants.h>
@@ -233,7 +233,7 @@ QList<int> ActionManagerPrivate::defaultGroups() const
     return m_defaultGroups;
 }
 
-QList<Command *> ActionManagerPrivate::commands() const
+QList<CommandPrivate *> ActionManagerPrivate::commands() const
 {
     return m_idCmdMap.values();
 }
@@ -322,7 +322,7 @@ ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const
 {
     OverrideableAction *a = 0;
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
-    if (Command *c = m_idCmdMap.value(uid, 0)) {
+    if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
         if (c->type() != ICommand::CT_OverridableAction) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
             return c;
@@ -368,7 +368,7 @@ ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStr
 {
     Shortcut *sc = 0;
     int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
-    if (Command *c = m_idCmdMap.value(uid, 0)) {
+    if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
         if (c->type() != ICommand::CT_Shortcut) {
             qWarning() << "registerShortcut: id" << id << "is registered with a different command type.";
             return c;
@@ -476,7 +476,7 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
         const int id = j.key();
-        Command *cmd = j.value();
+        CommandPrivate *cmd = j.value();
         QKeySequence key = cmd->keySequence();
         if (key != cmd->defaultKeySequence()) {
             const QString sid = m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(id);

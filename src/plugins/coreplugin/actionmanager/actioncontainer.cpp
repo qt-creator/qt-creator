@@ -34,7 +34,7 @@
 #include "actioncontainer_p.h"
 #include "actionmanager_p.h"
 
-#include "command.h"
+#include "command_p.h"
 #include "coreimpl.h"
 
 #include "coreconstants.h"
@@ -171,7 +171,7 @@ void ActionContainerPrivate::addAction(ICommand *action, const QString &group)
 
     ActionManagerPrivate *am = ActionManagerPrivate::instance();
     Action *a = static_cast<Action *>(action);
-    if (a->stateFlags() & Command::CS_PreLocation) {
+    if (a->stateFlags() & CommandPrivate::CS_PreLocation) {
         QList<CommandLocation> locs = a->locations();
         for (int i=0; i<locs.size(); ++i) {
             if (ActionContainer *aci = am->actionContainer(locs.at(i).m_container)) {
@@ -179,7 +179,7 @@ void ActionContainerPrivate::addAction(ICommand *action, const QString &group)
                 ac->addAction(action, locs.at(i).m_position, false);
             }
         }
-        a->setStateFlags(a->stateFlags() | Command::CS_Initialized);
+        a->setStateFlags(a->stateFlags() | CommandPrivate::CS_Initialized);
     } else {
         UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
         int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
@@ -239,8 +239,8 @@ bool ActionContainerPrivate::canAddAction(ICommand *action) const
     if (action->type() != ICommand::CT_OverridableAction)
         return false;
 
-    Command *cmd = static_cast<Command *>(action);
-    if (cmd->stateFlags() & Command::CS_Initialized)
+    CommandPrivate *cmd = static_cast<CommandPrivate *>(action);
+    if (cmd->stateFlags() & CommandPrivate::CS_Initialized)
         return false;
 
     return true;

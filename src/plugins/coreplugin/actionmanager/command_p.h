@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef COMMAND_H
-#define COMMAND_H
+#ifndef COMMAND_P_H
+#define COMMAND_P_H
 
 #include "icommand.h"
 #include "actionmanager_p.h"
@@ -45,7 +45,7 @@
 namespace Core {
 namespace Internal {
 
-class Command : public Core::ICommand
+class CommandPrivate : public Core::ICommand
 {
     Q_OBJECT
 public:
@@ -56,8 +56,8 @@ public:
         CS_Mask             = 0xFF0000
     };
 
-    Command(CommandType type, int id);
-    virtual ~Command() {}
+    CommandPrivate(CommandType type, int id);
+    virtual ~CommandPrivate() {}
 
     void setStateFlags(int state);
     int stateFlags() const;
@@ -95,7 +95,7 @@ protected:
     QString m_defaultText;
 };
 
-class Shortcut : public Command
+class Shortcut : public CommandPrivate
 {
     Q_OBJECT
 public:
@@ -124,7 +124,7 @@ private:
     QString m_defaultText;
 };
 
-class Action : public Command
+class Action : public CommandPrivate
 {
     Q_OBJECT
 public:
@@ -176,4 +176,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // COMMAND_H
+#endif // COMMAND_P_H

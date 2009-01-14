@@ -34,7 +34,7 @@
 #include "shortcutsettings.h"
 #include "ui_shortcutsettings.h"
 #include "actionmanager_p.h"
-#include "command.h"
+#include "command_p.h"
 #include "coreconstants.h"
 #include "coreimpl.h"
 #include "commandsfile.h"
@@ -285,10 +285,10 @@ void ShortcutSettings::initialize()
     UniqueIDManager *uidm =
         CoreImpl::instance()->uniqueIDManager();
 
-    QList<Command *> cmds = m_am->commands();
+    QList<CommandPrivate *> cmds = m_am->commands();
     for (int i = 0; i < cmds.size(); ++i) {
-        Command *c = cmds.at(i);
-        if (c->hasAttribute(Command::CA_NonConfigureable))
+        CommandPrivate *c = cmds.at(i);
+        if (c->hasAttribute(CommandPrivate::CA_NonConfigureable))
             continue;
         if (c->action() && c->action()->isSeparator())
             continue;
@@ -313,7 +313,7 @@ void ShortcutSettings::initialize()
         item->setText(0, uidm->stringForUniqueIdentifier(c->id()));
 
         if (c->action()) {
-            QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
+            QString text = c->hasAttribute(CommandPrivate::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
             s->m_key = c->action()->shortcut();
             item->setText(1, text);
         } else {

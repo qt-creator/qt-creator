@@ -52,7 +52,6 @@ class ICommand;
 namespace Internal {
 
 class ActionManagerPrivate;
-class Command;
 class MainWindow;
 
 struct ShortcutItem

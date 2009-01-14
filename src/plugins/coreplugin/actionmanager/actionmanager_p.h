@@ -58,7 +58,7 @@ namespace Internal {
 
 class ActionContainerPrivate;
 class MainWindow;
-class Command;
+class CommandPrivate;
 
 class ActionManagerPrivate : public Core::ActionManager
 {
@@ -74,7 +74,7 @@ public:
     void saveSettings(QSettings *settings);
     QList<int> defaultGroups() const;
 
-    QList<Command *> commands() const;
+    QList<CommandPrivate *> commands() const;
     QList<ActionContainerPrivate *> containers() const;
 
     bool hasContext(int context) const;
@@ -104,7 +104,7 @@ private:
     static ActionManagerPrivate* m_instance;
     QList<int> m_defaultGroups;
 
-    typedef QHash<int, Command *> IdCmdMap;
+    typedef QHash<int, CommandPrivate *> IdCmdMap;
     IdCmdMap m_idCmdMap;
 
     typedef QHash<int, ActionContainerPrivate *> IdContainerMap;

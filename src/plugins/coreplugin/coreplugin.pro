@@ -102,7 +102,7 @@ HEADERS += mainwindow.h \
     actionmanager/actionmanager.h \
     actionmanager/icommand.h \
     actionmanager/actionmanager_p.h \
-    actionmanager/command.h \
+    actionmanager/command_p.h \
     actionmanager/actioncontainer_p.h \
     actionmanager/commandsfile.h \
     dialogs/saveitemsdialog.h \
