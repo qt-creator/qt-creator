@@ -47,12 +47,6 @@ class ICommand;
 class IActionContainer : public QObject
 {
 public:
-    enum ContainerType {
-        CT_Mask             = 0xFF,
-        CT_Menu             = 0x01,
-        CT_ToolBar          = 0x02
-    };
-
     enum EmptyAction {
         EA_Mask             = 0xFF00,
         EA_None             = 0x0100,
@@ -63,10 +57,8 @@ public:
     virtual void setEmptyAction(EmptyAction ea) = 0;
 
     virtual int id() const = 0;
-    virtual ContainerType type() const = 0;
 
     virtual QMenu *menu() const = 0;
-    virtual QToolBar *toolBar() const = 0;
     virtual QMenuBar *menuBar() const = 0;
 
     virtual QAction *insertLocation(const QString &group) const = 0;

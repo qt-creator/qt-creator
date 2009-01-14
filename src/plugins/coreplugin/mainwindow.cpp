@@ -962,17 +962,6 @@ void MainWindow::resetContext()
     updateContextObject(0);
 }
 
-QMenu *MainWindow::createPopupMenu()
-{
-    QMenu *menu = new QMenu(this);
-    QList<ActionContainer *> containers = m_actionManager->containers();
-    foreach (ActionContainer *c, containers) {
-        if (c->toolBar())
-            menu->addAction(c->toolBar()->toggleViewAction());
-    }
-    return menu;
-}
-
 static const char *settingsGroup = "MainWindow";
 static const char *geometryKey = "Geometry";
 static const char *colorKey = "Color";

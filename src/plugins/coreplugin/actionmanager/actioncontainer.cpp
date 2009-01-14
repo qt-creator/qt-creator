@@ -53,12 +53,11 @@ using namespace Core::Internal;
 /*!
     \class IActionContainer
     \mainclass
-    \ingroup qwb
     \inheaderfile iactioncontainer.h
 
-    \brief The class...
+    \brief The IActionContainer class represents a menu or menu bar in Qt Creator.
 
-    The Action Container interface...
+    
 */
 
 /*!
@@ -120,63 +119,36 @@ using namespace Core::Internal;
 // ---------- ActionContainer ------------
 
 /*!
-    \class ActionContainer
-    \ingroup qwb
-    \inheaderfile actioncontainer.h
+    \class Core::Internal::ActionContainer
+    \internal
 */
 
-/*!
-    \enum ActionContainer::ContainerState
-*/
-
-/*!
-\fn ActionContainer::ActionContainer(ContainerType type, int id)
-*/
-ActionContainer::ActionContainer(ContainerType type, int id)
-    : m_data(CS_None), m_type(type), m_id(id)
+ActionContainer::ActionContainer(int id)
+    : m_data(CS_None), m_id(id)
 {
 
 }
 
-/*!
-    \fn virtual ActionContainer::~ActionContainer()
-*/
-
-/*!
-    ...
-*/
 void ActionContainer::setEmptyAction(EmptyAction ea)
 {
     m_data = ((m_data & ~EA_Mask) | ea);
 }
 
-/*!
-    ...
-*/
 bool ActionContainer::hasEmptyAction(EmptyAction ea) const
 {
     return (m_data & EA_Mask) == ea;
 }
 
-/*!
-    ...
-*/
 void ActionContainer::setState(ContainerState state)
 {
     m_data |= state;
 }
 
-/*!
-    ...
-*/
 bool ActionContainer::hasState(ContainerState state) const
 {
     return (m_data & state);
 }
 
-/*!
-    ...
-*/
 void ActionContainer::appendGroup(const QString &group)
 {
     UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
@@ -184,9 +156,6 @@ void ActionContainer::appendGroup(const QString &group)
     m_groups << gid;
 }
 
-/*!
-    ...
-*/
 QAction *ActionContainer::insertLocation(const QString &group) const
 {
     UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
@@ -196,25 +165,6 @@ QAction *ActionContainer::insertLocation(const QString &group) const
     return beforeAction(pos, &prevKey);
 }
 
-/*!
-\fn virtual void ActionContainer::insertAction(QAction *before, QAction *action) = 0
-*/
-
-/*!
-\fn virtual void ActionContainer::insertMenu(QAction *before, QMenu *menu) = 0
-*/
-
-/*!
-\fn QList<ICommand *> ActionContainer::commands() const
-*/
-
-/*!
-\fn QList<IActionContainer *> ActionContainer::subContainers() const
-*/
-
-/*!
-    ...
-*/
 void ActionContainer::addAction(ICommand *action, const QString &group)
 {
     if (!canAddAction(action))
@@ -243,12 +193,10 @@ void ActionContainer::addAction(ICommand *action, const QString &group)
     }
 }
 
-/*!
-    ...
-*/
 void ActionContainer::addMenu(IActionContainer *menu, const QString &group)
 {
-    if (!canAddMenu(menu))
+    ActionContainer *container = static_cast<ActionContainer *>(menu);
+    if (!container->canBeAddedToMenu())
         return;
 
     ActionManagerPrivate *am = ActionManagerPrivate::instance();
@@ -272,49 +220,21 @@ void ActionContainer::addMenu(IActionContainer *menu, const QString &group)
     }
 }
 
-/*!
-    ...
-*/
 int ActionContainer::id() const
 {
     return m_id;
 }
 
-/*!
-    ...
-*/
-IActionContainer::ContainerType ActionContainer::type() const
-{
-    return m_type;
-}
-
-/*!
-    ...
-*/
 QMenu *ActionContainer::menu() const
 {
     return 0;
 }
 
-/*!
-    ...
-*/
-QToolBar *ActionContainer::toolBar() const
-{
-    return 0;
-}
-
-/*!
-    ...
-*/
 QMenuBar *ActionContainer::menuBar() const
 {
     return 0;
 }
 
-/*!
-    ...
-*/
 bool ActionContainer::canAddAction(ICommand *action) const
 {
     if (action->type() != ICommand::CT_OverridableAction)
@@ -327,24 +247,6 @@ bool ActionContainer::canAddAction(ICommand *action) const
     return true;
 }
 
-/*!
-    ...
-*/
-bool ActionContainer::canAddMenu(IActionContainer *menu) const
-{
-    if (menu->type() != IActionContainer::CT_Menu)
-        return false;
-
-    ActionContainer *container = static_cast<ActionContainer *>(menu);
-    if (container->hasState(ActionContainer::CS_Initialized))
-        return false;
-
-    return true;
-}
-
-/*!
-    ...
-*/
 void ActionContainer::addAction(ICommand *action, int pos, bool setpos)
 {
     Action *a = static_cast<Action *>(action);
@@ -367,9 +269,6 @@ void ActionContainer::addAction(ICommand *action, int pos, bool setpos)
     insertAction(ba, a->action());
 }
 
-/*!
-    ...
-*/
 void ActionContainer::addMenu(IActionContainer *menu, int pos, bool setpos)
 {
     MenuActionContainer *mc = static_cast<MenuActionContainer *>(menu);
@@ -390,10 +289,6 @@ void ActionContainer::addMenu(IActionContainer *menu, int pos, bool setpos)
     insertMenu(ba, mc->menu());
 }
 
-/*!
-    ...
-    \internal
-*/
 QAction *ActionContainer::beforeAction(int pos, int *prevKey) const
 {
     ActionManagerPrivate *am = ActionManagerPrivate::instance();
@@ -424,10 +319,6 @@ QAction *ActionContainer::beforeAction(int pos, int *prevKey) const
     return 0;
 }
 
-/*!
-    ...
-    \internal
-*/
 int ActionContainer::calcPosition(int pos, int prevKey) const
 {
     int grp = (pos & 0xFFFF0000);
@@ -445,23 +336,16 @@ int ActionContainer::calcPosition(int pos, int prevKey) const
 // ---------- MenuActionContainer ------------
 
 /*!
-    \class MenuActionContainer
-    \ingroup qwb
-    \inheaderfile actioncontainer.h
+    \class Core::Internal::MenuActionContainer
+    \internal
 */
 
-/*!
-    ...
-*/
 MenuActionContainer::MenuActionContainer(int id)
-    : ActionContainer(CT_Menu, id), m_menu(0)
+    : ActionContainer(id), m_menu(0)
 {
     setEmptyAction(EA_Disable);
 }
 
-/*!
-    ...
-*/
 void MenuActionContainer::setMenu(QMenu *menu)
 {
     m_menu = menu;
@@ -472,49 +356,31 @@ void MenuActionContainer::setMenu(QMenu *menu)
     m_menu->menuAction()->setData(v);
 }
 
-/*!
-    ...
-*/
 QMenu *MenuActionContainer::menu() const
 {
     return m_menu;
 }
 
-/*!
-    ...
-*/
 void MenuActionContainer::insertAction(QAction *before, QAction *action)
 {
     m_menu->insertAction(before, action);
 }
 
-/*!
-    ...
-*/
 void MenuActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
     m_menu->insertMenu(before, menu);
 }
 
-/*!
-    ...
-*/
 void MenuActionContainer::setLocation(const CommandLocation &location)
 {
     m_location = location;
 }
 
-/*!
-    ...
-*/
 CommandLocation MenuActionContainer::location() const
 {
     return m_location;
 }
 
-/*!
-    ...
-*/
 bool MenuActionContainer::update()
 {
     if (hasEmptyAction(EA_None))
@@ -549,131 +415,48 @@ bool MenuActionContainer::update()
     return hasitems;
 }
 
-// ---------- ToolBarActionContainer ------------
-
-/*!
-    \class ToolBarActionContainer
-    \ingroup qwb
-    \inheaderfile actioncontainer.h
-*/
-
-/*!
-    ...
-*/
-ToolBarActionContainer::ToolBarActionContainer(int id)
-    : ActionContainer(CT_ToolBar, id), m_toolBar(0)
+bool MenuActionContainer::canBeAddedToMenu() const
 {
-    setEmptyAction(EA_None);
+    if (hasState(ActionContainer::CS_Initialized))
+        return false;
+
+    return true;
 }
 
-/*!
-    ...
-*/
-void ToolBarActionContainer::setToolBar(QToolBar *toolBar)
-{
-    m_toolBar = toolBar;
-}
-
-/*!
-    ...
-*/
-QToolBar *ToolBarActionContainer::toolBar() const
-{
-    return m_toolBar;
-}
-
-/*!
-    ...
-*/
-void ToolBarActionContainer::insertAction(QAction *before, QAction *action)
-{
-    m_toolBar->insertAction(before, action);
-}
-
-/*!
-    ...
-*/
-void ToolBarActionContainer::insertMenu(QAction *, QMenu *)
-{
-    // not implemented
-}
-
-/*!
-    ...
-*/
-bool ToolBarActionContainer::update()
-{
-    if (hasEmptyAction(EA_None))
-        return true;
-
-    bool hasitems = false;
-    foreach (ICommand *command, commands()) {
-        if (command->isActive()) {
-            hasitems = true;
-            break;
-        }
-    }
-
-    if (hasEmptyAction(EA_Hide))
-        m_toolBar->setVisible(hasitems);
-    else if (hasEmptyAction(EA_Disable))
-        m_toolBar->setEnabled(hasitems);
-
-    return hasitems;
-}
 
 // ---------- MenuBarActionContainer ------------
 
 /*!
-    \class MenuBarActionContainer
-    \ingroup qwb
-    \inheaderfile actioncontainer.h
+    \class Core::Internal::MenuBarActionContainer
+    \internal
 */
 
-/*!
-    ...
-*/
 MenuBarActionContainer::MenuBarActionContainer(int id)
-    : ActionContainer(CT_ToolBar, id), m_menuBar(0)
+    : ActionContainer(id), m_menuBar(0)
 {
     setEmptyAction(EA_None);
 }
 
-/*!
-    ...
-*/
 void MenuBarActionContainer::setMenuBar(QMenuBar *menuBar)
 {
     m_menuBar = menuBar;
 }
 
-/*!
-    ...
-*/
 QMenuBar *MenuBarActionContainer::menuBar() const
 {
     return m_menuBar;
 }
 
-/*!
-    ...
-*/
 void MenuBarActionContainer::insertAction(QAction *before, QAction *action)
 {
     m_menuBar->insertAction(before, action);
 }
 
-/*!
-    ...
-*/
 void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
     m_menuBar->insertMenu(before, menu);
 }
 
-/*!
-    ...
-*/
 bool MenuBarActionContainer::update()
 {
     if (hasEmptyAction(EA_None))
@@ -695,3 +478,9 @@ bool MenuBarActionContainer::update()
 
     return hasitems;
 }
+
+bool MenuBarActionContainer::canBeAddedToMenu() const
+{
+    return false;
+}
+

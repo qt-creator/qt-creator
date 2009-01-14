@@ -52,7 +52,7 @@ public:
         CS_UserDefined  = 0x040000
     };
 
-    ActionContainer(ContainerType type, int id);
+    ActionContainer(int id);
     virtual ~ActionContainer() {}
 
     void setEmptyAction(EmptyAction ea);
@@ -67,10 +67,8 @@ public:
     void addMenu(IActionContainer *menu, const QString &group = QString());
 
     int id() const;
-    ContainerType type() const;
 
     QMenu *menu() const;
-    QToolBar *toolBar() const;
     QMenuBar *menuBar() const;
 
     virtual void insertAction(QAction *before, QAction *action) = 0;
@@ -81,6 +79,7 @@ public:
 protected:
     bool canAddAction(ICommand *action) const;
     bool canAddMenu(IActionContainer *menu) const;
+    virtual bool canBeAddedToMenu() const = 0;
 
     void addAction(ICommand *action, int pos, bool setpos);
     void addMenu(IActionContainer *menu, int pos, bool setpos);
@@ -91,7 +90,6 @@ private:
 
     QList<int> m_groups;
     int m_data;
-    ContainerType m_type;
     int m_id;
     QMap<int, int> m_posmap;
     QList<IActionContainer *> m_subContainers;
@@ -113,25 +111,11 @@ public:
     void insertMenu(QAction *before, QMenu *menu);
     bool update();
 
+protected:
+    bool canBeAddedToMenu() const;
 private:
     QMenu *m_menu;
     CommandLocation m_location;
-};
-
-class ToolBarActionContainer : public ActionContainer
-{
-public:
-    ToolBarActionContainer(int id);
-
-    void setToolBar(QToolBar *toolBar);
-    QToolBar *toolBar() const;
-
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
-    bool update();
-
-private:
-    QToolBar *m_toolBar;
 };
 
 class MenuBarActionContainer : public ActionContainer
@@ -146,6 +130,8 @@ public:
     void insertMenu(QAction *before, QMenu *menu);
     bool update();
 
+protected:
+    bool canBeAddedToMenu() const;
 private:
     QMenuBar *m_menuBar;
 };

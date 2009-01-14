@@ -44,7 +44,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
-#include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
 
 namespace {
