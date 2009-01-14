@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -133,6 +133,10 @@ public:
 private:
     QList<Scope *> buildVisibleScopes();
     static bool isNameCompatibleWithIdentifier(Name *name, Identifier *id);
+
+    static bool maybeValidSymbol(Symbol *symbol,
+                                 ResolveMode mode,
+                                 const QList<Symbol *> &candidates);
 
 private:
     Control *_control;

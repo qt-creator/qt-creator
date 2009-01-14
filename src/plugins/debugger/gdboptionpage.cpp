@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -122,11 +122,8 @@ void GdbOptionPage::onScriptFileChanged()
     m_settings->m_scriptFile = m_ui.scriptFileChooser->path();
 }
 
-void GdbOptionPage::finished(bool accepted)
+void GdbOptionPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_settings->m_gdbCmd   = m_ui.gdbLocationChooser->path();
     m_settings->m_gdbEnv   = m_ui.environmentEdit->text();
     m_settings->m_autoRun  = m_ui.autoStartBox->isChecked();

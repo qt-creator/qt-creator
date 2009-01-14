@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -41,13 +41,14 @@
 using namespace Help;
 using namespace Help::Internal;
 
-HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent):
-    BaseMode(tr("Help"),
-             Constants::ID_MODE_HELP,
-             QIcon((QLatin1String(":/fancyactionbar/images/mode_Reference.png"))),
-             Constants::P_MODE_HELP, widget, parent),
-    m_centralWidget(centralWidget)
+HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent)
+    : BaseMode(parent), m_centralWidget(centralWidget)
 {
+    setName(tr("Help"));
+    setUniqueModeName(Constants::ID_MODE_HELP);
+    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));
+    setPriority(Constants::P_MODE_HELP);
+    setWidget(widget);
     m_centralWidget->layout()->setSpacing(0);
     m_centralWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(this));
 }

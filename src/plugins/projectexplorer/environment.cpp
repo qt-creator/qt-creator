@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -87,14 +87,16 @@ Environment::Environment(QStringList env)
     }
 }
 
-QStringList Environment::toStringList()
+QStringList Environment::toStringList() const
 {
     QStringList result;
-    QMap<QString, QString>::const_iterator it, end;
-    end = m_values.constEnd();
-    for (it = m_values.constBegin(); it != end; ++it)
-        result<<(it.key() + "=" + it.value());
-
+    const QMap<QString, QString>::const_iterator end = m_values.constEnd();
+    for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it) {
+        QString entry = it.key();
+        entry += QLatin1Char('=');
+        entry += it.value();
+        result.push_back(entry);
+    }
     return result;
 }
 

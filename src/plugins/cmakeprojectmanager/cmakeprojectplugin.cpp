@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,6 +34,8 @@
 #include "cmakeprojectplugin.h"
 #include "cmakeprojectmanager.h"
 #include "cmakerunconfiguration.h"
+#include "cmakestep.h"
+#include "makestep.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -58,6 +60,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), errorMessage))
         return false;
     addAutoReleasedObject(new CMakeManager());
+    addAutoReleasedObject(new CMakeBuildStepFactory());
+    addAutoReleasedObject(new MakeBuildStepFactory());
     addAutoReleasedObject(new CMakeRunConfigurationFactory());
     return true;
 }

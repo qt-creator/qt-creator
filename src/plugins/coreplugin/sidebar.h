@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -50,7 +50,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICommand;
+class Command;
 
 namespace Internal {
 class SideBarWidget;
@@ -110,8 +110,8 @@ public:
 
     void activateItem(SideBarItem *item);
 
-    void setShortcutMap(const QMap<QString, Core::ICommand*> &shortcutMap);
-    QMap<QString, Core::ICommand*> shortcutMap() const;
+    void setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap);
+    QMap<QString, Core::Command*> shortcutMap() const;
 
 private slots:
     void split();
@@ -126,7 +126,7 @@ private:
     QMap<QString, SideBarItem*> m_itemMap;
     QStringList m_availableItems;
     QStringList m_defaultVisible;
-    QMap<QString, Core::ICommand*> m_shortcutMap;
+    QMap<QString, Core::Command*> m_shortcutMap;
 };
 
 namespace Internal {
@@ -144,7 +144,7 @@ public:
     void updateAvailableItems();
     void removeCurrentItem();
 
-    Core::ICommand *command(const QString &title) const;
+    Core::Command *command(const QString &title) const;
 
 signals:
     void split();

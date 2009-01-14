@@ -73,7 +73,8 @@ SOURCES += mainwindow.cpp \
     rightpane.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
-    mimedatabase.cpp
+    mimedatabase.cpp \
+    icore.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     editmode.h \
@@ -97,12 +98,12 @@ HEADERS += mainwindow.h \
     editormanager/openeditorswindow.h \
     editormanager/ieditor.h \
     editormanager/ieditorfactory.h \
-    actionmanager/iactioncontainer.h \
-    actionmanager/actionmanagerinterface.h \
-    actionmanager/icommand.h \
+    actionmanager/actioncontainer.h \
     actionmanager/actionmanager.h \
     actionmanager/command.h \
-    actionmanager/actioncontainer.h \
+    actionmanager/actionmanager_p.h \
+    actionmanager/command_p.h \
+    actionmanager/actioncontainer_p.h \
     actionmanager/commandsfile.h \
     dialogs/saveitemsdialog.h \
     dialogs/newdialog.h \
@@ -111,11 +112,11 @@ HEADERS += mainwindow.h \
     dialogs/openwithdialog.h \
     dialogs/iwizard.h \
     dialogs/ioptionspage.h \
-    progressmanager/progressmanager.h \
+    progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \
     progressmanager/progresspie.h \
     progressmanager/futureprogress.h \
-    progressmanager/progressmanagerinterface.h \
+    progressmanager/progressmanager.h \
     icontext.h \
     icore.h \
     ifile.h \
@@ -131,8 +132,8 @@ HEADERS += mainwindow.h \
     versiondialog.h \
     scriptmanager/metatypedeclarations.h \
     scriptmanager/qworkbench_wrapper.h \
-    scriptmanager/scriptmanagerinterface.h \
     scriptmanager/scriptmanager.h \
+    scriptmanager/scriptmanager_p.h \
     core_global.h \
     basemode.h \
     baseview.h \

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -90,8 +90,12 @@ private slots:
     void gotoLocation(const QString &fileName, int line, bool setMarker);
 
     void breakpointMarginActionTriggered();
+    void focusCurrentEditor(Core::IMode *mode);
 
 private:
+    void readSettings();
+    void writeSettings() const;
+
     friend class DebuggerManager;
     friend class DebugMode; // FIXME: Just a hack now so that it can access the views
 
@@ -108,6 +112,7 @@ private:
     int m_gdbRunningContext;
 
     QAction *m_breakpointMarginAction;
+    QAction *m_toggleLockedAction;
     int m_breakpointMarginActionLineNumber;
     QString m_breakpointMarginActionFileName;
 };

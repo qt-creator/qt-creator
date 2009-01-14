@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -42,7 +42,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
@@ -88,7 +88,7 @@ bool ResourceEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     error_message->clear();
 
     // Register undo and redo
-    Core::ActionManagerInterface * const actionManager = m_core->actionManager();
+    Core::ActionManager * const actionManager = m_core->actionManager();
     int const pluginId = m_core->uniqueIDManager()->uniqueIdentifier(
             Constants::C_RESOURCEEDITOR);
     QList<int> const idList = QList<int>() << pluginId;

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -40,7 +40,7 @@
 #include <quickopen/quickopenmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
@@ -111,13 +111,13 @@ void TextEditorActionHandler::createActions()
     m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
-    Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
+    Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
 
     m_selectEncodingAction = new QAction(tr("Select Encoding..."), this);
-    Core::ICommand *command = am->registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);
+    Core::Command *command = am->registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);
     connect(m_selectEncodingAction, SIGNAL(triggered()), this, SLOT(selectEncoding()));
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
 

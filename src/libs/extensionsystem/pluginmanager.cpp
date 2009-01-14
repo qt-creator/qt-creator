@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -54,8 +54,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \namespace ExtensionSystem
-    \brief The ExtensionSystem namespace provides
-    classes that belong to the core plugin system.
+    \brief The ExtensionSystem namespace provides classes that belong to the core plugin system.
 
     The basic extension system contains of the plugin manager and its supporting classes,
     and the IPlugin interface that must be implemented by plugin providers.

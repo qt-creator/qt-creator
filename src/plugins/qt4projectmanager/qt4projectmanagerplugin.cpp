@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -52,7 +52,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/qplugin.h>
@@ -82,7 +82,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     delete m_qt4ProjectManager;
 }
 /*
-static Core::ICommand *createSeparator(Core::ActionManagerInterface *am,
+static Core::Command *createSeparator(Core::ActionManager *am,
                                        QObject *parent,
                                        const QString &name,
                                        const QList<int> &context)
@@ -100,7 +100,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
 
     m_projectExplorer = m_core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     //create and register objects
     m_qt4ProjectManager = new Qt4Manager(this, m_core);
@@ -139,16 +139,16 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
     //addObject(m_embeddedPropertiesPage);
 
     //menus
-    Core::IActionContainer *mbuild =
+    Core::ActionContainer *mbuild =
         am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    Core::IActionContainer *mproject =
+    Core::ActionContainer *mproject =
         am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     //register actions
     m_projectContext = m_core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
     QList<int> context = QList<int>() << m_projectContext;
-    Core::ICommand *command;
+    Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));
     qmakeIcon.addFile(QLatin1String(":/qt4projectmanager/images/run_qmake_small.png"));

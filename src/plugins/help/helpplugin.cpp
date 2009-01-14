@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -49,7 +49,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -165,8 +165,8 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(m_bookmarkWidget, SIGNAL(addBookmark()),
         this, SLOT(addBookmark()));
 
-    Core::ActionManagerInterface *am = m_core->actionManager();
-    Core::ICommand *cmd;
+    Core::ActionManager *am = m_core->actionManager();
+    Core::Command *cmd;
 
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")), tr("Home"), this);
@@ -251,7 +251,7 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
     copyAction->setText(cmd->action()->text());
     copyAction->setIcon(cmd->action()->icon());
 
-    QMap<QString, Core::ICommand*> shortcutMap;
+    QMap<QString, Core::Command*> shortcutMap;
     QShortcut *shortcut = new QShortcut(splitter);
     shortcut->setWhatsThis(tr("Activate Index in Help mode"));
     cmd = am->registerShortcut(shortcut, QLatin1String("Help.IndexShortcut"), modecontext);
@@ -607,7 +607,7 @@ void HelpPlugin::activateSearch()
 QToolBar *HelpPlugin::createToolBar()
 {
     QToolBar *toolWidget = new QToolBar;
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     toolWidget->addAction(am->command(QLatin1String("Help.Home"))->action());
     toolWidget->addAction(am->command(QLatin1String("Help.Previous"))->action());
     toolWidget->addAction(am->command(QLatin1String("Help.Next"))->action());

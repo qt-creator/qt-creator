@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -38,9 +38,9 @@
 #include "findtoolwindow.h"
 #include "searchresultwindow.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <coreplugin/actionmanager/iactioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 
 #include <utils/qtcassert.h>
@@ -126,16 +126,16 @@ void FindPlugin::openFindFilter()
 
 void FindPlugin::setupMenu()
 {
-    Core::ActionManagerInterface *am = m_core->actionManager();
-    Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *mfind = am->createMenu(Constants::M_FIND);
+    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
     mfind->menu()->setTitle(tr("&Find/Replace"));
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QAction *separator;
     separator = new QAction(this);
     separator->setSeparator(true);
@@ -149,13 +149,13 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
 
-    Core::IActionContainer *mfind = am->actionContainer(Constants::M_FIND);
+    Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     m_filterActions.clear();
     foreach (IFindFilter *filter, findInterfaces) {
         QAction *action = new QAction(filter->name(), this);

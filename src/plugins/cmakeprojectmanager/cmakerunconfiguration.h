@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -71,7 +71,7 @@ private:
  * QString nameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
-class CMakeRunConfigurationFactory : public QObject
+class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT;
 public:

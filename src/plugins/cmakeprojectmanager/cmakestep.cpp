@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -37,6 +37,8 @@
 #include "cmakeprojectconstants.h"
 
 #include <utils/qtcassert.h>
+#include <QtGui/QFormLayout>
+#include <QtGui/QLineEdit>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -55,7 +57,14 @@ bool CMakeStep::init(const QString &buildConfiguration)
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "cmake"); // TODO give full path here?
-    setArguments(buildConfiguration, QStringList() << "-GUnix Makefiles"); // TODO
+
+    QString sourceDir = QFileInfo(m_pro->file()->fileName()).absolutePath();
+    setArguments(buildConfiguration,
+                 QStringList()
+                 << sourceDir
+                 << "-GUnix Makefiles"
+                 << value(buildConfiguration, "userArguments").toStringList()); // TODO
+
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
@@ -72,17 +81,17 @@ void CMakeStep::run(QFutureInterface<bool> &fi)
 
 QString CMakeStep::name()
 {
-    return "CMake";
+    return Constants::CMAKESTEP;
 }
 
 QString CMakeStep::displayName()
 {
-    return Constants::CMAKESTEP;
+    return "CMake";
 }
 
 ProjectExplorer::BuildStepConfigWidget *CMakeStep::createConfigWidget()
 {
-    return new CMakeBuildStepConfigWidget();
+    return new CMakeBuildStepConfigWidget(this);
 }
 
 bool CMakeStep::immutable() const
@@ -90,18 +99,46 @@ bool CMakeStep::immutable() const
     return true;
 }
 
+QString CMakeStep::userArguments(const QString &buildConfiguration) const
+{
+    return ProjectExplorer::Environment::joinArgumentList(value(buildConfiguration, "userArguments").toStringList());
+}
+
+void CMakeStep::setUserArguments(const QString &buildConfiguration, const QString &arguments)
+{
+    setValue(buildConfiguration, "userArguments", ProjectExplorer::Environment::parseCombinedArgString(arguments));
+}
+
 //
 // CMakeBuildStepConfigWidget
 //
+
+CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeStep *cmakeStep)
+    : m_cmakeStep(cmakeStep)
+{
+    QFormLayout *fl = new QFormLayout(this);
+    setLayout(fl);
+    m_arguments = new QLineEdit(this);
+    fl->addRow("Additional arguments", m_arguments);
+    connect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
+}
 
 QString CMakeBuildStepConfigWidget::displayName() const
 {
     return "CMake";
 }
 
-void CMakeBuildStepConfigWidget::init(const QString & /*buildConfiguration */)
+void CMakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 {
-    // TODO
+    m_buildConfiguration = buildConfiguration;
+    disconnect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
+    m_arguments->setText(m_cmakeStep->userArguments(buildConfiguration));
+    connect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
+}
+
+void CMakeBuildStepConfigWidget::argumentsLineEditChanged()
+{
+    m_cmakeStep->setUserArguments(m_buildConfiguration, m_arguments->text());
 }
 
 //

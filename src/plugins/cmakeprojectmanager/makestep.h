@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -36,6 +36,12 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QListWidget;
+class QListWidgetItem;
+QT_END_NAMESPACE
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -43,6 +49,7 @@ class CMakeProject;
 
 class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
+    Q_OBJECT
 public:
     MakeStep(CMakeProject *pro);
     ~MakeStep();
@@ -54,15 +61,26 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+    CMakeProject *project() const;
+    bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
+    void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
 private:
     CMakeProject *m_pro;
 };
 
 class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
 public:
+    MakeBuildStepConfigWidget(MakeStep *makeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
+private slots:
+    void itemChanged(QListWidgetItem*);
+private:
+    QString m_buildConfiguration;
+    MakeStep * m_makeStep;
+    QListWidget *m_targetsList;
 };
 
 class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory

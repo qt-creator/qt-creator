@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -181,31 +181,11 @@ private:
 
 
 //
-// IDebuggerManagerAccessForDebugMode
-//
-
-class IDebuggerManagerAccessForDebugMode
-{
-public:
-    virtual ~IDebuggerManagerAccessForDebugMode() {}
-
-private:
-    friend class DebugMode;
-
-    virtual QWidget *threadsWindow() const = 0;
-    virtual QLabel *statusLabel() const = 0;
-    virtual QList<QDockWidget*> dockWidgets() const = 0;
-    virtual void createDockWidgets() = 0;
-};
-
-
-//
 // DebuggerManager
 //
 
 class DebuggerManager : public QObject,
-    public IDebuggerManagerAccessForEngines,
-    public IDebuggerManagerAccessForDebugMode
+    public IDebuggerManagerAccessForEngines
 {
     Q_OBJECT
 
@@ -214,7 +194,6 @@ public:
     ~DebuggerManager();
 
     IDebuggerManagerAccessForEngines *engineInterface();
-    IDebuggerManagerAccessForDebugMode *debugModeInterface();
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
 

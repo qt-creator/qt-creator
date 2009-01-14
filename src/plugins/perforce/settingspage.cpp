@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -96,9 +96,9 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     return m_widget;
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    if (!accepted || !m_widget)
+    if (!m_widget)
         return;
 
     PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());

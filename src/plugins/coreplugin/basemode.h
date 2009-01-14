@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -49,12 +49,6 @@ class CORE_EXPORT BaseMode
 
 public:
     BaseMode(QObject *parent = 0);
-    BaseMode(const QString &name,
-             const char * uniqueModeName,
-             const QIcon &icon,
-             int priority,
-             QWidget *widget,
-             QObject *parent = 0);
     ~BaseMode();
 
     // IMode

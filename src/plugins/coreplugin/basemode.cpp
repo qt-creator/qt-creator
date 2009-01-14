@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -79,38 +79,6 @@ BaseMode::BaseMode(QObject *parent):
     IMode(parent),
     m_priority(0),
     m_widget(0)
-{
-}
-
-/*!
-    \fn BaseMode::BaseMode(const QString &name,
-                           const char * uniqueModeName,
-                           const QIcon &icon,
-                           int priority,
-                           QWidget *widget,
-                           QObject *parent)
-
-    Creates a mode with the given properties.
-
-    \a name
-    \a uniqueModeName
-    \a icon
-    \a priority
-    \a widget
-    \a parent
-*/
-BaseMode::BaseMode(const QString &name,
-                   const char * uniqueModeName,
-                   const QIcon &icon,
-                   int priority,
-                   QWidget *widget,
-                   QObject *parent):
-    IMode(parent),
-    m_name(name),
-    m_icon(icon),
-    m_priority(priority),
-    m_widget(widget),
-    m_uniqueModeName(uniqueModeName)
 {
 }
 

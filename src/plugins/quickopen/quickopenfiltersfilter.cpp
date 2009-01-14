@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -71,7 +71,7 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
-        foreach (IQuickOpenFilter *filter, m_plugin->filter()) {
+        foreach (IQuickOpenFilter *filter, m_plugin->filters()) {
             if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
                 FilterEntry entry(this,
                                   filter->shortcutString(),

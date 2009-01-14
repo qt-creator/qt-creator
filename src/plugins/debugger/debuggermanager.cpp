@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -481,11 +481,6 @@ IDebuggerEngine *DebuggerManager::engine()
 IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
 {
     return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
-}
-
-IDebuggerManagerAccessForDebugMode *DebuggerManager::debugModeInterface()
-{
-    return dynamic_cast<IDebuggerManagerAccessForDebugMode *>(this);
 }
 
 void DebuggerManager::createDockWidgets()

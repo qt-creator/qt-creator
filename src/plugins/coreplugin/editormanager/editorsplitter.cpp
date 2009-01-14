@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -41,7 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -72,9 +72,9 @@ void EditorSplitter::registerActions()
     const QList<int> editorManagerContext =
             QList<int>() << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
-    ActionManagerInterface *am = m_core->actionManager();
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
-    ICommand *cmd;
+    ActionManager *am = m_core->actionManager();
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    Command *cmd;
 
     //Horizontal Action
     m_horizontalSplitAction = new QAction(tr("Split Left/Right"), this);
@@ -98,7 +98,7 @@ void EditorSplitter::registerActions()
             this, SLOT(unsplit()));
 
     //Default Layout menu
-    IActionContainer *mLayout = am->createMenu("QtCreator.Menu.Window.Layout");
+    ActionContainer *mLayout = am->createMenu("QtCreator.Menu.Window.Layout");
     mwindow->addMenu(mLayout, Constants::G_WINDOW_SPLIT);
     mLayout->menu()->setTitle(tr("Default Splitter Layout"));
 

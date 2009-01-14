@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,46 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef SCRIPTMANAGERINTERFACE_H
-#define SCRIPTMANAGERINTERFACE_H
+#ifndef GITCOMMAND_H
+#define GITCOMMAND_H
 
-#include <coreplugin/core_global.h>
+#include <projectexplorer/environment.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtScript/QScriptEngine>
 
-namespace Core {
+namespace Git {
+namespace Internal {
 
-/* Script Manager.
- * Provides a script engine that is initialized with
- * QWorkBenchs interfaces and allows for running scripts.
- * @{todo} Should it actually manage script files, too? */
-
-class CORE_EXPORT ScriptManagerInterface : public QObject
+class GitCommand : public QObject
 {
     Q_OBJECT
 public:
-    // A stack frame as returned by a failed invocation (exception)
-    // fileName may be empty. lineNumber can be 0 for the top frame (goof-up?).
-    struct StackFrame {
-        QString function;
-        QString fileName;
-        int lineNumber;
+    explicit GitCommand(const QString &workingDirectory,
+                        ProjectExplorer::Environment &environment);
+
+
+    void addJob(const QStringList &arguments);
+    void execute();
+
+private:
+    void run();
+
+Q_SIGNALS:
+    void outputData(const QByteArray&);
+    void errorText(const QString&);
+
+private:
+    struct Job {
+        explicit Job(const QStringList &a);
+
+        QStringList arguments;
     };
-    typedef QList<StackFrame> Stack;
 
-    ScriptManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ScriptManagerInterface() { }
+    QStringList environment() const;
 
-    // Access the engine (for plugins to wrap additional interfaces).
-    virtual QScriptEngine &scriptEngine() = 0;
+    const QString m_workingDirectory;
+    const QStringList m_environment;
 
-    // Run a script
-    virtual bool runScript(const QString &script, QString *errorMessage, Stack *errorStack) = 0;
-    virtual bool runScript(const QString &script, QString *errorMessage) = 0;
+    QList<Job> m_jobs;
 };
 
-} // namespace Core
-
-#endif // SCRIPTMANAGERINTERFACE_H
+} // namespace Internal
+} // namespace Git
+#endif // GITCOMMAND_H

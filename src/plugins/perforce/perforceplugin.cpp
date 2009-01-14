@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -43,7 +43,7 @@
 #include "perforceversioncontrol.h"
 #include "settingspage.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/filemanager.h>
@@ -179,11 +179,7 @@ PerforcePlugin::PerforcePlugin() :
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::SUBMIT_MIMETYPE,
     Perforce::Constants::PERFORCESUBMITEDITOR_KIND,
-    Perforce::Constants::C_PERFORCESUBMITEDITOR,
-    Core::Constants::UNDO,
-    Core::Constants::REDO,
-    Perforce::Constants::SUBMIT_CURRENT,
-    Perforce::Constants::DIFF_SELECTED
+    Perforce::Constants::C_PERFORCESUBMITEDITOR
 };
 
 bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -229,12 +225,12 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
 
     //register actions
-    Core::ActionManagerInterface *am = m_coreInstance->actionManager();
+    Core::ActionManager *am = m_coreInstance->actionManager();
 
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mperforce =
+    Core::ActionContainer *mperforce =
         am->createMenu(QLatin1String(PERFORCE_MENU));
     mperforce->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(mperforce);
@@ -250,12 +246,12 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
     perforcesubmitcontext <<
             m_coreInstance->uniqueIDManager()->uniqueIdentifier(Constants::C_PERFORCESUBMITEDITOR);
 
-    Core::ICommand *command;
+    Core::Command *command;
     QAction *tmpaction;
 
     m_editAction = new QAction(tr("Edit"), this);
     command = am->registerAction(m_editAction, PerforcePlugin::EDIT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+E")));
     command->setDefaultText(tr("Edit File"));
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
@@ -263,7 +259,7 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
     m_addAction = new QAction(tr("Add"), this);
     command = am->registerAction(m_addAction, PerforcePlugin::ADD, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+A")));
     command->setDefaultText(tr("Add File"));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
@@ -271,14 +267,14 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
     m_deleteAction = new QAction(tr("Delete"), this);
     command = am->registerAction(m_deleteAction, PerforcePlugin::DELETE_FILE, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Delete File"));
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     mperforce->addAction(command);
 
     m_revertAction = new QAction(tr("Revert"), this);
     command = am->registerAction(m_revertAction, PerforcePlugin::REVERT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+R")));
     command->setDefaultText(tr("Revert File"));
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
@@ -291,14 +287,14 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
     m_diffCurrentAction = new QAction(tr("Diff Current File"), this);
     command = am->registerAction(m_diffCurrentAction, PerforcePlugin::DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Diff Current File"));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mperforce->addAction(command);
 
     m_diffProjectAction = new QAction(tr("Diff Current Project/Session"), this);
     command = am->registerAction(m_diffProjectAction, PerforcePlugin::DIFF_PROJECT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+D")));
     command->setDefaultText(tr("Diff Current Project/Session"));
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
@@ -350,7 +346,7 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
     m_annotateCurrentAction = new QAction(tr("Annotate Current File"), this);
     command = am->registerAction(m_annotateCurrentAction, PerforcePlugin::ANNOTATE_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Annotate Current File"));
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     mperforce->addAction(command);
@@ -362,7 +358,7 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
 
     m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
     command = am->registerAction(m_filelogCurrentAction, PerforcePlugin::FILELOG_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+F")));
     command->setDefaultText(tr("Filelog Current File"));
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
@@ -494,19 +490,19 @@ void PerforcePlugin::submit()
     QTC_ASSERT(m_coreInstance, return);
 
     if (!checkP4Command()) {
-        showOutput(tr("No p4 executable specified!"));
+        showOutput(tr("No p4 executable specified!"), true);
         return;
     }
 
     if (m_changeTmpFile) {
-        showOutput(tr("Another submit is currently executed."));
+        showOutput(tr("Another submit is currently executed."), true);
         m_perforceOutputWindow->popup(false);
         return;
     }
 
     m_changeTmpFile = new QTemporaryFile(this);
     if (!m_changeTmpFile->open()) {
-        showOutput(tr("Cannot create temporary file."));
+        showOutput(tr("Cannot create temporary file."), true);
         delete m_changeTmpFile;
         m_changeTmpFile = 0;
         return;
@@ -558,12 +554,8 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
     PerforceSubmitEditor *submitEditor = dynamic_cast<PerforceSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     submitEditor->restrictToProjectFiles(depotFileNames);
+    submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiff(QStringList)));
-    // The actions are for some reason enabled by the context switching
-    // mechanism. Disable them correctly.
-    m_diffSelectedFiles->setEnabled(false);
-    m_undoAction->setEnabled(false);
-    m_redoAction->setEnabled(false);
     return editor;
 }
 
@@ -970,7 +962,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             QByteArray change = m_changeTmpFile->readAll();
             m_changeTmpFile->close();
             if (!checkP4Command()) {
-                showOutput(tr("No p4 executable specified!"));
+                showOutput(tr("No p4 executable specified!"), true);
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
                 return false;
@@ -981,8 +973,8 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             proc.start(m_settings.p4Command,
                 basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
-            if (!proc.waitForStarted(3000)) {
-                showOutput(tr("Cannot execute p4 submit."));
+            if (!proc.waitForStarted(p4Timeout)) {
+                showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
@@ -992,7 +984,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             proc.closeWriteChannel();
 
             if (!proc.waitForFinished()) {
-                showOutput(tr("Cannot execute p4 submit."));
+                showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
                 delete m_changeTmpFile;
                 m_changeTmpFile = 0;
@@ -1000,7 +992,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             }
             QString output = QString::fromUtf8(proc.readAll());
             showOutput(output);
-            if (output.contains("Out of date files must be resolved or reverted")) {
+            if (output.contains("Out of date files must be resolved or reverted"), true) {
                 QMessageBox::warning(editor->widget(), "Pending change", "Could not submit the change, because your workspace was out of date. Created a pending submit instead.");
             }
             QApplication::restoreOverrideCursor();

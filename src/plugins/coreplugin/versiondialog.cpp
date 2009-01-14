@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -76,7 +76,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 #endif
         "<br/>"
         "<br/>"
-        "Copyright 2006-%3 %4. All rights reserved.<br/>"
+        "Copyright 2008-%3 %4. All rights reserved.<br/>"
         "<br/>"
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -47,6 +47,7 @@ const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
 const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
 const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
+const char * const GIT_BINARY = "git";
 
 const char * const DIFF_FILE_INDICATOR = "--- ";
 enum { debug = 0 };

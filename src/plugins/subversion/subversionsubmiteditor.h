@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,6 +34,9 @@
 #ifndef SUBVERSIONSUBMITEDITOR_H
 #define SUBVERSIONSUBMITEDITOR_H
 
+#include <QtCore/QPair>
+#include <QtCore/QStringList>
+
 #include <vcsbase/vcsbasesubmiteditor.h>
 
 namespace Subversion {
@@ -48,8 +51,10 @@ public:
 
     static QString fileFromStatusLine(const QString &statusLine);
 
-private:
-    virtual QStringList vcsFileListToFileList(const QStringList &) const;
+    // A list of ( 'A','M','D') status indicators and file names.
+    typedef QPair<QString, QString> StatusFilePair;
+
+    void setStatusList(const QList<StatusFilePair> &statusOutput);
 };
 
 } // namespace Internal

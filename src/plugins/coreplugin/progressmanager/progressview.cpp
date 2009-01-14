@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -62,7 +62,7 @@ ProgressView::~ProgressView()
 FutureProgress *ProgressView::addTask(const QFuture<void> &future,
                                       const QString &title,
                                       const QString &type,
-                                      ProgressManagerInterface::PersistentType persistency)
+                                      ProgressManager::PersistentType persistency)
 {
     removeOldTasks(type);
     if (m_taskList.size() == 3)
@@ -73,7 +73,7 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
     m_layout->insertWidget(0, progress);
     m_taskList.append(progress);
     m_type.insert(progress, type);
-    m_keep.insert(progress, (persistency == ProgressManagerInterface::KeepOnFinish));
+    m_keep.insert(progress, (persistency == ProgressManager::KeepOnFinish));
     connect(progress, SIGNAL(finished()), this, SLOT(slotFinished()));
     return progress;
 }

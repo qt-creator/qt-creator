@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -45,6 +45,7 @@ const char * const ConfigTabStop     = "tabstop";
 const char * const ConfigSmartTab    = "smarttab";
 const char * const ConfigShiftWidth  = "shiftwidth";
 const char * const ConfigExpandTab   = "expandtab";
+const char * const ConfigAutoIndent  = "autoindent";
 
 } // namespace Constants
 } // namespace FakeVim

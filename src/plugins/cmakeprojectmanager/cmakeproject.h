@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -36,11 +36,14 @@
 
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
+#include "makestep.h"
+#include "cmakestep.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <coreplugin/ifile.h>
+#include <utils/pathchooser.h>
 
 #include <QtCore/QXmlStreamReader>
 
@@ -99,8 +102,12 @@ public:
 //    virtual Node *nodeForFile(const QString &filePath) const = 0;
 
     virtual QStringList files(FilesMode fileMode) const;
+    MakeStep *makeStep() const;
+    CMakeStep *cmakeStep() const;
+    QStringList targets() const;
 
 private:
+    void parseCMakeLists(const QDir &directory);
     QString findCbpFile(const QDir &);
     void createCbpFile(const QDir &);
 
@@ -177,13 +184,20 @@ private:
 
 class CMakeBuildSettingsWidget : public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
 public:
-    CMakeBuildSettingsWidget();
+    CMakeBuildSettingsWidget(CMakeProject *project);
     virtual QString displayName() const;
 
     // This is called to set up the config widget before showing it
     // buildConfiguration is QString::null for the non buildConfiguration specific page
     virtual void init(const QString &buildConfiguration);
+private slots:
+    void buildDirectoryChanged();
+private:
+    CMakeProject *m_project;
+    Core::Utils::PathChooser *m_pathChooser;
+    QString m_buildConfiguration;
 };
 
 } // namespace Internal

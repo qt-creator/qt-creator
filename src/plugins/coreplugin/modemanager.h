@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -48,7 +48,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICommand;
+class Command;
 class IMode;
 
 namespace Internal {
@@ -70,7 +70,7 @@ public:
     IMode* currentMode() const;
     IMode* mode(const QString &id) const;
 
-    void addAction(ICommand *command, int priority, QMenu *menu = 0);
+    void addAction(Command *command, int priority, QMenu *menu = 0);
     void addWidget(QWidget *widget);
 
 signals:
@@ -95,9 +95,9 @@ private:
     Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
-    QMap<ICommand*, int> m_actions;
+    QMap<Command*, int> m_actions;
     QVector<IMode*> m_modes;
-    QVector<ICommand*> m_modeShortcuts;
+    QVector<Command*> m_modeShortcuts;
     QSignalMapper *m_signalMapper;
     QList<int> m_addedContexts;
 };

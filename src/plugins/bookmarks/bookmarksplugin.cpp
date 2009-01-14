@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -42,7 +42,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
@@ -68,7 +68,7 @@ void BookmarksPlugin::extensionsInitialized()
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     QList<int> context = QList<int>() << m_core->uniqueIDManager()->
         uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
@@ -77,17 +77,17 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mbm =
+    Core::ActionContainer *mbm =
         am->createMenu(QLatin1String(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
-    Core::ICommand *cmd =
+    Core::Command *cmd =
         am->registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
 #ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));

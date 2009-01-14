@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -66,7 +66,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -155,7 +155,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     m_core = pm->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     addObject(this);
 
@@ -181,11 +181,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     QList<int> pecontext;
     pecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
 
-    Core::BaseMode *mode = new Core::BaseMode(tr("Projects"),
-                                              Constants::MODE_SESSION,
-                                              QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")),
-                                              Constants::P_MODE_SESSION,
-                                              m_proWindow);
+    Core::BaseMode *mode = new Core::BaseMode;
+    mode->setName(tr("Projects"));
+    mode->setUniqueModeName(Constants::MODE_SESSION);
+    mode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
+    mode->setPriority(Constants::P_MODE_SESSION);
+    mode->setWidget(m_proWindow);
     mode->setContext(QList<int>() << pecontext);
     addAutoReleasedObject(mode);
     m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(mode));
@@ -232,15 +233,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     addAutoReleasedObject(new ProjectFileWizardExtension(m_core));
 
     // context menus
-    Core::IActionContainer *msessionContextMenu =
+    Core::ActionContainer *msessionContextMenu =
         am->createMenu(Constants::M_SESSIONCONTEXT);
-    Core::IActionContainer *mproject =
+    Core::ActionContainer *mproject =
         am->createMenu(Constants::M_PROJECTCONTEXT);
-    Core::IActionContainer *msubProject =
+    Core::ActionContainer *msubProject =
         am->createMenu(Constants::M_SUBPROJECTCONTEXT);
-    Core::IActionContainer *mfolder =
+    Core::ActionContainer *mfolder =
         am->createMenu(Constants::M_FOLDERCONTEXT);
-    Core::IActionContainer *mfilec =
+    Core::ActionContainer *mfilec =
         am->createMenu(Constants::M_FILECONTEXT);
 
     m_sessionContextMenu = msessionContextMenu->menu();
@@ -249,22 +250,22 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     m_folderMenu = mfolder->menu();
     m_fileMenu = mfilec->menu();
 
-    Core::IActionContainer *mfile =
+    Core::ActionContainer *mfile =
         am->actionContainer(Core::Constants::M_FILE);
-    Core::IActionContainer *menubar =
+    Core::ActionContainer *menubar =
         am->actionContainer(Core::Constants::MENU_BAR);
 
     // mode manager (for fancy actions)
     Core::ModeManager *modeManager = m_core->modeManager();
 
     // build menu
-    Core::IActionContainer *mbuild =
+    Core::ActionContainer *mbuild =
         am->createMenu(Constants::M_BUILDPROJECT);
     mbuild->menu()->setTitle("&Build");
     menubar->addMenu(mbuild, Core::Constants::G_VIEW);
 
     // debug menu
-    Core::IActionContainer *mdebug =
+    Core::ActionContainer *mdebug =
         am->createMenu(Constants::M_DEBUG);
     mdebug->menu()->setTitle("&Debug");
     menubar->addMenu(mdebug, Core::Constants::G_VIEW);
@@ -308,7 +309,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mfilec->appendGroup(Constants::G_FILE_CONFIG);
 
     // "open with" submenu
-    Core::IActionContainer * const openWith =
+    Core::ActionContainer * const openWith =
             am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
     m_openWithMenu = openWith->menu();
     m_openWithMenu->setTitle(tr("Open With"));
@@ -321,7 +322,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     // Separators
     //
 
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QAction *sep;
 
     sep = new QAction(this);
@@ -416,7 +417,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mfilec->addMenu(openWith, ProjectExplorer::Constants::G_FILE_OPEN);
 
     // recent projects menu
-    Core::IActionContainer *mrecent =
+    Core::ActionContainer *mrecent =
         am->createMenu(Constants::M_RECENTPROJECTS);
     mrecent->menu()->setTitle("Recent Projects");
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
@@ -426,7 +427,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     // unload action
     m_unloadAction = new QAction(tr("Unload Project"), this);
     cmd = am->registerAction(m_unloadAction, Constants::UNLOAD, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -438,7 +439,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // session menu
-    Core::IActionContainer *msession = am->createMenu(Constants::M_SESSION);
+    Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
     msession->menu()->setTitle("&Session");
     mfile->addMenu(msession, Core::Constants::G_FILE_PROJECT);
     m_sessionMenu = msession->menu();
@@ -446,7 +447,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
             this, SLOT(updateSessionMenu()));
 
     // build menu
-    Core::IActionContainer *mbc =
+    Core::ActionContainer *mbc =
         am->createMenu(Constants::BUILDCONFIGURATIONMENU);
     m_buildConfigurationMenu = mbc->menu();
     m_buildConfigurationMenu->setTitle(tr("Set Build Configuration"));
@@ -484,6 +485,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
+    // dependencies action
+    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
+    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, globalcontext);
+    mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
 
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
@@ -519,7 +524,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
-    Core::IActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
+    Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
     m_runConfigurationMenu = mrc->menu();
     m_runConfigurationMenu->setTitle(tr("Set Run Configuration"));
     mbuild->addMenu(mrc, Constants::G_BUILD_RUN);
@@ -549,17 +554,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     debuggerIcon.addFile(":/gdbdebugger/images/debugger_start.png");
     m_debugAction = new QAction(debuggerIcon, tr("Start Debugging"), this);
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
-    cmd->setAttribute(Core::ICommand::CA_UpdateIcon);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
     modeManager->addAction(cmd, Constants::P_ACTION_DEBUG, m_runConfigurationMenu);
-
-    // dependencies action
-    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
-    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, pecontext);
-    msessionContextMenu->addAction(cmd, Constants::G_SESSION_CONFIG);
 
     // add new file action
     m_addNewFileAction = new QAction(tr("Add New..."), this);
@@ -1473,7 +1473,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateRecentProjectMenu";
 
-    Core::IActionContainer *aci =
+    Core::ActionContainer *aci =
         m_core->actionManager()->actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();

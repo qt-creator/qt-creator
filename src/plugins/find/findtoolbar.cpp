@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -37,9 +37,9 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <coreplugin/actionmanager/iactioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtCore/QSettings>
 #include <QtGui/QPushButton>
@@ -138,9 +138,9 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    Core::ActionManagerInterface *am = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager();
-    Core::IActionContainer *mfind = am->actionContainer(Constants::M_FIND);
-    Core::ICommand *cmd;
+    Core::ActionManager *am = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager();
+    Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
+    Core::Command *cmd;
 
     m_findInDocumentAction = new QAction(tr("Current Document"), this);
     cmd = am->registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);

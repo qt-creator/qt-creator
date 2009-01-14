@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -53,7 +53,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/ProjectExplorerInterfaces>
 #include <utils/qtcassert.h>
@@ -139,6 +139,29 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+// Parse "svn status" output for added/modified/deleted files
+// "M<7blanks>file"
+typedef QList<SubversionSubmitEditor::StatusFilePair> StatusList;
+
+StatusList parseStatusOutput(const QString &output)
+{
+    StatusList changeSet;
+    const QString newLine = QString(QLatin1Char('\n'));
+    const QStringList list = output.split(newLine, QString::SkipEmptyParts);
+    foreach (const QString &l, list) {
+        const QString line =l.trimmed();
+        if (line.size() > 8) {
+            const QChar state = line.at(0);
+            if (state == QLatin1Char('A') || state == QLatin1Char('D') || state == QLatin1Char('M')) {
+                const QString fileName = line.mid(7);
+                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName));
+            }
+
+        }
+    }
+    return changeSet;
+}
+
 // ------------- SubversionPlugin
 Core::ICore *SubversionPlugin::m_coreInstance = 0;
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
@@ -222,11 +245,7 @@ void SubversionPlugin::cleanChangeTmpFile()
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR,
-    Core::Constants::UNDO,
-    Core::Constants::REDO,
-    Subversion::Constants::SUBMIT_CURRENT,
-    Subversion::Constants::DIFF_SELECTED
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -270,10 +289,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addObject(m_subversionOutputWindow);
 
     //register actions
-    Core::ActionManagerInterface *ami = m_coreInstance->actionManager();
-    Core::IActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
+    Core::ActionManager *ami = m_coreInstance->actionManager();
+    Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
-    Core::IActionContainer *subversionMenu =
+    Core::ActionContainer *subversionMenu =
         ami->createMenu(QLatin1String(SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
@@ -285,11 +304,11 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     QList<int> globalcontext;
     globalcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
-    Core::ICommand *command;
+    Core::Command *command;
     m_addAction = new QAction(tr("Add"), this);
     command = ami->registerAction(m_addAction, SubversionPlugin::ADD,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+A")));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
@@ -297,14 +316,14 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_deleteAction = new QAction(tr("Delete"), this);
     command = ami->registerAction(m_deleteAction, SubversionPlugin::DELETE_FILE,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     subversionMenu->addAction(command);
 
     m_revertAction = new QAction(tr("Revert"), this);
     command = ami->registerAction(m_revertAction, SubversionPlugin::REVERT,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     subversionMenu->addAction(command);
 
@@ -322,7 +341,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_diffCurrentAction = new QAction(tr("Diff Current File"), this);
     command = ami->registerAction(m_diffCurrentAction,
         SubversionPlugin::DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     subversionMenu->addAction(command);
@@ -341,7 +360,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_commitCurrentAction = new QAction(tr("Commit Current File"), this);
     command = ami->registerAction(m_commitCurrentAction,
         SubversionPlugin::COMMIT_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+C")));
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     subversionMenu->addAction(command);
@@ -354,7 +373,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
     command = ami->registerAction(m_filelogCurrentAction,
         SubversionPlugin::FILELOG_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
         SLOT(filelogCurrentFile()));
     subversionMenu->addAction(command);
@@ -362,7 +381,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_annotateCurrentAction = new QAction(tr("Annotate Current File"), this);
     command = ami->registerAction(m_annotateCurrentAction,
         SubversionPlugin::ANNOTATE_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
         SLOT(annotateCurrentFile()));
     subversionMenu->addAction(command);
@@ -506,11 +525,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     Core::IEditor *editor = m_coreInstance->editorManager()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
-    // The actions are for some reason enabled by the context switching
-    // mechanism. Disable them correctly.
-    m_submitDiffAction->setEnabled(false);
-    m_submitUndoAction->setEnabled(false);
-    m_submitRedoAction->setEnabled(false);
+    submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffFiles(QStringList)));
 
     return submitEditor;
@@ -694,7 +709,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     if (response.error)
         return;
     // Get list of added/modified/deleted files
-    const QStringList statusOutput = parseStatusOutput(response.stdOut);
+    const StatusList statusOutput = parseStatusOutput(response.stdOut);
     if (statusOutput.empty()) {
         showOutput(tr("There are no modified files."), true);
         return;
@@ -717,22 +732,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
     m_changeTmpFile->seek(0);
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_changeTmpFile->fileName());
-    editor->setFileList(statusOutput);
-}
-
-// Parse "status" output for added/modified/deleted files
-QStringList SubversionPlugin::parseStatusOutput(const QString &output) const
-{
-    QStringList changeSet;
-    const QString newLine = QString(QLatin1Char('\n'));
-    const QStringList list = output.split(newLine, QString::SkipEmptyParts);
-    foreach (const QString &l, list) {
-        QString line(l.trimmed());
-        if (line.startsWith(QLatin1Char('A')) || line.startsWith(QLatin1Char('D'))
-            || line.startsWith(QLatin1Char('M')))
-            changeSet.append(line);
-    }
-    return changeSet;
+    editor->setStatusList(statusOutput);
 }
 
 bool SubversionPlugin::commit(const QString &messageFile,

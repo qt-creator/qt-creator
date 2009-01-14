@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,7 +34,8 @@
 #ifndef FAKEVIM_HANDLER_H
 #define FAKEVIM_HANDLER_H
 
-#include <QObject>
+#include <QtCore/QObject>
+#include <QtGui/QTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -69,6 +70,8 @@ signals:
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void quitRequested(QWidget *);
+    void selectionChanged(QWidget *widget,
+        const QList<QTextEdit::ExtraSelection> &selection);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,7 +31,7 @@
 **
 ***************************************************************************/
 
-#include "scriptmanager.h"
+#include "scriptmanager_p.h"
 #include "qworkbench_wrapper.h"
 #include "metatypedeclarations.h"
 
@@ -177,19 +177,19 @@ static QScriptValue fileBox(QScriptContext *context, QScriptEngine *engine)
         engine->toScriptValue(rc) : engine->toScriptValue(rc.front());
 }
 
-// ------ ScriptManager
+// ------ ScriptManagerPrivate
 
 namespace Core {
 namespace Internal {
 
-ScriptManager::ScriptManager(QObject *parent, ICore *core)  :
-    ScriptManagerInterface(parent),
+ScriptManagerPrivate::ScriptManagerPrivate(QObject *parent, ICore *core)  :
+    ScriptManager(parent),
     m_core(core),
     m_initialized(false)
 {
 }
 
-QScriptEngine &ScriptManager::scriptEngine()
+QScriptEngine &ScriptManagerPrivate::scriptEngine()
 {
     ensureEngineInitialized();
     return m_engine;
@@ -200,7 +200,7 @@ QScriptEngine &ScriptManager::scriptEngine()
 // demoProjectExplorer()@:237
 // <anonymous>()@:276
 // <global>()@:0"
-static void parseBackTrace(const QStringList &backTrace, ScriptManager::Stack &stack)
+static void parseBackTrace(const QStringList &backTrace, ScriptManagerPrivate::Stack &stack)
 {
     const QChar at = QLatin1Char('@');
     const QChar colon = QLatin1Char(':');
@@ -213,7 +213,7 @@ static void parseBackTrace(const QStringList &backTrace, ScriptManager::Stack &s
         if (colonPos == -1)
             continue;
 
-        ScriptManager::StackFrame frame;
+        ScriptManagerPrivate::StackFrame frame;
         frame.function = line.left(atPos);
         frame.fileName = line.mid(atPos + 1, colonPos - atPos - 1);
         frame.lineNumber = line.right(line.size() -  colonPos - 1).toInt();
@@ -221,13 +221,13 @@ static void parseBackTrace(const QStringList &backTrace, ScriptManager::Stack &s
     }
 }
 
-bool ScriptManager::runScript(const QString &script, QString *errorMessage)
+bool ScriptManagerPrivate::runScript(const QString &script, QString *errorMessage)
 {
     Stack stack;
     return runScript(script, errorMessage, &stack);
 }
 
-bool ScriptManager::runScript(const QString &script, QString *errorMessage, Stack *stack)
+bool ScriptManagerPrivate::runScript(const QString &script, QString *errorMessage, Stack *stack)
 {
     ensureEngineInitialized();
     stack->clear();
@@ -247,7 +247,7 @@ bool ScriptManager::runScript(const QString &script, QString *errorMessage, Stac
     return !failed;
 }
 
-void ScriptManager::ensureEngineInitialized()
+void ScriptManagerPrivate::ensureEngineInitialized()
 {
     if (m_initialized)
         return;
@@ -304,7 +304,7 @@ void ScriptManager::ensureEngineInitialized()
     m_initialized = true;
 }
 
-QString ScriptManager::engineError(QScriptEngine &scriptEngine)
+QString ScriptManagerPrivate::engineError(QScriptEngine &scriptEngine)
 {
     QScriptValue error = scriptEngine.evaluate(QLatin1String("Error"));
     if (error.isValid())

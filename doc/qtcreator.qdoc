@@ -151,6 +151,26 @@
 
     \image qtcreator-compile-pane.png
 
+
+    \section1 Session Management in Qt Creator
+
+    ### screenshot
+
+    In Qt Creator, a session is a collection of loaded projects, opened files,
+    editor settings, and so on. When you run Qt Creator, you have a default
+    session. You can create a new session using the \gui{Session Manager...},
+    available in the \gui{File -> Session} menu.
+
+    To switch between sessions, select \gui{File -> Session}. If you do not
+    create and select any session, Qt Creator will always use the default
+    session.
+
+\omit
+    session management can also store project dependencies, thorbjorn is
+    currently working on it
+\endomit
+
+
     \section1 Qt Help Integration
 
     Qt Creator comes fully integrated with all of Qt's documentation and

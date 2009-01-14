@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -64,7 +64,7 @@ void CoreImpl::showOptionsDialog(const QString &group, const QString &page)
     m_mainwindow->showOptionsDialog(group, page);
 }
 
-ActionManagerInterface *CoreImpl::actionManager() const
+ActionManager *CoreImpl::actionManager() const
 {
     return m_mainwindow->actionManager();
 }
@@ -84,11 +84,6 @@ MessageManager *CoreImpl::messageManager() const
     return m_mainwindow->messageManager();
 }
 
-ViewManagerInterface *CoreImpl::viewManager() const
-{
-    return m_mainwindow->viewManager();
-}
-
 ExtensionSystem::PluginManager *CoreImpl::pluginManager() const
 {
     return m_mainwindow->pluginManager();
@@ -99,12 +94,12 @@ EditorManager *CoreImpl::editorManager() const
     return m_mainwindow->editorManager();
 }
 
-ProgressManagerInterface *CoreImpl::progressManager() const
+ProgressManager *CoreImpl::progressManager() const
 {
     return m_mainwindow->progressManager();
 }
 
-ScriptManagerInterface *CoreImpl::scriptManager() const
+ScriptManager *CoreImpl::scriptManager() const
 {
     return m_mainwindow->scriptManager();
 }
@@ -148,15 +143,6 @@ QString CoreImpl::resourcePath() const
 #endif
 }
 
-QString CoreImpl::libraryPath() const
-{
-#if defined(Q_OS_MAC)
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../PlugIns"));
-#else
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../lib"));
-#endif
-}
-
 IContext *CoreImpl::currentContextObject() const
 {
     return m_mainwindow->currentContextObject();
@@ -167,12 +153,6 @@ QMainWindow *CoreImpl::mainWindow() const
 {
     return m_mainwindow;
 }
-
-QStatusBar *CoreImpl::statusBar() const
-{
-    return m_mainwindow->statusBar();
-}
-
 
 // adds and removes additional active contexts, this context is appended to the
 // currently active contexts. call updateContext after changing

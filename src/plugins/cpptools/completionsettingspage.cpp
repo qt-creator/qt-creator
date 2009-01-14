@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -78,11 +78,8 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void CompletionSettingsPage::finished(bool accepted)
+void CompletionSettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_completion->setCaseSensitivity(
             m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
     m_completion->setAutoInsertBraces(m_page->autoInsertBraces->isChecked());

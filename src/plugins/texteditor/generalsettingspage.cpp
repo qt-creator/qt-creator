@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -105,14 +105,12 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void GeneralSettingsPage::finished(bool accepted)
+void GeneralSettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     TabSettings newTabSettings;
     StorageSettings newStorageSettings;
     DisplaySettings newDisplaySettings;
+
     settingsFromUI(newTabSettings, newStorageSettings, newDisplaySettings);
 
     if (newTabSettings != m_d->m_tabSettings) {

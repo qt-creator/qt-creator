@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -65,8 +65,8 @@ namespace qdesigner_internal {
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionManagerInterface;
-class IActionContainer;
+class ActionManager;
+class ActionContainer;
 class ICore;
 class IEditor;
 }
@@ -89,7 +89,7 @@ class SettingsPage;
   * Requesting an editor via instance() will fully initialize the class.
   * This is based on the assumption that the Designer settings work with
   * no plugins loaded. If that does not work, full initialization can be
-  * triggered by connection to the ICore::settingsDialogRequested() signal.
+  * triggered by connection to the ICore::optionsDialogRequested() signal.
   */
 class FormEditorW : public QObject
 {
@@ -142,7 +142,7 @@ private:
     typedef QList<FormWindowEditor *> EditorList;
 
     void setupActions();
-    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManagerInterface *am,
+    Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);

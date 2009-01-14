@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -1279,5 +1279,15 @@ bool PrettyPrinter::visit(QtMethodAST *ast)
     out << '(';
     accept(ast->declarator);
     out << ')';
+    return false;
+}
+
+bool PrettyPrinter::visit(CompoundLiteralAST *ast)
+{
+    out << '(';
+    accept(ast->type_id);
+    out << ')';
+    out << ' ';
+    accept(ast->initializer);
     return false;
 }

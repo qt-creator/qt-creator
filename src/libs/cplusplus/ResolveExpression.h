@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -105,6 +105,7 @@ protected:
     virtual bool visit(ThrowExpressionAST *ast);
     virtual bool visit(TypeIdAST *ast);
     virtual bool visit(UnaryExpressionAST *ast);
+    virtual bool visit(CompoundLiteralAST *ast);
 
     //names
     virtual bool visit(QualifiedNameAST *ast);

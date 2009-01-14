@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -33,7 +33,7 @@
 
 #include "mainwindow.h"
 #include "actioncontainer.h"
-#include "actionmanager.h"
+#include "actionmanager_p.h"
 #include "basemode.h"
 #include "coreimpl.h"
 #include "coreconstants.h"
@@ -49,12 +49,12 @@
 #include "newdialog.h"
 #include "outputpane.h"
 #include "plugindialog.h"
-#include "progressmanager.h"
+#include "progressmanager_p.h"
 #include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
 
-#include "scriptmanager.h"
+#include "scriptmanager_p.h"
 #include "settingsdialog.h"
 #include "stylehelper.h"
 #include "variablemanager.h"
@@ -115,11 +115,11 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_printer(0),
-    m_actionManager(new ActionManager(this, m_uniqueIDManager)),
+    m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
     m_editorManager(0),
     m_fileManager(new FileManager(m_coreImpl, this)),
-    m_progressManager(new ProgressManager()),
-    m_scriptManager(new ScriptManager(this, m_coreImpl)),
+    m_progressManager(new ProgressManagerPrivate()),
+    m_scriptManager(new ScriptManagerPrivate(this, m_coreImpl)),
     m_variableManager(new VariableManager(this)),
     m_vcsManager(new VCSManager()),
     m_viewManager(0),
@@ -283,11 +283,12 @@ bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
     outputModeWidget->setLayout(new QVBoxLayout);
     outputModeWidget->layout()->setMargin(0);
     outputModeWidget->layout()->setSpacing(0);
-    m_outputMode = new BaseMode(tr("Output"),
-                                Constants::MODE_OUTPUT,
-                                QIcon(QLatin1String(":/fancyactionbar/images/mode_Output.png")),
-                                Constants::P_MODE_OUTPUT,
-                                outputModeWidget);
+    m_outputMode = new BaseMode;
+    m_outputMode->setName(tr("Output"));
+    m_outputMode->setUniqueModeName(Constants::MODE_OUTPUT);
+    m_outputMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Output.png")));
+    m_outputMode->setPriority(Constants::P_MODE_OUTPUT);
+    m_outputMode->setWidget(outputModeWidget);
     OutputPanePlaceHolder *oph = new OutputPanePlaceHolder(m_outputMode);
     oph->setVisible(true);
     oph->setCloseable(false);
@@ -362,9 +363,9 @@ QStatusBar *MainWindow::statusBar() const
 
 void MainWindow::registerDefaultContainers()
 {
-    ActionManager *am = m_actionManager;
+    ActionManagerPrivate *am = m_actionManager;
 
-    IActionContainer *menubar = m_actionManager->createMenuBar(Constants::MENU_BAR);
+    ActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
 
 #ifndef Q_WS_MAC // System menu bar on Mac
     setMenuBar(menubar->menuBar());
@@ -377,7 +378,7 @@ void MainWindow::registerDefaultContainers()
     menubar->appendGroup(Constants::G_HELP);
 
     //File Menu
-    IActionContainer *filemenu = am->createMenu(Constants::M_FILE);
+    ActionContainer *filemenu = am->createMenu(Constants::M_FILE);
     menubar->addMenu(filemenu, Constants::G_FILE);
     filemenu->menu()->setTitle(tr("&File"));
     filemenu->appendGroup(Constants::G_FILE_NEW);
@@ -391,23 +392,23 @@ void MainWindow::registerDefaultContainers()
 
 
     //Edit Menu
-    IActionContainer *medit = am->createMenu(Constants::M_EDIT);
+    ActionContainer *medit = am->createMenu(Constants::M_EDIT);
     menubar->addMenu(medit, Constants::G_EDIT);
     medit->menu()->setTitle(tr("&Edit"));
     medit->appendGroup(Constants::G_EDIT_UNDOREDO);
     medit->appendGroup(Constants::G_EDIT_COPYPASTE);
     medit->appendGroup(Constants::G_EDIT_SELECTALL);
     medit->appendGroup(Constants::G_EDIT_FORMAT);
-    medit->appendGroup(Constants::G_EDIT_FIND, true);
+    medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
     //Tools Menu
-    IActionContainer *ac = am->createMenu(Constants::M_TOOLS);
+    ActionContainer *ac = am->createMenu(Constants::M_TOOLS);
     menubar->addMenu(ac, Constants::G_TOOLS);
     ac->menu()->setTitle(tr("&Tools"));
 
     //Window Menu
-    IActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
@@ -417,38 +418,38 @@ void MainWindow::registerDefaultContainers()
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE_GROUPS);
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
-    mwindow->appendGroup(Constants::G_WINDOW_LIST, true);
+    mwindow->appendGroup(Constants::G_WINDOW_LIST);
 
     //Help Menu
     ac = am->createMenu(Constants::M_HELP);
     menubar->addMenu(ac, Constants::G_HELP);
     ac->menu()->setTitle(tr("&Help"));
-    ac->appendGroup(Constants::G_HELP_HELP, true);
-    ac->appendGroup(Constants::G_HELP_ABOUT, true);
+    ac->appendGroup(Constants::G_HELP_HELP);
+    ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
-static ICommand *createSeparator(ActionManager *am, QObject *parent,
+static Command *createSeparator(ActionManagerPrivate *am, QObject *parent,
                                  const QString &name,
                                  const QList<int> &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    ICommand *cmd = am->registerAction(tmpaction, name, context);
+    Command *cmd = am->registerAction(tmpaction, name, context);
     return cmd;
 }
 
 void MainWindow::registerDefaultActions()
 {
-    ActionManager *am = m_actionManager;
-    IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
-    IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    IActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionManagerPrivate *am = m_actionManager;
+    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
+    ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     Q_UNUSED(mwindow)
-    IActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
+    ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
-    ICommand *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
+    Command *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Print"), m_globalContext);
@@ -505,25 +506,25 @@ void MainWindow::registerDefaultActions()
     connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
 
     //File->Recent Files Menu
-    IActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
+    ActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
     ac->menu()->setTitle(tr("Recent Files"));
 
     //Save Action
     QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);
-    cmd = am->registerAction(tmpaction, Constants::SAVE);
+    cmd = am->registerAction(tmpaction, Constants::SAVE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Save"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     //Save As Action
     tmpaction = new QAction(tr("Save &As..."), this);
-    cmd = am->registerAction(tmpaction, Constants::SAVEAS);
+    cmd = am->registerAction(tmpaction, Constants::SAVEAS, m_globalContext);
 #ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("Save &As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
@@ -538,7 +539,7 @@ void MainWindow::registerDefaultActions()
 
     //Print Action
     tmpaction = new QAction(tr("&Print..."), this);
-    cmd = am->registerAction(tmpaction, Constants::PRINT);
+    cmd = am->registerAction(tmpaction, Constants::PRINT, m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     //Exit Action
@@ -550,47 +551,47 @@ void MainWindow::registerDefaultActions()
 
     //Undo Action
     tmpaction = new QAction(QIcon(Constants::ICON_UNDO), tr("&Undo"), this);
-    cmd = am->registerAction(tmpaction, Constants::UNDO);
+    cmd = am->registerAction(tmpaction, Constants::UNDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Undo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 
     //Redo Action
     tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
-    cmd = am->registerAction(tmpaction, Constants::REDO);
+    cmd = am->registerAction(tmpaction, Constants::REDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Redo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 
     //Cut Action
     tmpaction = new QAction(QIcon(Constants::ICON_CUT), tr("Cu&t"), this);
-    cmd = am->registerAction(tmpaction, Constants::CUT);
+    cmd = am->registerAction(tmpaction, Constants::CUT, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Copy Action
     tmpaction = new QAction(QIcon(Constants::ICON_COPY), tr("&Copy"), this);
-    cmd = am->registerAction(tmpaction, Constants::COPY);
+    cmd = am->registerAction(tmpaction, Constants::COPY, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Paste Action
     tmpaction = new QAction(QIcon(Constants::ICON_PASTE), tr("&Paste"), this);
-    cmd = am->registerAction(tmpaction, Constants::PASTE);
+    cmd = am->registerAction(tmpaction, Constants::PASTE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     //Select All
     tmpaction = new QAction(tr("&Select All"), this);
-    cmd = am->registerAction(tmpaction, Constants::SELECTALL);
+    cmd = am->registerAction(tmpaction, Constants::SELECTALL, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
 
     //Goto Action
     tmpaction = new QAction(tr("&Go To Line..."), this);
-    cmd = am->registerAction(tmpaction, Constants::GOTO);
+    cmd = am->registerAction(tmpaction, Constants::GOTO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
 
@@ -783,7 +784,7 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
 
 void MainWindow::showOptionsDialog(const QString &category, const QString &page)
 {
-    emit m_coreImpl->settingsDialogRequested();
+    emit m_coreImpl->optionsDialogRequested();
     SettingsDialog dlg(this, category, page);
     dlg.exec();
 }
@@ -815,7 +816,7 @@ void MainWindow::openFileWith()
     }
 }
 
-ActionManagerInterface *MainWindow::actionManager() const
+ActionManager *MainWindow::actionManager() const
 {
     return m_actionManager;
 }
@@ -840,22 +841,17 @@ VCSManager *MainWindow::vcsManager() const
     return m_vcsManager;
 }
 
-ViewManagerInterface *MainWindow::viewManager() const
-{
-    return m_viewManager;
-}
-
 EditorManager *MainWindow::editorManager() const
 {
     return m_editorManager;
 }
 
-ProgressManagerInterface *MainWindow::progressManager() const
+ProgressManager *MainWindow::progressManager() const
 {
     return m_progressManager;
 }
 
-ScriptManagerInterface *MainWindow::scriptManager() const
+ScriptManager *MainWindow::scriptManager() const
 {
      return m_scriptManager;
 }
@@ -967,17 +963,6 @@ void MainWindow::resetContext()
     updateContextObject(0);
 }
 
-QMenu *MainWindow::createPopupMenu()
-{
-    QMenu *menu = new QMenu(this);
-    QList<ActionContainer *> containers = m_actionManager->containers();
-    foreach (ActionContainer *c, containers) {
-        if (c->toolBar())
-            menu->addAction(c->toolBar()->toggleViewAction());
-    }
-    return menu;
-}
-
 static const char *settingsGroup = "MainWindow";
 static const char *geometryKey = "Geometry";
 static const char *colorKey = "Color";
@@ -1071,7 +1056,7 @@ void MainWindow::updateContext()
 
 void MainWindow::aboutToShowRecentFiles()
 {
-    IActionContainer *aci =
+    ActionContainer *aci =
         m_actionManager->actionContainer(Constants::M_FILE_RECENTFILES);
     aci->menu()->clear();
     m_recentFilesActions.clear();

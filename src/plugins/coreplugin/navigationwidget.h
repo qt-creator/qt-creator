@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -50,7 +50,7 @@ namespace Core {
 
 class INavigationWidgetFactory;
 class IMode;
-class ICommand;
+class Command;
 
 namespace Internal {
 class NavigationWidget;
@@ -99,7 +99,7 @@ public:
     // Called from the place holders
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
-    QHash<QString, Core::ICommand*> commandMap() const { return m_commandMap; }
+    QHash<QString, Core::Command*> commandMap() const { return m_commandMap; }
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -113,7 +113,7 @@ private:
     NavigationSubWidget *insertSubItem(int position);
     QList<NavigationSubWidget *> m_subWidgets;
     QHash<QShortcut *, QString> m_shortcutMap;
-    QHash<QString, Core::ICommand*> m_commandMap;
+    QHash<QString, Core::Command*> m_commandMap;
     bool m_shown;
     bool m_suppressed;
     int m_width;
@@ -136,7 +136,7 @@ public:
     void saveSettings(int position);
     void restoreSettings(int position);
 
-    Core::ICommand *command(const QString &title) const;
+    Core::Command *command(const QString &title) const;
 
 signals:
     void split();

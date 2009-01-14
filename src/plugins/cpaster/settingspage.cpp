@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -86,11 +86,8 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     return w;
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     m_username = m_ui.userEdit->text();
     m_server = QUrl(m_ui.serverEdit->text());
     m_copy = m_ui.clipboardBox->isChecked();

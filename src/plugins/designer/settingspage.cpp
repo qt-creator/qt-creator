@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -67,7 +67,12 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     return m_designerPage->createPage(parent);
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    m_designerPage->finish(accepted);
+    m_designerPage->apply();
+}
+
+void SettingsPage::finish()
+{
+    m_designerPage->finish();
 }

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -104,6 +104,7 @@ public:
     virtual bool visit(CastExpressionAST *) { return true; }
     virtual bool visit(CatchClauseAST *) { return true; }
     virtual bool visit(ClassSpecifierAST *) { return true; }
+    virtual bool visit(CompoundLiteralAST *) { return true; }
     virtual bool visit(CompoundStatementAST *) { return true; }
     virtual bool visit(ConditionAST *) { return true; }
     virtual bool visit(ConditionalExpressionAST *) { return true; }

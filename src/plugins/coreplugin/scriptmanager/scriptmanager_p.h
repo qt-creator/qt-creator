@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,55 +31,42 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_DEBUGMODE_H
-#define DEBUGGER_DEBUGMODE_H
+#ifndef SCRIPTMANAGER_P_H
+#define SCRIPTMANAGER_P_H
 
-#include <coreplugin/basemode.h>
+#include <coreplugin/scriptmanager/scriptmanager.h>
+#include <coreplugin/icore.h>
 
+#include <QtCore/QObject>
 #include <QtCore/QList>
-#include <QtCore/QPointer>
+#include <QtScript/QScriptEngine>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QDockWidget;
-class QMainWindow;
-class QSettings;
-class QSplitter;
-class QToolBar;
-class QWidget;
-QT_END_NAMESPACE
-
-namespace Debugger {
+namespace Core {
 namespace Internal {
 
-class DebuggerManager;
-
-class DebugMode : public Core::BaseMode
+class ScriptManagerPrivate : public Core::ScriptManager
 {
     Q_OBJECT
 
 public:
-    DebugMode(DebuggerManager *manager, QObject *parent = 0);
-    ~DebugMode();
+    ScriptManagerPrivate(QObject *parent, ICore *core);
 
-    // IMode
-    void activated();
-    void shutdown();
-    static QSettings *settings();
+    virtual QScriptEngine &scriptEngine();
 
-private slots:
-    void focusCurrentEditor(Core::IMode *mode);
+    virtual bool runScript(const QString &script, QString *errorMessage, Stack *stack);
+    virtual bool runScript(const QString &script, QString *errorMessage);
+
+    static QString engineError(QScriptEngine &scriptEngine);
 
 private:
-    QToolBar *createToolBar();
-    void writeSettings() const;
-    void readSettings();
+    void ensureEngineInitialized();
 
-    QPointer<DebuggerManager> m_manager;
-    QAction *m_toggleLockedAction;
+    QScriptEngine m_engine;
+    ICore *m_core;
+    bool m_initialized;
 };
 
 } // namespace Internal
-} // namespace Debugger
+} // namespace Core
 
-#endif // DEBUGGER_DEBUGMODE_H
+#endif // SCRIPTMANAGER_P_H

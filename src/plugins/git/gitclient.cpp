@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -32,24 +32,24 @@
 ***************************************************************************/
 
 #include "gitclient.h"
+#include "gitcommand.h"
 
 #include "commitdata.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
 #include "gitsubmiteditor.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QtCore/QFuture>
 #include <QtCore/QRegExp>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTime>
@@ -61,7 +61,6 @@
 using namespace Git;
 using namespace Git::Internal;
 
-const char *const kGitCommand = "git";
 const char *const kGitDirectoryC = ".git";
 const char *const kBranchIndicatorC = "# On branch";
 
@@ -184,29 +183,59 @@ VCSBase::VCSBaseEditor
     return rc;
 }
 
-void GitClient::diff(const QString &workingDirectory, const QStringList &fileNames)
+void GitClient::diff(const QString &workingDirectory,
+                     const QStringList &diffArgs,
+                     const QStringList &unstagedFileNames,
+                     const QStringList &stagedFileNames)
 {
-      if (Git::Constants::debug)
-        qDebug() << "diff" << workingDirectory << fileNames;
-    QStringList arguments;
-    arguments << QLatin1String("diff") << QLatin1String("--") << fileNames;
 
+    if (Git::Constants::debug)
+        qDebug() << "diff" << workingDirectory << unstagedFileNames << stagedFileNames;
+
+    const QString binary = QLatin1String(Constants::GIT_BINARY);
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff");
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDirectory, true, "originalFileName", workingDirectory);
-    executeGit(workingDirectory, arguments, editor);
 
+    // Create a batch of 2 commands to be run after each other in case
+    // we have a mixture of staged/unstaged files as is the case
+    // when using the submit dialog.
+    GitCommand *command = createCommand(workingDirectory, editor);
+    // Directory diff?
+    if (unstagedFileNames.empty() && stagedFileNames.empty()) {
+       QStringList arguments;
+       arguments << QLatin1String("diff") << diffArgs;
+       m_plugin->outputWindow()->append(formatCommand(binary, arguments));
+       command->addJob(arguments);
+    } else {
+        // Files diff.
+        if (!unstagedFileNames.empty()) {
+           QStringList arguments;
+           arguments << QLatin1String("diff") << diffArgs << QLatin1String("--") << unstagedFileNames;
+           m_plugin->outputWindow()->append(formatCommand(binary, arguments));
+           command->addJob(arguments);
+        }
+        if (!stagedFileNames.empty()) {
+           QStringList arguments;
+           arguments << QLatin1String("diff") << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
+           m_plugin->outputWindow()->append(formatCommand(binary, arguments));
+           command->addJob(arguments);
+        }
+    }
+    command->execute();
 }
 
-void GitClient::diff(const QString &workingDirectory, const QString &fileName)
+void GitClient::diff(const QString &workingDirectory,
+                     const QStringList &diffArgs,
+                     const QString &fileName)
 {
     if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileName;
     QStringList arguments;
     arguments << QLatin1String("diff");
     if (!fileName.isEmpty())
-        arguments << QLatin1String("--") << fileName;
+        arguments << diffArgs << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);
@@ -435,42 +464,47 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     return true;
 }
 
-
-void GitClient::executeGit(const QString &workingDirectory, const QStringList &arguments,
-                           VCSBase::VCSBaseEditor* editor,
-                           bool outputToWindow)
+// Factory function to create an asynchronous command
+GitCommand *GitClient::createCommand(const QString &workingDirectory,
+                             VCSBase::VCSBaseEditor* editor,
+                             bool outputToWindow)
 {
     if (Git::Constants::debug)
-        qDebug() << "executeGit" << workingDirectory << arguments << editor;
+        qDebug() << Q_FUNC_INFO << workingDirectory << editor;
 
     GitOutputWindow *outputWindow = m_plugin->outputWindow();
-    outputWindow->append(formatCommand(QLatin1String(kGitCommand), arguments));
 
-    QProcess process;
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-
     if (m_settings.adoptPath)
         environment.set(QLatin1String("PATH"), m_settings.path);
 
-    GitCommand* command = new GitCommand();
+    GitCommand* command = new GitCommand(workingDirectory, environment);
     if (outputToWindow) {
         if (!editor) { // assume that the commands output is the important thing
-            connect(command, SIGNAL(outputText(QString)), this, SLOT(appendAndPopup(QString)));
             connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(appendDataAndPopup(QByteArray)));
         } else {
-            connect(command, SIGNAL(outputText(QString)), outputWindow, SLOT(append(QString)));
             connect(command, SIGNAL(outputData(QByteArray)), outputWindow, SLOT(appendData(QByteArray)));
         }
     } else {
         QTC_ASSERT(editor, /**/);
-        connect(command, SIGNAL(outputText(QString)), editor, SLOT(setPlainText(QString)));
         connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextData(QByteArray)));
     }
 
     if (outputWindow)
         connect(command, SIGNAL(errorText(QString)), this, SLOT(appendAndPopup(QString)));
+    return command;
+}
 
-    command->execute(arguments, workingDirectory, environment);
+// Execute a single command
+void GitClient::executeGit(const QString &workingDirectory,
+                           const QStringList &arguments,
+                           VCSBase::VCSBaseEditor* editor,
+                           bool outputToWindow)
+{
+    m_plugin->outputWindow()->append(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
+    GitCommand *command = createCommand(workingDirectory, editor, outputToWindow);
+    command->addJob(arguments);
+    command->execute();
 }
 
 void GitClient::appendDataAndPopup(const QByteArray &data)
@@ -493,7 +527,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
 {
     if (Git::Constants::debug)
         qDebug() << "synchronousGit" << workingDirectory << arguments;
-    const QString binary = QLatin1String(kGitCommand);
+    const QString binary = QLatin1String(Constants::GIT_BINARY);
 
     if (logCommandToWindow)
         m_plugin->outputWindow()->append(formatCommand(binary, arguments));
@@ -622,73 +656,6 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     return StatusChanged;
 }
 
-/* Parse a git status file list:
- * \code
-    # Changes to be committed:
-    #<tab>modified:<blanks>git.pro
-    # Changed but not updated:
-    #<tab>modified:<blanks>git.pro
-    # Untracked files:
-    #<tab>git.pro
-    \endcode
-*/
-static bool parseFiles(const QString &output, CommitData *d)
-{
-    enum State { None, CommitFiles, NotUpdatedFiles, UntrackedFiles };
-
-    const QStringList lines = output.split(QLatin1Char('\n'));
-    const QString branchIndicator = QLatin1String(kBranchIndicatorC);
-    const QString commitIndicator = QLatin1String("# Changes to be committed:");
-    const QString notUpdatedIndicator = QLatin1String("# Changed but not updated:");
-    const QString untrackedIndicator = QLatin1String("# Untracked files:");
-
-    State s = None;
-    // Match added/changed-not-updated files: "#<tab>modified: foo.cpp"
-    QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+.+"));
-    QTC_ASSERT(filesPattern.isValid(), return false);
-
-    const QStringList::const_iterator cend = lines.constEnd();
-    for (QStringList::const_iterator it =  lines.constBegin(); it != cend; ++it) {
-        const QString line = *it;
-        if (line.startsWith(branchIndicator)) {
-            d->panelInfo.branch = line.mid(branchIndicator.size() + 1);
-        } else {
-            if (line.startsWith(commitIndicator)) {
-                s = CommitFiles;
-            } else {
-                if (line.startsWith(notUpdatedIndicator)) {
-                    s = NotUpdatedFiles;
-                } else {
-                    if (line.startsWith(untrackedIndicator)) {
-                        // Now match untracked: "#<tab>foo.cpp"
-                        s = UntrackedFiles;
-                        filesPattern = QRegExp(QLatin1String("#\\t.+"));
-                        QTC_ASSERT(filesPattern.isValid(), return false);
-                    } else {
-                        if (filesPattern.exactMatch(line)) {
-                            const QString fileSpec = line.mid(2).trimmed();
-                            switch (s) {
-                            case CommitFiles:
-                                d->stagedFiles.push_back(trimFileSpecification(fileSpec));
-                            break;
-                            case NotUpdatedFiles:
-                                d->unstagedFiles.push_back(trimFileSpecification(fileSpec));
-                                break;
-                            case UntrackedFiles:
-                                d->untrackedFiles.push_back(fileSpec);
-                                break;
-                            case None:
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return !d->stagedFiles.empty() || !d->unstagedFiles.empty() || !d->untrackedFiles.empty();
-}
-
 // Filter out untracked files that are not part of the project
 static void filterUntrackedFilesOfProject(const QString &repoDir, QStringList *l)
 {
@@ -771,19 +738,15 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    #
     //    #       list of files...
 
-    if (!parseFiles(output, d)) {
+    if (!d->parseFilesFromStatus(output)) {
         *errorMessage = msgParseFilesFailed();
         return false;
     }
-    // Filter out untracked files that are not part of the project and,
-    // for symmetry, insert the prefix "untracked:" (as "added:" or ":modified"
-    // for staged files).
+    // Filter out untracked files that are not part of the project
     filterUntrackedFilesOfProject(repoDirectory, &d->untrackedFiles);
-    if (!d->untrackedFiles.empty()) {
-        const QString untrackedPrefix = QLatin1String("untracked: ");
-        const QStringList::iterator pend = d->untrackedFiles.end();
-        for (QStringList::iterator it = d->untrackedFiles.begin(); it != pend; ++it)
-            it->insert(0, untrackedPrefix);
+    if (d->filesEmpty()) {
+        *errorMessage = msgNoChangedFiles();
+        return false;
     }
 
     d->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
@@ -881,7 +844,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
         return RevertFailed;
     }
     CommitData data;
-    if (!parseFiles(output, &data)) {
+    if (!data.parseFilesFromStatus(output)) {
         *errorMessage = msgParseFilesFailed();
         return RevertFailed;
     }
@@ -896,9 +859,9 @@ GitClient::RevertResult GitClient::revertI(QStringList files, bool *ptrToIsDirec
     }
 
     // From the status output, determine all modified [un]staged files.
-    const QString modifiedPattern = QLatin1String("modified: ");
-    const QStringList allStagedFiles = GitSubmitEditor::statusListToFileList(data.stagedFiles.filter(modifiedPattern));
-    const QStringList allUnstagedFiles = GitSubmitEditor::statusListToFileList(data.unstagedFiles.filter(modifiedPattern));
+    const QString modifiedState = QLatin1String("modified");
+    const QStringList allStagedFiles = data.stagedFileNames(modifiedState);
+    const QStringList allUnstagedFiles = data.unstagedFileNames(modifiedState);
     // Unless a directory was passed, filter all modified files for the
     // argument file list.
     QStringList stagedFiles = allStagedFiles;
@@ -1040,67 +1003,3 @@ void GitClient::setSettings(const GitSettings &s)
     }
 }
 
-// ------------------------ GitCommand
-GitCommand::GitCommand()
-{
-}
-
-GitCommand::~GitCommand()
-{
-}
-
-void GitCommand::execute(const QStringList &arguments,
-                         const QString &workingDirectory,
-                         const ProjectExplorer::Environment &environment)
-{
-    if (Git::Constants::debug)
-        qDebug() << "GitCommand::execute" << workingDirectory << arguments;
-
-    // For some reason QtConcurrent::run() only works on this
-    QFuture<void> task = QtConcurrent::run(this, &GitCommand::run
-                                           , arguments
-                                           , workingDirectory
-                                           , environment);
-    QString taskName = QLatin1String("Git ") + arguments[0];
-
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    core->progressManager()->addTask(task, taskName
-                            , QLatin1String("Git.action")
-                            , Core::ProgressManagerInterface::CloseOnSuccess);
-}
-
-void GitCommand::run(const QStringList &arguments,
-                     const QString &workingDirectory,
-                     const ProjectExplorer::Environment &environment)
-{
-    if (Git::Constants::debug)
-        qDebug() << "GitCommand::run" << workingDirectory << arguments;
-    QProcess process;
-    if (!workingDirectory.isEmpty())
-        process.setWorkingDirectory(workingDirectory);
-
-    ProjectExplorer::Environment env = environment;
-    if (env.toStringList().isEmpty())
-        env = ProjectExplorer::Environment::systemEnvironment();
-    process.setEnvironment(env.toStringList());
-
-    process.start(QLatin1String(kGitCommand), arguments);
-    if (!process.waitForFinished()) {
-        emit errorText(QLatin1String("Error: Git timed out"));
-        return;
-    }
-
-    const QByteArray output = process.readAllStandardOutput();
-    if (output.isEmpty()) {
-        if (arguments.at(0) == QLatin1String("diff"))
-            emit outputText(tr("The file does not differ from HEAD"));
-    } else {
-        emit outputData(output);
-    }
-    const QByteArray error = process.readAllStandardError();
-    if (!error.isEmpty())
-        emit errorText(QString::fromLocal8Bit(error));
-
-    // As it is used asynchronously, we need to delete ourselves
-    this->deleteLater();
-}

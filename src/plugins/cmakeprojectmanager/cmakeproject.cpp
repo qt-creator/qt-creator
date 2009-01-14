@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -46,6 +46,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
+#include <QtGui/QFormLayout>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -61,27 +62,39 @@ using namespace CMakeProjectManager::Internal;
 // Who sets up the environment for cl.exe ? INCLUDEPATH and so on
 
 
+
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager), m_fileName(fileName), m_rootNode(new CMakeProjectNode(m_fileName))
 {
-
     m_file = new CMakeFile(this, fileName);
     QDir dir = QFileInfo(m_fileName).absoluteDir();
-    QString cbpFile = findCbpFile(dir);
-    if (cbpFile.isEmpty()) {
-        createCbpFile(dir);
-        cbpFile = findCbpFile(dir);
-    }
+    parseCMakeLists(dir);
+}
 
-    //TODO move this parsing to a seperate method, which is also called if the CMakeList.txt is updated
+CMakeProject::~CMakeProject()
+{
+    delete m_rootNode;
+}
+
+// TODO also call this method if the CMakeLists.txt file changed, which is also called if the CMakeList.txt is updated
+// TODO make this function work even if it is reparsing
+void CMakeProject::parseCMakeLists(const QDir &directory)
+{
+    createCbpFile(directory);
+
+    QString cbpFile = findCbpFile(directory);
+
     CMakeCbpParser cbpparser;
+    qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
+        qDebug()<<"Building Tree";
         // TODO do a intelligent updating of the tree
         buildTree(m_rootNode, cbpparser.fileList());
         foreach (ProjectExplorer::FileNode *fn, cbpparser.fileList())
             m_files.append(fn->path());
         m_files.sort();
 
+        qDebug()<<"Adding Targets";
         m_targets = cbpparser.targets();
         qDebug()<<"Printing targets";
         foreach(CMakeTarget ct, m_targets) {
@@ -91,6 +104,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
             qDebug()<<"";
         }
 
+        qDebug()<<"Updating CodeModel";
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
             CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
@@ -106,9 +120,12 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     }
 }
 
-CMakeProject::~CMakeProject()
+QStringList CMakeProject::targets() const
 {
-    delete m_rootNode;
+    QStringList results;
+    foreach(const CMakeTarget &ct, m_targets)
+        results << ct.title;
+    return results;
 }
 
 QString CMakeProject::findCbpFile(const QDir &directory)
@@ -134,10 +151,12 @@ void CMakeProject::createCbpFile(const QDir &directory)
     // QtCreator generator, which actually can be very similar to the CodeBlock Generator
 
     // TODO we need to pass on the same paremeters as the cmakestep
+    qDebug()<<"Creating cbp file";
     QProcess cmake;
     cmake.setWorkingDirectory(directory.absolutePath());
     cmake.start("cmake", QStringList() << "-GCodeBlocks - Unix Makefiles");
-    cmake.waitForFinished();
+    cmake.waitForFinished(-1);
+    qDebug()<<"cmake output: \n"<<cmake.readAll();
 }
 
 void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
@@ -219,14 +238,15 @@ ProjectExplorer::Environment CMakeProject::environment(const QString &buildConfi
 
 QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
-    Q_UNUSED(buildConfiguration)
-    //TODO
-    return QFileInfo(m_fileName).absolutePath();
+    QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
+    if (buildDirectory.isEmpty())
+        buildDirectory = QFileInfo(m_fileName).absolutePath();
+    return buildDirectory;
 }
 
 ProjectExplorer::BuildStepConfigWidget *CMakeProject::createConfigWidget()
 {
-    return new CMakeBuildSettingsWidget;
+    return new CMakeBuildSettingsWidget(this);
 }
 
 QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
@@ -238,8 +258,8 @@ QList<ProjectExplorer::BuildStepConfigWidget*> CMakeProject::subConfigWidgets()
 // You should probably set some default values in this method
  void CMakeProject::newBuildConfiguration(const QString &buildConfiguration)
  {
-     Q_UNUSED(buildConfiguration);
-     //TODO
+     // Default to all
+     makeStep()->setBuildTarget(buildConfiguration, "all", true);
  }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
@@ -261,6 +281,25 @@ void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &w
     Project::saveSettingsImpl(writer);
 }
 
+MakeStep *CMakeProject::makeStep() const
+{
+    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
+        MakeStep *ms = qobject_cast<MakeStep *>(bs);
+        if (ms)
+            return ms;
+    }
+    return 0;
+}
+
+CMakeStep *CMakeProject::cmakeStep() const
+{
+    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
+        if (CMakeStep *cs = qobject_cast<CMakeStep *>(bs))
+            return cs;
+    }
+    return 0;
+}
+
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     // TODO
@@ -273,14 +312,16 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         insertBuildStep(0, cmakeStep);
         insertBuildStep(1, makeStep);
 
-        addBuildConfiguration("AllTargets");
-        setActiveBuildConfiguration("AllTargets");
-        makeStep->setValue("AllTargets", "buildTargets", QStringList() << "all");
+        addBuildConfiguration("all");
+        setActiveBuildConfiguration("all");
+        makeStep->setBuildTarget("all", "all", true);
 
-        // Create build configurations of m_targets
-        qDebug()<<"Create build configurations of m_targets";
+        // Create run configurations for m_targets
+        qDebug()<<"Create run configurations of m_targets";
         bool setActive = false;
         foreach(const CMakeTarget &ct, m_targets) {
+            if (ct.executable.isEmpty())
+                continue;
             QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory));
             addRunConfiguration(rc);
             // The first one gets the honour of beeing the active one
@@ -289,7 +330,6 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
                 setActive = true;
             }
         }
-        setActiveBuildConfiguration("all");
 
     }
     // Restoring is fine
@@ -352,10 +392,19 @@ void CMakeFile::modified(ReloadBehavior *behavior)
     Q_UNUSED(behavior);
 }
 
-
-CMakeBuildSettingsWidget::CMakeBuildSettingsWidget()
+CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
+    : m_project(project)
 {
-
+    QFormLayout *fl = new QFormLayout(this);
+    setLayout(fl);
+    m_pathChooser = new Core::Utils::PathChooser(this);
+    m_pathChooser->setEnabled(false);
+    // TODO currently doesn't work
+    // since creating the cbp file also creates makefiles
+    // and then cmake builds in that directory instead of shadow building
+    // We need our own generator for that to work
+    connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
+    fl->addRow("Build directory:", m_pathChooser);
 }
 
 QString CMakeBuildSettingsWidget::displayName() const
@@ -365,9 +414,18 @@ QString CMakeBuildSettingsWidget::displayName() const
 
 void CMakeBuildSettingsWidget::init(const QString &buildConfiguration)
 {
-    Q_UNUSED(buildConfiguration);
-    // TODO
+    m_buildConfiguration = buildConfiguration;
+    m_pathChooser->setPath(m_project->buildDirectory(buildConfiguration));
 }
+
+void CMakeBuildSettingsWidget::buildDirectoryChanged()
+{
+    m_project->setValue(m_buildConfiguration, "buildDirectory", m_pathChooser->path());
+}
+
+/////
+// CMakeCbpParser
+////
 
 bool CMakeCbpParser::parseCbpFile(const QString &fileName)
 {
@@ -445,7 +503,7 @@ void CMakeCbpParser::parseTarget()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_targetType || m_target.title == "all") {
+            if (m_targetType || m_target.title == "all" || m_target.title == "install") {
                 m_targets.append(m_target);
             }
             return;

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -35,6 +35,7 @@
 #include "subversionsubmiteditor.h"
 
 #include <utils/submiteditorwidget.h>
+#include <vcsbase/submitfilemodel.h>
 
 using namespace Subversion::Internal;
 
@@ -45,6 +46,19 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEdito
     setDisplayName(tr("Subversion Submit"));
 }
 
+void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOutput)
+{
+    typedef QList<StatusFilePair>::const_iterator ConstIterator;
+    VCSBase::SubmitFileModel *model = new VCSBase::SubmitFileModel(this);
+
+    const ConstIterator cend = statusOutput.constEnd();
+    for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
+        model->addFile(it->second, it->first, true);
+    setFileModel(model);
+
+}
+
+/*
 QStringList SubversionSubmitEditor::vcsFileListToFileList(const QStringList &rl) const
 {
     QStringList files;
@@ -59,3 +73,5 @@ QString SubversionSubmitEditor::fileFromStatusLine(const QString &statusLine)
     enum { filePos = 7 };
     return statusLine.mid(filePos, statusLine.size() - filePos);
 }
+
+*/

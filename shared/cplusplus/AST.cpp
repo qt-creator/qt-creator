@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -116,6 +116,9 @@ CatchClauseAST *AST::asCatchClause()
 
 ClassSpecifierAST *AST::asClassSpecifier()
 { return dynamic_cast<ClassSpecifierAST *>(this); }
+
+CompoundLiteralAST *AST::asCompoundLiteral()
+{ return dynamic_cast<CompoundLiteralAST *>(this); }
 
 CompoundStatementAST *AST::asCompoundStatement()
 { return dynamic_cast<CompoundStatementAST *>(this); }
@@ -772,6 +775,42 @@ unsigned BoolLiteralAST::firstToken() const
 unsigned BoolLiteralAST::lastToken() const
 {
     return token + 1;
+}
+
+CompoundLiteralAST *CompoundLiteralAST::clone(MemoryPool *pool) const
+{
+    CompoundLiteralAST *ast = new (pool) CompoundLiteralAST;
+    ast->lparen_token = lparen_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    return ast;
+}
+
+void CompoundLiteralAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type_id, visitor);
+        accept(initializer, visitor);
+    }
+}
+
+unsigned CompoundLiteralAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned CompoundLiteralAST::lastToken() const
+{
+    if (initializer)
+        return initializer->lastToken();
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (type_id)
+        return type_id->lastToken();
+    return lparen_token + 1;
 }
 
 BreakStatementAST *BreakStatementAST::clone(MemoryPool *pool) const

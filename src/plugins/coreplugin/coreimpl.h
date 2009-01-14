@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -56,15 +56,14 @@ public:
     void showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString());
 
-    ActionManagerInterface *actionManager() const;
+    ActionManager *actionManager() const;
     FileManager *fileManager() const ;
     UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;
-    ViewManagerInterface *viewManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
-    ProgressManagerInterface *progressManager() const;
-    ScriptManagerInterface *scriptManager() const;
+    ProgressManager *progressManager() const;
+    ScriptManager *scriptManager() const;
     VariableManager *variableManager() const;
     VCSManager *vcsManager() const;
     ModeManager *modeManager() const;
@@ -74,12 +73,10 @@ public:
     QPrinter *printer() const;
 
     QString resourcePath() const;
-    QString libraryPath() const;
 
     IContext *currentContextObject() const;
 
     QMainWindow *mainWindow() const;
-    QStatusBar *statusBar() const;
 
     // adds and removes additional active contexts, this context is appended to the
     // currently active contexts. call updateContext after changing

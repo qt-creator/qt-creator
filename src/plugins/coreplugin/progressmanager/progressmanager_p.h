@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,33 +31,44 @@
 **
 ***************************************************************************/
 
-#ifndef PROGRESSMANAGERINTERFACE_H
-#define PROGRESSMANAGERINTERFACE_H
+#ifndef PROGRESSMANAGER_P_H
+#define PROGRESSMANAGER_P_H
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/progressmanager/futureprogress.h>
+#include "progressmanager.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QFuture>
-#include <QtGui/QIcon>
+#include <QtCore/QPointer>
+#include <QtCore/QList>
+#include <QtCore/QFutureWatcher>
 
 namespace Core {
+namespace Internal {
 
-class CORE_EXPORT ProgressManagerInterface : public QObject
+class ProgressView;
+
+class ProgressManagerPrivate : public Core::ProgressManager
 {
     Q_OBJECT
 public:
-    enum PersistentType { CloseOnSuccess, KeepOnFinish };
+    ProgressManagerPrivate(QObject *parent = 0);
+    ~ProgressManagerPrivate();
+    void init();
 
-    ProgressManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ProgressManagerInterface() {}
+    FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency);
 
-    virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency = KeepOnFinish) = 0;
+    QWidget *progressView();
 
 public slots:
-    virtual void cancelTasks(const QString &type) = 0;
+    void cancelTasks(const QString &type);
+
+private slots:
+    void taskFinished();
+    void cancelAllRunningTasks();
+private:
+    QPointer<ProgressView> m_progressView;
+    QMap<QFutureWatcher<void> *, QString> m_runningTasks;
 };
 
+} // namespace Internal
 } // namespace Core
 
-#endif //PROGRESSMANAGERINTERFACE_H
+#endif // PROGRESSMANAGER_P_H

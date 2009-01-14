@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -36,6 +36,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
+#include <QtCore/QTimer>
 
 #include <QtGui/QPushButton>
 
@@ -70,6 +71,42 @@ void QActionPushButton::actionChanged()
         setEnabled(a->isEnabled());
 }
 
+// Helpers to retrieve model data
+static inline bool listModelChecked(const QAbstractItemModel *model, int row, int column = 0)
+{
+    const QModelIndex checkableIndex = model->index(row, column, QModelIndex());
+    return model->data(checkableIndex, Qt::CheckStateRole).toInt() == Qt::Checked;
+}
+
+static inline QString listModelText(const QAbstractItemModel *model, int row, int column)
+{
+    const QModelIndex index = model->index(row, column, QModelIndex());
+    return model->data(index, Qt::DisplayRole).toString();
+}
+
+// Find a check item in a model
+static bool listModelContainsCheckedItem(const QAbstractItemModel *model)
+{
+    const int count = model->rowCount();
+    for (int i = 0; i < count; i++)
+        if (listModelChecked(model, i, 0))
+            return true;
+    return false;
+}
+
+// Convenience to extract a list of selected indexes
+QList<int> selectedRows(const QAbstractItemView *view)
+{
+    const QModelIndexList indexList = view->selectionModel()->selectedRows(0);
+    if (indexList.empty())
+        return QList<int>();
+    QList<int> rc;
+    const QModelIndexList::const_iterator cend = indexList.constEnd();
+    for (QModelIndexList::const_iterator it = indexList.constBegin(); it != cend; ++it)
+        rc.push_back(it->row());
+    return rc;
+}
+
 // -----------  SubmitEditorWidgetPrivate
 struct SubmitEditorWidgetPrivate
 {
@@ -78,11 +115,15 @@ struct SubmitEditorWidgetPrivate
     Ui::SubmitEditorWidget m_ui;
     bool m_filesSelected;
     bool m_filesChecked;
+    int m_fileNameColumn;
+    int m_activatedRow;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_filesSelected(false),
-    m_filesChecked(false)
+    m_filesChecked(false),
+    m_fileNameColumn(1),
+    m_activatedRow(-1)
 {
 }
 
@@ -92,10 +133,10 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
 {
     m_d->m_ui.setupUi(this);
     // File List
-    m_d->m_ui.fileList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(m_d->m_ui.fileList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(triggerDiffSelected()));
-    connect(m_d->m_ui.fileList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(fileItemChanged(QListWidgetItem*)));
-    connect(m_d->m_ui.fileList, SIGNAL(itemSelectionChanged()), this, SLOT(fileSelectionChanged()));
+    m_d->m_ui.fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_d->m_ui.fileView->setRootIsDecorated(false);
+    connect(m_d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(diffActivated(QModelIndex)));
 
     // Text
     m_d->m_ui.description->setFont(QFont(QLatin1String("Courier")));
@@ -124,8 +165,12 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction,  QAction *ed
     }
 
     if (submitAction) {
-        if (debug)
-            qDebug() << submitAction << m_d->m_ui.fileList->count() << "items" << m_d->m_filesChecked;
+        if (debug) {
+            int count = 0;
+            if (const QAbstractItemModel *model = m_d->m_ui.fileView->model())
+                count = model->rowCount();
+            qDebug() << submitAction << count << "items" << m_d->m_filesChecked;
+        }
         submitAction->setEnabled(m_d->m_filesChecked);
         connect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
         m_d->m_ui.buttonLayout->addWidget(new QActionPushButton(submitAction));
@@ -161,7 +206,6 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
     }
 }
 
-
 QString SubmitEditorWidget::trimmedDescriptionText() const
 {
     // Make sure we have one terminating NL
@@ -180,91 +224,80 @@ void SubmitEditorWidget::setDescriptionText(const QString &text)
     m_d->m_ui.description->setPlainText(text);
 }
 
-QStringList SubmitEditorWidget::fileList() const
+int SubmitEditorWidget::fileNameColumn() const
 {
-    QStringList rc;
-    const int count = m_d->m_ui.fileList->count();
-    for (int i = 0; i < count; i++)
-        rc.push_back(m_d->m_ui.fileList->item(i)->text());
-    return rc;
+    return m_d->m_fileNameColumn;
 }
 
-void SubmitEditorWidget::addFilesUnblocked(const QStringList &list, bool checked, bool userCheckable)
+void SubmitEditorWidget::setFileNameColumn(int c)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << list << checked << userCheckable;
-    foreach (const QString &f, list) {
-        QListWidgetItem *item = new QListWidgetItem(f);
-        item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-        if (!userCheckable)
-            item->setFlags(item->flags() & ~Qt::ItemIsUserCheckable);
-        m_d->m_ui.fileList->addItem(item);
+    m_d->m_fileNameColumn = c;
+}
+
+QAbstractItemView::SelectionMode SubmitEditorWidget::fileListSelectionMode() const
+{
+    return m_d->m_ui.fileView->selectionMode();
+}
+
+void SubmitEditorWidget::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
+{
+    m_d->m_ui.fileView->setSelectionMode(sm);
+}
+
+void SubmitEditorWidget::setFileModel(QAbstractItemModel *model)
+{
+    m_d->m_ui.fileView->clearSelection(); // trigger the change signals
+
+    m_d->m_ui.fileView->setModel(model);
+
+    if (model->rowCount()) {
+        const int columnCount = model->columnCount();
+        for (int c = 0;  c < columnCount; c++)
+            m_d->m_ui.fileView->resizeColumnToContents(c);
     }
+
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(updateSubmitAction()));
+    connect(model, SIGNAL(modelReset()),
+            this, SLOT(updateSubmitAction()));
+    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(updateSubmitAction()));
+    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(updateSubmitAction()));
+    connect(m_d->m_ui.fileView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SLOT(updateDiffAction()));
+    updateActions();
 }
 
-void SubmitEditorWidget::addFiles(const QStringList &list, bool checked, bool userCheckable)
+QAbstractItemModel *SubmitEditorWidget::fileModel() const
 {
-    if (list.empty())
-        return;
-
-    const bool blocked = m_d->m_ui.fileList->blockSignals(true);
-    addFilesUnblocked(list, checked, userCheckable);
-    m_d->m_ui.fileList->blockSignals(blocked);
-    // Did we gain any checked files..update action accordingly
-    if (!m_d->m_filesChecked && checked) {
-        m_d->m_filesChecked = true;
-        emit fileCheckStateChanged(m_d->m_filesChecked);
-    }
-}
-
-void SubmitEditorWidget::setFileList(const QStringList &list)
-{
-    // Trigger enabling of menu action
-    m_d->m_ui.fileList->clearSelection();
-
-    const bool blocked = m_d->m_ui.fileList->blockSignals(true);
-    m_d->m_ui.fileList->clear();
-    if (!list.empty()) {
-        addFilesUnblocked(list, true, true);
-        // Checked files added?
-        if (!m_d->m_filesChecked) {
-            m_d->m_filesChecked = true;
-            emit fileCheckStateChanged(m_d->m_filesChecked);
-        }
-    }
-    m_d->m_ui.fileList->blockSignals(blocked);
-}
-
-static bool containsCheckState(const QListWidget *lw,  Qt::CheckState cs)
-{
-    const int count = lw->count();
-    for (int i = 0; i < count; i++)
-        if (lw->item(i)->checkState() == cs)
-            return true;
-    return false;
+    return m_d->m_ui.fileView->model();
 }
 
 QStringList SubmitEditorWidget::selectedFiles() const
 {
+    const QList<int> selection = selectedRows(m_d->m_ui.fileView);
+    if (selection.empty())
+        return QStringList();
+
     QStringList rc;
-    const int count = m_d->m_ui.fileList->count();
-    for (int i = 0; i < count; i++) {
-        const QListWidgetItem *item = m_d->m_ui.fileList->item(i);
-        if (item->isSelected())
-            rc.push_back(item->text());
-    }
+    const QAbstractItemModel *model = m_d->m_ui.fileView->model();
+    const int count = selection.size();
+    for (int i = 0; i < count; i++)
+        rc.push_back(listModelText(model, selection.at(i), fileNameColumn()));
     return rc;
 }
 
 QStringList SubmitEditorWidget::checkedFiles() const
 {
     QStringList rc;
-    const int count = m_d->m_ui.fileList->count();
-    for (int i = 0; i < count; i++) {
-        const QListWidgetItem *item = m_d->m_ui.fileList->item(i);
-        if (item->checkState() == Qt::Checked)
-            rc.push_back(item->text());
-    }
+    const QAbstractItemModel *model = m_d->m_ui.fileView->model();
+    if (!model)
+        return rc;
+    const int count = model->rowCount();
+    for (int i = 0; i < count; i++)
+        if (listModelChecked(model, i, 0))
+            rc.push_back(listModelText(model, i, fileNameColumn()));
     return rc;
 }
 
@@ -280,42 +313,59 @@ void SubmitEditorWidget::triggerDiffSelected()
         emit diffSelected(sel);
 }
 
-void SubmitEditorWidget::fileItemChanged(QListWidgetItem *item)
+void SubmitEditorWidget::diffActivatedDelayed()
 {
-    const Qt::CheckState st = item->checkState();
-    if (debug)
-        qDebug() << Q_FUNC_INFO << st << item->text() << m_d->m_filesChecked;
-    // Enable the actions according to check state
-    switch (st) {
-    case Qt::Unchecked: // Item was unchecked: Any checked items left?
-        if (m_d->m_filesChecked && !containsCheckState(m_d->m_ui.fileList, Qt::Checked)) {
-            m_d->m_filesChecked = false;
-            emit fileCheckStateChanged(m_d->m_filesChecked);
-        }
-        break;
-    case Qt::Checked:
-        // Item was Checked. First one?
-        if (!m_d->m_filesChecked) {
-            m_d->m_filesChecked = true;
-            emit fileCheckStateChanged(m_d->m_filesChecked);
-        }
-        break;
-    case Qt::PartiallyChecked: // Errm?
-        break;
+    const QStringList files = QStringList(listModelText(m_d->m_ui.fileView->model(), m_d->m_activatedRow, fileNameColumn()));
+    emit diffSelected(files);
+}
+
+void SubmitEditorWidget::diffActivated(const QModelIndex &index)
+{
+    // We need to delay the signal, otherwise, the diff editor will not
+    // be in the foreground.
+    m_d->m_activatedRow = index.row();
+    QTimer::singleShot(0, this, SLOT(diffActivatedDelayed()));
+}
+
+void SubmitEditorWidget::updateActions()
+{
+    updateSubmitAction();
+    updateDiffAction();
+}
+
+// Enable submit depending on having checked files
+void SubmitEditorWidget::updateSubmitAction()
+{
+    const bool newFilesCheckedState = hasCheckedFiles();
+    if (m_d->m_filesChecked != newFilesCheckedState) {
+        m_d->m_filesChecked = newFilesCheckedState;
+        emit fileCheckStateChanged(m_d->m_filesChecked);
     }
 }
 
-void SubmitEditorWidget::fileSelectionChanged()
+// Enable diff depending on selected files
+void SubmitEditorWidget::updateDiffAction()
 {
-    const bool newFilesSelected = !m_d->m_ui.fileList->selectedItems().empty();
-    if (debug)
-        qDebug() << Q_FUNC_INFO << newFilesSelected;
-    if (m_d->m_filesSelected != newFilesSelected) {
-        m_d->m_filesSelected = newFilesSelected;
+    const bool filesSelected = hasSelection();
+    if (m_d->m_filesSelected != filesSelected) {
+        m_d->m_filesSelected = filesSelected;
         emit fileSelectionChanged(m_d->m_filesSelected);
-        if (debug)
-            qDebug() << Q_FUNC_INFO << m_d->m_filesSelected;
     }
+}
+
+bool SubmitEditorWidget::hasSelection() const
+{
+    // Not present until model is set
+    if (const QItemSelectionModel *sm = m_d->m_ui.fileView->selectionModel())
+        return sm->hasSelection();
+    return false;
+}
+
+bool SubmitEditorWidget::hasCheckedFiles() const
+{
+    if (const QAbstractItemModel *model = m_d->m_ui.fileView->model())
+        return listModelContainsCheckedItem(model);
+    return false;
 }
 
 void SubmitEditorWidget::changeEvent(QEvent *e)

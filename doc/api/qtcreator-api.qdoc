@@ -4,6 +4,10 @@
 
     Qt Creator is Qt Software's crossplatform IDE. The core of Qt Creator is
     basically only a \l{ExtensionSystem}{plugin loader}.
+    All functionality is implemented in plugins, the basis of Qt Creator is
+    implemented in the \l{Core} {Core} Plugin. The plugin manager provides
+    simple means for plugin cooperation that allow plugins to provide
+    hooks for other plugin's extensions.
 
     \section1 Core Libraries
 
@@ -75,8 +79,3 @@
     \generatelist functionindex
 */
 
-/*!
-    \group qtc
-
-    \title Core Plugin
-*/
