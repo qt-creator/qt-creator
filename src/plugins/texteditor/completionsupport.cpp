@@ -42,6 +42,8 @@
 #include <QString>
 #include <QList>
 
+#include <algorithm>
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -143,11 +145,32 @@ void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
     }
 }
 
+static bool compareChar(const QChar &l, const QChar &r)
+{
+    if (l == QLatin1Char('_'))
+        return false;
+    else if (r == QLatin1Char('_'))
+        return true;
+    else
+        return l < r;
+}
+
+static bool lessThan(const QString &l, const QString &r)
+{
+    return std::lexicographical_compare(l.begin(), l.end(),
+                                        r.begin(), r.end(),
+                                        compareChar);
+}
+
 static bool completionItemLessThan(const CompletionItem &i1, const CompletionItem &i2)
 {
     // The order is case-insensitive in principle, but case-sensitive when this would otherwise mean equality
-    const int c = i1.m_text.compare(i2.m_text, Qt::CaseInsensitive);
-    return c ? c < 0 : i1.m_text < i2.m_text;
+    const QString lower1 = i1.m_text.toLower();
+    const QString lower2 = i2.m_text.toLower();
+    if (lower1 == lower2)
+        return lessThan(i1.m_text, i2.m_text);
+    else
+        return lessThan(lower1, lower2);
 }
 
 QList<CompletionItem> CompletionSupport::getCompletions() const

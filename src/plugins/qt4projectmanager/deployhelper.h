@@ -34,7 +34,7 @@
 #ifndef DEPLOYHELPER_H
 #define DEPLOYHELPER_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildstep.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>

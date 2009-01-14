@@ -83,38 +83,6 @@ BaseMode::BaseMode(QObject *parent):
 }
 
 /*!
-    \fn BaseMode::BaseMode(const QString &name,
-                           const char * uniqueModeName,
-                           const QIcon &icon,
-                           int priority,
-                           QWidget *widget,
-                           QObject *parent)
-
-    Creates a mode with the given properties.
-
-    \a name
-    \a uniqueModeName
-    \a icon
-    \a priority
-    \a widget
-    \a parent
-*/
-BaseMode::BaseMode(const QString &name,
-                   const char * uniqueModeName,
-                   const QIcon &icon,
-                   int priority,
-                   QWidget *widget,
-                   QObject *parent):
-    IMode(parent),
-    m_name(name),
-    m_icon(icon),
-    m_priority(priority),
-    m_widget(widget),
-    m_uniqueModeName(uniqueModeName)
-{
-}
-
-/*!
     \fn BaseMode::~BaseMode()
 */
 BaseMode::~BaseMode()

@@ -163,10 +163,12 @@ public:
 } // namespace Debugger
 
 DebugMode::DebugMode(QObject *parent)
-  : BaseMode(tr("Debug"), Constants::MODE_DEBUG,
-             QIcon(":/fancyactionbar/images/mode_Debug.png"),
-             Constants::P_MODE_DEBUG, 0, parent)
+  : BaseMode(parent)
 {
+    setName(tr("Debug"));
+    setUniqueModeName(Constants::MODE_DEBUG);
+    setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
+    setPriority(Constants::P_MODE_DEBUG);
 }
 
 DebugMode::~DebugMode()
@@ -304,13 +306,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     connect(m_breakpointMarginAction, SIGNAL(triggered()),
         this, SLOT(breakpointMarginActionTriggered()));
 
-    //Core::IActionContainer *mcppcontext =
+    //Core::ActionContainer *mcppcontext =
     //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
 
-    Core::IActionContainer *mdebug =
+    Core::ActionContainer *mdebug =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
-    Core::ICommand *cmd = 0;
+    Core::Command *cmd = 0;
     cmd = am->registerAction(m_manager->m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
@@ -326,15 +328,15 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     cmd = am->registerAction(m_manager->m_stopAction,
         Constants::INTERRUPT, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
-    cmd->setAttribute(Core::ICommand::CA_UpdateIcon);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INTERRUPT_KEY));
     cmd->setDefaultText(tr("Stop Debugger/Interrupt Debugger"));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_manager->m_resetAction,
         Constants::RESET, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
     //disabled mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
@@ -448,7 +450,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     // Views menu
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep5"), globalcontext);
     mdebug->addAction(cmd);
-    IActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
+    ActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
     QMenu *m = viewsMenu->menu();
     m->setEnabled(true);
     m->setTitle(tr("&Views"));

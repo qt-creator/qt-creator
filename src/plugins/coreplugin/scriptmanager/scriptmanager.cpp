@@ -35,7 +35,6 @@
 #include "qworkbench_wrapper.h"
 #include "metatypedeclarations.h"
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <utils/qtcassert.h>
 #include <interface_wrap_helpers.h>
 #include <wrap_helpers.h>

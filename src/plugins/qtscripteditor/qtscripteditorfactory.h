@@ -34,7 +34,6 @@
 #ifndef RQTSCRIPTEDITORFACTORY_H
 #define RQTSCRIPTEDITORFACTORY_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/QStringList>

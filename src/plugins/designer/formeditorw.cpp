@@ -100,7 +100,7 @@ static inline QIcon designerIcon(const QString &iconName)
 static inline QAction *createEditModeAction(QActionGroup *ag,
                                      const QList<int> &context,
                                      Core::ActionManager *am,
-                                     Core::IActionContainer *medit,
+                                     Core::ActionContainer *medit,
                                      const QString &actionName,
                                      const QString &name,
                                      int toolNumber,
@@ -111,10 +111,10 @@ static inline QAction *createEditModeAction(QActionGroup *ag,
     rc->setCheckable(true);
     if (!iconName.isEmpty())
          rc->setIcon(designerIcon(iconName));
-    Core::ICommand *command = am->registerAction(rc, name, context);
+    Core::Command *command = am->registerAction(rc, name, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
-    command->setAttribute(Core::ICommand::CA_Hide);
+    command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
     rc->setData(toolNumber);
     ag->addAction(rc);
@@ -126,13 +126,13 @@ static inline QAction *createEditModeAction(QActionGroup *ag,
 static inline QAction * createSeparator(QObject *parent,
                                  Core::ActionManager *am,
                                  const QList<int> &context,
-                                 Core::IActionContainer *container,
+                                 Core::ActionContainer *container,
                                  const QString &name = QString(),
                                  const QString &group = QString())
 {
     QAction *actSeparator = new QAction(parent);
     actSeparator->setSeparator(true);
-    Core::ICommand *command = am->registerAction(actSeparator, name, context);
+    Core::Command *command = am->registerAction(actSeparator, name, context);
     container->addAction(command, group);
     return actSeparator;
 }
@@ -142,10 +142,10 @@ static inline void addToolAction(QAction *a,
                    Core::ActionManager *am,
                    const QList<int> &context,
                    const QString &name,
-                   Core::IActionContainer *c1,
+                   Core::ActionContainer *c1,
                    const QString &keySequence = QString())
 {
-    Core::ICommand *command = am->registerAction(a, name, context);
+    Core::Command *command = am->registerAction(a, name, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);
@@ -306,15 +306,15 @@ void FormEditorW::deleteInstance()
 void FormEditorW::setupActions()
 {
     Core::ActionManager *am = m_core->actionManager();
-    Core::ICommand *command;
+    Core::Command *command;
 
     //menus
-    Core::IActionContainer *medit =
+    Core::ActionContainer *medit =
         am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mformtools =
+    Core::ActionContainer *mformtools =
         am->createMenu(M_FORMEDITOR);
     mformtools->menu()->setTitle(tr("For&m editor"));
     mtools->addMenu(mformtools);
@@ -334,7 +334,7 @@ void FormEditorW::setupActions()
     //'delete' action
     command = am->registerAction(m_fwm->actionDelete(), QLatin1String("FormEditor.Edit.Delete"), m_context);
     command->setDefaultKeySequence(QKeySequence::Delete);
-    command->setAttribute(Core::ICommand::CA_Hide);
+    command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     //editor Modes. Store ids for editor tool bars
@@ -446,7 +446,7 @@ QToolBar *FormEditorW::createEditorToolBar() const
     Core::ActionManager *am = m_core->actionManager();
     const QStringList::const_iterator cend = m_toolActionIds.constEnd();
     for (QStringList::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
-        Core::ICommand *cmd = am->command(*it);
+        Core::Command *cmd = am->command(*it);
         QTC_ASSERT(cmd, continue);
         QAction *action = cmd->action();
         if (!action->icon().isNull()) // Simplify grid has no action yet
@@ -457,11 +457,11 @@ QToolBar *FormEditorW::createEditorToolBar() const
     return rc;
 }
 
-Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,
+Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,
                                                             QActionGroup *actionGroup)
 {
     const QString menuId = QLatin1String(M_FORMEDITOR_PREVIEW);
-    Core::IActionContainer *menuPreviewStyle = am->createMenu(menuId);
+    Core::ActionContainer *menuPreviewStyle = am->createMenu(menuId);
     menuPreviewStyle->menu()->setTitle(tr("Preview in"));
 
     // The preview menu is a list of invisible actions for the embedded design
@@ -483,10 +483,10 @@ Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager 
             name += dot;
         }
         name += data.toString();
-        Core::ICommand *command = am->registerAction(a, name, m_context);
+        Core::Command *command = am->registerAction(a, name, m_context);
         if (isDeviceProfile) {
-            command->setAttribute(Core::ICommand::CA_UpdateText);
-            command->setAttribute(Core::ICommand::CA_NonConfigureable);
+            command->setAttribute(Core::Command::CA_UpdateText);
+            command->setAttribute(Core::Command::CA_NonConfigureable);
         }
         menuPreviewStyle->addAction(command);
     }

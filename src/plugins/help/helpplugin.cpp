@@ -166,7 +166,7 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
         this, SLOT(addBookmark()));
 
     Core::ActionManager *am = m_core->actionManager();
-    Core::ICommand *cmd;
+    Core::Command *cmd;
 
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")), tr("Home"), this);
@@ -251,7 +251,7 @@ bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
     copyAction->setText(cmd->action()->text());
     copyAction->setIcon(cmd->action()->icon());
 
-    QMap<QString, Core::ICommand*> shortcutMap;
+    QMap<QString, Core::Command*> shortcutMap;
     QShortcut *shortcut = new QShortcut(splitter);
     shortcut->setWhatsThis(tr("Activate Index in Help mode"));
     cmd = am->registerShortcut(shortcut, QLatin1String("Help.IndexShortcut"), modecontext);

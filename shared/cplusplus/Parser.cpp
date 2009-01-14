@@ -751,6 +751,9 @@ bool Parser::parseCvQualifiers(SpecifierAST *&node)
             spec->specifier_token = consumeToken();
             *ast = spec;
             ast = &(*ast)->next;
+        } else if(LA() == T___ATTRIBUTE__) {
+            parseAttributeSpecifier(*ast);
+            ast = &(*ast)->next;
         } else {
             break;
         }

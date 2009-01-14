@@ -35,13 +35,12 @@
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
 
-#include "command.h"
+#include "command_p.h"
 
 /*!
-    \class Core::ICommand
+    \class Core::Command
     \mainclass
     \ingroup qwb
-    \inheaderfile icommand.h
 
     \brief The class...
 
@@ -49,226 +48,167 @@
 */
 
 /*!
-    \enum ICommand::CommandType
+    \enum Command::CommandType
 */
 
 /*!
-    \enum ICommand::CommandAttribute
+    \enum Command::CommandAttribute
 */
 
 /*!
-    \fn void ICommand::setCategory(const QString &name)
+    \fn void Command::setCategory(const QString &name)
 
     Sets the category to \a name.
 */
 
 /*!
-    \fn virtual void ICommand::setDefaultKeySequence(const QKeySequence &key)
+    \fn virtual void Command::setDefaultKeySequence(const QKeySequence &key)
 */
 
 /*!
-    \fn virtual int ICommand::id() const
+    \fn virtual int Command::id() const
 */
 
 /*!
-    \fn virtual CommandType ICommand::type() const
+    \fn virtual CommandType Command::type() const
 */
 
 /*!
-    \fn virtual QAction *ICommand::action() const
+    \fn virtual QAction *Command::action() const
 */
 
 /*!
-    \fn virtual QShortcut *ICommand::shortcut() const
+    \fn virtual QShortcut *Command::shortcut() const
 */
 
 /*!
-    \fn virtual void ICommand::setAttribute(CommandAttribute attr)
+    \fn virtual void Command::setAttribute(CommandAttribute attr)
 */
 
 /*!
-    \fn virtual void ICommand::removeAttribute(CommandAttribute attr)
+    \fn virtual void Command::removeAttribute(CommandAttribute attr)
 */
 
 /*!
-    \fn virtual bool ICommand::hasAttribute(CommandAttribute attr) const
+    \fn virtual bool Command::hasAttribute(CommandAttribute attr) const
 */
 
 /*!
-    \fn virtual bool ICommand::isActive() const
+    \fn virtual bool Command::isActive() const
 */
-
-/*!
-    \fn virtual ICommand::~ICommand()
-*/
-
-using namespace Core::Internal;
-
-/*!
-    \class Command
-    \ingroup qwb
-    \inheaderfile command.h
-*/
-
-/*!
-    \enum Command::CommandState
-*/
-
-/*!
-    \fn Command::Command(CommandType type, int id)
-*/
-Command::Command(CommandType type, int id)
-    : m_type(type), m_id(id)
-{
-}
 
 /*!
     \fn virtual Command::~Command()
 */
 
+using namespace Core::Internal;
+
 /*!
-    ...
+    \class CommandPrivate
+    \inheaderfile command_p.h
+    \internal
 */
-void Command::setStateFlags(int state)
+
+CommandPrivate::CommandPrivate(CommandType type, int id)
+    : m_type(type), m_id(id)
+{
+}
+
+void CommandPrivate::setStateFlags(int state)
 {
     m_type |= (state & CS_Mask);
 }
 
-/*!
-    ...
-*/
-int Command::stateFlags() const
+int CommandPrivate::stateFlags() const
 {
     return (m_type & CS_Mask);
 }
 
-/*!
-    \fn virtual QString Command::name() const
-*/
-
-/*!
-    ...
-*/
-void Command::setCategory(const QString &name)
+void CommandPrivate::setCategory(const QString &name)
 {
     m_category = name;
 }
 
-/*!
-    ...
-*/
-QString Command::category() const
+QString CommandPrivate::category() const
 {
     if (m_category.isEmpty())
         return QObject::tr("Other");
     return m_category;
 }
 
-/*!
-    ...
-*/
-void Command::setDefaultKeySequence(const QKeySequence &key)
+void CommandPrivate::setDefaultKeySequence(const QKeySequence &key)
 {
     m_defaultKey = key;
 }
 
-/*!
-    ...
-*/
-QKeySequence Command::defaultKeySequence() const
+QKeySequence CommandPrivate::defaultKeySequence() const
 {
     return m_defaultKey;
 }
 
-void Command::setDefaultText(const QString &text)
+void CommandPrivate::setDefaultText(const QString &text)
 {
     m_defaultText = text;
 }
 
-QString Command::defaultText() const
+QString CommandPrivate::defaultText() const
 {
     return m_defaultText;
 }
 
-/*!
-    ...
-*/
-int Command::id() const
+int CommandPrivate::id() const
 {
     return m_id;
 }
 
-/*!
-    ...
-*/
-Command::CommandType Command::type() const
+CommandPrivate::CommandType CommandPrivate::type() const
 {
     return (CommandType)(m_type & CT_Mask);
 }
 
-/*!
-    ...
-*/
-QAction *Command::action() const
+QAction *CommandPrivate::action() const
 {
     return 0;
 }
 
-/*!
-    ...
-*/
-QShortcut *Command::shortcut() const
+QShortcut *CommandPrivate::shortcut() const
 {
     return 0;
 }
 
-/*!
-    ...
-*/
-void Command::setAttribute(CommandAttribute attr)
+void CommandPrivate::setAttribute(CommandAttribute attr)
 {
     m_type |= attr;
 }
 
-/*!
-    ...
-*/
-void Command::removeAttribute(CommandAttribute attr)
+void CommandPrivate::removeAttribute(CommandAttribute attr)
 {
     m_type &= ~attr;
 }
 
-/*!
-    ...
-*/
-bool Command::hasAttribute(CommandAttribute attr) const
+bool CommandPrivate::hasAttribute(CommandAttribute attr) const
 {
     return (m_type & attr);
 }
 
-QString Command::stringWithAppendedShortcut(const QString &str) const
+QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
 {
     return QString("%1 <span style=\"color: gray; font-size: small\">%2</span>").arg(str).arg(
             keySequence().toString(QKeySequence::NativeText));
 }
-
-/*!
-    \fn virtual bool Command::setCurrentContext(const QList<int> &context) = 0
-*/
 
 // ---------- Shortcut ------------
 
 /*!
     \class Shortcut
     \ingroup qwb
-    \inheaderfile command.h
 */
 
 /*!
     ...
 */
 Shortcut::Shortcut(int id)
-    : Command(CT_Shortcut, id), m_shortcut(0)
+    : CommandPrivate(CT_Shortcut, id), m_shortcut(0)
 {
 
 }
@@ -322,7 +262,7 @@ QList<int> Shortcut::context() const
 void Shortcut::setDefaultKeySequence(const QKeySequence &key)
 {
     setKeySequence(key);
-    Command::setDefaultKeySequence(key);
+    CommandPrivate::setDefaultKeySequence(key);
 }
 
 void Shortcut::setKeySequence(const QKeySequence &key)
@@ -374,14 +314,13 @@ bool Shortcut::isActive() const
 /*!
     \class Action
     \ingroup qwb
-    \inheaderfile command.h
 */
 
 /*!
     ...
 */
 Action::Action(CommandType type, int id)
-    : Command(type, id), m_action(0)
+    : CommandPrivate(type, id), m_action(0)
 {
 
 }
@@ -439,7 +378,7 @@ QList<CommandLocation> Action::locations() const
 void Action::setDefaultKeySequence(const QKeySequence &key)
 {
     setKeySequence(key);
-    Command::setDefaultKeySequence(key);
+    CommandPrivate::setDefaultKeySequence(key);
 }
 
 void Action::setKeySequence(const QKeySequence &key)
@@ -467,7 +406,6 @@ QKeySequence Action::keySequence() const
 /*!
     \class OverrideableAction
     \ingroup qwb
-    \inheaderfile command.h
 */
 
 /*!

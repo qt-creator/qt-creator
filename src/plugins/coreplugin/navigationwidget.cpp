@@ -39,7 +39,6 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <extensionsystem/ExtensionSystemInterfaces>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
@@ -323,7 +322,7 @@ void NavigationWidget::objectAdded(QObject * obj)
     QString displayName = factory->displayName();
     QShortcut *shortcut = new QShortcut(this);
     shortcut->setWhatsThis(tr("Activate %1 Pane").arg(displayName));
-    Core::ICommand *cmd = am->registerShortcut(shortcut,
+    Core::Command *cmd = am->registerShortcut(shortcut,
         displayName + QLatin1String(".FocusShortcut"), navicontext);
     cmd->setDefaultKeySequence(factory->activationSequence());
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateSubWidget()));
@@ -492,10 +491,10 @@ void NavigationSubWidget::restoreSettings(int position)
     factory()->restoreSettings(position, m_navigationWidget);
 }
 
-Core::ICommand *NavigationSubWidget::command(const QString &title) const
+Core::Command *NavigationSubWidget::command(const QString &title) const
 {
-    const QHash<QString, Core::ICommand*> commandMap = m_parentWidget->commandMap();
-    QHash<QString, Core::ICommand*>::const_iterator r = commandMap.find(title);
+    const QHash<QString, Core::Command*> commandMap = m_parentWidget->commandMap();
+    QHash<QString, Core::Command*>::const_iterator r = commandMap.find(title);
     if (r != commandMap.end())
         return r.value();
     return 0;
@@ -510,7 +509,7 @@ bool NavComboBox::event(QEvent *e)
 {
     if (e->type() == QEvent::ToolTip) {
         QString txt = currentText();
-        Core::ICommand *cmd = m_navSubWidget->command(txt);
+        Core::Command *cmd = m_navSubWidget->command(txt);
         if (cmd) {
             txt = tr("Activate %1").arg(txt);
             setToolTip(cmd->stringWithAppendedShortcut(txt));

@@ -48,7 +48,10 @@
 #include "profilereader.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
@@ -82,7 +85,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     delete m_qt4ProjectManager;
 }
 /*
-static Core::ICommand *createSeparator(Core::ActionManager *am,
+static Core::Command *createSeparator(Core::ActionManager *am,
                                        QObject *parent,
                                        const QString &name,
                                        const QList<int> &context)
@@ -139,16 +142,16 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
     //addObject(m_embeddedPropertiesPage);
 
     //menus
-    Core::IActionContainer *mbuild =
+    Core::ActionContainer *mbuild =
         am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    Core::IActionContainer *mproject =
+    Core::ActionContainer *mproject =
         am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     //register actions
     m_projectContext = m_core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
     QList<int> context = QList<int>() << m_projectContext;
-    Core::ICommand *command;
+    Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));
     qmakeIcon.addFile(QLatin1String(":/qt4projectmanager/images/run_qmake_small.png"));

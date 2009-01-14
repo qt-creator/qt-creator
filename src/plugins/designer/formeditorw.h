@@ -34,12 +34,12 @@
 #ifndef FORMEDITORW_H
 #define FORMEDITORW_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
-#include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 #include "designerconstants.h"
 
@@ -66,7 +66,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class ActionManager;
-class IActionContainer;
+class ActionContainer;
 class ICore;
 class IEditor;
 }
@@ -142,7 +142,7 @@ private:
     typedef QList<FormWindowEditor *> EditorList;
 
     void setupActions();
-    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
+    Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);
