@@ -2,7 +2,8 @@ unix {
     QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$(QTDIR)/tools/qdoc3/qdoc3
     HELPGENERATOR = $$(QTDIR)/bin/qhelpgenerator
 } else {
-    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$(QTDIR)\tools\qdoc3\release\qdoc3.exe
+    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& cmd /k $$(QTDIR)\tools\qdoc3\release\qdoc3.exe
+    QDOC = $$replace(QDOC, "/", "\\\\") 
     HELPGENERATOR = $$(QTDIR)\bin\qhelpgenerator.exe
 }
 
