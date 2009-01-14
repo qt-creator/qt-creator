@@ -428,13 +428,13 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
-static ICommand *createSeparator(ActionManagerPrivate *am, QObject *parent,
+static Command *createSeparator(ActionManagerPrivate *am, QObject *parent,
                                  const QString &name,
                                  const QList<int> &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    ICommand *cmd = am->registerAction(tmpaction, name, context);
+    Command *cmd = am->registerAction(tmpaction, name, context);
     return cmd;
 }
 
@@ -449,7 +449,7 @@ void MainWindow::registerDefaultActions()
     ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
-    ICommand *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
+    Command *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Print"), m_globalContext);
@@ -514,7 +514,7 @@ void MainWindow::registerDefaultActions()
     QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);
     cmd = am->registerAction(tmpaction, Constants::SAVE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Save"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
@@ -524,7 +524,7 @@ void MainWindow::registerDefaultActions()
 #ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("Save &As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
@@ -553,7 +553,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(QIcon(Constants::ICON_UNDO), tr("&Undo"), this);
     cmd = am->registerAction(tmpaction, Constants::UNDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Undo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 
@@ -561,7 +561,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
     cmd = am->registerAction(tmpaction, Constants::REDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Redo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 

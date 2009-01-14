@@ -87,7 +87,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
-    Core::ICommand *cmd =
+    Core::Command *cmd =
         am->registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
 #ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));

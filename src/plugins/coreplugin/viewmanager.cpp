@@ -39,7 +39,7 @@
 #include "iview.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 #include <extensionsystem/ExtensionSystemInterfaces>
 #include <aggregation/aggregate.h>
 

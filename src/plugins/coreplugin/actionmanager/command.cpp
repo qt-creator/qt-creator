@@ -38,10 +38,9 @@
 #include "command_p.h"
 
 /*!
-    \class Core::ICommand
+    \class Core::Command
     \mainclass
     \ingroup qwb
-    \inheaderfile icommand.h
 
     \brief The class...
 
@@ -49,57 +48,57 @@
 */
 
 /*!
-    \enum ICommand::CommandType
+    \enum Command::CommandType
 */
 
 /*!
-    \enum ICommand::CommandAttribute
+    \enum Command::CommandAttribute
 */
 
 /*!
-    \fn void ICommand::setCategory(const QString &name)
+    \fn void Command::setCategory(const QString &name)
 
     Sets the category to \a name.
 */
 
 /*!
-    \fn virtual void ICommand::setDefaultKeySequence(const QKeySequence &key)
+    \fn virtual void Command::setDefaultKeySequence(const QKeySequence &key)
 */
 
 /*!
-    \fn virtual int ICommand::id() const
+    \fn virtual int Command::id() const
 */
 
 /*!
-    \fn virtual CommandType ICommand::type() const
+    \fn virtual CommandType Command::type() const
 */
 
 /*!
-    \fn virtual QAction *ICommand::action() const
+    \fn virtual QAction *Command::action() const
 */
 
 /*!
-    \fn virtual QShortcut *ICommand::shortcut() const
+    \fn virtual QShortcut *Command::shortcut() const
 */
 
 /*!
-    \fn virtual void ICommand::setAttribute(CommandAttribute attr)
+    \fn virtual void Command::setAttribute(CommandAttribute attr)
 */
 
 /*!
-    \fn virtual void ICommand::removeAttribute(CommandAttribute attr)
+    \fn virtual void Command::removeAttribute(CommandAttribute attr)
 */
 
 /*!
-    \fn virtual bool ICommand::hasAttribute(CommandAttribute attr) const
+    \fn virtual bool Command::hasAttribute(CommandAttribute attr) const
 */
 
 /*!
-    \fn virtual bool ICommand::isActive() const
+    \fn virtual bool Command::isActive() const
 */
 
 /*!
-    \fn virtual ICommand::~ICommand()
+    \fn virtual Command::~Command()
 */
 
 using namespace Core::Internal;

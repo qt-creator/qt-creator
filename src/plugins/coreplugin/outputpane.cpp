@@ -252,7 +252,7 @@ void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
         actionId.remove(QLatin1Char(' '));
         QAction *action = new QAction(outPane->name(), this);
 
-        ICommand *cmd = am->registerAction(action, actionId, m_context);
+        Command *cmd = am->registerAction(action, actionId, m_context);
         if (outPane->priorityInStatusBar() != -1) {
 #ifdef Q_OS_MAC
             cmd->setDefaultKeySequence(QKeySequence("Ctrl+" + QString::number(shortcutNumber)));

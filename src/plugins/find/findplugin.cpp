@@ -40,7 +40,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 
 #include <utils/qtcassert.h>
@@ -135,7 +135,7 @@ void FindPlugin::setupMenu()
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QAction *separator;
     separator = new QAction(this);
     separator->setSeparator(true);
@@ -152,7 +152,7 @@ void FindPlugin::setupFilterMenuItems()
     Core::ActionManager *am = m_core->actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
 
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);

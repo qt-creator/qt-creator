@@ -41,7 +41,7 @@
 #include "filemanager.h"
 
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>

@@ -42,7 +42,7 @@
 
 namespace Core {
 
-class ICommand;
+class Command;
 
 class ActionContainer : public QObject
 {
@@ -63,7 +63,7 @@ public:
 
     virtual QAction *insertLocation(const QString &group) const = 0;
     virtual void appendGroup(const QString &group) = 0;
-    virtual void addAction(Core::ICommand *action, const QString &group = QString()) = 0;
+    virtual void addAction(Core::Command *action, const QString &group = QString()) = 0;
     virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
 
     virtual bool update() = 0;

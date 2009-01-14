@@ -34,7 +34,7 @@
 #ifndef COMMAND_P_H
 #define COMMAND_P_H
 
-#include "icommand.h"
+#include "command.h"
 #include "actionmanager_p.h"
 
 #include <QtCore/QList>
@@ -45,7 +45,7 @@
 namespace Core {
 namespace Internal {
 
-class CommandPrivate : public Core::ICommand
+class CommandPrivate : public Core::Command
 {
     Q_OBJECT
 public:

@@ -322,7 +322,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     // Separators
     //
 
-    Core::ICommand *cmd;
+    Core::Command *cmd;
     QAction *sep;
 
     sep = new QAction(this);
@@ -427,7 +427,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     // unload action
     m_unloadAction = new QAction(tr("Unload Project"), this);
     cmd = am->registerAction(m_unloadAction, Constants::UNLOAD, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -553,8 +553,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     debuggerIcon.addFile(":/gdbdebugger/images/debugger_start.png");
     m_debugAction = new QAction(debuggerIcon, tr("Start Debugging"), this);
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
-    cmd->setAttribute(Core::ICommand::CA_UpdateIcon);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);

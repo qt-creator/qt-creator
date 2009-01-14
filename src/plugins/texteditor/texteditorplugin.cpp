@@ -47,7 +47,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
@@ -127,7 +127,7 @@ bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
-    Core::ICommand *command = am->registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
+    Core::Command *command = am->registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
 #else

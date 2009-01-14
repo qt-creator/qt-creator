@@ -37,7 +37,7 @@
 #include "actionmanager_p.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 
 namespace Core {
 namespace Internal {
@@ -63,7 +63,7 @@ public:
 
     QAction *insertLocation(const QString &group) const;
     void appendGroup(const QString &group);
-    void addAction(ICommand *action, const QString &group = QString());
+    void addAction(Command *action, const QString &group = QString());
     void addMenu(ActionContainer *menu, const QString &group = QString());
 
     int id() const;
@@ -74,14 +74,14 @@ public:
     virtual void insertAction(QAction *before, QAction *action) = 0;
     virtual void insertMenu(QAction *before, QMenu *menu) = 0;
 
-    QList<ICommand *> commands() const { return m_commands; }
+    QList<Command *> commands() const { return m_commands; }
     QList<ActionContainer *> subContainers() const { return m_subContainers; }
 protected:
-    bool canAddAction(ICommand *action) const;
+    bool canAddAction(Command *action) const;
     bool canAddMenu(ActionContainer *menu) const;
     virtual bool canBeAddedToMenu() const = 0;
 
-    void addAction(ICommand *action, int pos, bool setpos);
+    void addAction(Command *action, int pos, bool setpos);
     void addMenu(ActionContainer *menu, int pos, bool setpos);
 
 private:
@@ -93,7 +93,7 @@ private:
     int m_id;
     QMap<int, int> m_posmap;
     QList<ActionContainer *> m_subContainers;
-    QList<ICommand *> m_commands;
+    QList<Command *> m_commands;
 };
 
 class MenuActionContainer : public ActionContainerPrivate

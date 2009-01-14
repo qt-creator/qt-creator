@@ -117,7 +117,7 @@ void TextEditorActionHandler::createActions()
     Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
 
     m_selectEncodingAction = new QAction(tr("Select Encoding..."), this);
-    Core::ICommand *command = am->registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);
+    Core::Command *command = am->registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);
     connect(m_selectEncodingAction, SIGNAL(triggered()), this, SLOT(selectEncoding()));
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
 

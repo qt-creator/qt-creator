@@ -100,7 +100,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn virtual void ActionContainer::addAction(Core::ICommand *action, const QString &group)
+    \fn virtual void ActionContainer::addAction(Core::Command *action, const QString &group)
 */
 
 /*!
@@ -164,7 +164,7 @@ QAction *ActionContainerPrivate::insertLocation(const QString &group) const
     return beforeAction(pos, &prevKey);
 }
 
-void ActionContainerPrivate::addAction(ICommand *action, const QString &group)
+void ActionContainerPrivate::addAction(Command *action, const QString &group)
 {
     if (!canAddAction(action))
         return;
@@ -234,9 +234,9 @@ QMenuBar *ActionContainerPrivate::menuBar() const
     return 0;
 }
 
-bool ActionContainerPrivate::canAddAction(ICommand *action) const
+bool ActionContainerPrivate::canAddAction(Command *action) const
 {
-    if (action->type() != ICommand::CT_OverridableAction)
+    if (action->type() != Command::CT_OverridableAction)
         return false;
 
     CommandPrivate *cmd = static_cast<CommandPrivate *>(action);
@@ -246,7 +246,7 @@ bool ActionContainerPrivate::canAddAction(ICommand *action) const
     return true;
 }
 
-void ActionContainerPrivate::addAction(ICommand *action, int pos, bool setpos)
+void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
 {
     Action *a = static_cast<Action *>(action);
 
@@ -309,7 +309,7 @@ QAction *ActionContainerPrivate::beforeAction(int pos, int *prevKey) const
     if (baId == -1)
         return 0;
 
-    if (ICommand *cmd = am->command(baId))
+    if (Command *cmd = am->command(baId))
         return cmd->action();
     if (ActionContainer *container = am->actionContainer(baId))
         if (QMenu *menu = container->menu())
@@ -398,7 +398,7 @@ bool MenuActionContainer::update()
         }
     }
     if (!hasitems) {
-        foreach (ICommand *command, commands()) {
+        foreach (Command *command, commands()) {
             if (command->isActive()) {
                 hasitems = true;
                 break;

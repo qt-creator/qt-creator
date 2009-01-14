@@ -108,7 +108,7 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     QList<int> context = QList<int>() << m_context;
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
-    Core::ICommand *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);
+    Core::Command *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));

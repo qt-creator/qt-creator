@@ -105,7 +105,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     cpContainer->menu()->setTitle(tr("&CodePaster"));
     toolsContainer->addMenu(cpContainer);
 
-    Core::ICommand *command;
+    Core::Command *command;
 
     m_postAction = new QAction(tr("Paste snippet..."), this);
     command = actionManager->registerAction(m_postAction, "CodePaster.post", globalcontext);

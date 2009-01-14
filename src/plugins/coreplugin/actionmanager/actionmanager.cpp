@@ -70,10 +70,10 @@ namespace {
 
     All actions that are registered with the same string id (but different context lists)
     are considered to be overloads of the same command, represented by an instance
-    of the ICommand class.
-    The action that is visible to the user is the one returned by ICommand::action().
+    of the Command class.
+    The action that is visible to the user is the one returned by Command::action().
     If you provide yourself a user visible representation of your action you need
-    to use ICommand::action() for this.
+    to use Command::action() for this.
     When this action is invoked by the user,
     the signal is forwarded to the registered action that is valid for the current context.
 
@@ -83,7 +83,7 @@ namespace {
         Core::ActionManager *am = ExtensionSystem::PluginManager::instance()
             ->getObject<Core::ICore>()->actionManager();
         QAction *myAction = new QAction(tr("My Action"), this);
-        Core::ICommand *cmd = am->registerAction(myAction,
+        Core::Command *cmd = am->registerAction(myAction,
                                                  "myplugin.myaction",
                                                  QList<int>() << C_GLOBAL_ID);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
@@ -92,7 +92,7 @@ namespace {
 
     So the \c connect is done to your own QAction instance. If you create e.g.
     a tool button that should represent the action you add the action
-    from ICommand::action() to it:
+    from Command::action() to it:
     \code
         QToolButton *myButton = new QToolButton(someParentWidget);
         myButton->setDefaultAction(cmd->action());
@@ -123,7 +123,7 @@ namespace {
     \endlist
 
     \sa Core::ICore
-    \sa Core::ICommand
+    \sa Core::Command
     \sa Core::ActionContainer
     \sa Core::IContext
 */
@@ -149,7 +149,7 @@ namespace {
 */
 
 /*!
-    \fn ICommand *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context)
+    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const QList<int> &context)
     \brief Makes an \a action known to the system under the specified string \a id.
 
     Returns a command object that represents the action in the application and is
@@ -160,7 +160,7 @@ namespace {
 */
 
 /*!
-    \fn ICommand *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
+    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
     \brief Makes a \a shortcut known to the system under the specified string \a id.
 
     Returns a command object that represents the shortcut in the application and is
@@ -171,8 +171,8 @@ namespace {
 */
 
 /*!
-    \fn ICommand *ActionManager::command(const QString &id) const
-    \brief Returns the ICommand object that is known to the system
+    \fn Command *ActionManager::command(const QString &id) const
+    \brief Returns the Command object that is known to the system
     under the given string \a id.
 
     \sa ActionManager::registerAction()
@@ -308,22 +308,22 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
     return mbc;
 }
 
-ICommand *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
+Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
 {
     OverrideableAction *a = 0;
-    ICommand *c = registerOverridableAction(action, id, false);
+    Command *c = registerOverridableAction(action, id, false);
     a = static_cast<OverrideableAction *>(c);
     if (a)
         a->addOverrideAction(action, context);
     return a;
 }
 
-ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
+Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
 {
     OverrideableAction *a = 0;
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
-        if (c->type() != ICommand::CT_OverridableAction) {
+        if (c->type() != Command::CT_OverridableAction) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
             return c;
         }
@@ -364,12 +364,12 @@ ICommand *ActionManagerPrivate::registerOverridableAction(QAction *action, const
     return a;
 }
 
-ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
+Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
 {
     Shortcut *sc = 0;
     int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
-        if (c->type() != ICommand::CT_Shortcut) {
+        if (c->type() != Command::CT_Shortcut) {
             qWarning() << "registerShortcut: id" << id << "is registered with a different command type.";
             return c;
         }
@@ -401,7 +401,7 @@ ICommand *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStr
     return sc;
 }
 
-ICommand *ActionManagerPrivate::command(const QString &id) const
+Command *ActionManagerPrivate::command(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
@@ -425,7 +425,7 @@ ActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
     return it.value();
 }
 
-ICommand *ActionManagerPrivate::command(int uid) const
+Command *ActionManagerPrivate::command(int uid) const
 {
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
     if (it == m_idCmdMap.constEnd()) {
@@ -461,7 +461,7 @@ void ActionManagerPrivate::initialize()
         const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
         const int id = m_mainWnd->uniqueIDManager()->uniqueIdentifier(sid);
 
-        ICommand *cmd = command(id);
+        Command *cmd = command(id);
         if (cmd)
             cmd->setKeySequence(key);
     }

@@ -100,7 +100,7 @@ HEADERS += mainwindow.h \
     editormanager/ieditorfactory.h \
     actionmanager/actioncontainer.h \
     actionmanager/actionmanager.h \
-    actionmanager/icommand.h \
+    actionmanager/command.h \
     actionmanager/actionmanager_p.h \
     actionmanager/command_p.h \
     actionmanager/actioncontainer_p.h \

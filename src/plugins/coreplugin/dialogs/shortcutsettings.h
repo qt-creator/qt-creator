@@ -47,7 +47,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICommand;
+class Command;
 
 namespace Internal {
 
@@ -56,7 +56,7 @@ class MainWindow;
 
 struct ShortcutItem
 {
-    ICommand *m_cmd;
+    Command *m_cmd;
     QKeySequence m_key;
     QTreeWidgetItem *m_item;
 };

@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef ICOMMAND_H
-#define ICOMMAND_H
+#ifndef COMMAND_H
+#define COMMAND_H
 
 #include <coreplugin/core_global.h>
 
@@ -42,7 +42,7 @@
 
 namespace Core {
 
-class CORE_EXPORT ICommand : public QObject
+class CORE_EXPORT Command : public QObject
 {
     Q_OBJECT
 public:
@@ -81,7 +81,7 @@ public:
 
     virtual bool isActive() const = 0;
 
-    virtual ~ICommand() {}
+    virtual ~Command() {}
 
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
 
@@ -91,4 +91,4 @@ signals:
 
 } // namespace Core
 
-#endif // ICOMMAND_H
+#endif // COMMAND_H

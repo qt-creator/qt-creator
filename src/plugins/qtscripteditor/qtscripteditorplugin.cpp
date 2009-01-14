@@ -136,7 +136,7 @@ void QtScriptEditorPlugin::registerActions(Core::ICore *core)
 
     QAction *action = new QAction(this);
     action->setSeparator(true);
-    Core::ICommand *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
+    Core::Command *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
     mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     action = new QAction(tr("Run"), this);

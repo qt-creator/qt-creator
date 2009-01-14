@@ -82,7 +82,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     delete m_qt4ProjectManager;
 }
 /*
-static Core::ICommand *createSeparator(Core::ActionManager *am,
+static Core::Command *createSeparator(Core::ActionManager *am,
                                        QObject *parent,
                                        const QString &name,
                                        const QList<int> &context)
@@ -148,7 +148,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
     m_projectContext = m_core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
     QList<int> context = QList<int>() << m_projectContext;
-    Core::ICommand *command;
+    Core::Command *command;
 
     QIcon qmakeIcon(QLatin1String(":/qt4projectmanager/images/run_qmake.png"));
     qmakeIcon.addFile(QLatin1String(":/qt4projectmanager/images/run_qmake_small.png"));

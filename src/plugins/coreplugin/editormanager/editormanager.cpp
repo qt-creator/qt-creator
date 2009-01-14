@@ -211,9 +211,9 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
     //Revert to saved
-    ICommand *cmd = am->registerAction(m_d->m_revertToSavedAction,
+    Command *cmd = am->registerAction(m_d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("Revert File to Saved"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_d->m_revertToSavedAction, SIGNAL(triggered()), this, SLOT(revertToSaved()));
@@ -258,7 +258,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     //Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_d->m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));

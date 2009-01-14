@@ -74,7 +74,7 @@ void EditorSplitter::registerActions()
 
     ActionManager *am = m_core->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
-    ICommand *cmd;
+    Command *cmd;
 
     //Horizontal Action
     m_horizontalSplitAction = new QAction(tr("Split Left/Right"), this);
