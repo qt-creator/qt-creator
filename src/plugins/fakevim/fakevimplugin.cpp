@@ -170,7 +170,7 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
-    IActionContainer *advancedMenu =
+    ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd);
 

@@ -36,13 +36,13 @@
 
 #include "actionmanager_p.h"
 
-#include <coreplugin/actionmanager/iactioncontainer.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>
 
 namespace Core {
 namespace Internal {
 
-class ActionContainerPrivate : public Core::IActionContainer
+class ActionContainerPrivate : public Core::ActionContainer
 {
 public:
     enum ContainerState {
@@ -64,7 +64,7 @@ public:
     QAction *insertLocation(const QString &group) const;
     void appendGroup(const QString &group);
     void addAction(ICommand *action, const QString &group = QString());
-    void addMenu(IActionContainer *menu, const QString &group = QString());
+    void addMenu(ActionContainer *menu, const QString &group = QString());
 
     int id() const;
 
@@ -75,14 +75,14 @@ public:
     virtual void insertMenu(QAction *before, QMenu *menu) = 0;
 
     QList<ICommand *> commands() const { return m_commands; }
-    QList<IActionContainer *> subContainers() const { return m_subContainers; }
+    QList<ActionContainer *> subContainers() const { return m_subContainers; }
 protected:
     bool canAddAction(ICommand *action) const;
-    bool canAddMenu(IActionContainer *menu) const;
+    bool canAddMenu(ActionContainer *menu) const;
     virtual bool canBeAddedToMenu() const = 0;
 
     void addAction(ICommand *action, int pos, bool setpos);
-    void addMenu(IActionContainer *menu, int pos, bool setpos);
+    void addMenu(ActionContainer *menu, int pos, bool setpos);
 
 private:
     QAction *beforeAction(int pos, int *prevKey) const;
@@ -92,7 +92,7 @@ private:
     int m_data;
     int m_id;
     QMap<int, int> m_posmap;
-    QList<IActionContainer *> m_subContainers;
+    QList<ActionContainer *> m_subContainers;
     QList<ICommand *> m_commands;
 };
 

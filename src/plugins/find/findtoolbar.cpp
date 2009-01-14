@@ -38,7 +38,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/iactioncontainer.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>
 
 #include <QtCore/QSettings>
@@ -139,7 +139,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
     Core::ActionManager *am = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager();
-    Core::IActionContainer *mfind = am->actionContainer(Constants::M_FIND);
+    Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::ICommand *cmd;
 
     m_findInDocumentAction = new QAction(tr("Current Document"), this);

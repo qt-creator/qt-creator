@@ -139,9 +139,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
     //addObject(m_embeddedPropertiesPage);
 
     //menus
-    Core::IActionContainer *mbuild =
+    Core::ActionContainer *mbuild =
         am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    Core::IActionContainer *mproject =
+    Core::ActionContainer *mproject =
         am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     //register actions

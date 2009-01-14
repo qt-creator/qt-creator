@@ -132,7 +132,7 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 void QtScriptEditorPlugin::registerActions(Core::ICore *core)
 {
     Core::ActionManager *am = core->actionManager();
-    Core::IActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);
     action->setSeparator(true);

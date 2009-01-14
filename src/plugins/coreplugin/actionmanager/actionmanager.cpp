@@ -124,28 +124,28 @@ namespace {
 
     \sa Core::ICore
     \sa Core::ICommand
-    \sa Core::IActionContainer
+    \sa Core::ActionContainer
     \sa Core::IContext
 */
 
 /*!
-    \fn IActionContainer *ActionManager::createMenu(const QString &id)
+    \fn ActionContainer *ActionManager::createMenu(const QString &id)
     \brief Creates a new menu with the given string \a id.
 
-    Returns a new IActionContainer that you can use to get the QMenu instance
+    Returns a new ActionContainer that you can use to get the QMenu instance
     or to add menu items to the menu. The ActionManager owns
-    the returned IActionContainer.
+    the returned ActionContainer.
     Add your menu to some other menu or a menu bar via the
-    ActionManager::actionContainer and IActionContainer::addMenu methods.
+    ActionManager::actionContainer and ActionContainer::addMenu methods.
 */
 
 /*!
-    \fn IActionContainer *ActionManager::createMenuBar(const QString &id)
+    \fn ActionContainer *ActionManager::createMenuBar(const QString &id)
     \brief Creates a new menu bar with the given string \a id.
 
-    Returns a new IActionContainer that you can use to get the QMenuBar instance
+    Returns a new ActionContainer that you can use to get the QMenuBar instance
     or to add menus to the menu bar. The ActionManager owns
-    the returned IActionContainer.
+    the returned ActionContainer.
 */
 
 /*!
@@ -179,7 +179,7 @@ namespace {
 */
 
 /*!
-    \fn IActionContainer *ActionManager::actionContainer(const QString &id) const
+    \fn ActionContainer *ActionManager::actionContainer(const QString &id) const
     \brief Returns the IActionContainter object that is know to the system
     under the given string \a id.
 
@@ -272,7 +272,7 @@ bool ActionManagerPrivate::hasContext(QList<int> context) const
     return false;
 }
 
-IActionContainer *ActionManagerPrivate::createMenu(const QString &id)
+ActionContainer *ActionManagerPrivate::createMenu(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -290,7 +290,7 @@ IActionContainer *ActionManagerPrivate::createMenu(const QString &id)
     return mc;
 }
 
-IActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
+ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
@@ -413,7 +413,7 @@ ICommand *ActionManagerPrivate::command(const QString &id) const
     return it.value();
 }
 
-IActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
+ActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
 {
     const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it =  m_idContainerMap.constFind(uid);
@@ -436,7 +436,7 @@ ICommand *ActionManagerPrivate::command(int uid) const
     return it.value();
 }
 
-IActionContainer *ActionManagerPrivate::actionContainer(int uid) const
+ActionContainer *ActionManagerPrivate::actionContainer(int uid) const
 {
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
     if (it == m_idContainerMap.constEnd()) {

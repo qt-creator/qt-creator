@@ -208,7 +208,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
             QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
     ActionManager *am = m_d->m_core->actionManager();
-    IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
     //Revert to saved
     ICommand *cmd = am->registerAction(m_d->m_revertToSavedAction,
@@ -227,7 +227,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
 
     //Window Menu
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     //Window menu separators
     QAction *tmpaction = new QAction(this);
@@ -315,8 +315,8 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
 
-    IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    IActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
+    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
+    ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
     medit->addMenu(advancedMenu, Constants::G_EDIT_FORMAT);
     advancedMenu->menu()->setTitle(tr("&Advanced"));
 

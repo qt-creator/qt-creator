@@ -306,10 +306,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     connect(m_breakpointMarginAction, SIGNAL(triggered()),
         this, SLOT(breakpointMarginActionTriggered()));
 
-    //Core::IActionContainer *mcppcontext =
+    //Core::ActionContainer *mcppcontext =
     //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
 
-    Core::IActionContainer *mdebug =
+    Core::ActionContainer *mdebug =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
     Core::ICommand *cmd = 0;
@@ -450,7 +450,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     // Views menu
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep5"), globalcontext);
     mdebug->addAction(cmd);
-    IActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
+    ActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
     QMenu *m = viewsMenu->menu();
     m->setEnabled(true);
     m->setTitle(tr("&Views"));

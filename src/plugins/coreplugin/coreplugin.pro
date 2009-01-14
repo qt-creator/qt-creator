@@ -98,7 +98,7 @@ HEADERS += mainwindow.h \
     editormanager/openeditorswindow.h \
     editormanager/ieditor.h \
     editormanager/ieditorfactory.h \
-    actionmanager/iactioncontainer.h \
+    actionmanager/actioncontainer.h \
     actionmanager/actionmanager.h \
     actionmanager/icommand.h \
     actionmanager/actionmanager_p.h \

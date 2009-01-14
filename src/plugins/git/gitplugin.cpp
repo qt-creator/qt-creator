@@ -265,10 +265,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     //register actions
     Core::ActionManager *actionManager = m_core->actionManager();
 
-    Core::IActionContainer *toolsContainer =
+    Core::ActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *gitContainer =
+    Core::ActionContainer *gitContainer =
         actionManager->createMenu(QLatin1String("Git"));
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);

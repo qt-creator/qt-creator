@@ -96,8 +96,8 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
 
     // Menus
-    Core::IActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
-    Core::IActionContainer *mcpptools = am->createMenu(CppTools::Constants::M_TOOLS_CPP);
+    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mcpptools = am->createMenu(CppTools::Constants::M_TOOLS_CPP);
     QMenu *menu = mcpptools->menu();
     menu->setTitle(tr("&C++"));
     menu->setEnabled(true);

@@ -157,7 +157,7 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
 
-    if (Core::IActionContainer *mcontext = m_core->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
+    if (Core::ActionContainer *mcontext = m_core->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
         foreach (QAction *action, contextMenu->actions())
             menu->addAction(action);

@@ -227,10 +227,10 @@ bool PerforcePlugin::initialize(const QStringList & /*arguments*/, QString *erro
     //register actions
     Core::ActionManager *am = m_coreInstance->actionManager();
 
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mperforce =
+    Core::ActionContainer *mperforce =
         am->createMenu(QLatin1String(PERFORCE_MENU));
     mperforce->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(mperforce);

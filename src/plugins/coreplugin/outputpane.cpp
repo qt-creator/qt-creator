@@ -38,7 +38,7 @@
 #include "modemanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/iactioncontainer.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
 
@@ -211,10 +211,10 @@ void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
     m_core = core;
 
     ActionManager *am = m_core->actionManager();
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     // Window->Output Panes
-    IActionContainer *mpanes = am->createMenu(Constants::M_WINDOW_PANES);
+    ActionContainer *mpanes = am->createMenu(Constants::M_WINDOW_PANES);
     mwindow->addMenu(mpanes, Constants::G_WINDOW_PANES);
     mpanes->menu()->setTitle(tr("Output &Panes"));
 

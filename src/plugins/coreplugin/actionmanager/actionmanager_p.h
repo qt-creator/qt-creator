@@ -80,13 +80,13 @@ public:
     bool hasContext(int context) const;
 
     ICommand *command(int uid) const;
-    IActionContainer *actionContainer(int uid) const;
+    ActionContainer *actionContainer(int uid) const;
 
     void initialize();
 
     //ActionManager Interface
-    IActionContainer *createMenu(const QString &id);
-    IActionContainer *createMenuBar(const QString &id);
+    ActionContainer *createMenu(const QString &id);
+    ActionContainer *createMenuBar(const QString &id);
 
     ICommand *registerAction(QAction *action, const QString &id,
         const QList<int> &context);
@@ -94,7 +94,7 @@ public:
         const QList<int> &context);
 
     Core::ICommand *command(const QString &id) const;
-    Core::IActionContainer *actionContainer(const QString &id) const;
+    Core::ActionContainer *actionContainer(const QString &id) const;
 
 private:
     bool hasContext(QList<int> context) const;

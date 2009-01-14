@@ -100,7 +100,7 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openQuickOpen()));
 
-    Core::IActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
 
     addObject(new QuickOpenManager(m_quickOpenToolWindow));

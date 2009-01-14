@@ -290,9 +290,9 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     //register actions
     Core::ActionManager *ami = m_coreInstance->actionManager();
-    Core::IActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
+    Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
-    Core::IActionContainer *subversionMenu =
+    Core::ActionContainer *subversionMenu =
         ami->createMenu(QLatin1String(SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);

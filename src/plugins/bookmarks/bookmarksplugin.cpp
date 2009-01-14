@@ -77,10 +77,10 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mbm =
+    Core::ActionContainer *mbm =
         am->createMenu(QLatin1String(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);

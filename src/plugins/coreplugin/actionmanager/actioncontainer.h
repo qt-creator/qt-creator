@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef IACTIONCONTAINER_H
-#define IACTIONCONTAINER_H
+#ifndef ACTIONCONTAINER_H
+#define ACTIONCONTAINER_H
 
 #include <QtCore/QObject>
 #include <QtGui/QMenu>
@@ -44,7 +44,7 @@ namespace Core {
 
 class ICommand;
 
-class IActionContainer : public QObject
+class ActionContainer : public QObject
 {
 public:
     enum EmptyAction {
@@ -64,12 +64,12 @@ public:
     virtual QAction *insertLocation(const QString &group) const = 0;
     virtual void appendGroup(const QString &group) = 0;
     virtual void addAction(Core::ICommand *action, const QString &group = QString()) = 0;
-    virtual void addMenu(Core::IActionContainer *menu, const QString &group = QString()) = 0;
+    virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
 
     virtual bool update() = 0;
-    virtual ~IActionContainer() {}
+    virtual ~ActionContainer() {}
 };
 
 } // namespace Core
 
-#endif // IACTIONCONTAINER_H
+#endif // ACTIONCONTAINER_H

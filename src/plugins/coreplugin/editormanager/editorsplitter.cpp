@@ -73,7 +73,7 @@ void EditorSplitter::registerActions()
             QList<int>() << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
     ActionManager *am = m_core->actionManager();
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     ICommand *cmd;
 
     //Horizontal Action
@@ -98,7 +98,7 @@ void EditorSplitter::registerActions()
             this, SLOT(unsplit()));
 
     //Default Layout menu
-    IActionContainer *mLayout = am->createMenu("QtCreator.Menu.Window.Layout");
+    ActionContainer *mLayout = am->createMenu("QtCreator.Menu.Window.Layout");
     mwindow->addMenu(mLayout, Constants::G_WINDOW_SPLIT);
     mLayout->menu()->setTitle(tr("Default Splitter Layout"));
 

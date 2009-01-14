@@ -39,7 +39,7 @@
 #include "searchresultwindow.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/iactioncontainer.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/icommand.h>
 #include <coreplugin/coreconstants.h>
 
@@ -127,8 +127,8 @@ void FindPlugin::openFindFilter()
 void FindPlugin::setupMenu()
 {
     Core::ActionManager *am = m_core->actionManager();
-    Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *mfind = am->createMenu(Constants::M_FIND);
+    Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
     mfind->menu()->setTitle(tr("&Find/Replace"));
     mfind->appendGroup(Constants::G_FIND_FILTERS);
@@ -155,7 +155,7 @@ void FindPlugin::setupFilterMenuItems()
     Core::ICommand *cmd;
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
 
-    Core::IActionContainer *mfind = am->actionContainer(Constants::M_FIND);
+    Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     m_filterActions.clear();
     foreach (IFindFilter *filter, findInterfaces) {
         QAction *action = new QAction(filter->name(), this);

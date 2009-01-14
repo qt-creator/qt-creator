@@ -100,7 +100,7 @@ static inline QIcon designerIcon(const QString &iconName)
 static inline QAction *createEditModeAction(QActionGroup *ag,
                                      const QList<int> &context,
                                      Core::ActionManager *am,
-                                     Core::IActionContainer *medit,
+                                     Core::ActionContainer *medit,
                                      const QString &actionName,
                                      const QString &name,
                                      int toolNumber,
@@ -126,7 +126,7 @@ static inline QAction *createEditModeAction(QActionGroup *ag,
 static inline QAction * createSeparator(QObject *parent,
                                  Core::ActionManager *am,
                                  const QList<int> &context,
-                                 Core::IActionContainer *container,
+                                 Core::ActionContainer *container,
                                  const QString &name = QString(),
                                  const QString &group = QString())
 {
@@ -142,7 +142,7 @@ static inline void addToolAction(QAction *a,
                    Core::ActionManager *am,
                    const QList<int> &context,
                    const QString &name,
-                   Core::IActionContainer *c1,
+                   Core::ActionContainer *c1,
                    const QString &keySequence = QString())
 {
     Core::ICommand *command = am->registerAction(a, name, context);
@@ -309,12 +309,12 @@ void FormEditorW::setupActions()
     Core::ICommand *command;
 
     //menus
-    Core::IActionContainer *medit =
+    Core::ActionContainer *medit =
         am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mformtools =
+    Core::ActionContainer *mformtools =
         am->createMenu(M_FORMEDITOR);
     mformtools->menu()->setTitle(tr("For&m editor"));
     mtools->addMenu(mformtools);
@@ -457,11 +457,11 @@ QToolBar *FormEditorW::createEditorToolBar() const
     return rc;
 }
 
-Core::IActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,
+Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *am,
                                                             QActionGroup *actionGroup)
 {
     const QString menuId = QLatin1String(M_FORMEDITOR_PREVIEW);
-    Core::IActionContainer *menuPreviewStyle = am->createMenu(menuId);
+    Core::ActionContainer *menuPreviewStyle = am->createMenu(menuId);
     menuPreviewStyle->menu()->setTitle(tr("Preview in"));
 
     // The preview menu is a list of invisible actions for the embedded design

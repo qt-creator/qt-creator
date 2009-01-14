@@ -66,7 +66,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class ActionManager;
-class IActionContainer;
+class ActionContainer;
 class ICore;
 class IEditor;
 }
@@ -142,7 +142,7 @@ private:
     typedef QList<FormWindowEditor *> EditorList;
 
     void setupActions();
-    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
+    Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);

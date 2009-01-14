@@ -113,8 +113,8 @@ void TextEditorActionHandler::createActions()
 
     Core::ActionManager *am = m_core->actionManager();
 
-    Core::IActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
-    Core::IActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
+    Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
 
     m_selectEncodingAction = new QAction(tr("Select Encoding..."), this);
     Core::ICommand *command = am->registerAction(m_selectEncodingAction, Constants::SELECT_ENCODING, m_contextId);

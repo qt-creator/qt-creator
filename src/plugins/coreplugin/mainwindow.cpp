@@ -32,7 +32,7 @@
 ***************************************************************************/
 
 #include "mainwindow.h"
-#include "iactioncontainer.h"
+#include "actioncontainer.h"
 #include "actionmanager_p.h"
 #include "basemode.h"
 #include "coreimpl.h"
@@ -365,7 +365,7 @@ void MainWindow::registerDefaultContainers()
 {
     ActionManagerPrivate *am = m_actionManager;
 
-    IActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
+    ActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
 
 #ifndef Q_WS_MAC // System menu bar on Mac
     setMenuBar(menubar->menuBar());
@@ -378,7 +378,7 @@ void MainWindow::registerDefaultContainers()
     menubar->appendGroup(Constants::G_HELP);
 
     //File Menu
-    IActionContainer *filemenu = am->createMenu(Constants::M_FILE);
+    ActionContainer *filemenu = am->createMenu(Constants::M_FILE);
     menubar->addMenu(filemenu, Constants::G_FILE);
     filemenu->menu()->setTitle(tr("&File"));
     filemenu->appendGroup(Constants::G_FILE_NEW);
@@ -392,7 +392,7 @@ void MainWindow::registerDefaultContainers()
 
 
     //Edit Menu
-    IActionContainer *medit = am->createMenu(Constants::M_EDIT);
+    ActionContainer *medit = am->createMenu(Constants::M_EDIT);
     menubar->addMenu(medit, Constants::G_EDIT);
     medit->menu()->setTitle(tr("&Edit"));
     medit->appendGroup(Constants::G_EDIT_UNDOREDO);
@@ -403,12 +403,12 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
     //Tools Menu
-    IActionContainer *ac = am->createMenu(Constants::M_TOOLS);
+    ActionContainer *ac = am->createMenu(Constants::M_TOOLS);
     menubar->addMenu(ac, Constants::G_TOOLS);
     ac->menu()->setTitle(tr("&Tools"));
 
     //Window Menu
-    IActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
@@ -441,12 +441,12 @@ static ICommand *createSeparator(ActionManagerPrivate *am, QObject *parent,
 void MainWindow::registerDefaultActions()
 {
     ActionManagerPrivate *am = m_actionManager;
-    IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
-    IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    IActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
+    ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     Q_UNUSED(mwindow)
-    IActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
+    ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
     ICommand *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
@@ -506,7 +506,7 @@ void MainWindow::registerDefaultActions()
     connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
 
     //File->Recent Files Menu
-    IActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
+    ActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
     ac->menu()->setTitle(tr("Recent Files"));
 
@@ -1056,7 +1056,7 @@ void MainWindow::updateContext()
 
 void MainWindow::aboutToShowRecentFiles()
 {
-    IActionContainer *aci =
+    ActionContainer *aci =
         m_actionManager->actionContainer(Constants::M_FILE_RECENTFILES);
     aci->menu()->clear();
     m_recentFilesActions.clear();
