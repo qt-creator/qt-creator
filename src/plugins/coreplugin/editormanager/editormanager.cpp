@@ -1391,7 +1391,7 @@ void EditorManager::readSettings(QSettings *settings)
     if (settings->contains(QLatin1String("EditorManager/DocumentStates")))
         m_d->m_editorStates = settings->value(QLatin1String("EditorManager/DocumentStates"))
             .value<QMap<QString, QVariant> >();
-    if (settings->contains(QLatin1String("EditorManager/ExternalEditor")))
+    if (settings->contains(QLatin1String("EditorManager/ExternalEditorCommand")))
         m_d->m_externalEditor = settings->value(QLatin1String("EditorManager/ExternalEditorCommand")).toString();
 }
 
