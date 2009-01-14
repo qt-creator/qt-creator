@@ -33,7 +33,7 @@
 
 #include "baseview.h"
 
-#include <extensionsystem/ExtensionSystemInterfaces>
+#include <QtGui/QWidget>
 
 using namespace Core;
 

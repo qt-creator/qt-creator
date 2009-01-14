@@ -48,7 +48,10 @@
 #include "profilereader.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>

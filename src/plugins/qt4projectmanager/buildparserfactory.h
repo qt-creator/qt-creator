@@ -34,12 +34,8 @@
 #ifndef BUILDPARSERFACTORY_H
 #define BUILDPARSERFACTORY_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildparserinterface.h>
 
-
-namespace ProjectExplorer {
-class BuildParserInterface;
-}
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -65,6 +61,5 @@ public:
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
 
 #endif // BUILDPARSERFACTORY_H

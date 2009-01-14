@@ -34,7 +34,6 @@
 #ifndef FORMEDITORFACTORY_H
 #define FORMEDITORFACTORY_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/QStringList>

@@ -55,7 +55,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>

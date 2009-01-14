@@ -39,7 +39,6 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <extensionsystem/ExtensionSystemInterfaces>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>

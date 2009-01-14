@@ -39,8 +39,8 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/icorelistener.h>
-#include <extensionsystem/iplugin.h>
 #include <coreplugin/icorelistener.h>
+#include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>

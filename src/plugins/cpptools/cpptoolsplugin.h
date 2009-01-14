@@ -35,7 +35,7 @@
 #define CPPTOOLS_H
 
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

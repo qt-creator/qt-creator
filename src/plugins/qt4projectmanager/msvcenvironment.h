@@ -34,10 +34,10 @@
 #ifndef MSVCENVIRONMENT_H
 #define MSVCENVIRONMENT_H
 
-#include <QString>
-#include <QList>
+#include <QtCore/QString>
+#include <QtCore/QList>
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
