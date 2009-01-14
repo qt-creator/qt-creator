@@ -47,46 +47,6 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class DirectoryWatcher : public QObject
-{
-    Q_DISABLE_COPY(DirectoryWatcher)
-    Q_OBJECT
-public:
-    explicit DirectoryWatcher(QObject *parent = 0);
-    virtual ~DirectoryWatcher();
-
-    QStringList directories() const;
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
-
-    QStringList files() const;
-    void addFile(const QString &filePath);
-    void addFiles(const QStringList &filePaths);
-    void removeFile(const QString &filePath);
-
-signals:
-    void directoryChanged(const QString &path);
-    void fileChanged(const QString &path);
-
-private slots:
-    void slotDirectoryChanged(const QString &);
-    void slotDelayedDirectoriesChanged();
-
-private:
-    void updateFileList(const QString &dir);
-
-    static int m_objectCount;
-    static QHash<QString,int> m_directoryCount;
-    static QFileSystemWatcher *m_watcher;
-
-    QTimer *m_timer;
-    QStringList m_directories;
-    QStringList m_pendingDirectories;
-
-    typedef QHash<QString, QDateTime> FileModificationTimeMap;
-    FileModificationTimeMap m_files;
-};
-
 class FileWatcher : public QObject
 {
     Q_DISABLE_COPY(FileWatcher)

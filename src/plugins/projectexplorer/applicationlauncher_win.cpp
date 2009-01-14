@@ -34,7 +34,6 @@
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 #include "winguiprocess.h"
-#include <projectexplorer/ProjectExplorerInterfaces>
 
 #include <QDebug>
 
