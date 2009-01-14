@@ -81,23 +81,6 @@ enum DataDumperState
 };
 
 
-class GdbSettings
-{
-public:
-    GdbSettings() { m_autoRun = m_autoQuit = false; }
-
-public:
-    QString m_gdbCmd;
-    QString m_gdbEnv;
-    bool m_autoRun;
-    bool m_autoQuit;
-
-    QString m_scriptFile;
-    QMap<QString, QVariant> m_typeMacros;
-};
-
-GdbSettings &theGdbSettings();
-
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT

@@ -86,19 +86,6 @@ static const QString tooltipIName = "tooltip";
 
 ///////////////////////////////////////////////////////////////////////
 //
-// GdbSettings
-//
-///////////////////////////////////////////////////////////////////////
-
-GdbSettings &Debugger::Internal::theGdbSettings()
-{
-    static GdbSettings settings;
-    return settings;
-}
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // GdbCommandType
 //
 ///////////////////////////////////////////////////////////////////////
@@ -265,7 +252,6 @@ void GdbEngine::init()
     m_pendingRequests = 0;
     m_gdbVersion = 100;
     m_shared = 0;
-    qq->debugDumpersAction()->setChecked(false);
 
     m_oldestAcceptableToken = -1;
 
@@ -278,11 +264,6 @@ void GdbEngine::init()
         SLOT(readGdbStandardError()));
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)), q,
         SLOT(exitDebugger()));
-
-    connect(qq->debugDumpersAction(), SIGNAL(toggled(bool)),
-        this, SLOT(setDebugDumpers(bool)));
-    connect(qq->useCustomDumpersAction(), SIGNAL(toggled(bool)),
-        this, SLOT(setCustomDumpersWanted(bool)));
 
     // Output
     connect(this, SIGNAL(gdbResponseAvailable()),
@@ -306,7 +287,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
         case QProcess::FailedToStart:
             msg = QString(tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")).arg(theGdbSettings().m_gdbCmd);
+                "permissions to invoke the program.")).arg(q->settings()->m_gdbCmd);
             break;
         case QProcess::Crashed:
             msg = tr("The Gdb process crashed some time after starting "
@@ -1503,7 +1484,7 @@ void GdbEngine::exitDebugger()
     m_varToType.clear();
     m_dataDumperState = DataDumperUninitialized;
     m_shared = 0;
-    qq->debugDumpersAction()->setChecked(false);
+    //q->settings()->m_debugDumpers = false;
 }
 
 
@@ -1535,7 +1516,7 @@ bool GdbEngine::startDebugger()
         m_gdbProc.setEnvironment(q->m_environment);
 
     #if 0
-    qDebug() << "Command: " << theGdbSettings().m_gdbCmd;
+    qDebug() << "Command: " << q->settings()->m_gdbCmd;
     qDebug() << "WorkingDirectory: " << m_gdbProc.workingDirectory();
     qDebug() << "Environment: " << m_gdbProc.environment();
     qDebug() << "Arguments: " << gdbArgs;
@@ -1544,9 +1525,9 @@ bool GdbEngine::startDebugger()
     #endif
 
     q->showStatusMessage(tr("Starting Debugger"));
-    emit gdbInputAvailable(QString(), theGdbSettings().m_gdbCmd + ' ' + gdbArgs.join(" "));
+    emit gdbInputAvailable(QString(), q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
 
-    m_gdbProc.start(theGdbSettings().m_gdbCmd, gdbArgs);
+    m_gdbProc.start(q->settings()->m_gdbCmd, gdbArgs);
     m_gdbProc.waitForStarted();
 
     if (m_gdbProc.state() != QProcess::Running)
@@ -2589,7 +2570,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
     }
     
-    if (qq->debugDumpersAction()->isChecked()) {
+    if (q->settings()->m_debugDumpers) {
         // minimize interference
         return;
     }
@@ -2909,10 +2890,10 @@ void GdbEngine::setCustomDumpersWanted(bool on)
 
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
-    if (!qq->useCustomDumpers())
+    DebuggerSettings *s = q->settings();
+    if (!s->m_useCustomDumpers)
         return false;
-    if (qq->debugDumpersAction()->isChecked()
-            && qq->stackHandler()->isDebuggingDumpers())
+    if (s->m_debugDumpers && qq->stackHandler()->isDebuggingDumpers())
         return false;
     if (m_dataDumperState != DataDumperAvailable)
         return false;
@@ -3470,7 +3451,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumers easier
-        if (qq->debugDumpersAction()->isChecked()
+        if (q->settings()->m_debugDumpers
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
             // Fake full stop

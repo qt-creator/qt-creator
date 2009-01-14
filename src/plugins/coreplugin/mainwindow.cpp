@@ -186,6 +186,7 @@ MainWindow::MainWindow() :
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QString baseName = qApp->style()->objectName();
+#ifdef Q_WS_X11
     if (baseName == "windows") {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop
@@ -195,6 +196,7 @@ MainWindow::MainWindow() :
         else
             baseName = "cleanlooks";
     }
+#endif
     qApp->setStyle(new ManhattanStyle(baseName));
     statusBar()->setProperty("p_styled", true);
 }
