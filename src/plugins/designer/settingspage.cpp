@@ -39,8 +39,7 @@
 using namespace Designer::Internal;
 
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    m_designerPage(designerPage),
-    m_applyOnFinish(false)
+    m_designerPage(designerPage)
 {
 }
 
@@ -65,17 +64,15 @@ QString SettingsPage::trCategory() const
 
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
-    m_applyOnFinish = false;
     return m_designerPage->createPage(parent);
 }
 
 void SettingsPage::apply()
 {
-    // FIXME: Since no cleanup should be done here, we can't call finish(true)
-    m_applyOnFinish = true;
+    m_designerPage->apply();
 }
 
 void SettingsPage::finish()
 {
-    m_designerPage->finish(m_applyOnFinish);
+    m_designerPage->finish();
 }

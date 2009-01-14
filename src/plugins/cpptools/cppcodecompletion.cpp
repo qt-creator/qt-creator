@@ -765,7 +765,7 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
 void CppCodeCompletion::addKeywords()
 {
     // keyword completion items.
-    for (int i = T_FIRST_KEYWORD; i < T_FIRST_QT_KEYWORD; ++i) {
+    for (int i = T_FIRST_KEYWORD; i < T_FIRST_OBJC_AT_KEYWORD; ++i) {
         TextEditor::CompletionItem item(this);
         item.m_text = QLatin1String(Token::name(i));
         item.m_icon = m_icons.keywordIcon();

@@ -33,7 +33,7 @@
 
 #include "helloworldplugin.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -92,12 +92,12 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Register the action with the action manager
     Core::ActionManager *actionManager = core->actionManager();
-    Core::ICommand *command =
+    Core::Command *command =
             actionManager->registerAction(
                     helloWorldAction, "HelloWorld.HelloWorldAction", context);
 
     // Create our own menu to place in the Tools menu
-    Core::IActionContainer *helloWorldMenu =
+    Core::ActionContainer *helloWorldMenu =
             actionManager->createMenu("HelloWorld.HelloWorldMenu");
     QMenu *menu = helloWorldMenu->menu();
     menu->setTitle(tr("&Hello World"));
@@ -107,7 +107,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     helloWorldMenu->addAction(command);
 
     // Request the Tools menu and add the Hello World menu to it
-    Core::IActionContainer *toolsMenu =
+    Core::ActionContainer *toolsMenu =
             actionManager->actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(helloWorldMenu);
 

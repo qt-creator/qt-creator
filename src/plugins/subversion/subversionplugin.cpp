@@ -55,7 +55,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/qplugin.h>
@@ -290,9 +290,9 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     //register actions
     Core::ActionManager *ami = m_coreInstance->actionManager();
-    Core::IActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
+    Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
-    Core::IActionContainer *subversionMenu =
+    Core::ActionContainer *subversionMenu =
         ami->createMenu(QLatin1String(SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
@@ -304,11 +304,11 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     QList<int> globalcontext;
     globalcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
-    Core::ICommand *command;
+    Core::Command *command;
     m_addAction = new QAction(tr("Add"), this);
     command = ami->registerAction(m_addAction, SubversionPlugin::ADD,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+A")));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
@@ -316,14 +316,14 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_deleteAction = new QAction(tr("Delete"), this);
     command = ami->registerAction(m_deleteAction, SubversionPlugin::DELETE_FILE,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     subversionMenu->addAction(command);
 
     m_revertAction = new QAction(tr("Revert"), this);
     command = ami->registerAction(m_revertAction, SubversionPlugin::REVERT,
         globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     subversionMenu->addAction(command);
 
@@ -341,7 +341,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_diffCurrentAction = new QAction(tr("Diff Current File"), this);
     command = ami->registerAction(m_diffCurrentAction,
         SubversionPlugin::DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     subversionMenu->addAction(command);
@@ -360,7 +360,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_commitCurrentAction = new QAction(tr("Commit Current File"), this);
     command = ami->registerAction(m_commitCurrentAction,
         SubversionPlugin::COMMIT_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+C")));
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     subversionMenu->addAction(command);
@@ -373,7 +373,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
     command = ami->registerAction(m_filelogCurrentAction,
         SubversionPlugin::FILELOG_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
         SLOT(filelogCurrentFile()));
     subversionMenu->addAction(command);
@@ -381,7 +381,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_annotateCurrentAction = new QAction(tr("Annotate Current File"), this);
     command = ami->registerAction(m_annotateCurrentAction,
         SubversionPlugin::ANNOTATE_CURRENT, globalcontext);
-    command->setAttribute(Core::ICommand::CA_UpdateText);
+    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
         SLOT(annotateCurrentFile()));
     subversionMenu->addAction(command);

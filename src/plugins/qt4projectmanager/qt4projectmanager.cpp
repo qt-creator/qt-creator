@@ -48,7 +48,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/listutils.h>
 
 #include <QtCore/QVariant>

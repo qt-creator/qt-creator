@@ -36,7 +36,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <extensionsystem/ExtensionSystemInterfaces>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>

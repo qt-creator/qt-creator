@@ -34,123 +34,42 @@
 #ifndef ACTIONCONTAINER_H
 #define ACTIONCONTAINER_H
 
-#include "actionmanager_p.h"
-
-#include <coreplugin/actionmanager/iactioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <QtCore/QObject>
+#include <QtGui/QMenu>
+#include <QtGui/QToolBar>
+#include <QtGui/QMenuBar>
+#include <QtGui/QAction>
 
 namespace Core {
-namespace Internal {
 
-class ActionContainer : public Core::IActionContainer
+class Command;
+
+class ActionContainer : public QObject
 {
 public:
-    enum ContainerState {
-        CS_None         = 0x000000,
-        CS_Initialized  = 0x010000,
-        CS_PreLocation  = 0x020000,
-        CS_UserDefined  = 0x040000
+    enum EmptyAction {
+        EA_Mask             = 0xFF00,
+        EA_None             = 0x0100,
+        EA_Hide             = 0x0200,
+        EA_Disable          = 0x0300
     };
 
-    ActionContainer(ContainerType type, int id);
+    virtual void setEmptyAction(EmptyAction ea) = 0;
+
+    virtual int id() const = 0;
+
+    virtual QMenu *menu() const = 0;
+    virtual QMenuBar *menuBar() const = 0;
+
+    virtual QAction *insertLocation(const QString &group) const = 0;
+    virtual void appendGroup(const QString &group) = 0;
+    virtual void addAction(Core::Command *action, const QString &group = QString()) = 0;
+    virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
+
+    virtual bool update() = 0;
     virtual ~ActionContainer() {}
-
-    void setEmptyAction(EmptyAction ea);
-    bool hasEmptyAction(EmptyAction ea) const;
-
-    void setState(ContainerState state);
-    bool hasState(ContainerState state) const;
-
-    QAction *insertLocation(const QString &group) const;
-    void appendGroup(const QString &group);
-    void addAction(ICommand *action, const QString &group = QString());
-    void addMenu(IActionContainer *menu, const QString &group = QString());
-
-    int id() const;
-    ContainerType type() const;
-
-    QMenu *menu() const;
-    QToolBar *toolBar() const;
-    QMenuBar *menuBar() const;
-
-    virtual void insertAction(QAction *before, QAction *action) = 0;
-    virtual void insertMenu(QAction *before, QMenu *menu) = 0;
-
-    QList<ICommand *> commands() const { return m_commands; }
-    QList<IActionContainer *> subContainers() const { return m_subContainers; }
-protected:
-    bool canAddAction(ICommand *action) const;
-    bool canAddMenu(IActionContainer *menu) const;
-
-    void addAction(ICommand *action, int pos, bool setpos);
-    void addMenu(IActionContainer *menu, int pos, bool setpos);
-
-private:
-    QAction *beforeAction(int pos, int *prevKey) const;
-    int calcPosition(int pos, int prevKey) const;
-
-    QList<int> m_groups;
-    int m_data;
-    ContainerType m_type;
-    int m_id;
-    QMap<int, int> m_posmap;
-    QList<IActionContainer *> m_subContainers;
-    QList<ICommand *> m_commands;
 };
 
-class MenuActionContainer : public ActionContainer
-{
-public:
-    MenuActionContainer(int id);
-
-    void setMenu(QMenu *menu);
-    QMenu *menu() const;
-
-    void setLocation(const CommandLocation &location);
-    CommandLocation location() const;
-
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
-    bool update();
-
-private:
-    QMenu *m_menu;
-    CommandLocation m_location;
-};
-
-class ToolBarActionContainer : public ActionContainer
-{
-public:
-    ToolBarActionContainer(int id);
-
-    void setToolBar(QToolBar *toolBar);
-    QToolBar *toolBar() const;
-
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
-    bool update();
-
-private:
-    QToolBar *m_toolBar;
-};
-
-class MenuBarActionContainer : public ActionContainer
-{
-public:
-    MenuBarActionContainer(int id);
-
-    void setMenuBar(QMenuBar *menuBar);
-    QMenuBar *menuBar() const;
-
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
-    bool update();
-
-private:
-    QMenuBar *m_menuBar;
-};
-
-} // namespace Internal
 } // namespace Core
 
 #endif // ACTIONCONTAINER_H

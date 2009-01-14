@@ -128,8 +128,6 @@ public:
 
     void updateContext();
 
-    QMenu *createPopupMenu();
-
     void setSuppressNavigationWidget(bool suppress);
 
 signals:

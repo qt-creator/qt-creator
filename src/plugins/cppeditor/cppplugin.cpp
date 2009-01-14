@@ -45,7 +45,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
@@ -197,7 +197,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::ActionManager *am = m_core->actionManager();
     am->createMenu(CppEditor::Constants::M_CONTEXT);
 
-    Core::ICommand *cmd;
+    Core::Command *cmd;
 
     QAction *jumpToDefinition = new QAction(tr("Follow Symbol under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,

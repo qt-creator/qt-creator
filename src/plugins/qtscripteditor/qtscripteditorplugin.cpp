@@ -132,11 +132,11 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 void QtScriptEditorPlugin::registerActions(Core::ICore *core)
 {
     Core::ActionManager *am = core->actionManager();
-    Core::IActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);
     action->setSeparator(true);
-    Core::ICommand *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
+    Core::Command *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
     mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     action = new QAction(tr("Run"), this);

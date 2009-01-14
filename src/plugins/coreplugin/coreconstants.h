@@ -34,8 +34,6 @@
 #ifndef CORECONSTANTS_H
 #define CORECONSTANTS_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
-
 namespace Core {
 namespace Constants {
 

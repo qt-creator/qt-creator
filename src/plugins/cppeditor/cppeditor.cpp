@@ -657,7 +657,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     if (lastAction->menu() && QLatin1String(lastAction->menu()->metaObject()->className()) == QLatin1String("QUnicodeControlCharacterMenu"))
         menu->removeAction(lastAction);
 
-    Core::IActionContainer *mcontext =
+    Core::ActionContainer *mcontext =
         m_core->actionManager()->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
