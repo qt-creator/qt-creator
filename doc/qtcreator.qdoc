@@ -49,7 +49,9 @@
     \list
        \o \l{A Quick Tour of Qt Creator}
        \o \l{Creating a Project in Qt Creator}
+       \o \l{The Code Editor}
        \o \l{Build Settings}
+       \o \l{Qt Version Management}
        \o \l{Writing a Simple Program with Qt Creator}
        \o \l{Navigating Quickly Around Your Code with Locator}
        \o \l{Debugging with Qt Creator}
@@ -206,10 +208,25 @@
     are available to help speed up the process of developing your application.
 */
 
+/*! \contentspage index.html
+    \previouspage creator-quick-tour.html
+    \page creator-code-editor.html
+    \nextpage creator-build-settings.html
+
+    \title The Code Editor
+
+    ### SCREENSHOT of the editor in action
+
+    To switch to an external editor, select \gui{Open in external editor} from
+    the \gui{Edit -> Advanced} menu.
+
+*/
+
+
 
 /*!
     \contentspage index.html
-    \previouspage creator-quick-tour.html
+    \previouspage creator-editor-settings.html
     \page creator-build-settings.html
     \nextpage creator-creating-project.html
 
@@ -266,8 +283,15 @@
     remove the build step. You will still be able to debug applications, but the
     contents of Qt and STL data types will not be displayed properly.
 
+*/
 
-    \section1 Qt Version Management
+/*!
+    \contentspage index.html
+    \previouspage creator-build-settings.html
+    \page creator-version-management.html
+    \nextpage creator-creating-project.html
+
+    \title Qt Version Management
 
     Qt Creator allows you to use multiple versions of Qt installed on your hard
     disk and switch between them easily.
