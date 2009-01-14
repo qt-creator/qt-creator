@@ -45,7 +45,7 @@
 
 static QAction *actionFromId(Core::ICore *core, const QString &id)
 {
-    Core::ICommand *cmd = core->actionManager()->command(id);
+    Core::Command *cmd = core->actionManager()->command(id);
     if (!cmd)
         return 0;
     return cmd->action();

@@ -56,9 +56,9 @@ class UniqueIDManager;
 
 namespace Internal {
 
-class ActionContainer;
+class ActionContainerPrivate;
 class MainWindow;
-class Command;
+class CommandPrivate;
 
 class ActionManagerPrivate : public Core::ActionManager
 {
@@ -74,40 +74,40 @@ public:
     void saveSettings(QSettings *settings);
     QList<int> defaultGroups() const;
 
-    QList<Command *> commands() const;
-    QList<ActionContainer *> containers() const;
+    QList<CommandPrivate *> commands() const;
+    QList<ActionContainerPrivate *> containers() const;
 
     bool hasContext(int context) const;
 
-    ICommand *command(int uid) const;
-    IActionContainer *actionContainer(int uid) const;
+    Command *command(int uid) const;
+    ActionContainer *actionContainer(int uid) const;
 
     void initialize();
 
     //ActionManager Interface
-    IActionContainer *createMenu(const QString &id);
-    IActionContainer *createMenuBar(const QString &id);
+    ActionContainer *createMenu(const QString &id);
+    ActionContainer *createMenuBar(const QString &id);
 
-    ICommand *registerAction(QAction *action, const QString &id,
+    Command *registerAction(QAction *action, const QString &id,
         const QList<int> &context);
-    ICommand *registerShortcut(QShortcut *shortcut, const QString &id,
+    Command *registerShortcut(QShortcut *shortcut, const QString &id,
         const QList<int> &context);
 
-    Core::ICommand *command(const QString &id) const;
-    Core::IActionContainer *actionContainer(const QString &id) const;
+    Core::Command *command(const QString &id) const;
+    Core::ActionContainer *actionContainer(const QString &id) const;
 
 private:
     bool hasContext(QList<int> context) const;
-    ICommand *registerOverridableAction(QAction *action, const QString &id,
+    Command *registerOverridableAction(QAction *action, const QString &id,
         bool checkUnique);
 
     static ActionManagerPrivate* m_instance;
     QList<int> m_defaultGroups;
 
-    typedef QHash<int, Command *> IdCmdMap;
+    typedef QHash<int, CommandPrivate *> IdCmdMap;
     IdCmdMap m_idCmdMap;
 
-    typedef QHash<int, ActionContainer *> IdContainerMap;
+    typedef QHash<int, ActionContainerPrivate *> IdContainerMap;
     IdContainerMap m_idContainerMap;
 
 //    typedef QMap<int, int> GlobalGroupMap;

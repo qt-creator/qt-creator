@@ -186,6 +186,7 @@ MainWindow::MainWindow() :
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QString baseName = qApp->style()->objectName();
+#ifdef Q_WS_X11
     if (baseName == "windows") {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop
@@ -195,6 +196,7 @@ MainWindow::MainWindow() :
         else
             baseName = "cleanlooks";
     }
+#endif
     qApp->setStyle(new ManhattanStyle(baseName));
     statusBar()->setProperty("p_styled", true);
 }
@@ -365,7 +367,7 @@ void MainWindow::registerDefaultContainers()
 {
     ActionManagerPrivate *am = m_actionManager;
 
-    IActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
+    ActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
 
 #ifndef Q_WS_MAC // System menu bar on Mac
     setMenuBar(menubar->menuBar());
@@ -378,7 +380,7 @@ void MainWindow::registerDefaultContainers()
     menubar->appendGroup(Constants::G_HELP);
 
     //File Menu
-    IActionContainer *filemenu = am->createMenu(Constants::M_FILE);
+    ActionContainer *filemenu = am->createMenu(Constants::M_FILE);
     menubar->addMenu(filemenu, Constants::G_FILE);
     filemenu->menu()->setTitle(tr("&File"));
     filemenu->appendGroup(Constants::G_FILE_NEW);
@@ -392,7 +394,7 @@ void MainWindow::registerDefaultContainers()
 
 
     //Edit Menu
-    IActionContainer *medit = am->createMenu(Constants::M_EDIT);
+    ActionContainer *medit = am->createMenu(Constants::M_EDIT);
     menubar->addMenu(medit, Constants::G_EDIT);
     medit->menu()->setTitle(tr("&Edit"));
     medit->appendGroup(Constants::G_EDIT_UNDOREDO);
@@ -403,12 +405,12 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
     //Tools Menu
-    IActionContainer *ac = am->createMenu(Constants::M_TOOLS);
+    ActionContainer *ac = am->createMenu(Constants::M_TOOLS);
     menubar->addMenu(ac, Constants::G_TOOLS);
     ac->menu()->setTitle(tr("&Tools"));
 
     //Window Menu
-    IActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
@@ -428,28 +430,28 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
-static ICommand *createSeparator(ActionManagerPrivate *am, QObject *parent,
+static Command *createSeparator(ActionManagerPrivate *am, QObject *parent,
                                  const QString &name,
                                  const QList<int> &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    ICommand *cmd = am->registerAction(tmpaction, name, context);
+    Command *cmd = am->registerAction(tmpaction, name, context);
     return cmd;
 }
 
 void MainWindow::registerDefaultActions()
 {
     ActionManagerPrivate *am = m_actionManager;
-    IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
-    IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    IActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
+    ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     Q_UNUSED(mwindow)
-    IActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
+    ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
-    ICommand *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
+    Command *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Print"), m_globalContext);
@@ -506,7 +508,7 @@ void MainWindow::registerDefaultActions()
     connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
 
     //File->Recent Files Menu
-    IActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
+    ActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
     ac->menu()->setTitle(tr("Recent Files"));
 
@@ -514,7 +516,7 @@ void MainWindow::registerDefaultActions()
     QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);
     cmd = am->registerAction(tmpaction, Constants::SAVE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Save"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
@@ -524,7 +526,7 @@ void MainWindow::registerDefaultActions()
 #ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("Save &As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
@@ -553,7 +555,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(QIcon(Constants::ICON_UNDO), tr("&Undo"), this);
     cmd = am->registerAction(tmpaction, Constants::UNDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Undo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 
@@ -561,7 +563,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
     cmd = am->registerAction(tmpaction, Constants::REDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Redo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
 
@@ -1056,7 +1058,7 @@ void MainWindow::updateContext()
 
 void MainWindow::aboutToShowRecentFiles()
 {
-    IActionContainer *aci =
+    ActionContainer *aci =
         m_actionManager->actionContainer(Constants::M_FILE_RECENTFILES);
     aci->menu()->clear();
     m_recentFilesActions.clear();

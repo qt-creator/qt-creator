@@ -40,7 +40,7 @@
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreimpl.h>
 #include <coreplugin/imode.h>
@@ -144,7 +144,7 @@ void ModeManager::objectAdded(QObject *obj)
     const QString shortcutId = QLatin1String("QtCreator.Mode.") + mode->uniqueModeName();
     QShortcut *shortcut = new QShortcut(m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to %1 mode").arg(mode->name()));
-    ICommand *cmd = am->registerShortcut(shortcut, shortcutId, QList<int>() << Constants::C_GLOBAL_ID);
+    Command *cmd = am->registerShortcut(shortcut, shortcutId, QList<int>() << Constants::C_GLOBAL_ID);
 
     m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
@@ -162,7 +162,7 @@ void ModeManager::objectAdded(QObject *obj)
 
 void ModeManager::updateModeToolTip()
 {
-    ICommand *cmd = qobject_cast<ICommand *>(sender());
+    Command *cmd = qobject_cast<Command *>(sender());
     if (cmd) {
         int index = m_modeShortcuts.indexOf(cmd);
         if (index != -1)
@@ -184,7 +184,7 @@ void ModeManager::aboutToRemoveObject(QObject *obj)
     m_mainWindow->removeContextObject(mode);
 }
 
-void ModeManager::addAction(ICommand *command, int priority, QMenu *menu)
+void ModeManager::addAction(Command *command, int priority, QMenu *menu)
 {
     m_actions.insert(command, priority);
 

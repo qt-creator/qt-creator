@@ -34,16 +34,13 @@
 #ifndef RRESOURCEEDITORFACTORY_H
 #define RRESOURCEEDITORFACTORY_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/QStringList>
 
 namespace Core {
 class ICore;
-class IEditor;
-class IFile;
-}
+} // namespace Core
 
 namespace ResourceEditor {
 namespace Internal {

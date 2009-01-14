@@ -165,12 +165,12 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
     m_installHandlerAction = new QAction(this);
     m_installHandlerAction->setText(tr("Set vi-Style Keyboard Action Handler"));
     
-    Core::ICommand *cmd = 0;
+    Core::Command *cmd = 0;
     cmd = actionManager->registerAction(m_installHandlerAction,
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
-    IActionContainer *advancedMenu =
+    ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd);
 

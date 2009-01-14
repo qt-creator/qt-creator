@@ -77,17 +77,17 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    Core::IActionContainer *mtools =
+    Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *mbm =
+    Core::ActionContainer *mbm =
         am->createMenu(QLatin1String(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
-    Core::ICommand *cmd =
+    Core::Command *cmd =
         am->registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
 #ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));

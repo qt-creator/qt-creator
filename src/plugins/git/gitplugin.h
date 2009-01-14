@@ -39,8 +39,8 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icorelistener.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -53,20 +53,20 @@ class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IEditorFactory;
-    class ICore;
-    class IVersionControl;
-}
+class IEditorFactory;
+class ICore;
+class IVersionControl;
+} // namespace Core
 
 namespace Git {
 namespace Internal {
 
-    class GitPlugin;
-    class GitClient;
-    class ChangeSelectionDialog;
-    class GitSubmitEditor;
-    struct CommitData;
-    struct GitSettings;
+class GitPlugin;
+class GitClient;
+class ChangeSelectionDialog;
+class GitSubmitEditor;
+struct CommitData;
+struct GitSettings;
 
 // Just a proxy for GitPlugin
 class CoreListener : public Core::ICoreListener
@@ -85,83 +85,83 @@ class GitPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-                                GitPlugin();
-                                ~GitPlugin();
+    GitPlugin();
+    ~GitPlugin();
+
     static GitPlugin *instance();
 
-    bool                        initialize(const QStringList &arguments
-                                           , QString *error_message);
-    void                        extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void extensionsInitialized();
 
-    QString                     getWorkingDirectory();
+    QString getWorkingDirectory();
 
-    GitOutputWindow             *outputWindow() const;
+    GitOutputWindow *outputWindow() const;
 
 
-    GitSettings  settings() const;
+    GitSettings settings() const;
     void setSettings(const GitSettings &s);
 
 public slots:
-    void                        updateActions();
-    bool                        editorAboutToClose(Core::IEditor *editor);
+    void updateActions();
+    bool editorAboutToClose(Core::IEditor *editor);
 
 private slots:
-    void                        diffCurrentFile();
-    void                        diffCurrentProject();
-    void                        submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
-    void                        submitCurrentLog();
-    void                        statusFile();
-    void                        statusProject();
-    void                        logFile();
-    void                        blameFile();
-    void                        logProject();
-    void                        undoFileChanges();
-    void                        undoProjectChanges();
-    void                        stageFile();
-    void                        unstageFile();
-    void                        revertFile();
+    void diffCurrentFile();
+    void diffCurrentProject();
+    void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
+    void submitCurrentLog();
+    void statusFile();
+    void statusProject();
+    void logFile();
+    void blameFile();
+    void logProject();
+    void undoFileChanges();
+    void undoProjectChanges();
+    void stageFile();
+    void unstageFile();
+    void revertFile();
 
-    void                        showCommit();
-    void                        startCommit();
-    void                        stash();
-    void                        stashPop();
-    void                        branchList();
-    void                        stashList();
-    void                        pull();
-    void                        push();
+    void showCommit();
+    void startCommit();
+    void stash();
+    void stashPop();
+    void branchList();
+    void stashList();
+    void pull();
+    void push();
 
 private:
-    QFileInfo                   currentFile() const;
-    Core::IEditor               *openSubmitEditor(const QString &fileName, const CommitData &cd);
-    void                        cleanChangeTmpFile();
+    QFileInfo currentFile() const;
+    Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
+    void cleanChangeTmpFile();
 
-    static GitPlugin            *m_instance;
-    Core::ICore                 *m_core;
-    QAction                     *m_diffAction;
-    QAction                     *m_diffProjectAction;
-    QAction                     *m_statusAction;
-    QAction                     *m_statusProjectAction;
-    QAction                     *m_logAction;
-    QAction                     *m_blameAction;
-    QAction                     *m_logProjectAction;
-    QAction                     *m_undoFileAction;
-    QAction                     *m_undoProjectAction;
-    QAction                     *m_showAction;
-    QAction                     *m_stageAction;
-    QAction                     *m_unstageAction;
-    QAction                     *m_revertAction;
-    QAction                     *m_commitAction;
-    QAction                     *m_pullAction;
-    QAction                     *m_pushAction;
+    static GitPlugin *m_instance;
+    Core::ICore *m_core;
+    QAction *m_diffAction;
+    QAction *m_diffProjectAction;
+    QAction *m_statusAction;
+    QAction *m_statusProjectAction;
+    QAction *m_logAction;
+    QAction *m_blameAction;
+    QAction *m_logProjectAction;
+    QAction *m_undoFileAction;
+    QAction *m_undoProjectAction;
+    QAction *m_showAction;
+    QAction *m_stageAction;
+    QAction *m_unstageAction;
+    QAction *m_revertAction;
+    QAction *m_commitAction;
+    QAction *m_pullAction;
+    QAction *m_pushAction;
 
-    QAction                     *m_submitCurrentAction;
-    QAction                     *m_diffSelectedFilesAction;
-    QAction                     *m_undoAction;
-    QAction                     *m_redoAction;
-    QAction                     *m_stashAction;
-    QAction                     *m_stashPopAction;
-    QAction                     *m_stashListAction;
-    QAction                     *m_branchListAction;
+    QAction *m_submitCurrentAction;
+    QAction *m_diffSelectedFilesAction;
+    QAction *m_undoAction;
+    QAction *m_redoAction;
+    QAction *m_stashAction;
+    QAction *m_stashPopAction;
+    QAction *m_stashListAction;
+    QAction *m_branchListAction;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     GitClient                   *m_gitClient;

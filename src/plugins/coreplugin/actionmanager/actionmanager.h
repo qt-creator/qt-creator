@@ -36,8 +36,8 @@
 
 #include "coreplugin/core_global.h"
 
-#include <coreplugin/actionmanager/iactioncontainer.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -57,14 +57,14 @@ public:
     ActionManager(QObject *parent = 0) : QObject(parent) {}
     virtual ~ActionManager() {}
 
-    virtual IActionContainer *createMenu(const QString &id) = 0;
-    virtual IActionContainer *createMenuBar(const QString &id) = 0;
+    virtual ActionContainer *createMenu(const QString &id) = 0;
+    virtual ActionContainer *createMenuBar(const QString &id) = 0;
 
-    virtual ICommand *registerAction(QAction *action, const QString &id, const QList<int> &context) = 0;
-    virtual ICommand *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
+    virtual Command *registerAction(QAction *action, const QString &id, const QList<int> &context) = 0;
+    virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
 
-    virtual ICommand *command(const QString &id) const = 0;
-    virtual IActionContainer *actionContainer(const QString &id) const = 0;
+    virtual Command *command(const QString &id) const = 0;
+    virtual ActionContainer *actionContainer(const QString &id) const = 0;
 };
 
 } // namespace Core

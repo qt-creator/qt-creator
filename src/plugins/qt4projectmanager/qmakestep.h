@@ -34,10 +34,12 @@
 #ifndef QMAKESTEP_H
 #define QMAKESTEP_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include "ui_qmakestep.h"
+
+#include <projectexplorer/abstractprocessstep.h>
+
 #include <QStringList>
 
-#include "ui_qmakestep.h"
 
 namespace Qt4ProjectManager {
 
@@ -46,10 +48,11 @@ class Qt4Project;
 class QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+
 public:
     QMakeStep(Qt4Project * project);
     ~QMakeStep();
-    virtual bool init(const QString & name);
+    virtual bool init(const QString &name);
     virtual void run(QFutureInterface<bool> &);
     virtual QString name();
     virtual QString displayName();
@@ -58,6 +61,7 @@ public:
     QStringList arguments(const QString &buildConfiguration);
     void setForced(bool b);
     bool forced();
+
 protected:
     virtual void processStartupFailed();
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);

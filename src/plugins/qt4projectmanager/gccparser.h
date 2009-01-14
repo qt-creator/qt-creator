@@ -34,7 +34,7 @@
 #ifndef GCCPARSER_H
 #define GCCPARSER_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildparserinterface.h>
 
 #include <QtCore/QRegExp>
 

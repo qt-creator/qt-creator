@@ -39,8 +39,7 @@
 #include "iview.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
-#include <extensionsystem/ExtensionSystemInterfaces>
+#include <coreplugin/actionmanager/command.h>
 #include <aggregation/aggregate.h>
 
 #include <QtCore/QSettings>

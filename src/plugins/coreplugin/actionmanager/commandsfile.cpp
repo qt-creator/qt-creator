@@ -34,7 +34,7 @@
 #include "coreimpl.h"
 #include "commandsfile.h"
 #include "shortcutsettings.h"
-#include "command.h"
+#include "command_p.h"
 
 #include <coreplugin/uniqueidmanager.h>
 

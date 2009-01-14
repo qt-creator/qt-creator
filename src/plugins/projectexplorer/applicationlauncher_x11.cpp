@@ -34,10 +34,7 @@
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 
-#include <projectexplorer/ProjectExplorerInterfaces>
-
 #include <QtCore/QTimer>
-#include <QtDebug>
 
 using namespace ProjectExplorer::Internal;
 
