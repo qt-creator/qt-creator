@@ -217,6 +217,48 @@
 
     ### SCREENSHOT of the editor in action
 
+
+    \table
+        \row
+            \i  Block navigation
+            \i  To navigate between blocks, e.g., from one \c{\{} to another
+                \c{\c}}, use \key{Ctrl+[} and \key{Ctrl+]}.
+        \row
+            \i  Block selection
+            \i  To select a current block, use \key{Ctrl+U}. Pressing
+                \key{Ctrl+U} again extends the selection to the parent block.
+                To deselect, use \key{Ctrl+Shift+U}.    
+        \row
+            \i  Moving lines up and down
+            \i
+
+        \row
+            \i  Completion
+            \i
+
+        \row
+            \i  Indenting
+            \i
+        \row
+            \i  Commenting or Uncommenting
+            \i
+    \endtable
+
+
+    More:
+
+    Collapse
+
+    Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
+
+    F2 and Shift F2 - follows symbols under the cursor (works for namespaces, classes, methods, variables, includes, macros).
+
+    F4 - switch header and source
+
+    Ctrl + Scroll wheel -- used to quickly change the font size (handy for presentatiaons)
+
+
+
     To switch to an external editor, select \gui{Open in external editor} from
     the \gui{Edit -> Advanced} menu.
 
