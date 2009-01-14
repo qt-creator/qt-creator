@@ -283,11 +283,12 @@ bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
     outputModeWidget->setLayout(new QVBoxLayout);
     outputModeWidget->layout()->setMargin(0);
     outputModeWidget->layout()->setSpacing(0);
-    m_outputMode = new BaseMode(tr("Output"),
-                                Constants::MODE_OUTPUT,
-                                QIcon(QLatin1String(":/fancyactionbar/images/mode_Output.png")),
-                                Constants::P_MODE_OUTPUT,
-                                outputModeWidget);
+    m_outputMode = new BaseMode;
+    m_outputMode->setName(tr("Output"));
+    m_outputMode->setUniqueModeName(Constants::MODE_OUTPUT);
+    m_outputMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Output.png")));
+    m_outputMode->setPriority(Constants::P_MODE_OUTPUT);
+    m_outputMode->setWidget(outputModeWidget);
     OutputPanePlaceHolder *oph = new OutputPanePlaceHolder(m_outputMode);
     oph->setVisible(true);
     oph->setCloseable(false);

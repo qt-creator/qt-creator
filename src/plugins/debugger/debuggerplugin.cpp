@@ -163,10 +163,12 @@ public:
 } // namespace Debugger
 
 DebugMode::DebugMode(QObject *parent)
-  : BaseMode(tr("Debug"), Constants::MODE_DEBUG,
-             QIcon(":/fancyactionbar/images/mode_Debug.png"),
-             Constants::P_MODE_DEBUG, 0, parent)
+  : BaseMode(parent)
 {
+    setName(tr("Debug"));
+    setUniqueModeName(Constants::MODE_DEBUG);
+    setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
+    setPriority(Constants::P_MODE_DEBUG);
 }
 
 DebugMode::~DebugMode()

@@ -49,12 +49,6 @@ class CORE_EXPORT BaseMode
 
 public:
     BaseMode(QObject *parent = 0);
-    BaseMode(const QString &name,
-             const char * uniqueModeName,
-             const QIcon &icon,
-             int priority,
-             QWidget *widget,
-             QObject *parent = 0);
     ~BaseMode();
 
     // IMode

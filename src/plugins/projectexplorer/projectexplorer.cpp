@@ -181,11 +181,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     QList<int> pecontext;
     pecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
 
-    Core::BaseMode *mode = new Core::BaseMode(tr("Projects"),
-                                              Constants::MODE_SESSION,
-                                              QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")),
-                                              Constants::P_MODE_SESSION,
-                                              m_proWindow);
+    Core::BaseMode *mode = new Core::BaseMode;
+    mode->setName(tr("Projects"));
+    mode->setUniqueModeName(Constants::MODE_SESSION);
+    mode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
+    mode->setPriority(Constants::P_MODE_SESSION);
+    mode->setWidget(m_proWindow);
     mode->setContext(QList<int>() << pecontext);
     addAutoReleasedObject(mode);
     m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(mode));
