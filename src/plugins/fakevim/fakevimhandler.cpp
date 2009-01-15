@@ -35,9 +35,16 @@
 
 #include "fakevimconstants.h"
 
+// Please do not add any direct dependencies to other Qt Creator code  here. 
+// Instead emit signals and let the FakeVimPlugin channel the information to
+// Qt Creator. The idea is to keep this file here in a "clean" state that
+// allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
+
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <texteditor/basetexteditor.h>
+
+//#include <indenter.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -57,11 +64,6 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
-//#include <texteditor/basetexteditor.h>
-//#include <texteditor/textblockiterator.h>
-//#include <cppeditor/cppeditor.h>
-
-//#include <indenter.h>
 
 using namespace FakeVim::Internal;
 using namespace FakeVim::Constants;
