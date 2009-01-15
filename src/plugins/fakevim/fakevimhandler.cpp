@@ -222,7 +222,6 @@ public:
     bool m_wasReadOnly; // saves read-only state of document
 
     FakeVimHandler *q;
-    Core::ICore *m_core;
     Mode m_mode;
     SubMode m_submode;
     SubSubMode m_subsubmode;
@@ -242,7 +241,6 @@ public:
 
     QString m_commandBuffer;
     QString m_currentFileName;
-    Core::IFile* m_currentFile;
     QString m_currentMessage;
 
     bool m_lastSearchForward;
@@ -304,8 +302,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
-
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";

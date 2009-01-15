@@ -240,8 +240,7 @@ void FakeVimPluginPrivate::writeFile(const QString &fileName,
     const QString &contents)
 {
     if (m_currentFile && fileName == m_currentFile->fileName()) {
-        // handle that as a special case for nicer interation with
-        // Creator core
+        // Handle that as a special case for nicer interaction with core
         m_core->fileManager()->blockFileChange(m_currentFile);
         m_currentFile->save(fileName);
         m_core->fileManager()->unblockFileChange(m_currentFile);
