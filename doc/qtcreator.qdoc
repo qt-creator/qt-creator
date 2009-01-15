@@ -840,7 +840,50 @@
 
     The versioning history of a file can be displayed by selecting the
     \gui{Log} (for \bold{git}) or \gui{Filelog (for \bold{Perforce} and
-    \bold{Subversion})} option. Typically, 
+    \bold{Subversion})} option. Typically, the log output will contain the
+    date, the commit message, and a change or revision identifier. If you
+    click on the identifier, a description of the change including the diff
+    will be displayed.
+
+    \image qtcreator-vcs-log.png
+    \image qtcreaotr-vcs-describe.png
+
+
+    \section2 Annotating Files
+
+    Annotation views are obtained by selecting \gui{Annotate} or \gui{Blame}.
+    This will display the lines of the file prepended by the change identifier
+    they originate from. Clicking on the change identifier shows a detailed
+    description of the file.
+
+
+    \section2 Committing Changes
+
+    Once you have finished making changes, you can submit them to the version
+    control system by choosing \gui{Commit} or \gui{Submit}. Qt Creator will
+    display a commit page containing a text editor, where you can enter your
+    commit message, and a checkable list of modified files to be included.
+    When you are done, click \gui{Commit} to start committing. In addition,
+    there is a \gui{Diff selected} button that brings up a diff view of the
+    files selected in the file list. Since the commit page is just another
+    editor, you can go back to it by closing the diff view. Alternatively, you
+    can view it from the editor combo box showing the \gui{Opened files}.
+
+    \image qtcreator-vcs-commit.png
+
+
+    \section2 Menu Entries Specific to git
+
+    The git sub-menu contains additional entries:
+
+    \table
+        \row
+            \i  \gui{Stash}
+            \i  Stash local changes prior to executing a \bold{pull}.
+        \row
+            \i
+            \i
+    \endtable
 
 */
 
