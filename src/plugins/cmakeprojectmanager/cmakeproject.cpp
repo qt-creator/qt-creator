@@ -548,8 +548,15 @@ void CMakeCbpParser::parseOption()
 {
     if (attributes().hasAttribute("title"))
         m_projectName = attributes().value("title").toString();
-    if(isStartElement())
-        parseUnknownElement();
+
+    while (!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if(isStartElement()) {
+            parseUnknownElement();
+        }
+    }
 }
 
 void CMakeCbpParser::parseMakeCommand()
