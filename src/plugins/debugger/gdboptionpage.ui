@@ -85,6 +85,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxUseTerminal">
+     <property name="toolTip">
+      <string>Start debugged process in a separte terminal.</string>
+     </property>
+     <property name="text">
+      <string>Start in terminal</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="checkBoxFastStart">
      <property name="toolTip">
       <string>Checking this will make the debugger start fast by loading only very few debug symbols on start up. This might lead to situations where breakpoints can not be set properly. So uncheck this option if you experience breakpoint related problems.</string>
