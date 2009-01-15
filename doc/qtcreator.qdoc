@@ -237,10 +237,14 @@
             \i
 
         \row
-            \i  Indenting
+            \i  Indenting Blocks
             \i
         \row
-            \i  Commenting or Uncommenting
+            \i  Commenting or Uncommenting Blocks
+            \i
+
+        \row
+            \i  Switch between Header and Source
             \i
     \endtable
 
@@ -261,6 +265,11 @@
 
     To switch to an external editor, select \gui{Open in external editor} from
     the \gui{Edit -> Advanced} menu.
+
+*/
+
+
+/*!
 
 */
 
@@ -756,6 +765,41 @@
     \note By default, if you press \key{Ctrl+K} and do not use a prefix to
     specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
 
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-navigation.html
+    \page creator-version-control.html
+    \nextpage creator-debugging.html
+
+    \title Qt Creator and Version Control Systems
+
+    \table
+        \caption    Version control systems supported by Qt Creator
+        \row
+            \i  \bold{git}
+            \i  \l{http://git-scm.com/}
+        \row
+            \i  \bold{Subversion}
+            \i  \l{http://subversion.tigris.org/}
+        \row
+            \i  \bold{Perforce}
+            \i  \l{http://www.perforce.com}
+    \endtable
+
+
+    \section1 Setup
+
+    Qt Creator uses the version control system's command line clients to
+    access your repositories. To set it up, you must ensure that these command
+    line clients can be located via the \c{PATH} environment variable. You can
+    specify the path to the command line client's executable in the settings    
+    pages that can be found under \gui{Options...} in the \gui{Tools} menu.
+
+    
+
+    
 */
 
 
