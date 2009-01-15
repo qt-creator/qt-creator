@@ -730,9 +730,7 @@ namespace {
 // updateSourceFiles() for files that changed
 // It does so by storing a modification time for each ui file we know about.
 
-// TODO this function should also be called if the build configuration changes
-// since the build directory could change, and thus the generated files that are present
-// TODO check that it works
+// TODO this function should also be called if the build directory is changed
 void Qt4ProFileNode::updateUiFiles()
 {
     // Only those two project types can have ui files for us
