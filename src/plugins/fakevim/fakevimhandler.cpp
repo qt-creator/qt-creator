@@ -40,10 +40,6 @@
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
 
-#include <coreplugin/filemanager.h>
-#include <coreplugin/icore.h>
-#include <texteditor/basetexteditor.h>
-
 //#include <indenter.h>
 
 #include <QtCore/QDebug>
@@ -1200,18 +1196,11 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         bool exists = file.exists();
         if (exists && !forced && !noArgs) {
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
-        } else if (m_currentFile || file.open(QIODevice::ReadWrite)) {
-            if(m_currentFile) {
-                m_core->fileManager()->blockFileChange(m_currentFile);
-                m_currentFile->save(fileName);
-                m_core->fileManager()->unblockFileChange(m_currentFile);
-            } else {
-                QTextCursor tc = selectRange(beginLine, endLine);
-                qDebug() << "ANCHOR: " << tc.position() << tc.anchor()
-                    << tc.selection().toPlainText();
-                { QTextStream ts(&file); ts << tc.selection().toPlainText(); }
-                file.close();
-            }
+        } else if (file.open(QIODevice::ReadWrite)) {
+            QTextCursor tc = selectRange(beginLine, endLine);
+            QString contents = tc.selection().toPlainText();
+            emit q->writeFile(fileName, contents);
+            // check by reading back
             file.open(QIODevice::ReadOnly);
             QByteArray ba = file.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
@@ -1741,11 +1730,6 @@ void FakeVimHandler::Private::setWidget(QWidget *ob)
 {
     m_textedit = qobject_cast<QTextEdit *>(ob);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
-    TextEditor::BaseTextEditor* editor = qobject_cast<TextEditor::BaseTextEditor*>(ob);
-    if (editor) {
-        m_currentFile = editor->file();
-        m_currentFileName = m_currentFile->fileName();
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1833,4 +1817,9 @@ void FakeVimHandler::setConfigValue(const QString &key, const QString &value)
 void FakeVimHandler::quit()
 {
     d->quit();
+}
+
+void FakeVimHandler::setCurrentFileName(const QString &fileName)
+{
+   d->m_currentFileName = fileName;
 }
