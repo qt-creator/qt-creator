@@ -83,6 +83,7 @@ public:
     // ApplicationOutputspecifics
     void createNewOutputWindow(RunControl *rc);
     void appendOutput(RunControl *rc, const QString &out);
+    void appendOutputInline(RunControl *rc, const QString &out);
     void showTabFor(RunControl *rc);
     
 public slots:
@@ -119,6 +120,7 @@ public:
     ~OutputWindow();
 
     void appendOutput(const QString &out);
+    void appendOutputInline(const QString &out);
     void insertLine();
 };
 

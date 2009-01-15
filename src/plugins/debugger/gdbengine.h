@@ -93,7 +93,7 @@ signals:
     void gdbResponseAvailable();
     void gdbInputAvailable(const QString &prefix, const QString &msg);
     void gdbOutputAvailable(const QString &prefix, const QString &msg);
-    void applicationOutputAvailable(const QString &prefix, const QString &msg);
+    void applicationOutputAvailable(const QString &output);
 
 private:
     //

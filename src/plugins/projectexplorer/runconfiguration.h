@@ -143,6 +143,7 @@ public:
     QSharedPointer<RunConfiguration> runConfiguration();
 signals:
     void addToOutputWindow(RunControl *, const QString &line);
+    void addToOutputWindowInline(RunControl *, const QString &line);
     void error(RunControl *, const QString &error);
     void started();
     void finished();

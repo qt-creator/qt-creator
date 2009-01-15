@@ -590,9 +590,9 @@ void DebuggerManager::notifyInferiorPidChanged(int pid)
     emit inferiorPidChanged(pid);
 }
 
-void DebuggerManager::showApplicationOutput(const QString &prefix, const QString &str)
+void DebuggerManager::showApplicationOutput(const QString &str)
 {
-     emit applicationOutputAvailable(prefix, str);
+     emit applicationOutputAvailable(str);
 }
 
 void DebuggerManager::shutdown()

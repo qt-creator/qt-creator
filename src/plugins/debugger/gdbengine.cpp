@@ -275,8 +275,8 @@ void GdbEngine::init()
     connect(this, SIGNAL(gdbInputAvailable(QString,QString)),
         q, SLOT(showDebuggerInput(QString,QString)),
         Qt::QueuedConnection);
-    connect(this, SIGNAL(applicationOutputAvailable(QString,QString)),
-        q, SLOT(showApplicationOutput(QString,QString)),
+    connect(this, SIGNAL(applicationOutputAvailable(QString)),
+        q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 }
 
@@ -419,7 +419,7 @@ void GdbEngine::handleResponse()
             //s += '\n';
 
             m_inbuffer = QByteArray(from, to - from);
-            emit applicationOutputAvailable("app-stdout: ", s);
+            emit applicationOutputAvailable(s);
             continue;
         }
 
@@ -591,7 +591,7 @@ static void fixMac(QByteArray &out)
 void GdbEngine::readGdbStandardError()
 {
     QByteArray err = m_gdbProc.readAllStandardError();
-    emit applicationOutputAvailable("app-stderr:", err);
+    emit applicationOutputAvailable(err);
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -1078,7 +1078,7 @@ void GdbEngine::handleStreamOutput(const QString &data, char code)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                qq->showApplicationOutput(QString(), data);
+                qq->showApplicationOutput(data);
             break;
     }
 

@@ -41,6 +41,7 @@ using namespace ProjectExplorer::Internal;
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent)
 {
+    m_outputCodec = QTextCodec::codecForLocale();
     m_currentMode = Gui;
     m_guiProcess = new QProcess(this);
     m_guiProcess->setReadChannelMode(QProcess::MergedChannels);
@@ -132,13 +133,9 @@ void ApplicationLauncher::guiProcessError()
 
 void ApplicationLauncher::readStandardOutput()
 {
-    m_guiProcess->setReadChannel(QProcess::StandardOutput);
-    while (m_guiProcess->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_guiProcess->readLine());
-        if (line.endsWith(QLatin1Char('\n')))
-            line.chop(1);
-        emit appendOutput(line);
-    }
+    QByteArray data = m_guiProcess->readAllStandardOutput();
+    emit appendOutput(m_outputCodec->toUnicode(
+            data.constData(), data.length(), &m_outputCodecState));
 }
 
 void ApplicationLauncher::processStopped()
