@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,12 +34,12 @@
 #ifndef FORMEDITORW_H
 #define FORMEDITORW_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
-#include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 #include "designerconstants.h"
 
@@ -65,8 +65,8 @@ namespace qdesigner_internal {
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionManagerInterface;
-class IActionContainer;
+class ActionManager;
+class ActionContainer;
 class ICore;
 class IEditor;
 }
@@ -142,7 +142,7 @@ private:
     typedef QList<FormWindowEditor *> EditorList;
 
     void setupActions();
-    Core::IActionContainer *createPreviewStyleMenu(Core::ActionManagerInterface *am,
+    Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -48,7 +48,7 @@
 #include <coreplugin/baseview.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
 
@@ -76,8 +76,7 @@ QuickOpenPlugin::~QuickOpenPlugin()
     delete m_openDocumentsFilter;
     delete m_fileSystemFilter;
     delete m_settingsPage;
-    foreach (IQuickOpenFilter *filter, m_customFilter)
-        delete filter;
+    qDeleteAll(m_customFilters);
 }
 
 bool QuickOpenPlugin::initialize(const QStringList &, QString *)
@@ -97,11 +96,11 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 
     const QString actionId = QLatin1String("QtCreator.View.QuickOpen.ToolWindow");
     QAction *action = new QAction(m_quickOpenToolWindow->windowIcon(), m_quickOpenToolWindow->windowTitle(), this);
-    Core::ICommand *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
+    Core::Command *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openQuickOpen()));
 
-    Core::IActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
 
     addObject(new QuickOpenManager(m_quickOpenToolWindow));
@@ -125,8 +124,8 @@ void QuickOpenPlugin::openQuickOpen()
 
 void QuickOpenPlugin::extensionsInitialized()
 {
-    m_filter = ExtensionSystem::PluginManager::instance()->getObjects<IQuickOpenFilter>();
-    qSort(m_filter.begin(), m_filter.end(), filterLessThan);
+    m_filters = ExtensionSystem::PluginManager::instance()->getObjects<IQuickOpenFilter>();
+    qSort(m_filters.begin(), m_filters.end(), filterLessThan);
 }
 
 void QuickOpenPlugin::startSettingsLoad()
@@ -141,7 +140,7 @@ void QuickOpenPlugin::loadSettings()
     QSettings settings;
     settings.beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings.value("RefreshInterval", 60).toInt()*60000);
-    foreach (IQuickOpenFilter *filter, m_filter) {
+    foreach (IQuickOpenFilter *filter, m_filters) {
         if (settings.contains(filter->name())) {
             const QByteArray state = settings.value(filter->name()).toByteArray();
             if (!state.isEmpty())
@@ -153,10 +152,10 @@ void QuickOpenPlugin::loadSettings()
     foreach (const QString &key, settings.childKeys()) {
         IQuickOpenFilter *filter = new DirectoryFilter(core);
         filter->restoreState(settings.value(key).toByteArray());
-        m_filter.append(filter);
+        m_filters.append(filter);
         customFilters.append(filter);
     }
-    setCustomFilter(customFilters);
+    setCustomFilters(customFilters);
     settings.endGroup();
     settings.endGroup();
 }
@@ -176,14 +175,14 @@ void QuickOpenPlugin::saveSettings()
         s->beginGroup("QuickOpen");
         s->setValue("Interval", m_refreshTimer.interval()/60000);
         s->remove("");
-        foreach (IQuickOpenFilter *filter, m_filter) {
-            if (!m_customFilter.contains(filter)) {
+        foreach (IQuickOpenFilter *filter, m_filters) {
+            if (!m_customFilters.contains(filter)) {
                 s->setValue(filter->name(), filter->saveState());
             }
         }
         s->beginGroup("CustomFilters");
         int i = 0;
-        foreach (IQuickOpenFilter *filter, m_customFilter) {
+        foreach (IQuickOpenFilter *filter, m_customFilters) {
             s->setValue(QString("directory%1").arg(i), filter->saveState());
             ++i;
         }
@@ -197,9 +196,9 @@ void QuickOpenPlugin::saveSettings()
 
     Return all filters, including the ones created by the user.
 */
-QList<IQuickOpenFilter*> QuickOpenPlugin::filter()
+QList<IQuickOpenFilter*> QuickOpenPlugin::filters()
 {
-    return m_filter;
+    return m_filters;
 }
 
 /*!
@@ -208,20 +207,20 @@ QList<IQuickOpenFilter*> QuickOpenPlugin::filter()
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */
-QList<IQuickOpenFilter*> QuickOpenPlugin::customFilter()
+QList<IQuickOpenFilter*> QuickOpenPlugin::customFilters()
 {
-    return m_customFilter;
+    return m_customFilters;
 }
 
-void QuickOpenPlugin::setFilter(QList<IQuickOpenFilter*> f)
+void QuickOpenPlugin::setFilters(QList<IQuickOpenFilter*> f)
 {
-    m_filter = f;
+    m_filters = f;
     m_quickOpenToolWindow->updateFilterList();
 }
 
-void QuickOpenPlugin::setCustomFilter(QList<IQuickOpenFilter *> filter)
+void QuickOpenPlugin::setCustomFilters(QList<IQuickOpenFilter *> filters)
 {
-    m_customFilter = filter;
+    m_customFilters = filters;
 }
 
 int QuickOpenPlugin::refreshInterval()
@@ -243,10 +242,10 @@ void QuickOpenPlugin::setRefreshInterval(int interval)
 void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
 {
     if (filters.isEmpty())
-        filters = m_filter;
+        filters = m_filters;
     QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
     Core::FutureProgress *progress = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
-            ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManagerInterface::CloseOnSuccess);
+            ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 

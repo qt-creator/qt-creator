@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -45,7 +45,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
@@ -81,7 +81,7 @@ CppToolsPlugin::~CppToolsPlugin()
 bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
     m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManagerInterface *am = m_core->actionManager();
+    Core::ActionManager *am = m_core->actionManager();
 
     // Objects
     m_modelManager = new CppModelManager(this);
@@ -96,8 +96,8 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
 
     // Menus
-    Core::IActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
-    Core::IActionContainer *mcpptools = am->createMenu(CppTools::Constants::M_TOOLS_CPP);
+    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mcpptools = am->createMenu(CppTools::Constants::M_TOOLS_CPP);
     QMenu *menu = mcpptools->menu();
     menu->setTitle(tr("&C++"));
     menu->setEnabled(true);
@@ -108,7 +108,7 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     QList<int> context = QList<int>() << m_context;
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
-    Core::ICommand *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);
+    Core::Command *command = am->registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));

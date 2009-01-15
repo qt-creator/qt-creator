@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -33,15 +33,15 @@
 
 #include "shortcutsettings.h"
 #include "ui_shortcutsettings.h"
-#include "actionmanager.h"
-#include "command.h"
+#include "actionmanager_p.h"
+#include "command_p.h"
 #include "coreconstants.h"
 #include "coreimpl.h"
 #include "commandsfile.h"
 #include "filemanager.h"
 
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/icommand.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>
@@ -120,14 +120,14 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     return w;
 }
 
-void ShortcutSettings::finished(bool accepted)
+void ShortcutSettings::apply()
 {
-    if (accepted) {
-        foreach (ShortcutItem *item, m_scitems) {
-            item->m_cmd->setKeySequence(item->m_key);
-        }
-    }
+    foreach (ShortcutItem *item, m_scitems)
+        item->m_cmd->setKeySequence(item->m_key);
+}
 
+void ShortcutSettings::finish()
+{
     qDeleteAll(m_scitems);
     m_scitems.clear();
 }
@@ -281,14 +281,14 @@ void ShortcutSettings::initialize()
 {
     QMap<QString, QTreeWidgetItem *> categories;
 
-    m_am = ActionManager::instance();
+    m_am = ActionManagerPrivate::instance();
     UniqueIDManager *uidm =
         CoreImpl::instance()->uniqueIDManager();
 
-    QList<Command *> cmds = m_am->commands();
+    QList<CommandPrivate *> cmds = m_am->commands();
     for (int i = 0; i < cmds.size(); ++i) {
-        Command *c = cmds.at(i);
-        if (c->hasAttribute(Command::CA_NonConfigureable))
+        CommandPrivate *c = cmds.at(i);
+        if (c->hasAttribute(CommandPrivate::CA_NonConfigureable))
             continue;
         if (c->action() && c->action()->isSeparator())
             continue;
@@ -313,7 +313,7 @@ void ShortcutSettings::initialize()
         item->setText(0, uidm->stringForUniqueIdentifier(c->id()));
 
         if (c->action()) {
-            QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
+            QString text = c->hasAttribute(CommandPrivate::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
             s->m_key = c->action()->shortcut();
             item->setText(1, text);
         } else {

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -80,23 +80,6 @@ enum DataDumperState
     DataDumperUnavailable,
 };
 
-
-class GdbSettings
-{
-public:
-    GdbSettings() { m_autoRun = m_autoQuit = false; }
-
-public:
-    QString m_gdbCmd;
-    QString m_gdbEnv;
-    bool m_autoRun;
-    bool m_autoQuit;
-
-    QString m_scriptFile;
-    QMap<QString, QVariant> m_typeMacros;
-};
-
-GdbSettings &theGdbSettings();
 
 class GdbEngine : public IDebuggerEngine
 {

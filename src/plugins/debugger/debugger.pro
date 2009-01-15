@@ -22,12 +22,10 @@ HEADERS += attachexternaldialog.h \
     debuggeroutputwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
-    mode.h \
     disassemblerhandler.h \
     disassemblerwindow.h \
     gdbengine.h \
     gdbmi.h \
-    gdboptionpage.h \
     idebuggerengine.h \
     imports.h \
     moduleshandler.h \
@@ -52,12 +50,10 @@ SOURCES += attachexternaldialog.cpp \
     debuggeroutputwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
-    mode.cpp \
     disassemblerhandler.cpp \
     disassemblerwindow.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
-    gdboptionpage.cpp \
     gdbengine.h \
     moduleshandler.cpp \
     moduleswindow.cpp \

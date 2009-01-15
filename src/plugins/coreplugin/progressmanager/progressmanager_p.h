@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,55 +31,44 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGER_DEBUGMODE_H
-#define DEBUGGER_DEBUGMODE_H
+#ifndef PROGRESSMANAGER_P_H
+#define PROGRESSMANAGER_P_H
 
-#include <coreplugin/basemode.h>
+#include "progressmanager.h"
 
-#include <QtCore/QList>
 #include <QtCore/QPointer>
+#include <QtCore/QList>
+#include <QtCore/QFutureWatcher>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QDockWidget;
-class QMainWindow;
-class QSettings;
-class QSplitter;
-class QToolBar;
-class QWidget;
-QT_END_NAMESPACE
-
-namespace Debugger {
+namespace Core {
 namespace Internal {
 
-class DebuggerManager;
+class ProgressView;
 
-class DebugMode : public Core::BaseMode
+class ProgressManagerPrivate : public Core::ProgressManager
 {
     Q_OBJECT
-
 public:
-    DebugMode(DebuggerManager *manager, QObject *parent = 0);
-    ~DebugMode();
+    ProgressManagerPrivate(QObject *parent = 0);
+    ~ProgressManagerPrivate();
+    void init();
 
-    // IMode
-    void activated();
-    void shutdown();
-    static QSettings *settings();
+    FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency);
+
+    QWidget *progressView();
+
+public slots:
+    void cancelTasks(const QString &type);
 
 private slots:
-    void focusCurrentEditor(Core::IMode *mode);
-
+    void taskFinished();
+    void cancelAllRunningTasks();
 private:
-    QToolBar *createToolBar();
-    void writeSettings() const;
-    void readSettings();
-
-    QPointer<DebuggerManager> m_manager;
-    QAction *m_toggleLockedAction;
+    QPointer<ProgressView> m_progressView;
+    QMap<QFutureWatcher<void> *, QString> m_runningTasks;
 };
 
 } // namespace Internal
-} // namespace Debugger
+} // namespace Core
 
-#endif // DEBUGGER_DEBUGMODE_H
+#endif // PROGRESSMANAGER_P_H

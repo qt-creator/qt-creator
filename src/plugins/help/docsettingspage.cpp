@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -38,7 +38,7 @@
 #include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
-    
+
 DocSettingsPage::DocSettingsPage(QHelpEngine *helpEngine)
     : m_helpEngine(helpEngine),
       m_registeredDocs(false)
@@ -64,16 +64,16 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    
+
     connect(m_ui.addButton, SIGNAL(clicked()),
             this, SLOT(addDocumentation()));
     connect(m_ui.removeButton, SIGNAL(clicked()),
             this, SLOT(removeDocumentation()));
-    
+
     m_ui.docsListWidget->addItems(m_helpEngine->registeredDocumentations());
     m_registeredDocs = false;
     m_removeDocs.clear();
-        
+
     return w;
 }
 
@@ -82,7 +82,7 @@ void DocSettingsPage::addDocumentation()
     QStringList files = QFileDialog::getOpenFileNames(m_ui.addButton->parentWidget(),
                             tr("Add Documentation"),
                             QString(), tr("Qt Help Files (*.qch)"));
-    
+
     if (files.isEmpty())
         return;
 
@@ -107,23 +107,20 @@ void DocSettingsPage::removeDocumentation()
     QListWidgetItem *item = m_ui.docsListWidget->currentItem();
     if (!item)
         return;
-    
+
     m_removeDocs.append(item->text());
     int row = m_ui.docsListWidget->currentRow();
-    m_ui.docsListWidget->takeItem(row);    
+    m_ui.docsListWidget->takeItem(row);
     if (row > 0)
         --row;
     if (m_ui.docsListWidget->count())
         m_ui.docsListWidget->setCurrentRow(row);
 
-    delete item;    
+    delete item;
 }
 
-void DocSettingsPage::finished(bool accepted)
+void DocSettingsPage::apply()
 {
-    if (!accepted)
-        return;
-
     emit dialogAccepted();
 }
 

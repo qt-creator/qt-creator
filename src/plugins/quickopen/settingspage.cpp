@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -67,30 +67,41 @@ QWidget *SettingsPage::createPage(QWidget *parent)
                 this, SLOT(removeCustomFilter()));
     }
     m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
-    m_filters = m_plugin->filter();
-    m_customFilters = m_plugin->customFilter();
+    m_filters = m_plugin->filters();
+    m_customFilters = m_plugin->customFilters();
     saveFilterStates();
     updateFilterList();
     return m_page;
 }
 
-void SettingsPage::finished(bool accepted)
+void SettingsPage::apply()
 {
-    if (!accepted) {
-        restoreFilterStates();
-        foreach (IQuickOpenFilter *filter, m_addedFilters)
-            delete filter;
-    } else {
-        foreach (IQuickOpenFilter *filter, m_removedFilters)
-            delete filter;
-        m_plugin->setFilter(m_filters);
-        m_plugin->setCustomFilter(m_customFilters);
-        m_plugin->setRefreshInterval(m_ui.refreshInterval->value());
-        requestRefresh();
-        m_plugin->saveSettings();
-    }
+    // Delete removed filters and clear added filters
+    qDeleteAll(m_removedFilters);
+    m_removedFilters.clear();
+    m_addedFilters.clear();
+
+    // Pass the new configuration on to the plugin
+    m_plugin->setFilters(m_filters);
+    m_plugin->setCustomFilters(m_customFilters);
+    m_plugin->setRefreshInterval(m_ui.refreshInterval->value());
+    requestRefresh();
+    m_plugin->saveSettings();
+    saveFilterStates();
+}
+
+void SettingsPage::finish()
+{
+    // If settings were applied, this shouldn't change anything. Otherwise it
+    // makes sure the filter states aren't changed permanently.
+    restoreFilterStates();
+
+    // Delete added filters and clear removed filters
+    qDeleteAll(m_addedFilters);
     m_addedFilters.clear();
     m_removedFilters.clear();
+
+    // Further cleanup
     m_filters.clear();
     m_customFilters.clear();
     m_refreshFilters.clear();

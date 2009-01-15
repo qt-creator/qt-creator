@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -38,9 +38,8 @@
 #include "uniqueidmanager.h"
 #include "iview.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <coreplugin/actionmanager/icommand.h>
-#include <extensionsystem/ExtensionSystemInterfaces>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <aggregation/aggregate.h>
 
 #include <QtCore/QSettings>

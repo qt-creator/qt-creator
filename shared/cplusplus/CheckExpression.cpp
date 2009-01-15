@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -330,6 +330,13 @@ bool CheckExpression::visit(QtMethodAST *ast)
                                            "argument should be anonymous");
         }
     }
+    return false;
+}
+
+bool CheckExpression::visit(CompoundLiteralAST *ast)
+{
+    /*FullySpecifiedType exprTy = */ semantic()->check(ast->type_id, _scope);
+    /*FullySpecifiedType initTy = */ semantic()->check(ast->initializer, _scope);
     return false;
 }
 

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,13 +31,13 @@
 **
 ***************************************************************************/
 
-#ifndef CE_SDK_HANDLER_INCL
-#define CE_SDK_HANDLER_INCL
+#ifndef CE_SDK_HANDLER_H
+#define CE_SDK_HANDLER_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
-#include <QStringList>
-#include <QDir>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 #define VCINSTALL_MACRO "$(VCInstallDir)"
 #define VSINSTALL_MACRO "$(VSInstallDir)"
@@ -105,4 +105,4 @@ inline QString CeSdkHandler::fixPaths(QString path) const
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // CE_SDK_HANDLER_INCL
+#endif // CE_SDK_HANDLER_H

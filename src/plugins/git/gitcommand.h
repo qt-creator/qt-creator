@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,33 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef PROGRESSMANAGERINTERFACE_H
-#define PROGRESSMANAGERINTERFACE_H
+#ifndef GITCOMMAND_H
+#define GITCOMMAND_H
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/progressmanager/futureprogress.h>
+#include <projectexplorer/environment.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QFuture>
-#include <QtGui/QIcon>
 
-namespace Core {
+namespace Git {
+namespace Internal {
 
-class CORE_EXPORT ProgressManagerInterface : public QObject
+class GitCommand : public QObject
 {
     Q_OBJECT
 public:
-    enum PersistentType { CloseOnSuccess, KeepOnFinish };
+    explicit GitCommand(const QString &workingDirectory,
+                        ProjectExplorer::Environment &environment);
 
-    ProgressManagerInterface(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ProgressManagerInterface() {}
 
-    virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency = KeepOnFinish) = 0;
+    void addJob(const QStringList &arguments);
+    void execute();
 
-public slots:
-    virtual void cancelTasks(const QString &type) = 0;
+private:
+    void run();
+
+Q_SIGNALS:
+    void outputData(const QByteArray&);
+    void errorText(const QString&);
+
+private:
+    struct Job {
+        explicit Job(const QStringList &a);
+
+        QStringList arguments;
+    };
+
+    QStringList environment() const;
+
+    const QString m_workingDirectory;
+    const QStringList m_environment;
+
+    QList<Job> m_jobs;
 };
 
-} // namespace Core
-
-#endif //PROGRESSMANAGERINTERFACE_H
+} // namespace Internal
+} // namespace Git
+#endif // GITCOMMAND_H

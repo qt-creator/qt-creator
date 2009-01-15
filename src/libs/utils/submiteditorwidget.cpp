@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -232,6 +232,16 @@ int SubmitEditorWidget::fileNameColumn() const
 void SubmitEditorWidget::setFileNameColumn(int c)
 {
     m_d->m_fileNameColumn = c;
+}
+
+QAbstractItemView::SelectionMode SubmitEditorWidget::fileListSelectionMode() const
+{
+    return m_d->m_ui.fileView->selectionMode();
+}
+
+void SubmitEditorWidget::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
+{
+    m_d->m_ui.fileView->setSelectionMode(sm);
 }
 
 void SubmitEditorWidget::setFileModel(QAbstractItemModel *model)

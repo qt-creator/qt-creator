@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -162,11 +162,8 @@ void QtVersionManager::updateUniqueIdToIndexMap()
         m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
 }
 
-void QtVersionManager::finished(bool accepted)
+void QtVersionManager::apply()
 {
-    if (!accepted)
-        return;
-
     m_widget->finish();
     QList<QtVersion*> newVersions = m_widget->versions();
     bool versionPathsChanged = m_versions.size() != newVersions.size();

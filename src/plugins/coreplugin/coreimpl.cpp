@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -64,7 +64,7 @@ void CoreImpl::showOptionsDialog(const QString &group, const QString &page)
     m_mainwindow->showOptionsDialog(group, page);
 }
 
-ActionManagerInterface *CoreImpl::actionManager() const
+ActionManager *CoreImpl::actionManager() const
 {
     return m_mainwindow->actionManager();
 }
@@ -94,12 +94,12 @@ EditorManager *CoreImpl::editorManager() const
     return m_mainwindow->editorManager();
 }
 
-ProgressManagerInterface *CoreImpl::progressManager() const
+ProgressManager *CoreImpl::progressManager() const
 {
     return m_mainwindow->progressManager();
 }
 
-ScriptManagerInterface *CoreImpl::scriptManager() const
+ScriptManager *CoreImpl::scriptManager() const
 {
     return m_mainwindow->scriptManager();
 }

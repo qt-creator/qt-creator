@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -35,7 +35,7 @@
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <find/basetextfind.h>
@@ -78,7 +78,7 @@ OutputPane::OutputPane(Core::ICore *core)
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::ActionManagerInterface *am = core->actionManager();
+    Core::ActionManager *am = core->actionManager();
     QList<int> globalcontext;
     globalcontext.append(Core::Constants::C_GLOBAL_ID);
 
@@ -86,7 +86,7 @@ OutputPane::OutputPane(Core::ICore *core)
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
-    Core::ICommand *cmd = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
+    Core::Command *cmd = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
 
     m_stopButton = new QToolButton;

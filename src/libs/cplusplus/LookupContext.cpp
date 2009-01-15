@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -143,19 +143,59 @@ Identifier *LookupContext::identifier(Name *name) const
     return 0;
 }
 
+bool LookupContext::maybeValidSymbol(Symbol *symbol,
+                                     ResolveMode mode,
+                                     const QList<Symbol *> &candidates)
+{
+    if (((mode & ResolveNamespace) && symbol->isNamespace()) ||
+        ((mode & ResolveClass)     && symbol->isClass())     ||
+         (mode & ResolveSymbol)) {
+        return ! candidates.contains(symbol);
+    }
+
+    return false;
+}
+
 QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visibleScopes,
                                        ResolveMode mode) const
 {
     if (QualifiedNameId *q = name->asQualifiedNameId()) {
+        QList<Symbol *> candidates;
         QList<Scope *> scopes = visibleScopes;
+        Identifier *id = identifier(name);
+
+        foreach (Scope *scope, visibleScopes) {
+            Symbol *symbol = scope->lookat(id);
+            for (; symbol; symbol = symbol->next()) {
+                if (! symbol->name())
+                    continue;
+                else if (! maybeValidSymbol(symbol, mode, candidates))
+                    continue;
+                QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
+                if (! qq)
+                    continue;
+                if (q->nameCount() > qq->nameCount())
+                    continue;
+
+                for (int i = q->nameCount() - 1; i != -1; --i) {
+                    Name *a = q->nameAt(i);
+                    Name *b = qq->nameAt(i);
+
+                    if (! a->isEqualTo(b))
+                        break;
+                    else if (i == 0)
+                        candidates.append(symbol);
+                }
+            }
+        }
+
         for (unsigned i = 0; i < q->nameCount(); ++i) {
             Name *name = q->nameAt(i);
 
-            QList<Symbol *> candidates;
             if (i + 1 == q->nameCount())
-                candidates = resolve(name, scopes, mode);
+                candidates += resolve(name, scopes, mode);
             else
-                candidates = resolveClassOrNamespace(name, scopes);
+                candidates += resolveClassOrNamespace(name, scopes);
 
             if (candidates.isEmpty() || i + 1 == q->nameCount())
                 return candidates;
@@ -176,19 +216,41 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
         for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
             Scope *scope = visibleScopes.at(scopeIndex);
             for (Symbol *symbol = scope->lookat(id); symbol; symbol = symbol->next()) {
-                if (! symbol->name())
+                if (! symbol->name()) {
                     continue;
-                else if (symbol->name()->isQualifiedNameId())
+                } else if (! maybeValidSymbol(symbol, mode, candidates)) {
                     continue;
-                else if (! isNameCompatibleWithIdentifier(symbol->name(), id))
+                } else if (QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+                    if (! q->unqualifiedNameId()->isEqualTo(name))
+                        continue;
+
+                    if (q->nameCount() > 1) {
+                        Name *classOrNamespaceName =
+                                control()->qualifiedNameId(q->names(),
+                                                           q->nameCount() - 1);
+
+                        const QList<Symbol *> resolvedClassOrNamespace =
+                                resolveClassOrNamespace(classOrNamespaceName, visibleScopes);
+
+                        bool good = false;
+                        foreach (Symbol *classOrNamespace, resolvedClassOrNamespace) {
+                            ScopedSymbol *scoped = classOrNamespace->asScopedSymbol();
+                            if (visibleScopes.contains(scoped->members())) {
+                                good = true;
+                                break;
+                            }
+                        }
+
+                        if (! good)
+                            continue;
+                    }
+                } else if (! isNameCompatibleWithIdentifier(symbol->name(), id)) {
                     continue;
-                else if (symbol->name()->isDestructorNameId() != name->isDestructorNameId())
+                } else if (symbol->name()->isDestructorNameId() != name->isDestructorNameId()) {
                     continue;
-                else if ((((mode & ResolveNamespace) && symbol->isNamespace()) ||
-                          ((mode & ResolveClass) && symbol->isClass())         ||
-                          (mode & ResolveSymbol)) && ! candidates.contains(symbol)) {
-                    candidates.append(symbol);
                 }
+
+                candidates.append(symbol);
             }
         }
     } else if (OperatorNameId *opId = name->asOperatorNameId()) {
@@ -353,8 +415,8 @@ void LookupContext::expandClass(Scope *scope,
             }
 
             for (int j = 0; j < baseClassCandidates.size(); ++j) {
-                Class *baseClassSymbol = baseClassCandidates.at(j)->asClass();
-                expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
+                if (Class *baseClassSymbol = baseClassCandidates.at(j)->asClass())
+                    expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
             }
         }
     }

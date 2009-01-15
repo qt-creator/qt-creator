@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -33,12 +33,13 @@
 
 #include "msvcenvironment.h"
 
-#include <QSettings>
-#include <QFile>
-#include <QDebug>
-#include <QStringList>
-#include <QRegExp>
-#include <QTemporaryFile>
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QProcess>
+#include <QtCore/QRegExp>
+#include <QtCore/QSettings>
+#include <QtCore/QStringList>
+#include <QtCore/QTemporaryFile>
 
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::Environment;

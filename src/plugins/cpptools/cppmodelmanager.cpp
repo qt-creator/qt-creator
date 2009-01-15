@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -606,7 +606,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
                             CppTools::Constants::TASK_INDEX,
-                            Core::ProgressManagerInterface::CloseOnSuccess);
+                            Core::ProgressManager::CloseOnSuccess);
         }
         return result;
     }

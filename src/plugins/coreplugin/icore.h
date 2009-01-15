@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -50,15 +50,15 @@ QT_END_NAMESPACE
 namespace Core {
 
 // forward declarations
-class ActionManagerInterface;
+class ActionManager;
 class IFile;
 class FileManager;
 class MessageManager;
 class IEditor;
 class UniqueIDManager;
 class EditorManager;
-class ProgressManagerInterface;
-class ScriptManagerInterface;
+class ProgressManager;
+class ScriptManager;
 class VariableManager;
 class IContext;
 class VCSManager;
@@ -81,14 +81,14 @@ public:
     virtual void showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString()) = 0;
 
-    virtual ActionManagerInterface *actionManager() const = 0;
+    virtual ActionManager *actionManager() const = 0;
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;
     virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
-    virtual ProgressManagerInterface *progressManager() const = 0;
-    virtual ScriptManagerInterface *scriptManager() const = 0;
+    virtual ProgressManager *progressManager() const = 0;
+    virtual ScriptManager *scriptManager() const = 0;
     virtual VariableManager *variableManager() const = 0;
     virtual VCSManager *vcsManager() const = 0;
     virtual ModeManager *modeManager() const = 0;

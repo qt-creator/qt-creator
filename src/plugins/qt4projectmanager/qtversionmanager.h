@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -38,7 +38,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
@@ -172,7 +172,8 @@ public:
     QString trCategory() const;
 
     QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+    void apply();
+    void finish() { }
 
     void writeVersionsIntoSettings();
 

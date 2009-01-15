@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -39,10 +39,12 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QList>
+#include <QtGui/QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QAbstractItemModel;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -60,10 +62,6 @@ struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
     const char *mimeType;
     const char *kind;
     const char *context;
-    const char *undoActionId;
-    const char *redoActionId;
-    const char *submitActionId;
-    const char *diffActionId;
 };
 
 /* Base class for a submit editor based on the Core::Utils::SubmitEditorWidget
@@ -85,13 +83,15 @@ struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
  * signal and then asking the IFile interface of the editor to save the file
  * within a IFileManager::blockFileChange() section
  * and to launch the submit process. In addition, the action registered
- * for submit should be connected to a slot triggering the close of the
+ * for submit sho src/libs/utils/submiteditorwidget.h
+uld be connected to a slot triggering the close of the
  * current editor in the editor manager. */
 
 class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
+    Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
 public:
     typedef QList<int> Context;
 
@@ -100,10 +100,19 @@ protected:
                                  Core::Utils::SubmitEditorWidget *editorWidget);
 
 public:
+    // Register the actions with the submit editor widget.
+    void registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
+                         QAction *submitAction = 0, QAction *diffAction = 0);
+    void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
+                           QAction *submitAction = 0, QAction *diffAction = 0);
+
     virtual ~VCSBaseSubmitEditor();
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);
+
+    QAbstractItemView::SelectionMode fileListSelectionMode() const;
+    void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);

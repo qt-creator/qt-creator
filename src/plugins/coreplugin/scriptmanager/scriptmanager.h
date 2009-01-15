@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,39 +34,43 @@
 #ifndef SCRIPTMANAGER_H
 #define SCRIPTMANAGER_H
 
-#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/core_global.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QtCore/QString>
 #include <QtScript/QScriptEngine>
 
 namespace Core {
-namespace Internal {
 
-class ScriptManager : public Core::ScriptManagerInterface
+/* Script Manager.
+ * Provides a script engine that is initialized with
+ * Qt Creator's interfaces and allows for running scripts.
+ * @{todo} Should it actually manage script files, too? */
+
+class CORE_EXPORT ScriptManager : public QObject
 {
     Q_OBJECT
-
 public:
-    ScriptManager(QObject *parent, ICore *core);
+    // A stack frame as returned by a failed invocation (exception)
+    // fileName may be empty. lineNumber can be 0 for the top frame (goof-up?).
+    struct StackFrame {
+        QString function;
+        QString fileName;
+        int lineNumber;
+    };
+    typedef QList<StackFrame> Stack;
 
-    virtual QScriptEngine &scriptEngine();
+    ScriptManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ScriptManager() { }
 
-    virtual bool runScript(const QString &script, QString *errorMessage, Stack *stack);
-    virtual bool runScript(const QString &script, QString *errorMessage);
+    // Access the engine (for plugins to wrap additional interfaces).
+    virtual QScriptEngine &scriptEngine() = 0;
 
-    static QString engineError(QScriptEngine &scriptEngine);
-
-private:
-    void ensureEngineInitialized();
-
-    QScriptEngine m_engine;
-    ICore *m_core;
-    bool m_initialized;
+    // Run a script
+    virtual bool runScript(const QString &script, QString *errorMessage, Stack *errorStack) = 0;
+    virtual bool runScript(const QString &script, QString *errorMessage) = 0;
 };
 
-} // namespace Internal
 } // namespace Core
 
 #endif // SCRIPTMANAGER_H

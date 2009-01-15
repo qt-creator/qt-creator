@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -173,8 +173,10 @@ void FilterSettingsPage::removeFilter()
         m_ui.filterWidget->setCurrentRow(0);
 }
 
-void FilterSettingsPage::finished(bool)
+void FilterSettingsPage::apply()
 {    
+    // This is handled via HelpPlugin::checkForHelpChanges, which is connected
+    // to DocSettingsPage::apply.
 }
 
 bool FilterSettingsPage::applyChanges()

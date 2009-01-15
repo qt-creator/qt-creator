@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -167,8 +167,8 @@ private:
     virtual WatchHandler *watchHandler() = 0;
 
     virtual void showApplicationOutput(const QString &prefix, const QString &data) = 0;
-    virtual QAction *useCustomDumpersAction() const = 0;
-    virtual QAction *debugDumpersAction() const = 0;
+    //virtual QAction *useCustomDumpersAction() const = 0;
+    //virtual QAction *debugDumpersAction() const = 0;
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
@@ -181,31 +181,35 @@ private:
 
 
 //
-// IDebuggerManagerAccessForDebugMode
+// DebuggerSettings
 //
 
-class IDebuggerManagerAccessForDebugMode
+class DebuggerSettings
 {
 public:
-    virtual ~IDebuggerManagerAccessForDebugMode() {}
+    DebuggerSettings();
 
-private:
-    friend class DebugMode;
+public:
+    QString m_gdbCmd;
+    QString m_gdbEnv;
+    bool m_autoRun;
+    bool m_autoQuit;
 
-    virtual QWidget *threadsWindow() const = 0;
-    virtual QLabel *statusLabel() const = 0;
-    virtual QList<QDockWidget*> dockWidgets() const = 0;
-    virtual void createDockWidgets() = 0;
+    bool m_useCustomDumpers;
+    bool m_skipKnownFrames;
+    bool m_debugDumpers;
+    bool m_useFastStart;
+    bool m_useToolTips;
+
+    QString m_scriptFile;
 };
-
 
 //
 // DebuggerManager
 //
 
 class DebuggerManager : public QObject,
-    public IDebuggerManagerAccessForEngines,
-    public IDebuggerManagerAccessForDebugMode
+    public IDebuggerManagerAccessForEngines
 {
     Q_OBJECT
 
@@ -214,9 +218,9 @@ public:
     ~DebuggerManager();
 
     IDebuggerManagerAccessForEngines *engineInterface();
-    IDebuggerManagerAccessForDebugMode *debugModeInterface();
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
+    DebuggerSettings *settings() { return &m_settings; }
 
     enum StartMode { startInternal, startExternal, attachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
@@ -307,9 +311,9 @@ private:
     StackHandler *stackHandler() { return m_stackHandler; }
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
-    QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
-    QAction *useToolTipsAction() const { return m_useToolTipsAction; }
-    QAction *debugDumpersAction() const { return m_debugDumpersAction; }
+    //QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
+    //QAction *useToolTipsAction() const { return m_useToolTipsAction; }
+    //QAction *debugDumpersAction() const { return m_debugDumpersAction; }
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
@@ -362,7 +366,6 @@ signals:
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &prefix, const QString &msg);
-
 
 public:
     // FIXME: make private
@@ -427,13 +430,6 @@ private:
     QAction *m_sepAction;
     QAction *m_stepIAction;
     QAction *m_nextIAction;
-    QAction *m_skipKnownFramesAction;
-
-    QAction *m_debugDumpersAction;
-    QAction *m_useCustomDumpersAction;
-    QAction *m_useFastStartAction;
-    QAction *m_useToolTipsAction;
-    QAction *m_dumpLogAction;
 
     QWidget *m_breakWindow;
     QWidget *m_disassemblerWindow;
@@ -453,8 +449,8 @@ private:
 
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
+    DebuggerSettings m_settings;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

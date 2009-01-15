@@ -3,9 +3,9 @@ FAKEVIMHOME = ../../../src/plugins/fakevim
 
 SOURCES += \
 	main.cpp \
-	$$FAKEVIMHOME/handler.cpp
+	$$FAKEVIMHOME/fakevimhandler.cpp
 
 HEADERS += \
-	$$FAKEVIMHOME/handler.h
+	$$FAKEVIMHOME/fakevimhandler.h
 
 INCLUDEPATH += $$FAKEVIMHOME

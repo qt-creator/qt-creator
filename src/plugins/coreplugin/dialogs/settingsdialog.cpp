@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -126,20 +126,22 @@ void SettingsDialog::pageSelected(QTreeWidgetItem *)
 
 void SettingsDialog::accept()
 {
-    foreach (IOptionsPage *page, m_pages)
-        page->finished(true);
+    foreach (IOptionsPage *page, m_pages) {
+        page->apply();
+        page->finish();
+    }
     done(QDialog::Accepted);
 }
 
 void SettingsDialog::reject()
 {
     foreach (IOptionsPage *page, m_pages)
-        page->finished(false);
+        page->finish();
     done(QDialog::Rejected);
 }
 
 void SettingsDialog::apply()
 {
     foreach (IOptionsPage *page, m_pages)
-        page->finished(true);
+        page->apply();
 }

@@ -5,3 +5,4 @@
 #define __asm__(a...)
 #define   restrict
 #define __restrict
+#define __weak

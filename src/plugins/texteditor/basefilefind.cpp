@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,7 +34,7 @@
 #include "basefilefind.h"
 
 #include <coreplugin/stylehelper.h>
-#include <coreplugin/progressmanager/progressmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <find/textfindconstants.h>
 #include <texteditor/itexteditor.h>

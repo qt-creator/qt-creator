@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -37,10 +37,10 @@
 #include "bookmarksplugin.h"
 #include "bookmarks_global.h"
 
-#include <projectexplorer/ProjectExplorerInterfaces>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
 
@@ -49,6 +49,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QMenu>
 #include <QtGui/QPainter>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)

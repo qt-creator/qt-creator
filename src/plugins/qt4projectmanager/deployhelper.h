@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,7 +34,7 @@
 #ifndef DEPLOYHELPER_H
 #define DEPLOYHELPER_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildstep.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>

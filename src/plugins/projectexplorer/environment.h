@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -65,7 +65,7 @@ public:
     explicit Environment(QStringList env);
     static Environment systemEnvironment();
 
-    QStringList toStringList();
+    QStringList toStringList() const;
     QString value(const QString &key) const;
     void set(const QString &key, const QString &value);
     void unset(const QString &key);

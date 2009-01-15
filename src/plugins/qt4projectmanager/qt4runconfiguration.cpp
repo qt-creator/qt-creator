@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -306,14 +306,10 @@ QString Qt4RunConfiguration::qmakeBuildConfigFromBuildConfiguration(const QStrin
     QVariant qmakeBuildConfiguration = qs->value(buildConfigurationName, "buildConfiguration");
     if (qmakeBuildConfiguration.isValid()) {
         QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(qmakeBuildConfiguration.toInt());
-        if (projectBuildConfiguration & QtVersion::BuildAll) {
-            if (projectBuildConfiguration & QtVersion::DebugBuild)
-                return "debug";
-            else
-                return "release";
-        } else {
-            return "";
-        }
+        if (projectBuildConfiguration & QtVersion::DebugBuild)
+            return "debug";
+        else
+            return "release";
     } else {
         // Old sytle always CONFIG+=debug_and_release
         if (qobject_cast<Qt4Project *>(project())->qtVersion(buildConfigurationName)->defaultBuildConfig() & QtVersion::DebugBuild)

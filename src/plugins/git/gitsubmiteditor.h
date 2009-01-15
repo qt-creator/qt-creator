@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -38,6 +38,10 @@
 
 #include <QtCore/QStringList>
 
+namespace VCSBase {
+    class SubmitFileModel;
+}
+
 namespace Git {
 namespace Internal {
 
@@ -54,8 +58,16 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
 
+signals:
+    void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
+
+private slots:
+    void slotDiffSelected(const QStringList &);
+
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
+
+    VCSBase::SubmitFileModel *m_model;
 };
 
 } // namespace Internal

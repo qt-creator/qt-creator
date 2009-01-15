@@ -1,5 +1,5 @@
 
-#include "handler.h"
+#include "fakevimhandler.h"
 
 #include <QtCore/QDebug>
 
@@ -10,6 +10,25 @@
 #include <QtGui/QTextEdit>
 
 using namespace FakeVim::Internal;
+
+class Proxy : public QObject
+{
+    Q_OBJECT
+
+public:
+    Proxy(QWidget *widget) : QObject(0), m_widget(widget) {}
+
+public slots:
+    void changeSelection(QWidget *w, const QList<QTextEdit::ExtraSelection> &s)
+    {
+        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(w))
+            ed->setExtraSelections(s);
+        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(w))
+            ed->setExtraSelections(s);
+    }
+private:
+    QWidget *m_widget; 
+};
 
 int main(int argc, char *argv[])
 {
@@ -31,8 +50,10 @@ int main(int argc, char *argv[])
     widget->resize(450, 350);
     widget->setFocus();
 
+    Proxy proxy(widget);
 
-    FakeVimHandler fakeVim;
+
+    FakeVimHandler handler;
 
     QMainWindow mw;
     mw.setWindowTitle("Fakevim (" + title + ")");
@@ -50,14 +71,19 @@ int main(int argc, char *argv[])
     widget->setFont(font);
     mw.statusBar()->setFont(font);
 
-    QObject::connect(&fakeVim, SIGNAL(commandBufferChanged(QString)),
+    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
         mw.statusBar(), SLOT(showMessage(QString)));
-    QObject::connect(&fakeVim, SIGNAL(quitRequested(QWidget *)),
+    QObject::connect(&handler, SIGNAL(quitRequested(QWidget *)),
         &app, SLOT(quit()));
+    QObject::connect(&handler,
+        SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
+        &proxy, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
 
-    fakeVim.addWidget(widget);
+    handler.addWidget(widget);
     if (args.size() >= 1)
-        fakeVim.handleCommand(widget, "r " + args.at(0));
+        handler.handleCommand(widget, "r " + args.at(0));
 
     return app.exec();
 }
+
+#include "main.moc"

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -43,7 +43,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/itexteditor.h>
 #include <coreplugin/messageoutputwindow.h>
@@ -95,17 +95,17 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     addObject(m_settingsPage);
 
     //register actions
-    Core::ActionManagerInterface *actionManager = gCoreInstance->actionManager();
+    Core::ActionManager *actionManager = gCoreInstance->actionManager();
 
-    Core::IActionContainer *toolsContainer =
+    Core::ActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
 
-    Core::IActionContainer *cpContainer =
+    Core::ActionContainer *cpContainer =
         actionManager->createMenu(QLatin1String("CodePaster"));
     cpContainer->menu()->setTitle(tr("&CodePaster"));
     toolsContainer->addMenu(cpContainer);
 
-    Core::ICommand *command;
+    Core::Command *command;
 
     m_postAction = new QAction(tr("Paste snippet..."), this);
     command = actionManager->registerAction(m_postAction, "CodePaster.post", globalcontext);

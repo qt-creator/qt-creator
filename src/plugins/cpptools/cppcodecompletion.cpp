@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -77,7 +77,7 @@ namespace Internal {
 class FunctionArgumentWidget : public QLabel {
 public:
     FunctionArgumentWidget(Core::ICore *core);
-    void showFunctionHint(Function *functionSymbol);
+    void showFunctionHint(Function *functionSymbol, const Snapshot &snapshot);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -94,6 +94,7 @@ private:
 
     QFrame *m_popupFrame;
     Function *m_item;
+    Snapshot m_snapshot;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -212,9 +213,11 @@ FunctionArgumentWidget::FunctionArgumentWidget(Core::ICore *core)
     setMargin(1);
 }
 
-void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol)
+void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
+                                              const Snapshot &snapshot)
 {
     m_item = functionSymbol;
+    m_snapshot = snapshot;
     m_startpos = m_editor->position();
 
     // update the text
@@ -762,7 +765,7 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
 void CppCodeCompletion::addKeywords()
 {
     // keyword completion items.
-    for (int i = T_FIRST_KEYWORD; i < T_FIRST_QT_KEYWORD; ++i) {
+    for (int i = T_FIRST_KEYWORD; i < T_FIRST_OBJC_AT_KEYWORD; ++i) {
         TextEditor::CompletionItem item(this);
         item.m_text = QLatin1String(Token::name(i));
         item.m_icon = m_icons.keywordIcon();
@@ -913,7 +916,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     unsigned count = fun->argumentCount();
                     while (true) {
-                        TextEditor::CompletionItem i = item;
+                        TextEditor::CompletionItem ci = item;
 
                         QString signature;
                         signature += overview.prettyName(fun->name());
@@ -934,8 +937,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                         if (! signatures.contains(signature)) {
                             signatures.insert(signature);
 
-                            i.m_text = signature; // fix the completion item.
-                            m_completions.append(i);
+                            ci.m_text = signature; // fix the completion item.
+                            m_completions.append(ci);
                         }
 
                         if (count && fun->argumentAt(count - 1)->asArgument()->hasInitializer())
@@ -1023,7 +1026,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             QTC_ASSERT(function, return);
 
             m_functionArgumentWidget = new FunctionArgumentWidget(m_core);
-            m_functionArgumentWidget->showFunctionHint(function);
+            m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.snapshot());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         QString toInsert = item.m_text;

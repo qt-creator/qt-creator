@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,14 +31,42 @@
 **
 ***************************************************************************/
 
-#include "projectexplorer/buildparserinterface.h"
-#include "projectexplorer/projectexplorerconstants.h"
-#include "projectexplorer/project.h"
-#include "projectexplorer/buildstep.h"
-#include "projectexplorer/buildconfiguration.h"
-#include "projectexplorer/buildmanager.h"
-#include "projectexplorer/projectexplorer.h"
-#include "projectexplorer/persistentsettings.h"
-#include "projectexplorer/environment.h"
-#include "projectexplorer/environmenteditmodel.h"
-#include "projectexplorer/abstractprocessstep.h"
+#ifndef SCRIPTMANAGER_P_H
+#define SCRIPTMANAGER_P_H
+
+#include <coreplugin/scriptmanager/scriptmanager.h>
+#include <coreplugin/icore.h>
+
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include <QtScript/QScriptEngine>
+
+namespace Core {
+namespace Internal {
+
+class ScriptManagerPrivate : public Core::ScriptManager
+{
+    Q_OBJECT
+
+public:
+    ScriptManagerPrivate(QObject *parent, ICore *core);
+
+    virtual QScriptEngine &scriptEngine();
+
+    virtual bool runScript(const QString &script, QString *errorMessage, Stack *stack);
+    virtual bool runScript(const QString &script, QString *errorMessage);
+
+    static QString engineError(QScriptEngine &scriptEngine);
+
+private:
+    void ensureEngineInitialized();
+
+    QScriptEngine m_engine;
+    ICore *m_core;
+    bool m_initialized;
+};
+
+} // namespace Internal
+} // namespace Core
+
+#endif // SCRIPTMANAGER_P_H

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -40,8 +40,8 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icorelistener.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,7 +34,7 @@
 #ifndef MSVCPARSER_H
 #define MSVCPARSER_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildparserinterface.h>
 
 #include <QtCore/QRegExp>
 
@@ -58,4 +58,4 @@ private:
 
 } // namespace ProjectExplorer
 
-#endif // MsvcParser
+#endif // MSVCPARSER_H

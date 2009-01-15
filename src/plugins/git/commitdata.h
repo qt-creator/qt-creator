@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -76,6 +76,8 @@ struct CommitData
     // Parse the files and the branch of panelInfo
     // from a git status output
     bool parseFilesFromStatus(const QString &output);
+
+    bool filesEmpty() const;
 
     // Convenience to retrieve the file names from
     // the specification list. Optionally filter for a certain state

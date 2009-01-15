@@ -36,6 +36,9 @@ public:
     { return parse(source, TranslationUnit::ParseStatement); }
 
 private slots:
+    // declarations
+    void gcc_attributes_1();
+
     // expressions
     void simple_name();
     void template_id();
@@ -53,6 +56,13 @@ private slots:
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
 };
+
+void tst_AST::gcc_attributes_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+"static inline void *__attribute__((__always_inline__)) _mm_malloc(size_t size, size_t align);"
+    ));
+}
 
 void tst_AST::simple_name()
 {

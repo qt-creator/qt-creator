@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -54,7 +54,8 @@ public:
     virtual QString trCategory() const = 0;
 
     virtual QWidget *createPage(QWidget *parent) = 0;
-    virtual void finished(bool accepted) = 0;
+    virtual void apply() = 0;
+    virtual void finish() = 0;
 };
 
 } // namespace Core

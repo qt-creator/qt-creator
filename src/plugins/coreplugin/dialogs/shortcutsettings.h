@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -47,17 +47,16 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICommand;
+class Command;
 
 namespace Internal {
 
-class ActionManager;
-class Command;
+class ActionManagerPrivate;
 class MainWindow;
 
 struct ShortcutItem
 {
-    ICommand *m_cmd;
+    Command *m_cmd;
     QKeySequence m_key;
     QTreeWidgetItem *m_item;
 };
@@ -77,7 +76,8 @@ public:
     QString trCategory() const;
 
     QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+    void apply();
+    void finish();
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
@@ -101,7 +101,7 @@ private:
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
 
     QList<ShortcutItem *> m_scitems;
-    ActionManager *m_am;
+    ActionManagerPrivate *m_am;
     int m_key[4], m_keyNum;
     Ui_ShortcutSettings *m_page;
 };

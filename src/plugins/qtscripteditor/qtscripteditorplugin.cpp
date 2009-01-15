@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -42,7 +42,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -131,12 +131,12 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 
 void QtScriptEditorPlugin::registerActions(Core::ICore *core)
 {
-    Core::ActionManagerInterface *am = core->actionManager();
-    Core::IActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
+    Core::ActionManager *am = core->actionManager();
+    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);
     action->setSeparator(true);
-    Core::ICommand *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
+    Core::Command *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
     mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     action = new QAction(tr("Run"), this);

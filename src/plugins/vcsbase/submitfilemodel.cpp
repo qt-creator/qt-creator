@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -48,19 +48,46 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels(headerLabels);
 }
 
-QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, bool checked)
+QList<QStandardItem *> SubmitFileModel::createFileRow(const QString &fileName, const QString &status, bool checked)
 {
     if (VCSBase::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << fileName << status << checked;
     QStandardItem *statusItem = new QStandardItem(status);
     statusItem->setCheckable(true);
     statusItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    statusItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     QStandardItem *fileItem = new QStandardItem(fileName);
+    fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
+    return row;
+}
+
+QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, bool checked)
+{
+    const QList<QStandardItem *> row = createFileRow(fileName, status, checked);
     appendRow(row);
     return row;
 }
+
+QList<QStandardItem *> SubmitFileModel::rowAt(int row) const
+{
+    const int colCount = columnCount();
+    QList<QStandardItem *> rc;
+    for (int c = 0; c < colCount; c++)
+        rc.push_back(item(row, c));
+    return rc;
+}
+
+QList<QStandardItem *> SubmitFileModel::findRow(const QString &text, int column) const
+{
+    // Single item
+    const QList<QStandardItem *> items = findItems(text, Qt::MatchExactly, column);
+    if (items.empty())
+        return items;
+    // Compile row
+    return rowAt(items.front()->row());
+ }
 
 unsigned SubmitFileModel::filter(const QStringList &filter, int column)
 {

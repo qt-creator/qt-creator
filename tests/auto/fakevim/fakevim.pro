@@ -1,7 +1,7 @@
 
 QT += testlib
 
-FAKEVIMSOURCE = /data/qt-creator/src/plugins/fakevim
+FAKEVIMSOURCE = ../../../src/plugins/fakevim
 
 INCLUDEPATH += $$FAKEVIMSOURCE
 

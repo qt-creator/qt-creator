@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -36,7 +36,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <extensionsystem/ExtensionSystemInterfaces>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>

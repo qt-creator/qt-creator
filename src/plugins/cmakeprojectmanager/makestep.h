@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -36,9 +36,11 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {

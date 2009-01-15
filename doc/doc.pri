@@ -2,14 +2,18 @@ unix {
     QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$(QTDIR)/tools/qdoc3/qdoc3
     HELPGENERATOR = $$(QTDIR)/bin/qhelpgenerator
 } else {
-    QDOC = $$(QTDIR)\tools\qdoc3\release\qdoc3.exe
+    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$(QTDIR)\tools\qdoc3\release\qdoc3.exe
     HELPGENERATOR = $$(QTDIR)\bin\qhelpgenerator.exe
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$OUT_PWD/doc/qtcreator.qch
 
-html_docs.commands =$$QDOC $$PWD/qtcreator.qdocconf
+unix {
+html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
+} else {
+html_docs.commands = \"$$QDOC $$PWD/qtcreator.qdocconf\"
+}
 html_docs.depends += $$PWD/qtcreator.qdoc $$PWD/qtcreator.qdocconf
 html_docs.files = $$QHP_FILE
 

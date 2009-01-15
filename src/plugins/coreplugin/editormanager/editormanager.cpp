@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -48,7 +48,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
@@ -207,13 +207,13 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     const QList<int> editManagerContext =
             QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
-    ActionManagerInterface *am = m_d->m_core->actionManager();
-    IActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionManager *am = m_d->m_core->actionManager();
+    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
     //Revert to saved
-    ICommand *cmd = am->registerAction(m_d->m_revertToSavedAction,
+    Command *cmd = am->registerAction(m_d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
-    cmd->setAttribute(ICommand::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("Revert File to Saved"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_d->m_revertToSavedAction, SIGNAL(triggered()), this, SLOT(revertToSaved()));
@@ -227,7 +227,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
 
     //Window Menu
-    IActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     //Window menu separators
     QAction *tmpaction = new QAction(this);
@@ -258,7 +258,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     //Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_d->m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
@@ -315,8 +315,8 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
 
-    IActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    IActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
+    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
+    ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
     medit->addMenu(advancedMenu, Constants::G_EDIT_FORMAT);
     advancedMenu->menu()->setTitle(tr("&Advanced"));
 
@@ -1391,7 +1391,7 @@ void EditorManager::readSettings(QSettings *settings)
     if (settings->contains(QLatin1String("EditorManager/DocumentStates")))
         m_d->m_editorStates = settings->value(QLatin1String("EditorManager/DocumentStates"))
             .value<QMap<QString, QVariant> >();
-    if (settings->contains(QLatin1String("EditorManager/ExternalEditor")))
+    if (settings->contains(QLatin1String("EditorManager/ExternalEditorCommand")))
         m_d->m_externalEditor = settings->value(QLatin1String("EditorManager/ExternalEditorCommand")).toString();
 }
 

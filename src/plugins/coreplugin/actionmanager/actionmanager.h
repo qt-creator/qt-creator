@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,97 +34,39 @@
 #ifndef ACTIONMANAGER_H
 #define ACTIONMANAGER_H
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include "coreplugin/core_global.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QHash>
-#include <QtCore/QMultiHash>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
+
+#include <QtCore/QObject>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
+class QAction;
+class QShortcut;
+class QString;
 QT_END_NAMESPACE
-
-struct CommandLocation
-{
-    int m_container;
-    int m_position;
-};
 
 namespace Core {
 
-class UniqueIDManager;
-
-namespace Internal {
-
-class ActionContainer;
-class MainWindow;
-class Command;
-
-class ActionManager : public Core::ActionManagerInterface
+class CORE_EXPORT ActionManager : public QObject
 {
     Q_OBJECT
-
 public:
-    ActionManager(MainWindow *mainWnd, UniqueIDManager *uidmgr);
-    ~ActionManager();
+    ActionManager(QObject *parent = 0) : QObject(parent) {}
+    virtual ~ActionManager() {}
 
-    void setContext(const QList<int> &context);
-    static ActionManager* instance();
+    virtual ActionContainer *createMenu(const QString &id) = 0;
+    virtual ActionContainer *createMenuBar(const QString &id) = 0;
 
-    void saveSettings(QSettings *settings);
-    QList<int> defaultGroups() const;
+    virtual Command *registerAction(QAction *action, const QString &id, const QList<int> &context) = 0;
+    virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
 
-    QList<Command *> commands() const;
-    QList<ActionContainer *> containers() const;
-
-    bool hasContext(int context) const;
-
-    ICommand *command(int uid) const;
-    IActionContainer *actionContainer(int uid) const;
-
-    void registerGlobalGroup(int groupId, int containerId);
-
-    void initialize();
-
-    //ActionManager Interface
-    IActionContainer *createMenu(const QString &id);
-    IActionContainer *createMenuBar(const QString &id);
-
-    ICommand *registerAction(QAction *action, const QString &id,
-        const QList<int> &context);
-    ICommand *registerAction(QAction *action, const QString &id);
-    ICommand *registerShortcut(QShortcut *shortcut, const QString &id,
-        const QList<int> &context);
-
-    void addAction(Core::ICommand *action, const QString &globalGroup);
-    void addMenu(Core::IActionContainer *menu, const QString &globalGroup);
-
-    Core::ICommand *command(const QString &id) const;
-    Core::IActionContainer *actionContainer(const QString &id) const;
-
-private:
-    bool hasContext(QList<int> context) const;
-    ICommand *registerOverridableAction(QAction *action, const QString &id,
-        bool checkUnique);
-
-    static ActionManager* m_instance;
-    QList<int> m_defaultGroups;
-
-    typedef QHash<int, Command *> IdCmdMap;
-    IdCmdMap m_idCmdMap;
-
-    typedef QHash<int, ActionContainer *> IdContainerMap;
-    IdContainerMap m_idContainerMap;
-
-    typedef QMap<int, int> GlobalGroupMap;
-    GlobalGroupMap m_globalgroups;
-
-    QList<int> m_context;
-
-    MainWindow *m_mainWnd;
+    virtual Command *command(const QString &id) const = 0;
+    virtual ActionContainer *actionContainer(const QString &id) const = 0;
 };
 
-} // namespace Internal
 } // namespace Core
 
 #endif // ACTIONMANAGER_H

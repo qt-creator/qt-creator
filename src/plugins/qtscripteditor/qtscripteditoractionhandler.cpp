@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -35,8 +35,8 @@
 #include "qtscripteditorconstants.h"
 #include "qtscripteditor.h"
 
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
-#include <coreplugin/scriptmanager/scriptmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/scriptmanager/scriptmanager.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
@@ -45,7 +45,7 @@
 
 static QAction *actionFromId(Core::ICore *core, const QString &id)
 {
-    Core::ICommand *cmd = core->actionManager()->command(id);
+    Core::Command *cmd = core->actionManager()->command(id);
     if (!cmd)
         return 0;
     return cmd->action();
@@ -79,7 +79,7 @@ void QtScriptEditorActionHandler::updateActions(UpdateMode um)
 
 void QtScriptEditorActionHandler::run()
 {
-    typedef Core::ScriptManagerInterface::Stack Stack;
+    typedef Core::ScriptManager::Stack Stack;
     if (!currentEditor())
         return;
 

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -55,7 +55,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -657,7 +657,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     if (lastAction->menu() && QLatin1String(lastAction->menu()->metaObject()->className()) == QLatin1String("QUnicodeControlCharacterMenu"))
         menu->removeAction(lastAction);
 
-    Core::IActionContainer *mcontext =
+    Core::ActionContainer *mcontext =
         m_core->actionManager()->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 

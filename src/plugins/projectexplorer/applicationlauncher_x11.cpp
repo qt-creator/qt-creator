@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,10 +34,7 @@
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 
-#include <projectexplorer/ProjectExplorerInterfaces>
-
 #include <QtCore/QTimer>
-#include <QtDebug>
 
 using namespace ProjectExplorer::Internal;
 

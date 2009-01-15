@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -81,11 +81,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     return w;
 }
 
-void GeneralSettings::finished(bool accepted)
+void GeneralSettings::apply()
 {
-    if (!accepted)
-        return;
-
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());

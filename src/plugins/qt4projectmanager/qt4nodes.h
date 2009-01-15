@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -35,10 +35,13 @@
 #define QT4NODES_H
 
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/project.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
+#include <QtCore/QDateTime>
+#include <QtCore/QMap>
 
 // defined in proitems.h
 QT_BEGIN_NAMESPACE
@@ -184,8 +187,8 @@ public slots:
     void scheduleUpdate();
     void update();
 private slots:
-    void fileChanged(const QString &filePath);
-    void updateGeneratedFiles();
+    void updateUiFiles();
+    void buildStateChanged(ProjectExplorer::Project*);
 
 private:
     Qt4ProFileNode *createSubProFileNode(const QString &path);
@@ -205,7 +208,7 @@ private:
     bool m_isQBuildProject;
     QTimer m_updateTimer;
 
-    DirectoryWatcher *m_dirWatcher;
+    QMap<QString, QDateTime> m_uitimestamps;
     friend class Qt4NodeHierarchy;
 };
 

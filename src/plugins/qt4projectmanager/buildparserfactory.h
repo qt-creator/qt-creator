@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -34,12 +34,8 @@
 #ifndef BUILDPARSERFACTORY_H
 #define BUILDPARSERFACTORY_H
 
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/buildparserinterface.h>
 
-
-namespace ProjectExplorer {
-class BuildParserInterface;
-}
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -65,6 +61,5 @@ public:
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
 
 #endif // BUILDPARSERFACTORY_H

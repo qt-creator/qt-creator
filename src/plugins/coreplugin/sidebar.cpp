@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -35,7 +35,7 @@
 #include "imode.h"
 #include "modemanager.h"
 
-#include "actionmanager/actionmanagerinterface.h"
+#include "actionmanager/actionmanager.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
@@ -206,12 +206,12 @@ void SideBar::activateItem(SideBarItem *item)
     item->widget()->setFocus();
 }
 
-void SideBar::setShortcutMap(const QMap<QString, Core::ICommand*> &shortcutMap)
+void SideBar::setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap)
 {
     m_shortcutMap = shortcutMap;
 }
 
-QMap<QString, Core::ICommand*> SideBar::shortcutMap() const
+QMap<QString, Core::Command*> SideBar::shortcutMap() const
 {
     return m_shortcutMap;
 }
@@ -341,10 +341,10 @@ void SideBarWidget::setCurrentIndex(int)
     emit currentWidgetChanged();
 }
 
-Core::ICommand *SideBarWidget::command(const QString &title) const
+Core::Command *SideBarWidget::command(const QString &title) const
 {
-    const QMap<QString, Core::ICommand*> shortcutMap = m_sideBar->shortcutMap();
-    QMap<QString, Core::ICommand*>::const_iterator r = shortcutMap.find(title);
+    const QMap<QString, Core::Command*> shortcutMap = m_sideBar->shortcutMap();
+    QMap<QString, Core::Command*>::const_iterator r = shortcutMap.find(title);
     if (r != shortcutMap.end())
         return r.value();
     return 0;
@@ -361,7 +361,7 @@ bool ComboBox::event(QEvent *e)
 {
     if (e->type() == QEvent::ToolTip) {
         QString txt = currentText();
-        Core::ICommand *cmd = m_sideBarWidget->command(txt);
+        Core::Command *cmd = m_sideBarWidget->command(txt);
         if (cmd) {
             txt = tr("Activate %1").arg(txt);
             setToolTip(cmd->stringWithAppendedShortcut(txt));

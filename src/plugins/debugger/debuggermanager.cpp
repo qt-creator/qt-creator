@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -85,6 +85,18 @@ using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
 static const QString tooltipIName = "tooltip";
+
+
+DebuggerSettings::DebuggerSettings()
+{
+    m_autoRun = false;
+    m_autoQuit = false;
+    m_skipKnownFrames = false;
+    m_debugDumpers = false;
+    m_useToolTips = false;
+    m_useToolTips = false;
+    m_useCustomDumpers = true;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -322,56 +334,6 @@ void DebuggerManager::init()
     m_breakAtMainAction = new QAction(this);
     m_breakAtMainAction->setText(tr("Set Breakpoint at Function 'main'"));
 
-    m_debugDumpersAction = new QAction(this);
-    m_debugDumpersAction->setText(tr("Debug Custom Dumpers"));
-    m_debugDumpersAction->setToolTip(tr("This is an internal tool to "
-        "make debugging the Custom Data Dumper code easier. "
-        "Using this action is in general not needed unless you "
-        "want do debug Qt Creator itself."));
-    m_debugDumpersAction->setCheckable(true);
-
-    m_skipKnownFramesAction = new QAction(this);
-    m_skipKnownFramesAction->setText(tr("Skip Known Frames When Stepping"));
-    m_skipKnownFramesAction->setToolTip(tr("After checking this option"
-        "'Step Into' combines in certain situations several steps, "
-        "leading to 'less noisy' debugging. So will, e.g., the atomic "
-        "reference counting code be skipped, and a single 'Step Into' "
-        "for a signal emission will end up directly in the slot connected "
-        "to it"));
-    m_skipKnownFramesAction->setCheckable(true);
-
-    m_useCustomDumpersAction = new QAction(this);
-    m_useCustomDumpersAction->setText(tr("Use Custom Display for Qt Objects"));
-    m_useCustomDumpersAction->setToolTip(tr("Checking this will make the debugger "
-        "try to use code to format certain data (QObject, QString, ...) nicely. "));
-    m_useCustomDumpersAction->setCheckable(true);
-    m_useCustomDumpersAction->setChecked(true);
-
-    m_useFastStartAction = new QAction(this);
-    m_useFastStartAction->setText(tr("Fast Debugger Start"));
-    m_useFastStartAction->setToolTip(tr("Checking this will make the debugger "
-        "start fast by loading only very few debug symbols on start up. This "
-        "might lead to situations where breakpoints can not be set properly. "
-        "So uncheck this option if you experience breakpoint related problems."));
-    m_useFastStartAction->setCheckable(true);
-    m_useFastStartAction->setChecked(true);
-
-    m_useToolTipsAction = new QAction(this);
-    m_useToolTipsAction->setText(tr("Use Tooltips While Debugging"));
-    m_useToolTipsAction->setToolTip(tr("Checking this will make enable "
-        "tooltips for variable values during debugging. Since this can slow "
-        "down debugging and does not provide reliable information as it does "
-        "not use scope information, it is switched off by default."));
-    m_useToolTipsAction->setCheckable(true);
-    m_useToolTipsAction->setChecked(false);
-
-    // FIXME
-    m_useFastStartAction->setChecked(false);
-    m_useFastStartAction->setEnabled(false);
-
-    m_dumpLogAction = new QAction(this);
-    m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
-
     m_watchAction = new QAction(this);
     m_watchAction->setText(tr("Add to Watch Window"));
 
@@ -416,14 +378,6 @@ void DebuggerManager::init()
     connect(m_breakAtMainAction, SIGNAL(triggered()),
         this, SLOT(breakAtMain()));
 
-    connect(m_useFastStartAction, SIGNAL(triggered()),
-        this, SLOT(saveSessionData()));
-    connect(m_useCustomDumpersAction, SIGNAL(triggered()),
-        this, SLOT(saveSessionData()));
-    connect(m_skipKnownFramesAction, SIGNAL(triggered()),
-        this, SLOT(saveSessionData()));
-    connect(m_dumpLogAction, SIGNAL(triggered()),
-        this, SLOT(dumpLog()));
     connect(m_statusTimer, SIGNAL(timeout()),
         this, SLOT(clearStatusMessage()));
 
@@ -481,11 +435,6 @@ IDebuggerEngine *DebuggerManager::engine()
 IDebuggerManagerAccessForEngines *DebuggerManager::engineInterface()
 {
     return dynamic_cast<IDebuggerManagerAccessForEngines *>(this);
-}
-
-IDebuggerManagerAccessForDebugMode *DebuggerManager::debugModeInterface()
-{
-    return dynamic_cast<IDebuggerManagerAccessForDebugMode *>(this);
 }
 
 void DebuggerManager::createDockWidgets()
@@ -952,16 +901,6 @@ void DebuggerManager::loadSessionData()
 {
     m_breakHandler->loadSessionData();
     m_watchHandler->loadSessionData();
-
-    QVariant value;
-    querySessionValue(QLatin1String("UseFastStart"), &value);
-    m_useFastStartAction->setChecked(value.toBool());
-    querySessionValue(QLatin1String("UseToolTips"), &value);
-    m_useToolTipsAction->setChecked(value.toBool());
-    querySessionValue(QLatin1String("UseCustomDumpers"), &value);
-    m_useCustomDumpersAction->setChecked(!value.isValid() || value.toBool());
-    querySessionValue(QLatin1String("SkipKnownFrames"), &value);
-    m_skipKnownFramesAction->setChecked(value.toBool());
     engine()->loadSessionData();
 }
 
@@ -969,15 +908,6 @@ void DebuggerManager::saveSessionData()
 {
     m_breakHandler->saveSessionData();
     m_watchHandler->saveSessionData();
-
-    setSessionValue(QLatin1String("UseFastStart"),
-        m_useFastStartAction->isChecked());
-    setSessionValue(QLatin1String("UseToolTips"),
-        m_useToolTipsAction->isChecked());
-    setSessionValue(QLatin1String("UseCustomDumpers"),
-        m_useCustomDumpersAction->isChecked());
-    setSessionValue(QLatin1String("SkipKnownFrames"),
-        m_skipKnownFramesAction->isChecked());
     engine()->saveSessionData();
 }
 
@@ -1144,22 +1074,22 @@ void DebuggerManager::setBusyCursor(bool busy)
 
 bool DebuggerManager::skipKnownFrames() const
 {
-    return m_skipKnownFramesAction->isChecked();
+    return m_settings.m_skipKnownFrames;
 }
 
 bool DebuggerManager::debugDumpers() const
 {
-    return m_debugDumpersAction->isChecked();
+    return m_settings.m_debugDumpers;
 }
 
 bool DebuggerManager::useCustomDumpers() const
 {
-    return m_useCustomDumpersAction->isChecked();
+    return m_settings.m_useCustomDumpers;
 }
 
 bool DebuggerManager::useFastStart() const
 {
-    return 0; // && m_useFastStartAction->isChecked();
+    return 0; // && m_settings.m_useFastStart;
 }
 
 void DebuggerManager::queryCurrentTextEditor(QString *fileName, int *lineNumber,

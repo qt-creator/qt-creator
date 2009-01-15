@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -49,8 +49,15 @@ class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 public:
     explicit SubmitFileModel(QObject *parent = 0);
 
-    // Convenience to add a file plus status text.
+    // Convenience to create and add rows containing a file plus status text.
+    static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status = QString(), bool checked = true);
     QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(), bool checked = true);
+
+    // Find convenience that returns the whole row (as opposed to QStandardItemModel::find).
+    QList<QStandardItem *> findRow(const QString &text, int column = 0) const;
+
+    // Convenience to obtain a row
+    QList<QStandardItem *> rowAt(int row) const;
 
     // Filter for entries contained in the filter list. Returns the
     // number of deleted entries.

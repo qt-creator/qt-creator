@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -56,14 +56,14 @@ public:
     void showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString());
 
-    ActionManagerInterface *actionManager() const;
+    ActionManager *actionManager() const;
     FileManager *fileManager() const ;
     UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;
     ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
-    ProgressManagerInterface *progressManager() const;
-    ScriptManagerInterface *scriptManager() const;
+    ProgressManager *progressManager() const;
+    ScriptManager *scriptManager() const;
     VariableManager *variableManager() const;
     VCSManager *vcsManager() const;
     ModeManager *modeManager() const;

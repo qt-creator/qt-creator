@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -37,13 +37,12 @@
 #include "qtversionmanager.h"
 #include "ui_makestep.h"
 
-#include <projectexplorer/ProjectExplorerInterfaces>
-#include <QDebug>
+#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/projectexplorer.h>
 
 namespace Qt4ProjectManager {
 
 class Qt4Project;
-
 
 // NBS move this class to an own plugin? So that there can be a make project at a future time
 class MakeStep : public ProjectExplorer::AbstractProcessStep
