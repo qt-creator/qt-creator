@@ -94,7 +94,7 @@ DebuggerSettings::DebuggerSettings()
     m_skipKnownFrames = false;
     m_debugDumpers = false;
     m_useToolTips = false;
-    m_useToolTips = false;
+    m_useTerminal = false;
     m_useCustomDumpers = true;
 }
 
