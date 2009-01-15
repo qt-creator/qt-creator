@@ -491,7 +491,7 @@ public:
 class InfoItemModulesTest : public SPEInfoItem
 {
 public:
-    InfoItemModulesTest(): SPEInfoItem("qtestlib", QtModule)
+    InfoItemModulesTest(): SPEInfoItem("testlib", QtModule)
     {
         m_data.insert(keyIncludedByDefault, false);
     }

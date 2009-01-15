@@ -166,7 +166,7 @@ private:
     virtual ThreadsHandler *threadsHandler() = 0;
     virtual WatchHandler *watchHandler() = 0;
 
-    virtual void showApplicationOutput(const QString &prefix, const QString &data) = 0;
+    virtual void showApplicationOutput(const QString &data) = 0;
     //virtual QAction *useCustomDumpersAction() const = 0;
     //virtual QAction *debugDumpersAction() const = 0;
     virtual bool skipKnownFrames() const = 0;
@@ -200,6 +200,7 @@ public:
     bool m_debugDumpers;
     bool m_useFastStart;
     bool m_useToolTips;
+    bool m_useTerminal;
 
     QString m_scriptFile;
 };
@@ -285,7 +286,7 @@ public slots:
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
-    void showApplicationOutput(const QString &prefix, const QString &msg);
+    void showApplicationOutput(const QString &data);
 
     void reloadDisassembler();
     void disassemblerDockToggled(bool on);
@@ -365,7 +366,7 @@ signals:
     void setSessionValueRequested(const QString &name, const QVariant &value);
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
-    void applicationOutputAvailable(const QString &prefix, const QString &msg);
+    void applicationOutputAvailable(const QString &output);
 
 public:
     // FIXME: make private

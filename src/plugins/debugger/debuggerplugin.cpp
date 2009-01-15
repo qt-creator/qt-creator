@@ -106,13 +106,7 @@ const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
-const char * const DEBUG_DUMPERS        = "Debugger.DebugDumpers";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
-const char * const USE_CUSTOM_DUMPERS   = "Debugger.UseCustomDumpers";
-const char * const USE_FAST_START       = "Debugger.UseFastStart";
-const char * const USE_TOOL_TIPS        = "Debugger.UseToolTips";
-const char * const SKIP_KNOWN_FRAMES    = "Debugger.SkipKnownFrames";
-const char * const DUMP_LOG             = "Debugger.DumpLog";
 
 #ifdef Q_OS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -283,6 +277,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
     m_ui.checkBoxFastStart->setChecked(m_settings.m_useFastStart);
     m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
+    m_ui.checkBoxUseTerminal->setChecked(m_settings.m_useTerminal);
 
 #ifndef QT_DEBUG
 #if 0
@@ -290,10 +285,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         Constants::DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_debugDumpersAction,
-        Constants::DEBUG_DUMPERS, debuggercontext);
     mdebug->addAction(cmd);
 #endif
 #endif
@@ -325,6 +316,7 @@ void GdbOptionPage::apply()
     m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
     m_settings.m_useFastStart = m_ui.checkBoxFastStart->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
+    m_settings.m_useTerminal = m_ui.checkBoxUseTerminal->isChecked();
 
     *m_plugin->m_manager->settings() = m_settings;
     m_plugin->writeSettings();
@@ -907,6 +899,7 @@ void DebuggerPlugin::writeSettings() const
 
     s->setValue("UseFastStart", m->m_useFastStart);
     s->setValue("UseToolTips", m->m_useToolTips);
+    s->setValue("UseTerminal", m->m_useTerminal);
     s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
     s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
     s->setValue("DebugDumpers", m->m_debugDumpers);
@@ -940,6 +933,7 @@ void DebuggerPlugin::readSettings()
     m->m_useCustomDumpers = s->value("UseCustomDupers", false).toBool();
     m->m_useFastStart = s->value("UseFastStart", false).toBool();
     m->m_useToolTips = s->value("UseToolTips", false).toBool();
+    m->m_useTerminal = s->value("UseTerminal", false).toBool();
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

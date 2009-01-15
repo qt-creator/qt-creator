@@ -30,6 +30,7 @@ HEADERS += attachexternaldialog.h \
     imports.h \
     moduleshandler.h \
     moduleswindow.h \
+    outputcollector.h \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
@@ -40,7 +41,7 @@ HEADERS += attachexternaldialog.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h
-    
+
 SOURCES += attachexternaldialog.cpp \
     attachremotedialog.cpp \
     breakhandler.cpp \
@@ -54,9 +55,9 @@ SOURCES += attachexternaldialog.cpp \
     disassemblerwindow.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
-    gdbengine.h \
     moduleshandler.cpp \
     moduleswindow.cpp \
+    outputcollector.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
     registerwindow.cpp \

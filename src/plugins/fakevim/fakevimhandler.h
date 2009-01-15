@@ -58,6 +58,7 @@ public slots:
     // FIXME: good idea?
     void addWidget(QWidget *widget);
     void removeWidget(QWidget *widget);
+    void setCurrentFileName(const QString &fileName);
 
     // This executes an "ex" style command taking context
     // information from \p widget;
@@ -72,6 +73,7 @@ signals:
     void quitRequested(QWidget *);
     void selectionChanged(QWidget *widget,
         const QList<QTextEdit::ExtraSelection> &selection);
+    void writeFile(const QString &fileName, const QString &contents);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

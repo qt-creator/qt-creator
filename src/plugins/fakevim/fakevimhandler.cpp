@@ -35,6 +35,13 @@
 
 #include "fakevimconstants.h"
 
+// Please do not add any direct dependencies to other Qt Creator code  here. 
+// Instead emit signals and let the FakeVimPlugin channel the information to
+// Qt Creator. The idea is to keep this file here in a "clean" state that
+// allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
+
+//#include <indenter.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -53,11 +60,6 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
-//#include <texteditor/basetexteditor.h>
-//#include <texteditor/textblockiterator.h>
-//#include <cppeditor/cppeditor.h>
-
-//#include <indenter.h>
 
 using namespace FakeVim::Internal;
 using namespace FakeVim::Constants;
@@ -382,6 +384,9 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         return;
     }
 
+    if (m_visualMode != NoVisualMode)
+        m_marks['>'] = m_tc.position();
+
     if (m_submode == ChangeSubMode) {
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
@@ -613,10 +618,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == ':') {
         m_mode = ExMode;
         m_commandBuffer.clear();
-        if (m_visualMode != NoVisualMode) {
+        if (m_visualMode != NoVisualMode)
             m_commandBuffer = "'<,'>";
-            leaveVisualMode();
-        }
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
@@ -638,7 +641,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_submode = FilterSubMode;
     } else if (key == '!' && m_visualMode == VisualLineMode) {
         m_mode = ExMode;
-        m_marks['>'] = m_tc.position();
         m_commandBuffer = "'<,'>!";
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
@@ -724,7 +726,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(positionForLine(n), KeepAnchor);
-        if (m_config.contains(ConfigStartOfLine))
+        if (m_config[ConfigStartOfLine] == ConfigOn)
             moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'h' || key == Key_Left) {
@@ -1019,6 +1021,7 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
             handleExCommand(m_commandBuffer);
+            leaveVisualMode();
         }
     } else if (key == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
@@ -1138,7 +1141,6 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     if (cmd.startsWith("%"))
         cmd = "1,$" + cmd.mid(1);
     
-    m_marks['>'] = m_tc.position();
     int beginLine = -1;
     int endLine = -1;
 
@@ -1192,10 +1194,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file.open(QIODevice::ReadWrite)) {
             QTextCursor tc = selectRange(beginLine, endLine);
-            qDebug() << "ANCHOR: " << tc.position() << tc.anchor()
-                << tc.selection().toPlainText();
-            { QTextStream ts(&file); ts << tc.selection().toPlainText(); }
-            file.close();
+            QString contents = tc.selection().toPlainText();
+            emit q->writeFile(fileName, contents);
+            // check by reading back
             file.open(QIODevice::ReadOnly);
             QByteArray ba = file.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
@@ -1812,4 +1813,9 @@ void FakeVimHandler::setConfigValue(const QString &key, const QString &value)
 void FakeVimHandler::quit()
 {
     d->quit();
+}
+
+void FakeVimHandler::setCurrentFileName(const QString &fileName)
+{
+   d->m_currentFileName = fileName;
 }
