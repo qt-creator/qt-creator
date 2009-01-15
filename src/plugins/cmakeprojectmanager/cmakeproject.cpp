@@ -87,6 +87,7 @@ void CMakeProject::parseCMakeLists(const QDir &directory)
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
+        m_projectName = cbpparser.projectName();
         qDebug()<<"Building Tree";
         // TODO do a intelligent updating of the tree
         buildTree(m_rootNode, cbpparser.fileList());
@@ -200,8 +201,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 
 QString CMakeProject::name() const
 {
-    // TODO
-    return "";
+    return m_projectName;
 }
 
 Core::IFile *CMakeProject::file() const
@@ -469,6 +469,8 @@ void CMakeCbpParser::parseProject()
         readNext();
         if (isEndElement()) {
             return;
+        } else if (name() == "Option") {
+            parseOption();
         } else if (name() == "Unit") {
             parseUnit();
         } else if (name() == "Build") {
@@ -535,6 +537,19 @@ void CMakeCbpParser::parseTargetOption()
             parseUnknownElement();
         }
     }
+}
+
+QString CMakeCbpParser::projectName() const
+{
+    return m_projectName;
+}
+
+void CMakeCbpParser::parseOption()
+{
+    if (attributes().hasAttribute("title"))
+        m_projectName = attributes().value("title").toString();
+    if(isStartElement())
+        parseUnknownElement();
 }
 
 void CMakeCbpParser::parseMakeCommand()
