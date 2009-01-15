@@ -37,6 +37,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
+#ifndef Q_OS_WIN
+#include <QtCore/QTextCodec>
+#endif
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -88,7 +91,12 @@ private:
     ConsoleProcess *m_consoleProcess;
     Mode m_currentMode;
 
+#ifdef Q_OS_WIN
     WinGuiProcess *m_winGuiProcess;
+#else
+    QTextCodec *m_outputCodec;
+    QTextCodec::ConverterState m_outputCodecState;
+#endif
 };
 
 } // namespace Internal
