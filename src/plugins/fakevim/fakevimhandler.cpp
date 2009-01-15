@@ -211,6 +211,7 @@ private:
     void enterCommandMode();
     void showRedMessage(const QString &msg);
     void showBlackMessage(const QString &msg);
+    void notImplementedYet();
     void updateMiniBuffer();
     void updateSelection();
     void quit();
@@ -547,6 +548,12 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 {
     //qDebug() << "MSG: " << msg;
     m_commandBuffer = msg;
+    updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::notImplementedYet()
+{
+    showRedMessage("Not implemented in FakeVim");
     updateMiniBuffer();
 }
 
@@ -1084,6 +1091,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         int mark = m_marks.value(cmd.at(0).unicode());
         if (!mark) { 
             showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            cmd = cmd.mid(1);
             return -1;
         }
         cmd = cmd.mid(1);
@@ -1103,8 +1111,9 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         int pos = m_marks.value(cmd.at(0).unicode(), -1);
         //qDebug() << " MARK: " << cmd.at(0) << pos << lineForPosition(pos);
         if (pos == -1) {
-             showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
-             return -1;
+            showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            cmd = cmd.mid(1);
+            return -1;
         }
         cmd = cmd.mid(1);
         return lineForPosition(pos);
@@ -1159,11 +1168,12 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             endLine = line;
     }
 
-    //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0;
+    //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0 << m_marks;
 
     static QRegExp reWrite("^w!?( (.*))?$");
     static QRegExp reDelete("^d( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
+    static QRegExp reHistory("^his(tory)?( (.*))?$");
 
     if (cmd.isEmpty()) {
         m_tc.setPosition(positionForLine(beginLine));
@@ -1247,6 +1257,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         recordOperation(op);
 
         enterCommandMode();
+        //qDebug() << "FILTER: " << command;
         showBlackMessage(tr("%1 lines filtered").arg(text.count('\n')));
     } else if (cmd == "red" || cmd == "redo") { // :redo
         redo();
@@ -1258,7 +1269,25 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             QString info;
             foreach (const QString &key, m_config.keys())
                 info += key + ": " + m_config.value(key) + "\n";
-            emit q->extraInformationChanged(info);
+            emit q->extraInformationChanged(editor(), info);
+        } else {
+            notImplementedYet();
+        }
+        enterCommandMode();
+        updateMiniBuffer();
+    } else if (reHistory.indexIn(cmd) != -1) { // :history
+        QString arg = reSet.cap(3);
+        if (arg.isEmpty()) {
+            QString info;
+            info += "#  command history\n";
+            int i = 0;
+            foreach (const QString &item, m_commandHistory) {
+                ++i;
+                info += QString("%1 %2\n").arg(i, -8).arg(item);
+            }
+            emit q->extraInformationChanged(editor(), info);
+        } else {
+            notImplementedYet();
         }
         enterCommandMode();
         updateMiniBuffer();
@@ -1581,6 +1610,7 @@ void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 {
     m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
+    m_marks['>'] = m_tc.position();
     updateMiniBuffer();
     updateSelection();
 }
@@ -1588,7 +1618,6 @@ void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 void FakeVimHandler::Private::leaveVisualMode()
 {
     m_visualMode = NoVisualMode;
-    m_marks['>'] = m_tc.position();
     updateMiniBuffer();
     updateSelection();
 }
