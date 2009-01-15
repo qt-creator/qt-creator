@@ -161,11 +161,11 @@ private:
     static int control(int key) { return key + 256; }
 
     void init();
-    bool handleKey(int key, const QString &text);
-    bool handleInsertMode(int key, const QString &text);
-    bool handleCommandMode(int key, const QString &text);
-    bool handleRegisterMode(int key, const QString &text);
-    bool handleMiniBufferModes(int key, const QString &text);
+    bool handleKey(int key, int unmodified, const QString &text);
+    bool handleInsertMode(int key, int unmodified, const QString &text);
+    bool handleCommandMode(int key, int unmodified, const QString &text);
+    bool handleRegisterMode(int key, int unmodified, const QString &text);
+    bool handleMiniBufferModes(int key, int unmodified, const QString &text);
     void finishMovement(const QString &text = QString());
     void search(const QString &needle, bool forward);
 
@@ -314,6 +314,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
 bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
     int key = ev->key();
+    const int um = key; // keep unmodified key around
 
     // FIXME
     if (m_mode == PassingMode && key != Qt::Key_Control && key != Qt::Key_Shift) {
@@ -342,7 +343,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         && (ev->modifiers() & Qt::ShiftModifier) == 0) {
         key += 32;
     }
-    bool handled = handleKey(key, ev->text());
+    bool handled = handleKey(key, um, ev->text());
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEol() && m_mode == CommandMode);
@@ -355,18 +356,18 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     return handled;
 }
 
-bool FakeVimHandler::Private::handleKey(int key, const QString &text)
+bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &text)
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
     m_savedPosition = m_tc.position();
     if (m_mode == InsertMode)
-        return handleInsertMode(key, text);
+        return handleInsertMode(key, unmodified, text);
     if (m_mode == CommandMode)
-        return handleCommandMode(key, text);
+        return handleCommandMode(key, unmodified, text);
     if (m_mode == ExMode || m_mode == SearchForwardMode
             || m_mode == SearchBackwardMode)
-        return handleMiniBufferModes(key, text);
+        return handleMiniBufferModes(key, unmodified, text);
     return false;
 }
 
@@ -383,6 +384,9 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         updateMiniBuffer();
         return;
     }
+
+    if (m_visualMode != NoVisualMode)
+        m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
         if (!dotCommand.isEmpty())
@@ -546,7 +550,8 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
     updateMiniBuffer();
 }
 
-bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
+bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
+    const QString &text)
 {
     bool handled = true;
 
@@ -615,10 +620,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == ':') {
         m_mode = ExMode;
         m_commandBuffer.clear();
-        if (m_visualMode != NoVisualMode) {
+        if (m_visualMode != NoVisualMode)
             m_commandBuffer = "'<,'>";
-            leaveVisualMode();
-        }
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
@@ -640,16 +643,16 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         m_submode = FilterSubMode;
     } else if (key == '!' && m_visualMode == VisualLineMode) {
         m_mode = ExMode;
-        m_marks['>'] = m_tc.position();
         m_commandBuffer = "'<,'>!";
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '"') {
         m_submode = RegisterSubMode;
-    } else if (key == Key_Return) {
+    } else if (unmodified == Key_Return) {
         m_tc.movePosition(StartOfLine);
         m_tc.movePosition(Down);
+        moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_Home) {
         m_tc.movePosition(StartOfLine, KeepAnchor);
@@ -668,7 +671,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
         qDebug() << "REPEATING" << m_dotCommand;
         for (int i = count(); --i >= 0; )
             foreach (QChar c, m_dotCommand)
-                handleKey(c.unicode(), QString(c));
+                handleKey(c.unicode(), c.unicode(), QString(c));
     } else if (key == '=') {
         m_submode = IndentSubMode;
     } else if (key == '%') {
@@ -916,7 +919,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     return handled;
 }
 
-bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
+bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text)
 {
     if (key == Key_Escape) {
         // start with '1', as one instance was already physically inserted
@@ -997,7 +1000,8 @@ bool FakeVimHandler::Private::handleInsertMode(int key, const QString &text)
     return true;
 }
 
-bool FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text)
+bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
+    const QString &text)
 {
     Q_UNUSED(text)
 
@@ -1016,13 +1020,14 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, const QString &text
         if (!m_commandBuffer.isEmpty())
             m_commandBuffer.chop(1);
         updateMiniBuffer();
-    } else if (key == Key_Return && m_mode == ExMode) {
+    } else if (unmodified == Key_Return && m_mode == ExMode) {
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
             handleExCommand(m_commandBuffer);
+            leaveVisualMode();
         }
-    } else if (key == Key_Return && isSearchMode()) {
+    } else if (unmodified == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
             m_searchHistory.append(m_commandBuffer);
@@ -1140,7 +1145,6 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     if (cmd.startsWith("%"))
         cmd = "1,$" + cmd.mid(1);
     
-    m_marks['>'] = m_tc.position();
     int beginLine = -1;
     int endLine = -1;
 
