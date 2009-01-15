@@ -37,6 +37,7 @@
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
+#include <QtCore/QCoreApplication>
 
 #else
 
@@ -143,7 +144,7 @@ QString OutputCollector::errorString() const
 QString OutputCollector::serverName() const
 {
 #ifdef Q_OS_WIN
-    return m_server->fullServerPath();
+    return m_server->fullServerName();
 #else
     return m_serverPath;
 #endif
