@@ -726,7 +726,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, const QString &text)
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(positionForLine(n), KeepAnchor);
-        if (m_config.contains(ConfigStartOfLine))
+        if (m_config[ConfigStartOfLine] == ConfigOn)
             moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'h' || key == Key_Left) {
