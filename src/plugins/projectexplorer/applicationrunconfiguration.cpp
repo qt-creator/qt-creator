@@ -141,7 +141,7 @@ void ApplicationRunControl::start()
                                 m_executable, rc->commandLineArguments());
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1").arg(m_executable));
+    emit addToOutputWindow(this, tr("Starting %1...").arg(m_executable));
 }
 
 void ApplicationRunControl::stop()
@@ -162,7 +162,7 @@ void ApplicationRunControl::slotError(const QString & err)
 
 void ApplicationRunControl::slotAddToOutputWindow(const QString &line)
 {
-    emit addToOutputWindow(this, Qt::escape(line));
+    emit addToOutputWindowInline(this, line);
 }
 
 void ApplicationRunControl::processExited(int exitCode)

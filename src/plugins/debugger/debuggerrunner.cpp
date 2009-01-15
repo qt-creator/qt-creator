@@ -108,8 +108,8 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 {
     connect(m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()));
-    connect(m_manager, SIGNAL(applicationOutputAvailable(QString, QString)),
-            this, SLOT(slotAddToOutputWindow(QString, QString)));
+    connect(m_manager, SIGNAL(applicationOutputAvailable(QString)),
+            this, SLOT(slotAddToOutputWindowInline(QString)));
     connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
             this, SLOT(bringApplicationToForeground(qint64)));
 }
@@ -138,12 +138,9 @@ void DebuggerRunControl::start()
         debuggingFinished();
 }
 
-void DebuggerRunControl::slotAddToOutputWindow(const QString &prefix, const QString &line)
+void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
 {  
-    Q_UNUSED(prefix);
-    foreach (const QString &l, line.split('\n'))
-        emit addToOutputWindow(this, prefix + Qt::escape(l));
-    //emit addToOutputWindow(this, prefix + Qt::escape(line));
+    emit addToOutputWindowInline(this, data);
 }
 
 void DebuggerRunControl::stop()

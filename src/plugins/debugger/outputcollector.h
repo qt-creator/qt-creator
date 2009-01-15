@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,67 +31,61 @@
 **
 ***************************************************************************/
 
-#ifndef DEBUGGERRUNNER_H
-#define DEBUGGERRUNNER_H
+#ifndef OUTPUT_COLLECTOR_H
+#define OUTPUT_COLLECTOR_H
 
-#include <projectexplorer/runconfiguration.h>
+#include <QtCore/QByteArray>
+#include <QtCore/QObject>
 
-namespace ProjectExplorer {
-class ApplicationRunConfiguration;
-}
+QT_BEGIN_NAMESPACE
+class QLocalServer;
+class QLocalSocket;
+class QSocketNotifier;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerManager;
-class StartData;
+///////////////////////////////////////////////////////////////////////
+//
+// OutputCollector
+//
+///////////////////////////////////////////////////////////////////////
 
-typedef QSharedPointer<ProjectExplorer::RunConfiguration>
-    RunConfigurationPtr;
-
-typedef QSharedPointer<ProjectExplorer::ApplicationRunConfiguration>
-    ApplicationRunConfigurationPtr;
-
-class DebuggerRunner : public ProjectExplorer::IRunConfigurationRunner
+class OutputCollector : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerRunner(DebuggerManager *manager);
+    OutputCollector(QObject *parent = 0);
+    ~OutputCollector();
+    bool listen();
+    void shutdown();
+    QString serverName() const;
+    QString errorString() const;
 
-    virtual bool canRun(RunConfigurationPtr runConfiguration, const QString &mode);
-    virtual QString displayName() const;
-    virtual ProjectExplorer::RunControl *run(RunConfigurationPtr runConfiguration,
-        const QString &mode);
-    virtual QWidget *configurationWidget(RunConfigurationPtr runConfiguration);
-
-private:
-    DebuggerManager *m_manager;
-};
-
-
-class DebuggerRunControl : public ProjectExplorer::RunControl
-{
-    Q_OBJECT
-
-public:
-    DebuggerRunControl(DebuggerManager *manager,
-        ApplicationRunConfigurationPtr runConfiguration);
-
-    virtual void start();
-    virtual void stop();
-    virtual bool isRunning() const;
+signals:
+    void byteDelivery(const QByteArray &data);
 
 private slots:
-    void debuggingFinished();
-    void slotAddToOutputWindowInline(const QString &output);
+    void bytesAvailable();
+#ifdef Q_OS_WIN
+    void newConnectionAvailable();
+#endif
 
 private:
-    DebuggerManager *m_manager;
-    bool m_running;
+#ifdef Q_OS_WIN
+    QLocalServer *m_server;
+    QLocalSocket *m_socket;
+#else
+    QString m_serverPath;
+    int m_serverFd;
+    QSocketNotifier *m_serverNotifier;
+    QString m_errorString;
+#endif
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGERRUNNER_H
+#endif // OUTPUT_COLLECTOR_H

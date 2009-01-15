@@ -180,6 +180,7 @@ private slots:
     void updateRunAction();
 
     void addToApplicationOutputWindow(RunControl *, const QString &line);
+    void addToApplicationOutputWindowInline(RunControl *, const QString &line);
     void addErrorToApplicationOutputWindow(RunControl *, const QString &error);
     void updateTaskActions();
 
