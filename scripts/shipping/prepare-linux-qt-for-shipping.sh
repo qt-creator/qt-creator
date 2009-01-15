@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-workdir=/home/berlin/dev/qt-4.4.3-temp
-destdir=/home/berlin/dev/qt-4.4.3-shipping
-dir=qt-x11-opensource-src-4.4.3
+version=4.4.3
+workdir=/home/berlin/dev/qt-${version}-temp
+destdir=/home/berlin/dev/qt-${version}-shipping
+dir=qt-x11-opensource-src-${version}
 file_tar="${dir}.tar"
 file_tar_gz="${file_tar}.gz"
 [ -z ${MAKE} ] && MAKE=make
@@ -44,7 +45,7 @@ download() {
 		mirror=http://wftp.tu-chemnitz.de/pub/Qt/qt/source
 		;;
 	esac
-	wget "${mirror}/${file}" || die "Download failed"
+	wget "${mirror}/${file_tar_gz}" || die "Download failed"
 }
 
 unpack() {
@@ -55,7 +56,7 @@ unpack() {
 
 build() {
 	(
-		cd "${dir}"
+		cd "${dir}" || die "cd failed"
 		if [ ! -f config.status ] ; then
 			env -i PATH=${envpath} ./configure \
 				-prefix "${destdir}" \
@@ -75,11 +76,44 @@ build() {
 	ret=$?; [ ${ret} = 0 ] || exit ${ret}
 }
 
+fix_rpath() {
+	folder=$1
+	pattern=$2
+	rpath=$3
+	(
+		cd "${destdir}" || die "cd failed"
+		while read file ; do
+			echo "Fixing ${file}"
+			chrpath -r "${rpath}" "${file}" 2>&1 | sed 's/^/\t/'
+		done < <(find "${folder}" -type f -name "${pattern}")
+	)
+	ret=$?; [ ${ret} = 0 ] || exit ${ret}
+}
+
 inst() {
 	(
-		cd "${dir}"
-		mkdir -p "${destdir}"
-		env -i "${MAKE}" install || die "make install failed"
+		cd "${dir}" || die "cd failed"
+		if [ ! -d "${destdir}" ]; then
+			mkdir -p "${destdir}"
+			env -i "${MAKE}" install || die "make install failed"
+		fi
+
+		cd "${destdir}" || die "cd failed"
+
+		# Fix files bin/*
+		fix_rpath bin '*' '$ORIGIN/../lib'
+
+		# Fix files lib/*.so
+		fix_rpath lib '*.so.?.?.?' '$ORIGIN'
+		fix_rpath lib '*.so.?.?.?.debug' '$ORIGIN'
+
+		# Fix files examples/tools/*/*/*.so
+		fix_rpath examples/tools '*.so' '$ORIGIN/../../../lib'
+		fix_rpath examples/tools '*.so.debug' '$ORIGIN/../../../lib'
+
+		# Fix files plugins/*/*.so
+		fix_rpath plugins '*.so' '$ORIGIN/../../lib'
+		fix_rpath plugins '*.so.debug' '$ORIGIN/../../lib'
 	)
 	ret=$?; [ ${ret} = 0 ] || exit ${ret}
 }
