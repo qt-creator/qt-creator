@@ -1084,6 +1084,8 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
             connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
                     this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
+            connect(control, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
+                    this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
             connect(control, SIGNAL(error(RunControl *, const QString &)),
                     this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
             connect(control, SIGNAL(finished()),
@@ -1377,6 +1379,11 @@ void ProjectExplorerPlugin::debugProject()
 void ProjectExplorerPlugin::addToApplicationOutputWindow(RunControl *rc, const QString &line)
 {
     m_outputPane->appendOutput(rc, line);
+}
+
+void ProjectExplorerPlugin::addToApplicationOutputWindowInline(RunControl *rc, const QString &line)
+{
+    m_outputPane->appendOutputInline(rc, line);
 }
 
 void ProjectExplorerPlugin::addErrorToApplicationOutputWindow(RunControl *rc, const QString &error)

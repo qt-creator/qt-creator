@@ -215,6 +215,12 @@ void OutputPane::appendOutput(RunControl *rc, const QString &out)
     ow->appendOutput(out);
 }
 
+void OutputPane::appendOutputInline(RunControl *rc, const QString &out)
+{
+    OutputWindow *ow = m_outputWindows.value(rc);
+    ow->appendOutputInline(out);
+}
+
 void OutputPane::showTabFor(RunControl *rc)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
@@ -318,7 +324,16 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::appendOutput(const QString &out)
 {
-    appendPlainText(out);
+    if (out.endsWith('\n'))
+        appendPlainText(out);
+    else
+        appendPlainText(out + '\n');
+}
+
+void OutputWindow::appendOutputInline(const QString &out)
+{
+    moveCursor(QTextCursor::End);
+    insertPlainText(out);
 }
 
 void OutputWindow::insertLine()

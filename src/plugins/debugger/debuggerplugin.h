@@ -78,7 +78,6 @@ private slots:
     void changeStatus(int status);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
-
     void querySessionValue(const QString &name, QVariant *value);
     void setSessionValue(const QString &name, const QVariant &value);
     void queryConfigValue(const QString &name, QVariant *value);
@@ -97,6 +96,7 @@ private:
     void writeSettings() const;
 
     friend class DebuggerManager;
+    friend class GdbOptionPage;
     friend class DebugMode; // FIXME: Just a hack now so that it can access the views
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;

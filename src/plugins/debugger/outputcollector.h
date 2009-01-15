@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,79 +31,61 @@
 **
 ***************************************************************************/
 
-#ifndef GDBOPTIONPAGE_H
-#define GDBOPTIONPAGE_H
+#ifndef OUTPUT_COLLECTOR_H
+#define OUTPUT_COLLECTOR_H
 
-#include "ui_gdboptionpage.h"
+#include <QtCore/QByteArray>
+#include <QtCore/QObject>
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtGui/QWidget>
-
-namespace ExtensionSystem { class PluginManager; }
+QT_BEGIN_NAMESPACE
+class QLocalServer;
+class QLocalSocket;
+class QSocketNotifier;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-class GdbSettings;
+///////////////////////////////////////////////////////////////////////
+//
+// OutputCollector
+//
+///////////////////////////////////////////////////////////////////////
 
-class GdbOptionPage : public Core::IOptionsPage
+class OutputCollector : public QObject
 {
     Q_OBJECT
 
 public:
-    GdbOptionPage(GdbSettings *settings);
+    OutputCollector(QObject *parent = 0);
+    ~OutputCollector();
+    bool listen();
+    void shutdown();
+    QString serverName() const;
+    QString errorString() const;
 
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-
-public slots:
-    void onGdbLocationChanged();
-    void onScriptFileChanged();
-
-private:
-    ExtensionSystem::PluginManager *m_pm;
-    Ui::GdbOptionPage m_ui;
-
-    GdbSettings *m_settings;
-};
-
-#if 0
-class TypeMacroPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    TypeMacroPage(GdbSettings *settings);
-
-    QString name() const;
-    QString category() const;
-    QString trCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void finished(bool accepted);
+signals:
+    void byteDelivery(const QByteArray &data);
 
 private slots:
-    void onAddButton();
-    void onDelButton();
-    void currentItemChanged(QTreeWidgetItem *item);
-    void updateButtonState();
+    void bytesAvailable();
+#ifdef Q_OS_WIN
+    void newConnectionAvailable();
+#endif
 
 private:
-    ExtensionSystem::PluginManager *m_pm;
-    Ui::TypeMacroPage m_ui;
-
-    GdbSettings *m_settings;
-    QWidget *m_widget;
-};
+#ifdef Q_OS_WIN
+    QLocalServer *m_server;
+    QLocalSocket *m_socket;
+#else
+    QString m_serverPath;
+    int m_serverFd;
+    QSocketNotifier *m_serverNotifier;
+    QString m_errorString;
 #endif
+};
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // GDBOPTIONPAGE_H
+#endif // OUTPUT_COLLECTOR_H
