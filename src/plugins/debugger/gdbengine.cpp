@@ -252,6 +252,7 @@ void GdbEngine::init()
     m_pendingRequests = 0;
     m_gdbVersion = 100;
     m_shared = 0;
+    m_outputCodec = QTextCodec::codecForLocale();
 
     m_oldestAcceptableToken = -1;
 
@@ -266,6 +267,8 @@ void GdbEngine::init()
         SLOT(exitDebugger()));
 
     // Output
+    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
+            SLOT(readDebugeeOutput(QByteArray)));
     connect(this, SIGNAL(gdbResponseAvailable()),
         this, SLOT(handleResponse()), Qt::QueuedConnection);
 
@@ -355,6 +358,12 @@ static void skipTerminator(const char *&from, const char *to)
     skipSpaces(from, to);
 }
 
+void GdbEngine::readDebugeeOutput(const QByteArray &data)
+{
+    emit applicationOutputAvailable(m_outputCodec->toUnicode(
+            data.constData(), data.length(), &m_outputCodecState));
+}
+
 // called asyncronously as response to Gdb stdout output in
 // gdbResponseAvailable()
 void GdbEngine::handleResponse()
@@ -405,22 +414,6 @@ void GdbEngine::handleResponse()
         if (from == to) {
             //qDebug() << "Returning: " << toString();
             break;
-        }
-
-        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
-            // FIXME: On Linux the application's std::out is merged in here.
-            // High risk of falsely interpreting this as MI output.
-            // We assume that we _always_ use tokens, so not finding a token
-            // is a positive indication for the presence of application output.
-            QString s;
-            while (from != to && *from != '\n')
-                s += *from++;
-            //qDebug() << "UNREQUESTED DATA " << s << " TAKEN AS APPLICATION OUTPUT";
-            //s += '\n';
-
-            m_inbuffer = QByteArray(from, to - from);
-            emit applicationOutputAvailable(s);
-            continue;
         }
 
         // next char decides kind of record
@@ -590,8 +583,7 @@ static void fixMac(QByteArray &out)
 
 void GdbEngine::readGdbStandardError()
 {
-    QByteArray err = m_gdbProc.readAllStandardError();
-    emit applicationOutputAvailable(err);
+    qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -1484,6 +1476,7 @@ void GdbEngine::exitDebugger()
     m_varToType.clear();
     m_dataDumperState = DataDumperUninitialized;
     m_shared = 0;
+    m_outputCollector.shutdown();
     //q->settings()->m_debugDumpers = false;
 }
 
@@ -1505,6 +1498,15 @@ bool GdbEngine::startDebugger()
         qDebug() << "GDB IS ALREADY RUNNING!";
         return false;
     }
+
+    if (!m_outputCollector.listen()) {
+        QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
+                              tr("Cannot set up communication with child process: %1")
+                              .arg(m_outputCollector.errorString()));
+        return false;
+    }
+
+    gdbArgs.prepend(QLatin1String("--tty=") + m_outputCollector.serverName());
 
     //gdbArgs.prepend(QLatin1String("--quiet"));
     gdbArgs.prepend(QLatin1String("mi"));
@@ -1533,6 +1535,7 @@ bool GdbEngine::startDebugger()
     if (m_gdbProc.state() != QProcess::Running) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                               tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
+        m_outputCollector.shutdown();
         return false;
     }
 
