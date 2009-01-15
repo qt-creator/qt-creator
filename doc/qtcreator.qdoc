@@ -797,9 +797,51 @@
     specify the path to the command line client's executable in the settings    
     pages that can be found under \gui{Options...} in the \gui{Tools} menu.
 
-    
 
-    
+    \section1 Usage
+
+    You can find the version control menu entires in a sub-menu of the
+    \gui{Tools} menu. The version control system displayed here is the system
+    that manages the current project.
+
+    Each version control system adds a pane to the \gui{Application Output}
+    panes within which it will log the commands it executes, prepended by a
+    timestamp and the relevant output.
+
+    \image qtcreator-vcs-pane.png
+
+
+    \section2 Addings Files
+
+    When you create a new file or a new project, the wizards will display page
+    requesting whether the files should be added to a version control system.
+    This depends on whether the parent directory or the project is already
+    under version control and the system supports the concept of adding files,
+    e.g., \bold{Perforce} and \bold{Subversion}. Alternatively, you can also
+    add files later on using the version control tool menus.
+
+    With \bold{git}, there is no concept of adding files. Instead, all modified
+    files must be \e{staged} for a commit.
+
+
+    \section2 Viewing Diff Output
+
+    All version control systems provide menu options to \e{diff} the current
+    file or project - comparing with the latest version stored in the
+    repository and displaying the differences. In Qt Creator, a diff is
+    displayed in a read-only editor. If the file is accessible, you can double
+    -click on a selected diff chunk and Qt Creator will open an editor
+    displaying the file, scrolled to the line in question.
+
+    \image qtcreator-vcs-diff.png
+
+
+    \section2 Viewing Versioning History and Change Details
+
+    The versioning history of a file can be displayed by selecting the
+    \gui{Log} (for \bold{git}) or \gui{Filelog (for \bold{Perforce} and
+    \bold{Subversion})} option. Typically, 
+
 */
 
 
