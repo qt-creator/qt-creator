@@ -40,7 +40,7 @@ HEADERS += attachexternaldialog.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h
-    
+
 SOURCES += attachexternaldialog.cpp \
     attachremotedialog.cpp \
     breakhandler.cpp \
@@ -54,7 +54,6 @@ SOURCES += attachexternaldialog.cpp \
     disassemblerwindow.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
-    gdbengine.h \
     moduleshandler.cpp \
     moduleswindow.cpp \
     procinterrupt.cpp \
