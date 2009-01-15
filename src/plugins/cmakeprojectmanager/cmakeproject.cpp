@@ -80,10 +80,9 @@ CMakeProject::~CMakeProject()
 // TODO make this function work even if it is reparsing
 void CMakeProject::parseCMakeLists(const QDir &directory)
 {
-    QDir buildDirectory(directory.absolutePath() + "/qtcreator-build");
-    createCbpFile(buildDirectory);
+    createCbpFile(buildDirectory(QString()));
 
-    QString cbpFile = findCbpFile(buildDirectory);
+    QString cbpFile = findCbpFile(buildDirectory(QString()));
 
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
@@ -242,7 +241,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
     if (buildDirectory.isEmpty())
-        buildDirectory = QFileInfo(m_fileName).absolutePath();
+        buildDirectory = QFileInfo(m_fileName).absolutePath() + "/qtcreator-build";
     return buildDirectory;
 }
 
