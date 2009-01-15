@@ -106,13 +106,7 @@ const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
-const char * const DEBUG_DUMPERS        = "Debugger.DebugDumpers";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
-const char * const USE_CUSTOM_DUMPERS   = "Debugger.UseCustomDumpers";
-const char * const USE_FAST_START       = "Debugger.UseFastStart";
-const char * const USE_TOOL_TIPS        = "Debugger.UseToolTips";
-const char * const SKIP_KNOWN_FRAMES    = "Debugger.SkipKnownFrames";
-const char * const DUMP_LOG             = "Debugger.DumpLog";
 
 #ifdef Q_OS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -290,10 +284,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         Constants::DUMP_LOG, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_debugDumpersAction,
-        Constants::DEBUG_DUMPERS, debuggercontext);
     mdebug->addAction(cmd);
 #endif
 #endif

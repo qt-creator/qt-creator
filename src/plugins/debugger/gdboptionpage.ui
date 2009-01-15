@@ -36,7 +36,7 @@
        <widget class="QLineEdit" name="environmentEdit"/>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="labelGdbLocaltion">
+       <widget class="QLabel" name="labelGdbLocation">
         <property name="toolTip">
          <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that wiull be searched in your PATH.</string>
         </property>
