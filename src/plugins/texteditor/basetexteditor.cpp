@@ -3370,9 +3370,9 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
             const BlockRange &range = blocks.at(rangeNumber);
 
             if (block.position() >= range.first && (block.position() <= range.last || !range.last)) {
-                needUpdate += TextEditDocumentLayout::setIfdefedOut(block);
+                needUpdate |= TextEditDocumentLayout::setIfdefedOut(block);
             } else {
-                needUpdate += TextEditDocumentLayout::clearIfdefedOut(block);
+                needUpdate |= TextEditDocumentLayout::clearIfdefedOut(block);
             }
             if (block.contains(range.last))
                 ++rangeNumber;
