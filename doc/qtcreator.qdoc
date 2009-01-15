@@ -881,8 +881,18 @@
             \i  \gui{Stash}
             \i  Stash local changes prior to executing a \bold{pull}.
         \row
-            \i
-            \i
+            \i  \gui{Pull}
+            \i  Pull changes from the remote repository. If there are locally
+                modified files, you will be prompted to stash those changes.
+        \row
+            \i  \gui{Branches...}
+            \i  Displays the branch dialog showing the local branches at the
+                top and remote branches at the bottom. To switch to the local
+                branch, simply double-click on it. Double-clicking on a remote
+                branch will first create a local branch with the same name that
+                tracks the remote branch, and then switch to it.
+
+                \image qtcreator-vcs-gitbranch.png
     \endtable
 
 */
