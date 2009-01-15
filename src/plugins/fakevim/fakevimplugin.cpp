@@ -39,7 +39,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -117,12 +119,14 @@ private slots:
     void editorAboutToClose(Core::IEditor *);
     void changeSelection(QWidget *widget,
         const QList<QTextEdit::ExtraSelection> &selections);
+    void writeFile(const QString &fileName, const QString &contents);
 
 private:
     FakeVimPlugin *q;
     FakeVimHandler *m_handler;
     QAction *m_installHandlerAction; 
     Core::ICore *m_core;
+    Core::IFile *m_currentFile;
 };
 
 } // namespace Internal
@@ -134,6 +138,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     m_handler = 0;
     m_installHandlerAction = 0;
     m_core = 0;
+    m_currentFile = 0;
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -206,6 +211,12 @@ void FakeVimPluginPrivate::installHandler(QWidget *widget)
         this, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
 
     m_handler->addWidget(widget);
+    TextEditor::BaseTextEditor* editor =
+        qobject_cast<TextEditor::BaseTextEditor*>(widget);
+    if (editor) {
+        m_currentFile = editor->file();
+        m_handler->setCurrentFileName(editor->file()->fileName());
+    }
 
     BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget);
     if (bt) {
@@ -225,12 +236,29 @@ void FakeVimPluginPrivate::installHandler(QWidget *widget)
     }
 }
 
+void FakeVimPluginPrivate::writeFile(const QString &fileName,
+    const QString &contents)
+{
+    if (m_currentFile && fileName == m_currentFile->fileName()) {
+        // Handle that as a special case for nicer interaction with core
+        m_core->fileManager()->blockFileChange(m_currentFile);
+        m_currentFile->save(fileName);
+        m_core->fileManager()->unblockFileChange(m_currentFile);
+    } else {
+        QFile file(fileName);
+        file.open(QIODevice::ReadWrite);
+        { QTextStream ts(&file); ts << contents; }
+        file.close();
+    }
+}
+
 void FakeVimPluginPrivate::removeHandler(QWidget *widget)
 {
     Q_UNUSED(widget);
     m_handler->removeWidget(widget);
     Core::EditorManager::instance()->hideEditorInfoBar(
         QLatin1String(Constants::MINI_BUFFER));
+    m_currentFile = 0;
 }
 
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
