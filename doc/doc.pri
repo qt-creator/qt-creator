@@ -7,7 +7,7 @@ unix {
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
-QCH_FILE = $$OUT_PWD/doc/qtcreator.qch
+QCH_FILE = $$OUT_PWD/share/doc/qtcreator/qtcreator.qch
 
 unix {
 html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
