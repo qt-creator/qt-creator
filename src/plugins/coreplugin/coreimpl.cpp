@@ -190,3 +190,4 @@ void CoreImpl::openFiles(const QStringList &arguments)
 {
     m_mainwindow->openFiles(arguments);
 }
+
