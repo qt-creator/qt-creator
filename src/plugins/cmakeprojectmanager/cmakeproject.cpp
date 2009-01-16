@@ -523,7 +523,7 @@ void CMakeCbpParser::parseTargetOption()
 {
     if (attributes().hasAttribute("output"))
         m_target.executable = attributes().value("output").toString();
-    else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
+    else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0"))
         m_targetType = true;
     else if (attributes().hasAttribute("working_dir"))
         m_target.workingDirectory = attributes().value("working_dir").toString();
