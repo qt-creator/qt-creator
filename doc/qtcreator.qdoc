@@ -1221,8 +1221,8 @@
 
     \bold{Keyboard Shortcuts}
 
-    Qt Creator provides a lot of useful keyboard shortcuts. A complete list can
-    be found \l{Keyboard Shortcuts}{here}.
+    Qt Creator provides a lot of useful keyboard shortcuts. Some useful
+    shortcuts can be found \l{Keyboard Shortcuts}{here}.
 
     \bold{Running Qt Creator from the Command Line}
 
