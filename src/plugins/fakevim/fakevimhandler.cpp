@@ -132,6 +132,7 @@ enum MoveType
 {
     MoveExclusive,
     MoveInclusive,
+    MoveLineWise,
 };
 
 struct EditOperation
@@ -219,19 +220,19 @@ private:
     typedef QTextCursor::MoveOperation MoveOperation;
     typedef QTextCursor::MoveMode MoveMode;
     void moveToEndOfDocument()
-        { m_tc.movePosition(QTextCursor::End, MoveAnchor); }
+        { m_tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor); }
     void moveToStartOfLine()
-        { m_tc.movePosition(QTextCursor::StartOfLine, MoveAnchor); }
+        { m_tc.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor); }
     void moveToEndOfLine()
-        { m_tc.movePosition(QTextCursor::EndOfLine, MoveAnchor); }
+        { m_tc.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor); }
     void moveUp(int n = 1)
-        { m_tc.movePosition(QTextCursor::Up, MoveAnchor, n); }
+        { m_tc.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, n); }
     void moveDown(int n = 1)
-        { m_tc.movePosition(QTextCursor::Down, MoveAnchor, n); }
+        { m_tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, n); }
     void moveRight(int n = 1)
-        { m_tc.movePosition(QTextCursor::Right, MoveAnchor, n); }
+        { m_tc.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, n); }
     void moveLeft(int n = 1)
-        { m_tc.movePosition(QTextCursor::Left, MoveAnchor, n); }
+        { m_tc.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, n); }
     void setAnchor() { m_anchor = m_tc.position(); }
 
     QString selectedText() const;
@@ -331,7 +332,7 @@ public:
     QHash<QString, QString> m_config;
 
     // for restoring cursor position
-    int m_savedPosition;
+    int m_savedYankPosition;
     int m_desiredColumn;
 };
 
@@ -351,6 +352,8 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
     m_moveType = MoveInclusive;
+    m_anchor = 0;
+    m_savedYankPosition = 0;
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -383,7 +386,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     m_tc.setVisualNavigation(true);
 
     if (m_fakeEnd)
-        moveRight(MoveAnchor);
+        moveRight();
 
     if ((ev->modifiers() & Qt::ControlModifier) != 0) {
         key += 256;
@@ -398,7 +401,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     m_fakeEnd = (atEol() && m_mode == CommandMode);
 
     if (m_fakeEnd)
-        moveLeft(MoveAnchor);
+        moveLeft();
 
     EDITOR(setTextCursor(m_tc));
     EDITOR(ensureCursorVisible());
@@ -409,7 +412,6 @@ bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
-    m_savedPosition = m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, unmodified, text);
     if (m_mode == CommandMode)
@@ -452,10 +454,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         recordEndGroup();
         m_submode = NoSubMode;
         if (atEol())
-            moveLeft(MoveAnchor);
+            moveLeft();
     } else if (m_submode == YankSubMode) {
-        m_registers[m_register] = m_tc.selectedText();
-        m_tc.setPosition(m_savedPosition);
+        m_registers[m_register] = selectedText();
+        m_tc.setPosition(m_savedYankPosition);
         m_submode = NoSubMode;
     } else if (m_submode == ReplaceSubMode) {
         m_submode = NoSubMode;
@@ -632,9 +634,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement("d");
     } else if (m_submode == YankSubMode && key == 'y') {
         moveToStartOfLine();
+        setAnchor();
         moveDown(count());
-        m_registers[m_register] = selectedText();
-        finishMovement();
+        m_moveType = MoveLineWise;
+        finishMovement("y");
     } else if (m_submode == ReplaceSubMode) {
         if (atEol())
             moveLeft(KeepAnchor);
@@ -664,7 +667,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (m_subsubmode == BackTickSubSubMode
             || m_subsubmode == TickSubSubMode) {
         if (m_marks.contains(key)) {
-            m_tc.setPosition(m_marks[key], MoveAnchor);
+            m_tc.setPosition(m_marks[key]);
             if (m_subsubmode == TickSubSubMode)
                 moveToFirstNonBlankOnLine();
             finishMovement();
@@ -832,7 +835,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         enterInsertMode();
         updateMiniBuffer();
         if (atEol())
-            moveLeft(MoveAnchor);
+            moveLeft();
     } else if (key == 'I') {
         setAnchor();
         enterInsertMode();
@@ -915,11 +918,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'p' || key == 'P') {
         recordBeginGroup();
         QString text = m_registers[m_register];
-        int n = text.count(QChar(ParagraphSeparator));
+        int n = lineCount(text);
+        //qDebug() << "REGISTERS: " << m_registers << "MOVE: " << m_moveType;
+        //qDebug() << "LINES: " << n << text << m_register;
         if (n > 0) {
             moveToStartOfLine();
             if (key == 'p')
-                moveDown(MoveAnchor);
+                moveDown();
             recordInsertText(text);
             moveUp(n);
         } else {
@@ -974,7 +979,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement("W");
     } else if (key == 'x') { // = "dl"
         if (atEol())
-            moveLeft(MoveAnchor);
+            moveLeft();
         recordBeginGroup();
         m_submode = DeleteSubMode;
         moveRight(qMin(count(), rightDist()));
@@ -987,10 +992,18 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         finishMovement();
     } else if (key == 'y') {
+        m_savedYankPosition = m_tc.position();
         if (atEol())
             moveLeft();
         recordBeginGroup();
+        setAnchor();
         m_submode = YankSubMode;
+    } else if (key == 'Y') {
+        moveToStartOfLine();
+        setAnchor();
+        moveDown(count());
+        m_moveType = MoveLineWise;
+        finishMovement();
     } else if (key == 'z') {
         recordBeginGroup();
         m_submode = ZSubMode;
@@ -1296,7 +1309,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             beginLine = 0;
         if (endLine == -1)
             endLine = linesInDocument();
-        qDebug() << "LINES: " << beginLine << endLine;
+        //qDebug() << "LINES: " << beginLine << endLine;
         bool forced = cmd.startsWith("w!");
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
@@ -1802,6 +1815,9 @@ void FakeVimHandler::Private::recordBeginGroup()
 {
     //qDebug() << "PUSH";
     m_undoGroupStack.push(m_undoStack.size());
+    EditOperation op;
+    op.m_position = m_tc.position();
+    recordOperation(op);
 }
 
 void FakeVimHandler::Private::recordEndGroup()
