@@ -64,6 +64,7 @@ private slots:
     void shadowBuildLineEditTextChanged();
     void importLabelClicked();
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
+    void manageQtVersions();
 
 private:
     Ui::Qt4BuildConfigWidget *m_ui;

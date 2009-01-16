@@ -156,6 +156,7 @@ private slots:
     void restoreSession();
     void loadSession(const QString &session);
     void runProject();
+    void runProjectContextMenu();
     void savePersistentSettings();
     void goToTaskWindow();
 
@@ -188,6 +189,7 @@ private slots:
     void currentModeChanged(Core::IMode *mode);
 
 private:
+    void runProjectImpl(Project *pro);
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
@@ -223,6 +225,7 @@ private:
     QAction *m_cleanAction;
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
+    QAction *m_runActionContextMenu;
     QAction *m_cancelBuildAction;
     QAction *m_debugAction;
     QAction *m_dependenciesAction;

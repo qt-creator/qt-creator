@@ -231,7 +231,7 @@
                 To deselect, use \key{Ctrl+Shift+U}.    
         \row
             \i  Moving lines up and down
-            \i
+            \i  
 
         \row
             \i  Completion
@@ -246,7 +246,17 @@
 
         \row
             \i  Switch between Header and Source
-            \i
+            \i  Use \key{F4}.
+
+        \row
+            \i  Increasing and Decreasing Font Size
+            \i  Use \key{Ctrl+Scroll Wheel}
+
+        \row
+            \i  Follow Symbols under The Cursor
+            \i  Use \key{F2} and \key{Shift+F2}. This feature works with
+                namespaces, classes, methods, variables, include statements,
+                and macros.
     \endtable
 
 
@@ -255,12 +265,6 @@
     Collapse
 
     Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
-
-    F2 and Shift F2 - follows symbols under the cursor (works for namespaces, classes, methods, variables, includes, macros).
-
-    F4 - switch header and source
-
-    Ctrl + Scroll wheel -- used to quickly change the font size (handy for presentatiaons)
 
 
 
@@ -271,14 +275,8 @@
 
 
 /*!
-
-*/
-
-
-
-/*!
     \contentspage index.html
-    \previouspage creator-editor-settings.html
+    \previouspage creator-code-editor.html
     \page creator-build-settings.html
     \nextpage creator-creating-project.html
 
@@ -840,8 +838,8 @@
     \section2 Viewing Versioning History and Change Details
 
     The versioning history of a file can be displayed by selecting the
-    \gui{Log} (for \bold{git}) or \gui{Filelog (for \bold{Perforce} and
-    \bold{Subversion})} option. Typically, the log output will contain the
+    \gui{Log} (for \bold{git}) or \gui{Filelog} (for \bold{Perforce} and
+    \bold{Subversion}) option. Typically, the log output will contain the
     date, the commit message, and a change or revision identifier. If you
     click on the identifier, a description of the change including the diff
     will be displayed.

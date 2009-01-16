@@ -610,9 +610,13 @@ void Qt4Project::addDefaultBuild()
         makeStep = new MakeStep(this);
         insertBuildStep(2, makeStep);
 
+        GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+        gdbmacrosCleanStep->setValue("clean", true);
+        insertCleanStep(0, gdbmacrosCleanStep);
+
         MakeStep* cleanStep = new MakeStep(this);
         cleanStep->setValue("clean", true);
-        insertCleanStep(0, cleanStep);
+        insertCleanStep(1, cleanStep);
 
         ProjectLoadWizard wizard(this);
         wizard.execDialog();
@@ -629,6 +633,10 @@ void Qt4Project::addDefaultBuild()
             if (v.isValid() && v.toBool()) {
                 GdbMacrosBuildStep *gdbmacrostep = new GdbMacrosBuildStep(this);
                 insertBuildStep(0, gdbmacrostep);
+
+                GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+                gdbmacrosCleanStep ->setValue("clean", true);
+                insertCleanStep(0, gdbmacrosCleanStep );
                 break;
             }
         }

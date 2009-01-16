@@ -62,72 +62,105 @@ bool GdbMacrosBuildStep::init(const QString &buildConfiguration)
 
 void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 {
-    // TODO CONFIG handling
+    QVariant v = value("clean");
+    if (v.isNull() || v.toBool() == false) {
+        // Normal run
+        QString dumperPath = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
+                    ->resourcePath() + "/gdbmacros/";
+        QStringList files;
+        files << "gdbmacros.cpp"
+              << "gdbmacros.pro";
 
-    QString dumperPath = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
-                ->resourcePath() + "/gdbmacros/";
-    QStringList files;
-    files << "gdbmacros.cpp"
-          << "gdbmacros.pro";
 
-
-    QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
-    QDir dir;
-    dir.mkpath(destDir);
-    foreach (const QString &file, files) {
-        QFile destination(destDir + file);
-        if (destination.exists())
-            destination.remove();
-        QFile::copy(dumperPath + file, destDir + file);
-    }
-
-    Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
-
-    QProcess qmake;
-    qmake.setEnvironment(qt4Project->environment(m_buildConfiguration).toStringList());
-    qmake.setWorkingDirectory(destDir);
-    QStringList configarguments;
-    QStringList makeArguments;
-
-    // Find qmake step...
-    QMakeStep *qmakeStep = qt4Project->qmakeStep();
-    // Find out which configuration is used in this build configuration
-    // and what kind of CONFIG we need to pass to qmake for that
-    if (qmakeStep->value(m_buildConfiguration, "buildConfiguration").isValid()) {
-        QtVersion::QmakeBuildConfig defaultBuildConfiguration = qt4Project->qtVersion(m_buildConfiguration)->defaultBuildConfig();
-        QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(qmakeStep->value(m_buildConfiguration, "buildConfiguration").toInt());
-        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
-            configarguments << "CONFIG-=debug_and_release";
-        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
-            configarguments << "CONFIG+=debug_and_release";
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(projectBuildConfiguration & QtVersion::DebugBuild))
-            configarguments << "CONFIG+=release";
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
-            configarguments << "CONFIG+=debug";
-        if (projectBuildConfiguration & QtVersion::BuildAll)
-            makeArguments << (projectBuildConfiguration & QtVersion::DebugBuild ? "debug" : "release");
-
-    } else {
-        // Old style with CONFIG+=debug_and_release
-        configarguments << "CONFIG+=debug_and_release";
-        const MakeStep *ms = qt4Project->makeStep();
-        QStringList makeargs = ms->value(m_buildConfiguration, "makeargs").toStringList();
-        if (makeargs.contains("debug")) {
-            makeArguments <<  "debug";
-        } else if (makeargs.contains("release")) {
-            makeArguments << "release";
+        QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
+        QDir dir;
+        dir.mkpath(destDir);
+        foreach (const QString &file, files) {
+            QFile destination(destDir + file);
+            if (destination.exists())
+                destination.remove();
+            QFile::copy(dumperPath + file, destDir + file);
         }
+
+        Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
+
+        QProcess qmake;
+        qmake.setEnvironment(qt4Project->environment(m_buildConfiguration).toStringList());
+        qmake.setWorkingDirectory(destDir);
+        QStringList configarguments;
+        QStringList makeArguments;
+
+        // Find qmake step...
+        QMakeStep *qmakeStep = qt4Project->qmakeStep();
+        // Find out which configuration is used in this build configuration
+        // and what kind of CONFIG we need to pass to qmake for that
+        if (qmakeStep->value(m_buildConfiguration, "buildConfiguration").isValid()) {
+            QtVersion::QmakeBuildConfig defaultBuildConfiguration = qt4Project->qtVersion(m_buildConfiguration)->defaultBuildConfig();
+            QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(qmakeStep->value(m_buildConfiguration, "buildConfiguration").toInt());
+            if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
+                configarguments << "CONFIG-=debug_and_release";
+            if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
+                configarguments << "CONFIG+=debug_and_release";
+            if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(projectBuildConfiguration & QtVersion::DebugBuild))
+                configarguments << "CONFIG+=release";
+            if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
+                configarguments << "CONFIG+=debug";
+            if (projectBuildConfiguration & QtVersion::BuildAll)
+                makeArguments << (projectBuildConfiguration & QtVersion::DebugBuild ? "debug" : "release");
+
+        } else {
+            // Old style with CONFIG+=debug_and_release
+            configarguments << "CONFIG+=debug_and_release";
+            const MakeStep *ms = qt4Project->makeStep();
+            QStringList makeargs = ms->value(m_buildConfiguration, "makeargs").toStringList();
+            if (makeargs.contains("debug")) {
+                makeArguments <<  "debug";
+            } else if (makeargs.contains("release")) {
+                makeArguments << "release";
+            }
+        }
+
+        QString mkspec = qt4Project->qtVersion(m_buildConfiguration)->mkspec();
+        qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
+        qmake.waitForFinished();
+
+
+        qmake.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), makeArguments);
+        qmake.waitForFinished();
+
+        fi.reportResult(true);
+    } else {
+        // Clean step, we want to remove the directory
+        QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
+        Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
+
+        QProcess make;
+        make.setEnvironment(qt4Project->environment(m_buildConfiguration).toStringList());
+        make.setWorkingDirectory(destDir);
+        make.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), QStringList()<<"distclean");
+        make.waitForFinished();
+
+        QStringList files;
+        files << "gdbmacros.cpp"
+              << "gdbmacros.pro";
+
+        QStringList directories;
+        directories << "debug"
+                    << "release";
+
+        foreach(const QString &file, files) {
+            QFile destination(destDir + file);
+            destination.remove();
+        }
+
+        foreach(const QString &dir, directories) {
+            QDir destination(destDir + dir);
+            destination.rmdir(destDir + dir);
+        }
+
+        QDir(destDir).rmdir(destDir);
+        fi.reportResult(true);
     }
-
-    QString mkspec = qt4Project->qtVersion(m_buildConfiguration)->mkspec();
-    qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
-    qmake.waitForFinished();
-
-
-    qmake.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), makeArguments);
-    qmake.waitForFinished();
-
-    fi.reportResult(true);
 }
 
 QString GdbMacrosBuildStep::name()
