@@ -219,20 +219,13 @@ private:
     // to reduce line noise
     typedef QTextCursor::MoveOperation MoveOperation;
     typedef QTextCursor::MoveMode MoveMode;
-    void moveToEndOfDocument()
-        { m_tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor); }
-    void moveToStartOfLine()
-        { m_tc.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor); }
-    void moveToEndOfLine()
-        { m_tc.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor); }
-    void moveUp(int n = 1)
-        { m_tc.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, n); }
-    void moveDown(int n = 1)
-        { m_tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, n); }
-    void moveRight(int n = 1)
-        { m_tc.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, n); }
-    void moveLeft(int n = 1)
-        { m_tc.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, n); }
+    void moveToEndOfDocument() { m_tc.movePosition(EndOfDocument, MoveAnchor); }
+    void moveToStartOfLine() { m_tc.movePosition(StartOfLine, MoveAnchor); }
+    void moveToEndOfLine() { m_tc.movePosition(EndOfLine, MoveAnchor); }
+    void moveUp(int n = 1) { m_tc.movePosition(Up, MoveAnchor, n); }
+    void moveDown(int n = 1) { m_tc.movePosition(Down, MoveAnchor, n); }
+    void moveRight(int n = 1) { m_tc.movePosition(Right, MoveAnchor, n); }
+    void moveLeft(int n = 1) { m_tc.movePosition(Left, MoveAnchor, n); }
     void setAnchor() { m_anchor = m_tc.position(); }
 
     QString selectedText() const;
