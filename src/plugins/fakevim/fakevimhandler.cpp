@@ -144,7 +144,7 @@ struct EditOperation
     QString m_to;
 };
 
-static QDebug &operator<<(QDebug &ts, const EditOperation &op)
+QDebug &operator<<(QDebug &ts, const EditOperation &op)
 {
     if (op.m_itemCount > 0) {
         ts << "\n  EDIT BLOCK WITH " << op.m_itemCount << " ITEMS";
@@ -1410,7 +1410,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
 void FakeVimHandler::Private::search(const QString &needle0, bool forward)
 {
-    showBlackMessage("?/"[m_lastSearchForward ^ forward] + needle0);
+    showBlackMessage((forward ? '/' : '?') + needle0);
     QTextCursor orig = m_tc;
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!forward)
@@ -1423,7 +1423,7 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     needle.replace("\\<", ""); // start of word
     needle.replace("\\>", ""); // end of word
 
-    qDebug() << "NEEDLE " << needle0 << needle << "FORWARD" << forward << flags;
+    //qDebug() << "NEEDLE " << needle0 << needle << "FORWARD" << forward << flags;
 
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
