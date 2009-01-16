@@ -138,7 +138,6 @@ private slots:
     void cleanSession();
     void cancelBuild();
     void debugProject();
-    void editDependencies();
     void loadAction();
     void unloadProject();
     void clearSession();
@@ -228,7 +227,6 @@ private:
     QAction *m_runActionContextMenu;
     QAction *m_cancelBuildAction;
     QAction *m_debugAction;
-    QAction *m_dependenciesAction;
     QAction *m_taskAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;

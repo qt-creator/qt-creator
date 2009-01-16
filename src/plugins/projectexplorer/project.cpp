@@ -46,12 +46,19 @@
 #include <QtCore/QTextCodec>
 
 using namespace ProjectExplorer;
-using ExtensionSystem::PluginManager;
 
 Project::Project()
     : m_activeRunConfiguration(0),
       m_editorConfiguration(new EditorConfiguration())
 {
+}
+
+Project::~Project()
+{
+    qDeleteAll(m_buildSteps);
+    qDeleteAll(m_cleanSteps);
+    qDeleteAll(m_buildConfigurationValues);
+    delete m_editorConfiguration;
 }
 
 void Project::insertBuildStep(int position, BuildStep *step)
@@ -508,14 +515,3 @@ void Project::setDisplayNameFor(const QString &buildConfiguration, const QString
     }
     emit buildConfigurationDisplayNameChanged(buildConfiguration);
 }
-
-
-Project::~Project()
-{
-    qDeleteAll(m_buildSteps);
-    qDeleteAll(m_cleanSteps);
-    qDeleteAll(m_buildConfigurationValues);
-    delete m_editorConfiguration;
-}
-
-

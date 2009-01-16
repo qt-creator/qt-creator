@@ -66,7 +66,7 @@ class PROJECTEXPLORER_EXPORT IBuildParserFactory
     Q_OBJECT
 
 public:
-    IBuildParserFactory() {};
+    IBuildParserFactory() {}
     virtual ~IBuildParserFactory();
     virtual bool canCreate(const QString & name) const = 0;
     virtual BuildParserInterface * create(const QString & name) const = 0;

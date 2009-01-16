@@ -222,8 +222,8 @@
     \table
         \row
             \i  Block navigation
-            \i  To navigate between blocks, e.g., from one \c{\{} to another
-                \c{\c}}, use \key{Ctrl+[} and \key{Ctrl+]}.
+            \i  To navigate between blocks, e.g., from one \bold{\{} to another
+                \bold{\}} , use \key{Ctrl+[} and \key{Ctrl+]}.
         \row
             \i  Block selection
             \i  To select a current block, use \key{Ctrl+U}. Pressing

@@ -33,7 +33,6 @@
 
 #include "session.h"
 
-#include "dependenciesdialog.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -59,6 +58,7 @@
 #include <QtCore/QFuture>
 #include <QtCore/QSettings>
 
+#include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
@@ -118,7 +118,6 @@ private:
 
 using namespace ProjectExplorer;
 using Internal::SessionFile;
-using Internal::DependenciesDialog;
 
 
 void SessionFile::sessionLoadingProgress()
@@ -452,7 +451,28 @@ bool SessionManager::recursiveDependencyCheck(const QString &newDep, const QStri
     return true;
 }
 
-bool SessionManager::hasDependency(Project *project, Project *depProject) const
+/*
+ * TODO: The dependency management exposes an interface based on projects, but
+ * is internally purely string based. This is suboptimal. Probably it would be
+ * nicer to map the filenames to projects on load and only map it back to
+ * filenames when saving.
+ */
+
+QList<Project *> SessionManager::dependencies(const Project *project) const
+{
+    const QString &proName = project->file()->fileName();
+    const QStringList &proDeps = m_file->m_depMap.value(proName);
+
+    QList<Project *> projects;
+    foreach (const QString &dep, proDeps) {
+        if (Project *pro = projectForFile(dep))
+            projects += pro;
+    }
+
+    return projects;
+}
+
+bool SessionManager::hasDependency(const Project *project, const Project *depProject) const
 {
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
@@ -461,7 +481,7 @@ bool SessionManager::hasDependency(Project *project, Project *depProject) const
     return proDeps.contains(depName);
 }
 
-bool SessionManager::canAddDependency(Project *project, Project *depProject) const
+bool SessionManager::canAddDependency(const Project *project, const Project *depProject) const
 {
     const QString &newDep = project->file()->fileName();
     const QString &checkDep = depProject->file()->fileName();
@@ -469,7 +489,7 @@ bool SessionManager::canAddDependency(Project *project, Project *depProject) con
     return recursiveDependencyCheck(newDep, checkDep);
 }
 
-bool SessionManager::addDependency(Project *project, Project *depProject)
+bool SessionManager::addDependency(const Project *project, const Project *depProject)
 {
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
@@ -485,6 +505,20 @@ bool SessionManager::addDependency(Project *project, Project *depProject)
     }
 
     return true;
+}
+
+void SessionManager::removeDependency(const Project *project, const Project *depProject)
+{
+    const QString &proName = project->file()->fileName();
+    const QString &depName = depProject->file()->fileName();
+
+    QStringList proDeps = m_file->m_depMap.value(proName);
+    proDeps.removeAll(depName);
+    if (proDeps.isEmpty()) {
+        m_file->m_depMap.remove(proName);
+    } else {
+        m_file->m_depMap[proName] = proDeps;
+    }
 }
 
 void SessionManager::setStartupProject(Project *startupProject)
@@ -503,21 +537,6 @@ void SessionManager::setStartupProject(Project *startupProject)
 Project *SessionManager::startupProject() const
 {
     return m_file->m_startupProject;
-}
-
-void SessionManager::removeDependency(Project *project,
-    Project *depProject)
-{
-    const QString &proName = project->file()->fileName();
-    const QString &depName = depProject->file()->fileName();
-
-    QStringList proDeps = m_file->m_depMap.value(proName);
-    proDeps.removeAll(depName);
-    if (proDeps.isEmpty()) {
-        m_file->m_depMap.remove(proName);
-    } else {
-        m_file->m_depMap[proName] = proDeps;
-    }
 }
 
 void SessionManager::addProject(Project *project)
@@ -700,12 +719,6 @@ bool SessionManager::clear()
         qDebug() << "SessionManager - clearing session result is " << success;
 
     return success;
-}
-
-void SessionManager::editDependencies()
-{
-    DependenciesDialog dlg(0, this);
-    dlg.exec();
 }
 
 const QList<Project *> &SessionManager::projects() const

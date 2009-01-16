@@ -569,17 +569,6 @@ QStringList Qt4Project::files(FilesMode fileMode) const
     return files;
 }
 
-QList<Core::IFile *> Qt4Project::dependencies()
-{
-    QList<Core::IFile *> result;
-    // TODO profile cache is no longer
-//    ProFileCache *cache = m_manager->proFileCache();
-//    foreach (const QString &file, cache->dependencies(m_rootProjectNode)) {
-//        result << cache->fileInterface(file);
-//    }
-    return result;
-}
-
 QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 {
     // NBS implement dependsOn

@@ -563,7 +563,7 @@ TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 }
 
 /* Returns the current session. */
-SessionManager* BookmarkManager::sessionManager() const
+SessionManager *BookmarkManager::sessionManager() const
 {
     ExtensionSystem::PluginManager *pm = m_core->pluginManager();
     ProjectExplorerPlugin *pe = pm->getObject<ProjectExplorerPlugin>();

@@ -74,7 +74,12 @@ using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
 
 // Known file types of a Qt 4 project
-static const char* qt4FileTypes[] = {"CppHeaderFiles", "CppSourceFiles", "Qt4FormFiles", "Qt4ResourceFiles" };
+static const char* qt4FileTypes[] = {
+    "CppHeaderFiles",
+    "CppSourceFiles",
+    "Qt4FormFiles",
+    "Qt4ResourceFiles"
+};
 
 Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin, Core::ICore *core) :
     m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
