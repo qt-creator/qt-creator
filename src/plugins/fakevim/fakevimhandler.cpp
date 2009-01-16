@@ -48,6 +48,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
+#include <QtCore/QtAlgorithms>
 #include <QtCore/QStack>
 
 #include <QtGui/QApplication>
@@ -416,7 +417,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         int start = m_tc.selectionStart();
         int end = m_tc.selectionEnd();
         if (start > end)
-            std::swap(start, end);
+            qSwap(start, end);
         QTextBlock startBlock = doc->findBlock(start);
         indentRegion(doc->findBlock(start), doc->findBlock(end).next());
         m_tc.setPosition(startBlock.position());
@@ -596,7 +597,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
-            qDebug() << "Ignored z + " << key << text;
+            qDebug() << "IGNORED Z_MODE " << key << text;
         }
         m_submode = NoSubMode;
     } else if (m_subsubmode == FtSubSubMode) {
@@ -640,6 +641,14 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         updateMiniBuffer();
     } else if (key == '`') {
         m_subsubmode = BackTickSubSubMode;
+    } else if (key == '#' || key == '*') {
+        // FIXME: That's not proper vim behaviour
+        m_tc.select(QTextCursor::WordUnderCursor);
+        QString needle = "\\<" + m_tc.selection().toPlainText() + "\\>";
+        m_searchHistory.append(needle);
+        m_lastSearchForward = (key == '*');
+        updateMiniBuffer();
+        search(needle, m_lastSearchForward);
     } else if (key == '\'') {
         m_subsubmode = TickSubSubMode;
     } else if (key == '|') {
@@ -918,7 +927,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (m_visualMode != NoVisualMode)
             leaveVisualMode();
     } else {
-        qDebug() << "Ignored in command mode: " << key << text;
+        qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
         if (text.isEmpty())
             handled = false;
     }
@@ -1296,13 +1305,22 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     }
 }
 
-void FakeVimHandler::Private::search(const QString &needle, bool forward)
+void FakeVimHandler::Private::search(const QString &needle0, bool forward)
 {
-    //qDebug() << "NEEDLE " << needle << "BACKWARDS" << backwards;
+    showBlackMessage("?/"[m_lastSearchForward ^ forward] + needle0);
     QTextCursor orig = m_tc;
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!forward)
-        flags = QTextDocument::FindBackward;
+        flags |= QTextDocument::FindBackward;
+
+    // FIXME: Rough mapping of a common case
+    QString needle = needle0;
+    if (needle.startsWith("\\<") && needle.endsWith("\\>"))
+        flags |= QTextDocument::FindWholeWords;
+    needle.replace("\\<", ""); // start of word
+    needle.replace("\\>", ""); // end of word
+
+    qDebug() << "NEEDLE " << needle0 << needle << "FORWARD" << forward << flags;
 
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
@@ -1311,7 +1329,8 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         // the qMax seems to be needed for QPlainTextEdit only
-        m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
+        //m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
+        m_tc.setPosition(m_tc.anchor());
         return;
     }
 
@@ -1320,7 +1339,8 @@ void FakeVimHandler::Private::search(const QString &needle, bool forward)
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         // the qMax seems to be needed for QPlainTextEdit only
-        m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
+        //m_tc.movePosition(Left, MoveAnchor, qMax(1, needle.size() - 1));
+        m_tc.setPosition(m_tc.anchor());
         if (forward)
             showRedMessage("search hit BOTTOM, continuing at TOP");
         else
