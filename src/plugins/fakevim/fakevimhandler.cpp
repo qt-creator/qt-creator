@@ -128,6 +128,12 @@ enum VisualMode
     VisualBlockMode,
 };
 
+enum MoveType
+{
+    MoveExclusive,
+    MoveInclusive,
+};
+
 struct EditOperation
 {
     EditOperation() : m_position(-1), m_itemCount(0) {}
@@ -264,6 +270,7 @@ public:
     int m_register;
     QString m_mvcount;
     QString m_opcount;
+    MoveType m_moveType;
 
     bool m_fakeEnd;
 
@@ -343,6 +350,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
+    m_moveType = MoveInclusive;
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -462,6 +470,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_tc.setPosition(startBlock.position());
         moveToFirstNonBlankOnLine();
         m_submode = NoSubMode;
+    } else if (m_moveType == MoveExclusive) {
+        moveLeft(); // correct 
     }
     m_mvcount.clear();
     m_opcount.clear();
@@ -610,13 +620,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveDown(count());
         moveLeft();
-        QString text = recordRemoveSelectedText();
-        m_registers[m_register] = text;
+        m_registers[m_register] = recordRemoveSelectedText();
         m_submode = NoSubMode;
         m_mode = InsertMode;
         finishMovement("c");
     } else if (m_submode == DeleteSubMode && key == 'd') {
         moveToStartOfLine();
+        setAnchor();
         moveDown(count());
         m_registers[m_register] = recordRemoveSelectedText();
         finishMovement("d");
@@ -790,6 +800,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'e') {
         moveToWordBoundary(false, true);
+        m_moveType = MoveExclusive;
         finishMovement();
     } else if (key == 'E') {
         moveToWordBoundary(true, true);
@@ -956,6 +967,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToWordBoundary(false, true);
         else
             moveToNextWord(false);
+        m_moveType = MoveExclusive;
         finishMovement("w");
     } else if (key == 'W') {
         moveToNextWord(true);
@@ -1526,10 +1538,8 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
-        if (repeat == -1) {
-            forward ? moveLeft() : moveRight();
+        if (repeat == -1)
             break;
-        }
         lastClass = thisClass;
         if (m_tc.position() == n)
             break;
@@ -1833,7 +1843,7 @@ void FakeVimHandler::Private::recordInsertText(const QString &data)
 
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 {
-    qDebug() << "OP: " << op;
+    //qDebug() << "OP: " << op;
     m_undoStack.push(op);
     m_redoStack.clear();
 }
