@@ -34,9 +34,10 @@
 #ifndef DEPENDENCIESDIALOG_H
 #define DEPENDENCIESDIALOG_H
 
-#include "ui_dependenciesdialog.h"
+#include "iprojectproperties.h"
+#include "ui_dependenciespanel.h"
 
-#include <QtGui/QDialog>
+#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 
@@ -45,27 +46,32 @@ class SessionManager;
 
 namespace Internal {
 
-class DependencyModel;
+class DependenciesWidget;
 
-// NBS kill DependenciesDialog?
-class DependenciesDialog : public QDialog
+class DependenciesPanelFactory : public IPanelFactory
+{
+public:
+    DependenciesPanelFactory(SessionManager *session);
+
+    bool supports(Project *project);
+    PropertiesPanel *createPanel(Project *project);
+
+private:
+    SessionManager *m_session;
+};
+
+
+class DependenciesPanel : public PropertiesPanel
 {
     Q_OBJECT
 public:
-    typedef QList<ProjectExplorer::Project *> ProjectList;
-
-    DependenciesDialog(QWidget *parent, SessionManager *sln);
-    virtual ~DependenciesDialog();
-
-public slots:
-    virtual void accept();
-    void reset();
+    DependenciesPanel(SessionManager *session, Project *project);
+    ~DependenciesPanel();
+    QString name() const;
+    QWidget *widget();
 
 private:
-    Ui::DependenciesDialog m_ui;
-    SessionManager *m_sln;
-    ProjectList m_projectList;
-    DependencyModel *m_model;
+    DependenciesWidget *m_widget;
 };
 
 } // namespace Internal

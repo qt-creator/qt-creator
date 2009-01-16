@@ -73,7 +73,6 @@ public:
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IProjectManager *projectManager() const;
 
-    virtual QList<Core::IFile *> dependencies(); //NBS TODO remove
     virtual QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
     virtual bool isApplication() const;

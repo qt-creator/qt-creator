@@ -39,8 +39,6 @@
 
 #include <coreplugin/icontext.h>
 
-#include <QtGui/QWidget>
-
 namespace ProjectExplorer {
 
 class PropertiesPanel;
@@ -57,7 +55,7 @@ class PROJECTEXPLORER_EXPORT PropertiesPanel : public Core::IContext
 {
     Q_OBJECT
 public:
-    virtual void finish() {};
+    virtual void finish() {}
     virtual QString name() const = 0;
 
     // IContext

@@ -215,11 +215,6 @@ ProjectExplorer::IProjectManager *CMakeProject::projectManager() const
     return m_manager;
 }
 
-QList<Core::IFile *> CMakeProject::dependencies()
-{
-    return QList<Core::IFile *>();
-}
-
 QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
 {
     return QList<Project *>();

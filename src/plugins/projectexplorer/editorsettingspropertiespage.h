@@ -73,7 +73,6 @@ private slots:
     void currentEncodingChanged(int index);
 
 private:
-
     Ui::EditorSettingsPropertiesPage m_ui;
     Project *m_project;
     QList<QTextCodec *> m_codecs;
