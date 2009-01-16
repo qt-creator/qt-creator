@@ -433,6 +433,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
         QString text = recordRemoveSelectedText();
+        qDebug() << "CHANGING TO INSERT MODE" << text;
         m_registers[m_register] = text;
         m_mode = InsertMode;
         m_submode = NoSubMode;
@@ -949,7 +950,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == control('v')) {
         enterVisualMode(VisualBlockMode);
     } else if (key == 'w') {
-        moveToNextWord(false);
+        // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
+        // cursor is on a non-blank.
+        if (m_submode == ChangeSubMode)
+            moveToWordBoundary(false, true);
+        else
+            moveToNextWord(false);
         finishMovement("w");
     } else if (key == 'W') {
         moveToNextWord(true);
@@ -1513,15 +1519,15 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
     int repeat = count();
     QTextDocument *doc = m_tc.document();
     int n = forward ? lastPositionInDocument() - 1 : 0;
-    int lastClass = 0;
+    int lastClass = -1;
     while (true) {
-        m_tc.movePosition(forward ? Right : Left, KeepAnchor, 1);
+        forward ? moveRight() : moveLeft();
         QChar c = doc->characterAt(m_tc.position());
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
         if (repeat == -1) {
-            m_tc.movePosition(forward ? Left : Right, KeepAnchor, 1);
+            forward ? moveLeft() : moveRight();
             break;
         }
         lastClass = thisClass;
@@ -1586,7 +1592,7 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
         if (repeat == 0)
             break;
         lastClass = thisClass;
-        m_tc.movePosition(Right, KeepAnchor, 1);
+        moveRight();
         if (m_tc.position() == n)
             break;
     }
@@ -1799,11 +1805,13 @@ void FakeVimHandler::Private::recordEndGroup()
 QString FakeVimHandler::Private::recordRemoveSelectedText()
 {
     EditOperation op;
+    //qDebug() << "1 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
     m_tc.setPosition(anchor(), KeepAnchor);
     op.m_position = qMin(position(), anchor());
+    //qDebug() << "2 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
     op.m_from = m_tc.selection().toPlainText();
     recordOperation(op);
-    m_tc.removeSelectedText();
+    m_tc.deleteChar();
     return op.m_from;
 }
 
