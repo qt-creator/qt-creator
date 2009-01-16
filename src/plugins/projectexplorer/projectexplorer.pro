@@ -15,7 +15,7 @@ HEADERS += projectexplorer.h \
     persistentsettings.h \
     projectfilewizardextension.h \
     session.h \
-    dependenciesdialog.h \
+    dependenciespanel.h \
     allprojectsfilter.h \
     buildparserinterface.h \
     projectexplorerconstants.h \
@@ -62,7 +62,7 @@ SOURCES += projectexplorer.cpp \
     persistentsettings.cpp \
     projectfilewizardextension.cpp \
     session.cpp \
-    dependenciesdialog.cpp \
+    dependenciespanel.cpp \
     allprojectsfilter.cpp \
     currentprojectfilter.cpp \
     scriptwrappers.cpp \
@@ -94,7 +94,7 @@ SOURCES += projectexplorer.cpp \
     nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp
-FORMS += dependenciesdialog.ui \
+FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \
     editorsettingspropertiespage.ui \
