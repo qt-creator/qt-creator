@@ -333,6 +333,14 @@
     remove the build step. You will still be able to debug applications, but the
     contents of Qt and STL data types will not be displayed properly.
 
+    \section1 Dependencies
+
+    If you have multiple projects loaded in your session, you can configure
+    dependencies between them. This will affect the build order of your
+    projects. To do this, go the the \bold{Dependencies} tab after selecting
+    the project for which you want to configure the dependencies, and then use
+    the checkboxes to check which of the other projects is a dependency.
+
 */
 
 /*!
@@ -1269,25 +1277,41 @@
             \o  Meaning
 
         \row
-            \o  System Qt   \target glossary-system-qt
+            \o
+                \raw HTML
+                System&nbsp;Qt
+                \endraw
+                \target glossary-system-qt
             \o  The version of Qt installed on your system. This is the Qt
                 version for the \c qmake command found in your \c PATH.
 
         \row
-            \o  Default Qt  \target glossary-default-qt
+            \o
+                \raw HTML
+                Default&nbsp;Qt
+                \endraw
+                \target glossary-default-qt
             \o  The version of Qt configured in \gui{Tools -> Options -> Qt 4
                 -> Default Qt Version}. This is the Qt version used by your
                 new projects. It defaults to System Qt.
 
         \row
-            \o  Project Qt  \target glossary-project-qt
+            \o
+                \raw HTML
+                Project&nbsp;Qt
+                \endraw
+                \target glossary-project-qt
             \o  The version of Qt configured in \gui{Build&Run -> Build
                 Settings -> Build Configurations}. This is the Qt version that
                 is actually used by a particular project. It defaults to
                 Default Qt.
 
         \row
-            \o  Shadow Build    \target glossary-shadow-build
+            \o
+                \raw HTML
+                Shadow&nbsp;Build
+                \endraw
+                \target glossary-shadow-build
             \o  Shadow building means building a project in a separate
                 directory, the \e{build directory}. The build directory is
                 different from the source directory. One of the benefits of
