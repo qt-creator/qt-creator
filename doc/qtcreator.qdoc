@@ -275,14 +275,8 @@
 
 
 /*!
-
-*/
-
-
-
-/*!
     \contentspage index.html
-    \previouspage creator-editor-settings.html
+    \previouspage creator-code-editor.html
     \page creator-build-settings.html
     \nextpage creator-creating-project.html
 
@@ -844,8 +838,8 @@
     \section2 Viewing Versioning History and Change Details
 
     The versioning history of a file can be displayed by selecting the
-    \gui{Log} (for \bold{git}) or \gui{Filelog (for \bold{Perforce} and
-    \bold{Subversion})} option. Typically, the log output will contain the
+    \gui{Log} (for \bold{git}) or \gui{Filelog} (for \bold{Perforce} and
+    \bold{Subversion}) option. Typically, the log output will contain the
     date, the commit message, and a change or revision identifier. If you
     click on the identifier, a description of the change including the diff
     will be displayed.
