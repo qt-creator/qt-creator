@@ -521,6 +521,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     cmd = am->registerAction(m_runAction, Constants::RUN, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
+
+    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
+    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
@@ -616,6 +619,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
+    connect(m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
     connect(m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(m_debugAction, SIGNAL(triggered()), this, SLOT(debugProject()));
     connect(m_dependenciesAction, SIGNAL(triggered()), this, SLOT(editDependencies()));
@@ -1348,7 +1352,16 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    Project *pro = startupProject();
+    runProjectImpl(startupProject());
+}
+
+void ProjectExplorerPlugin::runProjectContextMenu()
+{
+    runProjectImpl(m_currentProject);
+}
+
+void ProjectExplorerPlugin::runProjectImpl(Project *pro)
+{
     if (!pro)
         return;
 
@@ -1434,10 +1447,14 @@ IRunConfigurationRunner *ProjectExplorerPlugin::findRunner(QSharedPointer<RunCon
 void ProjectExplorerPlugin::updateRunAction()
 {
     const Project *project = startupProject();
-    const bool canRun = project && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+    bool canRun = project && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
     const bool canDebug = project && !m_debuggingRunControl && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     const bool building = m_buildManager->isBuilding();
     m_runAction->setEnabled(canRun && !building);
+
+    canRun = m_currentProject && findRunner(m_currentProject->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+    m_runActionContextMenu->setEnabled(canRun && !building);
+
     m_debugAction->setEnabled(canDebug && !building);
 }
 

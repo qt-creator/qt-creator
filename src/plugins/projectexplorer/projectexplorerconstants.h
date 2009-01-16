@@ -57,6 +57,7 @@ const char * const BUILDCONFIGURATIONMENU = "ProjectExplorer.BuildConfigurationM
 const char * const CANCELBUILD          = "ProjectExplorer.CancelBuild";
 const char * const RUNCONFIGURATIONMENU = "ProjectExplorer.RunConfigurationMenu";
 const char * const RUN                  = "ProjectExplorer.Run";
+const char * const RUNCONTEXTMENU       = "ProjectExplorer.RunContextMenu";
 const char * const STOP                 = "ProjectExplorer.Stop";
 const char * const DEBUG                = "ProjectExplorer.Debug";
 const char * const DEPENDENCIES         = "ProjectExplorer.Dependencies";
