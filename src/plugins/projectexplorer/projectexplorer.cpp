@@ -34,12 +34,13 @@
 #include "applicationrunconfiguration.h"
 #include "allprojectsfilter.h"
 #include "allprojectsfind.h"
-#include "currentprojectfind.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
-#include "editorsettingspropertiespage.h"
+#include "currentprojectfind.h"
 #include "currentprojectfilter.h"
 #include "customexecutablerunconfiguration.h"
+#include "editorsettingspropertiespage.h"
+#include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
 #include "iprojectmanager.h"
 #include "metatypedeclarations.h"
@@ -215,6 +216,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
     addAutoReleasedObject(new EditorSettingsPanelFactory);
+    addAutoReleasedObject(new DependenciesPanelFactory(m_session));
 
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;
     addAutoReleasedObject(processStepFactory);
@@ -485,11 +487,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
-    // dependencies action
-    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
-    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
-
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
     cmd = am->registerAction(m_buildAction, Constants::BUILD, globalcontext);
@@ -622,7 +619,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     connect(m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
     connect(m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(m_debugAction, SIGNAL(triggered()), this, SLOT(debugProject()));
-    connect(m_dependenciesAction, SIGNAL(triggered()), this, SLOT(editDependencies()));
     connect(m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
     connect(m_taskAction, SIGNAL(triggered()), this, SLOT(goToTaskWindow()));
@@ -701,7 +697,7 @@ void ProjectExplorerPlugin::unloadProject()
 
     QList<Core::IFile*> filesToSave;
     filesToSave << fi;
-    filesToSave << m_currentProject->dependencies();
+    // FIXME: What we want here is to check whether we need to safe any of the pro/pri files in this project
 
     // check the number of modified files
     int readonlycount = 0;
@@ -1203,12 +1199,12 @@ void ProjectExplorerPlugin::updateActions()
     m_rebuildSessionAction->setEnabled(hasProjects && !building);
     m_cleanSessionAction->setEnabled(hasProjects && !building);
     m_cancelBuildAction->setEnabled(building);
-    m_dependenciesAction->setEnabled(hasProjects && !building);
 
     updateRunAction();
 
     updateTaskActions();
 }
+
 
 // NBS TODO check projectOrder()
 // what we want here is all the projects pro depends on
@@ -1465,14 +1461,6 @@ void ProjectExplorerPlugin::cancelBuild()
 
     if (m_buildManager->isBuilding())
         m_buildManager->cancel();
-}
-
-void ProjectExplorerPlugin::editDependencies()
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::editDependencies";
-
-    m_session->editDependencies();
 }
 
 void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName)
