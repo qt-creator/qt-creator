@@ -145,7 +145,7 @@ const char * const ABOUT_WORKBENCH       = "QtCreator.AboutWorkbench";
 const char * const ABOUT_PLUGINS         = "QtCreator.AboutPlugins";
 const char * const ABOUT_QT              = "QtCreator.AboutQt";
 const char * const S_RETURNTOEDITOR      = "QtCreator.ReturnToEditor";
-const char * const OPEN_IN_EXTERNAL_EDITOR = "QtCreattor.OpenInExternalEditor";
+const char * const OPEN_IN_EXTERNAL_EDITOR = "QtCreator.OpenInExternalEditor";
 
 // default groups
 const char * const G_DEFAULT_ONE         = "QtCreator.Group.Default.One";
