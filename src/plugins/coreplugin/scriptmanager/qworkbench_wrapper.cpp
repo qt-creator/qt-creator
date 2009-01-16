@@ -267,10 +267,10 @@ QList<Core::IEditor*> EditorManagerPrototype::editorHistory() const
     return callee()->editorHistory();
 }
 
-QList<Core::EditorGroup *> EditorManagerPrototype::editorGroups() const
-{
-    return callee()->editorGroups();
-}
+//QList<Core::EditorGroup *> EditorManagerPrototype::editorGroups() const
+//{
+//    return callee()->editorGroups();
+//}
 
 QList<Core::IEditor*> EditorManagerPrototype::editorsForFiles(QList<Core::IFile*> files) const
 {

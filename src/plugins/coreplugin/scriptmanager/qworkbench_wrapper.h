@@ -170,7 +170,7 @@ class EditorManagerPrototype : public QObject, public QScriptable
     Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE setCurrentEditor DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> openedEditors READ openedEditors DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> editorHistory  READ editorHistory DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QList<Core::EditorGroup *> editorGroups READ editorGroups DESIGNABLE false SCRIPTABLE true STORED false)
+//    Q_PROPERTY(QList<Core::EditorGroup *> editorGroups READ editorGroups DESIGNABLE false SCRIPTABLE true STORED false)
 public:
     typedef  Core::EditorManager EditorManager;
 
@@ -180,7 +180,7 @@ public:
     void setCurrentEditor(Core::IEditor *editor);
     QList<Core::IEditor*> openedEditors() const;
     QList<Core::IEditor*> editorHistory() const;
-    QList<Core::EditorGroup *> editorGroups() const;
+//    QList<Core::EditorGroup *> editorGroups() const;
 
 public slots:
     QList<Core::IEditor*> editorsForFiles(QList<Core::IFile*> files) const;

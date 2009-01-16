@@ -88,6 +88,8 @@ private:
     void centerOnItem(int selectedIndex);
     void selectUpDown(bool up);
 
+    bool isSameFile(IEditor *editorA, IEditor *editorB) const;
+
     QTreeWidget *m_editorList;
     Mode m_mode;
     QTimer m_autoHide;

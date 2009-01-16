@@ -74,7 +74,7 @@ static inline QString msgServerFailure()
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
-        if (ed->property(property).toString() == entry)
+        if (ed->file()->property(property).toString() == entry)
             return ed;
     return 0;
 }
@@ -173,7 +173,7 @@ VCSBase::VCSBaseEditor
     } else {
         // Create new, set wait message, set up with source and codec
         outputEditor = m_core->editorManager()->newFile(kind, &title, m_msgWait);
-        outputEditor->setProperty(registerDynamicProperty, dynamicPropertyValue);
+        outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(rc, return 0);
         rc->setSource(source);

@@ -895,7 +895,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
         }
 
         foreach (Core::IEditor *ed, m_coreInstance->editorManager()->openedEditors()) {
-            if (ed->property("originalFileName").toString() == fileName) {
+            if (ed->file()->property("originalFileName").toString() == fileName) {
                 existingEditor = ed;
                 displayInEditor = false;
                 break;
@@ -913,7 +913,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
 
     if (files.count() == 1) {
         if (displayInEditor && editor != 0) {
-            editor->setProperty("originalFileName", files.at(0));
+            editor->file()->setProperty("originalFileName", files.at(0));
         } else if (!displayInEditor && existingEditor) {
             if (existingEditor) {
                 existingEditor->createNew(result.stdOut);

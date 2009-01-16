@@ -69,7 +69,7 @@ struct EditorManagerPrivate;
 namespace Internal {
 class OpenEditorsWindow;
 class EditorModel;
-class EditorSplitter;
+//class EditorSplitter;
 
 class EditorClosingCoreListener;
 class OpenEditorsViewFactory;
@@ -118,18 +118,17 @@ public:
 
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     IEditor *currentEditor() const;
-    EditorGroup *currentEditorGroup() const;
+//    EditorGroup *currentEditorGroup() const;
 
     QList<IEditor*> openedEditors() const;
+    QList<IEditor*> openedEditorsNoDuplicates() const;
 
     Internal::EditorModel *openedEditorsModel() const;
 
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
-    QList<EditorGroup *> editorGroups() const;
+    //QList<EditorGroup *> editorGroups() const;
     QList<IEditor*> editorHistory() const;
     void addCurrentPositionToNavigationHistory(bool compress = false);
-
-    bool hasDuplicate(IEditor *editor) const;
 
     bool saveEditor(IEditor *editor);
 
@@ -150,7 +149,7 @@ public:
     Internal::OpenEditorsWindow *windowPopup() const;
     void showWindowPopup() const;
 
-    Internal::EditorSplitter *editorSplitter() const;
+//    Internal::EditorSplitter *editorSplitter() const;
 
     void showEditorInfoBar(const QString &kind,
                            const QString &infoText,
@@ -198,7 +197,6 @@ private slots:
     void updateCurrentEditorAndGroup(Core::IContext *context);
     void updateEditorHistory();
     void updateActions();
-    void duplicateEditor();
     void revertToSaved();
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
@@ -208,18 +206,11 @@ private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
     IEditor *createEditor(const QString &mimeType = QString(),
                           const QString &fileName = QString());
-    void insertEditor(IEditor *editor, bool ignoreNavigationHistory = false, EditorGroup *group = 0);
+    void insertEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     bool registerEditor(IEditor *editor);
     bool unregisterEditor(IEditor *editor);
-    EditorGroup *groupOfEditor(IEditor *editor) const;
     void editorChanged(IEditor *editor);
-    void registerDuplicate(IEditor *original,
-                           IEditor *duplicate);
-    void unregisterDuplicate(IEditor *editor);
-    QList<IEditor *> duplicates(IEditor *editor) const;
 
-    QByteArray saveOpenEditorList() const;
-    void restoreOpenEditorList(const QByteArray &state);
     void restoreEditorState(IEditor *editor);
 
     static EditorManager *m_instance;

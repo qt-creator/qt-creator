@@ -345,9 +345,8 @@ void OutputPane::slotHide()
         int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
         if (m_buttons.value(idx))
             m_buttons.value(idx)->setChecked(false);
-        EditorGroup *group = Core::EditorManager::instance()->currentEditorGroup();
-        if (group && group->widget())
-            group->widget()->setFocus();
+        if (IEditor *editor = Core::EditorManager::instance()->currentEditor())
+            editor->widget()->setFocus();
     }
 }
 

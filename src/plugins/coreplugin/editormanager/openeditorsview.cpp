@@ -32,8 +32,8 @@
 ***************************************************************************/
 
 #include "openeditorsview.h"
-#include "editorgroup.h"
 #include "editormanager.h"
+#include "editorview.h"
 #include "coreimpl.h"
 
 #include <coreplugin/coreconstants.h>

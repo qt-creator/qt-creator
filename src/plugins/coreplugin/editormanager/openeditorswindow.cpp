@@ -46,6 +46,15 @@ const int OpenEditorsWindow::WIDTH = 300;
 const int OpenEditorsWindow::HEIGHT = 200;
 const int OpenEditorsWindow::MARGIN = 4;
 
+bool OpenEditorsWindow::isSameFile(IEditor *editorA, IEditor *editorB) const
+{
+    if (editorA == editorB)
+        return true;
+    if (!editorA || !editorB)
+        return false;
+    return editorA->file()->fileName() == editorB->file()->fileName();
+}
+
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
     m_editorList(new QTreeWidget(this)),
@@ -216,14 +225,14 @@ void OpenEditorsWindow::updateHistory()
     for (int i = 0; i < common; ++i) {
         item = m_editorList->topLevelItem(i);
         updateItem(item, history.at(i));
-        if (history.at(i) == m_current)
+        if (isSameFile(history.at(i), m_current))
             selectedIndex = i;
     }
     for (int i = common; i < num; ++i) {
         item = new QTreeWidgetItem(QStringList() << "");
         updateItem(item, history.at(i));
         m_editorList->addTopLevelItem(item);
-        if (history.at(i) == m_current)
+        if (isSameFile(history.at(i), m_current))
             selectedIndex = i;
     }
     for (int i = oldNum-1; i >= common; --i) {
@@ -237,38 +246,23 @@ void OpenEditorsWindow::updateHistory()
 void OpenEditorsWindow::updateList()
 {
     EditorManager *em = EditorManager::instance();
-    QList<EditorGroup *> groups = em->editorGroups();
     int oldNum = m_editorList->topLevelItemCount();
     int curItem = 0;
     int selectedIndex = -1;
     QTreeWidgetItem *item;
-    for (int i = 0; i < groups.count(); ++i) {
-        if (groups.count() > 1) {
-            if (curItem < oldNum) {
-                item = m_editorList->topLevelItem(curItem);
-            } else {
-                item = new QTreeWidgetItem(QStringList()<<"");
-                m_editorList->addTopLevelItem(item);
-            }
-            curItem++;
-            item->setText(0, tr("---Group %1---").arg(i));
-            item->setFlags(0);
-            item->setData(0, Qt::UserRole, QVariant());
+    foreach (IEditor *editor, em->openedEditorsNoDuplicates()){
+        if (curItem < oldNum) {
+            item = m_editorList->topLevelItem(curItem);
+        } else {
+            item = new QTreeWidgetItem(QStringList()<<"");
+            m_editorList->addTopLevelItem(item);
         }
-        foreach (IEditor *editor, groups.at(i)->editors()) {
-            if (curItem < oldNum) {
-                item = m_editorList->topLevelItem(curItem);
-            } else {
-                item = new QTreeWidgetItem(QStringList()<<"");
-                m_editorList->addTopLevelItem(item);
-            }
-            updateItem(item, editor);
-            if (editor == m_current) {
-                m_editorList->setCurrentItem(item);
-                selectedIndex = curItem;
-            }
-            curItem++;
+        updateItem(item, editor);
+        if (isSameFile(editor, m_current)) {
+            m_editorList->setCurrentItem(item);
+            selectedIndex = curItem;
         }
+        curItem++;
     }
     for (int i = oldNum-1; i >= curItem; --i) {
         delete m_editorList->takeTopLevelItem(i);
@@ -338,7 +332,7 @@ void OpenEditorsWindow::updateSelectedEditor()
     for (int i = 0; i < num; ++i) {
         IEditor *editor = m_editorList->topLevelItem(i)
                                   ->data(0, Qt::UserRole).value<IEditor *>();
-        if (editor == m_current) {
+        if (isSameFile(editor,m_current)) {
             m_editorList->setCurrentItem(m_editorList->topLevelItem(i));
             break;
         }

@@ -31,9 +31,8 @@
 **
 ***************************************************************************/
 
-#include "stackededitorgroup.h"
-#include "editormanager.h"
 #include "editorview.h"
+#include "editormanager.h"
 #include "coreimpl.h"
 
 #include <utils/qtcassert.h>
@@ -63,8 +62,120 @@ Q_DECLARE_METATYPE(Core::IEditor *)
 using namespace Core;
 using namespace Core::Internal;
 
-StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
-    EditorGroup(parent),
+
+//================EditorModel====================
+int EditorModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return 1;
+}
+
+int EditorModel::rowCount(const QModelIndex &parent) const
+{
+    if (!parent.isValid())
+        return m_editors.count();
+    return 0;
+}
+
+void EditorModel::addEditor(IEditor *editor)
+{
+    int index = 0;
+
+    QString fileName = editor->file()->fileName();
+    for (index = 0; index < m_editors.count(); ++index)
+        if (fileName < m_editors.at(index)->file()->fileName())
+            break;
+
+    beginInsertRows(QModelIndex(), index, index);
+    m_editors.insert(index, editor);
+    connect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+    endInsertRows();
+}
+
+void EditorModel::removeEditor(IEditor *editor)
+{
+    int idx = m_editors.indexOf(editor);
+    if (idx < 0)
+        return;
+    beginRemoveRows(QModelIndex(), idx, idx);
+    m_editors.removeAt(idx);
+    endRemoveRows();
+    disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+}
+
+
+void EditorModel::emitDataChanged(IEditor *editor)
+{
+    int idx = m_editors.indexOf(editor);
+    if (idx < 0)
+        return;
+    QModelIndex mindex = index(idx, 0);
+    emit dataChanged(mindex, mindex);
+}
+
+QModelIndex EditorModel::index(int row, int column, const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    if (column != 0 || row < 0 || row >= m_editors.count())
+        return QModelIndex();
+    return createIndex(row, column);
+}
+
+QVariant EditorModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+    IEditor *editor = m_editors.at(index.row());
+    QTC_ASSERT(editor, return QVariant());
+    switch (role) {
+    case Qt::DisplayRole:
+        return editor->file()->isModified()
+                ? editor->displayName() + QLatin1String("*")
+                : editor->displayName();
+    case Qt::DecorationRole:
+        return editor->file()->isReadOnly()
+                ? QIcon(QLatin1String(":/core/images/locked.png"))
+                : QIcon();
+    case Qt::ToolTipRole:
+        return editor->file()->fileName().isEmpty()
+                ? editor->displayName()
+                : QDir::toNativeSeparators(editor->file()->fileName());
+    case Qt::UserRole:
+        return qVariantFromValue(editor);
+    default:
+        return QVariant();
+    }
+    return QVariant();
+}
+
+QModelIndex EditorModel::indexOf(IEditor *editor) const
+{
+    int idx = m_editors.indexOf(editor);
+    if (idx < 0)
+        return indexOf(editor->file()->fileName());
+    return createIndex(idx, 0);
+}
+
+QModelIndex EditorModel::indexOf(const QString &fileName) const
+{
+    for (int i = 0; i < m_editors.count(); ++i)
+        if (m_editors.at(i)->file()->fileName() == fileName)
+            return createIndex(i, 0);
+    return QModelIndex();
+}
+
+
+void EditorModel::itemChanged()
+{
+    emitDataChanged(qobject_cast<IEditor*>(sender()));
+}
+
+
+
+//================EditorView====================
+
+EditorView::EditorView(EditorModel *model, QWidget *parent) :
+    QWidget(parent),
     m_toplevel(new QWidget),
     m_toolBar(new QWidget),
     m_container(new QStackedWidget(this)),
@@ -81,9 +192,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
     {
         m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_editorList->setMinimumContentsLength(20);
-        m_proxyModel.setSourceModel(model());
-        m_proxyModel.sort(0);
-        m_editorList->setModel(&m_proxyModel);
+        m_editorList->setModel(model);
         m_editorList->setMaxVisibleItems(40);
 
         QToolBar *editorListToolBar = new QToolBar;
@@ -170,7 +279,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
     setLayout(l);
 }
 
-void StackedEditorGroup::showEditorInfoBar(const QString &kind,
+void EditorView::showEditorInfoBar(const QString &kind,
                                            const QString &infoText,
                                            const QString &buttonText,
                                            QObject *object, const char *member)
@@ -185,40 +294,39 @@ void StackedEditorGroup::showEditorInfoBar(const QString &kind,
     m_editorForInfoWidget = currentEditor();
 }
 
-void StackedEditorGroup::hideEditorInfoBar(const QString &kind)
+void EditorView::hideEditorInfoBar(const QString &kind)
 {
     if (kind == m_infoWidgetKind)
         m_infoWidget->setVisible(false);
 }
 
 
-StackedEditorGroup::~StackedEditorGroup()
+EditorView::~EditorView()
 {
 }
 
-void StackedEditorGroup::focusInEvent(QFocusEvent *e)
+void EditorView::focusInEvent(QFocusEvent *e)
 {
     if (m_container->count() > 0) {
         setEditorFocus(m_container->currentIndex());
     } else {
-        EditorGroup::focusInEvent(e);
+        QWidget::focusInEvent(e);
     }
 }
 
-void StackedEditorGroup::setEditorFocus(int index)
+void EditorView::setEditorFocus(int index)
 {
     QWidget *w = m_container->widget(index);
     w->setFocus();
 }
 
-void StackedEditorGroup::addEditor(IEditor *editor)
+void EditorView::addEditor(IEditor *editor)
 {
     insertEditor(editorCount(), editor);
 }
 
-void StackedEditorGroup::insertEditor(int index, IEditor *editor)
+void EditorView::insertEditor(int index, IEditor *editor)
 {
-    EditorGroup::insertEditor(index, editor);
     if (m_container->indexOf(editor->widget()) != -1)
         return;
 
@@ -232,18 +340,17 @@ void StackedEditorGroup::insertEditor(int index, IEditor *editor)
     }
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
-    emit editorAdded(editor);
+//    emit editorAdded(editor);
 }
 
-void StackedEditorGroup::sendCloseRequest()
+void EditorView::sendCloseRequest()
 {
     emit closeRequested(currentEditor());
 }
 
-void StackedEditorGroup::removeEditor(IEditor *editor)
+void EditorView::removeEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    EditorGroup::removeEditor(editor);
     const int index = m_container->indexOf(editor->widget());
     if (index != -1) {
         m_container->removeWidget(editor->widget());
@@ -260,18 +367,18 @@ void StackedEditorGroup::removeEditor(IEditor *editor)
             toolBar->setVisible(false);
             toolBar->setParent(0);
         }
-        emit editorRemoved(editor);
+//        emit editorRemoved(editor);
     }
 }
 
-IEditor *StackedEditorGroup::currentEditor() const
+IEditor *EditorView::currentEditor() const
 {
     if (m_container->count() > 0)
         return m_widgetEditorMap.value(m_container->currentWidget());
     return 0;
 }
 
-void StackedEditorGroup::setCurrentEditor(IEditor *editor)
+void EditorView::setCurrentEditor(IEditor *editor)
 {
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
@@ -282,7 +389,7 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
         m_container->setCurrentIndex(idx);
 
         const bool block = m_editorList->blockSignals(true);
-        m_editorList->setCurrentIndex(indexOf(editor));
+        m_editorList->setCurrentIndex(qobject_cast<EditorModel*>(m_editorList->model())->indexOf(editor->file()->fileName()).row());
         m_editorList->blockSignals(block);
     }
     setEditorFocus(idx);
@@ -295,14 +402,14 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
     }
 }
 
-void StackedEditorGroup::checkEditorStatus()
+void EditorView::checkEditorStatus()
 {
         IEditor *editor = qobject_cast<IEditor *>(sender());
         if (editor == currentEditor())
             updateEditorStatus(editor);
 }
 
-void StackedEditorGroup::updateEditorStatus(IEditor *editor)
+void EditorView::updateEditorStatus(IEditor *editor)
 {
     static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
     static const QIcon unlockedIcon(QLatin1String(":/core/images/unlocked.png"));
@@ -317,11 +424,15 @@ void StackedEditorGroup::updateEditorStatus(IEditor *editor)
         m_lockButton->setToolTip(tr("File is writable"));
     }
     if (currentEditor() == editor)
-        m_editorList->setToolTip(model()->data(model()->indexOf(editor), Qt::ToolTipRole).toString());
-    model()->emitDataChanged(editor);
+        m_editorList->setToolTip(
+                editor->file()->fileName().isEmpty()
+                ? editor->displayName()
+                    : QDir::toNativeSeparators(editor->file()->fileName())
+                    );
+
 }
 
-void StackedEditorGroup::updateToolBar(IEditor *editor)
+void EditorView::updateToolBar(IEditor *editor)
 {
     QToolBar *toolBar = editor->toolBar();
     if (!toolBar)
@@ -333,45 +444,26 @@ void StackedEditorGroup::updateToolBar(IEditor *editor)
     m_activeToolBar = toolBar;
 }
 
-int StackedEditorGroup::editorCount() const
+int EditorView::editorCount() const
 {
-    return model()->editors().count();
+    return m_container->count();
 }
 
-QList<IEditor *> StackedEditorGroup::editors() const
+QList<IEditor *> EditorView::editors() const
 {
-    QAbstractItemModel *model = m_editorList->model();
-    QList<IEditor*> output;
-    int rows = model->rowCount();
-    for (int i = 0; i < rows; ++i)
-        output.append(model->data(model->index(i, 0), Qt::UserRole).value<IEditor*>());
-    return output;
+    return m_widgetEditorMap.values();
 }
 
-QList<IEditor *> StackedEditorGroup::editorsInNaturalOrder() const
-{
-    return model()->editors();
-}
 
-void StackedEditorGroup::makeEditorWritable()
+void EditorView::makeEditorWritable()
 {
     CoreImpl::instance()->editorManager()->makeEditorWritable(currentEditor());
 }
 
-void StackedEditorGroup::listSelectionChanged(int index)
+void EditorView::listSelectionChanged(int index)
 {
     QAbstractItemModel *model = m_editorList->model();
     setCurrentEditor(model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>());
 }
 
-int StackedEditorGroup::indexOf(IEditor *editor)
-{
-    QAbstractItemModel *model = m_editorList->model();
-    int rows = model->rowCount();
-    for (int i = 0; i < rows; ++i) {
-        if (editor == model->data(model->index(i, 0), Qt::UserRole).value<IEditor*>())
-            return i;
-    }
-    QTC_ASSERT(false, /**/);
-    return 0;
-}
+

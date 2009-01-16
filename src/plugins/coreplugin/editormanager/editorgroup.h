@@ -124,33 +124,6 @@ private:
 
 namespace Internal {
 
-// Also used by StackedEditorGroup
-class EditorModel : public QAbstractItemModel
-{
-    Q_OBJECT
-public:
-    EditorModel(QObject *parent) : QAbstractItemModel(parent) {}
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-
-    void addEditor(IEditor *editor) { insertEditor(rowCount(), editor); }
-
-    void insertEditor(int index, IEditor *editor);
-    void removeEditor(IEditor *editor);
-    void emitDataChanged(IEditor *editor);
-
-    QList<IEditor *> editors() const { return m_editors; }
-    QModelIndex indexOf(IEditor *editor) const;
-    QModelIndex indexOf(const QString &filename) const;
-
-private slots:
-    void itemChanged();
-private:
-    QList<IEditor *> m_editors;
-};
 
 } // namespace Internal
 } // namespace Core

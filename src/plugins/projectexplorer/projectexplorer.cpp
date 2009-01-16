@@ -493,7 +493,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
     cmd = am->registerAction(m_buildAction, Constants::BUILD, globalcontext);
-    cmd->setAttribute(Core::ICommand::CA_UpdateText);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);

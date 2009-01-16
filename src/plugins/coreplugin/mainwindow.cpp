@@ -738,9 +738,9 @@ void MainWindow::setFocusToEditor()
         m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
     }
 
-    EditorGroup *group = m_editorManager->currentEditorGroup();
-    if (group && group->widget())
-        group->widget()->setFocus();
+    if (IEditor *editor = m_editorManager->currentEditor())
+            editor->widget()->setFocus();
+
     if (focusWidget && focusWidget == qApp->focusWidget()) {
         if (FindToolBarPlaceHolder::getCurrent())
             FindToolBarPlaceHolder::getCurrent()->hide();

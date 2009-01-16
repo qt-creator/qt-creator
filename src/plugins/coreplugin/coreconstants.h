@@ -132,7 +132,6 @@ const char * const REMOVE                = "QtCreator.Remove";
 const char * const SAVEASDEFAULT         = "QtCreator.SaveAsDefaultLayout";
 const char * const RESTOREDEFAULT        = "QtCreator.RestoreDefaultLayout";
 const char * const CLOSE                 = "QtCreator.Close";
-const char * const DUPLICATEDOCUMENT     = "QtCreator.DuplicateDocument";
 const char * const CLOSEALL              = "QtCreator.CloseAll";
 const char * const GOTONEXT              = "QtCreator.GotoNext";
 const char * const GOTOPREV              = "QtCreator.GotoPrevious";

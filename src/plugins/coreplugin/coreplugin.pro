@@ -36,6 +36,7 @@ SOURCES += mainwindow.cpp \
     versiondialog.cpp \
     editormanager/editorgroup.cpp \
     editormanager/editormanager.cpp \
+    editormanager/editorview.cpp \
     editormanager/stackededitorgroup.cpp \
     editormanager/editorsplitter.cpp \
     editormanager/openeditorsview.cpp \
@@ -92,6 +93,7 @@ HEADERS += mainwindow.h \
     viewmanager.h \
     editormanager/editorgroup.h \
     editormanager/editormanager.h \
+    editormanager/editorview.h \
     editormanager/stackededitorgroup.h \
     editormanager/editorsplitter.h \
     editormanager/openeditorsview.h \
