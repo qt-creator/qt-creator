@@ -104,16 +104,13 @@ inst() {
 		fix_rpath bin '*' '$ORIGIN/../lib'
 
 		# Fix files lib/*.so
-		fix_rpath lib '*.so.?.?.?' '$ORIGIN'
 		fix_rpath lib '*.so.?.?.?.debug' '$ORIGIN'
 
 		# Fix files examples/tools/*/*/*.so
 		fix_rpath examples/tools '*.so' '$ORIGIN/../../../lib'
-		fix_rpath examples/tools '*.so.debug' '$ORIGIN/../../../lib'
 
 		# Fix files plugins/*/*.so
 		fix_rpath plugins '*.so' '$ORIGIN/../../lib'
-		fix_rpath plugins '*.so.debug' '$ORIGIN/../../lib'
 	)
 	ret=$?; [ ${ret} = 0 ] || exit ${ret}
 }
