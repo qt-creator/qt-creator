@@ -641,16 +641,18 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_PANES);
     m_toggleSideBarAction->setEnabled(false);
 
+#if !defined(Q_OS_MAC)
     // Toggle Full Screen
     m_toggleFullScreenAction = new QAction(tr("Toggle Fullscreen"), this);
     m_toggleFullScreenAction->setCheckable(true);
-    m_toggleFullScreenAction->setChecked(true);
+    m_toggleFullScreenAction->setChecked(false);
     cmd = am->registerAction(m_toggleFullScreenAction,
         Constants::TOGGLE_FULLSCREEN, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+Shift+F11"));
-    mwindow->addAction(cmd, Constants::G_WINDOW_FULLSCREEN);
-    connect(m_toggleFullScreenAction, SIGNAL(toggled(bool)),
+    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+    connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)),
         this, SLOT(setFullScreen(bool)));
+#endif
 
     //About IDE Action
 #ifdef Q_OS_MAC
@@ -928,13 +930,18 @@ void MainWindow::changeEvent(QEvent *e)
                 qDebug() << "main window activated";
             emit windowActivated();
         }
-#ifdef Q_OS_MAC
     } else if (e->type() == QEvent::WindowStateChange) {
+#ifdef Q_OS_MAC
         bool minimized = isMinimized();
         if (debugMainWindow)
             qDebug() << "main window state changed to minimized=" << minimized;
         m_minimizeAction->setEnabled(!minimized);
         m_zoomAction->setEnabled(!minimized);
+#else
+        QWindowStateChangeEvent *ev =
+            static_cast<QWindowStateChangeEvent *>(e);
+        bool isFullScreen = (ev->oldState() & Qt::WindowFullScreen) != 0;
+        m_toggleFullScreenAction->setChecked(!isFullScreen);
 #endif
     }
 }
@@ -1127,6 +1134,9 @@ QPrinter *MainWindow::printer() const
 
 void MainWindow::setFullScreen(bool on)
 {
+    if (bool(windowState() & Qt::WindowFullScreen) == on)
+        return;
+
     if (on) {
         setWindowState(windowState() | Qt::WindowFullScreen);
         //statusBar()->hide();
