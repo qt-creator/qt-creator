@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QFileInfo>

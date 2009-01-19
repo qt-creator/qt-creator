@@ -55,20 +55,21 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
-#include <QtCore/QTextCodec>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
-#include <QtCore/QDir>
+#include <QtCore/QTextCodec>
+#include <QtCore/QtPlugin>
 #include <QtGui/QAction>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QFileDialog>
 
 using namespace Subversion::Internal;
 

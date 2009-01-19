@@ -48,6 +48,7 @@
 #include <cplusplus/LookupContext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/itexteditable.h>
 

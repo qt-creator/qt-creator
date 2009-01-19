@@ -50,6 +50,7 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/CppDocument.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 

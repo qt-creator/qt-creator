@@ -51,18 +51,18 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 
-#include <QtGui/QFileDialog>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtGui/QFileDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
-using Core::VariableManager;
 
 enum { debug = 0 };
 

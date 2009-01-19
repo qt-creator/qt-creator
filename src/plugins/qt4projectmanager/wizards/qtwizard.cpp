@@ -35,6 +35,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QByteArray>

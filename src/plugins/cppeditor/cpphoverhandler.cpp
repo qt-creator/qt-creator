@@ -39,6 +39,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <debugger/debuggerconstants.h>
@@ -55,11 +56,14 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/SimpleLexer.h>
 
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 #include <QtHelp/QHelpEngineCore>
-#include <QtCore/QtCore>
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;

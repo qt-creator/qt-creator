@@ -58,6 +58,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
@@ -65,21 +66,17 @@
 #include <texteditor/textblockiterator.h>
 #include <indenter.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtGui/QAction>
-#include <QtGui/QKeyEvent>
+#include <QtGui/QHeaderView>
 #include <QtGui/QLayout>
 #include <QtGui/QMenu>
 #include <QtGui/QShortcut>
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
-#include <QtGui/QHeaderView>
-#include <QtGui/QStringListModel>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;

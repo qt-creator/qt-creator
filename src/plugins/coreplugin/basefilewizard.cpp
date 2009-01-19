@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/ifilewizardextension.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 
 #include <QtCore/QDir>

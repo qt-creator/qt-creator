@@ -53,6 +53,8 @@
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

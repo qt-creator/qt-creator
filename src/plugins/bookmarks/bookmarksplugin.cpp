@@ -35,16 +35,17 @@
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
 
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <texteditor/itexteditor.h>
+#include <texteditor/texteditorconstants.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 #include <QtGui/QMenu>

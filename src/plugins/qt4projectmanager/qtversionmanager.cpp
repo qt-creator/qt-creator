@@ -38,6 +38,7 @@
 #include "cesdkhandler.h"
 
 #include <coreplugin/coreconstants.h>
+#include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 

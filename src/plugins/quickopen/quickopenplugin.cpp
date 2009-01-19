@@ -40,7 +40,7 @@
 #include "directoryfilter.h"
 #include "settingspage.h"
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
@@ -50,6 +50,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
 
 using namespace QuickOpen;

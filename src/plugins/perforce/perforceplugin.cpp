@@ -51,6 +51,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <vcsbase/basevcseditorfactory.h>

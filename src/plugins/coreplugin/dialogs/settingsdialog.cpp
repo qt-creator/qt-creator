@@ -34,6 +34,8 @@
 #include "settingsdialog.h"
 #include "coreimpl.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 

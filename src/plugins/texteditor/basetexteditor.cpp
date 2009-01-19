@@ -47,6 +47,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <utils/reloadpromptutils.h>

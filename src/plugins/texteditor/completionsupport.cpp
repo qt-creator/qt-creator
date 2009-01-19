@@ -36,11 +36,12 @@
 #include "icompletioncollector.h"
 
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditable.h>
 #include <utils/qtcassert.h>
 
-#include <QString>
-#include <QList>
+#include <QtCore/QString>
+#include <QtCore/QList>
 
 #include <algorithm>
 

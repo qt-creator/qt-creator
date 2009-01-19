@@ -41,16 +41,19 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QToolButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
+
 #include <QtGui/QClipboard>
-#include <QtGui/QPainter>
 #include <QtGui/QCompleter>
-#include <QDebug>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QLineEdit>
+#include <QtGui/QMenu>
+#include <QtGui/QPainter>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Find::IFindFilter*)

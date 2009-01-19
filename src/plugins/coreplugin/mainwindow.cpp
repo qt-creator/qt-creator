@@ -70,22 +70,23 @@
 #include "basefilewizard.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
-#include <QtCore/QFileInfo>
+#include <QtCore/QtPlugin>
 
-#include <QtGui/QMenu>
-#include <QtGui/QToolBar>
 #include <QtGui/QApplication>
-#include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
-#include <QtGui/QShortcut>
+#include <QtGui/QMenu>
+#include <QtGui/QPixmap>
 #include <QtGui/QPrinter>
-#include <QtGui/QWizard>
+#include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
+#include <QtGui/QToolBar>
+#include <QtGui/QWizard>
 
 /*
 #ifdef Q_OS_UNIX

@@ -43,6 +43,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -50,7 +51,7 @@
 #include <texteditor/textfilewizard.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtGui/QAction>
 

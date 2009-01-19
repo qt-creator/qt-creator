@@ -42,15 +42,16 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QTextEdit>
-#include <QtGui/QHeaderView>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtGui/QHeaderView>
+#include <QtGui/QTextEdit>
 
 using namespace ExtensionSystem;
 using namespace Core;

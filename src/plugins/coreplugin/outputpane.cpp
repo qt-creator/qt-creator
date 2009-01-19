@@ -42,12 +42,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QFocusEvent>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>

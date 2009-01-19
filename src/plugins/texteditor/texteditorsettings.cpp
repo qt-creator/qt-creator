@@ -41,9 +41,10 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QApplication>
+#include <QtGui/QApplication>
 
 using namespace TextEditor;
 using namespace TextEditor::Constants;

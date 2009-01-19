@@ -43,9 +43,11 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
 
 Q_DECLARE_METATYPE(Find::IFindFilter*)

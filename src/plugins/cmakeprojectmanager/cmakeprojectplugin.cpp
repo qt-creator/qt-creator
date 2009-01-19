@@ -39,8 +39,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 

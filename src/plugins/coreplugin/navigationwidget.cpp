@@ -39,14 +39,16 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QToolBar>
 #include <QtGui/QResizeEvent>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 

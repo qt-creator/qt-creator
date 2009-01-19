@@ -45,10 +45,11 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 #include <coreplugin/messageoutputwindow.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>

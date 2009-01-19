@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <utils/qtcassert.h>
 

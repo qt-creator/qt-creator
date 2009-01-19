@@ -43,6 +43,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
@@ -60,8 +61,7 @@ namespace {
 bool debug = false;
 }
 
-ProjectWindow::ProjectWindow(Core::ICore *core,
-                             QWidget *parent) :
+ProjectWindow::ProjectWindow(Core::ICore *core, QWidget *parent) :
     QWidget(parent),
     m_core(core)
 {

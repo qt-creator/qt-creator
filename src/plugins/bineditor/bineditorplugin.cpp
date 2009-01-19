@@ -35,12 +35,12 @@
 #include "bineditor.h"
 #include "bineditorconstants.h"
 
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
-#include <QtCore/QFile>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -48,6 +48,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <find/ifindsupport.h>

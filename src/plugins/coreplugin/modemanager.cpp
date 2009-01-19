@@ -46,6 +46,8 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/uniqueidmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QObject>

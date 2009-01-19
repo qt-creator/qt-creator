@@ -37,29 +37,29 @@
 #include "vcsbasetextdocument.h"
 #include "vcsbaseconstants.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/editorconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/editorconfiguration.h>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QSet>
-#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QRegExp>
+#include <QtCore/QSet>
 #include <QtCore/QTextCodec>
+#include <QtCore/QTextStream>
+#include <QtGui/QAction>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLayout>
-#include <QtGui/QTextEdit>
 #include <QtGui/QMenu>
-#include <QtGui/QAction>
 #include <QtGui/QTextCursor>
-#include <QtCore/QProcess>
+#include <QtGui/QTextEdit>
 
 namespace VCSBase {
 

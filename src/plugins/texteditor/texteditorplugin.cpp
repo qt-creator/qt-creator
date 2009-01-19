@@ -49,12 +49,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
-#include <QtGui/QShortcut>
+#include <QtCore/QtPlugin>
 #include <QtGui/QMainWindow>
+#include <QtGui/QShortcut>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

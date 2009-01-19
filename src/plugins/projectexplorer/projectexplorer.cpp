@@ -78,25 +78,20 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QContextMenuEvent>
 #include <QtGui/QFileDialog>
-#include <QtGui/QFileSystemModel>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QToolBar>
 
 Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
 Q_DECLARE_METATYPE(Core::IEditorFactory *);

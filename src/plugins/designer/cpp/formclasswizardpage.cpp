@@ -37,13 +37,14 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 
-#include <QtGui/QMessageBox>
 #include <QtGui/QAbstractButton>
+#include <QtGui/QMessageBox>
 
 static const char *formClassWizardPageGroupC = "FormClassWizardPage";
 static const char *translationKeyC = "RetranslationSupport";

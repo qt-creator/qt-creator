@@ -47,6 +47,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -63,7 +64,7 @@ static const char *sourceSuffixKeyC = "CppEditor/SourceSuffix";
 
 using namespace CppEditor::Internal;
 
-///////////////////////////////// CppPluginEditorFactory //////////////////////////////////
+//////////////////////////// CppPluginEditorFactory /////////////////////////////
 
 CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
     m_kind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND)),

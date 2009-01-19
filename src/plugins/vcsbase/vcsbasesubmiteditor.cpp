@@ -38,21 +38,21 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-
+#include <extensionsystem/pluginmanager.h>
 #include <utils/submiteditorwidget.h>
 #include <find/basetextfind.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <QtGui/QToolBar>
-#include <QtGui/QStyle>
-#include <QtCore/QPointer>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QPointer>
+#include <QtCore/QTextStream>
+#include <QtGui/QStyle>
+#include <QtGui/QToolBar>
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };

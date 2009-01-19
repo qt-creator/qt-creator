@@ -45,6 +45,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
