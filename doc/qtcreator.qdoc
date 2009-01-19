@@ -222,8 +222,8 @@
     \table
         \row
             \i  Block navigation
-            \i  To navigate between blocks, e.g., from one \c{\{} to another
-                \c{\c}}, use \key{Ctrl+[} and \key{Ctrl+]}.
+            \i  To navigate between blocks, e.g., from one \bold{\{} to another
+                \bold{\}} , use \key{Ctrl+[} and \key{Ctrl+]}.
         \row
             \i  Block selection
             \i  To select a current block, use \key{Ctrl+U}. Pressing
@@ -231,7 +231,7 @@
                 To deselect, use \key{Ctrl+Shift+U}.    
         \row
             \i  Moving lines up and down
-            \i
+            \i  
 
         \row
             \i  Completion
@@ -246,7 +246,17 @@
 
         \row
             \i  Switch between Header and Source
-            \i
+            \i  Use \key{F4}.
+
+        \row
+            \i  Increasing and Decreasing Font Size
+            \i  Use \key{Ctrl+Scroll Wheel}
+
+        \row
+            \i  Follow Symbols under The Cursor
+            \i  Use \key{F2} and \key{Shift+F2}. This feature works with
+                namespaces, classes, methods, variables, include statements,
+                and macros.
     \endtable
 
 
@@ -255,12 +265,6 @@
     Collapse
 
     Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
-
-    F2 and Shift F2 - follows symbols under the cursor (works for namespaces, classes, methods, variables, includes, macros).
-
-    F4 - switch header and source
-
-    Ctrl + Scroll wheel -- used to quickly change the font size (handy for presentatiaons)
 
 
 
@@ -271,14 +275,8 @@
 
 
 /*!
-
-*/
-
-
-
-/*!
     \contentspage index.html
-    \previouspage creator-editor-settings.html
+    \previouspage creator-code-editor.html
     \page creator-build-settings.html
     \nextpage creator-creating-project.html
 
@@ -334,6 +332,14 @@
     debugging helper seems to break your build or your application, you can
     remove the build step. You will still be able to debug applications, but the
     contents of Qt and STL data types will not be displayed properly.
+
+    \section1 Dependencies
+
+    If you have multiple projects loaded in your session, you can configure
+    dependencies between them. This will affect the build order of your
+    projects. To do this, go the the \bold{Dependencies} tab after selecting
+    the project for which you want to configure the dependencies, and then use
+    the checkboxes to check which of the other projects is a dependency.
 
 */
 
@@ -840,8 +846,8 @@
     \section2 Viewing Versioning History and Change Details
 
     The versioning history of a file can be displayed by selecting the
-    \gui{Log} (for \bold{git}) or \gui{Filelog (for \bold{Perforce} and
-    \bold{Subversion})} option. Typically, the log output will contain the
+    \gui{Log} (for \bold{git}) or \gui{Filelog} (for \bold{Perforce} and
+    \bold{Subversion}) option. Typically, the log output will contain the
     date, the commit message, and a change or revision identifier. If you
     click on the identifier, a description of the change including the diff
     will be displayed.
@@ -1223,8 +1229,8 @@
 
     \bold{Keyboard Shortcuts}
 
-    Qt Creator provides a lot of useful keyboard shortcuts. A complete list can
-    be found \l{Keyboard Shortcuts}{here}.
+    Qt Creator provides a lot of useful keyboard shortcuts. Some useful
+    shortcuts can be found \l{Keyboard Shortcuts}{here}.
 
     \bold{Running Qt Creator from the Command Line}
 
@@ -1271,25 +1277,41 @@
             \o  Meaning
 
         \row
-            \o  System Qt   \target glossary-system-qt
+            \o
+                \raw HTML
+                System&nbsp;Qt
+                \endraw
+                \target glossary-system-qt
             \o  The version of Qt installed on your system. This is the Qt
                 version for the \c qmake command found in your \c PATH.
 
         \row
-            \o  Default Qt  \target glossary-default-qt
+            \o
+                \raw HTML
+                Default&nbsp;Qt
+                \endraw
+                \target glossary-default-qt
             \o  The version of Qt configured in \gui{Tools -> Options -> Qt 4
                 -> Default Qt Version}. This is the Qt version used by your
                 new projects. It defaults to System Qt.
 
         \row
-            \o  Project Qt  \target glossary-project-qt
+            \o
+                \raw HTML
+                Project&nbsp;Qt
+                \endraw
+                \target glossary-project-qt
             \o  The version of Qt configured in \gui{Build&Run -> Build
                 Settings -> Build Configurations}. This is the Qt version that
                 is actually used by a particular project. It defaults to
                 Default Qt.
 
         \row
-            \o  Shadow Build    \target glossary-shadow-build
+            \o
+                \raw HTML
+                Shadow&nbsp;Build
+                \endraw
+                \target glossary-shadow-build
             \o  Shadow building means building a project in a separate
                 directory, the \e{build directory}. The build directory is
                 different from the source directory. One of the benefits of

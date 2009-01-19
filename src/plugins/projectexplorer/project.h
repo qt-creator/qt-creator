@@ -31,7 +31,6 @@
 **
 ***************************************************************************/
 
-
 #ifndef PROJECT_H
 #define PROJECT_H
 
@@ -50,7 +49,7 @@
 #include <QtGui/QIcon>
 
 namespace Core {
-    class IFile;
+class IFile;
 }
 
 namespace ProjectExplorer {
@@ -68,8 +67,7 @@ class PROJECTEXPLORER_EXPORT Project
     Q_OBJECT
 
 public:
-    // Roles to be implemented by all models that are exported
-    // via model()
+    // Roles to be implemented by all models that are exported via model()
     enum ModelRoles {
         // Absolute file path
         FilePathRole = QFileSystemModel::FilePathRole
@@ -82,12 +80,11 @@ public:
     virtual Core::IFile *file() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
-    virtual QList<Core::IFile *> dependencies() = 0; //NBS TODO remove
     virtual QList<Project *> dependsOn() = 0; //NBS TODO implement dependsOn
 
     virtual bool isApplication() const = 0;
 
-    //Build/Clean Step functions
+    // Build/Clean Step functions
     QList<BuildStep *> buildSteps() const;
     void insertBuildStep(int position, BuildStep *step);
     void removeBuildStep(int position);
@@ -97,7 +94,7 @@ public:
     void insertCleanStep(int position, BuildStep *step);
     void removeCleanStep(int position);
 
-    //Build configuration
+    // Build configuration
     void addBuildConfiguration(const QString &name);
     void removeBuildConfiguration(const QString  &name);
     void copyBuildConfiguration(const QString &source, const QString &dest);
@@ -133,8 +130,9 @@ public:
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual QList<BuildStepConfigWidget*> subConfigWidgets();
 
-    // This method is called for new build configurations
-    // You should probably set some default values in this method
+    /* This method is called for new build configurations. You should probably
+     * set some default values in this method.
+     */
     virtual void newBuildConfiguration(const QString &buildConfiguration) = 0;
 
     virtual ProjectNode *rootProjectNode() const = 0;
@@ -150,19 +148,22 @@ signals:
     void buildConfigurationDisplayNameChanged(const QString &buildConfiguraiton);
 
 protected:
-    // This method is called when the project .user file is saved.
-    // Simply call writer.saveValue() for each value you want to save
-    // Make sure to always call your base class implementation
-    // Note: All the values from the project/buildsteps and buildconfigurations
-    // are automatically stored.
+    /* This method is called when the project .user file is saved. Simply call
+     * writer.saveValue() for each value you want to save. Make sure to always
+     * call your base class implementation.
+     *
+     * Note: All the values from the project/buildsteps and buildconfigurations
+     * are automatically stored.
+     */
     virtual void saveSettingsImpl(PersistentSettingsWriter &writer);
-    // This method is called when the project is opened
-    // You can retrieve all the values you saved in saveSettingsImpl()
-    // in this method.
 
-    // Note: This function is also called if there is no .user file
-    // You should probably add some default build and run settings to the project
-    // so that it can be build and run
+    /* This method is called when the project is opened. You can retrieve all
+     * the values you saved in saveSettingsImpl() in this method.
+     *
+     * Note: This function is also called if there is no .user file. You should
+     * probably add some default build and run settings to the project so that
+     * it can be build and run.
+     */
     virtual void restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
@@ -181,4 +182,4 @@ private:
 
 } // namespace ProjectExplorer
 
-#endif // PROJECTINTERFACE_H
+#endif // PROJECT_H

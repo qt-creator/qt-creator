@@ -569,17 +569,6 @@ QStringList Qt4Project::files(FilesMode fileMode) const
     return files;
 }
 
-QList<Core::IFile *> Qt4Project::dependencies()
-{
-    QList<Core::IFile *> result;
-    // TODO profile cache is no longer
-//    ProFileCache *cache = m_manager->proFileCache();
-//    foreach (const QString &file, cache->dependencies(m_rootProjectNode)) {
-//        result << cache->fileInterface(file);
-//    }
-    return result;
-}
-
 QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 {
     // NBS implement dependsOn
@@ -610,9 +599,13 @@ void Qt4Project::addDefaultBuild()
         makeStep = new MakeStep(this);
         insertBuildStep(2, makeStep);
 
+        GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+        gdbmacrosCleanStep->setValue("clean", true);
+        insertCleanStep(0, gdbmacrosCleanStep);
+
         MakeStep* cleanStep = new MakeStep(this);
         cleanStep->setValue("clean", true);
-        insertCleanStep(0, cleanStep);
+        insertCleanStep(1, cleanStep);
 
         ProjectLoadWizard wizard(this);
         wizard.execDialog();
@@ -629,6 +622,10 @@ void Qt4Project::addDefaultBuild()
             if (v.isValid() && v.toBool()) {
                 GdbMacrosBuildStep *gdbmacrostep = new GdbMacrosBuildStep(this);
                 insertBuildStep(0, gdbmacrostep);
+
+                GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+                gdbmacrosCleanStep ->setValue("clean", true);
+                insertCleanStep(0, gdbmacrosCleanStep );
                 break;
             }
         }

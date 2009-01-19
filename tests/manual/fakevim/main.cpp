@@ -5,6 +5,7 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTextEdit>
@@ -16,7 +17,7 @@ class Proxy : public QObject
     Q_OBJECT
 
 public:
-    Proxy(QWidget *widget) : QObject(0), m_widget(widget) {}
+    Proxy() : QObject(0) {}
 
 public slots:
     void changeSelection(QWidget *w, const QList<QTextEdit::ExtraSelection> &s)
@@ -26,8 +27,11 @@ public slots:
         else if (QTextEdit *ed = qobject_cast<QTextEdit *>(w))
             ed->setExtraSelections(s);
     }
-private:
-    QWidget *m_widget; 
+
+    void changeExtraInformation(QWidget *w, const QString &info)
+    {
+        QMessageBox::information(w, "Information", info);
+    }
 };
 
 int main(int argc, char *argv[])
@@ -50,7 +54,7 @@ int main(int argc, char *argv[])
     widget->resize(450, 350);
     widget->setFocus();
 
-    Proxy proxy(widget);
+    Proxy proxy;
 
 
     FakeVimHandler handler;
@@ -78,6 +82,9 @@ int main(int argc, char *argv[])
     QObject::connect(&handler,
         SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
         &proxy, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
+    QObject::connect(&handler,
+        SIGNAL(extraInformationChanged(QWidget*,QString)),
+        &proxy, SLOT(changeExtraInformation(QWidget*,QString)));
 
     handler.addWidget(widget);
     if (args.size() >= 1)

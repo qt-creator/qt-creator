@@ -114,7 +114,7 @@ private slots:
     void installHandler(QWidget *widget);
     void removeHandler(QWidget *widget);
     void showCommandBuffer(const QString &contents);
-    void showExtraInformation(const QString &msg);
+    void showExtraInformation(QWidget *, const QString &msg);
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
     void changeSelection(QWidget *widget,
@@ -200,8 +200,8 @@ void FakeVimPluginPrivate::installHandler()
 
 void FakeVimPluginPrivate::installHandler(QWidget *widget)
 {
-    connect(m_handler, SIGNAL(extraInformationChanged(QString)),
-        this, SLOT(showExtraInformation(QString)));
+    connect(m_handler, SIGNAL(extraInformationChanged(QWidget *, QString)),
+        this, SLOT(showExtraInformation(QWidget *, QString)));
     connect(m_handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
     connect(m_handler, SIGNAL(quitRequested(QWidget *)),
@@ -281,9 +281,9 @@ void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
         tr("Quit FakeVim"), m_handler, SLOT(quit()));
 }
 
-void FakeVimPluginPrivate::showExtraInformation(const QString &text)
+void FakeVimPluginPrivate::showExtraInformation(QWidget *widget, const QString &text)
 {
-    QMessageBox::information(0, tr("FakeVim Information"), text);
+    QMessageBox::information(widget, tr("FakeVim Information"), text);
 }
 
 void FakeVimPluginPrivate::changeSelection(QWidget *widget,

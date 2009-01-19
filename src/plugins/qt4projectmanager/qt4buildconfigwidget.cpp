@@ -38,6 +38,9 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 #include "ui_qt4buildconfigwidget.h"
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/mainwindow.h>
+#include "qt4projectmanagerconstants.h"
 
 #include <QtGui/QFileDialog>
 
@@ -76,15 +79,24 @@ Qt4BuildConfigWidget::Qt4BuildConfigWidget(Qt4Project *project)
     connect(m_ui->importLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(importLabelClicked()));
 
+    connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
+            this, SLOT(manageQtVersions()));
+
     connect(m_pro->qt4ProjectManager()->versionManager(), SIGNAL(qtVersionsChanged()),
             this, SLOT(setupQtVersionsComboBox()));
-
 }
 
 Qt4BuildConfigWidget::~Qt4BuildConfigWidget()
 {
     delete m_ui;
 }
+
+void Qt4BuildConfigWidget::manageQtVersions()
+{
+    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
+}
+
 
 QString Qt4BuildConfigWidget::displayName() const
 {

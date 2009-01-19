@@ -54,6 +54,7 @@
 
 #include <QtNetwork/QHostAddress>
 
+#include <deque>
 #include <iostream>
 #include <map>
 #include <list>
@@ -442,6 +443,29 @@ void testQSet()
 void stringRefTest(const QString &refstring)
 {
     Q_UNUSED(refstring);
+}
+
+void testStdDeque()
+{
+    std::deque<int *> plist1;
+    plist1.push_back(new int(1));
+    plist1.push_back(0);
+    plist1.push_back(new int(2));
+    plist1.pop_back();
+    plist1.pop_front();
+    plist1.pop_front();
+
+    std::deque<int> flist2;
+    flist2.push_back(1);
+    flist2.push_back(2);
+
+    std::deque<Foo *> plist;
+    plist.push_back(new Foo(1));
+    plist.push_back(new Foo(2));
+
+    std::deque<Foo> flist;
+    flist.push_back(1);
+    flist.push_front(2);
 }
 
 void testStdList()
@@ -911,6 +935,7 @@ int main(int argc, char *argv[])
     testHidden();
     testArray();
 
+    testStdDeque();
     testStdList();
     testStdMap();
     testStdStack();

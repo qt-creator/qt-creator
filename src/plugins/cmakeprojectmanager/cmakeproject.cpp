@@ -80,9 +80,9 @@ CMakeProject::~CMakeProject()
 // TODO make this function work even if it is reparsing
 void CMakeProject::parseCMakeLists(const QDir &directory)
 {
-    createCbpFile(directory);
+    createCbpFile(buildDirectory(QString()));
 
-    QString cbpFile = findCbpFile(directory);
+    QString cbpFile = findCbpFile(buildDirectory(QString()));
 
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
@@ -153,9 +153,10 @@ void CMakeProject::createCbpFile(const QDir &directory)
 
     // TODO we need to pass on the same paremeters as the cmakestep
     qDebug()<<"Creating cbp file";
+    directory.mkpath(directory.absolutePath());
     QProcess cmake;
     cmake.setWorkingDirectory(directory.absolutePath());
-    cmake.start("cmake", QStringList() << "-GCodeBlocks - Unix Makefiles");
+    cmake.start("cmake", QStringList() << ".." << "-GCodeBlocks - Unix Makefiles");
     cmake.waitForFinished(-1);
     qDebug()<<"cmake output: \n"<<cmake.readAll();
 }
@@ -214,11 +215,6 @@ ProjectExplorer::IProjectManager *CMakeProject::projectManager() const
     return m_manager;
 }
 
-QList<Core::IFile *> CMakeProject::dependencies()
-{
-    return QList<Core::IFile *>();
-}
-
 QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
 {
     return QList<Project *>();
@@ -240,7 +236,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
     if (buildDirectory.isEmpty())
-        buildDirectory = QFileInfo(m_fileName).absolutePath();
+        buildDirectory = QFileInfo(m_fileName).absolutePath() + "/qtcreator-build";
     return buildDirectory;
 }
 
@@ -523,7 +519,7 @@ void CMakeCbpParser::parseTargetOption()
 {
     if (attributes().hasAttribute("output"))
         m_target.executable = attributes().value("output").toString();
-    else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
+    else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0"))
         m_targetType = true;
     else if (attributes().hasAttribute("working_dir"))
         m_target.workingDirectory = attributes().value("working_dir").toString();

@@ -69,8 +69,8 @@ public slots:
 signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
-    void extraInformationChanged(const QString &msg);
-    void quitRequested(QWidget *);
+    void extraInformationChanged(QWidget *widget, const QString &msg);
+    void quitRequested(QWidget *widget);
     void selectionChanged(QWidget *widget,
         const QList<QTextEdit::ExtraSelection> &selection);
     void writeFile(const QString &fileName, const QString &contents);

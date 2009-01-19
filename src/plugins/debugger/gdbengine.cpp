@@ -2988,6 +2988,12 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
             //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
+    } else if (outertype == "std::deque") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
+    } else if (outertype == "std::stack") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
     } else if (outertype == "std::map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.
