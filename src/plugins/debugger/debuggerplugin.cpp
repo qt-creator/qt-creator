@@ -894,6 +894,7 @@ void DebuggerPlugin::writeSettings() const
     s->setValue("Locked", m_toggleLockedAction->isChecked());
     s->setValue("Location", m->m_gdbCmd);
     s->setValue("Environment", m->m_gdbEnv);
+    s->setValue("ScriptFile", m->m_scriptFile);
     s->setValue("AutoRun", m->m_autoRun);
     s->setValue("AutoQuit", m->m_autoQuit);
 
@@ -922,18 +923,18 @@ void DebuggerPlugin::readSettings()
     s->beginGroup(QLatin1String("DebugMode"));
     QByteArray ba = s->value("State", QByteArray()).toByteArray();
     m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
-    m->m_gdbCmd   = s->value("Location", defaultCommand).toString();
-    m->m_scriptFile= s->value("ScriptFile", defaultScript).toString();
-    m->m_gdbEnv   = s->value("Environment", "").toString();
-    m->m_autoRun  = s->value("AutoRun", true).toBool();
-    m->m_autoQuit = s->value("AutoQuit", true).toBool();
+    m->m_gdbCmd     = s->value("Location", defaultCommand).toString();
+    m->m_scriptFile = s->value("ScriptFile", defaultScript).toString();
+    m->m_gdbEnv     = s->value("Environment", "").toString();
+    m->m_autoRun    = s->value("AutoRun", true).toBool();
+    m->m_autoQuit   = s->value("AutoQuit", true).toBool();
 
-    m->m_skipKnownFrames = s->value("SkipKnownFrames", false).toBool();
-    m->m_debugDumpers = s->value("DebugDumpers", false).toBool();
+    m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
+    m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
     m->m_useCustomDumpers = s->value("UseCustomDupers", false).toBool();
-    m->m_useFastStart = s->value("UseFastStart", false).toBool();
-    m->m_useToolTips = s->value("UseToolTips", false).toBool();
-    m->m_useTerminal = s->value("UseTerminal", false).toBool();
+    m->m_useFastStart     = s->value("UseFastStart", false).toBool();
+    m->m_useToolTips      = s->value("UseToolTips", false).toBool();
+    m->m_useTerminal      = s->value("UseTerminal", false).toBool();
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

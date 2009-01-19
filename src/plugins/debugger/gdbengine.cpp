@@ -696,7 +696,7 @@ void GdbEngine::sendCommand(const QString &command, int type,
 
     //qDebug() << "";
     if (!command.isEmpty()) {
-        //qDebug() << qPrintable(currentTime()) << "RUNNING  << cmd.command;
+        //qDebug() << qPrintable(currentTime()) << "RUNNING" << cmd.command;
         m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
         //emit gdbInputAvailable(QString(), "         " +  currentTime());
         emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
@@ -1520,6 +1520,7 @@ bool GdbEngine::startDebugger()
     #if 0
     qDebug() << "Command: " << q->settings()->m_gdbCmd;
     qDebug() << "WorkingDirectory: " << m_gdbProc.workingDirectory();
+    qDebug() << "ScriptFile: " << q->settings()->m_scriptFile;
     qDebug() << "Environment: " << m_gdbProc.environment();
     qDebug() << "Arguments: " << gdbArgs;
     qDebug() << "BuildDir: " << q->m_buildDir;
@@ -1599,6 +1600,22 @@ bool GdbEngine::startDebugger()
             "dyld \".*libobjc.*\" all "
             "dyld \".*CarbonDataFormatters.*\" all");
     #endif
+
+    QString scriptFileName = q->settings()->m_scriptFile;
+    if (!scriptFileName.isEmpty()) {
+        QFile scriptFile(scriptFileName);
+        if (scriptFile.open(QIODevice::ReadOnly)) {
+            sendCommand("source " + scriptFileName);
+        } else {
+            QMessageBox::warning(q->mainWindow(),
+            tr("Cannot find debugger initialization script"),
+            tr("The debugger settings point to a script file at '%1' "
+               "which is not accessible. If a script file is not needed, "
+               "consider clearing that entry to avoid this warning. "
+              ).arg(scriptFileName));
+        }
+    }
+
     if (q->startMode() == q->attachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID));
     }
