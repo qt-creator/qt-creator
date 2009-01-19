@@ -143,6 +143,7 @@ MainWindow::MainWindow() :
     m_exitAction(0),
     m_optionsAction(0),
     m_toggleSideBarAction(0),
+    m_toggleFullScreenAction(0),
 #ifdef Q_OS_MAC
     m_minimizeAction(0),
     m_zoomAction(0),
@@ -448,7 +449,6 @@ void MainWindow::registerDefaultActions()
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
-    Q_UNUSED(mwindow)
     ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
@@ -640,6 +640,17 @@ void MainWindow::registerDefaultActions()
     m_toggleSideBarButton->setDefaultAction(cmd->action());
     mwindow->addAction(cmd, Constants::G_WINDOW_PANES);
     m_toggleSideBarAction->setEnabled(false);
+
+    // Toggle Full Screen
+    m_toggleFullScreenAction = new QAction(tr("Toggle Fullscreen"), this);
+    m_toggleFullScreenAction->setCheckable(true);
+    m_toggleFullScreenAction->setChecked(true);
+    cmd = am->registerAction(m_toggleFullScreenAction,
+        Constants::TOGGLE_FULLSCREEN, m_globalContext);
+    cmd->setDefaultKeySequence(QKeySequence("Ctrl+Shift+F11"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_FULLSCREEN);
+    connect(m_toggleFullScreenAction, SIGNAL(toggled(bool)),
+        this, SLOT(setFullScreen(bool)));
 
     //About IDE Action
 #ifdef Q_OS_MAC
@@ -1112,4 +1123,17 @@ QPrinter *MainWindow::printer() const
     if (!m_printer)
         m_printer = new QPrinter(QPrinter::HighResolution);
     return  m_printer;
+}
+
+void MainWindow::setFullScreen(bool on)
+{
+    if (on) {
+        setWindowState(windowState() | Qt::WindowFullScreen);
+        //statusBar()->hide();
+        //menuBar()->hide();
+    } else {
+        setWindowState(windowState() & ~Qt::WindowFullScreen);
+        //menuBar()->show();
+        //statusBar()->show();
+    }
 }
