@@ -162,14 +162,15 @@
     session. You can create a new session using the \gui{Session Manager...},
     available in the \gui{File -> Session} menu.
 
-    \image qtcreator-session-menu.png
+
+    \image qtcreator-session-manager.png
 
 
     To switch between sessions, select \gui{File -> Session}. If you do not
     create and select any session, Qt Creator will always use the default
     session.
 
-    \image qtcreator-session-manager.png
+    \image qtcreator-session-menu.png
 
 
     \section1 Qt Help Integration
