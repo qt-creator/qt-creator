@@ -6,6 +6,22 @@ count(TOO_OLD_LIST, 1) {
 }
 
 
+linux-* {
+	isEmpty( LOCATION )  {
+		LOCATION = /usr/share
+	}
+	documentation.files     += doc/qtcreator.qch
+	documentation.path       = $$LOCATION/share/qtcreator/doc/qtcreator
+
+	share.files         += share/qtcreator/*
+	share.parth			 = $$LOCATION/share/qtcreator
+
+
+	INSTALLS += \
+		documentation \
+		share		
+}
+
 TEMPLATE  = subdirs
 CONFIG   += ordered
 

@@ -6,6 +6,12 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
+linux-* {
+	isEmpty( LOCATION )  {
+		error("qworkbench.pri: including file must define LOCATION (didn't you run qmake from the root dir?)")
+	}
+}
+
 equals(TEST, 1) {
     QT +=testlib
     DEFINES += WITH_TESTS
@@ -20,7 +26,7 @@ macx {
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
 } else {
     IDE_APP_TARGET = qtcreator
-    IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/lib
+    IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/share/qtcreator/lib
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 win32 {

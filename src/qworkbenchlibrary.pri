@@ -20,3 +20,8 @@ macx {
 TARGET = $$qtLibraryTarget($$TARGET)
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
+
+linux-* {
+	target.path = $$LOCATION/lib/qtcreator
+	INSTALLS += target
+}
