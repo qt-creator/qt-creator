@@ -118,7 +118,7 @@ MainWindow::MainWindow() :
     m_printer(0),
     m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
     m_editorManager(0),
-    m_fileManager(new FileManager(m_coreImpl, this)),
+    m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManagerPrivate(this, m_coreImpl)),
     m_variableManager(new VariableManager(this)),
@@ -217,9 +217,8 @@ void MainWindow::toggleNavigation()
 
 void MainWindow::setSuppressNavigationWidget(bool suppress)
 {
-    if (NavigationWidgetPlaceHolder::current()) {
+    if (NavigationWidgetPlaceHolder::current())
         m_navigationWidget->setSuppressed(suppress);
-    }
 }
 
 MainWindow::~MainWindow()
@@ -319,7 +318,7 @@ void MainWindow::extensionsInitialized()
     m_viewManager->extensionsInitalized();
 
     m_messageManager->init(m_pluginManager);
-    m_outputPane->init(m_coreImpl, m_pluginManager);
+    m_outputPane->init(m_pluginManager);
 
     m_actionManager->initialize();
     readSettings();

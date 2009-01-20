@@ -104,7 +104,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
     const QList<int> context = QList<int>() << uid;
 
-    m_factory = new FormEditorFactory(core);
+    m_factory = new FormEditorFactory;
     addObject(m_factory);
 
     // Make sure settings pages and action shortcuts are registered

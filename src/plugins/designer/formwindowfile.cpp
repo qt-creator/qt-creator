@@ -56,17 +56,10 @@ using namespace SharedTools;
 enum { debugFormWindowFile = 0 };
 
 
-FormWindowFile::FormWindowFile(Core::ICore *core,
-                               QDesignerFormWindowInterface *form,
-                               QObject *parent) :
-    Core::IFile(parent),
+FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
+  : Core::IFile(parent),
     m_mimeType(QLatin1String(FORM_MIMETYPE)),
-    m_formWindow(form),
-    m_core(core)
-{
-}
-
-FormWindowFile::~FormWindowFile()
+    m_formWindow(form)
 {
 }
 
@@ -141,7 +134,7 @@ void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(m_fileName, m_core->mainWindow())) {
+    switch (Core::Utils::reloadPrompt(m_fileName, Core::ICore::instance()->mainWindow())) {
     case Core::Utils::ReloadCurrent:
         emit reload(m_fileName);
         break;

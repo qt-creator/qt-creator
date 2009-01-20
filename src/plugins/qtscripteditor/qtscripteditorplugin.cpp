@@ -85,7 +85,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     m_context = m_scriptcontext;
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
-    registerActions(core);
+    registerActions();
 
     m_editor = new QtScriptEditorFactory(m_context, this);
     addObject(m_editor);
@@ -130,9 +130,9 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
     editor->setDisplaySettings(settings->displaySettings());
 }
 
-void QtScriptEditorPlugin::registerActions(Core::ICore *core)
+void QtScriptEditorPlugin::registerActions()
 {
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);

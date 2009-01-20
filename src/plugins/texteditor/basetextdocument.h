@@ -46,10 +46,7 @@ class QSyntaxHighlighter;
 QT_END_NAMESPACE
 
 
-namespace Core { class ICore; }
-
 namespace TextEditor {
-
 
 class DocumentMarker : public ITextMarkable
 {
@@ -69,9 +66,7 @@ private:
 };
 
 
-
-class TEXTEDITOR_EXPORT BaseTextDocument
-  : public Core::IFile
+class TEXTEDITOR_EXPORT BaseTextDocument : public Core::IFile
 {
     Q_OBJECT
 
@@ -133,7 +128,6 @@ private:
     QString m_mimeType;
     StorageSettings m_storageSettings;
     TabSettings m_tabSettings;
-    Core::ICore *m_core;
     QTextDocument *m_document;
     DocumentMarker *m_documentMarker;
     QSyntaxHighlighter *m_highlighter;

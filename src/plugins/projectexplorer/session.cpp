@@ -70,13 +70,12 @@ namespace {
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionFile
-    : public Core::IFile
+class SessionFile : public Core::IFile
 {
     Q_OBJECT
 
 public:
-    SessionFile(Core::ICore *core);
+    SessionFile();
 
     bool load(const QString &fileName);
     bool save(const QString &fileName = QString());
@@ -126,9 +125,9 @@ void SessionFile::sessionLoadingProgress()
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-SessionFile::SessionFile(Core::ICore *core) :
-    m_mimeType(QLatin1String(ProjectExplorer::Constants::SESSIONFILE_MIMETYPE)),
-    m_core(core),
+SessionFile::SessionFile()
+  : m_mimeType(QLatin1String(ProjectExplorer::Constants::SESSIONFILE_MIMETYPE)),
+    m_core(Core::ICore::instance()),
     m_startupProject(0)
 {
 }
@@ -369,10 +368,10 @@ void Internal::SessionNodeImpl::setFileName(const QString &fileName)
 
 /* --------------------------------- */
 
-SessionManager::SessionManager(Core::ICore *core, QObject *parent)
-    : QObject(parent),
-    m_core(core),
-    m_file(new SessionFile(core)),
+SessionManager::SessionManager(QObject *parent)
+  : QObject(parent),
+    m_core(Core::ICore::instance()),
+    m_file(new SessionFile),
     m_sessionNode(new Internal::SessionNodeImpl(this))
 {
     // Create qtcreator dir if it doesn't yet exist
@@ -394,12 +393,11 @@ SessionManager::SessionManager(Core::ICore *core, QObject *parent)
 
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
-    connect(core->editorManager(), SIGNAL(editorCreated(Core::IEditor *, QString)),
+    connect(m_core->editorManager(), SIGNAL(editorCreated(Core::IEditor *, QString)),
             this, SLOT(setEditorCodec(Core::IEditor *, QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
-
-    }
+}
 
 SessionManager::~SessionManager()
 {
@@ -414,7 +412,6 @@ bool SessionManager::isDefaultVirgin() const
             && projects().isEmpty()
             && m_core->editorManager()->openedEditors().isEmpty();
 }
-
 
 bool SessionManager::isDefaultSession(const QString &session) const
 {
@@ -600,7 +597,7 @@ bool SessionManager::createImpl(const QString &fileName)
     if (success) {
         delete m_file;
         emit sessionUnloaded();
-        m_file = new SessionFile(m_core);
+        m_file = new SessionFile;
         m_file->setFileName(fileName);
         setStartupProject(defaultStartupProject());
     }
@@ -634,10 +631,11 @@ bool SessionManager::loadImpl(const QString &fileName)
 
     if (success) {
         delete m_file;
+        m_file = 0;
         emit sessionUnloaded();
-        m_file = new SessionFile(m_core);
+        m_file = new SessionFile;
         if (!m_file->load(fileName)) {
-            QMessageBox::warning(0, tr("Error while loading session"), \
+            QMessageBox::warning(0, tr("Error while loading session"),
                                     tr("Could not load session %1").arg(fileName));
             success = false;
         }
@@ -879,7 +877,6 @@ void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileNa
         if (Project *project = projectForFile(fileName))
             textEditor->setTextCodec(project->editorConfiguration()->defaultTextCodec());
 }
-
 
 QList<Project *> SessionManager::requestCloseOfAllFiles(bool *cancelled)
 {

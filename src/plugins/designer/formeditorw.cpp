@@ -561,8 +561,9 @@ FormWindowEditor *FormEditorW::createFormWindowEditor(QWidget* parentWidget)
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(0);
     connect(form, SIGNAL(toolChanged(int)), this, SLOT(toolChanged(int)));
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
-    FormWindowEditor *fww = new FormWindowEditor(m_core, m_context, form, parentWidget);
-    // Store a pointer to all form windows so we can unselect all other formwindows except the active one.
+    FormWindowEditor *fww = new FormWindowEditor(m_context, form, parentWidget);
+    // Store a pointer to all form windows so we can unselect
+    // all other formwindows except the active one.
     m_formWindows.append(fww);
     connect(fww, SIGNAL(destroyed()), this, SLOT(editorDestroyed()));
     return fww;
@@ -604,7 +605,8 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
 void FormEditorW::activeFormWindowChanged(QDesignerFormWindowInterface *afw)
 {
     if (debugFormEditor)
-        qDebug() << "FormEditorW::activeFormWindowChanged" << afw << " of " << m_fwm->formWindowCount() << m_formWindows;
+        qDebug() << "FormEditorW::activeFormWindowChanged" << afw
+            << " of " << m_fwm->formWindowCount() << m_formWindows;
 
     m_fwm->closeAllPreviews();
 

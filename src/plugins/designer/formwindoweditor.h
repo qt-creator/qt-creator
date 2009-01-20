@@ -45,10 +45,6 @@ class QDesignerFormWindowManagerInterface;
 class QFile;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace ProjectExplorer {
 class SessionNode;
 class NodesWatcher;
@@ -60,6 +56,7 @@ namespace Internal {
 class FormWindowFile;
 class FormWindowHost;
 class EditorWidget;
+
 // Master class maintaining a form window editor,
 // containing file and widget host
 
@@ -68,8 +65,7 @@ class FormWindowEditor : public Core::IEditor
     Q_OBJECT
 
 public:
-    FormWindowEditor(Core::ICore *core,
-                     const QList<int> &context,
+    FormWindowEditor(const QList<int> &context,
                      QDesignerFormWindowInterface *form,
                      QObject *parent = 0);
     ~FormWindowEditor();
@@ -85,7 +81,7 @@ public:
     void setDisplayName(const QString &title);
     QToolBar *toolBar();
     QByteArray saveState() const;
-    bool restoreState(const QByteArray &/*state*/);
+    bool restoreState(const QByteArray &state);
 
     // ContextInterface
     QList<int> context() const;

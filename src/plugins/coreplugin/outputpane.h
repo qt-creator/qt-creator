@@ -51,7 +51,6 @@ namespace ExtensionSystem { class PluginManager; }
 
 namespace Core {
 
-class ICore;
 class IMode;
 class IOutputPane;
 
@@ -89,7 +88,7 @@ class OutputPane
 public:
     OutputPane(const QList<int> &context, QWidget *parent = 0);
     ~OutputPane();
-    void init(Core::ICore *core, ExtensionSystem::PluginManager *pm);
+    void init(ExtensionSystem::PluginManager *pm);
     static OutputPane *instance();
     const QList<int> &context() const { return m_context; }
     void setCloseable(bool b);
@@ -123,7 +122,6 @@ private:
     QAction *m_closeAction;
 
     ExtensionSystem::PluginManager *m_pluginManager;
-    Core::ICore *m_core;
 
     QMap<int, Core::IOutputPane*> m_pageMap;
     int m_lastIndex;

@@ -156,7 +156,6 @@ OutputPane::OutputPane(const QList<int> &context, QWidget *parent) :
     m_closeButton(new QToolButton),
     m_closeAction(0),
     m_pluginManager(0),
-    m_core(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget)
@@ -206,12 +205,11 @@ QWidget *OutputPane::buttonsWidget()
     return m_buttonsWidget;
 }
 
-void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
+void OutputPane::init(ExtensionSystem::PluginManager *pm)
 {
     m_pluginManager = pm;
-    m_core = core;
 
-    ActionManager *am = m_core->actionManager();
+    ActionManager *am = Core::ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     // Window->Output Panes

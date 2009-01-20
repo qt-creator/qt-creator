@@ -61,8 +61,7 @@ class PerforcePlugin;
 class PromptDialog : public QDialog
 {
 public:
-    PromptDialog(const QString &choice, const QString &text,
-        QWidget *parent = 0);
+    PromptDialog(const QString &choice, const QString &text, QWidget *parent = 0);
     QString input() const;
 
 private:
@@ -96,7 +95,7 @@ private:
     void displayErrorMsg(const QString &msg);
 
     PerforcePlugin *m_plugin;
-    Core::ICore *m_coreIFace;
+    Core::ICore *m_core;
     Core::IEditor *m_currentEditorIface;
     bool m_userCancelled;
     Mode m_mode;

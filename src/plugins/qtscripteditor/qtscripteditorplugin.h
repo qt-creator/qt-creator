@@ -36,19 +36,13 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core {
-class ICore;
-}
-
 namespace TextEditor {
-class FontSettingsPage;
 class TextFileWizard;
-}
+} // namespace TextEditor
 
 namespace QtScriptEditor {
 namespace Internal {
 
-class QtScriptWizard;
 class QtScriptEditorFactory;
 class ScriptEditor;
 
@@ -60,14 +54,14 @@ public:
     QtScriptEditorPlugin();
     virtual ~QtScriptEditorPlugin();
 
-    //Plugin
-    bool initialize(const QStringList &arguments, QString *error_message = 0);
+    // IPlugin
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
     static void initializeEditor(ScriptEditor *editor);
 
 private:
-    void registerActions(Core::ICore *core);
+    void registerActions();
 
     static QtScriptEditorPlugin *m_instance;
 

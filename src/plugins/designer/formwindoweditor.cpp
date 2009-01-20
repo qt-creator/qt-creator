@@ -96,14 +96,13 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 
-FormWindowEditor::FormWindowEditor(Core::ICore *core,
-                                   const QList<int> &context,
+FormWindowEditor::FormWindowEditor(const QList<int> &context,
                                    QDesignerFormWindowInterface *form,
-                                   QObject *parent) :
-    Core::IEditor(parent),
+                                   QObject *parent)
+  : Core::IEditor(parent),
     m_context(context),
     m_formWindow(form),
-    m_file(new FormWindowFile(core, form, this)),
+    m_file(new FormWindowFile(form, this)),
     m_host(new FormWindowHost(form)),
     m_editorWidget(new EditorWidget(m_host)),
     m_toolBar(0),

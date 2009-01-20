@@ -157,10 +157,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addObject(this);
 
-    connect(core->fileManager(), SIGNAL(currentFileChanged(const QString&)),
-            this, SLOT(setCurrentFile(const QString&)));
+    connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
+            this, SLOT(setCurrentFile(QString)));
 
-    m_session = new SessionManager(core, this);
+    m_session = new SessionManager(this);
 
     connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project *)),
             this, SIGNAL(fileListChanged()));
@@ -199,7 +199,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
-    m_outputPane = new OutputPane(core);
+    m_outputPane = new OutputPane;
     addAutoReleasedObject(m_outputPane);
     connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
             m_outputPane, SLOT(projectRemoved()));
@@ -589,8 +589,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(core, SIGNAL(saveSettingsRequested()),
         this, SLOT(savePersistentSettings()));
 
-    addAutoReleasedObject(new ProjectTreeWidgetFactory(core));
-    addAutoReleasedObject(new FolderNavigationWidgetFactory(core));
+    addAutoReleasedObject(new ProjectTreeWidgetFactory);
+    addAutoReleasedObject(new FolderNavigationWidgetFactory);
 
     if (QSettings *s = core->settings())
         m_recentProjects = s->value("ProjectExplorer/RecentProjects/Files", QStringList()).toStringList();

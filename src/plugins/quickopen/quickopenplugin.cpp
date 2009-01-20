@@ -83,7 +83,7 @@ QuickOpenPlugin::~QuickOpenPlugin()
 bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 {
     Core::ICore *core = Core::ICore::instance();
-    m_settingsPage = new SettingsPage(core, this);
+    m_settingsPage = new SettingsPage(this);
     addObject(m_settingsPage);
 
     m_quickOpenToolWindow = new QuickOpenToolWindow(this);

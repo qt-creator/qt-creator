@@ -65,8 +65,7 @@ class SessionFile;
 
 // Must be in header as otherwise moc has issues
 // with ProjectExplorer::SessionNode on msvc2005
-class SessionNodeImpl
-    : public ProjectExplorer::SessionNode
+class SessionNodeImpl : public ProjectExplorer::SessionNode
 {
     Q_OBJECT
 public:
@@ -86,13 +85,12 @@ public:
 // public interface just wrap around functions which do the actual work
 
 // This could be improved.
-class PROJECTEXPLORER_EXPORT SessionManager
-    : public QObject
+class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 {
     Q_OBJECT
 
 public:
-    SessionManager(Core::ICore *core, QObject *parent = 0);
+    explicit SessionManager(QObject *parent = 0);
     ~SessionManager();
 
     // higher level session management
