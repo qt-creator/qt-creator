@@ -203,14 +203,14 @@ MainWindow::MainWindow() :
     statusBar()->setProperty("p_styled", true);
 }
 
-void MainWindow::toggleNavigation()
+void MainWindow::setSidebarVisible(bool visible)
 {
     if (NavigationWidgetPlaceHolder::current()) {
-        if (m_navigationWidget->isSuppressed()) {
+        if (m_navigationWidget->isSuppressed() && visible) {
             m_navigationWidget->setShown(true);
             m_navigationWidget->setSuppressed(false);
         } else {
-            m_navigationWidget->setShown(!m_navigationWidget->isShown());
+            m_navigationWidget->setShown(visible);
         }
     }
 }
@@ -627,7 +627,7 @@ void MainWindow::registerDefaultActions()
 
     // Toggle Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(Constants::ICON_TOGGLE_SIDEBAR),
-                                        tr("Toggle Sidebar"), this);
+                                        tr("Show Sidebar"), this);
     m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, m_globalContext);
 #ifdef Q_OS_MAC
@@ -635,7 +635,7 @@ void MainWindow::registerDefaultActions()
 #else
     cmd->setDefaultKeySequence(QKeySequence("Alt+0"));
 #endif
-    connect(m_toggleSideBarAction, SIGNAL(triggered()), this, SLOT(toggleNavigation()));
+    connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSidebarVisible(bool)));
     m_toggleSideBarButton->setDefaultAction(cmd->action());
     mwindow->addAction(cmd, Constants::G_WINDOW_PANES);
     m_toggleSideBarAction->setEnabled(false);
