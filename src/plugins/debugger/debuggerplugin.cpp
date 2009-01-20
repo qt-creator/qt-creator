@@ -611,7 +611,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     splitter->setOrientation(Qt::Vertical);
 
     MiniSplitter *splitter2 = new MiniSplitter;
-    splitter2 = new MiniSplitter;
     splitter2->addWidget(new NavigationWidgetPlaceHolder(m_debugMode));
     splitter2->addWidget(splitter);
     splitter2->setStretchFactor(0, 0);
