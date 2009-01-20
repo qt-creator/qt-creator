@@ -62,6 +62,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="manageQtVersionPushButtons">
+         <property name="text">
+          <string>Manage Qt Versions</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="invalidQtWarningLabel">
          <property name="text">
           <string>This Qt-Version is invalid.</string>

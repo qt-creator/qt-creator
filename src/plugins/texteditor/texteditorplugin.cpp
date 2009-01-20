@@ -49,21 +49,21 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
-#include <QtGui/QShortcut>
+#include <QtCore/QtPlugin>
 #include <QtGui/QMainWindow>
+#include <QtGui/QShortcut>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 TextEditorPlugin *TextEditorPlugin::m_instance = 0;
 
-TextEditorPlugin::TextEditorPlugin() :
-    m_core(0),
-    m_settings(0),
+TextEditorPlugin::TextEditorPlugin()
+  : m_settings(0),
     m_wizard(0),
     m_editorFactory(0),
     m_lineNumberFilter(0)
@@ -82,17 +82,12 @@ TextEditorPlugin *TextEditorPlugin::instance()
     return m_instance;
 }
 
-Core::ICore *TextEditorPlugin::core()
+// ExtensionSystem::PluginInterface
+bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    return m_instance->m_core;
-}
+    Q_UNUSED(arguments);
 
-//ExtensionSystem::PluginInterface
-bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
-{
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::instance()->mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -103,7 +98,7 @@ bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_wizard = new TextFileWizard(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
                                   QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR),
                                   QLatin1String("text$"),
-                                  wizardParameters, m_core);
+                                  wizardParameters);
     // Add text file wizard
     addAutoReleasedObject(m_wizard);
 
@@ -115,15 +110,16 @@ bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(m_editorFactory);
 
     // Goto line functionality for quick open
-    m_lineNumberFilter = new LineNumberFilter(m_core->editorManager());
+    Core::ICore *core = Core::ICore::instance();
+    m_lineNumberFilter = new LineNumberFilter(core->editorManager());
     addAutoReleasedObject(m_lineNumberFilter);
 
-    int contextId = m_core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    int contextId = core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     QList<int> context = QList<int>() << contextId;
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = core->actionManager();
 
     // Add shortcut for invoking automatic completion
-    QShortcut *completionShortcut = new QShortcut(m_core->mainWindow());
+    QShortcut *completionShortcut = new QShortcut(core->mainWindow());
     completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
@@ -135,7 +131,8 @@ bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 #endif
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
-    addAutoReleasedObject(new FindInFiles(m_core, m_core->pluginManager()->getObject<Find::SearchResultWindow>()));
+    addAutoReleasedObject(new FindInFiles(
+        ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>()));
 
     return true;
 }
@@ -169,10 +166,7 @@ void TextEditorPlugin::initializeEditor(TextEditor::PlainTextEditor *editor)
 
 void TextEditorPlugin::invokeCompletion()
 {
-    if (!m_core)
-        return;
-
-    Core::IEditor *iface = m_core->editorManager()->currentEditor();
+    Core::IEditor *iface = Core::ICore::instance()->editorManager()->currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)
         editor->triggerCompletions();

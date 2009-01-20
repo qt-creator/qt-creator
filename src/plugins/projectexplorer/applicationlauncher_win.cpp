@@ -34,7 +34,6 @@
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 #include "winguiprocess.h"
-#include <projectexplorer/ProjectExplorerInterfaces>
 
 #include <QDebug>
 
@@ -117,10 +116,7 @@ qint64 ApplicationLauncher::applicationPID() const
 
 void ApplicationLauncher::readWinDebugOutput(const QString &output)
 {
-    QString s = output;
-    if (s.endsWith(QLatin1Char('\n')))
-            s.chop(1);
-    emit appendOutput(s);
+    emit appendOutput(output);
 }
 
 void ApplicationLauncher::processStopped()

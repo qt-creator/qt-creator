@@ -57,7 +57,7 @@ BaseTextMark::BaseTextMark(const QString &filename, int line)
 void BaseTextMark::init()
 {
     m_init = true;
-    Core::EditorManager *em = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->editorManager();
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
     connect(em, SIGNAL(editorOpened(Core::IEditor *)), this, SLOT(editorOpened(Core::IEditor *)));
 
     foreach (Core::IEditor *editor, em->openedEditors())
@@ -117,7 +117,7 @@ void BaseTextMark::updateMarker()
 
 void BaseTextMark::moveMark(const QString & /* filename */, int /* line */)
 {
-    Core::EditorManager *em = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->editorManager();
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
     if (!m_init) {
         connect(em, SIGNAL(editorOpened(Core::IEditor *)), this, SLOT(editorOpened(Core::IEditor *)));
         m_init = true;

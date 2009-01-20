@@ -70,22 +70,23 @@
 #include "basefilewizard.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
-#include <QtCore/QFileInfo>
+#include <QtCore/QtPlugin>
 
-#include <QtGui/QMenu>
-#include <QtGui/QToolBar>
 #include <QtGui/QApplication>
-#include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
-#include <QtGui/QShortcut>
+#include <QtGui/QMenu>
+#include <QtGui/QPixmap>
 #include <QtGui/QPrinter>
-#include <QtGui/QWizard>
+#include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
+#include <QtGui/QToolBar>
+#include <QtGui/QWizard>
 
 /*
 #ifdef Q_OS_UNIX
@@ -142,6 +143,7 @@ MainWindow::MainWindow() :
     m_exitAction(0),
     m_optionsAction(0),
     m_toggleSideBarAction(0),
+    m_toggleFullScreenAction(0),
 #ifdef Q_OS_MAC
     m_minimizeAction(0),
     m_zoomAction(0),
@@ -186,6 +188,7 @@ MainWindow::MainWindow() :
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QString baseName = qApp->style()->objectName();
+#ifdef Q_WS_X11
     if (baseName == "windows") {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop
@@ -195,18 +198,19 @@ MainWindow::MainWindow() :
         else
             baseName = "cleanlooks";
     }
+#endif
     qApp->setStyle(new ManhattanStyle(baseName));
     statusBar()->setProperty("p_styled", true);
 }
 
-void MainWindow::toggleNavigation()
+void MainWindow::setSidebarVisible(bool visible)
 {
     if (NavigationWidgetPlaceHolder::current()) {
-        if (m_navigationWidget->isSuppressed()) {
+        if (m_navigationWidget->isSuppressed() && visible) {
             m_navigationWidget->setShown(true);
             m_navigationWidget->setSuppressed(false);
         } else {
-            m_navigationWidget->setShown(!m_navigationWidget->isShown());
+            m_navigationWidget->setShown(visible);
         }
     }
 }
@@ -398,7 +402,7 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_UNDOREDO);
     medit->appendGroup(Constants::G_EDIT_COPYPASTE);
     medit->appendGroup(Constants::G_EDIT_SELECTALL);
-    medit->appendGroup(Constants::G_EDIT_FORMAT);
+    medit->appendGroup(Constants::G_EDIT_ADVANCED);
     medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
@@ -428,9 +432,9 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
-static Command *createSeparator(ActionManagerPrivate *am, QObject *parent,
-                                 const QString &name,
-                                 const QList<int> &context)
+static Command *createSeparator(ActionManager *am, QObject *parent,
+                                const QString &name,
+                                const QList<int> &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -445,7 +449,6 @@ void MainWindow::registerDefaultActions()
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
-    Q_UNUSED(mwindow)
     ActionContainer *mhelp = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
@@ -462,7 +465,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
 
     // Edit menu separators
-    cmd =  createSeparator(am, this,  QLatin1String("QtCreator.Edit.Sep.CopyPaste"), m_globalContext);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.CopyPaste"), m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.SelectAll"), m_globalContext);
@@ -471,8 +474,8 @@ void MainWindow::registerDefaultActions()
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Find"), m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_FIND);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Format"), m_globalContext);
-    medit->addAction(cmd, Constants::G_EDIT_FORMAT);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Advanced"), m_globalContext);
+    medit->addAction(cmd, Constants::G_EDIT_ADVANCED);
 
     //Tools menu separators
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Tools.Sep.Options"), m_globalContext);
@@ -625,7 +628,7 @@ void MainWindow::registerDefaultActions()
 
     // Toggle Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(Constants::ICON_TOGGLE_SIDEBAR),
-                                        tr("Toggle Sidebar"), this);
+                                        tr("Show Sidebar"), this);
     m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, m_globalContext);
 #ifdef Q_OS_MAC
@@ -633,10 +636,23 @@ void MainWindow::registerDefaultActions()
 #else
     cmd->setDefaultKeySequence(QKeySequence("Alt+0"));
 #endif
-    connect(m_toggleSideBarAction, SIGNAL(triggered()), this, SLOT(toggleNavigation()));
+    connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSidebarVisible(bool)));
     m_toggleSideBarButton->setDefaultAction(cmd->action());
     mwindow->addAction(cmd, Constants::G_WINDOW_PANES);
     m_toggleSideBarAction->setEnabled(false);
+
+#if !defined(Q_OS_MAC)
+    // Toggle Full Screen
+    m_toggleFullScreenAction = new QAction(tr("Toggle Fullscreen"), this);
+    m_toggleFullScreenAction->setCheckable(true);
+    m_toggleFullScreenAction->setChecked(false);
+    cmd = am->registerAction(m_toggleFullScreenAction,
+        Constants::TOGGLE_FULLSCREEN, m_globalContext);
+    cmd->setDefaultKeySequence(QKeySequence("Ctrl+Shift+F11"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+    connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)),
+        this, SLOT(setFullScreen(bool)));
+#endif
 
     //About IDE Action
 #ifdef Q_OS_MAC
@@ -682,8 +698,8 @@ void MainWindow::openFile()
 
 static QList<IFileFactory*> getNonEditorFileFactories()
 {
-    const ICore *core = CoreImpl::instance();
-    const QList<IFileFactory*> allFileFactories = core->pluginManager()->getObjects<IFileFactory>();
+    const QList<IFileFactory*> allFileFactories =
+        ExtensionSystem::PluginManager::instance()->getObjects<IFileFactory>();
     QList<IFileFactory*> nonEditorFileFactories;
     foreach (IFileFactory *factory, allFileFactories) {
         if (!qobject_cast<IEditorFactory *>(factory))
@@ -914,13 +930,18 @@ void MainWindow::changeEvent(QEvent *e)
                 qDebug() << "main window activated";
             emit windowActivated();
         }
-#ifdef Q_OS_MAC
     } else if (e->type() == QEvent::WindowStateChange) {
+#ifdef Q_OS_MAC
         bool minimized = isMinimized();
         if (debugMainWindow)
             qDebug() << "main window state changed to minimized=" << minimized;
         m_minimizeAction->setEnabled(!minimized);
         m_zoomAction->setEnabled(!minimized);
+#else
+        QWindowStateChangeEvent *ev =
+            static_cast<QWindowStateChangeEvent *>(e);
+        bool isFullScreen = (ev->oldState() & Qt::WindowFullScreen) != 0;
+        m_toggleFullScreenAction->setChecked(!isFullScreen);
 #endif
     }
 }
@@ -1109,4 +1130,20 @@ QPrinter *MainWindow::printer() const
     if (!m_printer)
         m_printer = new QPrinter(QPrinter::HighResolution);
     return  m_printer;
+}
+
+void MainWindow::setFullScreen(bool on)
+{
+    if (bool(windowState() & Qt::WindowFullScreen) == on)
+        return;
+
+    if (on) {
+        setWindowState(windowState() | Qt::WindowFullScreen);
+        //statusBar()->hide();
+        //menuBar()->hide();
+    } else {
+        setWindowState(windowState() & ~Qt::WindowFullScreen);
+        //menuBar()->show();
+        //statusBar()->show();
+    }
 }

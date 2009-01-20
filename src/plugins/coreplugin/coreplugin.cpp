@@ -39,7 +39,9 @@
 #include "modemanager.h"
 #include "fileiconprovider.h"
 
-#include <QtCore/qplugin.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QtPlugin>
 #if !defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
 #include <QtWebKit/QWebSettings>

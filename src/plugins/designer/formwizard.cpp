@@ -36,8 +36,6 @@
 #include "formwindoweditor.h"
 #include "designerconstants.h"
 
-#include <coreplugin/icore.h>
-
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 
@@ -46,8 +44,8 @@ enum { debugFormWizard = 0 };
 using namespace Designer;
 using namespace Designer::Internal;
 
-FormWizard::FormWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent) :
-    Core::BaseFileWizard(parameters, core, parent)
+FormWizard::FormWizard(const BaseFileWizardParameters &parameters, QObject *parent)
+  : Core::BaseFileWizard(parameters, parent)
 {
 }
 
@@ -55,7 +53,7 @@ QWizard *FormWizard::createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,
                                         const WizardPageList &extensionPages) const
 {
-    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(core(), extensionPages, parent);
+    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(extensionPages, parent);
     wizardDialog->setPath(defaultPath);
     return wizardDialog;
 }

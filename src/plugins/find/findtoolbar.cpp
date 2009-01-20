@@ -41,16 +41,19 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QToolButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
+
 #include <QtGui/QClipboard>
-#include <QtGui/QPainter>
 #include <QtGui/QCompleter>
-#include <QDebug>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QLineEdit>
+#include <QtGui/QMenu>
+#include <QtGui/QPainter>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Find::IFindFilter*)
@@ -138,7 +141,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    Core::ActionManager *am = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;
 

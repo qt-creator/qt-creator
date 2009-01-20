@@ -166,9 +166,9 @@ private:
     virtual ThreadsHandler *threadsHandler() = 0;
     virtual WatchHandler *watchHandler() = 0;
 
-    virtual void showApplicationOutput(const QString &prefix, const QString &data) = 0;
-    virtual QAction *useCustomDumpersAction() const = 0;
-    virtual QAction *debugDumpersAction() const = 0;
+    virtual void showApplicationOutput(const QString &data) = 0;
+    //virtual QAction *useCustomDumpersAction() const = 0;
+    //virtual QAction *debugDumpersAction() const = 0;
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
@@ -179,6 +179,31 @@ private:
     virtual void reloadRegisters() = 0;
 };
 
+
+//
+// DebuggerSettings
+//
+
+class DebuggerSettings
+{
+public:
+    DebuggerSettings();
+
+public:
+    QString m_gdbCmd;
+    QString m_gdbEnv;
+    bool m_autoRun;
+    bool m_autoQuit;
+
+    bool m_useCustomDumpers;
+    bool m_skipKnownFrames;
+    bool m_debugDumpers;
+    bool m_useFastStart;
+    bool m_useToolTips;
+    bool m_useTerminal;
+
+    QString m_scriptFile;
+};
 
 //
 // DebuggerManager
@@ -196,6 +221,7 @@ public:
     IDebuggerManagerAccessForEngines *engineInterface();
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
+    DebuggerSettings *settings() { return &m_settings; }
 
     enum StartMode { startInternal, startExternal, attachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
@@ -260,7 +286,7 @@ public slots:
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
-    void showApplicationOutput(const QString &prefix, const QString &msg);
+    void showApplicationOutput(const QString &data);
 
     void reloadDisassembler();
     void disassemblerDockToggled(bool on);
@@ -286,9 +312,9 @@ private:
     StackHandler *stackHandler() { return m_stackHandler; }
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
-    QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
-    QAction *useToolTipsAction() const { return m_useToolTipsAction; }
-    QAction *debugDumpersAction() const { return m_debugDumpersAction; }
+    //QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
+    //QAction *useToolTipsAction() const { return m_useToolTipsAction; }
+    //QAction *debugDumpersAction() const { return m_debugDumpersAction; }
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
@@ -340,8 +366,7 @@ signals:
     void setSessionValueRequested(const QString &name, const QVariant &value);
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
-    void applicationOutputAvailable(const QString &prefix, const QString &msg);
-
+    void applicationOutputAvailable(const QString &output);
 
 public:
     // FIXME: make private
@@ -406,13 +431,6 @@ private:
     QAction *m_sepAction;
     QAction *m_stepIAction;
     QAction *m_nextIAction;
-    QAction *m_skipKnownFramesAction;
-
-    QAction *m_debugDumpersAction;
-    QAction *m_useCustomDumpersAction;
-    QAction *m_useFastStartAction;
-    QAction *m_useToolTipsAction;
-    QAction *m_dumpLogAction;
 
     QWidget *m_breakWindow;
     QWidget *m_disassemblerWindow;
@@ -432,8 +450,8 @@ private:
 
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
+    DebuggerSettings m_settings;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

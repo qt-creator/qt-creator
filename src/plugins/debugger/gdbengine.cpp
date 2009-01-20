@@ -86,19 +86,6 @@ static const QString tooltipIName = "tooltip";
 
 ///////////////////////////////////////////////////////////////////////
 //
-// GdbSettings
-//
-///////////////////////////////////////////////////////////////////////
-
-GdbSettings &Debugger::Internal::theGdbSettings()
-{
-    static GdbSettings settings;
-    return settings;
-}
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // GdbCommandType
 //
 ///////////////////////////////////////////////////////////////////////
@@ -265,7 +252,7 @@ void GdbEngine::init()
     m_pendingRequests = 0;
     m_gdbVersion = 100;
     m_shared = 0;
-    qq->debugDumpersAction()->setChecked(false);
+    m_outputCodec = QTextCodec::codecForLocale();
 
     m_oldestAcceptableToken = -1;
 
@@ -279,12 +266,9 @@ void GdbEngine::init()
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)), q,
         SLOT(exitDebugger()));
 
-    connect(qq->debugDumpersAction(), SIGNAL(toggled(bool)),
-        this, SLOT(setDebugDumpers(bool)));
-    connect(qq->useCustomDumpersAction(), SIGNAL(toggled(bool)),
-        this, SLOT(setCustomDumpersWanted(bool)));
-
     // Output
+    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
+            SLOT(readDebugeeOutput(QByteArray)));
     connect(this, SIGNAL(gdbResponseAvailable()),
         this, SLOT(handleResponse()), Qt::QueuedConnection);
 
@@ -294,8 +278,8 @@ void GdbEngine::init()
     connect(this, SIGNAL(gdbInputAvailable(QString,QString)),
         q, SLOT(showDebuggerInput(QString,QString)),
         Qt::QueuedConnection);
-    connect(this, SIGNAL(applicationOutputAvailable(QString,QString)),
-        q, SLOT(showApplicationOutput(QString,QString)),
+    connect(this, SIGNAL(applicationOutputAvailable(QString)),
+        q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 }
 
@@ -306,7 +290,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
         case QProcess::FailedToStart:
             msg = QString(tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")).arg(theGdbSettings().m_gdbCmd);
+                "permissions to invoke the program.")).arg(q->settings()->m_gdbCmd);
             break;
         case QProcess::Crashed:
             msg = tr("The Gdb process crashed some time after starting "
@@ -374,6 +358,12 @@ static void skipTerminator(const char *&from, const char *to)
     skipSpaces(from, to);
 }
 
+void GdbEngine::readDebugeeOutput(const QByteArray &data)
+{
+    emit applicationOutputAvailable(m_outputCodec->toUnicode(
+            data.constData(), data.length(), &m_outputCodecState));
+}
+
 // called asyncronously as response to Gdb stdout output in
 // gdbResponseAvailable()
 void GdbEngine::handleResponse()
@@ -424,22 +414,6 @@ void GdbEngine::handleResponse()
         if (from == to) {
             //qDebug() << "Returning: " << toString();
             break;
-        }
-
-        if (token == -1 && *from != '&' && *from != '~' && *from != '*') {
-            // FIXME: On Linux the application's std::out is merged in here.
-            // High risk of falsely interpreting this as MI output.
-            // We assume that we _always_ use tokens, so not finding a token
-            // is a positive indication for the presence of application output.
-            QString s;
-            while (from != to && *from != '\n')
-                s += *from++;
-            //qDebug() << "UNREQUESTED DATA " << s << " TAKEN AS APPLICATION OUTPUT";
-            //s += '\n';
-
-            m_inbuffer = QByteArray(from, to - from);
-            emit applicationOutputAvailable("app-stdout: ", s);
-            continue;
         }
 
         // next char decides kind of record
@@ -609,8 +583,7 @@ static void fixMac(QByteArray &out)
 
 void GdbEngine::readGdbStandardError()
 {
-    QByteArray err = m_gdbProc.readAllStandardError();
-    emit applicationOutputAvailable("app-stderr:", err);
+    qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -723,7 +696,7 @@ void GdbEngine::sendCommand(const QString &command, int type,
 
     //qDebug() << "";
     if (!command.isEmpty()) {
-        //qDebug() << qPrintable(currentTime()) << "RUNNING  << cmd.command;
+        //qDebug() << qPrintable(currentTime()) << "RUNNING" << cmd.command;
         m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
         //emit gdbInputAvailable(QString(), "         " +  currentTime());
         emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
@@ -1097,7 +1070,7 @@ void GdbEngine::handleStreamOutput(const QString &data, char code)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                qq->showApplicationOutput(QString(), data);
+                qq->showApplicationOutput(data);
             break;
     }
 
@@ -1503,7 +1476,8 @@ void GdbEngine::exitDebugger()
     m_varToType.clear();
     m_dataDumperState = DataDumperUninitialized;
     m_shared = 0;
-    qq->debugDumpersAction()->setChecked(false);
+    m_outputCollector.shutdown();
+    //q->settings()->m_debugDumpers = false;
 }
 
 
@@ -1525,6 +1499,15 @@ bool GdbEngine::startDebugger()
         return false;
     }
 
+    if (!m_outputCollector.listen()) {
+        QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
+                              tr("Cannot set up communication with child process: %1")
+                              .arg(m_outputCollector.errorString()));
+        return false;
+    }
+
+    gdbArgs.prepend(QLatin1String("--tty=") + m_outputCollector.serverName());
+
     //gdbArgs.prepend(QLatin1String("--quiet"));
     gdbArgs.prepend(QLatin1String("mi"));
     gdbArgs.prepend(QLatin1String("-i"));
@@ -1535,8 +1518,9 @@ bool GdbEngine::startDebugger()
         m_gdbProc.setEnvironment(q->m_environment);
 
     #if 0
-    qDebug() << "Command: " << theGdbSettings().m_gdbCmd;
+    qDebug() << "Command: " << q->settings()->m_gdbCmd;
     qDebug() << "WorkingDirectory: " << m_gdbProc.workingDirectory();
+    qDebug() << "ScriptFile: " << q->settings()->m_scriptFile;
     qDebug() << "Environment: " << m_gdbProc.environment();
     qDebug() << "Arguments: " << gdbArgs;
     qDebug() << "BuildDir: " << q->m_buildDir;
@@ -1544,13 +1528,17 @@ bool GdbEngine::startDebugger()
     #endif
 
     q->showStatusMessage(tr("Starting Debugger"));
-    emit gdbInputAvailable(QString(), theGdbSettings().m_gdbCmd + ' ' + gdbArgs.join(" "));
+    emit gdbInputAvailable(QString(), q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
 
-    m_gdbProc.start(theGdbSettings().m_gdbCmd, gdbArgs);
+    m_gdbProc.start(q->settings()->m_gdbCmd, gdbArgs);
     m_gdbProc.waitForStarted();
 
-    if (m_gdbProc.state() != QProcess::Running)
+    if (m_gdbProc.state() != QProcess::Running) {
+        QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
+                              tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
+        m_outputCollector.shutdown();
         return false;
+    }
 
     q->showStatusMessage(tr("Gdb Running"));
 
@@ -1612,6 +1600,22 @@ bool GdbEngine::startDebugger()
             "dyld \".*libobjc.*\" all "
             "dyld \".*CarbonDataFormatters.*\" all");
     #endif
+
+    QString scriptFileName = q->settings()->m_scriptFile;
+    if (!scriptFileName.isEmpty()) {
+        QFile scriptFile(scriptFileName);
+        if (scriptFile.open(QIODevice::ReadOnly)) {
+            sendCommand("source " + scriptFileName);
+        } else {
+            QMessageBox::warning(q->mainWindow(),
+            tr("Cannot find debugger initialization script"),
+            tr("The debugger settings point to a script file at '%1' "
+               "which is not accessible. If a script file is not needed, "
+               "consider clearing that entry to avoid this warning. "
+              ).arg(scriptFileName));
+        }
+    }
+
     if (q->startMode() == q->attachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID));
     }
@@ -2589,7 +2593,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
     }
     
-    if (qq->debugDumpersAction()->isChecked()) {
+    if (q->settings()->m_debugDumpers) {
         // minimize interference
         return;
     }
@@ -2909,10 +2913,10 @@ void GdbEngine::setCustomDumpersWanted(bool on)
 
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
-    if (!qq->useCustomDumpers())
+    DebuggerSettings *s = q->settings();
+    if (!s->m_useCustomDumpers)
         return false;
-    if (qq->debugDumpersAction()->isChecked()
-            && qq->stackHandler()->isDebuggingDumpers())
+    if (s->m_debugDumpers && qq->stackHandler()->isDebuggingDumpers())
         return false;
     if (m_dataDumperState != DataDumperAvailable)
         return false;
@@ -3001,6 +3005,12 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
             //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
+    } else if (outertype == "std::deque") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
+    } else if (outertype == "std::stack") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
     } else if (outertype == "std::map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.
@@ -3470,7 +3480,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumers easier
-        if (qq->debugDumpersAction()->isChecked()
+        if (q->settings()->m_debugDumpers
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
             // Fake full stop

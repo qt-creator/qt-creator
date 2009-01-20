@@ -57,12 +57,10 @@ ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int
 }
 
 ScriptEditor::ScriptEditor(const Context &context,
-                           Core::ICore *core,
                            TextEditor::TextEditorActionHandler *ah,
                            QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_context(context),
-    m_core(core),
     m_ah(ah)
 {
     setParenthesesMatchingEnabled(true);
@@ -84,7 +82,7 @@ Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 
 ScriptEditor *ScriptEditor::duplicate(QWidget *parent)
 {
-    ScriptEditor *editor = new ScriptEditor(m_context, m_core, m_ah, parent);
+    ScriptEditor *editor = new ScriptEditor(m_context, m_ah, parent);
     editor->duplicateFrom(this);
     QtScriptEditorPlugin::initializeEditor(editor);
     return editor;
@@ -157,7 +155,7 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
 
-    if (Core::ActionContainer *mcontext = m_core->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
+    if (Core::ActionContainer *mcontext = Core::ICore::instance()->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
         foreach (QAction *action, contextMenu->actions())
             menu->addAction(action);

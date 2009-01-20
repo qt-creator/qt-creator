@@ -87,16 +87,16 @@ void AllProjectNodesVisitor::visitProjectNode(ProjectNode *node)
 }
 
 // --------- ProjectWizardContext
-struct ProjectWizardContext {
+struct ProjectWizardContext
+{
     Core::IVersionControl *versionControl;
     ProjectNodeList projects;
     ProjectWizardPage *page;
 };
 
 // ---- ProjectFileWizardExtension
-ProjectFileWizardExtension::ProjectFileWizardExtension(Core::ICore *core) :
-    m_core(core),
-    m_context(0)
+ProjectFileWizardExtension::ProjectFileWizardExtension()
+  : m_context(0)
 {
 }
 
@@ -115,7 +115,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(const QList<Core::Gener
         fileNames.push_back(f.path());
 
     const QString directory = QFileInfo(fileNames.front()).absolutePath();
-    m_context->versionControl = m_core->vcsManager()->findVersionControlForDirectory(directory);
+    m_context->versionControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(directory);
 
     m_context->page->setFilesDisplay(fileNames);
 
@@ -175,7 +175,7 @@ bool ProjectFileWizardExtension::process(const QList<Core::GeneratedFile> &files
         TypeFileMap typeFileMap;
         foreach (const Core::GeneratedFile &generatedFile, files) {
             const QString path = generatedFile.path();
-            typeFileMap.insert(typeForFileName(m_core->mimeDatabase(), path), path);
+            typeFileMap.insert(typeForFileName(Core::ICore::instance()->mimeDatabase(), path), path);
         }
         foreach (FileType type, typeFileMap.uniqueKeys()) {
             const QStringList files = typeFileMap.values(type);

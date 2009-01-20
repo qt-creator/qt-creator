@@ -36,13 +36,12 @@
 #include "snippetsplugin.h"
 #include "snippetspec.h"
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtGui/QShortcut>
 #include <QtGui/QApplication>
 
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanagerinterface.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -69,19 +68,20 @@ void SnippetsPlugin::extensionsInitialized()
 {
 }
 
-bool SnippetsPlugin::initialize(const QStringList & /*arguments*/, QString *)
+bool SnippetsPlugin::initialize(const QStringList &arguments, QString *)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManager *am = m_core->actionManager();
+    Q_UNUSED(arguments);
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
 
     QList<int> context;
-    context << m_core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
     m_snippetWnd = new SnippetsWindow();
     addAutoReleasedObject(new Core::BaseView("Snippets.SnippetsTree",
         m_snippetWnd,
-        QList<int>() << m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String("Snippets Window"))
-                     << m_core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR),
+        QList<int>() << core->uniqueIDManager()->uniqueIdentifier(QLatin1String("Snippets Window"))
+                     << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR),
         Qt::RightDockWidgetArea));
     m_snippetsCompletion = new SnippetsCompletion(this);
     addObject(m_snippetsCompletion);
@@ -107,11 +107,12 @@ QString SnippetsPlugin::simplifySnippetName(SnippetSpec *snippet) const
 
 void SnippetsPlugin::snippetActivated()
 {
+    Core::ICore *core = Core::ICore::instance();
     SnippetSpec *snippet = m_shortcuts.value(sender());
-    if (snippet && m_core->editorManager()->currentEditor()) {
+    if (snippet && core->editorManager()->currentEditor()) {
         TextEditor::ITextEditable *te =
             qobject_cast<TextEditor::ITextEditable *>(
-                    m_core->editorManager()->currentEditor());
+                    core->editorManager()->currentEditor());
         m_snippetWnd->insertSnippet(te, snippet);
     }
 }

@@ -40,21 +40,13 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <aggregation/aggregate.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QSettings>
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QComboBox>
-#include <QtGui/QDockWidget>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QStackedWidget>
 #include <QtGui/QStatusBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QVBoxLayout>
 
 using namespace Core;
 using namespace Core::Internal;

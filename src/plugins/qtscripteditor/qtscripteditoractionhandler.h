@@ -44,7 +44,7 @@ class QtScriptEditorActionHandler : public TextEditor::TextEditorActionHandler
     Q_OBJECT
 
 public:
-    QtScriptEditorActionHandler(Core::ICore *core);
+    QtScriptEditorActionHandler();
 
 private:
     virtual void createActions();

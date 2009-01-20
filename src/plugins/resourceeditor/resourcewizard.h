@@ -45,7 +45,7 @@ class ResourceWizard : public Core::StandardFileWizard
 
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
-    explicit ResourceWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent);
+    explicit ResourceWizard(const BaseFileWizardParameters &parameters, QObject *parent);
 
 protected:
     virtual Core::GeneratedFiles

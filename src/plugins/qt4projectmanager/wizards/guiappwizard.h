@@ -47,7 +47,7 @@ class GuiAppWizard : public QtWizard
     Q_OBJECT
 
 public:
-    explicit GuiAppWizard(Core::ICore *core);
+    GuiAppWizard();
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

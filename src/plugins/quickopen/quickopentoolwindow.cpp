@@ -490,7 +490,6 @@ void QuickOpenToolWindow::showEvent(QShowEvent *event)
 
 void QuickOpenToolWindow::showConfigureDialog()
 {
-    ExtensionSystem::PluginManager::instance()
-        ->getObject<Core::ICore>()->showOptionsDialog(Constants::QUICKOPEN_CATEGORY,
+    Core::ICore::instance()->showOptionsDialog(Constants::QUICKOPEN_CATEGORY,
           Constants::FILTER_OPTIONS_PAGE);
 }

@@ -48,21 +48,22 @@
 #include "projectloadwizard.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 
-#include <QtGui/QFileDialog>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtGui/QFileDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
-using Core::VariableManager;
 
 enum { debug = 0 };
 
@@ -380,9 +381,10 @@ void Qt4Project::updateCodeModel()
         qDebug()<<"Qt4Project::updateCodeModel()";
 
     CppTools::CppModelManagerInterface *modelmanager =
-        m_manager->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+        ExtensionSystem::PluginManager::instance()
+            ->getObject<CppTools::CppModelManagerInterface>();
 
-    if (! modelmanager)
+    if (!modelmanager)
         return;
 
     QStringList allIncludePaths;
@@ -569,17 +571,6 @@ QStringList Qt4Project::files(FilesMode fileMode) const
     return files;
 }
 
-QList<Core::IFile *> Qt4Project::dependencies()
-{
-    QList<Core::IFile *> result;
-    // TODO profile cache is no longer
-//    ProFileCache *cache = m_manager->proFileCache();
-//    foreach (const QString &file, cache->dependencies(m_rootProjectNode)) {
-//        result << cache->fileInterface(file);
-//    }
-    return result;
-}
-
 QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 {
     // NBS implement dependsOn
@@ -610,9 +601,13 @@ void Qt4Project::addDefaultBuild()
         makeStep = new MakeStep(this);
         insertBuildStep(2, makeStep);
 
+        GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+        gdbmacrosCleanStep->setValue("clean", true);
+        insertCleanStep(0, gdbmacrosCleanStep);
+
         MakeStep* cleanStep = new MakeStep(this);
         cleanStep->setValue("clean", true);
-        insertCleanStep(0, cleanStep);
+        insertCleanStep(1, cleanStep);
 
         ProjectLoadWizard wizard(this);
         wizard.execDialog();
@@ -629,6 +624,10 @@ void Qt4Project::addDefaultBuild()
             if (v.isValid() && v.toBool()) {
                 GdbMacrosBuildStep *gdbmacrostep = new GdbMacrosBuildStep(this);
                 insertBuildStep(0, gdbmacrostep);
+
+                GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
+                gdbmacrosCleanStep ->setValue("clean", true);
+                insertCleanStep(0, gdbmacrosCleanStep );
                 break;
             }
         }
@@ -646,7 +645,7 @@ void Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    m_manager->core()->messageManager()->printToOutputPane(errorMessage);
+    Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
 }
 
 Qt4ProFileNode *Qt4Project::rootProjectNode() const

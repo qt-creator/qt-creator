@@ -34,12 +34,13 @@
 #include "applicationrunconfiguration.h"
 #include "allprojectsfilter.h"
 #include "allprojectsfind.h"
-#include "currentprojectfind.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
-#include "editorsettingspropertiespage.h"
+#include "currentprojectfind.h"
 #include "currentprojectfilter.h"
 #include "customexecutablerunconfiguration.h"
+#include "editorsettingspropertiespage.h"
+#include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
 #include "iprojectmanager.h"
 #include "metatypedeclarations.h"
@@ -77,25 +78,20 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QContextMenuEvent>
 #include <QtGui/QFileDialog>
-#include <QtGui/QFileSystemModel>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QToolBar>
 
 Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
 Q_DECLARE_METATYPE(Core::IEditorFactory *);
@@ -151,18 +147,20 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
     return m_instance;
 }
 
-bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QString *)
+bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    m_core = pm->getObject<Core::ICore>();
-    Core::ActionManager *am = m_core->actionManager();
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
 
     addObject(this);
 
-    connect(m_core->fileManager(), SIGNAL(currentFileChanged(const QString&)),
+    connect(core->fileManager(), SIGNAL(currentFileChanged(const QString&)),
             this, SLOT(setCurrentFile(const QString&)));
 
-    m_session = new SessionManager(m_core, this);
+    m_session = new SessionManager(core, this);
 
     connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project *)),
             this, SIGNAL(fileListChanged()));
@@ -173,13 +171,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     connect(m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(startupProjectChanged()));
 
-    m_proWindow = new ProjectWindow(m_core);
+    m_proWindow = new ProjectWindow;
 
     QList<int> globalcontext;
     globalcontext.append(Core::Constants::C_GLOBAL_ID);
 
     QList<int> pecontext;
-    pecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
+    pecontext << core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
 
     Core::BaseMode *mode = new Core::BaseMode;
     mode->setName(tr("Projects"));
@@ -201,36 +199,38 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
-    m_outputPane = new OutputPane(m_core);
+    m_outputPane = new OutputPane(core);
     addAutoReleasedObject(m_outputPane);
     connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
             m_outputPane, SLOT(projectRemoved()));
 
-    AllProjectsFilter *allProjectsFilter = new AllProjectsFilter(this, m_core);
+    AllProjectsFilter *allProjectsFilter = new AllProjectsFilter(this);
     addAutoReleasedObject(allProjectsFilter);
 
-    CurrentProjectFilter *currentProjectFilter = new CurrentProjectFilter(this, m_core);
+    CurrentProjectFilter *currentProjectFilter = new CurrentProjectFilter(this);
     addAutoReleasedObject(currentProjectFilter);
 
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
     addAutoReleasedObject(new EditorSettingsPanelFactory);
+    addAutoReleasedObject(new DependenciesPanelFactory(m_session));
 
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;
     addAutoReleasedObject(processStepFactory);
 
-    AllProjectsFind *allProjectsFind = new AllProjectsFind(this, m_core,
-        m_core->pluginManager()->getObject<Find::SearchResultWindow>());
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    AllProjectsFind *allProjectsFind = new AllProjectsFind(this,
+        pm->getObject<Find::SearchResultWindow>());
     addAutoReleasedObject(allProjectsFind);
 
-    CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this, m_core,
-        m_core->pluginManager()->getObject<Find::SearchResultWindow>());
+    CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this,
+        pm->getObject<Find::SearchResultWindow>());
     addAutoReleasedObject(currentProjectFind);
 
     addAutoReleasedObject(new ApplicationRunConfigurationRunner);
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
-    addAutoReleasedObject(new ProjectFileWizardExtension(m_core));
+    addAutoReleasedObject(new ProjectFileWizardExtension);
 
     // context menus
     Core::ActionContainer *msessionContextMenu =
@@ -256,7 +256,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
         am->actionContainer(Core::Constants::MENU_BAR);
 
     // mode manager (for fancy actions)
-    Core::ModeManager *modeManager = m_core->modeManager();
+    Core::ModeManager *modeManager = core->modeManager();
 
     // build menu
     Core::ActionContainer *mbuild =
@@ -485,11 +485,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
-    // dependencies action
-    m_dependenciesAction = new QAction(tr("Edit Dependencies..."), this);
-    cmd = am->registerAction(m_dependenciesAction, Constants::DEPENDENCIES, globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
-
     // build action
     m_buildAction = new QAction(tr("Build Project"), this);
     cmd = am->registerAction(m_buildAction, Constants::BUILD, globalcontext);
@@ -522,6 +517,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     cmd = am->registerAction(m_runAction, Constants::RUN, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
+
+    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
+    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
     mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
@@ -589,13 +587,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     m_renameFileAction->setEnabled(false);
     m_renameFileAction->setVisible(false);
 
-    connect(m_core, SIGNAL(saveSettingsRequested()),
+    connect(core, SIGNAL(saveSettingsRequested()),
         this, SLOT(savePersistentSettings()));
 
-    addAutoReleasedObject(new ProjectTreeWidgetFactory(m_core));
-    addAutoReleasedObject(new FolderNavigationWidgetFactory(m_core));
+    addAutoReleasedObject(new ProjectTreeWidgetFactory(core));
+    addAutoReleasedObject(new FolderNavigationWidgetFactory(core));
 
-    if (QSettings *s = m_core->settings())
+    if (QSettings *s = core->settings())
         m_recentProjects = s->value("ProjectExplorer/RecentProjects/Files", QStringList()).toStringList();
     for (QStringList::iterator it = m_recentProjects.begin(); it != m_recentProjects.end(); ) {
         if (QFileInfo(*it).isFile()) {
@@ -617,9 +615,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
+    connect(m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
     connect(m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(m_debugAction, SIGNAL(triggered()), this, SLOT(debugProject()));
-    connect(m_dependenciesAction, SIGNAL(triggered()), this, SLOT(editDependencies()));
     connect(m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
     connect(m_taskAction, SIGNAL(triggered()), this, SLOT(goToTaskWindow()));
@@ -631,7 +629,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 
     updateActions();
 
-    connect(m_core, SIGNAL(coreOpened()), this, SLOT(restoreSession()));
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(restoreSession()));
 
     return true;
 }
@@ -651,7 +649,7 @@ template <class Factory, class Iterator>
 ProjectFileFactory * ProjectExplorerPlugin::findProjectFileFactory(const QString &filename) const
 {
     // Find factory
-    if (const Core::MimeType mt = m_core->mimeDatabase()->findByFile(QFileInfo(filename)))
+    if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(filename)))
         if (ProjectFileFactory *pf = findFactory<ProjectFileFactory>(mt.type(), m_fileFactories.constBegin(), m_fileFactories.constEnd()))
             return pf;
     qWarning("Unable to find project file factory for '%s'", filename.toUtf8().constData());
@@ -698,7 +696,7 @@ void ProjectExplorerPlugin::unloadProject()
 
     QList<Core::IFile*> filesToSave;
     filesToSave << fi;
-    filesToSave << m_currentProject->dependencies();
+    // FIXME: What we want here is to check whether we need to safe any of the pro/pri files in this project
 
     // check the number of modified files
     int readonlycount = 0;
@@ -709,9 +707,9 @@ void ProjectExplorerPlugin::unloadProject()
 
     bool success = false;
     if (readonlycount > 0)
-        success = m_core->fileManager()->saveModifiedFiles(filesToSave).isEmpty();
+        success = Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave).isEmpty();
     else
-        success = m_core->fileManager()->saveModifiedFilesSilently(filesToSave).isEmpty();
+        success = Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave).isEmpty();
 
     if (!success)
         return;
@@ -733,7 +731,7 @@ void ProjectExplorerPlugin::clearSession()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
-    m_fileFactories = ProjectFileFactory::createFactories(m_core, &m_projectFilterString);
+    m_fileFactories = ProjectFileFactory::createFactories(&m_projectFilterString);
     foreach (ProjectFileFactory *pf, m_fileFactories) {
         m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
@@ -759,7 +757,7 @@ void ProjectExplorerPlugin::newProject()
         defaultLocation = dir.absolutePath();
     }
 
-    m_core->showNewItemDialog(tr("New Project", "Title of dialog"),
+    Core::ICore::instance()->showNewItemDialog(tr("New Project", "Title of dialog"),
                               Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ProjectWizard),
                               defaultLocation);
     updateActions();
@@ -809,7 +807,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         m_session->save();
     }
 
-    QSettings *s = m_core->settings();
+    QSettings *s = Core::ICore::instance()->settings();
     if (s) {
         s->setValue("ProjectExplorer/StartupSession", m_session->file()->fileName());
         s->setValue("ProjectExplorer/RecentProjects/Files", m_recentProjects);
@@ -833,14 +831,14 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
     if (debug)
         qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
 
-    QList<IProjectManager*> projectManagers =
-        m_core->pluginManager()->getObjects<IProjectManager>();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QList<IProjectManager*> projectManagers = pm->getObjects<IProjectManager>();
 
     //QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
    // bool blocked = blockSignals(true);
     QList<Project*> openedPro;
-    foreach (QString fileName, fileNames)
-        if (const Core::MimeType mt = m_core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
+    foreach (const QString &fileName, fileNames) {
+        if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName))) {
             foreach (IProjectManager *manager, projectManagers)
                 if (manager->mimeType() == mt.type()) {
                     if (Project *pro = manager->openProject(fileName))
@@ -849,6 +847,7 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
                     break;
                 }
         }
+    }
     //blockSignals(blocked);
 
     if (openedPro.isEmpty()) {
@@ -872,7 +871,7 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 
     updateActions();
 
-    m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+    Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
     QApplication::restoreOverrideCursor();
 
     return true;
@@ -988,7 +987,7 @@ void ProjectExplorerPlugin::restoreSession()
     }
 
     // update welcome page
-    Core::ModeManager *modeManager = m_core->modeManager();
+    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), this, SLOT(currentModeChanged(Core::IMode*)));
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(modeManager->mode(Core::Constants::MODE_WELCOME))) {
         updateWelcomePage(welcomeMode);
@@ -996,7 +995,7 @@ void ProjectExplorerPlugin::restoreSession()
         connect(welcomeMode, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
     }
 
-    m_core->openFiles(arguments);
+    Core::ICore::instance()->openFiles(arguments);
     updateActions();
 
 }
@@ -1085,6 +1084,8 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
             connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
                     this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
+            connect(control, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
+                    this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
             connect(control, SIGNAL(error(RunControl *, const QString &)),
                     this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
             connect(control, SIGNAL(finished()),
@@ -1121,6 +1122,8 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     else
         node = m_session->nodeForFile(filePath);
 
+    Core::ICore *core = Core::ICore::instance();
+
     bool projectChanged = false;
     if (m_currentProject != project) {
         int oldContext = -1;
@@ -1135,11 +1138,11 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
             newContext = project->projectManager()->projectContext();
             newLanguageID = project->projectManager()->projectLanguage();
         }
-        m_core->removeAdditionalContext(oldContext);
-        m_core->removeAdditionalContext(oldLanguageID);
-        m_core->addAdditionalContext(newContext);
-        m_core->addAdditionalContext(newLanguageID);
-        m_core->updateContext();
+        core->removeAdditionalContext(oldContext);
+        core->removeAdditionalContext(oldLanguageID);
+        core->addAdditionalContext(newContext);
+        core->addAdditionalContext(newLanguageID);
+        core->updateContext();
 
         m_currentProject = project;
 
@@ -1157,16 +1160,16 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
             qDebug() << "ProjectExplorer - currentProjectChanged(" << (project ? project->name() : "0") << ")";
         // Enable the right VCS
         if (const Core::IFile *projectFile = project ? project->file() : static_cast<const Core::IFile *>(0)) {
-            m_core->vcsManager()->setVCSEnabled(QFileInfo(projectFile->fileName()).absolutePath());
+            core->vcsManager()->setVCSEnabled(QFileInfo(projectFile->fileName()).absolutePath());
         } else {
-            m_core->vcsManager()->setAllVCSEnabled();
+            core->vcsManager()->setAllVCSEnabled();
         }
 
         emit currentProjectChanged(project);
         updateActions();
     }
 
-    m_core->fileManager()->setCurrentFile(filePath);
+    core->fileManager()->setCurrentFile(filePath);
 }
 
 void ProjectExplorerPlugin::updateActions()
@@ -1198,12 +1201,12 @@ void ProjectExplorerPlugin::updateActions()
     m_rebuildSessionAction->setEnabled(hasProjects && !building);
     m_cleanSessionAction->setEnabled(hasProjects && !building);
     m_cancelBuildAction->setEnabled(building);
-    m_dependenciesAction->setEnabled(hasProjects && !building);
 
     updateRunAction();
 
     updateTaskActions();
 }
+
 
 // NBS TODO check projectOrder()
 // what we want here is all the projects pro depends on
@@ -1227,7 +1230,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
 
-    QList<Core::IFile *> modifiedFi = m_core->fileManager()->modifiedFiles();
+    QList<Core::IFile *> modifiedFi = Core::ICore::instance()->fileManager()->modifiedFiles();
     QMap<QString, Core::IFile *> modified;
 
     QStringList allFiles;
@@ -1258,7 +1261,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
 
     if (!filesToSave.isEmpty()) {
         bool cancelled;
-        m_core->fileManager()->saveModifiedFiles(filesToSave, &cancelled,
+        Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled,
             tr("The following dependencies are modified, do you want to save them?"));
         if (cancelled) {
             return false;
@@ -1347,7 +1350,16 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    Project *pro = startupProject();
+    runProjectImpl(startupProject());
+}
+
+void ProjectExplorerPlugin::runProjectContextMenu()
+{
+    runProjectImpl(m_currentProject);
+}
+
+void ProjectExplorerPlugin::runProjectImpl(Project *pro)
+{
     if (!pro)
         return;
 
@@ -1378,6 +1390,11 @@ void ProjectExplorerPlugin::debugProject()
 void ProjectExplorerPlugin::addToApplicationOutputWindow(RunControl *rc, const QString &line)
 {
     m_outputPane->appendOutput(rc, line);
+}
+
+void ProjectExplorerPlugin::addToApplicationOutputWindowInline(RunControl *rc, const QString &line)
+{
+    m_outputPane->appendOutputInline(rc, line);
 }
 
 void ProjectExplorerPlugin::addErrorToApplicationOutputWindow(RunControl *rc, const QString &error)
@@ -1418,7 +1435,8 @@ void ProjectExplorerPlugin::startupProjectChanged()
 // NBS TODO implement more than one runner
 IRunConfigurationRunner *ProjectExplorerPlugin::findRunner(QSharedPointer<RunConfiguration> config, const QString &mode)
 {
-    const QList<IRunConfigurationRunner *> runners = m_core->pluginManager()->getObjects<IRunConfigurationRunner>();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    const QList<IRunConfigurationRunner *> runners = pm->getObjects<IRunConfigurationRunner>();
     foreach (IRunConfigurationRunner *runner, runners)
         if (runner->canRun(config, mode))
             return runner;
@@ -1428,10 +1446,14 @@ IRunConfigurationRunner *ProjectExplorerPlugin::findRunner(QSharedPointer<RunCon
 void ProjectExplorerPlugin::updateRunAction()
 {
     const Project *project = startupProject();
-    const bool canRun = project && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+    bool canRun = project && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
     const bool canDebug = project && !m_debuggingRunControl && findRunner(project->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     const bool building = m_buildManager->isBuilding();
     m_runAction->setEnabled(canRun && !building);
+
+    canRun = m_currentProject && findRunner(m_currentProject->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+    m_runActionContextMenu->setEnabled(canRun && !building);
+
     m_debugAction->setEnabled(canDebug && !building);
 }
 
@@ -1442,14 +1464,6 @@ void ProjectExplorerPlugin::cancelBuild()
 
     if (m_buildManager->isBuilding())
         m_buildManager->cancel();
-}
-
-void ProjectExplorerPlugin::editDependencies()
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::editDependencies";
-
-    m_session->editDependencies();
 }
 
 void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName)
@@ -1474,7 +1488,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         qDebug() << "ProjectExplorerPlugin::updateRecentProjectMenu";
 
     Core::ActionContainer *aci =
-        m_core->actionManager()->actionContainer(Constants::M_RECENTPROJECTS);
+        Core::ICore::instance()->actionManager()->actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
     m_recentProjectsActions.clear();
@@ -1541,7 +1555,7 @@ void ProjectExplorerPlugin::addNewFile()
     if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
         return;
     const QString location = QFileInfo(m_currentNode->path()).dir().absolutePath();
-    m_core->showNewItemDialog(tr("New File", "Title of dialog"),
+    Core::ICore::instance()->showNewItemDialog(tr("New File", "Title of dialog"),
                               Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::FileWizard)
                               + Core::BaseFileWizard::findWizardsOfKind(Core::IWizard::ClassWizard),
                               location);
@@ -1552,14 +1566,15 @@ void ProjectExplorerPlugin::addExistingFiles()
     if (!m_currentNode && m_currentNode->nodeType() == ProjectNodeType)
         return;
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(m_currentNode);
+    Core::ICore *core = Core::ICore::instance();
     const QString dir = QFileInfo(m_currentNode->path()).dir().absolutePath();
-    QStringList fileNames = QFileDialog::getOpenFileNames(m_core->mainWindow(), tr("Add Existing Files"), dir);
+    QStringList fileNames = QFileDialog::getOpenFileNames(core->mainWindow(), tr("Add Existing Files"), dir);
     if (fileNames.isEmpty())
         return;
 
     QHash<FileType, QString> fileTypeToFiles;
     foreach (const QString &fileName, fileNames) {
-        FileType fileType = typeForFileName(m_core->mimeDatabase(), QFileInfo(fileName));
+        FileType fileType = typeForFileName(core->mimeDatabase(), QFileInfo(fileName));
         fileTypeToFiles.insertMulti(fileType, fileName);
     }
 
@@ -1570,17 +1585,17 @@ void ProjectExplorerPlugin::addExistingFiles()
     if (!notAdded.isEmpty()) {
         QString message = tr("Could not add following files to project %1:\n").arg(projectNode->name());
         QString files = notAdded.join("\n");
-        QMessageBox::warning(m_core->mainWindow(), tr("Add files to project failed"),
+        QMessageBox::warning(core->mainWindow(), tr("Add files to project failed"),
                              message + files);
         foreach (const QString &file, notAdded)
             fileNames.removeOne(file);
     }
 
-    if (Core::IVersionControl *vcManager = m_core->vcsManager()->findVersionControlForDirectory(dir))
+    if (Core::IVersionControl *vcManager = core->vcsManager()->findVersionControlForDirectory(dir))
         if (vcManager->supportsOperation(Core::IVersionControl::AddOperation)) {
             const QString files = fileNames.join(QString(QLatin1Char('\n')));
             QMessageBox::StandardButton button =
-                QMessageBox::question(m_core->mainWindow(), tr("Add to Version Control"),
+                QMessageBox::question(core->mainWindow(), tr("Add to Version Control"),
                                       tr("Add files\n%1\nto version control (%2)?").arg(files, vcManager->name()),
                                       QMessageBox::Yes | QMessageBox::No);
             if (button == QMessageBox::Yes) {
@@ -1593,7 +1608,7 @@ void ProjectExplorerPlugin::addExistingFiles()
                 if (!notAddedToVc.isEmpty()) {
                     const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->name());
                     const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
-                    QMessageBox::warning(m_core->mainWindow(), tr("Add files to version control failed"),
+                    QMessageBox::warning(core->mainWindow(), tr("Add files to version control failed"),
                                          message + filesNotAdded);
                 }
             }
@@ -1604,19 +1619,22 @@ void ProjectExplorerPlugin::openFile()
 {
     if (m_currentNode)
         return;
-    m_core->editorManager()->openEditor(m_currentNode->path());
-    m_core->editorManager()->ensureEditorManagerVisible();
+    Core::ICore *core = Core::ICore::instance();
+    core->editorManager()->openEditor(m_currentNode->path());
+    core->editorManager()->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::removeFile()
 {
     if (!m_currentNode && m_currentNode->nodeType() == FileNodeType)
         return;
+
     FileNode *fileNode = qobject_cast<FileNode*>(m_currentNode);
+    Core::ICore *core = Core::ICore::instance();
 
     const QString filePath = m_currentNode->path();
     const QString fileDir = QFileInfo(filePath).dir().absolutePath();
-    RemoveFileDialog removeFileDialog(filePath, m_core->mainWindow());
+    RemoveFileDialog removeFileDialog(filePath, core->mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
@@ -1626,13 +1644,13 @@ void ProjectExplorerPlugin::removeFile()
         Q_ASSERT(projectNode);
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
-            QMessageBox::warning(m_core->mainWindow(), tr("Remove file failed"),
+            QMessageBox::warning(core->mainWindow(), tr("Remove file failed"),
                                  tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->name()));
             return;
         }
 
         // remove from version control
-        m_core->vcsManager()->showDeleteDialog(filePath);
+        core->vcsManager()->showDeleteDialog(filePath);
 
         // remove from file system
         if (deleteFile) {
@@ -1641,7 +1659,7 @@ void ProjectExplorerPlugin::removeFile()
             if (file.exists()) {
                 // could have been deleted by vc
                 if (!file.remove())
-                    QMessageBox::warning(m_core->mainWindow(), tr("Delete file failed"),
+                    QMessageBox::warning(core->mainWindow(), tr("Delete file failed"),
                                          tr("Could not delete file %1.").arg(filePath));
             }
         }
@@ -1745,11 +1763,12 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
     bool anyMatches = false;
     const QString fileName = currentNode()->path();
 
-    if (const Core::MimeType mt = m_core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
-        const EditorFactoryList factories = m_core->editorManager()->editorFactories(mt, false);
+    Core::ICore *core = Core::ICore::instance();
+    if (const Core::MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
+        const EditorFactoryList factories = core->editorManager()->editorFactories(mt, false);
         anyMatches = !factories.empty();
         if (anyMatches) {
-            const QList<Core::IEditor *> editorsOpenForFile = m_core->editorManager()->editorsForFileName(fileName);
+            const QList<Core::IEditor *> editorsOpenForFile = core->editorManager()->editorsForFileName(fileName);
             // Add all suitable editors
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
@@ -1784,8 +1803,9 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
         qWarning() << "Editor Factory not attached to action, can't happen"<<editorFactory;
         return;
     }
-    m_core->editorManager()->openEditor(currentNode()->path(), editorFactory->kind());
-    m_core->editorManager()->ensureEditorManagerVisible();
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    em->openEditor(currentNode()->path(), editorFactory->kind());
+    em->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()

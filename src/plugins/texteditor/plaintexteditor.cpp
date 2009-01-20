@@ -45,7 +45,7 @@ using namespace TextEditor::Internal;
 PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
     :BaseTextEditorEditable(editor)
 {
-    Core::ICore *core = TextEditorPlugin::core();
+    Core::ICore *core = Core::ICore::instance();
     m_context << core->uniqueIDManager()->
         uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
     m_context << core->uniqueIDManager()->
@@ -55,7 +55,6 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
 PlainTextEditor::PlainTextEditor(QWidget *parent) :
     BaseTextEditor(parent)
 {
-
     setRevisionsVisible(true);
     setMarksVisible(true);
     setRequestMarkEnabled(false);
@@ -68,7 +67,6 @@ QList<int> PlainTextEditorEditable::context() const
 {
     return m_context;
 }
-
 
 Core::IEditor *PlainTextEditorEditable::duplicate(QWidget *parent)
 {
@@ -103,8 +101,10 @@ const char *PlainTextEditorEditable::kind() const
 // to do in 2 steps (indenting/wrapping)}
 //
 
-void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar /* typedChar */)
+void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
+    Q_UNUSED(typedChar);
+
     // At beginning: Leave as is.
     if (block == doc->begin())
         return;

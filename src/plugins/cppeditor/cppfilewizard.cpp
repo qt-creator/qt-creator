@@ -46,9 +46,8 @@ enum { debugWizard = 0 };
 
 CppFileWizard::CppFileWizard(const BaseFileWizardParameters &parameters,
                              FileType type,
-                             Core::ICore *core,
                              QObject *parent) :
-    Core::StandardFileWizard(parameters, core, parent),
+    Core::StandardFileWizard(parameters, parent),
     m_type(type)
 {
 }

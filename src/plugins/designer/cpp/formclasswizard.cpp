@@ -48,8 +48,8 @@ enum { debugFormClassWizard = 0 };
 using namespace Designer;
 using namespace Designer::Internal;
 
-FormClassWizard::FormClassWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent) :
-    Core::BaseFileWizard(parameters, core, parent)
+FormClassWizard::FormClassWizard(const BaseFileWizardParameters &parameters,  QObject *parent)
+  : Core::BaseFileWizard(parameters, parent)
 {
 }
 

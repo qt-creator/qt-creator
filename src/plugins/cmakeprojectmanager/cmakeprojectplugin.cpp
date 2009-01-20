@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 
@@ -56,7 +56,7 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
 
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), errorMessage))
         return false;
     addAutoReleasedObject(new CMakeManager());

@@ -42,12 +42,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QFocusEvent>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
@@ -393,8 +394,7 @@ void OutputPane::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::m_current) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ICore *core = m_pluginManager->getObject<ICore>();
-            core->modeManager()->activateMode(Constants::MODE_OUTPUT);
+            ICore::instance()->modeManager()->activateMode(Constants::MODE_OUTPUT);
             ensurePageVisible(idx);
         } else {
             // else we make that page visible
@@ -409,14 +409,13 @@ void OutputPane::showPage(int idx, bool focus)
 void OutputPane::togglePage(bool focus)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    if(OutputPanePlaceHolder::m_current
+    if (OutputPanePlaceHolder::m_current
        && OutputPanePlaceHolder::m_current->isVisible()
        && m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() == idx) {
          slotHide();
     } else {
          showPage(idx, focus);
     }
-
 }
 
 void OutputPane::setCloseable(bool b)

@@ -44,10 +44,11 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtGui/QAction>
 
 using namespace ResourceEditor::Internal;
@@ -55,9 +56,8 @@ using namespace ResourceEditor::Internal;
 ResourceEditorPlugin::ResourceEditorPlugin() :
     m_wizard(0),
     m_editor(0),
-    m_core(NULL),
-    m_redoAction(NULL),
-    m_undoAction(NULL)
+    m_redoAction(0),
+    m_undoAction(0)
 {
 }
 
@@ -67,13 +67,14 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
     removeObject(m_wizard);
 }
 
-bool ResourceEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), error_message))
+    Q_UNUSED(arguments);
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_editor = new ResourceEditorFactory(m_core, this);
+    m_editor = new ResourceEditorFactory(this);
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -82,16 +83,16 @@ bool ResourceEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
 
-    m_wizard = new ResourceWizard(wizardParameters, m_core, this);
+    m_wizard = new ResourceWizard(wizardParameters, this);
     addObject(m_wizard);
 
-    error_message->clear();
+    errorMessage->clear();
 
     // Register undo and redo
-    Core::ActionManager * const actionManager = m_core->actionManager();
-    int const pluginId = m_core->uniqueIDManager()->uniqueIdentifier(
+    Core::ActionManager * const actionManager = core->actionManager();
+    int const pluginId = core->uniqueIDManager()->uniqueIdentifier(
             Constants::C_RESOURCEEDITOR);
-    QList<int> const idList = QList<int>() << pluginId;
+    const QList<int> idList = QList<int>() << pluginId;
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
     actionManager->registerAction(m_undoAction, Core::Constants::UNDO, idList);
@@ -128,7 +129,7 @@ void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
 ResourceEditorW * ResourceEditorPlugin::currentEditor() const
 {
     ResourceEditorW * const focusEditor = qobject_cast<ResourceEditorW *>(
-            m_core->editorManager()->currentEditor());
+            Core::ICore::instance()->editorManager()->currentEditor());
     QTC_ASSERT(focusEditor, return 0);
     return focusEditor;
 }

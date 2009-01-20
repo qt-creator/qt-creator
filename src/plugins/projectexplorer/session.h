@@ -123,16 +123,13 @@ public:
     void removeProject(Project *project);
     void removeProjects(QList<Project *> remove);
 
-    void editDependencies();
     void setStartupProject(Project *startupProject);
 
-    // NBS think about dependency management again.
-    // Probably kill these here
-    bool canAddDependency(Project *project, Project *depProject) const;
-    bool hasDependency(Project *project, Project *depProject) const;
-    // adds the 'requiredProject' as a dependency to 'project'
-    bool addDependency(Project *project, Project *depProject);
-    void removeDependency(Project *project, Project *depProject);
+    QList<Project *> dependencies(const Project *project) const;
+    bool hasDependency(const Project *project, const Project *depProject) const;
+    bool canAddDependency(const Project *project, const Project *depProject) const;
+    bool addDependency(const Project *project, const Project *depProject);
+    void removeDependency(const Project *project, const Project *depProject);
 
     Core::IFile *file() const;
     Project *startupProject() const;

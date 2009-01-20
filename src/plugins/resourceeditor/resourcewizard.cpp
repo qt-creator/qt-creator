@@ -38,16 +38,17 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-ResourceWizard::ResourceWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent) :
-    Core::StandardFileWizard(parameters, core, parent)
+ResourceWizard::ResourceWizard(const BaseFileWizardParameters &parameters, QObject *parent)
+  : Core::StandardFileWizard(parameters, parent)
 {
 }
 
 Core::GeneratedFiles
 ResourceWizard::generateFilesFromPath(const QString &path,
                                       const QString &name,
-                                      QString * /*errorMessage*/) const
+                                      QString *errorMessage) const
 {
+    Q_UNUSED(errorMessage);
     const QString suffix = preferredSuffix(QLatin1String(Constants::C_RESOURCE_MIMETYPE));
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);

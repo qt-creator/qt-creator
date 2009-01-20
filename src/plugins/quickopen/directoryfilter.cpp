@@ -35,20 +35,18 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QStack>
-#include <QtGui/QDirModel>
 #include <QtGui/QCompleter>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-using namespace Core;
+#include <qtconcurrent/QtConcurrentTools>
+
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
-DirectoryFilter::DirectoryFilter(ICore *core)
-        : BaseFileFilter(core),
-          m_name(tr("Generic Directory Filter")),
-          m_directories(QStringList()),
-          m_filters(QStringList() << "*.h" << "*.cpp" << "*.ui" << "*.qrc")
+DirectoryFilter::DirectoryFilter()
+  : m_name(tr("Generic Directory Filter")),
+    m_filters(QStringList() << "*.h" << "*.cpp" << "*.ui" << "*.qrc")
 {
     setIncludedByDefault(true);
 }

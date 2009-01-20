@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -31,9 +31,61 @@
 **
 ***************************************************************************/
 
-#include "extensionsystem/pluginmanager.h"
-#include "extensionsystem/pluginspec.h"
-#include "extensionsystem/iplugin.h"
-#include "extensionsystem/pluginview.h"
-#include "extensionsystem/pluginerrorview.h"
-#include "extensionsystem/plugindetailsview.h"
+#ifndef OUTPUT_COLLECTOR_H
+#define OUTPUT_COLLECTOR_H
+
+#include <QtCore/QByteArray>
+#include <QtCore/QObject>
+
+QT_BEGIN_NAMESPACE
+class QLocalServer;
+class QLocalSocket;
+class QSocketNotifier;
+QT_END_NAMESPACE
+
+namespace Debugger {
+namespace Internal {
+
+///////////////////////////////////////////////////////////////////////
+//
+// OutputCollector
+//
+///////////////////////////////////////////////////////////////////////
+
+class OutputCollector : public QObject
+{
+    Q_OBJECT
+
+public:
+    OutputCollector(QObject *parent = 0);
+    ~OutputCollector();
+    bool listen();
+    void shutdown();
+    QString serverName() const;
+    QString errorString() const;
+
+signals:
+    void byteDelivery(const QByteArray &data);
+
+private slots:
+    void bytesAvailable();
+#ifdef Q_OS_WIN
+    void newConnectionAvailable();
+#endif
+
+private:
+#ifdef Q_OS_WIN
+    QLocalServer *m_server;
+    QLocalSocket *m_socket;
+#else
+    QString m_serverPath;
+    int m_serverFd;
+    QSocketNotifier *m_serverNotifier;
+    QString m_errorString;
+#endif
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+#endif // OUTPUT_COLLECTOR_H

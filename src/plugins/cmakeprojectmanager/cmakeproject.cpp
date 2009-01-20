@@ -80,13 +80,14 @@ CMakeProject::~CMakeProject()
 // TODO make this function work even if it is reparsing
 void CMakeProject::parseCMakeLists(const QDir &directory)
 {
-    createCbpFile(directory);
+    createCbpFile(buildDirectory(QString()));
 
-    QString cbpFile = findCbpFile(directory);
+    QString cbpFile = findCbpFile(buildDirectory(QString()));
 
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
+        m_projectName = cbpparser.projectName();
         qDebug()<<"Building Tree";
         // TODO do a intelligent updating of the tree
         buildTree(m_rootNode, cbpparser.fileList());
@@ -152,9 +153,10 @@ void CMakeProject::createCbpFile(const QDir &directory)
 
     // TODO we need to pass on the same paremeters as the cmakestep
     qDebug()<<"Creating cbp file";
+    directory.mkpath(directory.absolutePath());
     QProcess cmake;
     cmake.setWorkingDirectory(directory.absolutePath());
-    cmake.start("cmake", QStringList() << "-GCodeBlocks - Unix Makefiles");
+    cmake.start("cmake", QStringList() << ".." << "-GCodeBlocks - Unix Makefiles");
     cmake.waitForFinished(-1);
     qDebug()<<"cmake output: \n"<<cmake.readAll();
 }
@@ -200,8 +202,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 
 QString CMakeProject::name() const
 {
-    // TODO
-    return "";
+    return m_projectName;
 }
 
 Core::IFile *CMakeProject::file() const
@@ -212,11 +213,6 @@ Core::IFile *CMakeProject::file() const
 ProjectExplorer::IProjectManager *CMakeProject::projectManager() const
 {
     return m_manager;
-}
-
-QList<Core::IFile *> CMakeProject::dependencies()
-{
-    return QList<Core::IFile *>();
 }
 
 QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
@@ -240,7 +236,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
     if (buildDirectory.isEmpty())
-        buildDirectory = QFileInfo(m_fileName).absolutePath();
+        buildDirectory = QFileInfo(m_fileName).absolutePath() + "/qtcreator-build";
     return buildDirectory;
 }
 
@@ -469,6 +465,8 @@ void CMakeCbpParser::parseProject()
         readNext();
         if (isEndElement()) {
             return;
+        } else if (name() == "Option") {
+            parseOption();
         } else if (name() == "Unit") {
             parseUnit();
         } else if (name() == "Build") {
@@ -521,7 +519,7 @@ void CMakeCbpParser::parseTargetOption()
 {
     if (attributes().hasAttribute("output"))
         m_target.executable = attributes().value("output").toString();
-    else if (attributes().hasAttribute("type") && attributes().value("type") == "1")
+    else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0"))
         m_targetType = true;
     else if (attributes().hasAttribute("working_dir"))
         m_target.workingDirectory = attributes().value("working_dir").toString();
@@ -532,6 +530,26 @@ void CMakeCbpParser::parseTargetOption()
         } else if (name() == "MakeCommand") {
             parseMakeCommand();
         } else if (isStartElement()) {
+            parseUnknownElement();
+        }
+    }
+}
+
+QString CMakeCbpParser::projectName() const
+{
+    return m_projectName;
+}
+
+void CMakeCbpParser::parseOption()
+{
+    if (attributes().hasAttribute("title"))
+        m_projectName = attributes().value("title").toString();
+
+    while (!atEnd()) {
+        readNext();
+        if (isEndElement()) {
+            return;
+        } else if(isStartElement()) {
             parseUnknownElement();
         }
     }

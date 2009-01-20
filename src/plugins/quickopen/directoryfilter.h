@@ -45,9 +45,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QDialog>
 
-#include <coreplugin/icore.h>
-#include <qtconcurrent/QtConcurrentTools>
-
 namespace QuickOpen {
 namespace Internal {
 
@@ -56,7 +53,7 @@ class DirectoryFilter : public BaseFileFilter
     Q_OBJECT
 
 public:
-    DirectoryFilter(Core::ICore *core);
+    DirectoryFilter();
     QString trName() const { return m_name; }
     QString name() const { return m_name; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }

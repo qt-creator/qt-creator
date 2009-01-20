@@ -49,6 +49,8 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/CppDocument.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -260,7 +262,7 @@ bool Qt4PriFileNode::changeIncludes(ProFile *includeFile, const QStringList &pro
 bool Qt4PriFileNode::priFileWritable(const QString &path)
 {
     const QString dir = QFileInfo(path).dir().path();
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *versionControl = core->vcsManager()->findVersionControlForDirectory(dir);
     switch (Core::EditorManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
     case Core::EditorManager::RO_OpenVCS:
@@ -289,7 +291,7 @@ bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
     QList<Core::IFile*> allFileHandles;
     QList<Core::IFile*> modifiedFileHandles;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
 
     foreach (Core::IFile *file, core->fileManager()->managedFiles(path)) {
         allFileHandles << file;
@@ -426,7 +428,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
 void Qt4PriFileNode::save(ProFile *includeFile)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::FileManager *fileManager = core->fileManager();
     QList<Core::IFile *> allFileHandles = fileManager->managedFiles(includeFile->fileName());
     Core::IFile *modifiedFileHandle = 0;
@@ -488,6 +490,9 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     return vars;
 }
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
+
 /*!
   \class Qt4ProFileNode
   Implements abstract ProjectNode class
@@ -498,8 +503,7 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
         : Qt4PriFileNode(project, this, filePath),
           // own stuff
           m_projectType(InvalidProject),
-          m_isQBuildProject(false),
-          m_dirWatcher(new DirectoryWatcher(this))
+          m_isQBuildProject(false)
 {
     if (parent)
         setParent(parent);
@@ -507,19 +511,24 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
     m_updateTimer.setInterval(100);
     m_updateTimer.setSingleShot(true);
 
-    connect(m_dirWatcher, SIGNAL(directoryChanged(const QString&)),
-            this, SLOT(updateGeneratedFiles()));
-    connect(m_dirWatcher, SIGNAL(fileChanged(const QString&)),
-            this, SLOT(fileChanged(const QString&)));
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(update()));
     connect(&m_updateTimer, SIGNAL(timeout()),
             this, SLOT(update()));
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
 }
 
 Qt4ProFileNode::~Qt4ProFileNode()
 {
 
+}
+
+void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
+{
+    if (project == m_project && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project))
+        updateUiFiles();
 }
 
 bool Qt4ProFileNode::hasTargets() const
@@ -689,22 +698,13 @@ void Qt4ProFileNode::update()
                 emit qt4Watcher->variablesChanged(this, m_varValues, newVarValues);
     }
 
-    updateGeneratedFiles();
+    updateUiFiles();
 
     foreach (NodesWatcher *watcher, watchers())
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileUpdated(this);
 
     delete reader;
-}
-
-void Qt4ProFileNode::fileChanged(const QString &filePath)
-{
-    CppTools::CppModelManagerInterface *modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
-
-    // TODO compress
-    modelManager->updateSourceFiles(QStringList() << filePath);
 }
 
 namespace {
@@ -726,53 +726,52 @@ namespace {
     };
 }
 
-/*
-  Adds ui_xxx.h files to tree and monitors them / the UI_DIR directory for changes
-  */
-void Qt4ProFileNode::updateGeneratedFiles()
+// This function is triggered after a build, and updates the state ui files
+// That is it adds files that didn't exist yet to the project tree, and calls
+// updateSourceFiles() for files that changed
+// It does so by storing a modification time for each ui file we know about.
+
+// TODO this function should also be called if the build directory is changed
+void Qt4ProFileNode::updateUiFiles()
 {
+    // Only those two project types can have ui files for us
     if (m_projectType != ApplicationTemplate
         && m_projectType != LibraryTemplate)
         return;
 
+    // Find all ui files
     FindUiFileNodesVisitor uiFilesVisitor;
     this->accept(&uiFilesVisitor);
     const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
-    // monitor uic dir (only if there are .ui files)
+    // Find the UiDir, there can only ever be one
+    QString uiDir; // We should default to the build directory
+    QStringList tmp = m_varValues[UiDirVar];
+    if (tmp.size() != 0)
+        uiDir = tmp.first();
 
-    QSet<QString> oldUiDirs = m_dirWatcher->directories().toSet();
-    QSet<QString> newUiDirs =
-            (!uiFiles.isEmpty()) ? m_varValues[UiDirVar].toSet() : QSet<QString>();
-    foreach (const QString &uiDir, oldUiDirs - newUiDirs)
-        m_dirWatcher->removeDirectory(uiDir);
-    foreach (const QString &uiDir, newUiDirs - oldUiDirs)
-        m_dirWatcher->addDirectory(uiDir);
-
-    // update generated files
-
-    // Already existing FileNodes
+    // Collect all existing generated files
     QList<FileNode*> existingFileNodes;
     foreach (FileNode *file, fileNodes()) {
         if (file->isGenerated())
             existingFileNodes << file;
     }
 
-
     // Convert uiFile to uiHeaderFilePath, find all headers that correspond
-    // and try to find them in uicDirs
+    // and try to find them in uiDir
     QStringList newFilePaths;
-    foreach (const QString &uicDir, m_varValues[UiDirVar]) {
-        foreach (FileNode *uiFile, uiFiles) {
-            const QString uiHeaderFilePath
-                    = QString("%1/ui_%2.h").arg(uicDir, QFileInfo(uiFile->path()).baseName());
-            if (QFileInfo(uiHeaderFilePath).exists())
-                newFilePaths << uiHeaderFilePath;
-        }
+    foreach (FileNode *uiFile, uiFiles) {
+        const QString uiHeaderFilePath
+                = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).baseName());
+        if (QFileInfo(uiHeaderFilePath).exists())
+            newFilePaths << uiHeaderFilePath;
     }
 
+    // Create a diff between those lists
     QList<FileNode*> toRemove;
     QList<FileNode*> toAdd;
+    // The list of files for which we call updateSourceFile
+    QStringList toUpdate;
 
     qSort(newFilePaths);
     qSort(existingFileNodes.begin(), existingFileNodes.end(), ProjectNode::sortNodesByPath);
@@ -788,6 +787,13 @@ void Qt4ProFileNode::updateGeneratedFiles()
             toAdd << new FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
             ++newPathIter;
         } else { // *existingNodeIter->path() == *newPathIter
+            QString fileName = (*existingNodeIter)->path();
+            QMap<QString, QDateTime>::const_iterator it = m_uitimestamps.find(fileName);
+            QDateTime lastModified = QFileInfo(fileName).lastModified();
+            if (it == m_uitimestamps.constEnd() || it.value() < lastModified) {
+                toUpdate << fileName;
+                m_uitimestamps[fileName] = lastModified;
+            }
             ++existingNodeIter;
             ++newPathIter;
         }
@@ -801,32 +807,46 @@ void Qt4ProFileNode::updateGeneratedFiles()
         ++newPathIter;
     }
 
+    // Update project tree
     if (!toRemove.isEmpty()) {
         foreach (FileNode *file, toRemove)
-            m_dirWatcher->removeFile(file->path());
+            m_uitimestamps.remove(file->path());
         removeFileNodes(toRemove, this);
     }
+
+    CppTools::CppModelManagerInterface *modelManager =
+        ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+
     if (!toAdd.isEmpty()) {
-        foreach (FileNode *file, toAdd)
-            m_dirWatcher->addFile(file->path());
+        foreach (FileNode *file, toAdd) {
+            m_uitimestamps.insert(file->path(), QFileInfo(file->path()).lastModified());
+            toUpdate << file->path();
+
+            // Also adding files depending on that.
+            QString fileName = QFileInfo(file->path()).fileName();
+            foreach (CPlusPlus::Document::Ptr doc, modelManager->snapshot()) {
+                if (doc->includedFiles().contains(fileName)) {
+                    if (!toUpdate.contains(doc->fileName()))
+                        toUpdate << doc->fileName();
+                }
+            }
+        }
         addFileNodes(toAdd, this);
     }
+    modelManager->updateSourceFiles(toUpdate);
 }
 
 ProFileReader *Qt4PriFileNode::createProFileReader() const
 {
     ProFileReader *reader = new ProFileReader();
-    connect(reader, SIGNAL(errorFound(const QString &)),
-            m_project, SLOT(proFileParseError(const QString &)));
+    connect(reader, SIGNAL(errorFound(QString)),
+            m_project, SLOT(proFileParseError(QString)));
 
     QtVersion *version = m_project->qtVersion(m_project->activeBuildConfiguration());
-    if (version->isValid()) {
+    if (version->isValid())
         reader->setQtVersion(version);
-    }
 
-    QHash<QString,QStringList> variables;
-    variables.insert(QLatin1String("OUT_PWD"), QStringList(m_qt4ProFileNode->buildDir()));
-    reader->addVariables(variables);
+    reader->setOutputDir(m_qt4ProFileNode->buildDir());
 
     return reader;
 }
@@ -956,13 +976,6 @@ void Qt4ProFileNode::invalidate()
         return;
 
     clear();
-
-    // remove monitored files/directories
-    foreach (const QString &file, m_dirWatcher->files())
-        m_dirWatcher->removeFile(file);
-    foreach (const QString &dir, m_dirWatcher->directories())
-        m_dirWatcher->removeDirectory(dir);
-
 
     // change project type
     Qt4ProjectType oldType = m_projectType;

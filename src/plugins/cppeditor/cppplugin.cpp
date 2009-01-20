@@ -40,6 +40,7 @@
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -63,7 +64,7 @@ static const char *sourceSuffixKeyC = "CppEditor/SourceSuffix";
 
 using namespace CppEditor::Internal;
 
-///////////////////////////////// CppPluginEditorFactory //////////////////////////////////
+//////////////////////////// CppPluginEditorFactory /////////////////////////////
 
 CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
     m_kind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND)),
@@ -87,7 +88,7 @@ QString CppPluginEditorFactory::kind() const
 
 Core::IFile *CppPluginEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_owner->m_core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
@@ -110,7 +111,6 @@ QStringList CppPluginEditorFactory::mimeTypes() const
 CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
-    m_core(0),
     m_actionHandler(0),
     m_factory(0)
 {
@@ -128,11 +128,6 @@ CppPlugin::~CppPlugin()
 CppPlugin *CppPlugin::instance()
 {
     return m_instance;
-}
-
-Core::ICore *CppPlugin::core()
-{
-    return m_instance->m_core;
 }
 
 void CppPlugin::initializeEditor(CPPEditor *editor)
@@ -159,14 +154,13 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
-            TextEditor::Internal::CompletionSupport::instance(core()), SLOT(autoComplete(ITextEditable*, bool)));
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
 }
 
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    typedef TextEditor::TextEditorActionHandler TextEditorActionHandler;
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
     m_factory = new CppPluginEditorFactory(this);
@@ -180,21 +174,21 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     wizardParameters.setTrCategory(tr("C++"));
     wizardParameters.setDescription(tr("Creates a new C++ header file."));
     wizardParameters.setName(tr("C++ Header File"));
-    addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, m_core));
+    addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
     wizardParameters.setDescription(tr("Creates a new C++ source file."));
     wizardParameters.setName(tr("C++ Source File"));
-    addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, m_core));
+    addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, core));
 
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("C++ Class"));
     wizardParameters.setDescription(tr("Creates a header and a source file for a new class."));
-    addAutoReleasedObject(new CppClassWizard(wizardParameters, m_core));
+    addAutoReleasedObject(new CppClassWizard(wizardParameters, core));
 
     QList<int> context;
-    context << m_core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
 
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = core->actionManager();
     am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
@@ -217,22 +211,21 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    m_actionHandler = new CPPEditorActionHandler(m_core,
-        CppEditor::Constants::C_CPPEDITOR,
+    m_actionHandler = new CPPEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
     // Check Suffixes
-    if (const QSettings *settings = m_core->settings()) {
+    if (const QSettings *settings = core->settings()) {
         const QString headerSuffixKey = QLatin1String(headerSuffixKeyC);
         if (settings->contains(headerSuffixKey)) {
             const QString headerSuffix = settings->value(headerSuffixKey, QString()).toString();
             if (!headerSuffix.isEmpty())
-                m_core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE), headerSuffix);
+                core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE), headerSuffix);
             const QString sourceSuffix = settings->value(QLatin1String(sourceSuffixKeyC), QString()).toString();
             if (!sourceSuffix.isEmpty())
-                m_core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE), sourceSuffix);
+                core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE), sourceSuffix);
         }
     }
     return true;
@@ -245,7 +238,8 @@ void CppPlugin::extensionsInitialized()
 
 void CppPlugin::switchDeclarationDefinition()
 {
-    CPPEditor *editor = qobject_cast<CPPEditor*>(m_core->editorManager()->currentEditor()->widget());
+    Core::ICore *core = Core::ICore::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(core->editorManager()->currentEditor()->widget());
     if (editor) {
         editor->switchDeclarationDefinition();
     }
@@ -253,7 +247,8 @@ void CppPlugin::switchDeclarationDefinition()
 
 void CppPlugin::jumpToDefinition()
 {
-    CPPEditor *editor = qobject_cast<CPPEditor*>(m_core->editorManager()->currentEditor()->widget());
+    Core::ICore *core = Core::ICore::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(core->editorManager()->currentEditor()->widget());
     if (editor) {
         editor->jumpToDefinition();
     }

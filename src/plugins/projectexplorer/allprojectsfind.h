@@ -34,15 +34,11 @@
 #ifndef ALLPROJECTSFIND_H
 #define ALLPROJECTSFIND_H
 
-#include <coreplugin/icore.h>
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 #include <texteditor/basefilefind.h>
 
 #include <QtCore/QPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QStringListModel>
 
 
 namespace ProjectExplorer {
@@ -56,7 +52,7 @@ class AllProjectsFind : public TextEditor::BaseFileFind
     Q_OBJECT
 
 public:
-    AllProjectsFind(ProjectExplorerPlugin *plugin, Core::ICore *core, Find::SearchResultWindow *resultWindow);
+    AllProjectsFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 
     QString name() const;
 

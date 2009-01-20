@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -83,8 +84,7 @@ void GitCommand::execute()
     QFuture<void> task = QtConcurrent::run(this, &GitCommand::run);
     const QString taskName = QLatin1String("Git ") + m_jobs.front().arguments.at(0);
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    core->progressManager()->addTask(task, taskName,
+    Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                      QLatin1String("Git.action"),
                                      Core::ProgressManager::CloseOnSuccess);
 }

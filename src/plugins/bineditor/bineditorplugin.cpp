@@ -35,22 +35,23 @@
 #include "bineditor.h"
 #include "bineditorconstants.h"
 
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
-#include <QtCore/QFile>
 
-#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
+#include <extensionsystem/pluginmanager.h>
 #include <find/ifindsupport.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/reloadpromptutils.h>
 
@@ -204,7 +205,7 @@ public:
             break;
         }
 
-        switch (Core::Utils::reloadPrompt(fileName, BinEditorPlugin::core()->mainWindow())) {
+        switch (Core::Utils::reloadPrompt(fileName, Core::ICore::instance()->mainWindow())) {
         case Core::Utils::ReloadCurrent:
             open(fileName);
             break;
@@ -230,12 +231,15 @@ class BinEditorInterface : public Core::IEditor
 {
     Q_OBJECT
 public:
-    BinEditorInterface(BinEditor *parent ) : Core::IEditor(parent) {
+    BinEditorInterface(BinEditor *parent)
+        : Core::IEditor(parent)
+    {
+        Core::ICore *core = Core::ICore::instance();
         m_editor = parent;
         m_file = new BinEditorFile(parent);
-        m_context << BinEditorPlugin::core()->uniqueIDManager()->
+        m_context << core->uniqueIDManager()->
             uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR);
-        m_context << BinEditorPlugin::core()->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
+        m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Core::Utils::LineColumnLabel;
 
         QHBoxLayout *l = new QHBoxLayout;
@@ -316,7 +320,8 @@ QString BinEditorFactory::kind() const
 
 Core::IFile *BinEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_owner->m_core->editorManager()->openEditor(fileName, kind());
+    Core::ICore *core = Core::ICore::instance();
+    Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
@@ -336,8 +341,7 @@ QStringList BinEditorFactory::mimeTypes() const
 
 BinEditorPlugin *BinEditorPlugin::m_instance = 0;
 
-BinEditorPlugin::BinEditorPlugin() :
-    m_core(0)
+BinEditorPlugin::BinEditorPlugin()
 {
     m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
     m_instance = this;
@@ -353,16 +357,11 @@ BinEditorPlugin *BinEditorPlugin::instance()
     return m_instance;
 }
 
-Core::ICore *BinEditorPlugin::core()
-{
-    return m_instance->m_core;
-}
-
 QAction *BinEditorPlugin::registerNewAction(const QString &id, const QString &title)
 {
 
     QAction *result = new QAction(title, this);
-    m_core->actionManager()->registerAction(result, id, m_context);
+    Core::ICore::instance()->actionManager()->registerAction(result, id, m_context);
     return result;
 }
 
@@ -385,7 +384,8 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
     QObject::connect(editor, SIGNAL(modificationChanged(bool)), editorInterface, SIGNAL(changed()));
     editor->setEditorInterface(editorInterface);
 
-    m_context << BinEditorPlugin::core()->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
+    Core::ICore *core = Core::ICore::instance();
+    m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),
                                               this, SLOT(undoAction()),
@@ -415,13 +415,16 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
     aggregate->add(editor);
 }
 
-bool BinEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/BinEditor.mimetypes.xml"), errorMessage))
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
+
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/BinEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    connect(m_core, SIGNAL(contextAboutToChange(Core::IContext *)),
+    connect(core, SIGNAL(contextAboutToChange(Core::IContext *)),
         this, SLOT(updateCurrentEditor(Core::IContext *)));
 
     addAutoReleasedObject(new BinEditorFactory(this));

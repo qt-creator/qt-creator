@@ -41,14 +41,6 @@
 
 #include <QtCore/QStringList>
 
-namespace TextEditor {
-    class TextEditorActionHandler;
-}
-
-namespace Core {
-    class ICore;
-}
-
 namespace VCSBase {
 
 struct BaseVCSEditorFactoryPrivate;
@@ -59,8 +51,7 @@ class VCSBASE_EXPORT BaseVCSEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 public:
-    explicit BaseVCSEditorFactory(const VCSBaseEditorParameters *type,
-                                  Core::ICore *core);
+    explicit BaseVCSEditorFactory(const VCSBaseEditorParameters *type);
     virtual ~BaseVCSEditorFactory();
 
     virtual QStringList mimeTypes() const;
@@ -85,7 +76,6 @@ class VCSEditorFactory : public BaseVCSEditorFactory
 {
 public:
     explicit VCSEditorFactory(const VCSBaseEditorParameters *type,
-                              Core::ICore *core,
                               QObject *describeReceiver = 0,
                               const char *describeSlot = 0);
 
@@ -98,10 +88,9 @@ private:
 
 template <class Editor>
 VCSEditorFactory<Editor>::VCSEditorFactory(const VCSBaseEditorParameters *type,
-                                           Core::ICore *core,
                                            QObject *describeReceiver,
                                            const char *describeSlot) :
-    BaseVCSEditorFactory(type, core),
+    BaseVCSEditorFactory(type),
     m_describeReceiver(describeReceiver),
     m_describeSlot(describeSlot)
 {

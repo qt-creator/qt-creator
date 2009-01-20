@@ -37,12 +37,8 @@
 #include "quickopen_global.h"
 #include "iquickopenfilter.h"
 
-#include <coreplugin/icore.h>
-
 #include <QtCore/QString>
 #include <QtCore/QList>
-#include <QtCore/QByteArray>
-#include <QtGui/QWidget>
 
 namespace QuickOpen {
 
@@ -51,14 +47,13 @@ class QUICKOPEN_EXPORT BaseFileFilter : public QuickOpen::IQuickOpenFilter
     Q_OBJECT
 
 public:
-    BaseFileFilter(Core::ICore *core);
+    BaseFileFilter();
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;
 
 protected:
     void generateFileNames();
 
-    Core::ICore *m_core;
     QStringList m_files;
     QStringList m_fileNames;
     QStringList m_previousResultPaths;

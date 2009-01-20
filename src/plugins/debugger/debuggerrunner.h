@@ -84,7 +84,7 @@ public:
 
 private slots:
     void debuggingFinished();
-    void slotAddToOutputWindow(const QString &prefix, const QString &line);
+    void slotAddToOutputWindowInline(const QString &output);
 
 private:
     DebuggerManager *m_manager;

@@ -70,11 +70,9 @@ QString ResourceEditorFile::mimeType() const
 
 
 ResourceEditorW::ResourceEditorW(const QList<int> &context,
-                               Core::ICore *core,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
         : m_context(context),
-        m_core(core),
         m_resourceEditor(new SharedTools::QrcEditor(parent)),
         m_resourceFile(new ResourceEditorFile(this)),
         m_plugin(plugin)
@@ -207,7 +205,7 @@ void ResourceEditorFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(fileName, m_parent->m_core->mainWindow())) {
+    switch (Core::Utils::reloadPrompt(fileName, Core::ICore::instance()->mainWindow())) {
     case Core::Utils::ReloadCurrent:
         m_parent->open(fileName);
         break;

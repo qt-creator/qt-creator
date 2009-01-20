@@ -73,7 +73,6 @@ public:
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IProjectManager *projectManager() const;
 
-    virtual QList<Core::IFile *> dependencies(); //NBS TODO remove
     virtual QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
     virtual bool isApplication() const;
@@ -118,6 +117,7 @@ private:
     CMakeManager *m_manager;
     QString m_fileName;
     CMakeFile *m_file;
+    QString m_projectName;
 
     // TODO probably need a CMake specific node structure
     CMakeProjectNode* m_rootNode;
@@ -137,10 +137,12 @@ public:
     QList<ProjectExplorer::FileNode *> fileList();
     QStringList includeFiles();
     QList<CMakeTarget> targets();
+    QString projectName() const;
 private:
     void parseCodeBlocks_project_file();
     void parseProject();
     void parseBuild();
+    void parseOption();
     void parseTarget();
     void parseTargetOption();
     void parseMakeCommand();
@@ -157,6 +159,7 @@ private:
     CMakeTarget m_target;
     bool m_targetType;
     QList<CMakeTarget> m_targets;
+    QString m_projectName;
 };
 
 class CMakeFile : public Core::IFile

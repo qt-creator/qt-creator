@@ -54,7 +54,7 @@ class CurrentProjectFilter : public QuickOpen::BaseFileFilter
     Q_OBJECT
 
 public:
-    CurrentProjectFilter(ProjectExplorerPlugin *pe, Core::ICore *core);
+    CurrentProjectFilter(ProjectExplorerPlugin *pe);
     QString trName() const { return tr("Files in current project"); }
     QString name() const { return "Files in current project"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }

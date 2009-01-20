@@ -35,16 +35,12 @@
 #define CPPTOOLS_H
 
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QDir;
 QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-}
 
 namespace CppTools {
 namespace Internal {
@@ -75,7 +71,6 @@ private:
     QString correspondingHeaderOrSourceI(const QString &fileName) const;
     QFileInfo findFile(const QDir &dir, const QString &name, const ProjectExplorer::Project *project) const;
 
-    Core::ICore *m_core;
     int m_context;
     CppModelManager *m_modelManager;
     CppCodeCompletion *m_completion;

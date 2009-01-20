@@ -36,12 +36,14 @@
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
-#include "gdboptionpage.h"
 #include "gdbengine.h"
+
+#include "ui_gdboptionpage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
@@ -56,6 +58,8 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <cppeditor/cppeditorconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -73,12 +77,15 @@
 #include <QtCore/QSettings>
 #include <QtCore/QtPlugin>
 
+#include <QtGui/QLineEdit>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
+
+namespace ExtensionSystem { class PluginManager; }
 
 using namespace Core;
 using namespace Debugger::Constants;
@@ -99,13 +106,7 @@ const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
-const char * const DEBUG_DUMPERS        = "Debugger.DebugDumpers";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
-const char * const USE_CUSTOM_DUMPERS   = "Debugger.UseCustomDumpers";
-const char * const USE_FAST_START       = "Debugger.UseFastStart";
-const char * const USE_TOOL_TIPS        = "Debugger.UseToolTips";
-const char * const SKIP_KNOWN_FRAMES    = "Debugger.SkipKnownFrames";
-const char * const DUMP_LOG             = "Debugger.DumpLog";
 
 #ifdef Q_OS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -143,6 +144,12 @@ const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
 } // namespace Debugger
 
 
+///////////////////////////////////////////////////////////////////////
+//
+// DebugMode
+//
+///////////////////////////////////////////////////////////////////////
+
 namespace Debugger {
 namespace Internal {
 
@@ -159,9 +166,6 @@ public:
     void shutdown() {}
 };
 
-} // namespace Internal
-} // namespace Debugger
-
 DebugMode::DebugMode(QObject *parent)
   : BaseMode(parent)
 {
@@ -177,6 +181,9 @@ DebugMode::~DebugMode()
     EditorManager::instance()->setParent(0);
 }
 
+} // namespace Internal
+} // namespace Debugger
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -184,8 +191,10 @@ DebugMode::~DebugMode()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class Debugger::Internal::LocationMark
-  : public TextEditor::BaseTextMark
+namespace Debugger {
+namespace Internal {
+
+class LocationMark : public TextEditor::BaseTextMark
 {
     Q_OBJECT
 
@@ -212,6 +221,110 @@ QIcon LocationMark::icon() const
     return icon;
 }
 
+} // namespace Internal
+} // namespace Debugger
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// GdbOptionPage
+//
+///////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
+
+class GdbOptionPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    GdbOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
+
+    // IOptionsPage
+    QString name() const { return tr("Gdb"); }
+    QString category() const { return "Debugger"; }
+    QString trCategory() const { return tr("Debugger"); }
+
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() {} // automatically calls "apply"
+
+private:
+    Ui::GdbOptionPage m_ui;
+
+    DebuggerSettings m_settings;
+    DebuggerPlugin *m_plugin;
+};
+
+QWidget *GdbOptionPage::createPage(QWidget *parent)
+{
+    QWidget *w = new QWidget(parent);
+    m_settings = *m_plugin->m_manager->settings();
+    m_ui.setupUi(w);
+    m_ui.gdbLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
+    m_ui.gdbLocationChooser->setPath(m_settings.m_gdbCmd);
+    m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
+    m_ui.scriptFileChooser->setPath(m_settings.m_scriptFile);
+    m_ui.environmentEdit->setText(m_settings.m_gdbEnv);
+    m_ui.autoStartBox->setChecked(m_settings.m_autoRun);
+    m_ui.autoQuitBox->setChecked(m_settings.m_autoQuit);
+
+    m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
+    m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
+    m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
+    m_ui.checkBoxFastStart->setChecked(m_settings.m_useFastStart);
+    m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
+    m_ui.checkBoxUseTerminal->setChecked(m_settings.m_useTerminal);
+
+#ifndef QT_DEBUG
+#if 0
+    cmd = am->registerAction(m_manager->m_dumpLogAction,
+        Constants::DUMP_LOG, globalcontext);
+    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
+    mdebug->addAction(cmd);
+#endif
+#endif
+
+    // FIXME
+    m_ui.autoStartBox->hide();
+    m_ui.autoQuitBox->hide();
+    m_ui.environmentEdit->hide();
+    m_ui.labelEnvironment->hide();
+
+    m_ui.checkBoxFastStart->setChecked(false);
+    m_ui.checkBoxFastStart->hide();
+
+    //m_dumpLogAction = new QAction(this);
+    //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
+    return w;
+}
+
+void GdbOptionPage::apply()
+{
+    m_settings.m_gdbCmd   = m_ui.gdbLocationChooser->path();
+    m_settings.m_gdbEnv   = m_ui.environmentEdit->text();
+    m_settings.m_autoRun  = m_ui.autoStartBox->isChecked();
+    m_settings.m_autoQuit = m_ui.autoQuitBox->isChecked();
+    m_settings.m_scriptFile = m_ui.scriptFileChooser->path();
+
+    m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
+    m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
+    m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
+    m_settings.m_useFastStart = m_ui.checkBoxFastStart->isChecked();
+    m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
+    m_settings.m_useTerminal = m_ui.checkBoxUseTerminal->isChecked();
+
+    *m_plugin->m_manager->settings() = m_settings;
+    m_plugin->writeSettings();
+}
+
+} // namespace Internal
+} // namespace Debugger
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -233,7 +346,7 @@ DebuggerPlugin::~DebuggerPlugin()
 
 static QSettings *settings()
 {
-    return ExtensionSystem::PluginManager::instance()->getObject<ICore>()->settings();
+    return ICore::instance()->settings();
 }
 
 void DebuggerPlugin::shutdown()
@@ -274,7 +387,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     m_pm = ExtensionSystem::PluginManager::instance();
 
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
 
     Core::ActionManager *am = core->actionManager();
@@ -409,34 +522,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep2"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(m_manager->m_skipKnownFramesAction,
-        Constants::SKIP_KNOWN_FRAMES, globalcontext);
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_useCustomDumpersAction,
-        Constants::USE_CUSTOM_DUMPERS, globalcontext);
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_useFastStartAction,
-        Constants::USE_FAST_START, globalcontext);
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_useToolTipsAction,
-        Constants::USE_TOOL_TIPS, globalcontext);
-    mdebug->addAction(cmd);
-
-#ifdef QT_DEBUG
-    cmd = am->registerAction(m_manager->m_dumpLogAction,
-        Constants::DUMP_LOG, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
-
-    cmd = am->registerAction(m_manager->m_debugDumpersAction,
-        Constants::DEBUG_DUMPERS, debuggercontext);
-    mdebug->addAction(cmd);
-#endif
-
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep4"), globalcontext);
@@ -479,7 +564,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     m_generalOptionPage = 0;
 
     // FIXME:
-    m_generalOptionPage = new GdbOptionPage(&theGdbSettings());
+    m_generalOptionPage = new GdbOptionPage(this);
     addObject(m_generalOptionPage);
 
     m_locationMark = 0;
@@ -628,8 +713,7 @@ ProjectExplorer::ProjectExplorerPlugin *DebuggerPlugin::projectExplorer() const
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPlugin::activatePreviousMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    Core::ModeManager *const modeManager = core->modeManager();
+    Core::ModeManager *const modeManager = ICore::instance()->modeManager();
 
     if (modeManager->currentMode() == modeManager->mode(Constants::MODE_DEBUG)
             && !m_previousMode.isEmpty()) {
@@ -640,7 +724,7 @@ void DebuggerPlugin::activatePreviousMode()
 
 void DebuggerPlugin::activateDebugMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     Core::ModeManager *modeManager = core->modeManager();
     m_previousMode = QLatin1String(modeManager->currentMode()->uniqueModeName());
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
@@ -648,7 +732,7 @@ void DebuggerPlugin::activateDebugMode()
 
 void DebuggerPlugin::queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **object)
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     if (!core || !core->editorManager())
         return;
     Core::IEditor *editor = core->editorManager()->currentEditor();
@@ -711,7 +795,7 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
-    if (!m_manager->useToolTipsAction()->isChecked())
+    if (!m_manager->settings()->m_useToolTips)
         return;
 
     QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
@@ -787,7 +871,7 @@ void DebuggerPlugin::gotoLocation(const QString &fileName, int lineNumber,
 void DebuggerPlugin::changeStatus(int status)
 {
     bool startIsContinue = (status == DebuggerInferiorStopped);
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     if (startIsContinue) {
         core->addAdditionalContext(m_gdbRunningContext);
         core->updateContext();
@@ -799,22 +883,59 @@ void DebuggerPlugin::changeStatus(int status)
 
 void DebuggerPlugin::writeSettings() const
 {
-    QSettings *s = settings();
     QTC_ASSERT(m_manager, return);
     QTC_ASSERT(m_manager->mainWindow(), return);
+
+    QSettings *s = settings();
+    DebuggerSettings *m = m_manager->settings();
     s->beginGroup(QLatin1String("DebugMode"));
-    s->setValue(QLatin1String("State"), m_manager->mainWindow()->saveState());
-    s->setValue(QLatin1String("Locked"), m_toggleLockedAction->isChecked());
+    s->setValue("State", m_manager->mainWindow()->saveState());
+    s->setValue("Locked", m_toggleLockedAction->isChecked());
+    s->setValue("Location", m->m_gdbCmd);
+    s->setValue("Environment", m->m_gdbEnv);
+    s->setValue("ScriptFile", m->m_scriptFile);
+    s->setValue("AutoRun", m->m_autoRun);
+    s->setValue("AutoQuit", m->m_autoQuit);
+
+    s->setValue("UseFastStart", m->m_useFastStart);
+    s->setValue("UseToolTips", m->m_useToolTips);
+    s->setValue("UseTerminal", m->m_useTerminal);
+    s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
+    s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
+    s->setValue("DebugDumpers", m->m_debugDumpers);
     s->endGroup();
 }
 
 void DebuggerPlugin::readSettings()
 {
     QSettings *s = settings();
+    DebuggerSettings *m = &m_manager->m_settings; 
+
+    QString defaultCommand("gdb");
+#if defined(Q_OS_WIN32)
+    defaultCommand.append(".exe");
+#endif
+    QString defaultScript = ICore::instance()->resourcePath() +
+        QLatin1String("/gdb/qt4macros");
+
     s->beginGroup(QLatin1String("DebugMode"));
-    m_manager->mainWindow()->restoreState(s->value(QLatin1String("State"), QByteArray()).toByteArray());
-    m_toggleLockedAction->setChecked(s->value(QLatin1String("Locked"), true).toBool());
+    QByteArray ba = s->value("State", QByteArray()).toByteArray();
+    m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
+    m->m_gdbCmd     = s->value("Location", defaultCommand).toString();
+    m->m_scriptFile = s->value("ScriptFile", defaultScript).toString();
+    m->m_gdbEnv     = s->value("Environment", "").toString();
+    m->m_autoRun    = s->value("AutoRun", true).toBool();
+    m->m_autoQuit   = s->value("AutoQuit", true).toBool();
+
+    m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
+    m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
+    m->m_useCustomDumpers = s->value("UseCustomDupers", false).toBool();
+    m->m_useFastStart     = s->value("UseFastStart", false).toBool();
+    m->m_useToolTips      = s->value("UseToolTips", false).toBool();
+    m->m_useTerminal      = s->value("UseTerminal", false).toBool();
     s->endGroup();
+
+    m_manager->mainWindow()->restoreState(ba);
 }
 
 void DebuggerPlugin::focusCurrentEditor(IMode *mode)

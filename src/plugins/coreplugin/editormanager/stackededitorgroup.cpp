@@ -80,6 +80,7 @@ StackedEditorGroup::StackedEditorGroup(QWidget *parent) :
     tl->setMargin(0);
     {
         m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        m_editorList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_editorList->setMinimumContentsLength(20);
         m_proxyModel.setSourceModel(model());
         m_proxyModel.sort(0);
@@ -297,9 +298,9 @@ void StackedEditorGroup::setCurrentEditor(IEditor *editor)
 
 void StackedEditorGroup::checkEditorStatus()
 {
-        IEditor *editor = qobject_cast<IEditor *>(sender());
-        if (editor == currentEditor())
-            updateEditorStatus(editor);
+    IEditor *editor = qobject_cast<IEditor *>(sender());
+    if (editor == currentEditor())
+        updateEditorStatus(editor);
 }
 
 void StackedEditorGroup::updateEditorStatus(IEditor *editor)

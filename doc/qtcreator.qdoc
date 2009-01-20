@@ -20,9 +20,9 @@
 
     \table
     \row
-    \o \inlineimage qtcreator-screenshots.png
+        \o \inlineimage qtcreator-screenshots.png
     \row
-    \o Qt Creator includes a wide range of useful features. Among them are:
+        \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
         \o \bold{Smart Code Editor}: The code editor provides syntax
             highlighting as well as code completion.
@@ -49,8 +49,11 @@
     \list
        \o \l{A Quick Tour of Qt Creator}
        \o \l{Creating a Project in Qt Creator}
+       \o \l{The Code Editor}
        \o \l{Build Settings}
+       \o \l{Qt Version Management}
        \o \l{Writing a Simple Program with Qt Creator}
+       \o \l{Qt Creator and Version Control Systems}
        \o \l{Navigating Quickly Around Your Code with Locator}
        \o \l{Debugging with Qt Creator}
        \o \l{Tips and Tricks}
@@ -154,21 +157,20 @@
 
     \section1 Session Management in Qt Creator
 
-    ### screenshot
-
     In Qt Creator, a session is a collection of loaded projects, opened files,
     editor settings, and so on. When you run Qt Creator, you have a default
     session. You can create a new session using the \gui{Session Manager...},
     available in the \gui{File -> Session} menu.
 
+
+    \image qtcreator-session-manager.png
+
+
     To switch between sessions, select \gui{File -> Session}. If you do not
     create and select any session, Qt Creator will always use the default
     session.
 
-\omit
-    session management can also store project dependencies, thorbjorn is
-    currently working on it
-\endomit
+    \image qtcreator-session-menu.png
 
 
     \section1 Qt Help Integration
@@ -206,10 +208,74 @@
     are available to help speed up the process of developing your application.
 */
 
+/*! \contentspage index.html
+    \previouspage creator-quick-tour.html
+    \page creator-code-editor.html
+    \nextpage creator-build-settings.html
+
+    \title The Code Editor
+
+    ### SCREENSHOT of the editor in action
+
+
+    \table
+        \row
+            \i  Block navigation
+            \i  To navigate between blocks, e.g., from one \bold{\{} to another
+                \bold{\}} , use \key{Ctrl+[} and \key{Ctrl+]}.
+        \row
+            \i  Block selection
+            \i  To select a current block, use \key{Ctrl+U}. Pressing
+                \key{Ctrl+U} again extends the selection to the parent block.
+                To deselect, use \key{Ctrl+Shift+U}.    
+        \row
+            \i  Moving lines up and down
+            \i  
+
+        \row
+            \i  Completion
+            \i
+
+        \row
+            \i  Indenting Blocks
+            \i
+        \row
+            \i  Commenting or Uncommenting Blocks
+            \i
+
+        \row
+            \i  Switch between Header and Source
+            \i  Use \key{F4}.
+
+        \row
+            \i  Increasing and Decreasing Font Size
+            \i  Use \key{Ctrl+Scroll Wheel}
+
+        \row
+            \i  Follow Symbols under The Cursor
+            \i  Use \key{F2} and \key{Shift+F2}. This feature works with
+                namespaces, classes, methods, variables, include statements,
+                and macros.
+    \endtable
+
+
+    More:
+
+    Collapse
+
+    Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
+
+
+
+    To switch to an external editor, select \gui{Open in external editor} from
+    the \gui{Edit -> Advanced} menu.
+
+*/
+
 
 /*!
     \contentspage index.html
-    \previouspage creator-quick-tour.html
+    \previouspage creator-code-editor.html
     \page creator-build-settings.html
     \nextpage creator-creating-project.html
 
@@ -266,8 +332,23 @@
     remove the build step. You will still be able to debug applications, but the
     contents of Qt and STL data types will not be displayed properly.
 
+    \section1 Dependencies
 
-    \section1 Qt Version Management
+    If you have multiple projects loaded in your session, you can configure
+    dependencies between them. This will affect the build order of your
+    projects. To do this, go the the \bold{Dependencies} tab after selecting
+    the project for which you want to configure the dependencies, and then use
+    the checkboxes to check which of the other projects is a dependency.
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-settings.html
+    \page creator-version-management.html
+    \nextpage creator-creating-project.html
+
+    \title Qt Version Management
 
     Qt Creator allows you to use multiple versions of Qt installed on your hard
     disk and switch between them easily.
@@ -692,6 +773,136 @@
 
 */
 
+/*!
+    \contentspage index.html
+    \previouspage creator-navigation.html
+    \page creator-version-control.html
+    \nextpage creator-debugging.html
+
+    \title Qt Creator and Version Control Systems
+
+    \table
+        \caption    Version control systems supported by Qt Creator
+        \row
+            \i  \bold{git}
+            \i  \l{http://git-scm.com/}
+        \row
+            \i  \bold{Subversion}
+            \i  \l{http://subversion.tigris.org/}
+        \row
+            \i  \bold{Perforce}
+            \i  \l{http://www.perforce.com}
+    \endtable
+
+
+    \section1 Setup
+
+    Qt Creator uses the version control system's command line clients to
+    access your repositories. To set it up, you must ensure that these command
+    line clients can be located via the \c{PATH} environment variable. You can
+    specify the path to the command line client's executable in the settings    
+    pages that can be found under \gui{Options...} in the \gui{Tools} menu.
+
+
+    \section1 Usage
+
+    You can find the version control menu entires in a sub-menu of the
+    \gui{Tools} menu. The version control system displayed here is the system
+    that manages the current project.
+
+    Each version control system adds a pane to the \gui{Application Output}
+    panes within which it will log the commands it executes, prepended by a
+    timestamp and the relevant output.
+
+    \image qtcreator-vcs-pane.png
+
+
+    \section2 Addings Files
+
+    When you create a new file or a new project, the wizards will display page
+    requesting whether the files should be added to a version control system.
+    This depends on whether the parent directory or the project is already
+    under version control and the system supports the concept of adding files,
+    e.g., \bold{Perforce} and \bold{Subversion}. Alternatively, you can also
+    add files later on using the version control tool menus.
+
+    With \bold{git}, there is no concept of adding files. Instead, all modified
+    files must be \e{staged} for a commit.
+
+
+    \section2 Viewing Diff Output
+
+    All version control systems provide menu options to \e{diff} the current
+    file or project - comparing with the latest version stored in the
+    repository and displaying the differences. In Qt Creator, a diff is
+    displayed in a read-only editor. If the file is accessible, you can double
+    -click on a selected diff chunk and Qt Creator will open an editor
+    displaying the file, scrolled to the line in question.
+
+    \image qtcreator-vcs-diff.png
+
+
+    \section2 Viewing Versioning History and Change Details
+
+    The versioning history of a file can be displayed by selecting the
+    \gui{Log} (for \bold{git}) or \gui{Filelog} (for \bold{Perforce} and
+    \bold{Subversion}) option. Typically, the log output will contain the
+    date, the commit message, and a change or revision identifier. If you
+    click on the identifier, a description of the change including the diff
+    will be displayed.
+
+    \image qtcreator-vcs-log.png
+    \image qtcreator-vcs-describe.png
+
+
+    \section2 Annotating Files
+
+    Annotation views are obtained by selecting \gui{Annotate} or \gui{Blame}.
+    This will display the lines of the file prepended by the change identifier
+    they originate from. Clicking on the change identifier shows a detailed
+    description of the file.
+
+
+    \section2 Committing Changes
+
+    Once you have finished making changes, you can submit them to the version
+    control system by choosing \gui{Commit} or \gui{Submit}. Qt Creator will
+    display a commit page containing a text editor, where you can enter your
+    commit message, and a checkable list of modified files to be included.
+    When you are done, click \gui{Commit} to start committing. In addition,
+    there is a \gui{Diff selected} button that brings up a diff view of the
+    files selected in the file list. Since the commit page is just another
+    editor, you can go back to it by closing the diff view. Alternatively, you
+    can view it from the editor combo box showing the \gui{Opened files}.
+
+    \image qtcreator-vcs-commit.png
+
+
+    \section2 Menu Entries Specific to git
+
+    The git sub-menu contains additional entries:
+
+    \table
+        \row
+            \i  \gui{Stash}
+            \i  Stash local changes prior to executing a \bold{pull}.
+        \row
+            \i  \gui{Pull}
+            \i  Pull changes from the remote repository. If there are locally
+                modified files, you will be prompted to stash those changes.
+        \row
+            \i  \gui{Branches...}
+            \i  Displays the branch dialog showing the local branches at the
+                top and remote branches at the bottom. To switch to the local
+                branch, simply double-click on it. Double-clicking on a remote
+                branch will first create a local branch with the same name that
+                tracks the remote branch, and then switch to it.
+
+                \image qtcreator-vcs-gitbranch.png
+    \endtable
+
+*/
+
 
 /*!
     \contentspage index.html
@@ -1017,8 +1228,8 @@
 
     \bold{Keyboard Shortcuts}
 
-    Qt Creator provides a lot of useful keyboard shortcuts. A complete list can
-    be found \l{Keyboard Shortcuts}{here}.
+    Qt Creator provides a lot of useful keyboard shortcuts. Some useful
+    shortcuts can be found \l{Keyboard Shortcuts}{here}.
 
     \bold{Running Qt Creator from the Command Line}
 
@@ -1065,25 +1276,41 @@
             \o  Meaning
 
         \row
-            \o  System Qt   \target glossary-system-qt
+            \o
+                \raw HTML
+                System&nbsp;Qt
+                \endraw
+                \target glossary-system-qt
             \o  The version of Qt installed on your system. This is the Qt
                 version for the \c qmake command found in your \c PATH.
 
         \row
-            \o  Default Qt  \target glossary-default-qt
+            \o
+                \raw HTML
+                Default&nbsp;Qt
+                \endraw
+                \target glossary-default-qt
             \o  The version of Qt configured in \gui{Tools -> Options -> Qt 4
                 -> Default Qt Version}. This is the Qt version used by your
                 new projects. It defaults to System Qt.
 
         \row
-            \o  Project Qt  \target glossary-project-qt
+            \o
+                \raw HTML
+                Project&nbsp;Qt
+                \endraw
+                \target glossary-project-qt
             \o  The version of Qt configured in \gui{Build&Run -> Build
                 Settings -> Build Configurations}. This is the Qt version that
                 is actually used by a particular project. It defaults to
                 Default Qt.
 
         \row
-            \o  Shadow Build    \target glossary-shadow-build
+            \o
+                \raw HTML
+                Shadow&nbsp;Build
+                \endraw
+                \target glossary-shadow-build
             \o  Shadow building means building a project in a separate
                 directory, the \e{build directory}. The build directory is
                 different from the source directory. One of the benefits of

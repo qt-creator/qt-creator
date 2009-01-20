@@ -44,10 +44,6 @@ namespace ExtensionSystem {
 class PluginManager;
 }
 
-namespace Core {
-class ICore;
-}
-
 namespace ProjectExplorer {
 class Project;
 class ProjectExplorerPlugin;
@@ -64,13 +60,12 @@ class QtVersionManager;
 
 class Qt4Project;
 
-class Qt4Manager
-  : public ProjectExplorer::IProjectManager
+class Qt4Manager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
 public:
-    Qt4Manager(Internal::Qt4ProjectManagerPlugin *plugin, Core::ICore *core);
+    Qt4Manager(Internal::Qt4ProjectManagerPlugin *plugin);
     ~Qt4Manager();
 
     void init();
@@ -80,10 +75,8 @@ public:
     void notifyChanged(const QString &name);
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
-    ExtensionSystem::PluginManager *pluginManager() const;
-    Core::ICore *core() const;
 
-    //ProjectExplorer::IProjectManager
+    // ProjectExplorer::IProjectManager
     int projectContext() const;
     int projectLanguage() const;
 
@@ -111,7 +104,6 @@ private:
 
     const QString m_mimeType;
     Internal::Qt4ProjectManagerPlugin *m_plugin;
-    Core::ICore *m_core;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     ProjectExplorer::Node *m_contextNode;

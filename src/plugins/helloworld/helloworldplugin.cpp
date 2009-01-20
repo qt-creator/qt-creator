@@ -39,7 +39,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QtPlugin>
@@ -78,7 +77,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     Q_UNUSED(error_message)
 
     // Get the primary access point to the workbench.
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
 
     // Create a unique context id for our own view, that will be used for the
     // menu entry later.

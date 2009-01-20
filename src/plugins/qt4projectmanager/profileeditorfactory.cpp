@@ -74,7 +74,7 @@ QString ProFileEditorFactory::kind() const
 
 Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }

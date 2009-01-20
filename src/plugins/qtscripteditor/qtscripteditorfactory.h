@@ -34,14 +34,9 @@
 #ifndef RQTSCRIPTEDITORFACTORY_H
 #define RQTSCRIPTEDITORFACTORY_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/QStringList>
-
-namespace  Core {
-class ICore;
-}
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -59,13 +54,11 @@ class QtScriptEditorFactory : public Core::IEditorFactory
 public:
     typedef QList<int> Context;
 
-    QtScriptEditorFactory(Core::ICore *core,
-                          const Context &context,
-                          QObject *parent);
+    QtScriptEditorFactory(const Context &context, QObject *parent);
     ~QtScriptEditorFactory();
 
     virtual QStringList mimeTypes() const;
-    //EditorFactory
+    // IEditorFactory
     QString kind() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
@@ -75,7 +68,6 @@ private:
     const QStringList m_mimeTypes;
     const Context m_context;
 
-    Core::ICore *m_core;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 

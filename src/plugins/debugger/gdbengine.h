@@ -36,6 +36,7 @@
 
 #include "idebuggerengine.h"
 #include "gdbmi.h"
+#include "outputcollector.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
@@ -43,6 +44,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QPoint>
+#include <QtCore/QTextCodec>
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
@@ -81,23 +83,6 @@ enum DataDumperState
 };
 
 
-class GdbSettings
-{
-public:
-    GdbSettings() { m_autoRun = m_autoQuit = false; }
-
-public:
-    QString m_gdbCmd;
-    QString m_gdbEnv;
-    bool m_autoRun;
-    bool m_autoQuit;
-
-    QString m_scriptFile;
-    QMap<QString, QVariant> m_typeMacros;
-};
-
-GdbSettings &theGdbSettings();
-
 class GdbEngine : public IDebuggerEngine
 {
     Q_OBJECT
@@ -110,7 +95,7 @@ signals:
     void gdbResponseAvailable();
     void gdbInputAvailable(const QString &prefix, const QString &msg);
     void gdbOutputAvailable(const QString &prefix, const QString &msg);
-    void applicationOutputAvailable(const QString &prefix, const QString &msg);
+    void applicationOutputAvailable(const QString &output);
 
 private:
     //
@@ -190,6 +175,7 @@ private slots:
     void gdbProcError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
+    void readDebugeeOutput(const QByteArray &data);
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
@@ -206,6 +192,10 @@ private:
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
+
+    OutputCollector m_outputCollector;
+    QTextCodec *m_outputCodec;
+    QTextCodec::ConverterState m_outputCodecState;
 
     QByteArray m_inbuffer;
 

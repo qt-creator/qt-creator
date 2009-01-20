@@ -178,8 +178,7 @@ void BuildManager::startBuildQueue()
 {
     if (!m_running) {
         // Progress Reporting
-        Core::ProgressManager *progressManager =
-                ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->progressManager();
+        Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
         m_progressFutureInterface = new QFutureInterface<void>;
         m_progressWatcher.setFuture(m_progressFutureInterface->future());
         Core::FutureProgress *progress = progressManager->addTask(m_progressFutureInterface->future(),

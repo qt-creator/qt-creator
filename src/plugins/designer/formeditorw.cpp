@@ -43,6 +43,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
@@ -162,7 +163,7 @@ FormEditorW::FormEditorW() :
     m_formeditor(QDesignerComponents::createFormEditor(0)),
     m_integration(0),
     m_fwm(0),
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()),
+    m_core(Core::ICore::instance()),
     m_initStage(RegisterPlugins),
     m_actionGroupEditMode(0),
     m_actionPrint(0),

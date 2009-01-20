@@ -34,12 +34,12 @@
 #ifndef FORMEDITORW_H
 #define FORMEDITORW_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
-#include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 #include "designerconstants.h"
 

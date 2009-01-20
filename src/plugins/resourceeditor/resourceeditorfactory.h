@@ -34,16 +34,9 @@
 #ifndef RRESOURCEEDITORFACTORY_H
 #define RRESOURCEEDITORFACTORY_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QtCore/QStringList>
-
-namespace Core {
-class ICore;
-class IEditor;
-class IFile;
-}
 
 namespace ResourceEditor {
 namespace Internal {
@@ -57,11 +50,11 @@ class ResourceEditorFactory : public Core::IEditorFactory
 public:
     typedef QList<int> Context;
 
-    ResourceEditorFactory(Core::ICore *core, ResourceEditorPlugin *plugin);
+    explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 
     virtual QStringList mimeTypes() const;
 
-    //EditorFactory
+    // IEditorFactory
     QString kind() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
@@ -71,7 +64,6 @@ private:
     const QString m_kind;
     Context m_context;
 
-    Core::ICore *m_core;
     ResourceEditorPlugin *m_plugin;
 };
 

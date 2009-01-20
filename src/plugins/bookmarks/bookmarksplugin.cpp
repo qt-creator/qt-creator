@@ -35,16 +35,17 @@
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
 
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/itexteditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <texteditor/itexteditor.h>
+#include <texteditor/texteditorconstants.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 #include <QtGui/QMenu>
@@ -56,7 +57,7 @@ using namespace TextEditor;
 BookmarksPlugin *BookmarksPlugin::m_instance = 0;
 
 BookmarksPlugin::BookmarksPlugin()
-    : m_bookmarkManager(0), m_core(0)
+    : m_bookmarkManager(0)
 {
     m_instance = this;
 }
@@ -67,13 +68,13 @@ void BookmarksPlugin::extensionsInitialized()
 
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
 
-    QList<int> context = QList<int>() << m_core->uniqueIDManager()->
+    QList<int> context = QList<int>() << core->uniqueIDManager()->
         uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
     QList<int> textcontext, globalcontext;
-    textcontext << m_core->uniqueIDManager()->
+    textcontext << core->uniqueIDManager()->
         uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
@@ -171,7 +172,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         this, SLOT(bookmarkMarginActionTriggered()));
 
     // EditorManager
-    QObject *editorManager = m_core->editorManager();
+    QObject *editorManager = core->editorManager();
     connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),

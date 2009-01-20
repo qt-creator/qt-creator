@@ -62,7 +62,6 @@ public:
     ~BinEditorPlugin();
 
     static BinEditorPlugin *instance();
-    static Core::ICore *core();
 
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();

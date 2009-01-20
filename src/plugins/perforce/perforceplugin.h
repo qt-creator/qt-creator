@@ -39,14 +39,8 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/icorelistener.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
 #include <extensionsystem/iplugin.h>
-
-#ifdef USE_P4_API
-#include "workbenchclientuser.h"
-#else
-
-#endif
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
@@ -117,7 +111,6 @@ public:
 
     Core::IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
-    static Core::ICore *coreInstance();
     static PerforcePlugin *perforcePluginInstance();
 
     PerforceSettings settings() const;
@@ -230,7 +223,6 @@ private:
     static const char * const SEPARATOR2;
     static const char * const SEPARATOR3;
 
-    static Core::ICore *m_coreInstance;
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();
 

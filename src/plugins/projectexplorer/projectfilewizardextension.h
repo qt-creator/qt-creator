@@ -36,10 +36,6 @@
 
 #include <coreplugin/ifilewizardextension.h>
 
-namespace Core {
-    class ICore;
-}
-
 namespace ProjectExplorer {
 
 namespace Internal {
@@ -54,7 +50,7 @@ class ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
     Q_OBJECT
 public:
-    explicit ProjectFileWizardExtension(Core::ICore *core);
+    explicit ProjectFileWizardExtension();
     virtual ~ProjectFileWizardExtension();
 
     virtual QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
@@ -64,7 +60,6 @@ public slots:
     virtual void firstExtensionPageShown(const QList<Core::GeneratedFile> &);
 
 private:
-    Core::ICore *m_core;
     ProjectWizardContext *m_context;
 };
 

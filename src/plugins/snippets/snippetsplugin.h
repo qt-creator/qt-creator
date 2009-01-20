@@ -40,11 +40,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core {
-class ICore;
-struct Application;
-}
-
 namespace Snippets {
 namespace Internal {
 
@@ -62,9 +57,8 @@ public:
 
     static SnippetsPlugin *instance() { return m_instance; }
     static SnippetsWindow *snippetsWindow() { return m_instance->m_snippetWnd; }
-    static Core::ICore *core() { return m_instance->m_core; }
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private slots:
@@ -74,7 +68,6 @@ private:
     static SnippetsPlugin *m_instance;
 
     QString simplifySnippetName(SnippetSpec *snippet) const;
-    Core::ICore *m_core;
     SnippetsCompletion *m_snippetsCompletion;
     SnippetsWindow *m_snippetWnd;
 

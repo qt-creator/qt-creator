@@ -42,7 +42,6 @@ class QPoint;
 QT_END_NAMESPACE
 
 namespace Core {
-class ICore;
 class IEditor;
 }
 
@@ -74,7 +73,6 @@ private slots:
 private:
     void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
 
-    Core::ICore *m_core;
     CppTools::CppModelManagerInterface *m_modelManager;
     QHelpEngineCore *m_helpEngine;
     QString m_helpId;

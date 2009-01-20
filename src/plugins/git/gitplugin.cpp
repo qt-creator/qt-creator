@@ -49,6 +49,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -56,11 +57,11 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 
-#include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
+#include <QtCore/QtPlugin>
 
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
@@ -231,8 +232,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     Q_UNUSED(arguments);
     Q_UNUSED(error_message);
 
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    m_gitClient = new GitClient(this, m_core);
+    m_core = Core::ICore::instance();
+    m_gitClient = new GitClient(this);
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;
     globalcontext << m_core->uniqueIDManager()->
@@ -249,7 +250,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new GitEditorFactory(editorParameters + i, m_core, m_gitClient, describeSlot));
+        m_editorFactories.push_back(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
         addObject(m_editorFactories.back());
     }
 
@@ -621,7 +622,7 @@ void GitPlugin::startCommit()
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    Core::IEditor *editor =  m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_KIND));
+    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_KIND));
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileName << editor;
     m_core->editorManager()->ensureEditorManagerVisible();

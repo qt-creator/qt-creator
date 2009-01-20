@@ -51,7 +51,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 #ifdef CPP_ENABLED
@@ -89,13 +89,16 @@ FormEditorPlugin::~FormEditorPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool FormEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message/* = 0*/) // =0;
+bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error_message))
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
         return false;
 
-    if (!initializeTemplates(error_message))
+    if (!initializeTemplates(error))
         return false;
 
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
@@ -107,7 +110,7 @@ bool FormEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     // Make sure settings pages and action shortcuts are registered
     FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
 
-    error_message->clear();
+    error->clear();
     return true;
 }
 
@@ -121,24 +124,23 @@ void FormEditorPlugin::extensionsInitialized()
 //
 ////////////////////////////////////////////////////
 
-bool FormEditorPlugin::initializeTemplates(QString * /* error_message */)
+bool FormEditorPlugin::initializeTemplates(QString *error)
 {
-
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(error);
     FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
     wizardParameters.setName(tr("Qt Designer Form"));
     wizardParameters.setDescription(tr("This creates a new Qt Designer form file."));
-    m_formWizard = new FormWizard(wizardParameters, core, this);
+    m_formWizard = new FormWizard(wizardParameters, this);
     addObject(m_formWizard);
 
 #ifdef CPP_ENABLED
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("Qt Designer Form Class"));
     wizardParameters.setDescription(tr("This creates a new Qt Designer form class."));
-    m_formClassWizard = new FormClassWizard(wizardParameters, core, this);
+    m_formClassWizard = new FormClassWizard(wizardParameters, this);
     addObject(m_formClassWizard);
 #endif
     return true;

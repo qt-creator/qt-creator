@@ -137,6 +137,7 @@ public slots:
     void newFile();
     void openFileWith();
     void exit();
+    void setFullScreen(bool on);
 
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
@@ -157,7 +158,7 @@ private slots:
     void aboutQtCreator();
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);
-    void toggleNavigation();
+    void setSidebarVisible(bool visible);
     void destroyVersionDialog();
 
 private:
@@ -213,6 +214,7 @@ private:
     QAction *m_exitAction;
     QAction *m_optionsAction;
     QAction *m_toggleSideBarAction;
+    QAction *m_toggleFullScreenAction;
 #ifdef Q_OS_MAC
     QAction *m_minimizeAction;
     QAction *m_zoomAction;

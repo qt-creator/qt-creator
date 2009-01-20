@@ -38,13 +38,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
-QT_BEGIN_NAMESPACE
-class QTextStream;
-class QDir;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
-    class ProjectExplorerPlugin;
+class ProjectExplorerPlugin;
 }
 
 namespace Qt4ProjectManager {
@@ -60,14 +55,11 @@ namespace Internal {
 
 class QtWizard : public Core::BaseFileWizard
 {
-    Q_DISABLE_COPY(QtWizard)
     Q_OBJECT
-
-public:
+    Q_DISABLE_COPY(QtWizard)
 
 protected:
-    explicit QtWizard(Core::ICore *core, const QString &name,
-                      const QString &description, const QIcon &icon);
+    QtWizard(const QString &name, const QString &description, const QIcon &icon);
 
     QString templateDir() const;
 

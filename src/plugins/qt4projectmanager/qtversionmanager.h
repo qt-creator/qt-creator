@@ -37,8 +37,7 @@
 #include "ui_qtversionmanager.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
@@ -208,7 +207,6 @@ private:
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
 
-    Core::ICore *m_core;
     QPointer<QtDirWidget> m_widget;
 
     QtVersion *m_emptyVersion;

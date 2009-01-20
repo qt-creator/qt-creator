@@ -46,10 +46,9 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-ProjectFileFactory::ProjectFileFactory(const Core::ICore* core, IProjectManager *manager) :
-    m_mimeTypes(manager->mimeType()),
+ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)
+  : m_mimeTypes(manager->mimeType()),
     m_kind(Constants::FILE_FACTORY_KIND),
-    m_core(core),
     m_manager(manager)
 {
 }
@@ -70,7 +69,7 @@ Core::IFile *ProjectFileFactory::open(const QString &fileName)
 
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (!pe->openProject(fileName)) {
-        m_core->messageManager()->printToOutputPane(tr("Could not open the following project: '%1'").arg(fileName));
+        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not open the following project: '%1'").arg(fileName));
     } else if (pe->session()) {
         SessionManager *session = pe->session();
         if (session->projects().count() == 1)
@@ -81,21 +80,21 @@ Core::IFile *ProjectFileFactory::open(const QString &fileName)
     return fIFace;
 }
 
-QList<ProjectFileFactory*> ProjectFileFactory::createFactories(const Core::ICore* core,
-                                                               QString *filterString)
+QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterString)
 {
     // Register factories for all project managers
     QList<Internal::ProjectFileFactory*> rc;
-    QList<IProjectManager*> projectManagers = core->pluginManager()->getObjects<IProjectManager>();
+    QList<IProjectManager*> projectManagers =
+        ExtensionSystem::PluginManager::instance()->getObjects<IProjectManager>();
 
     const QString filterSeparator = QLatin1String(";;");
     filterString->clear();
     foreach (IProjectManager *manager, projectManagers) {
-        rc.push_back(new ProjectFileFactory(core, manager));
+        rc.push_back(new ProjectFileFactory(manager));
         if (!filterString->isEmpty())
             *filterString += filterSeparator;
         const QString mimeType = manager->mimeType();
-        const QString pFilterString = core->mimeDatabase()->findByType(mimeType).filterString();
+        const QString pFilterString = Core::ICore::instance()->mimeDatabase()->findByType(mimeType).filterString();
         *filterString += pFilterString;
     }
     return rc;

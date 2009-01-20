@@ -48,7 +48,6 @@ class SessionManager;
 }
 
 namespace Core {
-class ICore;
 class IEditor;
 }
 
@@ -131,7 +130,6 @@ private:
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;
 
     DirectoryFileBookmarksMap m_bookmarksMap;
-    Core::ICore *m_core;
 
     QIcon m_bookmarkIcon;
 

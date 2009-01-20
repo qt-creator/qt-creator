@@ -47,10 +47,10 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QTextEdit>
-#include <QtGui/QHeaderView>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtGui/QHeaderView>
+#include <QtGui/QTextEdit>
 
 using namespace ExtensionSystem;
 using namespace Core;
@@ -59,9 +59,10 @@ using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
 
-ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor, Core::ICore *core)
-    :BaseTextEditorEditable(editor)
+ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
+    : BaseTextEditorEditable(editor)
 {
+    Core::ICore *core = Core::ICore::instance();
     m_context << core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
     m_context << core->uniqueIDManager()->
@@ -72,15 +73,13 @@ ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor, Core::ICore 
 
 TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
 {
-    return new ProFileEditorEditable(this, m_core);
+    return new ProFileEditorEditable(this);
 }
 
 ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditor(parent), m_factory(factory), m_ah(ah)
 {
     Qt4Manager *manager = factory->qt4ProjectManager();
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-
     ProFileDocument *doc = new ProFileDocument(manager);
     doc->setMimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);

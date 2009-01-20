@@ -36,7 +36,6 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/icore.h>
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
@@ -55,7 +54,7 @@ class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
     Q_OBJECT
 
 public:
-    BaseFileFind(Core::ICore *core, Find::SearchResultWindow *resultWindow);
+    explicit BaseFileFind(Find::SearchResultWindow *resultWindow);
 
     bool isEnabled() const;
     void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
@@ -79,7 +78,6 @@ private slots:
 private:
     QWidget *createProgressWidget();
 
-    Core::ICore *m_core;
     Find::SearchResultWindow *m_resultWindow;
     QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
     bool m_isSearching;

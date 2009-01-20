@@ -34,7 +34,6 @@
 #ifndef INTERFACE_WRAP_HELPERS_H
 #define INTERFACE_WRAP_HELPERS_H
 
-#include <extensionsystem/ExtensionSystemInterfaces>
 #include <QtScript/QScriptEngine>
 
 namespace SharedTools {
