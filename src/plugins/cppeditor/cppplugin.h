@@ -34,16 +34,11 @@
 #ifndef CPPPLUGIN_H
 #define CPPPLUGIN_H
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QStringList>
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-
-namespace Core {
-class ICore;
-class IWizard;
-}
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -82,7 +77,6 @@ private:
 
     static CppPlugin *m_instance;
 
-    Core::ICore *m_core;
     CPPEditorActionHandler *m_actionHandler;
     CppPluginEditorFactory *m_factory;
 };
