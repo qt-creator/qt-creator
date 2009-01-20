@@ -40,7 +40,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QFileInfo>
@@ -75,7 +74,7 @@ QString ProFileEditorFactory::kind() const
 
 Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }

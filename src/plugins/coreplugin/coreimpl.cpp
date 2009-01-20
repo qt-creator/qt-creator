@@ -36,12 +36,21 @@
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 
+namespace Core {
+namespace Internal {
+
+// The Core Singleton
+static CoreImpl *m_instance = 0;
+
+} // namespace Internal
+} // namespace Core
+
+
 using namespace Core;
 using namespace Core::Internal;
 
-CoreImpl *CoreImpl::m_instance = 0;
 
-CoreImpl *CoreImpl::instance()
+ICore* ICore::instance()
 {
     return m_instance;
 }

@@ -38,16 +38,16 @@
 #include "splitter.h"
 #include "view.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/filemanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/filemanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/messageoutputwindow.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
-#include <coreplugin/messageoutputwindow.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -62,8 +62,6 @@
 using namespace CodePaster;
 using namespace Core;
 using namespace TextEditor;
-
-Core::ICore *gCoreInstance = NULL;
 
 CodepasterPlugin::CodepasterPlugin()
     : m_settingsPage(0), m_fetcher(0), m_poster(0)
@@ -84,11 +82,9 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     Q_UNUSED(arguments);
     Q_UNUSED(error_message);
 
-    gCoreInstance = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;
-    globalcontext << gCoreInstance->uniqueIDManager()->
+    globalcontext << ICore::instance()->uniqueIDManager()->
         uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
@@ -96,7 +92,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     addObject(m_settingsPage);
 
     //register actions
-    Core::ActionManager *actionManager = gCoreInstance->actionManager();
+    Core::ActionManager *actionManager = ICore::instance()->actionManager();
 
     Core::ActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
@@ -133,7 +129,7 @@ void CodepasterPlugin::post()
 {
     if (m_poster)
         delete m_poster;
-    IEditor* editor = gCoreInstance->editorManager()->currentEditor();
+    IEditor* editor = ICore::instance()->editorManager()->currentEditor();
     ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
         return;
@@ -244,7 +240,7 @@ void CustomFetcher::customRequestFinished(int, bool error)
     QByteArray data = body();
     if (!m_listWidget) {
         QString title = QString::fromLatin1("Code Paster: %1").arg(m_id);
-        gCoreInstance->editorManager()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR
+        ICore::instance()->editorManager()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR
                                                 , &title, data);
     } else {
         m_listWidget->clear();
@@ -284,7 +280,7 @@ void CustomPoster::customRequestFinished(int, bool error)
     if (!error) {
         if (m_copy)
             QApplication::clipboard()->setText(pastedUrl());
-        gCoreInstance->messageManager()->printToOutputPane(pastedUrl(), m_output);
+        ICore::instance()->messageManager()->printToOutputPane(pastedUrl(), m_output);
     } else
         QMessageBox::warning(0, "Code Paster Error", "Some error occured while posting", QMessageBox::Ok);
 #if 0 // Figure out how to access

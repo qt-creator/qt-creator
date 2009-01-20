@@ -35,7 +35,6 @@
 #include "gdbengine.h"
 #include "imports.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
@@ -49,9 +48,7 @@ TypeMacroPage::TypeMacroPage(GdbSettings *settings)
     m_pm = ExtensionSystem::PluginManager::instance();
     m_settings = settings;
 
-    Core::ICore *coreIFace = m_pm->getObject<Core::ICore>();
-    if (!coreIFace || !coreIFace->settings())
-        return;
+    Core::ICore *coreIFace = ICore::instance();
 
     QSettings *s = coreIFace->settings();
     s->beginGroup("GdbOptions");
@@ -164,14 +161,11 @@ void TypeMacroPage::finished(bool accepted)
         m_settings->m_typeMacros.insert(item->text(0), data);
     }
 
-    Core::ICore *coreIFace = m_pm->getObject<Core::ICore>();
-    if (coreIFace && coreIFace->settings()) {
-        QSettings *s = coreIFace->settings();
-        s->beginGroup("GdbOptions");
-        s->setValue("ScriptFile", m_settings->m_scriptFile);
-        s->setValue("TypeMacros", m_settings->m_typeMacros);
-        s->endGroup();
-    }
+    QSettings *s = ICore::instance()->settings();
+    s->beginGroup("GdbOptions");
+    s->setValue("ScriptFile", m_settings->m_scriptFile);
+    s->setValue("TypeMacros", m_settings->m_typeMacros);
+    s->endGroup();
 }
 
 void TypeMacroPage::onAddButton()

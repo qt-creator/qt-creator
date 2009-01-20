@@ -50,7 +50,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -90,13 +89,16 @@ FormEditorPlugin::~FormEditorPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool FormEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message/* = 0*/) // =0;
+bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error_message))
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
         return false;
 
-    if (!initializeTemplates(error_message))
+    if (!initializeTemplates(error))
         return false;
 
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
@@ -108,7 +110,7 @@ bool FormEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     // Make sure settings pages and action shortcuts are registered
     FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
 
-    error_message->clear();
+    error->clear();
     return true;
 }
 
@@ -122,10 +124,10 @@ void FormEditorPlugin::extensionsInitialized()
 //
 ////////////////////////////////////////////////////
 
-bool FormEditorPlugin::initializeTemplates(QString * /* error_message */)
+bool FormEditorPlugin::initializeTemplates(QString *error)
 {
-
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(error);
+    Core::ICore *core = Core::ICore::instance();
     FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));

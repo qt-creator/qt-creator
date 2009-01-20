@@ -79,8 +79,8 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
 
 static inline CppTools::CppModelManagerInterface *cppModelManagerInstance()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    return core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+    return ExtensionSystem::PluginManager::instance()
+        ->getObject<CppTools::CppModelManagerInterface>();
 }
 
 WorkbenchIntegration::WorkbenchIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :

@@ -105,7 +105,6 @@ public:
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
 
-    static Core::ICore *coreInstance();
     static SubversionPlugin *subversionPluginInstance();
 
 private slots:

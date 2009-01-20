@@ -33,25 +33,26 @@
 
 #include "qtestlibplugin.h"
 
-#include <QtCore/qplugin.h>
-#include <QIcon>
-#include <QDebug>
-#include <QKeySequence>
-#include <QAction>
-#include <QHeaderView>
-#include <QDomDocument>
-#include <QTemporaryFile>
-#include <texteditor/TextEditorInterfaces>
 #include <Qt4IProjectManagers>
-#include <QFileInfo>
-#include <QDir>
-#include <QStandardItemModel>
-#include <QTreeView>
-#include <QTextEdit>
-#include <QSplitter>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QLabel>
+#include <texteditor/TextEditorInterfaces>
+
+#include <QtCore/QAction>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QIcon>
+#include <QtCore/QKeySequence>
+#include <QtCore/QTemporaryFile>
+#include <QtCore/QtPlugin>
+#include <QtGui/QComboBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
+#include <QtGui/QSplitter>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QTextEdit>
+#include <QtGui/QTreeView>
+#include <QtGui/QVBoxLayout>
+#include <QtXml/QDomDocument>
 
 using namespace QTestLib::Internal;
 

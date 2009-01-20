@@ -88,10 +88,12 @@ Core::ICore *TextEditorPlugin::core()
     return m_instance->m_core;
 }
 
-//ExtensionSystem::PluginInterface
-bool TextEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+// ExtensionSystem::PluginInterface
+bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(arguments);
+
+    m_core = Core::ICore::instance();
 
     if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
@@ -170,9 +172,6 @@ void TextEditorPlugin::initializeEditor(TextEditor::PlainTextEditor *editor)
 
 void TextEditorPlugin::invokeCompletion()
 {
-    if (!m_core)
-        return;
-
     Core::IEditor *iface = m_core->editorManager()->currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)

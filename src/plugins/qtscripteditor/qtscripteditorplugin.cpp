@@ -78,7 +78,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
 {
     typedef SharedTools::QScriptHighlighter QScriptHighlighter;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qtscripteditor/QtScriptEditor.mimetypes.xml"), error_message))
         return false;
     m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(QtScriptEditor::Constants::C_QTSCRIPTEDITOR);

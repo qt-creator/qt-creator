@@ -251,7 +251,7 @@ void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 
 TaskWindow::TaskWindow()
 {
-    m_coreIFace = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
 
     m_model = new TaskModel;
     m_listview = new TaskView;
@@ -266,10 +266,10 @@ TaskWindow::TaskWindow()
     m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     m_taskWindowContext = new TaskWindowContext(m_listview);
-    m_coreIFace->addContextObject(m_taskWindowContext);
+    core->addContextObject(m_taskWindowContext);
 
     m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
-    m_coreIFace->actionManager()->
+    core->actionManager()->
             registerAction(m_copyAction, Core::Constants::COPY, m_taskWindowContext->context());
     m_listview->addAction(m_copyAction);
 
@@ -289,7 +289,7 @@ TaskWindow::TaskWindow()
 
 TaskWindow::~TaskWindow()
 {
-    m_coreIFace->removeContextObject(m_taskWindowContext);
+    Core::ICore::instance()->removeContextObject(m_taskWindowContext);
     delete m_listview;
     delete m_model;
 }
@@ -315,7 +315,6 @@ void TaskWindow::clearContents()
 
 void TaskWindow::visibilityChanged(bool /* b */)
 {
-
 }
 
 void TaskWindow::addItem(ProjectExplorer::BuildParserInterface::PatternType type,
@@ -579,7 +578,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 TaskWindowContext::TaskWindowContext(QWidget *widget)
     : m_taskList(widget)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     m_context << core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_PROBLEM_PANE);
 }
 

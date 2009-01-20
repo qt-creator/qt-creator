@@ -36,7 +36,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <coreplugin/icore.h>
 
 namespace Qt4ProjectManager {
 
@@ -79,7 +78,6 @@ private slots:
 #endif
 
 private:
-    Core::ICore *m_core;
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;

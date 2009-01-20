@@ -32,14 +32,15 @@
 ***************************************************************************/
 
 #include "regexpplugin.h"
-#include "settings.h"
+
 #include "regexpwindow.h"
+#include "settings.h"
 
 #include <coreplugin/baseview.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 
 using namespace RegExp::Internal;
 
@@ -49,25 +50,24 @@ RegExpPlugin::RegExpPlugin()
 
 RegExpPlugin::~RegExpPlugin()
 {
-    if (m_regexpWindow) {
-        m_regexpWindow->settings().toQSettings(m_core->settings());
-    }
+    if (m_regexpWindow)
+        m_regexpWindow->settings().toQSettings(Core::ICore::instance()->settings());
 }
 
 void RegExpPlugin::extensionsInitialized()
 {
 }
 
-
-bool RegExpPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool RegExpPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(error_message)
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage)
+    Core::ICore *core = Core::ICore::instance();
     m_regexpWindow = new RegExpWindow;
     Settings settings;
-    settings.fromQSettings(m_core->settings());
+    settings.fromQSettings(core->settings());
     m_regexpWindow->setSettings(settings);
-    const int plugId = m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String("RegExpPlugin"));
+    const int plugId = core->uniqueIDManager()->uniqueIdentifier(QLatin1String("RegExpPlugin"));
     addAutoReleasedObject(new Core::BaseView("TextEditor.RegExpWindow",
                                              m_regexpWindow,
                                              QList<int>() << plugId,

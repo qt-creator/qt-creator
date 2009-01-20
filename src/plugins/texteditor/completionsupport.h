@@ -38,8 +38,6 @@
 
 #include <QtCore/QObject>
 
-namespace Core { class ICore; }
-
 namespace TextEditor {
 
 struct CompletionItem;
@@ -58,9 +56,9 @@ class TEXTEDITOR_EXPORT CompletionSupport : public QObject
     Q_OBJECT
 
 public:
-    CompletionSupport(Core::ICore *core);
+    CompletionSupport();
 
-    static CompletionSupport *instance(Core::ICore *core);
+    static CompletionSupport *instance();
 public slots:
     void autoComplete(ITextEditable *editor, bool forced);
 

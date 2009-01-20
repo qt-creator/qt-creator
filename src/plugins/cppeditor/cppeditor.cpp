@@ -139,15 +139,14 @@ QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &contex
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
-    Core::ICore *core = CppPlugin::core();
+    Core::ICore *core = Core::ICore::instance();
     m_context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
     m_context << core->uniqueIDManager()->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-CPPEditor::CPPEditor(QWidget *parent) :
-    TextEditor::BaseTextEditor(parent),
-    m_core(CppPlugin::core())
+CPPEditor::CPPEditor(QWidget *parent)
+    : TextEditor::BaseTextEditor(parent)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -169,7 +168,8 @@ CPPEditor::CPPEditor(QWidget *parent) :
                   /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
 #endif
 
-    m_modelManager = m_core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+    m_modelManager = ExtensionSystem::PluginManager::instance()
+        ->getObject<CppTools::CppModelManagerInterface>();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

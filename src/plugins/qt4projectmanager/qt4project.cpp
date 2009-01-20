@@ -48,6 +48,7 @@
 #include "projectloadwizard.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>

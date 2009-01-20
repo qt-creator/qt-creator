@@ -433,10 +433,10 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     modified within Workbench.
 */
 
-CppModelManager::CppModelManager(QObject *parent) :
-    CppModelManagerInterface(parent),
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>())
+CppModelManager::CppModelManager(QObject *parent)
+    : CppModelManagerInterface(parent)
 {
+    m_core = Core::ICore::instance(); // FIXME
     m_dirty = true;
 
     m_projectExplorer = ExtensionSystem::PluginManager::instance()

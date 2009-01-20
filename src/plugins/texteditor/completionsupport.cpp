@@ -49,23 +49,23 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 
-CompletionSupport *CompletionSupport::instance(Core::ICore *core)
+CompletionSupport *CompletionSupport::instance()
 {
     static CompletionSupport *m_instance = 0;
-    if (!m_instance) {
-        m_instance = new CompletionSupport(core);
-    }
+    if (!m_instance)
+        m_instance = new CompletionSupport;
     return m_instance;
 }
 
-CompletionSupport::CompletionSupport(Core::ICore *core)
-    : QObject(core),
+CompletionSupport::CompletionSupport()
+    : QObject(Core::ICore::instance()),
       m_completionList(0),
       m_startPosition(0),
       m_checkCompletionTrigger(false),
       m_editor(0)
 {
-    m_completionCollector = core->pluginManager()->getObject<ICompletionCollector>();
+    m_completionCollector = ExtensionSystem::PluginManager::instance()
+        ->getObject<ICompletionCollector>();
 }
 
 void CompletionSupport::performCompletion(const CompletionItem &item)

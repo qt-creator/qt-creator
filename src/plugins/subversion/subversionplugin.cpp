@@ -249,8 +249,10 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
-bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(arguments);
+
     typedef VCSBase::VCSSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
     typedef VCSBase::VCSEditorFactory<SubversionEditor> SubversionEditorFactory;
     using namespace Constants;
@@ -259,7 +261,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     using namespace ExtensionSystem;
 
     m_subversionPluginInstance = this;
-    m_coreInstance = PluginManager::instance()->getObject<Core::ICore>();
+    m_coreInstance = Core::ICore::instance();
 
     if (!m_coreInstance->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
@@ -493,7 +495,7 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << files << diffname;
     const QString source = files.empty() ? QString() : files.front();
-    QTextCodec *codec =  source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditor::getCodec(m_coreInstance, source);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditor::getCodec(source);
 
     if (files.count() == 1 && diffname.isEmpty())
         diffname = QFileInfo(files.front()).fileName();
@@ -760,7 +762,7 @@ void SubversionPlugin::filelogCurrentFile()
 
 void SubversionPlugin::filelog(const QString &file)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
     // no need for temp file
     QStringList args(QLatin1String("log"));
     args.append(QDir::toNativeSeparators(file));
@@ -802,7 +804,7 @@ void SubversionPlugin::annotateCurrentFile()
 
 void SubversionPlugin::annotate(const QString &file)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
 
     QStringList args(QLatin1String("annotate"));
     args.push_back(QLatin1String("-v"));
@@ -861,7 +863,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     args.push_back(diffArg);
     args.push_back(topLevel);
 
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, source);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(source);
     const SubversionResponse response = runSvn(args, subversionShortTimeOut, false, codec);
     if (response.error)
         return;
@@ -1013,12 +1015,6 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
         if (QSettings *settings = m_coreInstance->settings())
             m_settings.toSettings(settings);
     }
-}
-
-Core::ICore *SubversionPlugin::coreInstance()
-{
-    QTC_ASSERT(m_coreInstance, return 0);
-    return m_coreInstance;
 }
 
 SubversionPlugin *SubversionPlugin::subversionPluginInstance()

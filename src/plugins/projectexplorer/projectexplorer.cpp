@@ -147,10 +147,12 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
     return m_instance;
 }
 
-bool ProjectExplorerPlugin::initialize(const QStringList & /*arguments*/, QString *)
+bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    m_core = pm->getObject<Core::ICore>();
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+
+    m_core = Core::ICore::instance();
     Core::ActionManager *am = m_core->actionManager();
 
     addObject(this);

@@ -46,10 +46,6 @@ class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace VCSBase {
 
 struct VCSBaseEditorPrivate;
@@ -121,7 +117,7 @@ public:
     // the editor manager and the project managers (defaults to system codec).
     // The codec should be set on editors displaying diff or annotation
     // output.
-    static QTextCodec *getCodec(const Core::ICore *core, const QString &source);
+    static QTextCodec *getCodec(const QString &source);
 
     // Utility to return the editor from the IEditor returned by the editor
     // manager which is a BaseTextEditable.
@@ -166,7 +162,7 @@ private:
 
     void jumpToChangeFromDiff(QTextCursor cursor);
 
-    VCSBaseEditorPrivate *m_d;
+    VCSBaseEditorPrivate *d;
 };
 
 } // namespace VCSBase

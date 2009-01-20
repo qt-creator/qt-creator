@@ -45,7 +45,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -159,7 +158,7 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
 
     m_handler = new FakeVimHandler;
 
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    m_core = Core::ICore::instance();
     QTC_ASSERT(m_core, return false);
 
     Core::ActionManager *actionManager = m_core->actionManager();

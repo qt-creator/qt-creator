@@ -46,7 +46,7 @@ namespace ProjectExplorer {
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppModelManagerInterface: public QObject
+class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 {
     Q_OBJECT
 

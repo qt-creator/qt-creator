@@ -82,8 +82,7 @@ QuickOpenPlugin::~QuickOpenPlugin()
 
 bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-
+    Core::ICore *core = Core::ICore::instance();
     m_settingsPage = new SettingsPage(core, this);
     addObject(m_settingsPage);
 
@@ -137,7 +136,7 @@ void QuickOpenPlugin::startSettingsLoad()
 
 void QuickOpenPlugin::loadSettings()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     QSettings settings;
     settings.beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings.value("RefreshInterval", 60).toInt()*60000);
@@ -170,16 +169,15 @@ void QuickOpenPlugin::settingsLoaded()
 
 void QuickOpenPlugin::saveSettings()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (core && core->settings()) {
         QSettings *s = core->settings();
         s->beginGroup("QuickOpen");
-        s->setValue("Interval", m_refreshTimer.interval()/60000);
+        s->setValue("Interval", m_refreshTimer.interval() / 60000);
         s->remove("");
         foreach (IQuickOpenFilter *filter, m_filters) {
-            if (!m_customFilters.contains(filter)) {
+            if (!m_customFilters.contains(filter))
                 s->setValue(filter->name(), filter->saveState());
-            }
         }
         s->beginGroup("CustomFilters");
         int i = 0;
@@ -245,7 +243,7 @@ void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
     if (filters.isEmpty())
         filters = m_filters;
     QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
-    Core::FutureProgress *progress = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
+    Core::FutureProgress *progress = Core::ICore::instance()
             ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }

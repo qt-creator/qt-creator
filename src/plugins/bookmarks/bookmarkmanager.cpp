@@ -58,6 +58,7 @@ Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 using namespace Bookmarks;
 using namespace Bookmarks::Internal;
 using namespace ProjectExplorer;
+using namespace Core;
 
 BookmarkDelegate::BookmarkDelegate(QObject *parent)
     : QStyledItemDelegate(parent), m_normalPixmap(0), m_selectedPixmap(0)
@@ -214,8 +215,7 @@ BookmarkView::BookmarkView(QWidget *parent)
             this, SLOT(gotoBookmark(const QModelIndex &)));
 
     m_bookmarkContext = new BookmarkContext(this);
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    core->addContextObject(m_bookmarkContext);
+    ICore::instance()->addContextObject(m_bookmarkContext);
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
@@ -225,8 +225,7 @@ BookmarkView::BookmarkView(QWidget *parent)
 
 BookmarkView::~BookmarkView()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    core->removeContextObject(m_bookmarkContext);
+    ICore::instance()->removeContextObject(m_bookmarkContext);
 }
 
 void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
@@ -246,13 +245,11 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     connect(removeAll, SIGNAL(triggered()),
             this, SLOT(removeAll()));
 
-
     menu.exec(mapToGlobal(event->pos()));
 }
 
 void BookmarkView::removeFromContextMenu()
 {
-
     removeBookmark(m_contextMenuIndex);
 }
 
@@ -296,7 +293,7 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 BookmarkContext::BookmarkContext(BookmarkView *widget)
     : m_bookmarkView(widget)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = ICore::instance();
     m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
 }
 
@@ -315,15 +312,14 @@ QWidget *BookmarkContext::widget()
 ////
 
 BookmarkManager::BookmarkManager() :
-    m_core(BookmarksPlugin::core()),
     m_bookmarkIcon(QIcon(QLatin1String(":/bookmarks/images/bookmark.png")))
 {
     m_selectionModel = new QItemSelectionModel(this, this);
 
-    connect(m_core, SIGNAL(contextChanged(Core::IContext*)),
+    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
             this, SLOT(updateActionStatus()));
 
-    ExtensionSystem::PluginManager *pm = m_core->pluginManager();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorerPlugin *projectExplorer = pm->getObject<ProjectExplorerPlugin>();
 
     connect(projectExplorer->session(), SIGNAL(sessionLoaded()),
@@ -513,7 +509,8 @@ void BookmarkManager::documentPrevNext(bool next)
             nextLine = markLine;
     }
 
-    m_core->editorManager()->addCurrentPositionToNavigationHistory(true);
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    em->addCurrentPositionToNavigationHistory(true);
     if (next) {
         if (nextLine == -1)
             editor->gotoLine(firstLine);
@@ -525,7 +522,7 @@ void BookmarkManager::documentPrevNext(bool next)
         else
             editor->gotoLine(prevLine);
     }
-    m_core->editorManager()->addCurrentPositionToNavigationHistory();
+    em->addCurrentPositionToNavigationHistory();
 }
 
 void BookmarkManager::next()
@@ -557,7 +554,8 @@ void BookmarkManager::prev()
 
 TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 {
-    Core::IEditor *currEditor = m_core->editorManager()->currentEditor();
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::IEditor *currEditor = em->currentEditor();
     if (!currEditor)
         return 0;
     return qobject_cast<TextEditor::ITextEditor *>(currEditor);
@@ -566,7 +564,7 @@ TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 /* Returns the current session. */
 SessionManager *BookmarkManager::sessionManager() const
 {
-    ExtensionSystem::PluginManager *pm = m_core->pluginManager();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorerPlugin *pe = pm->getObject<ProjectExplorerPlugin>();
     return pe->session();
 }

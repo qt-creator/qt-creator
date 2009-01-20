@@ -59,12 +59,12 @@ enum { wantToolBar = 0 };
 
 namespace VCSBase {
 
-struct VCSBaseSubmitEditorPrivate {
+struct VCSBaseSubmitEditorPrivate
+{
     VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
                                Core::Utils::SubmitEditorWidget *editorWidget,
                                QObject *q);
 
-    Core::ICore *m_core;
     Core::Utils::SubmitEditorWidget *m_widget;
     QToolBar *m_toolWidget;
     const VCSBaseSubmitEditorParameters *m_parameters;
@@ -79,13 +79,12 @@ struct VCSBaseSubmitEditorPrivate {
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
                                                        Core::Utils::SubmitEditorWidget *editorWidget,
                                                        QObject *q) :
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()),
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q))
 {
-    m_contexts << m_core->uniqueIDManager()->uniqueIdentifier(m_parameters->context);
+    m_contexts << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(m_parameters->context);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,

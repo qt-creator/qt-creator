@@ -36,11 +36,9 @@
 
 #include <extensionsystem/iplugin.h>
 
-QT_FORWARD_DECLARE_CLASS(QAction);
-
-namespace Core {
-    class ICore;
-}
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace ResourceEditor {
 namespace Internal {
@@ -57,8 +55,8 @@ public:
     ResourceEditorPlugin();
     virtual ~ResourceEditorPlugin();
 
-    //Plugin
-    bool initialize(const QStringList &arguments, QString *error_message = 0);
+    // IPlugin
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
 private slots:
@@ -74,7 +72,6 @@ private:
 private:
     ResourceWizard *m_wizard;
     ResourceEditorFactory *m_editor;
-    Core::ICore *m_core;
     QAction *m_redoAction;
     QAction *m_undoAction;
 };

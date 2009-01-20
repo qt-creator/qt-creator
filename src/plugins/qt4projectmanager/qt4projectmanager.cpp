@@ -42,6 +42,7 @@
 #include "qmakestep.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>

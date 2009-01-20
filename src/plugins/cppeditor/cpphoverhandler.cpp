@@ -67,15 +67,16 @@
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
+using namespace Core;
 
 CppHoverHandler::CppHoverHandler(QObject *parent)
     : QObject(parent)
-    , m_core(CppPlugin::core())
     , m_helpEngineNeedsSetup(false)
 {
-    m_modelManager = m_core->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
-    QFileInfo fi(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings()->fileName());
+    ICore *core = ICore::instance();
+    QFileInfo fi(core->settings()->fileName());
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
     QDir directory(fi.absolutePath()+"/qtcreator");
     if (!directory.exists())
@@ -90,7 +91,7 @@ CppHoverHandler::CppHoverHandler(QObject *parent)
     m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
 
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(m_core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+    connect(core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 
@@ -99,7 +100,7 @@ void CppHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int p
     updateHelpIdAndTooltip(editor, pos);
 }
 
-void CppHoverHandler::editorOpened(Core::IEditor *editor)
+void CppHoverHandler::editorOpened(IEditor *editor)
 {
     CPPEditorEditable *cppEditor = qobject_cast<CPPEditorEditable *>(editor);
     if (!cppEditor)
@@ -117,9 +118,10 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     if (!editor)
         return;
 
-    const int dbgcontext = m_core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
+    ICore *core = ICore::instance();
+    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
 
-    if (m_core->hasContext(dbgcontext))
+    if (core->hasContext(dbgcontext))
         return;
 
     updateHelpIdAndTooltip(editor, pos);

@@ -123,9 +123,11 @@ HelpPlugin::~HelpPlugin()
 {
 }
 
-bool HelpPlugin::initialize(const QStringList & /*arguments*/, QString *)
+bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+    m_core = Core::ICore::instance();
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
     QList<int> modecontext;

@@ -39,10 +39,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
-namespace Core {
-class ICore;
-}
-
 namespace RegExp {
 namespace Internal {
 
@@ -56,11 +52,10 @@ public:
     RegExpPlugin();
     virtual ~RegExpPlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private:
-    Core::ICore *m_core;
     QPointer<RegExpWindow> m_regexpWindow;
 };
 

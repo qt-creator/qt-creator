@@ -34,13 +34,12 @@
 #include "vcsbaseplugin.h"
 #include "diffhighlighter.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 
 namespace VCSBase {
 namespace Internal {
@@ -57,10 +56,12 @@ VCSBasePlugin::~VCSBasePlugin()
     m_instance = 0;
 }
 
-bool VCSBasePlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
 
+    Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))
         return false;
 

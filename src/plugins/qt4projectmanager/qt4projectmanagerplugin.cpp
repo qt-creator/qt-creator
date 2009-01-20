@@ -97,31 +97,31 @@ static Core::Command *createSeparator(Core::ActionManager *am,
 */
 bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
-    m_projectExplorer = m_core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = core->actionManager();
 
     //create and register objects
-    m_qt4ProjectManager = new Qt4Manager(this, m_core);
+    m_qt4ProjectManager = new Qt4Manager(this, core);
     addObject(m_qt4ProjectManager);
 
     TextEditor::TextEditorActionHandler *editorHandler
-            = new TextEditor::TextEditorActionHandler(m_core, Constants::C_PROFILEEDITOR);
+            = new TextEditor::TextEditorActionHandler(core, Constants::C_PROFILEEDITOR);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
 
-    GuiAppWizard *guiWizard = new GuiAppWizard(m_core);
+    GuiAppWizard *guiWizard = new GuiAppWizard(core);
     addAutoReleasedObject(guiWizard);
 
-    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard(m_core);
+    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard(core);
     addAutoReleasedObject(consoleWizard);
 
-    LibraryWizard *libWizard = new LibraryWizard(m_core);
+    LibraryWizard *libWizard = new LibraryWizard(core);
     addAutoReleasedObject(libWizard);
 
     addAutoReleasedObject(new QMakeBuildStepFactory);
@@ -148,7 +148,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
         am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     //register actions
-    m_projectContext = m_core->uniqueIDManager()->
+    m_projectContext = core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
     QList<int> context = QList<int>() << m_projectContext;
     Core::Command *command;

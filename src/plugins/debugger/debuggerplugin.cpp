@@ -55,11 +55,11 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <cppeditor/cppeditorconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -346,7 +346,7 @@ DebuggerPlugin::~DebuggerPlugin()
 
 static QSettings *settings()
 {
-    return ExtensionSystem::PluginManager::instance()->getObject<ICore>()->settings();
+    return ICore::instance()->settings();
 }
 
 void DebuggerPlugin::shutdown()
@@ -387,7 +387,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     m_pm = ExtensionSystem::PluginManager::instance();
 
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
 
     Core::ActionManager *am = core->actionManager();
@@ -713,8 +713,7 @@ ProjectExplorer::ProjectExplorerPlugin *DebuggerPlugin::projectExplorer() const
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPlugin::activatePreviousMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    Core::ModeManager *const modeManager = core->modeManager();
+    Core::ModeManager *const modeManager = ICore::instance()->modeManager();
 
     if (modeManager->currentMode() == modeManager->mode(Constants::MODE_DEBUG)
             && !m_previousMode.isEmpty()) {
@@ -725,7 +724,7 @@ void DebuggerPlugin::activatePreviousMode()
 
 void DebuggerPlugin::activateDebugMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     Core::ModeManager *modeManager = core->modeManager();
     m_previousMode = QLatin1String(modeManager->currentMode()->uniqueModeName());
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
@@ -733,7 +732,7 @@ void DebuggerPlugin::activateDebugMode()
 
 void DebuggerPlugin::queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **object)
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     if (!core || !core->editorManager())
         return;
     Core::IEditor *editor = core->editorManager()->currentEditor();
@@ -872,7 +871,7 @@ void DebuggerPlugin::gotoLocation(const QString &fileName, int lineNumber,
 void DebuggerPlugin::changeStatus(int status)
 {
     bool startIsContinue = (status == DebuggerInferiorStopped);
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     if (startIsContinue) {
         core->addAdditionalContext(m_gdbRunningContext);
         core->updateContext();
@@ -916,8 +915,7 @@ void DebuggerPlugin::readSettings()
 #if defined(Q_OS_WIN32)
     defaultCommand.append(".exe");
 #endif
-    Core::ICore *coreIFace = m_pm->getObject<Core::ICore>();
-    QString defaultScript = coreIFace->resourcePath() +
+    QString defaultScript = ICore::instance()->resourcePath() +
         QLatin1String("/gdb/qt4macros");
 
     s->beginGroup(QLatin1String("DebugMode"));

@@ -41,12 +41,6 @@
 
 namespace TextEditor {
 class FontSettings;
-class BaseEditorActionHandler;
-}
-
-namespace Core {
-class ICore;
-class IFile;
 }
 
 namespace Qt4ProjectManager {
@@ -66,7 +60,7 @@ class ProFileEditor;
 class ProFileEditorEditable : public TextEditor::BaseTextEditorEditable
 {
 public:
-    ProFileEditorEditable(ProFileEditor *, Core::ICore *core);
+    ProFileEditorEditable(ProFileEditor *);
     QList<int> context() const;
 
     bool duplicateSupported() const { return true; }
@@ -98,7 +92,6 @@ public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private:
-    Core::ICore *m_core;
     ProFileEditorFactory *m_factory;
     TextEditor::TextEditorActionHandler *m_ah;
 };

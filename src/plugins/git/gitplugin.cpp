@@ -232,7 +232,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     Q_UNUSED(arguments);
     Q_UNUSED(error_message);
 
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this, m_core);
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;

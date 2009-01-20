@@ -37,7 +37,6 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -176,7 +175,7 @@ bool FormClassWizardPage::validatePage()
 
 void FormClassWizardPage::saveSettings()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (QSettings *settings = core->settings()) {
         settings->beginGroup(QLatin1String(formClassWizardPageGroupC));
         settings->setValue(QLatin1String(translationKeyC), hasRetranslationSupport());
@@ -190,7 +189,7 @@ void FormClassWizardPage::restoreSettings()
     bool retranslationSupport = true;
     int embedding =  PointerAggregatedUiClass;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (QSettings *settings = core->settings()) {
 
         QString key = QLatin1String(formClassWizardPageGroupC);

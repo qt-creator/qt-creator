@@ -74,6 +74,8 @@ public:
     ICore() {}
     virtual ~ICore() {}
 
+    static ICore *instance();
+
     virtual QStringList showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation = QString()) = 0;
