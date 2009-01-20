@@ -5,26 +5,12 @@ count(TOO_OLD_LIST, 1) {
     error("Use at least Qt 4.5.")
 }
 
-
-linux-* {
-	isEmpty( LOCATION )  {
-		LOCATION = /usr/share
-	}
-	documentation.files     += doc/qtcreator.qch
-	documentation.path       = $$LOCATION/share/qtcreator/doc/qtcreator
-
-	share.files         += share/qtcreator/*
-	share.parth			 = $$LOCATION/share/qtcreator
-
-
-	INSTALLS += \
-		documentation \
-		share		
-}
+include(doc/doc.pri)
+include(share/share.pri)
 
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src
 
-include(doc/doc.pri)
+message($$INSTALLS)

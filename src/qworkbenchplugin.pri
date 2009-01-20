@@ -7,7 +7,7 @@ isEmpty(PROVIDER) {
     PROVIDER = Nokia
 }
 
-DESTDIR = $$IDE_LIBRARY_PATH/$$PROVIDER/
+DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER/
 LIBS += -L$$DESTDIR
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins
 DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins
@@ -49,9 +49,11 @@ macx {
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
-
+CONFIG += plugin
 
 linux-* {
-	target.path = $$LOCATION/lib/qtcreator/plugins
-	INSTALLS += target
+    target.path = /lib/qtcreator/plugins
+    pluginspec.files += $${TARGET}.pluginspec
+    pluginspec.path = /lib/qtcreator/plugins
+    INSTALLS += target pluginspec
 }

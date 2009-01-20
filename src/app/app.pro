@@ -16,10 +16,6 @@ linux-* {
     ISGCC33=$$(GCC33)
     !equals(ISGCC33, 1):QT += svg dbus
 
-	isEmpty( LOCATION )  {
-		error("app.pro: including file must define LOCATION (didn't you run qmake from the root dir?)")
-	}
-
 	binaries.files          += bin/qtcreator
 	binaries.path            = $$LOCATION/bin
 
