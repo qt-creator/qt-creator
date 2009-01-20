@@ -196,6 +196,16 @@ EditorManagerPrivate::~EditorManagerPrivate()
 
 EditorManager *EditorManager::m_instance = 0;
 
+static Command *createSeparator(ActionManager *am, QObject *parent,
+                                const QString &name,
+                                const QList<int> &context)
+{
+    QAction *tmpaction = new QAction(parent);
+    tmpaction->setSeparator(true);
+    Command *cmd = am->registerAction(tmpaction, name, context);
+    return cmd;
+}
+
 EditorManager::EditorManager(ICore *core, QWidget *parent) :
     QWidget(parent),
     m_d(new EditorManagerPrivate(core, parent))
@@ -319,12 +329,24 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
-    medit->addMenu(advancedMenu, Constants::G_EDIT_FORMAT);
+    medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
     advancedMenu->menu()->setTitle(tr("&Advanced"));
+    advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
+    advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
+    advancedMenu->appendGroup(Constants::G_EDIT_FONT);
+    advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
+
+    // Advanced menu separators
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_COLLAPSING);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Font"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_FONT);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Editor"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
 
     cmd = am->registerAction(m_d->m_openInExternalEditorAction, Constants::OPEN_IN_EXTERNAL_EDITOR, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
-    advancedMenu->addAction(cmd);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
 
 

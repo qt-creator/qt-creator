@@ -402,7 +402,7 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_UNDOREDO);
     medit->appendGroup(Constants::G_EDIT_COPYPASTE);
     medit->appendGroup(Constants::G_EDIT_SELECTALL);
-    medit->appendGroup(Constants::G_EDIT_FORMAT);
+    medit->appendGroup(Constants::G_EDIT_ADVANCED);
     medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
@@ -432,9 +432,9 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
-static Command *createSeparator(ActionManagerPrivate *am, QObject *parent,
-                                 const QString &name,
-                                 const QList<int> &context)
+static Command *createSeparator(ActionManager *am, QObject *parent,
+                                const QString &name,
+                                const QList<int> &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
@@ -465,7 +465,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
 
     // Edit menu separators
-    cmd =  createSeparator(am, this,  QLatin1String("QtCreator.Edit.Sep.CopyPaste"), m_globalContext);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.CopyPaste"), m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.SelectAll"), m_globalContext);
@@ -474,8 +474,8 @@ void MainWindow::registerDefaultActions()
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Find"), m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_FIND);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Format"), m_globalContext);
-    medit->addAction(cmd, Constants::G_EDIT_FORMAT);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Advanced"), m_globalContext);
+    medit->addAction(cmd, Constants::G_EDIT_ADVANCED);
 
     //Tools menu separators
     cmd = createSeparator(am, this, QLatin1String("QtCreator.Tools.Sep.Options"), m_globalContext);

@@ -125,35 +125,34 @@ void TextEditorActionHandler::createActions()
     m_formatAction = new QAction(tr("Auto-&indent Selection"), this);
     command = am->registerAction(m_formatAction, TextEditor::Constants::AUTO_INDENT_SELECTION, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+I")));
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
 
 
     m_visualizeWhitespaceAction = new QAction(tr("&Visualize Whitespace"), this);
     m_visualizeWhitespaceAction->setCheckable(true);
     command = am->registerAction(m_visualizeWhitespaceAction,
-                                                 TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
+                                 TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+V")));
 #endif
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
 
     m_cleanWhitespaceAction = new QAction(tr("Clean Whitespace"), this);
     command = am->registerAction(m_cleanWhitespaceAction,
                                  TextEditor::Constants::CLEAN_WHITESPACE, m_contextId);
 
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_cleanWhitespaceAction, SIGNAL(triggered()), this, SLOT(cleanWhitespace()));
 
     m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
     m_textWrappingAction->setCheckable(true);
-    command = am->registerAction(m_textWrappingAction,
-                                                 TextEditor::Constants::TEXT_WRAPPING, m_contextId);
+    command = am->registerAction(m_textWrappingAction, TextEditor::Constants::TEXT_WRAPPING, m_contextId);
 #ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+W")));
 #endif
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_textWrappingAction, SIGNAL(triggered(bool)), this, SLOT(setTextWrapping(bool)));
 
 
@@ -161,7 +160,7 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
     connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId);
@@ -172,28 +171,30 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_collapseAction, Constants::COLLAPSE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+<")));
     connect(m_collapseAction, SIGNAL(triggered()), this, SLOT(collapse()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_expandAction = new QAction(tr("Expand"), this);
     command = am->registerAction(m_expandAction, Constants::EXPAND, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+>")));
     connect(m_expandAction, SIGNAL(triggered()), this, SLOT(expand()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_unCollapseAllAction = new QAction(tr("(Un)&Collapse All"), this);
     command = am->registerAction(m_unCollapseAllAction, Constants::UN_COLLAPSE_ALL, m_contextId);
     connect(m_unCollapseAllAction, SIGNAL(triggered()), this, SLOT(unCollapseAll()));
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_increaseFontSizeAction = new QAction(tr("Increase Font Size"), this);
     command = am->registerAction(m_increaseFontSizeAction, Constants::INCREASE_FONT_SIZE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
     connect(m_increaseFontSizeAction, SIGNAL(triggered()), this, SLOT(increaseFontSize()));
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
     
     m_decreaseFontSizeAction = new QAction(tr("Decrease Font Size"), this);
     command = am->registerAction(m_decreaseFontSizeAction, Constants::DECREASE_FONT_SIZE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
     connect(m_decreaseFontSizeAction, SIGNAL(triggered()), this, SLOT(decreaseFontSize()));
-    advancedMenu->addAction(command);
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 
     m_gotoBlockStartAction = new QAction(tr("Goto Block Start"), this);
     command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId);

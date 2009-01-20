@@ -178,7 +178,7 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
 
     ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
-    advancedMenu->addAction(cmd);
+    advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     connect(m_installHandlerAction, SIGNAL(triggered()),
         this, SLOT(installHandler()));
