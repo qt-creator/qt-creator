@@ -178,7 +178,7 @@ VCSBase::VCSBaseEditor
         QTC_ASSERT(rc, return 0);
         rc->setSource(source);
         if (setSourceCodec)
-            rc->setCodec(VCSBase::VCSBaseEditor::getCodec(m_core, source));
+            rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
     }
     return rc;
 }
