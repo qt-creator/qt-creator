@@ -334,10 +334,10 @@ void CPPEditor::jumpToMethod(int)
     if (! symbol)
         return;
 
-    m_core->editorManager()->addCurrentPositionToNavigationHistory(true);
+    Core::ICore::instance()->editorManager()->addCurrentPositionToNavigationHistory(true);
     int line = symbol->line();
     gotoLine(line);
-    m_core->editorManager()->addCurrentPositionToNavigationHistory();
+    Core::ICore::instance()->editorManager()->addCurrentPositionToNavigationHistory();
     setFocus();
 }
 
@@ -655,7 +655,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
         menu->removeAction(lastAction);
 
     Core::ActionContainer *mcontext =
-        m_core->actionManager()->actionContainer(CppEditor::Constants::M_CONTEXT);
+        Core::ICore::instance()->actionManager()->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
     foreach (QAction *action, contextMenu->actions())
