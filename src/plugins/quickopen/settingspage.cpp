@@ -173,7 +173,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 
 void SettingsPage::addCustomFilter()
 {
-    IQuickOpenFilter *filter = new DirectoryFilter(m_core);
+    IQuickOpenFilter *filter = new DirectoryFilter;
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_page, needsRefresh)) {
         m_filters.append(filter);

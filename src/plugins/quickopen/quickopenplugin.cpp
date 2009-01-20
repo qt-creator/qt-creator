@@ -136,7 +136,6 @@ void QuickOpenPlugin::startSettingsLoad()
 
 void QuickOpenPlugin::loadSettings()
 {
-    Core::ICore *core = Core::ICore::instance();
     QSettings settings;
     settings.beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings.value("RefreshInterval", 60).toInt()*60000);
@@ -150,7 +149,7 @@ void QuickOpenPlugin::loadSettings()
     settings.beginGroup("CustomFilters");
     QList<IQuickOpenFilter *> customFilters;
     foreach (const QString &key, settings.childKeys()) {
-        IQuickOpenFilter *filter = new DirectoryFilter(core);
+        IQuickOpenFilter *filter = new DirectoryFilter;
         filter->restoreState(settings.value(key).toByteArray());
         m_filters.append(filter);
         customFilters.append(filter);

@@ -50,7 +50,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICore;
 class IEditor;
 class IFileWizardExtension;
 
@@ -69,7 +68,7 @@ public:
     GeneratedFile();
     explicit GeneratedFile(const QString &path);
     GeneratedFile(const GeneratedFile &);
-    GeneratedFile &operator=(const GeneratedFile&);
+    GeneratedFile &operator=(const GeneratedFile &);
     ~GeneratedFile();
 
     // Full path of the file should be created, or the suggested file name
@@ -107,19 +106,19 @@ public:
     void setKind(IWizard::Kind k);
 
     QIcon icon() const;
-    void setIcon(const QIcon&);
+    void setIcon(const QIcon &icon);
 
     QString description() const;
-    void setDescription(const QString &);
+    void setDescription(const QString &description);
 
     QString name() const;
-    void setName(const QString &);
+    void setName(const QString &name);
 
     QString category() const;
-    void setCategory(const QString &);
+    void setCategory(const QString &category);
 
     QString trCategory() const;
-    void setTrCategory(const QString &);
+    void setTrCategory(const QString &trCategory);
 
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
@@ -172,7 +171,7 @@ public:
 protected:
     typedef QList<QWizardPage *> WizardPageList;
 
-    explicit BaseFileWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent = 0);
+    explicit BaseFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
 
     // Overwrite to create the wizard dialog on the parent, adding
     // the extension pages.
@@ -197,8 +196,6 @@ protected:
     OverwriteResult promptOverwrite(const QString &location,
                                     const QStringList &files,
                                     QString *errorMessage) const;
-    Core::ICore *core() const;
-
 private:
     BaseFileWizardPrivate *m_d;
 };
@@ -213,7 +210,7 @@ class CORE_EXPORT StandardFileWizard : public BaseFileWizard
     Q_OBJECT
 
 protected:
-    explicit StandardFileWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent = 0);
+    explicit StandardFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
 
     // Implemented to create a Core::Utils::FileWizardDialog
     virtual QWizard *createWizardDialog(QWidget *parent,

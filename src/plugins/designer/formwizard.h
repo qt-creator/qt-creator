@@ -36,14 +36,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
-QT_BEGIN_NAMESPACE
-class QWizard;
-QT_END_NAMESPACE
-
 namespace Designer {
 namespace Internal {
-
-class FormFileWizardDialog;
 
 class FormWizard : public Core::BaseFileWizard
 {
@@ -53,7 +47,7 @@ class FormWizard : public Core::BaseFileWizard
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
 
-    explicit FormWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent);
+    FormWizard(const BaseFileWizardParameters &parameters, QObject *parent);
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

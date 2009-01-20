@@ -36,22 +36,13 @@
 
 #include <extensionsystem/iplugin.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-class IEditor;
-}
-
 namespace TextEditor {
 
 class FontSettings;
 class FontSettingsPage;
+class PlainTextEditor;
 class TextEditorSettings;
 class TextFileWizard;
-class PlainTextEditor;
 
 namespace Internal {
 
@@ -67,10 +58,9 @@ public:
     virtual ~TextEditorPlugin();
 
     static TextEditorPlugin *instance();
-    static Core::ICore *core();
 
     // ExtensionSystem::PluginInterface
-    bool initialize(const QStringList &arguments, QString *);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
     void initializeEditor(PlainTextEditor *editor);
@@ -82,7 +72,6 @@ private slots:
 
 private:
     static TextEditorPlugin *m_instance;
-    Core::ICore *m_core;
     TextEditorSettings *m_settings;
     TextFileWizard *m_wizard;
     PlainTextEditorFactory *m_editorFactory;

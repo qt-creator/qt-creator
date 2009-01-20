@@ -50,12 +50,10 @@ namespace Designer {
 namespace Internal {
 
 // ----------------- FormWizardDialog
-FormWizardDialog::FormWizardDialog(Core::ICore *core,
-                                   const WizardPageList &extensionPages,
-                                   QWidget *parent) :
-    QWizard(parent),
-    m_formPage(new FormTemplateWizardPagePage),
-    m_core(core)
+FormWizardDialog::FormWizardDialog(const WizardPageList &extensionPages,
+                                   QWidget *parent)
+  : QWizard(parent),
+    m_formPage(new FormTemplateWizardPagePage)
 {
     init(extensionPages);
 }
@@ -82,10 +80,9 @@ QString FormWizardDialog::templateContents() const
 }
 
 // ----------------- FormFileWizardDialog
-FormFileWizardDialog::FormFileWizardDialog(Core::ICore *core,
-                                           const WizardPageList &extensionPages,
-                                           QWidget *parent) :
-    FormWizardDialog(core, extensionPages, parent),
+FormFileWizardDialog::FormFileWizardDialog(const WizardPageList &extensionPages,
+                                           QWidget *parent)
+  : FormWizardDialog(extensionPages, parent),
     m_filePage(new Core::Utils::FileWizardPage)
 {
     setPage(FilePageId, m_filePage);

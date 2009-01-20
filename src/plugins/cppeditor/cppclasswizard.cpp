@@ -42,9 +42,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWizard>
 
@@ -124,8 +121,8 @@ CppClassWizardParameters  CppClassWizardDialog::parameters() const
 // ========= CppClassWizard =========
 
 CppClassWizard::CppClassWizard(const Core::BaseFileWizardParameters &parameters,
-                               Core::ICore *core, QObject *parent) :
-    Core::BaseFileWizard(parameters, core, parent)
+                               QObject *parent)
+  : Core::BaseFileWizard(parameters, parent)
 {
 }
 

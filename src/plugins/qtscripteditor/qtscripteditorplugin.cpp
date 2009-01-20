@@ -87,7 +87,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
 
     registerActions(core);
 
-    m_editor = new QtScriptEditorFactory(core, m_context, this);
+    m_editor = new QtScriptEditorFactory(m_context, this);
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -98,7 +98,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     m_wizard = new TextEditor::TextFileWizard(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE),
                                               QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
                                               QLatin1String("qtscript$"),
-                                              wizardParameters, core, this);
+                                              wizardParameters, this);
     addObject(m_wizard);
 
     error_message->clear();

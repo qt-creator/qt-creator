@@ -74,7 +74,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_editor = new ResourceEditorFactory(core, this);
+    m_editor = new ResourceEditorFactory(this);
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -83,7 +83,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
 
-    m_wizard = new ResourceWizard(wizardParameters, core, this);
+    m_wizard = new ResourceWizard(wizardParameters, this);
     addObject(m_wizard);
 
     errorMessage->clear();

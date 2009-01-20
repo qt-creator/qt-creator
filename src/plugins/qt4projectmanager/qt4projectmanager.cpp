@@ -54,13 +54,13 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/listutils.h>
 
-#include <QtCore/QVariant>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QLinkedList>
-#include <QtGui/QMenu>
+#include <QtCore/QVariant>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 
 using namespace Qt4ProjectManager;
@@ -82,15 +82,14 @@ static const char* qt4FileTypes[] = {
     "Qt4ResourceFiles"
 };
 
-Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin, Core::ICore *core) :
-    m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
+Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
+  : m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
     m_plugin(plugin),
-    m_core(core),
     m_projectExplorer(0),
     m_contextProject(0),
     m_languageID(0)
 {
-    m_languageID = m_core->uniqueIDManager()->
+    m_languageID = Core::ICore::instance()->uniqueIDManager()->
         uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
@@ -116,7 +115,8 @@ void Qt4Manager::notifyChanged(const QString &name)
 
 void Qt4Manager::init()
 {
-    m_projectExplorer = m_core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ExtensionSystem::PluginManager::instance()
+        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
 int Qt4Manager::projectContext() const
@@ -143,7 +143,8 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
 
     QString errorMessage;
 
-    m_core->messageManager()->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
+    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+    messageManager->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
 
     // TODO Make all file paths relative & remove this hack
     // We convert the path to an absolute one here because qt4project.cpp
@@ -152,41 +153,31 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
     if (canonicalFilePath.isEmpty()) {
-        m_core->messageManager()->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(canonicalFilePath));
-        m_core->messageManager()->displayStatusBarMessage(tr("Failed opening project"), 5000);
+        messageManager->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(canonicalFilePath));
+        messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
         return 0;
     }
 
     foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
         if (canonicalFilePath == pi->file()->fileName()) {
-            m_core->messageManager()->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(canonicalFilePath));
-            m_core->messageManager()->displayStatusBarMessage(tr("Failed opening project"), 5000);
+            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(canonicalFilePath));
+            messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
             return 0;
         }
     }
 
-    m_core->messageManager()->displayStatusBarMessage(tr("Opening %1 ...").arg(fileName));
+    messageManager->displayStatusBarMessage(tr("Opening %1 ...").arg(fileName));
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
 
-    m_core->messageManager()->displayStatusBarMessage(tr("Done opening project"), 5000);
+    messageManager->displayStatusBarMessage(tr("Done opening project"), 5000);
     return pro;
 }
 
 ProjectExplorer::ProjectExplorerPlugin *Qt4Manager::projectExplorer() const
 {
     return m_projectExplorer;
-}
-
-Core::ICore *Qt4Manager::core() const
-{
-    return m_core;
-}
-
-ExtensionSystem::PluginManager *Qt4Manager::pluginManager() const
-{
-    return m_core->pluginManager();
 }
 
 ProjectExplorer::Node *Qt4Manager::contextNode() const

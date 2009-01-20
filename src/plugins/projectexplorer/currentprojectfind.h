@@ -34,7 +34,6 @@
 #ifndef CURRENTPROJECTFIND_H
 #define CURRENTPROJECTFIND_H
 
-#include <coreplugin/icore.h>
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 #include <texteditor/basefilefind.h>
@@ -51,7 +50,7 @@ namespace Internal {
 class CurrentProjectFind : public TextEditor::BaseFileFind
 {
 public:
-    CurrentProjectFind(ProjectExplorerPlugin *plugin, Core::ICore *core, Find::SearchResultWindow *resultWindow);
+    CurrentProjectFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 
     QString name() const;
 

@@ -211,7 +211,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new PerforceEditorFactory(editorParameters + i, core, this, describeSlot));
+        m_editorFactories.push_back(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
         addObject(m_editorFactories.back());
     }
 
@@ -596,7 +596,8 @@ void PerforcePlugin::annotate(const QString &fileName)
                                              CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error) {
         const QFileInfo fi(fileName);
-        showOutputInEditor(tr("p4 annotate %1").arg(fi.fileName()), result.stdOut, VCSBase::AnnotateOutput, codec);
+        showOutputInEditor(tr("p4 annotate %1").arg(fi.fileName()),
+            result.stdOut, VCSBase::AnnotateOutput, codec);
     }
 }
 
@@ -623,7 +624,8 @@ void PerforcePlugin::filelog(const QString &fileName)
                                              CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error) {
         const QFileInfo fi(fileName);
-        showOutputInEditor(tr("p4 filelog %1").arg(fi.fileName()), result.stdOut, VCSBase::LogOutput, codec);
+        showOutputInEditor(tr("p4 filelog %1").arg(fi.fileName()),
+            result.stdOut, VCSBase::LogOutput, codec);
     }
 }
 

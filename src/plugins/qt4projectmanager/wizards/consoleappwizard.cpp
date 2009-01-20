@@ -58,8 +58,8 @@ static const char *mainSourceFileC = "main";
 namespace Qt4ProjectManager {
 namespace Internal {
 
-ConsoleAppWizard::ConsoleAppWizard(Core::ICore *core) :
-    QtWizard(core, tr("Qt4 Console Application"),
+ConsoleAppWizard::ConsoleAppWizard()
+  : QtWizard(tr("Qt4 Console Application"),
              tr("Creates a Qt4 console application."),
              QIcon(":/wizards/images/console.png"))
 {

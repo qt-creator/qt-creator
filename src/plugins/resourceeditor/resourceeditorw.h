@@ -40,11 +40,6 @@
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
 
-
-namespace  Core {
-    class ICore;
-}
-
 namespace SharedTools {
     class QrcEditor;
 }
@@ -92,7 +87,6 @@ public:
     typedef QList<int> Context;
 
     ResourceEditorW(const Context &context,
-                   Core::ICore *core,
                    ResourceEditorPlugin *plugin,
                    QWidget *parent = 0);
     ~ResourceEditorW();
@@ -126,7 +120,6 @@ private:
     QString m_displayName;
     QString m_suggestedName;
     const Context m_context;
-    Core::ICore *m_core;
     QPointer<SharedTools::QrcEditor> m_resourceEditor;
     ResourceEditorFile *m_resourceFile;
     ResourceEditorPlugin *m_plugin;

@@ -36,20 +36,18 @@
 #include "project.h"
 #include "session.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QTimer>
+#include <QtCore/QtDebug>
 #include <QtCore/QThread>
-#include <QtDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QVariant>
 
 using namespace Core;
 using namespace QuickOpen;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe,
-                                     ICore *core)
-    : BaseFileFilter(core),
-      m_project(0)
+CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
+  : BaseFileFilter(), m_project(0)
 {
     m_projectExplorer = pe;
 
@@ -73,12 +71,12 @@ void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *proje
 {
     if (project == m_project)
         return;
-    if (m_project) {
+    if (m_project)
         disconnect(m_project, SIGNAL(fileListChanged()), this, SLOT(refreshInternally()));
-    }
-    if (project) {
+
+    if (project)
         connect(project, SIGNAL(fileListChanged()), this, SLOT(refreshInternally()));
-    }
+
     m_project = project;
     refreshInternally();
 }

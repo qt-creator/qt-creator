@@ -40,6 +40,7 @@
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -47,7 +48,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -211,8 +211,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    m_actionHandler = new CPPEditorActionHandler(core,
-        CppEditor::Constants::C_CPPEDITOR,
+    m_actionHandler = new CPPEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);

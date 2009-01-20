@@ -78,6 +78,11 @@ using namespace Core::Internal;
 
 enum { debugEditorManager=0 };
 
+static inline ExtensionSystem::PluginManager *pluginManager()
+{
+    return ExtensionSystem::PluginManager::instance();
+}
+
 //===================EditorManager=====================
 
 EditorManagerPlaceHolder *EditorManagerPlaceHolder::m_current = 0;
@@ -374,11 +379,12 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 EditorManager::~EditorManager()
 {
     if (m_d->m_core) {
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         if (m_d->m_coreListener) {
-            m_d->m_core->pluginManager()->removeObject(m_d->m_coreListener);
+            pm->removeObject(m_d->m_coreListener);
             delete m_d->m_coreListener;
         }
-        m_d->m_core->pluginManager()->removeObject(m_d->m_openEditorsFactory);
+        pm->removeObject(m_d->m_openEditorsFactory);
         delete m_d->m_openEditorsFactory;
     }
     delete m_d;
@@ -390,10 +396,11 @@ void EditorManager::init()
     context << m_d->m_core->uniqueIDManager()->uniqueIdentifier("QtCreator.OpenDocumentsView");
 
     m_d->m_coreListener = new EditorClosingCoreListener(this);
-    m_d->m_core->pluginManager()->addObject(m_d->m_coreListener);
+    
+    pluginManager()->addObject(m_d->m_coreListener);
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
-    m_d->m_core->pluginManager()->addObject(m_d->m_openEditorsFactory);
+    pluginManager()->addObject(m_d->m_openEditorsFactory);
 }
 
 QSize EditorManager::minimumSizeHint() const
@@ -624,7 +631,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     QList<IEditor*> acceptedEditors;
     //ask all core listeners to check whether the editor can be closed
     const QList<ICoreListener *> listeners =
-        m_d->m_core->pluginManager()->getObjects<ICoreListener>();
+        pluginManager()->getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
         bool editorAccepted = true;
         foreach (ICoreListener *listener, listeners) {
@@ -740,7 +747,7 @@ EditorManager::EditorFactoryList
     EditorManager::editorFactories(const MimeType &mimeType, bool bestMatchOnly) const
 {
     EditorFactoryList rc;
-    const EditorFactoryList allFactories = m_d->m_core->pluginManager()->getObjects<IEditorFactory>();
+    const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
     mimeTypeFactoryRecursion(m_d->m_core->mimeDatabase(), mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
@@ -767,7 +774,7 @@ IEditor *EditorManager::createEditor(const QString &editorKind,
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor kind
-        const EditorFactoryList allFactories = m_d->m_core->pluginManager()->getObjects<IEditorFactory>();
+        const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
         const EditorFactoryList::const_iterator acend = allFactories.constEnd();
         for (EditorFactoryList::const_iterator ait = allFactories.constBegin(); ait != acend; ++ait) {
             if (editorKind == (*ait)->kind()) {

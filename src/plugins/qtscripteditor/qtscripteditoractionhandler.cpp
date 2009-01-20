@@ -35,17 +35,18 @@
 #include "qtscripteditorconstants.h"
 #include "qtscripteditor.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/scriptmanager/scriptmanager.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
 #include <QtCore/QDebug>
+#include <QtGui/QAction>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
-static QAction *actionFromId(Core::ICore *core, const QString &id)
+static QAction *actionFromId(const QString &id)
 {
-    Core::Command *cmd = core->actionManager()->command(id);
+    Core::Command *cmd = Core::ICore::instance()->actionManager()->command(id);
     if (!cmd)
         return 0;
     return cmd->action();
@@ -54,9 +55,8 @@ static QAction *actionFromId(Core::ICore *core, const QString &id)
 namespace QtScriptEditor {
 namespace Internal {
 
-QtScriptEditorActionHandler::QtScriptEditorActionHandler(Core::ICore *core) :
-    TextEditor::TextEditorActionHandler(core,
-                                        QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
+QtScriptEditorActionHandler::QtScriptEditorActionHandler()
+  : TextEditor::TextEditorActionHandler(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
                                         Format),
     m_runAction(0)
 {
@@ -65,7 +65,7 @@ QtScriptEditorActionHandler::QtScriptEditorActionHandler(Core::ICore *core) :
 void QtScriptEditorActionHandler::createActions()
 {
     TextEditor::TextEditorActionHandler::createActions();
-    m_runAction = actionFromId(core(), QLatin1String(QtScriptEditor::Constants::RUN));
+    m_runAction = actionFromId(QLatin1String(QtScriptEditor::Constants::RUN));
     connect(m_runAction, SIGNAL(triggered()), this, SLOT(run()));
 }
 
@@ -88,7 +88,7 @@ void QtScriptEditorActionHandler::run()
     // run
     Stack errorStack;
     QString errorMessage;
-    if (core()->scriptManager()->runScript(script, &errorMessage, &errorStack))
+    if (Core::ICore::instance()->scriptManager()->runScript(script, &errorMessage, &errorStack))
         return;
 
     // try to find a suitable error line in the stack
@@ -104,7 +104,7 @@ void QtScriptEditorActionHandler::run()
     }
     if (errorLineNumber)
         currentEditor()->gotoLine(errorLineNumber);
-    QMessageBox::critical(core()->mainWindow(), tr("Qt Script Error"), errorMessage);
+    QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Qt Script Error"), errorMessage);
 }
 
 } // namespace Internal

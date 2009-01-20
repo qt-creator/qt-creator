@@ -36,7 +36,6 @@
 
 #include "basefilefind.h"
 
-#include <coreplugin/icore.h>
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 
@@ -54,12 +53,10 @@ class FindInFiles : public BaseFileFind
     Q_OBJECT
 
 public:
-    FindInFiles(Core::ICore *core, Find::SearchResultWindow *resultWindow);
+    explicit FindInFiles(Find::SearchResultWindow *resultWindow);
 
     QString name() const;
-
     QKeySequence defaultShortcut() const;
-
     void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);

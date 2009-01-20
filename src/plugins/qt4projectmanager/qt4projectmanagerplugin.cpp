@@ -48,6 +48,7 @@
 #include "profilereader.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -59,9 +60,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QDebug>
+#include <QtCore/QtPlugin>
 #include <QtGui/QMenu>
-#include <QDebug>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -95,33 +96,37 @@ static Core::Command *createSeparator(Core::ActionManager *am,
     return am->registerAction(tmpaction, name, context);
 }
 */
-bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+
+bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(arguments);
+ 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
-    m_projectExplorer = core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ExtensionSystem::PluginManager::instance()
+        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
     Core::ActionManager *am = core->actionManager();
 
     //create and register objects
-    m_qt4ProjectManager = new Qt4Manager(this, core);
+    m_qt4ProjectManager = new Qt4Manager(this);
     addObject(m_qt4ProjectManager);
 
     TextEditor::TextEditorActionHandler *editorHandler
-            = new TextEditor::TextEditorActionHandler(core, Constants::C_PROFILEEDITOR);
+            = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
 
-    GuiAppWizard *guiWizard = new GuiAppWizard(core);
+    GuiAppWizard *guiWizard = new GuiAppWizard;
     addAutoReleasedObject(guiWizard);
 
-    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard(core);
+    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard;
     addAutoReleasedObject(consoleWizard);
 
-    LibraryWizard *libWizard = new LibraryWizard(core);
+    LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);
 
     addAutoReleasedObject(new QMakeBuildStepFactory);

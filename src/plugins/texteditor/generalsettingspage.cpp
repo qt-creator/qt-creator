@@ -37,16 +37,17 @@
 #include "tabsettings.h"
 #include "ui_generalsettingspage.h"
 
+#include <coreplugin/icore.h>
+
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 using namespace TextEditor;
 
-struct GeneralSettingsPage::GeneralSettingsPagePrivate {
-    GeneralSettingsPagePrivate(Core::ICore *core,
-                           const GeneralSettingsPageParameters &p);
+struct GeneralSettingsPage::GeneralSettingsPagePrivate
+{
+    explicit GeneralSettingsPagePrivate(const GeneralSettingsPageParameters &p);
 
-    Core::ICore *m_core;
     const GeneralSettingsPageParameters m_parameters;
     Ui::generalSettingsPage m_page;
     TabSettings m_tabSettings;
@@ -54,24 +55,21 @@ struct GeneralSettingsPage::GeneralSettingsPagePrivate {
     DisplaySettings m_displaySettings;
 };
 
-GeneralSettingsPage::GeneralSettingsPagePrivate::GeneralSettingsPagePrivate(Core::ICore *core,
-                                                                const GeneralSettingsPageParameters &p) :
-   m_core(core),
-   m_parameters(p)
+GeneralSettingsPage::GeneralSettingsPagePrivate::GeneralSettingsPagePrivate
+    (const GeneralSettingsPageParameters &p)
+  : m_parameters(p)
 {
-    if (m_core)
-        if (const QSettings *s = m_core->settings()) {
-            m_tabSettings.fromSettings(m_parameters.settingsPrefix, s);
-            m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
-            m_displaySettings.fromSettings(m_parameters.settingsPrefix, s);
-        }
+    if (const QSettings *s = Core::ICore::instance()->settings()) {
+        m_tabSettings.fromSettings(m_parameters.settingsPrefix, s);
+        m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
+        m_displaySettings.fromSettings(m_parameters.settingsPrefix, s);
+    }
 }
 
-GeneralSettingsPage::GeneralSettingsPage(Core::ICore *core,
-                                 const GeneralSettingsPageParameters &p,
-                                 QObject *parent) :
-    Core::IOptionsPage(parent),
-    m_d(new GeneralSettingsPagePrivate(core, p))
+GeneralSettingsPage::GeneralSettingsPage(const GeneralSettingsPageParameters &p,
+                                 QObject *parent)
+  : Core::IOptionsPage(parent),
+    m_d(new GeneralSettingsPagePrivate(p))
 {
 }
 
@@ -99,9 +97,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_d->m_page.setupUi(w);
-
     settingsToUI();
-
     return w;
 }
 
@@ -112,30 +108,28 @@ void GeneralSettingsPage::apply()
     DisplaySettings newDisplaySettings;
 
     settingsFromUI(newTabSettings, newStorageSettings, newDisplaySettings);
+    Core::ICore *core = Core::ICore::instance();
 
     if (newTabSettings != m_d->m_tabSettings) {
         m_d->m_tabSettings = newTabSettings;
-        if (m_d->m_core)
-            if (QSettings *s = m_d->m_core->settings())
-                m_d->m_tabSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+        if (QSettings *s = core->settings())
+            m_d->m_tabSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit tabSettingsChanged(newTabSettings);
     }
 
     if (newStorageSettings != m_d->m_storageSettings) {
         m_d->m_storageSettings = newStorageSettings;
-        if (m_d->m_core)
-            if (QSettings *s = m_d->m_core->settings())
-                m_d->m_storageSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+        if (QSettings *s = core->settings())
+            m_d->m_storageSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit storageSettingsChanged(newStorageSettings);
     }
 
     if (newDisplaySettings != m_d->m_displaySettings) {
         m_d->m_displaySettings = newDisplaySettings;
-        if (m_d->m_core)
-            if (QSettings *s = m_d->m_core->settings())
-                m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+        if (QSettings *s = core->settings())
+            m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit displaySettingsChanged(newDisplaySettings);
     }
@@ -207,9 +201,9 @@ void GeneralSettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 {
     if (newDisplaySettings != m_d->m_displaySettings) {
         m_d->m_displaySettings = newDisplaySettings;
-        if (m_d->m_core)
-            if (QSettings *s = m_d->m_core->settings())
-                m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+        Core::ICore *core = Core::ICore::instance();
+        if (QSettings *s = core->settings())
+            m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit displaySettingsChanged(newDisplaySettings);
     }

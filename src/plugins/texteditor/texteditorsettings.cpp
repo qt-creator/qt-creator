@@ -94,8 +94,7 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
 
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("TextEditor"),
-                                              tr("Text Editor"),
-                                              plugin->core());
+                                              tr("Text Editor"));
     pm->addObject(m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and display settings
@@ -104,7 +103,7 @@ TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
     generalSettingsPageParameters.category = QLatin1String("TextEditor");
     generalSettingsPageParameters.trCategory = tr("Text Editor");
     generalSettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_generalSettingsPage = new GeneralSettingsPage(plugin->core(), generalSettingsPageParameters, this);
+    m_generalSettingsPage = new GeneralSettingsPage(generalSettingsPageParameters, this);
     pm->addObject(m_generalSettingsPage);
 
     connect(m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),

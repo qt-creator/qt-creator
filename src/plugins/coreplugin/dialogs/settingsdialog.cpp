@@ -60,7 +60,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     QMap<QString, QTreeWidgetItem *> categories;
 
     QList<IOptionsPage*> pages =
-        CoreImpl::instance()->pluginManager()->getObjects<IOptionsPage>();
+        ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>();
 
     int index = 0;
     foreach (IOptionsPage *page, pages) {

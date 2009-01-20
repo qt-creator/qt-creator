@@ -97,10 +97,10 @@ static QString formatCommand(const QString &binary, const QStringList &args)
 }
 
 // ---------------- GitClient
-GitClient::GitClient(GitPlugin* plugin, Core::ICore *core) :
-    m_msgWait(tr("Waiting for data...")),
+GitClient::GitClient(GitPlugin* plugin)
+  : m_msgWait(tr("Waiting for data...")),
     m_plugin(plugin),
-    m_core(core)
+    m_core(Core::ICore::instance())
 {
     if (QSettings *s = m_core->settings())
         m_settings.fromSettings(s);

@@ -44,12 +44,6 @@ class QSettings;
 template <class T> class QList;
 QT_END_NAMESPACE
 
-namespace ExtensionSystem {
-
-class PluginManager;
-
-} // namespace ExtensionSystem
-
 namespace Core {
 
 class ActionManager;
@@ -87,7 +81,6 @@ public:
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;
-    virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
     virtual ProgressManager *progressManager() const = 0;
     virtual ScriptManager *scriptManager() const = 0;

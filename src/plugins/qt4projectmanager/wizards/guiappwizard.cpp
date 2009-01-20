@@ -70,12 +70,10 @@ static inline QStringList baseClasses()
 }
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
 
-GuiAppWizard::GuiAppWizard(Core::ICore *core) :
-    QtWizard(core,
-             tr("Qt4 Gui Application"),
+GuiAppWizard::GuiAppWizard()
+  : QtWizard(tr("Qt4 Gui Application"),
              tr("Creates a Qt4 Gui Application with one form."),
              QIcon(":/wizards/images/gui.png"))
 {

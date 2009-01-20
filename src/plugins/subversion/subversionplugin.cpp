@@ -284,7 +284,8 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new SubversionEditorFactory(editorParameters + i, m_coreInstance, this, describeSlot));
+        m_editorFactories.push_back(
+            new SubversionEditorFactory(editorParameters + i, this, describeSlot));
         addObject(m_editorFactories.back());
     }
 

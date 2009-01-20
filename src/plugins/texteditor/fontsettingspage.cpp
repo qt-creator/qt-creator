@@ -36,20 +36,21 @@
 #include "texteditorconstants.h"
 #include "ui_fontsettingspage.h"
 
+#include <coreplugin/icore.h>
 #include <utils/settingsutils.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
-#include <QtGui/QListWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QPalette>
 #include <QtGui/QCheckBox>
 #include <QtGui/QColorDialog>
-#include <QtGui/QTextEdit>
-#include <QtGui/QTextCharFormat>
 #include <QtGui/QComboBox>
 #include <QtGui/QFontDatabase>
+#include <QtGui/QListWidget>
 #include <QtGui/QPalette>
+#include <QtGui/QPalette>
+#include <QtGui/QTextCharFormat>
+#include <QtGui/QTextEdit>
+#include <QtGui/QToolButton>
 
 static inline QString colorButtonStyleSheet(const QColor &bgColor)
 {
@@ -70,10 +71,9 @@ public:
     FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                             const QString &name,
                             const QString &category,
-                            const QString &trCategory,
-                            Core::ICore *core);
+                            const QString &trCategory);
 
-    Core::ICore *m_core;
+public:
     const QString m_name;
     const QString m_settingsGroup;
     const QString m_category;
@@ -89,9 +89,7 @@ public:
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                                                  const QString &name,
                                                  const QString &category,
-                                                 const QString &trCategory,
-                                                 Core::ICore *core) :
-    m_core(core),
+                                                 const QString &trCategory) :
     m_name(name),
     m_settingsGroup(Core::Utils::settingsKey(category)),
     m_category(category),
@@ -102,9 +100,8 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     m_curItem(-1)
 {
     bool settingsFound = false;
-    if (m_core)
-        if (const QSettings *settings = m_core->settings())
-            settingsFound = m_value.fromSettings(m_settingsGroup, m_descriptions, settings);
+    if (const QSettings *settings = Core::ICore::instance()->settings())
+        settingsFound = m_value.fromSettings(m_settingsGroup, m_descriptions, settings);
     if (!settingsFound) { // Apply defaults
         foreach (const FormatDescription &f, m_descriptions) {
             const QString name = f.name();
@@ -200,10 +197,9 @@ QColor FormatDescription::background() const
 FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
                                    const QString &category,
                                    const QString &trCategory,
-                                   Core::ICore *core,
                                    QObject *parent) :
     Core::IOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, tr("Font & Colors"), category, trCategory, core))
+    d_ptr(new FontSettingsPagePrivate(fd, tr("Font & Colors"), category, trCategory))
 {
 }
 
@@ -231,7 +227,6 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     d_ptr->ui.setupUi(w);
-
 
     d_ptr->ui.itemListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -447,9 +442,8 @@ void FontSettingsPage::apply()
 
     if (d_ptr->m_value != d_ptr->m_lastValue) {
         d_ptr->m_lastValue = d_ptr->m_value;
-        if (d_ptr->m_core)
-            if (QSettings *settings = d_ptr->m_core->settings())
-                d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, d_ptr->m_descriptions, settings);
+        if (QSettings *settings = Core::ICore::instance()->settings())
+            d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, d_ptr->m_descriptions, settings);
 
         QTimer::singleShot(0, this, SLOT(delayedChange()));
     }

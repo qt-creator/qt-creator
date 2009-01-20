@@ -46,7 +46,7 @@ class ConsoleAppWizard : public QtWizard
     Q_OBJECT
 
 public:
-    explicit ConsoleAppWizard(Core::ICore *core);
+    ConsoleAppWizard();
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

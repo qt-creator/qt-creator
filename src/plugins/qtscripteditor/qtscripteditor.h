@@ -50,7 +50,7 @@ class ScriptEditor;
 class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
 {
 public:
-    ScriptEditorEditable(ScriptEditor *, const QList<int>&);
+    ScriptEditorEditable(ScriptEditor *, const QList<int> &);
     QList<int> context() const;
 
     bool duplicateSupported() const { return true; }
@@ -71,9 +71,8 @@ public:
     typedef QList<int> Context;
 
     ScriptEditor(const Context &context,
-                   Core::ICore *core,
-                   TextEditor::TextEditorActionHandler *ah,
-                   QWidget *parent = 0);
+                 TextEditor::TextEditorActionHandler *ah,
+                 QWidget *parent = 0);
     ~ScriptEditor();
 
     ScriptEditor *duplicate(QWidget *parent);
@@ -90,7 +89,6 @@ private:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
     const Context m_context;
-    Core::ICore *m_core;
     TextEditor::TextEditorActionHandler *m_ah;
 };
 

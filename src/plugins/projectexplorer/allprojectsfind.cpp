@@ -47,8 +47,8 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin, Core::ICore *core, SearchResultWindow *resultWindow)
-    : BaseFileFind(core, resultWindow),
+AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin, SearchResultWindow *resultWindow)
+    : BaseFileFind(resultWindow),
     m_plugin(plugin),
     m_configWidget(0)
 {

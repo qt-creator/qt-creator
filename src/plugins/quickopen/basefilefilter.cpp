@@ -33,6 +33,7 @@
 
 #include "basefilefilter.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QDir>
@@ -40,11 +41,8 @@
 using namespace Core;
 using namespace QuickOpen;
 
-BaseFileFilter::BaseFileFilter(ICore *core)
-        : m_core(core),
-          m_files(QStringList()),
-          m_fileNames(QStringList()),
-          m_forceNewSearchList(false)
+BaseFileFilter::BaseFileFilter()
+  : m_forceNewSearchList(false)
 {
 }
 
@@ -91,8 +89,9 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
 
 void BaseFileFilter::accept(QuickOpen::FilterEntry selection) const
 {
-    m_core->editorManager()->openEditor(selection.internalData.toString());
-    m_core->editorManager()->ensureEditorManagerVisible();
+    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    em->openEditor(selection.internalData.toString());
+    em->ensureEditorManagerVisible();
 }
 
 void BaseFileFilter::generateFileNames()

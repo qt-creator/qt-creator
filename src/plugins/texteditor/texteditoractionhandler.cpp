@@ -38,6 +38,7 @@
 #include "linenumberfilter.h"
 
 #include <quickopen/quickopenmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -52,31 +53,45 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorActionHandler::TextEditorActionHandler(Core::ICore *core,
-                                                 const QString &context,
-                                                 uint optionalActions)  :
-    QObject(core),
+TextEditorActionHandler::TextEditorActionHandler(const QString &context,
+                                                 uint optionalActions) 
+  : QObject(Core::ICore::instance()),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
-    m_core(core),
     m_initialized(false)
 {
-    m_undoAction = m_redoAction = m_copyAction = m_cutAction = m_pasteAction
-                 = m_selectAllAction = m_gotoAction = m_printAction = m_formatAction
-                 = m_visualizeWhitespaceAction = m_cleanWhitespaceAction = m_textWrappingAction
-                 = m_unCommentSelectionAction = m_unCollapseAllAction
-                 = m_collapseAction = m_expandAction
-                 = m_deleteLineAction = m_selectEncodingAction
-                 = m_increaseFontSizeAction = m_decreaseFontSizeAction
-                 = m_gotoBlockStartAction = m_gotoBlockStartWithSelectionAction
-                 = m_gotoBlockEndAction = m_gotoBlockEndWithSelectionAction
-                 = m_selectBlockUpAction = m_selectBlockDownAction
-                 = m_moveLineUpAction = m_moveLineDownAction
-                 = 0;
+    m_undoAction = 0;
+    m_redoAction = 0;
+    m_copyAction = 0;
+    m_cutAction = 0;
+    m_pasteAction = 0;
+    m_selectAllAction = 0;
+    m_gotoAction = 0;
+    m_printAction = 0;
+    m_formatAction = 0;
+    m_visualizeWhitespaceAction = 0;
+    m_cleanWhitespaceAction = 0;
+    m_textWrappingAction = 0;
+    m_unCommentSelectionAction = 0;
+    m_unCollapseAllAction = 0;
+    m_collapseAction = 0;
+    m_expandAction = 0;
+    m_deleteLineAction = 0;
+    m_selectEncodingAction = 0;
+    m_increaseFontSizeAction = 0;
+    m_decreaseFontSizeAction = 0;
+    m_gotoBlockStartAction = 0;
+    m_gotoBlockStartWithSelectionAction = 0;
+    m_gotoBlockEndAction = 0;
+    m_gotoBlockEndWithSelectionAction = 0;
+    m_selectBlockUpAction = 0;
+    m_selectBlockDownAction = 0;
+    m_moveLineUpAction = 0;
+    m_moveLineDownAction = 0;
 
-    m_contextId << m_core->uniqueIDManager()->uniqueIdentifier(context);
+    m_contextId << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(context);
 
-    connect(m_core, SIGNAL(contextAboutToChange(Core::IContext *)),
+    connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext *)),
         this, SLOT(updateCurrentEditor(Core::IContext *)));
 }
 
@@ -111,7 +126,7 @@ void TextEditorActionHandler::createActions()
     m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
 
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
     Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -248,7 +263,7 @@ QAction *TextEditorActionHandler::registerNewAction(const QString &id, const QSt
         return 0;
 
     QAction *result = new QAction(title, this);
-    m_core->actionManager()->registerAction(result, id, m_contextId);
+    Core::ICore::instance()->actionManager()->registerAction(result, id, m_contextId);
     return result;
 }
 
@@ -349,7 +364,7 @@ void TextEditorActionHandler::gotoAction()
 void TextEditorActionHandler::printAction()
 {
     if (m_currentEditor)
-        m_currentEditor->print(m_core->printer());
+        m_currentEditor->print(Core::ICore::instance()->printer());
 }
 
 void TextEditorActionHandler::setVisualizeWhitespace(bool checked)
@@ -445,9 +460,3 @@ const QPointer<BaseTextEditor> &TextEditorActionHandler::currentEditor() const
 {
     return m_currentEditor;
 }
-
-Core::ICore *TextEditorActionHandler::core() const
-{
-    return m_core;
-}
-

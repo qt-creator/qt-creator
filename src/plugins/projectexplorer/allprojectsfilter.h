@@ -36,12 +36,9 @@
 
 #include <quickopen/basefilefilter.h>
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QString>
 #include <QtGui/QWidget>
-
 
 namespace ProjectExplorer {
 
@@ -54,7 +51,7 @@ class AllProjectsFilter : public QuickOpen::BaseFileFilter
     Q_OBJECT
 
 public:
-    AllProjectsFilter(ProjectExplorerPlugin *pe, Core::ICore *core);
+    explicit AllProjectsFilter(ProjectExplorerPlugin *pe);
     QString trName() const { return tr("Files in any project"); }
     QString name() const { return "Files in any project"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }

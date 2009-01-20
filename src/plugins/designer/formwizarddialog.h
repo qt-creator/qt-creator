@@ -37,10 +37,9 @@
 #include <QtGui/QWizard>
 
 namespace Core {
-    class ICore;
-    namespace Utils {
-        class FileWizardPage;
-    }
+namespace Utils {
+    class FileWizardPage;
+}
 }
 
 namespace Designer {
@@ -58,8 +57,7 @@ class FormWizardDialog : public QWizard
 
 public:
     typedef QList<QWizardPage *> WizardPageList;
-    explicit FormWizardDialog(Core::ICore *core,
-                              const WizardPageList &extensionPages,
+    explicit FormWizardDialog(const WizardPageList &extensionPages,
                               QWidget *parent = 0);
 
     QString templateContents() const;
@@ -68,7 +66,6 @@ private:
     void init(const WizardPageList &extensionPages);
 
     FormTemplateWizardPagePage *m_formPage;
-    Core::ICore *m_core;
     mutable QString m_templateContents;
 };
 
@@ -82,8 +79,7 @@ class FormFileWizardDialog : public FormWizardDialog
     Q_OBJECT
 
 public:
-    explicit FormFileWizardDialog(Core::ICore *core,
-                                  const WizardPageList &extensionPages,
+    explicit FormFileWizardDialog(const WizardPageList &extensionPages,
                                   QWidget *parent = 0);
 
     QString path() const;

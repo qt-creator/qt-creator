@@ -127,21 +127,20 @@ void FormEditorPlugin::extensionsInitialized()
 bool FormEditorPlugin::initializeTemplates(QString *error)
 {
     Q_UNUSED(error);
-    Core::ICore *core = Core::ICore::instance();
     FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String("Qt"));
     wizardParameters.setTrCategory(tr("Qt"));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
     wizardParameters.setName(tr("Qt Designer Form"));
     wizardParameters.setDescription(tr("This creates a new Qt Designer form file."));
-    m_formWizard = new FormWizard(wizardParameters, core, this);
+    m_formWizard = new FormWizard(wizardParameters, this);
     addObject(m_formWizard);
 
 #ifdef CPP_ENABLED
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("Qt Designer Form Class"));
     wizardParameters.setDescription(tr("This creates a new Qt Designer form class."));
-    m_formClassWizard = new FormClassWizard(wizardParameters, core, this);
+    m_formClassWizard = new FormClassWizard(wizardParameters, this);
     addObject(m_formClassWizard);
 #endif
     return true;

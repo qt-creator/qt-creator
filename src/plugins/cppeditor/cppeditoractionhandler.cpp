@@ -38,10 +38,9 @@
 
 using namespace CppEditor::Internal;
 
-CPPEditorActionHandler::CPPEditorActionHandler(Core::ICore *core,
-                                               const QString &context,
+CPPEditorActionHandler::CPPEditorActionHandler(const QString &context,
                                                uint optionalActions)
-    : TextEditor::TextEditorActionHandler(core, context, optionalActions)
+    : TextEditor::TextEditorActionHandler(context, optionalActions)
 { }
 
 CPPEditorActionHandler::~CPPEditorActionHandler()

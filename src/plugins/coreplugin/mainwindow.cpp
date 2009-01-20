@@ -698,8 +698,8 @@ void MainWindow::openFile()
 
 static QList<IFileFactory*> getNonEditorFileFactories()
 {
-    const ICore *core = CoreImpl::instance();
-    const QList<IFileFactory*> allFileFactories = core->pluginManager()->getObjects<IFileFactory>();
+    const QList<IFileFactory*> allFileFactories =
+        ExtensionSystem::PluginManager::instance()->getObjects<IFileFactory>();
     QList<IFileFactory*> nonEditorFileFactories;
     foreach (IFileFactory *factory, allFileFactories) {
         if (!qobject_cast<IEditorFactory *>(factory))

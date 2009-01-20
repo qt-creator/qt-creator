@@ -381,9 +381,10 @@ void Qt4Project::updateCodeModel()
         qDebug()<<"Qt4Project::updateCodeModel()";
 
     CppTools::CppModelManagerInterface *modelmanager =
-        m_manager->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+        ExtensionSystem::PluginManager::instance()
+            ->getObject<CppTools::CppModelManagerInterface>();
 
-    if (! modelmanager)
+    if (!modelmanager)
         return;
 
     QStringList allIncludePaths;
@@ -644,7 +645,7 @@ void Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    m_manager->core()->messageManager()->printToOutputPane(errorMessage);
+    Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
 }
 
 Qt4ProFileNode *Qt4Project::rootProjectNode() const

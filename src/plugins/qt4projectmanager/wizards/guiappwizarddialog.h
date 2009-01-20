@@ -37,10 +37,12 @@
 #include <QtGui/QWizard>
 
 namespace Core {
-    namespace Utils {
-        class ProjectIntroPage;
-    }
-}
+namespace Utils {
+
+class ProjectIntroPage;
+
+} // namespace Utils
+} // namespace Core
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -50,7 +52,8 @@ class ModulesPage;
 class FilesPage;
 
 // Additional parameters required besides QtProjectParameters
-struct GuiAppParameters {
+struct GuiAppParameters
+{
     GuiAppParameters();
     QString className;
     QString baseClassName;
