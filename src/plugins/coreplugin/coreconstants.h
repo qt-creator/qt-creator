@@ -174,10 +174,17 @@ const char * const G_FILE_OTHER          = "QtCreator.Group.File.Other";
 const char * const G_EDIT_UNDOREDO       = "QtCreator.Group.Edit.UndoRedo";
 const char * const G_EDIT_COPYPASTE      = "QtCreator.Group.Edit.CopyPaste";
 const char * const G_EDIT_SELECTALL      = "QtCreator.Group.Edit.SelectAll";
-const char * const G_EDIT_FORMAT         = "QtCreator.Group.Edit.Format";
+const char * const G_EDIT_ADVANCED       = "QtCreator.Group.Edit.Advanced";
 
 const char * const G_EDIT_FIND           = "QtCreator.Group.Edit.Find";
 const char * const G_EDIT_OTHER          = "QtCreator.Group.Edit.Other";
+
+// advanced edit menu groups
+
+const char * const G_EDIT_FORMAT         = "QtCreator.Group.Edit.Format";
+const char * const G_EDIT_COLLAPSING     = "QtCreator.Group.Edit.Collapsing";
+const char * const G_EDIT_FONT           = "QtCreator.Group.Edit.Font";
+const char * const G_EDIT_EDITOR         = "QtCreator.Group.Edit.Editor";
 
 // window menu groups
 const char * const G_WINDOW_SIZE         = "QtCreator.Group.Window.Size";

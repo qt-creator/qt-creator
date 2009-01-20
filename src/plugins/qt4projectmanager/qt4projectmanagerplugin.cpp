@@ -48,6 +48,7 @@
 #include "profilereader.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -64,7 +65,6 @@
 
 #ifdef WITH_TESTS
 #include <QTest>
-#include <extensionsystem/pluginmanager.h>
 #endif
 
 using namespace Qt4ProjectManager::Internal;
