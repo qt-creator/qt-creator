@@ -158,7 +158,7 @@ private slots:
     void aboutQtCreator();
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);
-    void toggleNavigation();
+    void setSidebarVisible(bool visible);
     void destroyVersionDialog();
 
 private:
