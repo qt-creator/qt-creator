@@ -84,8 +84,6 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
             this, SLOT(updateEditorList()));
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor *>)),
             this, SLOT(updateEditorList()));
-    connect(em, SIGNAL(editorGroupsChanged()),
-            this, SLOT(updateEditorList()));
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditorList()));
 }

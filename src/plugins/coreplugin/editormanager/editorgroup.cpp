@@ -34,7 +34,7 @@
 #include "editorgroup.h"
 
 #include "editormanager.h"
-#include "editorview.h"
+
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 

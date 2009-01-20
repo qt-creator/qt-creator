@@ -126,9 +126,9 @@ const char * const TOGGLE_SIDEBAR        = "QtCreator.ToggleSidebar";
 const char * const MINIMIZE_WINDOW       = "QtCreator.MinimizeWindow";
 const char * const ZOOM_WINDOW           = "QtCreator.ZoomWindow";
 
-const char * const HORIZONTAL            = "QtCreator.Horizontal";
-const char * const VERTICAL              = "QtCreator.Vertical";
-const char * const REMOVE                = "QtCreator.Remove";
+const char * const SPLIT                 = "QtCreator.Split";
+const char * const SPLIT_SIDE_BY_SIDE    = "QtCreator.SplitSideBySide";
+const char * const UNSPLIT               = "QtCreator.Unsplit";
 const char * const SAVEASDEFAULT         = "QtCreator.SaveAsDefaultLayout";
 const char * const RESTOREDEFAULT        = "QtCreator.RestoreDefaultLayout";
 const char * const CLOSE                 = "QtCreator.Close";

@@ -41,6 +41,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QAction>
 #include <QtGui/QSplitter>
+#include <QtGui/QStackedLayout>
 
 #include <coreplugin/icontext.h>
 
@@ -104,6 +105,9 @@ public:
     void removeEditor(IEditor *editor);
     IEditor *currentEditor() const;
     void setCurrentEditor(IEditor *editor);
+
+    bool hasEditor(IEditor *editor) const;
+
     QList<IEditor *> editors() const;
     void showEditorInfoBar(const QString &kind,
                            const QString &infoText,
@@ -128,7 +132,6 @@ private:
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
 
-    QWidget *m_toplevel;
     QWidget *m_toolBar;
     QToolBar *m_activeToolBar;
     QStackedWidget *m_container;

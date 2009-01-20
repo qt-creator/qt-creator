@@ -89,6 +89,7 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
         return;
     }
     EditorManager *em = EditorManager::instance();
+    m_ui.editorList->clearSelection(); //we are in extended selectionmode
     m_ui.editorList->setCurrentIndex(em->openedEditorsModel()->indexOf(editor));
     m_ui.editorList->scrollTo(m_ui.editorList->currentIndex());
 }

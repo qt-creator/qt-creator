@@ -216,22 +216,7 @@ void ProjectWindow::updateTreeWidget()
 
         m_treeWidget->addTopLevelItem(item);
 
-        if (m_projectExplorer->currentProject() == project) {
-            m_treeWidget->setCurrentItem(item, 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
-        }
     }
-
-
-    if  (!m_treeWidget->currentItem()) {
-        if (m_treeWidget->topLevelItemCount() > 0)
-            m_treeWidget->setCurrentItem(m_treeWidget->topLevelItem(0), 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
-        else
-            handleCurrentItemChanged(0);
-    }
-
-
-    // Hack around Qt bug
-    m_treeWidget->viewport()->update();
 }
 
 
@@ -255,10 +240,6 @@ void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
             return;
         }
     }
-
-    // we only get here if either current is zero or we didn't find a project for the path
-    m_projectExplorer->setCurrentFile(0, QString());
-    showProperties(0, QModelIndex());
 }
 
 

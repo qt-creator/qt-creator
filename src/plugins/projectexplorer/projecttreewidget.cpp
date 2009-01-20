@@ -165,7 +165,7 @@ ProjectTreeWidget::ProjectTreeWidget(Core::ICore *core, QWidget *parent)
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 
-    //setAutoSynchronization(true);
+    setAutoSynchronization(true);
 }
 
 QToolButton *ProjectTreeWidget::toggleSync()
@@ -216,25 +216,20 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
         qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->name() : "0")
                  << ", " <<  (node ? node->path() : "0") << ")";
     if (!project) {
-        m_view->selectionModel()->reset();
         return;
     }
 
     const QModelIndex mainIndex = m_model->indexForNode(node);
 
-    if (!mainIndex.isValid()) {
-        if (debug)
-            qDebug() << "no main index, clear selection";
-        m_view->selectionModel()->clearSelection();
-    } else if (mainIndex != m_view->selectionModel()->currentIndex()) {
-        QItemSelectionModel *selections = m_view->selectionModel();
-        if (debug)
-            qDebug() << "ProjectTreeWidget - changing selection";
-
-        selections->setCurrentIndex(mainIndex, QItemSelectionModel::SelectCurrent
-                                             | QItemSelectionModel::Clear);
+    if (mainIndex.isValid() && mainIndex != m_view->selectionModel()->currentIndex()) {
+        m_view->setCurrentIndex(mainIndex);
         m_view->scrollTo(mainIndex);
+    } else {
+        if (debug)
+            qDebug() << "clear selection";
+        m_view->clearSelection();
     }
+
 }
 
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)

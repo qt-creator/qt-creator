@@ -176,7 +176,6 @@ void EditorModel::itemChanged()
 
 EditorView::EditorView(EditorModel *model, QWidget *parent) :
     QWidget(parent),
-    m_toplevel(new QWidget),
     m_toolBar(new QWidget),
     m_container(new QStackedWidget(this)),
     m_editorList(new QComboBox),
@@ -186,7 +185,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     m_infoWidget(new QFrame(this)),
     m_editorForInfoWidget(0)
 {
-    QVBoxLayout *tl = new QVBoxLayout(m_toplevel);
+    QVBoxLayout *tl = new QVBoxLayout(this);
     tl->setSpacing(0);
     tl->setMargin(0);
     {
@@ -272,11 +271,6 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     }
     tl->addWidget(m_container);
 
-    QHBoxLayout *l = new QHBoxLayout;
-    l->setSpacing(0);
-    l->setMargin(0);
-    l->addWidget(m_toplevel);
-    setLayout(l);
 }
 
 void EditorView::showEditorInfoBar(const QString &kind,
@@ -343,6 +337,11 @@ void EditorView::insertEditor(int index, IEditor *editor)
 //    emit editorAdded(editor);
 }
 
+bool EditorView::hasEditor(IEditor *editor) const
+{
+    return (m_container->indexOf(editor->widget()) != -1);
+}
+
 void EditorView::sendCloseRequest()
 {
     emit closeRequested(currentEditor());
@@ -367,7 +366,6 @@ void EditorView::removeEditor(IEditor *editor)
             toolBar->setVisible(false);
             toolBar->setParent(0);
         }
-//        emit editorRemoved(editor);
     }
 }
 
@@ -387,10 +385,9 @@ void EditorView::setCurrentEditor(IEditor *editor)
     QTC_ASSERT(idx >= 0, return);
     if (m_container->currentIndex() != idx) {
         m_container->setCurrentIndex(idx);
-
-        const bool block = m_editorList->blockSignals(true);
+        disconnect(m_editorList, SIGNAL(currentIndexChanged(int)), this, SLOT(listSelectionChanged(int)));
         m_editorList->setCurrentIndex(qobject_cast<EditorModel*>(m_editorList->model())->indexOf(editor->file()->fileName()).row());
-        m_editorList->blockSignals(block);
+        connect(m_editorList, SIGNAL(currentIndexChanged(int)), this, SLOT(listSelectionChanged(int)));
     }
     setEditorFocus(idx);
 

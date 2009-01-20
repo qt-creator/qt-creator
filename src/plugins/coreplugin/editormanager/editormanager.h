@@ -181,7 +181,6 @@ signals:
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
     void editorsClosed(QList<Core::IEditor *> editors);
-    void editorGroupsChanged();
 
 public slots:
     bool closeAllEditors(bool askAboutModifiedEditors = true);
@@ -201,6 +200,9 @@ private slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
     void makeCurrentEditorWritable();
+    void split();
+    void splitSideBySide();
+    void unsplit();
 
 private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;

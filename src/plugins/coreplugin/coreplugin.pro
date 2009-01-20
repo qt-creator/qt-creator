@@ -34,11 +34,8 @@ SOURCES += mainwindow.cpp \
     vcsmanager.cpp \
     viewmanager.cpp \
     versiondialog.cpp \
-    editormanager/editorgroup.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
-    editormanager/stackededitorgroup.cpp \
-    editormanager/editorsplitter.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
     actionmanager/actionmanager.cpp \
@@ -91,11 +88,8 @@ HEADERS += mainwindow.h \
     outputpane.h \
     vcsmanager.h \
     viewmanager.h \
-    editormanager/editorgroup.h \
     editormanager/editormanager.h \
     editormanager/editorview.h \
-    editormanager/stackededitorgroup.h \
-    editormanager/editorsplitter.h \
     editormanager/openeditorsview.h \
     editormanager/openeditorswindow.h \
     editormanager/ieditor.h \

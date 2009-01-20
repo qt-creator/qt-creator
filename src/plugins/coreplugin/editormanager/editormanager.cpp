@@ -70,6 +70,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QSplitter>
+#include <QtGui/QStackedLayout>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -129,6 +130,9 @@ struct EditorManagerPrivate {
     explicit EditorManagerPrivate(ICore *core, QWidget *parent);
     ~EditorManagerPrivate();
     Internal::EditorView *m_view;
+    QSplitter *m_splitter;
+    QStackedLayout *m_stackedLayout;
+
     ICore *m_core;
 
     bool m_suppressEditorChanges;
@@ -144,6 +148,9 @@ struct EditorManagerPrivate {
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
     QAction *m_openInExternalEditorAction;
+    QAction *m_splitAction;
+    QAction *m_splitSideBySideAction;
+    QAction *m_unsplitAction;
 
     QList<IEditor *> m_editorHistory;
     QList<EditLocation *> m_navigationHistory;
@@ -165,6 +172,8 @@ struct EditorManagerPrivate {
 
 EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_view(0),
+    m_splitter(0),
+    m_stackedLayout(0),
     m_core(core),
     m_suppressEditorChanges(false),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
@@ -307,6 +316,25 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
+    m_d->m_splitAction = new QAction(tr("Split"), this);
+    cmd = am->registerAction(m_d->m_splitAction, Constants::SPLIT, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
+
+    m_d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
+    cmd = am->registerAction(m_d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
+
+    m_d->m_unsplitAction = new QAction(tr("Unsplit"), this);
+    cmd = am->registerAction(m_d->m_unsplitAction, Constants::UNSPLIT, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,0")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_d->m_unsplitAction, SIGNAL(triggered()), this, SLOT(unsplit()));
+
+
 
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
@@ -328,10 +356,8 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_view, SIGNAL(closeRequested(Core::IEditor *)),
             this, SLOT(closeEditor(Core::IEditor *)));
 
-    QHBoxLayout *l = new QHBoxLayout(this);
-    l->setSpacing(0);
-    l->setMargin(0);
-    l->addWidget(m_d->m_view);
+    m_d->m_stackedLayout = new QStackedLayout(this);
+    m_d->m_stackedLayout->addWidget(m_d->m_view);
 
     updateActions();
 
@@ -1250,8 +1276,6 @@ bool EditorManager::restoreState(const QByteArray &state)
     QByteArray version;
     stream >> version;
 
-    qDebug() << "restore state" << version;
-
     if (version != "EditorManagerV1")
         return false;
 
@@ -1271,13 +1295,11 @@ bool EditorManager::restoreState(const QByteArray &state)
 
     int editorCount = 0;
     stream >> editorCount;
-    qDebug() << "restore editors:" << editorCount;
     while (--editorCount >= 0) {
         QString fileName;
         stream >> fileName;
         QByteArray kind;
         stream >> kind;
-        qDebug() << "openEditor" << fileName << kind;
         openEditor(fileName, kind, true);
     }
 
@@ -1445,6 +1467,22 @@ QString EditorManager::externalEditor() const
     if (m_d->m_externalEditor.isEmpty())
         return defaultExternalEditor();
     return m_d->m_externalEditor;
+}
+
+
+void EditorManager::split()
+{
+    qDebug() << "split";
+}
+
+void EditorManager::splitSideBySide()
+{
+    qDebug() << "splitSideBySide";
+}
+
+void EditorManager::unsplit()
+{
+    qDebug() << "unsplit";
 }
 
 //===================EditorClosingCoreListener======================

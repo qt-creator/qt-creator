@@ -76,6 +76,7 @@ void EditorSplitter::registerActions()
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     Command *cmd;
 
+#if 0
     //Horizontal Action
     m_horizontalSplitAction = new QAction(tr("Split Left/Right"), this);
     cmd = am->registerAction(m_horizontalSplitAction, Constants::HORIZONTAL, editorManagerContext);
@@ -96,6 +97,8 @@ void EditorSplitter::registerActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_unsplitAction, SIGNAL(triggered()),
             this, SLOT(unsplit()));
+
+#endif
 
     //Default Layout menu
     ActionContainer *mLayout = am->createMenu("QtCreator.Menu.Window.Layout");
