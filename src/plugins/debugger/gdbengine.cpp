@@ -467,20 +467,6 @@ void GdbEngine::handleResponse()
                 break;
             }
 
-            case '#': {
-                //qDebug() << "CUSTOM OUTPUT, TOKEN" << token;
-                QString str;
-                for (; from != to && *from >= '0' && *from <= '9'; ++from)
-                    str += QLatin1Char(*from);
-                ++from; // skip the ' '
-                int len = str.toInt();
-                QByteArray ba(from, len);
-                from += len;
-                m_inbuffer = QByteArray(from, to - from);
-                m_customOutputForToken[token] += QString(ba);
-                break;
-            }
-
             case '^': {
                 GdbResultRecord record;
 
@@ -1562,6 +1548,7 @@ bool GdbEngine::startDebugger()
     //sendCommand("set confirm off");
     //sendCommand("set pagination off");
     sendCommand("set breakpoint pending on", BreakEnablePending);
+    sendCommand("set print elements 10000");
 
     // one of the following is needed to prevent crashes in gdb on code like:
     //  template <class T> T foo() { return T(0); }
@@ -3078,14 +3065,11 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
             .arg(m_pendingRequests + 1), 10000);
-    // create response slot for socket data
+
+    // retrieve response
     QVariant var;
     var.setValue(data);
-    sendSynchronizedCommand(QString(), WatchDumpCustomValue2, var);
-
-    // this increases the probability that gdb spits out output it
-    // has collected so far
-    //sendCommand("p qDumpInBuffer");
+    sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDumpCustomValue2, var);
 }
 
 void GdbEngine::createGdbVariable(const WatchData &data)
@@ -3318,14 +3302,17 @@ void GdbEngine::handleQueryDataDumper1(const GdbResultRecord &record)
 
 void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
 {
-    // is this the official gdb response. However, it won't contain
-    // interesting data other than the information that 'real' data
-    // either already arrived or is still in the pipe. So we do
-    // _not_ register this result for counting purposes, this will
-    // be done by the 'real' result (with resultClass == GdbResultCustomDone)
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
-    GdbMi output = record.data.findChild("customvaluecontents");
-    GdbMi contents(output.data());
+    GdbMi output = record.data.findChild("consolestreamoutput");
+    QByteArray out = output.data();
+    out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
+    out = out.left(out.lastIndexOf('"'));
+    out = out.replace('\'', '"');
+    out = "dummy={" + out + "}";
+    //qDebug() << "OUTPUT: " << out;
+
+    GdbMi contents;
+    contents.fromString(out);
     GdbMi simple = contents.findChild("dumpers");
     m_namespace = contents.findChild("namespace").data();
     GdbMi qtversion = contents.findChild("qtversion");
@@ -3337,8 +3324,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     } else {
         m_qtVersion = 0;
     }
-    
-    //qDebug() << "OUTPUT: " << output.toString();
+   
     //qDebug() << "CONTENTS: " << contents.toString();
     //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
     m_availableSimpleDumpers.clear();
@@ -3479,7 +3465,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
         QString msg = record.data.findChild("msg").data();
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
-        // Make debugging of dumers easier
+        // Make debugging of dumpers easier
         if (q->settings()->m_debugDumpers
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
@@ -3507,10 +3493,20 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     //qDebug() << "CUSTOM VALUE RESULT: " << record.toString();
     //qDebug() << "FOR DATA: " << data.toString() << record.resultClass;
     if (record.resultClass == GdbResultDone) {
-        GdbMi output = record.data.findChild("customvaluecontents");
-        //qDebug() << "HANDLE VALUE CONTENTS: " << output.toString(true);
-        if (!output.isValid()) {
-             //qDebug() << "INVALID";
+        GdbMi output = record.data.findChild("consolestreamoutput");
+        QByteArray out = output.data();
+        out = out.mid(out.indexOf('"') + 2);  // + 1  is the 'success marker'
+        out = out.left(out.lastIndexOf('"'));
+        out = out.replace('\'', '"');
+        out = "dummy={" + out + "}";
+        //qDebug() << "OUTPUT: " << out;
+
+        GdbMi contents;
+        contents.fromString(out);
+        //qDebug() << "CONTENTS" << contents.toString(true);
+
+        if (!contents.isValid()) {
+             qDebug() << "INVALID";
              // custom dumper produced no output
              if (data.isValueNeeded())
                  data.setValue("<unknown>");
@@ -3523,10 +3519,6 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
              data.setValueToolTip("<custom dumper produced no output>");
              insertData(data);
         } else {
-            GdbMi contents;
-            //qDebug() << "OUTPUT" << output.toString(true);
-            contents.fromString(output.data());
-            //qDebug() << "CONTENTS" << contents.toString(true);
             setWatchDataType(data, contents.findChild("type"));
             setWatchDataValue(data, contents.findChild("value"),
                 contents.findChild("valueencoded").data().toInt());
@@ -4020,8 +4012,7 @@ void GdbEngine::tryLoadCustomDumpers()
     // retreive list of dumpable classes
     sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
         GdbQueryDataDumper1);
-    // create response slot for socket data
-    sendCommand(QString(), GdbQueryDataDumper2);
+    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
 }
 
 

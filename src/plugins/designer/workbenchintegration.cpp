@@ -59,7 +59,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-enum { debugSlotNavigation = 0 };
 enum { indentation = 4 };
 
 using namespace Designer::Internal;
@@ -149,7 +148,7 @@ static bool matchMemberClassName(const QString &needle, const QString &hayStack)
 // Find class definition in namespace
 static const Class *findClass(const Namespace *parentNameSpace, const QString &className, QString *namespaceName)
 {
-    if (debugSlotNavigation)
+    if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << className;
 
     const Overview o;
@@ -487,7 +486,7 @@ static ClassDocumentPtrPair
                              const Document::Ptr &doc, const QString &className,
                              unsigned maxIncludeDepth, QString *namespaceName)
 {
-    if (debugSlotNavigation)
+    if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << doc->fileName() << maxIncludeDepth;
     // Check document
     if (const Class *cl = findClass(doc->globalNamespace(), className, namespaceName))
@@ -548,8 +547,8 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     const CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
     QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
 
-    if (debugSlotNavigation)
-        qDebug() << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
     if (docList.isEmpty()) {
         *errorMessage = tr("No documents matching %1 could be found.").arg(uicedName);
         return false;
@@ -559,7 +558,7 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
 
     const QString uiClass = uiClassName(fwi->mainContainer()->objectName());
 
-    if (debugSlotNavigation)
+    if (Designer::Constants::Internal::debug)
         qDebug() << "Checking docs for " << uiClass;
 
     // Find the class definition in the file itself or in the directly
@@ -587,8 +586,8 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     const QString functionName = QLatin1String("on_") + objectName + QLatin1Char('_') + signalSignature;
     const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
 
-    if (debugSlotNavigation)
-        qDebug() << "Found " << uiClass << doc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << "Found " << uiClass << doc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
 
     int line = 0;
     Document::Ptr sourceDoc;

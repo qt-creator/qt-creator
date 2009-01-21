@@ -69,7 +69,7 @@ class CORE_EXPORT FileManager : public QObject
     };
 
 public:
-    FileManager(Core::ICore *core, Internal::MainWindow *ew);
+    explicit FileManager(Internal::MainWindow *ew);
 
     // file pool to monitor
     bool addFiles(const QList<IFile *> &files);
@@ -99,10 +99,9 @@ public:
     QString getSaveAsFileName(IFile *file);
 
     QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files);
-    QList<IFile *> saveModifiedFiles(
-                                    const QList<IFile *> &files,
-                                    bool *cancelled = 0,
-                                    const QString &message = QString());
+    QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
+                                     bool *cancelled = 0,
+                                     const QString &message = QString());
 
 signals:
     void currentFileChanged(const QString &filePath);
@@ -130,7 +129,6 @@ private:
 
     QString m_currentFile;
 
-    Core::ICore *m_core;
     Internal::MainWindow *m_mainWindow;
     QFileSystemWatcher *m_fileWatcher;
     QList<QPointer<IFile> > m_changedFiles;

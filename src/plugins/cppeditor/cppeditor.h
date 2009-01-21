@@ -35,19 +35,13 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
+
 #include <cplusplus/CppDocument.h>
 #include <texteditor/basetexteditor.h>
-#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QComboBox;
-class QStringListModel;
 QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-}
 
 namespace CPlusPlus {
 class OverviewModel;
@@ -136,7 +130,6 @@ private:
 
     bool openEditorAt(CPlusPlus::Symbol *symbol);
 
-    Core::ICore *m_core;
     CppTools::CppModelManagerInterface *m_modelManager;
 
     QList<int> m_contexts;

@@ -95,7 +95,7 @@ QString PromptDialog::input() const
 WorkbenchClientUser::WorkbenchClientUser(PerforceOutputWindow *out, PerforcePlugin *plugin)  :
     QObject(out),
     m_plugin(plugin),
-    m_coreIFace(PerforcePlugin::coreInstance()),
+    m_core(Core::ICore::instance()),
     m_currentEditorIface(0),
     m_userCancelled(false),
     m_mode(Submit),
@@ -103,7 +103,7 @@ WorkbenchClientUser::WorkbenchClientUser(PerforceOutputWindow *out, PerforcePlug
     m_skipNextMsg(false),
     m_eventLoop(new QEventLoop(this))
 {
-    connect(m_coreIFace, SIGNAL(coreAboutToClose()),
+    connect(m_core, SIGNAL(coreAboutToClose()),
         this, SLOT(cancelP4Command()));
 }
 
@@ -147,13 +147,13 @@ void WorkbenchClientUser::displayErrorMsg(const QString &msg)
     const QString title = tr("Perforce Error");
     switch (m_mode) {
     case Submit: {
-        QMessageBox msgBox(QMessageBox::Critical, title,  msg, QMessageBox::Ok, m_coreIFace->mainWindow());
+        QMessageBox msgBox(QMessageBox::Critical, title,  msg, QMessageBox::Ok, m_core->mainWindow());
         msgBox.setDetailedText(m_msg);
         msgBox.exec();
     }
         break;
     default:
-        QMessageBox::critical(m_coreIFace->mainWindow(), title, msg);
+        QMessageBox::critical(m_core->mainWindow(), title, msg);
         break;
     }
     m_errMsg.clear();
@@ -182,7 +182,7 @@ bool WorkbenchClientUser::editorAboutToClose(Core::IEditor *editor)
     if (editor && editor == m_currentEditorIface) {
         if (m_mode == WorkbenchClientUser::Submit) {
             const QMessageBox::StandardButton answer =
-                QMessageBox::question(m_coreIFace->mainWindow(),
+                QMessageBox::question(m_core->mainWindow(),
                                       tr("Closing p4 Editor"),
                                       tr("Do you want to submit this change list?"),
                                       QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
@@ -190,9 +190,9 @@ bool WorkbenchClientUser::editorAboutToClose(Core::IEditor *editor)
                 return false;
             if (answer == QMessageBox::No)
                 m_userCancelled = true;
-            m_coreIFace->fileManager()->blockFileChange(m_currentEditorIface->file());
+            m_core->fileManager()->blockFileChange(m_currentEditorIface->file());
             m_currentEditorIface->file()->save();
-            m_coreIFace->fileManager()->unblockFileChange(m_currentEditorIface->file());
+            m_core->fileManager()->unblockFileChange(m_currentEditorIface->file());
         }
         m_eventLoop->quit();
         m_currentEditorIface = 0;
@@ -228,7 +228,7 @@ void WorkbenchClientUser::Diff(FileSys *f1, FileSys *f2, int, char *, Error *err
     delete file2;
 
     QString title = QString("diff %1").arg(f1->Name());
-    m_currentEditorIface = m_coreIFace->editorManager()->newFile("Perforce Editor", &title, tmp.readAll());
+    m_currentEditorIface = m_core->editorManager()->newFile("Perforce Editor", &title, tmp.readAll());
     if (!m_currentEditorIface) {
         err->Set(E_FAILED, "p4 data could not be opened!");
         return;
@@ -246,8 +246,8 @@ void WorkbenchClientUser::Edit(FileSys *f, Error *err)
         m_currentEditorIface = m_plugin->openPerforceSubmitEditor(fileName, QStringList());
     }
     else {
-        m_currentEditorIface = m_coreIFace->editorManager()->openEditor(fileName);
-        m_coreIFace->editorManager()->ensureEditorManagerVisible();
+        m_currentEditorIface = m_core->editorManager()->openEditor(fileName);
+        m_core->editorManager()->ensureEditorManagerVisible();
     }
     if (!m_currentEditorIface) {
         err->Set(E_FAILED, "p4 data could not be opened!");
@@ -265,7 +265,7 @@ void WorkbenchClientUser::Prompt(const StrPtr &msg, StrBuf &answer, int , Error 
         err->Set(E_FATAL, "");
         return;
     }
-    PromptDialog dia(msg.Text(), m_msg, qobject_cast<QWidget*>(m_coreIFace));
+    PromptDialog dia(msg.Text(), m_msg, qobject_cast<QWidget*>(m_core));
     dia.exec();
     answer = qstrdup(dia.input().toLatin1().constData());
     if (m_mode == WorkbenchClientUser::Resolve) {
@@ -282,5 +282,5 @@ void WorkbenchClientUser::Prompt(const StrPtr &msg, StrBuf &answer, int , Error 
 
 void WorkbenchClientUser::ErrorPause(char *msg, Error *)
 {
-    QMessageBox::warning(m_coreIFace->mainWindow(), tr("Perforce Error"), QString::fromUtf8(msg));
+    QMessageBox::warning(m_core->mainWindow(), tr("Perforce Error"), QString::fromUtf8(msg));
 }

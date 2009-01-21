@@ -222,7 +222,7 @@ ActionManagerPrivate::~ActionManagerPrivate()
     qDeleteAll(m_idContainerMap.values());
 }
 
-ActionManagerPrivate* ActionManagerPrivate::instance()
+ActionManagerPrivate *ActionManagerPrivate::instance()
 {
     return m_instance;
 }

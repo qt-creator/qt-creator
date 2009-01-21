@@ -54,7 +54,6 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class ICore;
     class IEditorFactory;
     class IVersionControl;
 }
@@ -189,7 +188,6 @@ private:
     static const char * const STATUS;
     static const char * const UPDATE;
 
-    static Core::ICore *m_coreInstance;
     static SubversionPlugin *m_subversionPluginInstance;
 
     friend class SubversionOutputWindow;

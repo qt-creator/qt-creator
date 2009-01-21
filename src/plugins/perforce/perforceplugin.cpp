@@ -58,7 +58,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

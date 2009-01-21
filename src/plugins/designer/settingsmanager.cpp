@@ -32,26 +32,23 @@
 ***************************************************************************/
 
 #include "settingsmanager.h"
+#include "designerconstants.h"
 
 #include <QtCore/QDebug>
 
 using namespace Designer::Internal;
 
-namespace {
-    bool debug = false;
-}
-
 void SettingsManager::beginGroup(const QString &prefix)
 {
-    if (debug)
-        qDebug() << "Designer - beginning group " << addPrefix(prefix);
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << addPrefix(prefix);
     m_settings.beginGroup(addPrefix(prefix));
 }
 
 void SettingsManager::endGroup()
 {
-    if (debug)
-        qDebug() << "Designer - end group";
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO;
     m_settings.endGroup();
 }
 
@@ -62,16 +59,16 @@ bool SettingsManager::contains(const QString &key) const
 
 void SettingsManager::setValue(const QString &key, const QVariant &value)
 {
-    if (debug)
-        qDebug() << "Designer - storing " << addPrefix(key) << ": " << value;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO  << addPrefix(key) << ": " << value;
     m_settings.setValue(addPrefix(key), value);
 }
 
 QVariant SettingsManager::value(const QString &key, const QVariant &defaultValue) const
 {
     QVariant result = m_settings.value(addPrefix(key), defaultValue);
-    if (debug)
-        qDebug() << "Designer - retrieving " << addPrefix(key) << ": " << result;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << addPrefix(key) << ": " << result;
     return result;
 }
 

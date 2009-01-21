@@ -34,8 +34,6 @@
 #ifndef DEBUGGER_GDBMI_H
 #define DEBUGGER_GDBMI_H
 
-#include <qglobal.h>
-
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
 
@@ -125,8 +123,8 @@ public:
     inline const QList<GdbMi> &children() const { return m_children; }
     inline int childCount() const { return m_children.size(); }
 
-    const GdbMi & childAt(int index) const { return m_children[index]; } 
-    GdbMi & childAt(int index) { return m_children[index]; }
+    const GdbMi &childAt(int index) const { return m_children[index]; } 
+    GdbMi &childAt(int index) { return m_children[index]; }
     GdbMi findChild(const QByteArray &name) const;
     GdbMi findChild(const QByteArray &name, const QByteArray &defaultString) const;
 
@@ -138,14 +136,12 @@ private:
     friend class GdbResultRecord;
     friend class GdbEngine;
 
-    //typedef ushort Char;
-    typedef char Char;
-    static QByteArray parseCString(const Char *&from, const Char *to);
-    void parseResultOrValue(const Char *&from, const Char *to);
-    void parseValue(const Char *&from, const Char *to);
-    void parseTuple(const Char *&from, const Char *to);
-    void parseTuple_helper(const Char *&from, const Char *to);
-    void parseList(const Char *&from, const Char *to);
+    static QByteArray parseCString(const char *&from, const char *to);
+    void parseResultOrValue(const char *&from, const char *to);
+    void parseValue(const char *&from, const char *to);
+    void parseTuple(const char *&from, const char *to);
+    void parseTuple_helper(const char *&from, const char *to);
+    void parseList(const char *&from, const char *to);
 
     void dumpChildren(QByteArray *str, bool multiline, int indent) const;
 };
@@ -171,8 +167,6 @@ public:
     int            token;
     GdbResultClass resultClass;
     GdbMi          data;
-private:
-    friend class GdbMi;
 };
 
 } // namespace Internal

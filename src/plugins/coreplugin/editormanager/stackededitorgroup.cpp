@@ -34,7 +34,6 @@
 #include "stackededitorgroup.h"
 #include "editormanager.h"
 #include "editorview.h"
-#include "coreimpl.h"
 
 #include <utils/qtcassert.h>
 
@@ -356,7 +355,7 @@ QList<IEditor *> StackedEditorGroup::editorsInNaturalOrder() const
 
 void StackedEditorGroup::makeEditorWritable()
 {
-    CoreImpl::instance()->editorManager()->makeEditorWritable(currentEditor());
+    EditorManager::instance()->makeEditorWritable(currentEditor());
 }
 
 void StackedEditorGroup::listSelectionChanged(int index)

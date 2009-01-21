@@ -64,8 +64,6 @@ using ProjectExplorer::ProjectNode;
 using ProjectExplorer::FolderNode;
 using ProjectExplorer::FileNode;
 
-enum { debugFormWindowEditor = 0 };
-
 class QrcFilesVisitor : public NodesVisitor
 {
 public:
@@ -96,22 +94,21 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 
-FormWindowEditor::FormWindowEditor(Core::ICore *core,
-                                   const QList<int> &context,
+FormWindowEditor::FormWindowEditor(const QList<int> &context,
                                    QDesignerFormWindowInterface *form,
-                                   QObject *parent) :
-    Core::IEditor(parent),
+                                   QObject *parent)
+  : Core::IEditor(parent),
     m_context(context),
     m_formWindow(form),
-    m_file(new FormWindowFile(core, form, this)),
+    m_file(new FormWindowFile(form, this)),
     m_host(new FormWindowHost(form)),
     m_editorWidget(new EditorWidget(m_host)),
     m_toolBar(0),
     m_sessionNode(0),
     m_sessionWatcher(0)
 {
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::FormWindowEditor" << form << parent;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << form << parent;
 
     connect(m_file, SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
     connect(m_file, SIGNAL(setDisplayName(QString)), this, SLOT(slotSetDisplayName(QString)));
@@ -131,8 +128,8 @@ FormWindowEditor::~FormWindowEditor()
     delete m_toolBar;
     delete m_host;
     delete m_editorWidget;
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::~FormWindowEditor" << m_displayName;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << m_displayName;
     if (m_sessionNode && m_sessionWatcher) {
         m_sessionNode->unregisterWatcher(m_sessionWatcher);
         delete m_sessionWatcher;
@@ -141,8 +138,8 @@ FormWindowEditor::~FormWindowEditor()
 
 bool FormWindowEditor::createNew(const QString &contents)
 {
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::createNew()" << contents.size() << "chars";
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << contents.size() << "chars";
 
     if (!m_formWindow)
         return false;
@@ -158,8 +155,8 @@ bool FormWindowEditor::createNew(const QString &contents)
 
 bool FormWindowEditor::open(const QString &fileName /*= QString()*/)
 {
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::open" << fileName;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << fileName;
 
     if (fileName.isEmpty()) {
         setDisplayName(tr("untitled"));
@@ -241,8 +238,8 @@ void FormWindowEditor::slotOpen(const QString &fileName)
 
 void FormWindowEditor::slotSetDisplayName(const QString &title)
 {
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::slotSetDisplayName" << title;
+    if (Designer::Constants::Internal::debug)
+        qDebug() <<  Q_FUNC_INFO << title;
     setDisplayName(title);
 }
 
@@ -305,8 +302,8 @@ QWidget *FormWindowEditor::widget()
 
 bool FormWindowEditor::generateCode(QByteArray &header, QString &errorMessage) const
 {
-    if (debugFormWindowEditor)
-        qDebug() << "FormWindowEditor::generateCode";
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO;
 
     QString tempPattern = QDir::tempPath();
     if (!tempPattern.endsWith(QDir::separator())) // platform-dependant

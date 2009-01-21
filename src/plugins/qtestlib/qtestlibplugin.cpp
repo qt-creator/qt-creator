@@ -33,19 +33,19 @@
 
 #include "qtestlibplugin.h"
 
-#include <Qt4IProjectManagers>
-#include <texteditor/TextEditorInterfaces>
+//#include <Qt4IProjectManagers>
+//#include <texteditor/TextEditorInterfaces>
 
-#include <QtCore/QAction>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QIcon>
-#include <QtCore/QKeySequence>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QtPlugin>
+#include <QtGui/QAction>
 #include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>
+#include <QtGui/QIcon>
+#include <QtGui/QKeySequence>
 #include <QtGui/QLabel>
 #include <QtGui/QSplitter>
 #include <QtGui/QStandardItemModel>
@@ -129,10 +129,9 @@ QTestLibPlugin::~QTestLibPlugin()
         m_core->pluginManager()->removeObject(m_outputPane);
 }
 
-bool QTestLibPlugin::init(ExtensionSystem::PluginManagerInterface *app, QString * /*error_message*/)
+bool QTestLibPlugin::init(ExtensionSystem::PluginManagerInterface *app, QString *errorMessage)
 {
-    m_core = app->getObject<Core::ICore>();
-
+    Q_UNUSED(errorMessage);
     m_projectExplorer = app->getObject<ProjectExplorer::ProjectExplorerPlugin>();
     connect(m_projectExplorer->qObject(), SIGNAL(aboutToExecuteProject(ProjectExplorer::Project *)),
             this, SLOT(projectRunHook(ProjectExplorer::Project *)));
@@ -383,9 +382,8 @@ bool QTestOutputFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourc
 // ------- QTestOutputWidget
 
 
-QTestOutputWidget::QTestOutputWidget(QStandardItemModel *model, Core::ICore *coreInterface, QWidget *parent):
-    QWidget(parent),
-    m_coreInterface(coreInterface),
+QTestOutputWidget::QTestOutputWidget(QStandardItemModel *model, QWidget *parent)
+  : QWidget(parent),
     m_model(model),
     m_resultsView(new QTreeView(this)),
     m_filterCombo(new QComboBox(this)),

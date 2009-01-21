@@ -69,7 +69,7 @@ public:
     ~ActionManagerPrivate();
 
     void setContext(const QList<int> &context);
-    static ActionManagerPrivate* instance();
+    static ActionManagerPrivate *instance();
 
     void saveSettings(QSettings *settings);
     QList<int> defaultGroups() const;

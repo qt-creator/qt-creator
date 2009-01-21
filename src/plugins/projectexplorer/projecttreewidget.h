@@ -39,10 +39,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QTreeView>
 
-namespace Core {
-class ICore;
-}
-
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
@@ -53,10 +49,11 @@ namespace Internal {
 
 class FlatModel;
 
-class ProjectTreeWidget : public QWidget {
+class ProjectTreeWidget : public QWidget
+{
     Q_OBJECT
 public:
-    ProjectTreeWidget(Core::ICore *core, QWidget *parent = 0);
+    explicit ProjectTreeWidget(QWidget *parent = 0);
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync, bool syncNow = true);
@@ -81,7 +78,6 @@ private slots:
     void initView();
 
 private:
-    Core::ICore *m_core;
     ProjectExplorerPlugin *m_explorer;
     QTreeView *m_view;
     FlatModel *m_model;
@@ -99,15 +95,13 @@ private:
 class ProjectTreeWidgetFactory : public Core::INavigationWidgetFactory
 {
 public:
-    ProjectTreeWidgetFactory(Core::ICore *core);
+    ProjectTreeWidgetFactory();
     virtual ~ProjectTreeWidgetFactory();
     virtual QString displayName();
     virtual QKeySequence activationSequence();
     virtual Core::NavigationView createWidget();
     void restoreSettings(int position, QWidget *widget);
     void saveSettings(int position, QWidget *widget);
-private:
-    Core::ICore *m_core;
 };
 
 } // namespace Internal

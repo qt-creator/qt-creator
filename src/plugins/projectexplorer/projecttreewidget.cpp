@@ -112,9 +112,8 @@ protected:
 
   Shows the projects in form of a tree.
   */
-ProjectTreeWidget::ProjectTreeWidget(Core::ICore *core, QWidget *parent)
+ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
         : QWidget(parent),
-          m_core(core),
           m_explorer(ProjectExplorerPlugin::instance()),
           m_view(0),
           m_model(0),
@@ -277,9 +276,8 @@ void ProjectTreeWidget::initView()
         m_model->fetchMore(sessionIndex);
 
     // expand top level projects
-    for (int i = 0; i < m_model->rowCount(sessionIndex); ++i) {
+    for (int i = 0; i < m_model->rowCount(sessionIndex); ++i)
         m_view->expand(m_model->index(i, 0, sessionIndex));
-    }
 
     setCurrentItem(m_explorer->currentNode(), m_explorer->currentProject());
 }
@@ -288,8 +286,9 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
 {
     Node *node = m_model->nodeForIndex(mainIndex);
     if (node->nodeType() == FileNodeType) {
-        m_core->editorManager()->openEditor(node->path());
-        m_core->editorManager()->ensureEditorManagerVisible();
+        Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+        editorManager->openEditor(node->path());
+        editorManager->ensureEditorManagerVisible();
     }
 }
 
@@ -316,8 +315,7 @@ bool ProjectTreeWidget::projectFilter()
 }
 
 
-ProjectTreeWidgetFactory::ProjectTreeWidgetFactory(Core::ICore *core)
-    : m_core(core)
+ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 {
 }
 
@@ -338,7 +336,7 @@ QKeySequence ProjectTreeWidgetFactory::activationSequence()
 Core::NavigationView ProjectTreeWidgetFactory::createWidget()
 {
     Core::NavigationView n;
-    ProjectTreeWidget *ptw = new ProjectTreeWidget(m_core);
+    ProjectTreeWidget *ptw = new ProjectTreeWidget;
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
@@ -359,16 +357,18 @@ void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
 {
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", ptw->projectFilter());
-    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", ptw->generatedFilesFilter());
-    m_core->settings()->setValue("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", ptw->autoSynchronization());
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->setValue("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", ptw->projectFilter());
+    settings->setValue("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", ptw->generatedFilesFilter());
+    settings->setValue("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", ptw->autoSynchronization());
 }
 
 void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
 {
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    ptw->setProjectFilter(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", false).toBool());
-    ptw->setGeneratedFilesFilter(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", true).toBool());
-    ptw->setAutoSynchronization(m_core->settings()->value("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", true).toBool());
+    QSettings *settings = Core::ICore::instance()->settings();
+    ptw->setProjectFilter(settings->value("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", false).toBool());
+    ptw->setGeneratedFilesFilter(settings->value("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", true).toBool());
+    ptw->setAutoSynchronization(settings->value("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", true).toBool());
 }

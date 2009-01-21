@@ -55,7 +55,7 @@
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;
 
-OutputPane::OutputPane(Core::ICore *core)
+OutputPane::OutputPane()
     : m_mainWidget(new QWidget)
 {
 //     m_insertLineButton = new QToolButton;
@@ -78,7 +78,7 @@ OutputPane::OutputPane(Core::ICore *core)
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QList<int> globalcontext;
     globalcontext.append(Core::Constants::C_GLOBAL_ID);
 
@@ -107,8 +107,7 @@ OutputPane::OutputPane(Core::ICore *core)
     connect(m_tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     layout->addWidget(m_tabWidget);
 
-    connect(m_tabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(tabChanged(int)));
+    connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
     m_mainWidget->setLayout(layout);
 }
@@ -129,7 +128,7 @@ QWidget *OutputPane::outputWidget(QWidget *)
     return m_mainWidget;
 }
 
-QList<QWidget*> OutputPane::toolBarWidgets(void) const
+QList<QWidget*> OutputPane::toolBarWidgets() const
 {
     return QList<QWidget*>() << m_reRunButton << m_stopButton
             ; // << m_insertLineButton;

@@ -276,10 +276,10 @@ public:
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
 
     bool duplicateSupported() const { return false; }
-    IEditor *duplicate(QWidget */*parent*/) { return 0; }
+    IEditor *duplicate(QWidget * /* parent */) { return 0; }
 
-    QByteArray saveState() const { return QByteArray();} // TODO
-    bool restoreState(const QByteArray &/*state*/) {return false;} // TODO
+    QByteArray saveState() const { return QByteArray(); } // TODO
+    bool restoreState(const QByteArray & /* state */) { return false; } // TODO
 
     QToolBar *toolBar() { return m_toolBar; }
 
