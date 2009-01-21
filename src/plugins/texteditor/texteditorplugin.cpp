@@ -43,6 +43,7 @@
 #include "plaintexteditor.h"
 #include "storagesettings.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>

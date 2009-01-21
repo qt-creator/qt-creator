@@ -338,27 +338,17 @@ QStringList BinEditorFactory::mimeTypes() const
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin *BinEditorPlugin::m_instance = 0;
-
 BinEditorPlugin::BinEditorPlugin()
 {
     m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
-    m_instance = this;
 }
 
 BinEditorPlugin::~BinEditorPlugin()
 {
-    m_instance = 0;
-}
-
-BinEditorPlugin *BinEditorPlugin::instance()
-{
-    return m_instance;
 }
 
 QAction *BinEditorPlugin::registerNewAction(const QString &id, const QString &title)
 {
-
     QAction *result = new QAction(title, this);
     Core::ICore::instance()->actionManager()->registerAction(result, id, m_context);
     return result;

@@ -42,15 +42,15 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
-    :BaseTextEditorEditable(editor)
+  : BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-PlainTextEditor::PlainTextEditor(QWidget *parent) :
-    BaseTextEditor(parent)
+PlainTextEditor::PlainTextEditor(QWidget *parent)
+  : BaseTextEditor(parent)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
