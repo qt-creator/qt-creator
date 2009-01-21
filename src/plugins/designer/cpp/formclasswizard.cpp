@@ -43,8 +43,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-enum { debugFormClassWizard = 0 };
-
 using namespace Designer;
 using namespace Designer::Internal;
 
@@ -111,7 +109,7 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     sourceFile.setContents(source);
     headerFile.setContents(header);
 
-    if (debugFormClassWizard)
+    if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << '\n' << header << '\n' << source;
 
     return  Core::GeneratedFiles() << headerFile << sourceFile << uiFile;
