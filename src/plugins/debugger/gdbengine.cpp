@@ -467,20 +467,6 @@ void GdbEngine::handleResponse()
                 break;
             }
 
-            case '#': {
-                //qDebug() << "CUSTOM OUTPUT, TOKEN" << token;
-                QString str;
-                for (; from != to && *from >= '0' && *from <= '9'; ++from)
-                    str += QLatin1Char(*from);
-                ++from; // skip the ' '
-                int len = str.toInt();
-                QByteArray ba(from, len);
-                from += len;
-                m_inbuffer = QByteArray(from, to - from);
-                m_customOutputForToken[token] += QString(ba);
-                break;
-            }
-
             case '^': {
                 GdbResultRecord record;
 
@@ -3320,9 +3306,9 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     GdbMi output = record.data.findChild("consolestreamoutput");
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
-    out = out.replace('\\', "");
     out = out.left(out.lastIndexOf('"'));
-    out = "result={" + out + "}";
+    out = out.replace('\'', '"');
+    out = "dummy={" + out + "}";
     //qDebug() << "OUTPUT: " << out;
 
     GdbMi contents;
@@ -3507,14 +3493,12 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     //qDebug() << "CUSTOM VALUE RESULT: " << record.toString();
     //qDebug() << "FOR DATA: " << data.toString() << record.resultClass;
     if (record.resultClass == GdbResultDone) {
-        //GdbMi output = record.data.findChild("customvaluecontents");
-
         GdbMi output = record.data.findChild("consolestreamoutput");
         QByteArray out = output.data();
-        out = out.mid(out.indexOf('"') + 2);  // +1  is the 'success marker'
-        out = out.replace('\\', "");
+        out = out.mid(out.indexOf('"') + 2);  // + 1  is the 'success marker'
         out = out.left(out.lastIndexOf('"'));
-        out = "result={" + out + "}";
+        out = out.replace('\'', '"');
+        out = "dummy={" + out + "}";
         //qDebug() << "OUTPUT: " << out;
 
         GdbMi contents;
