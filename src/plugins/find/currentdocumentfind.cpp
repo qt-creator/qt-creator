@@ -45,8 +45,8 @@ using namespace Core;
 using namespace Find;
 using namespace Find::Internal;
 
-CurrentDocumentFind::CurrentDocumentFind(ICore *core)
-  : m_core(core), m_currentFind(0)
+CurrentDocumentFind::CurrentDocumentFind()
+  : m_currentFind(0)
 {
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)),
             this, SLOT(updateCurrentFindFilter(QWidget*,QWidget*)));

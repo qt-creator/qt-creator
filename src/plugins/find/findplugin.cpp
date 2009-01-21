@@ -77,14 +77,13 @@ FindPlugin::~FindPlugin()
 
 bool FindPlugin::initialize(const QStringList &, QString *)
 {
-    Core::ICore *core = Core::ICore::instance();
     setupMenu();
 
-    m_currentDocumentFind = new CurrentDocumentFind(core);
+    m_currentDocumentFind = new CurrentDocumentFind;
 
     m_findToolBar = new FindToolBar(this, m_currentDocumentFind);
     m_findDialog = new FindToolWindow(this);
-    SearchResultWindow *searchResultWindow = new SearchResultWindow(core);
+    SearchResultWindow *searchResultWindow = new SearchResultWindow;
     addAutoReleasedObject(searchResultWindow);
     return true;
 }
@@ -126,8 +125,7 @@ void FindPlugin::openFindFilter()
 
 void FindPlugin::setupMenu()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
@@ -150,8 +148,7 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::Command *cmd;
