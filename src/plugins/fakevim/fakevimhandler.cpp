@@ -1749,9 +1749,6 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
-#if 0
-    EDITOR(undo());
-#else
     if (m_undoStack.isEmpty()) {
         showBlackMessage(tr("Already at oldest change"));
     } else {
@@ -1764,7 +1761,7 @@ void FakeVimHandler::Private::undo()
             m_tc.setPosition(op.position, MoveAnchor);
             if (!op.to.isEmpty()) {
                 m_tc.setPosition(op.position + op.to.size(), KeepAnchor);
-                m_tc.deleteChar();
+                m_tc.removeSelectedText();
             }
             if (!op.from.isEmpty())
                 m_tc.insertText(op.from);
@@ -1773,14 +1770,10 @@ void FakeVimHandler::Private::undo()
         m_redoStack.push(op);
         showBlackMessage(QString());
     }
-#endif
 }
 
 void FakeVimHandler::Private::redo()
 {
-#if 0
-    EDITOR(redo());
-#else
     if (m_redoStack.isEmpty()) {
         showBlackMessage(tr("Already at newest change"));
     } else {
@@ -1793,7 +1786,7 @@ void FakeVimHandler::Private::redo()
             m_tc.setPosition(op.position, MoveAnchor);
             if (!op.from.isEmpty()) {
                 m_tc.setPosition(op.position + op.from.size(), KeepAnchor);
-                m_tc.deleteChar();
+                m_tc.removeSelectedText();
             }
             if (!op.to.isEmpty())
                 m_tc.insertText(op.to);
@@ -1802,7 +1795,6 @@ void FakeVimHandler::Private::redo()
         m_undoStack.push(op);
         showBlackMessage(QString());
     }
-#endif
 }
 
 void FakeVimHandler::Private::recordBeginGroup()
@@ -1816,6 +1808,10 @@ void FakeVimHandler::Private::recordBeginGroup()
 
 void FakeVimHandler::Private::recordEndGroup()
 {
+    if (m_undoGroupStack.isEmpty()) {
+        qWarning("fakevim: undo groups not balanced.\n");
+        return;
+    }
     EditOperation op;
     op.itemCount = m_undoStack.size() - m_undoGroupStack.pop();
     //qDebug() << "POP " << op.itemCount << m_undoStack;
@@ -1835,7 +1831,7 @@ QString FakeVimHandler::Private::recordRemoveSelectedText()
     op.from = m_tc.selection().toPlainText();
     //qDebug() << "OP: " << op;
     recordOperation(op);
-    m_tc.deleteChar();
+    m_tc.removeSelectedText();
     return op.from;
 }
 
@@ -1904,6 +1900,7 @@ void FakeVimHandler::Private::enterInsertMode()
     EDITOR(setOverwriteMode(false));
     m_mode = InsertMode;
     m_lastInsertion.clear();
+    recordBeginGroup();
 }
 
 void FakeVimHandler::Private::enterCommandMode()
