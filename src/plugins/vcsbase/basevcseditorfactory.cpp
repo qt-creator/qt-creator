@@ -35,7 +35,6 @@
 #include "vcsbaseplugin.h"
 #include "vcsbaseeditor.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -83,7 +82,7 @@ QString BaseVCSEditorFactory::kind() const
 
 Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

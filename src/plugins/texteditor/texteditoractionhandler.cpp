@@ -89,7 +89,7 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_moveLineUpAction = 0;
     m_moveLineDownAction = 0;
 
-    m_contextId << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(context);
+    m_contextId << Core::UniqueIDManager::instance()->uniqueIdentifier(context);
 
     connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext *)),
         this, SLOT(updateCurrentEditor(Core::IContext *)));

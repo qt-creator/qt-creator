@@ -166,7 +166,7 @@ void TextEditorPlugin::initializeEditor(TextEditor::PlainTextEditor *editor)
 
 void TextEditorPlugin::invokeCompletion()
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->currentEditor();
+    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor)
         editor->triggerCompletions();

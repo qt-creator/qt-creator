@@ -84,8 +84,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;
-    globalcontext << ICore::instance()->uniqueIDManager()->
-        uniqueIdentifier(Core::Constants::C_GLOBAL);
+    globalcontext << UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
     m_settingsPage = new SettingsPage();
@@ -129,7 +128,7 @@ void CodepasterPlugin::post()
 {
     if (m_poster)
         delete m_poster;
-    IEditor* editor = ICore::instance()->editorManager()->currentEditor();
+    IEditor* editor = EditorManager::instance()->currentEditor();
     ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
         return;
@@ -240,8 +239,7 @@ void CustomFetcher::customRequestFinished(int, bool error)
     QByteArray data = body();
     if (!m_listWidget) {
         QString title = QString::fromLatin1("Code Paster: %1").arg(m_id);
-        ICore::instance()->editorManager()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR
-                                                , &title, data);
+        EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, data);
     } else {
         m_listWidget->clear();
         QStringList lines = QString(data).split(QLatin1Char('\n'));

@@ -35,7 +35,6 @@
 #include "submiteditorfile.h"
 
 #include <coreplugin/ifile.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -84,7 +83,7 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_parameters(parameters),
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q))
 {
-    m_contexts << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(m_parameters->context);
+    m_contexts << Core::UniqueIDManager::instance()->uniqueIdentifier(m_parameters->context);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,

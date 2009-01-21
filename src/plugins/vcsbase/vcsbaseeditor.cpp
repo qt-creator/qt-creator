@@ -38,7 +38,6 @@
 #include "vcsbaseconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
@@ -85,10 +84,9 @@ VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)
     : BaseTextEditorEditable(editor), m_kind(type->kind)
 {
-    Core::ICore *core = Core::ICore::instance();
-    m_context << core->uniqueIDManager()->uniqueIdentifier(QLatin1String(type->context))
-              << core->uniqueIDManager()->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
-
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
+              << uidm->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
 }
 
 QList<int> VCSBaseEditorEditable::context() const
@@ -363,7 +361,7 @@ void VCSBaseEditor::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     Core::IEditor *ed = em->openEditor(fileName);
     em->ensureEditorManagerVisible();
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
@@ -409,8 +407,7 @@ static QTextCodec *findFileCodec(const QString &source)
 {
     typedef QList<Core::IEditor *> EditorList;
 
-    const EditorList editors =
-        Core::ICore::instance()->editorManager()->editorsForFileName(source);
+    const EditorList editors = Core::EditorManager::instance()->editorsForFileName(source);
     if (!editors.empty()) {
         const EditorList::const_iterator ecend =  editors.constEnd();
         for (EditorList::const_iterator it = editors.constBegin(); it != ecend; ++it)
