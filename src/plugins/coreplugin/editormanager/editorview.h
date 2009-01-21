@@ -148,6 +148,36 @@ private:
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
 };
 
+class SplitterOrView  : public QWidget
+{
+    Q_OBJECT
+public:
+    SplitterOrView(EditorView *view, QWidget *parent = 0); // creates a root splitter or view
+    SplitterOrView(Core::IEditor *editor, QWidget *parent = 0);
+
+    void split(Qt::Orientation orientation);
+    void unsplit(Core::IEditor *editor);
+
+    bool isView() const { return m_view != 0; }
+    Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
+    bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
+    EditorView *view() const { return m_view; }
+    QSplitter *splitter() const { return m_splitter; }
+
+    SplitterOrView *findView(Core::IEditor *editor);
+    SplitterOrView *findSplitter(Core::IEditor *editor);
+
+private:
+    void close();
+    void closeSplitterEditors();
+    bool m_isRoot;
+    QStackedLayout *m_layout;
+    EditorView *m_view;
+    QSplitter *m_splitter;
+};
+
+
 
 }
 }

@@ -69,11 +69,10 @@ struct EditorManagerPrivate;
 namespace Internal {
 class OpenEditorsWindow;
 class EditorModel;
-//class EditorSplitter;
+class SplitterOrView;
 
 class EditorClosingCoreListener;
 class OpenEditorsViewFactory;
-
 } // namespace Internal
 
 class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
@@ -121,7 +120,6 @@ public:
 //    EditorGroup *currentEditorGroup() const;
 
     QList<IEditor*> openedEditors() const;
-    QList<IEditor*> openedEditorsNoDuplicates() const;
 
     Internal::EditorModel *openedEditorsModel() const;
 
@@ -191,6 +189,7 @@ private slots:
     bool saveFileAs(Core::IEditor *editor = 0);
     void closeEditor();
     void closeEditor(Core::IEditor *editor);
+
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
     void updateCurrentEditorAndGroup(Core::IContext *context);
@@ -203,6 +202,7 @@ private slots:
     void split();
     void splitSideBySide();
     void unsplit();
+    void unsplitAll();
 
 private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
@@ -215,8 +215,13 @@ private:
 
     void restoreEditorState(IEditor *editor);
 
+    Core::IEditor *duplicateEditor(IEditor *editor);
+    void closeDuplicate(Core::IEditor *editor, bool doDelete);
+
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;
+
+    friend class Core::Internal::SplitterOrView;
 };
 
 //===================EditorClosingCoreListener======================

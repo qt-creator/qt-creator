@@ -333,8 +333,6 @@ void EditorView::insertEditor(int index, IEditor *editor)
         m_toolBar->layout()->addWidget(toolBar);
     }
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
-
-//    emit editorAdded(editor);
 }
 
 bool EditorView::hasEditor(IEditor *editor) const
@@ -464,3 +462,115 @@ void EditorView::listSelectionChanged(int index)
 }
 
 
+SplitterOrView::SplitterOrView(EditorView *view, QWidget *parent)
+        : QWidget(parent)
+{
+    m_isRoot = true;
+    m_layout = new QStackedLayout(this);
+    m_view = view;
+    m_splitter = 0;
+    m_layout->addWidget(m_view);
+}
+
+SplitterOrView::SplitterOrView(Core::IEditor *editor, QWidget *parent)
+        : QWidget(parent)
+{
+    m_isRoot = false;
+    m_layout = new QStackedLayout(this);
+    m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
+    m_view->addEditor(editor);
+    m_splitter = 0;
+    m_layout->addWidget(editor->widget());
+}
+
+SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
+{
+    if (hasEditor(editor))
+        return this;
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+                if (SplitterOrView *result = splitterOrView->findView(editor))
+                    return result;
+        }
+    }
+    return 0;
+}
+
+SplitterOrView *SplitterOrView::findSplitter(Core::IEditor *editor)
+{
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
+                if (splitterOrView->hasEditor(editor))
+                    return this;
+                if (SplitterOrView *result = splitterOrView->findSplitter(editor))
+                    return result;
+            }
+        }
+    }
+    return 0;
+}
+
+void SplitterOrView::split(Qt::Orientation orientation)
+{
+    Q_ASSERT(m_view && m_splitter == 0);
+    m_splitter = new QSplitter(this);
+    m_splitter->setOrientation(orientation);
+    Core::IEditor *e = m_view->currentEditor();
+
+    Core::IEditor *focus = e;
+    if (m_isRoot) {
+        Core::IEditor *duplicateA = CoreImpl::instance()->editorManager()->duplicateEditor(e);
+        m_splitter->addWidget(new SplitterOrView(duplicateA));
+        focus = duplicateA;
+    } else {
+        m_splitter->addWidget(new SplitterOrView(e));
+        Q_ASSERT(m_view->currentEditor() == 0);
+    }
+    Core::IEditor *duplicate = CoreImpl::instance()->editorManager()->duplicateEditor(e);
+    m_splitter->addWidget(new SplitterOrView(duplicate));
+    m_layout->addWidget(m_splitter);
+
+    if (!m_isRoot) {
+        delete m_view;
+        m_view = 0;
+    } else {
+        m_layout->setCurrentWidget(m_splitter);
+    }
+
+    focus->widget()->setFocus();
+}
+
+void SplitterOrView::close()
+{
+    foreach(Core::IEditor *e, editors())
+        CoreImpl::instance()->editorManager()->closeDuplicate(e, false);
+    closeSplitterEditors();
+}
+
+void SplitterOrView::closeSplitterEditors()
+{
+    if (!m_splitter)
+        return;
+    for (int i = 0; i < m_splitter->count(); ++i) {
+        if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
+            splitterOrView->close();
+        }
+    }
+}
+
+void SplitterOrView::unsplit(Core::IEditor *editor)
+{
+    if (!m_splitter)
+        return;
+    Q_ASSERT(m_isRoot || (m_view == 0 && editor));
+    if (!m_isRoot) {
+        m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
+        m_view->addEditor(editor);
+        m_layout->addWidget(m_view);
+    }
+    closeSplitterEditors();
+    delete m_splitter;
+    m_splitter = 0;
+}

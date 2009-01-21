@@ -137,7 +137,7 @@ struct EditorManagerPrivate {
     explicit EditorManagerPrivate(ICore *core, QWidget *parent);
     ~EditorManagerPrivate();
     Internal::EditorView *m_view;
-    QSplitter *m_splitter;
+    Internal::SplitterOrView *m_splitter;
     QStackedLayout *m_stackedLayout;
 
     ICore *m_core;
@@ -382,11 +382,12 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(this, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditorHistory()));
     m_d->m_view = new EditorView(m_d->m_editorModel, this);
+    m_d->m_splitter = new SplitterOrView(m_d->m_view);
     connect(m_d->m_view, SIGNAL(closeRequested(Core::IEditor *)),
             this, SLOT(closeEditor(Core::IEditor *)));
 
     m_d->m_stackedLayout = new QStackedLayout(this);
-    m_d->m_stackedLayout->addWidget(m_d->m_view);
+    m_d->m_stackedLayout->addWidget(m_d->m_splitter);
 
     updateActions();
 
@@ -554,7 +555,15 @@ void EditorManager::closeEditor(IEditor *editor)
         editor = currentEditor();
     if (!editor)
         return;
-    closeEditors(QList<IEditor *>() << editor);
+
+    if (m_d->m_view->hasEditor(editor)) {
+        unsplitAll();
+        closeEditors(QList<IEditor *>() << editor);
+    } else {
+        // ### TODO close duplicate editor
+    }
+
+
 }
 
 QList<IEditor*>
@@ -588,6 +597,7 @@ QList<IFile *>
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
+    unsplitAll();
     return closeEditors(openedEditors(), askAboutModifiedEditors);
 }
 
@@ -672,6 +682,12 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     return !closingFailed;
 }
 
+void EditorManager::closeDuplicate(Core::IEditor *editor, bool doDelete)
+{
+    emit editorAboutToClose(editor);
+    if (doDelete)
+        delete editor;
+}
 
 /* Find editors for a mimetype, best matching at the front
  * of the list. Recurse over the parent classes of the mimetype to
@@ -1162,11 +1178,6 @@ QList<IEditor*> EditorManager::openedEditors() const
     return m_d->m_view->editors();
 }
 
-QList<IEditor*> EditorManager::openedEditorsNoDuplicates() const
-{
-    return m_d->m_view->editors();
-}
-
 Internal::EditorModel *EditorManager::openedEditorsModel() const
 {
     return m_d->m_editorModel;
@@ -1286,7 +1297,7 @@ QByteArray EditorManager::saveState() const
 
     stream << m_d->m_editorStates;
 
-    QList<IEditor *> editors = openedEditorsNoDuplicates();
+    QList<IEditor *> editors = openedEditors();
     int editorCount = editors.count();
 
     qDebug() << "save editors:" << editorCount;
@@ -1501,19 +1512,36 @@ QString EditorManager::externalEditor() const
 }
 
 
+Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
+{
+    if (!editor->duplicateSupported())
+        return 0;
+
+    IEditor *duplicate = editor->duplicate(0);
+    // TODO ### emit signals
+    return duplicate;
+}
+
 void EditorManager::split()
 {
-    qDebug() << "split";
+    m_d->m_splitter->split(Qt::Vertical);
 }
 
 void EditorManager::splitSideBySide()
 {
-    qDebug() << "splitSideBySide";
+    m_d->m_splitter->split(Qt::Horizontal);
 }
 
 void EditorManager::unsplit()
 {
-    qDebug() << "unsplit";
+    unsplitAll(); // ### TODO
+}
+
+void EditorManager::unsplitAll()
+{
+    m_d->m_splitter->unsplit(0);
+    if (IEditor *e = m_d->m_splitter->editor())
+        setCurrentEditor(e);
 }
 
 //===================EditorClosingCoreListener======================

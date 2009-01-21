@@ -248,7 +248,7 @@ void OpenEditorsWindow::updateList()
     int curItem = 0;
     int selectedIndex = -1;
     QTreeWidgetItem *item;
-    foreach (IEditor *editor, em->openedEditorsNoDuplicates()){
+    foreach (IEditor *editor, em->openedEditors()){
         if (curItem < oldNum) {
             item = m_editorList->topLevelItem(curItem);
         } else {
