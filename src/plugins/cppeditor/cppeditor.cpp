@@ -139,10 +139,10 @@ QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &contex
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
-    Core::ICore *core = Core::ICore::instance();
-    m_context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
-    m_context << core->uniqueIDManager()->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
-    m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    m_context << uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
 CPPEditor::CPPEditor(QWidget *parent)
@@ -334,10 +334,10 @@ void CPPEditor::jumpToMethod(int)
     if (! symbol)
         return;
 
-    Core::ICore::instance()->editorManager()->addCurrentPositionToNavigationHistory(true);
+    Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(true);
     int line = symbol->line();
     gotoLine(line);
-    Core::ICore::instance()->editorManager()->addCurrentPositionToNavigationHistory();
+    Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
     setFocus();
 }
 

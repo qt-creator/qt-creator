@@ -89,8 +89,8 @@ Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
     m_contextProject(0),
     m_languageID(0)
 {
-    m_languageID = Core::ICore::instance()->uniqueIDManager()->
-        uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_languageID = Core::UniqueIDManager::instance()->
+                   uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Qt4Manager::~Qt4Manager()

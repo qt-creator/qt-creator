@@ -36,7 +36,6 @@
 #include "texteditorplugin.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 
 using namespace TextEditor;
@@ -45,11 +44,9 @@ using namespace TextEditor::Internal;
 PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
     :BaseTextEditorEditable(editor)
 {
-    Core::ICore *core = Core::ICore::instance();
-    m_context << core->uniqueIDManager()->
-        uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
-    m_context << core->uniqueIDManager()->
-        uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
+    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
 PlainTextEditor::PlainTextEditor(QWidget *parent) :

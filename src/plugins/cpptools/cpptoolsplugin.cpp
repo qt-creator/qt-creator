@@ -147,7 +147,7 @@ void CppToolsPlugin::shutdown()
 
 void CppToolsPlugin::switchHeaderSource()
 {
-    Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->currentEditor();
     QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
     if (!otherFile.isEmpty()) {
