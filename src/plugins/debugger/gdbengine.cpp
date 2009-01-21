@@ -3319,11 +3319,11 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("consolestreamoutput");
     QByteArray out = output.data();
-    out = out.mid(out.indexOf('"') + 1);
+    out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
     out = out.replace('\\', "");
     out = out.left(out.lastIndexOf('"'));
     out = "result={" + out + "}";
-    qDebug() << "OUTPUT: " << out;
+    //qDebug() << "OUTPUT: " << out;
 
     GdbMi contents;
     contents.fromString(out);
@@ -3339,9 +3339,8 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
         m_qtVersion = 0;
     }
    
-    qDebug() << "OUTPUT: " << out;
-    qDebug() << "CONTENTS: " << contents.toString();
-    qDebug() << "SIMPLE DUMPERS: " << simple.toString();
+    //qDebug() << "CONTENTS: " << contents.toString();
+    //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
     m_availableSimpleDumpers.clear();
     foreach (const GdbMi &item, simple.children())
         m_availableSimpleDumpers.append(item.data());
@@ -3358,7 +3357,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     } else {
         m_dataDumperState = DataDumperAvailable;
     }
-    qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDumpers;
+    //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDumpers;
 }
 
 void GdbEngine::sendWatchParameters(const QByteArray &params0)
@@ -3512,15 +3511,15 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
 
         GdbMi output = record.data.findChild("consolestreamoutput");
         QByteArray out = output.data();
-        out = out.mid(out.indexOf('"') + 1);
+        out = out.mid(out.indexOf('"') + 2);  // +1  is the 'success marker'
         out = out.replace('\\', "");
         out = out.left(out.lastIndexOf('"'));
         out = "result={" + out + "}";
-        qDebug() << "OUTPUT: " << out;
+        //qDebug() << "OUTPUT: " << out;
 
         GdbMi contents;
         contents.fromString(out);
-        qDebug() << "CONTENTS" << contents.toString(true);
+        //qDebug() << "CONTENTS" << contents.toString(true);
 
         if (!contents.isValid()) {
              qDebug() << "INVALID";

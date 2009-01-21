@@ -386,7 +386,6 @@ struct QDumper
 {
     explicit QDumper();
     ~QDumper();
-    void flush();
     void checkFill();
     QDumper &operator<<(long c);
     QDumper &operator<<(int i);
@@ -408,8 +407,6 @@ struct QDumper
     void beginHash(); // start of data hash output
     void endHash(); // start of data hash output
 
-    void write(const void *buf, int len); // raw write to stdout
-
     // the dumper arguments
     int protocolVersion;   // dumper protocol version
     int token;             // some token to show on success
@@ -428,6 +425,7 @@ struct QDumper
 
     // internal state
     bool success;          // are we finished?
+    bool full;
     int pos;
 
     int extraInt[4];
@@ -437,35 +435,16 @@ struct QDumper
 QDumper::QDumper()
 {
     success = false;
-    pos = 0;
+    full = false;
+    qDumpOutBuffer[0] = 'f'; // marks output as 'wrong' 
+    pos = 1;
 }
 
 QDumper::~QDumper()
 {
-    flush();
-
-    //char buf[30];
-    //int len = qsnprintf(buf, sizeof(buf) - 1, "%d^done\n", token);
-    //write(buf, len);
-}
-
-void QDumper::write(const void *buf, int len)
-{
-    //::fwrite(buf, len, 1, stdout);
-    //::fflush(stdout);
-}
-
-void QDumper::flush()
-{
-    put(0);
-    //if (pos != 0) {
-    //    char buf[30];
-    //    int len = qsnprintf(buf, sizeof(buf) - 1, "%d#%d,", token, pos);
-    //    write(buf, len);
-    //    write(qDumpOutBuffer, pos);
-    //    write("\n", 1);
-    //    pos = 0;
-   // }
+    qDumpOutBuffer[pos++] = '\0';
+    if (success)
+        qDumpOutBuffer[0] = (full ? '+' : 't');
 }
 
 void QDumper::setupTemplateParameters()
@@ -558,13 +537,14 @@ QDumper &QDumper::operator<<(const void *p)
 void QDumper::checkFill()
 {
     if (pos >= int(sizeof(qDumpOutBuffer)) - 100)
-        flush();
+        full = true;
 }
 
 void QDumper::put(char c)
 {
     checkFill();
-    qDumpOutBuffer[pos++] = c;
+    if (!full)
+        qDumpOutBuffer[pos++] = c;
 }
 
 void QDumper::addCommaIfNeeded()
@@ -634,7 +614,6 @@ QDumper &QDumper::operator<<(const QString &str)
 
 void QDumper::disarm()
 {
-    flush();
     success = true;
 }
 
