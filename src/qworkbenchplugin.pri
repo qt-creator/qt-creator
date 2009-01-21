@@ -52,8 +52,8 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += plugin
 
 linux-* {
-    target.path = /lib/qtcreator/plugins
+    target.path = /lib/qtcreator/plugins/$$PROVIDER
     pluginspec.files += $${TARGET}.pluginspec
-    pluginspec.path = /lib/qtcreator/plugins
+    pluginspec.path = /lib/qtcreator/plugins/$$PROVIDER
     INSTALLS += target pluginspec
 }

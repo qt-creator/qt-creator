@@ -12,5 +12,3 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src
-
-message($$INSTALLS)
