@@ -39,14 +39,23 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/environment.h>
+#include <QtCore/QSettings>
+#include <QFormLayout>
 
 using namespace CMakeProjectManager::Internal;
 
-CMakeManager::CMakeManager()
+CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
+    : m_settingsPage(cmakeSettingsPage)
 {
     Core::ICore *core = Core::ICore::instance();
     m_projectContext = core->uniqueIDManager()->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
     m_projectLanguage = core->uniqueIDManager()->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+}
+
+CMakeSettingsPage::~CMakeSettingsPage()
+{
+
 }
 
 int CMakeManager::projectContext() const
@@ -62,10 +71,104 @@ int CMakeManager::projectLanguage() const
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)
 {
     // TODO check wheter this project is already opened
+    // Check that we have a cmake executable first
+    // Look at the settings first
+    QString cmakeExecutable = m_settingsPage->cmakeExecutable();
+    if (cmakeExecutable.isNull())
+        m_settingsPage->askUserForCMakeExecutable();
+    cmakeExecutable = m_settingsPage->cmakeExecutable();
+    if (cmakeExecutable.isNull())
+        return 0;
     return new CMakeProject(this, fileName);
 }
 
 QString CMakeManager::mimeType() const
 {
     return Constants::CMAKEMIMETYPE;
+}
+
+/////
+// CMakeSettingsPage
+////
+
+CMakeSettingsPage::CMakeSettingsPage()
+{
+    Core::ICore *core = Core::ICore::instance();
+    QSettings * settings = core->settings();
+    settings->beginGroup("CMakeSettings");
+    m_cmakeExecutable =  settings->value("cmakeExecutable").toString();
+    settings->endGroup();
+}
+
+QString CMakeSettingsPage::findCmakeExecutable() const
+{
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    return env.searchInPath("cmake");
+}
+
+
+QString CMakeSettingsPage::name() const
+{
+    return "CMake";
+}
+
+QString CMakeSettingsPage::category() const
+{
+    return "CMake";
+}
+
+QString CMakeSettingsPage::trCategory() const
+{
+    return tr("CMake");
+}
+
+QWidget *CMakeSettingsPage::createPage(QWidget *parent)
+{
+    QWidget *w = new QWidget(parent);
+    QFormLayout *fl = new QFormLayout(w);
+    m_pathchooser = new Core::Utils::PathChooser(w);
+    m_pathchooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    fl->addRow("CMake executable", m_pathchooser);
+    m_pathchooser->setPath(cmakeExecutable());
+    return w;
+}
+
+void CMakeSettingsPage::saveSettings() const
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup("CMakeSettings");
+    settings->setValue("cmakeExecutable", m_cmakeExecutable);
+    settings->endGroup();
+}
+
+void CMakeSettingsPage::apply()
+{
+    m_cmakeExecutable = m_pathchooser->path();
+    saveSettings();
+}
+
+void CMakeSettingsPage::finish()
+{
+
+}
+
+QString CMakeSettingsPage::cmakeExecutable() const
+{
+    if (m_cmakeExecutable.isEmpty()) {
+        m_cmakeExecutable = findCmakeExecutable();
+        if (!m_cmakeExecutable.isEmpty()) {
+            saveSettings();
+        }
+    }
+    return m_cmakeExecutable;
+}
+
+void CMakeSettingsPage::askUserForCMakeExecutable()
+{
+    // TODO implement
+    // That is ideally add a label to the settings page, which says something
+    // to the effect: please configure the cmake executable
+    // and show the settings page
+    // ensure that we rehide the label in the finish() function
+    // But to test that i need an environment without cmake, e.g. windows
 }

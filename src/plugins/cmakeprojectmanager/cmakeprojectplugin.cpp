@@ -59,7 +59,9 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProject.mimetypes.xml"), errorMessage))
         return false;
-    addAutoReleasedObject(new CMakeManager());
+    CMakeSettingsPage *cmp = new CMakeSettingsPage();
+    addAutoReleasedObject(cmp);
+    addAutoReleasedObject(new CMakeManager(cmp));
     addAutoReleasedObject(new CMakeBuildStepFactory());
     addAutoReleasedObject(new MakeBuildStepFactory());
     addAutoReleasedObject(new CMakeRunConfigurationFactory());

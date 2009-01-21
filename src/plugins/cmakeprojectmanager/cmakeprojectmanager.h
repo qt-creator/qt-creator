@@ -34,16 +34,20 @@
 #ifndef CMAKEPROJECTMANAGER_H
 #define CMAKEPROJECTMANAGER_H
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <utils/pathchooser.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
+
+class CMakeSettingsPage;
 
 class CMakeManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 public:
-    CMakeManager();
+    CMakeManager(CMakeSettingsPage *cmakeSettingsPage);
 
     virtual int projectContext() const;
     virtual int projectLanguage() const;
@@ -55,6 +59,30 @@ public:
 private:
     int m_projectContext;
     int m_projectLanguage;
+    CMakeSettingsPage *m_settingsPage;
+};
+
+class CMakeSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+public:
+    CMakeSettingsPage();
+    virtual ~CMakeSettingsPage();
+    virtual QString name() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
+
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
+
+    QString cmakeExecutable() const;
+    void askUserForCMakeExecutable();
+private:
+    void saveSettings() const;
+    QString findCmakeExecutable() const;
+    mutable QString m_cmakeExecutable;
+    Core::Utils::PathChooser *m_pathchooser;
 };
 
 } // namespace Internal

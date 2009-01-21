@@ -105,6 +105,7 @@ public:
     CMakeStep *cmakeStep() const;
     QStringList targets() const;
 
+
 private:
     void parseCMakeLists(const QDir &directory);
     QString findCbpFile(const QDir &);
