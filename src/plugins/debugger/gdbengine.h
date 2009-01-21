@@ -307,10 +307,7 @@ private:
         const WatchData &cookie);
     void handleQueryDataDumper1(const GdbResultRecord &record);
     void handleQueryDataDumper2(const GdbResultRecord &record);
-    void handleQueryDataDumper3(const GdbResultRecord &record);
     void handleDumpCustomValue2(const GdbResultRecord &record,
-        const WatchData &cookie);
-    void handleDumpCustomValue3(const GdbResultRecord &record,
         const WatchData &cookie);
     void handleDumpCustomEditValue(const GdbResultRecord &record);
     void handleDumpCustomSetup(const GdbResultRecord &record);
