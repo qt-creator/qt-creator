@@ -32,19 +32,19 @@
 ***************************************************************************/
 
 #include "editormanager.h"
+#include "editorgroup.h"
 #include "editorsplitter.h"
+#include "openeditorsview.h"
 #include "openeditorswindow.h"
 #include "openwithdialog.h"
 #include "filemanager.h"
-#include "tabpositionindicator.h"
-#include "saveitemsdialog.h"
-#include "vcsmanager.h"
+#include "icore.h"
 #include "iversioncontrol.h"
-#include "openeditorsview.h"
-#include "editorgroup.h"
 #include "mimedatabase.h"
+#include "saveitemsdialog.h"
+#include "tabpositionindicator.h"
+#include "vcsmanager.h"
 
-#include <coreplugin/coreimpl.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -68,6 +68,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtGui/QLayout>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
@@ -649,7 +650,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IFile*> list = CoreImpl::instance()->fileManager()->
+        QList<IFile*> list = ICore::instance()->fileManager()->
             saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
         if (cancelled)
             return false;
@@ -1549,7 +1550,7 @@ void EditorManager::openInExternalEditor()
         return;
     if (editor->file()->isModified()) {
         bool cancelled = false;
-        QList<IFile*> list = CoreImpl::instance()->fileManager()->
+        QList<IFile*> list = ICore::instance()->fileManager()->
                              saveModifiedFiles(QList<IFile*>() << editor->file(), &cancelled);
         if (cancelled)
             return;

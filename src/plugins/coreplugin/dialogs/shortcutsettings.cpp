@@ -34,14 +34,13 @@
 #include "shortcutsettings.h"
 #include "ui_shortcutsettings.h"
 #include "actionmanager_p.h"
+#include "actionmanager/command.h"
 #include "command_p.h"
-#include "coreconstants.h"
-#include "coreimpl.h"
 #include "commandsfile.h"
+#include "coreconstants.h"
 #include "filemanager.h"
-
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/command.h>
+#include "icore.h"
+#include "uniqueidmanager.h"
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>
@@ -232,11 +231,10 @@ void ShortcutSettings::removeKeySequence()
 
 void ShortcutSettings::importAction()
 {
-    UniqueIDManager *uidm =
-        CoreImpl::instance()->uniqueIDManager();
+    UniqueIDManager *uidm = UniqueIDManager::instance();
 
     QString fileName = QFileDialog::getOpenFileName(0, tr("Import Keyboard Mapping Scheme"),
-        CoreImpl::instance()->resourcePath() + "/schemes/",
+        ICore::instance()->resourcePath() + "/schemes/",
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
         CommandsFile cf(fileName);
@@ -266,9 +264,9 @@ void ShortcutSettings::defaultAction()
 
 void ShortcutSettings::exportAction()
 {
-    QString fileName = CoreImpl::instance()->fileManager()->getSaveFileNameWithExtension(
+    QString fileName = ICore::instance()->fileManager()->getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
-        CoreImpl::instance()->resourcePath() + "/schemes/",
+        ICore::instance()->resourcePath() + "/schemes/",
         tr("Keyboard Mapping Scheme (*.kms)"),
         ".kms");
     if (!fileName.isEmpty()) {
@@ -279,16 +277,11 @@ void ShortcutSettings::exportAction()
 
 void ShortcutSettings::initialize()
 {
-    QMap<QString, QTreeWidgetItem *> categories;
-
     m_am = ActionManagerPrivate::instance();
-    UniqueIDManager *uidm =
-        CoreImpl::instance()->uniqueIDManager();
+    UniqueIDManager *uidm = UniqueIDManager::instance();
 
-    QList<CommandPrivate *> cmds = m_am->commands();
-    for (int i = 0; i < cmds.size(); ++i) {
-        CommandPrivate *c = cmds.at(i);
-        if (c->hasAttribute(CommandPrivate::CA_NonConfigureable))
+    foreach (Command *c, m_am->commands()) {
+        if (c->hasAttribute(Command::CA_NonConfigureable))
             continue;
         if (c->action() && c->action()->isSeparator())
             continue;
@@ -296,24 +289,15 @@ void ShortcutSettings::initialize()
         QTreeWidgetItem *item = 0;
         ShortcutItem *s = new ShortcutItem;
         m_scitems << s;
-        if (c->category().isEmpty()) {
-            item = new QTreeWidgetItem(m_page->commandList);
-        } else {
-            if (!categories.contains(c->category())) {
-                QTreeWidgetItem *cat = new QTreeWidgetItem(m_page->commandList);
-                cat->setText(0, c->category());
-                categories.insert(c->category(), cat);
-                cat->setExpanded(true);
-            }
-            item = new QTreeWidgetItem(categories.value(c->category()));
-        }
+        item = new QTreeWidgetItem(m_page->commandList);
         s->m_cmd = c;
         s->m_item = item;
 
         item->setText(0, uidm->stringForUniqueIdentifier(c->id()));
 
         if (c->action()) {
-            QString text = c->hasAttribute(CommandPrivate::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
+            QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
+            text.remove(QRegExp("&(?!&)"));
             s->m_key = c->action()->shortcut();
             item->setText(1, text);
         } else {

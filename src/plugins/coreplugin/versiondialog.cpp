@@ -34,7 +34,7 @@
 #include "versiondialog.h"
 
 #include "coreconstants.h"
-#include "coreimpl.h"
+#include "icore.h"
 
 #include <utils/qtcassert.h>
 
@@ -121,7 +121,7 @@ void VersionDialog::popupLicense()
     layout->addWidget(buttonBox);
 
     // Read file into string
-    ICore * core = CoreImpl::instance();
+    ICore *core = ICore::instance();
     QTC_ASSERT(core, return);
     QString fileName = core->resourcePath() + "/license.txt";
     QFile file(fileName);
