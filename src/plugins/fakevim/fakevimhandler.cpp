@@ -367,6 +367,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             quit();
             return true;
         }
+        m_mode = CommandMode;
         return false;
     }
 
@@ -1824,11 +1825,15 @@ void FakeVimHandler::Private::recordEndGroup()
 QString FakeVimHandler::Private::recordRemoveSelectedText()
 {
     EditOperation op;
-    //qDebug() << "1 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
-    m_tc.setPosition(anchor(), KeepAnchor);
-    op.m_position = qMin(position(), anchor());
-    //qDebug() << "2 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
+    //qDebug() << "POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
+    int pos = m_tc.position();
+    if (pos == anchor())
+        return QString();
+    m_tc.setPosition(anchor(), MoveAnchor);
+    m_tc.setPosition(pos, KeepAnchor);
+    op.m_position = qMin(pos, anchor());
     op.m_from = m_tc.selection().toPlainText();
+    //qDebug() << "OP: " << op;
     recordOperation(op);
     m_tc.deleteChar();
     return op.m_from;
