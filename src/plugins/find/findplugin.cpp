@@ -42,6 +42,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
