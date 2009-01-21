@@ -79,9 +79,12 @@ public:
     QString cmakeExecutable() const;
     void askUserForCMakeExecutable();
 private:
+    void updateCachedInformation() const;
     void saveSettings() const;
     QString findCmakeExecutable() const;
     mutable QString m_cmakeExecutable;
+    mutable QString m_version;
+    mutable bool m_supportsQtCreator;
     Core::Utils::PathChooser *m_pathchooser;
 };
 

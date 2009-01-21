@@ -98,6 +98,30 @@ CMakeSettingsPage::CMakeSettingsPage()
     settings->beginGroup("CMakeSettings");
     m_cmakeExecutable =  settings->value("cmakeExecutable").toString();
     settings->endGroup();
+    updateCachedInformation();
+}
+
+void CMakeSettingsPage::updateCachedInformation() const
+{
+    // We find out two things:
+    // Does this cmake version support a QtCreator generator
+    // and the version
+    QFileInfo fi(m_cmakeExecutable);
+    if (!fi.exists()) {
+        m_version.clear();
+        m_supportsQtCreator = false;
+    }
+    QProcess cmake;
+    cmake.start(m_cmakeExecutable, QStringList()<<"--help");
+    cmake.waitForFinished();
+    QString response = cmake.readAll();
+    QRegExp versionRegexp("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n");
+    versionRegexp.indexIn(response);
+
+    m_supportsQtCreator = response.contains("QtCreator");
+    m_version = versionRegexp.cap(1);
+    if (!versionRegexp.capturedTexts().size()>3)
+        m_version += "." + versionRegexp.cap(3);
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
@@ -144,6 +168,7 @@ void CMakeSettingsPage::saveSettings() const
 void CMakeSettingsPage::apply()
 {
     m_cmakeExecutable = m_pathchooser->path();
+    updateCachedInformation();
     saveSettings();
 }
 
@@ -157,6 +182,7 @@ QString CMakeSettingsPage::cmakeExecutable() const
     if (m_cmakeExecutable.isEmpty()) {
         m_cmakeExecutable = findCmakeExecutable();
         if (!m_cmakeExecutable.isEmpty()) {
+            updateCachedInformation();
             saveSettings();
         }
     }
