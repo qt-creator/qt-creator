@@ -94,7 +94,7 @@
 extern "C" void handleSigInt(int sig)
 {
     Q_UNUSED(sig);
-    Core::Internal::CoreImpl::instance()->exit();
+    Core::ICore::instance()->exit();
     qDebug() << "SIGINT caught. Shutting down.";
 }
 #endif

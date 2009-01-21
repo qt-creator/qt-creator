@@ -34,7 +34,7 @@
 #include "openeditorsview.h"
 #include "editorgroup.h"
 #include "editormanager.h"
-#include "coreimpl.h"
+#include "icore.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
@@ -218,7 +218,7 @@ void OpenEditorsWidget::closeEditors()
         selectedEditors.append(item->data(0, Qt::UserRole).value<IEditor *>());
         selectedFiles.append(item->data(0, Qt::UserRole).value<IEditor *>()->file());
     }
-    ICore *core = CoreImpl::instance();
+    ICore *core = ICore::instance();
     bool cancelled = false;
     core->fileManager()->saveModifiedFiles(selectedFiles, &cancelled);
     if (cancelled)

@@ -35,7 +35,6 @@
 #include "actionmanager_p.h"
 
 #include "command_p.h"
-#include "coreimpl.h"
 
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
@@ -150,15 +149,13 @@ bool ActionContainerPrivate::hasState(ContainerState state) const
 
 void ActionContainerPrivate::appendGroup(const QString &group)
 {
-    UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
-    int gid = idmanager->uniqueIdentifier(group);
+    int gid = UniqueIDManager::instance()->uniqueIdentifier(group);
     m_groups << gid;
 }
 
 QAction *ActionContainerPrivate::insertLocation(const QString &group) const
 {
-    UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
-    int grpid = idmanager->uniqueIdentifier(group);
+    int grpid = UniqueIDManager::instance()->uniqueIdentifier(group);
     int prevKey = 0;
     int pos = ((grpid << 16) | 0xFFFF);
     return beforeAction(pos, &prevKey);
@@ -181,7 +178,7 @@ void ActionContainerPrivate::addAction(Command *action, const QString &group)
         }
         a->setStateFlags(a->stateFlags() | CommandPrivate::CS_Initialized);
     } else {
-        UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
+        UniqueIDManager *idmanager = UniqueIDManager::instance();
         int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
         if (!group.isEmpty())
             grpid = idmanager->uniqueIdentifier(group);
@@ -208,7 +205,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
         }
         mc->setState(ActionContainerPrivate::CS_Initialized);
     } else {
-        UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
+        UniqueIDManager *idmanager = UniqueIDManager::instance();
         int grpid = idmanager->uniqueIdentifier(Constants::G_DEFAULT_TWO);
         if (!group.isEmpty())
             grpid = idmanager->uniqueIdentifier(group);
