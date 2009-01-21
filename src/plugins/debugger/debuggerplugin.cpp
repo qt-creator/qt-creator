@@ -928,7 +928,7 @@ void DebuggerPlugin::readSettings()
 
     m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
     m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
-    m->m_useCustomDumpers = s->value("UseCustomDupers", false).toBool();
+    m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
     m->m_useFastStart     = s->value("UseFastStart", false).toBool();
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
     m->m_useTerminal      = s->value("UseTerminal", false).toBool();

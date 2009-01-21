@@ -216,7 +216,8 @@ QT_END_NAMESPACE
 // this can be mangled typenames of nested templates, each char-by-char
 // comma-separated integer list
 static char qDumpInBuffer[10000];
-static char qDumpBuffer[1000];
+static char qDumpOutBuffer[100000];
+static char qDumpSize[20];
 
 namespace {
 
@@ -443,27 +444,28 @@ QDumper::~QDumper()
 {
     flush();
 
-    char buf[30];
-    int len = qsnprintf(buf, sizeof(buf) - 1, "%d^done\n", token);
-    write(buf, len);
+    //char buf[30];
+    //int len = qsnprintf(buf, sizeof(buf) - 1, "%d^done\n", token);
+    //write(buf, len);
 }
 
 void QDumper::write(const void *buf, int len)
 {
-    ::fwrite(buf, len, 1, stdout);
-    ::fflush(stdout);
+    //::fwrite(buf, len, 1, stdout);
+    //::fflush(stdout);
 }
 
 void QDumper::flush()
 {
-    if (pos != 0) {
-        char buf[30];
-        int len = qsnprintf(buf, sizeof(buf) - 1, "%d#%d,", token, pos);
-        write(buf, len);
-        write(qDumpBuffer, pos);
-        write("\n", 1);
-        pos = 0;
-    }
+    put(0);
+    //if (pos != 0) {
+    //    char buf[30];
+    //    int len = qsnprintf(buf, sizeof(buf) - 1, "%d#%d,", token, pos);
+    //    write(buf, len);
+    //    write(qDumpOutBuffer, pos);
+    //    write("\n", 1);
+    //    pos = 0;
+   // }
 }
 
 void QDumper::setupTemplateParameters()
@@ -489,49 +491,49 @@ void QDumper::setupTemplateParameters()
 QDumper &QDumper::operator<<(unsigned long long c)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%llu", c);
+    pos += sprintf(qDumpOutBuffer + pos, "%llu", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(unsigned long c)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%lu", c);
+    pos += sprintf(qDumpOutBuffer + pos, "%lu", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(float d)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%f", d);
+    pos += sprintf(qDumpOutBuffer + pos, "%f", d);
     return *this;
 }
 
 QDumper &QDumper::operator<<(double d)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%f", d);
+    pos += sprintf(qDumpOutBuffer + pos, "%f", d);
     return *this;
 }
 
 QDumper &QDumper::operator<<(unsigned int i)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%u", i);
+    pos += sprintf(qDumpOutBuffer + pos, "%u", i);
     return *this;
 }
 
 QDumper &QDumper::operator<<(long c)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%ld", c);
+    pos += sprintf(qDumpOutBuffer + pos, "%ld", c);
     return *this;
 }
 
 QDumper &QDumper::operator<<(int i)
 {
     checkFill();
-    pos += sprintf(qDumpBuffer + pos, "%d", i);
+    pos += sprintf(qDumpOutBuffer + pos, "%d", i);
     return *this;
 }
 
@@ -555,21 +557,21 @@ QDumper &QDumper::operator<<(const void *p)
 
 void QDumper::checkFill()
 {
-    if (pos >= int(sizeof(qDumpBuffer)) - 100)
+    if (pos >= int(sizeof(qDumpOutBuffer)) - 100)
         flush();
 }
 
 void QDumper::put(char c)
 {
     checkFill();
-    qDumpBuffer[pos++] = c;
+    qDumpOutBuffer[pos++] = c;
 }
 
 void QDumper::addCommaIfNeeded()
 {
     if (pos == 0)
         return;
-    char c = qDumpBuffer[pos - 1];
+    char c = qDumpOutBuffer[pos - 1];
     if (c == '}' || c == '"' || c == ']')
         put(',');
 }
