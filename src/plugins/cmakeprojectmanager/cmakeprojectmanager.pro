@@ -18,4 +18,3 @@ SOURCES = cmakeproject.cpp \
     makestep.cpp \
     cmakerunconfiguration.cpp
 RESOURCES += cmakeproject.qrc
-FORMS += cmakesettingspage.ui
