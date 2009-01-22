@@ -55,9 +55,9 @@
 namespace Designer {
 namespace Internal {
 
-// ----------------- FormTemplateWizardPagePage
+// ----------------- FormTemplateWizardPage
 
-FormTemplateWizardPagePage::FormTemplateWizardPagePage(QWidget * parent) :
+FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     QWizardPage(parent),
     m_newFormWidget(QDesignerNewFormWidgetInterface::createNewFormWidget(FormEditorW::instance()->designerEditor())),
     m_templateSelected(m_newFormWidget->hasCurrentTemplate())
@@ -74,12 +74,12 @@ FormTemplateWizardPagePage::FormTemplateWizardPagePage(QWidget * parent) :
     setLayout(layout);
 }
 
-bool FormTemplateWizardPagePage::isComplete() const
+bool FormTemplateWizardPage::isComplete() const
 {
     return m_templateSelected;
 }
 
-void FormTemplateWizardPagePage::slotCurrentTemplateChanged(bool templateSelected)
+void FormTemplateWizardPage::slotCurrentTemplateChanged(bool templateSelected)
 {
     if (m_templateSelected == templateSelected)
         return;
@@ -87,7 +87,7 @@ void FormTemplateWizardPagePage::slotCurrentTemplateChanged(bool templateSelecte
     emit completeChanged();
 }
 
-bool FormTemplateWizardPagePage::validatePage()
+bool FormTemplateWizardPage::validatePage()
 {
     QString errorMessage;
     m_templateContents = m_newFormWidget->currentTemplate(&errorMessage);
@@ -98,7 +98,7 @@ bool FormTemplateWizardPagePage::validatePage()
     return true;
 }
 
-QString FormTemplateWizardPagePage::stripNamespaces(const QString &className)
+QString FormTemplateWizardPage::stripNamespaces(const QString &className)
 {
     QString rc = className;
     const int namespaceIndex = rc.lastIndexOf(QLatin1String("::"));
@@ -107,7 +107,7 @@ QString FormTemplateWizardPagePage::stripNamespaces(const QString &className)
     return rc;
 }
 
-bool FormTemplateWizardPagePage::getUIXmlData(const QString &uiXml,
+bool FormTemplateWizardPage::getUIXmlData(const QString &uiXml,
                                               QString *formBaseClass,
                                               QString *uiClassName)
 {
@@ -179,7 +179,7 @@ static const char *classNameChangingSheetFormatC =
 "</xsl:template>\n"
 "</xsl:stylesheet>\n";
 
-QString FormTemplateWizardPagePage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
+QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
 {
     // Prepare I/O: Sheet
     const QString xsltSheet = QString::fromLatin1(classNameChangingSheetFormatC).arg(newUiClassName);
@@ -280,7 +280,7 @@ namespace {
 // of the <class> element, as name of the first <widget> element, and possibly
 // in the signal/slot connections
 
-QString FormTemplateWizardPagePage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
+QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
 {
     QDomDocument domUi;
     if (!domUi.setContent(uiXml)) {
