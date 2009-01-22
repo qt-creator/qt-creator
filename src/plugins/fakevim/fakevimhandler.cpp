@@ -105,7 +105,7 @@ enum SubMode
     ChangeSubMode,
     DeleteSubMode,
     FilterSubMode,
-    ReplaceSubMode,
+    ReplaceSubMode,    // used for R
     YankSubMode,
     IndentSubMode,
     ZSubMode,
@@ -117,7 +117,8 @@ enum SubSubMode
     FtSubSubMode,       // used for f, F, t, T
     MarkSubSubMode,     // used for m
     BackTickSubSubMode, // used for `
-    TickSubSubMode      // used for '
+    TickSubSubMode,     // used for '
+    ReplaceSubSubMode   // used for r
 };
 
 enum VisualMode
@@ -301,7 +302,6 @@ public:
     QStack<int> m_undoGroupStack;
 
     // extra data for '.'
-    QString m_dotCount;
     QString m_dotCommand;
 
     // history for '/'
@@ -468,6 +468,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
     } else if (m_moveType == MoveExclusive) {
         moveLeft(); // correct 
+        m_moveType = MoveInclusive;
     }
     m_mvcount.clear();
     m_opcount.clear();
@@ -655,6 +656,22 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
         finishMovement(QString(QChar(m_subsubdata)) + QChar(key));
+    } else if (m_subsubmode == ReplaceSubSubMode) {
+        if (count() < rightDist() && text.size() == 1
+                && (text.at(0).isPrint() || text.at(0).isSpace())) {
+            recordBeginGroup();
+            setAnchor();
+            moveRight(count());
+            recordRemoveSelectedText();
+            recordInsertText(QString(count(), text.at(0)));
+            recordEndGroup();
+            m_moveType = MoveExclusive;
+            m_subsubmode = NoSubSubMode;
+            m_dotCommand = QString("%1r%2").arg(count()).arg(text);
+            finishMovement();
+        } else {
+            m_subsubmode = NoSubSubMode;
+        }
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
         m_subsubmode = NoSubSubMode;
@@ -930,8 +947,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordEndGroup();
         m_dotCommand = "p";
     } else if (key == 'r') {
-        recordBeginGroup();
-        m_submode = ReplaceSubMode;
+        m_subsubmode = ReplaceSubSubMode;
         m_dotCommand = "r";
     } else if (key == 'R') {
         recordBeginGroup();
