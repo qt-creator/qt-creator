@@ -45,7 +45,7 @@ namespace Internal {
 
 struct FormClassWizardParameters;
 class FormClassWizardPage;
-class FormTemplateWizardPagePage;
+class FormTemplateWizardPage;
 
 class FormClassWizardDialog : public QWizard
 {
@@ -73,7 +73,7 @@ private slots:
     void slotCurrentIdChanged(int id);
 
 private:
-    FormTemplateWizardPagePage *m_formPage;
+    FormTemplateWizardPage *m_formPage;
     FormClassWizardPage *m_classPage;
     QString m_rawFormTemplate;
 };
