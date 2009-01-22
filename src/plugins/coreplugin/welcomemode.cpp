@@ -34,7 +34,6 @@
 #include "welcomemode.h"
 #include "coreconstants.h"
 #include "uniqueidmanager.h"
-#include "coreimpl.h"
 #include "modemanager.h"
 
 #if !defined(QT_NO_WEBKIT)
@@ -193,7 +192,7 @@ const char* WelcomeMode::uniqueModeName() const
 QList<int> WelcomeMode::context() const
 {
     static QList<int> contexts = QList<int>()
-                                 << CoreImpl::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_WELCOME_MODE);
+                                 << UniqueIDManager::instance()->uniqueIdentifier(Constants::C_WELCOME_MODE);
     return contexts;
 }
 
@@ -250,7 +249,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
 void WelcomeMode::linkClicked(const QUrl &url)
 {
     QString scheme = url.scheme();
-    Core::ModeManager *modeManager = CoreImpl::instance()->modeManager();
+    Core::ModeManager *modeManager = ModeManager::instance();
     if (scheme.startsWith(QLatin1String("gh"))) {
         QString s = url.toString(QUrl::RemoveScheme);
         if (scheme == QLatin1String("gh")) {

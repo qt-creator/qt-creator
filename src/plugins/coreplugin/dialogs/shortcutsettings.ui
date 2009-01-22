@@ -36,6 +36,9 @@
       </item>
       <item>
        <widget class="QTreeWidget" name="commandList">
+        <property name="rootIsDecorated">
+         <bool>false</bool>
+        </property>
         <property name="uniformRowHeights">
          <bool>true</bool>
         </property>

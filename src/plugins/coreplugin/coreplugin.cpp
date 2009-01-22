@@ -85,7 +85,7 @@ bool CorePlugin::initialize(const QStringList & /*arguments*/, QString *error_me
         m_welcomeMode = new WelcomeMode;
         addObject(m_welcomeMode);
 
-        EditorManager *editorManager = qobject_cast<EditorManager*>(m_mainWindow->editorManager());
+        EditorManager *editorManager = m_mainWindow->editorManager();
         m_editMode = new EditMode(editorManager);
         addObject(m_editMode);
     }

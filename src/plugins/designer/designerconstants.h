@@ -67,6 +67,9 @@ enum EditModes
     NumEditModes
 };
 
+namespace Internal {
+    enum { debug = 0 };
+}
 } // Constants
 } // Designer
 

@@ -34,7 +34,6 @@
 #include "basevcssubmiteditorfactory.h"
 #include "vcsbasesubmiteditor.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 namespace VCSBase {
@@ -82,8 +81,7 @@ QStringList BaseVCSSubmitEditorFactory::mimeTypes() const
 
 Core::IFile *BaseVCSSubmitEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = Core::ICore::instance();
-    if (Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind()))
+    if (Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind()))
         return iface->file();
     return 0;
 }

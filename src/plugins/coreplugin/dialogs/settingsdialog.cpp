@@ -32,7 +32,6 @@
 ***************************************************************************/
 
 #include "settingsdialog.h"
-#include "coreimpl.h"
 
 #include <extensionsystem/pluginmanager.h>
 

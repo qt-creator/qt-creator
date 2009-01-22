@@ -265,6 +265,7 @@ Whitespace
   Always use only one blank line
   Always use a single space after a keyword, and before a curly brace.
 
+\code
     // Wrong
     if(foo){
     }
@@ -272,18 +273,24 @@ Whitespace
     // Correct
     if (foo) {
     }
+\endcode
 
   For pointers or references, always use a single space before '*' or '&', but never after.
   Avoid C-style casts when possible.
+\code
     // Wrong
     char* blockOfMemory = (char* ) malloc(data.size());
 
     // Correct
     char *blockOfMemory = (char *)malloc(data.size());
     char *blockOfMemory = reinterpret_cast<char *>(malloc(data.size()));
+\endcode
+  Of course, in this particulare case, using \c new might be an even better
+  option.
 
 Braces
   As a base rule, the left curly brace goes on the same line as the start of the statement:
+\code
     // Wrong
     if (codec)
     {
@@ -292,8 +299,10 @@ Braces
     // Correct
     if (codec) {
     }
+\endcode
 
   Exception: Function implementations and class declarations always have the left brace on the start of a line:
+\code
     static void foo(int g)
     {
         qDebug("foo: %i", g);
@@ -302,8 +311,10 @@ Braces
     class Moo
     {
     };
+\endcode
 
   Use curly braces when the body of a conditional statement contains more than one line, and also if a single line statement is somewhat complex.
+\code
     // Wrong
     if (address.isEmpty()) {
         return false;
@@ -319,15 +330,19 @@ Braces
 
     for (int i = 0; i < 10; ++i)
         qDebug("%i", i);
+\endcode
 
   Exception 1: Use braces also if the parent statement covers several lines / wraps
+\code
     // Correct
     if (address.isEmpty() || !isValid()
         || !codec) {
         return false;
     }
+\endcode
 
   Exception 2: Use braces also in if-then-else blocks where either the if-code or the else-code covers several lines
+\code
     // Wrong
     if (address.isEmpty())
         --it;
@@ -358,16 +373,20 @@ Braces
         else
             ...
     }
+\endcode
 
   Use curly braces when the body of a conditional statement is empty
+\code
     // Wrong
     while (a);
 
     // Correct
     while (a) {}
+\endcode
 
 Parentheses
   Use parentheses to group expressions:
+\code
     // Wrong
     if (a && b || c)
 
@@ -379,10 +398,12 @@ Parentheses
 
     // Correct
     (a + b) & c
+\endcode
 
 Line breaks
   Keep lines shorter than 100 characters; insert line breaks if necessary.
   Commas go at the end of a broken line; operators start at the beginning of the new line. The operator is at the end of the line to avoid having to scroll if your editor is too narrow.
+\code
     // Wrong
     if (longExpression +
         otherLongExpression +
@@ -394,10 +415,7 @@ Line breaks
         + otherLongExpression
         + otherOtherLongExpression) {
     }
-
-
-
-
+\endcode
 
 
 \section2 Declarations
@@ -423,6 +441,32 @@ Line breaks
 
   If you create a new file, the top of the file should include a 
   header comment equal to the one found in other source files of Qt Creator.
+
+\section2 Include order
+
+  Always go from less general to more general. In a typical implementation
+  file that would look like
+\code
+  #include "myownheader.h"
+  ...
+  #include "other_headers_from_my_own_plugin.h"
+  ...
+  #include <other_plugin/headers_from_other_plugin.h>
+  ...
+  #include <QtCore/QSomeCoreClass>
+  ...
+  #include <QtGui/QSomeGuiClass>
+  ...
+  #include <some_system_C++_header>
+  ...
+  #include <some_system_C_header>
+\endcode
+  This order ensures that the headers are self-contained.
+
+  Using <...> instead of "..." for headers from other plugins helps
+  spotting plugin-external dependencies in the sources.
+
+  Using empty lines between blocks of "peer" headers are encouraged.
 
 \section2 Documentation
 

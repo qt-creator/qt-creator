@@ -44,8 +44,6 @@
 using namespace Designer::Internal;
 using namespace SharedTools;
 
-enum { debugFormWindowHost = 0 };
-
 FormWindowHost::FormWindowHost(QDesignerFormWindowInterface *form,
                                QWidget *parent) :
     WidgetHost(parent, form)
@@ -57,14 +55,14 @@ FormWindowHost::FormWindowHost(QDesignerFormWindowInterface *form,
 
 FormWindowHost::~FormWindowHost()
 {
-    if (debugFormWindowHost)
-	qDebug() << "FormWindowHost::~FormWindowHost";	
+    if (Designer::Constants::Internal::debug)
+	qDebug() << Q_FUNC_INFO;
 }
 
 void FormWindowHost::formSizeChanged(int w, int h)
 {
-    if (debugFormWindowHost)
-	qDebug() << "FormWindowHost::formSizeChanged" << w << h;
+    if (Designer::Constants::Internal::debug)
+	qDebug() << Q_FUNC_INFO << w << h;
 
     formWindow()->setDirty(true);
     static const QString geometry = QLatin1String("geometry");

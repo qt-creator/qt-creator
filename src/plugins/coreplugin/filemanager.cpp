@@ -509,7 +509,7 @@ void FileManager::syncWithEditor(Core::IContext *context)
     if (!context)
         return;
 
-    Core::IEditor *editor = Core::ICore::instance()->editorManager()->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
     if (editor && (editor->widget() == context->widget()))
         setCurrentFile(editor->file()->fileName());
 }

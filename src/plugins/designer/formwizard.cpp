@@ -39,8 +39,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 
-enum { debugFormWizard = 0 };
-
 using namespace Designer;
 using namespace Designer::Internal;
 

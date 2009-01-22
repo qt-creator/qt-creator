@@ -36,7 +36,6 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -53,7 +52,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     m_kind(QLatin1String(C_RESOURCEEDITOR)),
     m_plugin(plugin)
 {
-    m_context += Core::ICore::instance()->uniqueIDManager()
+    m_context += Core::UniqueIDManager::instance()
                  ->uniqueIdentifier(QLatin1String(ResourceEditor::Constants::C_RESOURCEEDITOR));
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconForSuffix(QIcon(":/resourceeditor/images/qt_qrc.png"),
@@ -67,7 +66,7 @@ QString ResourceEditorFactory::kind() const
 
 Core::IFile *ResourceEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     if (!iface) {
         qWarning() << "ResourceEditorFactory::open: openEditor failed for " << fileName;
         return 0;

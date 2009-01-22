@@ -234,12 +234,11 @@ public:
     BinEditorInterface(BinEditor *parent)
         : Core::IEditor(parent)
     {
-        Core::ICore *core = Core::ICore::instance();
+        Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
         m_editor = parent;
         m_file = new BinEditorFile(parent);
-        m_context << core->uniqueIDManager()->
-            uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR);
-        m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
+        m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR);
+        m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Core::Utils::LineColumnLabel;
 
         QHBoxLayout *l = new QHBoxLayout;
@@ -276,10 +275,10 @@ public:
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
 
     bool duplicateSupported() const { return false; }
-    IEditor *duplicate(QWidget */*parent*/) { return 0; }
+    IEditor *duplicate(QWidget * /* parent */) { return 0; }
 
-    QByteArray saveState() const { return QByteArray();} // TODO
-    bool restoreState(const QByteArray &/*state*/) {return false;} // TODO
+    QByteArray saveState() const { return QByteArray(); } // TODO
+    bool restoreState(const QByteArray & /* state */) { return false; } // TODO
 
     QToolBar *toolBar() { return m_toolBar; }
 
@@ -320,8 +319,8 @@ QString BinEditorFactory::kind() const
 
 Core::IFile *BinEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
+    Core::EditorManager *em = Core::EditorManager::instance();
+    Core::IEditor *iface = em->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
@@ -339,27 +338,17 @@ QStringList BinEditorFactory::mimeTypes() const
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin *BinEditorPlugin::m_instance = 0;
-
 BinEditorPlugin::BinEditorPlugin()
 {
     m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
-    m_instance = this;
 }
 
 BinEditorPlugin::~BinEditorPlugin()
 {
-    m_instance = 0;
-}
-
-BinEditorPlugin *BinEditorPlugin::instance()
-{
-    return m_instance;
 }
 
 QAction *BinEditorPlugin::registerNewAction(const QString &id, const QString &title)
 {
-
     QAction *result = new QAction(title, this);
     Core::ICore::instance()->actionManager()->registerAction(result, id, m_context);
     return result;
@@ -384,8 +373,8 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
     QObject::connect(editor, SIGNAL(modificationChanged(bool)), editorInterface, SIGNAL(changed()));
     editor->setEditorInterface(editorInterface);
 
-    Core::ICore *core = Core::ICore::instance();
-    m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::C_BINEDITOR);
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),
                                               this, SLOT(undoAction()),

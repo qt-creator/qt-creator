@@ -31,7 +31,6 @@
 **
 ***************************************************************************/
 
-#include "coreimpl.h"
 #include "commandsfile.h"
 #include "shortcutsettings.h"
 #include "command_p.h"
@@ -100,7 +99,7 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
 */
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
-    UniqueIDManager *idmanager = CoreImpl::instance()->uniqueIDManager();
+    UniqueIDManager *idmanager = UniqueIDManager::instance();
 
     QFile file(m_filename);
     if (!file.open(QIODevice::WriteOnly))
@@ -110,8 +109,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
     QDomElement root = doc.createElement("mapping");
     doc.appendChild(root);
 
-    for (int i=0; i<items.count(); ++i) {
-        ShortcutItem *item = items.at(i);
+    foreach (const ShortcutItem *item, items) {
         QDomElement ctag = doc.createElement("shortcut");
         ctag.setAttribute(QLatin1String("id"), idmanager->stringForUniqueIdentifier(item->m_cmd->id()));
         root.appendChild(ctag);

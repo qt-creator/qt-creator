@@ -63,7 +63,7 @@ QString FormEditorFactory::kind() const
 
 Core::IFile *FormEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

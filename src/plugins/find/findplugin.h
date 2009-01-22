@@ -38,7 +38,6 @@
 #include "ifindfilter.h"
 #include "findtoolbar.h"
 
-#include <coreplugin/icore.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QHash>

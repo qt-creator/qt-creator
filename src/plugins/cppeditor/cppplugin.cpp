@@ -88,7 +88,7 @@ QString CppPluginEditorFactory::kind() const
 
 Core::IFile *CppPluginEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
@@ -238,20 +238,18 @@ void CppPlugin::extensionsInitialized()
 
 void CppPlugin::switchDeclarationDefinition()
 {
-    Core::ICore *core = Core::ICore::instance();
-    CPPEditor *editor = qobject_cast<CPPEditor*>(core->editorManager()->currentEditor()->widget());
-    if (editor) {
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor)
         editor->switchDeclarationDefinition();
-    }
 }
 
 void CppPlugin::jumpToDefinition()
 {
-    Core::ICore *core = Core::ICore::instance();
-    CPPEditor *editor = qobject_cast<CPPEditor*>(core->editorManager()->currentEditor()->widget());
-    if (editor) {
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor)
         editor->jumpToDefinition();
-    }
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)

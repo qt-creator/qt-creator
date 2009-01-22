@@ -83,7 +83,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-enum { debugFormEditor = 0 };
 enum { wantCodeGenerationAction = 0 };
 
 static const char *editorWidgetStateKeyC = "editorWidgetState";
@@ -169,7 +168,7 @@ FormEditorW::FormEditorW() :
     m_actionPrint(0),
     m_actionGenerateCode(0)
 {
-    if (debugFormEditor)
+    if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(!m_self, return);
     m_self = this;
@@ -220,7 +219,7 @@ void FormEditorW::fullInit()
 {
     QTC_ASSERT(m_initStage == RegisterPlugins, return);
     QTime *initTime = 0;
-    if (debugFormEditor) {
+    if (Designer::Constants::Internal::debug) {
         initTime = new QTime;
         initTime->start();
     }
@@ -244,7 +243,7 @@ void FormEditorW::fullInit()
         }
     }
 
-    if (debugFormEditor) {
+    if (Designer::Constants::Internal::debug) {
         qDebug() << Q_FUNC_INFO << initTime->elapsed() << "ms";
         delete initTime;
     }
@@ -282,7 +281,7 @@ void FormEditorW::initDesignerSubWindows()
 
 void FormEditorW::ensureInitStage(InitializationStage s)
 {
-    if (debugFormEditor)
+    if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << s;
     if (!m_self)
         m_self = new FormEditorW;
@@ -573,8 +572,8 @@ void FormEditorW::editorDestroyed()
 {
     QObject *source = sender();
 
-    if (debugFormEditor)
-        qDebug() << "FormEditorW::editorDestroyed()" << source;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << source;
 
     for (EditorList::iterator it = m_formWindows.begin(); it != m_formWindows.end(); ) {
         if (*it == source) {
@@ -588,8 +587,8 @@ void FormEditorW::editorDestroyed()
 
 void FormEditorW::currentEditorChanged(Core::IEditor *editor)
 {
-    if (debugFormEditor)
-        qDebug() << "FormEditorW::currentEditorChanged" << editor << " of " << m_fwm->formWindowCount();
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
     // Deactivate Designer if a non-form is being edited
     if (editor && !qstrcmp(editor->kind(), Constants::C_FORMWINDOW)) {
@@ -604,9 +603,8 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
 
 void FormEditorW::activeFormWindowChanged(QDesignerFormWindowInterface *afw)
 {
-    if (debugFormEditor)
-        qDebug() << "FormEditorW::activeFormWindowChanged" << afw
-            << " of " << m_fwm->formWindowCount() << m_formWindows;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << afw << " of " << m_fwm->formWindowCount() << m_formWindows;
 
     m_fwm->closeAllPreviews();
 
@@ -718,7 +716,6 @@ void FormEditorW::print()
         painter.drawPixmap(0, 0, pixmap);
         m_core->mainWindow()->setCursor(oldCursor);
 
-//        m_core->statusBar()->showMessage(tr("Printed %1...").arg(QFileInfo(fw->fileName()).fileName()));
     } while (false);
     m_core->printer()->setFullPage(oldFullPage);
     m_core->printer()->setOrientation(oldOrientation);

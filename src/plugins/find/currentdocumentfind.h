@@ -36,8 +36,6 @@
 
 #include "ifindfilter.h"
 
-#include <coreplugin/icore.h>
-
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
@@ -49,7 +47,7 @@ class CurrentDocumentFind : public QObject
     Q_OBJECT
 
 public:
-    CurrentDocumentFind(Core::ICore *core);
+    CurrentDocumentFind();
 
     void resetIncrementalSearch();
     void clearResults();
@@ -83,7 +81,6 @@ private slots:
 private:
     void removeFindSupportConnections();
 
-    Core::ICore *m_core;
     QPointer<IFindSupport> m_currentFind;
     QPointer<QWidget> m_currentWidget;
 };
