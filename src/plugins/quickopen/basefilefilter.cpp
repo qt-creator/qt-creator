@@ -33,7 +33,6 @@
 
 #include "basefilefilter.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QDir>
@@ -89,7 +88,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
 
 void BaseFileFilter::accept(QuickOpen::FilterEntry selection) const
 {
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(selection.internalData.toString());
     em->ensureEditorManagerVisible();
 }

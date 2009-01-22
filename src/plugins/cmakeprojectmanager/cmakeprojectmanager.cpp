@@ -36,7 +36,6 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environment.h>
@@ -48,9 +47,9 @@ using namespace CMakeProjectManager::Internal;
 CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     : m_settingsPage(cmakeSettingsPage)
 {
-    Core::ICore *core = Core::ICore::instance();
-    m_projectContext = core->uniqueIDManager()->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = core->uniqueIDManager()->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_projectContext = uidm->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
+    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 CMakeSettingsPage::~CMakeSettingsPage()

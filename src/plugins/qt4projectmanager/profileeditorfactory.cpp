@@ -37,7 +37,6 @@
 #include "qt4projectmanagerconstants.h"
 #include "profileeditor.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -74,8 +73,7 @@ QString ProFileEditorFactory::kind() const
 
 Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

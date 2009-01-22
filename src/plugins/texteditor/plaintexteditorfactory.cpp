@@ -37,7 +37,6 @@
 #include "texteditorplugin.h"
 #include "texteditoractionhandler.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -67,8 +66,7 @@ QString PlainTextEditorFactory::kind() const
 
 Core::IFile *PlainTextEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

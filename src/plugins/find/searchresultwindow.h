@@ -38,7 +38,6 @@
 #include "searchresulttreeview.h"
 
 #include <coreplugin/ioutputpane.h>
-#include <coreplugin/icore.h>
 
 #include <QtCore/QThread>
 #include <QtCore/QStringList>
@@ -65,7 +64,7 @@ class FIND_EXPORT SearchResultWindow : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    SearchResultWindow(Core::ICore *core);
+    SearchResultWindow();
     ~SearchResultWindow();
 
     QWidget *outputWidget(QWidget *);
@@ -97,7 +96,6 @@ private:
 
     Internal::SearchResultTreeView *m_searchResultTreeView;
     QListWidget *m_noMatchesFoundDisplay;
-    Core::ICore *m_core;
     QToolButton *m_expandCollapseToolButton;
     static const bool m_initiallyExpand = false;
     QStackedWidget *m_widget;

@@ -236,8 +236,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
     m_gitClient = new GitClient(this);
     // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;
-    globalcontext << m_core->uniqueIDManager()->
-        uniqueIdentifier(Core::Constants::C_GLOBAL);
+    globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the output Window
     m_outputWindow = new GitOutputWindow();

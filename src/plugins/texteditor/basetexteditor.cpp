@@ -43,7 +43,6 @@
 #include "codecselector.h"
 
 #ifndef TEXTEDITOR_STANDALONE
-#include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -132,7 +131,7 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                              int column,
                                              const QString &editorKind)
 {
-    Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory(true);
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, true);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
