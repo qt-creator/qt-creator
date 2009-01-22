@@ -105,7 +105,7 @@ enum SubMode
     ChangeSubMode,
     DeleteSubMode,
     FilterSubMode,
-    ReplaceSubMode,    // used for R
+    ReplaceSubMode,    // used for R and r
     YankSubMode,
     IndentSubMode,
     ZSubMode,
@@ -113,12 +113,13 @@ enum SubMode
 
 enum SubSubMode
 {
+    // typically used for things that require one more data item
+    // and are 'nested' behind a mode
     NoSubSubMode,
     FtSubSubMode,       // used for f, F, t, T
     MarkSubSubMode,     // used for m
     BackTickSubSubMode, // used for `
     TickSubSubMode,     // used for '
-    ReplaceSubSubMode   // used for r
 };
 
 enum VisualMode
@@ -633,12 +634,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(count());
         m_moveType = MoveLineWise;
         finishMovement("y");
-    } else if (m_submode == ReplaceSubMode) {
-        if (atEol())
-            moveLeft();
-        else
-            m_tc.deleteChar();
-        recordInsertText(text);
     } else if (m_submode == IndentSubMode && key == '=') {
         indentRegion(m_tc.block(), m_tc.block().next());
         finishMovement();
@@ -656,7 +651,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
         finishMovement(QString(QChar(m_subsubdata)) + QChar(key));
-    } else if (m_subsubmode == ReplaceSubSubMode) {
+    } else if (m_submode == ReplaceSubMode) {
         if (count() < rightDist() && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
             recordBeginGroup();
@@ -666,11 +661,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             recordInsertText(QString(count(), text.at(0)));
             recordEndGroup();
             m_moveType = MoveExclusive;
-            m_subsubmode = NoSubSubMode;
+            m_submode = NoSubMode;
             m_dotCommand = QString("%1r%2").arg(count()).arg(text);
             finishMovement();
         } else {
-            m_subsubmode = NoSubSubMode;
+            m_submode = NoSubMode;
         }
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
@@ -947,10 +942,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordEndGroup();
         m_dotCommand = "p";
     } else if (key == 'r') {
-        m_subsubmode = ReplaceSubSubMode;
+        m_submode = ReplaceSubMode;
         m_dotCommand = "r";
     } else if (key == 'R') {
+        // FIXME: right now we repeat the insertion count() times, 
+        // but not the deletion
         recordBeginGroup();
+        m_lastInsertion.clear();
         m_mode = InsertMode;
         m_submode = ReplaceSubMode;
         m_dotCommand = "R";
