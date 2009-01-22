@@ -989,6 +989,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (atEol())
             moveLeft();
         recordBeginGroup();
+        setAnchor();
         m_submode = DeleteSubMode;
         moveRight(qMin(count(), rightDist()));
         finishMovement("l");
