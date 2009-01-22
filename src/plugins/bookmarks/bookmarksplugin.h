@@ -45,7 +45,6 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
-class ICore;
 class IEditor;
 }
 
@@ -67,7 +66,6 @@ public:
     ~BookmarksPlugin();
 
     static BookmarksPlugin *instance() { return m_instance; }
-    static Core::ICore *core() { return m_instance->m_core; }
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
@@ -85,7 +83,6 @@ private slots:
 private:
     static BookmarksPlugin *m_instance;
     BookmarkManager *m_bookmarkManager;
-    Core::ICore *m_core;
 
     QAction *m_toggleAction;
     QAction *m_prevAction;

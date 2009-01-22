@@ -48,6 +48,8 @@
 #include "profilereader.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -58,13 +60,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QDebug>
+#include <QtCore/QtPlugin>
 #include <QtGui/QMenu>
-#include <QDebug>
 
 #ifdef WITH_TESTS
 #include <QTest>
-#include <extensionsystem/pluginmanager.h>
 #endif
 
 using namespace Qt4ProjectManager::Internal;
@@ -95,33 +96,37 @@ static Core::Command *createSeparator(Core::ActionManager *am,
     return am->registerAction(tmpaction, name, context);
 }
 */
-bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+
+bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (!m_core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    Q_UNUSED(arguments);
+ 
+    Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
-    m_projectExplorer = m_core->pluginManager()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ExtensionSystem::PluginManager::instance()
+        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = core->actionManager();
 
     //create and register objects
-    m_qt4ProjectManager = new Qt4Manager(this, m_core);
+    m_qt4ProjectManager = new Qt4Manager(this);
     addObject(m_qt4ProjectManager);
 
     TextEditor::TextEditorActionHandler *editorHandler
-            = new TextEditor::TextEditorActionHandler(m_core, Constants::C_PROFILEEDITOR);
+            = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
 
-    GuiAppWizard *guiWizard = new GuiAppWizard(m_core);
+    GuiAppWizard *guiWizard = new GuiAppWizard;
     addAutoReleasedObject(guiWizard);
 
-    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard(m_core);
+    ConsoleAppWizard *consoleWizard = new ConsoleAppWizard;
     addAutoReleasedObject(consoleWizard);
 
-    LibraryWizard *libWizard = new LibraryWizard(m_core);
+    LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);
 
     addAutoReleasedObject(new QMakeBuildStepFactory);
@@ -148,7 +153,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList & /*arguments*/, QStr
         am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
     //register actions
-    m_projectContext = m_core->uniqueIDManager()->
+    m_projectContext = core->uniqueIDManager()->
         uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
     QList<int> context = QList<int>() << m_projectContext;
     Core::Command *command;

@@ -35,36 +35,30 @@
 #define ICORE_H
 
 #include "core_global.h"
-#include <extensionsystem/pluginmanager.h>
 #include <QtCore/QObject>
-#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
-class QStatusBar;
-class QFocusEvent;
 class QMainWindow;
 class QPrinter;
+class QSettings;
+template <class T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {
 
-// forward declarations
 class ActionManager;
-class IFile;
-class FileManager;
-class MessageManager;
-class IEditor;
-class UniqueIDManager;
 class EditorManager;
+class FileManager;
+class IContext;
+class IWizard;
+class MessageManager;
+class MimeDatabase;
+class ModeManager;
 class ProgressManager;
 class ScriptManager;
+class UniqueIDManager;
 class VariableManager;
-class IContext;
 class VCSManager;
-class ModeManager;
-class IWizard;
-class MimeDatabase;
 
 class CORE_EXPORT ICore : public QObject
 {
@@ -73,6 +67,8 @@ class CORE_EXPORT ICore : public QObject
 public:
     ICore() {}
     virtual ~ICore() {}
+
+    static ICore *instance();
 
     virtual QStringList showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
@@ -85,7 +81,6 @@ public:
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;
-    virtual ExtensionSystem::PluginManager *pluginManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
     virtual ProgressManager *progressManager() const = 0;
     virtual ScriptManager *scriptManager() const = 0;

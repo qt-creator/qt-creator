@@ -44,8 +44,7 @@ class CPPEditorActionHandler : public TextEditor::TextEditorActionHandler
     Q_OBJECT
 
 public:
-    CPPEditorActionHandler(Core::ICore *core,
-                           const QString &context,
+    CPPEditorActionHandler(const QString &context,
                            uint optionalActions = None);
     virtual ~CPPEditorActionHandler();
 

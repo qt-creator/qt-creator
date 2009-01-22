@@ -43,8 +43,7 @@ using namespace QuickOpen;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe, ICore *core)
-    : BaseFileFilter(core)
+AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe)
 {
     m_projectExplorer = pe;
     connect(m_projectExplorer, SIGNAL(fileListChanged()),

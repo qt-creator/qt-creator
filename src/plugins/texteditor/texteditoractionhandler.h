@@ -38,11 +38,10 @@
 #include "basetexteditor.h"
 
 #include "coreplugin/icontext.h"
-#include "coreplugin/icore.h"
 
+#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
-#include <QtCore/QList>
 
 namespace TextEditor {
 
@@ -62,9 +61,7 @@ public:
         UnCollapseAll = 4
     };
 
-    TextEditorActionHandler(Core::ICore *core,
-                            const QString &context,
-                            uint optionalActions = None);
+    TextEditorActionHandler(const QString &context, uint optionalActions = None);
     void setupActions(BaseTextEditor *editor);
 
     void initializeActions();
@@ -80,7 +77,6 @@ protected:
     QAction *registerNewAction(const QString &id, const QString &title = QString());
     QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot,
                                const QString &title = QString());
-    Core::ICore *core() const;
 
     enum UpdateMode { NoEditor , ReadOnlyMode, WriteMode };
     UpdateMode updateMode() const;
@@ -152,7 +148,6 @@ private:
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;
-    Core::ICore *m_core;
     QList<int> m_contextId;
     bool m_initialized;
 };

@@ -35,7 +35,6 @@
 #include "vcsbaseplugin.h"
 #include "vcsbaseeditor.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -43,28 +42,26 @@
 
 namespace VCSBase {
 
-struct BaseVCSEditorFactoryPrivate  {
-    BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t, Core::ICore *core);
+struct BaseVCSEditorFactoryPrivate
+{
+    BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
 
     const VCSBaseEditorParameters *m_type;
     const QString m_kind;
     const QStringList m_mimeTypes;
-    Core::ICore *m_core;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
-BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t, Core::ICore *core) :
+BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t) :
     m_type(t),
     m_kind(QLatin1String(t->kind)),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
-    m_core(core),
-    m_editorHandler(new TextEditor::TextEditorActionHandler(core, t->kind))
+    m_editorHandler(new TextEditor::TextEditorActionHandler(t->kind))
 {
 }
 
-BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t,
-                                           Core::ICore *core) :
-    m_d(new BaseVCSEditorFactoryPrivate(t, core))
+BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t)
+  : m_d(new BaseVCSEditorFactoryPrivate(t))
 {
 }
 
@@ -85,7 +82,7 @@ QString BaseVCSEditorFactory::kind() const
 
 Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_d->m_core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

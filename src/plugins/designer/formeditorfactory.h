@@ -39,7 +39,6 @@
 #include <QtCore/QStringList>
 
 namespace Core {
-class ICore;
 class IEditor;
 class IFile;
 }
@@ -52,10 +51,11 @@ class FormEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    FormEditorFactory(Core::ICore *core);
+    FormEditorFactory();
 
     virtual QStringList mimeTypes() const;
-    //EditorFactory
+
+    // IEditorFactory
     virtual QString kind() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
@@ -63,7 +63,6 @@ public:
 private:
     const QString m_kind;
     const QStringList m_mimeTypes;
-    Core::ICore *m_core;
 };
 
 } // namespace Internal

@@ -42,10 +42,13 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
 
 Q_DECLARE_METATYPE(Find::IFindFilter*)
@@ -58,8 +61,7 @@ using namespace Find;
 using namespace Find::Internal;
 
 FindPlugin::FindPlugin()
-    : m_core(0),
-    m_currentDocumentFind(0),
+  : m_currentDocumentFind(0),
     m_findToolBar(0),
     m_findDialog(0),
     m_findCompletionModel(new QStringListModel(this)),
@@ -76,14 +78,13 @@ FindPlugin::~FindPlugin()
 
 bool FindPlugin::initialize(const QStringList &, QString *)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
     setupMenu();
 
-    m_currentDocumentFind = new CurrentDocumentFind(m_core);
+    m_currentDocumentFind = new CurrentDocumentFind;
 
     m_findToolBar = new FindToolBar(this, m_currentDocumentFind);
     m_findDialog = new FindToolWindow(this);
-    SearchResultWindow *searchResultWindow = new SearchResultWindow(m_core);
+    SearchResultWindow *searchResultWindow = new SearchResultWindow;
     addAutoReleasedObject(searchResultWindow);
     return true;
 }
@@ -123,10 +124,9 @@ void FindPlugin::openFindFilter()
     m_findDialog->open(filter);
 }
 
-
 void FindPlugin::setupMenu()
 {
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
@@ -149,7 +149,7 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::Command *cmd;
@@ -169,11 +169,6 @@ void FindPlugin::setupFilterMenuItems()
         connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));
     }
     m_findDialog->setFindFilters(findInterfaces);
-}
-
-Core::ICore *FindPlugin::core()
-{
-    return m_core;
 }
 
 QTextDocument::FindFlags FindPlugin::findFlags() const
@@ -216,7 +211,7 @@ bool FindPlugin::hasFindFlag(QTextDocument::FindFlag flag)
 
 void FindPlugin::writeSettings()
 {
-    QSettings *settings = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
     settings->setValue("Backward", QVariant((m_findFlags & QTextDocument::FindBackward) != 0));
     settings->setValue("CaseSensitively", QVariant((m_findFlags & QTextDocument::FindCaseSensitively) != 0));
@@ -229,7 +224,7 @@ void FindPlugin::writeSettings()
 
 void FindPlugin::readSettings()
 {
-    QSettings *settings = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
     bool block = blockSignals(true);
     setBackward(settings->value("Backward", false).toBool());

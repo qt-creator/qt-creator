@@ -51,6 +51,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
@@ -68,8 +69,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
-
-//#include <QtGui/QPlainTextEdit>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -434,10 +433,10 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     modified within Workbench.
 */
 
-CppModelManager::CppModelManager(QObject *parent) :
-    CppModelManagerInterface(parent),
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>())
+CppModelManager::CppModelManager(QObject *parent)
+    : CppModelManagerInterface(parent)
 {
+    m_core = Core::ICore::instance(); // FIXME
     m_dirty = true;
 
     m_projectExplorer = ExtensionSystem::PluginManager::instance()

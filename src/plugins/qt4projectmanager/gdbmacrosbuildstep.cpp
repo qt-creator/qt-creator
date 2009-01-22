@@ -38,6 +38,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;
@@ -65,8 +66,7 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
     QVariant v = value("clean");
     if (v.isNull() || v.toBool() == false) {
         // Normal run
-        QString dumperPath = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()
-                    ->resourcePath() + "/gdbmacros/";
+        QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
         QStringList files;
         files << "gdbmacros.cpp"
               << "gdbmacros.pro";

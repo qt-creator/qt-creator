@@ -45,8 +45,8 @@ Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*)
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
-SettingsPage::SettingsPage(Core::ICore *core, QuickOpenPlugin *plugin)
-    : m_core(core), m_plugin(plugin), m_page(0)
+SettingsPage::SettingsPage(QuickOpenPlugin *plugin)
+    : m_plugin(plugin), m_page(0)
 {
 }
 
@@ -173,7 +173,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 
 void SettingsPage::addCustomFilter()
 {
-    IQuickOpenFilter *filter = new DirectoryFilter(m_core);
+    IQuickOpenFilter *filter = new DirectoryFilter;
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_page, needsRefresh)) {
         m_filters.append(filter);

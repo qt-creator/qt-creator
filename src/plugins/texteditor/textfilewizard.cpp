@@ -41,9 +41,8 @@ TextFileWizard::TextFileWizard(const QString &mimeType,
                                const QString &editorKind,
                                const QString &suggestedFileName,
                                const BaseFileWizardParameters &parameters,
-                               Core::ICore *core,
                                QObject *parent) :
-    Core::StandardFileWizard(parameters, core, parent),
+    Core::StandardFileWizard(parameters, parent),
     m_mimeType(mimeType),
     m_editorKind(editorKind),
     m_suggestedFileName(suggestedFileName)

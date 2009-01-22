@@ -137,20 +137,20 @@ enum MoveType
 
 struct EditOperation
 {
-    EditOperation() : m_position(-1), m_itemCount(0) {}
-    int m_position;
-    int m_itemCount; // used to combine several operations
-    QString m_from;
-    QString m_to;
+    EditOperation() : position(-1), itemCount(0) {}
+    int position;
+    int itemCount; // used to combine several operations
+    QString from;
+    QString to;
 };
 
 QDebug &operator<<(QDebug &ts, const EditOperation &op)
 {
-    if (op.m_itemCount > 0) {
-        ts << "\n  EDIT BLOCK WITH " << op.m_itemCount << " ITEMS";
+    if (op.itemCount > 0) {
+        ts << "\n  EDIT BLOCK WITH " << op.itemCount << " ITEMS";
     } else {
-        ts << "\n  EDIT AT " << op.m_position
-           << "\n      FROM " << op.m_from << "\n      TO " << op.m_to;
+        ts << "\n  EDIT AT " << op.position
+           << "\n      FROM " << op.from << "\n      TO " << op.to;
     }
     return ts;
 }
@@ -367,6 +367,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             quit();
             return true;
         }
+        m_mode = CommandMode;
         return false;
     }
 
@@ -1356,9 +1357,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         m_tc.setPosition(positionForLine(beginLine));
         EditOperation op;
         // FIXME: broken for "upward selection"
-        op.m_position = m_tc.position();
-        op.m_from = text;
-        op.m_to = result;
+        op.position = m_tc.position();
+        op.from = text;
+        op.to = result;
         recordOperation(op);
 
         enterCommandMode();
@@ -1748,60 +1749,52 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
-#if 0
-    EDITOR(undo());
-#else
     if (m_undoStack.isEmpty()) {
         showBlackMessage(tr("Already at oldest change"));
     } else {
         EditOperation op = m_undoStack.pop();
         //qDebug() << "UNDO " << op;
-        if (op.m_itemCount > 0) {
-            for (int i = op.m_itemCount; --i >= 0; )
+        if (op.itemCount > 0) {
+            for (int i = op.itemCount; --i >= 0; )
                 undo();
         } else {
-            m_tc.setPosition(op.m_position, MoveAnchor);
-            if (!op.m_to.isEmpty()) {
-                m_tc.setPosition(op.m_position + op.m_to.size(), KeepAnchor);
-                m_tc.deleteChar();
+            m_tc.setPosition(op.position, MoveAnchor);
+            if (!op.to.isEmpty()) {
+                m_tc.setPosition(op.position + op.to.size(), KeepAnchor);
+                m_tc.removeSelectedText();
             }
-            if (!op.m_from.isEmpty())
-                m_tc.insertText(op.m_from);
-            m_tc.setPosition(op.m_position, MoveAnchor);
+            if (!op.from.isEmpty())
+                m_tc.insertText(op.from);
+            m_tc.setPosition(op.position, MoveAnchor);
         }
         m_redoStack.push(op);
         showBlackMessage(QString());
     }
-#endif
 }
 
 void FakeVimHandler::Private::redo()
 {
-#if 0
-    EDITOR(redo());
-#else
     if (m_redoStack.isEmpty()) {
         showBlackMessage(tr("Already at newest change"));
     } else {
         EditOperation op = m_redoStack.pop();
         //qDebug() << "REDO " << op;
-        if (op.m_itemCount > 0) {
-            for (int i = op.m_itemCount; --i >= 0; )
+        if (op.itemCount > 0) {
+            for (int i = op.itemCount; --i >= 0; )
                 redo();
         } else {
-            m_tc.setPosition(op.m_position, MoveAnchor);
-            if (!op.m_from.isEmpty()) {
-                m_tc.setPosition(op.m_position + op.m_from.size(), KeepAnchor);
-                m_tc.deleteChar();
+            m_tc.setPosition(op.position, MoveAnchor);
+            if (!op.from.isEmpty()) {
+                m_tc.setPosition(op.position + op.from.size(), KeepAnchor);
+                m_tc.removeSelectedText();
             }
-            if (!op.m_to.isEmpty())
-                m_tc.insertText(op.m_to);
-            m_tc.setPosition(op.m_position, MoveAnchor);
+            if (!op.to.isEmpty())
+                m_tc.insertText(op.to);
+            m_tc.setPosition(op.position, MoveAnchor);
         }
         m_undoStack.push(op);
         showBlackMessage(QString());
     }
-#endif
 }
 
 void FakeVimHandler::Private::recordBeginGroup()
@@ -1809,29 +1802,37 @@ void FakeVimHandler::Private::recordBeginGroup()
     //qDebug() << "PUSH";
     m_undoGroupStack.push(m_undoStack.size());
     EditOperation op;
-    op.m_position = m_tc.position();
+    op.position = m_tc.position();
     recordOperation(op);
 }
 
 void FakeVimHandler::Private::recordEndGroup()
 {
+    if (m_undoGroupStack.isEmpty()) {
+        qWarning("fakevim: undo groups not balanced.\n");
+        return;
+    }
     EditOperation op;
-    op.m_itemCount = m_undoStack.size() - m_undoGroupStack.pop();
-    //qDebug() << "POP " << op.m_itemCount;
+    op.itemCount = m_undoStack.size() - m_undoGroupStack.pop();
+    //qDebug() << "POP " << op.itemCount << m_undoStack;
     recordOperation(op);
 }
 
 QString FakeVimHandler::Private::recordRemoveSelectedText()
 {
     EditOperation op;
-    //qDebug() << "1 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
-    m_tc.setPosition(anchor(), KeepAnchor);
-    op.m_position = qMin(position(), anchor());
-    //qDebug() << "2 POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
-    op.m_from = m_tc.selection().toPlainText();
+    //qDebug() << "POS: " << position() << " ANCHOR: " << anchor() << m_tc.anchor();
+    int pos = m_tc.position();
+    if (pos == anchor())
+        return QString();
+    m_tc.setPosition(anchor(), MoveAnchor);
+    m_tc.setPosition(pos, KeepAnchor);
+    op.position = qMin(pos, anchor());
+    op.from = m_tc.selection().toPlainText();
+    //qDebug() << "OP: " << op;
     recordOperation(op);
-    m_tc.deleteChar();
-    return op.m_from;
+    m_tc.removeSelectedText();
+    return op.from;
 }
 
 void FakeVimHandler::Private::recordRemoveNextChar()
@@ -1844,15 +1845,20 @@ void FakeVimHandler::Private::recordRemoveNextChar()
 void FakeVimHandler::Private::recordInsertText(const QString &data)
 {
     EditOperation op;
-    op.m_position = m_tc.position();
-    op.m_to = data;
+    op.position = m_tc.position();
+    op.to = data;
     recordOperation(op);
     m_tc.insertText(data);
 }
 
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 {
-    //qDebug() << "OP: " << op;
+    // No need to record operations that actually do not change anything.
+    if (op.from.isEmpty() && op.to.isEmpty() && op.itemCount == 0)
+        return;
+    // No need to create groups with only one member.
+    if (op.itemCount == 1)
+        return;
     m_undoStack.push(op);
     m_redoStack.clear();
 }
@@ -1860,16 +1866,16 @@ void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 void FakeVimHandler::Private::recordMove(int position, int nestedCount)
 {
     EditOperation op;
-    op.m_position = position;
-    op.m_itemCount = nestedCount;
+    op.position = position;
+    op.itemCount = nestedCount;
     recordOperation(op);
 }
 
 void FakeVimHandler::Private::recordInsert(int position, const QString &data)
 {
     EditOperation op;
-    op.m_position = position;
-    op.m_to = data;
+    op.position = position;
+    op.to = data;
     recordOperation(op);
 }
 
@@ -1884,8 +1890,8 @@ void FakeVimHandler::Private::recordRemove(int position, int length)
 void FakeVimHandler::Private::recordRemove(int position, const QString &data)
 {
     EditOperation op;
-    op.m_position = position;
-    op.m_from = data;
+    op.position = position;
+    op.from = data;
     recordOperation(op);
 }
 
@@ -1894,6 +1900,7 @@ void FakeVimHandler::Private::enterInsertMode()
     EDITOR(setOverwriteMode(false));
     m_mode = InsertMode;
     m_lastInsertion.clear();
+    recordBeginGroup();
 }
 
 void FakeVimHandler::Private::enterCommandMode()

@@ -85,18 +85,17 @@ using namespace Core::Internal;
 static const char *settingsGroup = "RecentFiles";
 static const char *filesKey = "Files";
 
-FileManager::FileManager(Core::ICore *core, MainWindow *mw) :
-    QObject(mw),
-    m_core(core),
+FileManager::FileManager(MainWindow *mw)
+  : QObject(mw),
     m_mainWindow(mw),
     m_fileWatcher(new QFileSystemWatcher(this)),
     m_blockActivated(false)
 {
-    connect(m_fileWatcher, SIGNAL(fileChanged(const QString&)),
-        this, SLOT(changedFile(const QString&)));
+    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
+        this, SLOT(changedFile(QString)));
     connect(m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
-    connect(m_core, SIGNAL(contextChanged(Core::IContext*)),
+    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
         this, SLOT(syncWithEditor(Core::IContext*)));
 
     QSettings *s = m_mainWindow->settings();
@@ -440,7 +439,7 @@ QString FileManager::getSaveAsFileName(IFile *file)
     }
     QString filterString;
     QString preferredSuffix;
-    if (const MimeType mt = m_core->mimeDatabase()->findByFile(fi)) {
+    if (const MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(fi)) {
         filterString = mt.filterString();
         preferredSuffix = mt.preferredSuffix();
     }
@@ -510,7 +509,7 @@ void FileManager::syncWithEditor(Core::IContext *context)
     if (!context)
         return;
 
-    Core::IEditor *editor = m_core->editorManager()->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
     if (editor && (editor->widget() == context->widget()))
         setCurrentFile(editor->file()->fileName());
 }

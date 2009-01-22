@@ -55,20 +55,21 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
-#include <QtCore/QTextCodec>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
-#include <QtCore/QDir>
+#include <QtCore/QTextCodec>
+#include <QtCore/QtPlugin>
 #include <QtGui/QAction>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QFileDialog>
 
 using namespace Subversion::Internal;
 
@@ -131,9 +132,9 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
 }
 
-inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
+Core::IEditor* locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
+    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors())
         if (ed->property(property).toString() == entry)
             return ed;
     return 0;
@@ -163,7 +164,6 @@ StatusList parseStatusOutput(const QString &output)
 }
 
 // ------------- SubversionPlugin
-Core::ICore *SubversionPlugin::m_coreInstance = 0;
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
@@ -248,8 +248,10 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
-bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(arguments);
+
     typedef VCSBase::VCSSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
     typedef VCSBase::VCSEditorFactory<SubversionEditor> SubversionEditorFactory;
     using namespace Constants;
@@ -258,15 +260,15 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     using namespace ExtensionSystem;
 
     m_subversionPluginInstance = this;
-    m_coreInstance = PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
 
-    if (!m_coreInstance->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
 
     m_versionControl = new SubversionControl(this);
     addObject(m_versionControl);
 
-    if (QSettings *settings = m_coreInstance->settings())
+    if (QSettings *settings = core->settings())
         m_settings.fromSettings(settings);
 
     m_coreListener = new CoreListener(this);
@@ -281,7 +283,8 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++) {
-        m_editorFactories.push_back(new SubversionEditorFactory(editorParameters + i, m_coreInstance, this, describeSlot));
+        m_editorFactories.push_back(
+            new SubversionEditorFactory(editorParameters + i, this, describeSlot));
         addObject(m_editorFactories.back());
     }
 
@@ -289,7 +292,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addObject(m_subversionOutputWindow);
 
     //register actions
-    Core::ActionManager *ami = m_coreInstance->actionManager();
+    Core::ActionManager *ami = core->actionManager();
     Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
     Core::ActionContainer *subversionMenu =
@@ -302,7 +305,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     }
 
     QList<int> globalcontext;
-    globalcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
+    globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
     Core::Command *command;
     m_addAction = new QAction(tr("Add"), this);
@@ -404,7 +407,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     // Actions of the submit editor
     QList<int> svncommitcontext;
-    svncommitcontext << m_coreInstance->uniqueIDManager()->uniqueIdentifier(Constants::SUBVERSIONCOMMITEDITOR);
+    svncommitcontext << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::SUBVERSIONCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
@@ -419,7 +422,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_submitRedoAction = new QAction(tr("&Redo"), this);
     command = ami->registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
-    connect(m_coreInstance, SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
+    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
 
     return true;
 }
@@ -457,7 +460,7 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
 
     // Prompt user.
     const QMessageBox::StandardButton answer = QMessageBox::question(
-            m_coreInstance->mainWindow(), tr("Closing Subversion Editor"),
+            Core::ICore::instance()->mainWindow(), tr("Closing Subversion Editor"),
             tr("Do you want to commit the change?"),
             QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
     switch (answer) {
@@ -473,9 +476,9 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
     const QStringList fileList = editor->checkedFiles();
     if (!fileList.empty()) {
         // get message & commit
-        m_coreInstance->fileManager()->blockFileChange(fileIFace);
+        Core::ICore::instance()->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
-        m_coreInstance->fileManager()->unblockFileChange(fileIFace);
+        Core::ICore::instance()->fileManager()->unblockFileChange(fileIFace);
         commit(m_changeTmpFile->fileName(), fileList);
     }
     cleanChangeTmpFile();
@@ -492,7 +495,7 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << files << diffname;
     const QString source = files.empty() ? QString() : files.front();
-    QTextCodec *codec =  source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditor::getCodec(m_coreInstance, source);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditor::getCodec(source);
 
     if (files.count() == 1 && diffname.isEmpty())
         diffname = QFileInfo(files.front()).fileName();
@@ -508,9 +511,9 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
     // the common usage pattern of continuously changing and diffing a file
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
-        if (Core::IEditor *editor = locateEditor(m_coreInstance, "originalFileName", files.front())) {
+        if (Core::IEditor *editor = locateEditor("originalFileName", files.front())) {
             editor->createNew(response.stdOut);
-            m_coreInstance->editorManager()->setCurrentEditor(editor);
+            Core::EditorManager::instance()->setCurrentEditor(editor);
             return;
         }
     }
@@ -522,7 +525,7 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = m_coreInstance->editorManager()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -593,7 +596,7 @@ void SubversionPlugin::revertCurrentFile()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    Core::FileManager *fm = m_coreInstance->fileManager();
+    Core::FileManager *fm = Core::ICore::instance()->fileManager();
     QList<Core::IFile *> files = fm->managedFiles(file);
     foreach (Core::IFile *file, files)
         fm->blockFileChange(file);
@@ -759,7 +762,7 @@ void SubversionPlugin::filelogCurrentFile()
 
 void SubversionPlugin::filelog(const QString &file)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
     // no need for temp file
     QStringList args(QLatin1String("log"));
     args.append(QDir::toNativeSeparators(file));
@@ -771,9 +774,9 @@ void SubversionPlugin::filelog(const QString &file)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
 
-    if (Core::IEditor *editor = locateEditor(m_coreInstance, "logFileName", file)) {
+    if (Core::IEditor *editor = locateEditor("logFileName", file)) {
         editor->createNew(response.stdOut);
-        m_coreInstance->editorManager()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->setCurrentEditor(editor);
     } else {
         const QString title = tr("svn log %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, file, codec);
@@ -801,7 +804,7 @@ void SubversionPlugin::annotateCurrentFile()
 
 void SubversionPlugin::annotate(const QString &file)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, file);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
 
     QStringList args(QLatin1String("annotate"));
     args.push_back(QLatin1String("-v"));
@@ -814,9 +817,9 @@ void SubversionPlugin::annotate(const QString &file)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
 
-    if (Core::IEditor *editor = locateEditor(m_coreInstance, "annotateFileName", file)) {
+    if (Core::IEditor *editor = locateEditor("annotateFileName", file)) {
         editor->createNew(response.stdOut);
-        m_coreInstance->editorManager()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->setCurrentEditor(editor);
     } else {
         const QString title = tr("svn annotate %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, file, codec);
@@ -860,7 +863,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     args.push_back(diffArg);
     args.push_back(topLevel);
 
-    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(m_coreInstance, source);
+    QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(source);
     const SubversionResponse response = runSvn(args, subversionShortTimeOut, false, codec);
     if (response.error)
         return;
@@ -868,9 +871,9 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString id = diffArg + source;
-    if (Core::IEditor *editor = locateEditor(m_coreInstance, "describeChange", id)) {
+    if (Core::IEditor *editor = locateEditor("describeChange", id)) {
         editor->createNew(response.stdOut);
-        m_coreInstance->editorManager()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->setCurrentEditor(editor);
     } else {
         const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
@@ -880,13 +883,13 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
 
 void SubversionPlugin::submitCurrentLog()
 {
-    m_coreInstance->editorManager()->closeEditors(QList<Core::IEditor*>()
-        << m_coreInstance->editorManager()->currentEditor());
+    Core::EditorManager::instance()->closeEditors(QList<Core::IEditor*>()
+        << Core::EditorManager::instance()->currentEditor());
 }
 
 QString SubversionPlugin::currentFileName() const
 {
-    const QString fileName = m_coreInstance->fileManager()->currentFile();
+    const QString fileName = Core::ICore::instance()->fileManager()->currentFile();
     if (!fileName.isEmpty()) {
         const QFileInfo fi(fileName);
         if (fi.exists())
@@ -987,8 +990,8 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *ediface = m_coreInstance->editorManager()->newFile(kind, &s, output.toLocal8Bit());
-    SubversionEditor *e = qobject_cast<SubversionEditor*>(ediface->widget());
+    Core::IEditor *editor = Core::EditorManager::instance()->newFile(kind, &s, output.toLocal8Bit());
+    SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
     if (!e)
         return 0;
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
@@ -1009,15 +1012,9 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *settings = m_coreInstance->settings())
+        if (QSettings *settings = Core::ICore::instance()->settings())
             m_settings.toSettings(settings);
     }
-}
-
-Core::ICore *SubversionPlugin::coreInstance()
-{
-    QTC_ASSERT(m_coreInstance, return 0);
-    return m_coreInstance;
 }
 
 SubversionPlugin *SubversionPlugin::subversionPluginInstance()

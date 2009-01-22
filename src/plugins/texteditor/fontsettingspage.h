@@ -38,7 +38,6 @@
 
 #include "fontsettings.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtGui/QColor>
@@ -89,7 +88,6 @@ public:
     FontSettingsPage(const FormatDescriptions &fd,
                      const QString &category,
                      const QString &trCategory,
-                     Core::ICore *core,
                      QObject *parent = 0);
 
     ~FontSettingsPage();

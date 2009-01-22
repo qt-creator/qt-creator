@@ -35,36 +35,35 @@
 #include "submiteditorfile.h"
 
 #include <coreplugin/ifile.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-
+#include <extensionsystem/pluginmanager.h>
 #include <utils/submiteditorwidget.h>
 #include <find/basetextfind.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <QtGui/QToolBar>
-#include <QtGui/QStyle>
-#include <QtCore/QPointer>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QPointer>
+#include <QtCore/QTextStream>
+#include <QtGui/QStyle>
+#include <QtGui/QToolBar>
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };
 
 namespace VCSBase {
 
-struct VCSBaseSubmitEditorPrivate {
+struct VCSBaseSubmitEditorPrivate
+{
     VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
                                Core::Utils::SubmitEditorWidget *editorWidget,
                                QObject *q);
 
-    Core::ICore *m_core;
     Core::Utils::SubmitEditorWidget *m_widget;
     QToolBar *m_toolWidget;
     const VCSBaseSubmitEditorParameters *m_parameters;
@@ -79,13 +78,12 @@ struct VCSBaseSubmitEditorPrivate {
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
                                                        Core::Utils::SubmitEditorWidget *editorWidget,
                                                        QObject *q) :
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()),
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q))
 {
-    m_contexts << m_core->uniqueIDManager()->uniqueIdentifier(m_parameters->context);
+    m_contexts << Core::UniqueIDManager::instance()->uniqueIdentifier(m_parameters->context);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,

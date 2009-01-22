@@ -35,17 +35,19 @@
 #define QTESTLIBPLUGIN_H
 
 #include <coreplugin/ioutputpane.h>
-#include <projectexplorer/ProjectExplorerInterfaces>
+//#include <projectexplorer/ProjectExplorerInterfaces>
 
-#include <QPixmap>
-#include <QStandardItem>
-#include <QWidget>
-#include <QSortFilterProxyModel>
+#include <QtGui/QPixmap>
+#include <QtGui/QStandardItem>
+#include <QtGui/QWidget>
+#include <QtGui/QSortFilterProxyModel>
 
+QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 class QTreeView;
 class QTextEdit;
 class QComboBox;
+QT_END_NAMESPACE
 
 namespace QTestLib {
 namespace Internal {
@@ -96,11 +98,10 @@ public:
     static bool indexHasIncidents(const QModelIndex &function, IncidentType type);
 };
 
-class QTestOutputPane : public QObject,
-                        public Core::IOutputPane
+class QTestOutputPane : public Core::IOutputPane
 {
     Q_OBJECT
-    Q_INTERFACES(Core::IOutputPane)
+    //Q_INTERFACES(Core::IOutputPane)
 public:
     QTestOutputPane(QTestLibPlugin *plugin);
 
@@ -147,10 +148,9 @@ private:
 class QTestOutputWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    QTestOutputWidget(QStandardItemModel *model,
-                      Core::ICore *iCore,
-                      QWidget *parent);
+    QTestOutputWidget(QStandardItemModel *model, QWidget *parent);
 
     void expand();
 
@@ -159,7 +159,6 @@ private Q_SLOTS:
     void gotoLocation(QModelIndex index);
 
 private:
-    Core::ICore *m_coreInterface;
     QStandardItemModel *m_model;
     QTreeView *m_resultsView;
     QComboBox *m_filterCombo;
@@ -181,10 +180,6 @@ public:
     bool init(ExtensionSystem::PluginManagerInterface *app, QString *error_message);
     void extensionsInitialized();
 
-    inline Core::ICore *coreInterface() const {
-        return m_core;
-    }
-
     // IApplicationOutput
     virtual void clear();
     virtual void appendOutput(const QString &out);
@@ -195,7 +190,6 @@ private slots:
 
 private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
-    Core::ICore *m_core;
     QString m_outputFile;
     QString m_projectDirectory;
     QTestOutputPane *m_outputPane;

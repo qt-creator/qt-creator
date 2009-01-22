@@ -53,20 +53,10 @@ using namespace Designer::Internal;
 using namespace Designer::Constants;
 using namespace SharedTools;
 
-enum { debugFormWindowFile = 0 };
-
-
-FormWindowFile::FormWindowFile(Core::ICore *core,
-                               QDesignerFormWindowInterface *form,
-                               QObject *parent) :
-    Core::IFile(parent),
+FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
+  : Core::IFile(parent),
     m_mimeType(QLatin1String(FORM_MIMETYPE)),
-    m_formWindow(form),
-    m_core(core)
-{
-}
-
-FormWindowFile::~FormWindowFile()
+    m_formWindow(form)
 {
 }
 
@@ -74,8 +64,8 @@ bool FormWindowFile::save(const QString &name /*= QString()*/)
 {
     const QString actualName = name.isEmpty() ? fileName() : name;
 
-    if (debugFormWindowFile)
-        qDebug() << "FormWindowFile::save" << name << "->" << actualName;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << name << "->" << actualName;
 
     if (actualName.isEmpty())
         return false;
@@ -125,8 +115,8 @@ bool FormWindowFile::isSaveAsAllowed() const
 
 void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
 {
-    if (debugFormWindowFile)
-        qDebug() << "FormWindowFile::modified" << m_fileName << *behavior;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << m_fileName << *behavior;
 
     switch (*behavior) {
     case  Core::IFile::ReloadNone:
@@ -141,7 +131,7 @@ void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(m_fileName, m_core->mainWindow())) {
+    switch (Core::Utils::reloadPrompt(m_fileName, Core::ICore::instance()->mainWindow())) {
     case Core::Utils::ReloadCurrent:
         emit reload(m_fileName);
         break;
@@ -164,8 +154,8 @@ QString FormWindowFile::defaultPath() const
 
 void FormWindowFile::setSuggestedFileName(const QString &fileName)
 {
-    if (debugFormWindowFile)
-        qDebug() << "FormWindowFile:setSuggestedFileName" << m_fileName << fileName;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << m_fileName << fileName;
 
     m_suggestedName = fileName;
 }
@@ -182,8 +172,8 @@ QString FormWindowFile::mimeType() const
 
 bool FormWindowFile::writeFile(const QString &fileName, QString &errorString) const
 {
-    if (debugFormWindowFile)
-        qDebug() << "FormWindowFile::writeFile" << m_fileName << fileName;
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << m_fileName << fileName;
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {

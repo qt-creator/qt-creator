@@ -36,8 +36,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-
 namespace HelloWorld {
 namespace Internal {
 

@@ -48,21 +48,22 @@
 #include "projectloadwizard.h"
 #include "gdbmacrosbuildstep.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 
-#include <QtGui/QFileDialog>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtGui/QFileDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
-using Core::VariableManager;
 
 enum { debug = 0 };
 
@@ -380,9 +381,10 @@ void Qt4Project::updateCodeModel()
         qDebug()<<"Qt4Project::updateCodeModel()";
 
     CppTools::CppModelManagerInterface *modelmanager =
-        m_manager->pluginManager()->getObject<CppTools::CppModelManagerInterface>();
+        ExtensionSystem::PluginManager::instance()
+            ->getObject<CppTools::CppModelManagerInterface>();
 
-    if (! modelmanager)
+    if (!modelmanager)
         return;
 
     QStringList allIncludePaths;
@@ -643,7 +645,7 @@ void Qt4Project::newBuildConfiguration(const QString &buildConfiguration)
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    m_manager->core()->messageManager()->printToOutputPane(errorMessage);
+    Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
 }
 
 Qt4ProFileNode *Qt4Project::rootProjectNode() const

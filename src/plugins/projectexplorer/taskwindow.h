@@ -89,7 +89,6 @@ private slots:
 private:
     int sizeHintForColumn(int column) const;
 
-    Core::ICore *m_coreIFace;
     int m_errorCount;
     int m_currentTask;
 

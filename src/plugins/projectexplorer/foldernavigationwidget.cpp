@@ -61,7 +61,7 @@ class FirstRowFilter : public QSortFilterProxyModel
 public:
     FirstRowFilter(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
 protected:
-    bool filterAcceptsRow (int source_row, const QModelIndex & ) const {
+    bool filterAcceptsRow(int source_row, const QModelIndex &) const {
         return source_row != 0;
     }
 };
@@ -74,15 +74,14 @@ protected:
 
   Shows a file system folder
   */
-FolderNavigationWidget::FolderNavigationWidget(Core::ICore *core, QWidget *parent)
-        : QWidget(parent),
-          m_core(core),
-          m_explorer(ProjectExplorerPlugin::instance()),
-          m_view(new QListView(this)),
-          m_dirModel(new QDirModel(this)),
-          m_filter(new FirstRowFilter(this)),
-          m_title(new QLabel(this)),
-          m_autoSync(false)
+FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
+    : QWidget(parent),
+      m_explorer(ProjectExplorerPlugin::instance()),
+      m_view(new QListView(this)),
+      m_dirModel(new QDirModel(this)),
+      m_filter(new FirstRowFilter(this)),
+      m_title(new QLabel(this)),
+      m_autoSync(false)
 {
     m_dirModel->setFilter(QDir::Dirs | QDir::Files | QDir::Drives | QDir::Readable | QDir::Writable
                           | QDir::Executable | QDir::Hidden);
@@ -124,14 +123,14 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
     m_autoSync = sync;
 
-    Core::FileManager *fileManager = m_core->fileManager();
+    Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
     if (m_autoSync) {
-        connect(fileManager, SIGNAL(currentFileChanged(const QString&)),
-                this, SLOT(setCurrentFile(const QString&)));
+        connect(fileManager, SIGNAL(currentFileChanged(QString)),
+                this, SLOT(setCurrentFile(QString)));
         setCurrentFile(fileManager->currentFile());
     } else {
-        disconnect(fileManager, SIGNAL(currentFileChanged(const QString&)),
-                this, SLOT(setCurrentFile(const QString&)));
+        disconnect(fileManager, SIGNAL(currentFileChanged(QString)),
+                this, SLOT(setCurrentFile(QString)));
     }
 }
 
@@ -171,8 +170,9 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
             setCurrentTitle(QDir(m_dirModel->filePath(srcIndex)));
         } else {
             const QString filePath = m_dirModel->filePath(srcIndex);
-            m_core->editorManager()->openEditor(filePath);
-            m_core->editorManager()->ensureEditorManagerVisible();
+            Core::EditorManager *editorManager = Core::EditorManager::instance();
+            editorManager->openEditor(filePath);
+            editorManager->ensureEditorManagerVisible();
         }
     }
 }
@@ -183,8 +183,7 @@ void FolderNavigationWidget::setCurrentTitle(const QDir &dir)
     m_title->setToolTip(dir.absolutePath());
 }
 
-FolderNavigationWidgetFactory::FolderNavigationWidgetFactory(Core::ICore *core)
-    : m_core(core)
+FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
 }
 
@@ -205,7 +204,7 @@ QKeySequence FolderNavigationWidgetFactory::activationSequence()
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 {
     Core::NavigationView n;
-    FolderNavigationWidget *ptw = new FolderNavigationWidget(m_core);
+    FolderNavigationWidget *ptw = new FolderNavigationWidget;
     n.widget = ptw;
     QToolButton *toggleSync = new QToolButton;
     toggleSync->setProperty("type", "dockbutton");

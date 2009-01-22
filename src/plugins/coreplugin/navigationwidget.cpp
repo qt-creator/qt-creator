@@ -39,14 +39,16 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QToolBar>
 #include <QtGui/QResizeEvent>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 
@@ -314,8 +316,8 @@ void NavigationWidget::objectAdded(QObject * obj)
     if (!factory)
         return;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManager *am = core->actionManager();
+    ICore *core = ICore::instance();
+    ActionManager *am = core->actionManager();
     QList<int> navicontext = QList<int>() << core->uniqueIDManager()->
         uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE);
 
@@ -397,9 +399,8 @@ NavigationSubWidget::~NavigationSubWidget()
 void NavigationSubWidget::setCurrentIndex(int index)
 {
     // Remove toolbutton
-    foreach (QWidget *w, m_additionalToolBarWidgets) {
+    foreach (QWidget *w, m_additionalToolBarWidgets)
         delete w;
-    }
 
     // Remove old Widget
     delete m_navigationWidget;
@@ -464,8 +465,7 @@ void NavigationSubWidget::setFactory(INavigationWidgetFactory *factory)
 
 void NavigationSubWidget::setFactory(const QString &name)
 {
-    for (int i = 0; i < m_navigationComboBox->count(); ++i)
-    {
+    for (int i = 0; i < m_navigationComboBox->count(); ++i) {
         INavigationWidgetFactory *factory =
                 m_navigationComboBox->itemData(i).value<INavigationWidgetFactory *>();
         if (factory->displayName() == name)

@@ -43,13 +43,13 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)   :
-    Core::IEditorFactory(parent),
+PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
+  : Core::IEditorFactory(parent),
     m_kind(Core::Constants::K_DEFAULT_TEXT_EDITOR)
 {
-    m_actionHandler = new TextEditorActionHandler(TextEditorPlugin::core(),
-                                                  QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
-                                                  TextEditorActionHandler::Format);
+    m_actionHandler = new TextEditorActionHandler(
+        QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
+        TextEditorActionHandler::Format);
     m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT)
                 << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_XML);
 }
@@ -66,14 +66,13 @@ QString PlainTextEditorFactory::kind() const
 
 Core::IFile *PlainTextEditorFactory::open(const QString &fileName)
 {
-    Core::ICore *core = TextEditorPlugin::core();
-    Core::IEditor *iface = core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
 {
-    PlainTextEditor *rc =  new PlainTextEditor(parent);
+    PlainTextEditor *rc = new PlainTextEditor(parent);
     TextEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }

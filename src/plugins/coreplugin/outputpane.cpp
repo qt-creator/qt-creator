@@ -42,12 +42,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editorgroup.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QFocusEvent>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
@@ -155,7 +156,6 @@ OutputPane::OutputPane(const QList<int> &context, QWidget *parent) :
     m_closeButton(new QToolButton),
     m_closeAction(0),
     m_pluginManager(0),
-    m_core(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget)
@@ -205,12 +205,11 @@ QWidget *OutputPane::buttonsWidget()
     return m_buttonsWidget;
 }
 
-void OutputPane::init(ICore *core, ExtensionSystem::PluginManager *pm)
+void OutputPane::init(ExtensionSystem::PluginManager *pm)
 {
     m_pluginManager = pm;
-    m_core = core;
 
-    ActionManager *am = m_core->actionManager();
+    ActionManager *am = Core::ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
     // Window->Output Panes
@@ -394,8 +393,7 @@ void OutputPane::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::m_current) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ICore *core = m_pluginManager->getObject<ICore>();
-            core->modeManager()->activateMode(Constants::MODE_OUTPUT);
+            ICore::instance()->modeManager()->activateMode(Constants::MODE_OUTPUT);
             ensurePageVisible(idx);
         } else {
             // else we make that page visible
@@ -410,14 +408,13 @@ void OutputPane::showPage(int idx, bool focus)
 void OutputPane::togglePage(bool focus)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    if(OutputPanePlaceHolder::m_current
+    if (OutputPanePlaceHolder::m_current
        && OutputPanePlaceHolder::m_current->isVisible()
        && m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() == idx) {
          slotHide();
     } else {
          showPage(idx, focus);
     }
-
 }
 
 void OutputPane::setCloseable(bool b)

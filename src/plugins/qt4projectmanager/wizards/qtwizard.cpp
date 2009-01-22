@@ -35,6 +35,8 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QByteArray>
@@ -61,9 +63,8 @@ static inline Core::BaseFileWizardParameters
 }
 
 // -------------------- QtWizard
-QtWizard::QtWizard(Core::ICore *core, const QString &name,
-                   const QString &description, const QIcon &icon) :
-    Core::BaseFileWizard(wizardParameters(name, description, icon), core),
+QtWizard::QtWizard(const QString &name, const QString &description, const QIcon &icon) :
+    Core::BaseFileWizard(wizardParameters(name, description, icon)),
     m_projectExplorer(ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>())
 {
 }
@@ -101,7 +102,7 @@ bool QtWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMe
 
 QString QtWizard::templateDir() const
 {
-    QString rc = core()->resourcePath();
+    QString rc = Core::ICore::instance()->resourcePath();
     rc += QLatin1String("/templates/qt4project");
     return rc;
 }

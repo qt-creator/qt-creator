@@ -34,7 +34,6 @@
 #include "editmode.h"
 #include "editormanager.h"
 #include "coreconstants.h"
-#include "coreimpl.h"
 #include "modemanager.h"
 #include "uniqueidmanager.h"
 #include "minisplitter.h"
@@ -122,9 +121,9 @@ const char* EditMode::uniqueModeName() const
 QList<int> EditMode::context() const
 {
     static QList<int> contexts = QList<int>() <<
-        CoreImpl::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_EDIT_MODE) <<
-        CoreImpl::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER) <<
-        CoreImpl::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_NAVIGATION_PANE);
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDIT_MODE) <<
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_EDITORMANAGER) <<
+        UniqueIDManager::instance()->uniqueIdentifier(Constants::C_NAVIGATION_PANE);
     return contexts;
 }
 

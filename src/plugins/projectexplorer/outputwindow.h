@@ -48,10 +48,6 @@ QT_BEGIN_NAMESPACE
 class QTabWidget;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace ProjectExplorer {
 
 class RunControl;
@@ -65,7 +61,7 @@ class OutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    OutputPane(Core::ICore *core);
+    OutputPane();
     ~OutputPane();
 
     QWidget *outputWidget(QWidget *);

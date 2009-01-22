@@ -50,6 +50,7 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/CppDocument.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -261,7 +262,7 @@ bool Qt4PriFileNode::changeIncludes(ProFile *includeFile, const QStringList &pro
 bool Qt4PriFileNode::priFileWritable(const QString &path)
 {
     const QString dir = QFileInfo(path).dir().path();
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *versionControl = core->vcsManager()->findVersionControlForDirectory(dir);
     switch (Core::EditorManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
     case Core::EditorManager::RO_OpenVCS:
@@ -290,7 +291,7 @@ bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
     QList<Core::IFile*> allFileHandles;
     QList<Core::IFile*> modifiedFileHandles;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
 
     foreach (Core::IFile *file, core->fileManager()->managedFiles(path)) {
         allFileHandles << file;
@@ -427,7 +428,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
 void Qt4PriFileNode::save(ProFile *includeFile)
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     Core::FileManager *fileManager = core->fileManager();
     QList<Core::IFile *> allFileHandles = fileManager->managedFiles(includeFile->fileName());
     Core::IFile *modifiedFileHandle = 0;
@@ -838,13 +839,12 @@ void Qt4ProFileNode::updateUiFiles()
 ProFileReader *Qt4PriFileNode::createProFileReader() const
 {
     ProFileReader *reader = new ProFileReader();
-    connect(reader, SIGNAL(errorFound(const QString &)),
-            m_project, SLOT(proFileParseError(const QString &)));
+    connect(reader, SIGNAL(errorFound(QString)),
+            m_project, SLOT(proFileParseError(QString)));
 
     QtVersion *version = m_project->qtVersion(m_project->activeBuildConfiguration());
-    if (version->isValid()) {
+    if (version->isValid())
         reader->setQtVersion(version);
-    }
 
     reader->setOutputDir(m_qt4ProFileNode->buildDir());
 

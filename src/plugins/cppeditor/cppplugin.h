@@ -34,16 +34,11 @@
 #ifndef CPPPLUGIN_H
 #define CPPPLUGIN_H
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QStringList>
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-
-namespace Core {
-class ICore;
-class IWizard;
-}
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -65,7 +60,6 @@ public:
     ~CppPlugin();
 
     static CppPlugin *instance();
-    static Core::ICore *core();
 
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();
@@ -83,7 +77,6 @@ private:
 
     static CppPlugin *m_instance;
 
-    Core::ICore *m_core;
     CPPEditorActionHandler *m_actionHandler;
     CppPluginEditorFactory *m_factory;
 };

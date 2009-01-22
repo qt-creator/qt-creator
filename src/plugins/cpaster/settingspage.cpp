@@ -34,7 +34,6 @@
 #include "settingspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QSettings>
 #include <QtGui/QLineEdit>
@@ -46,10 +45,7 @@ using namespace CodePaster;
 
 SettingsPage::SettingsPage()
 {
-    Core::ICore *coreIFace = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    if (coreIFace)
-        m_settings = coreIFace->settings();
-
+    m_settings = Core::ICore::instance()->settings();
     if (m_settings) {
         m_settings->beginGroup("CodePaster");
         m_username = m_settings->value("UserName", qgetenv("USER")).toString();

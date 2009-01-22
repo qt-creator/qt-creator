@@ -54,7 +54,6 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class ICore;
     class IEditorFactory;
     class IVersionControl;
 }
@@ -105,7 +104,6 @@ public:
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
 
-    static Core::ICore *coreInstance();
     static SubversionPlugin *subversionPluginInstance();
 
 private slots:
@@ -190,7 +188,6 @@ private:
     static const char * const STATUS;
     static const char * const UPDATE;
 
-    static Core::ICore *m_coreInstance;
     static SubversionPlugin *m_subversionPluginInstance;
 
     friend class SubversionOutputWindow;

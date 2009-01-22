@@ -60,7 +60,7 @@ class SettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage(Core::ICore *core, QuickOpenPlugin *plugin);
+    explicit SettingsPage(QuickOpenPlugin *plugin);
     QString name() const { return tr(Constants::FILTER_OPTIONS_PAGE); }
     QString category() const { return Constants::QUICKOPEN_CATEGORY; }
     QString trCategory() const { return tr(Constants::QUICKOPEN_CATEGORY); }
@@ -82,7 +82,6 @@ private:
     void requestRefresh();
 
     Ui::SettingsWidget m_ui;
-    Core::ICore *m_core;
     QuickOpenPlugin *m_plugin;
     QPointer<QWidget> m_page;
     QList<IQuickOpenFilter *> m_filters;

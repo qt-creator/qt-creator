@@ -36,7 +36,6 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -47,14 +46,13 @@
 using namespace ResourceEditor::Internal;
 using namespace ResourceEditor::Constants;
 
-ResourceEditorFactory::ResourceEditorFactory(Core::ICore *core, ResourceEditorPlugin *plugin) :
+ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     Core::IEditorFactory(plugin),
     m_mimeTypes(QStringList(QLatin1String("application/vnd.nokia.xml.qt.resource"))),
     m_kind(QLatin1String(C_RESOURCEEDITOR)),
-    m_core(core),
     m_plugin(plugin)
 {
-    m_context += m_core->uniqueIDManager()
+    m_context += Core::UniqueIDManager::instance()
                  ->uniqueIdentifier(QLatin1String(ResourceEditor::Constants::C_RESOURCEEDITOR));
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconForSuffix(QIcon(":/resourceeditor/images/qt_qrc.png"),
@@ -68,7 +66,7 @@ QString ResourceEditorFactory::kind() const
 
 Core::IFile *ResourceEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     if (!iface) {
         qWarning() << "ResourceEditorFactory::open: openEditor failed for " << fileName;
         return 0;
@@ -78,7 +76,7 @@ Core::IFile *ResourceEditorFactory::open(const QString &fileName)
 
 Core::IEditor *ResourceEditorFactory::createEditor(QWidget *parent)
 {
-    return new ResourceEditorW(m_context, m_core, m_plugin, parent);
+    return new ResourceEditorW(m_context, m_plugin, parent);
 }
 
 QStringList ResourceEditorFactory::mimeTypes() const

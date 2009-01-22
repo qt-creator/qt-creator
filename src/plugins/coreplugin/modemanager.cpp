@@ -42,9 +42,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreimpl.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/uniqueidmanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -215,7 +216,7 @@ void ModeManager::currentTabChanged(int index)
         // FIXME: This hardcoded context update is required for the Debug and Edit modes, since
         // they use the editor widget, which is already a context widget so the main window won't
         // go further up the parent tree to find the mode context.
-        CoreImpl *core = CoreImpl::instance();
+        ICore *core = ICore::instance();
         foreach (const int context, m_addedContexts)
             core->removeAdditionalContext(context);
 

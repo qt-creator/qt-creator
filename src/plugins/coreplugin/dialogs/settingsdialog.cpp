@@ -32,7 +32,8 @@
 ***************************************************************************/
 
 #include "settingsdialog.h"
-#include "coreimpl.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
@@ -58,7 +59,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     QMap<QString, QTreeWidgetItem *> categories;
 
     QList<IOptionsPage*> pages =
-        CoreImpl::instance()->pluginManager()->getObjects<IOptionsPage>();
+        ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>();
 
     int index = 0;
     foreach (IOptionsPage *page, pages) {

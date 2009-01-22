@@ -48,7 +48,7 @@ class LibraryWizard : public QtWizard
     Q_OBJECT
 
 public:
-    explicit LibraryWizard(Core::ICore *core);
+    LibraryWizard();
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

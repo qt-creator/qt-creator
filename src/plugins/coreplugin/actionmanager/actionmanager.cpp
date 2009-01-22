@@ -61,7 +61,7 @@ namespace {
     You get the only implementation of this class from the core interface
     ICore::actionManager() method, e.g.
     \code
-        ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->actionManager()
+        Core::ICore::instance()->actionManager()
     \endcode
 
     The main reasons for the need of this class is to provide a central place where the user
@@ -80,8 +80,7 @@ namespace {
     So to register a globally active action "My Action"
     put the following in your plugin's IPlugin::initialize method:
     \code
-        Core::ActionManager *am = ExtensionSystem::PluginManager::instance()
-            ->getObject<Core::ICore>()->actionManager();
+        Core::ActionManager *am = Core::ICore::instance()->actionManager();
         QAction *myAction = new QAction(tr("My Action"), this);
         Core::Command *cmd = am->registerAction(myAction,
                                                  "myplugin.myaction",
@@ -223,7 +222,7 @@ ActionManagerPrivate::~ActionManagerPrivate()
     qDeleteAll(m_idContainerMap.values());
 }
 
-ActionManagerPrivate* ActionManagerPrivate::instance()
+ActionManagerPrivate *ActionManagerPrivate::instance()
 {
     return m_instance;
 }

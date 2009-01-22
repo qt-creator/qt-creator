@@ -91,7 +91,7 @@ void GuiAppWizardDialog::setBaseClasses(const QStringList &baseClasses)
         m_filesPage->setBaseClassName(baseClasses.front());
 }
 
-void GuiAppWizardDialog::setSuffixes(const QString &header, const QString &source,  const QString &form)
+void GuiAppWizardDialog::setSuffixes(const QString &header, const QString &source, const QString &form)
 {
     m_filesPage->setSuffixes(header, source, form);
 }

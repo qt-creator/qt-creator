@@ -45,8 +45,6 @@ class CoreImpl : public ICore
     Q_OBJECT
 
 public:
-    static CoreImpl *instance();
-
     CoreImpl(MainWindow *mainwindow);
     ~CoreImpl() {}
 
@@ -93,8 +91,6 @@ public:
 private:
     MainWindow *m_mainwindow;
     friend class MainWindow;
-
-    static CoreImpl *m_instance;
 };
 
 } // namespace Internal

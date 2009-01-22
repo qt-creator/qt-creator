@@ -36,7 +36,6 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QObject>
@@ -47,26 +46,23 @@ struct TabSettings;
 struct StorageSettings;
 struct DisplaySettings;
 
-struct TEXTEDITOR_EXPORT GeneralSettingsPageParameters {
+struct TEXTEDITOR_EXPORT GeneralSettingsPageParameters
+{
     QString name;
     QString category;
     QString trCategory;
     QString settingsPrefix;
 };
 
-class Ui_generalSettingsPage;
-
 class TEXTEDITOR_EXPORT GeneralSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GeneralSettingsPage(Core::ICore *core,
-                        const GeneralSettingsPageParameters &p,
-                        QObject *parent);
+    GeneralSettingsPage(const GeneralSettingsPageParameters &p, QObject *parent);
     virtual ~GeneralSettingsPage();
 
-    //IOptionsPage
+    // IOptionsPage
     QString name() const;
     QString category() const;
     QString trCategory() const;

@@ -35,16 +35,14 @@
 #define PLUGINFILEFACTORY_H
 
 #include <coreplugin/ifilefactory.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 
-namespace Core {
-    class ICore;
-}
-
 namespace ProjectExplorer {
-    class IProjectManager;
-    class ProjectExplorerPlugin;
+
+class IProjectManager;
+class ProjectExplorerPlugin;
 
 namespace Internal {
 
@@ -53,20 +51,20 @@ namespace Internal {
 class ProjectFileFactory : public Core::IFileFactory
 {
     Q_OBJECT
-    explicit ProjectFileFactory(const Core::ICore* core, ProjectExplorer::IProjectManager *manager);
-public:
 
+    explicit ProjectFileFactory(ProjectExplorer::IProjectManager *manager);
+
+public:
     virtual QStringList mimeTypes() const;
     bool canOpen(const QString &fileName);
     QString kind() const;
     Core::IFile *open(const QString &fileName);
 
-    static QList<ProjectFileFactory*> createFactories(const Core::ICore* core, QString *filterString);
+    static QList<ProjectFileFactory*> createFactories(QString *filterString);
 
 private:
     const QStringList m_mimeTypes;
     const QString m_kind;
-    const Core::ICore* m_core;
     ProjectExplorer::IProjectManager *m_manager;
 };
 

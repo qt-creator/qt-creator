@@ -41,31 +41,22 @@
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
-class QDesignerFormWindowManagerInterface;
 class QFile;
 QT_END_NAMESPACE
-
-namespace Core {
-class ICore;
-}
 
 namespace Designer {
 namespace Internal {
 
 class FormWindowSelection;
 
-class FormWindowFile
-    : public Core::IFile
+class FormWindowFile : public Core::IFile
 {
     Q_OBJECT
 
 public:
-    FormWindowFile(Core::ICore *core,
-                   QDesignerFormWindowInterface *form,
-                   QObject *parent = 0);
-    ~FormWindowFile();
+    FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
-    //IFile
+    // IFile
     bool save(const QString &fileName = QString());
     QString fileName() const;
     bool isModified() const;
@@ -97,7 +88,6 @@ private:
     QString m_suggestedName;
 
     QDesignerFormWindowInterface *m_formWindow;
-    Core::ICore *m_core;
 };
 
 } // namespace Internal

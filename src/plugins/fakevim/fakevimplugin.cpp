@@ -158,7 +158,7 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
 
     m_handler = new FakeVimHandler;
 
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    m_core = Core::ICore::instance();
     QTC_ASSERT(m_core, return false);
 
     Core::ActionManager *actionManager = m_core->actionManager();
@@ -177,7 +177,7 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
 
     ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
-    advancedMenu->addAction(cmd);
+    advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     connect(m_installHandlerAction, SIGNAL(triggered()),
         this, SLOT(installHandler()));

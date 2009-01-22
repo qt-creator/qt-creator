@@ -43,6 +43,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
@@ -60,15 +61,12 @@ namespace {
 bool debug = false;
 }
 
-ProjectWindow::ProjectWindow(Core::ICore *core,
-                             QWidget *parent) :
-    QWidget(parent),
-    m_core(core)
+ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
 {
     setWindowTitle(tr("Project Explorer"));
     setWindowIcon(QIcon(":/projectexplorer/images/projectexplorer.png"));
 
-    ExtensionSystem::PluginManager *pm = m_core->pluginManager();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorerPlugin *projectExplorer = m_projectExplorer = pm->getObject<ProjectExplorerPlugin>();
     m_session = projectExplorer->session();
 

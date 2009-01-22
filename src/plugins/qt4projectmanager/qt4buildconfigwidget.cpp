@@ -36,11 +36,11 @@
 #include "makestep.h"
 #include "qmakestep.h"
 #include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "ui_qt4buildconfigwidget.h"
-#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/mainwindow.h>
-#include "qt4projectmanagerconstants.h"
 
 #include <QtGui/QFileDialog>
 
@@ -93,7 +93,7 @@ Qt4BuildConfigWidget::~Qt4BuildConfigWidget()
 
 void Qt4BuildConfigWidget::manageQtVersions()
 {
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
 }
 

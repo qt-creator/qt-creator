@@ -40,20 +40,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QFileInfo>
-#include <QtCore/qdebug.h>
+#include <QtCore/QDebug>
 
 using namespace QtScriptEditor::Internal;
 using namespace QtScriptEditor::Constants;
 
-QtScriptEditorFactory::QtScriptEditorFactory(Core::ICore *core,
-                                             const Context &context,
-                                             QObject *parent) :
-    Core::IEditorFactory(parent),
+QtScriptEditorFactory::QtScriptEditorFactory(const Context &context, QObject *parent)
+  : Core::IEditorFactory(parent),
     m_kind(QLatin1String(C_QTSCRIPTEDITOR)),
     m_mimeTypes(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE)),
     m_context(context),
-    m_core(core),
-    m_actionHandler(new QtScriptEditorActionHandler(core))
+    m_actionHandler(new QtScriptEditorActionHandler)
 {
 }
 
@@ -69,7 +66,7 @@ QString QtScriptEditorFactory::kind() const
 
 Core::IFile *QtScriptEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     if (!iface) {
         qWarning() << "QtScriptEditorFactory::open: openEditor failed for " << fileName;
         return 0;
@@ -79,7 +76,7 @@ Core::IFile *QtScriptEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QtScriptEditorFactory::createEditor(QWidget *parent)
 {
-    ScriptEditor *rc =  new ScriptEditor(m_context, m_core, m_actionHandler, parent);
+    ScriptEditor *rc = new ScriptEditor(m_context, m_actionHandler, parent);
     QtScriptEditorPlugin::initializeEditor(rc);
     return rc->editableInterface();
 }

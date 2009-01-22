@@ -48,9 +48,9 @@ class CppFileWizard : public Core::StandardFileWizard
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
 
-    explicit CppFileWizard(const BaseFileWizardParameters &parameters,
-                           FileType type,
-                           Core::ICore *core, QObject *parent = 0);
+    CppFileWizard(const BaseFileWizardParameters &parameters,
+                  FileType type,
+                  QObject *parent = 0);
 
 protected:
     static QString toAlphaNum(const QString &s);

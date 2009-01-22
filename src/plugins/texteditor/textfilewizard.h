@@ -50,7 +50,6 @@ public:
                    const QString &editorKind,
                    const QString &suggestedFileName,
                    const BaseFileWizardParameters &parameters,
-                   Core::ICore *core,
                    QObject *parent = 0);
 
 protected:

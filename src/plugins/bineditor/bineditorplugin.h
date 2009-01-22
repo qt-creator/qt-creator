@@ -43,7 +43,6 @@
 #include <QtGui/QAction>
 
 namespace Core {
-class ICore;
 class IWizard;
 }
 
@@ -61,9 +60,6 @@ public:
     BinEditorPlugin();
     ~BinEditorPlugin();
 
-    static BinEditorPlugin *instance();
-    static Core::ICore *core();
-
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();
 
@@ -78,6 +74,7 @@ private slots:
     void updateActions();
 
     void updateCurrentEditor(Core::IContext *object);
+
 private:
     QList<int> m_context;
     QAction *registerNewAction(const QString &id, const QString &title = QString());
@@ -91,9 +88,6 @@ private:
     friend class BinEditorFactory;
     Core::IEditor *createEditor(QWidget *parent);
 
-    static BinEditorPlugin *m_instance;
-
-    Core::ICore *m_core;
     typedef QList<Core::IWizard *> WizardList;
     WizardList m_wizards;
     BinEditorFactory *m_factory;

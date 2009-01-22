@@ -37,7 +37,9 @@
 #include "msvcenvironment.h"
 #include "cesdkhandler.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
@@ -62,8 +64,7 @@ static const char *newQtVersionsKey = "NewQtVersions";
 QtVersionManager::QtVersionManager()
     : m_emptyVersion(new QtVersion)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    QSettings *s = m_core->settings();
+    QSettings *s = Core::ICore::instance()->settings();
     m_defaultVersion = s->value(defaultQtVersionKey, 0).toInt();
 
     m_idcount = 1;
@@ -115,7 +116,8 @@ void QtVersionManager::addVersion(QtVersion *version)
 
 void QtVersionManager::updateDocumentation()
 {
-    Help::HelpManager *helpManager = m_core->pluginManager()->getObject<Help::HelpManager>();
+    Help::HelpManager *helpManager
+        = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
     QStringList fileEndings = QStringList() << "/qch/qt.qch" << "/qch/qmake.qch" << "/qch/designer.qch";
     QStringList files;
@@ -195,7 +197,7 @@ void QtVersionManager::apply()
 
 void QtVersionManager::writeVersionsIntoSettings()
 {
-    QSettings *s = m_core->settings();
+    QSettings *s = Core::ICore::instance()->settings();
     s->setValue(defaultQtVersionKey, m_defaultVersion);
     s->beginWriteArray("QtVersions");
     for (int i = 0; i < m_versions.size(); ++i) {
@@ -234,7 +236,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
     // NewQtVersions="qt 4.3.2=c:\\qt\\qt432;qt embedded=c:\\qtembedded;"
     // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432=c:\\qtcreator\\mingw\\=prependToPath;
     // Duplicate entries are not added, the first new version is set as default.
-    QSettings *settings = m_core->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     if (!settings->contains(newQtVersionsKey))
         return;
 

@@ -40,16 +40,13 @@
 #include <QtGui/QWizardPage>
 #include <QtGui/QWizard>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace Core {
 namespace Utils {
-    class NewClassWidget;
-}
-}
+
+class NewClassWidget;
+
+} // namespace Utils
+} // namespace Core
 
 namespace CppEditor {
 namespace Internal {
@@ -75,7 +72,8 @@ private:
 };
 
 
-struct CppClassWizardParameters {
+struct CppClassWizardParameters
+{
     QString className;
     QString headerFile;
     QString sourceFile;
@@ -83,9 +81,10 @@ struct CppClassWizardParameters {
     QString path;
 };
 
-class CppClassWizardDialog : public QWizard {
-    Q_DISABLE_COPY(CppClassWizardDialog)
+class CppClassWizardDialog : public QWizard
+{
     Q_OBJECT
+    Q_DISABLE_COPY(CppClassWizardDialog)
 public:
     explicit CppClassWizardDialog(const QString &sourceSuffix,
                                   const QString &headerSuffix,
@@ -104,7 +103,7 @@ class CppClassWizard : public Core::BaseFileWizard
     Q_OBJECT
 public:
     explicit CppClassWizard(const Core::BaseFileWizardParameters &parameters,
-                            Core::ICore *core, QObject *parent = 0);
+                            QObject *parent = 0);
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

@@ -33,6 +33,7 @@
 
 #include "basefilefind.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/stylehelper.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,7 +41,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
@@ -49,9 +50,8 @@ using namespace Core::Utils;
 using namespace Find;
 using namespace TextEditor;
 
-BaseFileFind::BaseFileFind(Core::ICore *core, SearchResultWindow *resultWindow)
-    : m_core(core),
-    m_resultWindow(resultWindow),
+BaseFileFind::BaseFileFind(SearchResultWindow *resultWindow)
+  : m_resultWindow(resultWindow),
     m_isSearching(false),
     m_resultLabel(0),
     m_filterCombo(0),
@@ -95,7 +95,8 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
         m_watcher.setFuture(Core::Utils::findInFilesRegExp(txt, files(), findFlags));
     else
         m_watcher.setFuture(Core::Utils::findInFiles(txt, files(), findFlags));
-    Core::FutureProgress *progress = m_core->progressManager()->addTask(m_watcher.future(),
+    Core::FutureProgress *progress = 
+        Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());

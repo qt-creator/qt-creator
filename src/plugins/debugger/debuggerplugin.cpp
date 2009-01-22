@@ -55,11 +55,11 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/uniqueidmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <cppeditor/cppeditorconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -346,7 +346,7 @@ DebuggerPlugin::~DebuggerPlugin()
 
 static QSettings *settings()
 {
-    return ExtensionSystem::PluginManager::instance()->getObject<ICore>()->settings();
+    return ICore::instance()->settings();
 }
 
 void DebuggerPlugin::shutdown()
@@ -387,7 +387,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
     m_pm = ExtensionSystem::PluginManager::instance();
 
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
 
     Core::ActionManager *am = core->actionManager();
@@ -611,7 +611,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     splitter->setOrientation(Qt::Vertical);
 
     MiniSplitter *splitter2 = new MiniSplitter;
-    splitter2 = new MiniSplitter;
     splitter2->addWidget(new NavigationWidgetPlaceHolder(m_debugMode));
     splitter2->addWidget(splitter);
     splitter2->setStretchFactor(0, 0);
@@ -713,8 +712,7 @@ ProjectExplorer::ProjectExplorerPlugin *DebuggerPlugin::projectExplorer() const
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPlugin::activatePreviousMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    Core::ModeManager *const modeManager = core->modeManager();
+    Core::ModeManager *const modeManager = ICore::instance()->modeManager();
 
     if (modeManager->currentMode() == modeManager->mode(Constants::MODE_DEBUG)
             && !m_previousMode.isEmpty()) {
@@ -725,18 +723,17 @@ void DebuggerPlugin::activatePreviousMode()
 
 void DebuggerPlugin::activateDebugMode()
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    Core::ModeManager *modeManager = core->modeManager();
+    ModeManager *modeManager = ModeManager::instance();
     m_previousMode = QLatin1String(modeManager->currentMode()->uniqueModeName());
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
 }
 
 void DebuggerPlugin::queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **object)
 {
-    ICore *core = m_pm->getObject<Core::ICore>();
-    if (!core || !core->editorManager())
+    EditorManager *editorManager = EditorManager::instance();
+    if (!editorManager)
         return;
-    Core::IEditor *editor = core->editorManager()->currentEditor();
+    Core::IEditor *editor = editorManager->currentEditor();
     ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
         return;
@@ -872,7 +869,7 @@ void DebuggerPlugin::gotoLocation(const QString &fileName, int lineNumber,
 void DebuggerPlugin::changeStatus(int status)
 {
     bool startIsContinue = (status == DebuggerInferiorStopped);
-    ICore *core = m_pm->getObject<Core::ICore>();
+    ICore *core = ICore::instance();
     if (startIsContinue) {
         core->addAdditionalContext(m_gdbRunningContext);
         core->updateContext();
@@ -894,6 +891,7 @@ void DebuggerPlugin::writeSettings() const
     s->setValue("Locked", m_toggleLockedAction->isChecked());
     s->setValue("Location", m->m_gdbCmd);
     s->setValue("Environment", m->m_gdbEnv);
+    s->setValue("ScriptFile", m->m_scriptFile);
     s->setValue("AutoRun", m->m_autoRun);
     s->setValue("AutoQuit", m->m_autoQuit);
 
@@ -915,25 +913,24 @@ void DebuggerPlugin::readSettings()
 #if defined(Q_OS_WIN32)
     defaultCommand.append(".exe");
 #endif
-    Core::ICore *coreIFace = m_pm->getObject<Core::ICore>();
-    QString defaultScript = coreIFace->resourcePath() +
+    QString defaultScript = ICore::instance()->resourcePath() +
         QLatin1String("/gdb/qt4macros");
 
     s->beginGroup(QLatin1String("DebugMode"));
     QByteArray ba = s->value("State", QByteArray()).toByteArray();
     m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
-    m->m_gdbCmd   = s->value("Location", defaultCommand).toString();
-    m->m_scriptFile= s->value("ScriptFile", defaultScript).toString();
-    m->m_gdbEnv   = s->value("Environment", "").toString();
-    m->m_autoRun  = s->value("AutoRun", true).toBool();
-    m->m_autoQuit = s->value("AutoQuit", true).toBool();
+    m->m_gdbCmd     = s->value("Location", defaultCommand).toString();
+    m->m_scriptFile = s->value("ScriptFile", defaultScript).toString();
+    m->m_gdbEnv     = s->value("Environment", "").toString();
+    m->m_autoRun    = s->value("AutoRun", true).toBool();
+    m->m_autoQuit   = s->value("AutoQuit", true).toBool();
 
-    m->m_skipKnownFrames = s->value("SkipKnownFrames", false).toBool();
-    m->m_debugDumpers = s->value("DebugDumpers", false).toBool();
-    m->m_useCustomDumpers = s->value("UseCustomDupers", false).toBool();
-    m->m_useFastStart = s->value("UseFastStart", false).toBool();
-    m->m_useToolTips = s->value("UseToolTips", false).toBool();
-    m->m_useTerminal = s->value("UseTerminal", false).toBool();
+    m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
+    m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
+    m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
+    m->m_useFastStart     = s->value("UseFastStart", false).toBool();
+    m->m_useToolTips      = s->value("UseToolTips", false).toBool();
+    m->m_useTerminal      = s->value("UseTerminal", false).toBool();
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

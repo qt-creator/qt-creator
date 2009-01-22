@@ -54,7 +54,6 @@
 
 namespace Core {
 class IContext;
-class ICore;
 class IMode;
 class IFileFactory;
 namespace Internal {
@@ -239,7 +238,6 @@ private:
     QMenu *m_runConfigurationMenu;
     QActionGroup *m_runConfigurationActionGroup;
 
-    Core::ICore *m_core;
     Internal::ProjectWindow *m_proWindow;
     SessionManager *m_session;
 
@@ -264,6 +262,7 @@ private:
 };
 
 namespace Internal {
+
 class CoreListenerCheckingForRunningBuild : public Core::ICoreListener
 {
     Q_OBJECT
@@ -275,7 +274,8 @@ public:
 private:
     BuildManager *m_manager;
 };
-}
+
+} // namespace Internal
 
 } // namespace ProjectExplorer
 

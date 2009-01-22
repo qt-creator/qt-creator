@@ -46,11 +46,10 @@
 using namespace Designer::Internal;
 using namespace Designer::Constants;
 
-FormEditorFactory::FormEditorFactory(Core::ICore *core) :
-    Core::IEditorFactory(core),
+FormEditorFactory::FormEditorFactory()
+  : Core::IEditorFactory(Core::ICore::instance()),
     m_kind(QLatin1String(C_FORMEDITOR)),
-    m_mimeTypes(QLatin1String(FORM_MIMETYPE)),
-    m_core(core)
+    m_mimeTypes(QLatin1String(FORM_MIMETYPE))
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconForSuffix(QIcon(":/formeditor/images/qt_ui.png"),
@@ -64,7 +63,7 @@ QString FormEditorFactory::kind() const
 
 Core::IFile *FormEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = m_core->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 

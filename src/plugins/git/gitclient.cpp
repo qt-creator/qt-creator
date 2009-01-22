@@ -97,10 +97,10 @@ static QString formatCommand(const QString &binary, const QStringList &args)
 }
 
 // ---------------- GitClient
-GitClient::GitClient(GitPlugin* plugin, Core::ICore *core) :
-    m_msgWait(tr("Waiting for data...")),
+GitClient::GitClient(GitPlugin* plugin)
+  : m_msgWait(tr("Waiting for data...")),
     m_plugin(plugin),
-    m_core(core)
+    m_core(Core::ICore::instance())
 {
     if (QSettings *s = m_core->settings())
         m_settings.fromSettings(s);
@@ -178,7 +178,7 @@ VCSBase::VCSBaseEditor
         QTC_ASSERT(rc, return 0);
         rc->setSource(source);
         if (setSourceCodec)
-            rc->setCodec(VCSBase::VCSBaseEditor::getCodec(m_core, source));
+            rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
     }
     return rc;
 }

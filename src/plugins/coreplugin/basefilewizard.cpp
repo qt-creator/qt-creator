@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/ifilewizardextension.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 
 #include <QtCore/QDir>
@@ -345,28 +346,19 @@ void WizardEventLoop::rejected()
 // ---------------- BaseFileWizardPrivate
 struct BaseFileWizardPrivate
 {
-    explicit BaseFileWizardPrivate(const Core::BaseFileWizardParameters &parameters,
-                                   Core::ICore *core);
+    explicit BaseFileWizardPrivate(const Core::BaseFileWizardParameters &parameters)
+      : m_parameters(parameters), m_wizardDialog(0)
+    {}
 
     const Core::BaseFileWizardParameters m_parameters;
     QWizard *m_wizardDialog;
-    Core::ICore *m_core;
 };
-
-Core::BaseFileWizardPrivate::BaseFileWizardPrivate(const BaseFileWizardParameters &parameters,
-                                   Core::ICore *core) :
-    m_parameters(parameters),
-    m_wizardDialog(0),
-    m_core(core)
-{
-}
 
 // ---------------- Wizard
 BaseFileWizard::BaseFileWizard(const BaseFileWizardParameters &parameters,
-                       Core::ICore *core,
                        QObject *parent) :
     IWizard(parent),
-    m_d(new BaseFileWizardPrivate(parameters, core))
+    m_d(new BaseFileWizardPrivate(parameters))
 {
 }
 
@@ -517,13 +509,14 @@ bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMe
 {
     // File mode: open the editors in file mode and ensure editor pane
     const Core::GeneratedFiles::const_iterator cend = l.constEnd();
+    Core::EditorManager *em = Core::EditorManager::instance();
     for (Core::GeneratedFiles::const_iterator it = l.constBegin(); it != cend; ++it) {
-        if (!m_d->m_core->editorManager()->openEditor(it->path(), it->editorKind())) {
+        if (!em->openEditor(it->path(), it->editorKind())) {
             *errorMessage = tr("Failed to open an editor for %1").arg(it->path());
             return false;
         }
     }
-    m_d->m_core->editorManager()->ensureEditorManagerVisible();
+    em->ensureEditorManagerVisible();
     return true;
 }
 
@@ -533,7 +526,6 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QString &l
 {
     if (debugWizard)
         qDebug() << Q_FUNC_INFO  << location << files;
-
 
     bool existingFilesFound = false;
     bool oddStuffFound = false;
@@ -581,17 +573,12 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QString &l
     const QString messageFormat = tr("The following files already exist in the directory %1:\n"
                                      "%2.\nWould you like to overwrite them?");
     const QString message = messageFormat.arg(location).arg(fileNamesMsgPart);
-    const bool yes = (QMessageBox::question(core()->mainWindow(),
+    const bool yes = (QMessageBox::question(Core::ICore::instance()->mainWindow(),
                                             tr("Existing files"), message,
                                             QMessageBox::Yes | QMessageBox::No,
                                             QMessageBox::No)
                       == QMessageBox::Yes);
     return yes ? OverwriteOk :  OverwriteCanceled;
-}
-
-Core::ICore *BaseFileWizard::core() const
-{
-    return m_d->m_core;
 }
 
 QList<IWizard*> BaseFileWizard::allWizards()
@@ -636,19 +623,18 @@ QString BaseFileWizard::buildFileName(const QString &path,
 
 QString BaseFileWizard::preferredSuffix(const QString &mimeType) const
 {
-    const QString rc = m_d->m_core->mimeDatabase()->preferredSuffixByType(mimeType);
+    const QString rc = Core::ICore::instance()->mimeDatabase()->preferredSuffixByType(mimeType);
     if (rc.isEmpty())
         qWarning("%s: WARNING: Unable to find a preferred suffix for %s.",
                  Q_FUNC_INFO, mimeType.toUtf8().constData());
     return rc;
 }
 
-// ------------- StandardFileWizard(
+// ------------- StandardFileWizard
 
 StandardFileWizard::StandardFileWizard(const BaseFileWizardParameters &parameters,
-                                       Core::ICore *core,
                                        QObject *parent) :
-    BaseFileWizard(parameters,  core, parent)
+    BaseFileWizard(parameters, parent)
 {
 }
 

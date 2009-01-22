@@ -38,7 +38,6 @@
 #include "ifindfilter.h"
 #include "findtoolbar.h"
 
-#include <coreplugin/icore.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QHash>
@@ -64,7 +63,6 @@ public:
     void extensionsInitialized();
     void shutdown();
 
-    Core::ICore *core();
     QTextDocument::FindFlags findFlags() const;
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
@@ -93,7 +91,6 @@ private:
     void readSettings();
 
     //variables
-    Core::ICore *m_core;
     QHash<IFindFilter *, QAction *> m_filterActions;
 
     CurrentDocumentFind *m_currentDocumentFind;

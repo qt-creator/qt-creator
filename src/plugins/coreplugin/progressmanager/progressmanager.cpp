@@ -33,10 +33,9 @@
 
 #include "progressmanager_p.h"
 #include "progressview.h"
-#include "coreimpl.h"
 #include "baseview.h"
-
 #include "coreconstants.h"
+#include "icore.h"
 #include "uniqueidmanager.h"
 
 #include <utils/qtcassert.h>
@@ -48,7 +47,7 @@ ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
   : ProgressManager(parent)
 {
     m_progressView = new ProgressView;
-    ICore *core = CoreImpl::instance();
+    ICore *core = ICore::instance();
     connect(core, SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
 }
 

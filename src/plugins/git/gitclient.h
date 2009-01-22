@@ -68,7 +68,7 @@ class GitClient : public QObject
     Q_OBJECT
 
 public:
-    explicit GitClient(GitPlugin *plugin, Core::ICore *core);
+    explicit GitClient(GitPlugin *plugin);
     ~GitClient();
 
     bool managesDirectory(const QString &) const { return false; }

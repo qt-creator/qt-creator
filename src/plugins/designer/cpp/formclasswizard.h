@@ -38,10 +38,6 @@
 
 #include <coreplugin/basefilewizard.h>
 
-QT_BEGIN_NAMESPACE
-class QWizard;
-QT_END_NAMESPACE
-
 namespace Designer {
 namespace Internal {
 
@@ -55,7 +51,7 @@ class FormClassWizard : public Core::BaseFileWizard
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
 
-    FormClassWizard(const BaseFileWizardParameters &parameters, Core::ICore *core, QObject *parent);
+    FormClassWizard(const BaseFileWizardParameters &parameters, QObject *parent);
 
     QString headerSuffix() const;
     QString sourceSuffix() const;

@@ -963,7 +963,21 @@ void Preprocessor::processElif(TokenIterator firstToken, TokenIterator lastToken
     } else if (iflevel == 0 && !skipping()) {
         // std::cerr << "*** WARNING #else without #if" << std::endl;
     } else if (!_true_test[iflevel] && !_skipping[iflevel - 1]) {
-        const Value result = evalExpression(tk.dot(), lastToken, _source);
+
+        const char *first = startOfToken(*tk);
+        const char *last = startOfToken(*lastToken);
+
+        MacroExpander expandCondition (env);
+        QByteArray condition;
+        condition.reserve(256);
+        expandCondition(first, last, &condition);
+
+        QVector<Token> tokens = tokenize(condition);
+
+        const Value result = evalExpression(tokens.constBegin(),
+                                            tokens.constEnd() - 1,
+                                            condition);
+
         _true_test[iflevel] = ! result.is_zero ();
         _skipping[iflevel]  =   result.is_zero ();
     } else {

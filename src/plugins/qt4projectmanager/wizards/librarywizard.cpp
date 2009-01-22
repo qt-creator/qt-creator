@@ -50,8 +50,8 @@ namespace Qt4ProjectManager {
 
 namespace Internal {
 
-LibraryWizard::LibraryWizard(Core::ICore *core) :
-    QtWizard(core, tr("C++ Library"),
+LibraryWizard::LibraryWizard()
+  : QtWizard(tr("C++ Library"),
              tr("Creates a C++ Library."),
              QIcon(":/wizards/images/lib.png"))
 {
@@ -69,8 +69,9 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
 
 
 Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
-                                                 QString * /*errorMessage*/) const
+                                                 QString *errorMessage) const
 {
+    Q_UNUSED(errorMessage);
     const LibraryWizardDialog *dialog = qobject_cast<const LibraryWizardDialog *>(w);
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();

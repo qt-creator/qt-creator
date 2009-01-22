@@ -43,10 +43,6 @@ class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace ProjectExplorer {
 
 class Project;
@@ -56,13 +52,12 @@ class SessionManager;
 
 namespace Internal {
 
-
 class ProjectWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    ProjectWindow(Core::ICore *core, QWidget *parent = 0);
+    explicit ProjectWindow(QWidget *parent = 0);
     ~ProjectWindow();
 
 private slots:
@@ -75,7 +70,6 @@ private slots:
     void handleCurrentItemChanged(QTreeWidgetItem *);
 
 private:
-    Core::ICore *m_core;
     SessionManager *m_session;
     ProjectExplorerPlugin *m_projectExplorer;
 

@@ -20,9 +20,9 @@
 
     \table
     \row
-    \o \inlineimage qtcreator-screenshots.png
+        \o \inlineimage qtcreator-screenshots.png
     \row
-    \o Qt Creator includes a wide range of useful features. Among them are:
+        \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
         \o \bold{Smart Code Editor}: The code editor provides syntax
             highlighting as well as code completion.
@@ -157,21 +157,20 @@
 
     \section1 Session Management in Qt Creator
 
-    ### screenshot
-
     In Qt Creator, a session is a collection of loaded projects, opened files,
     editor settings, and so on. When you run Qt Creator, you have a default
     session. You can create a new session using the \gui{Session Manager...},
     available in the \gui{File -> Session} menu.
 
+
+    \image qtcreator-session-manager.png
+
+
     To switch between sessions, select \gui{File -> Session}. If you do not
     create and select any session, Qt Creator will always use the default
     session.
 
-\omit
-    session management can also store project dependencies, thorbjorn is
-    currently working on it
-\endomit
+    \image qtcreator-session-menu.png
 
 
     \section1 Qt Help Integration

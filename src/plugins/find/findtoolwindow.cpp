@@ -42,7 +42,7 @@ using namespace Find;
 using namespace Find::Internal;
 
 FindToolWindow::FindToolWindow(FindPlugin *plugin)
-    : QDialog(plugin->core()->mainWindow()),
+    : QDialog(Core::ICore::instance()->mainWindow()),
     m_plugin(plugin),
     m_findCompleter(new QCompleter(this))
 {
@@ -124,7 +124,7 @@ void FindToolWindow::search()
 
 void FindToolWindow::writeSettings()
 {
-    QSettings *settings = m_plugin->core()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
     foreach (IFindFilter *filter, m_filters)
         filter->writeSettings(settings);
@@ -133,7 +133,7 @@ void FindToolWindow::writeSettings()
 
 void FindToolWindow::readSettings()
 {
-    QSettings *settings = m_plugin->core()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
     foreach (IFindFilter *filter, m_filters)
         filter->readSettings(settings);

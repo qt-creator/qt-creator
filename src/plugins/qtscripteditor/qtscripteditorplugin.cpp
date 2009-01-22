@@ -43,6 +43,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditorconstants.h>
@@ -50,7 +51,7 @@
 #include <texteditor/textfilewizard.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtGui/QAction>
 
@@ -77,16 +78,16 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
 {
     typedef SharedTools::QScriptHighlighter QScriptHighlighter;
 
-    Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qtscripteditor/QtScriptEditor.mimetypes.xml"), error_message))
         return false;
     m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(QtScriptEditor::Constants::C_QTSCRIPTEDITOR);
     m_context = m_scriptcontext;
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
-    registerActions(core);
+    registerActions();
 
-    m_editor = new QtScriptEditorFactory(core, m_context, this);
+    m_editor = new QtScriptEditorFactory(m_context, this);
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -97,7 +98,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     m_wizard = new TextEditor::TextFileWizard(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE),
                                               QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
                                               QLatin1String("qtscript$"),
-                                              wizardParameters, core, this);
+                                              wizardParameters, this);
     addObject(m_wizard);
 
     error_message->clear();
@@ -129,9 +130,9 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
     editor->setDisplaySettings(settings->displaySettings());
 }
 
-void QtScriptEditorPlugin::registerActions(Core::ICore *core)
+void QtScriptEditorPlugin::registerActions()
 {
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 
     QAction *action = new QAction(this);

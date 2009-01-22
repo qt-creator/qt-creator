@@ -43,10 +43,10 @@
 #include "codecselector.h"
 
 #ifndef TEXTEDITOR_STANDALONE
-#include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <utils/reloadpromptutils.h>
@@ -87,7 +87,7 @@ using namespace TextEditor::Internal;
 
 
 namespace TextEditor {
-    namespace Internal {
+namespace Internal {
 
 class TextEditExtraArea : public QWidget {
     BaseTextEditor *textEdit;
@@ -123,16 +123,15 @@ protected:
     }
 };
 
-    }
-}
+} // namespace Internal
+} // namespace TextEditor
 
 ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                              int line,
                                              int column,
                                              const QString &editorKind)
 {
-    Core::EditorManager *editorManager =
-            ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>()->editorManager();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory(true);
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, true);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
@@ -562,7 +561,7 @@ bool BaseTextEditor::open(const QString &fileName)
     return false;
 }
 
-Core::IFile * BaseTextEditor::file()
+Core::IFile *BaseTextEditor::file()
 {
     return d->m_document;
 }

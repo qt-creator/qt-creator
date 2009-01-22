@@ -48,8 +48,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/qplugin.h>
+#include <QtCore/QtPlugin>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
@@ -64,10 +65,8 @@ enum { debug = 0 };
 
 CppToolsPlugin *CppToolsPlugin::m_instance = 0;
 
-CppToolsPlugin::CppToolsPlugin() :
-    m_core(0),
-    m_context(-1),
-    m_modelManager(0)
+CppToolsPlugin::CppToolsPlugin()
+    : m_context(-1), m_modelManager(0)
 {
     m_instance = this;
 }
@@ -78,21 +77,23 @@ CppToolsPlugin::~CppToolsPlugin()
     m_modelManager = 0; // deleted automatically
 }
 
-bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
+bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    m_core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
-    Core::ActionManager *am = m_core->actionManager();
+    Q_UNUSED(arguments);
+    Q_UNUSED(error);
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
 
     // Objects
     m_modelManager = new CppModelManager(this);
     addAutoReleasedObject(m_modelManager);
-    m_completion = new CppCodeCompletion(m_modelManager, m_core);
+    m_completion = new CppCodeCompletion(m_modelManager, core);
     addAutoReleasedObject(m_completion);
     CppQuickOpenFilter *quickOpenFilter = new CppQuickOpenFilter(m_modelManager,
-                                                                 m_core->editorManager());
+                                                                 core->editorManager());
     addAutoReleasedObject(quickOpenFilter);
-    addAutoReleasedObject(new CppClassesFilter(m_modelManager, m_core->editorManager()));
-    addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, m_core->editorManager()));
+    addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
+    addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
 
     // Menus
@@ -104,7 +105,7 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     mtools->addMenu(mcpptools);
 
     // Actions
-    m_context = m_core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    m_context = core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
     QList<int> context = QList<int>() << m_context;
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
@@ -114,7 +115,7 @@ bool CppToolsPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
     // Restore settings
-    QSettings *settings = m_core->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("CppTools"));
     settings->beginGroup(QLatin1String("Completion"));
     const bool caseSensitive = settings->value(QLatin1String("CaseSensitive"), true).toBool();
@@ -134,7 +135,7 @@ void CppToolsPlugin::extensionsInitialized()
 void CppToolsPlugin::shutdown()
 {
     // Save settings
-    QSettings *settings = m_core->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(QLatin1String("CppTools"));
     settings->beginGroup(QLatin1String("Completion"));
     settings->setValue(QLatin1String("CaseSensitive"), m_completion->caseSensitivity() == Qt::CaseSensitive);
@@ -146,14 +147,12 @@ void CppToolsPlugin::shutdown()
 
 void CppToolsPlugin::switchHeaderSource()
 {
-    if (!m_core)
-        return;
-
-    Core::IEditor *editor = m_core->editorManager()->currentEditor();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    Core::IEditor *editor = editorManager->currentEditor();
     QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
     if (!otherFile.isEmpty()) {
-        m_core->editorManager()->openEditor(otherFile);
-        m_core->editorManager()->ensureEditorManagerVisible();
+        editorManager->openEditor(otherFile);
+        editorManager->ensureEditorManagerVisible();
     }
 }
 
@@ -221,7 +220,7 @@ static QStringList matchingCandidateSuffixes(const Core::MimeDatabase *mimeDatas
 
 QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) const
 {
-    const Core::ICore *core = ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>();
+    const Core::ICore *core = Core::ICore::instance();
     const Core::MimeDatabase *mimeDatase = core->mimeDatabase();
     ProjectExplorer::ProjectExplorerPlugin *explorer =
         ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();

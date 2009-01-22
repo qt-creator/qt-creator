@@ -120,6 +120,7 @@ const char * const EXIT                  = "QtCreator.Exit";
 
 const char * const OPTIONS               = "QtCreator.Options";
 const char * const TOGGLE_SIDEBAR        = "QtCreator.ToggleSidebar";
+const char * const TOGGLE_FULLSCREEN     = "QtCreator.ToggleFullScreen";
 
 const char * const MINIMIZE_WINDOW       = "QtCreator.MinimizeWindow";
 const char * const ZOOM_WINDOW           = "QtCreator.ZoomWindow";
@@ -173,10 +174,17 @@ const char * const G_FILE_OTHER          = "QtCreator.Group.File.Other";
 const char * const G_EDIT_UNDOREDO       = "QtCreator.Group.Edit.UndoRedo";
 const char * const G_EDIT_COPYPASTE      = "QtCreator.Group.Edit.CopyPaste";
 const char * const G_EDIT_SELECTALL      = "QtCreator.Group.Edit.SelectAll";
-const char * const G_EDIT_FORMAT         = "QtCreator.Group.Edit.Format";
+const char * const G_EDIT_ADVANCED       = "QtCreator.Group.Edit.Advanced";
 
 const char * const G_EDIT_FIND           = "QtCreator.Group.Edit.Find";
 const char * const G_EDIT_OTHER          = "QtCreator.Group.Edit.Other";
+
+// advanced edit menu groups
+
+const char * const G_EDIT_FORMAT         = "QtCreator.Group.Edit.Format";
+const char * const G_EDIT_COLLAPSING     = "QtCreator.Group.Edit.Collapsing";
+const char * const G_EDIT_FONT           = "QtCreator.Group.Edit.Font";
+const char * const G_EDIT_EDITOR         = "QtCreator.Group.Edit.Editor";
 
 // window menu groups
 const char * const G_WINDOW_SIZE         = "QtCreator.Group.Window.Size";
@@ -187,6 +195,7 @@ const char * const G_WINDOW_NAVIGATE     = "QtCreator.Group.Window.Navigate";
 const char * const G_WINDOW_NAVIGATE_GROUPS = "QtCreator.Group.Window.Navigate.Groups";
 const char * const G_WINDOW_OTHER        = "QtCreator.Group.Window.Other";
 const char * const G_WINDOW_LIST         = "QtCreator.Group.Window.List";
+const char * const G_WINDOW_FULLSCREEN   = "QtCreator.Group.Window.Fullscreen";
 
 // help groups (global)
 const char * const G_HELP_HELP           = "QtCreator.Group.Help.Help";

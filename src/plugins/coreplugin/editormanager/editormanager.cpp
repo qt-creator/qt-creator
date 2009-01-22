@@ -32,19 +32,19 @@
 ***************************************************************************/
 
 #include "editormanager.h"
+#include "editorgroup.h"
 #include "editorsplitter.h"
+#include "openeditorsview.h"
 #include "openeditorswindow.h"
 #include "openwithdialog.h"
 #include "filemanager.h"
-#include "tabpositionindicator.h"
-#include "saveitemsdialog.h"
-#include "vcsmanager.h"
+#include "icore.h"
 #include "iversioncontrol.h"
-#include "openeditorsview.h"
-#include "editorgroup.h"
 #include "mimedatabase.h"
+#include "saveitemsdialog.h"
+#include "tabpositionindicator.h"
+#include "vcsmanager.h"
 
-#include <coreplugin/coreimpl.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -52,6 +52,8 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -66,6 +68,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtGui/QLayout>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
@@ -75,6 +78,11 @@ using namespace Core;
 using namespace Core::Internal;
 
 enum { debugEditorManager=0 };
+
+static inline ExtensionSystem::PluginManager *pluginManager()
+{
+    return ExtensionSystem::PluginManager::instance();
+}
 
 //===================EditorManager=====================
 
@@ -193,6 +201,16 @@ EditorManagerPrivate::~EditorManagerPrivate()
 }
 
 EditorManager *EditorManager::m_instance = 0;
+
+static Command *createSeparator(ActionManager *am, QObject *parent,
+                                const QString &name,
+                                const QList<int> &context)
+{
+    QAction *tmpaction = new QAction(parent);
+    tmpaction->setSeparator(true);
+    Command *cmd = am->registerAction(tmpaction, name, context);
+    return cmd;
+}
 
 EditorManager::EditorManager(ICore *core, QWidget *parent) :
     QWidget(parent),
@@ -317,12 +335,24 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
-    medit->addMenu(advancedMenu, Constants::G_EDIT_FORMAT);
+    medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
     advancedMenu->menu()->setTitle(tr("&Advanced"));
+    advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
+    advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
+    advancedMenu->appendGroup(Constants::G_EDIT_FONT);
+    advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
+
+    // Advanced menu separators
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_COLLAPSING);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Font"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_FONT);
+    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Editor"), editManagerContext);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
 
     cmd = am->registerAction(m_d->m_openInExternalEditorAction, Constants::OPEN_IN_EXTERNAL_EDITOR, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
-    advancedMenu->addAction(cmd);
+    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
 
 
@@ -350,11 +380,12 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 EditorManager::~EditorManager()
 {
     if (m_d->m_core) {
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         if (m_d->m_coreListener) {
-            m_d->m_core->pluginManager()->removeObject(m_d->m_coreListener);
+            pm->removeObject(m_d->m_coreListener);
             delete m_d->m_coreListener;
         }
-        m_d->m_core->pluginManager()->removeObject(m_d->m_openEditorsFactory);
+        pm->removeObject(m_d->m_openEditorsFactory);
         delete m_d->m_openEditorsFactory;
     }
     delete m_d;
@@ -366,10 +397,11 @@ void EditorManager::init()
     context << m_d->m_core->uniqueIDManager()->uniqueIdentifier("QtCreator.OpenDocumentsView");
 
     m_d->m_coreListener = new EditorClosingCoreListener(this);
-    m_d->m_core->pluginManager()->addObject(m_d->m_coreListener);
+    
+    pluginManager()->addObject(m_d->m_coreListener);
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
-    m_d->m_core->pluginManager()->addObject(m_d->m_openEditorsFactory);
+    pluginManager()->addObject(m_d->m_openEditorsFactory);
 }
 
 QSize EditorManager::minimumSizeHint() const
@@ -567,8 +599,7 @@ QList<IEditor*>
     return found.toList();
 }
 
-QList<IFile *>
-        EditorManager::filesForEditors(QList<IEditor *> editors) const
+QList<IFile *> EditorManager::filesForEditors(QList<IEditor *> editors) const
 {
     QSet<IEditor *> handledEditors;
     QList<IFile *> files;
@@ -600,7 +631,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     QList<IEditor*> acceptedEditors;
     //ask all core listeners to check whether the editor can be closed
     const QList<ICoreListener *> listeners =
-        m_d->m_core->pluginManager()->getObjects<ICoreListener>();
+        pluginManager()->getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
         bool editorAccepted = true;
         foreach (ICoreListener *listener, listeners) {
@@ -618,7 +649,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IFile*> list = CoreImpl::instance()->fileManager()->
+        QList<IFile*> list = ICore::instance()->fileManager()->
             saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
         if (cancelled)
             return false;
@@ -716,7 +747,7 @@ EditorManager::EditorFactoryList
     EditorManager::editorFactories(const MimeType &mimeType, bool bestMatchOnly) const
 {
     EditorFactoryList rc;
-    const EditorFactoryList allFactories = m_d->m_core->pluginManager()->getObjects<IEditorFactory>();
+    const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
     mimeTypeFactoryRecursion(m_d->m_core->mimeDatabase(), mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
@@ -743,7 +774,7 @@ IEditor *EditorManager::createEditor(const QString &editorKind,
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor kind
-        const EditorFactoryList allFactories = m_d->m_core->pluginManager()->getObjects<IEditorFactory>();
+        const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
         const EditorFactoryList::const_iterator acend = allFactories.constEnd();
         for (EditorFactoryList::const_iterator ait = allFactories.constBegin(); ait != acend; ++ait) {
             if (editorKind == (*ait)->kind()) {
@@ -893,9 +924,8 @@ QStringList EditorManager::getOpenFileNames() const
 
 void EditorManager::ensureEditorManagerVisible()
 {
-    if (!isVisible()) {
+    if (!isVisible())
         m_d->m_core->modeManager()->activateMode(Constants::MODE_EDIT);
-    }
 }
 
 IEditor *EditorManager::newFile(const QString &editorKind,
@@ -1518,7 +1548,7 @@ void EditorManager::openInExternalEditor()
         return;
     if (editor->file()->isModified()) {
         bool cancelled = false;
-        QList<IFile*> list = CoreImpl::instance()->fileManager()->
+        QList<IFile*> list = ICore::instance()->fileManager()->
                              saveModifiedFiles(QList<IFile*>() << editor->file(), &cancelled);
         if (cancelled)
             return;

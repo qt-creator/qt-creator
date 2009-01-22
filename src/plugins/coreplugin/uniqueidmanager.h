@@ -47,7 +47,7 @@ public:
     UniqueIDManager();
     ~UniqueIDManager();
 
-    static UniqueIDManager* instance() { return m_instance; }
+    static UniqueIDManager *instance() { return m_instance; }
 
     bool hasUniqueIdentifier(const QString &id) const;
     int uniqueIdentifier(const QString &id);

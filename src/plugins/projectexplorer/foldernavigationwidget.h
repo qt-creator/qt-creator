@@ -36,15 +36,11 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtGui/QWidget>
-#include <QtGui/QListView>
 #include <QtGui/QDirModel>
 #include <QtGui/QLabel>
+#include <QtGui/QListView>
 #include <QtGui/QSortFilterProxyModel>
-
-namespace Core {
-class ICore;
-}
+#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 
@@ -54,10 +50,11 @@ class Node;
 
 namespace Internal {
 
-class FolderNavigationWidget : public QWidget {
+class FolderNavigationWidget : public QWidget
+{
     Q_OBJECT
 public:
-    FolderNavigationWidget(Core::ICore *core, QWidget *parent = 0);
+    FolderNavigationWidget(QWidget *parent = 0);
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync);
@@ -74,7 +71,6 @@ private slots:
 private:
     void setCurrentTitle(const QDir &directory);
 
-    Core::ICore *m_core;
     ProjectExplorerPlugin *m_explorer;
     QListView *m_view;
     QDirModel *m_dirModel;
@@ -86,14 +82,12 @@ private:
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
 public:
-    FolderNavigationWidgetFactory(Core::ICore *core);
+    FolderNavigationWidgetFactory();
     virtual ~FolderNavigationWidgetFactory();
 
     virtual QString displayName();
     virtual QKeySequence activationSequence();
     virtual Core::NavigationView createWidget();
-private:
-    Core::ICore *m_core;
 };
 
 } // namespace Internal

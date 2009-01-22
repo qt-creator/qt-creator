@@ -46,20 +46,20 @@ QTextStream & operator<<(QTextStream & os, const GdbMi & mi)
     return os << mi.toString();
 }
 
-//static void skipSpaces(const GdbMi::Char *&from, const GdbMi::Char *to)
+//static void skipSpaces(const char *&from, const char *to)
 //{
 //    while (from != to && QChar(*from).isSpace())
 //        ++from;
 //}
 
 
-void GdbMi::parseResultOrValue(const Char *&from, const Char *to)
+void GdbMi::parseResultOrValue(const char *&from, const char *to)
 {
     //skipSpaces(from, to);
     while (from != to && QChar(*from).isSpace())
         ++from;
 
-    //qDebug() << "parseResultOrValue: " << QByteArray::fromLatin1(from, to - from);
+    //qDebug() << "parseResultOrValue: " << QByteArray(from, to - from);
     parseValue(from, to);
     if (isValid()) {
         //qDebug() << "no valid result in " << QByteArray::fromLatin1(from, to - from);
@@ -67,7 +67,7 @@ void GdbMi::parseResultOrValue(const Char *&from, const Char *to)
     }
     if (from == to || *from == '(')
         return;
-    const Char *ptr = from;
+    const char *ptr = from;
     while (ptr < to && *ptr != '=') {
         //qDebug() << "adding" << QChar(*ptr) << "to name";
         ++ptr;
@@ -80,7 +80,7 @@ void GdbMi::parseResultOrValue(const Char *&from, const Char *to)
     }
 }
 
-QByteArray GdbMi::parseCString(const Char *&from, const Char *to)
+QByteArray GdbMi::parseCString(const char *&from, const char *to)
 {
     QByteArray result;
     //qDebug() << "parseCString: " << QByteArray::fromUtf16(from, to - from);
@@ -88,7 +88,7 @@ QByteArray GdbMi::parseCString(const Char *&from, const Char *to)
         qDebug() << "MI Parse Error, double quote expected";
         return QByteArray();
     }
-    const Char *ptr = from;
+    const char *ptr = from;
     ++ptr;
     while (ptr < to) {
         if (*ptr == '"') {
@@ -115,7 +115,7 @@ QByteArray GdbMi::parseCString(const Char *&from, const Char *to)
     return result;
 }
 
-void GdbMi::parseValue(const Char *&from, const Char *to)
+void GdbMi::parseValue(const char *&from, const char *to)
 {
     //qDebug() << "parseValue: " << QByteArray::fromUtf16(from, to - from);
     switch (*from) {
@@ -135,7 +135,7 @@ void GdbMi::parseValue(const Char *&from, const Char *to)
 }
 
 
-void GdbMi::parseTuple(const Char *&from, const Char *to)
+void GdbMi::parseTuple(const char *&from, const char *to)
 {
     //qDebug() << "parseTuple: " << QByteArray::fromUtf16(from, to - from);
     QTC_ASSERT(*from == '{', /**/);
@@ -143,7 +143,7 @@ void GdbMi::parseTuple(const Char *&from, const Char *to)
     parseTuple_helper(from, to);
 }
 
-void GdbMi::parseTuple_helper(const Char *&from, const Char *to)
+void GdbMi::parseTuple_helper(const char *&from, const char *to)
 {
     //qDebug() << "parseTuple_helper: " << QByteArray::fromUtf16(from, to - from);
     m_type = Tuple;
@@ -163,7 +163,7 @@ void GdbMi::parseTuple_helper(const Char *&from, const Char *to)
     }
 }
 
-void GdbMi::parseList(const Char *&from, const Char *to)
+void GdbMi::parseList(const char *&from, const char *to)
 {
     //qDebug() << "parseList: " << QByteArray::fromUtf16(from, to - from);
     QTC_ASSERT(*from == '[', /**/);
@@ -267,8 +267,8 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
 
 void GdbMi::fromString(const QByteArray &ba)
 {
-    const Char *from = ba.constBegin();
-    const Char *to = ba.constEnd();
+    const char *from = ba.constBegin();
+    const char *to = ba.constEnd();
     parseResultOrValue(from, to);
 }
 
@@ -449,16 +449,16 @@ static struct Tester {
         }
         for (int i = from; i < to; ++i) {
             if (str[i] == '{')
-                result += "{\n" + QByteArray(2*++indent + 1, QChar(' '));
+                result += "{\n" + QByteArray(2*++indent + 1, ' ');
             else if (str[i] == '}') {
                 if (!result.isEmpty() && result[result.size() - 1] != '\n')
                     result += "\n";
-                result += QByteArray(2*--indent + 1, QChar(' ')) + "}\n";
+                result += QByteArray(2*--indent + 1, ' ') + "}\n";
             }
             else if (str[i] == ',') {
                 if (true || !result.isEmpty() && result[result.size() - 1] != '\n')
                     result += "\n";
-                result += QByteArray(2*indent, QChar(' '));
+                result += QByteArray(2*indent, ' ');
             }
             else
                 result += str[i];

@@ -37,29 +37,28 @@
 #include "vcsbasetextdocument.h"
 #include "vcsbaseconstants.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/editorconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/editorconfiguration.h>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QSet>
-#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QRegExp>
+#include <QtCore/QSet>
 #include <QtCore/QTextCodec>
+#include <QtCore/QTextStream>
+#include <QtGui/QAction>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLayout>
-#include <QtGui/QTextEdit>
 #include <QtGui/QMenu>
-#include <QtGui/QAction>
 #include <QtGui/QTextCursor>
-#include <QtCore/QProcess>
+#include <QtGui/QTextEdit>
 
 namespace VCSBase {
 
@@ -68,8 +67,7 @@ class VCSBaseEditorEditable : public TextEditor::BaseTextEditorEditable
 {
 public:
     VCSBaseEditorEditable(VCSBaseEditor *,
-                          const VCSBaseEditorParameters *type,
-                          Core::ICore *);
+                          const VCSBaseEditorParameters *type);
     QList<int> context() const;
 
     bool duplicateSupported() const { return false; }
@@ -83,14 +81,12 @@ private:
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
-                                             const VCSBaseEditorParameters *type,
-                                             Core::ICore *core) :
-    BaseTextEditorEditable(editor),
-    m_kind(type->kind)
+                                             const VCSBaseEditorParameters *type)
+    : BaseTextEditorEditable(editor), m_kind(type->kind)
 {
-    m_context << core->uniqueIDManager()->uniqueIdentifier(QLatin1String(type->context))
-              << core->uniqueIDManager()->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
-
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
+              << uidm->uniqueIdentifier(QLatin1String(TextEditor::Constants::C_TEXTEDITOR));
 }
 
 QList<int> VCSBaseEditorEditable::context() const
@@ -100,46 +96,39 @@ QList<int> VCSBaseEditorEditable::context() const
 
 // ----------- VCSBaseEditorPrivate
 
-struct VCSBaseEditorPrivate {
+struct VCSBaseEditorPrivate
+{
     VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent);
 
     const VCSBaseEditorParameters *m_parameters;
     QAction *m_describeAction;
     QString m_currentChange;
-    Core::ICore *m_core;
     QString m_source;
 };
 
-VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent) :
-    m_parameters(type),
-    m_describeAction(new QAction(parent)),
-    m_core(ExtensionSystem::PluginManager::instance()->getObject<Core::ICore>())
+VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent)
+    : m_parameters(type), m_describeAction(new QAction(parent))
 {
 }
 
 // ------------ VCSBaseEditor
-VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type,
-                             QWidget *parent) :
-    BaseTextEditor(parent),
-    m_d(new VCSBaseEditorPrivate(type, this))
+VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type, QWidget *parent)
+  : BaseTextEditor(parent),
+    d(new VCSBaseEditorPrivate(type, this))
 {
     if (VCSBase::Constants::Internal::debug)
         qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->kind;
 
     setReadOnly(true);
-
-    connect(m_d->m_describeAction, SIGNAL(triggered()), this, SLOT(describe()));
-
+    connect(d->m_describeAction, SIGNAL(triggered()), this, SLOT(describe()));
     viewport()->setMouseTracking(true);
-
     setBaseTextDocument(new Internal::VCSBaseTextDocument);
-
-    setMimeType(QLatin1String(m_d->m_parameters->mimeType));
+    setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VCSBaseEditor::init()
 {
-    switch (m_d->m_parameters->type) {
+    switch (d->m_parameters->type) {
     case RegularCommandOutput:
     case LogOutput:
     case AnnotateOutput:
@@ -154,17 +143,17 @@ void VCSBaseEditor::init()
 
 VCSBaseEditor::~VCSBaseEditor()
 {
-    delete m_d;
+    delete d;
 }
 
 QString VCSBaseEditor::source() const
 {
-    return m_d->m_source;
+    return d->m_source;
 }
 
 void VCSBaseEditor::setSource(const  QString &source)
 {
-    m_d->m_source = source;
+    d->m_source = source;
 }
 
 QTextCodec *VCSBaseEditor::codec() const
@@ -183,7 +172,7 @@ void VCSBaseEditor::setCodec(QTextCodec *c)
 
 EditorContentType VCSBaseEditor::contentType() const
 {
-    return m_d->m_parameters->type;
+    return d->m_parameters->type;
 }
 
 bool VCSBaseEditor::isModified() const
@@ -193,19 +182,19 @@ bool VCSBaseEditor::isModified() const
 
 TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
 {
-    return new VCSBaseEditorEditable(this, m_d->m_parameters, m_d->m_core);
+    return new VCSBaseEditorEditable(this, d->m_parameters);
 }
 
 void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
     // 'click on change-interaction'
-    if (m_d->m_parameters->type == LogOutput || m_d->m_parameters->type == AnnotateOutput) {
-        m_d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
-        if (!m_d->m_currentChange.isEmpty()) {
-            m_d->m_describeAction->setText(tr("Describe change %1").arg(m_d->m_currentChange));
+    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
+        d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
+        if (!d->m_currentChange.isEmpty()) {
+            d->m_describeAction->setText(tr("Describe change %1").arg(d->m_currentChange));
             menu->addSeparator();
-            menu->addAction(m_d->m_describeAction);
+            menu->addAction(d->m_describeAction);
         }
     }
     menu->exec(e->globalPos());
@@ -217,7 +206,7 @@ void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
     bool overrideCursor = false;
     Qt::CursorShape cursorShape;
 
-    if (m_d->m_parameters->type == LogOutput || m_d->m_parameters->type == AnnotateOutput) {
+    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
         // Link emulation behaviour for 'click on change-interaction'
         QTextCursor cursor = cursorForPosition(e->pos());
         QString change = changeUnderCursor(cursor);
@@ -245,11 +234,11 @@ void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
 
 void VCSBaseEditor::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (m_d->m_parameters->type == LogOutput || m_d->m_parameters->type == AnnotateOutput) {
+    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             QTextCursor cursor = cursorForPosition(e->pos());
-            m_d->m_currentChange = changeUnderCursor(cursor);
-            if (!m_d->m_currentChange.isEmpty()) {
+            d->m_currentChange = changeUnderCursor(cursor);
+            if (!d->m_currentChange.isEmpty()) {
                 describe();
                 e->accept();
                 return;
@@ -261,7 +250,7 @@ void VCSBaseEditor::mouseReleaseEvent(QMouseEvent *e)
 
 void VCSBaseEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (m_d->m_parameters->type == DiffOutput) {
+    if (d->m_parameters->type == DiffOutput) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             QTextCursor cursor = cursorForPosition(e->pos());
             jumpToChangeFromDiff(cursor);
@@ -282,16 +271,16 @@ void VCSBaseEditor::keyPressEvent(QKeyEvent *e)
 void VCSBaseEditor::describe()
 {
     if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::describe" << m_d->m_currentChange;
-    if (!m_d->m_currentChange.isEmpty())
-        emit describeRequested(m_d->m_source, m_d->m_currentChange);
+        qDebug() << "VCSBaseEditor::describe" << d->m_currentChange;
+    if (!d->m_currentChange.isEmpty())
+        emit describeRequested(d->m_source, d->m_currentChange);
 }
 
 void VCSBaseEditor::slotActivateAnnotation()
 {
     // The annotation highlighting depends on contents (change number
     // set with assigned colors)
-    if (m_d->m_parameters->type != AnnotateOutput)
+    if (d->m_parameters->type != AnnotateOutput)
         return;
 
     const QSet<QString> changes = annotationChanges();
@@ -372,9 +361,10 @@ void VCSBaseEditor::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ediface = m_d->m_core->editorManager()->openEditor(fileName);
-    m_d->m_core->editorManager()->ensureEditorManagerVisible();
-    if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ediface))
+    Core::EditorManager *em = Core::EditorManager::instance();
+    Core::IEditor *ed = em->openEditor(fileName);
+    em->ensureEditorManagerVisible();
+    if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
 
@@ -386,7 +376,7 @@ void VCSBaseEditor::setPlainTextData(const QByteArray &data)
 void VCSBaseEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
-    if (m_d->m_parameters->type == DiffOutput) {
+    if (d->m_parameters->type == DiffOutput) {
         if (DiffHighlighter *highlighter = qobject_cast<DiffHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
             static QVector<QString> categories;
             if (categories.isEmpty()) {
@@ -413,11 +403,11 @@ const VCSBaseEditorParameters *VCSBaseEditor::findType(const VCSBaseEditorParame
 }
 
 // Find the codec used for a file querying the editor.
-static QTextCodec *findFileCodec(const Core::ICore *core, const QString &source)
+static QTextCodec *findFileCodec(const QString &source)
 {
     typedef QList<Core::IEditor *> EditorList;
 
-    const EditorList editors = core->editorManager()->editorsForFileName(source);
+    const EditorList editors = Core::EditorManager::instance()->editorsForFileName(source);
     if (!editors.empty()) {
         const EditorList::const_iterator ecend =  editors.constEnd();
         for (EditorList::const_iterator it = editors.constBegin(); it != ecend; ++it)
@@ -456,13 +446,13 @@ static QTextCodec *findProjectCodec(const QString &dir)
     return 0;
 }
 
-QTextCodec *VCSBaseEditor::getCodec(const Core::ICore *core, const QString &source)
+QTextCodec *VCSBaseEditor::getCodec(const QString &source)
 {
     if (!source.isEmpty()) {
         // Check file
         const QFileInfo sourceFi(source);
         if (sourceFi.isFile())
-            if (QTextCodec *fc = findFileCodec(core, source))
+            if (QTextCodec *fc = findFileCodec(source))
                 return fc;
         // Find by project via directory
         if (QTextCodec *pc = findProjectCodec(sourceFi.isFile() ? sourceFi.absolutePath() : source))
