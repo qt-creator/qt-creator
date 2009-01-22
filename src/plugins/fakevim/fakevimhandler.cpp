@@ -634,7 +634,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement("y");
     } else if (m_submode == ReplaceSubMode) {
         if (atEol())
-            moveLeft(KeepAnchor);
+            moveLeft();
         else
             m_tc.deleteChar();
         recordInsertText(text);
@@ -1019,7 +1019,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveUp(count() * (linesOnScreen() - 2));
         finishMovement();
     } else if (key == Key_Delete) {
-        m_tc.deleteChar();
+        setAnchor();
+        moveRight(qMin(1, rightDist()));
+        recordRemoveSelectedText();
     } else if (key == Key_Escape) {
         if (m_visualMode != NoVisualMode)
             leaveVisualMode();
