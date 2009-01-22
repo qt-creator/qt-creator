@@ -148,7 +148,7 @@ QString CoreImpl::resourcePath() const
 #if defined(Q_OS_MAC)
     return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../Resources"));
 #else
-    return QDir::cleanPath(QCoreApplication::applicationDirPath());
+    return QDir::cleanPath(QCoreApplication::applicationDirPath())+"/../share/qtcreator";
 #endif
 }
 
