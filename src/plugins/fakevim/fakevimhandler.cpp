@@ -286,11 +286,11 @@ public:
     void recordInsert(int position, const QString &data);
     void recordRemove(int position, const QString &data);
     void recordRemove(int position, int length);
-    void recordMove(int position, int nestedCount);
 
     void recordRemoveNextChar();
     void recordInsertText(const QString &data);
     QString recordRemoveSelectedText();
+    void recordMove();
     void recordBeginGroup();
     void recordEndGroup();
     int anchor() const { return m_anchor; }
@@ -928,19 +928,27 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         //qDebug() << "REGISTERS: " << m_registers << "MOVE: " << m_moveType;
         //qDebug() << "LINES: " << n << text << m_register;
         if (n > 0) {
+            recordMove();
             moveToStartOfLine();
-            if (key == 'p')
-                moveDown();
-            recordInsertText(text);
-            moveUp(n);
+            m_desiredColumn = 0;
+            for (int i = count(); --i >= 0; ) {
+                if (key == 'p')
+                    moveDown();
+                recordInsertText(text);
+                moveUp(n);
+            }
         } else {
-            if (key == 'p')
-                moveRight();
-            recordInsertText(text);
-            moveLeft();
+            m_desiredColumn = 0;
+            for (int i = count(); --i >= 0; ) {
+                if (key == 'p')
+                    moveRight();
+                recordInsertText(text);
+                moveLeft();
+            }
         }
         recordEndGroup();
-        m_dotCommand = "p";
+        m_dotCommand = QString("%1p").arg(count());
+        finishMovement();
     } else if (key == 'r') {
         m_submode = ReplaceSubMode;
         m_dotCommand = "r";
@@ -1868,8 +1876,19 @@ void FakeVimHandler::Private::recordInsertText(const QString &data)
     m_tc.insertText(data);
 }
 
+void FakeVimHandler::Private::recordMove()
+{
+    EditOperation op;
+    op.position = m_tc.position();
+    m_undoStack.push(op);
+    m_redoStack.clear();
+    //qDebug() << "MOVE: " << op;
+    //qDebug() << "\nSTACK: " << m_undoStack;
+}
+
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 {
+    //qDebug() << "OP: " << op;
     // No need to record operations that actually do not change anything.
     if (op.from.isEmpty() && op.to.isEmpty() && op.itemCount == 0)
         return;
@@ -1878,14 +1897,7 @@ void FakeVimHandler::Private::recordOperation(const EditOperation &op)
         return;
     m_undoStack.push(op);
     m_redoStack.clear();
-}
-
-void FakeVimHandler::Private::recordMove(int position, int nestedCount)
-{
-    EditOperation op;
-    op.position = position;
-    op.itemCount = nestedCount;
-    recordOperation(op);
+    //qDebug() << "\nSTACK: " << m_undoStack;
 }
 
 void FakeVimHandler::Private::recordInsert(int position, const QString &data)
