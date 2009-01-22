@@ -34,6 +34,7 @@
 #include "editormanager.h"
 #include "editorview.h"
 #include "openeditorswindow.h"
+#include "openeditorsview.h"
 #include "openwithdialog.h"
 #include "filemanager.h"
 #include "icore.h"
@@ -137,6 +138,7 @@ struct EditorManagerPrivate {
     ~EditorManagerPrivate();
     Internal::EditorView *m_view;
     Internal::SplitterOrView *m_splitter;
+    QPointer<IEditor> m_currentEditor;
     QStackedLayout *m_stackedLayout;
 
     ICore *m_core;
@@ -495,6 +497,7 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
                 << "ignore history?" << ignoreNavigationHistory;
     if (m_d->m_suppressEditorChanges)
         return;
+    m_d->m_currentEditor = editor;
     if (editor) {
         bool addToHistory = (!ignoreNavigationHistory && editor != currentEditor());
         if (debugEditorManager)
@@ -528,7 +531,7 @@ QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) cons
 
 IEditor *EditorManager::currentEditor() const
 {
-    return m_d->m_view->currentEditor();
+    return m_d->m_currentEditor;
 }
 
 
@@ -555,7 +558,9 @@ void EditorManager::closeEditor(IEditor *editor)
     if (!editor)
         return;
 
+    qDebug() << "EditorManager::closeEditor";
     if (m_d->m_view->hasEditor(editor)) {
+        qDebug() << "it's a main editor, do unsplit";
         unsplitAll();
         closeEditors(QList<IEditor *>() << editor);
     } else {
@@ -686,6 +691,32 @@ void EditorManager::closeDuplicate(Core::IEditor *editor, bool doDelete)
     emit editorAboutToClose(editor);
     if (doDelete)
         delete editor;
+}
+
+void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
+{
+    Q_ASSERT(view && editor);
+    Q_ASSERT(m_d->m_view->hasEditor(editor));
+
+    if (!editor->duplicateSupported()) {
+        unsplitAll();
+        view = m_d->m_view;
+    }
+
+    if (view == m_d->m_view || view->hasEditor(editor)) {
+        view->setCurrentEditor(editor);
+        return;
+    }
+    QList<IEditor*> editors = view->editors();
+    IEditor *duplicate = duplicateEditor(editor);
+    view->addEditor(duplicate);
+    view->setCurrentEditor(duplicate);
+    foreach(IEditor *e, editors) {
+        view->removeEditor(e);
+        closeDuplicate(e, true);
+    }
+
+
 }
 
 /* Find editors for a mimetype, best matching at the front
@@ -1299,6 +1330,11 @@ QByteArray EditorManager::saveState() const
     QList<IEditor *> editors = openedEditors();
     int editorCount = editors.count();
 
+    if (editors.contains(m_d->m_currentEditor)) {
+        editors.removeAll(m_d->m_currentEditor);
+        editors.prepend(m_d->m_currentEditor);
+    }
+
     qDebug() << "save editors:" << editorCount;
 
     stream << editorCount;
@@ -1341,12 +1377,14 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> fileName;
         QByteArray kind;
         stream >> kind;
-        openEditor(fileName, kind, true);
+        IEditor *editor = openEditor(fileName, kind, true);
+        if (!m_d->m_currentEditor)
+            m_d->m_currentEditor = editor;
     }
 
     m_d->m_suppressEditorChanges = editorChangesSuppressed;
     if (currentEditor())
-        setCurrentEditor(currentEditor());// looks like a null-op but is not
+        setCurrentEditor(m_d->m_currentEditor);
     
     QApplication::restoreOverrideCursor();
 
@@ -1517,7 +1555,8 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
         return 0;
 
     IEditor *duplicate = editor->duplicate(0);
-    // TODO ### emit signals
+    emit editorCreated(duplicate, duplicate->file()->fileName());
+    emit editorOpened(duplicate);
     return duplicate;
 }
 

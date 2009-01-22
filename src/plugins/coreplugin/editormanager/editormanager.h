@@ -69,6 +69,7 @@ struct EditorManagerPrivate;
 namespace Internal {
 class OpenEditorsWindow;
 class EditorModel;
+class EditorView;
 class SplitterOrView;
 
 class EditorClosingCoreListener;
@@ -217,11 +218,13 @@ private:
 
     Core::IEditor *duplicateEditor(IEditor *editor);
     void closeDuplicate(Core::IEditor *editor, bool doDelete);
+    void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;
 
     friend class Core::Internal::SplitterOrView;
+    friend class Core::Internal::EditorView;
 };
 
 //===================EditorClosingCoreListener======================

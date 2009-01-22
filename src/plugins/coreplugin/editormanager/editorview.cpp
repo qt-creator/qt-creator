@@ -234,7 +234,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         vlayout->addLayout(toplayout);
         tl->addWidget(top);
 
-        connect(m_editorList, SIGNAL(currentIndexChanged(int)), this, SLOT(listSelectionChanged(int)));
+        connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
         connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
         connect(m_closeButton, SIGNAL(clicked()), this, SLOT(sendCloseRequest()));
     }
@@ -333,6 +333,11 @@ void EditorView::insertEditor(int index, IEditor *editor)
         m_toolBar->layout()->addWidget(toolBar);
     }
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+
+    if (m_container->count() == 1) {
+        updateToolBar(editor);
+        updateEditorStatus(editor);
+    }
 }
 
 bool EditorView::hasEditor(IEditor *editor) const
@@ -379,18 +384,19 @@ void EditorView::setCurrentEditor(IEditor *editor)
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
         return;
+    if (editor)
+        qDebug() << "EditorView::setCurrentEditor" << editor->file()->fileName();
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     if (m_container->currentIndex() != idx) {
         m_container->setCurrentIndex(idx);
-        disconnect(m_editorList, SIGNAL(currentIndexChanged(int)), this, SLOT(listSelectionChanged(int)));
         m_editorList->setCurrentIndex(qobject_cast<EditorModel*>(m_editorList->model())->indexOf(editor->file()->fileName()).row());
-        connect(m_editorList, SIGNAL(currentIndexChanged(int)), this, SLOT(listSelectionChanged(int)));
     }
     setEditorFocus(idx);
-
     updateEditorStatus(editor);
     updateToolBar(editor);
+
+
     if (editor != m_editorForInfoWidget) {
         m_infoWidget->hide();
         m_editorForInfoWidget = 0;
@@ -455,10 +461,11 @@ void EditorView::makeEditorWritable()
     CoreImpl::instance()->editorManager()->makeEditorWritable(currentEditor());
 }
 
-void EditorView::listSelectionChanged(int index)
+void EditorView::listSelectionActivated(int index)
 {
     QAbstractItemModel *model = m_editorList->model();
-    setCurrentEditor(model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>());
+    IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>();
+    CoreImpl::instance()->editorManager()->activateEditor(this, editor);
 }
 
 
@@ -480,7 +487,7 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor, QWidget *parent)
     m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
     m_view->addEditor(editor);
     m_splitter = 0;
-    m_layout->addWidget(editor->widget());
+    m_layout->addWidget(m_view);
 }
 
 SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
@@ -525,6 +532,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
         m_splitter->addWidget(new SplitterOrView(duplicateA));
         focus = duplicateA;
     } else {
+        m_view->removeEditor(e);
         m_splitter->addWidget(new SplitterOrView(e));
         Q_ASSERT(m_view->currentEditor() == 0);
     }
@@ -568,6 +576,7 @@ void SplitterOrView::unsplit(Core::IEditor *editor)
     if (!m_isRoot) {
         m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
         m_view->addEditor(editor);
+        m_view->setCurrentEditor(editor);
         m_layout->addWidget(m_view);
     }
     closeSplitterEditors();

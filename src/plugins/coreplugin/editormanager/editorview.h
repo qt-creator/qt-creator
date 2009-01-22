@@ -126,7 +126,7 @@ private slots:
     void checkEditorStatus();
     void setEditorFocus(int index);
     void makeEditorWritable();
-    void listSelectionChanged(int index);
+    void listSelectionActivated(int index);
 
 private:
     void updateToolBar(IEditor *editor);
