@@ -1337,12 +1337,12 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
 
 void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
 {
-    m_tc.setPosition(positionForLine(beginLine), MoveAnchor);
+    m_anchor = positionForLine(beginLine);
     if (endLine == linesInDocument()) {
-        m_tc.setPosition(positionForLine(endLine), KeepAnchor);
-        m_tc.movePosition(EndOfLine, KeepAnchor);
+        m_tc.setPosition(positionForLine(endLine), MoveAnchor);
+        m_tc.movePosition(EndOfLine, MoveAnchor);
     } else {
-        m_tc.setPosition(positionForLine(endLine + 1), KeepAnchor);
+        m_tc.setPosition(positionForLine(endLine + 1), MoveAnchor);
     }
 }
 
@@ -1400,29 +1400,33 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
             fileName = m_currentFileName;
-        QFile file(fileName);
-        bool exists = file.exists();
+        QFile file1(fileName);
+        bool exists = file1.exists();
         if (exists && !forced && !noArgs) {
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
-        } else if (file.open(QIODevice::ReadWrite)) {
-            file.close();
-            QTextCursor tc = m_tc;
+        } else if (file1.open(QIODevice::ReadWrite)) {
+            file1.close();
             selectRange(beginLine, endLine);
             QString contents = selectedText(); 
-            m_tc = tc;
+            qDebug() << "LINES: " << beginLine << endLine;
             bool handled = false;
             emit q->writeFileRequested(&handled, fileName, contents);
             // nobody cared, so act ourselves
             if (!handled) {
-                //qDebug() << "HANDLING MANUAL SAVE";
-                QFile file(fileName);
-                file.open(QIODevice::ReadWrite);
-                { QTextStream ts(&file); ts << contents; }
-                file.close();
+                //qDebug() << "HANDLING MANUAL SAVE TO " << fileName;
+                QFile::remove(fileName);
+                QFile file2(fileName);
+                if (file2.open(QIODevice::ReadWrite)) {
+                    QTextStream ts(&file2);
+                    ts << contents;
+                } else {
+                    showRedMessage(tr("Cannot open file '%1' for writing").arg(fileName));
+                }
             }
             // check result by reading back
-            file.open(QIODevice::ReadOnly);
-            QByteArray ba = file.readAll();
+            QFile file3(fileName);
+            file3.open(QIODevice::ReadOnly);
+            QByteArray ba = file3.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size()));
@@ -1814,9 +1818,7 @@ QString FakeVimHandler::Private::selectedText() const
 {
     QTextCursor tc = m_tc;
     tc.setPosition(m_anchor, KeepAnchor);
-    QString text = tc.selection().toPlainText();
-    tc.clearSelection();
-    return text;
+    return tc.selection().toPlainText();
 }
 
 int FakeVimHandler::Private::positionForLine(int line) const
