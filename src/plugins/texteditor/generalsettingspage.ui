@@ -296,7 +296,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBoxVim">
+       <widget class="QCheckBox" name="useVim">
         <property name="text">
          <string>Use &quot;vi&quot; style editing</string>
         </property>

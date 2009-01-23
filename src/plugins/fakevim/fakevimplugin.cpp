@@ -53,6 +53,7 @@
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/interactionsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -229,14 +230,12 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 void FakeVimPluginPrivate::writeFile(bool *handled,
     const QString &fileName, const QString &contents)
 {
-    //qDebug() << "HANDLING WRITE FILE" << fileName << sender();
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
 
     Core::IEditor *editor = qobject_cast<Core::IEditor *>(handler->extraData());
     if (editor && editor->file()->fileName() == fileName) {
-        //qDebug() << "HANDLING CORE SAVE";
         // Handle that as a special case for nicer interaction with core
         Core::IFile *file = editor->file();
         m_core->fileManager()->blockFileChange(file);
@@ -261,6 +260,13 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
     //installHandler(editor);
+    QWidget *widget = editor->widget();
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget)) {
+        InteractionSettings settings = bt->interactionSettings();
+        qDebug() << "USE VIM: " << settings.m_useVim;
+        if (settings.m_useVim)
+            installHandler(editor);
+    }
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)

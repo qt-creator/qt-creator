@@ -46,6 +46,7 @@ class FontSettings;
 struct TabSettings;
 struct StorageSettings;
 struct DisplaySettings;
+struct InteractionSettings;
 
 namespace Internal {
 class TextEditorPlugin;
@@ -70,12 +71,14 @@ public:
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
     DisplaySettings displaySettings() const;
+    InteractionSettings interactionSettings() const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
+    void interactionSettingsChanged(const TextEditor::InteractionSettings &);
 
 private:
     TextEditor::FontSettingsPage *m_fontSettingsPage;

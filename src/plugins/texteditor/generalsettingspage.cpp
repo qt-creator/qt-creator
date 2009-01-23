@@ -33,6 +33,7 @@
 
 #include "displaysettings.h"
 #include "generalsettingspage.h"
+#include "interactionsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "ui_generalsettingspage.h"
@@ -53,6 +54,7 @@ struct GeneralSettingsPage::GeneralSettingsPagePrivate
     TabSettings m_tabSettings;
     StorageSettings m_storageSettings;
     DisplaySettings m_displaySettings;
+    InteractionSettings m_interactionSettings;
 };
 
 GeneralSettingsPage::GeneralSettingsPagePrivate::GeneralSettingsPagePrivate
@@ -63,6 +65,7 @@ GeneralSettingsPage::GeneralSettingsPagePrivate::GeneralSettingsPagePrivate
         m_tabSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_displaySettings.fromSettings(m_parameters.settingsPrefix, s);
+        m_interactionSettings.fromSettings(m_parameters.settingsPrefix, s);
     }
 }
 
@@ -106,8 +109,11 @@ void GeneralSettingsPage::apply()
     TabSettings newTabSettings;
     StorageSettings newStorageSettings;
     DisplaySettings newDisplaySettings;
+    InteractionSettings newInteractionSettings;
 
-    settingsFromUI(newTabSettings, newStorageSettings, newDisplaySettings);
+    settingsFromUI(newTabSettings, newStorageSettings, newDisplaySettings,
+        newInteractionSettings);
+
     Core::ICore *core = Core::ICore::instance();
 
     if (newTabSettings != m_d->m_tabSettings) {
@@ -133,11 +139,20 @@ void GeneralSettingsPage::apply()
 
         emit displaySettingsChanged(newDisplaySettings);
     }
+
+    if (newInteractionSettings != m_d->m_interactionSettings) {
+        m_d->m_interactionSettings = newInteractionSettings;
+        if (QSettings *s = core->settings())
+            m_d->m_interactionSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+
+        emit interactionSettingsChanged(newInteractionSettings);
+    }
 }
 
 void GeneralSettingsPage::settingsFromUI(TabSettings &rc,
                                          StorageSettings &storageSettings,
-                                         DisplaySettings &displaySettings) const
+                                         DisplaySettings &displaySettings,
+                                         InteractionSettings &interactionSettings) const
 {
     rc.m_spacesForTabs = m_d->m_page.insertSpaces->isChecked();
     rc.m_autoIndent = m_d->m_page.autoIndent->isChecked();
@@ -156,6 +171,8 @@ void GeneralSettingsPage::settingsFromUI(TabSettings &rc,
     displaySettings.m_visualizeWhitespace = m_d->m_page.visualizeWhitespace->isChecked();
     displaySettings.m_displayFoldingMarkers = m_d->m_page.displayFoldingMarkers->isChecked();
     displaySettings.m_highlightCurrentLine = m_d->m_page.highlightCurrentLine->isChecked();
+
+    interactionSettings.m_useVim = m_d->m_page.useVim->isChecked();
 }
 
 void GeneralSettingsPage::settingsToUI()
@@ -180,6 +197,9 @@ void GeneralSettingsPage::settingsToUI()
     m_d->m_page.visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
     m_d->m_page.displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
     m_d->m_page.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
+
+    InteractionSettings interactionSettings = m_d->m_interactionSettings;
+    m_d->m_page.useVim->setChecked(interactionSettings.m_useVim);
 }
 
 TabSettings GeneralSettingsPage::tabSettings() const
@@ -195,6 +215,11 @@ StorageSettings GeneralSettingsPage::storageSettings() const
 DisplaySettings GeneralSettingsPage::displaySettings() const
 {
     return m_d->m_displaySettings;
+}
+
+InteractionSettings GeneralSettingsPage::interactionSettings() const
+{
+    return m_d->m_interactionSettings;
 }
 
 void GeneralSettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySettings)

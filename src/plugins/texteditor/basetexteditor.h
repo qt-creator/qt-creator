@@ -37,6 +37,7 @@
 
 #include "displaysettings.h"
 #include "tabsettings.h"
+#include "interactionsettings.h"
 #include "itexteditable.h"
 
 #include <QtGui/QPlainTextEdit>
@@ -88,7 +89,8 @@ struct TEXTEDITOR_EXPORT Parenthesis
 
 
 
-class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData {
+class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
+{
 public:
 
     enum CollapseMode { NoCollapse , CollapseThis, CollapseAfter };
@@ -382,9 +384,9 @@ public:
     virtual void extraAreaMouseEvent(QMouseEvent *);
     virtual void extraAreaLeaveEvent(QEvent *);
 
-
     const TabSettings &tabSettings() const;
     const DisplaySettings &displaySettings() const;
+    const InteractionSettings &interactionSettings() const;
 
     void markBlocksAsChanged(QList<int> blockNumbers);
 
@@ -402,9 +404,12 @@ public:
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
 
-    struct BlockRange {
-        BlockRange():first(0), last(-1){}
-        BlockRange(int first_position, int last_position):first(first_position), last(last_position){}
+    struct BlockRange
+    {
+        BlockRange() : first(0), last(-1) {}
+        BlockRange(int first_position, int last_position)
+          : first(first_position), last(last_position)
+        {}
         int first;
         int last;
         inline bool isNull() const { return last < first; }
@@ -412,7 +417,6 @@ public:
 
     // the blocks list must be sorted
     void setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange> &blocks);
-
 
 public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &);
@@ -441,8 +445,6 @@ protected slots:
     virtual void slotUpdateRequest(const QRect &r, int dy);
     virtual void slotCursorPositionChanged();
     virtual void slotUpdateBlockNotify(const QTextBlock &);
-
-
 
 signals:
     void requestBlockUpdate(const QTextBlock &);
