@@ -32,21 +32,24 @@
 ***************************************************************************/
 
 #include "cmakeproject.h"
-
+#include "ui_cmakeconfigurewidget.h"
+#include "cmakeconfigurewidget.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakerunconfiguration.h"
 #include "cmakestep.h"
 #include "makestep.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #include <QtGui/QFormLayout>
+#include <QtGui/QMainWindow>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -67,8 +70,6 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager), m_fileName(fileName), m_rootNode(new CMakeProjectNode(m_fileName))
 {
     m_file = new CMakeFile(this, fileName);
-    QDir dir = QFileInfo(m_fileName).absoluteDir();
-    parseCMakeLists(dir);
 }
 
 CMakeProject::~CMakeProject()
@@ -78,12 +79,12 @@ CMakeProject::~CMakeProject()
 
 // TODO also call this method if the CMakeLists.txt file changed, which is also called if the CMakeList.txt is updated
 // TODO make this function work even if it is reparsing
-void CMakeProject::parseCMakeLists(const QDir &directory)
+void CMakeProject::parseCMakeLists()
 {
-    createCbpFile(buildDirectory(QString()));
+    QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
+    m_manager->createXmlFile(cmakeStep()->userArguments(activeBuildConfiguration()), sourceDirectory, buildDirectory(activeBuildConfiguration()));
 
-    QString cbpFile = findCbpFile(buildDirectory(QString()));
-
+    QString cbpFile = findCbpFile(buildDirectory(activeBuildConfiguration()));
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
@@ -142,24 +143,6 @@ QString CMakeProject::findCbpFile(const QDir &directory)
     return QString::null;
 }
 
-void CMakeProject::createCbpFile(const QDir &directory)
-{
-    // We create a cbp file, only if we didn't find a cbp file in the base directory
-    // Yet that can still override cbp files in subdirectories
-    // And we are creating tons of files in the source directories
-    // All of that is not really nice.
-    // The mid term plan is to move away from the CodeBlocks Generator and use our own
-    // QtCreator generator, which actually can be very similar to the CodeBlock Generator
-
-    // TODO we need to pass on the same paremeters as the cmakestep
-    qDebug()<<"Creating cbp file";
-    directory.mkpath(directory.absolutePath());
-    QProcess cmake;
-    cmake.setWorkingDirectory(directory.absolutePath());
-    cmake.start("cmake", QStringList() << ".." << "-GCodeBlocks - Unix Makefiles");
-    cmake.waitForFinished(-1);
-    qDebug()<<"cmake output: \n"<<cmake.readAll();
-}
 
 void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
 {
@@ -300,8 +283,20 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 {
     // TODO
     Project::restoreSettingsImpl(reader);
-    if (buildConfigurations().isEmpty()) {
-        // No build configuration, adding those
+    bool hasUserFile = !buildConfigurations().isEmpty();
+    if (!hasUserFile) {
+        // Ask the user for where he wants to build it
+        // and the cmake command line
+
+        // TODO check wheter there's already a CMakeCache.txt in the src directory,
+        // then we don't need to ask, we simply need to build in the src directory
+
+        CMakeConfigureDialog ccd(Core::ICore::instance()->mainWindow(), m_manager, QFileInfo(m_fileName).absolutePath());
+        ccd.exec();
+
+        qDebug()<<"ccd.buildDirectory()"<<ccd.buildDirectory();
+
+        // Now create a standard build configuration
         CMakeStep *cmakeStep = new CMakeStep(this);
         MakeStep *makeStep = new MakeStep(this);
 
@@ -311,7 +306,14 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         addBuildConfiguration("all");
         setActiveBuildConfiguration("all");
         makeStep->setBuildTarget("all", "all", true);
+        if (!ccd.buildDirectory().isEmpty())
+        setValue("all", "buildDirectory", ccd.buildDirectory());
+        cmakeStep->setUserArguments("all", ccd.arguments());
+    }
 
+    parseCMakeLists(); // Gets the directory from the active buildconfiguration
+
+    if (!hasUserFile) {
         // Create run configurations for m_targets
         qDebug()<<"Create run configurations of m_targets";
         bool setActive = false;
@@ -328,7 +330,6 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         }
 
     }
-    // Restoring is fine
 }
 
 

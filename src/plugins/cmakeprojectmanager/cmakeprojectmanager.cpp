@@ -36,11 +36,14 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environment.h>
+#include <qtconcurrent/QtConcurrentTools>
+#include <QtCore/QtConcurrentRun>
 #include <QtCore/QSettings>
-#include <QFormLayout>
+#include <QtGui/QFormLayout>
 
 using namespace CMakeProjectManager::Internal;
 
@@ -86,41 +89,131 @@ QString CMakeManager::mimeType() const
     return Constants::CMAKEMIMETYPE;
 }
 
+QString CMakeManager::cmakeExecutable() const
+{
+    return m_settingsPage->cmakeExecutable();
+}
+
+// TODO need to refactor this out
+// we probably want the process instead of this function
+// cmakeproject then could even run the cmake process in the background, adding the files afterwards
+// sounds like a plan
+QString CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory)
+{
+    // We create a cbp file, only if we didn't find a cbp file in the base directory
+    // Yet that can still override cbp files in subdirectories
+    // And we are creating tons of files in the source directories
+    // All of that is not really nice.
+    // The mid term plan is to move away from the CodeBlocks Generator and use our own
+    // QtCreator generator, which actually can be very similar to the CodeBlock Generator
+
+
+    // TODO we need to pass on the same paremeters as the cmakestep
+    QString buildDirectoryPath = buildDirectory.absolutePath();
+    qDebug()<<"Creating cbp file in"<<buildDirectoryPath;
+    buildDirectory.mkpath(buildDirectoryPath);
+    QProcess cmake;
+    cmake.setWorkingDirectory(buildDirectoryPath);
+    cmake.start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << "-GCodeBlocks - Unix Makefiles");
+    qDebug()<<cmakeExecutable()<<sourceDirectory << arguments;
+    cmake.waitForFinished(-1);
+    cmake.setProcessChannelMode(QProcess::MergedChannels);
+    QString output = cmake.readAll();
+    qDebug()<<"cmake output: \n"<<output;
+    return output;
+}
+
+
+/////
+// CMakeRunner
+////
+// TODO give a better name, what this class is to update cached information
+// about a cmake executable, with qtconcurrent
+// The nifty feature of this class is that it does so in a seperate thread,
+// not blocking the main thread
+
+CMakeRunner::CMakeRunner()
+    : m_cacheUpToDate(false)
+{
+
+}
+
+void CMakeRunner::run(QFutureInterface<void> &fi)
+{
+    m_mutex.lock();
+    QString executable = m_executable;
+    m_mutex.unlock();
+    QProcess cmake;
+    cmake.start(executable, QStringList()<<"--help");
+    cmake.waitForFinished();
+    QString response = cmake.readAll();
+    QRegExp versionRegexp("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n");
+    versionRegexp.indexIn(response);
+
+    m_mutex.lock();
+    m_supportsQtCreator = response.contains("QtCreator");
+    m_version = versionRegexp.cap(1);
+    if (!versionRegexp.capturedTexts().size()>3)
+        m_version += "." + versionRegexp.cap(3);
+    m_cacheUpToDate = true;
+    m_mutex.unlock();
+    fi.reportFinished();
+}
+
+void CMakeRunner::setExecutable(const QString &executable)
+{
+    waitForUpToDate();
+    m_mutex.lock();
+    m_executable = executable;
+    m_cacheUpToDate = false;
+    m_mutex.unlock();
+    m_future = QtConcurrent::run(&CMakeRunner::run, this);
+}
+
+QString CMakeRunner::executable() const
+{
+    waitForUpToDate();
+    m_mutex.lock();
+    QString result = m_executable;
+    m_mutex.unlock();
+    return result;
+}
+
+QString CMakeRunner::version() const
+{
+    waitForUpToDate();
+    m_mutex.lock();
+    QString result = m_version;
+    m_mutex.unlock();
+    return result;
+}
+
+bool CMakeRunner::supportsQtCreator() const
+{
+    waitForUpToDate();
+    m_mutex.lock();
+    bool result = m_supportsQtCreator;
+    m_mutex.unlock();
+    return result;
+}
+
+void CMakeRunner::waitForUpToDate() const
+{
+    m_future.waitForFinished();
+}
+
 /////
 // CMakeSettingsPage
 ////
+
 
 CMakeSettingsPage::CMakeSettingsPage()
 {
     Core::ICore *core = Core::ICore::instance();
     QSettings * settings = core->settings();
     settings->beginGroup("CMakeSettings");
-    m_cmakeExecutable =  settings->value("cmakeExecutable").toString();
+    m_cmakeRunner.setExecutable(settings->value("cmakeExecutable").toString());
     settings->endGroup();
-    updateCachedInformation();
-}
-
-void CMakeSettingsPage::updateCachedInformation() const
-{
-    // We find out two things:
-    // Does this cmake version support a QtCreator generator
-    // and the version
-    QFileInfo fi(m_cmakeExecutable);
-    if (!fi.exists()) {
-        m_version.clear();
-        m_supportsQtCreator = false;
-    }
-    QProcess cmake;
-    cmake.start(m_cmakeExecutable, QStringList()<<"--help");
-    cmake.waitForFinished();
-    QString response = cmake.readAll();
-    QRegExp versionRegexp("^cmake version ([*\\d\\.]*)-(|patch (\\d*))(|\\r)\\n");
-    versionRegexp.indexIn(response);
-
-    m_supportsQtCreator = response.contains("QtCreator");
-    m_version = versionRegexp.cap(1);
-    if (!versionRegexp.capturedTexts().size()>3)
-        m_version += "." + versionRegexp.cap(3);
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
@@ -160,14 +253,13 @@ void CMakeSettingsPage::saveSettings() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("CMakeSettings");
-    settings->setValue("cmakeExecutable", m_cmakeExecutable);
+    settings->setValue("cmakeExecutable", m_cmakeRunner.executable());
     settings->endGroup();
 }
 
 void CMakeSettingsPage::apply()
 {
-    m_cmakeExecutable = m_pathchooser->path();
-    updateCachedInformation();
+    m_cmakeRunner.setExecutable(m_pathchooser->path());
     saveSettings();
 }
 
@@ -178,14 +270,14 @@ void CMakeSettingsPage::finish()
 
 QString CMakeSettingsPage::cmakeExecutable() const
 {
-    if (m_cmakeExecutable.isEmpty()) {
-        m_cmakeExecutable = findCmakeExecutable();
-        if (!m_cmakeExecutable.isEmpty()) {
-            updateCachedInformation();
+    if (m_cmakeRunner.executable().isEmpty()) {
+        QString cmakeExecutable = findCmakeExecutable();
+        if (!cmakeExecutable.isEmpty()) {
+            m_cmakeRunner.setExecutable(cmakeExecutable);
             saveSettings();
         }
     }
-    return m_cmakeExecutable;
+    return m_cmakeRunner.executable();
 }
 
 void CMakeSettingsPage::askUserForCMakeExecutable()

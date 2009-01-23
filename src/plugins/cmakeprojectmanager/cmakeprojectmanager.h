@@ -37,11 +37,15 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <utils/pathchooser.h>
+#include <QtCore/QFuture>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeSettingsPage;
+class CMakeRunner;
 
 class CMakeManager : public ProjectExplorer::IProjectManager
 {
@@ -52,14 +56,35 @@ public:
     virtual int projectContext() const;
     virtual int projectLanguage() const;
 
-    //virtual bool canOpenProject(const QString &fileName);
     virtual ProjectExplorer::Project *openProject(const QString &fileName);
     virtual QString mimeType() const;
-    //virtual QString fileFilter() const;
+    QString cmakeExecutable() const;
+
+    QString createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory);
 private:
     int m_projectContext;
     int m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;
+};
+
+class CMakeRunner
+{
+public:
+    CMakeRunner();
+    void run(QFutureInterface<void> &fi);
+    void setExecutable(const QString &executable);
+    QString executable() const;
+    QString version() const;
+    bool supportsQtCreator() const;
+    void waitForUpToDate() const;
+
+private:
+    QString m_executable;
+    QString m_version;
+    bool m_supportsQtCreator;
+    bool m_cacheUpToDate;
+    mutable QFuture<void> m_future;
+    mutable QMutex m_mutex;
 };
 
 class CMakeSettingsPage : public Core::IOptionsPage
@@ -82,9 +107,8 @@ private:
     void updateCachedInformation() const;
     void saveSettings() const;
     QString findCmakeExecutable() const;
-    mutable QString m_cmakeExecutable;
-    mutable QString m_version;
-    mutable bool m_supportsQtCreator;
+
+    mutable CMakeRunner m_cmakeRunner;
     Core::Utils::PathChooser *m_pathchooser;
 };
 
