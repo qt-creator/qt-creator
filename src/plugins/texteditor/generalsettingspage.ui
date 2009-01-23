@@ -7,15 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>514</width>
-    <height>427</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QGroupBox" name="groupBox_3">
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBoxTabAndIndentSettings">
      <property name="title">
       <string>Tab/Indent Settings</string>
      </property>
@@ -171,8 +171,8 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBoxStorageSettings">
      <property name="title">
       <string>Storage Settings</string>
      </property>
@@ -224,8 +224,8 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBoxDisplaySettings">
      <property name="title">
       <string>Display Settings</string>
      </property>
@@ -289,15 +289,31 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <spacer>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBoxInteractionSettings">
+     <property name="title">
+      <string>Interaction Settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBoxVim">
+        <property name="text">
+         <string>Use &quot;vi&quot; style editing</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>351</width>
-       <height>0</height>
+       <width>20</width>
+       <height>8</height>
       </size>
      </property>
     </spacer>
