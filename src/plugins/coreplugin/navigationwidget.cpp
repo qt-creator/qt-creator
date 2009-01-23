@@ -33,12 +33,13 @@
 
 #include "navigationwidget.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/inavigationwidgetfactory.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+#include "icore.h"
+#include "coreconstants.h"
+#include "inavigationwidgetfactory.h"
+#include "modemanager.h"
+#include "uniqueidmanager.h"
+#include "actionmanager/actionmanager.h"
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>

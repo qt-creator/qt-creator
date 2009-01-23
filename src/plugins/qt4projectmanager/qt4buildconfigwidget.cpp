@@ -40,6 +40,7 @@
 #include "qt4projectmanager.h"
 #include "ui_qt4buildconfigwidget.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 
 #include <QtGui/QFileDialog>

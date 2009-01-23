@@ -62,9 +62,10 @@
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/filemanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/filemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>

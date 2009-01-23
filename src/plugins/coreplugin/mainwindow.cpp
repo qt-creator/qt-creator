@@ -380,7 +380,7 @@ void MainWindow::registerDefaultContainers()
     menubar->appendGroup(Constants::G_WINDOW);
     menubar->appendGroup(Constants::G_HELP);
 
-    //File Menu
+    // File Menu
     ActionContainer *filemenu = am->createMenu(Constants::M_FILE);
     menubar->addMenu(filemenu, Constants::G_FILE);
     filemenu->menu()->setTitle(tr("&File"));
@@ -394,7 +394,7 @@ void MainWindow::registerDefaultContainers()
     connect(filemenu->menu(), SIGNAL(aboutToShow()), this, SLOT(aboutToShowRecentFiles()));
 
 
-    //Edit Menu
+    // Edit Menu
     ActionContainer *medit = am->createMenu(Constants::M_EDIT);
     menubar->addMenu(medit, Constants::G_EDIT);
     medit->menu()->setTitle(tr("&Edit"));
@@ -405,12 +405,12 @@ void MainWindow::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
-    //Tools Menu
+    // Tools Menu
     ActionContainer *ac = am->createMenu(Constants::M_TOOLS);
     menubar->addMenu(ac, Constants::G_TOOLS);
     ac->menu()->setTitle(tr("&Tools"));
 
-    //Window Menu
+    // Window Menu
     ActionContainer *mwindow = am->createMenu(Constants::M_WINDOW);
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
@@ -423,7 +423,7 @@ void MainWindow::registerDefaultContainers()
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
     mwindow->appendGroup(Constants::G_WINDOW_LIST);
 
-    //Help Menu
+    // Help Menu
     ac = am->createMenu(Constants::M_HELP);
     menubar->addMenu(ac, Constants::G_HELP);
     ac->menu()->setTitle(tr("&Help"));

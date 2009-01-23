@@ -40,6 +40,7 @@
 #include "projectexplorer.h"
 #include "taskwindow.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>

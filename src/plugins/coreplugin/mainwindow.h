@@ -34,7 +34,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "icore.h"
+#include "core_global.h"
 
 #include <QtGui/QMainWindow>
 #include <QtCore/QMap>
@@ -61,6 +61,7 @@ class BaseView;
 class EditorManager;
 class FileManager;
 class IContext;
+class IWizard;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
@@ -103,7 +104,6 @@ public:
 
     void openFiles(const QStringList &fileNames);
 
-    //ICore
     inline ExtensionSystem::PluginManager *pluginManager() { return m_pluginManager; }
     Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;

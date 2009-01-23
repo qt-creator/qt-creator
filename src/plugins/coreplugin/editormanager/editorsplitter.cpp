@@ -33,15 +33,14 @@
 
 #include "editorsplitter.h"
 
+#include "coreconstants.h"
 #include "editormanager.h"
+#include "icore.h"
 #include "minisplitter.h"
 #include "openeditorswindow.h"
 #include "stackededitorgroup.h"
-
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+#include "uniqueidmanager.h"
+#include "actionmanager/actionmanager.h"
 
 #include <utils/qtcassert.h>
 
