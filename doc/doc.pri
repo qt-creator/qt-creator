@@ -7,7 +7,7 @@ unix {
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
-QCH_FILE = $$OUT_PWD/doc/qtcreator.qch
+QCH_FILE = $$OUT_PWD/share/doc/qtcreator/qtcreator.qch
 
 unix {
 html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
@@ -20,6 +20,11 @@ html_docs.files = $$QHP_FILE
 qch_docs.commands = $$HELPGENERATOR -o $$QCH_FILE $$QHP_FILE
 qch_docs.depends += html_docs
 qch_docs.files = $$QCH_FILE
+
+linux-* {
+    qch_docs.path = /share/doc/qtcreator
+    INSTALLS += qch_docs
+}
 
 macx {
     cp_docs.commands = $${QMAKE_COPY_DIR} $${OUT_PWD}/doc $${OUT_PWD}/bin/QtCreator.app/Contents/Resources

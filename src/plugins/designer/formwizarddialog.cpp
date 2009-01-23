@@ -53,7 +53,7 @@ namespace Internal {
 FormWizardDialog::FormWizardDialog(const WizardPageList &extensionPages,
                                    QWidget *parent)
   : QWizard(parent),
-    m_formPage(new FormTemplateWizardPagePage)
+    m_formPage(new FormTemplateWizardPage)
 {
     init(extensionPages);
 }
@@ -114,8 +114,8 @@ void FormFileWizardDialog::slotCurrentIdChanged(int id)
         // the ui class
         QString formBaseClass;
         QString uiClassName;
-        if (FormTemplateWizardPagePage::getUIXmlData(templateContents(), &formBaseClass, &uiClassName)) {
-            QString fileName = FormTemplateWizardPagePage::stripNamespaces(uiClassName).toLower();
+        if (FormTemplateWizardPage::getUIXmlData(templateContents(), &formBaseClass, &uiClassName)) {
+            QString fileName = FormTemplateWizardPage::stripNamespaces(uiClassName).toLower();
             fileName += QLatin1String(".ui");
             m_filePage->setName(fileName);
         }

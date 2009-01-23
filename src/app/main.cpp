@@ -180,12 +180,16 @@ static inline QStringList getPluginPaths()
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
-    // 1) "lib" dir
+    // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
     pluginPath += QDir::separator();
     pluginPath += QLatin1String("lib");
+    pluginPath += QDir::separator();
+    pluginPath += QLatin1String("qtcreator");
+    pluginPath += QDir::separator();
+    pluginPath += QLatin1String("plugins");
     rc.push_back(pluginPath);
-    // 2) "PlugIns"
+    // 2) "PlugIns" (OS X)
     pluginPath = rootDirPath;
     pluginPath += QDir::separator();
     pluginPath += QLatin1String("PlugIns");

@@ -105,7 +105,7 @@ enum SubMode
     ChangeSubMode,
     DeleteSubMode,
     FilterSubMode,
-    ReplaceSubMode,
+    ReplaceSubMode,    // used for R and r
     YankSubMode,
     IndentSubMode,
     ZSubMode,
@@ -113,11 +113,13 @@ enum SubMode
 
 enum SubSubMode
 {
+    // typically used for things that require one more data item
+    // and are 'nested' behind a mode
     NoSubSubMode,
     FtSubSubMode,       // used for f, F, t, T
     MarkSubSubMode,     // used for m
     BackTickSubSubMode, // used for `
-    TickSubSubMode      // used for '
+    TickSubSubMode,     // used for '
 };
 
 enum VisualMode
@@ -188,7 +190,7 @@ private:
     int count() const { return mvCount() * opCount(); }
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
-    bool atEol() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
+    bool atEndOfLine() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
 
     int lastPositionInDocument() const;
     int positionForLine(int line) const; // 1 based line, 0 based pos
@@ -284,11 +286,11 @@ public:
     void recordInsert(int position, const QString &data);
     void recordRemove(int position, const QString &data);
     void recordRemove(int position, int length);
-    void recordMove(int position, int nestedCount);
 
     void recordRemoveNextChar();
     void recordInsertText(const QString &data);
     QString recordRemoveSelectedText();
+    void recordMove();
     void recordBeginGroup();
     void recordEndGroup();
     int anchor() const { return m_anchor; }
@@ -301,7 +303,6 @@ public:
     QStack<int> m_undoGroupStack;
 
     // extra data for '.'
-    QString m_dotCount;
     QString m_dotCommand;
 
     // history for '/'
@@ -392,7 +393,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     bool handled = handleKey(key, um, ev->text());
 
     // We fake vi-style end-of-line behaviour
-    m_fakeEnd = (atEol() && m_mode == CommandMode);
+    m_fakeEnd = (atEndOfLine() && m_mode == CommandMode);
 
     if (m_fakeEnd)
         moveLeft();
@@ -447,7 +448,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_registers[m_register] = recordRemoveSelectedText();
         recordEndGroup();
         m_submode = NoSubMode;
-        if (atEol())
+        if (atEndOfLine())
             moveLeft();
     } else if (m_submode == YankSubMode) {
         m_registers[m_register] = selectedText();
@@ -468,6 +469,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
     } else if (m_moveType == MoveExclusive) {
         moveLeft(); // correct 
+        m_moveType = MoveInclusive;
     }
     m_mvcount.clear();
     m_opcount.clear();
@@ -632,12 +634,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(count());
         m_moveType = MoveLineWise;
         finishMovement("y");
-    } else if (m_submode == ReplaceSubMode) {
-        if (atEol())
-            moveLeft(KeepAnchor);
-        else
-            m_tc.deleteChar();
-        recordInsertText(text);
     } else if (m_submode == IndentSubMode && key == '=') {
         indentRegion(m_tc.block(), m_tc.block().next());
         finishMovement();
@@ -655,6 +651,22 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
         finishMovement(QString(QChar(m_subsubdata)) + QChar(key));
+    } else if (m_submode == ReplaceSubMode) {
+        if (count() < rightDist() && text.size() == 1
+                && (text.at(0).isPrint() || text.at(0).isSpace())) {
+            recordBeginGroup();
+            setAnchor();
+            moveRight(count());
+            recordRemoveSelectedText();
+            recordInsertText(QString(count(), text.at(0)));
+            recordEndGroup();
+            m_moveType = MoveExclusive;
+            m_submode = NoSubMode;
+            m_dotCommand = QString("%1r%2").arg(count()).arg(text);
+            finishMovement();
+        } else {
+            m_submode = NoSubMode;
+        }
     } else if (m_subsubmode == MarkSubSubMode) {
         m_marks[key] = m_tc.position();
         m_subsubmode = NoSubSubMode;
@@ -749,7 +761,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mode = InsertMode;
         recordBeginGroup();
         m_lastInsertion.clear();
-        moveRight();
+        if (!atEndOfLine())
+            moveRight();
         updateMiniBuffer();
     } else if (key == 'A') {
         m_mode = InsertMode;
@@ -774,7 +787,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mode = InsertMode;
         finishMovement();
     } else if (key == 'd' && m_visualMode == NoVisualMode) {
-        if (atEol())
+        if (atEndOfLine())
             moveLeft();
         setAnchor();
         recordBeginGroup();
@@ -828,7 +841,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'i') {
         enterInsertMode();
         updateMiniBuffer();
-        if (atEol())
+        if (atEndOfLine())
             moveLeft();
     } else if (key == 'I') {
         setAnchor();
@@ -916,25 +929,35 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         //qDebug() << "REGISTERS: " << m_registers << "MOVE: " << m_moveType;
         //qDebug() << "LINES: " << n << text << m_register;
         if (n > 0) {
+            recordMove();
             moveToStartOfLine();
-            if (key == 'p')
-                moveDown();
-            recordInsertText(text);
-            moveUp(n);
+            m_desiredColumn = 0;
+            for (int i = count(); --i >= 0; ) {
+                if (key == 'p')
+                    moveDown();
+                recordInsertText(text);
+                moveUp(n);
+            }
         } else {
-            if (key == 'p')
-                moveRight();
-            recordInsertText(text);
-            moveLeft();
+            m_desiredColumn = 0;
+            for (int i = count(); --i >= 0; ) {
+                if (key == 'p')
+                    moveRight();
+                recordInsertText(text);
+                moveLeft();
+            }
         }
         recordEndGroup();
-        m_dotCommand = "p";
+        m_dotCommand = QString("%1p").arg(count());
+        finishMovement();
     } else if (key == 'r') {
-        recordBeginGroup();
         m_submode = ReplaceSubMode;
         m_dotCommand = "r";
     } else if (key == 'R') {
+        // FIXME: right now we repeat the insertion count() times, 
+        // but not the deletion
         recordBeginGroup();
+        m_lastInsertion.clear();
         m_mode = InsertMode;
         m_submode = ReplaceSubMode;
         m_dotCommand = "R";
@@ -972,9 +995,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToNextWord(true);
         finishMovement("W");
     } else if (key == 'x') { // = "dl"
-        if (atEol())
+        if (atEndOfLine())
             moveLeft();
         recordBeginGroup();
+        setAnchor();
         m_submode = DeleteSubMode;
         moveRight(qMin(count(), rightDist()));
         finishMovement("l");
@@ -987,7 +1011,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'y') {
         m_savedYankPosition = m_tc.position();
-        if (atEol())
+        if (atEndOfLine())
             moveLeft();
         recordBeginGroup();
         setAnchor();
@@ -1001,7 +1025,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'z') {
         recordBeginGroup();
         m_submode = ZSubMode;
-    } else if (key == '~' && !atEol()) {
+    } else if (key == '~' && !atEndOfLine()) {
         recordBeginGroup();
         setAnchor();
         moveRight(qMin(count(), rightDist()));
@@ -1019,7 +1043,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveUp(count() * (linesOnScreen() - 2));
         finishMovement();
     } else if (key == Key_Delete) {
-        m_tc.deleteChar();
+        setAnchor();
+        moveRight(qMin(1, rightDist()));
+        recordRemoveSelectedText();
     } else if (key == Key_Escape) {
         if (m_visualMode != NoVisualMode)
             leaveVisualMode();
@@ -1085,7 +1111,7 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
-            if (atEol())
+            if (atEndOfLine())
                 m_submode = NoSubMode;
             else
                 m_tc.deleteChar();
@@ -1620,7 +1646,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
 #if 0
     // FIXME: remove TextEditor dependency
     bool undoFakeEOL = false;
-    if (atEol()) {
+    if (atEndOfLine()) {
         m_tc.movePosition(Left, KeepAnchor, 1);
         undoFakeEOL = true;
     }
@@ -1851,8 +1877,19 @@ void FakeVimHandler::Private::recordInsertText(const QString &data)
     m_tc.insertText(data);
 }
 
+void FakeVimHandler::Private::recordMove()
+{
+    EditOperation op;
+    op.position = m_tc.position();
+    m_undoStack.push(op);
+    m_redoStack.clear();
+    //qDebug() << "MOVE: " << op;
+    //qDebug() << "\nSTACK: " << m_undoStack;
+}
+
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 {
+    //qDebug() << "OP: " << op;
     // No need to record operations that actually do not change anything.
     if (op.from.isEmpty() && op.to.isEmpty() && op.itemCount == 0)
         return;
@@ -1861,14 +1898,7 @@ void FakeVimHandler::Private::recordOperation(const EditOperation &op)
         return;
     m_undoStack.push(op);
     m_redoStack.clear();
-}
-
-void FakeVimHandler::Private::recordMove(int position, int nestedCount)
-{
-    EditOperation op;
-    op.position = position;
-    op.itemCount = nestedCount;
-    recordOperation(op);
+    //qDebug() << "\nSTACK: " << m_undoStack;
 }
 
 void FakeVimHandler::Private::recordInsert(int position, const QString &data)

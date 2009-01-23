@@ -60,12 +60,13 @@ QT_BEGIN_NAMESPACE
 class HelpNetworkReply : public QNetworkReply
 {
 public:
-    HelpNetworkReply(const QNetworkRequest &request, const QByteArray &fileData);
+    HelpNetworkReply(const QNetworkRequest &request, const QByteArray &fileData,
+        const QString &mimeType);
 
     virtual void abort();
 
     virtual qint64 bytesAvailable() const
-    { return data.length() + QNetworkReply::bytesAvailable(); }
+        { return data.length() + QNetworkReply::bytesAvailable(); }
 
 protected:
     virtual qint64 readData(char *data, qint64 maxlen);
@@ -76,13 +77,13 @@ private:
 };
 
 HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
-        const QByteArray &fileData)
+        const QByteArray &fileData, const QString &mimeType)
     : data(fileData), origLen(fileData.length())
 {
     setRequest(request);
     setOpenMode(QIODevice::ReadOnly);
 
-    setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("text/html"));
+    setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
     setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(origLen));
     QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
     QTimer::singleShot(0, this, SIGNAL(readyRead()));
@@ -127,9 +128,23 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine,
 QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
     const QNetworkRequest &request, QIODevice *outgoingData)
 {
-    const QString scheme = request.url().scheme();
+    const QString& scheme = request.url().scheme();
     if (scheme == QLatin1String("qthelp") || scheme == QLatin1String("about")) {
-        return new HelpNetworkReply(request, helpEngine->fileData(request.url()));
+        const QUrl& url = request.url();
+        QString mimeType = url.toString();
+        if (mimeType.endsWith(QLatin1String(".svg"))
+            || mimeType.endsWith(QLatin1String(".svgz"))) {
+           mimeType = QLatin1String("image/svg+xml");
+        }
+        else if (mimeType.endsWith(QLatin1String(".css"))) {
+           mimeType = QLatin1String("text/css");
+        }
+        else if (mimeType.endsWith(QLatin1String(".js"))) {
+           mimeType = QLatin1String("text/javascript");
+        } else {
+            mimeType = QLatin1String("text/html");
+        }
+        return new HelpNetworkReply(request, helpEngine->fileData(url), mimeType);
     }
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
@@ -312,7 +327,7 @@ void HelpViewer::setSource(const QUrl &url)
     if (url.isValid() && !help) {
         if (launchedWithExternalApp(url))
             return;
-        
+
         QUrl u = helpEngine->findFile(url);
         if (u.isValid()) {
             if (!homeUrl.isValid())

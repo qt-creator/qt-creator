@@ -57,7 +57,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     const QString indent = QString(indentation, QLatin1Char(' '));
     QString formBaseClass;
     QString uiClassName;
-    if (!FormTemplateWizardPagePage::getUIXmlData(uiTemplate, &formBaseClass, &uiClassName)) {
+    if (!FormTemplateWizardPage::getUIXmlData(uiTemplate, &formBaseClass, &uiClassName)) {
         qWarning("Unable to determine the form base class from %s.", uiTemplate.toUtf8().constData());
         return false;
     }
@@ -107,7 +107,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     if (embedding == PointerAggregatedUiClass) {
           headerStr << '\n'
                   << namespaceIndent << "namespace " <<  uiNamespaceC << " {\n"
-                  << namespaceIndent << indent << "class " << FormTemplateWizardPagePage::stripNamespaces(uiClassName) << ";\n"
+                  << namespaceIndent << indent << "class " << FormTemplateWizardPage::stripNamespaces(uiClassName) << ";\n"
                   << namespaceIndent << "}\n";
     }
 

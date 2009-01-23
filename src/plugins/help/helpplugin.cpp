@@ -446,7 +446,7 @@ void HelpPlugin::extensionsInitialized()
 #if defined(Q_OS_MAC)
             + QLatin1String("/../Resources/doc/qtcreator.qch"));
 #else
-            + QLatin1String("/../doc/qtcreator.qch"));
+            + QLatin1String("../../share/doc/qtcreator/qtcreator.qch"));
 #endif
         QHelpEngineCore hc(fi.absoluteFilePath());
         hc.setupData();
