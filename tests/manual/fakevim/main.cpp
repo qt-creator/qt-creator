@@ -17,21 +17,26 @@ class Proxy : public QObject
     Q_OBJECT
 
 public:
-    Proxy() : QObject(0) {}
+    Proxy(QWidget *widget, QObject *parent = 0)
+      : QObject(parent), m_widget(widget)
+    {}
 
 public slots:
-    void changeSelection(QWidget *w, const QList<QTextEdit::ExtraSelection> &s)
+    void changeSelection(const QList<QTextEdit::ExtraSelection> &s)
     {
-        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(w))
+        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(sender()))
             ed->setExtraSelections(s);
-        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(w))
+        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(sender()))
             ed->setExtraSelections(s);
     }
 
-    void changeExtraInformation(QWidget *w, const QString &info)
+    void changeExtraInformation(const QString &info)
     {
-        QMessageBox::information(w, "Information", info);
+        QMessageBox::information(m_widget, "Information", info);
     }
+
+private:
+    QWidget *m_widget;
 };
 
 int main(int argc, char *argv[])
@@ -51,13 +56,13 @@ int main(int argc, char *argv[])
         widget = new QTextEdit;
         title = "TextEdit";
     }
+    widget->setObjectName("Editor");
     widget->resize(450, 350);
     widget->setFocus();
 
-    Proxy proxy;
+    Proxy proxy(widget);
 
-
-    FakeVimHandler handler;
+    FakeVimHandler handler(widget, 0);
 
     QMainWindow mw;
     mw.setWindowTitle("Fakevim (" + title + ")");
@@ -77,18 +82,18 @@ int main(int argc, char *argv[])
 
     QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
         mw.statusBar(), SLOT(showMessage(QString)));
-    QObject::connect(&handler, SIGNAL(quitRequested(QWidget *)),
+    QObject::connect(&handler, SIGNAL(quitRequested()),
         &app, SLOT(quit()));
     QObject::connect(&handler,
-        SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
-        &proxy, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
+        SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
+        &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     QObject::connect(&handler,
-        SIGNAL(extraInformationChanged(QWidget*,QString)),
-        &proxy, SLOT(changeExtraInformation(QWidget*,QString)));
+        SIGNAL(extraInformationChanged(QString)),
+        &proxy, SLOT(changeExtraInformation(QString)));
 
-    handler.addWidget(widget);
+    handler.setupWidget();
     if (args.size() >= 1)
-        handler.handleCommand(widget, "r " + args.at(0));
+        handler.handleCommand("r " + args.at(0));
 
     return app.exec();
 }

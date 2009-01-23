@@ -45,6 +45,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
@@ -166,10 +167,13 @@ int lineCount(const QString &text)
 class FakeVimHandler::Private
 {
 public:
-    Private(FakeVimHandler *parent);
+    Private(FakeVimHandler *parent, QWidget *widget);
 
     bool handleEvent(QKeyEvent *ev);
     void handleExCommand(const QString &cmd);
+
+    void setupWidget();
+    void restoreWidget();
 
 private:
     friend class FakeVimHandler;
@@ -238,7 +242,6 @@ private:
     int readLineCode(QString &cmd);
     void selectRange(int beginLine, int endLine);
 
-    void setWidget(QWidget *ob);
     void enterInsertMode();
     void enterCommandMode();
     void showRedMessage(const QString &msg);
@@ -328,11 +331,16 @@ public:
     // for restoring cursor position
     int m_savedYankPosition;
     int m_desiredColumn;
+
+    QPointer<QObject> m_extraData;
 };
 
-FakeVimHandler::Private::Private(FakeVimHandler *parent)
+FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
     q = parent;
+
+    m_textedit = qobject_cast<QTextEdit *>(widget);
+    m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
 
     m_mode = CommandMode;
     m_submode = NoSubMode;
@@ -341,8 +349,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_lastSearchForward = true;
     m_register = '"';
     m_gflag = false;
-    m_textedit = 0;
-    m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
     m_moveType = MoveInclusive;
@@ -401,6 +407,37 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     EDITOR(setTextCursor(m_tc));
     EDITOR(ensureCursorVisible());
     return handled;
+}
+
+void FakeVimHandler::Private::setupWidget()
+{
+    enterCommandMode();
+    if (m_textedit) {
+        m_textedit->installEventFilter(q);
+        //m_textedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        m_textedit->setLineWrapMode(QTextEdit::NoWrap);
+        m_wasReadOnly = m_textedit->isReadOnly();
+    } else if (m_plaintextedit) {
+        m_plaintextedit->installEventFilter(q);
+        //plaintextedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
+        m_wasReadOnly = m_plaintextedit->isReadOnly();
+    }
+    showBlackMessage("vi emulation mode.");
+    updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::restoreWidget()
+{
+    //showBlackMessage(QString());
+    //updateMiniBuffer();
+    if (m_textedit) {
+        m_textedit->removeEventFilter(q);
+        m_textedit->setReadOnly(m_wasReadOnly);
+    } else if (m_plaintextedit) {
+        m_plaintextedit->removeEventFilter(q);
+        m_plaintextedit->setReadOnly(m_wasReadOnly);
+    }
 }
 
 bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &text)
@@ -529,7 +566,7 @@ void FakeVimHandler::Private::updateSelection()
             }
         }
     }
-    emit q->selectionChanged(editor(), selections);
+    emit q->selectionChanged(selections);
 }
 
 void FakeVimHandler::Private::updateMiniBuffer()
@@ -1329,7 +1366,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             beginLine = 0;
         if (endLine == -1)
             endLine = linesInDocument();
-        //qDebug() << "LINES: " << beginLine << endLine;
+        qDebug() << "LINES: " << beginLine << endLine;
         bool forced = cmd.startsWith("w!");
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
@@ -1339,9 +1376,20 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         if (exists && !forced && !noArgs) {
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file.open(QIODevice::ReadWrite)) {
+            file.close();
             selectRange(beginLine, endLine);
-            emit q->writeFile(fileName, selectedText());
-            // check by reading back
+            QString contents = selectedText(); 
+            bool handled = false;
+            emit q->writeFileRequested(&handled, fileName, contents);
+            // nobody cared, so act ourselves
+            if (!handled) {
+                qDebug() << "HANDLING MANUAL SAVE";
+                QFile file(fileName);
+                file.open(QIODevice::ReadWrite);
+                { QTextStream ts(&file); ts << contents; }
+                file.close();
+            }
+            // check result by reading back
             file.open(QIODevice::ReadOnly);
             QByteArray ba = file.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
@@ -1401,7 +1449,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             QString info;
             foreach (const QString &key, m_config.keys())
                 info += key + ": " + m_config.value(key) + "\n";
-            emit q->extraInformationChanged(editor(), info);
+            emit q->extraInformationChanged(info);
         } else {
             notImplementedYet();
         }
@@ -1417,7 +1465,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 ++i;
                 info += QString("%1 %2\n").arg(i, -8).arg(item);
             }
-            emit q->extraInformationChanged(editor(), info);
+            emit q->extraInformationChanged(info);
         } else {
             notImplementedYet();
         }
@@ -1735,7 +1783,9 @@ QString FakeVimHandler::Private::selectedText() const
 {
     QTextCursor tc = m_tc;
     tc.setPosition(m_anchor, KeepAnchor);
-    return tc.selection().toPlainText();
+    QString text = tc.selection().toPlainText();
+    tc.clearSelection();
+    return text;
 }
 
 int FakeVimHandler::Private::positionForLine(int line) const
@@ -1942,16 +1992,10 @@ void FakeVimHandler::Private::enterCommandMode()
 
 void FakeVimHandler::Private::quit()
 {
-    showBlackMessage(QString());
     EDITOR(setOverwriteMode(false));
-    q->quitRequested(editor());
+    q->quitRequested();
 }
 
-void FakeVimHandler::Private::setWidget(QWidget *ob)
-{
-    m_textedit = qobject_cast<QTextEdit *>(ob);
-    m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1959,12 +2003,13 @@ void FakeVimHandler::Private::setWidget(QWidget *ob)
 //
 ///////////////////////////////////////////////////////////////////////
 
-FakeVimHandler::FakeVimHandler(QObject *parent)
-    : QObject(parent), d(new Private(this))
+FakeVimHandler::FakeVimHandler(QWidget *widget, QObject *parent)
+    : QObject(parent), d(new Private(this, widget))
 {}
 
 FakeVimHandler::~FakeVimHandler()
 {
+    qDebug() << "DELETING HANDLER" << this;
     delete d;
 }
 
@@ -1993,40 +2038,18 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     return QObject::eventFilter(ob, ev);
 }
 
-void FakeVimHandler::addWidget(QWidget *widget)
+void FakeVimHandler::setupWidget()
 {
-    widget->installEventFilter(this);
-    d->setWidget(widget);
-    d->enterCommandMode();
-    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
-        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
-        ed->setLineWrapMode(QTextEdit::NoWrap);
-        d->m_wasReadOnly = ed->isReadOnly();
-    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
-        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
-        ed->setLineWrapMode(QPlainTextEdit::NoWrap);
-        d->m_wasReadOnly = ed->isReadOnly();
-    }
-    d->showBlackMessage("vi emulation mode.");
-    d->updateMiniBuffer();
+    d->setupWidget();
 }
 
-void FakeVimHandler::removeWidget(QWidget *widget)
+void FakeVimHandler::restoreWidget()
 {
-    d->setWidget(widget);
-    d->showBlackMessage(QString());
-    d->updateMiniBuffer();
-    widget->removeEventFilter(this);
-    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
-        ed->setReadOnly(d->m_wasReadOnly);
-    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
-        ed->setReadOnly(d->m_wasReadOnly);
-    }
+    d->restoreWidget();
 }
 
-void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
+void FakeVimHandler::handleCommand(const QString &cmd)
 {
-    d->setWidget(widget);
     d->handleExCommand(cmd);
 }
 
@@ -2044,3 +2067,19 @@ void FakeVimHandler::setCurrentFileName(const QString &fileName)
 {
    d->m_currentFileName = fileName;
 }
+
+QWidget *FakeVimHandler::widget()
+{
+    return d->editor();
+}
+
+void FakeVimHandler::setExtraData(QObject *data)
+{
+    d->m_extraData = data;
+}
+
+QObject *FakeVimHandler::extraData() const
+{
+    return d->m_extraData;
+}
+

@@ -106,27 +106,26 @@ public:
     ~FakeVimPluginPrivate();
     friend class FakeVimPlugin;
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize();
     void shutdown();
 
 private slots:
-    void installHandler();
-    void installHandler(QWidget *widget);
-    void removeHandler(QWidget *widget);
-    void showCommandBuffer(const QString &contents);
-    void showExtraInformation(QWidget *, const QString &msg);
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
-    void changeSelection(QWidget *widget,
-        const QList<QTextEdit::ExtraSelection> &selections);
-    void writeFile(const QString &fileName, const QString &contents);
+
+    void installHandler();
+    void installHandler(Core::IEditor *editor);
+    void removeHandler();
+
+    void showCommandBuffer(const QString &contents);
+    void showExtraInformation(const QString &msg);
+    void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
+    void writeFile(bool *handled, const QString &fileName, const QString &contents);
 
 private:
     FakeVimPlugin *q;
-    FakeVimHandler *m_handler;
     QAction *m_installHandlerAction; 
     Core::ICore *m_core;
-    Core::IFile *m_currentFile;
 };
 
 } // namespace Internal
@@ -135,10 +134,8 @@ private:
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {       
     q = plugin;
-    m_handler = 0;
     m_installHandlerAction = 0;
     m_core = 0;
-    m_currentFile = 0;
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -147,17 +144,10 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 
 void FakeVimPluginPrivate::shutdown()
 {
-    delete m_handler;
-    m_handler = 0;
 }
 
-bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *error_message)
+bool FakeVimPluginPrivate::initialize()
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(error_message);
-
-    m_handler = new FakeVimHandler;
-
     m_core = Core::ICore::instance();
     QTC_ASSERT(m_core, return false);
 
@@ -195,102 +185,113 @@ bool FakeVimPluginPrivate::initialize(const QStringList &arguments, QString *err
 void FakeVimPluginPrivate::installHandler()
 {
     if (Core::IEditor *editor = m_core->editorManager()->currentEditor())
-        installHandler(editor->widget());
+        installHandler(editor);
 }
 
-void FakeVimPluginPrivate::installHandler(QWidget *widget)
+void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
-    connect(m_handler, SIGNAL(extraInformationChanged(QWidget *, QString)),
-        this, SLOT(showExtraInformation(QWidget *, QString)));
-    connect(m_handler, SIGNAL(commandBufferChanged(QString)),
+    QWidget *widget = editor->widget();
+    
+    FakeVimHandler *handler = new FakeVimHandler(widget, this);
+
+    connect(handler, SIGNAL(extraInformationChanged(QString)),
+        this, SLOT(showExtraInformation(QString)));
+    connect(handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
-    connect(m_handler, SIGNAL(quitRequested(QWidget *)),
-        this, SLOT(removeHandler(QWidget *)));
-    connect(m_handler,
-        SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
-        this, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
+    connect(handler, SIGNAL(quitRequested()),
+        this, SLOT(removeHandler()), Qt::QueuedConnection);
+    connect(handler, SIGNAL(writeFileRequested(bool*,QString,QString)),
+        this, SLOT(writeFile(bool*,QString,QString)));
+    connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
+        this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
 
-    m_handler->addWidget(widget);
-    TextEditor::BaseTextEditor* editor =
-        qobject_cast<TextEditor::BaseTextEditor*>(widget);
-    if (editor) {
-        m_currentFile = editor->file();
-        m_handler->setCurrentFileName(editor->file()->fileName());
-    }
+    handler->setupWidget();
+    handler->setExtraData(editor);
 
-    BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget);
-    if (bt) {
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget)) {
         using namespace TextEditor;
         using namespace FakeVim::Constants;
+        handler->setCurrentFileName(editor->file()->fileName());
         TabSettings settings = bt->tabSettings();
-        m_handler->setConfigValue(ConfigTabStop,
+        handler->setConfigValue(ConfigTabStop,
             QString::number(settings.m_tabSize));
-        m_handler->setConfigValue(ConfigShiftWidth,
+        handler->setConfigValue(ConfigShiftWidth,
             QString::number(settings.m_indentSize));
-        m_handler->setConfigValue(ConfigExpandTab,
+        handler->setConfigValue(ConfigExpandTab,
             settings.m_spacesForTabs ? ConfigOn : ConfigOff);
-        m_handler->setConfigValue(ConfigSmartTab,
+        handler->setConfigValue(ConfigSmartTab,
             settings.m_smartBackspace ? ConfigOn : ConfigOff); 
-        m_handler->setConfigValue(ConfigAutoIndent,
+        handler->setConfigValue(ConfigAutoIndent,
             settings.m_autoIndent ? ConfigOn : ConfigOff); 
     }
 }
 
-void FakeVimPluginPrivate::writeFile(const QString &fileName,
-    const QString &contents)
+void FakeVimPluginPrivate::writeFile(bool *handled,
+    const QString &fileName, const QString &contents)
 {
-    if (m_currentFile && fileName == m_currentFile->fileName()) {
+    //qDebug() << "HANDLING WRITE FILE" << fileName << sender();
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+
+    Core::IEditor *editor = qobject_cast<Core::IEditor *>(handler->extraData());
+    if (editor && editor->file()->fileName() == fileName) {
+        //qDebug() << "HANDLING CORE SAVE";
         // Handle that as a special case for nicer interaction with core
-        m_core->fileManager()->blockFileChange(m_currentFile);
-        m_currentFile->save(fileName);
-        m_core->fileManager()->unblockFileChange(m_currentFile);
-    } else {
-        QFile file(fileName);
-        file.open(QIODevice::ReadWrite);
-        { QTextStream ts(&file); ts << contents; }
-        file.close();
-    }
+        Core::IFile *file = editor->file();
+        m_core->fileManager()->blockFileChange(file);
+        file->save(fileName);
+        m_core->fileManager()->unblockFileChange(file);
+        *handled = true;
+    } 
 }
 
-void FakeVimPluginPrivate::removeHandler(QWidget *widget)
+void FakeVimPluginPrivate::removeHandler()
 {
-    Q_UNUSED(widget);
-    m_handler->removeWidget(widget);
+    if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender())) {
+        handler->restoreWidget();
+        handler->deleteLater();
+    }
     Core::EditorManager::instance()->hideEditorInfoBar(
         QLatin1String(Constants::MINI_BUFFER));
-    m_currentFile = 0;
 }
 
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
-    Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
-    //installHandler(editor->widget()); 
+    installHandler(editor);
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 {
-    //qDebug() << "CLOSING: " << editor << editor->widget();
-    removeHandler(editor->widget()); 
+    Q_UNUSED(editor);
+    //qDebug() << "CLOSING: " << editor;
 }
 
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
-    Core::EditorManager::instance()->showEditorInfoBar( 
-        QLatin1String(Constants::MINI_BUFFER), contents,
-        tr("Quit FakeVim"), m_handler, SLOT(quit()));
+    //qDebug() << "SHOW COMMAND BUFFER" << contents;
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (handler) {
+        Core::EditorManager::instance()->showEditorInfoBar( 
+            QLatin1String(Constants::MINI_BUFFER), contents,
+            tr("Quit FakeVim"), handler, SLOT(quit()));
+    }
 }
 
-void FakeVimPluginPrivate::showExtraInformation(QWidget *widget, const QString &text)
+void FakeVimPluginPrivate::showExtraInformation(const QString &text)
 {
-    QMessageBox::information(widget, tr("FakeVim Information"), text);
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (handler)
+        QMessageBox::information(handler->widget(), tr("FakeVim Information"), text);
 }
 
-void FakeVimPluginPrivate::changeSelection(QWidget *widget,
-    const QList<QTextEdit::ExtraSelection> &selection)
+void FakeVimPluginPrivate::changeSelection
+    (const QList<QTextEdit::ExtraSelection> &selection)
 {
-    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget))
-        bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
+    if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender()))
+        if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+            bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
 }
 
 
@@ -309,9 +310,11 @@ FakeVimPlugin::~FakeVimPlugin()
     delete d;
 }
 
-bool FakeVimPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    return d->initialize(arguments, error_message);
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
+    return d->initialize();
 }
 
 void FakeVimPlugin::shutdown()
