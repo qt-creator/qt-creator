@@ -480,8 +480,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
-        //if (m_moveType == MoveExclusive)
-        //    moveLeft(); // correct 
+        if (m_moveType == MoveInclusive)
+            moveRight(); // correct 
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -807,9 +807,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordBeginGroup();
         m_lastInsertion.clear();
     } else if (key == 'b') {
+        m_moveType = MoveExclusive;
         moveToWordBoundary(false, false);
         finishMovement();
     } else if (key == 'B') {
+        m_moveType = MoveExclusive;
         moveToWordBoundary(true, false);
         finishMovement();
     } else if (key == 'c') {
@@ -846,10 +848,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveRight(rightDist());
         finishMovement();
     } else if (key == 'e') {
+        m_moveType = MoveInclusive;
         moveToWordBoundary(false, true);
-        m_moveType = MoveExclusive;
         finishMovement();
     } else if (key == 'E') {
+        m_moveType = MoveInclusive;
         moveToWordBoundary(true, true);
         finishMovement();
     } else if (key == 'f' || key == 'F') {
@@ -1614,8 +1617,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
     int n = forward ? lastPositionInDocument() - 1 : 0;
     int lastClass = -1;
     while (true) {
-        forward ? moveRight() : moveLeft();
-        QChar c = doc->characterAt(m_tc.position());
+        QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
@@ -1624,6 +1626,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
         lastClass = thisClass;
         if (m_tc.position() == n)
             break;
+        forward ? moveRight() : moveLeft();
     }
 }
 
