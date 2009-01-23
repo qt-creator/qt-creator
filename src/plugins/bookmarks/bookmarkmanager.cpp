@@ -293,8 +293,7 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 BookmarkContext::BookmarkContext(BookmarkView *widget)
     : m_bookmarkView(widget)
 {
-    Core::ICore *core = ICore::instance();
-    m_context << core->uniqueIDManager()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
+    m_context << UniqueIDManager::instance()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
 }
 
 QList<int> BookmarkContext::context() const
@@ -509,7 +508,7 @@ void BookmarkManager::documentPrevNext(bool next)
             nextLine = markLine;
     }
 
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     em->addCurrentPositionToNavigationHistory(true);
     if (next) {
         if (nextLine == -1)
@@ -554,7 +553,7 @@ void BookmarkManager::prev()
 
 TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 {
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     Core::IEditor *currEditor = em->currentEditor();
     if (!currEditor)
         return 0;

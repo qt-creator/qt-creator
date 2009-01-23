@@ -38,7 +38,6 @@
 
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 
 #include <QtGui/QTreeWidget>
 #include <QtGui/QStyledItemDelegate>

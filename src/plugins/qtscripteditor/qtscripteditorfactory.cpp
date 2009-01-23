@@ -37,7 +37,6 @@
 #include "qtscripteditorconstants.h"
 #include "qtscripteditorplugin.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QFileInfo>
@@ -67,7 +66,7 @@ QString QtScriptEditorFactory::kind() const
 
 Core::IFile *QtScriptEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::ICore::instance()->editorManager()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     if (!iface) {
         qWarning() << "QtScriptEditorFactory::open: openEditor failed for " << fileName;
         return 0;

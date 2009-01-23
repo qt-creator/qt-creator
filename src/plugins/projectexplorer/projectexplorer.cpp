@@ -62,9 +62,10 @@
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/filemanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/filemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -871,7 +872,7 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 
     updateActions();
 
-    Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+    Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
     QApplication::restoreOverrideCursor();
 
     return true;
@@ -987,7 +988,7 @@ void ProjectExplorerPlugin::restoreSession()
     }
 
     // update welcome page
-    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), this, SLOT(currentModeChanged(Core::IMode*)));
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(modeManager->mode(Core::Constants::MODE_WELCOME))) {
         updateWelcomePage(welcomeMode);
@@ -1619,9 +1620,9 @@ void ProjectExplorerPlugin::openFile()
 {
     if (m_currentNode)
         return;
-    Core::ICore *core = Core::ICore::instance();
-    core->editorManager()->openEditor(m_currentNode->path());
-    core->editorManager()->ensureEditorManagerVisible();
+    Core::EditorManager *em = Core::EditorManager::instance();
+    em->openEditor(m_currentNode->path());
+    em->ensureEditorManagerVisible();
 }
 
 void ProjectExplorerPlugin::removeFile()
@@ -1803,7 +1804,7 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
         qWarning() << "Editor Factory not attached to action, can't happen"<<editorFactory;
         return;
     }
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(currentNode()->path(), editorFactory->kind());
     em->ensureEditorManagerVisible();
 }

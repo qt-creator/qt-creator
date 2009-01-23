@@ -31,18 +31,44 @@
 **
 ***************************************************************************/
 
-#include "proreader.h"
-#include "proitems.h"
-#include "proxml.h"
+#ifndef BINPATCH_H
+#define BINPATCH_H
 
-#include <QtCore/QDebug>
+#include <string.h>
 
-int main(int argc, char *argv[])
+typedef unsigned long ulong;
+typedef unsigned int uint;
+
+class BinPatch
 {
-    ProReader pr;
-    ProFile *pf = pr.read(QString::fromUtf8(argv[1]));
+public:
+    BinPatch(const char *file)
+        : useLength(false), insertReplace(false)
+    {
+        strcpy(endTokens, "");
+        strcpy(fileName, file);
+    }
 
-    qDebug() << Qt4ProjectManager::Internal::ProXmlParser::itemToString(pf);
+    void enableUseLength(bool enabled)
+    { useLength = enabled; }
+    void enableInsertReplace(bool enabled)
+    { insertReplace = enabled; }
+    void setEndTokens(const char *tokens)
+    { strcpy(endTokens, tokens); }
 
-    return 0;
-}
+    bool patch(const char *oldstr, const char *newstr);
+
+private:
+    long getBufferStringLength(char *data, char *end);
+    bool endsWithTokens(const char *data);
+
+    bool patchHelper(char *inbuffer, const char *oldstr, 
+        const char *newstr, size_t len, long *rw);
+
+    bool useLength;
+    bool insertReplace;
+    char endTokens[1024];
+    char fileName[1024];
+};
+
+#endif

@@ -46,12 +46,12 @@ namespace Internal {
 // A wizard page embedding Qt Designer's QDesignerNewFormWidgetInterface
 // widget.
 
-class FormTemplateWizardPagePage : public QWizardPage
+class FormTemplateWizardPage : public QWizardPage
 {
-    Q_DISABLE_COPY(FormTemplateWizardPagePage)
+    Q_DISABLE_COPY(FormTemplateWizardPage)
     Q_OBJECT
 public:
-    explicit FormTemplateWizardPagePage(QWidget * parent = 0);
+    explicit FormTemplateWizardPage(QWidget * parent = 0);
 
     virtual bool isComplete () const;
     virtual bool validatePage();

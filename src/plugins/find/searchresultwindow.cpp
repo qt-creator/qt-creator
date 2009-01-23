@@ -34,6 +34,8 @@
 #include "searchresultwindow.h"
 #include "searchresulttreemodel.h"
 
+#include <coreplugin/icore.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QSettings>
@@ -46,10 +48,9 @@ using namespace Find::Internal;
 static const QString SETTINGSKEYSECTIONNAME("SearchResults");
 static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
 
-SearchResultWindow::SearchResultWindow(Core::ICore *core) :
-    m_core(core),
-    m_widget(new QStackedWidget())
+SearchResultWindow::SearchResultWindow()
 {
+    m_widget = new QStackedWidget;
     m_widget->setWindowTitle(name());
 
     m_searchResultTreeView = new SearchResultTreeView(m_widget);
@@ -173,8 +174,8 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 
 void SearchResultWindow::readSettings(void)
 {
-    if (m_core && m_core->settings()) {
-        QSettings *s = m_core->settings();
+    QSettings *s = Core::ICore::instance()->settings();
+    if (s) {
         s->beginGroup(SETTINGSKEYSECTIONNAME);
         m_expandCollapseToolButton->setChecked(s->value(SETTINGSKEYEXPANDRESULTS, m_initiallyExpand).toBool());
         s->endGroup();
@@ -183,8 +184,8 @@ void SearchResultWindow::readSettings(void)
 
 void SearchResultWindow::writeSettings(void)
 {
-    if (m_core && m_core->settings()) {
-        QSettings *s = m_core->settings();
+    QSettings *s = Core::ICore::instance()->settings();
+    if (s) {
         s->beginGroup(SETTINGSKEYSECTIONNAME);
         s->setValue(SETTINGSKEYEXPANDRESULTS, m_expandCollapseToolButton->isChecked());
         s->endGroup();

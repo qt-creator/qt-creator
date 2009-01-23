@@ -50,7 +50,7 @@ namespace Internal {
 FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPages,
                                              QWidget *parent) :
     QWizard(parent),
-    m_formPage(new FormTemplateWizardPagePage),
+    m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {
     setWindowTitle(tr("Qt Designer Form Class"));
@@ -97,8 +97,8 @@ void FormClassWizardDialog::slotCurrentIdChanged(int id)
         m_rawFormTemplate = m_formPage->templateContents();
         // Strip namespaces from the ui class and suggest it as a new class
         // name
-        if (FormTemplateWizardPagePage::getUIXmlData(m_rawFormTemplate, &formBaseClass, &uiClassName))
-            m_classPage->setClassName(FormTemplateWizardPagePage::stripNamespaces(uiClassName));
+        if (FormTemplateWizardPage::getUIXmlData(m_rawFormTemplate, &formBaseClass, &uiClassName))
+            m_classPage->setClassName(FormTemplateWizardPage::stripNamespaces(uiClassName));
     }
 }
 
@@ -107,7 +107,7 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     FormClassWizardParameters rc;
     m_classPage->getParameters(&rc);
     // Name the ui class in the Ui namespace after the class specified
-    rc.uiTemplate = FormTemplateWizardPagePage::changeUiClassName(m_rawFormTemplate, rc.className);
+    rc.uiTemplate = FormTemplateWizardPage::changeUiClassName(m_rawFormTemplate, rc.className);
     return rc;
 }
 

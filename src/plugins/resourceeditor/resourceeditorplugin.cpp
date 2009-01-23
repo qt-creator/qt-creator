@@ -129,7 +129,7 @@ void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
 ResourceEditorW * ResourceEditorPlugin::currentEditor() const
 {
     ResourceEditorW * const focusEditor = qobject_cast<ResourceEditorW *>(
-            Core::ICore::instance()->editorManager()->currentEditor());
+            Core::EditorManager::instance()->currentEditor());
     QTC_ASSERT(focusEditor, return 0);
     return focusEditor;
 }

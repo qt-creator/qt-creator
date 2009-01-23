@@ -34,7 +34,6 @@
 #ifndef DESIGNER_SETTINGSPAGE_H
 #define DESIGNER_SETTINGSPAGE_H
 
-#include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 QT_BEGIN_NAMESPACE

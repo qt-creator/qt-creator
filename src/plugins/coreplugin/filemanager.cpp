@@ -33,13 +33,14 @@
 
 #include "filemanager.h"
 
+#include "editormanager.h"
+#include "icore.h"
 #include "ifile.h"
+#include "iversioncontrol.h"
 #include "mainwindow.h"
+#include "mimedatabase.h"
 #include "saveitemsdialog.h"
 #include "vcsmanager.h"
-#include "editormanager.h"
-#include "mimedatabase.h"
-#include "iversioncontrol.h"
 
 #include <utils/qtcassert.h>
 
@@ -509,7 +510,7 @@ void FileManager::syncWithEditor(Core::IContext *context)
     if (!context)
         return;
 
-    Core::IEditor *editor = Core::ICore::instance()->editorManager()->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
     if (editor && (editor->widget() == context->widget()))
         setCurrentFile(editor->file()->fileName());
 }

@@ -33,6 +33,7 @@
 
 #include "basefilefind.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/stylehelper.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,7 +41,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>

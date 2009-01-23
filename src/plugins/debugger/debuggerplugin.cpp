@@ -723,18 +723,17 @@ void DebuggerPlugin::activatePreviousMode()
 
 void DebuggerPlugin::activateDebugMode()
 {
-    ICore *core = ICore::instance();
-    Core::ModeManager *modeManager = core->modeManager();
+    ModeManager *modeManager = ModeManager::instance();
     m_previousMode = QLatin1String(modeManager->currentMode()->uniqueModeName());
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
 }
 
 void DebuggerPlugin::queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **object)
 {
-    ICore *core = ICore::instance();
-    if (!core || !core->editorManager())
+    EditorManager *editorManager = EditorManager::instance();
+    if (!editorManager)
         return;
-    Core::IEditor *editor = core->editorManager()->currentEditor();
+    Core::IEditor *editor = editorManager->currentEditor();
     ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
         return;

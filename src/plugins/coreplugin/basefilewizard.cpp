@@ -32,12 +32,13 @@
 ***************************************************************************/
 
 #include "basefilewizard.h"
-#include "mimedatabase.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/ifilewizardextension.h>
+#include "coreconstants.h"
+#include "icore.h"
+#include "ifilewizardextension.h"
+#include "mimedatabase.h"
+#include "editormanager/editormanager.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 
@@ -509,7 +510,7 @@ bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMe
 {
     // File mode: open the editors in file mode and ensure editor pane
     const Core::GeneratedFiles::const_iterator cend = l.constEnd();
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     for (Core::GeneratedFiles::const_iterator it = l.constBegin(); it != cend; ++it) {
         if (!em->openEditor(it->path(), it->editorKind())) {
             *errorMessage = tr("Failed to open an editor for %1").arg(it->path());

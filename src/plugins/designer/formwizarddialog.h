@@ -45,7 +45,7 @@ namespace Utils {
 namespace Designer {
 namespace Internal {
 
-class FormTemplateWizardPagePage;
+class FormTemplateWizardPage;
 
 // Single-Page Wizard for new forms offering all types known to Qt Designer.
 // To be used for Mode "CreateNewEditor" [not currently used]
@@ -65,7 +65,7 @@ public:
 private:
     void init(const WizardPageList &extensionPages);
 
-    FormTemplateWizardPagePage *m_formPage;
+    FormTemplateWizardPage *m_formPage;
     mutable QString m_templateContents;
 };
 

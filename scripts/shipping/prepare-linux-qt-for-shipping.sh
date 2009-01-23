@@ -76,20 +76,6 @@ build() {
 	ret=$?; [ ${ret} = 0 ] || exit ${ret}
 }
 
-fix_rpath() {
-	folder=$1
-	pattern=$2
-	rpath=$3
-	(
-		cd "${destdir}" || die "cd failed"
-		while read file ; do
-			echo "Fixing ${file}"
-			chrpath -r "${rpath}" "${file}" 2>&1 | sed 's/^/\t/'
-		done < <(find "${folder}" -type f -name "${pattern}")
-	)
-	ret=$?; [ ${ret} = 0 ] || exit ${ret}
-}
-
 inst() {
 	(
 		cd "${dir}" || die "cd failed"
@@ -98,22 +84,13 @@ inst() {
 			env -i "${MAKE}" install || die "make install failed"
 		fi
 
+		# Fix rpath's
 		cd "${destdir}" || die "cd failed"
-
-		# Fix files bin/*
-		fix_rpath bin '*' '$ORIGIN/../lib'
-
-		# Fix files lib/*.so
-		fix_rpath lib '*.so.?.?.?' '$ORIGIN'
-		fix_rpath lib '*.so.?.?.?.debug' '$ORIGIN'
-
-		# Fix files examples/tools/*/*/*.so
-		fix_rpath examples/tools '*.so' '$ORIGIN/../../../lib'
-		fix_rpath examples/tools '*.so.debug' '$ORIGIN/../../../lib'
-
-		# Fix files plugins/*/*.so
-		fix_rpath plugins '*.so' '$ORIGIN/../../lib'
-		fix_rpath plugins '*.so.debug' '$ORIGIN/../../lib'
+		find bin -mindepth 1 -maxdepth 1 -type f -perm -100 | xargs -n 1 chrpath -r '$ORIGIN/../lib'
+		find lib -mindepth 1 -maxdepth 1 -type f -perm -100 | xargs -n 1 chrpath -r '$ORIGIN'
+		find . -mindepth 3 -maxdepth 3 -type f -perm -100 | xargs -n 1 chrpath -r '$ORIGIN/../../lib'
+		find . -mindepth 4 -maxdepth 4 -type f -perm -100 | xargs -n 1 chrpath -r '$ORIGIN/../../../lib'
+		find . -mindepth 5 -maxdepth 5 -type f -perm -100 | xargs -n 1 chrpath -r '$ORIGIN/../../../../lib'
 	)
 	ret=$?; [ ${ret} = 0 ] || exit ${ret}
 }

@@ -5,10 +5,10 @@ count(TOO_OLD_LIST, 1) {
     error("Use at least Qt 4.5.")
 }
 
+include(doc/doc.pri)
+include(share/share.pri)
 
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src
-
-include(doc/doc.pri)

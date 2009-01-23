@@ -40,7 +40,6 @@
 #include "proeditormodel.h"
 #include "procommandmanager.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -62,13 +61,10 @@ using namespace ProjectExplorer;
 ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
     : BaseTextEditorEditable(editor)
 {
-    Core::ICore *core = Core::ICore::instance();
-    m_context << core->uniqueIDManager()->
-        uniqueIdentifier(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
-    m_context << core->uniqueIDManager()->
-        uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-//    m_contexts << core->uniqueIDManager()->
-//        uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
+    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+//    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
 TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()

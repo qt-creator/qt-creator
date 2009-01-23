@@ -241,8 +241,8 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
     QList<int> perforcesubmitcontext;
-    perforcesubmitcontext <<
-            Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_PERFORCESUBMITEDITOR);
+    perforcesubmitcontext << Core::UniqueIDManager::instance()->
+            uniqueIdentifier(Constants::C_PERFORCESUBMITEDITOR);
 
     Core::Command *command;
     QAction *tmpaction;
@@ -467,7 +467,7 @@ void PerforcePlugin::diffAllOpened()
 
 void PerforcePlugin::printOpenedFileList()
 {
-    Core::IEditor *e = Core::ICore::instance()->editorManager()->currentEditor();
+    Core::IEditor *e = Core::EditorManager::instance()->currentEditor();
     if (e)
         e->widget()->setFocus();
     PerforceResponse result = runP4Cmd(QStringList() << QLatin1String("opened"), QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
@@ -542,9 +542,9 @@ void PerforcePlugin::submit()
 
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
-    Core::IEditor *editor =
-            Core::ICore::instance()->editorManager()->openEditor(fileName, Constants::PERFORCESUBMITEDITOR_KIND);
-    Core::ICore::instance()->editorManager()->ensureEditorManagerVisible();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCESUBMITEDITOR_KIND);
+    editorManager->ensureEditorManagerVisible();
     PerforceSubmitEditor *submitEditor = dynamic_cast<PerforceSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     submitEditor->restrictToProjectFiles(depotFileNames);
@@ -841,9 +841,9 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *ediface = Core::ICore::instance()->editorManager()->
+    Core::IEditor *editor = Core::EditorManager::instance()->
         newFile(kind, &s, output.toLocal8Bit());
-    PerforceEditor *e = qobject_cast<PerforceEditor*>(ediface->widget());
+    PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
@@ -857,7 +857,7 @@ QStringList PerforcePlugin::environment() const
 {
     QStringList newEnv = QProcess::systemEnvironment();
     const QString name = "P4DIFF";
-    for (int i=0; i<newEnv.count(); ++i) {
+    for (int i = 0; i < newEnv.count(); ++i) {
         if (newEnv.at(i).startsWith(name)) {
             newEnv.removeAt(i);
             return newEnv;
@@ -889,7 +889,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
             diffname = fi.fileName();
         }
 
-        foreach (Core::IEditor *ed, Core::ICore::instance()->editorManager()->openedEditors()) {
+        foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors()) {
             if (ed->file()->property("originalFileName").toString() == fileName) {
                 existingEditor = ed;
                 displayInEditor = false;
@@ -912,7 +912,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
         } else if (!displayInEditor && existingEditor) {
             if (existingEditor) {
                 existingEditor->createNew(result.stdOut);
-                Core::ICore::instance()->editorManager()->setCurrentEditor(existingEditor);
+                Core::EditorManager::instance()->setCurrentEditor(existingEditor);
             }
         }
     }
@@ -930,7 +930,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
 
 void PerforcePlugin::submitCurrentLog()
 {
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
+    Core::EditorManager *em = Core::EditorManager::instance();
     em->closeEditors(QList<Core::IEditor*>() << em->currentEditor());
 }
 
@@ -1004,8 +1004,8 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
 
 void PerforcePlugin::openFiles(const QStringList &files)
 {
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
-    foreach (QString s, files)
+    Core::EditorManager *em = Core::EditorManager::instance();
+    foreach (const QString &s, files)
         em->openEditor(clientFilePath(s));
     em->ensureEditorManagerVisible();
 }

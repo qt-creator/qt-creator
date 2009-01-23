@@ -599,8 +599,7 @@ QList<IEditor*>
     return found.toList();
 }
 
-QList<IFile *>
-        EditorManager::filesForEditors(QList<IEditor *> editors) const
+QList<IFile *> EditorManager::filesForEditors(QList<IEditor *> editors) const
 {
     QSet<IEditor *> handledEditors;
     QList<IFile *> files;
@@ -941,9 +940,8 @@ QStringList EditorManager::getOpenFileNames() const
 
 void EditorManager::ensureEditorManagerVisible()
 {
-    if (!isVisible()) {
+    if (!isVisible())
         m_d->m_core->modeManager()->activateMode(Constants::MODE_EDIT);
-    }
 }
 
 IEditor *EditorManager::newFile(const QString &editorKind,

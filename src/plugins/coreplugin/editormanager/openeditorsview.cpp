@@ -120,8 +120,7 @@ void OpenEditorsWidget::closeEditors()
     core->fileManager()->saveModifiedFiles(selectedFiles, &cancelled);
     if (cancelled)
         return;
-    core->editorManager()->
-            closeEditors(selectedEditors);
+    core->editorManager()->closeEditors(selectedEditors);
     updateEditorList();
     */
 }
