@@ -32,12 +32,13 @@
 ***************************************************************************/
 
 #include "basefilewizard.h"
-#include "mimedatabase.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/ifilewizardextension.h>
+#include "coreconstants.h"
+#include "icore.h"
+#include "ifilewizardextension.h"
+#include "mimedatabase.h"
+#include "editormanager/editormanager.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 

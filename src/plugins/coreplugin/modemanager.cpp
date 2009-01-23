@@ -35,6 +35,7 @@
 
 #include "fancytabwidget.h"
 #include "fancyactionbar.h"
+#include "icore.h"
 #include "mainwindow.h"
 
 #include <aggregation/aggregate.h>

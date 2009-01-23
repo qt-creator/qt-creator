@@ -35,13 +35,15 @@
 #define SCRIPTMANAGER_P_H
 
 #include <coreplugin/scriptmanager/scriptmanager.h>
-#include <coreplugin/icore.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtScript/QScriptEngine>
 
 namespace Core {
+
+class ICore;
+
 namespace Internal {
 
 class ScriptManagerPrivate : public Core::ScriptManager

@@ -37,7 +37,6 @@
 #include "iquickopenfilter.h"
 #include "ui_filesystemfilter.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QString>
