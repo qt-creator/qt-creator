@@ -1076,6 +1076,20 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         recordInsertText(str);
         recordEndGroup();
+    } else if (key == control('d')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveDown(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
+    } else if (key == control('u')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveUp(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2));
         finishMovement();
