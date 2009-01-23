@@ -24,9 +24,9 @@ public:
 public slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &s)
     {
-        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(sender()))
+        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(m_widget))
             ed->setExtraSelections(s);
-        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(sender()))
+        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(m_widget))
             ed->setExtraSelections(s);
     }
 

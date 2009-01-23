@@ -258,8 +258,9 @@ void FakeVimPluginPrivate::removeHandler()
 
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
+    Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
-    installHandler(editor);
+    //installHandler(editor);
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)

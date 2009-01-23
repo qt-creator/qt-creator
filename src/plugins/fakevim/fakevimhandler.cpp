@@ -158,6 +158,13 @@ QDebug &operator<<(QDebug &ts, const EditOperation &op)
     return ts;
 }
 
+QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
+{
+    foreach (QTextEdit::ExtraSelection sel, sels) 
+        ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position(); 
+    return ts;
+}
+        
 int lineCount(const QString &text)
 {
     //return text.count(QChar(ParagraphSeparator));
@@ -456,6 +463,7 @@ bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 {
+    //qDebug() << "ANCHOR: " << m_anchor;
     if (m_submode == FilterSubMode) {
         int beginLine = lineForPosition(anchor());
         int endLine = lineForPosition(position());
@@ -526,10 +534,13 @@ void FakeVimHandler::Private::updateSelection()
         QTextEdit::ExtraSelection sel;
         sel.cursor = m_tc;
         sel.format = m_tc.blockCharFormat();
-        //sel.format.setFontWeight(QFont::Bold);
-        //sel.format.setFontUnderline(true);
+#if 0
+        sel.format.setFontWeight(QFont::Bold);
+        sel.format.setFontUnderline(true);
+#else
         sel.format.setForeground(Qt::white);
         sel.format.setBackground(Qt::black);
+#endif
         int cursorPos = m_tc.position();
         int anchorPos = m_marks['<'];
         //qDebug() << "POS: " << cursorPos << " ANCHOR: " << anchorPos;
@@ -566,6 +577,7 @@ void FakeVimHandler::Private::updateSelection()
             }
         }
     }
+    //qDebug() << "SELECTION: " << selections;
     emit q->selectionChanged(selections);
 }
 
@@ -834,7 +846,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mvcount.clear();
         m_submode = DeleteSubMode;
     } else if (key == 'd') {
-        setAnchor();
+        //setAnchor();
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
@@ -1819,6 +1831,7 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
 
 void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 {
+    setAnchor();
     m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
     m_marks['>'] = m_tc.position();
