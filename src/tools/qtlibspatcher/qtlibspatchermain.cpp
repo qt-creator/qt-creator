@@ -46,7 +46,7 @@
         "Trolltech/Code_less_create_more/Troll/4.4.3";
 #else
     const char * const oldSourceBase = "/home/berlin/dev/qt-4.4.3-temp/qt-x11-opensource-src-4.4.3";
-    const char * const oldInstallBase = "/home/berlin/dev/qt-4.4.3-shipping";
+    const char * const oldInstallBase = "/home/berlin/dev/qt-4.4.3-shipping/qt";
 #endif
 
 

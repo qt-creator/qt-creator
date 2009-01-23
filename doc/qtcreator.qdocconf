@@ -17,15 +17,15 @@ sources.fileextensions  = "qtcreator.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.091
+qhp.QtCreator.namespace        = com.nokia.qtcreator.092
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = classic.css \
                           images/qt-logo.png
-qhp.QtCreator.filterAttributes = qtcreator 0.9.1
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 0.9.1
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 0.9.1
+qhp.QtCreator.filterAttributes = qtcreator 0.9.2
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 0.9.2
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 0.9.2
 
 # macros.qdocconf
 
@@ -201,5 +201,5 @@ HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
                           "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
                           "<td width=\"30%\" align=\"left\">Copyright &copy; 2008 Nokia</td>\n" \
                           "<td width=\"40%\" align=\"center\">&nbsp;</td>\n" \
-                          "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt Creator 0.9.1</div></td>\n" \
+                          "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt Creator 0.9.2</div></td>\n" \
                           "</tr></table></div></address>"
