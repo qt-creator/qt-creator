@@ -1406,13 +1406,15 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file.open(QIODevice::ReadWrite)) {
             file.close();
+            QTextCursor tc = m_tc;
             selectRange(beginLine, endLine);
             QString contents = selectedText(); 
+            m_tc = tc;
             bool handled = false;
             emit q->writeFileRequested(&handled, fileName, contents);
             // nobody cared, so act ourselves
             if (!handled) {
-                qDebug() << "HANDLING MANUAL SAVE";
+                //qDebug() << "HANDLING MANUAL SAVE";
                 QFile file(fileName);
                 file.open(QIODevice::ReadWrite);
                 { QTextStream ts(&file); ts << contents; }
