@@ -480,6 +480,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
+        //if (m_moveType == MoveExclusive)
+        //    moveLeft(); // correct 
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -504,10 +506,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_tc.setPosition(startBlock.position());
         moveToFirstNonBlankOnLine();
         m_submode = NoSubMode;
-    } else if (m_moveType == MoveExclusive) {
-        moveLeft(); // correct 
-        m_moveType = MoveInclusive;
     }
+    m_moveType = MoveInclusive;
     m_mvcount.clear();
     m_opcount.clear();
     m_gflag = false;
