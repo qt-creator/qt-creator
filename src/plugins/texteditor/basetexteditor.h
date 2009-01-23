@@ -416,7 +416,7 @@ public:
     };
 
     // the blocks list must be sorted
-    void setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange> &blocks);
+    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
 
 public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &);

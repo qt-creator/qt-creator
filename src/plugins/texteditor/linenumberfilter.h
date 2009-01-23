@@ -38,13 +38,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QList>
-#include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
-#include <QtGui/QWidget>
-
-namespace Core {
-class EditorManager;
-}
 
 namespace TextEditor {
 
@@ -57,7 +51,8 @@ class LineNumberFilter : public QuickOpen::IQuickOpenFilter
     Q_OBJECT
 
 public:
-    LineNumberFilter(Core::EditorManager *editorManager, QObject *parent = 0);
+    explicit LineNumberFilter(QObject *parent = 0);
+
     QString trName() const { return tr("Line in current document"); }
     QString name() const { return "Line in current document"; }
     QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::High; }
@@ -67,8 +62,6 @@ public:
 
 private:
     ITextEditor *currentTextEditor() const;
-
-    Core::EditorManager *m_editorManager;
 };
 
 } // namespace Internal

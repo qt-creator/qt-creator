@@ -2043,7 +2043,6 @@ FakeVimHandler::FakeVimHandler(QWidget *widget, QObject *parent)
 
 FakeVimHandler::~FakeVimHandler()
 {
-    qDebug() << "DELETING HANDLER" << this;
     delete d;
 }
 

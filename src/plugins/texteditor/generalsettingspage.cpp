@@ -115,10 +115,11 @@ void GeneralSettingsPage::apply()
         newInteractionSettings);
 
     Core::ICore *core = Core::ICore::instance();
+    QSettings *s = core->settings();
 
     if (newTabSettings != m_d->m_tabSettings) {
         m_d->m_tabSettings = newTabSettings;
-        if (QSettings *s = core->settings())
+        if (s)
             m_d->m_tabSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit tabSettingsChanged(newTabSettings);
@@ -126,7 +127,7 @@ void GeneralSettingsPage::apply()
 
     if (newStorageSettings != m_d->m_storageSettings) {
         m_d->m_storageSettings = newStorageSettings;
-        if (QSettings *s = core->settings())
+        if (s)
             m_d->m_storageSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit storageSettingsChanged(newStorageSettings);
@@ -134,7 +135,7 @@ void GeneralSettingsPage::apply()
 
     if (newDisplaySettings != m_d->m_displaySettings) {
         m_d->m_displaySettings = newDisplaySettings;
-        if (QSettings *s = core->settings())
+        if (s)
             m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
         emit displaySettingsChanged(newDisplaySettings);
@@ -142,10 +143,9 @@ void GeneralSettingsPage::apply()
 
     if (newInteractionSettings != m_d->m_interactionSettings) {
         m_d->m_interactionSettings = newInteractionSettings;
-        if (QSettings *s = core->settings())
+        if (s)
             m_d->m_interactionSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
 
-        emit interactionSettingsChanged(newInteractionSettings);
     }
 }
 

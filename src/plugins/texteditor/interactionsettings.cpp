@@ -38,7 +38,7 @@
 
 namespace TextEditor {
 
-static const char *useVimKey = "useVim";
+static const char *useVimKey = "UseVim";
 static const char *groupPostfix = "InteractionSettings";
 
 InteractionSettings::InteractionSettings()

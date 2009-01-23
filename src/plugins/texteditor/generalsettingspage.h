@@ -83,7 +83,6 @@ signals:
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
-    void interactionSettingsChanged(const TextEditor::InteractionSettings &);
 
 private:
     void settingsFromUI(TabSettings &rc,

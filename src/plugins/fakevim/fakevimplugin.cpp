@@ -183,12 +183,6 @@ bool FakeVimPluginPrivate::initialize()
     return true;
 }
 
-void FakeVimPluginPrivate::installHandler()
-{
-    if (Core::IEditor *editor = m_core->editorManager()->currentEditor())
-        installHandler(editor);
-}
-
 void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
     QWidget *widget = editor->widget();
@@ -230,6 +224,8 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 void FakeVimPluginPrivate::writeFile(bool *handled,
     const QString &fileName, const QString &contents)
 {
+    Q_UNUSED(contents);
+
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
@@ -260,6 +256,16 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
     //installHandler(editor);
+
+#if 1
+    QSettings *s = ICore::instance()->settings();
+    bool automatic = s->value("textInteractionSettings/UseVim").toBool();
+    //qDebug() << "USE VIM: " << automatic;
+    if (automatic)
+       installHandler(editor);
+#endif
+
+#if 0
     QWidget *widget = editor->widget();
     if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget)) {
         InteractionSettings settings = bt->interactionSettings();
@@ -267,6 +273,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         if (settings.m_useVim)
             installHandler(editor);
     }
+#endif
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)

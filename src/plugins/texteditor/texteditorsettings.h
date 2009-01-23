@@ -46,11 +46,6 @@ class FontSettings;
 struct TabSettings;
 struct StorageSettings;
 struct DisplaySettings;
-struct InteractionSettings;
-
-namespace Internal {
-class TextEditorPlugin;
-}
 
 /**
  * This class provides a central place for basic text editor settings. These
@@ -62,7 +57,7 @@ class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
     Q_OBJECT
 
 public:
-    TextEditorSettings(Internal::TextEditorPlugin *plugin, QObject *parent);
+    explicit TextEditorSettings(QObject *parent);
     ~TextEditorSettings();
 
     static TextEditorSettings *instance();
@@ -71,14 +66,12 @@ public:
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
     DisplaySettings displaySettings() const;
-    InteractionSettings interactionSettings() const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
-    void interactionSettingsChanged(const TextEditor::InteractionSettings &);
 
 private:
     TextEditor::FontSettingsPage *m_fontSettingsPage;

@@ -43,10 +43,9 @@ using namespace QuickOpen;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-LineNumberFilter::LineNumberFilter(EditorManager *editorManager, QObject *parent):
-    IQuickOpenFilter(parent)
+LineNumberFilter::LineNumberFilter(QObject *parent)
+  : IQuickOpenFilter(parent)
 {
-    m_editorManager = editorManager;
     setShortcutString("l");
     setIncludedByDefault(true);
 }
@@ -65,17 +64,19 @@ void LineNumberFilter::accept(FilterEntry selection) const
 {
     ITextEditor *editor = currentTextEditor();
     if (editor) {
-        m_editorManager->ensureEditorManagerVisible();
-        m_editorManager->addCurrentPositionToNavigationHistory(true);
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->ensureEditorManagerVisible();
+        editorManager->addCurrentPositionToNavigationHistory(true);
         editor->gotoLine(selection.internalData.toInt());
-        m_editorManager->addCurrentPositionToNavigationHistory();
+        editorManager->addCurrentPositionToNavigationHistory();
         editor->widget()->setFocus();
     }
 }
 
 ITextEditor *LineNumberFilter::currentTextEditor() const
 {
-    if (!m_editorManager->currentEditor())
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    if (!editorManager->currentEditor())
         return 0;
-    return qobject_cast<TextEditor::ITextEditor*>(m_editorManager->currentEditor());
+    return qobject_cast<TextEditor::ITextEditor*>(editorManager->currentEditor());
 }
