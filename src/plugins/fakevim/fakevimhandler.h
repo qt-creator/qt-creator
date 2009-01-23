@@ -50,30 +50,35 @@ class FakeVimHandler : public QObject
     Q_OBJECT
 
 public:
-    FakeVimHandler(QObject *parent = 0);
+    FakeVimHandler(QWidget *widget, QObject *parent = 0);
     ~FakeVimHandler();
 
+    QWidget *widget();
+
+    void setExtraData(QObject *data);
+    QObject *extraData() const;
+
 public slots:
-    // The same handler can be installed on several widgets
-    // FIXME: good idea?
-    void addWidget(QWidget *widget);
-    void removeWidget(QWidget *widget);
     void setCurrentFileName(const QString &fileName);
 
     // This executes an "ex" style command taking context
-    // information from \p widget;
-    void handleCommand(QWidget *widget, const QString &cmd);
-    void quit();
+    // information from widget;
+    void handleCommand(const QString &cmd);
     void setConfigValue(const QString &key, const QString &value);
+    void quit();
+
+    // Convenience
+    void setupWidget();
+    void restoreWidget();
 
 signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
-    void extraInformationChanged(QWidget *widget, const QString &msg);
-    void quitRequested(QWidget *widget);
-    void selectionChanged(QWidget *widget,
-        const QList<QTextEdit::ExtraSelection> &selection);
-    void writeFile(const QString &fileName, const QString &contents);
+    void extraInformationChanged(const QString &msg);
+    void quitRequested();
+    void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
+    void writeFileRequested(bool *handled,
+        const QString &fileName, const QString &contents);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

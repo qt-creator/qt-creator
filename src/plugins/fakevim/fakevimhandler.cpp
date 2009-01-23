@@ -45,6 +45,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
@@ -157,6 +158,13 @@ QDebug &operator<<(QDebug &ts, const EditOperation &op)
     return ts;
 }
 
+QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
+{
+    foreach (QTextEdit::ExtraSelection sel, sels) 
+        ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position(); 
+    return ts;
+}
+        
 int lineCount(const QString &text)
 {
     //return text.count(QChar(ParagraphSeparator));
@@ -166,10 +174,13 @@ int lineCount(const QString &text)
 class FakeVimHandler::Private
 {
 public:
-    Private(FakeVimHandler *parent);
+    Private(FakeVimHandler *parent, QWidget *widget);
 
     bool handleEvent(QKeyEvent *ev);
     void handleExCommand(const QString &cmd);
+
+    void setupWidget();
+    void restoreWidget();
 
 private:
     friend class FakeVimHandler;
@@ -238,7 +249,6 @@ private:
     int readLineCode(QString &cmd);
     void selectRange(int beginLine, int endLine);
 
-    void setWidget(QWidget *ob);
     void enterInsertMode();
     void enterCommandMode();
     void showRedMessage(const QString &msg);
@@ -328,11 +338,16 @@ public:
     // for restoring cursor position
     int m_savedYankPosition;
     int m_desiredColumn;
+
+    QPointer<QObject> m_extraData;
 };
 
-FakeVimHandler::Private::Private(FakeVimHandler *parent)
+FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
     q = parent;
+
+    m_textedit = qobject_cast<QTextEdit *>(widget);
+    m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
 
     m_mode = CommandMode;
     m_submode = NoSubMode;
@@ -341,8 +356,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent)
     m_lastSearchForward = true;
     m_register = '"';
     m_gflag = false;
-    m_textedit = 0;
-    m_plaintextedit = 0;
     m_visualMode = NoVisualMode;
     m_desiredColumn = 0;
     m_moveType = MoveInclusive;
@@ -403,6 +416,37 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     return handled;
 }
 
+void FakeVimHandler::Private::setupWidget()
+{
+    enterCommandMode();
+    if (m_textedit) {
+        m_textedit->installEventFilter(q);
+        //m_textedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        m_textedit->setLineWrapMode(QTextEdit::NoWrap);
+        m_wasReadOnly = m_textedit->isReadOnly();
+    } else if (m_plaintextedit) {
+        m_plaintextedit->installEventFilter(q);
+        //plaintextedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
+        m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
+        m_wasReadOnly = m_plaintextedit->isReadOnly();
+    }
+    showBlackMessage("vi emulation mode.");
+    updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::restoreWidget()
+{
+    //showBlackMessage(QString());
+    //updateMiniBuffer();
+    if (m_textedit) {
+        m_textedit->removeEventFilter(q);
+        m_textedit->setReadOnly(m_wasReadOnly);
+    } else if (m_plaintextedit) {
+        m_plaintextedit->removeEventFilter(q);
+        m_plaintextedit->setReadOnly(m_wasReadOnly);
+    }
+}
+
 bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &text)
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
@@ -419,6 +463,7 @@ bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 {
+    //qDebug() << "ANCHOR: " << m_anchor;
     if (m_submode == FilterSubMode) {
         int beginLine = lineForPosition(anchor());
         int endLine = lineForPosition(position());
@@ -443,6 +488,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
+        if (m_moveType == MoveInclusive)
+            moveRight(); // correct 
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -467,10 +514,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_tc.setPosition(startBlock.position());
         moveToFirstNonBlankOnLine();
         m_submode = NoSubMode;
-    } else if (m_moveType == MoveExclusive) {
-        moveLeft(); // correct 
-        m_moveType = MoveInclusive;
     }
+    m_moveType = MoveInclusive;
     m_mvcount.clear();
     m_opcount.clear();
     m_gflag = false;
@@ -489,10 +534,13 @@ void FakeVimHandler::Private::updateSelection()
         QTextEdit::ExtraSelection sel;
         sel.cursor = m_tc;
         sel.format = m_tc.blockCharFormat();
-        //sel.format.setFontWeight(QFont::Bold);
-        //sel.format.setFontUnderline(true);
+#if 0
+        sel.format.setFontWeight(QFont::Bold);
+        sel.format.setFontUnderline(true);
+#else
         sel.format.setForeground(Qt::white);
         sel.format.setBackground(Qt::black);
+#endif
         int cursorPos = m_tc.position();
         int anchorPos = m_marks['<'];
         //qDebug() << "POS: " << cursorPos << " ANCHOR: " << anchorPos;
@@ -529,7 +577,8 @@ void FakeVimHandler::Private::updateSelection()
             }
         }
     }
-    emit q->selectionChanged(editor(), selections);
+    //qDebug() << "SELECTION: " << selections;
+    emit q->selectionChanged(selections);
 }
 
 void FakeVimHandler::Private::updateMiniBuffer()
@@ -770,9 +819,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordBeginGroup();
         m_lastInsertion.clear();
     } else if (key == 'b') {
+        m_moveType = MoveExclusive;
         moveToWordBoundary(false, false);
         finishMovement();
     } else if (key == 'B') {
+        m_moveType = MoveExclusive;
         moveToWordBoundary(true, false);
         finishMovement();
     } else if (key == 'c') {
@@ -795,7 +846,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mvcount.clear();
         m_submode = DeleteSubMode;
     } else if (key == 'd') {
-        setAnchor();
+        //setAnchor();
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
@@ -809,10 +860,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveRight(rightDist());
         finishMovement();
     } else if (key == 'e') {
+        m_moveType = MoveInclusive;
         moveToWordBoundary(false, true);
-        m_moveType = MoveExclusive;
         finishMovement();
     } else if (key == 'E') {
+        m_moveType = MoveInclusive;
         moveToWordBoundary(true, true);
         finishMovement();
     } else if (key == 'f' || key == 'F') {
@@ -1036,6 +1088,20 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         recordInsertText(str);
         recordEndGroup();
+    } else if (key == control('d')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveDown(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
+    } else if (key == control('u')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveUp(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2));
         finishMovement();
@@ -1271,12 +1337,12 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
 
 void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
 {
-    m_tc.setPosition(positionForLine(beginLine), MoveAnchor);
+    m_anchor = positionForLine(beginLine);
     if (endLine == linesInDocument()) {
-        m_tc.setPosition(positionForLine(endLine), KeepAnchor);
-        m_tc.movePosition(EndOfLine, KeepAnchor);
+        m_tc.setPosition(positionForLine(endLine), MoveAnchor);
+        m_tc.movePosition(EndOfLine, MoveAnchor);
     } else {
-        m_tc.setPosition(positionForLine(endLine + 1), KeepAnchor);
+        m_tc.setPosition(positionForLine(endLine + 1), MoveAnchor);
     }
 }
 
@@ -1329,21 +1395,38 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             beginLine = 0;
         if (endLine == -1)
             endLine = linesInDocument();
-        //qDebug() << "LINES: " << beginLine << endLine;
+        qDebug() << "LINES: " << beginLine << endLine;
         bool forced = cmd.startsWith("w!");
         QString fileName = reWrite.cap(2);
         if (fileName.isEmpty())
             fileName = m_currentFileName;
-        QFile file(fileName);
-        bool exists = file.exists();
+        QFile file1(fileName);
+        bool exists = file1.exists();
         if (exists && !forced && !noArgs) {
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
-        } else if (file.open(QIODevice::ReadWrite)) {
+        } else if (file1.open(QIODevice::ReadWrite)) {
+            file1.close();
             selectRange(beginLine, endLine);
-            emit q->writeFile(fileName, selectedText());
-            // check by reading back
-            file.open(QIODevice::ReadOnly);
-            QByteArray ba = file.readAll();
+            QString contents = selectedText(); 
+            qDebug() << "LINES: " << beginLine << endLine;
+            bool handled = false;
+            emit q->writeFileRequested(&handled, fileName, contents);
+            // nobody cared, so act ourselves
+            if (!handled) {
+                //qDebug() << "HANDLING MANUAL SAVE TO " << fileName;
+                QFile::remove(fileName);
+                QFile file2(fileName);
+                if (file2.open(QIODevice::ReadWrite)) {
+                    QTextStream ts(&file2);
+                    ts << contents;
+                } else {
+                    showRedMessage(tr("Cannot open file '%1' for writing").arg(fileName));
+                }
+            }
+            // check result by reading back
+            QFile file3(fileName);
+            file3.open(QIODevice::ReadOnly);
+            QByteArray ba = file3.readAll();
             showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size()));
@@ -1401,7 +1484,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             QString info;
             foreach (const QString &key, m_config.keys())
                 info += key + ": " + m_config.value(key) + "\n";
-            emit q->extraInformationChanged(editor(), info);
+            emit q->extraInformationChanged(info);
         } else {
             notImplementedYet();
         }
@@ -1417,7 +1500,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 ++i;
                 info += QString("%1 %2\n").arg(i, -8).arg(item);
             }
-            emit q->extraInformationChanged(editor(), info);
+            emit q->extraInformationChanged(info);
         } else {
             notImplementedYet();
         }
@@ -1566,8 +1649,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
     int n = forward ? lastPositionInDocument() - 1 : 0;
     int lastClass = -1;
     while (true) {
-        forward ? moveRight() : moveLeft();
-        QChar c = doc->characterAt(m_tc.position());
+        QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
@@ -1576,6 +1658,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
         lastClass = thisClass;
         if (m_tc.position() == n)
             break;
+        forward ? moveRight() : moveLeft();
     }
 }
 
@@ -1752,6 +1835,7 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
 
 void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 {
+    setAnchor();
     m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
     m_marks['>'] = m_tc.position();
@@ -1942,16 +2026,10 @@ void FakeVimHandler::Private::enterCommandMode()
 
 void FakeVimHandler::Private::quit()
 {
-    showBlackMessage(QString());
     EDITOR(setOverwriteMode(false));
-    q->quitRequested(editor());
+    q->quitRequested();
 }
 
-void FakeVimHandler::Private::setWidget(QWidget *ob)
-{
-    m_textedit = qobject_cast<QTextEdit *>(ob);
-    m_plaintextedit = qobject_cast<QPlainTextEdit *>(ob);
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1959,12 +2037,13 @@ void FakeVimHandler::Private::setWidget(QWidget *ob)
 //
 ///////////////////////////////////////////////////////////////////////
 
-FakeVimHandler::FakeVimHandler(QObject *parent)
-    : QObject(parent), d(new Private(this))
+FakeVimHandler::FakeVimHandler(QWidget *widget, QObject *parent)
+    : QObject(parent), d(new Private(this, widget))
 {}
 
 FakeVimHandler::~FakeVimHandler()
 {
+    qDebug() << "DELETING HANDLER" << this;
     delete d;
 }
 
@@ -1993,40 +2072,18 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     return QObject::eventFilter(ob, ev);
 }
 
-void FakeVimHandler::addWidget(QWidget *widget)
+void FakeVimHandler::setupWidget()
 {
-    widget->installEventFilter(this);
-    d->setWidget(widget);
-    d->enterCommandMode();
-    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
-        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
-        ed->setLineWrapMode(QTextEdit::NoWrap);
-        d->m_wasReadOnly = ed->isReadOnly();
-    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
-        //ed->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
-        ed->setLineWrapMode(QPlainTextEdit::NoWrap);
-        d->m_wasReadOnly = ed->isReadOnly();
-    }
-    d->showBlackMessage("vi emulation mode.");
-    d->updateMiniBuffer();
+    d->setupWidget();
 }
 
-void FakeVimHandler::removeWidget(QWidget *widget)
+void FakeVimHandler::restoreWidget()
 {
-    d->setWidget(widget);
-    d->showBlackMessage(QString());
-    d->updateMiniBuffer();
-    widget->removeEventFilter(this);
-    if (QTextEdit *ed = qobject_cast<QTextEdit *>(widget)) {
-        ed->setReadOnly(d->m_wasReadOnly);
-    } else if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(widget)) {
-        ed->setReadOnly(d->m_wasReadOnly);
-    }
+    d->restoreWidget();
 }
 
-void FakeVimHandler::handleCommand(QWidget *widget, const QString &cmd)
+void FakeVimHandler::handleCommand(const QString &cmd)
 {
-    d->setWidget(widget);
     d->handleExCommand(cmd);
 }
 
@@ -2044,3 +2101,19 @@ void FakeVimHandler::setCurrentFileName(const QString &fileName)
 {
    d->m_currentFileName = fileName;
 }
+
+QWidget *FakeVimHandler::widget()
+{
+    return d->editor();
+}
+
+void FakeVimHandler::setExtraData(QObject *data)
+{
+    d->m_extraData = data;
+}
+
+QObject *FakeVimHandler::extraData() const
+{
+    return d->m_extraData;
+}
+

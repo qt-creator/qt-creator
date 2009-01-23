@@ -33,6 +33,7 @@
 
 #include "outputpane.h"
 #include "coreconstants.h"
+#include "icore.h"
 #include "ioutputpane.h"
 #include "mainwindow.h"
 #include "modemanager.h"
@@ -55,7 +56,6 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
-#include <QDebug>
 
 using namespace Core;
 using namespace Core::Internal;

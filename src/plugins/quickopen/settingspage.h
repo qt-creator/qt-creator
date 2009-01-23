@@ -41,7 +41,6 @@
 #include <QtCore/QHash>
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;

@@ -440,9 +440,9 @@ void CPPEditor::switchDeclarationDefinition()
         return;
 
     Function *f = lastSymbol->asFunction();
-    if (! f) {
+    if (!f) {
         Scope *fs = lastSymbol->scope();
-        if (! fs->isFunctionScope())
+        if (!fs->isFunctionScope())
             fs = fs->enclosingFunctionScope();
         if (fs)
             f = fs->owner()->asFunction();

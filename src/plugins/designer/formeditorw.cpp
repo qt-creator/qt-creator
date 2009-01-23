@@ -40,6 +40,7 @@
 #include "workbenchintegration.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
