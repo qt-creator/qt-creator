@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
+    <width>551</width>
     <height>300</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
      <item>
       <widget class="QComboBox" name="runConfigurationCombo">
        <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        <enum>QComboBox::AdjustToContents</enum>
        </property>
        <property name="minimumContentsLength">
         <number>30</number>

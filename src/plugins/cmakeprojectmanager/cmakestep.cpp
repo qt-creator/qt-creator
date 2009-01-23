@@ -36,6 +36,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
+#include <projectexplorer/environment.h>
 #include <utils/qtcassert.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
@@ -56,7 +57,10 @@ bool CMakeStep::init(const QString &buildConfiguration)
 {
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
-    setCommand(buildConfiguration, "cmake"); // TODO give full path here?
+
+    CMakeManager *cmakeProjectManager = static_cast<CMakeManager *>(m_pro->projectManager());
+
+    setCommand(buildConfiguration, cmakeProjectManager->cmakeExecutable());
 
     QString sourceDir = QFileInfo(m_pro->file()->fileName()).absolutePath();
     setArguments(buildConfiguration,
@@ -99,14 +103,14 @@ bool CMakeStep::immutable() const
     return true;
 }
 
-QString CMakeStep::userArguments(const QString &buildConfiguration) const
+QStringList CMakeStep::userArguments(const QString &buildConfiguration) const
 {
-    return ProjectExplorer::Environment::joinArgumentList(value(buildConfiguration, "userArguments").toStringList());
+    return value(buildConfiguration, "userArguments").toStringList();
 }
 
-void CMakeStep::setUserArguments(const QString &buildConfiguration, const QString &arguments)
+void CMakeStep::setUserArguments(const QString &buildConfiguration, const QStringList &arguments)
 {
-    setValue(buildConfiguration, "userArguments", ProjectExplorer::Environment::parseCombinedArgString(arguments));
+    setValue(buildConfiguration, "userArguments", arguments);
 }
 
 //
@@ -132,13 +136,13 @@ void CMakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
     disconnect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
-    m_arguments->setText(m_cmakeStep->userArguments(buildConfiguration));
+    m_arguments->setText(ProjectExplorer::Environment::joinArgumentList(m_cmakeStep->userArguments(buildConfiguration)));
     connect(m_arguments, SIGNAL(textChanged(QString)), this, SLOT(argumentsLineEditChanged()));
 }
 
 void CMakeBuildStepConfigWidget::argumentsLineEditChanged()
 {
-    m_cmakeStep->setUserArguments(m_buildConfiguration, m_arguments->text());
+    m_cmakeStep->setUserArguments(m_buildConfiguration, ProjectExplorer::Environment::parseCombinedArgString(m_arguments->text()));
 }
 
 //

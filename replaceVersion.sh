@@ -25,6 +25,12 @@ NEW_MINOR=`sed 's/^[0-9]\+\.\([0-9]\+\)\.[0-9]\+$/\1/' <<<"$2"`
 OLD_RELEASE=`sed 's/^[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/\1/' <<<"$1"`
 NEW_RELEASE=`sed 's/^[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/\1/' <<<"$2"`
 
+OLD_THREE="${OLD_MAJOR}${OLD_MINOR}${OLD_RELEASE}"
+NEW_THREE="${NEW_MAJOR}${NEW_MINOR}${NEW_RELEASE}"
+
+OLD_DOT_THREE="${OLD_MAJOR}\\.${OLD_MINOR}\\.${OLD_RELEASE}"
+NEW_DOT_THREE="${NEW_MAJOR}\\.${NEW_MINOR}\\.${NEW_RELEASE}"
+
 OLD_DOT_FOUR="${OLD_MAJOR}\\.${OLD_MINOR}\\.${OLD_RELEASE}\\.0"
 NEW_DOT_FOUR="${NEW_MAJOR}\\.${NEW_MINOR}\\.${NEW_RELEASE}\\.0"
 
@@ -38,8 +44,10 @@ echo "# Major    '${OLD_MAJOR}'           -> '${NEW_MAJOR}'"
 echo "# Minor    '${OLD_MINOR}'           -> '${NEW_MINOR}'"
 echo "# Release  '${OLD_RELEASE}'           -> '${NEW_RELEASE}'"
 echo "#-----------------------------------------------"
-echo "# Dots     '${OLD_DOT_FOUR}'  -> '${NEW_DOT_FOUR}'"
-echo "# Comma    '${OLD_COMMA_FOUR}'     -> '${NEW_COMMA_FOUR}'"
+echo "# 3        '${OLD_THREE}'         -> '${NEW_THREE}'"
+echo "# Dot 3    '${OLD_DOT_THREE}'     -> '${NEW_DOT_THREE}'"
+echo "# Dot 4    '${OLD_DOT_FOUR}'  -> '${NEW_DOT_FOUR}'"
+echo "# Comma 4  '${OLD_COMMA_FOUR}'     -> '${NEW_COMMA_FOUR}'"
 echo "#==============================================="
 echo
 
@@ -85,7 +93,7 @@ sed \
 mv -f "${TMPFILE}" "${INSTALLER_RC}"
 
 
-## Patch installer.rc
+## Patch Info.plist
 TMPFILE=`mktemp`
 INFO_PLIST="${SCRIPT_DIR}/src/app/Info.plist"
 echo "Patching \`${INFO_PLIST}'"
@@ -93,6 +101,27 @@ sed \
         -e "s/"${OLD}"/"${NEW}"/" \
     "${INFO_PLIST}" > "${TMPFILE}"
 mv -f "${TMPFILE}" "${INFO_PLIST}"
+
+
+## Patch qtcreator.qdocconf
+TMPFILE=`mktemp`
+QDOCCONF="${SCRIPT_DIR}/doc/qtcreator.qdocconf"
+echo "Patching \`${QDOCCONF}'"
+sed \
+        -e "s/"${OLD_DOT_THREE}"/"${NEW_DOT_THREE}"/" \
+        -e "s/"${OLD_THREE}"/"${NEW_THREE}"/" \
+    "${QDOCCONF}" > "${TMPFILE}"
+mv -f "${TMPFILE}" "${QDOCCONF}"
+
+
+## Patch qtcreator.qdoc
+TMPFILE=`mktemp`
+QDOC="${SCRIPT_DIR}/doc/qtcreator.qdoc"
+echo "Patching \`${QDOC}'"
+sed \
+        -e 's/\(The current version of Qt Creator is \)'${OLD_DOT_THREE}'/\1'${NEW_DOT_THREE}'/' \
+    "${QDOC}" > "${TMPFILE}"
+mv -f "${TMPFILE}" "${QDOC}"
 
 
 ## Go back to original $PWD

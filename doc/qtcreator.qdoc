@@ -11,7 +11,7 @@
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note The current version of Qt Creator is 0.9.1 (Beta). It is
+    \note The current version of Qt Creator is 0.9.2 (Beta). It is
     possible to edit source code, compile, run and debug applications; other
     features are still under development. Please send bug reports and
     suggestions to qt-creator@trolltech.com. To subscribe, send a

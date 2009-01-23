@@ -63,8 +63,8 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
 
-    void setUserArguments(const QString &buildConfiguration, const QString &arguments);
-    QString userArguments(const QString &buildConfiguration) const;
+    void setUserArguments(const QString &buildConfiguration, const QStringList &arguments);
+    QStringList userArguments(const QString &buildConfiguration) const;
 private:
     CMakeProject *m_pro;
 };
