@@ -118,6 +118,7 @@ public:
 
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     IEditor *currentEditor() const;
+    IEditor *activateEditor(IEditor *editor, bool ignoreNavigationHistory = false);
 //    EditorGroup *currentEditorGroup() const;
 
     QList<IEditor*> openedEditors() const;
@@ -189,7 +190,6 @@ private slots:
     bool saveFile(Core::IEditor *editor = 0);
     bool saveFileAs(Core::IEditor *editor = 0);
     void closeEditor();
-    void closeEditor(Core::IEditor *editor);
 
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
@@ -200,10 +200,12 @@ private slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
     void makeCurrentEditorWritable();
+    void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();
     void unsplit();
     void unsplitAll();
+    void gotoOtherWindow();
 
 private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
@@ -218,7 +220,8 @@ private:
 
     Core::IEditor *duplicateEditor(IEditor *editor);
     void closeDuplicate(Core::IEditor *editor, bool doDelete);
-    void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
+    Core::IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, bool ignoreNavigationHistory = false);
+    void closeEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

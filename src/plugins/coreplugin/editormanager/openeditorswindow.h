@@ -57,20 +57,18 @@ public:
     OpenEditorsWindow(QWidget *parent = 0);
     ~OpenEditorsWindow() {}
 
-    void setMode(Mode mode);
-    Mode mode() const { return m_mode; }
+    void setEditors(const QList<IEditor *>&editors, IEditor *current);
 
     bool event(QEvent *e);
     bool eventFilter(QObject *src, QEvent *e);
     void focusInEvent(QFocusEvent *);
     void setVisible(bool visible);
-    void setSelectedEditor(IEditor *editor);
     void selectNextEditor();
     void selectPreviousEditor();
     IEditor *selectedEditor() const { return m_current; }
+    void setSelectedEditor(IEditor *);
 
 private slots:
-    void updateEditorList(IEditor *current = 0);
     void editorClicked(QTreeWidgetItem *item);
     void selectEditor(QTreeWidgetItem *item);
     void selectAndHide();
@@ -81,8 +79,6 @@ private:
     static const int MARGIN;
 
     static void updateItem(QTreeWidgetItem *item, IEditor *editor);
-    void updateList();
-    void updateHistory();
     void updateSelectedEditor();
     bool isCentering();
     void centerOnItem(int selectedIndex);
@@ -91,7 +87,6 @@ private:
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;
 
     QTreeWidget *m_editorList;
-    Mode m_mode;
     QTimer m_autoHide;
     IEditor *m_current;
 };

@@ -58,7 +58,6 @@ bool OpenEditorsWindow::isSameFile(IEditor *editorA, IEditor *editorB) const
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
     m_editorList(new QTreeWidget(this)),
-    m_mode(HistoryMode),
     m_current(0)
 {
     resize(QSize(WIDTH, HEIGHT));
@@ -79,13 +78,6 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
 
     m_autoHide.setSingleShot(true);
     connect(&m_autoHide, SIGNAL(timeout()), this, SLOT(selectAndHide()));
-    EditorManager *em = EditorManager::instance();
-    connect(em, SIGNAL(editorOpened(Core::IEditor *)),
-            this, SLOT(updateEditorList()));
-    connect(em, SIGNAL(editorsClosed(QList<Core::IEditor *>)),
-            this, SLOT(updateEditorList()));
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateEditorList()));
 }
 
 void OpenEditorsWindow::selectAndHide()
@@ -98,7 +90,6 @@ void OpenEditorsWindow::setVisible(bool visible)
 {
     QWidget::setVisible(visible);
     if (visible) {
-        updateEditorList(m_current);
         m_autoHide.start(600);
         setFocus();
     }
@@ -106,8 +97,6 @@ void OpenEditorsWindow::setVisible(bool visible)
 
 bool OpenEditorsWindow::isCentering()
 {
-    if (m_mode == OpenEditorsWindow::HistoryMode || m_editorList->topLevelItemCount() < 3)
-        return false;
     int internalMargin = m_editorList->viewport()->mapTo(m_editorList, QPoint(0,0)).y();
     QRect rect0 = m_editorList->visualItemRect(m_editorList->topLevelItem(0));
     QRect rect1 = m_editorList->visualItemRect(m_editorList->topLevelItem(m_editorList->topLevelItemCount()-1));
@@ -118,11 +107,6 @@ bool OpenEditorsWindow::isCentering()
     return false;
 }
 
-void OpenEditorsWindow::setMode(Mode mode)
-{
-    m_mode = mode;
-    updateEditorList(m_current);
-}
 
 bool OpenEditorsWindow::event(QEvent *e) {
     if (e->type() == QEvent::KeyRelease) {
@@ -187,89 +171,17 @@ void OpenEditorsWindow::selectUpDown(bool up)
         count++;
     }
     if (editor)
-        updateEditorList(editor);
+        setSelectedEditor(editor);
 }
 
 void OpenEditorsWindow::selectPreviousEditor()
 {
-    selectUpDown(m_mode == ListMode);
+    selectUpDown(false);
 }
 
 void OpenEditorsWindow::selectNextEditor()
 {
-    selectUpDown(m_mode != ListMode);
-}
-
-void OpenEditorsWindow::updateEditorList(IEditor *editor)
-{
-    if (!editor)
-        editor = EditorManager::instance()->currentEditor();
-    m_current = editor;
-    if (m_mode == ListMode)
-        updateList();
-    else if (m_mode == HistoryMode)
-        updateHistory();
-}
-
-void OpenEditorsWindow::updateHistory()
-{
-    EditorManager *em = EditorManager::instance();
-    QList<IEditor *> history = em->editorHistory();
-    int oldNum = m_editorList->topLevelItemCount();
-    int num = history.count();
-    int common = qMin(oldNum, num);
-    int selectedIndex = -1;
-    QTreeWidgetItem *item;
-    for (int i = 0; i < common; ++i) {
-        item = m_editorList->topLevelItem(i);
-        updateItem(item, history.at(i));
-        if (isSameFile(history.at(i), m_current))
-            selectedIndex = i;
-    }
-    for (int i = common; i < num; ++i) {
-        item = new QTreeWidgetItem(QStringList() << "");
-        updateItem(item, history.at(i));
-        m_editorList->addTopLevelItem(item);
-        if (isSameFile(history.at(i), m_current))
-            selectedIndex = i;
-    }
-    for (int i = oldNum-1; i >= common; --i) {
-        delete m_editorList->takeTopLevelItem(i);
-    }
-    if (isCentering())
-        centerOnItem(selectedIndex);
-    updateSelectedEditor();
-}
-
-void OpenEditorsWindow::updateList()
-{
-    EditorManager *em = EditorManager::instance();
-    int oldNum = m_editorList->topLevelItemCount();
-    int curItem = 0;
-    int selectedIndex = -1;
-    QTreeWidgetItem *item;
-    foreach (IEditor *editor, em->openedEditors()){
-        if (curItem < oldNum) {
-            item = m_editorList->topLevelItem(curItem);
-        } else {
-            item = new QTreeWidgetItem(QStringList()<<"");
-            m_editorList->addTopLevelItem(item);
-        }
-        updateItem(item, editor);
-        if (isSameFile(editor, m_current)) {
-            m_editorList->setCurrentItem(item);
-            selectedIndex = curItem;
-        }
-        curItem++;
-    }
-    for (int i = oldNum-1; i >= curItem; --i) {
-        delete m_editorList->takeTopLevelItem(i);
-    }
-    if (isCentering())
-        centerOnItem(selectedIndex);
-    if (m_current == 0 && m_editorList->currentItem())
-        m_editorList->currentItem()->setSelected(false);
-    m_editorList->scrollTo(m_editorList->currentIndex(), QAbstractItemView::PositionAtCenter);
+    selectUpDown(true);
 }
 
 void OpenEditorsWindow::centerOnItem(int selectedIndex)
@@ -290,21 +202,33 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::updateItem(QTreeWidgetItem *item, IEditor *editor)
+void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *current)
 {
     static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
     static const QIcon emptyIcon(QLatin1String(":/core/images/empty14.png"));
 
-    QString title = editor->displayName();
-    if (editor->file()->isModified())
-        title += tr("*");
-    item->setIcon(0, editor->file()->isReadOnly() ? lockedIcon : emptyIcon);
-    item->setText(0, title);
-    item->setToolTip(0, editor->file()->fileName());
-    item->setData(0, Qt::UserRole, QVariant::fromValue(editor));
-    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    item->setTextAlignment(0, Qt::AlignLeft);
+    m_editorList->clear();
+
+    foreach (IEditor *editor, editors) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+
+        QString title = editor->displayName();
+        if (editor->file()->isModified())
+            title += tr("*");
+        item->setIcon(0, editor->file()->isReadOnly() ? lockedIcon : emptyIcon);
+        item->setText(0, title);
+        item->setToolTip(0, editor->file()->fileName());
+        item->setData(0, Qt::UserRole, QVariant::fromValue(editor));
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+        item->setTextAlignment(0, Qt::AlignLeft);
+
+        m_editorList->addTopLevelItem(item);
+
+    }
+    setSelectedEditor(current);
 }
+
 
 void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
 {
@@ -320,6 +244,13 @@ void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
     setFocus();
 }
 
+
+void OpenEditorsWindow::setSelectedEditor(IEditor *editor)
+{
+    m_current = editor;
+    updateSelectedEditor();
+}
+
 void OpenEditorsWindow::updateSelectedEditor()
 {
     if (m_current == 0 && m_editorList->currentItem()) {
@@ -330,7 +261,7 @@ void OpenEditorsWindow::updateSelectedEditor()
     for (int i = 0; i < num; ++i) {
         IEditor *editor = m_editorList->topLevelItem(i)
                                   ->data(0, Qt::UserRole).value<IEditor *>();
-        if (isSameFile(editor,m_current)) {
+        if (editor == m_current) {
             m_editorList->setCurrentItem(m_editorList->topLevelItem(i));
             break;
         }
@@ -338,7 +269,3 @@ void OpenEditorsWindow::updateSelectedEditor()
     m_editorList->scrollTo(m_editorList->currentIndex(), QAbstractItemView::PositionAtCenter);
 }
 
-void OpenEditorsWindow::setSelectedEditor(IEditor *editor)
-{
-    updateEditorList(editor);
-}

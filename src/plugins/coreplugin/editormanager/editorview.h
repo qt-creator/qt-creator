@@ -104,7 +104,7 @@ public:
     void insertEditor(int i, IEditor *editor);
     void removeEditor(IEditor *editor);
     IEditor *currentEditor() const;
-    void setCurrentEditor(IEditor *editor);
+    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
 
     bool hasEditor(IEditor *editor) const;
 
@@ -116,9 +116,6 @@ public:
     void hideEditorInfoBar(const QString &kind);
 
     void focusInEvent(QFocusEvent *e);
-
-signals:
-    void closeRequested(Core::IEditor *editor);
 
 private slots:
     void sendCloseRequest();
@@ -159,6 +156,7 @@ public:
     void unsplit(Core::IEditor *editor);
 
     bool isView() const { return m_view != 0; }
+    bool isSplitter() const { return m_splitter != 0; }
     Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
     QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
     bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
@@ -166,11 +164,15 @@ public:
     QSplitter *splitter() const { return m_splitter; }
 
     SplitterOrView *findView(Core::IEditor *editor);
+    SplitterOrView *findFirstView();
     SplitterOrView *findSplitter(Core::IEditor *editor);
+
+    SplitterOrView *findNextView(Core::IEditor *editor);
 
 private:
     void close();
     void closeSplitterEditors();
+    SplitterOrView *findNextView_helper(Core::IEditor *editor, bool *found);
     bool m_isRoot;
     QStackedLayout *m_layout;
     EditorView *m_view;

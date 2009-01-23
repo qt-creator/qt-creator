@@ -97,7 +97,7 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
 void OpenEditorsWidget::selectEditor(const QModelIndex &index)
 {
     IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
-    EditorManager::instance()->setCurrentEditor(editor);
+    EditorManager::instance()->activateEditor(editor);
 }
 
 
