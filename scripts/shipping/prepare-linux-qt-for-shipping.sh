@@ -2,7 +2,7 @@
 
 version=4.4.3
 workdir=/home/berlin/dev/qt-${version}-temp
-destdir=/home/berlin/dev/qt-${version}-shipping
+destdir=/home/berlin/dev/qt-${version}-shipping/qt  # "/qt" suffix for Bitrock
 dir=qt-x11-opensource-src-${version}
 file_tar="${dir}.tar"
 file_tar_gz="${file_tar}.gz"
