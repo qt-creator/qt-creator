@@ -162,8 +162,26 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     if (QualifiedNameId *q = name->asQualifiedNameId()) {
         QList<Symbol *> candidates;
         QList<Scope *> scopes = visibleScopes;
-        Identifier *id = identifier(name);
+        for (unsigned i = 0; i < q->nameCount(); ++i) {
+            Name *name = q->nameAt(i);
 
+            if (i + 1 == q->nameCount())
+                candidates = resolve(name, scopes, mode);
+            else
+                candidates = resolveClassOrNamespace(name, scopes);
+
+            if (candidates.isEmpty() || i + 1 == q->nameCount())
+                break;
+
+            scopes.clear();
+            foreach (Symbol *candidate, candidates) {
+                if (ScopedSymbol *scoped = candidate->asScopedSymbol()) {
+                    expand(scoped->members(), visibleScopes, &scopes);
+                }
+            }
+        }
+
+        Identifier *id = identifier(name);
         foreach (Scope *scope, visibleScopes) {
             Symbol *symbol = scope->lookat(id);
             for (; symbol; symbol = symbol->next()) {
@@ -189,26 +207,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
             }
         }
 
-        for (unsigned i = 0; i < q->nameCount(); ++i) {
-            Name *name = q->nameAt(i);
-
-            if (i + 1 == q->nameCount())
-                candidates += resolve(name, scopes, mode);
-            else
-                candidates += resolveClassOrNamespace(name, scopes);
-
-            if (candidates.isEmpty() || i + 1 == q->nameCount())
-                return candidates;
-
-            scopes.clear();
-            foreach (Symbol *candidate, candidates) {
-                if (ScopedSymbol *scoped = candidate->asScopedSymbol()) {
-                    expand(scoped->members(), visibleScopes, &scopes);
-                }
-            }
-        }
-
-        return QList<Symbol *>();
+        return candidates;
     }
 
     QList<Symbol *> candidates;
