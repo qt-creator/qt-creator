@@ -107,9 +107,8 @@
    <item>
     <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
      <property name="toolTip">
-      <string>fter checking this option 'Step Into' combines in certain situations several steps, leading to 'less noisy' debugging. So will, e.g., the atomic 
-reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.
-</string>
+      <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
+ reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
      </property>
      <property name="text">
       <string>Skip known frames when stepping</string>
@@ -173,8 +172,6 @@ reference counting code be skipped, and a single 'Step Into' for a signal emissi
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
