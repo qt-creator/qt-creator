@@ -50,14 +50,18 @@ int main(int argc, char *argv[])
     QString title;
     bool usePlainTextEdit = args.size() < 2;
     if (usePlainTextEdit) {
-        widget = new QPlainTextEdit;
+        QPlainTextEdit *w = new QPlainTextEdit;
+        w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         title = "PlainTextEdit";
+        widget = w;
     } else {
-        widget = new QTextEdit;
+        QTextEdit *w = new QTextEdit;
+        w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         title = "TextEdit";
+        widget = w;
     }
     widget->setObjectName("Editor");
-    widget->resize(450, 350);
+    //widget->resize(450, 350);
     widget->setFocus();
 
     Proxy proxy(widget);
@@ -67,7 +71,7 @@ int main(int argc, char *argv[])
     QMainWindow mw;
     mw.setWindowTitle("Fakevim (" + title + ")");
     mw.setCentralWidget(widget);
-    mw.resize(500, 650);
+    mw.resize(600, 650);
     mw.move(0, 0);
     mw.show();
     

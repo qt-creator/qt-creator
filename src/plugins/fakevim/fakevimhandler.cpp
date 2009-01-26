@@ -201,7 +201,8 @@ private:
     int count() const { return mvCount() * opCount(); }
     int leftDist() const { return m_tc.position() - m_tc.block().position(); }
     int rightDist() const { return m_tc.block().length() - leftDist() - 1; }
-    bool atEndOfLine() const { return m_tc.atBlockEnd() && m_tc.block().length()>1; }
+    bool atEndOfLine() const
+        { return m_tc.atBlockEnd() && m_tc.block().length() > 1; }
 
     int lastPositionInDocument() const;
     int positionForLine(int line) const; // 1 based line, 0 based pos
@@ -218,7 +219,7 @@ private:
 
     // helper functions for indenting
     bool isElectricCharacter(QChar c) const
-        { return (c == '{' || c == '}' || c == '#'); }
+        { return c == '{' || c == '}' || c == '#'; }
     int indentDist() const;
     void indentRegion(QTextBlock first, QTextBlock last, QChar typedChar=0);
     void indentCurrentLine(QChar typedChar);
@@ -251,6 +252,7 @@ private:
 
     void enterInsertMode();
     void enterCommandMode();
+    void enterExMode();
     void showRedMessage(const QString &msg);
     void showBlackMessage(const QString &msg);
     void notImplementedYet();
@@ -340,6 +342,7 @@ public:
     int m_desiredColumn;
 
     QPointer<QObject> m_extraData;
+    int m_cursorWidth;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
@@ -361,6 +364,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_moveType = MoveInclusive;
     m_anchor = 0;
     m_savedYankPosition = 0;
+    m_cursorWidth = EDITOR(cursorWidth());
 
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -419,17 +423,14 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 void FakeVimHandler::Private::setupWidget()
 {
     enterCommandMode();
+    EDITOR(installEventFilter(q));
+    //EDITOR(setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
     if (m_textedit) {
-        m_textedit->installEventFilter(q);
-        //m_textedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
-        m_wasReadOnly = m_textedit->isReadOnly();
     } else if (m_plaintextedit) {
-        m_plaintextedit->installEventFilter(q);
-        //plaintextedit->setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
-        m_wasReadOnly = m_plaintextedit->isReadOnly();
     }
+    m_wasReadOnly = EDITOR(isReadOnly());
     showBlackMessage("vi emulation mode.");
     updateMiniBuffer();
 }
@@ -438,13 +439,8 @@ void FakeVimHandler::Private::restoreWidget()
 {
     //showBlackMessage(QString());
     //updateMiniBuffer();
-    if (m_textedit) {
-        m_textedit->removeEventFilter(q);
-        m_textedit->setReadOnly(m_wasReadOnly);
-    } else if (m_plaintextedit) {
-        m_plaintextedit->removeEventFilter(q);
-        m_plaintextedit->setReadOnly(m_wasReadOnly);
-    }
+    EDITOR(removeEventFilter(q));
+    EDITOR(setReadOnly(m_wasReadOnly));
 }
 
 bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &text)
