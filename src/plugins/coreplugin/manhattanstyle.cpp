@@ -200,9 +200,13 @@ int ManhattanStyle::layoutSpacingImplementation(QSizePolicy::ControlType control
 QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                        const QSize &size, const QWidget *widget) const
 {
+    QSize newSize = d->style->sizeFromContents(type, option, size, widget);
+
     if (type == CT_Splitter && widget && widget->property("minisplitter").toBool())
         return QSize(1, 1);
-    return d->style->sizeFromContents(type, option, size, widget);
+    else if (type == CT_ComboBox && panelWidget(widget))
+        newSize += QSize(10, 0);
+    return newSize;
 }
 
 QRect ManhattanStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
@@ -773,7 +777,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
 
-                QRect rect = editRect.adjusted(1, 0, 0, 0);
+                // Reserve some space for the down-arrow
+                QRect rect = editRect.adjusted(0, 0, -8, 0);
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, rect.width());
                 drawItemText(painter, rect.translated(0, 1),
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
@@ -1019,7 +1024,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             drawPrimitive(PE_PanelButtonTool, option, painter, widget);
 
             // Draw arrow
-            int menuButtonWidth = 16;
+            int menuButtonWidth = 12;
             bool reverse = option->direction == Qt::RightToLeft;
             int left = !reverse ? rect.right() - menuButtonWidth : rect.left();
             int right = !reverse ? rect.right() : rect.left() + menuButtonWidth;
