@@ -152,6 +152,24 @@ MainWindow::MainWindow() :
 
     setWindowTitle(tr("Qt Creator"));
     qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
+    QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
+    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
+    QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QString baseName = qApp->style()->objectName();
+#ifdef Q_WS_X11
+    if (baseName == "windows") {
+        // Sometimes we get the standard windows 95 style as a fallback
+        // e.g. if we are running on a KDE4 desktop
+        QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+        if (desktopEnvironment == "kde")
+            baseName = "plastique";
+        else
+            baseName = "cleanlooks";
+    }
+#endif
+    qApp->setStyle(new ManhattanStyle(baseName));
+
     setDockNestingEnabled(true);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
@@ -183,23 +201,6 @@ MainWindow::MainWindow() :
      //signal(SIGINT, handleSigInt);
 #endif
 
-    QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
-    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
-    QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-    QString baseName = qApp->style()->objectName();
-#ifdef Q_WS_X11
-    if (baseName == "windows") {
-        // Sometimes we get the standard windows 95 style as a fallback
-        // e.g. if we are running on a KDE4 desktop
-        QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-        if (desktopEnvironment == "kde")
-            baseName = "plastique";
-        else
-            baseName = "cleanlooks";
-    }
-#endif
-    qApp->setStyle(new ManhattanStyle(baseName));
     statusBar()->setProperty("p_styled", true);
 }
 
