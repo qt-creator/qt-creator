@@ -656,8 +656,6 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 int sx = sqsize / 2 - bounds.center().x() - 1;
                 int sy = sqsize / 2 - bounds.center().y() - 1;
                 imagePainter.translate(sx + bsx, sy + bsy);
-                imagePainter.setPen(option->palette.buttonText().color());
-                imagePainter.setBrush(option->palette.buttonText());
 
                 if (!(option->state & State_Enabled)) {
                     imagePainter.translate(1, 1);
@@ -667,8 +665,17 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     imagePainter.translate(-1, -1);
                     imagePainter.setBrush(option->palette.mid().color());
                     imagePainter.setPen(option->palette.mid().color());
+                } else {
+                    QColor shadow(0, 0, 0, 50);
+                    imagePainter.translate(0, 1);
+                    imagePainter.setPen(shadow);
+                    imagePainter.setBrush(shadow);
+                    QColor foreGround(255, 255, 255, 220);
+                    imagePainter.drawPolygon(a);
+                    imagePainter.translate(0, -1);
+                    imagePainter.setPen(foreGround);
+                    imagePainter.setBrush(foreGround);
                 }
-
                 imagePainter.drawPolygon(a);
                 imagePainter.end();
                 pixmap = QPixmap::fromImage(image);
@@ -998,6 +1005,17 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->save();
 
             // Draw tool button
+            QLinearGradient grad(option->rect.topRight(), option->rect.bottomRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.4, QColor(255, 255, 255, 30));
+            grad.setColorAt(1, Qt::transparent);
+            painter->setPen(QPen(grad, 0));
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.4, QColor(0, 0, 0, 30));
+            grad.setColorAt(1, Qt::transparent);
+            painter->setPen(QPen(grad, 0));
+            painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
             drawPrimitive(PE_PanelButtonTool, option, painter, widget);
 
             // Draw arrow
