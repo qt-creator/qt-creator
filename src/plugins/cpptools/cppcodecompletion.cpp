@@ -435,15 +435,15 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_startPosition = findStartOfName(editor);
     m_completionOperator = T_EOF_SYMBOL;
 
-    int endOfExpression = m_startPosition;
+    int endOfOperator = m_startPosition;
 
     // Skip whitespace preceding this position
-    while (editor->characterAt(endOfExpression - 1).isSpace())
-        --endOfExpression;
+    while (editor->characterAt(endOfOperator - 1).isSpace())
+        --endOfOperator;
 
-    endOfExpression = startOfOperator(editor, endOfExpression,
-                                      &m_completionOperator,
-                                      /*want function call =*/ editor->position() == endOfExpression);
+    int endOfExpression = startOfOperator(editor, endOfOperator,
+                                          &m_completionOperator,
+                                          /*want function call =*/ true);
 
     Core::IFile *file = editor->file();
     QString fileName = file->fileName();
@@ -464,6 +464,11 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 m_completionOperator = T_SIGNAL;
             else if (expression.endsWith(QLatin1String("SLOT")))
                 m_completionOperator = T_SLOT;
+            else if (editor->position() != endOfOperator) {
+                // We don't want a function completion when the cursor isn't at the opening brace
+                expression.clear();
+                m_completionOperator = T_EOF_SYMBOL;
+            }
         }
     }
 
