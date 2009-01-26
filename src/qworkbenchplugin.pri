@@ -51,7 +51,7 @@ macx {
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
-CONFIG += plugin
+CONFIG += plugin plugin_with_soname
 
 linux-* {
     target.path = /lib/qtcreator/plugins/$$PROVIDER
