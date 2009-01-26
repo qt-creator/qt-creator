@@ -317,6 +317,11 @@ public:
     // extra data for '.'
     QString m_dotCommand;
 
+    // extra data for ';'
+    QString m_semicolonCount;
+    int m_semicolonType;  // 'f', 'F', 't', 'T'
+    int m_semicolonKey;
+
     // history for '/'
     QString lastSearchString() const;
     QStringList m_searchHistory;
@@ -693,9 +698,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         m_submode = NoSubMode;
     } else if (m_subsubmode == FtSubSubMode) {
+        m_semicolonType = m_subsubdata;
+        m_semicolonKey = key;
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
-        finishMovement(QString(QChar(m_subsubdata)) + QChar(key));
+        finishMovement();
     } else if (m_submode == ReplaceSubMode) {
         if (count() < rightDist() && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
@@ -733,6 +740,20 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         } else {
             m_mvcount.append(QChar(key));
         }
+    } else if (0 && key == ',') {
+        // FIXME: fakevim uses ',' by itself, so it is incompatible
+        m_subsubmode = FtSubSubMode;
+        // HACK: toggle 'f' <-> 'F', 't' <-> 'T'
+        m_subsubdata = m_semicolonType ^ 32;
+        handleFfTt(m_semicolonKey);
+        m_subsubmode = NoSubSubMode;
+        finishMovement();
+    } else if (key == ';') {
+        m_subsubmode = FtSubSubMode;
+        m_subsubdata = m_semicolonType;
+        handleFfTt(m_semicolonKey);
+        m_subsubmode = NoSubSubMode;
+        finishMovement();
     } else if (key == ':') {
         m_mode = ExMode;
         m_commandBuffer.clear();
@@ -1402,8 +1423,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file1.open(QIODevice::ReadWrite)) {
             file1.close();
+            QTextCursor tc = m_tc;
             selectRange(beginLine, endLine);
             QString contents = selectedText(); 
+            m_tc = tc;
             qDebug() << "LINES: " << beginLine << endLine;
             bool handled = false;
             emit q->writeFileRequested(&handled, fileName, contents);
