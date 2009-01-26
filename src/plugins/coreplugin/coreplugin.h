@@ -51,7 +51,7 @@ public:
     CorePlugin();
     ~CorePlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message = 0);
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
 public slots:
@@ -61,8 +61,6 @@ private:
     MainWindow *m_mainWindow;
     WelcomeMode *m_welcomeMode;
     EditMode *m_editMode;
-
-    ExtensionSystem::PluginManager *m_pm;
 };
 
 } // namespace Internal

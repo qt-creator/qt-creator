@@ -115,7 +115,8 @@ void ViewManager::saveSettings(QSettings *settings)
 
 IView *ViewManager::view(const QString &id)
 {
-    QList<IView *> list = m_mainWnd->pluginManager()->getObjects<IView>();
+    QList<IView *> list =
+        ExtensionSystem::PluginManager::instance()->getObjects<IView>();
     foreach (IView *view, list) {
         if (view->uniqueViewName() == id)
             return view;

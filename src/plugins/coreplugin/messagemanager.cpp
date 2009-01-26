@@ -44,26 +44,26 @@ using namespace Core;
 MessageManager *MessageManager::m_instance = 0;
 
 MessageManager::MessageManager()
-    : m_pm(0), m_messageOutputWindow(0)
+    : m_messageOutputWindow(0)
 {
     m_instance = this;
 }
 
 MessageManager::~MessageManager()
 {
-    if (m_pm && m_messageOutputWindow) {
-        m_pm->removeObject(m_messageOutputWindow);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    if (pm && m_messageOutputWindow) {
+        pm->removeObject(m_messageOutputWindow);
         delete m_messageOutputWindow;
     }
 
     m_instance = 0;
 }
 
-void MessageManager::init(ExtensionSystem::PluginManager *pm)
+void MessageManager::init()
 {
-    m_pm = pm;
     m_messageOutputWindow = new Internal::MessageOutputWindow;
-    pm->addObject(m_messageOutputWindow);
+    ExtensionSystem::PluginManager::instance()->addObject(m_messageOutputWindow);
 }
 
 void MessageManager::showOutputPane()

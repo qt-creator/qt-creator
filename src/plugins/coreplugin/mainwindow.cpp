@@ -130,7 +130,6 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_activeContext(0),
-    m_pluginManager(0),
     m_outputMode(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
@@ -225,8 +224,9 @@ void MainWindow::setSuppressNavigationWidget(bool suppress)
 MainWindow::~MainWindow()
 {
     hide();
-    m_pluginManager->removeObject(m_shortcutSettings);
-    m_pluginManager->removeObject(m_generalSettings);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    pm->removeObject(m_shortcutSettings);
+    pm->removeObject(m_generalSettings);
     delete m_messageManager;
     m_messageManager = 0;
     delete m_shortcutSettings;
@@ -241,7 +241,7 @@ MainWindow::~MainWindow()
     m_uniqueIDManager = 0;
     delete m_vcsManager;
     m_vcsManager = 0;
-    m_pluginManager->removeObject(m_outputMode);
+    pm->removeObject(m_outputMode);
     delete m_outputMode;
     m_outputMode = 0;
     //we need to delete editormanager and viewmanager explicitly before the end of the destructor,
@@ -251,7 +251,7 @@ MainWindow::~MainWindow()
     OutputPaneManager::destroy();
 
     // Now that the OutputPaneManager is gone, is a good time to delete the view
-    m_pluginManager->removeObject(m_outputView);
+    pm->removeObject(m_outputView);
     delete m_outputView;
 
     delete m_editorManager;
@@ -260,7 +260,7 @@ MainWindow::~MainWindow()
     m_viewManager = 0;
     delete m_progressManager;
     m_progressManager = 0;
-    m_pluginManager->removeObject(m_coreImpl);
+    pm->removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = 0;
 
@@ -276,10 +276,12 @@ MainWindow::~MainWindow()
     m_mimeDatabase = 0;
 }
 
-bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
+bool MainWindow::init(QString *errorMessage)
 {
-    m_pluginManager = pm;
-    m_pluginManager->addObject(m_coreImpl);
+    Q_UNUSED(errorMessage);
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    pm->addObject(m_coreImpl);
     m_viewManager->init();
     m_modeManager->init();
     m_progressManager->init();
@@ -301,15 +303,15 @@ bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
     outputModeWidget->setFocusProxy(oph);
 
     m_outputMode->setContext(m_globalContext);
-    m_pluginManager->addObject(m_outputMode);
-    m_pluginManager->addObject(m_generalSettings);
-    m_pluginManager->addObject(m_shortcutSettings);
+    pm->addObject(m_outputMode);
+    pm->addObject(m_generalSettings);
+    pm->addObject(m_shortcutSettings);
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the ViewManager needs to be initilized before
     m_outputView = new Core::BaseView("OutputWindow.Buttons",
         OutputPaneManager::instance()->buttonsWidget(), QList<int>(), Core::IView::Second);
-    m_pluginManager->addObject(m_outputView);
+    pm->addObject(m_outputView);
     return true;
 }
 
@@ -319,7 +321,7 @@ void MainWindow::extensionsInitialized()
 
     m_viewManager->extensionsInitalized();
 
-    m_messageManager->init(m_pluginManager);
+    m_messageManager->init();
     OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();
@@ -343,7 +345,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     const QList<ICoreListener *> listeners =
-        pluginManager()->getObjects<ICoreListener>();
+        ExtensionSystem::PluginManager::instance()->getObjects<ICoreListener>();
     foreach (ICoreListener *listener, listeners) {
         if (!listener->coreAboutToClose()) {
             event->ignore();
@@ -883,11 +885,6 @@ ModeManager *MainWindow::modeManager() const
 MimeDatabase *MainWindow::mimeDatabase() const
 {
     return m_mimeDatabase;
-}
-
-ExtensionSystem::PluginManager *MainWindow::pluginManager() const
-{
-    return m_pluginManager;
 }
 
 IContext *MainWindow::contextObject(QWidget *widget)
