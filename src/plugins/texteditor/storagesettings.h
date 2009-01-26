@@ -54,6 +54,7 @@ struct TEXTEDITOR_EXPORT StorageSettings
     bool m_cleanWhitespace;
     bool m_inEntireDocument;
     bool m_addFinalNewLine;
+    bool m_cleanIndentation;
 };
 
 inline bool operator==(const StorageSettings &t1, const StorageSettings &t2) { return t1.equals(t2); }

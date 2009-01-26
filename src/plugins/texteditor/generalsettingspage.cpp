@@ -162,6 +162,7 @@ void GeneralSettingsPage::settingsFromUI(TabSettings &rc,
 
     storageSettings.m_cleanWhitespace = m_d->m_page.cleanWhitespace->isChecked();
     storageSettings.m_inEntireDocument = m_d->m_page.inEntireDocument->isChecked();
+    storageSettings.m_cleanIndentation = m_d->m_page.cleanIndentation->isChecked();
     storageSettings.m_addFinalNewLine = m_d->m_page.addFinalNewLine->isChecked();
 
     displaySettings.m_displayLineNumbers = m_d->m_page.displayLineNumbers->isChecked();
@@ -187,6 +188,7 @@ void GeneralSettingsPage::settingsToUI()
     StorageSettings storageSettings = m_d->m_storageSettings;
     m_d->m_page.cleanWhitespace->setChecked(storageSettings.m_cleanWhitespace);
     m_d->m_page.inEntireDocument->setChecked(storageSettings.m_inEntireDocument);
+    m_d->m_page.cleanIndentation->setChecked(storageSettings.m_cleanIndentation);
     m_d->m_page.addFinalNewLine->setChecked(storageSettings.m_addFinalNewLine);
 
     DisplaySettings displaySettings = m_d->m_displaySettings;
