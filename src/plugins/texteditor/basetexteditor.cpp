@@ -2709,6 +2709,10 @@ const DisplaySettings &BaseTextEditor::displaySettings() const
     return d->m_displaySettings;
 }
 
+const InteractionSettings &BaseTextEditor::interactionSettings() const
+{
+    return d->m_interactionSettings;
+}
 
 
 void BaseTextEditor::indentOrUnindent(bool doIndent)

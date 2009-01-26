@@ -40,14 +40,12 @@
 
 namespace Core {
 
-class CORE_EXPORT BaseView
-  : public IView
+class CORE_EXPORT BaseView : public IView
 {
     Q_OBJECT
 
 public:
     BaseView(QObject *parent = 0);
-    BaseView(const char *name, QWidget *widget, const QList<int> &context, IView::ViewPosition position, QObject *parent = 0);
     ~BaseView();
 
     QList<int> context() const;

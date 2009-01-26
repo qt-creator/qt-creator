@@ -58,7 +58,6 @@ public:
     FileManager *fileManager() const ;
     UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;
-    ExtensionSystem::PluginManager *pluginManager() const;
     EditorManager *editorManager() const;
     ProgressManager *progressManager() const;
     ScriptManager *scriptManager() const;

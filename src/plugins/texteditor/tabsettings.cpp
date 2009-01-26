@@ -33,18 +33,18 @@
 
 #include "tabsettings.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
-#include <QDebug>
 
-static const char* spacesForTabsKey = "SpacesForTabs";
-static const char* smartBackspaceKey = "SmartBackspace";
-static const char* autoIndentKey = "AutoIndent";
-static const char* tabSizeKey = "TabSize";
-static const char* indentSizeKey = "IndentSize";
-static const char* groupPostfix = "TabSettings";
+static const char *spacesForTabsKey = "SpacesForTabs";
+static const char *smartBackspaceKey = "SmartBackspace";
+static const char *autoIndentKey = "AutoIndent";
+static const char *tabSizeKey = "TabSize";
+static const char *indentSizeKey = "IndentSize";
+static const char *groupPostfix = "TabSettings";
 
 namespace TextEditor {
 

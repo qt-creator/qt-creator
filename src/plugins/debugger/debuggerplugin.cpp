@@ -913,8 +913,9 @@ void DebuggerPlugin::readSettings()
 #if defined(Q_OS_WIN32)
     defaultCommand.append(".exe");
 #endif
-    QString defaultScript = ICore::instance()->resourcePath() +
-        QLatin1String("/gdb/qt4macros");
+    //QString defaultScript = ICore::instance()->resourcePath() +
+    //    QLatin1String("/gdb/qt4macros");
+    QString defaultScript;
 
     s->beginGroup(QLatin1String("DebugMode"));
     QByteArray ba = s->value("State", QByteArray()).toByteArray();

@@ -83,28 +83,9 @@ BaseView::BaseView(QObject *parent)
 }
 
 /*!
-    \fn BaseView::BaseView(const char *name, QWidget *widget, const QList<int> &context, Qt::DockWidgetArea position, QObject *parent)
-
-    Creates a view with the given properties.
-
-    \a name
-    \a widget
-    \a context
-    \a position
-    \a parent
-*/
-
-BaseView::BaseView(const char *name, QWidget *widget, const QList<int> &context, IView::ViewPosition position, QObject *parent)
-    : IView(parent),
-    m_viewName(name),
-    m_widget(widget),
-    m_context(context),
-    m_defaultPosition(position)
-{
-}
-
-/*!
     \fn BaseView::~BaseView()
+
+    Destructor also destroys the widget.
 */
 BaseView::~BaseView()
 {

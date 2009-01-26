@@ -2556,29 +2556,34 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
         return parseQtMethod(node);
 
     default: {
-        unsigned startOfName = cursor();
         NameAST *name = 0;
-        if (parseName(name)) {
-            if (LA() == T_IDENTIFIER || tok().isLiteral() || (tok().isOperator() && LA() != T_LPAREN &&
-                                                              LA() != T_LBRACKET)) {
-                rewind(startOfName);
-                parseName(name, false);
-            }
-            // literal
-            // identifier <unop> ?
-            // identifier <binop>
-            // identifier <access>
-            // identifier rparen
-            // lparen type rparen identifier  [[cast-expression]]
-
+        if (parseNameId(name)) {
             node = name;
             return true;
         }
+        break;
     } // default
 
     } // switch
 
     return false;
+}
+
+bool Parser::parseNameId(NameAST *&name)
+{
+    unsigned start = cursor();
+    if (! parseName(name))
+        return false;
+
+    if (LA() == T_IDENTIFIER ||
+        tok().isLiteral()    ||
+        (tok().isOperator() && LA() != T_LPAREN && LA() != T_LBRACKET))
+    {
+        rewind(start);
+        return parseName(name, false);
+    }
+
+    return true;
 }
 
 bool Parser::parseNestedExpression(ExpressionAST *&node)
@@ -2763,7 +2768,7 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
                 ast->access_token = consumeToken();
                 if (LA() == T_TEMPLATE)
                     ast->template_token = consumeToken();
-                if (! parseName(ast->member_name))
+                if (! parseNameId(ast->member_name))
                     _translationUnit->error(cursor(), "expected unqualified-id before token `%s'",
                                             tok().spell());
                 *postfix_ptr = ast;

@@ -205,10 +205,11 @@ ActionManagerPrivate* ActionManagerPrivate::m_instance = 0;
     \internal
 */
 
-ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr) :
-    ActionManager(mainWnd),
+ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd)
+  : ActionManager(mainWnd),
     m_mainWnd(mainWnd)
 {
+    UniqueIDManager *uidmgr = UniqueIDManager::instance();
     m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_ONE);
     m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_TWO);
     m_defaultGroups << uidmgr->uniqueIdentifier(Constants::G_DEFAULT_THREE);
@@ -258,7 +259,7 @@ void ActionManagerPrivate::setContext(const QList<int> &context)
         it.value()->setCurrentContext(m_context);
 
     const IdContainerMap::const_iterator acend = m_idContainerMap.constEnd();
-    for ( IdContainerMap::const_iterator it = m_idContainerMap.constBegin(); it != acend; ++it)
+    for (IdContainerMap::const_iterator it = m_idContainerMap.constBegin(); it != acend; ++it)
         it.value()->update();
 }
 
@@ -273,7 +274,7 @@ bool ActionManagerPrivate::hasContext(QList<int> context) const
 
 ActionContainer *ActionManagerPrivate::createMenu(const QString &id)
 {
-    const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
     if (it !=  m_idContainerMap.constEnd())
         return it.value();
@@ -291,7 +292,7 @@ ActionContainer *ActionManagerPrivate::createMenu(const QString &id)
 
 ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
 {
-    const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
     if (it !=  m_idContainerMap.constEnd())
         return it.value();
@@ -320,7 +321,7 @@ Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id
 Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
 {
     OverrideableAction *a = 0;
-    const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
         if (c->type() != Command::CT_OverridableAction) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
@@ -366,7 +367,7 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
 Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context)
 {
     Shortcut *sc = 0;
-    int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
+    int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
         if (c->type() != Command::CT_Shortcut) {
             qWarning() << "registerShortcut: id" << id << "is registered with a different command type.";
@@ -402,7 +403,7 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const QStri
 
 Command *ActionManagerPrivate::command(const QString &id) const
 {
-    const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
     if (it == m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
@@ -414,9 +415,9 @@ Command *ActionManagerPrivate::command(const QString &id) const
 
 ActionContainer *ActionManagerPrivate::actionContainer(const QString &id) const
 {
-    const int uid = m_mainWnd->uniqueIDManager()->uniqueIdentifier(id);
-    const IdContainerMap::const_iterator it =  m_idContainerMap.constFind(uid);
-    if ( it == m_idContainerMap.constEnd()) {
+    const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
+    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
+    if (it == m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :" << id << '/' << uid;
         return 0;
@@ -429,7 +430,7 @@ Command *ActionManagerPrivate::command(int uid) const
     const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
     if (it == m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManagerPrivate::command(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << '/' << uid;
+            qWarning() << "ActionManagerPrivate::command(): failed to find :" <<  UniqueIDManager::instance()->stringForUniqueIdentifier(uid) << '/' << uid;
         return 0;
     }
     return it.value();
@@ -440,7 +441,7 @@ ActionContainer *ActionManagerPrivate::actionContainer(int uid) const
     const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
     if (it == m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
-            qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :" <<  m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(uid) << uid;
+            qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :" << UniqueIDManager::instance()->stringForUniqueIdentifier(uid) << uid;
         return 0;
     }
     return it.value();
@@ -458,7 +459,7 @@ void ActionManagerPrivate::initialize()
         settings->setArrayIndex(i);
         const QString sid = settings->value(QLatin1String(idKey)).toString();
         const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
-        const int id = m_mainWnd->uniqueIDManager()->uniqueIdentifier(sid);
+        const int id = UniqueIDManager::instance()->uniqueIdentifier(sid);
 
         Command *cmd = command(id);
         if (cmd)
@@ -478,7 +479,7 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
         CommandPrivate *cmd = j.value();
         QKeySequence key = cmd->keySequence();
         if (key != cmd->defaultKeySequence()) {
-            const QString sid = m_mainWnd->uniqueIDManager()->stringForUniqueIdentifier(id);
+            const QString sid = UniqueIDManager::instance()->stringForUniqueIdentifier(id);
             settings->setArrayIndex(count);
             settings->setValue(QLatin1String(idKey), sid);
             settings->setValue(QLatin1String(sequenceKey), key.toString());

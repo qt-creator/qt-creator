@@ -345,12 +345,11 @@ void ManhattanStyle::polish(QPalette &pal)
 QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                                  const QWidget *widget) const
 {
-    static const QIcon closeButton(":/core/images/closebutton.png");
     QIcon icon;
     switch (standardIcon) {
     case QStyle::SP_TitleBarCloseButton:
-        icon = closeButton;
-        break;
+    case QStyle::SP_ToolBarHorizontalExtensionButton:
+        return QIcon(standardPixmap(standardIcon, option, widget));
     default:
         icon = d->style->standardIcon(standardIcon, option, widget);
     }
@@ -360,11 +359,20 @@ QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, co
 QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                        const QWidget *widget) const
 {
-    static const QPixmap closeButton(":/core/images/closebutton.png");
+    if (widget && !panelWidget(widget))
+        return d->style->standardPixmap(standardPixmap, opt, widget);
+
     QPixmap pixmap;
     switch (standardPixmap) {
-    case QStyle::SP_TitleBarCloseButton:
-        pixmap = closeButton;
+    case QStyle::SP_ToolBarHorizontalExtensionButton: {
+            static const QPixmap extButton(":/core/images/extension.png");
+            pixmap = extButton;
+        }
+        break;
+    case QStyle::SP_TitleBarCloseButton: {
+            static const QPixmap closeButton(":/core/images/closebutton.png");
+            pixmap = closeButton;
+        }
         break;
     default:
         pixmap = d->style->standardPixmap(standardPixmap, opt, widget);
@@ -591,6 +599,84 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             painter->translate(1, 1);
             painter->fillPath(path, dark);
             painter->restore();
+        }
+        break;
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+    case PE_IndicatorArrowRight:
+    case PE_IndicatorArrowLeft:
+        {
+            // From windowsstyle but modified to enable AA
+            if (option->rect.width() <= 1 || option->rect.height() <= 1)
+                break;
+
+            QRect r = option->rect;
+            int size = qMin(r.height(), r.width());
+            QPixmap pixmap;
+            QString pixmapName;
+            pixmapName.sprintf("%s-%s-%d-%d-%d-%lld",
+                               "$qt_ia", metaObject()->className(),
+                               uint(option->state), element,
+                               size, option->palette.cacheKey());
+            if (!QPixmapCache::find(pixmapName, pixmap)) {
+                int border = size/5;
+                int sqsize = 2*(size/2);
+                QImage image(sqsize, sqsize, QImage::Format_ARGB32);
+                image.fill(Qt::transparent);
+                QPainter imagePainter(&image);
+                imagePainter.setRenderHint(QPainter::Antialiasing, true);
+                imagePainter.translate(0.5, 0.5);
+                QPolygon a;
+                switch (element) {
+                    case PE_IndicatorArrowUp:
+                        a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize - border, sqsize/2);
+                        break;
+                    case PE_IndicatorArrowDown:
+                        a.setPoints(3, border, sqsize/2,  sqsize/2, sqsize - border,  sqsize - border, sqsize/2);
+                        break;
+                    case PE_IndicatorArrowRight:
+                        a.setPoints(3, sqsize - border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
+                        break;
+                    case PE_IndicatorArrowLeft:
+                        a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
+                        break;
+                    default:
+                        break;
+                }
+
+                int bsx = 0;
+                int bsy = 0;
+
+                if (option->state & State_Sunken) {
+                    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                    bsy = pixelMetric(PM_ButtonShiftVertical);
+                }
+
+                QRect bounds = a.boundingRect();
+                int sx = sqsize / 2 - bounds.center().x() - 1;
+                int sy = sqsize / 2 - bounds.center().y() - 1;
+                imagePainter.translate(sx + bsx, sy + bsy);
+                imagePainter.setPen(option->palette.buttonText().color());
+                imagePainter.setBrush(option->palette.buttonText());
+
+                if (!(option->state & State_Enabled)) {
+                    imagePainter.translate(1, 1);
+                    imagePainter.setBrush(option->palette.light().color());
+                    imagePainter.setPen(option->palette.light().color());
+                    imagePainter.drawPolygon(a);
+                    imagePainter.translate(-1, -1);
+                    imagePainter.setBrush(option->palette.mid().color());
+                    imagePainter.setPen(option->palette.mid().color());
+                }
+
+                imagePainter.drawPolygon(a);
+                imagePainter.end();
+                pixmap = QPixmap::fromImage(image);
+                QPixmapCache::insert(pixmapName, pixmap);
+            }
+            int xOffset = r.x() + (r.width() - size)/2;
+            int yOffset = r.y() + (r.height() - size)/2;
+            painter->drawPixmap(xOffset, yOffset, pixmap);
         }
         break;
 
@@ -902,7 +988,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 newBtn.palette = panelPalette(option->palette);
                 newBtn.rect = QRect(ir.right() - arrowSize - 1,
                                     ir.height() - arrowSize - 2, arrowSize, arrowSize);
-                QWindowsStyle::drawPrimitive(PE_IndicatorArrowDown, &newBtn, painter, widget);
+                drawPrimitive(PE_IndicatorArrowDown, &newBtn, painter, widget);
             }
         }
         break;
@@ -929,7 +1015,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             pal.setBrush(QPalette::All, QPalette::ButtonText, StyleHelper::panelTextColor());
             arrowOpt.palette = pal;
 
-            QWindowsStyle::drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
+            drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
 
             painter->restore();
         }

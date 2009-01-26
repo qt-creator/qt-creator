@@ -93,11 +93,6 @@ MessageManager *CoreImpl::messageManager() const
     return m_mainwindow->messageManager();
 }
 
-ExtensionSystem::PluginManager *CoreImpl::pluginManager() const
-{
-    return m_mainwindow->pluginManager();
-}
-
 EditorManager *CoreImpl::editorManager() const
 {
     return m_mainwindow->editorManager();

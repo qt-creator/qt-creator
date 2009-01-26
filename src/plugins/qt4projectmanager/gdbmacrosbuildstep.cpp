@@ -65,12 +65,12 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 {
     QVariant v = value("clean");
     if (v.isNull() || v.toBool() == false) {
+        addToOutputWindow("<b>Creating gdb macros library...</b>");
         // Normal run
         QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
         QStringList files;
         files << "gdbmacros.cpp"
               << "gdbmacros.pro";
-
 
         QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
         QDir dir;
@@ -123,7 +123,6 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         QString mkspec = qt4Project->qtVersion(m_buildConfiguration)->mkspec();
         qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
         qmake.waitForFinished();
-
 
         qmake.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), makeArguments);
         qmake.waitForFinished();

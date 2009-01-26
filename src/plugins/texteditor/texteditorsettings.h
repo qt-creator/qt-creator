@@ -47,10 +47,6 @@ struct TabSettings;
 struct StorageSettings;
 struct DisplaySettings;
 
-namespace Internal {
-class TextEditorPlugin;
-}
-
 /**
  * This class provides a central place for basic text editor settings. These
  * settings include font settings, tab settings, storage settings and display
@@ -61,7 +57,7 @@ class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
     Q_OBJECT
 
 public:
-    TextEditorSettings(Internal::TextEditorPlugin *plugin, QObject *parent);
+    explicit TextEditorSettings(QObject *parent);
     ~TextEditorSettings();
 
     static TextEditorSettings *instance();

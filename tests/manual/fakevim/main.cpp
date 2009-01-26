@@ -17,21 +17,26 @@ class Proxy : public QObject
     Q_OBJECT
 
 public:
-    Proxy() : QObject(0) {}
+    Proxy(QWidget *widget, QObject *parent = 0)
+      : QObject(parent), m_widget(widget)
+    {}
 
 public slots:
-    void changeSelection(QWidget *w, const QList<QTextEdit::ExtraSelection> &s)
+    void changeSelection(const QList<QTextEdit::ExtraSelection> &s)
     {
-        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(w))
+        if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(m_widget))
             ed->setExtraSelections(s);
-        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(w))
+        else if (QTextEdit *ed = qobject_cast<QTextEdit *>(m_widget))
             ed->setExtraSelections(s);
     }
 
-    void changeExtraInformation(QWidget *w, const QString &info)
+    void changeExtraInformation(const QString &info)
     {
-        QMessageBox::information(w, "Information", info);
+        QMessageBox::information(m_widget, "Information", info);
     }
+
+private:
+    QWidget *m_widget;
 };
 
 int main(int argc, char *argv[])
@@ -45,24 +50,28 @@ int main(int argc, char *argv[])
     QString title;
     bool usePlainTextEdit = args.size() < 2;
     if (usePlainTextEdit) {
-        widget = new QPlainTextEdit;
+        QPlainTextEdit *w = new QPlainTextEdit;
+        w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         title = "PlainTextEdit";
+        widget = w;
     } else {
-        widget = new QTextEdit;
+        QTextEdit *w = new QTextEdit;
+        w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         title = "TextEdit";
+        widget = w;
     }
-    widget->resize(450, 350);
+    widget->setObjectName("Editor");
+    //widget->resize(450, 350);
     widget->setFocus();
 
-    Proxy proxy;
+    Proxy proxy(widget);
 
-
-    FakeVimHandler handler;
+    FakeVimHandler handler(widget, 0);
 
     QMainWindow mw;
     mw.setWindowTitle("Fakevim (" + title + ")");
     mw.setCentralWidget(widget);
-    mw.resize(500, 650);
+    mw.resize(600, 650);
     mw.move(0, 0);
     mw.show();
     
@@ -77,18 +86,18 @@ int main(int argc, char *argv[])
 
     QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
         mw.statusBar(), SLOT(showMessage(QString)));
-    QObject::connect(&handler, SIGNAL(quitRequested(QWidget *)),
+    QObject::connect(&handler, SIGNAL(quitRequested()),
         &app, SLOT(quit()));
     QObject::connect(&handler,
-        SIGNAL(selectionChanged(QWidget*,QList<QTextEdit::ExtraSelection>)),
-        &proxy, SLOT(changeSelection(QWidget*,QList<QTextEdit::ExtraSelection>)));
+        SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
+        &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     QObject::connect(&handler,
-        SIGNAL(extraInformationChanged(QWidget*,QString)),
-        &proxy, SLOT(changeExtraInformation(QWidget*,QString)));
+        SIGNAL(extraInformationChanged(QString)),
+        &proxy, SLOT(changeExtraInformation(QString)));
 
-    handler.addWidget(widget);
+    handler.setupWidget();
     if (args.size() >= 1)
-        handler.handleCommand(widget, "r " + args.at(0));
+        handler.handleCommand("r " + args.at(0));
 
     return app.exec();
 }

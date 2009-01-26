@@ -67,5 +67,6 @@
         <file>images/undo.png</file>
         <file>images/unknownfile.png</file>
         <file>images/unlocked.png</file>
+        <file>images/extension.png</file>
     </qresource>
 </RCC>

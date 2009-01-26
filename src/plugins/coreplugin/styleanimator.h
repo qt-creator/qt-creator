@@ -51,24 +51,24 @@
 class Animation
 {
 public :
-    Animation() : _running(true) { }
+    Animation() : m_running(true) { }
     virtual ~Animation() { }
-    QWidget * widget() const { return _widget; }
-    bool running() const { return _running; }
-    const QTime &startTime() const { return _startTime; }
-    void setRunning(bool val) { _running = val; }
-    void setWidget(QWidget *widget) { _widget = widget; }
-    void setStartTime(const QTime &startTime) { _startTime = startTime; }
+    QWidget * widget() const { return m_widget; }
+    bool running() const { return m_running; }
+    const QTime &startTime() const { return m_startTime; }
+    void setRunning(bool val) { m_running = val; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+    void setStartTime(const QTime &startTime) { m_startTime = startTime; }
     virtual void paint(QPainter *painter, const QStyleOption *option);
 
 protected:
     void drawBlendedImage(QPainter *painter, QRect rect, float value);
-    QTime _startTime;
-    QPointer<QWidget> _widget;
-    QImage _primaryImage;
-    QImage _secondaryImage;
-    QImage _tempImage;
-    bool _running;
+    QTime m_startTime;
+    QPointer<QWidget> m_widget;
+    QImage m_primaryImage;
+    QImage m_secondaryImage;
+    QImage m_tempImage;
+    bool m_running;
 };
 
 // Handles state transition animations
@@ -76,13 +76,13 @@ class Transition : public Animation
 {
 public :
     Transition() : Animation() {}
-    virtual ~Transition() { }
-    void setDuration(int duration) { _duration = duration; }
-    void setStartImage(const QImage &image) { _primaryImage = image; }
-    void setEndImage(const QImage &image) { _secondaryImage = image; }
+    virtual ~Transition() {}
+    void setDuration(int duration) { m_duration = duration; }
+    void setStartImage(const QImage &image) { m_primaryImage = image; }
+    void setEndImage(const QImage &image) { m_secondaryImage = image; }
     virtual void paint(QPainter *painter, const QStyleOption *option);
-    int duration() const { return _duration; }
-    int _duration; //set time in ms to complete a state transition
+    int duration() const { return m_duration; }
+    int m_duration; //set time in ms to complete a state transition
 };
 
 class StyleAnimator : public QObject

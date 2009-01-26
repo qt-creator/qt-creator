@@ -183,15 +183,14 @@ void Environment::clear()
     m_values.clear();
 }
 
-// currently it returns the string that was passed in, except
-// under windows and if the executable does not end in .exe
-// then it returns executable appended with .exe
-// that is clearly wrong
 QString Environment::searchInPath(QString executable)
 {
 //    qDebug()<<"looking for "<<executable<< "in PATH: "<<m_values.value("PATH");
     if (executable.isEmpty())
         return QString::null;
+    QFileInfo fi(executable);
+    if (fi.isAbsolute() && fi.exists())
+        return executable;
 #ifdef Q_OS_WIN
     if (!executable.endsWith(QLatin1String(".exe")))
         executable.append(QLatin1String(".exe"));

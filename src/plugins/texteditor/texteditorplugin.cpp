@@ -42,6 +42,7 @@
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
 #include "storagesettings.h"
+#include "interactionsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -104,7 +105,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(m_wizard);
 
 
-    m_settings = new TextEditorSettings(this, this);
+    m_settings = new TextEditorSettings(this);
 
     // Add plain text editor factory
     m_editorFactory = new PlainTextEditorFactory;
@@ -112,7 +113,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Goto line functionality for quick open
     Core::ICore *core = Core::ICore::instance();
-    m_lineNumberFilter = new LineNumberFilter(core->editorManager());
+    m_lineNumberFilter = new LineNumberFilter;
     addAutoReleasedObject(m_lineNumberFilter);
 
     int contextId = core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);

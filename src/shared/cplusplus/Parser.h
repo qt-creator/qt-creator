@@ -141,6 +141,7 @@ public:
     bool parseMultiplicativeExpression(ExpressionAST *&node);
     bool parseTemplateId(NameAST *&node);
     bool parseClassOrNamespaceName(NameAST *&node);
+    bool parseNameId(NameAST *&node);
     bool parseName(NameAST *&node, bool acceptTemplateId = true);
     bool parseNestedNameSpecifier(NestedNameSpecifierAST *&node, bool acceptTemplateId);
     bool parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name, bool acceptTemplateId);

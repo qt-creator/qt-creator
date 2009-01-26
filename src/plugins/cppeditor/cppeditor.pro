@@ -3,6 +3,7 @@ TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 CONFIG += help
 include(../../libs/utils/utils.pri)
+include(../../shared/indenter/indenter.pri)
 include(../../qworkbenchplugin.pri)
 include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \

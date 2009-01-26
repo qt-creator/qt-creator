@@ -4,7 +4,7 @@ QT += xml \
     script
 include(../../qworkbenchplugin.pri)
 include(projectexplorer_dependencies.pri)
-include(../../../shared/scriptwrapper/scriptwrapper.pri)
+include(../../shared/scriptwrapper/scriptwrapper.pri)
 HEADERS += projectexplorer.h \
     projectexplorer_export.h \
     projectwindow.h \

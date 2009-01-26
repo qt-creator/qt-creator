@@ -7,7 +7,7 @@ DEFINES += NDEBUG
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
 include(../../qworkbenchlibrary.pri)
-include(../../../shared/cplusplus/cplusplus.pri)
+include(../../shared/cplusplus/cplusplus.pri)
 
 HEADERS += \
     SimpleLexer.h \

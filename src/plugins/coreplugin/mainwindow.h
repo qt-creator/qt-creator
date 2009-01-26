@@ -49,10 +49,6 @@ class QSettings;
 class QShortcut;
 QT_END_NAMESPACE
 
-namespace ExtensionSystem {
-class PluginManager;
-}
-
 namespace Core {
 
 class ActionManager;
@@ -80,13 +76,12 @@ class CoreImpl;
 class FancyTabWidget;
 class GeneralSettings;
 class NavigationWidget;
-class OutputPane;
 class ProgressManagerPrivate;
 class ShortcutSettings;
 class ViewManager;
 class VersionDialog;
 
-class CORE_EXPORT  MainWindow : public QMainWindow
+class CORE_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -94,7 +89,7 @@ public:
     MainWindow();
     ~MainWindow();
 
-    bool init(ExtensionSystem::PluginManager *pm, QString *error_message);
+    bool init(QString *errorMessage);
     void extensionsInitialized();
 
     IContext *contextObject(QWidget *widget);
@@ -104,12 +99,10 @@ public:
 
     void openFiles(const QStringList &fileNames);
 
-    inline ExtensionSystem::PluginManager *pluginManager() { return m_pluginManager; }
     Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;
     Core::UniqueIDManager *uniqueIDManager() const;
     Core::MessageManager *messageManager() const;
-    ExtensionSystem::PluginManager *pluginManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManager *progressManager() const;
     Core::ScriptManager *scriptManager() const;
@@ -196,9 +189,6 @@ private:
 
     QMap<QWidget *, IContext *> m_contextWidgets;
 
-    ExtensionSystem::PluginManager *m_pluginManager;
-
-    OutputPane *m_outputPane;
     BaseMode *m_outputMode;
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;

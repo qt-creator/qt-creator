@@ -45,6 +45,7 @@ namespace TextEditor {
 struct TabSettings;
 struct StorageSettings;
 struct DisplaySettings;
+struct InteractionSettings;
 
 struct TEXTEDITOR_EXPORT GeneralSettingsPageParameters
 {
@@ -74,6 +75,7 @@ public:
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
     DisplaySettings displaySettings() const;
+    InteractionSettings interactionSettings() const;
 
     void setDisplaySettings(const DisplaySettings &);
 
@@ -85,7 +87,9 @@ signals:
 private:
     void settingsFromUI(TabSettings &rc,
                         StorageSettings &storageSettings,
-                        DisplaySettings &displaySettings) const;
+                        DisplaySettings &displaySettings,
+                        InteractionSettings &interactionSettings
+        ) const;
     void settingsToUI();
     struct GeneralSettingsPagePrivate;
     GeneralSettingsPagePrivate *m_d;

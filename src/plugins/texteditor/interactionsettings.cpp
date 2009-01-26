@@ -31,58 +31,43 @@
 **
 ***************************************************************************/
 
-#include "messagemanager.h"
-#include "messageoutputwindow.h"
+#include "interactionsettings.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <QSettings>
+#include <QString>
 
-#include <QtGui/QStatusBar>
-#include <QtGui/QApplication>
+namespace TextEditor {
 
-using namespace Core;
+static const char *useVimKey = "UseVim";
+static const char *groupPostfix = "InteractionSettings";
 
-MessageManager *MessageManager::m_instance = 0;
-
-MessageManager::MessageManager()
-    : m_messageOutputWindow(0)
+InteractionSettings::InteractionSettings()
+    : m_useVim(false)
 {
-    m_instance = this;
 }
 
-MessageManager::~MessageManager()
+void InteractionSettings::toSettings(const QString &category, QSettings *s) const
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    if (pm && m_messageOutputWindow) {
-        pm->removeObject(m_messageOutputWindow);
-        delete m_messageOutputWindow;
-    }
-
-    m_instance = 0;
+    QString group = QLatin1String(groupPostfix);
+    if (!category.isEmpty())
+        group.insert(0, category);
+    s->beginGroup(group);
+    s->setValue(QLatin1String(useVimKey), m_useVim);
+    s->endGroup();
 }
 
-void MessageManager::init()
+void InteractionSettings::fromSettings(const QString &category, const QSettings *s)
 {
-    m_messageOutputWindow = new Internal::MessageOutputWindow;
-    ExtensionSystem::PluginManager::instance()->addObject(m_messageOutputWindow);
+    QString group = QLatin1String(groupPostfix);
+    if (!category.isEmpty())
+        group.insert(0, category);
+    group += QLatin1Char('/');
+    m_useVim = s->value(group + QLatin1String(useVimKey), m_useVim).toBool();
 }
 
-void MessageManager::showOutputPane()
+bool InteractionSettings::equals(const InteractionSettings &ts) const
 {
-    if (m_messageOutputWindow)
-        m_messageOutputWindow->popup(false);
+    return m_useVim == ts.m_useVim;
 }
 
-void MessageManager::displayStatusBarMessage(const QString & /*text*/, int /*ms*/)
-{
-    // TODO: Currently broken, but noone really notices, so...
-    //m_mainWindow->statusBar()->showMessage(text, ms);
-}
-
-void MessageManager::printToOutputPane(const QString &text, bool bringToForeground)
-{
-    if (!m_messageOutputWindow)
-        return;
-    if (bringToForeground)
-        m_messageOutputWindow->popup(false);
-    m_messageOutputWindow->append(text);
-}
+} // namespace TextEditor

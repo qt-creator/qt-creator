@@ -50,7 +50,7 @@
 using namespace Core::Internal;
 
 CorePlugin::CorePlugin() :
-    m_mainWindow(new MainWindow), m_welcomeMode(0), m_editMode(0), m_pm(0)
+    m_mainWindow(new MainWindow), m_welcomeMode(0), m_editMode(0)
 {
 }
 
@@ -71,10 +71,10 @@ CorePlugin::~CorePlugin()
     delete m_mainWindow;
 }
 
-bool CorePlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_pm = ExtensionSystem::PluginManager::instance();
-    const bool success = m_mainWindow->init(m_pm, error_message);
+    Q_UNUSED(arguments);
+    const bool success = m_mainWindow->init(errorMessage);
     if (success) {
 #if !defined(QT_NO_WEBKIT)
         QWebSettings *webSettings = QWebSettings::globalSettings();

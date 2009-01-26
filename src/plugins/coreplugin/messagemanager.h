@@ -37,8 +37,6 @@
 #include "core_global.h"
 #include <QtCore/QObject>
 
-namespace ExtensionSystem { class PluginManager; }
-
 namespace Core {
 
 namespace Internal {
@@ -53,7 +51,7 @@ public:
     MessageManager();
     ~MessageManager();
 
-    void init(ExtensionSystem::PluginManager *pm);
+    void init();
 
     static MessageManager *instance() { return m_instance; }
 
@@ -64,7 +62,6 @@ public slots:
     void printToOutputPane(const QString &text, bool bringToForeground = true);
 
 private:
-    ExtensionSystem::PluginManager *m_pm;
     Internal::MessageOutputWindow *m_messageOutputWindow;
 
     static MessageManager *m_instance;

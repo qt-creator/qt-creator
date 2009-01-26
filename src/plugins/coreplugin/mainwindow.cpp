@@ -116,7 +116,7 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_printer(0),
-    m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
+    m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
     m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
@@ -130,8 +130,6 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_activeContext(0),
-    m_pluginManager(0),
-    m_outputPane(new OutputPane(m_globalContext)),
     m_outputMode(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
@@ -150,8 +148,28 @@ MainWindow::MainWindow() :
 #endif
     m_toggleSideBarButton(new QToolButton)
 {
+    OutputPaneManager::create();
+
     setWindowTitle(tr("Qt Creator"));
     qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
+    QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
+    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
+    QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QString baseName = qApp->style()->objectName();
+#ifdef Q_WS_X11
+    if (baseName == "windows") {
+        // Sometimes we get the standard windows 95 style as a fallback
+        // e.g. if we are running on a KDE4 desktop
+        QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+        if (desktopEnvironment == "kde")
+            baseName = "plastique";
+        else
+            baseName = "cleanlooks";
+    }
+#endif
+    qApp->setStyle(new ManhattanStyle(baseName));
+
     setDockNestingEnabled(true);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
@@ -183,23 +201,6 @@ MainWindow::MainWindow() :
      //signal(SIGINT, handleSigInt);
 #endif
 
-    QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
-    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
-    QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-    QString baseName = qApp->style()->objectName();
-#ifdef Q_WS_X11
-    if (baseName == "windows") {
-        // Sometimes we get the standard windows 95 style as a fallback
-        // e.g. if we are running on a KDE4 desktop
-        QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-        if (desktopEnvironment == "kde")
-            baseName = "plastique";
-        else
-            baseName = "cleanlooks";
-    }
-#endif
-    qApp->setStyle(new ManhattanStyle(baseName));
     statusBar()->setProperty("p_styled", true);
 }
 
@@ -224,8 +225,9 @@ void MainWindow::setSuppressNavigationWidget(bool suppress)
 MainWindow::~MainWindow()
 {
     hide();
-    m_pluginManager->removeObject(m_shortcutSettings);
-    m_pluginManager->removeObject(m_generalSettings);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    pm->removeObject(m_shortcutSettings);
+    pm->removeObject(m_generalSettings);
     delete m_messageManager;
     m_messageManager = 0;
     delete m_shortcutSettings;
@@ -240,17 +242,17 @@ MainWindow::~MainWindow()
     m_uniqueIDManager = 0;
     delete m_vcsManager;
     m_vcsManager = 0;
-    m_pluginManager->removeObject(m_outputMode);
+    pm->removeObject(m_outputMode);
     delete m_outputMode;
     m_outputMode = 0;
     //we need to delete editormanager and viewmanager explicitly before the end of the destructor,
     //because they might trigger stuff that tries to access data from editorwindow, like removeContextWidget
 
     // All modes are now gone
-    delete OutputPane::instance();
+    OutputPaneManager::destroy();
 
-    // Now that the OutputPane is gone, is a good time to delete the view
-    m_pluginManager->removeObject(m_outputView);
+    // Now that the OutputPaneManager is gone, is a good time to delete the view
+    pm->removeObject(m_outputView);
     delete m_outputView;
 
     delete m_editorManager;
@@ -259,7 +261,7 @@ MainWindow::~MainWindow()
     m_viewManager = 0;
     delete m_progressManager;
     m_progressManager = 0;
-    m_pluginManager->removeObject(m_coreImpl);
+    pm->removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = 0;
 
@@ -275,10 +277,12 @@ MainWindow::~MainWindow()
     m_mimeDatabase = 0;
 }
 
-bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
+bool MainWindow::init(QString *errorMessage)
 {
-    m_pluginManager = pm;
-    m_pluginManager->addObject(m_coreImpl);
+    Q_UNUSED(errorMessage);
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    pm->addObject(m_coreImpl);
     m_viewManager->init();
     m_modeManager->init();
     m_progressManager->init();
@@ -299,15 +303,18 @@ bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
     outputModeWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_outputMode));
     outputModeWidget->setFocusProxy(oph);
 
-    m_outputMode->setContext(m_outputPane->context());
-    m_pluginManager->addObject(m_outputMode);
-    m_pluginManager->addObject(m_generalSettings);
-    m_pluginManager->addObject(m_shortcutSettings);
+    m_outputMode->setContext(m_globalContext);
+    pm->addObject(m_outputMode);
+    pm->addObject(m_generalSettings);
+    pm->addObject(m_shortcutSettings);
 
-    // Add widget to the bottom, we create the view here instead of inside the OutputPane, since
-    // the ViewManager needs to be initilized before
-    m_outputView = new Core::BaseView("OutputWindow.Buttons", m_outputPane->buttonsWidget(), QList<int>(), Core::IView::Second);
-    m_pluginManager->addObject(m_outputView);
+    // Add widget to the bottom, we create the view here instead of inside the
+    // OutputPaneManager, since the ViewManager needs to be initilized before
+    m_outputView = new Core::BaseView;
+    m_outputView->setUniqueViewName("OutputWindow.Buttons");
+    m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
+    m_outputView->setDefaultPosition(Core::IView::Second);
+    pm->addObject(m_outputView);
     return true;
 }
 
@@ -317,8 +324,8 @@ void MainWindow::extensionsInitialized()
 
     m_viewManager->extensionsInitalized();
 
-    m_messageManager->init(m_pluginManager);
-    m_outputPane->init(m_pluginManager);
+    m_messageManager->init();
+    OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();
     readSettings();
@@ -341,7 +348,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     const QList<ICoreListener *> listeners =
-        pluginManager()->getObjects<ICoreListener>();
+        ExtensionSystem::PluginManager::instance()->getObjects<ICoreListener>();
     foreach (ICoreListener *listener, listeners) {
         if (!listener->coreAboutToClose()) {
             event->ignore();
@@ -756,7 +763,7 @@ void MainWindow::setFocusToEditor()
     if (focusWidget && focusWidget == qApp->focusWidget()) {
         if (FindToolBarPlaceHolder::getCurrent())
             FindToolBarPlaceHolder::getCurrent()->hide();
-        m_outputPane->slotHide();
+        OutputPaneManager::instance()->slotHide();
         RightPaneWidget::instance()->setShown(false);
     }
 }
@@ -881,11 +888,6 @@ ModeManager *MainWindow::modeManager() const
 MimeDatabase *MainWindow::mimeDatabase() const
 {
     return m_mimeDatabase;
-}
-
-ExtensionSystem::PluginManager *MainWindow::pluginManager() const
-{
-    return m_pluginManager;
 }
 
 IContext *MainWindow::contextObject(QWidget *widget)
@@ -1115,7 +1117,7 @@ void MainWindow::destroyVersionDialog()
 
 void MainWindow::aboutPlugins()
 {
-    PluginDialog dialog(ExtensionSystem::PluginManager::instance(), this);
+    PluginDialog dialog(this);
     dialog.exec();
 }
 

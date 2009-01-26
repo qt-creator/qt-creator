@@ -65,7 +65,7 @@ class ActionManagerPrivate : public Core::ActionManager
     Q_OBJECT
 
 public:
-    ActionManagerPrivate(MainWindow *mainWnd, UniqueIDManager *uidmgr);
+    explicit ActionManagerPrivate(MainWindow *mainWnd);
     ~ActionManagerPrivate();
 
     void setContext(const QList<int> &context);

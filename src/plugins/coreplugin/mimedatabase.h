@@ -120,7 +120,8 @@ private:
  * Extensions:
  * - List of suffixes and preferred suffix (derived from glob patterns).
  */
-class CORE_EXPORT MimeType {
+class CORE_EXPORT MimeType
+{
 public:
     /* Return value of a glob match, which is higher than magic */
     enum { GlobMatchPriority = 101 };

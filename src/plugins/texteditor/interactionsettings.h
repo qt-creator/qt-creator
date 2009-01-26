@@ -31,29 +31,32 @@
 **
 ***************************************************************************/
 
-#ifndef TABPOSITIONINDICATOR_H
-#define TABPOSITIONINDICATOR_H
+#ifndef INTERACTIONSETTINGS_H
+#define INTERACTIONSETTINGS_H
 
-#include <QtGui/QWidget>
+#include "texteditor_global.h"
 
-namespace Core {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
-class TabPositionIndicator : public QWidget
+namespace TextEditor {
+
+struct TEXTEDITOR_EXPORT InteractionSettings
 {
-    Q_OBJECT
+    InteractionSettings();
 
-public:
-    enum { TABPOSITIONINDICATOR_WIDTH = 2 };
+    void toSettings(const QString &category, QSettings *s) const;
+    void fromSettings(const QString &category, const QSettings *s);
 
-    TabPositionIndicator();
-    int indicatorWidth() { return TABPOSITIONINDICATOR_WIDTH; }
+    bool equals(const InteractionSettings &ts) const;
 
-private:
-    void paintEvent(QPaintEvent *event);
+    bool m_useVim;
 };
 
-} // namespace Internal
-} // namespace Core
+inline bool operator==(const InteractionSettings &t1, const InteractionSettings &t2) { return t1.equals(t2); }
+inline bool operator!=(const InteractionSettings &t1, const InteractionSettings &t2) { return !t1.equals(t2); }
 
-#endif // TABPOSITIONINDICATOR_H
+} // namespace TextEditor
+
+#endif // INTERACTIONSETTINGS_H

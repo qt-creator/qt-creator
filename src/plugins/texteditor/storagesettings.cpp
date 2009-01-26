@@ -41,12 +41,14 @@ namespace TextEditor {
 static const char * const cleanWhitespaceKey = "cleanWhitespace";
 static const char * const inEntireDocumentKey = "inEntireDocument";
 static const char * const addFinalNewLineKey = "addFinalNewLine";
+static const char * const cleanIndentationKey = "cleanIndentation";
 static const char * const groupPostfix = "StorageSettings";
 
 StorageSettings::StorageSettings()
     : m_cleanWhitespace(true),
       m_inEntireDocument(false),
-      m_addFinalNewLine(true)
+      m_addFinalNewLine(true),
+      m_cleanIndentation(true)
 {
 }
 
@@ -59,6 +61,7 @@ void StorageSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(cleanWhitespaceKey), m_cleanWhitespace);
     s->setValue(QLatin1String(inEntireDocumentKey), m_inEntireDocument);
     s->setValue(QLatin1String(addFinalNewLineKey), m_addFinalNewLine);
+    s->setValue(QLatin1String(cleanIndentationKey), m_cleanIndentation);
     s->endGroup();
 }
 
@@ -71,13 +74,15 @@ void StorageSettings::fromSettings(const QString &category, const QSettings *s)
     m_cleanWhitespace = s->value(group + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace).toBool();
     m_inEntireDocument = s->value(group + QLatin1String(inEntireDocumentKey), m_inEntireDocument).toBool();
     m_addFinalNewLine = s->value(group + QLatin1String(addFinalNewLineKey), m_addFinalNewLine).toBool();
+    m_cleanIndentation = s->value(group + QLatin1String(cleanIndentationKey), m_cleanIndentation).toBool();
 }
 
 bool StorageSettings::equals(const StorageSettings &ts) const
 {
     return m_addFinalNewLine == ts.m_addFinalNewLine
         && m_cleanWhitespace == ts.m_cleanWhitespace
-        && m_inEntireDocument == ts.m_inEntireDocument;
+        && m_inEntireDocument == ts.m_inEntireDocument
+        && m_cleanIndentation == ts.m_cleanIndentation;
 }
 
 } // namespace TextEditor

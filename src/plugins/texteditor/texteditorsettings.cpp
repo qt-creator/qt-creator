@@ -51,8 +51,7 @@ using namespace TextEditor::Constants;
 
 TextEditorSettings *TextEditorSettings::m_instance = 0;
 
-TextEditorSettings::TextEditorSettings(Internal::TextEditorPlugin *plugin,
-                                       QObject *parent)
+TextEditorSettings::TextEditorSettings(QObject *parent)
     : QObject(parent)
 {
     QTC_ASSERT(!m_instance, return);

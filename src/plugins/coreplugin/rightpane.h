@@ -44,41 +44,51 @@ namespace Core {
 class IMode;
 class RightPaneWidget;
 
-// TODO: The right pane works only for the help plugin atm.
-// It can't cope with more than one plugin publishing objects they want in the right pane
-// For that the API would need to be different. (Might be that instead of adding objects
-// to the pool, there should be a method RightPaneWidget::setWidget(QWidget *w)
-// Anyway if a second plugin wants to show something there, redesign this API
+// TODO: The right pane works only for the help plugin atm.  It can't cope
+// with more than one plugin publishing objects they want in the right pane
+// For that the API would need to be different. (Might be that instead of
+// adding objects to the pool, there should be a method
+// RightPaneWidget::setWidget(QWidget *w) Anyway if a second plugin wants to
+// show something there, redesign this API
+
 class CORE_EXPORT RightPanePlaceHolder : public QWidget
 {
     friend class Core::RightPaneWidget;
     Q_OBJECT
+
 public:
     RightPanePlaceHolder(Core::IMode *mode, QWidget *parent = 0);
     ~RightPanePlaceHolder();
     static RightPanePlaceHolder *current();
+
 private slots:
     void currentModeChanged(Core::IMode *);
+
 private:
     void applyStoredSize(int width);
     Core::IMode *m_mode;
     static RightPanePlaceHolder* m_current;
 };
 
+
 class CORE_EXPORT BaseRightPaneWidget : public QObject
 {
     Q_OBJECT
+
 public:
     BaseRightPaneWidget(QWidget *widget);
     ~BaseRightPaneWidget();
     QWidget *widget() const;
+
 private:
     QWidget *m_widget;
 };
 
+
 class CORE_EXPORT RightPaneWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     RightPaneWidget();
     ~RightPaneWidget();
@@ -89,11 +99,13 @@ public:
     bool isShown();
     void setShown(bool b);
 
-    static RightPaneWidget* instance();
+    static RightPaneWidget *instance();
 
     int storedWidth();
+
 protected:
     void resizeEvent(QResizeEvent *);
+
 private slots:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);

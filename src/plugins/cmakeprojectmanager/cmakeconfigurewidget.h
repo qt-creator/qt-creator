@@ -31,58 +31,51 @@
 **
 ***************************************************************************/
 
-#include "messagemanager.h"
-#include "messageoutputwindow.h"
+#ifndef CMAKECONFIGUREWIDGET_H
+#define CMAKECONFIGUREWIDGET_H
 
-#include <extensionsystem/pluginmanager.h>
+#include "ui_cmakeconfigurewidget.h"
+#include <QtGui/QWidget>
+#include <QtGui/QDialog>
 
-#include <QtGui/QStatusBar>
-#include <QtGui/QApplication>
+namespace CMakeProjectManager {
+namespace Internal {
 
-using namespace Core;
+class CMakeManager;
 
-MessageManager *MessageManager::m_instance = 0;
-
-MessageManager::MessageManager()
-    : m_messageOutputWindow(0)
+class CMakeConfigureWidget : public QWidget
 {
-    m_instance = this;
+    Q_OBJECT
+public:
+    CMakeConfigureWidget(QWidget *parent, CMakeManager *manager, const QString &sourceDirectory);
+    Ui::CMakeConfigureWidget m_ui;
+
+    QString buildDirectory();
+    QStringList arguments();
+    bool configureSucceded();
+
+private slots:
+    void runCMake();
+private:
+    bool m_configureSucceded;
+    CMakeManager *m_cmakeManager;
+    QString m_sourceDirectory;
+};
+
+class CMakeConfigureDialog : public QDialog
+{
+public:
+    CMakeConfigureDialog(QWidget *parent, CMakeManager *manager, const QString &sourceDirectory);
+
+    QString buildDirectory();
+    QStringList arguments();
+    bool configureSucceded();
+
+private:
+    CMakeConfigureWidget *m_cmakeConfigureWidget;
+};
+
+}
 }
 
-MessageManager::~MessageManager()
-{
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    if (pm && m_messageOutputWindow) {
-        pm->removeObject(m_messageOutputWindow);
-        delete m_messageOutputWindow;
-    }
-
-    m_instance = 0;
-}
-
-void MessageManager::init()
-{
-    m_messageOutputWindow = new Internal::MessageOutputWindow;
-    ExtensionSystem::PluginManager::instance()->addObject(m_messageOutputWindow);
-}
-
-void MessageManager::showOutputPane()
-{
-    if (m_messageOutputWindow)
-        m_messageOutputWindow->popup(false);
-}
-
-void MessageManager::displayStatusBarMessage(const QString & /*text*/, int /*ms*/)
-{
-    // TODO: Currently broken, but noone really notices, so...
-    //m_mainWindow->statusBar()->showMessage(text, ms);
-}
-
-void MessageManager::printToOutputPane(const QString &text, bool bringToForeground)
-{
-    if (!m_messageOutputWindow)
-        return;
-    if (bringToForeground)
-        m_messageOutputWindow->popup(false);
-    m_messageOutputWindow->append(text);
-}
+#endif // CMAKECONFIGUREWIDGET_H
