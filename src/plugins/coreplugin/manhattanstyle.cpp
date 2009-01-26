@@ -773,7 +773,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
 
-                QRect rect = editRect.adjusted(1, 0, -8, 0);
+                QRect rect = editRect.adjusted(1, 0, 0, 0);
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, rect.width());
                 drawItemText(painter, rect.translated(0, 1),
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
