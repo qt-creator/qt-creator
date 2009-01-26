@@ -912,7 +912,7 @@ void PerforcePlugin::p4Diff(const QStringList &files, QString diffname)
         } else if (!displayInEditor && existingEditor) {
             if (existingEditor) {
                 existingEditor->createNew(result.stdOut);
-                Core::EditorManager::instance()->setCurrentEditor(existingEditor);
+                Core::EditorManager::instance()->activateEditor(existingEditor);
             }
         }
     }

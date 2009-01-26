@@ -235,7 +235,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
     IEditor *editor = 0;
     if (item)
         editor = item->data(0, Qt::UserRole).value<IEditor*>();
-    EditorManager::instance()->setCurrentEditor(editor);
+    EditorManager::instance()->activateEditor(editor);
 }
 
 void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)

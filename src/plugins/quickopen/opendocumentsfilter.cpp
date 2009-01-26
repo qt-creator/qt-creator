@@ -97,7 +97,7 @@ void OpenDocumentsFilter::accept(FilterEntry selection) const
 {
     IEditor *editor = selection.internalData.value<IEditor *>();
     if (editor) {
-        m_editorManager->setCurrentEditor(editor);
+        m_editorManager->activateEditor(editor);
         return;
     }
     m_editorManager->openEditor(selection.internalData.toString());

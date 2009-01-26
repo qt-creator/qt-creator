@@ -513,7 +513,7 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
         // Show in the same editor if diff has been executed before
         if (Core::IEditor *editor = locateEditor("originalFileName", files.front())) {
             editor->createNew(response.stdOut);
-            Core::EditorManager::instance()->setCurrentEditor(editor);
+            Core::EditorManager::instance()->activateEditor(editor);
             return;
         }
     }
@@ -776,7 +776,7 @@ void SubversionPlugin::filelog(const QString &file)
 
     if (Core::IEditor *editor = locateEditor("logFileName", file)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor);
     } else {
         const QString title = tr("svn log %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, file, codec);
@@ -819,7 +819,7 @@ void SubversionPlugin::annotate(const QString &file)
 
     if (Core::IEditor *editor = locateEditor("annotateFileName", file)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor);
     } else {
         const QString title = tr("svn annotate %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, file, codec);
@@ -873,7 +873,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const QString id = diffArg + source;
     if (Core::IEditor *editor = locateEditor("describeChange", id)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor);
     } else {
         const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);

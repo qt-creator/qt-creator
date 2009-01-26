@@ -167,20 +167,18 @@ private:
 class EditorManagerPrototype : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE setCurrentEditor DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE activateEditor DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> openedEditors READ openedEditors DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QList<Core::IEditor*> editorHistory  READ editorHistory DESIGNABLE false SCRIPTABLE true STORED false)
-//    Q_PROPERTY(QList<Core::EditorGroup *> editorGroups READ editorGroups DESIGNABLE false SCRIPTABLE true STORED false)
 public:
     typedef  Core::EditorManager EditorManager;
 
     EditorManagerPrototype(QObject *parent = 0);
 
     Core::IEditor *currentEditor() const;
-    void setCurrentEditor(Core::IEditor *editor);
+    void activateEditor(Core::IEditor *editor);
     QList<Core::IEditor*> openedEditors() const;
     QList<Core::IEditor*> editorHistory() const;
-//    QList<Core::EditorGroup *> editorGroups() const;
 
 public slots:
     QList<Core::IEditor*> editorsForFiles(QList<Core::IFile*> files) const;
@@ -227,37 +225,6 @@ public slots:
 
 private:
     Core::IEditor *callee() const;
-};
-
-// Script prototype for the editor group interface with Script-managed life cycle.
-
-class EditorGroupPrototype :  public QObject, public QScriptable
-{
-    Q_OBJECT
-    Q_PROPERTY(int editorCount READ editorCount DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(Core::IEditor* currentEditor READ currentEditor WRITE setCurrentEditor DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QList<Core::IEditor*> editors READ editors DESIGNABLE false SCRIPTABLE true STORED false)
-
-public:
-    EditorGroupPrototype(QObject *parent = 0);
-
-    int editorCount() const;
-    Core::IEditor *currentEditor() const;
-    void setCurrentEditor(Core::IEditor *editor);
-    QList<Core::IEditor*> editors() const;
-
-public slots:
-    void addEditor(Core::IEditor *editor);
-    void insertEditor(int i, Core::IEditor *editor);
-    void removeEditor(Core::IEditor *editor);
-
-    void moveEditorsFromGroup(Core::EditorGroup *group);
-    void moveEditorFromGroup(Core::EditorGroup *group, Core::IEditor *editor);
-
-    QString toString() const;
-
-private:
-    Core::EditorGroup *callee() const;
 };
 
 } // namespace Internal

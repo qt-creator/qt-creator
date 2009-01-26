@@ -687,7 +687,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     }
     if (currentEditorRemoved) {
         if (m_d->m_editorHistory.count() > 0) {
-            setCurrentEditor(m_d->m_editorHistory.first(), true);
+            activateEditor(m_d->m_editorHistory.first(), true);
         } else {
             editorChanged(currentEditor());
         }
@@ -1223,7 +1223,7 @@ void EditorManager::updateActions()
 
 QList<IEditor*> EditorManager::openedEditors() const
 {
-    return m_d->m_view->editors();
+    return m_d->m_editorModel->editors();
 }
 
 Internal::EditorModel *EditorManager::openedEditorsModel() const
@@ -1611,7 +1611,7 @@ void EditorManager::unsplitAll()
 {
     m_d->m_splitter->unsplit(0);
     if (IEditor *e = m_d->m_splitter->editor())
-        setCurrentEditor(e);
+        activateEditor(e);
 }
 
 void EditorManager::gotoOtherWindow()

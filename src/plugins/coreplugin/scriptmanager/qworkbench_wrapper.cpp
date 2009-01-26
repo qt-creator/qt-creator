@@ -252,9 +252,9 @@ Core::IEditor *EditorManagerPrototype::currentEditor() const
     return callee()->currentEditor();
 }
 
-void EditorManagerPrototype::setCurrentEditor(Core::IEditor *editor)
+void EditorManagerPrototype::activateEditor(Core::IEditor *editor)
 {
-    callee()->setCurrentEditor(editor);
+    callee()->activateEditor(editor);
 }
 
 QList<Core::IEditor*> EditorManagerPrototype::openedEditors() const
@@ -266,11 +266,6 @@ QList<Core::IEditor*> EditorManagerPrototype::editorHistory() const
 {
     return callee()->editorHistory();
 }
-
-//QList<Core::EditorGroup *> EditorManagerPrototype::editorGroups() const
-//{
-//    return callee()->editorGroups();
-//}
 
 QList<Core::IEditor*> EditorManagerPrototype::editorsForFiles(QList<Core::IFile*> files) const
 {
@@ -376,70 +371,6 @@ QString EditorPrototype::toString() const
     return rc;
 }
 
-// ----------- EditorGroupPrototype
-
-EditorGroupPrototype::EditorGroupPrototype(QObject *parent) :
-    QObject(parent)
-{
-}
-
-int EditorGroupPrototype::editorCount() const
-{
-    return callee()->editorCount();
-}
-
-Core::IEditor *EditorGroupPrototype::currentEditor() const
-{
-    return callee()->currentEditor();
-}
-
-void EditorGroupPrototype::setCurrentEditor(Core::IEditor *editor)
-{
-    callee()->setCurrentEditor(editor);
-}
-
-QList<Core::IEditor*> EditorGroupPrototype::editors() const
-{
-    return callee()->editors();
-}
-
-void EditorGroupPrototype::addEditor(Core::IEditor *editor)
-{
-    callee()->addEditor(editor);
-}
-
-void EditorGroupPrototype::insertEditor(int i, Core::IEditor *editor)
-{
-    callee()->insertEditor(i, editor);
-}
-
-void EditorGroupPrototype::removeEditor(Core::IEditor *editor)
-{
-    callee()->removeEditor(editor);
-}
-
-
-void EditorGroupPrototype::moveEditorsFromGroup(Core::EditorGroup *group)
-{
-    callee()->moveEditorsFromGroup(group);
-}
-
-void EditorGroupPrototype::moveEditorFromGroup(Core::EditorGroup *group, Core::IEditor *editor)
-{
-    callee()->moveEditorFromGroup(group, editor);
-}
-
-QString EditorGroupPrototype::toString() const
-{
-    return QLatin1String("EditorGroup");
-}
-
-Core::EditorGroup *EditorGroupPrototype::callee() const
-{
-    EditorGroup *rc = qscriptvalue_cast<EditorGroup *>(thisObject());
-    QTC_ASSERT(rc, return 0);
-    return rc;
-}
 
 } // namespace Internal
 } // namespace Core

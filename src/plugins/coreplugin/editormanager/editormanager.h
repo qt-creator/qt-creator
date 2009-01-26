@@ -116,7 +116,9 @@ public:
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
 
+private:
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
+public:
     IEditor *currentEditor() const;
     IEditor *activateEditor(IEditor *editor, bool ignoreNavigationHistory = false);
 //    EditorGroup *currentEditorGroup() const;
