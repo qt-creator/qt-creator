@@ -114,7 +114,7 @@ private slots:
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
 
-    void installHandler();
+    void installHandlerOnCurrentEditor();
     void installHandler(Core::IEditor *editor);
     void removeHandler();
 
@@ -171,7 +171,7 @@ bool FakeVimPluginPrivate::initialize()
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     connect(m_installHandlerAction, SIGNAL(triggered()),
-        this, SLOT(installHandler()));
+        this, SLOT(installHandlerOnCurrentEditor()));
 
     // EditorManager
     QObject *editorManager = m_core->editorManager();
@@ -219,6 +219,11 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         handler->setConfigValue(ConfigAutoIndent,
             settings.m_autoIndent ? ConfigOn : ConfigOff); 
     }
+}
+
+void FakeVimPluginPrivate::installHandlerOnCurrentEditor()
+{
+    installHandler(EditorManager::instance()->currentEditor());
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,
