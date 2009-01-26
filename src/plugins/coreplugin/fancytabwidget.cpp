@@ -158,7 +158,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     QColor hoverColor;
 
     if (hover) {
-        hoverColor = QColor(255, 255, 255, m_hoverControl.currentFrame()*2);
+        hoverColor = QColor(255, 255, 255, m_hoverControl.currentFrame());
     }
 
     QColor light = QColor(255, 255, 255, 40);

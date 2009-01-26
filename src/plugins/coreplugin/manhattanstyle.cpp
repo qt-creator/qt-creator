@@ -495,10 +495,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 if (pressed) {
                     QColor shade(0, 0, 0, 50);
                     if (option->state & State_Sunken)
-                        shade = QColor(0, 0, 0, 70);
+                        shade = QColor(0, 0, 0, 50);
 #ifndef Q_WS_MAC
                     else if (option->state & State_MouseOver)
-                        shade = QColor(255, 255, 255, 40);
+                        shade = QColor(255, 255, 255, 10);
 #endif
                     else if (option->state & State_On)
                         shade = QColor(0, 0, 0, 50);
@@ -514,7 +514,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 }
  #ifndef Q_WS_MAC
                else if (option->state & State_MouseOver) {
-                    QColor lighter(255, 255, 255, 100);
+                    QColor lighter(255, 255, 255, 35);
                     painter->fillRect(rect, lighter);
                     painter->drawLine(rect.topRight(), rect.bottomRight());
                 }
