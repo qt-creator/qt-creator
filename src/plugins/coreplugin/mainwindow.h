@@ -80,13 +80,12 @@ class CoreImpl;
 class FancyTabWidget;
 class GeneralSettings;
 class NavigationWidget;
-class OutputPane;
 class ProgressManagerPrivate;
 class ShortcutSettings;
 class ViewManager;
 class VersionDialog;
 
-class CORE_EXPORT  MainWindow : public QMainWindow
+class CORE_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -198,7 +197,6 @@ private:
 
     ExtensionSystem::PluginManager *m_pluginManager;
 
-    OutputPane *m_outputPane;
     BaseMode *m_outputMode;
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;

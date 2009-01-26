@@ -81,7 +81,7 @@ private:
 OutputPanePlaceHolder *OutputPanePlaceHolder::m_current = 0;
 
 OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QWidget *parent)
-    :QWidget(parent), m_mode(mode), m_closeable(true)
+   : QWidget(parent), m_mode(mode), m_closeable(true)
 {
     setVisible(false);
     setLayout(new QVBoxLayout);
@@ -98,8 +98,8 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QWidget *parent)
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
     if (m_current == this) {
-        OutputPane::instance()->setParent(0);
-        OutputPane::instance()->hide();
+        OutputPaneManager::instance()->setParent(0);
+        OutputPaneManager::instance()->hide();
     }
 }
 
@@ -117,45 +117,54 @@ void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
 {
     if (m_current == this) {
         m_current = 0;
-        OutputPane::instance()->setParent(0);
-        OutputPane::instance()->hide();
-        OutputPane::instance()->updateStatusButtons(false);
+        OutputPaneManager::instance()->setParent(0);
+        OutputPaneManager::instance()->hide();
+        OutputPaneManager::instance()->updateStatusButtons(false);
     }
     if (m_mode == mode) {
         m_current = this;
-        layout()->addWidget(OutputPane::instance());
-        OutputPane::instance()->show();
-        OutputPane::instance()->updateStatusButtons(isVisible());
-        OutputPane::instance()->setCloseable(m_closeable);
+        layout()->addWidget(OutputPaneManager::instance());
+        OutputPaneManager::instance()->show();
+        OutputPaneManager::instance()->updateStatusButtons(isVisible());
+        OutputPaneManager::instance()->setCloseable(m_closeable);
     }
 }
 
 ////
-// OutputPane
+// OutputPaneManager
 ////
 
-OutputPane *OutputPane::m_instance = 0;
+static OutputPaneManager *m_instance = 0;
 
-OutputPane *OutputPane::instance()
+void OutputPaneManager::create()
+{
+   m_instance = new OutputPaneManager; 
+}
+
+void OutputPaneManager::destroy()
+{
+    delete m_instance;
+    m_instance = 0;
+}
+
+OutputPaneManager *OutputPaneManager::instance()
 {
     return m_instance;
 }
 
-void OutputPane::updateStatusButtons(bool visible)
+void OutputPaneManager::updateStatusButtons(bool visible)
 {
     int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
     if (m_buttons.value(idx))
         m_buttons.value(idx)->setChecked(visible);
 }
 
-OutputPane::OutputPane(const QList<int> &context, QWidget *parent) :
+OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QWidget(parent),
-    m_context(context),
     m_widgetComboBox(new QComboBox),
     m_clearButton(new QToolButton),
     m_closeButton(new QToolButton),
     m_closeAction(0),
-    m_pluginManager(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget)
@@ -191,24 +200,19 @@ OutputPane::OutputPane(const QList<int> &context, QWidget *parent) :
 #else
     m_buttonsWidget->layout()->setSpacing(4);
 #endif
-
-    m_instance = this;
 }
 
-OutputPane::~OutputPane()
+OutputPaneManager::~OutputPaneManager()
 {
-    m_instance = 0;
 }
 
-QWidget *OutputPane::buttonsWidget()
+QWidget *OutputPaneManager::buttonsWidget()
 {
     return m_buttonsWidget;
 }
 
-void OutputPane::init(ExtensionSystem::PluginManager *pm)
+void OutputPaneManager::init()
 {
-    m_pluginManager = pm;
-
     ActionManager *am = Core::ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
@@ -217,7 +221,8 @@ void OutputPane::init(ExtensionSystem::PluginManager *pm)
     mwindow->addMenu(mpanes, Constants::G_WINDOW_PANES);
     mpanes->menu()->setTitle(tr("Output &Panes"));
 
-    QList<IOutputPane*> panes = m_pluginManager->getObjects<IOutputPane>();
+    QList<IOutputPane*> panes = ExtensionSystem::PluginManager::instance()
+        ->getObjects<IOutputPane>();
     QMultiMap<int, IOutputPane*> sorted;
     foreach (IOutputPane* outPane, panes)
         sorted.insertMulti(outPane->priorityInStatusBar(), outPane);
@@ -251,7 +256,7 @@ void OutputPane::init(ExtensionSystem::PluginManager *pm)
         actionId.remove(QLatin1Char(' '));
         QAction *action = new QAction(outPane->name(), this);
 
-        Command *cmd = am->registerAction(action, actionId, m_context);
+        Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
         if (outPane->priorityInStatusBar() != -1) {
 #ifdef Q_OS_MAC
             cmd->setDefaultKeySequence(QKeySequence("Ctrl+" + QString::number(shortcutNumber)));
@@ -281,7 +286,7 @@ void OutputPane::init(ExtensionSystem::PluginManager *pm)
     changePage();
 }
 
-void OutputPane::shortcutTriggered()
+void OutputPaneManager::shortcutTriggered()
 {
     QAction *action = qobject_cast<QAction*>(sender());
     if (action && m_actions.contains(action)) {
@@ -305,7 +310,7 @@ void OutputPane::shortcutTriggered()
     }
 }
 
-void OutputPane::buttonTriggered()
+void OutputPaneManager::buttonTriggered()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     QMap<int, QPushButton *>::const_iterator it, end;
@@ -327,7 +332,7 @@ void OutputPane::buttonTriggered()
     }
 }
 
-void OutputPane::updateToolTip()
+void OutputPaneManager::updateToolTip()
 {
     QAction *action = qobject_cast<QAction*>(sender());
     if (action) {
@@ -337,7 +342,7 @@ void OutputPane::updateToolTip()
     }
 }
 
-void OutputPane::slotHide()
+void OutputPaneManager::slotHide()
 {
     if (OutputPanePlaceHolder::m_current) {
         OutputPanePlaceHolder::m_current->setVisible(false);
@@ -350,7 +355,7 @@ void OutputPane::slotHide()
     }
 }
 
-int OutputPane::findIndexForPage(IOutputPane *out)
+int OutputPaneManager::findIndexForPage(IOutputPane *out)
 {
     if (!out)
         return -1;
@@ -370,7 +375,7 @@ int OutputPane::findIndexForPage(IOutputPane *out)
         return -1;
 }
 
-void OutputPane::ensurePageVisible(int idx)
+void OutputPaneManager::ensurePageVisible(int idx)
 {
     if (m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() != idx) {
         m_widgetComboBox->setCurrentIndex(m_widgetComboBox->findData(idx));
@@ -380,13 +385,13 @@ void OutputPane::ensurePageVisible(int idx)
 }
 
 
-void OutputPane::showPage(bool focus)
+void OutputPaneManager::showPage(bool focus)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
     showPage(idx, focus);
 }
 
-void OutputPane::showPage(int idx, bool focus)
+void OutputPaneManager::showPage(int idx, bool focus)
 {
     IOutputPane *out = m_pageMap.value(idx);
     if (idx > -1) {
@@ -405,7 +410,7 @@ void OutputPane::showPage(int idx, bool focus)
     }
 }
 
-void OutputPane::togglePage(bool focus)
+void OutputPaneManager::togglePage(bool focus)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
     if (OutputPanePlaceHolder::m_current
@@ -417,23 +422,23 @@ void OutputPane::togglePage(bool focus)
     }
 }
 
-void OutputPane::setCloseable(bool b)
+void OutputPaneManager::setCloseable(bool b)
 {
     m_closeAction->setVisible(b);
 }
 
-bool OutputPane::closeable()
+bool OutputPaneManager::closeable()
 {
     return m_closeButton->isVisibleTo(m_closeButton->parentWidget());
 }
 
-void OutputPane::focusInEvent(QFocusEvent *e)
+void OutputPaneManager::focusInEvent(QFocusEvent *e)
 {
     if (m_outputWidgetPane->currentWidget())
         m_outputWidgetPane->currentWidget()->setFocus(e->reason());
 }
 
-void OutputPane::changePage()
+void OutputPaneManager::changePage()
 {
     if (m_outputWidgetPane->count() <= 0)
         return;
@@ -470,7 +475,7 @@ void OutputPane::changePage()
     m_lastIndex = idx;
 }
 
-void OutputPane::clearPage()
+void OutputPaneManager::clearPage()
 {
     if (m_pageMap.contains(m_outputWidgetPane->currentIndex()))
         m_pageMap.value(m_outputWidgetPane->currentIndex())->clearContents();

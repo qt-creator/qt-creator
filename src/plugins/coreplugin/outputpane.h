@@ -47,21 +47,20 @@ class QStackedWidget;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ExtensionSystem { class PluginManager; }
-
 namespace Core {
 
 class IMode;
 class IOutputPane;
 
 namespace Internal {
-class OutputPane;
+class OutputPaneManager;
+class MainWindow;
 }
 
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget
 {
-    friend class Core::Internal::OutputPane; // needs to set m_visible and thus access m_current
+    friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
     Q_OBJECT
 public:
     OutputPanePlaceHolder(Core::IMode *mode, QWidget *parent = 0);
@@ -80,17 +79,13 @@ private:
 
 namespace Internal {
 
-class OutputPane
-  : public QWidget
+class OutputPaneManager : public QWidget
 {
     Q_OBJECT
 
 public:
-    OutputPane(const QList<int> &context, QWidget *parent = 0);
-    ~OutputPane();
-    void init(ExtensionSystem::PluginManager *pm);
-    static OutputPane *instance();
-    const QList<int> &context() const { return m_context; }
+    void init();
+    static OutputPaneManager *instance();
     void setCloseable(bool b);
     bool closeable();
     QWidget *buttonsWidget();
@@ -103,7 +98,7 @@ public slots:
 protected:
     void focusInEvent(QFocusEvent *e);
 
-private slots:;
+private slots:
     void changePage();
     void showPage(bool focus);
     void togglePage(bool focus);
@@ -112,16 +107,22 @@ private slots:;
     void buttonTriggered();
 
 private:
+    // the only class that is allowed to create and destroy
+    friend class MainWindow;
+
+    static void create();
+    static void destroy();
+
+    OutputPaneManager(QWidget *parent = 0);
+    ~OutputPaneManager();
+
     void showPage(int idx, bool focus);
     void ensurePageVisible(int idx);
     int findIndexForPage(IOutputPane *out);
-    const QList<int> m_context;
     QComboBox *m_widgetComboBox;
     QToolButton *m_clearButton;
     QToolButton *m_closeButton;
     QAction *m_closeAction;
-
-    ExtensionSystem::PluginManager *m_pluginManager;
 
     QMap<int, Core::IOutputPane*> m_pageMap;
     int m_lastIndex;
@@ -132,7 +133,7 @@ private:
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
 
-    static OutputPane *m_instance;
+    static OutputPaneManager *m_instance;
 };
 
 } // namespace Internal

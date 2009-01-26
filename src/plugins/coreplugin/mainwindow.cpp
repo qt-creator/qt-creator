@@ -131,7 +131,6 @@ MainWindow::MainWindow() :
     m_versionDialog(0),
     m_activeContext(0),
     m_pluginManager(0),
-    m_outputPane(new OutputPane(m_globalContext)),
     m_outputMode(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
@@ -150,6 +149,8 @@ MainWindow::MainWindow() :
 #endif
     m_toggleSideBarButton(new QToolButton)
 {
+    OutputPaneManager::create();
+
     setWindowTitle(tr("Qt Creator"));
     qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
     setDockNestingEnabled(true);
@@ -247,9 +248,9 @@ MainWindow::~MainWindow()
     //because they might trigger stuff that tries to access data from editorwindow, like removeContextWidget
 
     // All modes are now gone
-    delete OutputPane::instance();
+    OutputPaneManager::destroy();
 
-    // Now that the OutputPane is gone, is a good time to delete the view
+    // Now that the OutputPaneManager is gone, is a good time to delete the view
     m_pluginManager->removeObject(m_outputView);
     delete m_outputView;
 
@@ -299,14 +300,15 @@ bool MainWindow::init(ExtensionSystem::PluginManager *pm, QString *)
     outputModeWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_outputMode));
     outputModeWidget->setFocusProxy(oph);
 
-    m_outputMode->setContext(m_outputPane->context());
+    m_outputMode->setContext(m_globalContext);
     m_pluginManager->addObject(m_outputMode);
     m_pluginManager->addObject(m_generalSettings);
     m_pluginManager->addObject(m_shortcutSettings);
 
-    // Add widget to the bottom, we create the view here instead of inside the OutputPane, since
-    // the ViewManager needs to be initilized before
-    m_outputView = new Core::BaseView("OutputWindow.Buttons", m_outputPane->buttonsWidget(), QList<int>(), Core::IView::Second);
+    // Add widget to the bottom, we create the view here instead of inside the
+    // OutputPaneManager, since the ViewManager needs to be initilized before
+    m_outputView = new Core::BaseView("OutputWindow.Buttons",
+        OutputPaneManager::instance()->buttonsWidget(), QList<int>(), Core::IView::Second);
     m_pluginManager->addObject(m_outputView);
     return true;
 }
@@ -318,7 +320,7 @@ void MainWindow::extensionsInitialized()
     m_viewManager->extensionsInitalized();
 
     m_messageManager->init(m_pluginManager);
-    m_outputPane->init(m_pluginManager);
+    OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();
     readSettings();
@@ -756,7 +758,7 @@ void MainWindow::setFocusToEditor()
     if (focusWidget && focusWidget == qApp->focusWidget()) {
         if (FindToolBarPlaceHolder::getCurrent())
             FindToolBarPlaceHolder::getCurrent()->hide();
-        m_outputPane->slotHide();
+        OutputPaneManager::instance()->slotHide();
         RightPaneWidget::instance()->setShown(false);
     }
 }
