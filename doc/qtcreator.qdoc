@@ -1245,7 +1245,7 @@
     \bold{Display Signals and Slots}
 
     If you have an instance of a class that is derived from QObject, and you
-    you would like to find all other objects connected to one of your object's
+    would like to find all other objects connected to one of your object's
     slots using Qt's signals and slots mechanism -- you can enable
     \gui{Use Custom Display for Qt Objects} feature under the \gui Debug menu.
 
