@@ -37,18 +37,19 @@
 #include <coreplugin/core_global.h>
 #include <QtCore/QObject>
 #include <QtCore/QList>
-#include <QtGui/QKeySequence>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
+class QKeySequence;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
 
-struct NavigationView {
-      QWidget *widget;
-      QList<QToolButton *> doockToolBarWidgets;
+struct NavigationView
+{
+    QWidget *widget;
+    QList<QToolButton *> doockToolBarWidgets;
 };
 
 class CORE_EXPORT INavigationWidgetFactory : public QObject

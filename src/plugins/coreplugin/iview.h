@@ -36,14 +36,11 @@
 
 #include "core_global.h"
 
-#include <QtGui/QKeySequence>
-
 #include <coreplugin/icontext.h>
 
 namespace Core {
 
-class CORE_EXPORT IView
-    : public IContext
+class CORE_EXPORT IView : public IContext
 {
     Q_OBJECT
 public:

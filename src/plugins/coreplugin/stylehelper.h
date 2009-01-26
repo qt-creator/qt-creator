@@ -69,9 +69,7 @@ public:
     static void menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
 
     // Pixmap cache should only be enabled for X11 due to slow gradients
-    static bool usePixmapCache() {
-        return true;
-    }
+    static bool usePixmapCache() { return true; }
 
 private:
     static QColor m_baseColor;

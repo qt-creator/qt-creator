@@ -36,8 +36,6 @@
 
 #include <QtGui/QWidget>
 
-#define TABPOSITIONINDICATOR_WIDTH 2
-
 namespace Core {
 namespace Internal {
 
@@ -46,6 +44,8 @@ class TabPositionIndicator : public QWidget
     Q_OBJECT
 
 public:
+    enum { TABPOSITIONINDICATOR_WIDTH = 2 };
+
     TabPositionIndicator();
     int indicatorWidth() { return TABPOSITIONINDICATOR_WIDTH; }
 

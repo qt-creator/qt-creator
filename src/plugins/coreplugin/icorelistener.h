@@ -42,23 +42,25 @@ namespace Core {
 
 /*!
   \class Core::ICoreListener
-  \brief Provides a hook for plugins to veto on certain events emitted from the core plugin.
 
-  You implement this interface if you want to prevent certain events from occurring, e.g.
-  if you want to prevent the closing of the whole application or to prevent the closing
-  of an editor window under certain conditions.
+  \brief Provides a hook for plugins to veto on certain events emitted from
+the core plugin.
+
+  You implement this interface if you want to prevent certain events from
+  occurring, e.g.  if you want to prevent the closing of the whole application
+  or to prevent the closing of an editor window under certain conditions.
 
   If e.g. the application window requests a close, then first
-  ICoreListener::coreAboutToClose() is called (in arbitrary order)
-  on all registered objects implementing this interface. If one if these calls returns
-  false, the process is aborted and the event is ignored.
-  If all calls return true, the corresponding signal is emitted and the event is accepted/performed.
+  ICoreListener::coreAboutToClose() is called (in arbitrary order) on all
+  registered objects implementing this interface. If one if these calls returns
+  false, the process is aborted and the event is ignored.  If all calls return
+  true, the corresponding signal is emitted and the event is accepted/performed.
 
   Guidelines for implementing:
   \list
   \o Return false from the implemented method if you want to prevent the event.
   \o You need to add your implementing object to the plugin managers objects:
-     ICore::pluginManager()->addObject(yourImplementingObject);
+     ExtensionSystem::PluginManager::instance()->addObject(yourImplementingObject);
   \o Don't forget to remove the object again at deconstruction (e.g. in the destructor of
      your plugin).
 */

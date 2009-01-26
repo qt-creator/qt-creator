@@ -33,6 +33,8 @@
 
 #include "inavigationwidgetfactory.h"
 
+#include <QtGui/QKeySequence>
+
 using namespace Core;
 
 INavigationWidgetFactory::INavigationWidgetFactory()

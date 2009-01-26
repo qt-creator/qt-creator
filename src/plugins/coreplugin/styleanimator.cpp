@@ -54,25 +54,25 @@ void Animation::paint(QPainter *painter, const QStyleOption *option)
 
 void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
 {
-    if (_secondaryImage.isNull() || _primaryImage.isNull())
+    if (m_secondaryImage.isNull() || m_primaryImage.isNull())
         return;
 
-    if (_tempImage.isNull())
-        _tempImage = _secondaryImage;
+    if (m_tempImage.isNull())
+        m_tempImage = m_secondaryImage;
 
     const int a = qRound(alpha*256);
     const int ia = 256 - a;
-    const int sw = _primaryImage.width();
-    const int sh = _primaryImage.height();
-    const int bpl = _primaryImage.bytesPerLine();
-    switch (_primaryImage.depth()) {
+    const int sw = m_primaryImage.width();
+    const int sh = m_primaryImage.height();
+    const int bpl = m_primaryImage.bytesPerLine();
+    switch (m_primaryImage.depth()) {
     case 32:
         {
-            uchar *mixed_data = _tempImage.bits();
-            const uchar *back_data = _primaryImage.bits();
-            const uchar *front_data = _secondaryImage.bits();
+            uchar *mixed_data = m_tempImage.bits();
+            const uchar *back_data = m_primaryImage.bits();
+            const uchar *front_data = m_secondaryImage.bits();
             for (int sy = 0; sy < sh; sy++) {
-                quint32* mixed = (quint32*)mixed_data;
+                quint32 *mixed = (quint32*)mixed_data;
                 const quint32* back = (const quint32*)back_data;
                 const quint32* front = (const quint32*)front_data;
                 for (int sx = 0; sx < sw; sx++) {
@@ -91,27 +91,28 @@ void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
     default:
         break;
     }
-    painter->drawImage(rect, _tempImage);
+    painter->drawImage(rect, m_tempImage);
 }
 
 void Transition::paint(QPainter *painter, const QStyleOption *option)
 {
     float alpha = 1.0;
-    if (_duration > 0) {
+    if (m_duration > 0) {
         QTime current = QTime::currentTime();
 
-        if (_startTime > current)
-            _startTime = current;
+        if (m_startTime > current)
+            m_startTime = current;
 
-        int timeDiff = _startTime.msecsTo(current);
-        alpha = timeDiff/(float)_duration;
-        if (timeDiff > _duration) {
-            _running = false;
+        int timeDiff = m_startTime.msecsTo(current);
+        alpha = timeDiff/(float)m_duration;
+        if (timeDiff > m_duration) {
+            m_running = false;
             alpha = 1.0;
         }
     }
     else {
-        _running = false;    }
+        m_running = false;
+    }
     drawBlendedImage(painter, option->rect, alpha);
 }
 
