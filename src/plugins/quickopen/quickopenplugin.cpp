@@ -57,6 +57,7 @@
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
+
 namespace {
     static bool filterLessThan(const IQuickOpenFilter *first, const IQuickOpenFilter *second)
     {
@@ -89,10 +90,12 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 
     m_quickOpenToolWindow = new QuickOpenToolWindow(this);
     m_quickOpenToolWindow->setEnabled(false);
-    Core::BaseView *view = new Core::BaseView("QuickOpen.ToolWindow",
-        m_quickOpenToolWindow,
-        QList<int>() << core->uniqueIDManager()->uniqueIdentifier(QLatin1String("QuickOpenToolWindow")),
-        Core::IView::First);
+    Core::BaseView *view = new Core::BaseView;
+    view->setUniqueViewName("QuickOpen.ToolWindow");
+    view->setWidget(m_quickOpenToolWindow);
+    view->setContext(QList<int>() << core->uniqueIDManager()
+        ->uniqueIdentifier(QLatin1String("QuickOpenToolWindow")));
+    view->setDefaultPosition(Core::IView::First);
     addAutoReleasedObject(view);
 
     const QString actionId = QLatin1String("QtCreator.View.QuickOpen.ToolWindow");
