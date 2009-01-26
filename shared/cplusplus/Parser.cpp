@@ -2583,7 +2583,7 @@ bool Parser::parseNameId(NameAST *&name)
         return parseName(name, false);
     }
 
-    return false;
+    return true;
 }
 
 bool Parser::parseNestedExpression(ExpressionAST *&node)
