@@ -7,7 +7,7 @@ win32 {
 
 DESTDIR = $$IDE_LIBRARY_PATH
 
-include(../rpath.pri)
+include(rpath.pri)
 
 TARGET = $$qtLibraryTarget($$TARGET)
 
