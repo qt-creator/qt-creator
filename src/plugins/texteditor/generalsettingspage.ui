@@ -215,6 +215,36 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cleanIndentation">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Clean indentation</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QCheckBox" name="addFinalNewLine">
         <property name="text">
          <string>&amp;Ensure newline at end of file</string>
@@ -337,6 +367,12 @@
      <y>212</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>cleanWhitespace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cleanIndentation</receiver>
+   <slot>setEnabled(bool)</slot>
   </connection>
   <connection>
    <sender>showWrapColumn</sender>
