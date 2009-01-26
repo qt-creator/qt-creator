@@ -48,9 +48,9 @@
 
 using namespace Core::Internal;
 
-PluginDialog::PluginDialog(ExtensionSystem::PluginManager *manager, QWidget *parent)
+PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
-      m_view(new ExtensionSystem::PluginView(manager, this))
+      m_view(new ExtensionSystem::PluginView(ExtensionSystem::PluginManager::instance(), this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
     vl->addWidget(m_view);

@@ -1114,7 +1114,7 @@ void MainWindow::destroyVersionDialog()
 
 void MainWindow::aboutPlugins()
 {
-    PluginDialog dialog(ExtensionSystem::PluginManager::instance(), this);
+    PluginDialog dialog(this);
     dialog.exec();
 }
 

@@ -132,8 +132,6 @@ private:
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
-
-    static OutputPaneManager *m_instance;
 };
 
 } // namespace Internal

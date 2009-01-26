@@ -41,7 +41,6 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
-class PluginManager;
 class PluginSpec;
 class PluginView;
 }
@@ -54,7 +53,7 @@ class PluginDialog : public QDialog
     Q_OBJECT
 
 public:
-    PluginDialog(ExtensionSystem::PluginManager *manager, QWidget *parent);
+    explicit PluginDialog(QWidget *parent);
 
 private slots:
     void updateButtons();
