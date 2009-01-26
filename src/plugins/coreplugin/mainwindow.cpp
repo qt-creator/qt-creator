@@ -116,7 +116,7 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_printer(0),
-    m_actionManager(new ActionManagerPrivate(this, m_uniqueIDManager)),
+    m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
     m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
