@@ -7,7 +7,7 @@ QT += xml \
 
 include(../../qworkbenchplugin.pri)
 include(../../libs/utils/utils.pri)
-include(../../../shared/scriptwrapper/scriptwrapper.pri)
+include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)
 INCLUDEPATH += dialogs \
     actionmanager \

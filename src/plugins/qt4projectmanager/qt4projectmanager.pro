@@ -93,5 +93,5 @@ FORMS = qtversionmanager.ui \
     qt4buildenvironmentwidget.ui
 RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
-include(../../../shared/proparser/proparser.pri)
+include(../../shared/proparser/proparser.pri)
 DEFINES += QT_NO_CAST_TO_ASCII

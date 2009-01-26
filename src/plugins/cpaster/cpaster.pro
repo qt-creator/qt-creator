@@ -12,4 +12,4 @@ SOURCES += cpasterplugin.cpp \
 FORMS += settingspage.ui \
     pasteselect.ui
 
-include(../../../shared/cpaster/cpaster.pri)
+include(../../shared/cpaster/cpaster.pri)

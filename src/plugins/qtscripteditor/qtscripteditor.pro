@@ -3,10 +3,10 @@ TARGET = QtScriptEditor
 QT += script
 
 include(../../qworkbenchplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../../shared/qscripthighlighter/qscripthighlighter.pri)
-include(../../../shared/indenter/indenter.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
+include(../../plugins/texteditor/texteditor.pri)
+include(../../shared/qscripthighlighter/qscripthighlighter.pri)
+include(../../shared/indenter/indenter.pri)
 
 HEADERS += qtscripteditor.h \
 qtscripteditorfactory.h \

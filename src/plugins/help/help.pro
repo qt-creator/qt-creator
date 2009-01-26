@@ -30,7 +30,7 @@ SOURCES += helpplugin.cpp \
 FORMS += docsettingspage.ui \
     filtersettingspage.ui
 RESOURCES += help.qrc
-include(../../../shared/help/help.pri)
+include(../../shared/help/help.pri)
 
 contains(QT_CONFIG, webkit) {
     QT += webkit
