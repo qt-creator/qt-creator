@@ -187,7 +187,7 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
     QWidget *widget = editor->widget();
     
-    FakeVimHandler *handler = new FakeVimHandler(widget, this);
+    FakeVimHandler *handler = new FakeVimHandler(widget, widget);
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(showExtraInformation(QString)));

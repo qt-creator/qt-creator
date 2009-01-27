@@ -2114,10 +2114,6 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    //if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride)
-    //    qDebug() << ob << ev->type() << qApp << d->editor()
-    //        << QEvent::KeyPress << QEvent::ShortcutOverride;
-
     if (ev->type() == QEvent::KeyPress && ob == d->editor())
         return d->handleEvent(static_cast<QKeyEvent *>(ev));
 
