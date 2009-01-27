@@ -133,5 +133,6 @@
         <glob pattern="*.cxx"/>
         <glob pattern="*.c++"/>
         <glob pattern="*.C"/>
+        <glob pattern="*.inl"/>
     </mime-type>
 </mime-info>
