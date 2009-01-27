@@ -391,6 +391,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             return true;
         }
         m_mode = CommandMode;
+        updateMiniBuffer();
         return false;
     }
 
