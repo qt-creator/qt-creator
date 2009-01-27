@@ -43,6 +43,7 @@
 #include <projectexplorer/nodesvisitor.h>
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -60,6 +61,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 
+#include <QtGui/QPainter>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
@@ -94,7 +96,17 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 {
     Q_ASSERT(project);
     setFolderName(QFileInfo(filePath).baseName());
-    setIcon(QIcon(":/qt4projectmanager/images/qt_project.png"));
+
+    static QIcon dirIcon;
+    if (dirIcon.isNull()) {
+        // Create a custom Qt dir icon based on the system icon
+        Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+        QPixmap dirIconPixmap = iconProvider->overlayIcon(QStyle::SP_DirIcon,
+                                                          QIcon(":/qt4projectmanager/images/qt_project.png"),
+                                                          QSize(16, 16));
+        dirIcon.addPixmap(dirIconPixmap);
+    }
+    setIcon(dirIcon);
     m_fileWatcher->addFile(filePath);
     connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
             this, SLOT(scheduleUpdate()));

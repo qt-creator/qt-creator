@@ -32,6 +32,9 @@
 ***************************************************************************/
 
 #include "fileiconprovider.h"
+#include <QtGui/QApplication>
+#include <QtGui/QStyle>
+#include <QtGui/QPainter>
 
 using namespace Core;
 
@@ -48,7 +51,7 @@ using namespace Core;
 FileIconProvider *FileIconProvider::m_instance = 0;
 
 FileIconProvider::FileIconProvider()
-    : m_unknownFileIcon(QLatin1String(":/core/images/unknownfile.png"))
+    : m_unknownFileIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon))
 {
 }
 
@@ -76,7 +79,7 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo)
         // same suffix (Mac OS X), but should speed up the retrieval a lot ...
         icon = m_systemIconProvider.icon(fileInfo);
         if (!suffix.isEmpty())
-            registerIconForSuffix(icon, suffix);
+            registerIconOverlayForSuffix(icon, suffix);
 #else
         if (fileInfo.isDir()) {
             icon = m_systemIconProvider.icon(fileInfo);
@@ -89,11 +92,22 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo)
     return icon;
 }
 
-/*!
-  Registers an icon for a given suffix, overriding any existing icon.
-  */
-void FileIconProvider::registerIconForSuffix(const QIcon &icon, const QString &suffix)
+// Creates a pixmap with baseicon at size and overlayous overlayIcon over it.
+QPixmap FileIconProvider::overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const
 {
+    QPixmap iconPixmap = qApp->style()->standardIcon(baseIcon).pixmap(size);
+    QPainter painter(&iconPixmap);
+    painter.drawPixmap(0, 0, overlayIcon.pixmap(size));
+    painter.end();
+    return iconPixmap;
+}
+
+/*!
+  Registers an icon for a given suffix, overlaying the system file icon
+  */
+void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix)
+{
+    QPixmap fileIconPixmap = overlayIcon(QStyle::SP_FileIcon, icon, QSize(16, 16));
     // delete old icon, if it exists
     QList<QPair<QString,QIcon> >::iterator iter = m_cache.begin();
     for (; iter != m_cache.end(); ++iter) {
@@ -103,7 +117,7 @@ void FileIconProvider::registerIconForSuffix(const QIcon &icon, const QString &s
         }
     }
 
-    QPair<QString,QIcon> newEntry(suffix, icon);
+    QPair<QString,QIcon> newEntry(suffix, fileIconPixmap);
     m_cache.append(newEntry);
 }
 
