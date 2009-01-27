@@ -697,6 +697,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
             moveToFirstNonBlankOnLine();
             finishMovement();
+        } else if (key == 'z') { // center cursor line 
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+            finishMovement();
         } else {
             qDebug() << "IGNORED Z_MODE " << key << text;
         }
