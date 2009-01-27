@@ -880,13 +880,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if (key == 'd') {
-        //setAnchor();
+    } else if (key == 'd' && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
         selectRange(beginLine, endLine);
-        recordRemoveSelectedText();
+        m_registers[m_register] = recordRemoveSelectedText();
     } else if (key == 'D') {
         setAnchor();
         recordBeginGroup();
