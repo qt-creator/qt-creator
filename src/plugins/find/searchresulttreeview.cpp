@@ -50,7 +50,7 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setIndentation(14);
     header()->hide();
 
-    connect (this, SIGNAL(activated(const QModelIndex&)), this, SLOT(emitJumpToSearchResult(const QModelIndex&)));
+    connect (this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
 }
 
 void SearchResultTreeView::setAutoExpandResults(bool expand)
@@ -76,10 +76,7 @@ void SearchResultTreeView::appendResultLine(int index, const QString &fileName, 
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
-    if (model()->data(index, ItemDataRoles::TypeRole).toString().compare("row") != 0)
-        return;
-
-    QString fileName(model()->data(index, ItemDataRoles::FileNameRole).toString());
+    QString fileName = model()->data(index, ItemDataRoles::FileNameRole).toString();
     int position = model()->data(index, ItemDataRoles::ResultIndexRole).toInt();
     int lineNumber = model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
     int searchTermStart = model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
