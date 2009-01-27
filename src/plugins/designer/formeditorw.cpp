@@ -84,8 +84,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-enum { wantCodeGenerationAction = 0 };
-
 static const char *editorWidgetStateKeyC = "editorWidgetState";
 static const char *settingsGroup = "Designer";
 
@@ -166,8 +164,7 @@ FormEditorW::FormEditorW() :
     m_core(Core::ICore::instance()),
     m_initStage(RegisterPlugins),
     m_actionGroupEditMode(0),
-    m_actionPrint(0),
-    m_actionGenerateCode(0)
+    m_actionPrint(0)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -420,13 +417,6 @@ void FormEditorW::setupActions()
     m_actionGroupPreviewInStyle = m_fwm->actionGroupPreviewInStyle();
     mformtools->addMenu(createPreviewStyleMenu(am, m_actionGroupPreviewInStyle));
 
-    // Disabled since we cannot reliably locate uic.
-    if (wantCodeGenerationAction) {
-        m_actionGenerateCode = new QAction(tr("View &code"), this);
-        addToolAction(m_actionGenerateCode, am, m_context,
-                      QLatin1String("FormEditor.ViewCode"), mformtools);
-        connect(m_actionGenerateCode, SIGNAL(triggered()), this, SLOT(generateCode()));
-    }
     // Form settings
     createSeparator(this, am, m_context,  medit, QLatin1String("FormEditor.Edit.Separator2"), Core::Constants::G_EDIT_OTHER);
 
@@ -513,42 +503,6 @@ void FormEditorW::restoreSettings(const QSettings *s)
     }
 }
 
-void FormEditorW::generateCode()
-{
-    const FormWindowEditor *fww = activeFormWindow();
-    if (!fww)
-        return;
-
-    bool ok = false;
-    QString errorMessage;
-
-    do {
-        QByteArray header;
-        if (!fww->generateCode(header, errorMessage))
-            break;
-
-        QString tempPattern = QDir::tempPath();
-        if (!tempPattern.endsWith(QDir::separator())) // platform-dependant
-            tempPattern += QDir::separator();
-        tempPattern += QLatin1String("ui_headerXXXXXX.h");
-        QTemporaryFile headerFile(tempPattern);
-        headerFile.setAutoRemove (false);
-        if (!headerFile.open() || !headerFile.write(header)) {
-            errorMessage = tr("Unable to write to a temporary file.");
-            break;
-        }
-        const QString headerFileName = headerFile.fileName();
-        headerFile.close();
-        Core::IEditor *eif = m_core->editorManager()->openEditor(headerFileName);
-        if (!eif) {
-            errorMessage = tr("Unable open %1.").arg(headerFileName);
-            break;
-        }
-        ok = true;
-    } while (false);
-    if (!ok)
-        critical(errorMessage);
-}
 
 void FormEditorW::critical(const QString &errorMessage)
 {
@@ -621,8 +575,6 @@ void FormEditorW::activeFormWindowChanged(QDesignerFormWindowInterface *afw)
     }
 
     m_actionPreview->setEnabled(foundFormWindow);
-    if (m_actionGenerateCode)
-        m_actionGenerateCode->setEnabled(foundFormWindow);
     m_actionGroupPreviewInStyle->setEnabled(foundFormWindow);
 }
 
