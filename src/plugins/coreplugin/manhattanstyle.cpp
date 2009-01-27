@@ -388,15 +388,20 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                               QStyleHintReturn *returnData) const
 {
-    int ret = 0;
+    int ret = d->style->styleHint(hint, option, widget, returnData);
     switch (hint) {
+    // Make project explorer alternate rows all the way
+    case QStyle::SH_ItemView_PaintAlternatingRowColorsForEmptyArea:
+        if (widget && widget->property("AlternateEmpty").toBool())
+            ret = true;
+        break;
     case QStyle::SH_EtchDisabledText:
-        ret = false; // We really should only enforce this for panel widgets
+        if (panelWidget(widget))
+            ret = false;
         break;
     default:
-        ret =  d->style->styleHint(hint, option, widget, returnData);
+        break;
     }
-
     return ret;
 }
 
