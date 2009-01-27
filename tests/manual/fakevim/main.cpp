@@ -17,8 +17,8 @@ class Proxy : public QObject
     Q_OBJECT
 
 public:
-    Proxy(QWidget *widget, QObject *parent = 0)
-      : QObject(parent), m_widget(widget)
+    Proxy(QWidget *widget, QMainWindow *mw, QObject *parent = 0)
+      : QObject(parent), m_widget(widget), m_mainWindow(mw)
     {}
 
 public slots:
@@ -30,13 +30,35 @@ public slots:
             ed->setExtraSelections(s);
     }
 
+    void changeStatusData(const QString &info)
+    {
+        m_statusData = info;
+        updateStatusBar();
+    }
+
+    void changeStatusMessage(const QString &info)
+    {
+        m_statusMessage = info;
+        updateStatusBar();
+    }
+
     void changeExtraInformation(const QString &info)
     {
         QMessageBox::information(m_widget, "Information", info);
     }
+    
+    void updateStatusBar()
+    {
+        int slack = 80 - m_statusMessage.size() - m_statusData.size();
+        QString msg = m_statusMessage + QString(slack, QChar(' ')) + m_statusData;
+        m_mainWindow->statusBar()->showMessage(msg);
+    }
 
 private:
     QWidget *m_widget;
+    QMainWindow *m_mainWindow;
+    QString m_statusMessage;
+    QString m_statusData;
 };
 
 int main(int argc, char *argv[])
@@ -64,11 +86,11 @@ int main(int argc, char *argv[])
     //widget->resize(450, 350);
     widget->setFocus();
 
-    Proxy proxy(widget);
+    QMainWindow mw;
+    Proxy proxy(widget, &mw);
 
     FakeVimHandler handler(widget, 0);
 
-    QMainWindow mw;
     mw.setWindowTitle("Fakevim (" + title + ")");
     mw.setCentralWidget(widget);
     mw.resize(600, 650);
@@ -85,15 +107,16 @@ int main(int argc, char *argv[])
     mw.statusBar()->setFont(font);
 
     QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
-        mw.statusBar(), SLOT(showMessage(QString)));
+        &proxy, SLOT(changeStatusMessage(QString)));
     QObject::connect(&handler, SIGNAL(quitRequested()),
         &app, SLOT(quit()));
     QObject::connect(&handler,
         SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
-    QObject::connect(&handler,
-        SIGNAL(extraInformationChanged(QString)),
+    QObject::connect(&handler, SIGNAL(extraInformationChanged(QString)),
         &proxy, SLOT(changeExtraInformation(QString)));
+    QObject::connect(&handler, SIGNAL(statusDataChanged(QString)),
+        &proxy, SLOT(changeStatusData(QString)));
 
     handler.setupWidget();
     if (args.size() >= 1)

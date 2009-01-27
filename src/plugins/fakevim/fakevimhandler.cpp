@@ -893,6 +893,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(qMax(count() - 1, 0));
         moveRight(rightDist());
         finishMovement();
+    } else if (key == control('d')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveDown(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
     } else if (key == 'e') {
         m_moveType = MoveInclusive;
         moveToWordBoundary(false, true);
@@ -1068,6 +1075,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         // FIXME: this is non-vim, but as Ctrl-R is taken globally
         // we have a substitute here
         redo();
+    } else if (key == control('u')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveUp(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
     } else if (key == 'v') {
         enterVisualMode(VisualCharMode);
     } else if (key == 'V') {
@@ -1137,20 +1151,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         recordInsertText(str);
         recordEndGroup();
-    } else if (key == control('d')) {
-        int sline = cursorLineOnScreen();
-        // FIXME: this should use the "scroll" option, and "count"
-        moveDown(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
-        finishMovement();
-    } else if (key == control('u')) {
-        int sline = cursorLineOnScreen();
-        // FIXME: this should use the "scroll" option, and "count"
-        moveUp(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
-        finishMovement();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2));
         finishMovement();
@@ -1588,6 +1588,7 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_tc.anchor());
+        // making this unconditional feels better, but is not "vim like"
         if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         return;
