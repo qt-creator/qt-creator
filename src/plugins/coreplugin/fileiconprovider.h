@@ -40,6 +40,7 @@
 #include <QtCore/QPair>
 #include <QtGui/QFileIconProvider>
 #include <QtGui/QIcon>
+#include <QtGui/QStyle>
 
 namespace Core {
 
@@ -48,7 +49,8 @@ public:
     ~FileIconProvider(); // used to clear the cache
     QIcon icon(const QFileInfo &fileInfo);
 
-    void registerIconForSuffix(const QIcon &icon, const QString &suffix);
+    QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const;
+    void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix);
 
     static FileIconProvider *instance();
 

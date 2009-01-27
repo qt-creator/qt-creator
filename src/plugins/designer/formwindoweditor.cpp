@@ -45,8 +45,8 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
-#include <QtDesigner/private/formwindowbase_p.h>
-#include <QtDesigner/private/qtresourcemodel_p.h>
+#include <qt_private/formwindowbase_p.h>
+#include <qt_private/qtresourcemodel_p.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -300,33 +300,6 @@ QWidget *FormWindowEditor::widget()
     return m_editorWidget;
 }
 
-bool FormWindowEditor::generateCode(QByteArray &header, QString &errorMessage) const
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO;
-
-    QString tempPattern = QDir::tempPath();
-    if (!tempPattern.endsWith(QDir::separator())) // platform-dependant
-        tempPattern += QDir::separator();
-    tempPattern += QLatin1String("formXXXXXX.ui");
-    QTemporaryFile uiFile(tempPattern);
-    uiFile.setAutoRemove(true);
-    if (!uiFile.open()) {
-        errorMessage = tr("Unable to write to a temporary file.");
-        return false;
-    }
-    if (!m_file->writeFile(uiFile, errorMessage)) {
-        errorMessage = tr("Unable to write to a temporary file.");
-        return false;
-    }
-    const QString uiFileName =  uiFile.fileName();
-    uiFile.close();
-
-    if (!qdesigner_internal::runUIC(uiFileName, qdesigner_internal::UIC_GenerateCode, header, errorMessage))
-        return false;
-
-    return true;
-}
 
 QDesignerFormWindowInterface *FormWindowEditor::formWindow() const
 {

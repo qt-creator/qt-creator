@@ -31,35 +31,50 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <qt_private/abstractsettings_p.h>
-#include <QtCore/QSettings>
+#ifndef ABSTRACTNEWFORMWIDGET_H
+#define ABSTRACTNEWFORMWIDGET_H
 
-namespace Designer {
-namespace Internal {
+#include <QtDesigner/sdk_global.h>
 
-/* Prepends "Designer" to every value stored/retrieved by designer plugins,
-   to avoid namespace polution. We cannot use a group because groups cannot be nested,
-   and designer uses groups internally. */
-class SettingsManager : public QDesignerSettingsInterface
+#include <QtGui/QWidget>
+
+QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+class QDesignerFormEditorInterface;
+
+class QDESIGNER_SDK_EXPORT QDesignerNewFormWidgetInterface : public QWidget
 {
+    Q_DISABLE_COPY(QDesignerNewFormWidgetInterface)
+    Q_OBJECT
 public:
-    virtual void beginGroup(const QString &prefix);
-    virtual void endGroup();
+    explicit QDesignerNewFormWidgetInterface(QWidget *parent = 0);
+    virtual ~QDesignerNewFormWidgetInterface();
 
-    virtual bool contains(const QString &key) const;
-    virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
-    virtual void remove(const QString &key);
+    virtual bool hasCurrentTemplate() const = 0;
+    virtual QString currentTemplate(QString *errorMessage = 0) = 0;
 
-private:
-    QString addPrefix(const QString &name) const;
-    QSettings m_settings;
+    static QDesignerNewFormWidgetInterface *createNewFormWidget(QDesignerFormEditorInterface *core, QWidget *parent = 0);
+
+Q_SIGNALS:
+    void templateActivated();
+    void currentTemplateChanged(bool templateSelected);
 };
 
-} // namespace Internal
-} // namespace Designer
+QT_END_NAMESPACE
 
-#endif // SETTINGSMANAGER_H
+QT_END_HEADER
+
+#endif // ABSTRACTNEWFORMWIDGET_H

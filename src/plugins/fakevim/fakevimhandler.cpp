@@ -693,6 +693,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             scrollToLineInDocument(cursorLineInDocument());
             moveToFirstNonBlankOnLine();
             finishMovement();
+        } else if (key == '.') { // center cursor line 
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+            moveToFirstNonBlankOnLine();
+            finishMovement();
+        } else if (key == 'z') { // center cursor line 
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+            finishMovement();
         } else {
             qDebug() << "IGNORED Z_MODE " << key << text;
         }
@@ -908,11 +915,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'i') {
+        recordBeginGroup();
         enterInsertMode();
         updateMiniBuffer();
         if (atEndOfLine())
             moveLeft();
     } else if (key == 'I') {
+        recordBeginGroup();
         setAnchor();
         enterInsertMode();
         if (m_gflag)
@@ -976,13 +985,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
     } else if (key == 'o' || key == 'O') {
+        recordBeginGroup();
+        recordMove();
         enterInsertMode();
         moveToFirstNonBlankOnLine();
-        recordBeginGroup();
         int numSpaces = leftDist();
-        moveUp();
-        if (key == 'o')
-            moveDown();
+        if (key == 'O')
+            moveUp();
         moveToEndOfLine();
         recordInsertText("\n");
         moveToStartOfLine();
@@ -990,7 +999,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             recordInsertText(QString(indentDist(), ' '));
         else
             recordInsertText(QString(numSpaces, ' '));
-        recordEndGroup();
     } else if (key == 'p' || key == 'P') {
         recordBeginGroup();
         QString text = m_registers[m_register];
@@ -1034,8 +1042,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         redo();
     } else if (key == 's') {
         recordBeginGroup();
-        m_submode = ChangeSubMode;
+        setAnchor();
         moveRight(qMin(count(), rightDist()));
+        m_registers[m_register] = recordRemoveSelectedText();
+        //m_dotCommand = QString("%1s").arg(count());
+        m_opcount.clear();
+        m_mvcount.clear();
+        enterInsertMode();
     } else if (key == 't' || key == 'T') {
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
@@ -2043,7 +2056,6 @@ void FakeVimHandler::Private::enterInsertMode()
     EDITOR(setOverwriteMode(false));
     m_mode = InsertMode;
     m_lastInsertion.clear();
-    recordBeginGroup();
 }
 
 void FakeVimHandler::Private::enterCommandMode()

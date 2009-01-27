@@ -6,7 +6,6 @@ count(TOO_OLD_LIST, 1) {
 }
 
 include(doc/doc.pri)
-include(share/share.pri)
 
 TEMPLATE  = subdirs
 CONFIG   += ordered

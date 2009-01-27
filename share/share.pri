@@ -14,7 +14,7 @@ macx {
     RUNINTERMINAL.path = Contents/Resources
     RUNINTERMINAL.files = $$PWD/qtcreator/runInTerminal.command
     QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER LICENSE RUNINTERMINAL
-    QMAKE_INFO_PLIST = $$PWD/qtcreator/info.plist
+    QMAKE_INFO_PLIST = $$PWD/qtcreator/Info.plist
 }
 
 win32 {

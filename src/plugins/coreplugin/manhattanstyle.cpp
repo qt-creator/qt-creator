@@ -200,9 +200,13 @@ int ManhattanStyle::layoutSpacingImplementation(QSizePolicy::ControlType control
 QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                        const QSize &size, const QWidget *widget) const
 {
+    QSize newSize = d->style->sizeFromContents(type, option, size, widget);
+
     if (type == CT_Splitter && widget && widget->property("minisplitter").toBool())
         return QSize(1, 1);
-    return d->style->sizeFromContents(type, option, size, widget);
+    else if (type == CT_ComboBox && panelWidget(widget))
+        newSize += QSize(10, 0);
+    return newSize;
 }
 
 QRect ManhattanStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
@@ -384,15 +388,20 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                               QStyleHintReturn *returnData) const
 {
-    int ret = 0;
+    int ret = d->style->styleHint(hint, option, widget, returnData);
     switch (hint) {
+    // Make project explorer alternate rows all the way
+    case QStyle::SH_ItemView_PaintAlternatingRowColorsForEmptyArea:
+        if (widget && widget->property("AlternateEmpty").toBool())
+            ret = true;
+        break;
     case QStyle::SH_EtchDisabledText:
-        ret = false; // We really should only enforce this for panel widgets
+        if (panelWidget(widget))
+            ret = false;
         break;
     default:
-        ret =  d->style->styleHint(hint, option, widget, returnData);
+        break;
     }
-
     return ret;
 }
 
@@ -491,10 +500,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 if (pressed) {
                     QColor shade(0, 0, 0, 50);
                     if (option->state & State_Sunken)
-                        shade = QColor(0, 0, 0, 70);
+                        shade = QColor(0, 0, 0, 50);
 #ifndef Q_WS_MAC
                     else if (option->state & State_MouseOver)
-                        shade = QColor(255, 255, 255, 40);
+                        shade = QColor(255, 255, 255, 10);
 #endif
                     else if (option->state & State_On)
                         shade = QColor(0, 0, 0, 50);
@@ -510,7 +519,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 }
  #ifndef Q_WS_MAC
                else if (option->state & State_MouseOver) {
-                    QColor lighter(255, 255, 255, 100);
+                    QColor lighter(255, 255, 255, 35);
                     painter->fillRect(rect, lighter);
                     painter->drawLine(rect.topRight(), rect.bottomRight());
                 }
@@ -656,8 +665,6 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 int sx = sqsize / 2 - bounds.center().x() - 1;
                 int sy = sqsize / 2 - bounds.center().y() - 1;
                 imagePainter.translate(sx + bsx, sy + bsy);
-                imagePainter.setPen(option->palette.buttonText().color());
-                imagePainter.setBrush(option->palette.buttonText());
 
                 if (!(option->state & State_Enabled)) {
                     imagePainter.translate(1, 1);
@@ -667,8 +674,17 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     imagePainter.translate(-1, -1);
                     imagePainter.setBrush(option->palette.mid().color());
                     imagePainter.setPen(option->palette.mid().color());
+                } else {
+                    QColor shadow(0, 0, 0, 50);
+                    imagePainter.translate(0, 1);
+                    imagePainter.setPen(shadow);
+                    imagePainter.setBrush(shadow);
+                    QColor foreGround(255, 255, 255, 220);
+                    imagePainter.drawPolygon(a);
+                    imagePainter.translate(0, -1);
+                    imagePainter.setPen(foreGround);
+                    imagePainter.setBrush(foreGround);
                 }
-
                 imagePainter.drawPolygon(a);
                 imagePainter.end();
                 pixmap = QPixmap::fromImage(image);
@@ -766,7 +782,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
 
-                QRect rect = editRect.adjusted(1, 0, -8, 0);
+                // Reserve some space for the down-arrow
+                QRect rect = editRect.adjusted(0, 0, -8, 0);
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, rect.width());
                 drawItemText(painter, rect.translated(0, 1),
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
@@ -998,10 +1015,21 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->save();
 
             // Draw tool button
+            QLinearGradient grad(option->rect.topRight(), option->rect.bottomRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.4, QColor(255, 255, 255, 30));
+            grad.setColorAt(1, Qt::transparent);
+            painter->setPen(QPen(grad, 0));
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.4, QColor(0, 0, 0, 30));
+            grad.setColorAt(1, Qt::transparent);
+            painter->setPen(QPen(grad, 0));
+            painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
             drawPrimitive(PE_PanelButtonTool, option, painter, widget);
 
             // Draw arrow
-            int menuButtonWidth = 16;
+            int menuButtonWidth = 12;
             bool reverse = option->direction == Qt::RightToLeft;
             int left = !reverse ? rect.right() - menuButtonWidth : rect.left();
             int right = !reverse ? rect.right() : rect.left() + menuButtonWidth;
