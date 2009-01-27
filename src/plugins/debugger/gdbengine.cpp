@@ -1760,14 +1760,6 @@ void GdbEngine::setDebugDumpers(bool on)
     }
 }
 
-//QByteArray GdbEngine::dumperChannel() const
-//{
-//    return m_dumperServer->serverName().toLatin1();
-//    //QByteArray ba;
-//    //ba.setNum(m_dumperServer->serverPort());
-//    //return ba;
-//}
-
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2889,11 +2881,10 @@ static QString sizeofTypeExpression(const QString &type)
     return "sizeof(" + gdbQuoteTypes(type) + ")";
 }
 
-void GdbEngine::setCustomDumpersWanted(bool on)
+void GdbEngine::setUseCustomDumpers(bool on)
 {
     Q_UNUSED(on);
-    // FIXME: a bit too harsh, but otherwise the treeview
-    // sometimes look funny
+    // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
     updateLocals();
 }

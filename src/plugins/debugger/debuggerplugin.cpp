@@ -251,6 +251,7 @@ public:
     void finish() {} // automatically calls "apply"
 
 private:
+    friend class DebuggerPlugin;
     Ui::GdbOptionPage m_ui;
 
     DebuggerSettings m_settings;
@@ -300,6 +301,10 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 
     //m_dumpLogAction = new QAction(this);
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
+    //
+    connect(m_ui.checkBoxUseCustomDumpers, SIGNAL(clicked(bool)),
+        m_plugin->m_manager, SLOT(setUseCustomDumpers(bool)));
+
     return w;
 }
 

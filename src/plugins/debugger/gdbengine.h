@@ -134,6 +134,9 @@ private:
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
 
+    void setDebugDumpers(bool on);
+    void setUseCustomDumpers(bool on);
+
     //
     // Own stuff
     //
@@ -167,9 +170,6 @@ private:
     void updateLocals();
 
 private slots:
-    void setDebugDumpers(bool on);
-    void setCustomDumpersWanted(bool on);
-
     void handleResponse();
 
     void gdbProcError(QProcess::ProcessError error);

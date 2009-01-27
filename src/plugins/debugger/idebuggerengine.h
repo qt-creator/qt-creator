@@ -86,6 +86,8 @@ public:
     virtual void loadAllSymbols() = 0;
 
     virtual void reloadRegisters() = 0;
+    virtual void setDebugDumpers(bool on) = 0;
+    virtual void setUseCustomDumpers(bool on) = 0;
 };
 
 } // namespace Internal
