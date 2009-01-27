@@ -520,7 +520,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
     QPushButton::paintEvent(event);
 
     const QFontMetrics fm = fontMetrics();
-    const int baseLine = (height() - fm.height()) / 2 + fm.ascent();
+    const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();
     const int numberWidth = fm.width(m_number);
 
     QPainter p(this);
