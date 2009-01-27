@@ -688,17 +688,27 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         indentRegion(m_tc.block(), m_tc.block().next());
         finishMovement();
     } else if (m_submode == ZSubMode) {
-        if (key == Key_Return) {
-            // cursor line to top of window, cursor on first non-blank
+        //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
+        if (key == Key_Return || key == 't') { // cursor line to top of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
             scrollToLineInDocument(cursorLineInDocument());
-            moveToFirstNonBlankOnLine();
+            if (key == Key_Return)
+                moveToFirstNonBlankOnLine();
             finishMovement();
-        } else if (key == '.') { // center cursor line 
+        } else if (key == '.' || key == 'z') { // cursor line to center of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
-            moveToFirstNonBlankOnLine();
+            if (key == '.')
+                moveToFirstNonBlankOnLine();
             finishMovement();
-        } else if (key == 'z') { // center cursor line 
-            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+        } else if (key == '-' || key == 'b') { // cursor line to bottom of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() - 1);
+            if (key == '-')
+                moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
             qDebug() << "IGNORED Z_MODE " << key << text;
