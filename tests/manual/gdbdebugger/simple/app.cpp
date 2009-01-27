@@ -145,7 +145,7 @@ void testQByteArray()
 
 void testQHash()
 {
-#if 0
+#if 1
     QHash<int, float> hgg0;
     hgg0[11] = 11.0;
     hgg0[22] = 22.0;
@@ -171,7 +171,7 @@ void testQHash()
 
 #endif
 
-#if 0
+#if 1
     QHash<int, QString> hgg2;
     hgg2[22] = "22.0";
 

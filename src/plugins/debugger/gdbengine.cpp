@@ -2883,6 +2883,7 @@ static QString sizeofTypeExpression(const QString &type)
 
 void GdbEngine::setUseCustomDumpers(bool on)
 {
+    qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     Q_UNUSED(on);
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
@@ -3298,7 +3299,8 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
     out = out.left(out.lastIndexOf('"'));
-    out = out.replace('\'', '"');
+    //out.replace('\'', '"');
+    out.replace("\\", "");
     out = "dummy={" + out + "}";
     //qDebug() << "OUTPUT: " << out;
 
@@ -3488,7 +3490,8 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         QByteArray out = output.data();
         out = out.mid(out.indexOf('"') + 2);  // + 1  is the 'success marker'
         out = out.left(out.lastIndexOf('"'));
-        out = out.replace('\'', '"');
+        //out.replace('\'', '"');
+        out.replace("\\", "");
         out = "dummy={" + out + "}";
         //qDebug() << "OUTPUT: " << out;
 

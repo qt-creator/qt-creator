@@ -642,7 +642,7 @@ void QDumper::putEllipsis()
 #define P(dumper,name,value) \
     do { \
         dumper.addCommaIfNeeded(); \
-        dumper << (name) << "=\"" << value << '"'; \
+        dumper << (name) << "=\"" << value << "\""; \
     } while (0)
 
 // simple string property
@@ -2482,54 +2482,54 @@ void qDumpObjectData440(
         // They are mentioned here nevertheless. For types that not listed
         // here, dumpers won't be used.
         d << "dumpers=["
-            "'"NS"QByteArray',"
-            "'"NS"QDateTime',"
-            "'"NS"QDir',"
-            "'"NS"QFile',"
-            "'"NS"QFileInfo',"
-            "'"NS"QHash',"
-            "'"NS"QHashNode',"
-            "'"NS"QImage',"
-            "'"NS"QLinkedList',"
-            "'"NS"QList',"
-            "'"NS"QLocale',"
-            "'"NS"QMap',"
-            "'"NS"QMapNode',"
-            "'"NS"QModelIndex',"
+            "\""NS"QByteArray\","
+            "\""NS"QDateTime\","
+            "\""NS"QDir\","
+            "\""NS"QFile\","
+            "\""NS"QFileInfo\","
+            "\""NS"QHash\","
+            "\""NS"QHashNode\","
+            "\""NS"QImage\","
+            "\""NS"QLinkedList\","
+            "\""NS"QList\","
+            "\""NS"QLocale\","
+            "\""NS"QMap\","
+            "\""NS"QMapNode\","
+            "\""NS"QModelIndex\","
             #if QT_VERSION >= 0x040500
-            "'"NS"QMultiMap',"
+            "\""NS"QMultiMap\","
             #endif
-            "'"NS"QObject',"
-            "'"NS"QObjectMethodList',"   // hack to get nested properties display
-            "'"NS"QObjectPropertyList',"
+            "\""NS"QObject\","
+            "\""NS"QObjectMethodList\","   // hack to get nested properties display
+            "\""NS"QObjectPropertyList\","
             #if PRIVATE_OBJECT_ALLOWED
-            "'"NS"QObjectSignal',"
-            "'"NS"QObjectSignalList',"
-            "'"NS"QObjectSlot',"
-            "'"NS"QObjectSlotList',"
+            "\""NS"QObjectSignal\","
+            "\""NS"QObjectSignalList\","
+            "\""NS"QObjectSlot\","
+            "\""NS"QObjectSlotList\","
             #endif // PRIVATE_OBJECT_ALLOWED
-            // << "'"NS"QRegion',"
-            "'"NS"QSet',"
-            "'"NS"QString',"
-            "'"NS"QStringList',"
-            "'"NS"QTextCodec',"
-            "'"NS"QVariant',"
-            "'"NS"QVector',"
-            "'"NS"QWidget',"
-            "'string',"
-            "'wstring',"
-            "'std::basic_string',"
-            "'std::list',"
-            "'std::map',"
-            "'std::string',"
-            "'std::vector',"
-            "'std::wstring',"
+            // << "\""NS"QRegion\","
+            "\""NS"QSet\","
+            "\""NS"QString\","
+            "\""NS"QStringList\","
+            "\""NS"QTextCodec\","
+            "\""NS"QVariant\","
+            "\""NS"QVector\","
+            "\""NS"QWidget\","
+            "\"string\","
+            "\"wstring\","
+            "\"std::basic_string\","
+            "\"std::list\","
+            "\"std::map\","
+            "\"std::string\","
+            "\"std::vector\","
+            "\"std::wstring\","
             "]";
         d << ",qtversion=["
-            "'" << ((QT_VERSION >> 16) & 255) << "',"
-            "'" << ((QT_VERSION >> 8)  & 255) << "',"
-            "'" << ((QT_VERSION)       & 255) << "']";
-        d << ",namespace='"NS"'";
+            "\"" << ((QT_VERSION >> 16) & 255) << "\","
+            "\"" << ((QT_VERSION >> 8)  & 255) << "\","
+            "\"" << ((QT_VERSION)       & 255) << "\"]";
+        d << ",namespace=\""NS"\"";
         d.disarm();
     }
 

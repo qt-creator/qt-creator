@@ -1096,8 +1096,8 @@ bool DebuggerManager::useFastStart() const
 
 void DebuggerManager::setUseCustomDumpers(bool on)
 {
-    m_settings.m_useCustomDumpers = on;
-    engine()->setUseCustomDumpers(on);
+    //m_settings.m_useCustomDumpers = on;
+    //engine()->setUseCustomDumpers(on);
 }
 
 void DebuggerManager::setUseFastStart(bool on)
