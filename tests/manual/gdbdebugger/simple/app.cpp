@@ -145,14 +145,33 @@ void testQByteArray()
 
 void testQHash()
 {
+#if 0
     QHash<int, float> hgg0;
     hgg0[11] = 11.0;
     hgg0[22] = 22.0;
+    hgg0[22] = 22.0;
+    hgg0[22] = 22.0;
+    hgg0[22] = 22.0;
+    hgg0[22] = 22.0;
+    hgg0[22] = 22.0;
 
+#endif
+
+#if 1
 
     QHash<QString, float> hgg1;
     hgg1["22.0"] = 22.0;
+    hgg1["23.0"] = 22.0;
+    hgg1["24.0"] = 22.0;
+    hgg1["25.0"] = 22.0;
+    hgg1["26.0"] = 22.0;
+    hgg1["27.0"] = 27.0;
+    hgg1["28.0"] = 28.0;
+    hgg1["29.0"] = 29.0;
 
+#endif
+
+#if 0
     QHash<int, QString> hgg2;
     hgg2[22] = "22.0";
 
@@ -165,6 +184,7 @@ void testQHash()
     hash.insert("Hallo", QPointer<QObject>(&ob));
     hash.insert("Welt", QPointer<QObject>(&ob));
     hash.insert(".", QPointer<QObject>(&ob));
+#endif
 }
 
 void testQImage()

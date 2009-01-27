@@ -109,7 +109,7 @@ int qtGhVersion = QT_VERSION;
 
 
   'P(d, name, value)' roughly expands to:
-        d << (name) << "='" << value << "'";
+        d << (name) << "=\"" << value << "\"";
 
   Useful (i.e. understood by the IDE) names include:
 
@@ -551,7 +551,7 @@ void QDumper::addCommaIfNeeded()
     if (pos == 0)
         return;
     char c = qDumpOutBuffer[pos - 1];
-    if (c == '}' || c == '\'' || c == ']')
+    if (c == '}' || c == '"' || c == ']')
         put(',');
 }
 
@@ -630,7 +630,7 @@ void QDumper::endHash()
 void QDumper::putEllipsis()
 {
     addCommaIfNeeded();
-    *this << "{name='<incomplete>',value='',type='" << innertype << "'}";
+    *this << "{name=\"<incomplete>\",value=\"\",type=\"" << innertype << "\"}";
 }
 
 //
@@ -642,7 +642,7 @@ void QDumper::putEllipsis()
 #define P(dumper,name,value) \
     do { \
         dumper.addCommaIfNeeded(); \
-        dumper << (name) << "='" << value << "'"; \
+        dumper << (name) << "=\"" << value << '"'; \
     } while (0)
 
 // simple string property
@@ -740,7 +740,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             return;
         case 'B':
             if (isEqual(type, "QByteArray")) {
-                d << key << "encoded='1',";
+                d << key << "encoded=\"1\",";
                 P(d, key, *(QByteArray*)addr);
             }
             return;
@@ -769,7 +769,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             return;
         case 'S':
             if (isEqual(type, "QString")) {
-                d << key << "encoded='1',";
+                d << key << "encoded=\"1\",";
                 P(d, key, *(QString*)addr);
             }
             return;
@@ -2008,7 +2008,7 @@ static void qDumpQVariantHelper(const void *data, QString *value,
         *numchild = 0;
         break;
     case QVariant::String:
-        *value = QLatin1Char('\'') + v.toString() + QLatin1Char('\'');
+        *value = QLatin1Char('"') + v.toString() + QLatin1Char('"');
         *numchild = 0;
         break;
     case QVariant::StringList:
@@ -2240,9 +2240,9 @@ static void qDumpStdString(QDumper &d)
         qCheckAccess(str.c_str() + str.size() - 1);
     }
 
-    d << ",value='";
+    d << ",value=\"";
     d.putBase64Encoded(str.c_str(), str.size());
-    d << "'";
+    d << "\"";
     P(d, "valueencoded", "1");
     P(d, "type", "std::string");
     P(d, "numchild", "0");
