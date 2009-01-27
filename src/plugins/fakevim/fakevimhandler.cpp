@@ -1220,6 +1220,8 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
         QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
+    } else if (key >= control('a') && key <= control('z')) {
+        // ignore these
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
