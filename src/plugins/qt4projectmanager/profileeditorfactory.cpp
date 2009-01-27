@@ -56,9 +56,9 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
     m_actionHandler(handler)
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
                                         QLatin1String("pro"));
-    iconProvider->registerIconForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
                                         QLatin1String("pri"));
 }
 

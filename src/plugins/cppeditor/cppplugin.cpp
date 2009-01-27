@@ -75,9 +75,9 @@ CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
         << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
         << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconForSuffix(QIcon(":/cppeditor/images/qt_cpp.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_cpp.png"),
                                         QLatin1String("cpp"));
-    iconProvider->registerIconForSuffix(QIcon(":/cppeditor/images/qt_h.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/cppeditor/images/qt_h.png"),
                                         QLatin1String("h"));
 }
 

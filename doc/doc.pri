@@ -27,7 +27,8 @@ linux-* {
 }
 
 macx {
-    cp_docs.commands = $${QMAKE_COPY_DIR} $${OUT_PWD}/doc $${OUT_PWD}/bin/QtCreator.app/Contents/Resources
+    DOC_DIR = $${OUT_PWD}/bin/QtCreator.app/Contents/Resources/doc 
+    cp_docs.commands = mkdir -p $${DOC_DIR} ; $${QMAKE_COPY} $${QCH_FILE} $${DOC_DIR}
     cp_docs.depends += qch_docs
     docs.depends = cp_docs
     QMAKE_EXTRA_TARGETS += html_docs qch_docs cp_docs docs

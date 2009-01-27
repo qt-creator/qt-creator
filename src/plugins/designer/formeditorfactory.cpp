@@ -52,7 +52,7 @@ FormEditorFactory::FormEditorFactory()
     m_mimeTypes(QLatin1String(FORM_MIMETYPE))
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconForSuffix(QIcon(":/formeditor/images/qt_ui.png"),
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/formeditor/images/qt_ui.png"),
                                         QLatin1String("ui"));
 }
 
