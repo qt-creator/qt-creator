@@ -780,6 +780,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
+        enterExMode(); // to get the cursor disabled
         m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
         m_commandBuffer.clear();
         m_searchHistory.append(QString());
