@@ -34,7 +34,7 @@
 #include "settingspage.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <QtDesigner/private/abstractoptionspage_p.h>
+#include <qt_private/abstractoptionspage_p.h>
 
 using namespace Designer::Internal;
 

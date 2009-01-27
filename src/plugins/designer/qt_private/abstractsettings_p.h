@@ -31,35 +31,49 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <qt_private/abstractsettings_p.h>
-#include <QtCore/QSettings>
+#ifndef ABSTRACTSETTINGS_P_H
+#define ABSTRACTSETTINGS_P_H
 
-namespace Designer {
-namespace Internal {
+#include <QtDesigner/sdk_global.h>
 
-/* Prepends "Designer" to every value stored/retrieved by designer plugins,
-   to avoid namespace polution. We cannot use a group because groups cannot be nested,
-   and designer uses groups internally. */
-class SettingsManager : public QDesignerSettingsInterface
+#include <QVariant>
+
+QT_BEGIN_HEADER
+
+QT_BEGIN_NAMESPACE
+
+class QString;
+
+/*!
+ To be implemented by IDEs that want to control the way designer retrieves/stores its settings.
+ */
+class QDESIGNER_SDK_EXPORT QDesignerSettingsInterface
 {
 public:
-    virtual void beginGroup(const QString &prefix);
-    virtual void endGroup();
+    virtual ~QDesignerSettingsInterface() {}
 
-    virtual bool contains(const QString &key) const;
-    virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
-    virtual void remove(const QString &key);
+    virtual void beginGroup(const QString &prefix) = 0;
+    virtual void endGroup() = 0;
 
-private:
-    QString addPrefix(const QString &name) const;
-    QSettings m_settings;
+    virtual bool contains(const QString &key) const = 0;
+    virtual void setValue(const QString &key, const QVariant &value) = 0;
+    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const = 0;
+    virtual void remove(const QString &key) = 0;
 };
 
-} // namespace Internal
-} // namespace Designer
+QT_END_NAMESPACE
 
-#endif // SETTINGSMANAGER_H
+QT_END_HEADER
+
+#endif // ABSTRACTSETTINGS_P_H

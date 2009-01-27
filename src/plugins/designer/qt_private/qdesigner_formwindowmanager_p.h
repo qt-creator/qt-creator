@@ -31,35 +31,60 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <qt_private/abstractsettings_p.h>
-#include <QtCore/QSettings>
+#ifndef QDESIGNER_FORMWINDOMANAGER_H
+#define QDESIGNER_FORMWINDOMANAGER_H
 
-namespace Designer {
-namespace Internal {
+#include "shared_global_p.h"
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 
-/* Prepends "Designer" to every value stored/retrieved by designer plugins,
-   to avoid namespace polution. We cannot use a group because groups cannot be nested,
-   and designer uses groups internally. */
-class SettingsManager : public QDesignerSettingsInterface
+QT_BEGIN_NAMESPACE
+
+namespace qdesigner_internal {
+
+class PreviewManager;
+
+//
+// Convenience methods to manage form previews (ultimately forwarded to PreviewManager).
+//
+class QDESIGNER_SHARED_EXPORT QDesignerFormWindowManager
+    : public QDesignerFormWindowManagerInterface
 {
+    Q_OBJECT
 public:
-    virtual void beginGroup(const QString &prefix);
-    virtual void endGroup();
+    explicit QDesignerFormWindowManager(QObject *parent = 0);
+    virtual ~QDesignerFormWindowManager();
 
-    virtual bool contains(const QString &key) const;
-    virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
-    virtual void remove(const QString &key);
+    virtual QAction *actionDefaultPreview() const;
+    virtual QActionGroup *actionGroupPreviewInStyle() const;
+    virtual QAction *actionShowFormWindowSettingsDialog() const;
+
+    virtual QPixmap createPreviewPixmap(QString *errorMessage) = 0;
+
+    virtual PreviewManager *previewManager() const = 0;
+
+Q_SIGNALS:
+    void formWindowSettingsChanged(QDesignerFormWindowInterface *fw);
+
+public Q_SLOTS:
+    virtual void closeAllPreviews() = 0;
 
 private:
-    QString addPrefix(const QString &name) const;
-    QSettings m_settings;
+    void *m_unused;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace qdesigner_internal
 
-#endif // SETTINGSMANAGER_H
+QT_END_NAMESPACE
+
+#endif // QDESIGNER_FORMWINDOMANAGER_H

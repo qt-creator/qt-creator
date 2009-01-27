@@ -48,11 +48,11 @@
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
-#include <QtDesigner/private/pluginmanager_p.h>
+#include <qt_private/pluginmanager_p.h>
 
-#include <QtDesigner/private/iconloader_p.h>  // createIconSet
-#include <QtDesigner/private/qdesigner_formwindowmanager_p.h>
-#include <QtDesigner/private/formwindowbase_p.h>
+#include <qt_private/iconloader_p.h>  // createIconSet
+#include <qt_private/qdesigner_formwindowmanager_p.h>
+#include <qt_private/formwindowbase_p.h>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
 

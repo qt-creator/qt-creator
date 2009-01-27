@@ -31,35 +31,38 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <qt_private/abstractsettings_p.h>
-#include <QtCore/QSettings>
+#ifndef SHARED_GLOBAL_H
+#define SHARED_GLOBAL_H
 
-namespace Designer {
-namespace Internal {
+#include <QtCore/qglobal.h>
 
-/* Prepends "Designer" to every value stored/retrieved by designer plugins,
-   to avoid namespace polution. We cannot use a group because groups cannot be nested,
-   and designer uses groups internally. */
-class SettingsManager : public QDesignerSettingsInterface
-{
-public:
-    virtual void beginGroup(const QString &prefix);
-    virtual void endGroup();
+#ifdef QT_DESIGNER_STATIC
+#define QDESIGNER_SHARED_EXTERN
+#define QDESIGNER_SHARED_IMPORT
+#else
+#define QDESIGNER_SHARED_EXTERN Q_DECL_EXPORT
+#define QDESIGNER_SHARED_IMPORT Q_DECL_IMPORT
+#endif
 
-    virtual bool contains(const QString &key) const;
-    virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
-    virtual void remove(const QString &key);
+#ifndef QT_NO_SHARED_EXPORT
+#  ifdef QDESIGNER_SHARED_LIBRARY
+#    define QDESIGNER_SHARED_EXPORT QDESIGNER_SHARED_EXTERN
+#  else
+#    define QDESIGNER_SHARED_EXPORT QDESIGNER_SHARED_IMPORT
+#  endif
+#else
+#  define QDESIGNER_SHARED_EXPORT
+#endif
 
-private:
-    QString addPrefix(const QString &name) const;
-    QSettings m_settings;
-};
-
-} // namespace Internal
-} // namespace Designer
-
-#endif // SETTINGSMANAGER_H
+#endif // SHARED_GLOBAL_H

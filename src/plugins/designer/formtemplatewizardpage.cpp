@@ -34,7 +34,7 @@
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
 
-#include <QtDesigner/private/abstractnewformwidget_p.h>
+#include <qt_private/abstractnewformwidget_p.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
