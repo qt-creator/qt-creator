@@ -73,6 +73,8 @@ public:
         setContextMenuPolicy(Qt::CustomContextMenu);
         setUniformRowHeights(true);
         setTextElideMode(Qt::ElideNone);
+        setAlternatingRowColors(true);
+        setProperty("AlternateEmpty", true); // Let Manhattan to override style default
 //        setExpandsOnDoubleClick(false);
     }
 

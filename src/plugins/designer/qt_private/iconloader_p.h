@@ -31,35 +31,34 @@
 **
 ***************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <qt_private/abstractsettings_p.h>
-#include <QtCore/QSettings>
+#ifndef ICONLOADER_H
+#define ICONLOADER_H
 
-namespace Designer {
-namespace Internal {
+#include "shared_global_p.h"
 
-/* Prepends "Designer" to every value stored/retrieved by designer plugins,
-   to avoid namespace polution. We cannot use a group because groups cannot be nested,
-   and designer uses groups internally. */
-class SettingsManager : public QDesignerSettingsInterface
-{
-public:
-    virtual void beginGroup(const QString &prefix);
-    virtual void endGroup();
+QT_BEGIN_NAMESPACE
 
-    virtual bool contains(const QString &key) const;
-    virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
-    virtual void remove(const QString &key);
+class QString;
+class QIcon;
 
-private:
-    QString addPrefix(const QString &name) const;
-    QSettings m_settings;
-};
+namespace qdesigner_internal {
 
-} // namespace Internal
-} // namespace Designer
+QDESIGNER_SHARED_EXPORT QIcon createIconSet(const QString &name);
+QDESIGNER_SHARED_EXPORT QIcon emptyIcon();
 
-#endif // SETTINGSMANAGER_H
+} // namespace qdesigner_internal
+
+QT_END_NAMESPACE
+
+#endif // ICONLOADER_H
