@@ -517,11 +517,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(m_runAction, Constants::RUN, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
-    modeManager->addAction(cmd, Constants::P_ACTION_RUN, m_runConfigurationMenu);
-
-    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
-    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
-    mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
     m_runConfigurationMenu = mrc->menu();
@@ -533,6 +528,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(mproject->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
     connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
     connect(m_runConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(runConfigurationMenuTriggered(QAction *)));
+
+    modeManager->addAction(cmd, Constants::P_ACTION_RUN, m_runConfigurationMenu);
+
+    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
+    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
+    mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // jump to next task
     m_taskAction = new QAction(tr("Go to Task Window"), this);
