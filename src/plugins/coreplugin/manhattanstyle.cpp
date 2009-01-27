@@ -518,7 +518,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     painter->drawLine(rect.bottomLeft(), rect.bottomRight());
                 }
  #ifndef Q_WS_MAC
-               else if (option->state & State_MouseOver) {
+               else if (option->state & State_Enabled &&
+                        option->state & State_MouseOver) {
                     QColor lighter(255, 255, 255, 35);
                     painter->fillRect(rect, lighter);
                     painter->drawLine(rect.topRight(), rect.bottomRight());
