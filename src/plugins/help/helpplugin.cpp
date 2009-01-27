@@ -98,7 +98,7 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
         }
     }
     if (needsSetup)
-        qDebug() << m_helpEngine->setupData();
+        m_helpEngine->setupData();
 }
 
 HelpPlugin::HelpPlugin() :
@@ -450,9 +450,12 @@ void HelpPlugin::extensionsInitialized()
 #endif
         QHelpEngineCore hc(fi.absoluteFilePath());
         hc.setupData();
-        if (!hc.registerDocumentation(qchFileName))
-            qDebug() << hc.error();
-        needsSetup = true;
+        QString fileNamespace = QHelpEngineCore::namespaceName(qchFileName);
+        if (!fileNamespace.isEmpty() && !hc.registeredDocumentations().contains(fileNamespace)) {
+            if (!hc.registerDocumentation(qchFileName))
+                qDebug() << hc.error();
+            needsSetup = true;
+        }
     }
 
     int i = m_helpEngine->customValue(
