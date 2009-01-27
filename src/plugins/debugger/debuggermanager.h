@@ -282,7 +282,6 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
     void setUseCustomDumpers(bool on);
-    void setUseToolTips(bool on);
     void setDebugDumpers(bool on);
     void setSkipKnownFrames(bool on);
     void setUseFastStart(bool on);
