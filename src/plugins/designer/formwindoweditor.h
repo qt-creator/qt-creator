@@ -87,8 +87,6 @@ public:
     QList<int> context() const;
     QWidget *widget();
 
-    // Internal
-    bool generateCode(QByteArray &header, QString &errorMessage) const;
     QDesignerFormWindowInterface *formWindow() const;
     QWidget *integrationContainer();
     void updateFormWindowSelectionHandles(bool state);

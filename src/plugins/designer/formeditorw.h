@@ -120,7 +120,6 @@ public:
     FormWindowEditor *activeFormWindow();
 
 private slots:
-    void generateCode();
     void activateEditMode(int id);
     void activateEditMode(QAction*);
     void activeFormWindowChanged(QDesignerFormWindowInterface *);
@@ -160,7 +159,6 @@ private:
     QList<SettingsPage *> m_settingsPages;
     QActionGroup *m_actionGroupEditMode;
     QAction *m_actionPrint;
-    QAction *m_actionGenerateCode;
     QAction *m_actionPreview;
     QActionGroup *m_actionGroupPreviewInStyle;
 
