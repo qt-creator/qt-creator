@@ -1582,10 +1582,14 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
+    int oldLine = cursorLineInDocument() - cursorLineOnScreen();
+
     EDITOR(setTextCursor(m_tc));
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_tc.anchor());
+        if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         return;
     }
 
@@ -1594,6 +1598,8 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_tc.anchor());
+        if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         if (forward)
             showRedMessage("search hit BOTTOM, continuing at TOP");
         else
