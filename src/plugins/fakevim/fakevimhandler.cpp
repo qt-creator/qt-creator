@@ -1072,10 +1072,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubdata = key;
     } else if (key == 'u') {
         undo();
-    } else if (key == 'U') {
-        // FIXME: this is non-vim, but as Ctrl-R is taken globally
-        // we have a substitute here
-        redo();
     } else if (key == control('u')) {
         int sline = cursorLineOnScreen();
         // FIXME: this should use the "scroll" option, and "count"
@@ -1113,7 +1109,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (leftDist() > 0) {
             setAnchor();
             moveLeft(qMin(count(), leftDist()));
-            recordRemoveSelectedText();
+            m_registers[m_register] = recordRemoveSelectedText();
         }
         finishMovement();
     } else if (key == 'y' && m_visualMode == NoVisualMode) {
