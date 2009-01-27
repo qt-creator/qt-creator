@@ -74,13 +74,6 @@ public:
         setContextMenuPolicy(Qt::CustomContextMenu);
         setUniformRowHeights(true);
         setTextElideMode(Qt::ElideNone);
-        setAlternatingRowColors(true);
-        QPalette pal = palette();
-        if (pal.base().color() == Qt::white) { // Leave dark themes as they are
-            pal.setBrush(QPalette::AlternateBase, QColor(239, 239, 239));
-            setPalette(pal);
-        }
-        setProperty("AlternateEmpty", true); // Let Manhattan to override style default
 //        setExpandsOnDoubleClick(false);
     }
 

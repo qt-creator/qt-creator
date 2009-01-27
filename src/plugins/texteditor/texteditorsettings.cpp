@@ -33,8 +33,9 @@
 
 #include "texteditorsettings.h"
 
+#include "behaviorsettingspage.h"
 #include "displaysettings.h"
-#include "generalsettingspage.h"
+#include "displaysettingspage.h"
 #include "fontsettingspage.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
@@ -93,34 +94,43 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("TextEditor"),
-                                              tr("Text Editor"));
+                                              tr("Text Editor"),
+                                              this);
     pm->addObject(m_fontSettingsPage);
 
-    // Add the GUI used to configure the tab, storage and display settings
-    TextEditor::GeneralSettingsPageParameters generalSettingsPageParameters;
-    generalSettingsPageParameters.name = tr("General");
-    generalSettingsPageParameters.category = QLatin1String("TextEditor");
-    generalSettingsPageParameters.trCategory = tr("Text Editor");
-    generalSettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_generalSettingsPage = new GeneralSettingsPage(generalSettingsPageParameters, this);
-    pm->addObject(m_generalSettingsPage);
+    // Add the GUI used to configure the tab, storage and interaction settings
+    TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
+    behaviorSettingsPageParameters.name = tr("Behavior");
+    behaviorSettingsPageParameters.category = QLatin1String("TextEditor");
+    behaviorSettingsPageParameters.trCategory = tr("Text Editor");
+    behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
+    m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
+    pm->addObject(m_behaviorSettingsPage);
+
+    TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
+    displaySettingsPageParameters.name = tr("Display");
+    displaySettingsPageParameters.category = QLatin1String("TextEditor");
+    displaySettingsPageParameters.trCategory = tr("Text Editor");
+    displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
+    m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
+    pm->addObject(m_displaySettingsPage);
 
     connect(m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
-    connect(m_generalSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
+    connect(m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
             this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)));
-    connect(m_generalSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+    connect(m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
-    connect(m_generalSettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
 }
 
 TextEditorSettings::~TextEditorSettings()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    pm->removeObject(m_generalSettingsPage);
     pm->removeObject(m_fontSettingsPage);
-    delete m_fontSettingsPage;
+    pm->removeObject(m_behaviorSettingsPage);
+    pm->removeObject(m_displaySettingsPage);
 
     m_instance = 0;
 }
@@ -137,15 +147,15 @@ FontSettings TextEditorSettings::fontSettings() const
 
 TabSettings TextEditorSettings::tabSettings() const
 {
-    return m_generalSettingsPage->tabSettings();
+    return m_behaviorSettingsPage->tabSettings();
 }
 
 StorageSettings TextEditorSettings::storageSettings() const
 {
-    return m_generalSettingsPage->storageSettings();
+    return m_behaviorSettingsPage->storageSettings();
 }
 
 DisplaySettings TextEditorSettings::displaySettings() const
 {
-    return m_generalSettingsPage->displaySettings();
+    return m_displaySettingsPage->displaySettings();
 }

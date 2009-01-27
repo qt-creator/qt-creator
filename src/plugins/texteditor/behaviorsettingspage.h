@@ -31,57 +31,63 @@
 **
 ***************************************************************************/
 
-#ifndef TEXTEDITORSETTINGS_H
-#define TEXTEDITORSETTINGS_H
+#ifndef BEHAVIORSETTINGSPAGE_H
+#define BEHAVIORSETTINGSPAGE_H
 
 #include "texteditor_global.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QObject>
 
 namespace TextEditor {
 
-class BehaviorSettingsPage;
-class DisplaySettingsPage;
-class FontSettingsPage;
-class FontSettings;
 struct TabSettings;
 struct StorageSettings;
-struct DisplaySettings;
+struct InteractionSettings;
 
-/**
- * This class provides a central place for basic text editor settings. These
- * settings include font settings, tab settings, storage settings and display
- * settings.
- */
-class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
+struct BehaviorSettingsPageParameters
+{
+    QString name;
+    QString category;
+    QString trCategory;
+    QString settingsPrefix;
+};
+
+class BehaviorSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit TextEditorSettings(QObject *parent);
-    ~TextEditorSettings();
+    BehaviorSettingsPage(const BehaviorSettingsPageParameters &p, QObject *parent);
+    virtual ~BehaviorSettingsPage();
 
-    static TextEditorSettings *instance();
+    // IOptionsPage
+    QString name() const;
+    QString category() const;
+    QString trCategory() const;
 
-    FontSettings fontSettings() const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
-    DisplaySettings displaySettings() const;
+    InteractionSettings interactionSettings() const;
 
 signals:
-    void fontSettingsChanged(const TextEditor::FontSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
-    void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
 private:
-    FontSettingsPage *m_fontSettingsPage;
-    BehaviorSettingsPage *m_behaviorSettingsPage;
-    DisplaySettingsPage *m_displaySettingsPage;
-
-    static TextEditorSettings *m_instance;
+    void settingsFromUI(TabSettings &rc,
+                        StorageSettings &storageSettings,
+                        InteractionSettings &interactionSettings) const;
+    void settingsToUI();
+    struct BehaviorSettingsPagePrivate;
+    BehaviorSettingsPagePrivate *m_d;
 };
 
 } // namespace TextEditor
 
-#endif // TEXTEDITORSETTINGS_H
+#endif // BEHAVIORSETTINGSPAGE_H

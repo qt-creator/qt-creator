@@ -15,33 +15,42 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="caseSensitive">
-     <property name="text">
-      <string>&amp;Case-sensitive completion</string>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Completion Settings</string>
      </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="autoInsertBraces">
-     <property name="text">
-      <string>&amp;Automatically insert braces</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="partiallyComplete">
-     <property name="text">
-      <string>Autocomplete common &amp;prefix</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="caseSensitive">
+        <property name="text">
+         <string>&amp;Case-sensitive completion</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="autoInsertBraces">
+        <property name="text">
+         <string>&amp;Automatically insert braces</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="partiallyComplete">
+        <property name="text">
+         <string>Autocomplete common &amp;prefix</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
