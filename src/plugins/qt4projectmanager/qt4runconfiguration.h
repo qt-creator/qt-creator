@@ -36,6 +36,11 @@
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <QtCore/QStringList>
+#include <QtGui/QWidget>
+
+class QWidget;
+class QLabel;
+class QLineEdit;
 
 namespace Qt4ProjectManager {
 
@@ -45,9 +50,13 @@ namespace Internal {
 
 class Qt4ProFileNode;
 
+
+
 class Qt4RunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
     Q_OBJECT
+    // to change the name and arguments
+    friend class Qt4RunConfigurationWidget;
 public:
     Qt4RunConfiguration(Qt4Project *pro, QString proFilePath);
     virtual ~Qt4RunConfiguration();
@@ -67,6 +76,14 @@ public:
 
     // Should just be called from qt4project, since that knows that the file changed on disc
     void updateCachedValues();
+
+signals:
+    void nameChanged(const QString&);
+    void commandLineArgumentsChanged(const QString&);
+
+    // note those signals might not emited for every change
+    void effectiveExecutableChanged();
+    void effectiveWorkingDirectoryChanged();
 
 private slots:
     void setCommandLineArguments(const QString &argumentsString);
@@ -88,6 +105,31 @@ private:
     QString m_workingDir;
     ProjectExplorer::ApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
+    QWidget *m_configWidget;
+    QLabel *m_executableLabel;
+    QLabel *m_workingDirectoryLabel;
+};
+
+class Qt4RunConfigurationWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4runconfigration, QWidget *parent);
+private slots:
+    void setCommandLineArguments(const QString &arguments);
+    void nameEdited(const QString &name);
+    // TODO connect to signals from qt4runconfiguration for changed arguments and names
+    void commandLineArgumentsChanged(const QString &args);
+    void nameChanged(const QString &name);
+    void effectiveExecutableChanged();
+    void effectiveWorkingDirectoryChanged();
+private:
+    Qt4RunConfiguration *m_qt4RunConfiguration;
+    bool m_ignoreChange;
+    QLabel *m_executableLabel;
+    QLabel *m_workingDirectoryLabel;
+    QLineEdit *m_nameLineEdit;
+    QLineEdit *m_argumentsLineEdit;
 };
 
 class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
