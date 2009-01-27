@@ -38,3 +38,5 @@ macx {
         ICON = qtcreator.icns
 }
 
+include(../../share/share.pri)
+
