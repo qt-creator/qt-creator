@@ -2854,7 +2854,7 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
     *tmplate = tmplate->trimmed();
     *tmplate = tmplate->remove("<>");
     *inner = inner->trimmed();
-    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner;
+    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
     return !inner->isEmpty();
 }
 

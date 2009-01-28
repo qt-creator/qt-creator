@@ -309,11 +309,7 @@ static bool isSimpleType(const char *type)
     return false;
 }
 
-static bool isShortKey(const char *type)
-{
-    return isSimpleType(type) || isEqual(type, NS"QString");
-}
-
+#if 0
 static bool isStringType(const char *type)
 {
     return isEqual(type, NS"QString")
@@ -322,6 +318,7 @@ static bool isStringType(const char *type)
         || isEqual(type, "std::wstring")
         || isEqual(type, "wstring");
 }
+#endif
 
 static bool isMovableType(const char *type)
 {
@@ -1098,16 +1095,14 @@ static void qDumpQHash(QDumper &d)
         if (n > 1000)
             n = 1000;
         bool isSimpleKey = isSimpleType(keyType);
-        bool isStringKey = isStringType(keyType);
         bool isSimpleValue = isSimpleType(valueType);
         bool opt = isOptimizedIntKey(keyType);
         int keyOffset = hashOffset(opt, true, keySize, valueSize);
         int valueOffset = hashOffset(opt, false, keySize, valueSize);
 
         P(d, "extra", "isSimpleKey: " << isSimpleKey
-            << " isStringKey: " << isStringKey
             << " isSimpleValue: " << isSimpleValue
-            << " valueType: '" << valueType << "'"
+            << " valueType: '" << isSimpleValue
             << " keySize: " << keyOffset << " valueOffset: " << valueOffset
             << " opt: " << opt);
 
@@ -1145,15 +1140,18 @@ static void qDumpQHashNode(QDumper &d)
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
 
-    P(d, "value", "");
+    unsigned keySize = d.extraInt[0];
+    unsigned valueSize = d.extraInt[1];
+    bool opt = isOptimizedIntKey(keyType);
+    int keyOffset = hashOffset(opt, true, keySize, valueSize);
+    int valueOffset = hashOffset(opt, false, keySize, valueSize);
+    if (isSimpleType(valueType)) 
+        qDumpInnerValueHelper(d, valueType, addOffset(h, valueOffset));
+    else
+        P(d, "value", "");
+
     P(d, "numchild", 2);
     if (d.dumpChildren) {
-        unsigned keySize = d.extraInt[0];
-        unsigned valueSize = d.extraInt[1];
-        bool opt = isOptimizedIntKey(keyType);
-        int keyOffset = hashOffset(opt, true, keySize, valueSize);
-        int valueOffset = hashOffset(opt, false, keySize, valueSize);
-
         // there is a hash specialization in cast the key are integers or shorts
         d << ",children=[";
         d.beginHash();
@@ -1411,8 +1409,8 @@ static void qDumpQMap(QDumper &d)
         unsigned mapnodesize = d.extraInt[2];
         unsigned valueOff = d.extraInt[3];
 
-        bool isSimpleKey = isShortKey(keyType);
-        bool isSimpleValue = isShortKey(valueType);
+        bool isSimpleKey = isSimpleType(keyType);
+        bool isSimpleValue = isSimpleType(valueType);
         // both negative:
         int keyOffset = 2 * sizeof(void*) - int(mapnodesize);
         int valueOffset = 2 * sizeof(void*) - int(mapnodesize) + valueOff;
@@ -1429,12 +1427,9 @@ static void qDumpQMap(QDumper &d)
         while (node != end) {
             d.beginHash();
                 P(d, "name", i);
-                if (isSimpleKey) {
-                    P(d, "type", valueType);
-                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
-                    if (isSimpleValue)
-                        qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
-
+                qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
+                qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                if (isSimpleKey && isSimpleValue) {
                     P(d, "type", valueType);
                     P(d, "addr", addOffset(node, valueOffset));
                 } else {
@@ -2208,39 +2203,36 @@ static void qDumpStdMap(QDumper &d)
     // (#4, "std::allocator<std::pair<key, value> >")
     // as it is there, and, equally importantly, in an order that
     // gdb accepts when fed with it.
-    char *pairType = (char *)(d.templateParameters[3]) + 16;
+    char *pairType = (char *)(d.templateParameters[3]) + 15;
     pairType[strlen(pairType) - 2] = 0;
     P(d, "pairtype", pairType);
     
     if (d.dumpChildren) {
         bool isSimpleKey = isSimpleType(keyType);
-        bool isStringKey = isStringType(keyType);
-        bool isSimpleValue = isShortKey(valueType);
+        bool isSimpleValue = isSimpleType(valueType);
         int valueOffset = d.extraInt[2];
+
+        P(d, "extra", "isSimpleKey: " << isSimpleKey
+            << " isSimpleValue: " << isSimpleValue
+            << " valueType: '" << valueType
+            << " valueOffset: " << valueOffset);
 
         d << ",children=[";
         it = map.begin();
         for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
-            const void *node = it.operator->();
-            if (isSimpleKey) {
-                d.beginHash();
-                P(d, "type", valueType);
+            d.beginHash();
+                const void *node = it.operator->();
                 P(d, "name", i);
                 qDumpInnerValueHelper(d, keyType, node, "key");
-                P(d, "nameisindex", "1");
-                if (isSimpleValue)
-                    qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
-                P(d, "addr", addOffset(node, valueOffset));
-                d.endHash();
-            } else {
-                d.beginHash();
-                P(d, "name", i);
-                if (isStringKey)
-                    qDumpInnerValueHelper(d, keyType, node, "key");
-                P(d, "addr", it.operator->());
-                P(d, "type", pairType);
-                d.endHash();
-            }
+                qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                if (isSimpleKey && isSimpleValue) {
+                    P(d, "type", valueType);
+                    P(d, "addr", addOffset(node, valueOffset));
+                } else {
+                    P(d, "addr", node);
+                    P(d, "type", pairType);
+                }
+            d.endHash();
         }
         if (it != map.end())
             d.putEllipsis();
