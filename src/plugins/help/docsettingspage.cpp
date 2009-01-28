@@ -136,5 +136,11 @@ bool DocSettingsPage::applyChanges()
         }
         ++it;
     }
-    return m_registeredDocs || m_removeDocs.count();
+
+    bool success = m_registeredDocs || m_removeDocs.count();
+
+    m_removeDocs.clear();
+    m_registeredDocs = false;
+
+    return success;
 }

@@ -34,19 +34,26 @@
 #ifndef DEBUGGERPLUGIN_H
 #define DEBUGGERPLUGIN_H
 
-#include <projectexplorer/projectexplorer.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemView;
 class QAction;
 class QCursor;
-class QAbstractItemView;
+class QMenu;
+class QPoint;
 QT_END_NAMESPACE
 
-namespace Core { class IEditor; }
-namespace TextEditor { class ITextEditor; }
+namespace Core {
+class IEditor;
+class IMode;
+}
+
+namespace TextEditor {
+class ITextEditor;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -99,12 +106,9 @@ private:
     friend class GdbOptionPage;
     friend class DebugMode; // FIXME: Just a hack now so that it can access the views
 
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
-
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
 
-    ExtensionSystem::PluginManager *m_pm;
     GdbOptionPage *m_generalOptionPage;
 
     QString m_previousMode;

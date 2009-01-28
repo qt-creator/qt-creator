@@ -87,7 +87,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     // Objects
     m_modelManager = new CppModelManager(this);
     addAutoReleasedObject(m_modelManager);
-    m_completion = new CppCodeCompletion(m_modelManager, core);
+    m_completion = new CppCodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
     CppQuickOpenFilter *quickOpenFilter = new CppQuickOpenFilter(m_modelManager,
                                                                  core->editorManager());

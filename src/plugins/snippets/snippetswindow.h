@@ -44,10 +44,6 @@ class QDir;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace TextEditor {
 class ITextEditable;
 class ITextEditor;
@@ -97,7 +93,6 @@ private:
     SnippetSpec *m_currentSnippet;
     TextEditor::ITextEditable *m_currentEditor;
 
-    Core::ICore *m_core;
     QDir m_snippetsDir;
 
     SnippetsTree *m_snippetsTree;

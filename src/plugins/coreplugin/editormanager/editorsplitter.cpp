@@ -51,10 +51,9 @@
 using namespace Core;
 using namespace Core::Internal;
 
-EditorSplitter::EditorSplitter(ICore *core, QWidget *parent)
+EditorSplitter::EditorSplitter(QWidget *parent)
   : QWidget(parent),
-    m_curGroup(0),
-    m_core(core)
+    m_curGroup(0)
 {
     registerActions();
     createRootGroup();
@@ -69,9 +68,9 @@ void EditorSplitter::registerActions()
 {
     QList<int> gc = QList<int>() << Constants::C_GLOBAL_ID;
     const QList<int> editorManagerContext =
-            QList<int>() << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
+            QList<int>() << ICore::instance()->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
-    ActionManager *am = m_core->actionManager();
+    ActionManager *am = ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     Command *cmd;
 
@@ -538,13 +537,13 @@ QWidget *EditorSplitter::recreateGroupTree(QWidget *node)
 
 void EditorSplitter::saveCurrentLayout()
 {
-    QSettings *settings = m_core->settings();
+    QSettings *settings = ICore::instance()->settings();
     settings->setValue("EditorManager/Splitting", saveState());
 }
 
 void EditorSplitter::restoreDefaultLayout()
 {
-    QSettings *settings = m_core->settings();
+    QSettings *settings = ICore::instance()->settings();
     if (settings->contains("EditorManager/Splitting"))
         restoreState(settings->value("EditorManager/Splitting").toByteArray());
 }
@@ -656,12 +655,12 @@ EditorGroup *EditorSplitter::createGroup()
             this, SLOT(updateActions()));
     connect(group, SIGNAL(editorAdded(Core::IEditor *)),
             this, SLOT(updateActions()));
-    m_core->addContextObject(group->contextObject());
+    ICore::instance()->addContextObject(group->contextObject());
     return group;
 }
 
 void EditorSplitter::deleteGroup(EditorGroup *group)
 {
-    m_core->removeContextObject(group->contextObject());
+    ICore::instance()->removeContextObject(group->contextObject());
     delete group;
 }

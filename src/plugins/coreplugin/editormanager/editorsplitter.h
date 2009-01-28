@@ -45,7 +45,6 @@
 namespace Core {
 
 class EditorGroup;
-class ICore;
 class IEditor;
 
 namespace Internal {
@@ -55,7 +54,7 @@ class EditorSplitter : public QWidget
     Q_OBJECT
 
 public:
-    EditorSplitter(ICore *core, QWidget *parent = 0);
+    explicit EditorSplitter(QWidget *parent = 0);
     ~EditorSplitter();
 
     void setCurrentGroup(Core::EditorGroup *group);
@@ -114,7 +113,6 @@ private:
 
     QWidget *m_root;
     EditorGroup *m_curGroup;
-    ICore *m_core;
 
     QAction *m_horizontalSplitAction;
     QAction *m_verticalSplitAction;

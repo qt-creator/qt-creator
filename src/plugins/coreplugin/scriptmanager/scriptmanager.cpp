@@ -181,10 +181,8 @@ static QScriptValue fileBox(QScriptContext *context, QScriptEngine *engine)
 namespace Core {
 namespace Internal {
 
-ScriptManagerPrivate::ScriptManagerPrivate(QObject *parent, ICore *core)  :
-    ScriptManager(parent),
-    m_core(core),
-    m_initialized(false)
+ScriptManagerPrivate::ScriptManagerPrivate(QObject *parent)
+   : ScriptManager(parent), m_initialized(false)
 {
 }
 
@@ -250,7 +248,6 @@ void ScriptManagerPrivate::ensureEngineInitialized()
 {
     if (m_initialized)
         return;
-    QTC_ASSERT(m_core, return);
     // register QObjects that occur as properties
     SharedTools::registerQObject<QMainWindow>(m_engine);
     SharedTools::registerQObject<QStatusBar>(m_engine);
@@ -274,7 +271,7 @@ void ScriptManagerPrivate::ensureEngineInitialized()
 //    SharedTools::registerQObjectInterface<Core::ICore, CorePrototype>(m_engine);
 
     // Make "core" available
-    m_engine.globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(&m_engine, m_core));
+    m_engine.globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(&m_engine, Core::ICore::instance()));
 
     // CLASSIC:  registerInterfaceWithDefaultPrototype<Core::MessageManager, MessageManagerPrototype>(m_engine);
 

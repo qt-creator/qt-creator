@@ -59,8 +59,6 @@ Q_DECLARE_METATYPE(Snippets::Internal::SnippetSpec *)
 
 SnippetsWindow::SnippetsWindow()
 {
-    m_core = SnippetsPlugin::core();
-
     setWindowTitle(tr("Snippets"));
     setWindowIcon(QIcon(":/snippets/images/snippets.png"));
     setOrientation(Qt::Vertical);
@@ -79,7 +77,7 @@ SnippetsWindow::SnippetsWindow()
     if (!initSnippetsDir())
         setDisabled(true);
     else {
-        QDir defaultDir(m_core->resourcePath() + QLatin1String("/snippets"));
+        QDir defaultDir(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets"));
         if (defaultDir.exists())
             initSnippets(defaultDir);
         initSnippets(m_snippetsDir);
@@ -110,9 +108,9 @@ void SnippetsWindow::activateSnippet(QTreeWidgetItem *item, int column)
         return;
 
     TextEditor::ITextEditable *editor = 0;
-    if (m_core->editorManager()->currentEditor())
+    if (Core::ICore::instance()->editorManager()->currentEditor())
         editor = qobject_cast<TextEditor::ITextEditable *>(
-                m_core->editorManager()->currentEditor());
+                Core::ICore::instance()->editorManager()->currentEditor());
     if (editor) {
         SnippetSpec* spec = qVariantValue<SnippetSpec*>(item->data(0, Qt::UserRole));
         insertSnippet(editor, spec);
@@ -229,9 +227,9 @@ void SnippetsWindow::showInputWidget(bool canceled, const QString &value)
         return;
 
     TextEditor::ITextEditor *te = 0;
-    if (m_core->editorManager()->currentEditor())
+    if (Core::ICore::instance()->editorManager()->currentEditor())
         te = qobject_cast<TextEditor::ITextEditor*>(
-                m_core->editorManager()->currentEditor());
+                Core::ICore::instance()->editorManager()->currentEditor());
 
     int arg = m_requiredArgs.takeFirst();
     if (arg != -1)
