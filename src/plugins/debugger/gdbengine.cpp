@@ -2833,9 +2833,12 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
     // 'tmplate' and "Inner1@Inner2@..." etc in 'inner'. Result indicates
     // whether parsing was successful
     int level = 0;
+    bool skipSpace = false;
     for (int i = 0; i != type.size(); ++i) {
         QChar c = type[i];
-        if (c == '<') {
+        if (c == ' ' && skipSpace) {
+            skipSpace = false;
+        } else if (c == '<') {
             *(level == 0 ? tmplate : inner) += c;
             ++level;
         } else if (c == '>') {
@@ -2843,6 +2846,7 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
             *(level == 0 ? tmplate : inner) += c;
         } else if (c == ',') {
             *inner += (level == 1) ? '@' : ',';
+            skipSpace = true;
         } else {
             *(level == 0 ? tmplate : inner) += c;
         }
@@ -2850,7 +2854,7 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
     *tmplate = tmplate->trimmed();
     *tmplate = tmplate->remove("<>");
     *inner = inner->trimmed();
-    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner;
+    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
     return !inner->isEmpty();
 }
 
@@ -3555,9 +3559,15 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
             data1.name = '[' + data1.name + ']';
         QString key = item.findChild("key").data();
         if (!key.isEmpty()) {
-            if (item.findChild("keyencoded").data()[0] == '1')
+            if (item.findChild("keyencoded").data()[0] == '1') {
                 key = '"' + QByteArray::fromBase64(key.toUtf8()) + '"';
-            data1.name += " (" + key + ")";
+                if (key.size() > 13) {
+                    key = key.left(12);
+                    key += "...";
+                }
+            }
+            //data1.name += " (" + key + ")";
+            data1.name = key;
         }
         setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));

@@ -54,6 +54,19 @@ TRANSLATOR qdesigner_internal::ResourceModel
 
 namespace qdesigner_internal {
 
+
+/******************************************************************************
+** FileList
+*/
+
+bool FileList::containsFile(File *file)
+{
+    foreach(File *tmpFile, *this)
+        if (tmpFile->name == file->name && tmpFile->prefix() == file->prefix())
+            return true;
+    return false;
+}
+
 /******************************************************************************
 ** ResourceFile
 */
@@ -375,7 +388,7 @@ bool ResourceFile::contains(const QString &prefix, const QString &file) const
     Prefix * const p = m_prefix_list.at(pref_idx);
     Q_ASSERT(p);
     File equalFile(p, absolutePath(file));
-    return p->file_list.contains(&equalFile);
+    return p->file_list.containsFile(&equalFile);
 }
 
 bool ResourceFile::contains(int pref_idx, const QString &file) const
@@ -383,7 +396,7 @@ bool ResourceFile::contains(int pref_idx, const QString &file) const
     Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
     Prefix * const p = m_prefix_list.at(pref_idx);
     File equalFile(p, absolutePath(file));
-    return p->file_list.contains(&equalFile);
+    return p->file_list.containsFile(&equalFile);
 }
 
 /*static*/ QString ResourceFile::fixPrefix(const QString &prefix)
