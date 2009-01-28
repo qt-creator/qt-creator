@@ -9,6 +9,7 @@ SOURCES += texteditorplugin.cpp \
     plaintexteditorfactory.cpp \
     basetextdocument.cpp \
     basetexteditor.cpp \
+    behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
     completionsupport.cpp \
     completionwidget.cpp \
@@ -17,10 +18,10 @@ SOURCES += texteditorplugin.cpp \
     tabsettings.cpp \
     storagesettings.cpp \
     displaysettings.cpp \
+    displaysettingspage.cpp \
     fontsettings.cpp \
     textblockiterator.cpp \
     linenumberfilter.cpp \
-    generalsettingspage.cpp \
     basetextmark.cpp \
     findinfiles.cpp \
     basefilefind.cpp \
@@ -32,6 +33,7 @@ HEADERS += texteditorplugin.h \
     plaintexteditorfactory.h \
     basetexteditor_p.h \
     basetextdocument.h \
+    behaviorsettingspage.h \
     completionsupport.h \
     completionwidget.h \
     basetexteditor.h \
@@ -43,18 +45,19 @@ HEADERS += texteditorplugin.h \
     tabsettings.h \
     storagesettings.h \
     displaysettings.h \
+    displaysettingspage.h \
     fontsettings.h \
     textblockiterator.h \
     itexteditable.h \
     itexteditor.h \
     linenumberfilter.h \
     texteditor_global.h \
-    generalsettingspage.h \
     basetextmark.h \
     findinfiles.h \
     basefilefind.h \
     texteditorsettings.h \
     codecselector.h
-FORMS += fontsettingspage.ui \
-    generalsettingspage.ui
+FORMS += behaviorsettingspage.ui \
+    displaysettingspage.ui \
+    fontsettingspage.ui
 RESOURCES += texteditor.qrc

@@ -391,6 +391,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             return true;
         }
         m_mode = CommandMode;
+        updateMiniBuffer();
         return false;
     }
 
@@ -436,6 +437,7 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
+    //EDITOR(setReadOnly(true)); 
     showBlackMessage("vi emulation mode.");
     updateMiniBuffer();
 }
@@ -780,6 +782,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
+        enterExMode(); // to get the cursor disabled
         m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
         m_commandBuffer.clear();
         m_searchHistory.append(QString());
@@ -879,13 +882,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if (key == 'd') {
-        //setAnchor();
+    } else if (key == 'd' && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
         selectRange(beginLine, endLine);
-        recordRemoveSelectedText();
+        m_registers[m_register] = recordRemoveSelectedText();
     } else if (key == 'D') {
         setAnchor();
         recordBeginGroup();
@@ -1071,10 +1073,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubdata = key;
     } else if (key == 'u') {
         undo();
-    } else if (key == 'U') {
-        // FIXME: this is non-vim, but as Ctrl-R is taken globally
-        // we have a substitute here
-        redo();
     } else if (key == control('u')) {
         int sline = cursorLineOnScreen();
         // FIXME: this should use the "scroll" option, and "count"
@@ -1112,7 +1110,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (leftDist() > 0) {
             setAnchor();
             moveLeft(qMin(count(), leftDist()));
-            recordRemoveSelectedText();
+            m_registers[m_register] = recordRemoveSelectedText();
         }
         finishMovement();
     } else if (key == 'y' && m_visualMode == NoVisualMode) {
@@ -1223,6 +1221,8 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
         QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
+    } else if (key >= control('a') && key <= control('z')) {
+        // ignore these
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
@@ -2114,10 +2114,6 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    //if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride)
-    //    qDebug() << ob << ev->type() << qApp << d->editor()
-    //        << QEvent::KeyPress << QEvent::ShortcutOverride;
-
     if (ev->type() == QEvent::KeyPress && ob == d->editor())
         return d->handleEvent(static_cast<QKeyEvent *>(ev));
 

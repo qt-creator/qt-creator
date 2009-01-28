@@ -888,7 +888,9 @@ void DebuggerManager::executeDebuggerCommand(const QString &command)
 
 void DebuggerManager::sessionLoaded()
 {
-    exitDebugger();
+    cleanupViews();
+    setStatus(DebuggerProcessNotReady);
+    setBusyCursor(false);
     loadSessionData();
 }
 
@@ -1090,6 +1092,28 @@ bool DebuggerManager::useCustomDumpers() const
 bool DebuggerManager::useFastStart() const
 {
     return 0; // && m_settings.m_useFastStart;
+}
+
+void DebuggerManager::setUseCustomDumpers(bool on)
+{
+    m_settings.m_useCustomDumpers = on;
+    engine()->setUseCustomDumpers(on);
+}
+
+void DebuggerManager::setUseFastStart(bool on)
+{
+    m_settings.m_useFastStart = on;
+}
+
+void DebuggerManager::setDebugDumpers(bool on)
+{
+    m_settings.m_debugDumpers = on;
+    engine()->setDebugDumpers(on);
+}
+
+void DebuggerManager::setSkipKnownFrames(bool on)
+{
+    m_settings.m_skipKnownFrames = on;
 }
 
 void DebuggerManager::queryCurrentTextEditor(QString *fileName, int *lineNumber,

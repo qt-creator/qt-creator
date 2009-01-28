@@ -101,6 +101,9 @@ private:
     void loadSessionData() {}
     void saveSessionData() {}
 
+    void setDebugDumpers(bool) {}
+    void setUseCustomDumpers(bool) {}
+
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString & command);
 

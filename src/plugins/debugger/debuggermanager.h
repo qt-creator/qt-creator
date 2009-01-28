@@ -167,8 +167,6 @@ private:
     virtual WatchHandler *watchHandler() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
-    //virtual QAction *useCustomDumpersAction() const = 0;
-    //virtual QAction *debugDumpersAction() const = 0;
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
@@ -283,6 +281,11 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
+    void setUseCustomDumpers(bool on);
+    void setDebugDumpers(bool on);
+    void setSkipKnownFrames(bool on);
+    void setUseFastStart(bool on);
+
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
@@ -312,9 +315,7 @@ private:
     StackHandler *stackHandler() { return m_stackHandler; }
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
-    //QAction *useCustomDumpersAction() const { return m_useCustomDumpersAction; }
-    //QAction *useToolTipsAction() const { return m_useToolTipsAction; }
-    //QAction *debugDumpersAction() const { return m_debugDumpersAction; }
+
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
