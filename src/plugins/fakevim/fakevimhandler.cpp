@@ -348,6 +348,10 @@ public:
 
     QPointer<QObject> m_extraData;
     int m_cursorWidth;
+
+    void recordJump();
+    QList<int> m_jumpListUndo;
+    QList<int> m_jumpListRedo;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
@@ -797,6 +801,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_lastSearchForward = (key == '*');
         updateMiniBuffer();
         search(needle, m_lastSearchForward);
+        recordJump();
     } else if (key == '\'') {
         m_subsubmode = TickSubSubMode;
     } else if (key == '|') {
@@ -946,6 +951,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToStartOfLine();
         else
             moveToFirstNonBlankOnLine();
+    } else if (key == control('i')) {
+        if (!m_jumpListRedo.isEmpty()) {
+            m_jumpListUndo.append(position());
+            m_tc.setPosition(m_jumpListRedo.takeLast());
+        }
     } else if (key == 'j' || key == Key_Down) {
         int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode
@@ -1001,8 +1011,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'n') {
         search(lastSearchString(), m_lastSearchForward);
+        recordJump();
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
+        recordJump();
     } else if (key == 'o' || key == 'O') {
         recordBeginGroup();
         recordMove();
@@ -1018,6 +1030,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             recordInsertText(QString(indentDist(), ' '));
         else
             recordInsertText(QString(numSpaces, ' '));
+    } else if (key == control('o')) {
+        if (!m_jumpListUndo.isEmpty()) {
+            m_jumpListRedo.append(position());
+            m_tc.setPosition(m_jumpListUndo.takeLast());
+        }
     } else if (key == 'p' || key == 'P') {
         recordBeginGroup();
         QString text = m_registers[m_register];
@@ -1298,6 +1315,7 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
             m_searchHistory.append(m_commandBuffer);
             m_lastSearchForward = (m_mode == SearchForwardMode);
             search(lastSearchString(), m_lastSearchForward);
+            recordJump();
         }
         enterCommandMode();
         updateMiniBuffer();
@@ -2105,6 +2123,13 @@ void FakeVimHandler::Private::quit()
     q->quitRequested();
 }
 
+
+void FakeVimHandler::Private::recordJump()
+{
+    m_jumpListUndo.append(position());
+    m_jumpListRedo.clear();
+    //qDebug() << m_jumpListUndo;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
