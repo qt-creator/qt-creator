@@ -104,7 +104,6 @@ private:
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
 
-    ExtensionSystem::PluginManager *m_pm;
     GdbOptionPage *m_generalOptionPage;
 
     QString m_previousMode;

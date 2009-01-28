@@ -339,7 +339,6 @@ void GdbOptionPage::apply()
 
 DebuggerPlugin::DebuggerPlugin()
 {
-    m_pm = 0;
     m_generalOptionPage = 0;
     m_locationMark = 0;
     m_manager = 0;
@@ -389,8 +388,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     Q_UNUSED(error_message);
 
     m_manager = new DebuggerManager;
-
-    m_pm = ExtensionSystem::PluginManager::instance();
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -708,7 +705,7 @@ void DebuggerPlugin::extensionsInitialized()
 
 ProjectExplorer::ProjectExplorerPlugin *DebuggerPlugin::projectExplorer() const
 {
-    return m_pm->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    return ProjectExplorer::ProjectExplorerPlugin::instance();
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
