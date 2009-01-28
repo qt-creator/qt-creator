@@ -9,7 +9,7 @@ SOURCES     = customwidgets.cpp
 
 # Link against the qtcreator utils lib
 
-unix {
+linux-* {
   # form abs path to qtcreator lib dir
   GH_LIB=$$dirname(PWD)
   GH_LIB=$$dirname(GH_LIB)
@@ -19,7 +19,13 @@ unix {
 }
 
 INCLUDEPATH += ../../../src/libs
-LIBS += -L../../../lib -lUtils
+macx {
+    LIBS += -L../../../bin/QtCreator.app/Contents/PlugIns
+    CONFIG(debug, debug|release):LIBS += -lUtils_debug
+    else:LIBS += -lUtils
+} else {
+    LIBS += -L../../../lib -lUtils
+}
 
 DESTDIR= $$[QT_INSTALL_PLUGINS]/designer
 
