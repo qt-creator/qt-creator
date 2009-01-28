@@ -134,6 +134,7 @@ private slots:
 private:
     QToolBar *createToolBar();
     void createRightPaneSideBar();
+    void activateHelpMode();
 
     Core::ICore *m_core;
     QHelpEngine *m_helpEngine;
