@@ -216,7 +216,7 @@ QT_END_NAMESPACE
 // comma-separated integer list
 static char qDumpInBuffer[10000];
 static char qDumpOutBuffer[100000];
-static char qDumpSize[20];
+//static char qDumpSize[20];
 
 namespace {
 
@@ -312,6 +312,15 @@ static bool isSimpleType(const char *type)
 static bool isShortKey(const char *type)
 {
     return isSimpleType(type) || isEqual(type, NS"QString");
+}
+
+static bool isStringType(const char *type)
+{
+    return isEqual(type, NS"QString")
+        || isEqual(type, NS"QByteArray")
+        || isEqual(type, "std::string")
+        || isEqual(type, "std::wstring")
+        || isEqual(type, "wstring");
 }
 
 static bool isMovableType(const char *type)
@@ -555,7 +564,7 @@ void QDumper::addCommaIfNeeded()
         put(',');
 }
 
-void QDumper::putBase64Encoded(const char *buf, int n, char delim)
+void QDumper::putBase64Encoded(const char *buf, int n)
 {
     const char alphabet[] = "ABCDEFGH" "IJKLMNOP" "QRSTUVWX" "YZabcdef"
                             "ghijklmn" "opqrstuv" "wxyz0123" "456789+/";
@@ -740,6 +749,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             return;
         case 'B':
             if (isEqual(type, "QByteArray")) {
+                d.addCommaIfNeeded();
                 d << field << "encoded=\"1\",";
                 P(d, field, *(QByteArray*)addr);
             }
@@ -769,6 +779,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             return;
         case 'S':
             if (isEqual(type, "QString")) {
+                d.addCommaIfNeeded();
                 d << field << "encoded=\"1\",";
                 P(d, field, *(QString*)addr);
             }
@@ -1086,13 +1097,17 @@ static void qDumpQHash(QDumper &d)
     if (d.dumpChildren) {
         if (n > 1000)
             n = 1000;
-        bool simpleKey = isShortKey(keyType);
-        bool simpleValue = isShortKey(valueType);
+        bool isSimpleKey = isSimpleType(keyType);
+        bool isStringKey = isStringType(keyType);
+        bool isSimpleValue = isSimpleType(valueType);
         bool opt = isOptimizedIntKey(keyType);
         int keyOffset = hashOffset(opt, true, keySize, valueSize);
         int valueOffset = hashOffset(opt, false, keySize, valueSize);
 
-        P(d, "extra", "simplekey: " << simpleKey << " simpleValue: " << simpleValue
+        P(d, "extra", "isSimpleKey: " << isSimpleKey
+            << " isStringKey: " << isStringKey
+            << " isSimpleValue: " << isSimpleValue
+            << " valueType: '" << valueType << "'"
             << " keySize: " << keyOffset << " valueOffset: " << valueOffset
             << " opt: " << opt);
 
@@ -1103,18 +1118,17 @@ static void qDumpQHash(QDumper &d)
         d << ",children=[";
         while (node != end) {
             d.beginHash();
-                if (simpleKey) {
-                    P(d, "name", i);
-                    qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
-                    if (simpleValue)
-                        qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                P(d, "name", i);
+                qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
+                qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
+                if (isSimpleKey && isSimpleValue) {
                     P(d, "type", valueType);
                     P(d, "addr", addOffset(node, valueOffset));
                 } else {
-                    P(d, "name", i);
-                    //P(d, "exp", "*(char*)" << node);
-                    P(d, "exp", "*('"NS"QHashNode<" << keyType << "," << valueType << " >'*)" << node);
-                    P(d, "type", "'"NS"QHashNode<" << keyType << "," << valueType << " >'");
+                    P(d, "exp", "*('"NS"QHashNode<" << keyType << ","
+                        << valueType << " >'*)" << node);
+                    P(d, "type", "'"NS"QHashNode<" << keyType << ","
+                        << valueType << " >'");
                 }
             d.endHash();
             ++i;
@@ -1262,8 +1276,8 @@ static void qDumpQLinkedList(QDumper &d)
     P(d, "numchild", n);
     P(d, "childtype", d.innertype);
     if (d.dumpChildren) {
-        unsigned innerSize = d.extraInt[0];
-        bool innerTypeIsPointer = isPointerType(d.innertype);
+        //unsigned innerSize = d.extraInt[0];
+        //bool innerTypeIsPointer = isPointerType(d.innertype);
         QByteArray strippedInnerType = stripPointerType(d.innertype);
         const char *stripped =
             isPointerType(d.innertype) ? strippedInnerType.data() : 0;
@@ -1397,13 +1411,13 @@ static void qDumpQMap(QDumper &d)
         unsigned mapnodesize = d.extraInt[2];
         unsigned valueOff = d.extraInt[3];
 
-        bool simpleKey = isShortKey(keyType);
-        bool simpleValue = isShortKey(valueType);
+        bool isSimpleKey = isShortKey(keyType);
+        bool isSimpleValue = isShortKey(valueType);
         // both negative:
         int keyOffset = 2 * sizeof(void*) - int(mapnodesize);
         int valueOffset = 2 * sizeof(void*) - int(mapnodesize) + valueOff;
 
-        P(d, "extra", "simplekey: " << simpleKey << " simpleValue: " << simpleValue
+        P(d, "extra", "simplekey: " << isSimpleKey << " isSimpleValue: " << isSimpleValue
             << " keyOffset: " << keyOffset << " valueOffset: " << valueOffset
             << " mapnodesize: " << mapnodesize);
         d << ",children=[";
@@ -1415,10 +1429,10 @@ static void qDumpQMap(QDumper &d)
         while (node != end) {
             d.beginHash();
                 P(d, "name", i);
-                if (simpleKey) {
+                if (isSimpleKey) {
                     P(d, "type", valueType);
                     qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
-                    if (simpleValue)
+                    if (isSimpleValue)
                         qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
 
                     P(d, "type", valueType);
@@ -2199,26 +2213,30 @@ static void qDumpStdMap(QDumper &d)
     P(d, "pairtype", pairType);
     
     if (d.dumpChildren) {
-        bool simpleKey = isSimpleType(keyType);
-        bool simpleValue = isShortKey(valueType);
+        bool isSimpleKey = isSimpleType(keyType);
+        bool isStringKey = isStringType(keyType);
+        bool isSimpleValue = isShortKey(valueType);
         int valueOffset = d.extraInt[2];
 
         d << ",children=[";
         it = map.begin();
         for (int i = 0; i < 1000 && it != map.end(); ++i, ++it) {
             const void *node = it.operator->();
-            if (simpleKey) {
+            if (isSimpleKey) {
                 d.beginHash();
                 P(d, "type", valueType);
-                qDumpInnerValueHelper(d, keyType, node, "name");
+                P(d, "name", i);
+                qDumpInnerValueHelper(d, keyType, node, "key");
                 P(d, "nameisindex", "1");
-                if (simpleValue)
+                if (isSimpleValue)
                     qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                 P(d, "addr", addOffset(node, valueOffset));
                 d.endHash();
             } else {
                 d.beginHash();
                 P(d, "name", i);
+                if (isStringKey)
+                    qDumpInnerValueHelper(d, keyType, node, "key");
                 P(d, "addr", it.operator->());
                 P(d, "type", pairType);
                 d.endHash();
