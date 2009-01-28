@@ -311,7 +311,7 @@ static bool isSimpleType(const char *type)
 
 static bool isShortKey(const char *type)
 {
-    return isSimpleType(type) || isEqual(type, "QString");
+    return isSimpleType(type) || isEqual(type, NS"QString");
 }
 
 static bool isMovableType(const char *type)
@@ -704,44 +704,44 @@ static void qDumpUnknown(QDumper &d)
 }
 
 static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
-    const char *key = "value")
+    const char *field = "value")
 {
     type = stripNamespace(type);
     switch (type[1]) {
         case 'l':
             if (isEqual(type, "float"))
-                P(d, key, *(float*)addr);
+                P(d, field, *(float*)addr);
             return;
         case 'n':
             if (isEqual(type, "int"))
-                P(d, key, *(int*)addr);
+                P(d, field, *(int*)addr);
             else if (isEqual(type, "unsigned"))
-                P(d, key, *(unsigned int*)addr);
+                P(d, field, *(unsigned int*)addr);
             else if (isEqual(type, "unsigned int"))
-                P(d, key, *(unsigned int*)addr);
+                P(d, field, *(unsigned int*)addr);
             else if (isEqual(type, "unsigned long"))
-                P(d, key, *(unsigned long*)addr);
+                P(d, field, *(unsigned long*)addr);
             else if (isEqual(type, "unsigned long long"))
-                P(d, key, *(qulonglong*)addr);
+                P(d, field, *(qulonglong*)addr);
             return;
         case 'o':
             if (isEqual(type, "bool"))
                 switch (*(bool*)addr) {
-                    case 0: P(d, key, "false"); break;
-                    case 1: P(d, key, "true"); break;
-                    default: P(d, key, *(bool*)addr); break;
+                    case 0: P(d, field, "false"); break;
+                    case 1: P(d, field, "true"); break;
+                    default: P(d, field, *(bool*)addr); break;
                 }
             else if (isEqual(type, "double"))
-                P(d, key, *(double*)addr);
+                P(d, field, *(double*)addr);
             else if (isEqual(type, "long"))
-                P(d, key, *(long*)addr);
+                P(d, field, *(long*)addr);
             else if (isEqual(type, "long long"))
-                P(d, key, *(qulonglong*)addr);
+                P(d, field, *(qulonglong*)addr);
             return;
         case 'B':
             if (isEqual(type, "QByteArray")) {
-                d << key << "encoded=\"1\",";
-                P(d, key, *(QByteArray*)addr);
+                d << field << "encoded=\"1\",";
+                P(d, field, *(QByteArray*)addr);
             }
             return;
         case 'L':
@@ -769,8 +769,8 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
             return;
         case 'S':
             if (isEqual(type, "QString")) {
-                d << key << "encoded=\"1\",";
-                P(d, key, *(QString*)addr);
+                d << field << "encoded=\"1\",";
+                P(d, field, *(QString*)addr);
             }
             return;
         default:

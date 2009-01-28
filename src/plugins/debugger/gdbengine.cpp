@@ -3555,8 +3555,11 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         if (item.findChild("nameencoded").data()[0] == '1')
             data1.name = QByteArray::fromBase64(data1.name.toUtf8());
         QString key = item.findChild("key").data();
-        if (!key.isEmpty())
+        if (!key.isEmpty()) {
+            if (item.findChild("keyencoded").data()[0] == '1')
+                key = QByteArray::fromBase64(key.toUtf8());
             data1.name += " (" + key + ")";
+        }
         setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));
         setWatchDataChildCount(data1, item.findChild("numchild"));
