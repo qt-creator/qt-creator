@@ -182,6 +182,9 @@ public:
 
     void notifyChanged(const QString &name);
 
+    // called by qt4ProjectNode to add ui_*.h files to the codemodel
+    void addUiFilesToCodeModel(const QStringList &files);
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);
@@ -200,6 +203,7 @@ private slots:
                             const Qt4ProjectManager::Internal::Qt4ProjectType oldType,
                             const Qt4ProjectManager::Internal::Qt4ProjectType newType);
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    void addUiFiles();
 
 protected:
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
@@ -232,6 +236,8 @@ private:
     Internal::Qt4ProjectFiles *m_projectFiles;
 
     QTimer m_updateCodeModelTimer;
+    QTimer m_addUiFilesTimer;
+    QStringList m_uiFilesToAdd;
     Internal::GCCPreprocessor m_preproc;
 
     friend class Qt4ProjectFile;

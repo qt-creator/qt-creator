@@ -845,7 +845,7 @@ void Qt4ProFileNode::updateUiFiles()
         }
         addFileNodes(toAdd, this);
     }
-    modelManager->updateSourceFiles(toUpdate);
+    m_project->addUiFilesToCodeModel(toUpdate);
 }
 
 ProFileReader *Qt4PriFileNode::createProFileReader() const
