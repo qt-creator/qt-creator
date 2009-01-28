@@ -90,7 +90,12 @@ struct File : public Node {
     QString name;
     QString alias;
 };
-typedef QList<File *> FileList;
+
+class FileList : public QList<File *>
+{
+public:
+    bool containsFile(File *file);
+};
 
 /*!
     \class Prefix
