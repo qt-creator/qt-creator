@@ -36,16 +36,18 @@
 #include "snippetsplugin.h"
 #include "snippetspec.h"
 
-#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
-#include <QtGui/QShortcut>
+#include <QtCore/QtPlugin>
 #include <QtGui/QApplication>
+#include <QtGui/QShortcut>
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanagerinterface.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/CoreTools>
+#include <coreplugin/baseview.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/iview.h>
 #include <texteditor/itexteditable.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -56,6 +58,7 @@ SnippetsPlugin *SnippetsPlugin::m_instance = 0;
 SnippetsPlugin::SnippetsPlugin()
 {
     m_instance = this;
+    m_snippetsCompletion = 0;
 }
 
 SnippetsPlugin::~SnippetsPlugin()
@@ -78,17 +81,20 @@ bool SnippetsPlugin::initialize(const QStringList &arguments, QString *)
     context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
     m_snippetWnd = new SnippetsWindow();
-    addAutoReleasedObject(new Core::BaseView("Snippets.SnippetsTree",
-        m_snippetWnd,
-        QList<int>() << core->uniqueIDManager()->uniqueIdentifier(QLatin1String("Snippets Window"))
-                     << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR),
-        Qt::RightDockWidgetArea));
+    Core::BaseView *view = new Core::BaseView;
+    view->setUniqueViewName("Snippets.SnippetsTree");
+    view->setWidget(m_snippetWnd);
+    view->setContext(QList<int>()
+        << core->uniqueIDManager()->uniqueIdentifier(QLatin1String("Snippets Window"))
+        << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR));
+    //view->setDefaultPosition(Qt::RightDockWidgetArea));
+    addAutoReleasedObject(view);
     m_snippetsCompletion = new SnippetsCompletion(this);
     addObject(m_snippetsCompletion);
 
     foreach (SnippetSpec *snippet, m_snippetWnd->snippets()) {
         QShortcut *sc = new QShortcut(m_snippetWnd);
-        Core::ICommand *cmd = am->registerShortcut(sc, simplifySnippetName(snippet), context);
+        Core::Command *cmd = am->registerShortcut(sc, simplifySnippetName(snippet), context);
         cmd->setCategory(tr("Snippets"));
         connect(sc, SIGNAL(activated()), this, SLOT(snippetActivated()));
         m_shortcuts.insert(sc, snippet);

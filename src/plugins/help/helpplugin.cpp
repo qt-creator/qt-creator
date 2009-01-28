@@ -98,7 +98,7 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
         }
     }
     if (needsSetup)
-        qDebug() << m_helpEngine->setupData();
+        m_helpEngine->setupData();
 }
 
 HelpPlugin::HelpPlugin() :
@@ -395,6 +395,11 @@ void HelpPlugin::rightPaneForward()
     m_helpViewerForSideBar->forward();
 }
 
+void HelpPlugin::activateHelpMode()
+{
+    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+}
+
 void HelpPlugin::switchToHelpMode()
 {
     switchToHelpMode(m_helpViewerForSideBar->source());
@@ -403,14 +408,14 @@ void HelpPlugin::switchToHelpMode()
 
 void HelpPlugin::switchToHelpMode(const QUrl &source)
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
 }
 
 void HelpPlugin::switchToHelpMode(const QMap<QString, QUrl> &urls, const QString &keyword)
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_centralWidget->showTopicChooser(urls, keyword);
 }
 
@@ -450,9 +455,12 @@ void HelpPlugin::extensionsInitialized()
 #endif
         QHelpEngineCore hc(fi.absoluteFilePath());
         hc.setupData();
-        if (!hc.registerDocumentation(qchFileName))
-            qDebug() << hc.error();
-        needsSetup = true;
+        QString fileNamespace = QHelpEngineCore::namespaceName(qchFileName);
+        if (!fileNamespace.isEmpty() && !hc.registeredDocumentations().contains(fileNamespace)) {
+            if (!hc.registerDocumentation(qchFileName))
+                qDebug() << hc.error();
+            needsSetup = true;
+        }
     }
 
     int i = m_helpEngine->customValue(
@@ -558,7 +566,7 @@ void HelpPlugin::activateContext()
                 viewer = m_helpViewerForSideBar;
             } else {
                 viewer = m_centralWidget->currentHelpViewer();
-                m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+                activateHelpMode();
             }
             
             if (viewer) {
@@ -576,7 +584,7 @@ void HelpPlugin::activateContext()
             viewer = m_helpViewerForSideBar;
         } else {
             viewer = m_centralWidget->currentHelpViewer();
-            m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+            activateHelpMode();
         }
 
         if (viewer) {
@@ -590,19 +598,19 @@ void HelpPlugin::activateContext()
 
 void HelpPlugin::activateIndex()
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_sideBar->activateItem(m_indexItem);
 }
 
 void HelpPlugin::activateContents()
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_sideBar->activateItem(m_contentItem);
 }
 
 void HelpPlugin::activateSearch()
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_sideBar->activateItem(m_searchItem);
 }
 
@@ -677,7 +685,7 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
 
 void HelpPlugin::openGettingStarted()
 {
-    m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+    activateHelpMode();
     m_centralWidget->setSource(
         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));

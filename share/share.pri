@@ -17,7 +17,7 @@ macx {
     QMAKE_INFO_PLIST = $$PWD/qtcreator/Info.plist
 }
 
-win32 {
+win32|linux-* {
     # make sure the resources are in place
     !exists($$OUT_PWD/app.pro) {
         unix:SEPARATOR = ;
@@ -28,10 +28,11 @@ win32 {
                    designer \
                    schemes \
                    gdbmacros
-        COPYDEST = $${OUT_PWD}/../../bin
+        COPYDEST = $${OUT_PWD}/../../share/qtcreator
         win32:COPYDEST ~= s|/+|\|
+        QMAKE_POST_LINK += $${QMAKE_MKDIR} $$COPYDEST $$SEPARATOR
         for(tmp,COPYSRC) {
-          REALSRC = $$PWD/$$tmp
+          REALSRC = $$PWD/qtcreator/$$tmp
           REALDEST = $$COPYDEST/$$tmp
           win32:tmp ~= s|/+|\|
           win32:REALSRC ~= s|/+|\|

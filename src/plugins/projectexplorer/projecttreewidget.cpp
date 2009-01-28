@@ -48,6 +48,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QFocusEvent>
+#include <QtGui/QPalette>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -73,8 +74,6 @@ public:
         setContextMenuPolicy(Qt::CustomContextMenu);
         setUniformRowHeights(true);
         setTextElideMode(Qt::ElideNone);
-        setAlternatingRowColors(true);
-        setProperty("AlternateEmpty", true); // Let Manhattan to override style default
 //        setExpandsOnDoubleClick(false);
     }
 

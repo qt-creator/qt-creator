@@ -61,6 +61,8 @@
 
 #include <QtHelp/QHelpEngine>
 
+#include <coreplugin/coreconstants.h>
+
 using namespace Help::Internal;
 
 namespace {
@@ -228,20 +230,23 @@ void CentralWidget::setSource(const QUrl &url)
 
 void CentralWidget::setLastShownPages()
 {
-    const QStringList lastShownPageList = helpEngine->customValue(QLatin1String("LastShownPages")).
-        toString().split(QLatin1Char('|'), QString::SkipEmptyParts);
+    const QStringList lastShownPageList =
+        helpEngine->customValue(QLatin1String("LastShownPages")). toString().
+        split(QLatin1Char('|'), QString::SkipEmptyParts);
 
     if (!lastShownPageList.isEmpty()) {
-        foreach (const QString page, lastShownPageList)
+        foreach (const QString& page, lastShownPageList)
             setSourceInNewTab(page);
 
-        tabWidget->setCurrentIndex(helpEngine->customValue(QLatin1String("LastTabPage"), 0).toInt());
+        tabWidget->setCurrentIndex(helpEngine->
+            customValue(QLatin1String("LastTabPage"), 0).toInt());
     } else {
-        QUrl url = helpEngine->findFile(QUrl("qthelp://com.trolltech.qt.440/qdoc/index.html"));
-        if (url.isValid())
-            setSource(url);
-        else
-            setSource(QUrl("qthelp://com.trolltech.qt.440/qdoc/index.html"));
+        QUrl url(helpEngine->findFile(QUrl("qthelp://com.trolltech.qt.440/qdoc/index.html")));
+        if (!url.isValid()) {
+            url.setUrl(QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").
+                arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+        }
+        setSource(url);
     }
 
     updateBrowserFont();
@@ -392,19 +397,33 @@ void CentralWidget::setGlobalActions(const QList<QAction*> &actions)
 {
     globalActionList = actions;
 }
+
 void CentralWidget::setSourceInNewTab(const QUrl &url)
 {
     HelpViewer* viewer = new HelpViewer(helpEngine, this);
     viewer->installEventFilter(this);
     viewer->setSource(url);
     viewer->setFocus(Qt::OtherFocusReason);
-    tabWidget->setCurrentIndex(tabWidget->addTab(viewer, viewer->documentTitle()));
+    tabWidget->setCurrentIndex(tabWidget->addTab(viewer,
+        quoteTabTitle(viewer->documentTitle())));
 
+#if defined(QT_NO_WEBIT)
     QFont font = qApp->font();
     if (helpEngine->customValue(QLatin1String("useBrowserFont")).toBool())
         font = qVariantValue<QFont>(helpEngine->customValue(QLatin1String("browserFont")));
-
     viewer->setFont(font);
+#else
+    QWebView* view = qobject_cast<QWebView*> (viewer);
+    if (view) {
+        QWebSettings* settings = QWebSettings::globalSettings();
+        int fontSize = settings->fontSize(QWebSettings::DefaultFontSize);
+        QString fontFamily = settings->fontFamily(QWebSettings::StandardFont);
+
+        settings = view->settings();
+        settings->setFontSize(QWebSettings::DefaultFontSize, fontSize);
+        settings->setFontFamily(QWebSettings::StandardFont, fontFamily);
+    }
+#endif
 
     connectSignals();
 }
@@ -492,7 +511,7 @@ void CentralWidget::currentPageChanged(int index)
     bool enabled = false;
     if (viewer)
         enabled = tabWidget->count() > 1;
-    
+
     tabWidget->setTabsClosable(enabled);
     tabWidget->cornerWidget(Qt::TopLeftCorner)->setEnabled(true);
 
@@ -595,6 +614,7 @@ bool CentralWidget::eventFilter(QObject *object, QEvent *e)
 
 void CentralWidget::updateBrowserFont()
 {
+#if defined(QT_NO_WEBKIT)
     QFont font = qApp->font();
     if (helpEngine->customValue(QLatin1String("useBrowserFont")).toBool())
         font = qVariantValue<QFont>(helpEngine->customValue(QLatin1String("browserFont")));
@@ -605,9 +625,25 @@ void CentralWidget::updateBrowserFont()
         if (widget->font() != font)
             widget->setFont(font);
     }
+#else
+    QWebSettings* settings = QWebSettings::globalSettings();
+    int fontSize = settings->fontSize(QWebSettings::DefaultFontSize);
+    QString fontFamily = settings->fontFamily(QWebSettings::StandardFont);
+
+    QWebView* widget = 0;
+    for (int i = 0; i < tabWidget->count(); ++i) {
+        widget = qobject_cast<QWebView*> (tabWidget->widget(i));
+        if (widget) {
+            settings = widget->settings();
+            settings->setFontSize(QWebSettings::DefaultFontSize, fontSize);
+            settings->setFontFamily(QWebSettings::StandardFont, fontFamily);
+        }
+    }
+#endif
 }
 
-bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental)
+bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
+    bool incremental)
 {
     HelpViewer* viewer = currentHelpViewer();
 
@@ -666,7 +702,7 @@ bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
 }
 
 void CentralWidget::showTopicChooser(const QMap<QString, QUrl> &links,
-                                     const QString &keyword)
+    const QString &keyword)
 {
     TopicChooser tc(this, keyword, links);
     if (tc.exec() == QDialog::Accepted)

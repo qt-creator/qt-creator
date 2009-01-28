@@ -46,6 +46,7 @@
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
+#include <QtGui/QLabel>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -54,17 +55,27 @@ using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
 
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
-    : ApplicationRunConfiguration(pro), m_proFilePath(proFilePath), m_userSetName(false)
+    : ApplicationRunConfiguration(pro),
+      m_proFilePath(proFilePath),
+      m_userSetName(false),
+      m_configWidget(0),
+      m_executableLabel(0),
+      m_workingDirectoryLabel(0)
 {
     setName(tr("Qt4RunConfiguration"));
     if (!m_proFilePath.isEmpty()) {
         updateCachedValues();
         setName(QFileInfo(m_proFilePath).baseName());
     }
+    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+            this, SIGNAL(effectiveExecutableChanged()));
+    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+            this, SIGNAL(effectiveWorkingDirectoryChanged()));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
 {
+
 }
 
 QString Qt4RunConfiguration::type() const
@@ -72,37 +83,92 @@ QString Qt4RunConfiguration::type() const
     return "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
-QWidget *Qt4RunConfiguration::configurationWidget()
+
+//////
+/// Qt4RunConfigurationWidget
+/////
+
+Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4RunConfiguration, QWidget *parent)
+    : QWidget(parent), m_qt4RunConfiguration(qt4RunConfiguration), m_ignoreChange(false)
 {
-    QWidget *configWidget = new QWidget;
-    QFormLayout *toplayout = new QFormLayout(configWidget);
+    QFormLayout *toplayout = new QFormLayout(this);
     toplayout->setMargin(0);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));
-    QLineEdit *nameLineEdit = new QLineEdit(name());
-    nameLabel->setBuddy(nameLineEdit);
-    toplayout->addRow(nameLabel, nameLineEdit);
+    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->name());
+    nameLabel->setBuddy(m_nameLineEdit);
+    toplayout->addRow(nameLabel, m_nameLineEdit);
 
-    QLabel *executableLabel = new QLabel(tr("Executable:"));
-    QLabel *executableLabel2 = new QLabel(executable());
-    toplayout->addRow(executableLabel, executableLabel2);
+    m_executableLabel = new QLabel(m_qt4RunConfiguration->executable());
+    toplayout->addRow(tr("Executable:"), m_executableLabel);
 
-    QLabel *workingDirectoryLabel = new QLabel(tr("Working Directory:"));
-    QLabel *workingDirectoryLabel2 = new QLabel(workingDirectory());
-    toplayout->addRow(workingDirectoryLabel, workingDirectoryLabel2);
+    m_workingDirectoryLabel = new QLabel(m_qt4RunConfiguration->workingDirectory());
+    toplayout->addRow(tr("Working Directory:"), m_workingDirectoryLabel);
 
     QLabel *argumentsLabel = new QLabel(tr("&Arguments:"));
-    QLineEdit *argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(commandLineArguments()));
-    argumentsLabel->setBuddy(argumentsLineEdit);
-    toplayout->addRow(argumentsLabel, argumentsLineEdit);
+    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
+    argumentsLabel->setBuddy(m_argumentsLineEdit);
+    toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
-    connect(argumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_argumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(setCommandLineArguments(const QString&)));
 
-    connect(nameLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_nameLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(nameEdited(const QString&)));
 
-    return configWidget;
+    connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
+            this, SLOT(commandLineArgumentsChanged(QString)));
+    connect(qt4RunConfiguration, SIGNAL(nameChanged(QString)),
+            this, SLOT(nameChanged(QString)));
+
+    connect(qt4RunConfiguration, SIGNAL(effectiveExecutableChanged()),
+            this, SLOT(effectiveExecutableChanged()));
+    connect(qt4RunConfiguration, SIGNAL(effectiveWorkingDirectoryChanged()),
+            this, SLOT(effectiveWorkingDirectoryChanged()));
+
+}
+
+void Qt4RunConfigurationWidget::setCommandLineArguments(const QString &args)
+{
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->setCommandLineArguments(args);
+    m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::nameEdited(const QString &name)
+{
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->nameEdited(name);
+    m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
+{
+    if (!m_ignoreChange)
+        m_argumentsLineEdit->setText(args);
+}
+
+void Qt4RunConfigurationWidget::nameChanged(const QString &name)
+{
+    if (!m_ignoreChange)
+        m_nameLineEdit->setText(name);
+}
+
+void Qt4RunConfigurationWidget::effectiveExecutableChanged()
+{
+    m_executableLabel->setText(m_qt4RunConfiguration->executable());
+}
+
+void Qt4RunConfigurationWidget::effectiveWorkingDirectoryChanged()
+{
+    m_workingDirectoryLabel->setText(m_qt4RunConfiguration->workingDirectory());
+}
+
+////// TODO c&p above
+
+QWidget *Qt4RunConfiguration::configurationWidget()
+{
+    return new Qt4RunConfigurationWidget(this, 0);
 }
 
 void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
@@ -156,6 +222,7 @@ ProjectExplorer::Environment Qt4RunConfiguration::environment() const
 void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString)
 {
     m_commandLineArguments = ProjectExplorer::Environment::parseCombinedArgString(argumentsString);
+    emit commandLineArgumentsChanged(argumentsString);
 }
 
 void Qt4RunConfiguration::nameEdited(const QString &name)
@@ -167,6 +234,7 @@ void Qt4RunConfiguration::nameEdited(const QString &name)
         setName(name);
         m_userSetName = true;
     }
+    emit nameChanged(name);
 }
 
 QString Qt4RunConfiguration::proFilePath() const
@@ -222,6 +290,9 @@ void Qt4RunConfiguration::updateCachedValues()
     m_runMode = ProjectExplorer::ApplicationRunConfiguration::Gui;
 
     delete reader;
+
+    emit effectiveExecutableChanged();
+    emit effectiveWorkingDirectoryChanged();
 }
 
 QString Qt4RunConfiguration::resolveVariables(const QString &buildConfiguration, const QString& in) const
@@ -310,7 +381,7 @@ QString Qt4RunConfiguration::qmakeBuildConfigFromBuildConfiguration(const QStrin
         else
             return "release";
     } else {
-        // Old sytle always CONFIG+=debug_and_release
+        // Old style always CONFIG+=debug_and_release
         if (qobject_cast<Qt4Project *>(project())->qtVersion(buildConfigurationName)->defaultBuildConfig() & QtVersion::DebugBuild)
             return "debug";
         else

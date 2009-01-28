@@ -31,8 +31,8 @@
 **
 ***************************************************************************/
 
-#ifndef GENERALSETTINGSPAGE_H
-#define GENERALSETTINGSPAGE_H
+#ifndef DISPLAYSETTINGSPAGE_H
+#define DISPLAYSETTINGSPAGE_H
 
 #include "texteditor_global.h"
 
@@ -42,12 +42,9 @@
 
 namespace TextEditor {
 
-struct TabSettings;
-struct StorageSettings;
 struct DisplaySettings;
-struct InteractionSettings;
 
-struct TEXTEDITOR_EXPORT GeneralSettingsPageParameters
+struct DisplaySettingsPageParameters
 {
     QString name;
     QString category;
@@ -55,13 +52,13 @@ struct TEXTEDITOR_EXPORT GeneralSettingsPageParameters
     QString settingsPrefix;
 };
 
-class TEXTEDITOR_EXPORT GeneralSettingsPage : public Core::IOptionsPage
+class DisplaySettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GeneralSettingsPage(const GeneralSettingsPageParameters &p, QObject *parent);
-    virtual ~GeneralSettingsPage();
+    DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
+    virtual ~DisplaySettingsPage();
 
     // IOptionsPage
     QString name() const;
@@ -72,29 +69,19 @@ public:
     void apply();
     void finish() { }
 
-    TabSettings tabSettings() const;
-    StorageSettings storageSettings() const;
     DisplaySettings displaySettings() const;
-    InteractionSettings interactionSettings() const;
-
     void setDisplaySettings(const DisplaySettings &);
 
 signals:
-    void tabSettingsChanged(const TextEditor::TabSettings &);
-    void storageSettingsChanged(const TextEditor::StorageSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
 private:
-    void settingsFromUI(TabSettings &rc,
-                        StorageSettings &storageSettings,
-                        DisplaySettings &displaySettings,
-                        InteractionSettings &interactionSettings
-        ) const;
+    void settingsFromUI(DisplaySettings &displaySettings) const;
     void settingsToUI();
-    struct GeneralSettingsPagePrivate;
-    GeneralSettingsPagePrivate *m_d;
+    struct DisplaySettingsPagePrivate;
+    DisplaySettingsPagePrivate *m_d;
 };
 
 } // namespace TextEditor
 
-#endif // GENERALSETTINGSPAGE_H
+#endif // DISPLAYSETTINGSPAGE_H

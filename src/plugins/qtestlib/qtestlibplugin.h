@@ -35,18 +35,19 @@
 #define QTESTLIBPLUGIN_H
 
 #include <coreplugin/ioutputpane.h>
-//#include <projectexplorer/ProjectExplorerInterfaces>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtGui/QPixmap>
+#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QStandardItem>
 #include <QtGui/QWidget>
-#include <QtGui/QSortFilterProxyModel>
 
 QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-class QTreeView;
-class QTextEdit;
 class QComboBox;
+class QStandardItemModel;
+class QTextEdit;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace QTestLib {
@@ -101,7 +102,7 @@ public:
 class QTestOutputPane : public Core::IOutputPane
 {
     Q_OBJECT
-    //Q_INTERFACES(Core::IOutputPane)
+
 public:
     QTestOutputPane(QTestLibPlugin *plugin);
 
@@ -116,8 +117,13 @@ public:
 
     void show();
 
-Q_SIGNALS:
-//signals
+    // FIXME:
+    virtual int priorityInStatusBar() const { return 0;}
+    virtual void setFocus() {}
+    virtual bool hasFocus() { return false;}
+    virtual bool canFocus() { return false;}
+
+signals:
     void showPage();
 
 private:
@@ -165,19 +171,15 @@ private:
     QTestOutputFilter *m_filterModel;
 };
 
-class QTestLibPlugin : public QObject,
-                       public ExtensionSystem::PluginInterface,
-                       public ProjectExplorer::IApplicationOutput
+class QTestLibPlugin : public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionSystem::PluginInterface
-                 ProjectExplorer::IApplicationOutput)
 
 public:
     QTestLibPlugin();
     virtual ~QTestLibPlugin();
 
-    bool init(ExtensionSystem::PluginManagerInterface *app, QString *error_message);
+    bool init(const QStringList &args, QString *error_message);
     void extensionsInitialized();
 
     // IApplicationOutput

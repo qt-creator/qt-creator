@@ -40,7 +40,8 @@
 
 namespace TextEditor {
 
-class GeneralSettingsPage;
+class BehaviorSettingsPage;
+class DisplaySettingsPage;
 class FontSettingsPage;
 class FontSettings;
 struct TabSettings;
@@ -74,8 +75,9 @@ signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
 private:
-    TextEditor::FontSettingsPage *m_fontSettingsPage;
-    TextEditor::GeneralSettingsPage *m_generalSettingsPage;
+    FontSettingsPage *m_fontSettingsPage;
+    BehaviorSettingsPage *m_behaviorSettingsPage;
+    DisplaySettingsPage *m_displaySettingsPage;
 
     static TextEditorSettings *m_instance;
 };

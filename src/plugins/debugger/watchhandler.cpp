@@ -255,7 +255,6 @@ QString WatchData::toString() const
     return res;
 }
 
-
 static bool iNameSorter(const WatchData &d1, const WatchData &d2)
 {
     if (d1.level != d2.level)
@@ -265,19 +264,9 @@ static bool iNameSorter(const WatchData &d1, const WatchData &d2)
         QString name1 = d1.iname.section('.', level, level);
         QString name2 = d2.iname.section('.', level, level);
         //MODEL_DEBUG(" SORT: " << name1 << name2 << (name1 < name2));
-
-        if (name1 != name2) {
-            // This formerly used inames. in this case 'lastIndexOf' probably
-            // makes more sense.
-            if (name1.startsWith('[') && name2.startsWith('[')) {
-                return name1.mid(1, name1.indexOf(']') - 1).toInt()
-                     < name2.mid(1, name2.indexOf(']') - 1).toInt();
-                // numbers should be sorted according to their numerical value
-                //int pos = d1.name.lastIndexOf('.');
-                //if (pos != -1 && pos + 1 != d1.name.size() && d1.name.at(pos + 1).isDigit())
-                //    return d1.name.size() < d2.name.size();
-                // fall through
-            }
+        if (name1 != name2 && !name1.isEmpty() && !name2.isEmpty()) {
+            if (name1.at(0).isDigit() && name2.at(0).isDigit())
+                return name1.toInt() < name2.toInt();
             return name1 < name2;
         }
     }

@@ -61,6 +61,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 
@@ -84,8 +85,6 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
-
-namespace ExtensionSystem { class PluginManager; }
 
 using namespace Core;
 using namespace Debugger::Constants;
@@ -143,6 +142,11 @@ const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
 } // namespace Constants
 } // namespace Debugger
 
+
+static ProjectExplorer::SessionManager *sessionManager()
+{
+    return ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -251,6 +255,7 @@ public:
     void finish() {} // automatically calls "apply"
 
 private:
+    friend class DebuggerPlugin;
     Ui::GdbOptionPage m_ui;
 
     DebuggerSettings m_settings;
@@ -300,6 +305,10 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 
     //m_dumpLogAction = new QAction(this);
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
+    //
+    connect(m_ui.checkBoxUseCustomDumpers, SIGNAL(clicked(bool)),
+        m_plugin->m_manager, SLOT(setUseCustomDumpers(bool)));
+
     return w;
 }
 
@@ -334,7 +343,6 @@ void GdbOptionPage::apply()
 
 DebuggerPlugin::DebuggerPlugin()
 {
-    m_pm = 0;
     m_generalOptionPage = 0;
     m_locationMark = 0;
     m_manager = 0;
@@ -384,8 +392,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     Q_UNUSED(error_message);
 
     m_manager = new DebuggerManager;
-
-    m_pm = ExtensionSystem::PluginManager::instance();
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -560,10 +566,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     connect(resetToSimpleAction, SIGNAL(triggered()),
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
 
-
-    m_generalOptionPage = 0;
-
-    // FIXME:
+   // FIXME:
     m_generalOptionPage = new GdbOptionPage(this);
     addObject(m_generalOptionPage);
 
@@ -661,9 +664,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     //
 
     // ProjectExplorer
-    connect(projectExplorer()->session(), SIGNAL(sessionLoaded()),
+    connect(sessionManager(), SIGNAL(sessionLoaded()),
        m_manager, SLOT(sessionLoaded()));
-    connect(projectExplorer()->session(), SIGNAL(aboutToSaveSession()),
+    connect(sessionManager(), SIGNAL(aboutToSaveSession()),
        m_manager, SLOT(aboutToSaveSession()));
 
     // EditorManager
@@ -702,11 +705,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 
 void DebuggerPlugin::extensionsInitialized()
 {
-}
-
-ProjectExplorer::ProjectExplorerPlugin *DebuggerPlugin::projectExplorer() const
-{
-    return m_pm->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
@@ -820,17 +818,14 @@ void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
 void DebuggerPlugin::setSessionValue(const QString &name, const QVariant &value)
 {
     //qDebug() << "SET SESSION VALUE" << name << value;
-    ProjectExplorerPlugin *pe = projectExplorer();
-    if (pe->session())
-        pe->session()->setValue(name, value);
-    else
-        qDebug() << "FIXME: Session does not exist yet";
+    QTC_ASSERT(sessionManager(), return);
+    sessionManager()->setValue(name, value);
 }
 
 void DebuggerPlugin::querySessionValue(const QString &name, QVariant *value)
 {
-    ProjectExplorerPlugin *pe = projectExplorer();
-    *value = pe->session()->value(name);
+    QTC_ASSERT(sessionManager(), return);
+    *value = sessionManager()->value(name);
     //qDebug() << "GET SESSION VALUE: " << name << value;
 }
 

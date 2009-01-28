@@ -120,7 +120,7 @@ MainWindow::MainWindow() :
     m_editorManager(0),
     m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
-    m_scriptManager(new ScriptManagerPrivate(this, m_coreImpl)),
+    m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager(this)),
     m_vcsManager(new VCSManager()),
     m_viewManager(0),

@@ -391,6 +391,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
             return true;
         }
         m_mode = CommandMode;
+        updateMiniBuffer();
         return false;
     }
 
@@ -436,6 +437,7 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
+    //EDITOR(setReadOnly(true)); 
     showBlackMessage("vi emulation mode.");
     updateMiniBuffer();
 }
@@ -688,17 +690,27 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         indentRegion(m_tc.block(), m_tc.block().next());
         finishMovement();
     } else if (m_submode == ZSubMode) {
-        if (key == Key_Return) {
-            // cursor line to top of window, cursor on first non-blank
+        //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
+        if (key == Key_Return || key == 't') { // cursor line to top of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
             scrollToLineInDocument(cursorLineInDocument());
-            moveToFirstNonBlankOnLine();
+            if (key == Key_Return)
+                moveToFirstNonBlankOnLine();
             finishMovement();
-        } else if (key == '.') { // center cursor line 
+        } else if (key == '.' || key == 'z') { // cursor line to center of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
-            moveToFirstNonBlankOnLine();
+            if (key == '.')
+                moveToFirstNonBlankOnLine();
             finishMovement();
-        } else if (key == 'z') { // center cursor line 
-            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+        } else if (key == '-' || key == 'b') { // cursor line to bottom of window
+            if (!m_mvcount.isEmpty())
+                m_tc.setPosition(positionForLine(count()));
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() - 1);
+            if (key == '-')
+                moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
             qDebug() << "IGNORED Z_MODE " << key << text;
@@ -770,6 +782,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
+        enterExMode(); // to get the cursor disabled
         m_mode = (key == '/') ? SearchForwardMode : SearchBackwardMode;
         m_commandBuffer.clear();
         m_searchHistory.append(QString());
@@ -869,19 +882,25 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if (key == 'd') {
-        //setAnchor();
+    } else if (key == 'd' && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
         selectRange(beginLine, endLine);
-        recordRemoveSelectedText();
+        m_registers[m_register] = recordRemoveSelectedText();
     } else if (key == 'D') {
         setAnchor();
         recordBeginGroup();
         m_submode = DeleteSubMode;
         moveDown(qMax(count() - 1, 0));
         moveRight(rightDist());
+        finishMovement();
+    } else if (key == control('d')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveDown(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
         finishMovement();
     } else if (key == 'e') {
         m_moveType = MoveInclusive;
@@ -1054,10 +1073,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubdata = key;
     } else if (key == 'u') {
         undo();
-    } else if (key == 'U') {
-        // FIXME: this is non-vim, but as Ctrl-R is taken globally
-        // we have a substitute here
-        redo();
+    } else if (key == control('u')) {
+        int sline = cursorLineOnScreen();
+        // FIXME: this should use the "scroll" option, and "count"
+        moveUp(linesOnScreen() / 2);
+        moveToFirstNonBlankOnLine();
+        scrollToLineInDocument(cursorLineInDocument() - sline);
+        finishMovement();
     } else if (key == 'v') {
         enterVisualMode(VisualCharMode);
     } else if (key == 'V') {
@@ -1088,7 +1110,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (leftDist() > 0) {
             setAnchor();
             moveLeft(qMin(count(), leftDist()));
-            recordRemoveSelectedText();
+            m_registers[m_register] = recordRemoveSelectedText();
         }
         finishMovement();
     } else if (key == 'y' && m_visualMode == NoVisualMode) {
@@ -1127,20 +1149,6 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         recordInsertText(str);
         recordEndGroup();
-    } else if (key == control('d')) {
-        int sline = cursorLineOnScreen();
-        // FIXME: this should use the "scroll" option, and "count"
-        moveDown(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
-        finishMovement();
-    } else if (key == control('u')) {
-        int sline = cursorLineOnScreen();
-        // FIXME: this should use the "scroll" option, and "count"
-        moveUp(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
-        scrollToLineInDocument(cursorLineInDocument() - sline);
-        finishMovement();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2));
         finishMovement();
@@ -1213,6 +1221,8 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
         QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
+    } else if (key >= control('a') && key <= control('z')) {
+        // ignore these
     } else if (!text.isEmpty()) {
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
@@ -1572,10 +1582,15 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
 
+    int oldLine = cursorLineInDocument() - cursorLineOnScreen();
+
     EDITOR(setTextCursor(m_tc));
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_tc.anchor());
+        // making this unconditional feels better, but is not "vim like"
+        if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         return;
     }
 
@@ -1584,6 +1599,8 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (EDITOR(find(needle, flags))) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_tc.anchor());
+        if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
+            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         if (forward)
             showRedMessage("search hit BOTTOM, continuing at TOP");
         else
@@ -2097,10 +2114,6 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    //if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride)
-    //    qDebug() << ob << ev->type() << qApp << d->editor()
-    //        << QEvent::KeyPress << QEvent::ShortcutOverride;
-
     if (ev->type() == QEvent::KeyPress && ob == d->editor())
         return d->handleEvent(static_cast<QKeyEvent *>(ev));
 

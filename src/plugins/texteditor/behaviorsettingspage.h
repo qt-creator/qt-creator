@@ -31,38 +31,63 @@
 **
 ***************************************************************************/
 
-#ifndef SCRIPTMANAGER_P_H
-#define SCRIPTMANAGER_P_H
+#ifndef BEHAVIORSETTINGSPAGE_H
+#define BEHAVIORSETTINGSPAGE_H
 
-#include <coreplugin/scriptmanager/scriptmanager.h>
+#include "texteditor_global.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QObject>
-#include <QtScript/QScriptEngine>
 
-namespace Core {
-namespace Internal {
+namespace TextEditor {
 
-class ScriptManagerPrivate : public Core::ScriptManager
+struct TabSettings;
+struct StorageSettings;
+struct InteractionSettings;
+
+struct BehaviorSettingsPageParameters
+{
+    QString name;
+    QString category;
+    QString trCategory;
+    QString settingsPrefix;
+};
+
+class BehaviorSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit ScriptManagerPrivate(QObject *parent);
+    BehaviorSettingsPage(const BehaviorSettingsPageParameters &p, QObject *parent);
+    virtual ~BehaviorSettingsPage();
 
-    QScriptEngine &scriptEngine();
-    bool runScript(const QString &script, QString *errorMessage, Stack *stack);
-    bool runScript(const QString &script, QString *errorMessage);
+    // IOptionsPage
+    QString name() const;
+    QString category() const;
+    QString trCategory() const;
 
-    static QString engineError(QScriptEngine &scriptEngine);
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+
+    TabSettings tabSettings() const;
+    StorageSettings storageSettings() const;
+    InteractionSettings interactionSettings() const;
+
+signals:
+    void tabSettingsChanged(const TextEditor::TabSettings &);
+    void storageSettingsChanged(const TextEditor::StorageSettings &);
 
 private:
-    void ensureEngineInitialized();
-
-    QScriptEngine m_engine;
-    bool m_initialized;
+    void settingsFromUI(TabSettings &rc,
+                        StorageSettings &storageSettings,
+                        InteractionSettings &interactionSettings) const;
+    void settingsToUI();
+    struct BehaviorSettingsPagePrivate;
+    BehaviorSettingsPagePrivate *m_d;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace TextEditor
 
-#endif // SCRIPTMANAGER_P_H
+#endif // BEHAVIORSETTINGSPAGE_H

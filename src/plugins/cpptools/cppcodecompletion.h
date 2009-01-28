@@ -34,23 +34,17 @@
 #ifndef CPPCODECOMPLETION_H
 #define CPPCODECOMPLETION_H
 
-// C++ front-end
 #include <ASTfwd.h>
 #include <FullySpecifiedType.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
-// Qt Creator
 #include <texteditor/icompletioncollector.h>
 
-// Qt
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
-namespace Core {
-class ICore;
-}
 
 namespace TextEditor {
 class ITextEditor;
@@ -66,7 +60,7 @@ class CppCodeCompletion : public TextEditor::ICompletionCollector
 {
     Q_OBJECT
 public:
-    CppCodeCompletion(CppModelManager *manager, Core::ICore *core);
+    explicit CppCodeCompletion(CppModelManager *manager);
 
     bool triggersCompletion(TextEditor::ITextEditable *editor);
     int startCompletion(TextEditor::ITextEditable *editor);
@@ -131,7 +125,6 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
 
-    Core::ICore *m_core;
     CppModelManager *m_manager;
     Qt::CaseSensitivity m_caseSensitivity;
     bool m_autoInsertBraces;

@@ -36,14 +36,10 @@
 
 #include <texteditor/icompletioncollector.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
 #include <QtCore/QDir>
+#include <QtCore/QMap>
+#include <QtCore/QObject>
 #include <QtGui/QIcon>
-
-namespace Core {
-class ICore;
-}
 
 namespace TextEditor {
 class ITextEditable;
@@ -72,9 +68,11 @@ public:
     QString details(TextEditor::CompletionItem *item) const;
     QIcon icon(TextEditor::CompletionItem *item) const;
 
-    void complete(TextEditor::CompletionItem *item);
-    bool partiallyComplete();
+    void complete(const TextEditor::CompletionItem &item);
+    bool partiallyComplete(const QList<TextEditor::CompletionItem> &);
     void cleanup();
+
+    void completions(QList<TextEditor::CompletionItem>*);
 
 private slots:
     void updateCompletions();
@@ -83,10 +81,9 @@ private:
     static int findStartOfName(const TextEditor::ITextEditor *editor);
 
     TextEditor::ITextEditable *m_editor;
-    int m_startPosition;                            // Position of the cursor from which completion started
+    int m_startPosition;  // Position of the cursor from which completion started
 
-    SnippetsWindow *m_snippetsWnd;
-    Core::ICore *m_core;
+    SnippetsWindow *m_snippetsWindow;
 
     QMultiMap<QString, TextEditor::CompletionItem *> m_autoCompletions;
 

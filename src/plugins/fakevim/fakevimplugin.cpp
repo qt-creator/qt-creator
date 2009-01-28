@@ -126,7 +126,6 @@ private slots:
 private:
     FakeVimPlugin *q;
     QAction *m_installHandlerAction; 
-    Core::ICore *m_core;
 };
 
 } // namespace Internal
@@ -136,7 +135,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {       
     q = plugin;
     m_installHandlerAction = 0;
-    m_core = 0;
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -149,10 +147,7 @@ void FakeVimPluginPrivate::shutdown()
 
 bool FakeVimPluginPrivate::initialize()
 {
-    m_core = Core::ICore::instance();
-    QTC_ASSERT(m_core, return false);
-
-    Core::ActionManager *actionManager = m_core->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
     QTC_ASSERT(actionManager, return false);
 
     QList<int> globalcontext;
@@ -174,7 +169,7 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(installHandlerOnCurrentEditor()));
 
     // EditorManager
-    QObject *editorManager = m_core->editorManager();
+    QObject *editorManager = Core::ICore::instance()->editorManager();
     connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
@@ -187,7 +182,7 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
     QWidget *widget = editor->widget();
     
-    FakeVimHandler *handler = new FakeVimHandler(widget, this);
+    FakeVimHandler *handler = new FakeVimHandler(widget, widget);
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(showExtraInformation(QString)));
@@ -239,9 +234,9 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
     if (editor && editor->file()->fileName() == fileName) {
         // Handle that as a special case for nicer interaction with core
         Core::IFile *file = editor->file();
-        m_core->fileManager()->blockFileChange(file);
+        Core::ICore::instance()->fileManager()->blockFileChange(file);
         file->save(fileName);
-        m_core->fileManager()->unblockFileChange(file);
+        Core::ICore::instance()->fileManager()->unblockFileChange(file);
         *handled = true;
     } 
 }
@@ -258,33 +253,17 @@ void FakeVimPluginPrivate::removeHandler()
 
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
-    Q_UNUSED(editor);
     //qDebug() << "OPENING: " << editor << editor->widget();
-    //installHandler(editor);
-
-#if 1
     QSettings *s = ICore::instance()->settings();
     bool automatic = s->value("textInteractionSettings/UseVim").toBool();
-    //qDebug() << "USE VIM: " << automatic;
     if (automatic)
        installHandler(editor);
-#endif
-
-#if 0
-    QWidget *widget = editor->widget();
-    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget)) {
-        InteractionSettings settings = bt->interactionSettings();
-        qDebug() << "USE VIM: " << settings.m_useVim;
-        if (settings.m_useVim)
-            installHandler(editor);
-    }
-#endif
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 {
+    //qDebug() << "CLOSING: " << editor << editor->widget();
     Q_UNUSED(editor);
-    //qDebug() << "CLOSING: " << editor;
 }
 
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
