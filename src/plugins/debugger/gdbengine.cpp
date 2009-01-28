@@ -3548,6 +3548,8 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         WatchData data1 = childtemplate;
         data1.name = item.findChild("name").data();
         data1.iname = data.iname + "." + data1.name;
+        if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
+            data1.name = '[' + data1.name + ']';
         //qDebug() << "NAMEENCODED: " << item.findChild("nameencoded").data()
         //    << item.findChild("nameencoded").data()[1];
         if (item.findChild("nameencoded").data()[0] == '1')

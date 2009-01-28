@@ -437,6 +437,7 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
+    //EDITOR(setReadOnly(true)); 
     showBlackMessage("vi emulation mode.");
     updateMiniBuffer();
 }

@@ -839,7 +839,7 @@ static void qDumpQByteArray(QDumper &d)
             unsigned char u = (isprint(c) && c != '\'' && c != '"') ? c : '?';
             sprintf(buf, "%02x  (%u '%c')", c, c, u);
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             P(d, "value", buf);
             d.endHash();
         }
@@ -1104,14 +1104,14 @@ static void qDumpQHash(QDumper &d)
         while (node != end) {
             d.beginHash();
                 if (simpleKey) {
-                    P(d, "name", "[" << i << "]");
+                    P(d, "name", i);
                     qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
                     if (simpleValue)
                         qDumpInnerValueHelper(d, valueType, addOffset(node, valueOffset));
                     P(d, "type", valueType);
                     P(d, "addr", addOffset(node, valueOffset));
                 } else {
-                    P(d, "name", "[" << i << "]");
+                    P(d, "name", i);
                     //P(d, "exp", "*(char*)" << node);
                     P(d, "exp", "*('"NS"QHashNode<" << keyType << "," << valueType << " >'*)" << node);
                     P(d, "type", "'"NS"QHashNode<" << keyType << "," << valueType << " >'");
@@ -1215,7 +1215,7 @@ static void qDumpQList(QDumper &d)
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             if (innerTypeIsPointer) {
                 void *p = ldata.d->array + i + pdata->begin;
                 if (p) {
@@ -1275,7 +1275,7 @@ static void qDumpQLinkedList(QDumper &d)
         const void *p = deref(ldata);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             const void *addr = addOffset(p, 2 * sizeof(void*));
             qDumpInnerValueOrPointer(d, d.innertype, stripped, addr);
             p = deref(p);
@@ -1414,7 +1414,7 @@ static void qDumpQMap(QDumper &d)
 
         while (node != end) {
             d.beginHash();
-                P(d, "name", "[" << i << "]");
+                P(d, "name", i);
                 if (simpleKey) {
                     P(d, "type", valueType);
                     qDumpInnerValueHelper(d, keyType, addOffset(node, keyOffset), "key");
@@ -1660,7 +1660,7 @@ static void qDumpQObjectMethodList(QDumper &d)
             const QMetaMethod & method = mo->method(i);
             int mt = method.methodType();
             d.beginHash();
-            P(d, "name", "["  << i << "] " << mo->indexOfMethod(method.signature())
+            P(d, "name", i << " " << mo->indexOfMethod(method.signature())
                 << " " << method.signature());
             P(d, "value", (mt == QMetaMethod::Signal ? "<Signal>" : "<Slot>") << " (" << mt << ")");
             d.endHash();
@@ -1712,11 +1712,11 @@ static void qDumpQObjectSignal(QDumper &d)
         for (int i = 0; i != connList.size(); ++i) {
             const QObjectPrivate::Connection &conn = connList.at(i);
             d.beginHash();
-                P(d, "name", "[" << i << "] receiver");
+                P(d, "name", i << " receiver");
                 qDumpInnerValueHelper(d, NS"QObject *", conn.receiver);
             d.endHash();
             d.beginHash();
-                P(d, "name", "[" << i << "] slot");
+                P(d, "name", i << " slot");
                 P(d, "type", "");
                 if (conn.receiver) 
                     P(d, "value", conn.receiver->metaObject()->method(conn.method).signature());
@@ -1725,7 +1725,7 @@ static void qDumpQObjectSignal(QDumper &d)
                 P(d, "numchild", "0");
             d.endHash();
             d.beginHash();
-                P(d, "name", "[" << i << "] type");
+                P(d, "name", i << " type");
                 P(d, "type", "");
                 P(d, "value", "<" << qConnectionTypes[conn.method] << " connection>");
                 P(d, "numchild", "0");
@@ -1756,7 +1756,7 @@ static void qDumpQObjectSignalList(QDumper &d)
                 int k = mo->indexOfSignal(method.signature());
                 const QObjectPrivate::ConnectionList &connList = qConnectionList(ob, k);
                 d.beginHash();
-                P(d, "name", "[" << k << "]");
+                P(d, "name", k);
                 P(d, "value", method.signature());
                 P(d, "numchild", connList.size());
                 //P(d, "numchild", "1");
@@ -1796,17 +1796,17 @@ static void qDumpQObjectSlot(QDumper &d)
                     const QMetaMethod & method =
                         sender.sender->metaObject()->method(sender.signal);
                     d.beginHash();
-                        P(d, "name", "[" << s << "] sender");
+                        P(d, "name", s << " sender");
                         qDumpInnerValueHelper(d, NS"QObject *", sender.sender);
                     d.endHash();
                     d.beginHash();
-                        P(d, "name", "[" << s << "] signal");
+                        P(d, "name", s << " signal");
                         P(d, "type", "");
                         P(d, "value", method.signature());
                         P(d, "numchild", "0");
                     d.endHash();
                     d.beginHash();
-                        P(d, "name", "[" << s << "] type");
+                        P(d, "name", s << " type");
                         P(d, "type", "");
                         P(d, "value", "<" << qConnectionTypes[conn.method] << " connection>");
                         P(d, "numchild", "0");
@@ -1843,7 +1843,7 @@ static void qDumpQObjectSlotList(QDumper &d)
             if (method.methodType() == QMetaMethod::Slot) {
                 d.beginHash();
                 int k = mo->indexOfSlot(method.signature());
-                P(d, "name", "[" << k << "]");
+                P(d, "name", k);
                 P(d, "value", method.signature());
 
                 // count senders. expensive...
@@ -1911,7 +1911,7 @@ static void qDumpQSet(QDumper &d)
         for (int bucket = 0; bucket != hd->numBuckets && i <= 10000; ++bucket) {
             for (node = hd->buckets[bucket]; node->next; node = node->next) {
                 d.beginHash();
-                P(d, "name", "[" << i << "]");
+                P(d, "name", i);
                 P(d, "type", d.innertype);
                 P(d, "exp", "(('"NS"QHashNode<" << d.innertype
                     << ","NS"QHashDummyValue>'*)"
@@ -1970,7 +1970,7 @@ static void qDumpQStringList(QDumper &d)
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             P(d, "value", list[i]);
             P(d, "valueencoded", "1");
             d.endHash();
@@ -2108,7 +2108,7 @@ static void qDumpQVector(QDumper &d)
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped,
                 addOffset(v, i * innersize + typeddatasize));
             d.endHash();
@@ -2156,7 +2156,7 @@ static void qDumpStdList(QDumper &d)
         it = list.begin();
         for (int i = 0; i < 1000 && it != list.end(); ++i, ++it) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped, it.operator->());
             d.endHash();
         }
@@ -2218,7 +2218,7 @@ static void qDumpStdMap(QDumper &d)
                 d.endHash();
             } else {
                 d.beginHash();
-                P(d, "name", "[" << i << "]");
+                P(d, "name", i);
                 P(d, "addr", it.operator->());
                 P(d, "type", pairType);
                 d.endHash();
@@ -2305,7 +2305,7 @@ static void qDumpStdVector(QDumper &d)
         d << ",children=[";
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            P(d, "name", "[" << i << "]");
+            P(d, "name", i);
             qDumpInnerValueOrPointer(d, d.innertype, stripped,
                 addOffset(v->start, i * innersize));
             d.endHash();

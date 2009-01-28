@@ -244,7 +244,6 @@ void testQLinkedList()
     f.append(Foo(1));
     f.append(Foo(2));
 #endif
-
     QLinkedList<std::string> v;
     v.push_back("aa");
     v.push_back("bb");
@@ -258,7 +257,7 @@ void testQList()
     QList<int> li;
     QList<uint> lu;
 
-    for (int i = 0; i != 3; ++i) {
+    for (int i = 0; i != 30; ++i) {
         li.append(i);
     }
     li.append(101);

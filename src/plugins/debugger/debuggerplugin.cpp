@@ -565,10 +565,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     connect(resetToSimpleAction, SIGNAL(triggered()),
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
 
-
-    m_generalOptionPage = 0;
-
-    // FIXME:
+   // FIXME:
     m_generalOptionPage = new GdbOptionPage(this);
     addObject(m_generalOptionPage);
 
