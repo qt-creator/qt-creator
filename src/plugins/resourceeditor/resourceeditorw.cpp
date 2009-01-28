@@ -161,7 +161,7 @@ bool ResourceEditorFile::save(const QString &name /*= QString()*/)
 }
 
 const char *ResourceEditorW::kind() const {
-    return ResourceEditor::Constants::C_RESOURCEWINDOW;
+    return ResourceEditor::Constants::C_RESOURCEEDITOR;
 }
 
 QString ResourceEditorFile::fileName() const
