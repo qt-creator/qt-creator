@@ -99,6 +99,7 @@ void ProgressView::deleteTask(FutureProgress *progress)
     m_type.remove(progress);
     m_keep.remove(progress);
     layout()->removeWidget(progress);
+    progress->hide();
     progress->deleteLater();
 }
 

@@ -518,10 +518,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
-    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
-    mproject->addAction(cmd, Constants::G_PROJECT_RUN);
-
     Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
     m_runConfigurationMenu = mrc->menu();
     m_runConfigurationMenu->setTitle(tr("Set Run Configuration"));
@@ -534,6 +530,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(m_runConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(runConfigurationMenuTriggered(QAction *)));
 
     modeManager->addAction(cmd, Constants::P_ACTION_RUN, m_runConfigurationMenu);
+
+    m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
+    cmd = am->registerAction(m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
+    mproject->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // jump to next task
     m_taskAction = new QAction(tr("Go to Task Window"), this);

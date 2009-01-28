@@ -104,6 +104,7 @@ bool QMakeStep::init(const QString &name)
     m_buildConfiguration = name;
     const QtVersion *qtVersion = m_pro->qtVersion(name);
 
+
     if (!qtVersion->isValid()) {
 #if defined(Q_OS_MAC)
         emit addToOutputWindow(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Preferences </b></font>\n"));
