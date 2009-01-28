@@ -483,16 +483,18 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
+        if (m_moveType == MoveInclusive)
+            moveRight(); // correction
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
         QString text = recordRemoveSelectedText();
-        qDebug() << "CHANGING TO INSERT MODE" << text;
+        //qDebug() << "CHANGING TO INSERT MODE" << text;
         m_registers[m_register] = text;
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         if (m_moveType == MoveInclusive)
-            moveRight(); // correct 
+            moveRight(); // correction
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -1090,11 +1092,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'w') {
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
         // cursor is on a non-blank.
-        if (m_submode == ChangeSubMode)
+        if (m_submode == ChangeSubMode) {
             moveToWordBoundary(false, true);
-        else
+            m_moveType = MoveInclusive;
+        } else {
             moveToNextWord(false);
-        m_moveType = MoveExclusive;
+            m_moveType = MoveExclusive;
+        }
         finishMovement("w");
     } else if (key == 'W') {
         moveToNextWord(true);
