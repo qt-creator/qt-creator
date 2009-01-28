@@ -151,21 +151,28 @@ void QrcEditor::updateCurrent()
     const bool isValid = m_treeview->currentIndex().isValid();
     const bool isPrefix = m_treeview->isPrefix(m_treeview->currentIndex()) && isValid;
     const bool isFile = !isPrefix && isValid;
+    int cursorPosition;
 
     m_ui.aliasLabel->setEnabled(isFile);
     m_ui.aliasText->setEnabled(isFile);
     m_currentAlias = m_treeview->currentAlias();
+    cursorPosition = m_ui.aliasText->cursorPosition();
     m_ui.aliasText->setText(m_currentAlias);
+    m_ui.aliasText->setCursorPosition(cursorPosition);
 
     m_ui.prefixLabel->setEnabled(isPrefix);
     m_ui.prefixText->setEnabled(isPrefix);
     m_currentPrefix = m_treeview->currentPrefix();
+    cursorPosition = m_ui.prefixText->cursorPosition();
     m_ui.prefixText->setText(m_currentPrefix);
+    m_ui.prefixText->setCursorPosition(cursorPosition);
 
     m_ui.languageLabel->setEnabled(isPrefix);
     m_ui.languageText->setEnabled(isPrefix);
     m_currentLanguage = m_treeview->currentLanguage();
+    cursorPosition = m_ui.languageText->cursorPosition();
     m_ui.languageText->setText(m_currentLanguage);
+    m_ui.languageText->setCursorPosition(cursorPosition);
 
     m_ui.addButton->setEnabled(true);
     m_addFileAction->setEnabled(isValid);

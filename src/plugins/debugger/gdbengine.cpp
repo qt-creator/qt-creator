@@ -2761,14 +2761,17 @@ static void setWatchDataValue(WatchData &data, const GdbMi &mi,
                 break;
             case 1: //  base64 encoded 8 bit data
                 ba = QByteArray::fromBase64(mi.data());
+                ba = '"' + ba + '"';
                 break;
             case 2: //  base64 encoded 16 bit data
                 ba = QByteArray::fromBase64(mi.data());
                 ba = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2).toUtf8();
+                ba = '"' + ba + '"';
                 break;
             case 3: //  base64 encoded 32 bit data
                 ba = QByteArray::fromBase64(mi.data());
                 ba = QString::fromUcs4((uint *)ba.data(), ba.size() / 4).toUtf8();
+                ba = '"' + ba + '"';
                 break;
         }
        data.setValue(ba);
@@ -2830,9 +2833,12 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
     // 'tmplate' and "Inner1@Inner2@..." etc in 'inner'. Result indicates
     // whether parsing was successful
     int level = 0;
+    bool skipSpace = false;
     for (int i = 0; i != type.size(); ++i) {
         QChar c = type[i];
-        if (c == '<') {
+        if (c == ' ' && skipSpace) {
+            skipSpace = false;
+        } else if (c == '<') {
             *(level == 0 ? tmplate : inner) += c;
             ++level;
         } else if (c == '>') {
@@ -2840,6 +2846,7 @@ static bool extractTemplate(const QString &type, QString *tmplate, QString *inne
             *(level == 0 ? tmplate : inner) += c;
         } else if (c == ',') {
             *inner += (level == 1) ? '@' : ',';
+            skipSpace = true;
         } else {
             *(level == 0 ? tmplate : inner) += c;
         }
@@ -3550,13 +3557,18 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         data1.iname = data.iname + "." + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = '[' + data1.name + ']';
-        //qDebug() << "NAMEENCODED: " << item.findChild("nameencoded").data()
-        //    << item.findChild("nameencoded").data()[1];
-        if (item.findChild("nameencoded").data()[0] == '1')
-            data1.name = QByteArray::fromBase64(data1.name.toUtf8());
         QString key = item.findChild("key").data();
-        if (!key.isEmpty())
-            data1.name += " (" + key + ")";
+        if (!key.isEmpty()) {
+            if (item.findChild("keyencoded").data()[0] == '1') {
+                key = '"' + QByteArray::fromBase64(key.toUtf8()) + '"';
+                if (key.size() > 13) {
+                    key = key.left(12);
+                    key += "...";
+                }
+            }
+            //data1.name += " (" + key + ")";
+            data1.name = key;
+        }
         setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));
         setWatchDataChildCount(data1, item.findChild("numchild"));
