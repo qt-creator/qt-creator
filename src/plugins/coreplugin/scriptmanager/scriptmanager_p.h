@@ -37,13 +37,9 @@
 #include <coreplugin/scriptmanager/scriptmanager.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QList>
 #include <QtScript/QScriptEngine>
 
 namespace Core {
-
-class ICore;
-
 namespace Internal {
 
 class ScriptManagerPrivate : public Core::ScriptManager
@@ -51,12 +47,11 @@ class ScriptManagerPrivate : public Core::ScriptManager
     Q_OBJECT
 
 public:
-    ScriptManagerPrivate(QObject *parent, ICore *core);
+    explicit ScriptManagerPrivate(QObject *parent);
 
-    virtual QScriptEngine &scriptEngine();
-
-    virtual bool runScript(const QString &script, QString *errorMessage, Stack *stack);
-    virtual bool runScript(const QString &script, QString *errorMessage);
+    QScriptEngine &scriptEngine();
+    bool runScript(const QString &script, QString *errorMessage, Stack *stack);
+    bool runScript(const QString &script, QString *errorMessage);
 
     static QString engineError(QScriptEngine &scriptEngine);
 
@@ -64,7 +59,6 @@ private:
     void ensureEngineInitialized();
 
     QScriptEngine m_engine;
-    ICore *m_core;
     bool m_initialized;
 };
 
