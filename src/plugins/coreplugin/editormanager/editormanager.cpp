@@ -361,7 +361,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
             this, SLOT(updateActions()));
     connect(this, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditorHistory()));
-    m_d->m_splitter = new EditorSplitter(m_d->m_core);
+    m_d->m_splitter = new EditorSplitter;
     connect(m_d->m_splitter, SIGNAL(closeRequested(Core::IEditor *)),
             this, SLOT(closeEditor(Core::IEditor *)));
     connect(m_d->m_splitter, SIGNAL(editorGroupsChanged()),
