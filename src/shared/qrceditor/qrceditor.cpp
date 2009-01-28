@@ -39,7 +39,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-namespace SharedTools {
+using namespace SharedTools;
 
 QrcEditor::QrcEditor(QWidget *parent)
   : QWidget(parent),
@@ -405,5 +405,3 @@ void QrcEditor::onRedo()
     updateCurrent();
     updateHistoryControls();
 }
-
-} // namespace SharedTools
