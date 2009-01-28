@@ -33,8 +33,8 @@
 
 #include "qtestlibplugin.h"
 
-//#include <Qt4IProjectManagers>
-//#include <texteditor/TextEditorInterfaces>
+#include <coreplugin/icore.h>
+#include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -116,28 +116,27 @@ static QTestFunction::MessageType stringToMessageType(const QString &str)
 }
 
 // -----------------------------------
-QTestLibPlugin::QTestLibPlugin() :
-    m_projectExplorer(0),
-    m_core(0),
-    m_outputPane(0)
+QTestLibPlugin::QTestLibPlugin()
+    : m_projectExplorer(0), m_outputPane(0)
 {
 }
 
 QTestLibPlugin::~QTestLibPlugin()
 {
-    if (m_core && m_outputPane)
-        m_core->pluginManager()->removeObject(m_outputPane);
+    if (m_outputPane)
+        ExtensionSystem::PluginManager::instance()->removeObject(m_outputPane);
 }
 
-bool QTestLibPlugin::init(ExtensionSystem::PluginManagerInterface *app, QString *errorMessage)
+bool QTestLibPlugin::init(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
-    m_projectExplorer = app->getObject<ProjectExplorer::ProjectExplorerPlugin>();
-    connect(m_projectExplorer->qObject(), SIGNAL(aboutToExecuteProject(ProjectExplorer::Project *)),
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(m_projectExplorer, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project *)),
             this, SLOT(projectRunHook(ProjectExplorer::Project *)));
 
     m_outputPane = new QTestOutputPane(this);
-    app->addObject(m_outputPane);
+    ExtensionSystem::PluginManager::instance()->addObject(m_outputPane);
 
     return true;
 }
@@ -169,10 +168,10 @@ void QTestLibPlugin::projectRunHook(ProjectExplorer::Project *proj)
 
     //NBS proj->setCustomApplicationOutputHandler(this);
     //NBS proj->setExtraApplicationRunArguments(QStringList() << QLatin1String("-xml") << QLatin1String("-o") << m_outputFile);
-    const QString proFile = proj->fileName();
-    const QFileInfo fi(proFile);
-    if (QFile::exists(fi.absolutePath()))
-        m_projectDirectory = fi.absolutePath();
+//    const QString proFile = proj->fileName();
+//    const QFileInfo fi(proFile);
+//    if (QFile::exists(fi.absolutePath()))
+//        m_projectDirectory = fi.absolutePath();
 }
 
 void QTestLibPlugin::clear()
@@ -319,9 +318,11 @@ bool QTestFunction::indexHasIncidents(const QModelIndex &function, IncidentType 
 
     return false;
 }
+
 // -------------- QTestOutputPane
-QTestOutputPane::QTestOutputPane(QTestLibPlugin *plugin) :
-    QObject(plugin),
+
+QTestOutputPane::QTestOutputPane(QTestLibPlugin *plugin)
+  : QObject(plugin),
     m_plugin(plugin),
     m_widget(0),
     m_model(new QStandardItemModel(this))
@@ -485,8 +486,8 @@ void QTestOutputWidget::gotoLocation(QModelIndex index)
 
     QTestLocation loc = tag.value<QTestLocation>();
 
-    m_coreInterface->editorManager()->openEditor(loc.file);
-    Core::EditorInterface *edtIface = m_coreInterface->editorManager()->currentEditor();
+    Core::ICore::instance()->editorManager()->openEditor(loc.file);
+    Core::EditorInterface *edtIface = Core::ICore::instance()->editorManager()->currentEditor();
     if (!edtIface)
         return;
     TextEditor::ITextEditor *editor =
