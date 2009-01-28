@@ -79,6 +79,7 @@ signals:
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
     void writeFileRequested(bool *handled,
         const QString &fileName, const QString &contents);
+    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

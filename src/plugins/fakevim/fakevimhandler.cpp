@@ -1846,6 +1846,16 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 
 void FakeVimHandler::Private::moveToMatchingParanthesis()
 {
+    bool moved = false;
+    bool forward = false;
+
+    emit q->moveToMatchingParenthesis(&moved, &forward, &m_tc);
+
+    if (moved && forward) {
+       if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
+            m_tc.movePosition(Left, KeepAnchor, 1);
+    }
+
 #if 0
     // FIXME: remove TextEditor dependency
     bool undoFakeEOL = false;

@@ -122,6 +122,7 @@ private slots:
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
+    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
 
 private:
     FakeVimPlugin *q;
@@ -203,6 +204,8 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
+    connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
+        this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
 
     handler->setupWidget();
     handler->setExtraData(editor);
@@ -248,6 +251,42 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
         Core::ICore::instance()->fileManager()->unblockFileChange(file);
         *handled = true;
     } 
+}
+
+void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
+        QTextCursor *cursor)
+{
+    *moved = false;
+
+    bool undoFakeEOL = false;
+    if (cursor->atBlockEnd() && cursor->block().length() > 1) {
+        cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+        undoFakeEOL = true;
+    }
+    TextEditor::TextBlockUserData::MatchType match
+        = TextEditor::TextBlockUserData::matchCursorForward(cursor);
+    if (match == TextEditor::TextBlockUserData::Match) {
+        *moved = true;
+        *forward = true;
+   } else {
+        if (undoFakeEOL)
+            cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+        if (match == TextEditor::TextBlockUserData::NoMatch) {
+            // backward matching is according to the character before the cursor
+            bool undoMove = false;
+            if (!cursor->atBlockEnd()) {
+                cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+                undoMove = true;
+            }
+            match = TextEditor::TextBlockUserData::matchCursorBackward(cursor);
+            if (match == TextEditor::TextBlockUserData::Match) {
+                *moved = true;
+                *forward = false;
+            } else if (undoMove) {
+                cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+            }
+        }
+    }
 }
 
 void FakeVimPluginPrivate::removeHandler()
