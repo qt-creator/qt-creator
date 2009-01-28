@@ -2228,9 +2228,11 @@ static void qDumpStdMap(QDumper &d)
                 if (isSimpleKey && isSimpleValue) {
                     P(d, "type", valueType);
                     P(d, "addr", addOffset(node, valueOffset));
+                    P(d, "numchild", 0);
                 } else {
                     P(d, "addr", node);
                     P(d, "type", pairType);
+                    P(d, "numchild", 2);
                 }
             d.endHash();
         }

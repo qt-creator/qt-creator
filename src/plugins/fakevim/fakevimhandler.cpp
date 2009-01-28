@@ -986,6 +986,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
         m_desiredColumn = savedColumn;
     } else if (key == 'l' || key == Key_Right) {
+        m_moveType = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
         finishMovement();
     } else if (key == 'L') {
@@ -1099,6 +1100,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToNextWord(true);
         finishMovement("W");
     } else if (key == 'x') { // = "dl"
+        m_moveType = MoveExclusive;
         if (atEndOfLine())
             moveLeft();
         recordBeginGroup();
