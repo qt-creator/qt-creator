@@ -555,7 +555,7 @@ void QDumper::addCommaIfNeeded()
         put(',');
 }
 
-void QDumper::putBase64Encoded(const char *buf, int n)
+void QDumper::putBase64Encoded(const char *buf, int n, char delim)
 {
     const char alphabet[] = "ABCDEFGH" "IJKLMNOP" "QRSTUVWX" "YZabcdef"
                             "ghijklmn" "opqrstuv" "wxyz0123" "456789+/";
