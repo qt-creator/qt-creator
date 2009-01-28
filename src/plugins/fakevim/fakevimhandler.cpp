@@ -1221,6 +1221,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == Key_Escape) {
         if (m_visualMode != NoVisualMode)
             leaveVisualMode();
+        else
+            handled = false;
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
         if (text.isEmpty())
