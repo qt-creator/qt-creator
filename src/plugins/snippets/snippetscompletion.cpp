@@ -50,8 +50,7 @@ const QIcon SnippetsCompletion::m_fileIcon = QIcon(":/snippets/images/file.png")
 SnippetsCompletion::SnippetsCompletion(QObject *parent)
     : ICompletionCollector(parent)
 {
-    m_core = SnippetsPlugin::core();
-    m_snippetsWnd = SnippetsPlugin::snippetsWindow();
+    m_snippetsWindow = SnippetsPlugin::snippetsWindow();
 
     updateCompletions();
 }
@@ -66,9 +65,9 @@ void SnippetsCompletion::updateCompletions()
 {
     qDeleteAll(m_autoCompletions.values());
     m_autoCompletions.clear();
-
+#if 0
     int index = 0;
-    foreach (SnippetSpec *spec, m_snippetsWnd->snippets()) {
+    foreach (SnippetSpec *spec, m_snippetsWindow->snippets()) {
         if (!spec->completionShortcut().isEmpty()) {
             TextEditor::CompletionItem *item = new TextEditor::CompletionItem;
             item->m_key = spec->name();
@@ -79,6 +78,7 @@ void SnippetsCompletion::updateCompletions()
             ++index;
         }
     }
+#endif
 }
 
 bool SnippetsCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
@@ -96,29 +96,36 @@ int SnippetsCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return m_startPosition;
 }
 
-void SnippetsCompletion::completions(QList<TextEditor::CompletionItem *> *completions)
+#if 0
+void SnippetsCompletion::completions(const QList<TextEditor::CompletionItem *> &completions)
 {
     const int length = m_editor->position() - m_startPosition;
     if (length >= 2) {
         QString key = m_editor->textAt(m_startPosition, length);
         foreach (TextEditor::CompletionItem* item, m_autoCompletions.values()) {
-            if (item->m_key.startsWith(key, Qt::CaseInsensitive)) {
-                (*completions) << item;
-            }
+            if (item->m_key.startsWith(key, Qt::CaseInsensitive))
+                completions->append(item);
         }
     }
 }
+#endif
 
 QString SnippetsCompletion::text(TextEditor::CompletionItem *item) const
 {
-    const SnippetSpec *spec = m_snippetsWnd->snippets().at(item->m_index);
+#if 0
+    const SnippetSpec *spec = m_snippetsWindow->snippets().at(item->m_index);
     return spec->name();
+#endif
+    return QString();
 }
 
 QString SnippetsCompletion::details(TextEditor::CompletionItem *item) const
 {
-    const SnippetSpec *spec = m_snippetsWnd->snippets().at(item->m_index);
+#if 0
+    const SnippetSpec *spec = m_snippetsWindow->snippets().at(item->m_index);
     return spec->description();
+#endif
+    return QString();
 }
 
 QIcon SnippetsCompletion::icon(TextEditor::CompletionItem *) const
@@ -126,18 +133,20 @@ QIcon SnippetsCompletion::icon(TextEditor::CompletionItem *) const
     return m_fileIcon;
 }
 
-void SnippetsCompletion::complete(TextEditor::CompletionItem *item)
+void SnippetsCompletion::complete(const TextEditor::CompletionItem &item)
 {
-    SnippetSpec *spec = m_snippetsWnd->snippets().at(item->m_index);
+#if 0
+    SnippetSpec *spec = m_snippetsWindow->snippets().at(item->m_index);
 
     int length = m_editor->position() - m_startPosition;
     m_editor->setCurPos(m_startPosition);
     m_editor->remove(length);
 
-    m_snippetsWnd->insertSnippet(m_editor, spec);
+    m_snippetsWindow->insertSnippet(m_editor, spec);
+#endif
 }
 
-bool SnippetsCompletion::partiallyComplete()
+bool SnippetsCompletion::partiallyComplete(const myns::QList<TextEditor::CompletionItem>&)
 {
     return false;
 }
