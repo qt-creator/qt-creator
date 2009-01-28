@@ -1101,7 +1101,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         finishMovement("w");
     } else if (key == 'W') {
-        moveToNextWord(true);
+        if (m_submode == ChangeSubMode) {
+            moveToWordBoundary(true, true);
+            m_moveType = MoveInclusive;
+        } else {
+            moveToNextWord(true);
+            m_moveType = MoveExclusive;
+        }
         finishMovement("W");
     } else if (key == 'x') { // = "dl"
         m_moveType = MoveExclusive;
