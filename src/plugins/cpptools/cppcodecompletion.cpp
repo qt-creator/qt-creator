@@ -74,9 +74,10 @@ using namespace CPlusPlus;
 namespace CppTools {
 namespace Internal {
 
-class FunctionArgumentWidget : public QLabel {
+class FunctionArgumentWidget : public QLabel
+{
 public:
-    FunctionArgumentWidget(Core::ICore *core);
+    FunctionArgumentWidget();
     void showFunctionHint(Function *functionSymbol, const Snapshot &snapshot);
 
 protected:
@@ -183,10 +184,10 @@ protected:
 
 using namespace CppTools::Internal;
 
-FunctionArgumentWidget::FunctionArgumentWidget(Core::ICore *core)
+FunctionArgumentWidget::FunctionArgumentWidget()
     : m_item(0)
 {
-    QObject *editorObject = core->editorManager()->currentEditor();
+    QObject *editorObject = Core::ICore::instance()->editorManager()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
     m_popupFrame = new QFrame(0, Qt::ToolTip|Qt::WindowStaysOnTopHint);
@@ -311,9 +312,8 @@ void FunctionArgumentWidget::updateHintText()
     setText(text);
 }
 
-CppCodeCompletion::CppCodeCompletion(CppModelManager *manager, Core::ICore *core)
+CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
-      m_core(core),
       m_manager(manager),
       m_caseSensitivity(Qt::CaseSensitive),
       m_autoInsertBraces(true),
@@ -1030,7 +1030,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             Function *function = symbol->type()->asFunction();
             QTC_ASSERT(function, return);
 
-            m_functionArgumentWidget = new FunctionArgumentWidget(m_core);
+            m_functionArgumentWidget = new FunctionArgumentWidget();
             m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.snapshot());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
