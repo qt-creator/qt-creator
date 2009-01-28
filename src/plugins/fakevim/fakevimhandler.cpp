@@ -671,16 +671,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToStartOfLine();
         setAnchor();
         moveDown(count());
-        moveLeft();
-        m_registers[m_register] = recordRemoveSelectedText();
-        m_submode = NoSubMode;
-        m_mode = InsertMode;
+        m_moveType = MoveLineWise;
         finishMovement("c");
     } else if (m_submode == DeleteSubMode && key == 'd') {
         moveToStartOfLine();
         setAnchor();
         moveDown(count());
-        m_registers[m_register] = recordRemoveSelectedText();
+        m_moveType = MoveLineWise;
         finishMovement("d");
     } else if (m_submode == YankSubMode && key == 'y') {
         moveToStartOfLine();
