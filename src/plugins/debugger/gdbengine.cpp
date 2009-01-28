@@ -253,6 +253,7 @@ void GdbEngine::init()
     m_gdbVersion = 100;
     m_shared = 0;
     m_outputCodec = QTextCodec::codecForLocale();
+    m_dataDumperState = DataDumperUninitialized;
 
     m_oldestAcceptableToken = -1;
 
@@ -733,7 +734,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
         --m_pendingRequests;
         PENDING_DEBUG("   TYPE " << cmd.type << " DECREMENTS PENDING TO: "
             << m_pendingRequests << cmd.command);
-        if (m_pendingRequests == 0)
+        if (m_pendingRequests <= 0)
             updateWatchModel2();
     } else {
         PENDING_DEBUG("   UNKNOWN TYPE " << cmd.type << " LEAVES PENDING AT: "
@@ -2883,7 +2884,7 @@ static QString sizeofTypeExpression(const QString &type)
 
 void GdbEngine::setUseCustomDumpers(bool on)
 {
-    qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
+    //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     Q_UNUSED(on);
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
@@ -3052,15 +3053,15 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
 
     //qDebug() << "CMD: " << cmd;
 
-    sendSynchronizedCommand(cmd, WatchDumpCustomValue1, QVariant::fromValue(data));
+    QVariant var;
+    var.setValue(data);
+    sendSynchronizedCommand(cmd, WatchDumpCustomValue1, var);
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
             .arg(m_pendingRequests + 1), 10000);
 
     // retrieve response
-    QVariant var;
-    var.setValue(data);
     sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDumpCustomValue2, var);
 }
 
@@ -3268,7 +3269,7 @@ void GdbEngine::updateWatchModel2()
         return;
     }
 
-    PENDING_DEBUG("REBUILDING MODEL")
+    PENDING_DEBUG("REBUILDING MODEL");
     emit gdbInputAvailable(QString(),
         "[" + currentTime() + "]    <Rebuild Watchmodel>");
     q->showStatusMessage(tr("Finished retrieving data."), 400);
@@ -3454,7 +3455,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
     } else if (record.resultClass == GdbResultError) {
         // Record an extra result, as the socket result will be lost
         // in transmission
-        --m_pendingRequests;
+        //--m_pendingRequests;
         QString msg = record.data.findChild("msg").data();
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
@@ -3469,12 +3470,12 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
             return;
         }
 #endif
-        if (msg.startsWith("The program being debugged was sig"))
-            msg = strNotInScope;
-        if (msg.startsWith("The program being debugged stopped while"))
-            msg = strNotInScope;
-        data.setError(msg);
-        insertData(data);
+        //if (msg.startsWith("The program being debugged was sig"))
+        //    msg = strNotInScope;
+        //if (msg.startsWith("The program being debugged stopped while"))
+        //    msg = strNotInScope;
+        //data.setError(msg);
+        //insertData(data);
     }
 }
 
@@ -3485,220 +3486,207 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     QTC_ASSERT(data.isValid(), return);
     //qDebug() << "CUSTOM VALUE RESULT: " << record.toString();
     //qDebug() << "FOR DATA: " << data.toString() << record.resultClass;
-    if (record.resultClass == GdbResultDone) {
-        GdbMi output = record.data.findChild("consolestreamoutput");
-        QByteArray out = output.data();
-        out = out.mid(out.indexOf('"') + 2);  // + 1  is the 'success marker'
-        out = out.left(out.lastIndexOf('"'));
-        //out.replace('\'', '"');
-        out.replace("\\", "");
-        out = "dummy={" + out + "}";
-        //qDebug() << "OUTPUT: " << out;
-
-        GdbMi contents;
-        contents.fromString(out);
-        //qDebug() << "CONTENTS" << contents.toString(true);
-
-        if (!contents.isValid()) {
-             qDebug() << "INVALID";
-             // custom dumper produced no output
-             if (data.isValueNeeded())
-                 data.setValue("<unknown>");
-             if (data.isTypeNeeded())
-                 data.setType("<unknown>");
-             if (data.isChildrenNeeded())
-                 data.setChildCount(0);
-             if (data.isChildCountNeeded())
-                 data.setChildCount(0);
-             data.setValueToolTip("<custom dumper produced no output>");
-             insertData(data);
-        } else {
-            setWatchDataType(data, contents.findChild("type"));
-            setWatchDataValue(data, contents.findChild("value"),
-                contents.findChild("valueencoded").data().toInt());
-            setWatchDataAddress(data, contents.findChild("addr"));
-            setWatchDataChildCount(data, contents.findChild("numchild"));
-            setWatchDataValueToolTip(data, contents.findChild("valuetooltip"));
-            setWatchDataValueDisabled(data, contents.findChild("valuedisabled"));
-            setWatchDataEditValue(data, contents.findChild("editvalue"));
-            if (qq->watchHandler()->isDisplayedIName(data.iname)) {
-                GdbMi editvalue = contents.findChild("editvalue");
-                if (editvalue.isValid()) {
-                    setWatchDataEditValue(data, editvalue);
-                    qq->watchHandler()->showEditValue(data);
-                }
-            }
-            if (!qq->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenUnneeded();
-            GdbMi children = contents.findChild("children");
-            if (children.isValid() || !qq->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenUnneeded();
-            data.setValueUnneeded();
-
-            // try not to repeat data too often
-            WatchData childtemplate;
-            setWatchDataType(childtemplate, contents.findChild("childtype"));
-            setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
-            //qDebug() << "DATA: " << data.toString();
-            insertData(data);
-            foreach (GdbMi item, children.children()) {
-                WatchData data1 = childtemplate;
-                data1.name = item.findChild("name").data();
-                data1.iname = data.iname + "." + data1.name;
-                //qDebug() << "NAMEENCODED: " << item.findChild("nameencoded").data()
-                //    << item.findChild("nameencoded").data()[1];
-                if (item.findChild("nameencoded").data()[0] == '1')
-                    data1.name = QByteArray::fromBase64(data1.name.toUtf8());
-                QString key = item.findChild("key").data();
-                if (!key.isEmpty())
-                    data1.name += " (" + key + ")";
-                setWatchDataType(data1, item.findChild("type"));
-                setWatchDataExpression(data1, item.findChild("exp"));
-                setWatchDataChildCount(data1, item.findChild("numchild"));
-                setWatchDataValue(data1, item.findChild("value"),
-                    item.findChild("valueencoded").data().toInt());
-                setWatchDataAddress(data1, item.findChild("addr"));
-                setWatchDataValueToolTip(data1, item.findChild("valuetooltip"));
-                setWatchDataValueDisabled(data1, item.findChild("valuedisabled"));
-                if (!qq->watchHandler()->isExpandedIName(data1.iname))
-                    data1.setChildrenUnneeded();
-                //qDebug() << "HANDLE CUSTOM SUBCONTENTS:" << data1.toString();
-                insertData(data1);
-            }
-        }
-        //qDebug() << "HANDLE CUSTOM VALUE CONTENTS: " << data.toString();
-    } else if (record.resultClass == GdbResultError) {
-        // FIXME: Should not happen here, i.e. could be removed
-        QString msg = record.data.findChild("msg").data();
-        //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
-        if (msg.startsWith("The program being debugged was sig"))
-            msg = strNotInScope;
-        if (msg.startsWith("The program being debugged stopped while"))
-            msg = strNotInScope;
-        data.setError(msg);
-        insertData(data);
-    } else {
+    if (record.resultClass != GdbResultDone) {
         qDebug() << "STRANGE CUSTOM DUMPER RESULT DATA: " << data.toString();
+        return;
+    }
+
+    GdbMi output = record.data.findChild("consolestreamoutput");
+    QByteArray out = output.data();
+
+    int markerPos = out.indexOf('"') + 1; // position of 'success marker'
+    if (markerPos == -1 || out.at(markerPos) == 'f') {  // 't' or 'f'
+        // custom dumper produced no output
+        data.setError(strNotInScope);
+        insertData(data);
+        return;
+    }
+
+    out = out.mid(markerPos +  1);
+    out = out.left(out.lastIndexOf('"'));
+    out.replace("\\", "");
+    out = "dummy={" + out + "}";
+    
+    GdbMi contents;
+    contents.fromString(out);
+    //qDebug() << "CONTENTS" << contents.toString(true);
+    if (!contents.isValid()) {
+        data.setError(strNotInScope);
+        insertData(data);
+        return;
+    }
+
+    setWatchDataType(data, contents.findChild("type"));
+    setWatchDataValue(data, contents.findChild("value"),
+        contents.findChild("valueencoded").data().toInt());
+    setWatchDataAddress(data, contents.findChild("addr"));
+    setWatchDataChildCount(data, contents.findChild("numchild"));
+    setWatchDataValueToolTip(data, contents.findChild("valuetooltip"));
+    setWatchDataValueDisabled(data, contents.findChild("valuedisabled"));
+    setWatchDataEditValue(data, contents.findChild("editvalue"));
+    if (qq->watchHandler()->isDisplayedIName(data.iname)) {
+        GdbMi editvalue = contents.findChild("editvalue");
+        if (editvalue.isValid()) {
+            setWatchDataEditValue(data, editvalue);
+            qq->watchHandler()->showEditValue(data);
+        }
+    }
+    if (!qq->watchHandler()->isExpandedIName(data.iname))
+        data.setChildrenUnneeded();
+    GdbMi children = contents.findChild("children");
+    if (children.isValid() || !qq->watchHandler()->isExpandedIName(data.iname))
+        data.setChildrenUnneeded();
+    data.setValueUnneeded();
+
+    // try not to repeat data too often
+    WatchData childtemplate;
+    setWatchDataType(childtemplate, contents.findChild("childtype"));
+    setWatchDataChildCount(childtemplate, contents.findChild("childnumchild"));
+    //qDebug() << "DATA: " << data.toString();
+    insertData(data);
+    foreach (GdbMi item, children.children()) {
+        WatchData data1 = childtemplate;
+        data1.name = item.findChild("name").data();
+        data1.iname = data.iname + "." + data1.name;
+        //qDebug() << "NAMEENCODED: " << item.findChild("nameencoded").data()
+        //    << item.findChild("nameencoded").data()[1];
+        if (item.findChild("nameencoded").data()[0] == '1')
+            data1.name = QByteArray::fromBase64(data1.name.toUtf8());
+        QString key = item.findChild("key").data();
+        if (!key.isEmpty())
+            data1.name += " (" + key + ")";
+        setWatchDataType(data1, item.findChild("type"));
+        setWatchDataExpression(data1, item.findChild("exp"));
+        setWatchDataChildCount(data1, item.findChild("numchild"));
+        setWatchDataValue(data1, item.findChild("value"),
+            item.findChild("valueencoded").data().toInt());
+        setWatchDataAddress(data1, item.findChild("addr"));
+        setWatchDataValueToolTip(data1, item.findChild("valuetooltip"));
+        setWatchDataValueDisabled(data1, item.findChild("valuedisabled"));
+        if (!qq->watchHandler()->isExpandedIName(data1.iname))
+            data1.setChildrenUnneeded();
+        //qDebug() << "HANDLE CUSTOM SUBCONTENTS:" << data1.toString();
+        insertData(data1);
     }
 }
 
 void GdbEngine::updateLocals()
 {
-    setTokenBarrier();
+setTokenBarrier();
 
-    m_pendingRequests = 0;
-    PENDING_DEBUG("\nRESET PENDING");
-    m_toolTipCache.clear();
-    m_toolTipExpression.clear();
-    qq->watchHandler()->reinitializeWatchers();
+m_pendingRequests = 0;
+PENDING_DEBUG("\nRESET PENDING");
+m_toolTipCache.clear();
+m_toolTipExpression.clear();
+qq->watchHandler()->reinitializeWatchers();
 
-    int level = currentFrame();
-    // '2' is 'list with type and value'
-    QString cmd = QString("-stack-list-arguments 2 %1 %2").arg(level).arg(level);
-    sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
-    // '2' is 'list with type and value'
-    sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
+int level = currentFrame();
+// '2' is 'list with type and value'
+QString cmd = QString("-stack-list-arguments 2 %1 %2").arg(level).arg(level);
+sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
+// '2' is 'list with type and value'
+sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
 {
-    // stage 1/2
+// stage 1/2
 
-    // Linux:
-    // 12^done,stack-args=
-    //   [frame={level="0",args=[
-    //     {name="argc",type="int",value="1"},
-    //     {name="argv",type="char **",value="(char **) 0x7..."}]}]
-    // Mac:
-    // 78^done,stack-args=
-    //    {frame={level="0",args={
-    //      varobj=
-    //        {exp="this",value="0x38a2fab0",name="var21",numchild="3",
-    //             type="CurrentDocumentFind *  const",typecode="PTR",
-    //             dynamic_type="",in_scope="true",block_start_addr="0x3938e946",
-    //             block_end_addr="0x3938eb2d"},
-    //      varobj=
-    //         {exp="before",value="@0xbfffb9f8: {d = 0x3a7f2a70}",
-    //              name="var22",numchild="1",type="const QString  ...} }}}
-    //
-    // In both cases, iterating over the children of stack-args/frame/args
-    // is ok.
-    m_currentFunctionArgs.clear();
-    if (record.resultClass == GdbResultDone) {
-        const GdbMi list = record.data.findChild("stack-args");
-        const GdbMi frame = list.findChild("frame");
-        const GdbMi args = frame.findChild("args");
-        m_currentFunctionArgs = args.children();
-    } else if (record.resultClass == GdbResultError) {
-        qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen";
-    }
+// Linux:
+// 12^done,stack-args=
+//   [frame={level="0",args=[
+//     {name="argc",type="int",value="1"},
+//     {name="argv",type="char **",value="(char **) 0x7..."}]}]
+// Mac:
+// 78^done,stack-args=
+//    {frame={level="0",args={
+//      varobj=
+//        {exp="this",value="0x38a2fab0",name="var21",numchild="3",
+//             type="CurrentDocumentFind *  const",typecode="PTR",
+//             dynamic_type="",in_scope="true",block_start_addr="0x3938e946",
+//             block_end_addr="0x3938eb2d"},
+//      varobj=
+//         {exp="before",value="@0xbfffb9f8: {d = 0x3a7f2a70}",
+//              name="var22",numchild="1",type="const QString  ...} }}}
+//
+// In both cases, iterating over the children of stack-args/frame/args
+// is ok.
+m_currentFunctionArgs.clear();
+if (record.resultClass == GdbResultDone) {
+    const GdbMi list = record.data.findChild("stack-args");
+    const GdbMi frame = list.findChild("frame");
+    const GdbMi args = frame.findChild("args");
+    m_currentFunctionArgs = args.children();
+} else if (record.resultClass == GdbResultError) {
+    qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen";
+}
 }
 
 void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
 {
-    // stage 2/2
+// stage 2/2
 
-    // There could be shadowed variables
-    QList<GdbMi> locals = record.data.findChild("locals").children();
-    locals += m_currentFunctionArgs;
+// There could be shadowed variables
+QList<GdbMi> locals = record.data.findChild("locals").children();
+locals += m_currentFunctionArgs;
 
-    setLocals(locals);
+setLocals(locals);
 }
 
 void GdbEngine::setLocals(const QList<GdbMi> &locals) 
 { 
-    //qDebug() << m_varToType;
-    QHash<QString, int> seen;
+//qDebug() << m_varToType;
+QHash<QString, int> seen;
 
-    foreach (const GdbMi &item, locals) {
-        // Local variables of inlined code are reported as 
-        // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
-        // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
-        // We do not want these at all. Current hypotheses is that those
-        // "spurious" locals have _two_ "exp" field. Try to filter them:
-        #ifdef Q_OS_MAC
-        int numExps = 0;
-        foreach (const GdbMi &child, item.children())
-            numExps += int(child.name() == "exp");
-        if (numExps > 1)
-            continue;
-        QString name = item.findChild("exp").data();
-        #else
-        QString name = item.findChild("name").data();
-        #endif
-        int n = seen.value(name);
-        if (n) {
-            seen[name] = n + 1;
-            WatchData data;
-            data.iname = "local." + name + QString::number(n + 1);
-            data.name = name + QString(" <shadowed %1>").arg(n);
-            //data.setValue("<shadowed>");
+foreach (const GdbMi &item, locals) {
+    // Local variables of inlined code are reported as 
+    // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
+    // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
+    // We do not want these at all. Current hypotheses is that those
+    // "spurious" locals have _two_ "exp" field. Try to filter them:
+    #ifdef Q_OS_MAC
+    int numExps = 0;
+    foreach (const GdbMi &child, item.children())
+        numExps += int(child.name() == "exp");
+    if (numExps > 1)
+        continue;
+    QString name = item.findChild("exp").data();
+    #else
+    QString name = item.findChild("name").data();
+    #endif
+    int n = seen.value(name);
+    if (n) {
+        seen[name] = n + 1;
+        WatchData data;
+        data.iname = "local." + name + QString::number(n + 1);
+        data.name = name + QString(" <shadowed %1>").arg(n);
+        //data.setValue("<shadowed>");
+        setWatchDataValue(data, item.findChild("value"));
+        data.setType("<shadowed>");
+        data.setChildCount(0);
+        insertData(data);
+    } else {
+        seen[name] = 1;
+        WatchData data;
+        data.iname = "local." + name;
+        data.name = name;
+        data.exp = name;
+        data.framekey = m_currentFrame + data.name;
+        setWatchDataType(data, item.findChild("type"));
+        // set value only directly if it is simple enough, otherwise
+        // pass through the insertData() machinery
+        if (isIntOrFloatType(data.type) || isPointerType(data.type))
             setWatchDataValue(data, item.findChild("value"));
-            data.setType("<shadowed>");
-            data.setChildCount(0);
-            insertData(data);
-        } else {
-            seen[name] = 1;
-            WatchData data;
-            data.iname = "local." + name;
-            data.name = name;
-            data.exp = name;
-            data.framekey = m_currentFrame + data.name;
-            setWatchDataType(data, item.findChild("type"));
-            // set value only directly if it is simple enough, otherwise
-            // pass through the insertData() machinery
-            if (isIntOrFloatType(data.type) || isPointerType(data.type))
-                setWatchDataValue(data, item.findChild("value"));
-            if (!qq->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenUnneeded();
-            if (isPointerType(data.type) || data.name == "this")
-                data.setChildCount(1);
-            if (0 && m_varToType.contains(data.framekey)) {
-                qDebug() << "RE-USING " << m_varToType.value(data.framekey);
-                data.setType(m_varToType.value(data.framekey));
-            }
-            insertData(data);
+        if (!qq->watchHandler()->isExpandedIName(data.iname))
+            data.setChildrenUnneeded();
+        if (isPointerType(data.type) || data.name == "this")
+            data.setChildCount(1);
+        if (0 && m_varToType.contains(data.framekey)) {
+            qDebug() << "RE-USING " << m_varToType.value(data.framekey);
+            data.setType(m_varToType.value(data.framekey));
         }
+        insertData(data);
+    }
     }
 }
 
