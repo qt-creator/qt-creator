@@ -234,6 +234,11 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
                 const QString copyName = QFileDialog::getSaveFileName(this, tr("Choose copy location"),
                                                                 suggestion.absoluteFilePath());
                 if (!copyName.isEmpty()) {
+                    QString relPath = dir.relativeFilePath(copyName);
+                    if (relPath.startsWith(dotdotSlash)) {   // directory is still invalid
+                        i--; // Compensate i++ and try again
+                        continue;
+                    }
                     if (QFile::exists(copyName)) {
                         if (!QFile::remove(copyName)) {
                             QMessageBox::critical(this, tr("Overwrite failed"),
