@@ -78,6 +78,9 @@ public:
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
 
+protected:
+    bool event(QEvent *e);
+
 protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const;
     int layoutSpacingImplementation(QSizePolicy::ControlType control1,
