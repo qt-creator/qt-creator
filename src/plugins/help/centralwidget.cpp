@@ -407,7 +407,7 @@ void CentralWidget::setSourceInNewTab(const QUrl &url)
     tabWidget->setCurrentIndex(tabWidget->addTab(viewer,
         quoteTabTitle(viewer->documentTitle())));
 
-#if defined(QT_NO_WEBIT)
+#if defined(QT_NO_WEBKIT)
     QFont font = qApp->font();
     if (helpEngine->customValue(QLatin1String("useBrowserFont")).toBool())
         font = qVariantValue<QFont>(helpEngine->customValue(QLatin1String("browserFont")));

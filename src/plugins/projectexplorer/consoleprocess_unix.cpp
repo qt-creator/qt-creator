@@ -46,29 +46,36 @@ ConsoleProcess::~ConsoleProcess()
 {
 }
 
+static QString shellEscape(const QString &in)
+{
+    QString out = in;
+    out.replace('\'', "'\''");
+    out.prepend('\'');
+    out.append('\'');
+    return out;
+}
+
 bool ConsoleProcess::start(const QString &program, const QStringList &args)
 {
     if (m_process->state() != QProcess::NotRunning)
         return false;
     QString shellArgs;
     shellArgs += QLatin1String("cd ");
-    shellArgs += workingDirectory();
+    shellArgs += shellEscape(workingDirectory());
     shellArgs += QLatin1Char(';');
-    shellArgs += program;
+    shellArgs += shellEscape(program);
     foreach (const QString &arg, args) {
         shellArgs += QLatin1Char(' ');
-        shellArgs += QLatin1Char('\'');
-        shellArgs += arg;
-        shellArgs += QLatin1Char('\'');
+        shellArgs += shellEscape(arg);
     }
-    shellArgs += QLatin1String("; echo; echo \"Press enter to close this window\"; read");
+    shellArgs += QLatin1String("; echo; echo \"Press enter to close this window\"; read DUMMY");
 
     m_process->setEnvironment(environment());
 
     connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(processFinished(int, QProcess::ExitStatus)));
 
-    m_process->start(QLatin1String("xterm"), QStringList() << QLatin1String("-e") << shellArgs);
+    m_process->start(QLatin1String("xterm"), QStringList() << QLatin1String("-e") << "/bin/sh" << "-c" << shellArgs);
     if (!m_process->waitForStarted())
         return false;
     emit processStarted();

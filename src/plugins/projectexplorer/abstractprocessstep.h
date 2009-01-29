@@ -51,9 +51,9 @@ namespace ProjectExplorer {
   It should be used as a base class if your buildstep just needs to run a process.
 
   Usage:
-    Use setCommand(), setArguments(), setWorkingDirectory() to specify the process you want to run.
-    (You need to do that before calling AbstractProcess::init())
-    Inside YourBuildStep::init() call AbstractProcessStep::init()
+    Use setCommand(), setArguments(), setWorkingDirectory() to specify the process you want to run
+    (you need to do that before calling AbstractProcessStep::init()).
+    Inside YourBuildStep::init() call AbstractProcessStep::init().
     Inside YourBuildStep::run() call AbstractProcessStep::run(), which automatically starts the proces
     and by default adds the output on stdOut and stdErr to the OutputWindow.
     If you need to process the process output override stdOut() and/or stdErr.

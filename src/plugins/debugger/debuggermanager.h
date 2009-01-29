@@ -198,7 +198,6 @@ public:
     bool m_debugDumpers;
     bool m_useFastStart;
     bool m_useToolTips;
-    bool m_useTerminal;
 
     QString m_scriptFile;
 };
