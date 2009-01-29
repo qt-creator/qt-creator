@@ -225,7 +225,6 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             QMessageBox message(this);
             message.setWindowTitle(tr("Invalid file"));
             message.setIcon(QMessageBox::Warning);
-            QPushButton * const continueButton = message.addButton(tr("Add anyway"), QMessageBox::AcceptRole);
             QPushButton * const copyButton = message.addButton(tr("Copy"), QMessageBox::ActionRole);
             QPushButton * const skipButton = message.addButton(tr("Don't add"), QMessageBox::DestructiveRole);
             QPushButton * const abortButton = message.addButton(tr("Abort"), QMessageBox::RejectRole);
@@ -234,9 +233,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             message.setText(tr("The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.")
                             .arg(QDir::toNativeSeparators(file)));
             message.exec();
-            if (message.clickedButton() == continueButton) {
-                continue;
-            } else if (message.clickedButton() == skipButton) {
+            if (message.clickedButton() == skipButton) {
                 files.removeAt(i);
                 count--;
                 i--; // Compensate i++
