@@ -27,52 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef WINGUIPROCESS_H
-#define WINGUIPROCESS_H
+#ifndef ABSTRACTPROCESS_H
+#define ABSTRACTPROCESS_H
 
-#include "abstractprocess.h"
+#include "utils_global.h"
 
-#include <QtCore/QThread>
 #include <QtCore/QStringList>
 
-#include <windows.h>
+namespace Core {
+namespace Utils {
 
-using namespace Core::Utils;
-
-namespace ProjectExplorer {
-namespace Internal {
-
-class WinGuiProcess : public QThread, public AbstractProcess
+class QWORKBENCH_UTILS_EXPORT AbstractProcess
 {
-    Q_OBJECT
-
 public:
-    WinGuiProcess(QObject *parent);
-    ~WinGuiProcess();
+    AbstractProcess() {}
+    virtual ~AbstractProcess() {}
 
-    bool start(const QString &program, const QStringList &args);
-    void stop();
+    QString workingDirectory() const { return m_workingDir; }
+    void setWorkingDirectory(const QString &dir) { m_workingDir = dir; }
 
-    bool isRunning() const;
-    qint64 applicationPID() const;
-    int exitCode() const;
+    QStringList environment() const { return m_environment; }
+    void setEnvironment(const QStringList &env) { m_environment = env; }
 
-signals:
-    void processError(const QString &error);
-    void receivedDebugOutput(const QString &output);
-    void processFinished(int exitCode);
+    virtual bool start(const QString &program, const QStringList &args) = 0;
+    virtual void stop() = 0;
+
+    virtual bool isRunning() const = 0;
+    virtual qint64 applicationPID() const = 0;
+    virtual int exitCode() const = 0;
+
+//signals:
+    virtual void processError(const QString &error) = 0;
 
 private:
-    bool setupDebugInterface(HANDLE &bufferReadyEvent, HANDLE &dataReadyEvent, HANDLE &sharedFile, LPVOID &sharedMem);
-    void run();
-
-    PROCESS_INFORMATION *m_pid;
-    QString m_program;
-    QStringList m_args;
-    unsigned long m_exitCode;
+    QString m_workingDir;
+    QStringList m_environment;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} //namespace Utils
+} //namespace Core
 
-#endif // WINGUIPROCESS_H
+#endif // ABSTRACTPROCESS_H
+

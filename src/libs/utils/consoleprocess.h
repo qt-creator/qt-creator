@@ -27,43 +27,69 @@
 **
 **************************************************************************/
 
-#ifndef ABSTRACTPROCESS_H
-#define ABSTRACTPROCESS_H
+#ifndef CONSOLEPROCESS_H
+#define CONSOLEPROCESS_H
 
+#include "abstractprocess.h"
+
+#include <QtCore/QObject>
+#include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QProcess>
 
-namespace ProjectExplorer {
-namespace Internal {
+#ifdef Q_OS_WIN
+#include <windows.h>
+class QWinEventNotifier;
+#endif
 
-class AbstractProcess
+namespace Core {
+namespace Utils {
+
+class QWORKBENCH_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
 {
+    Q_OBJECT
+
 public:
-    AbstractProcess() {}
-    virtual ~AbstractProcess() {}
+    ConsoleProcess(QObject *parent);
+    ~ConsoleProcess();
 
-    QString workingDirectory() const { return m_workingDir; }
-    void setWorkingDirectory(const QString &dir) { m_workingDir = dir; }
+    bool start(const QString &program, const QStringList &args);
+    void stop();
 
-    QStringList environment() const { return m_environment; }
-    void setEnvironment(const QStringList &env) { m_environment = env; }
+    bool isRunning() const;
+    qint64 applicationPID() const;
+    int exitCode() const;
 
-    virtual bool start(const QString &program, const QStringList &args) = 0;
-    virtual void stop() = 0;
-
-    virtual bool isRunning() const = 0;
-    virtual qint64 applicationPID() const = 0;
-    virtual int exitCode() const = 0;
-
-//signals:
-    virtual void processError(const QString &error) = 0;
+signals:
+    void processError(const QString &error);
+    void processStarted();
+    void processStopped();
 
 private:
-    QString m_workingDir;
-    QStringList m_environment;
+    bool m_isRunning;
+
+#ifdef Q_OS_WIN
+public:
+    static QString createCommandline(const QString &program,
+                                     const QStringList &args);
+    static QByteArray createEnvironment(const QStringList &env);
+
+private slots:
+    void processDied();
+
+private:
+    PROCESS_INFORMATION *m_pid;
+    QWinEventNotifier *processFinishedNotifier;
+#else
+private:
+    QProcess *m_process;
+private slots:
+    void processFinished(int, QProcess::ExitStatus);
+#endif
+
 };
 
-} //namespace Internal
-} //namespace Qt4ProjectManager
+} //namespace Utils
+} //namespace Core
 
-#endif // ABSTRACTPROCESS_H
-
+#endif

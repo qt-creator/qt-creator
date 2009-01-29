@@ -5,6 +5,8 @@ QT += xml \
 include(../../qworkbenchplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
+include(../../libs/utils/utils.pri)
+INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     projectexplorer_export.h \
     projectwindow.h \
@@ -37,8 +39,6 @@ HEADERS += projectexplorer.h \
     editorsettingspropertiespage.h \
     runconfiguration.h \
     applicationlauncher.h \
-    consoleprocess.h \
-    abstractprocess.h \
     applicationrunconfiguration.h \
     runsettingspropertiespage.h \
     projecttreewidget.h \
@@ -114,12 +114,10 @@ FORMS += dependenciespanel.ui \
     buildstepspage.ui \
     removefiledialog.ui
 win32 { 
-    SOURCES += consoleprocess_win.cpp \
-        applicationlauncher_win.cpp \
+    SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
     HEADERS += winguiprocess.h
 }
-else:unix:SOURCES += consoleprocess_unix.cpp \
-    applicationlauncher_x11.cpp
+else:unix:SOURCES += applicationlauncher_x11.cpp
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY

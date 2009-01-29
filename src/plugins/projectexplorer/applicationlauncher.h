@@ -37,10 +37,15 @@
 #include <QtCore/QTextCodec>
 #endif
 
+namespace Core {
+namespace Utils {
+class ConsoleProcess;
+}
+}
+
 namespace ProjectExplorer {
 namespace Internal {
 
-class ConsoleProcess;
 class WinGuiProcess;
 
 class ApplicationLauncher : public QObject
@@ -84,7 +89,7 @@ private slots:
 
 private:
     QProcess *m_guiProcess;
-    ConsoleProcess *m_consoleProcess;
+    Core::Utils::ConsoleProcess *m_consoleProcess;
     Mode m_currentMode;
 
 #ifdef Q_OS_WIN

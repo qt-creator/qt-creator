@@ -25,6 +25,9 @@ SOURCES += \
     submiteditorwidget.cpp \
     synchronousprocess.cpp
 
+win32:SOURCES += consoleprocess_win.cpp
+else:SOURCES += consoleprocess_unix.cpp
+
 HEADERS += \
     utils_global.h \
     reloadpromptutils.h \
@@ -45,6 +48,8 @@ HEADERS += \
     fancylineedit.h \
     qtcolorbutton.h \
     submiteditorwidget.h \
+    abstractprocess.h \
+    consoleprocess.h \
     synchronousprocess.h
 
 FORMS += filewizardpage.ui \

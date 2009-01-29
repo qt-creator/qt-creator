@@ -33,6 +33,7 @@
 #include <QtCore/QTimer>
 
 using namespace ProjectExplorer::Internal;
+using namespace Core::Utils;
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent)

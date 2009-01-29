@@ -29,7 +29,7 @@
 
 #include "consoleprocess.h"
 
-using namespace ProjectExplorer::Internal;
+using namespace Core::Utils;
 
 ConsoleProcess::ConsoleProcess(QObject *parent)
     : QObject(parent)

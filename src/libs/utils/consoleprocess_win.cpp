@@ -27,15 +27,15 @@
 **
 **************************************************************************/
 
+#include "consoleprocess.h"
+
 #include <QtCore/QDir>
 #include <QtCore/private/qwineventnotifier_p.h>
 #include <QtCore/QAbstractEventDispatcher>
 
 #include <Tlhelp32.h>
 
-#include "consoleprocess.h"
-
-using namespace ProjectExplorer::Internal;
+using namespace Core::Utils;
 
 ConsoleProcess::ConsoleProcess(QObject *parent)
     : QObject(parent)
