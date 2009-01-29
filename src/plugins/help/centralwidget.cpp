@@ -248,8 +248,6 @@ void CentralWidget::setLastShownPages()
         }
         setSource(url);
     }
-
-    updateBrowserFont();
 }
 
 bool CentralWidget::hasSelection() const
@@ -406,24 +404,6 @@ void CentralWidget::setSourceInNewTab(const QUrl &url)
     viewer->setFocus(Qt::OtherFocusReason);
     tabWidget->setCurrentIndex(tabWidget->addTab(viewer,
         quoteTabTitle(viewer->documentTitle())));
-
-#if defined(QT_NO_WEBKIT)
-    QFont font = qApp->font();
-    if (helpEngine->customValue(QLatin1String("useBrowserFont")).toBool())
-        font = qVariantValue<QFont>(helpEngine->customValue(QLatin1String("browserFont")));
-    viewer->setFont(font);
-#else
-    QWebView* view = qobject_cast<QWebView*> (viewer);
-    if (view) {
-        QWebSettings* settings = QWebSettings::globalSettings();
-        int fontSize = settings->fontSize(QWebSettings::DefaultFontSize);
-        QString fontFamily = settings->fontFamily(QWebSettings::StandardFont);
-
-        settings = view->settings();
-        settings->setFontSize(QWebSettings::DefaultFontSize, fontSize);
-        settings->setFontFamily(QWebSettings::StandardFont, fontFamily);
-    }
-#endif
 
     connectSignals();
 }
@@ -610,36 +590,6 @@ bool CentralWidget::eventFilter(QObject *object, QEvent *e)
         }
     }
     return QWidget::eventFilter(object, e);
-}
-
-void CentralWidget::updateBrowserFont()
-{
-#if defined(QT_NO_WEBKIT)
-    QFont font = qApp->font();
-    if (helpEngine->customValue(QLatin1String("useBrowserFont")).toBool())
-        font = qVariantValue<QFont>(helpEngine->customValue(QLatin1String("browserFont")));
-
-    QWidget* widget = 0;
-    for (int i = 0; i < tabWidget->count(); ++i) {
-        widget = tabWidget->widget(i);
-        if (widget->font() != font)
-            widget->setFont(font);
-    }
-#else
-    QWebSettings* settings = QWebSettings::globalSettings();
-    int fontSize = settings->fontSize(QWebSettings::DefaultFontSize);
-    QString fontFamily = settings->fontFamily(QWebSettings::StandardFont);
-
-    QWebView* widget = 0;
-    for (int i = 0; i < tabWidget->count(); ++i) {
-        widget = qobject_cast<QWebView*> (tabWidget->widget(i));
-        if (widget) {
-            settings = widget->settings();
-            settings->setFontSize(QWebSettings::DefaultFontSize, fontSize);
-            settings->setFontFamily(QWebSettings::StandardFont, fontFamily);
-        }
-    }
-#endif
 }
 
 bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
