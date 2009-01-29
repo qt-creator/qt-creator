@@ -382,6 +382,14 @@ void ResourceView::mouseReleaseEvent(QMouseEvent *e)
     QTreeView::mouseReleaseEvent(e);
 }
 
+void ResourceView::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Delete)
+        removeItem();
+    else
+        QTreeView::keyPressEvent(e);
+}
+
 void ResourceView::popupMenu(const QModelIndex &index)
 {
     if (!m_releasePos.isNull()) {
