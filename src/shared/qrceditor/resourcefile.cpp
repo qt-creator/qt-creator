@@ -61,7 +61,7 @@ namespace qdesigner_internal {
 
 bool FileList::containsFile(File *file)
 {
-    foreach(File *tmpFile, *this)
+    foreach (const File *tmpFile, *this)
         if (tmpFile->name == file->name && tmpFile->prefix() == file->prefix())
             return true;
     return false;
@@ -168,7 +168,7 @@ bool ResourceFile::save()
     foreach (const QString &name, name_list) {
         FileList file_list;
         QString lang;
-        foreach (Prefix *pref, m_prefix_list) {
+        foreach (const Prefix *pref, m_prefix_list) {
             if (pref->name == name){
                 file_list += pref->file_list;
                 lang = pref->lang;
@@ -599,7 +599,7 @@ bool ResourceModel::iconFileExtension(const QString &path)
         }
     }
 
-    foreach (QString ext, ext_list) {
+    foreach (const QString &ext, ext_list) {
         if (path.endsWith(ext, Qt::CaseInsensitive))
             return true;
     }
@@ -669,10 +669,9 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             QString stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
             const QString &alias_file = file->alias;
             if (!alias_file.isEmpty())
-                    appendParenthesized(alias_file, stringRes);
+                appendParenthesized(alias_file, stringRes);
 
             result = stringRes;
-            result = "Qt::ToolTipRole " + stringRes;
         }
         break;
 
@@ -690,14 +689,14 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     if (!index.isValid())
         return;
 
-    void * const internalPointer = index.internalPointer();
-    Node * const node = reinterpret_cast<Node *>(internalPointer);
-    Prefix * const p = node->prefix();
+    const void *internalPointer = index.internalPointer();
+    const Node *node = reinterpret_cast<const Node *>(internalPointer);
+    const Prefix *p = node->prefix();
     Q_ASSERT(p);
-    bool const isFileNode = (p != node);
+    const bool isFileNode = (p != node);
 
     if (isFileNode) {
-        File *const f = node->file();
+        const File *f = node->file();
         Q_ASSERT(f);
         if (!f->alias.isEmpty())
             file = f->alias;
@@ -810,7 +809,7 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     const int prefix_idx = prefixIndex;
 
     QStringList unique_list;
-    foreach (QString file, file_list) {
+    foreach (const QString &file, file_list) {
         if (!m_resource_file.contains(prefix_idx, file) && !unique_list.contains(file))
             unique_list.append(file);
     }
@@ -821,7 +820,7 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     const int cnt = m_resource_file.fileCount(prefix_idx);
     beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME
 
-    foreach (QString file, unique_list)
+    foreach (const QString &file, unique_list)
         m_resource_file.addFile(prefix_idx, file);
 
     const QFileInfo fi(file_list.last());
