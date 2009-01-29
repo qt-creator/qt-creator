@@ -54,46 +54,34 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     QFormLayout *layout = new QFormLayout();
     layout->setMargin(0);
 
-    m_executableLineEdit = new QLineEdit;
-    QToolButton *exectuableToolButton = new QToolButton();
-    exectuableToolButton->setText("...");
-    QHBoxLayout *hl = new QHBoxLayout;
-    hl->addWidget(m_executableLineEdit);
-    hl->addWidget(exectuableToolButton);
-    layout->addRow("Executable", hl);
+    m_executableChooser = new Core::Utils::PathChooser();
+    m_executableChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    layout->addRow("Executable:", m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit;
-    layout->addRow("Arguments", m_commandLineArgumentsLineEdit);
+    m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
+    layout->addRow("Arguments:", m_commandLineArgumentsLineEdit);
 
-    m_workingDirectoryLineEdit = new QLineEdit();
-    QToolButton *workingDirectoryToolButton = new QToolButton();
-    workingDirectoryToolButton->setText("...");
-    hl = new QHBoxLayout;
-    hl->addWidget(m_workingDirectoryLineEdit);
-    hl->addWidget(workingDirectoryToolButton);
-    layout->addRow("Working Directory", hl);
+    m_workingDirectory = new Core::Utils::PathChooser();
+    layout->addRow("Working Directory:", m_workingDirectory);
 
     setLayout(layout);
     changed();
     
-    connect(m_executableLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(setExecutable(const QString&)));
+    connect(m_executableChooser, SIGNAL(changed()),
+            this, SLOT(setExecutable()));
     connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(setCommandLineArguments(const QString&)));
-    connect(m_workingDirectoryLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(setWorkingDirectory(const QString&)));
-    connect(exectuableToolButton, SIGNAL(clicked(bool)),
-            this, SLOT(executableToolButtonClicked()));
-    connect(workingDirectoryToolButton, SIGNAL(clicked(bool)),
-            this, SLOT(workingDirectoryToolButtonClicked()));
+    connect(m_workingDirectory, SIGNAL(changed()),
+            this, SLOT(setWorkingDirectory()));
     
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 }
 
-void CustomExecutableConfigurationWidget::setExecutable(const QString &executable)
+void CustomExecutableConfigurationWidget::setExecutable()
 {
     m_ignoreChange = true;
-    m_runConfiguration->setExecutable(executable);
+    m_runConfiguration->setExecutable(m_executableChooser->path());
     m_ignoreChange = false;
 }
 void CustomExecutableConfigurationWidget::setCommandLineArguments(const QString &commandLineArguments)
@@ -102,37 +90,11 @@ void CustomExecutableConfigurationWidget::setCommandLineArguments(const QString 
     m_runConfiguration->setCommandLineArguments(commandLineArguments);
     m_ignoreChange = false;
 }
-void CustomExecutableConfigurationWidget::setWorkingDirectory(const QString &workingDirectory)
+void CustomExecutableConfigurationWidget::setWorkingDirectory()
 {
     m_ignoreChange = true;
-    m_runConfiguration->setWorkingDirectory(workingDirectory);
+    m_runConfiguration->setWorkingDirectory(m_workingDirectory->path());
     m_ignoreChange = false;
-}
-
-void CustomExecutableConfigurationWidget::executableToolButtonClicked()
-{
-    QString newValue;
-    QString executableFilter;
-#ifdef Q_OS_WIN
-    executableFilter = "Executable (*.exe)";
-#endif
-    newValue = QFileDialog::getOpenFileName(this, "Executable", "", executableFilter);
-    if (!newValue.isEmpty()) {
-        m_executableLineEdit->setText(newValue);
-        setExecutable(newValue);
-    }
-}
-
-void CustomExecutableConfigurationWidget::workingDirectoryToolButtonClicked()
-{
-    QString newValue;
-    QString executableFilter;
-
-    newValue = QFileDialog::getExistingDirectory(this, "Directory", m_workingDirectoryLineEdit->text());
-    if (newValue.isEmpty()) {
-        m_workingDirectoryLineEdit->setText(newValue);
-        setWorkingDirectory(newValue);
-    }
 }
 
 void CustomExecutableConfigurationWidget::changed()
@@ -140,9 +102,9 @@ void CustomExecutableConfigurationWidget::changed()
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;
-    m_executableLineEdit->setText(m_runConfiguration->baseExecutable());
+    m_executableChooser->setPath(m_runConfiguration->baseExecutable());
     m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
-    m_workingDirectoryLineEdit->setText(m_runConfiguration->baseWorkingDirectory());
+    m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)

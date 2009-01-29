@@ -36,6 +36,8 @@
 
 #include "applicationrunconfiguration.h"
 
+#include <utils/pathchooser.h>
+
 #include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -108,18 +110,16 @@ public:
     CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc);
 private slots:
     void changed();
-    void executableToolButtonClicked();
-    void workingDirectoryToolButtonClicked();
 
-    void setExecutable(const QString &executable);
+    void setExecutable();
     void setCommandLineArguments(const QString &commandLineArguments);
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setWorkingDirectory();
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
-    QLineEdit *m_executableLineEdit;
+    Core::Utils::PathChooser *m_executableChooser;
     QLineEdit *m_commandLineArgumentsLineEdit;
-    QLineEdit *m_workingDirectoryLineEdit;
+    Core::Utils::PathChooser *m_workingDirectory;
 };
 }
 }
