@@ -641,7 +641,8 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             } else  {
                 // File node
                 Q_ASSERT(file);
-                stringRes = QFileInfo(file->name).fileName();
+                QString conv_file = m_resource_file.relativePath(file->name);
+                stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
                 const QString alias = file->alias;
                 if (!alias.isEmpty())
                     appendParenthesized(alias, stringRes);
@@ -661,20 +662,6 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case Qt::ToolTipRole:
-        if (isFileNode) {
-            // File node
-            Q_ASSERT(file);
-            QString conv_file = m_resource_file.relativePath(file->name);
-            QString stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
-            const QString &alias_file = file->alias;
-            if (!alias_file.isEmpty())
-                appendParenthesized(alias_file, stringRes);
-
-            result = stringRes;
-        }
-        break;
-
     default:
         break;
     }
