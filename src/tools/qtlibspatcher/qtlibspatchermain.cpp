@@ -85,13 +85,13 @@ bool patchBinaryWithQtPathes(const char *fileName, const char *baseQtPath)
 
     logFileName(fileName);
     for (int i = 0; i < (int)(sizeof(variables) / sizeof(variables[0])); i++) {
-        const char * const newStr = allocFileNameCopyAppend(variables[i].variable, baseQtPath, variables[i].subDirectory);
+        const char * const newStr = allocFileNameCopyAppend(
+            variables[i].variable, baseQtPath, variables[i].subDirectory);
         BinPatch binFile(fileName);
         const bool success = binFile.patch(variables[i].variable, newStr);
         delete[] newStr;
         if (!success) {
             result = false;
-            break;
         }
     }
 
@@ -119,7 +119,6 @@ bool patchBinariesWithQtPathes(const char *baseQtPath)
         delete[] fileName;
         if (!success) {
             result = false;
-            break;
         }
     }
 
@@ -602,9 +601,6 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         delete[] fileName;
         delete[] oldSourcePath;
         delete[] newSourcePath;
-
-        if (!result)
-            break;
     }
 
     return result;
@@ -774,8 +770,8 @@ int main(int argc, char *args[])
             break;
 
     patchTextFiles(baseQtPath);
-    const bool success = patchBinariesWithQtPathes(baseQtPath)
-            && patchDebugLibrariesWithQtPath(baseQtPath);
+    const bool successOne = patchBinariesWithQtPathes(baseQtPath);
+    const bool successTwo = patchDebugLibrariesWithQtPath(baseQtPath);
     delete[] baseQtPath;
-    return success ? 0 : 1;
+    return (successOne && successTwo) ? 0 : 1;
 }
