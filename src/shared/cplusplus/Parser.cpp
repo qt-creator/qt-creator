@@ -2508,7 +2508,8 @@ bool Parser::parseBoolLiteral(ExpressionAST *&node)
 
 bool Parser::parseNumericLiteral(ExpressionAST *&node)
 {
-    if (LA() == T_INT_LITERAL || LA() == T_FLOAT_LITERAL || LA() == T_CHAR_LITERAL) {
+    if (LA() == T_INT_LITERAL || LA() == T_FLOAT_LITERAL ||
+        LA() == T_CHAR_LITERAL || LA() == T_WIDE_CHAR_LITERAL) {
         NumericLiteralAST *ast = new (_pool) NumericLiteralAST;
         ast->token = consumeToken();
         node = ast;
