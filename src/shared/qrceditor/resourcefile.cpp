@@ -821,7 +821,7 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     const int cnt = m_resource_file.fileCount(prefix_idx);
     beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME
 
-    foreach (QString file, file_list)
+    foreach (QString file, unique_list)
         m_resource_file.addFile(prefix_idx, file);
 
     const QFileInfo fi(file_list.last());
