@@ -741,6 +741,7 @@ void patchTextFiles(const char *newInstallBase)
                 oldSourceBase, newSourceBase,
 #endif
                 oldInstallBase, newInstallBase);
+        delete[] fileName;
     }
 
     patchQMakeSpec(newInstallBase);
