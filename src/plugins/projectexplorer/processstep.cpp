@@ -136,17 +136,14 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
         : m_step(step)
 {
     m_ui.setupUi(this);
-    connect(m_ui.commandBrowseButton, SIGNAL(clicked(bool)),
-            this, SLOT(commandBrowseButtonClicked()));
-    connect(m_ui.workingDirBrowseButton, SIGNAL(clicked(bool)),
-            this, SLOT(workingDirBrowseButtonClicked()));
+    m_ui.command->setExpectedKind(Core::Utils::PathChooser::File);
+    connect(m_ui.command, SIGNAL(changed()),
+            this, SLOT(commandLineEditTextEdited()));
+    connect(m_ui.workingDirectory, SIGNAL(changed()),
+            this, SLOT(workingDirectoryLineEditTextEdited()));
 
     connect(m_ui.nameLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(nameLineEditTextEdited()));
-    connect(m_ui.commandLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(commandLineEditTextEdited()));
-    connect(m_ui.workingDirectoryLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(workingDirectoryLineEditTextEdited()));
     connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(commandArgumentsLineEditTextEdited()));
     connect(m_ui.enabledGroupBox, SIGNAL(clicked(bool)),
@@ -158,34 +155,16 @@ QString ProcessStepConfigWidget::displayName() const
     return m_step->name();
 }
 
-void ProcessStepConfigWidget::workingDirBrowseButtonClicked()
-{
-    QString workingDirectory = QFileDialog::getExistingDirectory(this, "Select the working directory", m_ui.workingDirectoryLineEdit->text());
-    if (workingDirectory.isEmpty())
-        return;
-    m_ui.workingDirectoryLineEdit->setText(workingDirectory);
-    workingDirectoryLineEditTextEdited();
-}
-
-void ProcessStepConfigWidget::commandBrowseButtonClicked()
-{
-    QString filename = QFileDialog::getOpenFileName(this, "Select the executable");
-    if (filename.isEmpty())
-        return;
-    m_ui.commandLineEdit->setText(filename);
-    commandLineEditTextEdited();
-}
-
 void ProcessStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
     if (buildConfiguration != QString::null) {
-        m_ui.commandLineEdit->setText(m_step->command(buildConfiguration));
+        m_ui.command->setPath(m_step->command(buildConfiguration));
 
         QString workingDirectory = m_step->value(buildConfiguration, "workingDirectory").toString();
         if (workingDirectory.isEmpty())
             workingDirectory = "$BUILDDIR";
-        m_ui.workingDirectoryLineEdit->setText(workingDirectory);
+        m_ui.workingDirectory->setPath(workingDirectory);
 
         m_ui.commandArgumentsLineEdit->setText(m_step->arguments(buildConfiguration).join(" "));
         m_ui.enabledGroupBox->setChecked(m_step->enabled(buildConfiguration));
@@ -200,12 +179,12 @@ void ProcessStepConfigWidget::nameLineEditTextEdited()
 
 void ProcessStepConfigWidget::commandLineEditTextEdited()
 {
-    m_step->setCommand(m_buildConfiguration, m_ui.commandLineEdit->text());
+    m_step->setCommand(m_buildConfiguration, m_ui.command->path());
 }
 
 void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 {
-    QString wd = m_ui.workingDirectoryLineEdit->text();
+    QString wd = m_ui.workingDirectory->path();
     m_step->setValue(m_buildConfiguration, "workingDirectory", wd);
 }
 
