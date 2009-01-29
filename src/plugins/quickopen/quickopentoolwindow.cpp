@@ -56,9 +56,7 @@ QT_END_NAMESPACE
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
 #include <QtCore/QTimer>
-#include <QtCore/QRegExp>
 #include <QtCore/QSettings>
-#include <QtCore/QDebug>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QContextMenuEvent>

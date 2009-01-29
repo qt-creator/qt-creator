@@ -38,6 +38,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/stylehelper.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -222,6 +223,16 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
 FindToolBar::~FindToolBar()
 {
+}
+
+void FindToolBar::paintEvent(QPaintEvent *event)
+{
+    QToolBar::paintEvent(event);
+
+    QPainter p(this);
+    const QRect r = rect();
+    p.setPen(StyleHelper::borderColor());
+    p.drawLine(r.topLeft(), r.topRight());
 }
 
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
