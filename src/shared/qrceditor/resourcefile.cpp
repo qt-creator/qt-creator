@@ -619,12 +619,12 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    void * const internalPointer = index.internalPointer();
-    Node * const node = reinterpret_cast<Node *>(internalPointer);
-    Prefix const * const prefix = node->prefix();
-    File const * const file = node->file();
+    const void *internalPointer = index.internalPointer();
+    const Node *node = reinterpret_cast<const Node *>(internalPointer);
+    const Prefix *prefix = node->prefix();
+    File *file = node->file();
     Q_ASSERT(prefix);
-    bool const isFileNode = (prefix != node);
+    const bool isFileNode = (prefix != node);
 
     QVariant result;
 
@@ -654,12 +654,13 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         if (isFileNode) {
             // File node
             Q_ASSERT(file);
-            const QString path = m_resource_file.absolutePath(file->name);
-            if (iconFileExtension(path)) {
-                const QIcon icon(path);
-                if (!icon.isNull())
-                    result = icon;
+            if (file->icon.isNull()) {
+                const QString path = m_resource_file.absolutePath(file->name);
+                if (iconFileExtension(path))
+                    file->icon = QIcon(path);
             }
+            if (!file->icon.isNull())
+                result = file->icon;
         }
         break;
     default:
