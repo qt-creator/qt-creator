@@ -291,7 +291,7 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 ////
 
 BookmarkContext::BookmarkContext(BookmarkView *widget)
-    : m_bookmarkView(widget)
+    : Core::IContext(widget), m_bookmarkView(widget)
 {
     m_context << UniqueIDManager::instance()->uniqueIdentifier(Constants::BOOKMARKS_CONTEXT);
 }
