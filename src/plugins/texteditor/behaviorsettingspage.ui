@@ -215,9 +215,9 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="cleanIndentationLayout">
         <item>
-         <spacer name="horizontalSpacer_3">
+         <spacer name="cleanIndentationSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>

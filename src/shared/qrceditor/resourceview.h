@@ -138,6 +138,7 @@ protected:
     void changeLang(const QModelIndex &index);
     void changeAlias(const QModelIndex &index);
     void mouseReleaseEvent(QMouseEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
 signals:
     void removeItem();

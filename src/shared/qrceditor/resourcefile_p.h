@@ -40,6 +40,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtGui/QIcon>
 
 #include "shared_global_p.h"
 
@@ -89,6 +90,7 @@ struct File : public Node {
     bool operator != (const File &other) const { return name != other.name; }
     QString name;
     QString alias;
+    QIcon icon;
 };
 
 class FileList : public QList<File *>

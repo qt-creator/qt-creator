@@ -619,12 +619,12 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    void * const internalPointer = index.internalPointer();
-    Node * const node = reinterpret_cast<Node *>(internalPointer);
-    Prefix const * const prefix = node->prefix();
-    File const * const file = node->file();
+    const void *internalPointer = index.internalPointer();
+    const Node *node = reinterpret_cast<const Node *>(internalPointer);
+    const Prefix *prefix = node->prefix();
+    File *file = node->file();
     Q_ASSERT(prefix);
-    bool const isFileNode = (prefix != node);
+    const bool isFileNode = (prefix != node);
 
     QVariant result;
 
@@ -641,7 +641,8 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             } else  {
                 // File node
                 Q_ASSERT(file);
-                stringRes = QFileInfo(file->name).fileName();
+                QString conv_file = m_resource_file.relativePath(file->name);
+                stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
                 const QString alias = file->alias;
                 if (!alias.isEmpty())
                     appendParenthesized(alias, stringRes);
@@ -653,28 +654,15 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         if (isFileNode) {
             // File node
             Q_ASSERT(file);
-            const QString path = m_resource_file.absolutePath(file->name);
-            if (iconFileExtension(path)) {
-                const QIcon icon(path);
-                if (!icon.isNull())
-                    result = icon;
+            if (file->icon.isNull()) {
+                const QString path = m_resource_file.absolutePath(file->name);
+                if (iconFileExtension(path))
+                    file->icon = QIcon(path);
             }
+            if (!file->icon.isNull())
+                result = file->icon;
         }
         break;
-    case Qt::ToolTipRole:
-        if (isFileNode) {
-            // File node
-            Q_ASSERT(file);
-            QString conv_file = m_resource_file.relativePath(file->name);
-            QString stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
-            const QString &alias_file = file->alias;
-            if (!alias_file.isEmpty())
-                appendParenthesized(alias_file, stringRes);
-
-            result = stringRes;
-        }
-        break;
-
     default:
         break;
     }

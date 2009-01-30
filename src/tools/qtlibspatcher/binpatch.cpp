@@ -181,7 +181,7 @@ bool BinPatch::patch(const char *oldstr, const char *newstr)
 
     if (!(input = fopen(fileName, "r+b")))
     {
-        fprintf(stderr, "Cannot open file %s!\n", fileName);
+        fprintf(stderr, "Warning: Could not open file %s\n", fileName);
         return false;
     }
 
