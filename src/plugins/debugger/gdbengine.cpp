@@ -1583,9 +1583,7 @@ bool GdbEngine::startDebugger()
 
     q->showStatusMessage(tr("Starting Debugger: ") + q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
     m_gdbProc.start(q->settings()->m_gdbCmd, gdbArgs);
-    m_gdbProc.waitForStarted();
-
-    if (m_gdbProc.state() != QProcess::Running) {
+    if (!m_gdbProc.waitForStarted()) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                               tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
         m_outputCollector.shutdown();
