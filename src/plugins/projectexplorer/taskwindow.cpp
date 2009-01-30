@@ -265,6 +265,7 @@ TaskWindow::TaskWindow()
     m_listview->setItemDelegate(tld);
     m_listview->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_taskWindowContext = new TaskWindowContext(m_listview);
     core->addContextObject(m_taskWindowContext);

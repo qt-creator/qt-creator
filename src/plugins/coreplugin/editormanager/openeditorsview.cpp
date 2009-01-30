@@ -70,6 +70,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     m_ui.editorList->setTextElideMode(Qt::ElideMiddle);
     m_ui.editorList->installEventFilter(this);
     m_ui.editorList->setFrameStyle(QFrame::NoFrame);
+    m_ui.editorList->setAttribute(Qt::WA_MacShowFocusRect, false);
     EditorManager *em = EditorManager::instance();
     foreach (IEditor *editor, em->openedEditors()) {
         registerEditor(editor);
