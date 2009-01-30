@@ -577,7 +577,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 }
 
 TaskWindowContext::TaskWindowContext(QWidget *widget)
-    : m_taskList(widget)
+    : Core::IContext(widget), m_taskList(widget)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(Core::Constants::C_PROBLEM_PANE);
