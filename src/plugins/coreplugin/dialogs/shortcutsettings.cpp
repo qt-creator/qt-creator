@@ -82,7 +82,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 {
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
-    m_page = new Ui_ShortcutSettings();
+    m_page = new Ui_ShortcutSettings(parent);
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
