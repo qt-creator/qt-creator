@@ -219,7 +219,7 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
         item->setText(0, title);
         item->setToolTip(0, editor->file()->fileName());
         item->setData(0, Qt::UserRole, QVariant::fromValue(editor));
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        item->setFlags(Qt::ItemIsSelectable);
 
         item->setTextAlignment(0, Qt::AlignLeft);
 

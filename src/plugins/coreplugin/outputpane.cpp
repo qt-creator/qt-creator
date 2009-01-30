@@ -41,7 +41,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/editorgroup.h>
 
 #include <extensionsystem/pluginmanager.h>
 

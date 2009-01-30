@@ -102,9 +102,16 @@ public:
     void init();
     static EditorManager *instance() { return m_instance; }
 
+    enum OpenEditorFlag {
+        NoActivate = 1,
+        IgnoreNavigationHistory = 2
+    };
+    Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
+
     IEditor *openEditor(const QString &fileName,
                         const QString &editorKind = QString(),
-                        bool ignoreNavigationHistory = false);
+                        OpenEditorFlags flags = 0);
+    
     QStringList getOpenFileNames() const;
     QString getOpenWithEditorKind(const QString &fileName) const;
 
@@ -116,12 +123,8 @@ public:
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
 
-private:
-    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
-public:
     IEditor *currentEditor() const;
-    IEditor *activateEditor(IEditor *editor, bool ignoreNavigationHistory = false);
-//    EditorGroup *currentEditorGroup() const;
+    void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
 
     QList<IEditor*> openedEditors() const;
 
@@ -195,7 +198,7 @@ private slots:
 
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
-    void updateCurrentEditorAndGroup(Core::IContext *context);
+    void handleContextChange(Core::IContext *context);
     void updateEditorHistory();
     void updateActions();
     void revertToSaved();
@@ -213,16 +216,15 @@ private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
     IEditor *createEditor(const QString &mimeType = QString(),
                           const QString &fileName = QString());
-    void insertEditor(IEditor *editor, bool ignoreNavigationHistory = false);
-    bool registerEditor(IEditor *editor);
-    bool unregisterEditor(IEditor *editor);
-    void editorChanged(IEditor *editor);
+    void addEditor(IEditor *editor, bool isDuplicate = false);
+    void removeEditor(IEditor *editor);
 
     void restoreEditorState(IEditor *editor);
 
     Core::IEditor *duplicateEditor(IEditor *editor);
     void closeDuplicate(Core::IEditor *editor, bool doDelete);
-    Core::IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, bool ignoreNavigationHistory = false);
+    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
+    void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
     void closeEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
 
     static EditorManager *m_instance;
@@ -231,6 +233,8 @@ private:
     friend class Core::Internal::SplitterOrView;
     friend class Core::Internal::EditorView;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(EditorManager::OpenEditorFlags);
 
 //===================EditorClosingCoreListener======================
 

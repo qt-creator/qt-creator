@@ -98,13 +98,11 @@ public:
     EditorView(EditorModel *model = 0, QWidget *parent = 0);
     virtual ~EditorView();
 
-    //EditorGroup
     int editorCount() const;
     void addEditor(IEditor *editor);
-    void insertEditor(int i, IEditor *editor);
     void removeEditor(IEditor *editor);
     IEditor *currentEditor() const;
-    void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
+    void setCurrentEditor(IEditor *editor);
 
     bool hasEditor(IEditor *editor) const;
 
@@ -115,13 +113,11 @@ public:
                            QObject *object, const char *member);
     void hideEditorInfoBar(const QString &kind);
 
-    void focusInEvent(QFocusEvent *e);
 
 private slots:
     void sendCloseRequest();
     void updateEditorStatus(Core::IEditor *editor = 0);
     void checkEditorStatus();
-    void setEditorFocus(int index);
     void makeEditorWritable();
     void listSelectionActivated(int index);
 

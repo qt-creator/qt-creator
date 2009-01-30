@@ -133,7 +133,7 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory(true);
-    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, true);
+    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, Core::EditorManager::IgnoreNavigationHistory);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);

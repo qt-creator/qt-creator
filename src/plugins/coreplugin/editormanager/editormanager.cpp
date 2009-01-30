@@ -143,7 +143,6 @@ struct EditorManagerPrivate {
 
     ICore *m_core;
 
-    bool m_suppressEditorChanges;
 
     // actions
     QAction *m_revertToSavedAction;
@@ -184,7 +183,6 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_splitter(0),
     m_stackedLayout(0),
     m_core(core),
-    m_suppressEditorChanges(false),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_saveAction(new QAction(parent)),
     m_saveAsAction(new QAction(parent)),
@@ -227,7 +225,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     m_instance = this;
 
     connect(m_d->m_core, SIGNAL(contextAboutToChange(Core::IContext *)),
-            this, SLOT(updateCurrentEditorAndGroup(Core::IContext *)));
+            this, SLOT(handleContextChange(Core::IContext *)));
 
     const QList<int> gc =  QList<int>() << Constants::C_GLOBAL_ID;
     const QList<int> editManagerContext =
@@ -384,10 +382,6 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
 
     // other setup
-    connect(this, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateActions()));
-    connect(this, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateEditorHistory()));
     m_d->m_view = new EditorView(m_d->m_editorModel, this);
     m_d->m_splitter = new SplitterOrView(m_d->m_view);
 
@@ -454,32 +448,16 @@ void EditorManager::updateEditorHistory()
     m_d->m_editorHistory.prepend(editor);
 }
 
-bool EditorManager::registerEditor(IEditor *editor)
+void EditorManager::removeEditor(IEditor *editor)
 {
-    if (editor) {
-        m_d->m_editorModel->addEditor(editor);
-        m_d->m_core->fileManager()->addFile(editor->file());
-        m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+    m_d->m_editorModel->removeEditor(editor);
+    m_d->m_core->fileManager()->removeFile(editor->file());
+    m_d->m_editorHistory.removeAll(editor);
+    m_d->m_core->removeContextObject(editor);
 
-        m_d->m_editorHistory.removeAll(editor);
-        m_d->m_editorHistory.prepend(editor);
-        return true;
-    }
-    return false;
 }
 
-bool EditorManager::unregisterEditor(IEditor *editor)
-{
-    if (editor) {
-        m_d->m_editorModel->removeEditor(editor);
-        m_d->m_core->fileManager()->removeFile(editor->file());
-        m_d->m_editorHistory.removeAll(editor);
-        return true;
-    }
-    return false;
-}
-
-void EditorManager::updateCurrentEditorAndGroup(IContext *context)
+void EditorManager::handleContextChange(IContext *context)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
@@ -489,50 +467,25 @@ void EditorManager::updateCurrentEditorAndGroup(IContext *context)
     } else {
         updateActions();
     }
-    if (debugEditorManager)
-        qDebug() << "leaving method" << Q_FUNC_INFO;
-}
-
-IEditor *EditorManager::activateEditor(IEditor *editor, bool ignoreNavigationHistory)
-{
-    if (m_d->m_suppressEditorChanges)
-        return editor;
-    return activateEditor(m_d->m_splitter->findView(m_d->m_currentEditor)->view(), editor, ignoreNavigationHistory);
 }
 
 void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory)
 {
-    if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << currentEditor() << "-->" << editor
-                << (m_d->m_suppressEditorChanges?"suppressed":"")
-                << "ignore history?" << ignoreNavigationHistory;
-    if (m_d->m_suppressEditorChanges)
+    if (m_d->m_currentEditor == editor)
         return;
+
     m_d->m_currentEditor = editor;
     if (editor) {
-        qDebug() << "EditorManager::setCurrentEditor" << editor << editor->file()->fileName();
         bool addToHistory = (!ignoreNavigationHistory && editor != currentEditor());
-        if (debugEditorManager)
-            qDebug() << Q_FUNC_INFO << (addToHistory ? "adding to history" : "not adding to history");
         if (addToHistory)
             addCurrentPositionToNavigationHistory(true);
-        m_d->m_suppressEditorChanges = true;
 
         EditorView *view = m_d->m_splitter->findView(editor)->view();
-        if (view == m_d->m_view && m_d->m_splitter)
-            unsplitAll();
         view->setCurrentEditor(editor);
-
-        m_d->m_suppressEditorChanges = false;
-        if (addToHistory)
-            addCurrentPositionToNavigationHistory();
     }
-    editorChanged(editor);
-}
-
-void EditorManager::editorChanged(IEditor *toEditor)
-{
-    emit currentEditorChanged(toEditor);
+    updateActions();
+    updateEditorHistory();
+    emit currentEditorChanged(editor);
 }
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
@@ -674,28 +627,16 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
             if (!state.isEmpty())
                 m_d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
         }
-        unregisterEditor(editor);
-        m_d->m_core->removeContextObject(editor);
-        const bool suppress = m_d->m_suppressEditorChanges;
-        m_d->m_suppressEditorChanges = true;
+        removeEditor(editor);
         m_d->m_view->removeEditor(editor);
-        m_d->m_suppressEditorChanges = suppress;
     }
     emit editorsClosed(acceptedEditors);
     foreach (IEditor *editor, acceptedEditors) {
         delete editor;
     }
     if (currentEditorRemoved) {
-        if (m_d->m_editorHistory.count() > 0) {
-            activateEditor(m_d->m_editorHistory.first(), true);
-        } else {
-            editorChanged(currentEditor());
-        }
+        setCurrentEditor(0, true);
     }
-    if (currentEditor())
-        addCurrentPositionToNavigationHistory();
-    updateActions();
-
     return !closingFailed;
 }
 
@@ -708,11 +649,30 @@ void EditorManager::closeDuplicate(Core::IEditor *editor, bool doDelete)
         delete editor;
 }
 
-Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, bool ignoreNavigationHistory)
+void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
-    Q_ASSERT(view && editor);
-    Q_ASSERT(m_d->m_view->hasEditor(editor));
+    activateEditor(m_d->m_splitter->findView(m_d->m_currentEditor)->view(), editor, flags);
+}
 
+
+void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
+{
+    if (flags & NoActivate)
+        return;
+
+    Q_ASSERT(view && editor);
+
+    if (!view->hasEditor(editor)) {
+        if (SplitterOrView *sourceView = m_d->m_splitter->findView(editor))
+            sourceView->view()->removeEditor(editor);
+        view->addEditor(editor);
+    }
+
+    setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
+    ensureEditorManagerVisible();
+    editor->widget()->setFocus();
+
+#if 0
     if (!editor->duplicateSupported()) {
         unsplitAll();
         view = m_d->m_view;
@@ -731,6 +691,7 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
         closeDuplicate(e, true);
     }
     return duplicate;
+#endif
 }
 
 /* Find editors for a mimetype, best matching at the front
@@ -821,14 +782,21 @@ IEditor *EditorManager::createEditor(const QString &editorKind,
     return editor;
 }
 
-void EditorManager::insertEditor(IEditor *editor,
-                                 bool /*ignoreNavigationHistory*/)
+void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
 {
     if (!editor)
         return;
     m_d->m_core->addContextObject(editor);
-    registerEditor(editor);
-    m_d->m_view->addEditor(editor);
+
+    if (!isDuplicate) {
+        m_d->m_editorModel->addEditor(editor);
+        m_d->m_core->fileManager()->addFile(editor->file());
+        m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
+    }
+
+    m_d->m_editorHistory.removeAll(editor);
+    m_d->m_editorHistory.prepend(editor);
+
     emit editorOpened(editor);
 }
 
@@ -895,7 +863,7 @@ static QString formatFileFilters(const Core::ICore *core, QString *selectedFilte
 }
 
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorKind,
-                                   bool ignoreNavigationHistory)
+                                   EditorManager::OpenEditorFlags flags)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorKind;
@@ -905,7 +873,8 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
 
     const QList<IEditor *> editors = editorsForFileName(fileName);
     if (!editors.isEmpty()) {
-        return activateEditor(m_d->m_splitter->findView(m_d->m_currentEditor)->view(), editors.first(), ignoreNavigationHistory);
+        activateEditor(editors.first(), flags);
+        return editors.first();
     }
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorKind, fileName);
@@ -916,11 +885,12 @@ IEditor *EditorManager::openEditor(const QString &fileName, const QString &edito
         editor = 0;
         return 0;
     }
-    insertEditor(editor, ignoreNavigationHistory);
+    addEditor(editor);
     restoreEditorState(editor);
     QApplication::restoreOverrideCursor();
-    ensureEditorManagerVisible();
-    return activateEditor(editor, ignoreNavigationHistory);
+
+    activateEditor(editor, flags);
+    return editor;
 }
 
 QStringList EditorManager::getOpenFileNames() const
@@ -999,7 +969,7 @@ IEditor *EditorManager::newFile(const QString &editorKind,
     }
     *titlePattern = title;
     edt->setDisplayName(title);
-    insertEditor(edt);
+    addEditor(edt);
     QApplication::restoreOverrideCursor();
     return edt;
 }
@@ -1284,9 +1254,9 @@ void EditorManager::goBackInNavigationHistory()
         IEditor *editor;
         if (location->editor) {
             editor = location->editor;
-            setCurrentEditor(location->editor, true);
+            activateEditor(location->editor, IgnoreNavigationHistory);
         } else {
-            editor = openEditor(location->fileName, location->kind, true);
+            editor = openEditor(location->fileName, location->kind, IgnoreNavigationHistory);
             if (!editor) {
                 delete m_d->m_navigationHistory.takeAt(m_d->currentNavigationHistoryPosition);
                 continue;
@@ -1308,9 +1278,9 @@ void EditorManager::goForwardInNavigationHistory()
     IEditor *editor;
     if (location->editor) {
         editor = location->editor;
-        setCurrentEditor(location->editor, true);
+        activateEditor(location->editor, IgnoreNavigationHistory);
     } else {
-        editor = openEditor(location->fileName, location->kind, true);
+        editor = openEditor(location->fileName, location->kind, IgnoreNavigationHistory);
         if (!editor) {
             //TODO
             qDebug() << Q_FUNC_INFO << "can't open file" << location->fileName;
@@ -1378,9 +1348,6 @@ bool EditorManager::restoreState(const QByteArray &state)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    bool editorChangesSuppressed = m_d->m_suppressEditorChanges;
-    m_d->m_suppressEditorChanges = true;
-
     stream >> editorstates;
     QMapIterator<QString, QVariant> i(editorstates);
     while (i.hasNext()) {
@@ -1389,21 +1356,20 @@ bool EditorManager::restoreState(const QByteArray &state)
     }
 
     int editorCount = 0;
+    IEditor *toActivate = 0;
     stream >> editorCount;
     while (--editorCount >= 0) {
         QString fileName;
         stream >> fileName;
         QByteArray kind;
         stream >> kind;
-        IEditor *editor = openEditor(fileName, kind, true);
-        if (!m_d->m_currentEditor)
-            m_d->m_currentEditor = editor;
+        IEditor *editor = openEditor(fileName, kind, IgnoreNavigationHistory | NoActivate);
+        if (!toActivate)
+            toActivate = editor;
     }
 
-    m_d->m_suppressEditorChanges = editorChangesSuppressed;
-    if (currentEditor())
-        setCurrentEditor(m_d->m_currentEditor);
-    
+    if (toActivate)
+        activateEditor(toActivate);
     QApplication::restoreOverrideCursor();
 
     return true;
@@ -1574,7 +1540,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 
     IEditor *duplicate = editor->duplicate(0);
     emit editorCreated(duplicate, duplicate->file()->fileName());
-    emit editorOpened(duplicate);
+    addEditor(duplicate, true);
     return duplicate;
 }
 
@@ -1582,11 +1548,8 @@ void EditorManager::split(Qt::Orientation orientation)
 {
     SplitterOrView *view = m_d->m_currentEditor ? m_d->m_splitter->findView(m_d->m_currentEditor)
                        : m_d->m_splitter->findFirstView();
-    if (!view) {
-        view = m_d->m_splitter;
-        view->unsplit(0);
-    }
-    view->split(orientation);
+    if (view)
+        view->split(orientation);
 }
 void EditorManager::split()
 {
