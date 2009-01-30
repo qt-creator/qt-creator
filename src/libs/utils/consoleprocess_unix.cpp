@@ -35,7 +35,6 @@ ConsoleProcess::ConsoleProcess(QObject *parent)
     : QObject(parent)
 {
     m_isRunning = false;
-    m_process = new QProcess(this);
 }
 
 ConsoleProcess::~ConsoleProcess()
@@ -53,7 +52,7 @@ static QString shellEscape(const QString &in)
 
 bool ConsoleProcess::start(const QString &program, const QStringList &args)
 {
-    if (m_process->state() != QProcess::NotRunning)
+    if (m_process.state() != QProcess::NotRunning)
         return false;
     QString shellArgs;
     shellArgs += QLatin1String("cd ");
@@ -66,13 +65,13 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     }
     shellArgs += QLatin1String("; echo; echo \"Press enter to close this window\"; read DUMMY");
 
-    m_process->setEnvironment(environment());
+    m_process.setEnvironment(environment());
 
-    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(processFinished(int, QProcess::ExitStatus)));
 
-    m_process->start(QLatin1String("xterm"), QStringList() << QLatin1String("-e") << "/bin/sh" << "-c" << shellArgs);
-    if (!m_process->waitForStarted())
+    m_process.start(QLatin1String("xterm"), QStringList() << QLatin1String("-e") << "/bin/sh" << "-c" << shellArgs);
+    if (!m_process.waitForStarted())
         return false;
     emit processStarted();
     return true;
@@ -85,22 +84,22 @@ void ConsoleProcess::processFinished(int, QProcess::ExitStatus)
 
 bool ConsoleProcess::isRunning() const
 {
-    return m_process->state() != QProcess::NotRunning;
+    return m_process.state() != QProcess::NotRunning;
 }
 
 void ConsoleProcess::stop()
 {
-    m_process->terminate();
-    m_process->waitForFinished();
+    m_process.terminate();
+    m_process.waitForFinished();
 }
 
 qint64 ConsoleProcess::applicationPID() const
 {
-    return m_process->pid();
+    return m_process.pid();
 }
 
 int ConsoleProcess::exitCode() const
 {
-    return m_process->exitCode();
+    return m_process.exitCode();
 }
 

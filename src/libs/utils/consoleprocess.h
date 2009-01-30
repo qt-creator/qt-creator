@@ -82,7 +82,7 @@ private:
     QWinEventNotifier *processFinishedNotifier;
 #else
 private:
-    QProcess *m_process;
+    QProcess m_process;
 private slots:
     void processFinished(int, QProcess::ExitStatus);
 #endif
