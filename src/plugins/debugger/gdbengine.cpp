@@ -1555,9 +1555,7 @@ bool GdbEngine::startDebugger()
     qDebug() << "ExeFile: " << q->m_executable;
     #endif
 
-    q->showStatusMessage(tr("Starting Debugger"));
-    emit gdbInputAvailable(QString(), q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
-
+    q->showStatusMessage(tr("Starting Debugger: ") + q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
     m_gdbProc.start(q->settings()->m_gdbCmd, gdbArgs);
     m_gdbProc.waitForStarted();
 
