@@ -55,8 +55,8 @@ enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
 /////////////////////////////////////////////////////////////////////
 
 WatchWindow::WatchWindow(Type type, QWidget *parent)
-    : QTreeView(parent), m_type(type)
-    , m_alwaysResizeColumnsToContents(true)
+    : QTreeView(parent)
+    , m_alwaysResizeColumnsToContents(true), m_type(type)
 {
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(true);
