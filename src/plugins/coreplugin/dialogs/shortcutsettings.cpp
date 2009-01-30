@@ -82,7 +82,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 {
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
-    m_page = new Ui_ShortcutSettings(parent);
+    m_page = new Ui_ShortcutSettings();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
@@ -115,6 +115,8 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     hv->setStretchLastSection(true);
 
     commandChanged(0);
+
+    delete m_page;
 
     return w;
 }

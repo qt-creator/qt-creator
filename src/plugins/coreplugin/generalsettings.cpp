@@ -64,7 +64,7 @@ QString GeneralSettings::trCategory() const
 
 QWidget *GeneralSettings::createPage(QWidget *parent)
 {
-    m_page = new Ui_GeneralSettings(parent);
+    m_page = new Ui_GeneralSettings();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
@@ -77,7 +77,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetExternalEditor()));
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
-
+    delete m_page;
     return w;
 }
 
