@@ -951,7 +951,15 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == 'g') {
-        m_gflag = true;
+        if (m_gflag) {
+            m_gflag = false;
+            m_tc.setPosition(firstPositionInLine(1), KeepAnchor);
+            if (m_config[ConfigStartOfLine] == ConfigOn)
+                moveToFirstNonBlankOnLine();
+            finishMovement();
+        } else {
+            m_gflag = true;
+        }
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
