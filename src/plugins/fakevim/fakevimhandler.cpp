@@ -1004,7 +1004,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveDown(count());
             moveToDesiredColumn();
         } else {
+            m_moveType = MoveLineWise;
             moveToStartOfLine();
+            setAnchor();
             moveDown(count() + 1);
         }
         finishMovement();
@@ -1029,8 +1031,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveUp(count());
             moveToDesiredColumn();
         } else {
+            m_moveType = MoveLineWise;
             moveToStartOfLine();
             moveDown();
+            setAnchor();
             moveUp(count() + 1);
         }
         finishMovement();
