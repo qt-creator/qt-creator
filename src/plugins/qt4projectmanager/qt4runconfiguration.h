@@ -38,9 +38,11 @@
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
 class QWidget;
 class QLabel;
 class QLineEdit;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 
