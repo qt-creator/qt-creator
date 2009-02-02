@@ -413,7 +413,7 @@ QStringList ResourceView::fileNamesToAdd()
 {
     return QFileDialog::getOpenFileNames(this, tr("Open file"),
             m_qrcModel->absolutePath(QString()),
-            tr("All files (*.*)"));
+            tr("All files (*)"));
 }
 
 void ResourceView::onAddFiles()
