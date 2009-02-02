@@ -42,8 +42,10 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-    const char * const oldInstallBase = "C:/qt-greenhouse/Trolltech/Code_less_create_more/"
-        "Trolltech/Code_less_create_more/Troll/4.4.3";
+#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3";
+
+	const char * const oldInstallBase = QT_INSTALL_DIR;
+	const char * const oldSourceBase = QT_INSTALL_DIR;
 #else
     const char * const oldSourceBase = "/home/berlin/dev/qt-4.4.3-temp/qt-x11-opensource-src-4.4.3";
     const char * const oldInstallBase = "/home/berlin/dev/qt-4.4.3-shipping/qt";
@@ -85,13 +87,13 @@ bool patchBinaryWithQtPathes(const char *fileName, const char *baseQtPath)
 
     logFileName(fileName);
     for (int i = 0; i < (int)(sizeof(variables) / sizeof(variables[0])); i++) {
-        const char * const newStr = allocFileNameCopyAppend(variables[i].variable, baseQtPath, variables[i].subDirectory);
+        const char * const newStr = allocFileNameCopyAppend(
+            variables[i].variable, baseQtPath, variables[i].subDirectory);
         BinPatch binFile(fileName);
         const bool success = binFile.patch(variables[i].variable, newStr);
         delete[] newStr;
         if (!success) {
             result = false;
-            break;
         }
     }
 
@@ -119,7 +121,6 @@ bool patchBinariesWithQtPathes(const char *baseQtPath)
         delete[] fileName;
         if (!success) {
             result = false;
-            break;
         }
     }
 
@@ -602,9 +603,6 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         delete[] fileName;
         delete[] oldSourcePath;
         delete[] newSourcePath;
-
-        if (!result)
-            break;
     }
 
     return result;
@@ -631,83 +629,83 @@ void patchQMakeSpec(const char *path)
     out << all;
 }
 
+#ifndef Q_OS_WIN
 const char * const textFileFileNames[] =
 {
-#ifndef Q_OS_WIN
     // *.la
-    "lib/libQtCore.la",
-    "lib/libQt3Support.la",
-    "lib/libQtCLucene.la",
-    "lib/libQtDBus.la",
-    "lib/libQtGui.la",
-    "lib/libQtHelp.la",
-    "lib/libQtNetwork.la",
-    "lib/libQtOpenGL.la",
-    "lib/libQtScript.la",
-    "lib/libQtSql.la",
-    "lib/libQtSvg.la",
-    "lib/libQtTest.la",
-    "lib/libQtWebKit.la",
-    "lib/libQtXml.la",
-    "lib/libQtXmlPatterns.la",
+    "/lib/libQtCore.la",
+    "/lib/libQt3Support.la",
+    "/lib/libQtCLucene.la",
+    "/lib/libQtDBus.la",
+    "/lib/libQtGui.la",
+    "/lib/libQtHelp.la",
+    "/lib/libQtNetwork.la",
+    "/lib/libQtOpenGL.la",
+    "/lib/libQtScript.la",
+    "/lib/libQtSql.la",
+    "/lib/libQtSvg.la",
+    "/lib/libQtTest.la",
+    "/lib/libQtWebKit.la",
+    "/lib/libQtXml.la",
+    "/lib/libQtXmlPatterns.la",
 
     // *.prl
-    "demos/shared/libdemo_shared.prl",
-    "lib/libQt3Support.prl",
-    "lib/libQtAssistantClient.prl",
-    "lib/libQtCLucene.prl",
-    "lib/libQtCore.prl",
-    "lib/libQtDBus.prl",
-    "lib/libQtDesignerComponents.prl",
-    "lib/libQtDesigner.prl",
-    "lib/libQtGui.prl",
-    "lib/libQtHelp.prl",
-    "lib/libQtNetwork.prl",
-    "lib/libQtOpenGL.prl",
-    "lib/libQtScript.prl",
-    "lib/libQtSql.prl",
-    "lib/libQtSvg.prl",
-    "lib/libQtTest.prl",
-    "lib/libQtUiTools.prl",
-    "lib/libQtWebKit.prl",
-    "lib/libQtXmlPatterns.prl",
-    "lib/libQtXml.prl",
+    "/demos/shared/libdemo_shared.prl",
+    "/lib/libQt3Support.prl",
+    "/lib/libQtAssistantClient.prl",
+    "/lib/libQtCLucene.prl",
+    "/lib/libQtCore.prl",
+    "/lib/libQtDBus.prl",
+    "/lib/libQtDesignerComponents.prl",
+    "/lib/libQtDesigner.prl",
+    "/lib/libQtGui.prl",
+    "/lib/libQtHelp.prl",
+    "/lib/libQtNetwork.prl",
+    "/lib/libQtOpenGL.prl",
+    "/lib/libQtScript.prl",
+    "/lib/libQtSql.prl",
+    "/lib/libQtSvg.prl",
+    "/lib/libQtTest.prl",
+    "/lib/libQtUiTools.prl",
+    "/lib/libQtWebKit.prl",
+    "/lib/libQtXmlPatterns.prl",
+    "/lib/libQtXml.prl",
 
     // *.pc
-    "lib/pkgconfig/Qt3Support.pc",
-    "lib/pkgconfig/QtAssistantClient.pc",
-    "lib/pkgconfig/QtCLucene.pc",
-    "lib/pkgconfig/QtCore.pc",
-    "lib/pkgconfig/QtDBus.pc",
-    "lib/pkgconfig/QtDesignerComponents.pc",
-    "lib/pkgconfig/QtDesigner.pc",
-    "lib/pkgconfig/QtGui.pc",
-    "lib/pkgconfig/QtHelp.pc",
-    "lib/pkgconfig/QtNetwork.pc",
-    "lib/pkgconfig/QtOpenGL.pc",
-    "lib/pkgconfig/QtScript.pc",
-    "lib/pkgconfig/QtSql.pc",
-    "lib/pkgconfig/QtSvg.pc",
-    "lib/pkgconfig/QtTest.pc",
-    "lib/pkgconfig/QtUiTools.pc",
-    "lib/pkgconfig/QtWebKit.pc",
-    "lib/pkgconfig/QtXmlPatterns.pc",
-    "lib/pkgconfig/QtXml.pc",
+    "/lib/pkgconfig/Qt3Support.pc",
+    "/lib/pkgconfig/QtAssistantClient.pc",
+    "/lib/pkgconfig/QtCLucene.pc",
+    "/lib/pkgconfig/QtCore.pc",
+    "/lib/pkgconfig/QtDBus.pc",
+    "/lib/pkgconfig/QtDesignerComponents.pc",
+    "/lib/pkgconfig/QtDesigner.pc",
+    "/lib/pkgconfig/QtGui.pc",
+    "/lib/pkgconfig/QtHelp.pc",
+    "/lib/pkgconfig/QtNetwork.pc",
+    "/lib/pkgconfig/QtOpenGL.pc",
+    "/lib/pkgconfig/QtScript.pc",
+    "/lib/pkgconfig/QtSql.pc",
+    "/lib/pkgconfig/QtSvg.pc",
+    "/lib/pkgconfig/QtTest.pc",
+    "/lib/pkgconfig/QtUiTools.pc",
+    "/lib/pkgconfig/QtWebKit.pc",
+    "/lib/pkgconfig/QtXmlPatterns.pc",
+    "/lib/pkgconfig/QtXml.pc",
 
     // misc
-    "mkspecs/qconfig.pri"
-#endif
+    "/mkspecs/qconfig.pri"
 };
+#endif
 
 void replaceInTextFile(const char * fileName,
         const char * oldText, const char * newText,
         const char * oldText2 = NULL, const char * newText2 = NULL)
 {
-    const QString errorMessage = QString("Could not patch file ") + fileName;
+    const QString errorMessage = QString("Warning: Could not patch file ") + fileName;
 
     QFile f(fileName);
     if (!f.open(QIODevice::ReadOnly)) {
-        std::cout << qPrintable(errorMessage) << std::endl;
+        std::cerr << qPrintable(errorMessage) << std::endl;
         return;
     }
     QTextStream in(&f);
@@ -720,7 +718,7 @@ void replaceInTextFile(const char * fileName,
     }
 
     if (!f.open(QIODevice::WriteOnly)) {
-        std::cout << qPrintable(errorMessage) << std::endl;
+        std::cerr << qPrintable(errorMessage) << std::endl;
         return;
     }
     QTextStream out(&f);
@@ -730,20 +728,21 @@ void replaceInTextFile(const char * fileName,
 
 void patchTextFiles(const char *newInstallBase)
 {
+#ifndef Q_OS_WIN
+    const char * const baseQtPath = newInstallBase;
     const char * const newSourceBase = newInstallBase;
     const int fileCount = sizeof(textFileFileNames) / sizeof(const char *);
     for (int i = 0; i < fileCount; i++) {
-        logFileName(textFileFileNames[i]);
+        char * const fileName = allocFileNameCopyAppend(baseQtPath, textFileFileNames[i]);
+        logFileName(fileName);
         logDiff(oldSourceBase, newSourceBase);
-#ifndef Q_OS_WIN
         logDiff(oldInstallBase, newInstallBase);
-#endif
-        replaceInTextFile(textFileFileNames[i],
-#ifndef Q_OS_WIN
+        replaceInTextFile(fileName,
                 oldSourceBase, newSourceBase,
-#endif
                 oldInstallBase, newInstallBase);
+        delete[] fileName;
     }
+#endif
 
     patchQMakeSpec(newInstallBase);
 }
@@ -774,8 +773,8 @@ int main(int argc, char *args[])
             break;
 
     patchTextFiles(baseQtPath);
-    const bool success = patchBinariesWithQtPathes(baseQtPath)
-            && patchDebugLibrariesWithQtPath(baseQtPath);
+    patchBinariesWithQtPathes(baseQtPath);
+    patchDebugLibrariesWithQtPath(baseQtPath);
     delete[] baseQtPath;
-    return success ? 0 : 1;
+    return 0;
 }

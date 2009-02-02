@@ -1054,3 +1054,11 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         break;
     }
 }
+
+// Mac style reimplements this to control the
+// focus widget among other things
+bool ManhattanStyle::event(QEvent *e)
+{
+    Q_ASSERT(d->style);
+    return d->style->event(e);
+}

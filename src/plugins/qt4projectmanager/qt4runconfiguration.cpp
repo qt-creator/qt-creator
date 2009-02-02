@@ -247,6 +247,7 @@ QString Qt4RunConfiguration::proFilePath() const
 void Qt4RunConfiguration::updateCachedValues()
 {
     ProFileReader *reader = static_cast<Qt4Project *>(project())->createProFileReader();
+    reader->setCumulative(false);
     if (!reader->readProFile(m_proFilePath)) {
         delete reader;
         Core::ICore::instance()->messageManager()->printToOutputPane(QString("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));

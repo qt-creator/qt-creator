@@ -56,6 +56,7 @@ SearchResultWindow::SearchResultWindow()
     m_searchResultTreeView = new SearchResultTreeView(m_widget);
     m_searchResultTreeView->setUniformRowHeights(true);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
+    m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_widget->addWidget(m_searchResultTreeView);
 
     m_noMatchesFoundDisplay = new QListWidget(m_widget);

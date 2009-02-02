@@ -89,6 +89,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     m_filter->setSourceModel(m_dirModel);
     m_view->setModel(m_filter);
     m_view->setFrameStyle(QFrame::NoFrame);
+    m_view->setAttribute(Qt::WA_MacShowFocusRect, false);
     setFocusProxy(m_view);
 
     QVBoxLayout *layout = new QVBoxLayout();

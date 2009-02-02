@@ -116,6 +116,8 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 
     commandChanged(0);
 
+    delete m_page;
+
     return w;
 }
 

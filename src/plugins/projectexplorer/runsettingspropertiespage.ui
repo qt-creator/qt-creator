@@ -34,11 +34,17 @@
      </item>
      <item>
       <widget class="QComboBox" name="runConfigurationCombo">
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToContents</enum>
        </property>
        <property name="minimumContentsLength">
-        <number>30</number>
+        <number>15</number>
        </property>
       </widget>
      </item>

@@ -35,7 +35,14 @@
 #include <cstring>
 #include <locale>
 
+#include <qglobal.h>
+ 
 #include "binpatch.h"
+ 
+#ifdef Q_OS_WIN
+#	define strcasecmp _stricmp
+#	define strncasecmp _strnicmp
+#endif
 
 // returns positive value if it finds a null termination inside the buffer
 long BinPatch::getBufferStringLength(char *data, char *end)
@@ -181,7 +188,7 @@ bool BinPatch::patch(const char *oldstr, const char *newstr)
 
     if (!(input = fopen(fileName, "r+b")))
     {
-        fprintf(stderr, "Cannot open file %s!\n", fileName);
+        fprintf(stderr, "Warning: Could not open file %s\n", fileName);
         return false;
     }
 

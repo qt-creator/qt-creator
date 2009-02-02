@@ -85,7 +85,7 @@ public:
     void activateTab(bool onlyHelpViewer = false);
     bool find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental);
     void setLastShownPages();
-    
+
     static CentralWidget *instance();
 
 public slots:
@@ -98,7 +98,6 @@ public slots:
     void print();
     void pageSetup();
     void printPreview();
-    void updateBrowserFont();
     void setSource(const QUrl &url);
     void setSourceInNewTab(const QUrl &url);
     HelpViewer *newEmptyTab();

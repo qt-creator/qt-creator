@@ -84,8 +84,6 @@ private slots:
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();
     void enabledGroupBoxClicked(bool);
-    void workingDirBrowseButtonClicked();
-    void commandBrowseButtonClicked();
 private:
     QString m_buildConfiguration;
     ProcessStep *m_step;

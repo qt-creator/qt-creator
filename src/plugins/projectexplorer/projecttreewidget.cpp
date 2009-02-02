@@ -75,6 +75,7 @@ public:
         setUniformRowHeights(true);
         setTextElideMode(Qt::ElideNone);
 //        setExpandsOnDoubleClick(false);
+        setAttribute(Qt::WA_MacShowFocusRect, false);
     }
 
 protected:

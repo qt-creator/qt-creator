@@ -348,6 +348,10 @@ public:
 
     QPointer<QObject> m_extraData;
     int m_cursorWidth;
+
+    void recordJump();
+    QList<int> m_jumpListUndo;
+    QList<int> m_jumpListRedo;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
@@ -483,16 +487,18 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
+        if (m_moveType == MoveInclusive)
+            moveRight(); // correction
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
         QString text = recordRemoveSelectedText();
-        qDebug() << "CHANGING TO INSERT MODE" << text;
+        //qDebug() << "CHANGING TO INSERT MODE" << text;
         m_registers[m_register] = text;
         m_mode = InsertMode;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         if (m_moveType == MoveInclusive)
-            moveRight(); // correct 
+            moveRight(); // correction
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -669,16 +675,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToStartOfLine();
         setAnchor();
         moveDown(count());
-        moveLeft();
-        m_registers[m_register] = recordRemoveSelectedText();
-        m_submode = NoSubMode;
-        m_mode = InsertMode;
+        m_moveType = MoveLineWise;
         finishMovement("c");
     } else if (m_submode == DeleteSubMode && key == 'd') {
         moveToStartOfLine();
         setAnchor();
         moveDown(count());
-        m_registers[m_register] = recordRemoveSelectedText();
+        m_moveType = MoveLineWise;
         finishMovement("d");
     } else if (m_submode == YankSubMode && key == 'y') {
         moveToStartOfLine();
@@ -798,6 +801,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_lastSearchForward = (key == '*');
         updateMiniBuffer();
         search(needle, m_lastSearchForward);
+        recordJump();
     } else if (key == '\'') {
         m_subsubmode = TickSubSubMode;
     } else if (key == '|') {
@@ -947,6 +951,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToStartOfLine();
         else
             moveToFirstNonBlankOnLine();
+    } else if (key == control('i')) {
+        if (!m_jumpListRedo.isEmpty()) {
+            m_jumpListUndo.append(position());
+            m_tc.setPosition(m_jumpListRedo.takeLast());
+        }
     } else if (key == 'j' || key == Key_Down) {
         int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode
@@ -986,6 +995,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
         m_desiredColumn = savedColumn;
     } else if (key == 'l' || key == Key_Right) {
+        m_moveType = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
         finishMovement();
     } else if (key == 'L') {
@@ -1001,8 +1011,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'n') {
         search(lastSearchString(), m_lastSearchForward);
+        recordJump();
     } else if (key == 'N') {
         search(lastSearchString(), !m_lastSearchForward);
+        recordJump();
     } else if (key == 'o' || key == 'O') {
         recordBeginGroup();
         recordMove();
@@ -1018,6 +1030,11 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             recordInsertText(QString(indentDist(), ' '));
         else
             recordInsertText(QString(numSpaces, ' '));
+    } else if (key == control('o')) {
+        if (!m_jumpListUndo.isEmpty()) {
+            m_jumpListRedo.append(position());
+            m_tc.setPosition(m_jumpListUndo.takeLast());
+        }
     } else if (key == 'p' || key == 'P') {
         recordBeginGroup();
         QString text = m_registers[m_register];
@@ -1089,16 +1106,25 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'w') {
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
         // cursor is on a non-blank.
-        if (m_submode == ChangeSubMode)
+        if (m_submode == ChangeSubMode) {
             moveToWordBoundary(false, true);
-        else
+            m_moveType = MoveInclusive;
+        } else {
             moveToNextWord(false);
-        m_moveType = MoveExclusive;
+            m_moveType = MoveExclusive;
+        }
         finishMovement("w");
     } else if (key == 'W') {
-        moveToNextWord(true);
+        if (m_submode == ChangeSubMode) {
+            moveToWordBoundary(true, true);
+            m_moveType = MoveInclusive;
+        } else {
+            moveToNextWord(true);
+            m_moveType = MoveExclusive;
+        }
         finishMovement("W");
     } else if (key == 'x') { // = "dl"
+        m_moveType = MoveExclusive;
         if (atEndOfLine())
             moveLeft();
         recordBeginGroup();
@@ -1289,6 +1315,7 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
             m_searchHistory.append(m_commandBuffer);
             m_lastSearchForward = (m_mode == SearchForwardMode);
             search(lastSearchString(), m_lastSearchForward);
+            recordJump();
         }
         enterCommandMode();
         updateMiniBuffer();
@@ -2096,6 +2123,13 @@ void FakeVimHandler::Private::quit()
     q->quitRequested();
 }
 
+
+void FakeVimHandler::Private::recordJump()
+{
+    m_jumpListUndo.append(position());
+    m_jumpListRedo.clear();
+    //qDebug() << m_jumpListUndo;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //

@@ -1249,6 +1249,8 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
         if ((previousLocation->editor && editor == previousLocation->editor)
                 || (!fileName.isEmpty() && previousLocation->fileName == fileName)) {
             firstIndexToRemove = m_d->currentNavigationHistoryPosition;
+        } else {
+            firstIndexToRemove = m_d->currentNavigationHistoryPosition+1;
         }
     } else {
         firstIndexToRemove = m_d->currentNavigationHistoryPosition+1;

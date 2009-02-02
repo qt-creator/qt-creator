@@ -39,7 +39,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-namespace SharedTools {
+using namespace SharedTools;
 
 QrcEditor::QrcEditor(QWidget *parent)
   : QWidget(parent),
@@ -96,8 +96,6 @@ QrcEditor::QrcEditor(QWidget *parent)
 
     connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateHistoryControls()));
     connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateHistoryControls()));
-    connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateCurrent()));
-    connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateCurrent()));
     updateHistoryControls();
     updateCurrent();
 }
@@ -151,28 +149,21 @@ void QrcEditor::updateCurrent()
     const bool isValid = m_treeview->currentIndex().isValid();
     const bool isPrefix = m_treeview->isPrefix(m_treeview->currentIndex()) && isValid;
     const bool isFile = !isPrefix && isValid;
-    int cursorPosition;
 
     m_ui.aliasLabel->setEnabled(isFile);
     m_ui.aliasText->setEnabled(isFile);
     m_currentAlias = m_treeview->currentAlias();
-    cursorPosition = m_ui.aliasText->cursorPosition();
     m_ui.aliasText->setText(m_currentAlias);
-    m_ui.aliasText->setCursorPosition(cursorPosition);
 
     m_ui.prefixLabel->setEnabled(isPrefix);
     m_ui.prefixText->setEnabled(isPrefix);
     m_currentPrefix = m_treeview->currentPrefix();
-    cursorPosition = m_ui.prefixText->cursorPosition();
     m_ui.prefixText->setText(m_currentPrefix);
-    m_ui.prefixText->setCursorPosition(cursorPosition);
 
     m_ui.languageLabel->setEnabled(isPrefix);
     m_ui.languageText->setEnabled(isPrefix);
     m_currentLanguage = m_treeview->currentLanguage();
-    cursorPosition = m_ui.languageText->cursorPosition();
     m_ui.languageText->setText(m_currentLanguage);
-    m_ui.languageText->setCursorPosition(cursorPosition);
 
     m_ui.addButton->setEnabled(true);
     m_addFileAction->setEnabled(isValid);
@@ -225,7 +216,6 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             QMessageBox message(this);
             message.setWindowTitle(tr("Invalid file"));
             message.setIcon(QMessageBox::Warning);
-            QPushButton * const continueButton = message.addButton(tr("Add anyway"), QMessageBox::AcceptRole);
             QPushButton * const copyButton = message.addButton(tr("Copy"), QMessageBox::ActionRole);
             QPushButton * const skipButton = message.addButton(tr("Don't add"), QMessageBox::DestructiveRole);
             QPushButton * const abortButton = message.addButton(tr("Abort"), QMessageBox::RejectRole);
@@ -234,9 +224,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             message.setText(tr("The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.")
                             .arg(QDir::toNativeSeparators(file)));
             message.exec();
-            if (message.clickedButton() == continueButton) {
-                continue;
-            } else if (message.clickedButton() == skipButton) {
+            if (message.clickedButton() == skipButton) {
                 files.removeAt(i);
                 count--;
                 i--; // Compensate i++
@@ -246,6 +234,11 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
                 const QString copyName = QFileDialog::getSaveFileName(this, tr("Choose copy location"),
                                                                 suggestion.absoluteFilePath());
                 if (!copyName.isEmpty()) {
+                    QString relPath = dir.relativeFilePath(copyName);
+                    if (relPath.startsWith(dotdotSlash)) {   // directory is still invalid
+                        i--; // Compensate i++ and try again
+                        continue;
+                    }
                     if (QFile::exists(copyName)) {
                         if (!QFile::remove(copyName)) {
                             QMessageBox::critical(this, tr("Overwrite failed"),
@@ -405,5 +398,3 @@ void QrcEditor::onRedo()
     updateCurrent();
     updateHistoryControls();
 }
-
-} // namespace SharedTools

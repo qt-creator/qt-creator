@@ -282,7 +282,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
     m_ui.checkBoxFastStart->setChecked(m_settings.m_useFastStart);
     m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
-    m_ui.checkBoxUseTerminal->setChecked(m_settings.m_useTerminal);
 
 #ifndef QT_DEBUG
 #if 0
@@ -325,7 +324,6 @@ void GdbOptionPage::apply()
     m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
     m_settings.m_useFastStart = m_ui.checkBoxFastStart->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
-    m_settings.m_useTerminal = m_ui.checkBoxUseTerminal->isChecked();
 
     *m_plugin->m_manager->settings() = m_settings;
     m_plugin->writeSettings();
@@ -892,7 +890,6 @@ void DebuggerPlugin::writeSettings() const
 
     s->setValue("UseFastStart", m->m_useFastStart);
     s->setValue("UseToolTips", m->m_useToolTips);
-    s->setValue("UseTerminal", m->m_useTerminal);
     s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
     s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
     s->setValue("DebugDumpers", m->m_debugDumpers);
@@ -926,7 +923,6 @@ void DebuggerPlugin::readSettings()
     m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
     m->m_useFastStart     = s->value("UseFastStart", false).toBool();
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
-    m->m_useTerminal      = s->value("UseTerminal", false).toBool();
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

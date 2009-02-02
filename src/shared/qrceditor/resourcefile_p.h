@@ -40,6 +40,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtGui/QIcon>
 
 #include "shared_global_p.h"
 
@@ -69,8 +70,8 @@ protected:
         Q_ASSERT(m_prefix);
     }
 public:
-    File *file() { return m_file; }
-    Prefix *prefix() { return m_prefix; }
+    File *file() const { return m_file; }
+    Prefix *prefix() const { return m_prefix; }
 private:
     File *m_file;
     Prefix *m_prefix;
@@ -89,8 +90,14 @@ struct File : public Node {
     bool operator != (const File &other) const { return name != other.name; }
     QString name;
     QString alias;
+    QIcon icon;
 };
-typedef QList<File *> FileList;
+
+class FileList : public QList<File *>
+{
+public:
+    bool containsFile(File *file);
+};
 
 /*!
     \class Prefix

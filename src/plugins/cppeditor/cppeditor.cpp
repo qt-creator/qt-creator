@@ -45,6 +45,7 @@
 #include <CoreTypes.h>
 #include <Literals.h>
 #include <Semantic.h>
+#include <SymbolVisitor.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
@@ -97,6 +98,44 @@ public:
     {
         expandAll();
         setMinimumWidth(qMax(sizeHintForColumn(0), minimumSizeHint().width()));
+    }
+};
+
+class FindFunctionDefinitions: protected SymbolVisitor
+{
+    Name *_declarationName;
+    QList<Function *> *_functions;
+
+public:
+    FindFunctionDefinitions()
+        : _declarationName(0),
+          _functions(0)
+    { }
+
+    void operator()(Name *declarationName, Scope *globals,
+                    QList<Function *> *functions)
+    {
+        _declarationName = declarationName;
+        _functions = functions;
+
+        for (unsigned i = 0; i < globals->symbolCount(); ++i) {
+            accept(globals->symbolAt(i));
+        }
+    }
+
+protected:
+    using SymbolVisitor::visit;
+
+    virtual bool visit(Function *function)
+    {
+        Name *name = function->name();
+        if (QualifiedNameId *q = name->asQualifiedNameId())
+            name = q->unqualifiedNameId();
+
+        if (_declarationName->isEqualTo(name))
+            _functions->append(function);
+
+        return false;
     }
 };
 
@@ -550,58 +589,60 @@ void CPPEditor::jumpToDefinition()
     }
 }
 
-Symbol *CPPEditor::findDefinition(Symbol *lastSymbol)
+Symbol *CPPEditor::findDefinition(Symbol *symbol)
 {
-    // Currently only functions are supported
-    if (!lastSymbol->type()->isFunction())
-        return 0;
+    if (symbol->isFunction())
+        return 0; // symbol is a function definition.
 
-    QVector<Name *> qualifiedName;
-    Scope *scope = lastSymbol->scope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->isClassScope() || scope->isNamespaceScope()) {
-            if (scope->owner() && scope->owner()->name()) {
-                Name *scopeOwnerName = scope->owner()->name();
-                if (QualifiedNameId *q = scopeOwnerName->asQualifiedNameId()) {
-                    for (unsigned i = 0; i < q->nameCount(); ++i) {
-                        qualifiedName.prepend(q->nameAt(i));
-                    }
-                } else {
-                    qualifiedName.prepend(scopeOwnerName);
-                }
-            }
+    Function *funTy = symbol->type()->asFunction();
+    if (! funTy)
+        return 0; // symbol does not have function type.
+
+    Name *name = symbol->name();
+    if (! name)
+        return 0; // skip anonymous functions!
+
+    if (QualifiedNameId *q = name->asQualifiedNameId())
+        name = q->unqualifiedNameId();
+
+    // map from file names to function definitions.
+    QMap<QString, QList<Function *> > functionDefinitions;
+
+    // find function definitions.
+    FindFunctionDefinitions findFunctionDefinitions;
+
+    // save the current snapshot
+    const Snapshot snapshot = m_modelManager->snapshot();
+
+    foreach (Document::Ptr doc, snapshot) {
+        if (Scope *globals = doc->globalSymbols()) {
+            QList<Function *> *localFunctionDefinitions =
+                    &functionDefinitions[doc->fileName()];
+
+            findFunctionDefinitions(name, globals,
+                                    localFunctionDefinitions);
         }
     }
 
-    qualifiedName.append(lastSymbol->name());
+    // a dummy document.
+    Document::Ptr expressionDocument = Document::create("<empty>");
 
-    Control control;
-    QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
-    LookupContext context(&control);
+    QMapIterator<QString, QList<Function *> > it(functionDefinitions);
+    while (it.hasNext()) {
+        it.next();
 
-    const Snapshot documents = m_modelManager->snapshot();
-    foreach (Document::Ptr doc, documents) {
-        QList<Scope *> visibleScopes;
-        visibleScopes.append(doc->globalSymbols());
-        visibleScopes = context.expand(visibleScopes);
-        //qDebug() << "** doc:" << doc->fileName() << "visible scopes:" << visibleScopes.count();
-        foreach (Scope *visibleScope, visibleScopes) {
-            Symbol *symbol = 0;
-            if (NameId *nameId = q->unqualifiedNameId()->asNameId())
-                symbol = visibleScope->lookat(nameId->identifier());
-            else if (DestructorNameId *dtorId = q->unqualifiedNameId()->asDestructorNameId())
-                symbol = visibleScope->lookat(dtorId->identifier());
-            else if (TemplateNameId *templNameId = q->unqualifiedNameId()->asTemplateNameId())
-                symbol = visibleScope->lookat(templNameId->identifier());
-            else if (OperatorNameId *opId = q->unqualifiedNameId()->asOperatorNameId())
-                symbol = visibleScope->lookat(opId->kind());
-            // ### cast operators
-            for (; symbol; symbol = symbol->next()) {
-                if (! symbol->isFunction())
-                    continue;
-                else if (! isCompatible(symbol->asFunction(), lastSymbol, q))
-                    continue;
-                return symbol;
+        // get the instance of the document.
+        Document::Ptr thisDocument = snapshot.value(it.key());
+
+        foreach (Function *f, it.value()) {
+            // create a lookup context
+            const LookupContext context(f, expressionDocument,
+                                        thisDocument, snapshot);
+
+            // search the matching definition for the function declaration `symbol'.
+            foreach (Symbol *s, context.resolve(f->name())) {
+                if (s == symbol)
+                    return f;
             }
         }
     }
