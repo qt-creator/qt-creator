@@ -35,7 +35,14 @@
 #include <cstring>
 #include <locale>
 
+#include <qglobal.h>
+ 
 #include "binpatch.h"
+ 
+#ifdef Q_OS_WIN
+#	define strcasecmp _stricmp
+#	define strncasecmp _strnicmp
+#endif
 
 // returns positive value if it finds a null termination inside the buffer
 long BinPatch::getBufferStringLength(char *data, char *end)
