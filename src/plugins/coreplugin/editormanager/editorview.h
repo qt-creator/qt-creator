@@ -73,12 +73,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
-    void addEditor(IEditor *editor);
+    void addEditor(IEditor *editor, bool isDuplicate = false);
 
     void removeEditor(IEditor *editor);
     void emitDataChanged(IEditor *editor);
 
     QList<IEditor *> editors() const { return m_editors; }
+    bool isDuplicate(IEditor *editor) const;
+    QList<IEditor *> duplicatesFor(IEditor *editor) const;
+    IEditor *originalForDuplicate(IEditor *duplicate) const;
     QModelIndex indexOf(IEditor *editor) const;
     QModelIndex indexOf(const QString &filename) const;
 
@@ -86,6 +89,7 @@ private slots:
     void itemChanged();
 private:
     QList<IEditor *> m_editors;
+    QList<IEditor *>m_duplicateEditors;
 };
 
 
@@ -114,8 +118,10 @@ public:
     void hideEditorInfoBar(const QString &kind);
 
 
+public slots:
+    void closeView();
+
 private slots:
-    void sendCloseRequest();
     void updateEditorStatus(Core::IEditor *editor = 0);
     void checkEditorStatus();
     void makeEditorWritable();
@@ -152,6 +158,8 @@ public:
     void unsplit(Core::IEditor *editor);
 
     bool isView() const { return m_view != 0; }
+    bool isRoot() const { return m_isRoot; }
+    
     bool isSplitter() const { return m_splitter != 0; }
     Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
     QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
@@ -162,6 +170,7 @@ public:
     SplitterOrView *findView(Core::IEditor *editor);
     SplitterOrView *findFirstView();
     SplitterOrView *findSplitter(Core::IEditor *editor);
+    SplitterOrView *findSplitter(SplitterOrView *child);
 
     SplitterOrView *findNextView(Core::IEditor *editor);
 

@@ -450,8 +450,11 @@ void EditorManager::updateEditorHistory()
 
 void EditorManager::removeEditor(IEditor *editor)
 {
+    bool isDuplicate = m_d->m_editorModel->isDuplicate(editor);
     m_d->m_editorModel->removeEditor(editor);
-    m_d->m_core->fileManager()->removeFile(editor->file());
+    if (!isDuplicate) {
+        m_d->m_core->fileManager()->removeFile(editor->file());
+    }
     m_d->m_editorHistory.removeAll(editor);
     m_d->m_core->removeContextObject(editor);
 
@@ -510,31 +513,35 @@ IEditor *EditorManager::currentEditor() const
 // we simply postpone it with a single shot timer
 void EditorManager::closeEditor()
 {
-    static bool postpone = true;
-    if (postpone) {
-        QTimer::singleShot(0, this, SLOT(closeEditor()));
-        postpone = false;
-    } else {
-        closeEditor(m_d->m_splitter->findView(m_d->m_currentEditor)->view(), m_d->m_currentEditor);
-        postpone = true;
-    }
-
+    closeEditor(m_d->m_currentEditor);
 }
 
-void EditorManager::closeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
+void EditorManager::closeView(Core::Internal::EditorView *view)
 {
-    if (!editor || !view)
+    if (!view)
         return;
 
-    Q_ASSERT(view->hasEditor(editor));
     if (view == m_d->m_view) {
-        closeEditors(QList<IEditor *>() << editor);
+        closeEditors(QList<IEditor *>() << view->currentEditor());
     } else {
-        view->removeEditor(editor);
-        closeDuplicate(editor, true);
+        QList<IEditor *> editors = view->editors();
+        foreach (IEditor *editor, editors) {
+            emit editorAboutToClose(editor);
+            removeEditor(editor);
+            view->removeEditor(editor);
+        }
+        emit editorsClosed(editors);
+        foreach (IEditor *editor, editors) {
+            delete editor;
+        }
     }
+}
 
-
+void EditorManager::closeEditor(Core::IEditor *editor)
+{
+    if (!editor)
+        return;
+    closeEditors(QList<IEditor *>() << editor);
 }
 
 QList<IEditor*>
@@ -582,6 +589,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         pluginManager()->getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
         bool editorAccepted = true;
+        if (m_d->m_editorModel->isDuplicate(editor))
+            editor = m_d->m_editorModel->originalForDuplicate(editor);
         foreach (ICoreListener *listener, listeners) {
             if (!listener->editorAboutToClose(editor)) {
                 editorAccepted = false;
@@ -609,6 +618,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     }
     if (acceptedEditors.isEmpty())
         return false;
+
+    // add duplicates
+    foreach(IEditor *editor, acceptedEditors)
+        acceptedEditors += m_d->m_editorModel->duplicatesFor(editor);
+
     bool currentEditorRemoved = false;
     IEditor *current = currentEditor();
     if (current)
@@ -627,8 +641,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
             if (!state.isEmpty())
                 m_d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
         }
+
         removeEditor(editor);
-        m_d->m_view->removeEditor(editor);
+        if (SplitterOrView *view = m_d->m_splitter->findView(editor))
+            view->view()->removeEditor(editor);
     }
     emit editorsClosed(acceptedEditors);
     foreach (IEditor *editor, acceptedEditors) {
@@ -640,18 +656,13 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
     return !closingFailed;
 }
 
-void EditorManager::closeDuplicate(Core::IEditor *editor, bool doDelete)
-{
-    m_d->m_editorHistory.removeAll(editor);
-    emit editorAboutToClose(editor);
-    emit editorsClosed(QList<Core::IEditor *>() << editor);
-    if (doDelete)
-        delete editor;
-}
 
 void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
-    activateEditor(m_d->m_splitter->findView(m_d->m_currentEditor)->view(), editor, flags);
+    SplitterOrView *splitterOrView = m_d->m_currentEditor ?
+                                     m_d->m_splitter->findView(m_d->m_currentEditor)
+                                     : m_d->m_splitter->findFirstView();
+    activateEditor(splitterOrView->view(), editor, flags);
 }
 
 
@@ -662,10 +673,24 @@ void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEdit
 
     Q_ASSERT(view && editor);
 
+    qDebug() << "activateEditor" << editor->file()->fileName() << view;
     if (!view->hasEditor(editor)) {
-        if (SplitterOrView *sourceView = m_d->m_splitter->findView(editor))
-            sourceView->view()->removeEditor(editor);
+        qDebug() << "not in requested view";
+        bool duplicateSupported = editor->duplicateSupported();
+        qDebug() << "duplicateSupported" << duplicateSupported;
+        if (SplitterOrView *sourceView = m_d->m_splitter->findView(editor)) {
+            qDebug() << "found editor in another view";
+            if (editor != sourceView->editor() || !duplicateSupported) {
+                qDebug() << "steal editor";
+                sourceView->view()->removeEditor(editor);
+            } else if (duplicateSupported) {
+                qDebug() << "do duplicate";
+                editor = duplicateEditor(editor);
+                Q_ASSERT(editor);
+            }
+        }
         view->addEditor(editor);
+        view->setCurrentEditor(editor);
     }
 
     setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
@@ -788,8 +813,8 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
         return;
     m_d->m_core->addContextObject(editor);
 
+    m_d->m_editorModel->addEditor(editor, isDuplicate);
     if (!isDuplicate) {
-        m_d->m_editorModel->addEditor(editor);
         m_d->m_core->fileManager()->addFile(editor->file());
         m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
     }
@@ -1579,20 +1604,16 @@ void EditorManager::unsplitAll()
 
 void EditorManager::gotoOtherWindow()
 {
-    qDebug() << "gotoOtherWindow";
     if (!m_d->m_currentEditor)
         return;
-    qDebug() << "current editor" << m_d->m_currentEditor->file()->fileName();
     if (m_d->m_splitter->isSplitter()) {
-        qDebug() << "we have a splitter";
         SplitterOrView *view = m_d->m_splitter->findNextView(m_d->m_currentEditor);
-        qDebug() << "next view is" << view;
         if (!view)
             view = m_d->m_splitter->findFirstView();
         if (view) {
             if (IEditor *editor = view->editor()) {
-                qDebug() << "set new current editor to" << editor->file()->fileName();
-                view->view()->setCurrentEditor(editor);
+                setCurrentEditor(editor);
+                editor->widget()->setFocus();
             }
         }
     }

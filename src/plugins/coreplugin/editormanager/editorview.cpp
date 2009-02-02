@@ -77,8 +77,13 @@ int EditorModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-void EditorModel::addEditor(IEditor *editor)
+void EditorModel::addEditor(IEditor *editor, bool isDuplicate)
 {
+    if (isDuplicate) {
+        m_duplicateEditors.append(editor);
+        return;
+    }
+
     int index = 0;
 
     QString fileName = editor->file()->fileName();
@@ -94,6 +99,7 @@ void EditorModel::addEditor(IEditor *editor)
 
 void EditorModel::removeEditor(IEditor *editor)
 {
+    m_duplicateEditors.removeAll(editor);
     int idx = m_editors.indexOf(editor);
     if (idx < 0)
         return;
@@ -103,6 +109,29 @@ void EditorModel::removeEditor(IEditor *editor)
     disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
+bool EditorModel::isDuplicate(IEditor *editor) const
+{
+    return m_duplicateEditors.contains(editor);
+}
+
+IEditor *EditorModel::originalForDuplicate(IEditor *duplicate) const
+{
+    IFile *file = duplicate->file();
+    foreach(IEditor *e, m_editors)
+        if (e->file() == file)
+            return e;
+    return 0;
+}
+
+QList<IEditor *> EditorModel::duplicatesFor(IEditor *editor) const
+{
+    QList<IEditor *> result;
+    IFile *file = editor->file();
+    foreach(IEditor *e, m_duplicateEditors)
+        if (e->file() == file)
+            result += e;
+    return result;
+}
 
 void EditorModel::emitDataChanged(IEditor *editor)
 {
@@ -236,7 +265,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
 
         connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
         connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-        connect(m_closeButton, SIGNAL(clicked()), this, SLOT(sendCloseRequest()));
+        connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()));
     }
     {
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -326,10 +355,12 @@ bool EditorView::hasEditor(IEditor *editor) const
     return (m_container->indexOf(editor->widget()) != -1);
 }
 
-void EditorView::sendCloseRequest()
+void EditorView::closeView()
 {
+    if (editorCount() == 0)
+        return;
     EditorManager *em = CoreImpl::instance()->editorManager();
-    em->closeEditor(this, currentEditor());
+    em->closeView(this);
 }
 
 void EditorView::removeEditor(IEditor *editor)
@@ -367,7 +398,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
         || m_container->indexOf(editor->widget()) == -1)
         return;
     if (editor)
-        qDebug() << "EditorView::setCurrentEditor" << editor->file()->fileName();
+        qDebug() << "EditorView::setCurrentEditor" << editor << editor->file()->fileName();
 
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
@@ -513,6 +544,21 @@ SplitterOrView *SplitterOrView::findSplitter(Core::IEditor *editor)
     return 0;
 }
 
+SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
+{
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
+                if (splitterOrView == child)
+                    return this;
+                if (SplitterOrView *result = splitterOrView->findSplitter(child))
+                    return result;
+            }
+        }
+    }
+    return 0;
+}
+
 SplitterOrView *SplitterOrView::findNextView(Core::IEditor *editor)
 {
     bool found = false;
@@ -569,10 +615,12 @@ void SplitterOrView::split(Qt::Orientation orientation)
 
 void SplitterOrView::close()
 {
-    qDebug() << "SplitterOrView::close TODO";
-    return;
-    foreach(Core::IEditor *e, editors())
-        CoreImpl::instance()->editorManager()->closeDuplicate(e, false);
+    Q_ASSERT(!m_isRoot);
+    if (m_view) {
+        m_view->closeView();
+        delete m_view;
+        m_view = 0;
+    }
     closeSplitterEditors();
 }
 
@@ -587,22 +635,42 @@ void SplitterOrView::closeSplitterEditors()
     }
 }
 
-void SplitterOrView::unsplit(Core::IEditor */*editor*/)
+void SplitterOrView::unsplit(Core::IEditor *editor)
 {
-    qDebug() << "SplitterOrView::unsplit TODO";
-    return;
-    /*
     if (!m_splitter)
         return;
-    Q_ASSERT(m_isRoot || (m_view == 0 && editor));
-    if (!m_isRoot) {
-        m_view = new EditorView(CoreImpl::instance()->editorManager()->openedEditorsModel());
-        m_view->addEditor(editor);
-        m_layout->addWidget(m_view);
-        m_view->setCurrentEditor(editor);
+
+    qDebug() << "unsplit" << this << m_splitter;
+#if 0
+    SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
+    Q_ASSERT(splitterOrView != 0);
+
+    qDebug() << "splitter or view is" << splitterOrView;
+
+    if (editor) { // pick the other side
+        if (SplitterOrView *view = findView(editor)) {
+            qDebug() << "view to close is" << view;
+            view->close();
+            delete view;
+        }
+        splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
+        qDebug() << "other splitter or view is" << splitterOrView;
     }
-    closeSplitterEditors();
-    delete m_splitter;
-    m_splitter = 0;
-    */
+
+    QSplitter *old_splitter = m_splitter;
+    EditorView *old_view = m_view;
+
+    m_splitter = splitterOrView->splitter();
+    m_view = splitterOrView->view();
+
+    qDebug() << "new splitter/view" << m_splitter << m_view;
+
+    if (m_splitter)
+        m_layout->addWidget(m_splitter);
+    if (m_view)
+        m_layout->addWidget(m_view);
+
+//    delete old_view;
+//    delete old_splitter;
+#endif
 }

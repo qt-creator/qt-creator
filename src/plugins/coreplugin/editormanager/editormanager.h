@@ -222,10 +222,10 @@ private:
     void restoreEditorState(IEditor *editor);
 
     Core::IEditor *duplicateEditor(IEditor *editor);
-    void closeDuplicate(Core::IEditor *editor, bool doDelete);
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
-    void closeEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
+    void closeEditor(Core::IEditor *editor);
+    void closeView(Core::Internal::EditorView *view);
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;
