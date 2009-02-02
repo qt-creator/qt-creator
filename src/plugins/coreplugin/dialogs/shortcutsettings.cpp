@@ -116,8 +116,6 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 
     commandChanged(0);
 
-    delete m_page;
-
     return w;
 }
 
@@ -131,6 +129,8 @@ void ShortcutSettings::finish()
 {
     qDeleteAll(m_scitems);
     m_scitems.clear();
+
+    delete m_page;
 }
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
