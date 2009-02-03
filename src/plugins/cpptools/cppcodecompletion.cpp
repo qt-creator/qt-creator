@@ -598,7 +598,9 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
-        if (NamedType *namedTy = ty->asNamedType()) {
+        if (Class *classTy = ty->asClass()) {
+            classObjectCandidates.append(classTy);
+        } else if (NamedType *namedTy = ty->asNamedType()) {
             // ### This code is pretty slow.
             const QList<Symbol *> candidates = context.resolve(namedTy->name());
             foreach (Symbol *candidate, candidates) {
@@ -697,6 +699,8 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                 ++m_startPosition;
                 namedTy = ptrTy->elementType()->asNamedType();
             }
+        } else if (Class *classTy = ty->asClass()) {
+            classObjectCandidates.append(classTy);
         } else {
             namedTy = ty->asNamedType();
             if (! namedTy) {
