@@ -2580,7 +2580,7 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
 {
     switch (LA()) {
     case T_AT_ENCODE:
-        break;
+        return parseObjCEncodeExpression(node);
 
     case T_AT_PROTOCOL:
         break;
@@ -2598,6 +2598,16 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
         break;
     } // switch
     return false;
+}
+
+bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_ENCODE)
+        return false;
+
+    /*unsigned encode_token = */ consumeToken();
+    parseObjCTypeName();
+    return true;
 }
 
 bool Parser::parseNameId(NameAST *&name)

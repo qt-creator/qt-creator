@@ -218,6 +218,8 @@ public:
     bool parseObjCProtocol(DeclarationAST *&node,
                            SpecifierAST *attributes = 0);
 
+    bool parseObjCEncodeExpression(ExpressionAST *&node);
+
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();
     bool parseObjCInterfaceMemberDeclaration();
