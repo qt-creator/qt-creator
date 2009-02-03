@@ -265,7 +265,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
 
         connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
         connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-        connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()));
+        connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
     }
     {
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -343,11 +343,8 @@ void EditorView::addEditor(IEditor *editor)
     }
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
-    if (m_container->count() == 1) {
-        m_editorList->setCurrentIndex(qobject_cast<EditorModel*>(m_editorList->model())->indexOf(editor->file()->fileName()).row());
-        updateEditorStatus(editor);
-        updateToolBar(editor);
-    }
+    if (editor == currentEditor())
+        setCurrentEditor(editor);
 }
 
 bool EditorView::hasEditor(IEditor *editor) const
@@ -367,6 +364,7 @@ void EditorView::removeEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
     const int index = m_container->indexOf(editor->widget());
+    bool wasCurrent = (index == m_container->currentIndex());
     if (index != -1) {
         m_container->removeWidget(editor->widget());
         m_widgetEditorMap.remove(editor->widget());
@@ -383,6 +381,8 @@ void EditorView::removeEditor(IEditor *editor)
             toolBar->setParent(0);
         }
     }
+    if (wasCurrent)
+        setCurrentEditor(currentEditor());
 }
 
 IEditor *EditorView::currentEditor() const
@@ -480,18 +480,18 @@ void EditorView::listSelectionActivated(int index)
 }
 
 
-SplitterOrView::SplitterOrView(EditorView *view, QWidget *parent)
-        : QWidget(parent)
+
+SplitterOrView::SplitterOrView(Internal::EditorModel *model)
 {
-    m_isRoot = true;
+    m_isRoot = false;
     m_layout = new QStackedLayout(this);
-    m_view = view;
+    m_view = new EditorView(model ? model : CoreImpl::instance()->editorManager()->openedEditorsModel());
     m_splitter = 0;
     m_layout->addWidget(m_view);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
-SplitterOrView::SplitterOrView(Core::IEditor *editor, QWidget *parent)
-        : QWidget(parent)
+SplitterOrView::SplitterOrView(Core::IEditor *editor)
 {
     m_isRoot = false;
     m_layout = new QStackedLayout(this);
@@ -499,8 +499,53 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor, QWidget *parent)
     m_view->addEditor(editor);
     m_splitter = 0;
     m_layout->addWidget(m_view);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
+void SplitterOrView::focusInEvent(QFocusEvent *)
+{
+    CoreImpl::instance()->editorManager()->setCurrentView(this);
+}
+
+void SplitterOrView::paintEvent(QPaintEvent *)
+{
+    if  (CoreImpl::instance()->editorManager()->currentView() != this)
+        return;
+    QPainter painter(this);
+
+    // Discreet indication where an editor would be
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::NoPen);
+    QColor shadeBrush(Qt::black);
+    shadeBrush.setAlpha(10);
+    painter.setBrush(shadeBrush);
+    const int r = 3;
+    painter.drawRoundedRect(rect().adjusted(r, r, -r, -r), r * 2, r * 2);
+
+    if (hasFocus()) {
+#ifdef Q_WS_MAC
+        // With QMacStyle, we have to draw our own focus rect, since I didn't find
+        // a way to draw the nice mac focus rect _inside_ this widget
+        if (qobject_cast<QMacStyle *>(style())) {
+            painter.setPen(Qt::DotLine);
+            painter.setBrush(Qt::NoBrush);
+            painter.setOpacity(0.75);
+            painter.drawRect(rect());
+        } else {
+#endif
+            QStyleOptionFocusRect option;
+            option.initFrom(this);
+            option.backgroundColor = palette().color(QPalette::Background);
+
+            // Some styles require a certain state flag in order to draw the focus rect
+            option.state |= QStyle::State_KeyboardFocusChange;
+
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter);
+#ifdef Q_WS_MAC
+        }
+#endif
+    }
+}
 
 SplitterOrView *SplitterOrView::findFirstView()
 {
@@ -515,6 +560,21 @@ SplitterOrView *SplitterOrView::findFirstView()
     return this;
 }
 
+SplitterOrView *SplitterOrView::findEmptyView()
+{
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+                if (SplitterOrView *result = splitterOrView->findEmptyView())
+                    return result;
+        }
+        return 0;
+    }
+    if (!hasEditors())
+        return this;
+    return 0;
+}
+
 SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
 {
     if (!editor || hasEditor(editor))
@@ -523,6 +583,20 @@ SplitterOrView *SplitterOrView::findView(Core::IEditor *editor)
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (SplitterOrView *result = splitterOrView->findView(editor))
+                    return result;
+        }
+    }
+    return 0;
+}
+
+SplitterOrView *SplitterOrView::findView(EditorView *view)
+{
+    if (view == m_view)
+        return this;
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+                if (SplitterOrView *result = splitterOrView->findView(view))
                     return result;
         }
     }
@@ -559,19 +633,19 @@ SplitterOrView *SplitterOrView::findSplitter(SplitterOrView *child)
     return 0;
 }
 
-SplitterOrView *SplitterOrView::findNextView(Core::IEditor *editor)
+SplitterOrView *SplitterOrView::findNextView(SplitterOrView *view)
 {
     bool found = false;
-    return findNextView_helper(editor, &found);
+    return findNextView_helper(view, &found);
 }
 
-SplitterOrView *SplitterOrView::findNextView_helper(Core::IEditor *editor, bool *found)
+SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *found)
 {
     if (*found && m_view) {
         return this;
     }
 
-    if (hasEditor(editor)) {
+    if (this == view) {
         *found = true;
         return 0;
     }
@@ -579,7 +653,7 @@ SplitterOrView *SplitterOrView::findNextView_helper(Core::IEditor *editor, bool 
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
-                if (SplitterOrView *result = splitterOrView->findNextView_helper(editor, found))
+                if (SplitterOrView *result = splitterOrView->findNextView_helper(view, found))
                     return result;
             }
         }
@@ -592,32 +666,46 @@ void SplitterOrView::split(Qt::Orientation orientation)
     Q_ASSERT(m_view && m_splitter == 0);
     m_splitter = new QSplitter(this);
     m_splitter->setOrientation(orientation);
+    m_layout->addWidget(m_splitter);
+    EditorManager *em = CoreImpl::instance()->editorManager();
     Core::IEditor *e = m_view->currentEditor();
 
-    SplitterOrView *focusView = 0;
+    if (e) {
 
-    m_view->removeEditor(e);
-    m_splitter->addWidget((focusView = new SplitterOrView(e)));
-
-    Core::IEditor *duplicate = CoreImpl::instance()->editorManager()->duplicateEditor(e);
-    m_splitter->addWidget(new SplitterOrView(duplicate));
-    m_layout->addWidget(m_splitter);
-
-    if (!m_isRoot) {
-        delete m_view;
+        m_view->removeEditor(e);
+        m_splitter->addWidget(new SplitterOrView(e));
         m_view = 0;
+
+        if (e->duplicateSupported()) {
+            Core::IEditor *duplicate = em->duplicateEditor(e);
+            m_splitter->addWidget(new SplitterOrView(duplicate));
+        } else {
+            m_splitter->addWidget(new SplitterOrView());
+        }
     } else {
-        m_layout->setCurrentWidget(m_splitter);
+        m_splitter->addWidget(new SplitterOrView());
+        m_splitter->addWidget(new SplitterOrView());
     }
 
-    CoreImpl::instance()->editorManager()->activateEditor(e);
+    m_layout->setCurrentWidget(m_splitter);
+
+    if (m_view && !m_isRoot) {
+        em->emptyView(m_view);
+        delete m_view;
+        m_view = 0;
+    }
+
+    if (e)
+        em->activateEditor(e);
+    else
+        em->setCurrentView(findFirstView());
 }
 
 void SplitterOrView::close()
 {
     Q_ASSERT(!m_isRoot);
     if (m_view) {
-        m_view->closeView();
+        CoreImpl::instance()->editorManager()->emptyView(m_view);
         delete m_view;
         m_view = 0;
     }
@@ -635,7 +723,7 @@ void SplitterOrView::closeSplitterEditors()
     }
 }
 
-void SplitterOrView::unsplit(Core::IEditor *editor)
+void SplitterOrView::unsplit()
 {
     if (!m_splitter)
         return;

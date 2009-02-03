@@ -209,7 +209,6 @@ private slots:
     void split();
     void splitSideBySide();
     void unsplit();
-    void unsplitAll();
     void gotoOtherWindow();
 
 private:
@@ -221,11 +220,16 @@ private:
 
     void restoreEditorState(IEditor *editor);
 
+    IEditor *placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor);
     Core::IEditor *duplicateEditor(IEditor *editor);
     void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
+    void setCurrentView(Core::Internal::SplitterOrView *view);
+    Core::Internal::SplitterOrView *currentView() const;
     void activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
     void closeEditor(Core::IEditor *editor);
     void closeView(Core::Internal::EditorView *view);
+    void emptyView(Core::Internal::EditorView *view);
+    IEditor *pickUnusedEditor() const;
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

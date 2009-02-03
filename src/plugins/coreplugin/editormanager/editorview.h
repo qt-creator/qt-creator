@@ -151,33 +151,43 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    SplitterOrView(EditorView *view, QWidget *parent = 0); // creates a root splitter or view
-    SplitterOrView(Core::IEditor *editor, QWidget *parent = 0);
+    SplitterOrView(Internal::EditorModel *model = 0); // creates a splitter with an empty view
+    SplitterOrView(Core::IEditor *editor);
 
     void split(Qt::Orientation orientation);
-    void unsplit(Core::IEditor *editor);
+    void unsplit();
 
-    bool isView() const { return m_view != 0; }
-    bool isRoot() const { return m_isRoot; }
+    inline bool isView() const { return m_view != 0; }
+    inline void setRoot(bool b) { m_isRoot = b; }
+    inline bool isRoot() const { return m_isRoot; }
     
-    bool isSplitter() const { return m_splitter != 0; }
-    Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
-    QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
-    bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
-    EditorView *view() const { return m_view; }
-    QSplitter *splitter() const { return m_splitter; }
+    inline bool isSplitter() const { return m_splitter != 0; }
+    inline Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    inline QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
+    inline bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
+    inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
+    inline EditorView *view() const { return m_view; }
+    inline QSplitter *splitter() const { return m_splitter; }
+
 
     SplitterOrView *findView(Core::IEditor *editor);
+    SplitterOrView *findView(EditorView *view);
     SplitterOrView *findFirstView();
+    SplitterOrView *findEmptyView();
     SplitterOrView *findSplitter(Core::IEditor *editor);
     SplitterOrView *findSplitter(SplitterOrView *child);
 
-    SplitterOrView *findNextView(Core::IEditor *editor);
+    SplitterOrView *findNextView(SplitterOrView *view);
+
+protected:
+    void focusInEvent(QFocusEvent *);
+    void paintEvent(QPaintEvent *);
+
 
 private:
     void close();
     void closeSplitterEditors();
-    SplitterOrView *findNextView_helper(Core::IEditor *editor, bool *found);
+    SplitterOrView *findNextView_helper(SplitterOrView *view, bool *found);
     bool m_isRoot;
     QStackedLayout *m_layout;
     EditorView *m_view;
