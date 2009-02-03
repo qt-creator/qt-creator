@@ -2556,6 +2556,12 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
+    case T_AT_STRING_LITERAL:
+    case T_AT_ENCODE:
+    case T_AT_PROTOCOL:
+    case T_AT_SELECTOR:
+        return parseObjCExpression(node);
+
     default: {
         NameAST *name = 0;
         if (parseNameId(name)) {
@@ -2567,6 +2573,30 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
 
     } // switch
 
+    return false;
+}
+
+bool Parser::parseObjCExpression(ExpressionAST *&node)
+{
+    switch (LA()) {
+    case T_AT_ENCODE:
+        break;
+
+    case T_AT_PROTOCOL:
+        break;
+
+    case T_AT_SELECTOR:
+        break;
+
+    case T_LBRACKET:
+        break;
+
+    case T_AT_STRING_LITERAL:
+        break;
+
+    default:
+        break;
+    } // switch
     return false;
 }
 
