@@ -220,6 +220,9 @@ public:
 
     bool parseObjCEncodeExpression(ExpressionAST *&node);
     bool parseObjCProtocolExpression(ExpressionAST *&node);
+    bool parseObjCSelectorExpression(ExpressionAST *&node);
+    bool parseObjCStringLiteral(ExpressionAST *&node);
+    bool parseObjCMethodSignature();
 
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();

@@ -2586,18 +2586,33 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
         return parseObjCProtocolExpression(node);
 
     case T_AT_SELECTOR:
-        break;
+        return parseObjCSelectorExpression(node);
 
     case T_LBRACKET:
         break;
 
     case T_AT_STRING_LITERAL:
-        break;
+        return parseObjCStringLiteral(node);
 
     default:
         break;
     } // switch
     return false;
+}
+
+bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
+{
+    if (LA() != T_AT_STRING_LITERAL)
+        return false;
+
+    StringLiteralAST **ast = reinterpret_cast<StringLiteralAST **> (&node);
+
+    while (LA() == T_AT_STRING_LITERAL) {
+        *ast = new (_pool) StringLiteralAST;
+        (*ast)->token = consumeToken();
+        ast = &(*ast)->next;
+    }
+    return true;
 }
 
 bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
@@ -2621,6 +2636,31 @@ bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
     match(T_IDENTIFIER, &identifier_token);
     match(T_RPAREN, &rparen_token);
     return true;
+}
+
+bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_SELECTOR)
+        return false;
+
+    /*unsigned selector_token = */consumeToken();
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    parseObjCMethodSignature();
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCMethodSignature()
+{
+    if (parseObjCSelector()) {
+        while (LA() == T_COMMA) {
+            consumeToken(); // skip T_COMMA
+            parseObjCSelector();
+        }
+        return true;
+    }
+    return false;
 }
 
 bool Parser::parseNameId(NameAST *&name)
