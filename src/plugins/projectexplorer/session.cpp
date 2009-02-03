@@ -527,6 +527,9 @@ void SessionManager::setStartupProject(Project *startupProject)
         Q_ASSERT(m_file->m_projects.contains(startupProject));
     }
 
+    if (m_file->m_startupProject == startupProject)
+        return;
+
     m_file->m_startupProject = startupProject;
     emit startupProjectChanged(startupProject);
 }

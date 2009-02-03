@@ -77,7 +77,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetExternalEditor()));
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
-    delete m_page;
+
     return w;
 }
 
@@ -86,6 +86,11 @@ void GeneralSettings::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
+}
+
+void GeneralSettings::finish()
+{
+    delete m_page;
 }
 
 void GeneralSettings::resetInterfaceColor()

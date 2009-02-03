@@ -56,7 +56,7 @@ public:
     QString trCategory() const;
     QWidget* createPage(QWidget *parent);
     void apply();
-    void finish() { }
+    void finish();
 
 private slots:
     void resetInterfaceColor();
