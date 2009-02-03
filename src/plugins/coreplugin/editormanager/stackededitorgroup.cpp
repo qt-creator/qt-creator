@@ -217,7 +217,6 @@ void StackedEditorGroup::addEditor(IEditor *editor)
 
 void StackedEditorGroup::insertEditor(int index, IEditor *editor)
 {
-    EditorGroup::insertEditor(index, editor);
     if (m_container->indexOf(editor->widget()) != -1)
         return;
 
@@ -231,6 +230,9 @@ void StackedEditorGroup::insertEditor(int index, IEditor *editor)
     }
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
+    bool block = m_editorList->blockSignals(true);
+    EditorGroup::insertEditor(index, editor);
+    m_editorList->blockSignals(block);
     emit editorAdded(editor);
 }
 
