@@ -1412,50 +1412,50 @@
     The development team is aware of those, there is no need to report them as bug.
 
     \list
-        \o  The central editor sometimes loses it "changed" status marker.
+        \o Paths or file names containing spaces or special characters, e.g.,
+           colons, dollar signs, hash marks etc. may cause difficulties. This
+           is because some of the tools Qt Creator uses in the background have
+           restrictions on the characters allowed in file and directory names.
+           To be on the safe side, we recomment creating projects and project
+           items with names consisting of plain characters, numbers,
+           underscores, and hyphens.
 
-        \o  There is a kernel bug essentially making debugging unreliable on
-            2.6.24 kernels for i386 (which is, unfortunately, the default on
-            Ubuntu 8.04). See
-            \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/} for
-            details. The only solution to this problem is to boot another
-            kernel.
-        
-        \o  Gdb may take long to load debugging symbols, especially from large
-            libraries like \c libQtWebKit. Starting the debugging module can
-            take up to several minutes without visible progress.
+        \o \c{.pro} files are reformatted if files have been added or removed.
+           Whitespace is not preserved.
 
-        \o  Paths or file names containing spaces or special characters, e.g.,
-            colons, dollar signs, hash marks etc. may cause difficulties. This
-            is because some of the tools Qt Creator uses in the background have
-            restrictions on the characters allowed in file and directory names.
-            To be on the safe side, we recomment creating projects and project
-            items with names consisting of plain characters, numbers,
-            underscores, and hyphens.
+        \o There is no IDE support for adding files to include (\c .pri) files.
 
-        \o  \c{.pro} files are reformatted if files have been added or removed.
-            Whitespace is not preserved.
+        \o There is no IDE support for adding/removing sub-projects. Project
+           hierarchies (SUBDIRS template) have to be created manually.
 
-        \o  There is no IDE support for adding files to include (\c .pri) files.
+        \o The file system sidebar does not update automatically. As a
+           workaround, switch to another directory and then back.
 
-        \o  There is no IDE support for adding/removing sub-projects. Project
-            hierarchies (SUBDIRS template) have to be created manually.
-
-        \o  The file system sidebar does not update automatically. As a
-            workaround, switch to another directory and then back.
-
-        \o Loading KDE4 designer plugins breaks the style, due to a bug in KDE.
+        \o Loading KDE4 designer plugins breaks the style in KDE < 4.2.1
+           due to a bug in KDE.
 
         \o Scopes in .pro files are ignored, and environment variables not expanded.
 
-        \o Code completion for generated UI header files is not updated properly
-           after the first time.
+        \o Code completion for generated UI header files is updated only
+           after a build.
 
-        \o Code completion does not support typedefs (e.g. std::string) and
-           private classes (e.g. class MyClass::Data {};).
+        \o Code completion does not support typedefs for nested classes.
 
-        \o On Gnome, after minimizing Qt Creator and restoring again, the
-           application window does not repaint properly until resized.
+        \o There is a kernel bug essentially making debugging unreliable on
+           2.6.24 kernels for i386 (which is, unfortunately, the default on
+           Ubuntu 8.04). See
+           \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/} for
+           details. The only solution to this problem is to boot another
+           kernel.
+        
+        \o Gdb may take long to load debugging symbols, especially from large
+           libraries like \c libQtWebKit. Starting the debugging module can
+           take up to several minutes without visible progress.
+
+        \o Setting breakpoints in files that do not have unique absolute
+           paths may fail. For example, remounting parts of a file system
+           using the --bind mount option.
+
     \endlist
 */
 
