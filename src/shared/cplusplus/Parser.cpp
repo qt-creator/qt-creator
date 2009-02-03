@@ -2583,7 +2583,7 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
         return parseObjCEncodeExpression(node);
 
     case T_AT_PROTOCOL:
-        break;
+        return parseObjCProtocolExpression(node);
 
     case T_AT_SELECTOR:
         break;
@@ -2607,6 +2607,19 @@ bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
 
     /*unsigned encode_token = */ consumeToken();
     parseObjCTypeName();
+    return true;
+}
+
+bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_PROTOCOL)
+        return false;
+
+    /*unsigned protocol_token = */ consumeToken();
+    unsigned lparen_token = 0, identifier_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    match(T_IDENTIFIER, &identifier_token);
+    match(T_RPAREN, &rparen_token);
     return true;
 }
 

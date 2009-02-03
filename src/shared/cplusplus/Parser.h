@@ -219,6 +219,7 @@ public:
                            SpecifierAST *attributes = 0);
 
     bool parseObjCEncodeExpression(ExpressionAST *&node);
+    bool parseObjCProtocolExpression(ExpressionAST *&node);
 
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();
