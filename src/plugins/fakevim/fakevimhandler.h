@@ -36,6 +36,7 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QTextEdit>
+#include <QtGui/QTextBlock>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -80,6 +81,7 @@ signals:
     void writeFileRequested(bool *handled,
         const QString &fileName, const QString &contents);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
+    void indentRegion(int *amount, QTextBlock begin, QTextBlock end, QChar typedChar);
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);

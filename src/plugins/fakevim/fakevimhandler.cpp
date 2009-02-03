@@ -40,8 +40,6 @@
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
 
-//#include <indenter.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -1718,11 +1716,15 @@ int FakeVimHandler::Private::indentDist() const
     const TextEditor::TextBlockIterator end(m_tc.block().next());
     return indenter.indentForBottomLine(current, begin, end, QChar(' '));
 #endif
-    return 0;
+    int amount = 0;
+    emit q->indentRegion(&amount, m_tc.block(), m_tc.block(), QChar(' '));
+    return amount;
 }
 
 void FakeVimHandler::Private::indentRegion(QTextBlock begin, QTextBlock end, QChar typedChar)
 {
+    int amount = 0;
+    emit q->indentRegion(&amount, begin, end, typedChar);
 #if 0
     // FIXME: Make independent of TextEditor
     if (!m_texteditor)
