@@ -223,6 +223,10 @@ public:
     bool parseObjCSelectorExpression(ExpressionAST *&node);
     bool parseObjCStringLiteral(ExpressionAST *&node);
     bool parseObjCMethodSignature();
+    bool parseObjCMessageExpression(ExpressionAST *&node);
+    bool parseObjCMessageReceiver();
+    bool parseObjCMessageArguments();
+    bool parseObjCSelectorArgs();
 
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();

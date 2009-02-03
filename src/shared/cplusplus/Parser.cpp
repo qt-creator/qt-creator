@@ -2589,7 +2589,7 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
         return parseObjCSelectorExpression(node);
 
     case T_LBRACKET:
-        break;
+        return parseObjCMessageExpression(node);
 
     case T_AT_STRING_LITERAL:
         return parseObjCStringLiteral(node);
@@ -2648,6 +2648,61 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
     match(T_LPAREN, &lparen_token);
     parseObjCMethodSignature();
     match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCMessageExpression(ExpressionAST *&)
+{
+    if (LA() != T_LBRACKET)
+        return false;
+
+    /*unsigned lbracket_token = */ consumeToken();
+
+    parseObjCMessageReceiver();
+    parseObjCMessageArguments();
+
+    unsigned rbracket_token = 0;
+    match(T_RBRACKET, &rbracket_token);
+    return true;
+}
+
+bool Parser::parseObjCMessageReceiver()
+{
+    ExpressionAST *expression = 0;
+    return parseExpression(expression);
+}
+
+bool Parser::parseObjCMessageArguments()
+{
+    if (LA() == T_RBRACKET)
+        return false; // nothing to do.
+
+    unsigned start = cursor();
+
+    if (parseObjCSelectorArgs()) {
+        while (LA() == T_COMMA) {
+            consumeToken(); // skip T_COMMA
+            ExpressionAST *expression = 0;
+            parseAssignmentExpression(expression);
+        }
+        return true;
+    }
+
+    rewind(start);
+    parseObjCSelector();
+    return true;
+}
+
+bool Parser::parseObjCSelectorArgs()
+{
+    parseObjCSelector();
+    if (LA() != T_COLON)
+        return false;
+
+    /*unsigned colon_token = */consumeToken();
+
+    ExpressionAST *expression = 0;
+    parseAssignmentExpression(expression);
     return true;
 }
 
