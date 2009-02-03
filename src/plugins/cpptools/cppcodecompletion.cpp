@@ -689,12 +689,14 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         }
 
         if (PointerType *ptrTy = ty->asPointerType()) {
-            // Replace . with ->
-            int length = m_editor->position() - m_startPosition + 1;
-            m_editor->setCurPos(m_startPosition - 1);
-            m_editor->replace(length, QLatin1String("->"));
-            ++m_startPosition;
-            namedTy = ptrTy->elementType()->asNamedType();
+            if (ptrTy->elementType()->isNamedType()) {
+                // Replace . with ->
+                int length = m_editor->position() - m_startPosition + 1;
+                m_editor->setCurPos(m_startPosition - 1);
+                m_editor->replace(length, QLatin1String("->"));
+                ++m_startPosition;
+                namedTy = ptrTy->elementType()->asNamedType();
+            }
         } else {
             namedTy = ty->asNamedType();
             if (! namedTy) {
