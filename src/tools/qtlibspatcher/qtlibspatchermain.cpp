@@ -42,8 +42,10 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-    const char * const oldInstallBase = "C:/qt-greenhouse/Trolltech/Code_less_create_more/"
-        "Trolltech/Code_less_create_more/Troll/4.4.3";
+#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3";
+
+	const char * const oldInstallBase = QT_INSTALL_DIR;
+	const char * const oldSourceBase = QT_INSTALL_DIR;
 #else
     const char * const oldSourceBase = "/home/berlin/dev/qt-4.4.3-temp/qt-x11-opensource-src-4.4.3";
     const char * const oldInstallBase = "/home/berlin/dev/qt-4.4.3-shipping/qt";
@@ -627,9 +629,9 @@ void patchQMakeSpec(const char *path)
     out << all;
 }
 
+#ifndef Q_OS_WIN
 const char * const textFileFileNames[] =
 {
-#ifndef Q_OS_WIN
     // *.la
     "/lib/libQtCore.la",
     "/lib/libQt3Support.la",
@@ -692,8 +694,8 @@ const char * const textFileFileNames[] =
 
     // misc
     "/mkspecs/qconfig.pri"
-#endif
 };
+#endif
 
 void replaceInTextFile(const char * fileName,
         const char * oldText, const char * newText,
@@ -726,6 +728,7 @@ void replaceInTextFile(const char * fileName,
 
 void patchTextFiles(const char *newInstallBase)
 {
+#ifndef Q_OS_WIN
     const char * const baseQtPath = newInstallBase;
     const char * const newSourceBase = newInstallBase;
     const int fileCount = sizeof(textFileFileNames) / sizeof(const char *);
@@ -733,16 +736,13 @@ void patchTextFiles(const char *newInstallBase)
         char * const fileName = allocFileNameCopyAppend(baseQtPath, textFileFileNames[i]);
         logFileName(fileName);
         logDiff(oldSourceBase, newSourceBase);
-#ifndef Q_OS_WIN
         logDiff(oldInstallBase, newInstallBase);
-#endif
         replaceInTextFile(fileName,
-#ifndef Q_OS_WIN
                 oldSourceBase, newSourceBase,
-#endif
                 oldInstallBase, newInstallBase);
         delete[] fileName;
     }
+#endif
 
     patchQMakeSpec(newInstallBase);
 }
