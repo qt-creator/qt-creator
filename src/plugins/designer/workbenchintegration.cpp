@@ -564,7 +564,7 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     // Find the class definition in the file itself or in the directly
     // included files (order 1).
     QString namespaceName;
-    const Class *cl;
+    const Class *cl = 0;
     Document::Ptr doc;
 
     foreach (const Document::Ptr &d, docList) {
