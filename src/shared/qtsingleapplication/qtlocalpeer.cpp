@@ -94,9 +94,9 @@ bool QtLocalPeer::isClient()
     if (!lockFile.lock(QtLockedFile::WriteLock, false))
         return true;
 
+    if (!QLocalServer::removeServer(socketName))
+        qWarning("QtSingleCoreApplication: could not cleanup socket");
     bool res = server->listen(socketName);
-    if (!res && server->serverError() == QAbstractSocket::AddressInUseError)
-        res = server->listen(socketName); // ### Workaround 4.4.0tp bug
     if (!res)
         qWarning("QtSingleCoreApplication: listen on local socket failed, %s", qPrintable(server->errorString()));
     QObject::connect(server, SIGNAL(newConnection()), SLOT(receiveConnection()));

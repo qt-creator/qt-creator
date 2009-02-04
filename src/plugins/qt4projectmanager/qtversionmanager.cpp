@@ -177,7 +177,10 @@ void QtVersionManager::apply()
             }
         }
     }
-    m_versions = m_widget->versions();
+    qDeleteAll(m_versions);
+    m_versions.clear();
+    foreach(QtVersion *version, m_widget->versions())
+        m_versions.append(new QtVersion(*version));
     if (versionPathsChanged)
         updateDocumentation();
     updateUniqueIdToIndexMap();
@@ -361,11 +364,16 @@ QtVersion *QtVersionManager::currentQtVersion() const
 
 QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion)
     : QWidget(parent)
-    , m_versions(versions)
     , m_defaultVersion(defaultVersion)
     , m_specifyNameString(tr("<specify a name>"))
     , m_specifyPathString(tr("<specify a path>"))
 {
+    // Initialize m_versions
+    foreach(QtVersion *version, versions) {
+        m_versions.append(new QtVersion(*version));
+    }
+
+
     m_ui.setupUi(this);
     m_ui.qtPath->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui.qtPath->setPromptDialogTitle(tr("Select QTDIR"));
@@ -415,6 +423,11 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
 
     showEnvironmentPage(0);
     updateState();
+}
+
+QtDirWidget::~QtDirWidget()
+{
+    qDeleteAll(m_versions);
 }
 
 void QtDirWidget::addQtDir()

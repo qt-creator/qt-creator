@@ -122,7 +122,6 @@ private:
     // This is updated on first call to qmakeCommand
     // That function is called from updateVersionInfo()
     mutable QString m_qtVersionString;
-    Q_DISABLE_COPY(QtVersion);
 };
 
 
@@ -131,6 +130,7 @@ class QtDirWidget : public QWidget
     Q_OBJECT
 public:
     QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion);
+    ~QtDirWidget();
     QList<QtVersion *> versions() const;
     int defaultVersion() const;
     void finish();

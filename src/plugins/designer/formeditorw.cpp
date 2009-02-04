@@ -546,7 +546,7 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
     // Deactivate Designer if a non-form is being edited
-    if (editor && !qstrcmp(editor->kind(), Constants::C_FORMWINDOW)) {
+    if (editor && !qstrcmp(editor->kind(), Constants::C_FORMEDITOR)) {
         FormWindowEditor *fw = qobject_cast<FormWindowEditor *>(editor);
         QTC_ASSERT(fw, return);
         fw->activate();
