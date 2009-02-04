@@ -871,10 +871,11 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             painter->setPen(StyleHelper::borderColor());
 
             if (horizontal) {
-                // Note: This is a hack to determine if we are the topmost
-                // toolbar and menu bar should draw the outline
+                // Note: This is a hack to determine if the
+                // toolbar should draw the top or bottom outline
+                // (needed for the find toolbar for instance)
                 QColor lighter(255, 255, 255, 40);
-                if (widget->mapToParent(rect.topLeft()).y()) {
+                if (widget && widget->property("topBorder").toBool()) {
                     p->drawLine(rect.topLeft(), rect.topRight());
                     p->setPen(lighter);
                     p->drawLine(rect.topLeft() + QPoint(0, 1), rect.topRight() + QPoint(0, 1));

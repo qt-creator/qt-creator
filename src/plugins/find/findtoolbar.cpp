@@ -78,6 +78,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.setupUi(m_widget);
     addWidget(m_widget);
     setFocusProxy(m_ui.findEdit);
+    setProperty("topBorder", true);
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
@@ -223,16 +224,6 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
 FindToolBar::~FindToolBar()
 {
-}
-
-void FindToolBar::paintEvent(QPaintEvent *event)
-{
-    QToolBar::paintEvent(event);
-
-    QPainter p(this);
-    const QRect r = rect();
-    p.setPen(StyleHelper::borderColor());
-    p.drawLine(r.topLeft(), r.topRight());
 }
 
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
