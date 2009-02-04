@@ -136,8 +136,11 @@ QString CodepasterPlugin::serverUrl() const
 
 void CodepasterPlugin::post()
 {
-    if (m_poster)
+    // FIXME: The whole m_poster thing is de facto a simple function call.
+    if (m_poster) {
         delete m_poster;
+        m_poster = 0; 
+    }
     IEditor* editor = EditorManager::instance()->currentEditor();
     ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
@@ -196,8 +199,10 @@ void CodepasterPlugin::post()
 
 void CodepasterPlugin::fetch()
 {
-    if (m_fetcher)
+    if (m_fetcher) {
         delete m_fetcher;
+        m_fetcher = 0;
+    }
     m_fetcher = new CustomFetcher(serverUrl());
 
     QDialog dialog;
