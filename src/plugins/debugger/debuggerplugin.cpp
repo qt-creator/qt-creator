@@ -620,6 +620,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     m_debugMode->setWidget(splitter2);
 
     QToolBar *debugToolBar = new QToolBar;
+    debugToolBar->setProperty("topBorder", true);
     debugToolBar->addAction(am->command(ProjectExplorer::Constants::DEBUG)->action());
     debugToolBar->addAction(am->command(Constants::INTERRUPT)->action());
     debugToolBar->addAction(am->command(Constants::NEXT)->action());
