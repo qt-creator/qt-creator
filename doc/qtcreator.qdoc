@@ -1416,7 +1416,7 @@
            colons, dollar signs, hash marks etc. may cause difficulties. This
            is because some of the tools Qt Creator uses in the background have
            restrictions on the characters allowed in file and directory names.
-           To be on the safe side, we recomment creating projects and project
+           To be on the safe side, we recommend creating projects and project
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
 
