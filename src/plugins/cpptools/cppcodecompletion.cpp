@@ -598,7 +598,11 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
-        if (NamedType *namedTy = ty->asNamedType()) {
+        if (Class *classTy = ty->asClass()) {
+            Symbol *symbol = result.second;
+            if (symbol && ! symbol->isClass())
+                classObjectCandidates.append(classTy);
+        } else if (NamedType *namedTy = ty->asNamedType()) {
             // ### This code is pretty slow.
             const QList<Symbol *> candidates = context.resolve(namedTy->name());
             foreach (Symbol *candidate, candidates) {
@@ -689,12 +693,18 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         }
 
         if (PointerType *ptrTy = ty->asPointerType()) {
-            // Replace . with ->
-            int length = m_editor->position() - m_startPosition + 1;
-            m_editor->setCurPos(m_startPosition - 1);
-            m_editor->replace(length, QLatin1String("->"));
-            ++m_startPosition;
-            namedTy = ptrTy->elementType()->asNamedType();
+            if (ptrTy->elementType()->isNamedType()) {
+                // Replace . with ->
+                int length = m_editor->position() - m_startPosition + 1;
+                m_editor->setCurPos(m_startPosition - 1);
+                m_editor->replace(length, QLatin1String("->"));
+                ++m_startPosition;
+                namedTy = ptrTy->elementType()->asNamedType();
+            }
+        } else if (Class *classTy = ty->asClass()) {
+            Symbol *symbol = result.second;
+            if (symbol && ! symbol->isClass())
+                classObjectCandidates.append(classTy);
         } else {
             namedTy = ty->asNamedType();
             if (! namedTy) {

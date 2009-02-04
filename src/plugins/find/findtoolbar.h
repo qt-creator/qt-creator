@@ -58,8 +58,6 @@ public:
 
     void invokeClearResults();
 
-    void paintEvent(QPaintEvent *event);
-
 private slots:
     void invokeFindNext();
     void invokeFindPrevious();

@@ -76,6 +76,9 @@ void SearchResultTreeView::appendResultLine(int index, const QString &fileName, 
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
+    if (model()->data(index, ItemDataRoles::TypeRole).toString().compare("row") != 0)
+        return;
+
     QString fileName = model()->data(index, ItemDataRoles::FileNameRole).toString();
     int position = model()->data(index, ItemDataRoles::ResultIndexRole).toInt();
     int lineNumber = model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
