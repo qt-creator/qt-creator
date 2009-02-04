@@ -656,6 +656,13 @@ SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *
     return 0;
 }
 
+QSize SplitterOrView::minimumSizeHint() const
+{
+    if (m_splitter)
+        return m_splitter->minimumSizeHint();
+    return QSize(64, 64);
+}
+
 void SplitterOrView::split(Qt::Orientation orientation)
 {
     Q_ASSERT(m_view && m_splitter == 0);

@@ -140,7 +140,6 @@ struct EditorManagerPrivate {
     Internal::SplitterOrView *m_splitter;
     QPointer<IEditor> m_currentEditor;
     QPointer<SplitterOrView> m_currentView;
-    QStackedLayout *m_stackedLayout;
 
     ICore *m_core;
 
@@ -182,7 +181,6 @@ struct EditorManagerPrivate {
 EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_view(0),
     m_splitter(0),
-    m_stackedLayout(0),
     m_core(core),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_saveAction(new QAction(parent)),
@@ -388,8 +386,10 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     m_d->m_view = m_d->m_splitter->view();
 
 
-    m_d->m_stackedLayout = new QStackedLayout(this);
-    m_d->m_stackedLayout->addWidget(m_d->m_splitter);
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(m_d->m_splitter);
 
     updateActions();
 
@@ -421,11 +421,6 @@ void EditorManager::init()
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
     pluginManager()->addObject(m_d->m_openEditorsFactory);
-}
-
-QSize EditorManager::minimumSizeHint() const
-{
-    return QSize(400, 300);
 }
 
 QString EditorManager::defaultExternalEditor() const
