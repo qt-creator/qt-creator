@@ -230,29 +230,29 @@
                 To deselect, use \key{Ctrl+Shift+U}.    
         \row
             \i  Moving lines up and down
-            \i  
+            \i  Use \key{Ctrl+Shift+Up} and \key{Ctrl+Shift+Down}
 
         \row
             \i  Completion
-            \i
+            \i  Use \key{Ctrl+Space}
 
         \row
             \i  Indenting Blocks
-            \i
+            \i  Use \key{Ctrl+I}
         \row
-            \i  Commenting or Uncommenting Blocks
-            \i
+            \i  Commenting or uncommenting blocks
+            \i  Use \key{Ctrl+\/}
 
         \row
-            \i  Switch between Header and Source
+            \i  Switch between header file and source file
             \i  Use \key{F4}.
 
         \row
-            \i  Increasing and Decreasing Font Size
+            \i  Increasing and decreasing font size
             \i  Use \key{Ctrl+Scroll Wheel}
 
         \row
-            \i  Follow Symbols under The Cursor
+            \i  Follow symbols under the cursor
             \i  Use \key{F2} and \key{Shift+F2}. This feature works with
                 namespaces, classes, methods, variables, include statements,
                 and macros.
