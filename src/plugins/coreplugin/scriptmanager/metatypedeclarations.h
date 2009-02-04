@@ -38,7 +38,6 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editorgroup.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 

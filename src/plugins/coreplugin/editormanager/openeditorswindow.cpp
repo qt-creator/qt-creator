@@ -32,7 +32,6 @@
 ***************************************************************************/
 
 #include "openeditorswindow.h"
-#include "editorgroup.h"
 #include "editormanager.h"
 
 #include <QtGui/QHeaderView>

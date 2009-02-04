@@ -37,7 +37,6 @@
 #include "basemode.h"
 #include "coreimpl.h"
 #include "coreconstants.h"
-#include "editorgroup.h"
 #include "editormanager.h"
 #include "fancytabwidget.h"
 #include "filemanager.h"

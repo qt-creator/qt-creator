@@ -36,7 +36,6 @@
 #include <wrap_helpers.h>
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/editormanager/editorgroup.h>
 
 #include <utils/qtcassert.h>
 
