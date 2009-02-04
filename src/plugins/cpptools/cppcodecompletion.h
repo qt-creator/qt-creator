@@ -103,6 +103,8 @@ private:
                        const CPlusPlus::LookupContext &context,
                        bool staticLookup = true);
 
+    bool completeConstructors(CPlusPlus::Class *klass);
+
     bool completeQtMethod(CPlusPlus::FullySpecifiedType exprTy,
                           const QList<CPlusPlus::TypeOfExpression::Result> &,
                           const CPlusPlus::LookupContext &context,
@@ -118,7 +120,7 @@ private:
                       const CPlusPlus::LookupContext &context)
     { return completeQtMethod(exprTy, results, context, false); }
 
-    static int findStartOfName(const TextEditor::ITextEditor *editor);
+    int findStartOfName(int pos = -1) const;
 
     QList<TextEditor::CompletionItem> m_completions;
 
