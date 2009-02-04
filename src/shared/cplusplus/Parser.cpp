@@ -2556,6 +2556,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
+    case T_LBRACKET:
     case T_AT_STRING_LITERAL:
     case T_AT_ENCODE:
     case T_AT_PROTOCOL:
@@ -2680,16 +2681,19 @@ bool Parser::parseObjCMessageArguments()
     unsigned start = cursor();
 
     if (parseObjCSelectorArgs()) {
-        while (LA() == T_COMMA) {
-            consumeToken(); // skip T_COMMA
-            ExpressionAST *expression = 0;
-            parseAssignmentExpression(expression);
+        while (parseObjCSelectorArgs()) {
+            // accept the selector args.
         }
-        return true;
+    } else {
+        rewind(start);
+        parseObjCSelector();
     }
 
-    rewind(start);
-    parseObjCSelector();
+    while (LA() == T_COMMA) {
+        consumeToken(); // skip T_COMMA
+        ExpressionAST *expression = 0;
+        parseAssignmentExpression(expression);
+    }
     return true;
 }
 
