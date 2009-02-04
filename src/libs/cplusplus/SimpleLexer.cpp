@@ -59,7 +59,9 @@ SimpleLexer::SimpleLexer()
       _skipComments(false),
       _qtMocRunEnabled(true),
       _objCEnabled(false)
-{ }
+{
+    setObjCEnabled(true);
+}
 
 SimpleLexer::~SimpleLexer()
 { }
