@@ -169,7 +169,6 @@ VCSBase::VCSBaseEditor
         outputEditor->createNew(m_msgWait);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(rc, return 0);
-        m_core->editorManager()->activateEditor(outputEditor);
     } else {
         // Create new, set wait message, set up with source and codec
         outputEditor = m_core->editorManager()->newFile(kind, &title, m_msgWait);
@@ -180,6 +179,7 @@ VCSBase::VCSBaseEditor
         if (setSourceCodec)
             rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
     }
+    m_core->editorManager()->activateEditor(outputEditor);
     return rc;
 }
 
