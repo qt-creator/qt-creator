@@ -179,6 +179,9 @@ public:
 
     SplitterOrView *findNextView(SplitterOrView *view);
 
+    QSize sizeHint() const { return QSize(32, 32); }
+    QSize minimumSizeHint() const { return QSize(32, 32); }
+
 protected:
     void focusInEvent(QFocusEvent *);
     void paintEvent(QPaintEvent *);

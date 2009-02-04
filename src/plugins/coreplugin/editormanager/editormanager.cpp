@@ -752,6 +752,8 @@ IEditor *EditorManager::pickUnusedEditor() const
 void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
     SplitterOrView *splitterOrView = m_d->m_currentView;
+    if (splitterOrView && splitterOrView->splitter())
+        splitterOrView = 0; // safety if currentView gets out of sync
     setCurrentView(0);
 
     if (editor && (flags & ActivateInPlace)) {
@@ -765,9 +767,11 @@ void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
     if (!splitterOrView)
         splitterOrView = m_d->m_splitter->findEmptyView();
 
-
-    if (!splitterOrView && m_d->m_currentEditor)
+    if (!splitterOrView && m_d->m_currentEditor) {
         splitterOrView = m_d->m_splitter->findView(m_d->m_currentEditor);
+        if (splitterOrView && !splitterOrView->isVisible()) // safety if currentEditor gets out of sync
+            splitterOrView = 0;
+    }
 
     if (!splitterOrView)
         splitterOrView = m_d->m_splitter->findFirstView();
@@ -1686,7 +1690,7 @@ void EditorManager::split(Qt::Orientation orientation)
     if (!view)
             view = m_d->m_currentEditor ? m_d->m_splitter->findView(m_d->m_currentEditor)
                        : m_d->m_splitter->findFirstView();
-    if (view) {
+    if (view && !view->splitter()) {
         view->split(orientation);
         updateEditorHistory();
     }
