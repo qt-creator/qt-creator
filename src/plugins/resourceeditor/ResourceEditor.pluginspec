@@ -1,6 +1,6 @@
 <plugin name="ResourceEditor" version="0.9.2" compatVersion="0.9.2">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2008 Nokia Corporation</copyright>
+    <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>Nokia Beta Version License</license>
     <description>Editor for qrc files.</description>
     <url>http://www.trolltech.com/</url>
