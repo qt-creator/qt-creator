@@ -569,16 +569,19 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
         return;
 
     if (view == m_d->m_view) {
-        closeEditors(QList<IEditor *>() << view->currentEditor());
+        if (IEditor *e = view->currentEditor())
+            closeEditors(QList<IEditor *>() << e);
         return;
     }
 
     emptyView(view);
 
     SplitterOrView *splitterOrView = m_d->m_splitter->findView(view);
+    Q_ASSERT(splitterOrView);
     Q_ASSERT(splitterOrView->view() == view);
     SplitterOrView *splitter = m_d->m_splitter->findSplitter(splitterOrView);
     Q_ASSERT(splitterOrView->hasEditors() == false);
+    splitterOrView->hide();
     delete splitterOrView;
 
     splitter->unsplit();
@@ -590,6 +593,7 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
         else
             setCurrentView(newCurrent);
     }
+    updateEditorHistory();
 }
 
 void EditorManager::closeEditor(Core::IEditor *editor)
@@ -726,8 +730,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         delete editor;
     }
 
-    if (currentView)
-        activateEditor(currentView, currentView->currentEditor());
+    if (currentView) {
+        setCurrentView(m_d->m_splitter->findView(currentView));
+        if (IEditor *e = currentView->currentEditor())
+            activateEditor(currentView, e);
+    }
 
     return !closingFailed;
 }
@@ -744,27 +751,29 @@ IEditor *EditorManager::pickUnusedEditor() const
 
 void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
-
     SplitterOrView *splitterOrView = m_d->m_currentView;
     setCurrentView(0);
 
-    qDebug() << "currentView" << splitterOrView;
+    if (editor && (flags & ActivateInPlace)) {
+        SplitterOrView *place = m_d->m_splitter->findView(editor);
+        if (place && !place->isSplitter()) {
+            splitterOrView = place;
+        }
+    }
+
+
     if (!splitterOrView)
         splitterOrView = m_d->m_splitter->findEmptyView();
-    qDebug() << "empty" << splitterOrView;
 
 
     if (!splitterOrView && m_d->m_currentEditor)
         splitterOrView = m_d->m_splitter->findView(m_d->m_currentEditor);
-    qDebug() << "current editor" << splitterOrView;
 
     if (!splitterOrView)
         splitterOrView = m_d->m_splitter->findFirstView();
-    qDebug() << "first" << splitterOrView;
     if (!splitterOrView) {
         splitterOrView = m_d->m_splitter;
     }
-    qDebug() << "origin" << splitterOrView;
 
     activateEditor(splitterOrView->view(), editor, flags);
 }
@@ -805,6 +814,7 @@ void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEdit
     }
 
     bool hasCurrent = (view->currentEditor() != 0);
+
     editor = placeEditor(view, editor);
     if (!(flags & NoActivate) || !hasCurrent)
         view->setCurrentEditor(editor);
@@ -1310,6 +1320,10 @@ void EditorManager::updateActions()
     m_d->m_goBackAction->setEnabled(m_d->currentNavigationHistoryPosition > 0);
     m_d->m_goForwardAction->setEnabled(m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()-1);
 
+    bool hasSplitter = m_d->m_splitter->isSplitter();
+    m_d->m_unsplitAction->setEnabled(hasSplitter);
+    m_d->m_gotoOtherWindowAction->setEnabled(hasSplitter);
+
     m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
 }
 
@@ -1434,7 +1448,6 @@ QByteArray EditorManager::saveState() const
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    qDebug() << "saveState";
     stream << QByteArray("EditorManagerV1");
 
     stream << m_d->m_editorStates;
@@ -1447,7 +1460,6 @@ QByteArray EditorManager::saveState() const
         editors.prepend(m_d->m_currentEditor);
     }
 
-    qDebug() << "save editors:" << editorCount;
 
     stream << editorCount;
     foreach (IEditor *editor, editors) {
@@ -1674,8 +1686,11 @@ void EditorManager::split(Qt::Orientation orientation)
     if (!view)
             view = m_d->m_currentEditor ? m_d->m_splitter->findView(m_d->m_currentEditor)
                        : m_d->m_splitter->findFirstView();
-    if (view)
+    if (view) {
         view->split(orientation);
+        updateEditorHistory();
+    }
+    updateActions();
 }
 
 void EditorManager::split()
@@ -1698,6 +1713,7 @@ void EditorManager::unsplit()
         return;
 
     closeView(viewToClose->view());
+    updateActions();
 }
 
 void EditorManager::gotoOtherWindow()

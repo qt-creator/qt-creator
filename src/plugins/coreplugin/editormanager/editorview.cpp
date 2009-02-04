@@ -34,6 +34,7 @@
 #include "editorview.h"
 #include "editormanager.h"
 #include "coreimpl.h"
+#include "minisplitter.h"
 
 #include <utils/qtcassert.h>
 
@@ -199,8 +200,6 @@ void EditorModel::itemChanged()
     emitDataChanged(qobject_cast<IEditor*>(sender()));
 }
 
-
-
 //================EditorView====================
 
 EditorView::EditorView(EditorModel *model, QWidget *parent) :
@@ -354,8 +353,6 @@ bool EditorView::hasEditor(IEditor *editor) const
 
 void EditorView::closeView()
 {
-    if (editorCount() == 0)
-        return;
     EditorManager *em = CoreImpl::instance()->editorManager();
     em->closeView(this);
 }
@@ -397,8 +394,6 @@ void EditorView::setCurrentEditor(IEditor *editor)
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
         return;
-    if (editor)
-        qDebug() << "EditorView::setCurrentEditor" << editor << editor->file()->fileName();
 
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
@@ -664,7 +659,7 @@ SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *
 void SplitterOrView::split(Qt::Orientation orientation)
 {
     Q_ASSERT(m_view && m_splitter == 0);
-    m_splitter = new QSplitter(this);
+    m_splitter = new MiniSplitter(this);
     m_splitter->setOrientation(orientation);
     m_layout->addWidget(m_splitter);
     EditorManager *em = CoreImpl::instance()->editorManager();
@@ -674,7 +669,6 @@ void SplitterOrView::split(Qt::Orientation orientation)
 
         m_view->removeEditor(e);
         m_splitter->addWidget(new SplitterOrView(e));
-        m_view = 0;
 
         if (e->duplicateSupported()) {
             Core::IEditor *duplicate = em->duplicateEditor(e);
@@ -695,10 +689,9 @@ void SplitterOrView::split(Qt::Orientation orientation)
         m_view = 0;
     }
 
+    em->setCurrentView(findFirstView());
     if (e)
         em->activateEditor(e);
-    else
-        em->setCurrentView(findFirstView());
 }
 
 void SplitterOrView::close()
@@ -728,37 +721,35 @@ void SplitterOrView::unsplit()
     if (!m_splitter)
         return;
 
-    qDebug() << "unsplit" << this << m_splitter;
-#if 0
-    SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
-    Q_ASSERT(splitterOrView != 0);
+    Q_ASSERT(m_splitter->count() == 1);
+    EditorManager *em = CoreImpl::instance()->editorManager();
+    SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
 
-    qDebug() << "splitter or view is" << splitterOrView;
+    QSplitter *oldSplitter = m_splitter;
+    m_splitter = 0;
 
-    if (editor) { // pick the other side
-        if (SplitterOrView *view = findView(editor)) {
-            qDebug() << "view to close is" << view;
-            view->close();
-            delete view;
-        }
-        splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
-        qDebug() << "other splitter or view is" << splitterOrView;
-    }
-
-    QSplitter *old_splitter = m_splitter;
-    EditorView *old_view = m_view;
-
-    m_splitter = splitterOrView->splitter();
-    m_view = splitterOrView->view();
-
-    qDebug() << "new splitter/view" << m_splitter << m_view;
-
-    if (m_splitter)
+    if (childSplitterOrView->isSplitter()) {
+        Q_ASSERT(childSplitterOrView->view() == 0);
+        m_splitter = childSplitterOrView->splitter();
         m_layout->addWidget(m_splitter);
-    if (m_view)
-        m_layout->addWidget(m_view);
-
-//    delete old_view;
-//    delete old_splitter;
-#endif
+        m_layout->setCurrentWidget(m_splitter);
+    } else {
+        EditorView *childView = childSplitterOrView->view();
+        Q_ASSERT(childView);
+        if (m_view) {
+            if (IEditor *e = childView->currentEditor()) {
+                childView->removeEditor(e);
+                m_view->addEditor(e);
+                m_view->setCurrentEditor(e);
+            }
+            em->emptyView(childView);
+        } else {
+            m_view = childView;
+            childSplitterOrView->m_layout->removeWidget(m_view);
+            m_layout->addWidget(m_view);
+        }
+        m_layout->setCurrentWidget(m_view);
+    }
+    delete oldSplitter;
+    em->setCurrentView(findFirstView());
 }

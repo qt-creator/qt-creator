@@ -46,15 +46,6 @@ const int OpenEditorsWindow::WIDTH = 300;
 const int OpenEditorsWindow::HEIGHT = 200;
 const int OpenEditorsWindow::MARGIN = 4;
 
-bool OpenEditorsWindow::isSameFile(IEditor *editorA, IEditor *editorB) const
-{
-    if (editorA == editorB)
-        return true;
-    if (!editorA || !editorB)
-        return false;
-    return editorA->file()->fileName() == editorB->file()->fileName();
-}
-
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
     m_editorList(new QTreeWidget(this)),
@@ -209,7 +200,16 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
 
     m_editorList->clear();
 
+    QList<IEditor *> doneList;
+    QList<IFile *>doneFileList;
     foreach (IEditor *editor, editors) {
+        if (doneList.contains(editor))
+            continue;
+        doneList += editor;
+        if (!editor->widget()->isVisible() && doneFileList.contains(editor->file()))
+            continue;
+        doneFileList += editor->file();
+
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
         QString title = editor->displayName();
@@ -219,7 +219,7 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
         item->setText(0, title);
         item->setToolTip(0, editor->file()->fileName());
         item->setData(0, Qt::UserRole, QVariant::fromValue(editor));
-        item->setFlags(Qt::ItemIsSelectable);
+        //item->setFlags(Qt::ItemIsSelectable);
 
         item->setTextAlignment(0, Qt::AlignLeft);
 
@@ -236,7 +236,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
     if (item)
         editor = item->data(0, Qt::UserRole).value<IEditor*>();
     if (editor)
-        EditorManager::instance()->activateEditor(editor);
+        EditorManager::instance()->activateEditor(editor, EditorManager::ActivateInPlace);
 }
 
 void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
