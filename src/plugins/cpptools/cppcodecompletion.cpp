@@ -432,7 +432,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
-    m_startPosition = findStartOfName(editor);
+    m_startPosition = findStartOfName();
     m_completionOperator = T_EOF_SYMBOL;
 
     int endOfOperator = m_startPosition;
@@ -520,7 +520,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (m_completionOperator == T_LPAREN && completeFunction(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
-            } if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
+            } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(resolvedTypes, context)) {
                 return m_startPosition;
             } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
@@ -529,6 +529,32 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 return m_startPosition;
             } else if (m_completionOperator == T_SLOT && completeSlot(exprTy, resolvedTypes, context)) {
                 return m_startPosition;
+            }
+        }
+
+        if (m_completionOperator == T_LPAREN) {
+            // Find the expression that precedes the current name
+            int index = endOfExpression;
+            while (m_editor->characterAt(index - 1).isSpace())
+                --index;
+            index = findStartOfName(index);
+
+            QTextCursor tc(edit->document());
+            tc.setPosition(index);
+            QString baseExpression = expressionUnderCursor(tc);
+
+            // Resolve the type of this expression
+            QList<TypeOfExpression::Result> results =
+                    typeOfExpression(baseExpression, thisDocument, symbol, TypeOfExpression::Preprocess);
+
+            // If it's a class, add completions for the constructors
+            foreach (const TypeOfExpression::Result &result, results) {
+                if (result.first->isClass()) {
+                    FullySpecifiedType exprTy = result.first;
+                    if (completeConstructors(exprTy->asClass()))
+                        return m_startPosition;
+                    break;
+                }
             }
         }
     }
@@ -541,26 +567,14 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
                                          const QList<TypeOfExpression::Result> &resolvedTypes,
                                          const LookupContext &)
 {
-    ConvertToCompletionItem toCompletionItem(this);
-    Overview o;
-    o.setShowReturnTypes(true);
-    o.setShowArgumentNames(true);
-
     if (Class *klass = exprTy->asClass()) {
-        for (unsigned i = 0; i < klass->memberCount(); ++i) {
-            Symbol *member = klass->memberAt(i);
-            if (! member->type()->isFunction())
-                continue;
-            else if (! member->identity())
-                continue;
-            else if (! member->identity()->isEqualTo(klass->identity()))
-                continue;
-            if (TextEditor::CompletionItem item = toCompletionItem(member)) {
-                item.m_text = o(member->type(), member->name());
-                m_completions.append(item);
-            }
-        }
+        completeConstructors(klass);
     } else {
+        ConvertToCompletionItem toCompletionItem(this);
+        Overview o;
+        o.setShowReturnTypes(true);
+        o.setShowArgumentNames(true);
+
         QSet<QString> signatures;
         foreach (TypeOfExpression::Result p, resolvedTypes) {
             FullySpecifiedType ty = p.first;
@@ -873,6 +887,30 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     }
 }
 
+bool CppCodeCompletion::completeConstructors(Class *klass)
+{
+    ConvertToCompletionItem toCompletionItem(this);
+    Overview o;
+    o.setShowReturnTypes(true);
+    o.setShowArgumentNames(true);
+
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        Symbol *member = klass->memberAt(i);
+        if (! member->type()->isFunction())
+            continue;
+        else if (! member->identity())
+            continue;
+        else if (! member->identity()->isEqualTo(klass->identity()))
+            continue;
+        if (TextEditor::CompletionItem item = toCompletionItem(member)) {
+            item.m_text = o(member->type(), member->name());
+            m_completions.append(item);
+        }
+    }
+
+    return ! m_completions.isEmpty();
+}
+
 bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                                          const QList<TypeOfExpression::Result> &results,
                                          const LookupContext &context,
@@ -1150,14 +1188,15 @@ void CppCodeCompletion::cleanup()
     typeOfExpression.setSnapshot(Snapshot());
 }
 
-int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)
+int CppCodeCompletion::findStartOfName(int pos) const
 {
-    int pos = editor->position();
+    if (pos == -1)
+        pos = m_editor->position();
     QChar chr;
 
     // Skip to the start of a name
     do {
-        chr = editor->characterAt(--pos);
+        chr = m_editor->characterAt(--pos);
     } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
 
     return pos + 1;
