@@ -151,8 +151,6 @@ public:
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
-    QSize minimumSizeHint() const;
-
     Internal::OpenEditorsWindow *windowPopup() const;
     void showWindowPopup() const;
 
