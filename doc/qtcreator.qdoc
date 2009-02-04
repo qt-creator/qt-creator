@@ -215,8 +215,20 @@
 
     \title The Code Editor
 
-    ### SCREENSHOT of the editor in action
+    Qt Creator's code editor is designed to aid the developer to create, edit,
+    and navigate code. It is fully equipped with syntax highlighting, code
+    completion, context sensitive help, as well as inline error indicators
+    while you are typing. The screenshots below show the various dialogs within
+    which you can configure your editor.
 
+    \table
+        \row
+            \i  \inlineimage qtcreator-texteditor-general.png
+            \i  \inlineimage qtcreator-texteditor-fonts.png
+            \i  \inlineimage qtcreator-texteditor-completion.png
+    \endtable
+
+    The table below lists keyboard shortcuts supported by the code editor.
 
     \table
         \row
@@ -239,9 +251,18 @@
         \row
             \i  Indenting Blocks
             \i  Use \key{Ctrl+I}
+
+        \row
+            \i  Collapse
+            \i  Use \key{Ctrl+\<}
+
         \row
             \i  Commenting or uncommenting blocks
             \i  Use \key{Ctrl+\/}
+
+        \row
+            \i  Delete a line
+            \i  Use \key{Shift+Del}
 
         \row
             \i  Switch between header file and source file
@@ -256,19 +277,12 @@
             \i  Use \key{F2} and \key{Shift+F2}. This feature works with
                 namespaces, classes, methods, variables, include statements,
                 and macros.
+
+        \row
+            \i  Switch to an external editor
+            \i  Select \gui{Open in external editor} from the
+                \gui{Edit -> Advanced} menu.
     \endtable
-
-
-    More:
-
-    Collapse
-
-    Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
-
-
-
-    To switch to an external editor, select \gui{Open in external editor} from
-    the \gui{Edit -> Advanced} menu.
 
 */
 
