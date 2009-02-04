@@ -180,7 +180,12 @@ bool FakeVimPluginPrivate::initialize()
 
 void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
+    if (!editor)
+        return;
+
     QWidget *widget = editor->widget();
+    if (!widget)
+        return;
     
     FakeVimHandler *handler = new FakeVimHandler(widget, widget);
 
