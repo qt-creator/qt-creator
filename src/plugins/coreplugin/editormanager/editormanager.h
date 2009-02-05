@@ -104,9 +104,7 @@ public:
 
     enum OpenEditorFlag {
         NoActivate = 1,
-        IgnoreNavigationHistory = 2,
-        ActivateInPlace = 4
-
+        IgnoreNavigationHistory = 2
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

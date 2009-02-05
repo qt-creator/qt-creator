@@ -750,12 +750,12 @@ void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
     if (splitterOrView && splitterOrView->splitter())
         splitterOrView = 0; // safety if currentView gets out of sync
     setCurrentView(0);
+    if (!editor)
+        return;
 
-    if (editor && (flags & ActivateInPlace)) {
-        SplitterOrView *place = m_d->m_splitter->findView(editor);
-        if (place && !place->isSplitter()) {
-            splitterOrView = place;
-        }
+    SplitterOrView *place = m_d->m_splitter->findView(editor);
+    if (place && !place->isSplitter()) {
+        splitterOrView = place;
     }
 
 
