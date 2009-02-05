@@ -354,35 +354,30 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     m_navigationComboBox->setMaximumWidth(130);
 #endif
 
-    m_toolbar = new QToolBar(this);
-    m_toolbar->setContentsMargins(0, 0, 0, 0);
-    m_toolbar->addWidget(m_navigationComboBox);
+    m_toolBar = new QToolBar(this);
+    m_toolBar->setContentsMargins(0, 0, 0, 0);
+    m_toolBar->addWidget(m_navigationComboBox);
 
-    QToolButton *split = new QToolButton;
-    split->setProperty("type", QLatin1String("dockbutton"));
-    split->setIcon(QIcon(":/core/images/splitbutton_horizontal.png"));
-    split->setToolTip(tr("Split"));
-    connect(split, SIGNAL(clicked(bool)), this, SIGNAL(split()));
-
-    QToolButton *close = new QToolButton;
-    close->setProperty("type", QLatin1String("dockbutton"));
-    close->setIcon(QIcon(":/core/images/closebutton.png"));
-    close->setToolTip(tr("Close"));
-
-    connect(close, SIGNAL(clicked(bool)), this, SIGNAL(close()));
+    m_splitAction = new QAction(QIcon(":/core/images/splitbutton_horizontal.png"), tr("Split"), this);
+    QAction *close = new QAction(QIcon(":/core/images/closebutton.png"), tr("Close"), this);
 
     QWidget *spacerItem = new QWidget(this);
     spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_toolbar->addWidget(spacerItem);
-    m_splitAction = m_toolbar->addWidget(split);
-    m_toolbar->addWidget(close);
+    m_toolBar->addWidget(spacerItem);
+    m_toolBar->addAction(m_splitAction);
+    m_toolBar->addAction(close);
+
+    m_toolBar->widgetForAction(m_splitAction)->setProperty("type", QLatin1String("dockbutton"));
+    m_toolBar->widgetForAction(close)->setProperty("type", QLatin1String("dockbutton"));
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
     lay->setSpacing(0);
     setLayout(lay);
-    lay->addWidget(m_toolbar);
+    lay->addWidget(m_toolBar);
 
+    connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(split()));
+    connect(close, SIGNAL(triggered()), this, SIGNAL(close()));
     connect(m_navigationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setCurrentIndex(int)));
 
@@ -417,7 +412,7 @@ void NavigationSubWidget::setCurrentIndex(int index)
     // Add Toolbutton
     m_additionalToolBarWidgets = n.doockToolBarWidgets;
     foreach (QToolButton *w, m_additionalToolBarWidgets) {
-        m_toolbar->insertWidget(m_splitAction, w);
+        m_toolBar->insertWidget(m_splitAction, w);
     }
 }
 
