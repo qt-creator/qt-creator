@@ -788,11 +788,14 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = NoSubSubMode;
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
-            moveToFirstNonBlankOnLine();
+            moveToStartOfLine();
             finishMovement();
         } else {
             m_mvcount.append(QChar(key));
         }
+    } else if (key == '^') {
+        moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (0 && key == ',') {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
         m_subsubmode = FtSubSubMode;
