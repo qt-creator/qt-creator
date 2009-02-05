@@ -1,5 +1,6 @@
-load(qttest_p4)
+TEMPLATE = app
+CONFIG += qt warn_on console depend_includepath
+QT = core testlib
 include(../shared/shared.pri)
-QT = core
 
 SOURCES += tst_semantic.cpp

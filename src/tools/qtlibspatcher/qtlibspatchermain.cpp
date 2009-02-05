@@ -42,7 +42,7 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3";
+#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3/qt";
 
 	const char * const oldInstallBase = QT_INSTALL_DIR;
 	const char * const oldSourceBase = QT_INSTALL_DIR;
@@ -108,7 +108,8 @@ bool patchBinariesWithQtPathes(const char *baseQtPath)
     #ifdef Q_OS_WIN
         "/bin/qmake.exe",
         "/bin/QtCore4.dll",
-        "/bin/QtCored4.dll"
+        "/bin/QtCored4.dll",
+        "/lib/QtCored4.dll"
     #else
         "/bin/qmake",
         "/lib/libQtCore.so",
