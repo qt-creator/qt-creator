@@ -54,7 +54,6 @@ private:
     QRegExp m_regExpIncluded;
     QRegExp m_regExpLinker;
     QRegExp m_makeDir;
-    bool m_linkIndent;
 };
 
 } // namespace ProjectExplorer
