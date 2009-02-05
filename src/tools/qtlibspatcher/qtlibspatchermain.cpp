@@ -42,7 +42,7 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3";
+#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3/qt";
 
 	const char * const oldInstallBase = QT_INSTALL_DIR;
 	const char * const oldSourceBase = QT_INSTALL_DIR;
@@ -108,7 +108,8 @@ bool patchBinariesWithQtPathes(const char *baseQtPath)
     #ifdef Q_OS_WIN
         "/bin/qmake.exe",
         "/bin/QtCore4.dll",
-        "/bin/QtCored4.dll"
+        "/bin/QtCored4.dll",
+        "/lib/QtCored4.dll"
     #else
         "/bin/qmake",
         "/lib/libQtCore.so",
@@ -136,7 +137,6 @@ char * allocFileNameCopyAppend(const char * textToCopy,
     Q_ASSERT(textToAppend != NULL);
     if (textToAppend2 == NULL)
         textToAppend2 = "";
-    Q_ASSERT(textToAppend2 != NULL);
 
     char * const res = new char[bytesToAllocate];
     const size_t textToCopyLen = strlen(textToCopy);
@@ -153,7 +153,7 @@ char * allocFileNameCopyAppend(const char * textToCopy,
     if (textToAppendLen > 0)
         strncpy(res + textToCopyLen, textToAppend, bytesToAllocate - textToCopyLen - 1);
     if (textToAppend2Len > 0)
-        strncpy(res + textToCopyLen + textToAppend2Len, textToAppend2, bytesToAllocate - textToCopyLen - textToAppend2Len - 1);
+        strncpy(res + textToCopyLen + textToAppendLen, textToAppend2, bytesToAllocate - textToCopyLen - textToAppendLen - 1);
     res[textToCopyLen + textToAppendLen + textToAppend2Len] = '\0';
     res[bytesToAllocate - 1] = '\0'; // Safe is safe
     return res;
@@ -183,6 +183,19 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         {"/bin/QtWebKitd4.dll", "/src/3rdparty/webkit/WebCore/"},
         {"/bin/QtXmld4.dll", "/src/xml/"},
         {"/bin/QtXmlPatternsd4.dll", "/src/xmlpatterns/"},
+        {"/lib/Qt3Supportd4.dll", "/src/qt3support/"},
+        {"/lib/QtCored4.dll", "/src/corelib/"},
+        {"/lib/QtGuid4.dll", "/src/gui/"},
+        {"/lib/QtHelpd4.dll", "/tools/assistant/lib/"},
+        {"/lib/QtNetworkd4.dll", "/src/network/"},
+        {"/lib/QtOpenGLd4.dll", "/src/opengl/"},
+        {"/lib/QtScriptd4.dll", "/src/script/"},
+        {"/lib/QtSqld4.dll", "/src/sql/"},
+        {"/lib/QtSvgd4.dll", "/src/svg/"},
+        {"/lib/QtTestd4.dll", "/src/testlib/"},
+        {"/lib/QtWebKitd4.dll", "/src/3rdparty/webkit/WebCore/"},
+        {"/lib/QtXmld4.dll", "/src/xml/"},
+        {"/lib/QtXmlPatternsd4.dll", "/src/xmlpatterns/"},
         {"/plugins/accessible/qtaccessiblecompatwidgetsd4.dll", "/src/plugins/accessible/compat/"},
         {"/plugins/accessible/qtaccessiblewidgetsd4.dll", "/src/plugins/accessible/widgets/"},
         {"/plugins/codecs/qcncodecsd4.dll", "/src/plugins/codecs/cn/"},

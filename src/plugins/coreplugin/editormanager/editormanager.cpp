@@ -462,6 +462,7 @@ bool EditorManager::unregisterEditor(IEditor *editor)
     return false;
 }
 
+
 void EditorManager::updateCurrentEditorAndGroup(IContext *context)
 {
     if (debugEditorManager)
@@ -470,7 +471,8 @@ void EditorManager::updateCurrentEditorAndGroup(IContext *context)
     IEditor *editor = context ? qobject_cast<IEditor*>(context) : 0;
     if (groupContext) {
         m_d->m_splitter->setCurrentGroup(groupContext->editorGroup());
-        setCurrentEditor(0);
+        if (groupContext->editorGroup()->editorCount() == 0)
+            setCurrentEditor(0);
         updateActions();
     } else if (editor) {
         setCurrentEditor(editor);

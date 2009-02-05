@@ -719,6 +719,7 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
     // The following two blocks fix bug 180128 by making all "interesting"
     // file name absolute in each .pro file, not just the top most one
     if (varName == QLatin1String("SOURCES")
+            || varName == QLatin1String("OBJECTIVE_SOURCES")
             || varName == QLatin1String("HEADERS")
             || varName == QLatin1String("INTERFACES")
             || varName == QLatin1String("FORMS")
@@ -1666,7 +1667,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
             const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
-            for (int i = configs.size() - 1 && ok; i >= 0; i--) {
+            for (int i = configs.size() - 1; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
                         cond = (configs[i] == args[0]);

@@ -70,6 +70,7 @@ public slots:
     void fetch();
 
 private:
+    QString serverUrl() const;
 
     QAction *m_postAction;
     QAction *m_fetchAction;
