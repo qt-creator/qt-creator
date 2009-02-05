@@ -136,7 +136,6 @@ char * allocFileNameCopyAppend(const char * textToCopy,
     Q_ASSERT(textToAppend != NULL);
     if (textToAppend2 == NULL)
         textToAppend2 = "";
-    Q_ASSERT(textToAppend2 != NULL);
 
     char * const res = new char[bytesToAllocate];
     const size_t textToCopyLen = strlen(textToCopy);
@@ -153,7 +152,7 @@ char * allocFileNameCopyAppend(const char * textToCopy,
     if (textToAppendLen > 0)
         strncpy(res + textToCopyLen, textToAppend, bytesToAllocate - textToCopyLen - 1);
     if (textToAppend2Len > 0)
-        strncpy(res + textToCopyLen + textToAppend2Len, textToAppend2, bytesToAllocate - textToCopyLen - textToAppend2Len - 1);
+        strncpy(res + textToCopyLen + textToAppendLen, textToAppend2, bytesToAllocate - textToCopyLen - textToAppendLen - 1);
     res[textToCopyLen + textToAppendLen + textToAppend2Len] = '\0';
     res[bytesToAllocate - 1] = '\0'; // Safe is safe
     return res;
