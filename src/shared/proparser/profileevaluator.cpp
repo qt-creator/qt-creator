@@ -719,6 +719,7 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
     // The following two blocks fix bug 180128 by making all "interesting"
     // file name absolute in each .pro file, not just the top most one
     if (varName == QLatin1String("SOURCES")
+            || varName == QLatin1String("OBJECTIVE_SOURCES")
             || varName == QLatin1String("HEADERS")
             || varName == QLatin1String("INTERFACES")
             || varName == QLatin1String("FORMS")
