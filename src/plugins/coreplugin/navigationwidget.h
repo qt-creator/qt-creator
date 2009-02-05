@@ -151,7 +151,7 @@ private:
     NavigationWidget *m_parentWidget;
     QComboBox *m_navigationComboBox;
     QWidget *m_navigationWidget;
-    QToolBar *m_toolbar;
+    QToolBar *m_toolBar;
     QAction *m_splitAction;
     QList<QToolButton *> m_additionalToolBarWidgets;
 };
