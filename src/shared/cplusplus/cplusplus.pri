@@ -36,8 +36,8 @@ HEADERS += \
     $$PWD/TranslationUnit.h \
     $$PWD/Type.h \
     $$PWD/TypeVisitor.h \
-    $$PWD/PrettyPrinter.h
-
+    $$PWD/PrettyPrinter.h \
+    $$PWD/ObjectiveCTypeQualifiers.h
 
 SOURCES += \
     $$PWD/AST.cpp \
@@ -55,6 +55,7 @@ SOURCES += \
     $$PWD/FullySpecifiedType.cpp \
     $$PWD/Keywords.cpp \
     $$PWD/ObjectiveCAtKeywords.cpp \
+    $$PWD/ObjectiveCTypeQualifiers.cpp \
     $$PWD/Lexer.cpp \
     $$PWD/LiteralTable.cpp \
     $$PWD/Literals.cpp \

@@ -56,6 +56,7 @@
 #include "Control.h"
 #include "AST.h"
 #include "Literals.h"
+#include "ObjectiveCTypeQualifiers.h"
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
@@ -4043,16 +4044,11 @@ bool Parser::parseObjCTypeQualifiers()
         return false;
 
     Identifier *id = tok().identifier;
-    if (! strcmp("in", id->chars())  ||
-        ! strcmp("out", id->chars()) ||
-        ! strcmp("inout", id->chars()) ||
-        ! strcmp("bycopy", id->chars()) ||
-        ! strcmp("byref", id->chars()) ||
-        ! strcmp("oneway", id->chars())) {
-        consumeToken();
-        return true;
-    }
-    return false;
+    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    if (k == Token_identifier)
+        return false;
+    consumeToken();
+    return true;
 }
 
 // objc-end: T_AT_END
