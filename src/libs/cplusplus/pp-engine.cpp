@@ -727,6 +727,7 @@ void Preprocessor::processDirective(TokenIterator firstToken, TokenIterator last
 
         case PP_INCLUDE:
         case PP_INCLUDE_NEXT:
+        case PP_IMPORT:
             if (! skipping())
                 processInclude(d == PP_INCLUDE_NEXT, firstToken, lastToken);
             break;
@@ -1069,6 +1070,8 @@ Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective (const QByteArra
     case 6:
         if (__directive[0] == 'i' && __directive == "ifndef")
             return PP_IFNDEF;
+        else if (__directive[0] == 'i' && __directive == "import")
+            return PP_IMPORT;
         else if (__directive[0] == 'd' && __directive == "define")
             return PP_DEFINE;
         break;

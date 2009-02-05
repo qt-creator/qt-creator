@@ -85,6 +85,9 @@ public:
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
     bool parseAsmDefinition(DeclarationAST *&node);
+    bool parseAsmOperandList();
+    bool parseAsmOperand();
+    bool parseAsmClobberList();
     bool parseAssignmentExpression(ExpressionAST *&node);
     bool parseBaseClause(BaseSpecifierAST *&node);
     bool parseBaseSpecifier(BaseSpecifierAST *&node);
@@ -211,11 +214,24 @@ public:
     bool parseQtMethod(ExpressionAST *&node);
 
     // ObjC++
+    bool parseObjCExpression(ExpressionAST *&node);
     bool parseObjCClassDeclaration(DeclarationAST *&node);
     bool parseObjCInterface(DeclarationAST *&node,
                             SpecifierAST *attributes = 0);
     bool parseObjCProtocol(DeclarationAST *&node,
                            SpecifierAST *attributes = 0);
+
+    bool parseObjCEncodeExpression(ExpressionAST *&node);
+    bool parseObjCProtocolExpression(ExpressionAST *&node);
+    bool parseObjCSelectorExpression(ExpressionAST *&node);
+    bool parseObjCStringLiteral(ExpressionAST *&node);
+    bool parseObjCMethodSignature();
+    bool parseObjCMessageExpression(ExpressionAST *&node);
+    bool parseObjCMessageReceiver();
+    bool parseObjCMessageArguments();
+    bool parseObjCSelectorArgs();
+    bool parseObjCMethodDefinitionList();
+    bool parseObjCMethodDefinition();
 
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();

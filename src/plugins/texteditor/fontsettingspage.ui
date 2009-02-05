@@ -23,7 +23,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>General Font Settings</string>
+      <string>Font</string>
      </property>
      <layout class="QHBoxLayout">
       <property name="spacing">
@@ -119,7 +119,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Item Specific Settings</string>
+      <string>Color Scheme</string>
      </property>
      <layout class="QHBoxLayout">
       <property name="spacing">

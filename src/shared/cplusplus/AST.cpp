@@ -611,8 +611,7 @@ AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;
     ast->asm_token = asm_token;
-    if (cv_qualifier_seq)
-        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    ast->volatile_token = volatile_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
     ast->semicolon_token = semicolon_token;
@@ -622,9 +621,7 @@ AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (SpecifierAST *spec = cv_qualifier_seq; spec;
-                 spec = spec->next)
-            accept(spec, visitor);
+        // ### accept the asm operand list.
     }
 }
 
@@ -641,11 +638,8 @@ unsigned AsmDefinitionAST::lastToken() const
         return rparen_token + 1;
     else if (lparen_token)
         return lparen_token + 1;
-    for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
+    else if (volatile_token)
+        return volatile_token + 1;
     return asm_token + 1;
 }
 

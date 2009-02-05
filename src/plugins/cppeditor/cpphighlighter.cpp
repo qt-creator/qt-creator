@@ -230,6 +230,8 @@ bool CppHighlighter::isPPKeyword(const QStringRef &text) const
     case 6:
         if (text.at(0) == 'i' && text == QLatin1String("ifndef"))
             return true;
+        if (text.at(0) == 'i' && text == QLatin1String("import"))
+            return true;
         else if (text.at(0) == 'd' && text == QLatin1String("define"))
             return true;
         else if (text.at(0) == 'p' && text == QLatin1String("pragma"))

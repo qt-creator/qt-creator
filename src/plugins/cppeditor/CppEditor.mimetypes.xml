@@ -3,37 +3,6 @@
     <mime-type type="text/x-csrc">
         <sub-class-of type="text/plain"/>
         <comment>C Source file</comment>
-        <comment xml:lang="bg">Изходен код на C</comment>
-        <comment xml:lang="ca">codi font en C</comment>
-        <comment xml:lang="cs">Zdrojový kód v C</comment>
-        <comment xml:lang="cy">Ffynhonnell Rhaglen C</comment>
-        <comment xml:lang="da">C-kildekode</comment>
-        <comment xml:lang="de">C-Quelltext</comment>
-        <comment xml:lang="el">πηγαίος κώδικας C</comment>
-        <comment xml:lang="eo">C-fontkodo</comment>
-        <comment xml:lang="es">código fuente en C</comment>
-        <comment xml:lang="eu">C iturburu-kodea</comment>
-        <comment xml:lang="fi">C-lähdekoodi</comment>
-        <comment xml:lang="fr">code source C</comment>
-        <comment xml:lang="hu">C-forráskód</comment>
-        <comment xml:lang="it">Codice sorgente C</comment>
-        <comment xml:lang="ja">C ソースコード</comment>
-        <comment xml:lang="ko">C 소스 코드</comment>
-        <comment xml:lang="lt">C pradinis kodas</comment>
-        <comment xml:lang="ms">Kod sumber C</comment>
-        <comment xml:lang="nb">C-kildekode</comment>
-        <comment xml:lang="nl">C-broncode</comment>
-        <comment xml:lang="nn">C-kjeldekode</comment>
-        <comment xml:lang="pl">Kod źródłowy w C</comment>
-        <comment xml:lang="pt">código fonte C</comment>
-        <comment xml:lang="pt_BR">Código fonte C</comment>
-        <comment xml:lang="ru">программа на языке C</comment>
-        <comment xml:lang="sq">Kod burues C</comment>
-        <comment xml:lang="sr">C изворни ко̂д</comment>
-        <comment xml:lang="sv">C-källkod</comment>
-        <comment xml:lang="uk">Вихідний код на мові C</comment>
-        <comment xml:lang="zh_CN">C 源代码</comment>
-        <comment xml:lang="zh_TW">C 源代碼</comment>
         <glob pattern="*.c"/>
     </mime-type>
 
@@ -41,21 +10,6 @@
     <mime-type type="text/x-chdr">
         <sub-class-of type="text/x-csrc"/>
         <comment>C Header file</comment>
-        <comment xml:lang="bg">Заглавен файл на C</comment>
-        <comment xml:lang="cs">Hlavička v C</comment>
-        <comment xml:lang="de">C-Header</comment>
-        <comment xml:lang="es">cabecera de código fuente en C</comment>
-        <comment xml:lang="eu">C goiburua</comment>
-        <comment xml:lang="fi">C-otsake</comment>
-        <comment xml:lang="fr">en-tête C</comment>
-        <comment xml:lang="hu">C fejléc</comment>
-        <comment xml:lang="it">Header C</comment>
-        <comment xml:lang="ko">C 헤더</comment>
-        <comment xml:lang="nb">C-kildekodeheader</comment>
-        <comment xml:lang="nn">C-hovud</comment>
-        <comment xml:lang="pl">Plik nagłówkowy w C</comment>
-        <comment xml:lang="sv">C-huvud</comment>
-        <comment xml:lang="uk">Файл заголовків на C</comment>
         <glob pattern="*.h"/>
     </mime-type>
 
@@ -65,20 +19,6 @@
         <sub-class-of type="text/x-chdr"/>
         <comment>C++ Header file</comment>
         <comment>C++ header</comment>
-        <comment xml:lang="bg">Заглавен файл на C++</comment>
-        <comment xml:lang="cs">Hlavička v C++</comment>
-        <comment xml:lang="de">C++-Header</comment>
-        <comment xml:lang="es">cabecera de código fuente en C++</comment>
-        <comment xml:lang="eu">C++ goiburua</comment>
-        <comment xml:lang="fi">C++-otsake</comment>
-        <comment xml:lang="fr">en-tête C++</comment>
-        <comment xml:lang="hu">C++ fejléc</comment>
-        <comment xml:lang="it">Header C++</comment>
-        <comment xml:lang="nb">C++-kildekodeheader</comment>
-        <comment xml:lang="nn">C++-hovud</comment>
-        <comment xml:lang="pl">Plik nagłówkowy w C++</comment>
-        <comment xml:lang="sv">C++-huvud</comment>
-        <comment xml:lang="uk">Файл заголовків на C++</comment>
         <glob pattern="*.h"/>
         <glob pattern="*.hh"/>
         <glob pattern="*.hxx"/>
@@ -97,37 +37,6 @@
         <comment>C++ Source file</comment>
         <sub-class-of type="text/x-csrc"/>
         <comment>C++ source code</comment>
-        <comment xml:lang="bg">Изходен код на C++</comment>
-        <comment xml:lang="ca">codi font en C++</comment>
-        <comment xml:lang="cs">Zdrojový kód v C++</comment>
-        <comment xml:lang="cy">Ffynhonnell Rhaglen C++</comment>
-        <comment xml:lang="da">C++-kildekode</comment>
-        <comment xml:lang="de">C++-Quelltext</comment>
-        <comment xml:lang="el">πηγαίος κώδικας C++</comment>
-        <comment xml:lang="eo">C++-fontkodo</comment>
-        <comment xml:lang="es">código fuente en C++</comment>
-        <comment xml:lang="eu">C++ iturburu-kodea</comment>
-        <comment xml:lang="fi">C++-lähdekoodi</comment>
-        <comment xml:lang="fr">code source C++</comment>
-        <comment xml:lang="hu">C++-forráskód</comment>
-        <comment xml:lang="it">Codice sorgente C++</comment>
-        <comment xml:lang="ja">C++ ソースコード</comment>
-        <comment xml:lang="ko">C++ 소스 코드</comment>
-        <comment xml:lang="lt">C++ pradinis kodas</comment>
-        <comment xml:lang="ms">Kod sumber C++</comment>
-        <comment xml:lang="nb">C++-kildekode</comment>
-        <comment xml:lang="nl">C++-broncode</comment>
-        <comment xml:lang="nn">C++-kjeldekode</comment>
-        <comment xml:lang="pl">Kod źródłowy w C++</comment>
-        <comment xml:lang="pt">código fonte C++</comment>
-        <comment xml:lang="pt_BR">Código fonte C++</comment>
-        <comment xml:lang="ru">программа на языке C++</comment>
-        <comment xml:lang="sq">Kod burues C++</comment>
-        <comment xml:lang="sr">C++ изворни ко̂д</comment>
-        <comment xml:lang="sv">C++-källkod</comment>
-        <comment xml:lang="uk">Вихідний код на мові C++</comment>
-        <comment xml:lang="zh_CN">C++ 源代码</comment>
-        <comment xml:lang="zh_TW">C++ 源代碼</comment>
         <glob pattern="*.cpp"/>
         <glob pattern="*.cc"/>
         <glob pattern="*.cxx"/>
@@ -135,4 +44,15 @@
         <glob pattern="*.C"/>
         <glob pattern="*.inl"/>
     </mime-type>
+
+    <mime-type type="text/x-objcsrc">
+         <comment>Objective-C source code</comment>
+         <sub-class-of type="text/x-csrc"/>
+         <magic priority="30">
+         <match value="#import" type="string" offset="0"/>
+         </magic>
+         <glob pattern="*.m"/>
+         <glob pattern="*.mm"/>
+    </mime-type>
+
 </mime-info>

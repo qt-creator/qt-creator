@@ -56,6 +56,7 @@
 #include "Control.h"
 #include "AST.h"
 #include "Literals.h"
+#include "ObjectiveCTypeQualifiers.h"
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
@@ -627,20 +628,90 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
 bool Parser::parseAsmDefinition(DeclarationAST *&node)
 {
-    if (LA() == T_ASM) {
-        AsmDefinitionAST *ast = new (_pool) AsmDefinitionAST;
-        ast->asm_token = consumeToken();
-        parseCvQualifiers(ast->cv_qualifier_seq);
-        if (LA() == T_LPAREN) {
-            ast->lparen_token = cursor();
-            if (skip(T_LPAREN, T_RPAREN))
-                ast->rparen_token = consumeToken();
+    if (LA() != T_ASM)
+        return false;
+
+    AsmDefinitionAST *ast = new (_pool) AsmDefinitionAST;
+    ast->asm_token = consumeToken();
+
+    if (LA() == T_VOLATILE)
+        ast->volatile_token = consumeToken();
+
+    match(T_LPAREN, &ast->lparen_token);
+    unsigned string_literal_token = 0;
+    match(T_STRING_LITERAL, &string_literal_token);
+    while (LA() == T_STRING_LITERAL) {
+        consumeToken();
+    }
+    if (LA() == T_COLON) {
+        consumeToken(); // skip T_COLON
+        parseAsmOperandList();
+        if (LA() == T_COLON) {
+            consumeToken();
+            parseAsmOperandList();
+            if (LA() == T_COLON) {
+                consumeToken();
+                parseAsmClobberList();
+            }
+        } else if (LA() == T_COLON_COLON) {
+            consumeToken();
+            parseAsmClobberList();
         }
-        match(T_SEMICOLON, &ast->semicolon_token);
-        node = ast;
+    } else if (LA() == T_COLON_COLON) {
+        consumeToken();
+        parseAsmClobberList();
+    }
+    match(T_RPAREN, &ast->rparen_token);
+    match(T_SEMICOLON, &ast->semicolon_token);
+    node = ast;
+    return true;
+}
+
+bool Parser::parseAsmOperandList()
+{
+    if (parseAsmOperand()) {
+        while (LA() == T_COMMA) {
+            consumeToken();
+            parseAsmOperand();
+        }
         return true;
     }
     return false;
+}
+
+bool Parser::parseAsmOperand()
+{
+    unsigned string_literal_token = 0;
+    match(T_STRING_LITERAL, &string_literal_token);
+
+    if (LA() == T_LBRACKET) {
+        /*unsigned lbracket_token = */ consumeToken();
+        match(T_STRING_LITERAL, &string_literal_token);
+        unsigned rbracket_token = 0;
+        match(T_RBRACKET, &rbracket_token);
+    }
+
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    ExpressionAST *expression = 0;
+    parseExpression(expression);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseAsmClobberList()
+{
+    if (LA() != T_STRING_LITERAL)
+        return false;
+
+    unsigned string_literal_token = consumeToken();
+
+    while (LA() == T_COMMA) {
+        consumeToken();
+        match(T_STRING_LITERAL, &string_literal_token);
+    }
+
+    return true;
 }
 
 bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
@@ -2556,6 +2627,13 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
+    case T_LBRACKET:
+    case T_AT_STRING_LITERAL:
+    case T_AT_ENCODE:
+    case T_AT_PROTOCOL:
+    case T_AT_SELECTOR:
+        return parseObjCExpression(node);
+
     default: {
         NameAST *name = 0;
         if (parseNameId(name)) {
@@ -2567,6 +2645,151 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
 
     } // switch
 
+    return false;
+}
+
+bool Parser::parseObjCExpression(ExpressionAST *&node)
+{
+    switch (LA()) {
+    case T_AT_ENCODE:
+        return parseObjCEncodeExpression(node);
+
+    case T_AT_PROTOCOL:
+        return parseObjCProtocolExpression(node);
+
+    case T_AT_SELECTOR:
+        return parseObjCSelectorExpression(node);
+
+    case T_LBRACKET:
+        return parseObjCMessageExpression(node);
+
+    case T_AT_STRING_LITERAL:
+        return parseObjCStringLiteral(node);
+
+    default:
+        break;
+    } // switch
+    return false;
+}
+
+bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
+{
+    if (LA() != T_AT_STRING_LITERAL)
+        return false;
+
+    StringLiteralAST **ast = reinterpret_cast<StringLiteralAST **> (&node);
+
+    while (LA() == T_AT_STRING_LITERAL) {
+        *ast = new (_pool) StringLiteralAST;
+        (*ast)->token = consumeToken();
+        ast = &(*ast)->next;
+    }
+    return true;
+}
+
+bool Parser::parseObjCEncodeExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_ENCODE)
+        return false;
+
+    /*unsigned encode_token = */ consumeToken();
+    parseObjCTypeName();
+    return true;
+}
+
+bool Parser::parseObjCProtocolExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_PROTOCOL)
+        return false;
+
+    /*unsigned protocol_token = */ consumeToken();
+    unsigned lparen_token = 0, identifier_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    match(T_IDENTIFIER, &identifier_token);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
+{
+    if (LA() != T_AT_SELECTOR)
+        return false;
+
+    /*unsigned selector_token = */consumeToken();
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    parseObjCMethodSignature();
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseObjCMessageExpression(ExpressionAST *&)
+{
+    if (LA() != T_LBRACKET)
+        return false;
+
+    /*unsigned lbracket_token = */ consumeToken();
+
+    parseObjCMessageReceiver();
+    parseObjCMessageArguments();
+
+    unsigned rbracket_token = 0;
+    match(T_RBRACKET, &rbracket_token);
+    return true;
+}
+
+bool Parser::parseObjCMessageReceiver()
+{
+    ExpressionAST *expression = 0;
+    return parseExpression(expression);
+}
+
+bool Parser::parseObjCMessageArguments()
+{
+    if (LA() == T_RBRACKET)
+        return false; // nothing to do.
+
+    unsigned start = cursor();
+
+    if (parseObjCSelectorArgs()) {
+        while (parseObjCSelectorArgs()) {
+            // accept the selector args.
+        }
+    } else {
+        rewind(start);
+        parseObjCSelector();
+    }
+
+    while (LA() == T_COMMA) {
+        consumeToken(); // skip T_COMMA
+        ExpressionAST *expression = 0;
+        parseAssignmentExpression(expression);
+    }
+    return true;
+}
+
+bool Parser::parseObjCSelectorArgs()
+{
+    parseObjCSelector();
+    if (LA() != T_COLON)
+        return false;
+
+    /*unsigned colon_token = */consumeToken();
+
+    ExpressionAST *expression = 0;
+    parseAssignmentExpression(expression);
+    return true;
+}
+
+bool Parser::parseObjCMethodSignature()
+{
+    if (parseObjCSelector()) {
+        while (LA() == T_COMMA) {
+            consumeToken(); // skip T_COMMA
+            parseObjCSelector();
+        }
+        return true;
+    }
     return false;
 }
 
@@ -3522,6 +3745,42 @@ bool Parser::parseObjCImplementation(DeclarationAST *&)
     }
 
     parseObjClassInstanceVariables();
+    parseObjCMethodDefinitionList();
+    return true;
+}
+
+bool Parser::parseObjCMethodDefinitionList()
+{
+    while (LA() && LA() != T_AT_END) {
+        unsigned start = cursor();
+
+        switch (LA()) {
+        case T_PLUS:
+        case T_MINUS:
+            parseObjCMethodDefinition();
+
+            if (start == cursor())
+                consumeToken();
+            break;
+
+        default:
+            // ### warning message
+            consumeToken();
+            break;
+        } // switch
+    }
+
+    return true;
+}
+
+bool Parser::parseObjCMethodDefinition()
+{
+    if (LA() != T_MINUS && LA() != T_PLUS)
+        return false;
+
+    parseObjCMethodSignature();
+    StatementAST *function_body = 0;
+    parseFunctionBody(function_body);
     return true;
 }
 
@@ -3785,16 +4044,11 @@ bool Parser::parseObjCTypeQualifiers()
         return false;
 
     Identifier *id = tok().identifier;
-    if (! strcmp("in", id->chars())  ||
-        ! strcmp("out", id->chars()) ||
-        ! strcmp("inout", id->chars()) ||
-        ! strcmp("bycopy", id->chars()) ||
-        ! strcmp("byref", id->chars()) ||
-        ! strcmp("oneway", id->chars())) {
-        consumeToken();
-        return true;
-    }
-    return false;
+    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    if (k == Token_identifier)
+        return false;
+    consumeToken();
+    return true;
 }
 
 // objc-end: T_AT_END
