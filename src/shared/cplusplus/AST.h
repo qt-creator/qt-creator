@@ -397,8 +397,10 @@ class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
 {
 public:
     unsigned asm_token;
-    SpecifierAST *cv_qualifier_seq;
+    unsigned volatile_token;
     unsigned lparen_token;
+    // ### string literals
+    // ### asm operand list
     unsigned rparen_token;
     unsigned semicolon_token;
 

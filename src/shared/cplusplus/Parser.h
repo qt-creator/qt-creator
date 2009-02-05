@@ -85,6 +85,9 @@ public:
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
     bool parseAsmDefinition(DeclarationAST *&node);
+    bool parseAsmOperandList();
+    bool parseAsmOperand();
+    bool parseAsmClobberList();
     bool parseAssignmentExpression(ExpressionAST *&node);
     bool parseBaseClause(BaseSpecifierAST *&node);
     bool parseBaseSpecifier(BaseSpecifierAST *&node);

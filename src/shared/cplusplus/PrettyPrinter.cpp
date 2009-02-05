@@ -101,10 +101,8 @@ bool PrettyPrinter::visit(ArrayInitializerAST *ast)
 bool PrettyPrinter::visit(AsmDefinitionAST *ast)
 {
     out << spell(ast->asm_token);
-    for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-        out << ' ';
-        accept(it);
-    }
+    if (ast->volatile_token)
+        out << ' ' << spell(ast->volatile_token) << ' ';
     out << '(';
     out << "/* ### implement me */";
     out << ");";

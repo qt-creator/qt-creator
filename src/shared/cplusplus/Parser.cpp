@@ -627,20 +627,90 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
 bool Parser::parseAsmDefinition(DeclarationAST *&node)
 {
-    if (LA() == T_ASM) {
-        AsmDefinitionAST *ast = new (_pool) AsmDefinitionAST;
-        ast->asm_token = consumeToken();
-        parseCvQualifiers(ast->cv_qualifier_seq);
-        if (LA() == T_LPAREN) {
-            ast->lparen_token = cursor();
-            if (skip(T_LPAREN, T_RPAREN))
-                ast->rparen_token = consumeToken();
+    if (LA() != T_ASM)
+        return false;
+
+    AsmDefinitionAST *ast = new (_pool) AsmDefinitionAST;
+    ast->asm_token = consumeToken();
+
+    if (LA() == T_VOLATILE)
+        ast->volatile_token = consumeToken();
+
+    match(T_LPAREN, &ast->lparen_token);
+    unsigned string_literal_token = 0;
+    match(T_STRING_LITERAL, &string_literal_token);
+    while (LA() == T_STRING_LITERAL) {
+        consumeToken();
+    }
+    if (LA() == T_COLON) {
+        consumeToken(); // skip T_COLON
+        parseAsmOperandList();
+        if (LA() == T_COLON) {
+            consumeToken();
+            parseAsmOperandList();
+            if (LA() == T_COLON) {
+                consumeToken();
+                parseAsmClobberList();
+            }
+        } else if (LA() == T_COLON_COLON) {
+            consumeToken();
+            parseAsmClobberList();
         }
-        match(T_SEMICOLON, &ast->semicolon_token);
-        node = ast;
+    } else if (LA() == T_COLON_COLON) {
+        consumeToken();
+        parseAsmClobberList();
+    }
+    match(T_RPAREN, &ast->rparen_token);
+    match(T_SEMICOLON, &ast->semicolon_token);
+    node = ast;
+    return true;
+}
+
+bool Parser::parseAsmOperandList()
+{
+    if (parseAsmOperand()) {
+        while (LA() == T_COMMA) {
+            consumeToken();
+            parseAsmOperand();
+        }
         return true;
     }
     return false;
+}
+
+bool Parser::parseAsmOperand()
+{
+    unsigned string_literal_token = 0;
+    match(T_STRING_LITERAL, &string_literal_token);
+
+    if (LA() == T_LBRACKET) {
+        /*unsigned lbracket_token = */ consumeToken();
+        match(T_STRING_LITERAL, &string_literal_token);
+        unsigned rbracket_token = 0;
+        match(T_RBRACKET, &rbracket_token);
+    }
+
+    unsigned lparen_token = 0, rparen_token = 0;
+    match(T_LPAREN, &lparen_token);
+    ExpressionAST *expression = 0;
+    parseExpression(expression);
+    match(T_RPAREN, &rparen_token);
+    return true;
+}
+
+bool Parser::parseAsmClobberList()
+{
+    if (LA() != T_STRING_LITERAL)
+        return false;
+
+    unsigned string_literal_token = consumeToken();
+
+    while (LA() == T_COMMA) {
+        consumeToken();
+        match(T_STRING_LITERAL, &string_literal_token);
+    }
+
+    return true;
 }
 
 bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
