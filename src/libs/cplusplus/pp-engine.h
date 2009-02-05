@@ -150,6 +150,7 @@ namespace CPlusPlus {
         {
             PP_UNKNOWN_DIRECTIVE,
             PP_DEFINE,
+            PP_IMPORT,
             PP_INCLUDE,
             PP_INCLUDE_NEXT,
             PP_ELIF,
