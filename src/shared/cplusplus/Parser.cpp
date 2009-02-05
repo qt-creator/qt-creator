@@ -3744,6 +3744,42 @@ bool Parser::parseObjCImplementation(DeclarationAST *&)
     }
 
     parseObjClassInstanceVariables();
+    parseObjCMethodDefinitionList();
+    return true;
+}
+
+bool Parser::parseObjCMethodDefinitionList()
+{
+    while (LA() && LA() != T_AT_END) {
+        unsigned start = cursor();
+
+        switch (LA()) {
+        case T_PLUS:
+        case T_MINUS:
+            parseObjCMethodDefinition();
+
+            if (start == cursor())
+                consumeToken();
+            break;
+
+        default:
+            // ### warning message
+            consumeToken();
+            break;
+        } // switch
+    }
+
+    return true;
+}
+
+bool Parser::parseObjCMethodDefinition()
+{
+    if (LA() != T_MINUS && LA() != T_PLUS)
+        return false;
+
+    parseObjCMethodSignature();
+    StatementAST *function_body = 0;
+    parseFunctionBody(function_body);
     return true;
 }
 

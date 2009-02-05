@@ -230,6 +230,8 @@ public:
     bool parseObjCMessageReceiver();
     bool parseObjCMessageArguments();
     bool parseObjCSelectorArgs();
+    bool parseObjCMethodDefinitionList();
+    bool parseObjCMethodDefinition();
 
     bool parseObjCProtocolRefs();
     bool parseObjClassInstanceVariables();
