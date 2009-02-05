@@ -260,7 +260,7 @@ Core::IFile *FormWindowEditor::file()
 
 const char *FormWindowEditor::kind() const
 {
-    return C_FORMWINDOW;
+    return C_FORMEDITOR;
 }
 
 QString FormWindowEditor::displayName() const

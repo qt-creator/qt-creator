@@ -1666,7 +1666,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
             const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
-            for (int i = configs.size() - 1 && ok; i >= 0; i--) {
+            for (int i = configs.size() - 1; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
                         cond = (configs[i] == args[0]);

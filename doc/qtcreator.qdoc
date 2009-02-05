@@ -215,8 +215,20 @@
 
     \title The Code Editor
 
-    ### SCREENSHOT of the editor in action
+    Qt Creator's code editor is designed to aid the developer to create, edit,
+    and navigate code. It is fully equipped with syntax highlighting, code
+    completion, context sensitive help, as well as inline error indicators
+    while you are typing. The screenshots below show the various dialogs within
+    which you can configure your editor.
 
+    \table
+        \row
+            \i  \inlineimage qtcreator-texteditor-general.png
+            \i  \inlineimage qtcreator-texteditor-fonts.png
+            \i  \inlineimage qtcreator-texteditor-completion.png
+    \endtable
+
+    The table below lists keyboard shortcuts supported by the code editor.
 
     \table
         \row
@@ -230,45 +242,47 @@
                 To deselect, use \key{Ctrl+Shift+U}.    
         \row
             \i  Moving lines up and down
-            \i  
+            \i  Use \key{Ctrl+Shift+Up} and \key{Ctrl+Shift+Down}
 
         \row
             \i  Completion
-            \i
+            \i  Use \key{Ctrl+Space}
 
         \row
             \i  Indenting Blocks
-            \i
-        \row
-            \i  Commenting or Uncommenting Blocks
-            \i
+            \i  Use \key{Ctrl+I}
 
         \row
-            \i  Switch between Header and Source
+            \i  Collapse
+            \i  Use \key{Ctrl+\<}
+
+        \row
+            \i  Commenting or uncommenting blocks
+            \i  Use \key{Ctrl+\/}
+
+        \row
+            \i  Delete a line
+            \i  Use \key{Shift+Del}
+
+        \row
+            \i  Switch between header file and source file
             \i  Use \key{F4}.
 
         \row
-            \i  Increasing and Decreasing Font Size
+            \i  Increasing and decreasing font size
             \i  Use \key{Ctrl+Scroll Wheel}
 
         \row
-            \i  Follow Symbols under The Cursor
+            \i  Follow symbols under the cursor
             \i  Use \key{F2} and \key{Shift+F2}. This feature works with
                 namespaces, classes, methods, variables, include statements,
                 and macros.
+
+        \row
+            \i  Switch to an external editor
+            \i  Select \gui{Open in external editor} from the
+                \gui{Edit -> Advanced} menu.
     \endtable
-
-
-    More:
-
-    Collapse
-
-    Up/Down/Page Up/Page Down - hold ctrl to prevent the cursor from moving
-
-
-
-    To switch to an external editor, select \gui{Open in external editor} from
-    the \gui{Edit -> Advanced} menu.
 
 */
 
@@ -1416,7 +1430,7 @@
            colons, dollar signs, hash marks etc. may cause difficulties. This
            is because some of the tools Qt Creator uses in the background have
            restrictions on the characters allowed in file and directory names.
-           To be on the safe side, we recomment creating projects and project
+           To be on the safe side, we recommend creating projects and project
            items with names consisting of plain characters, numbers,
            underscores, and hyphens.
 

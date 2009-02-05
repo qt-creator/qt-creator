@@ -180,7 +180,16 @@ bool FakeVimPluginPrivate::initialize()
 
 void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 {
+    if (!editor)
+        return;
+
     QWidget *widget = editor->widget();
+    if (!widget)
+        return;
+
+    // we can only handle QTextEdit and QPlainTextEdit
+    if (!qobject_cast<QTextEdit *>(widget) && !qobject_cast<QPlainTextEdit *>(widget))
+        return;
     
     FakeVimHandler *handler = new FakeVimHandler(widget, widget);
 

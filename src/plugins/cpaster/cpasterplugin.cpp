@@ -124,10 +124,23 @@ void CodepasterPlugin::extensionsInitialized()
         ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
+QString CodepasterPlugin::serverUrl() const
+{
+    QString url = m_settingsPage->serverUrl().toString();
+    if (url.startsWith("http://"))
+        url = url.mid(7);
+    if (url.endsWith('/'))
+        url.chop(1);
+    return url;
+}
+
 void CodepasterPlugin::post()
 {
-    if (m_poster)
+    // FIXME: The whole m_poster thing is de facto a simple function call.
+    if (m_poster) {
         delete m_poster;
+        m_poster = 0; 
+    }
     IEditor* editor = EditorManager::instance()->currentEditor();
     ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
@@ -171,7 +184,8 @@ void CodepasterPlugin::post()
     data = view.getContent();
 
     // Submit to codepaster
-    m_poster = new CustomPoster(m_settingsPage->serverUrl().toString());
+
+    m_poster = new CustomPoster(serverUrl());
 
     // Copied from cpaster. Otherwise lineendings will screw up
     if (!data.contains("\r\n")) {
@@ -185,9 +199,11 @@ void CodepasterPlugin::post()
 
 void CodepasterPlugin::fetch()
 {
-    if (m_fetcher)
+    if (m_fetcher) {
         delete m_fetcher;
-    m_fetcher = new CustomFetcher(m_settingsPage->serverUrl().toString());
+        m_fetcher = 0;
+    }
+    m_fetcher = new CustomFetcher(serverUrl());
 
     QDialog dialog;
     Ui_PasteSelectDialog ui;
@@ -208,7 +224,7 @@ void CodepasterPlugin::fetch()
         return;
 
     delete m_fetcher;
-    m_fetcher = new CustomFetcher(m_settingsPage->serverUrl().toString());
+    m_fetcher = new CustomFetcher(serverUrl());
     m_fetcher->fetch(pasteID);
 }
 
