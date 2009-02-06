@@ -3772,7 +3772,6 @@ bool Parser::parseObjCMethodDefinitionList()
                 DeclarationAST *declaration = 0;
                 parseDeclaration(declaration);
             } else {
-                unsigned start = cursor();
                 DeclarationAST *declaration = 0;
                 if (! parseBlockDeclaration(declaration)) {
                     rewind(start);
@@ -3791,10 +3790,12 @@ bool Parser::parseObjCMethodDefinitionList()
 
 bool Parser::parseObjCMethodDefinition()
 {
-    if (LA() != T_MINUS && LA() != T_PLUS)
+    if (! parseObjCMethodPrototype())
         return false;
 
-    parseObjCMethodSignature();
+    if (LA() == T_SEMICOLON)
+        consumeToken();
+
     StatementAST *function_body = 0;
     parseFunctionBody(function_body);
     return true;
