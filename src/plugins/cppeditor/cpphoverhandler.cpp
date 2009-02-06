@@ -258,6 +258,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
         if (!types.isEmpty()) {
             FullySpecifiedType firstType = types.first().first;
+            Symbol *symbol = types.first().second;
             FullySpecifiedType docType = firstType;
 
             if (const PointerType *pt = firstType->asPointerType()) {
@@ -266,8 +267,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 docType = rt->elementType();
             }
 
-            m_helpId = buildHelpId(docType, types.first().second);
-            QString displayName = buildHelpId(firstType, types.first().second);
+            m_helpId = buildHelpId(docType, symbol);
+            QString displayName = buildHelpId(firstType, symbol);
 
             if (!firstType->isClass() && !firstType->isNamedType()) {
                 Overview overview;
@@ -297,7 +298,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         m_helpEngineNeedsSetup = false;
     }
 
-    if (! m_toolTip.isEmpty())
+    if (!m_toolTip.isEmpty())
         m_toolTip = Qt::escape(m_toolTip);
 
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
