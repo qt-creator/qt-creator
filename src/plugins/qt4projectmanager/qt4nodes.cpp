@@ -540,7 +540,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
 void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
 {
     if (project == m_project && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project))
-        updateUiFiles();
+        updateUiFiles(m_project->buildDirectory(m_project->activeBuildConfiguration()));
 }
 
 bool Qt4ProFileNode::hasTargets() const
@@ -710,7 +710,7 @@ void Qt4ProFileNode::update()
                 emit qt4Watcher->variablesChanged(this, m_varValues, newVarValues);
     }
 
-    updateUiFiles();
+    updateUiFiles(m_project->buildDirectory(m_project->activeBuildConfiguration()));
 
     foreach (NodesWatcher *watcher, watchers())
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
@@ -744,7 +744,7 @@ namespace {
 // It does so by storing a modification time for each ui file we know about.
 
 // TODO this function should also be called if the build directory is changed
-void Qt4ProFileNode::updateUiFiles()
+void Qt4ProFileNode::updateUiFiles(const QString &buildDirectory)
 {
     // Only those two project types can have ui files for us
     if (m_projectType != ApplicationTemplate
@@ -757,7 +757,7 @@ void Qt4ProFileNode::updateUiFiles()
     const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
     // Find the UiDir, there can only ever be one
-    QString uiDir; // We should default to the build directory
+    QString uiDir = buildDirectory;
     QStringList tmp = m_varValues[UiDirVar];
     if (tmp.size() != 0)
         uiDir = tmp.first();
