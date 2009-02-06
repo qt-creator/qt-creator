@@ -3763,9 +3763,25 @@ bool Parser::parseObjCMethodDefinitionList()
                 consumeToken();
             break;
 
-        default:
-            // ### warning message
+        case T_SEMICOLON:
             consumeToken();
+            break;
+
+        default:
+            if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
+                DeclarationAST *declaration = 0;
+                parseDeclaration(declaration);
+            } else {
+                unsigned start = cursor();
+                DeclarationAST *declaration = 0;
+                if (! parseBlockDeclaration(declaration)) {
+                    rewind(start);
+                    _translationUnit->error(cursor(),
+                                            "skip token `%s'", tok().spell());
+
+                    consumeToken();
+                }
+            }
             break;
         } // switch
     }
