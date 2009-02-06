@@ -2718,7 +2718,38 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
     /*unsigned selector_token = */consumeToken();
     unsigned lparen_token = 0, rparen_token = 0;
     match(T_LPAREN, &lparen_token);
-    parseObjCMethodSignature();
+
+    if (LA() == T_COLON || LA() == T_COLON_COLON) {
+        consumeToken();
+
+        if (LA() == T_RPAREN) {
+            _translationUnit->warning(cursor(),
+                                      "error expended a selector");
+            match(T_RPAREN, &rparen_token);
+            return true;
+        }
+    } else if (lookAtObjCSelector()) {
+        unsigned start = cursor();
+        consumeToken();
+        if (LA() != T_RPAREN)
+            rewind(start);
+        else {
+            match(T_RPAREN, &rparen_token);
+            return true;
+        }
+    }
+
+    while (lookAtObjCSelector()) {
+        parseObjCSelector();
+        if (LA() == T_COLON || LA() == T_COLON_COLON)
+            consumeToken();
+        else {
+            _translationUnit->error(cursor(),
+                                    "expected :");
+            break;
+        }
+    }
+
     match(T_RPAREN, &rparen_token);
     return true;
 }
