@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Start Debugger</string>
+   <string>Set Breakpoint at Function</string>
   </property>
   <layout class="QVBoxLayout">
    <property name="spacing">
