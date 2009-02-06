@@ -2741,7 +2741,7 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&)
 
     while (lookAtObjCSelector()) {
         parseObjCSelector();
-        if (LA() == T_COLON || LA() == T_COLON_COLON)
+        if (LA() == T_COLON)
             consumeToken();
         else {
             _translationUnit->error(cursor(),
