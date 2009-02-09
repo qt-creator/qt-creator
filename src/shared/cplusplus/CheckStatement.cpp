@@ -103,6 +103,7 @@ bool CheckStatement::visit(CaseStatementAST *ast)
 bool CheckStatement::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->lbrace_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     for (StatementAST *it = ast->statements; it; it = it->next) {
@@ -145,6 +146,7 @@ bool CheckStatement::visit(ExpressionStatementAST *ast)
 bool CheckStatement::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->for_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     semantic()->check(ast->initializer, _scope);
@@ -158,6 +160,7 @@ bool CheckStatement::visit(ForStatementAST *ast)
 bool CheckStatement::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->if_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     FullySpecifiedType exprTy = semantic()->check(ast->condition, _scope);
@@ -197,6 +200,7 @@ bool CheckStatement::visit(ReturnStatementAST *ast)
 bool CheckStatement::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->switch_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
@@ -217,6 +221,7 @@ bool CheckStatement::visit(TryBlockStatementAST *ast)
 bool CheckStatement::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->catch_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     semantic()->check(ast->exception_declaration, _scope);
@@ -228,6 +233,7 @@ bool CheckStatement::visit(CatchClauseAST *ast)
 bool CheckStatement::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->while_token);
+    ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);

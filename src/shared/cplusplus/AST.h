@@ -573,6 +573,9 @@ public:
     StatementAST *statements;
     unsigned rbrace_token;
 
+public: // annotations
+    Block *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -966,6 +969,9 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -986,6 +992,9 @@ public:
     StatementAST *statement;
     unsigned else_token;
     StatementAST *else_statement;
+
+public: // annotations
+    Block *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -1746,6 +1755,9 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1849,6 +1861,9 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
     CatchClauseAST *next;
+
+public: // annotations
+    Block *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -1988,6 +2003,9 @@ public:
     ExpressionAST *condition;
     unsigned rparen_token;
     StatementAST *statement;
+
+public: // annotations
+    Block *symbol;
 
 public:
     virtual unsigned firstToken() const;
