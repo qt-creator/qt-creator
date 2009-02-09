@@ -1,0 +1,174 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>599</width>
+    <height>606</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout" >
+    <item>
+     <widget class="QPlainTextEdit" name="codeWindow" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="undoRedoEnabled" >
+       <bool>false</bool>
+      </property>
+      <property name="lineWrapMode" >
+       <enum>QPlainTextEdit::NoWrap</enum>
+      </property>
+      <property name="readOnly" >
+       <bool>true</bool>
+      </property>
+      <property name="textInteractionFlags" >
+       <set>Qt::NoTextInteraction</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex" >
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
+        <string>Threads</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout" >
+        <item>
+         <widget class="QListWidget" name="lstThreads" />
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Stack</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item>
+         <widget class="QListWidget" name="lstStack" />
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Output</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_3" >
+        <item>
+         <widget class="QPlainTextEdit" name="teOutput" />
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>599</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Debug" >
+    <property name="title" >
+     <string>&amp;Debug</string>
+    </property>
+    <addaction name="actionRun" />
+    <addaction name="actionBreak" />
+    <addaction name="actionStepOver" />
+    <addaction name="actionStopDebugging" />
+    <addaction name="actionStepInto" />
+   </widget>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionOpen" />
+    <addaction name="actionClose" />
+    <addaction name="separator" />
+    <addaction name="actionExit" />
+   </widget>
+   <addaction name="menu_File" />
+   <addaction name="menu_Debug" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="actionOpen" >
+   <property name="text" >
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionClose" >
+   <property name="text" >
+    <string>&amp;Close</string>
+   </property>
+  </action>
+  <action name="actionExit" >
+   <property name="text" >
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actionRun" >
+   <property name="text" >
+    <string>&amp;Run</string>
+   </property>
+   <property name="shortcut" >
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionBreak" >
+   <property name="text" >
+    <string>&amp;Break</string>
+   </property>
+  </action>
+  <action name="actionStepOver" >
+   <property name="text" >
+    <string>Step over</string>
+   </property>
+   <property name="shortcut" >
+    <string>F10</string>
+   </property>
+  </action>
+  <action name="actionStepInto" >
+   <property name="text" >
+    <string>Step into</string>
+   </property>
+   <property name="shortcut" >
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionStopDebugging" >
+   <property name="text" >
+    <string>Stop debugging</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+F5</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
