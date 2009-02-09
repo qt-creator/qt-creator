@@ -63,58 +63,22 @@ Name::~Name()
 { }
 
 bool Name::isNameId() const
-{ return dynamic_cast<const NameId *>(this) != 0; }
+{ return asNameId() != 0; }
 
 bool Name::isTemplateNameId() const
-{ return dynamic_cast<const TemplateNameId *>(this) != 0; }
+{ return asTemplateNameId() != 0; }
 
 bool Name::isDestructorNameId() const
-{ return dynamic_cast<const DestructorNameId *>(this) != 0; }
+{ return asDestructorNameId() != 0; }
 
 bool Name::isOperatorNameId() const
-{ return dynamic_cast<const OperatorNameId *>(this) != 0; }
+{ return asOperatorNameId() != 0; }
 
 bool Name::isConversionNameId() const
-{ return dynamic_cast<const ConversionNameId *>(this) != 0; }
+{ return asConversionNameId() != 0; }
 
 bool Name::isQualifiedNameId() const
-{ return dynamic_cast<const QualifiedNameId *>(this) != 0; }
-
-const NameId *Name::asNameId() const
-{ return dynamic_cast<const NameId *>(this); }
-
-const TemplateNameId *Name::asTemplateNameId() const
-{ return dynamic_cast<const TemplateNameId *>(this); }
-
-const DestructorNameId *Name::asDestructorNameId() const
-{ return dynamic_cast<const DestructorNameId *>(this); }
-
-const OperatorNameId *Name::asOperatorNameId() const
-{ return dynamic_cast<const OperatorNameId *>(this); }
-
-const ConversionNameId *Name::asConversionNameId() const
-{ return dynamic_cast<const ConversionNameId *>(this); }
-
-const QualifiedNameId *Name::asQualifiedNameId() const
-{ return dynamic_cast<const QualifiedNameId *>(this); }
-
-NameId *Name::asNameId()
-{ return dynamic_cast<NameId *>(this); }
-
-TemplateNameId *Name::asTemplateNameId()
-{ return dynamic_cast<TemplateNameId *>(this); }
-
-DestructorNameId *Name::asDestructorNameId()
-{ return dynamic_cast<DestructorNameId *>(this); }
-
-OperatorNameId *Name::asOperatorNameId()
-{ return dynamic_cast<OperatorNameId *>(this); }
-
-ConversionNameId *Name::asConversionNameId()
-{ return dynamic_cast<ConversionNameId *>(this); }
-
-QualifiedNameId *Name::asQualifiedNameId()
-{ return dynamic_cast<QualifiedNameId *>(this); }
+{ return asQualifiedNameId() != 0; }
 
 void Name::accept(NameVisitor *visitor)
 {

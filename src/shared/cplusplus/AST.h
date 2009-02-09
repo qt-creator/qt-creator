@@ -91,112 +91,114 @@ public:
     virtual unsigned firstToken() const = 0;
     virtual unsigned lastToken() const = 0;
 
-    AccessDeclarationAST *asAccessDeclaration();
-    ArrayAccessAST *asArrayAccess();
-    ArrayDeclaratorAST *asArrayDeclarator();
-    ArrayInitializerAST *asArrayInitializer();
-    AsmDefinitionAST *asAsmDefinition();
-    AttributeAST *asAttribute();
-    AttributeSpecifierAST *asAttributeSpecifier();
-    BaseSpecifierAST *asBaseSpecifier();
-    QtMethodAST *asQtMethod();
-    BinaryExpressionAST *asBinaryExpression();
-    BoolLiteralAST *asBoolLiteral();
-    BreakStatementAST *asBreakStatement();
-    CallAST *asCall();
-    CaseStatementAST *asCaseStatement();
-    CastExpressionAST *asCastExpression();
-    CatchClauseAST *asCatchClause();
-    ClassSpecifierAST *asClassSpecifier();
-    CompoundLiteralAST *asCompoundLiteral();
-    CompoundStatementAST *asCompoundStatement();
-    ConditionAST *asCondition();
-    ConditionalExpressionAST *asConditionalExpression();
-    ContinueStatementAST *asContinueStatement();
-    ConversionFunctionIdAST *asConversionFunctionId();
-    CoreDeclaratorAST *asCoreDeclarator();
-    CppCastExpressionAST *asCppCastExpression();
-    CtorInitializerAST *asCtorInitializer();
-    DeclarationAST *asDeclaration();
-    DeclarationStatementAST *asDeclarationStatement();
-    DeclaratorAST *asDeclarator();
-    DeclaratorIdAST *asDeclaratorId();
-    DeclaratorListAST *asDeclaratorList();
-    DeleteExpressionAST *asDeleteExpression();
-    DestructorNameAST *asDestructorName();
-    DoStatementAST *asDoStatement();
-    ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier();
-    EmptyDeclarationAST *asEmptyDeclaration();
-    EnumSpecifierAST *asEnumSpecifier();
-    EnumeratorAST *asEnumerator();
-    ExceptionDeclarationAST *asExceptionDeclaration();
-    ExceptionSpecificationAST *asExceptionSpecification();
-    ExpressionAST *asExpression();
-    ExpressionListAST *asExpressionList();
-    ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement();
-    ExpressionStatementAST *asExpressionStatement();
-    ForStatementAST *asForStatement();
-    FunctionDeclaratorAST *asFunctionDeclarator();
-    FunctionDefinitionAST *asFunctionDefinition();
-    GotoStatementAST *asGotoStatement();
-    IfStatementAST *asIfStatement();
-    LabeledStatementAST *asLabeledStatement();
-    LinkageBodyAST *asLinkageBody();
-    LinkageSpecificationAST *asLinkageSpecification();
-    MemInitializerAST *asMemInitializer();
-    MemberAccessAST *asMemberAccess();
-    NameAST *asName();
-    NamedTypeSpecifierAST *asNamedTypeSpecifier();
-    NamespaceAST *asNamespace();
-    NamespaceAliasDefinitionAST *asNamespaceAliasDefinition();
-    NestedDeclaratorAST *asNestedDeclarator();
-    NestedExpressionAST *asNestedExpression();
-    NestedNameSpecifierAST *asNestedNameSpecifier();
-    NewDeclaratorAST *asNewDeclarator();
-    NewExpressionAST *asNewExpression();
-    NewInitializerAST *asNewInitializer();
-    NewTypeIdAST *asNewTypeId();
-    NumericLiteralAST *asNumericLiteral();
-    OperatorAST *asOperator();
-    OperatorFunctionIdAST *asOperatorFunctionId();
-    ParameterDeclarationAST *asParameterDeclaration();
-    ParameterDeclarationClauseAST *asParameterDeclarationClause();
-    PointerAST *asPointer();
-    PointerToMemberAST *asPointerToMember();
-    PostIncrDecrAST *asPostIncrDecr();
-    PostfixAST *asPostfix();
-    PostfixDeclaratorAST *asPostfixDeclarator();
-    PostfixExpressionAST *asPostfixExpression();
-    PtrOperatorAST *asPtrOperator();
-    QualifiedNameAST *asQualifiedName();
-    ReferenceAST *asReference();
-    ReturnStatementAST *asReturnStatement();
-    SimpleDeclarationAST *asSimpleDeclaration();
-    SimpleNameAST *asSimpleName();
-    SimpleSpecifierAST *asSimpleSpecifier();
-    SizeofExpressionAST *asSizeofExpression();
-    SpecifierAST *asSpecifier();
-    StatementAST *asStatement();
-    StringLiteralAST *asStringLiteral();
-    SwitchStatementAST *asSwitchStatement();
-    TemplateArgumentListAST *asTemplateArgumentList();
-    TemplateDeclarationAST *asTemplateDeclaration();
-    TemplateIdAST *asTemplateId();
-    TemplateTypeParameterAST *asTemplateTypeParameter();
-    ThisExpressionAST *asThisExpression();
-    ThrowExpressionAST *asThrowExpression();
-    TranslationUnitAST *asTranslationUnit();
-    TryBlockStatementAST *asTryBlockStatement();
-    TypeConstructorCallAST *asTypeConstructorCall();
-    TypeIdAST *asTypeId();
-    TypeidExpressionAST *asTypeidExpression();
-    TypenameCallExpressionAST *asTypenameCallExpression();
-    TypenameTypeParameterAST *asTypenameTypeParameter();
-    TypeofSpecifierAST *asTypeofSpecifier();
-    UnaryExpressionAST *asUnaryExpression();
-    UsingAST *asUsing();
-    UsingDirectiveAST *asUsingDirective();
-    WhileStatementAST *asWhileStatement();
+    virtual AccessDeclarationAST *asAccessDeclaration() { return 0; }
+    virtual ArrayAccessAST *asArrayAccess() { return 0; }
+    virtual ArrayDeclaratorAST *asArrayDeclarator() { return 0; }
+    virtual ArrayInitializerAST *asArrayInitializer() { return 0; }
+    virtual AsmDefinitionAST *asAsmDefinition() { return 0; }
+    virtual AttributeAST *asAttribute() { return 0; }
+    virtual AttributeSpecifierAST *asAttributeSpecifier() { return 0; }
+    virtual BaseSpecifierAST *asBaseSpecifier() { return 0; }
+    virtual QtMethodAST *asQtMethod() { return 0; }
+    virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
+    virtual BoolLiteralAST *asBoolLiteral() { return 0; }
+    virtual BreakStatementAST *asBreakStatement() { return 0; }
+    virtual CallAST *asCall() { return 0; }
+    virtual CaseStatementAST *asCaseStatement() { return 0; }
+    virtual CastExpressionAST *asCastExpression() { return 0; }
+    virtual CatchClauseAST *asCatchClause() { return 0; }
+    virtual ClassSpecifierAST *asClassSpecifier() { return 0; }
+    virtual CompoundLiteralAST *asCompoundLiteral() { return 0; }
+    virtual CompoundStatementAST *asCompoundStatement() { return 0; }
+    virtual ConditionAST *asCondition() { return 0; }
+    virtual ConditionalExpressionAST *asConditionalExpression() { return 0; }
+    virtual ContinueStatementAST *asContinueStatement() { return 0; }
+    virtual ConversionFunctionIdAST *asConversionFunctionId() { return 0; }
+    virtual CoreDeclaratorAST *asCoreDeclarator() { return 0; }
+    virtual CppCastExpressionAST *asCppCastExpression() { return 0; }
+    virtual CtorInitializerAST *asCtorInitializer() { return 0; }
+    virtual DeclarationAST *asDeclaration() { return 0; }
+    virtual DeclarationStatementAST *asDeclarationStatement() { return 0; }
+    virtual DeclaratorAST *asDeclarator() { return 0; }
+    virtual DeclaratorIdAST *asDeclaratorId() { return 0; }
+    virtual DeclaratorListAST *asDeclaratorList() { return 0; }
+    virtual DeleteExpressionAST *asDeleteExpression() { return 0; }
+    virtual DestructorNameAST *asDestructorName() { return 0; }
+    virtual DoStatementAST *asDoStatement() { return 0; }
+    virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() { return 0; }
+    virtual EmptyDeclarationAST *asEmptyDeclaration() { return 0; }
+    virtual EnumSpecifierAST *asEnumSpecifier() { return 0; }
+    virtual EnumeratorAST *asEnumerator() { return 0; }
+    virtual ExceptionDeclarationAST *asExceptionDeclaration() { return 0; }
+    virtual ExceptionSpecificationAST *asExceptionSpecification() { return 0; }
+    virtual ExpressionAST *asExpression() { return 0; }
+    virtual ExpressionListAST *asExpressionList() { return 0; }
+    virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return 0; }
+    virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
+    virtual ForStatementAST *asForStatement() { return 0; }
+    virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
+    virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
+    virtual GotoStatementAST *asGotoStatement() { return 0; }
+    virtual IfStatementAST *asIfStatement() { return 0; }
+    virtual LabeledStatementAST *asLabeledStatement() { return 0; }
+    virtual LinkageBodyAST *asLinkageBody() { return 0; }
+    virtual LinkageSpecificationAST *asLinkageSpecification() { return 0; }
+    virtual MemInitializerAST *asMemInitializer() { return 0; }
+    virtual MemberAccessAST *asMemberAccess() { return 0; }
+    virtual NameAST *asName() { return 0; }
+    virtual NamedTypeSpecifierAST *asNamedTypeSpecifier() { return 0; }
+    virtual NamespaceAST *asNamespace() { return 0; }
+    virtual NamespaceAliasDefinitionAST *asNamespaceAliasDefinition() { return 0; }
+    virtual NestedDeclaratorAST *asNestedDeclarator() { return 0; }
+    virtual NestedExpressionAST *asNestedExpression() { return 0; }
+    virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return 0; }
+    virtual NewDeclaratorAST *asNewDeclarator() { return 0; }
+    virtual NewExpressionAST *asNewExpression() { return 0; }
+    virtual NewInitializerAST *asNewInitializer() { return 0; }
+    virtual NewTypeIdAST *asNewTypeId() { return 0; }
+    virtual NumericLiteralAST *asNumericLiteral() { return 0; }
+    virtual OperatorAST *asOperator() { return 0; }
+    virtual OperatorFunctionIdAST *asOperatorFunctionId() { return 0; }
+    virtual ParameterDeclarationAST *asParameterDeclaration() { return 0; }
+    virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return 0; }
+    virtual PointerAST *asPointer() { return 0; }
+    virtual PointerToMemberAST *asPointerToMember() { return 0; }
+    virtual PostIncrDecrAST *asPostIncrDecr() { return 0; }
+    virtual PostfixAST *asPostfix() { return 0; }
+    virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
+    virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
+    virtual PtrOperatorAST *asPtrOperator() { return 0; }
+    virtual QualifiedNameAST *asQualifiedName() { return 0; }
+    virtual ReferenceAST *asReference() { return 0; }
+    virtual ReturnStatementAST *asReturnStatement() { return 0; }
+    virtual SimpleDeclarationAST *asSimpleDeclaration() { return 0; }
+    virtual SimpleNameAST *asSimpleName() { return 0; }
+    virtual SimpleSpecifierAST *asSimpleSpecifier() { return 0; }
+    virtual SizeofExpressionAST *asSizeofExpression() { return 0; }
+    virtual SpecifierAST *asSpecifier() { return 0; }
+    virtual StatementAST *asStatement() { return 0; }
+    virtual StringLiteralAST *asStringLiteral() { return 0; }
+    virtual SwitchStatementAST *asSwitchStatement() { return 0; }
+    virtual TemplateArgumentListAST *asTemplateArgumentList() { return 0; }
+    virtual TemplateDeclarationAST *asTemplateDeclaration() { return 0; }
+    virtual TemplateIdAST *asTemplateId() { return 0; }
+    virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return 0; }
+    virtual ThisExpressionAST *asThisExpression() { return 0; }
+    virtual ThrowExpressionAST *asThrowExpression() { return 0; }
+    virtual TranslationUnitAST *asTranslationUnit() { return 0; }
+    virtual TryBlockStatementAST *asTryBlockStatement() { return 0; }
+    virtual TypeConstructorCallAST *asTypeConstructorCall() { return 0; }
+    virtual TypeIdAST *asTypeId() { return 0; }
+    virtual TypeidExpressionAST *asTypeidExpression() { return 0; }
+    virtual TypenameCallExpressionAST *asTypenameCallExpression() { return 0; }
+    virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return 0; }
+    virtual TypeofSpecifierAST *asTypeofSpecifier() { return 0; }
+    virtual UnaryExpressionAST *asUnaryExpression() { return 0; }
+    virtual UsingAST *asUsing() { return 0; }
+    virtual UsingDirectiveAST *asUsingDirective() { return 0; }
+    virtual WhileStatementAST *asWhileStatement() { return 0; }
+    virtual IdentifierListAST *asIdentifierList() { return 0; }
+    virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
 
     virtual AST *clone(MemoryPool *pool) const = 0;
 
@@ -210,6 +212,9 @@ public:
     SpecifierAST *next;
 
 public:
+    virtual SpecifierAST *asSpecifier()
+    { return this; }
+
     virtual SpecifierAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -219,6 +224,9 @@ public:
     unsigned specifier_token;
 
 public:
+    virtual SimpleSpecifierAST *asSimpleSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -239,6 +247,9 @@ public:
     unsigned second_rparen_token;
 
 public:
+    virtual AttributeSpecifierAST *asAttributeSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -259,6 +270,9 @@ public:
     AttributeAST *next;
 
 public:
+    virtual AttributeAST *asAttribute()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -275,6 +289,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual TypeofSpecifierAST *asTypeofSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -290,12 +307,18 @@ public:
     StatementAST *next;
 
 public:
+    virtual StatementAST *asStatement()
+    { return this; }
+
     virtual StatementAST *clone(MemoryPool *pool) const = 0;
 };
 
 class CPLUSPLUS_EXPORT ExpressionAST: public AST
 {
 public:
+    virtual ExpressionAST *asExpression()
+    { return this; }
+
     virtual ExpressionAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -305,12 +328,18 @@ public:
     DeclarationAST *next;
 
 public:
+    virtual DeclarationAST *asDeclaration()
+    { return this; }
+
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
 };
 
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
 {
 public:
+    virtual CoreDeclaratorAST *asCoreDeclarator()
+    { return this; }
+
     virtual CoreDeclaratorAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -320,6 +349,9 @@ public:
     PostfixDeclaratorAST *next;
 
 public:
+    virtual PostfixDeclaratorAST *asPostfixDeclarator()
+    { return this; }
+
     virtual PostfixDeclaratorAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -333,6 +365,9 @@ public:
     ExpressionAST *initializer;
 
 public:
+    virtual DeclaratorAST *asDeclarator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -349,6 +384,9 @@ public:
     ExpressionListAST *next;
 
 public:
+    virtual ExpressionListAST *asExpressionList()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -369,6 +407,9 @@ public:
     List<Declaration *> *symbols;
 
 public:
+    virtual SimpleDeclarationAST *asSimpleDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -384,6 +425,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual EmptyDeclarationAST *asEmptyDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -401,6 +445,9 @@ public:
     unsigned colon_token;
 
 public:
+    virtual AccessDeclarationAST *asAccessDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -422,6 +469,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual AsmDefinitionAST *asAsmDefinition()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -443,6 +493,9 @@ public: // annotations
     BaseClass *symbol;
 
 public:
+    virtual BaseSpecifierAST *asBaseSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -461,6 +514,9 @@ public:
     ExpressionAST *initializer;
 
 public:
+    virtual CompoundLiteralAST *asCompoundLiteral()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -479,6 +535,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual QtMethodAST *asQtMethod()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -496,6 +555,9 @@ public:
     ExpressionAST *right_expression;
 
 public:
+    virtual BinaryExpressionAST *asBinaryExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -514,6 +576,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual CastExpressionAST *asCastExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -539,6 +604,9 @@ public: // annotations
     Class *symbol;
 
 public:
+    virtual ClassSpecifierAST *asClassSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -557,6 +625,9 @@ public:
     StatementAST *statement;
 
 public:
+    virtual CaseStatementAST *asCaseStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -573,7 +644,13 @@ public:
     StatementAST *statements;
     unsigned rbrace_token;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual CompoundStatementAST *asCompoundStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -590,6 +667,9 @@ public:
     DeclaratorAST *declarator;
 
 public:
+    virtual ConditionAST *asCondition()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -609,6 +689,9 @@ public:
     ExpressionAST *right_expression;
 
 public:
+    virtual ConditionalExpressionAST *asConditionalExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -630,6 +713,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual CppCastExpressionAST *asCppCastExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -646,6 +732,9 @@ public:
     MemInitializerAST *member_initializers;
 
 public:
+    virtual CtorInitializerAST *asCtorInitializer()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -661,6 +750,9 @@ public:
     DeclarationAST *declaration;
 
 public:
+    virtual DeclarationStatementAST *asDeclarationStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -676,6 +768,9 @@ public:
     NameAST *name;
 
 public:
+    virtual DeclaratorIdAST *asDeclaratorId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -693,6 +788,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual NestedDeclaratorAST *asNestedDeclarator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -715,6 +813,9 @@ public: // annotations
     Function *symbol;
 
 public:
+    virtual FunctionDeclaratorAST *asFunctionDeclarator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -732,6 +833,9 @@ public:
     unsigned rbracket_token;
 
 public:
+    virtual ArrayDeclaratorAST *asArrayDeclarator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -748,6 +852,9 @@ public:
     DeclaratorListAST *next;
 
 public:
+    virtual DeclaratorListAST *asDeclaratorList()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -767,6 +874,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual DeleteExpressionAST *asDeleteExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -788,6 +898,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual DoStatementAST *asDoStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -803,6 +916,9 @@ public:
     NameAST *name;
 
 public:
+    virtual NamedTypeSpecifierAST *asNamedTypeSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -819,6 +935,9 @@ public:
     NameAST *name;
 
 public:
+    virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -838,6 +957,9 @@ public:
     unsigned rbrace_token;
 
 public:
+    virtual EnumSpecifierAST *asEnumSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -856,6 +978,9 @@ public:
     EnumeratorAST *next;
 
 public:
+    virtual EnumeratorAST *asEnumerator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -873,6 +998,9 @@ public:
     unsigned dot_dot_dot_token;
 
 public:
+    virtual ExceptionDeclarationAST *asExceptionDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -892,6 +1020,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual ExceptionSpecificationAST *asExceptionSpecification()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -908,6 +1039,9 @@ public:
     StatementAST *declaration;
 
 public:
+    virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -924,6 +1058,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual ExpressionStatementAST *asExpressionStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -945,6 +1082,9 @@ public: // annotations
     Function *symbol;
 
 public:
+    virtual FunctionDefinitionAST *asFunctionDefinition()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -966,7 +1106,13 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual ForStatementAST *asForStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -987,7 +1133,13 @@ public:
     unsigned else_token;
     StatementAST *else_statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual IfStatementAST *asIfStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1005,6 +1157,9 @@ public:
     unsigned rbrace_token;
 
 public:
+    virtual ArrayInitializerAST *asArrayInitializer()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1022,6 +1177,9 @@ public:
     StatementAST *statement;
 
 public:
+    virtual LabeledStatementAST *asLabeledStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1056,6 +1214,9 @@ public:
     DeclarationAST *declaration;
 
 public:
+    virtual LinkageSpecificationAST *asLinkageSpecification()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1075,6 +1236,9 @@ public:
     MemInitializerAST *next;
 
 public:
+    virtual MemInitializerAST *asMemInitializer()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1101,6 +1265,9 @@ public:
     NestedNameSpecifierAST *next;
 
 public:
+    virtual NestedNameSpecifierAST *asNestedNameSpecifier()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1118,6 +1285,9 @@ public:
     NameAST *unqualified_name;
 
 public:
+    virtual QualifiedNameAST *asQualifiedName()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1134,6 +1304,9 @@ public:
     OperatorAST *op;
 
 public:
+    virtual OperatorFunctionIdAST *asOperatorFunctionId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1151,6 +1324,9 @@ public:
     PtrOperatorAST *ptr_operators;
 
 public:
+    virtual ConversionFunctionIdAST *asConversionFunctionId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1166,6 +1342,9 @@ public:
     unsigned identifier_token;
 
 public:
+    virtual SimpleNameAST *asSimpleName()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1182,6 +1361,9 @@ public:
     unsigned identifier_token;
 
 public:
+    virtual DestructorNameAST *asDestructorName()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1200,6 +1382,9 @@ public:
     unsigned greater_token;
 
 public:
+    virtual TemplateIdAST *asTemplateId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1221,6 +1406,9 @@ public: // annotations
     Namespace *symbol;
 
 public:
+    virtual NamespaceAST *asNamespace()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1240,6 +1428,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual NamespaceAliasDefinitionAST *asNamespaceAliasDefinition()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1256,6 +1447,9 @@ public:
     NewDeclaratorAST *declarator;
 
 public:
+    virtual NewDeclaratorAST *asNewDeclarator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1276,6 +1470,9 @@ public:
     NewInitializerAST *new_initializer;
 
 public:
+    virtual NewExpressionAST *asNewExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1293,6 +1490,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual NewInitializerAST *asNewInitializer()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1310,6 +1510,9 @@ public:
     NewDeclaratorAST *new_declarator;
 
 public:
+    virtual NewTypeIdAST *asNewTypeId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1327,6 +1530,9 @@ public:
     unsigned close_token;
 
 public:
+    virtual OperatorAST *asOperator()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1348,6 +1554,9 @@ public: // annotations
     Argument *symbol;
 
 public:
+    virtual ParameterDeclarationAST *asParameterDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1364,6 +1573,9 @@ public:
     unsigned dot_dot_dot_token;
 
 public:
+    virtual ParameterDeclarationClauseAST *asParameterDeclarationClause()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1379,6 +1591,9 @@ public:
     PostfixAST *next;
 
 public:
+    virtual PostfixAST *asPostfix()
+    { return this; }
+
     virtual PostfixAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -1390,6 +1605,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual CallAST *asCall()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1407,6 +1625,9 @@ public:
     unsigned rbracket_token;
 
 public:
+    virtual ArrayAccessAST *asArrayAccess()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1422,6 +1643,9 @@ public:
     unsigned incr_decr_token;
 
 public:
+    virtual PostIncrDecrAST *asPostIncrDecr()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1439,6 +1663,9 @@ public:
     NameAST *member_name;
 
 public:
+    virtual MemberAccessAST *asMemberAccess()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1457,6 +1684,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual TypeidExpressionAST *asTypeidExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1476,6 +1706,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual TypenameCallExpressionAST *asTypenameCallExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1494,6 +1727,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual TypeConstructorCallAST *asTypeConstructorCall()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1510,6 +1746,9 @@ public:
     PostfixAST *postfix_expressions;
 
 public:
+    virtual PostfixExpressionAST *asPostfixExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1525,6 +1764,9 @@ public:
     PtrOperatorAST *next;
 
 public:
+    virtual PtrOperatorAST *asPtrOperator()
+    { return this; }
+
     virtual PtrOperatorAST *clone(MemoryPool *pool) const = 0;
 };
 
@@ -1537,6 +1779,9 @@ public:
     SpecifierAST *cv_qualifier_seq;
 
 public:
+    virtual PointerToMemberAST *asPointerToMember()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1553,6 +1798,9 @@ public:
     SpecifierAST *cv_qualifier_seq;
 
 public:
+    virtual PointerAST *asPointer()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1568,6 +1816,9 @@ public:
     unsigned amp_token;
 
 public:
+    virtual ReferenceAST *asReference()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1584,6 +1835,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual BreakStatementAST *asBreakStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1600,6 +1854,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual ContinueStatementAST *asContinueStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1617,6 +1874,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual GotoStatementAST *asGotoStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1634,6 +1894,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual ReturnStatementAST *asReturnStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1650,6 +1913,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual SizeofExpressionAST *asSizeofExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1665,6 +1931,9 @@ public:
     unsigned token;
 
 public:
+    virtual NumericLiteralAST *asNumericLiteral()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1680,6 +1949,9 @@ public:
     unsigned token;
 
 public:
+    virtual BoolLiteralAST *asBoolLiteral()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1695,6 +1967,9 @@ public:
     unsigned this_token;
 
 public:
+    virtual ThisExpressionAST *asThisExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1712,6 +1987,9 @@ public:
     unsigned rparen_token;
 
 public:
+    virtual NestedExpressionAST *asNestedExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1728,6 +2006,9 @@ public:
     StringLiteralAST *next;
 
 public:
+    virtual StringLiteralAST *asStringLiteral()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1746,7 +2027,13 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual SwitchStatementAST *asSwitchStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1763,6 +2050,9 @@ public:
     TemplateArgumentListAST *next;
 
 public:
+    virtual TemplateArgumentListAST *asTemplateArgumentList()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1783,6 +2073,9 @@ public:
     DeclarationAST *declaration;
 
 public:
+    virtual TemplateDeclarationAST *asTemplateDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1799,6 +2092,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual ThrowExpressionAST *asThrowExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1814,6 +2110,9 @@ public:
     DeclarationAST *declarations;
 
 public:
+    virtual TranslationUnitAST *asTranslationUnit()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1831,6 +2130,9 @@ public:
     CatchClauseAST *catch_clause_seq;
 
 public:
+    virtual TryBlockStatementAST *asTryBlockStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1850,7 +2152,13 @@ public:
     StatementAST *statement;
     CatchClauseAST *next;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual CatchClauseAST *asCatchClause()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1867,6 +2175,9 @@ public:
     DeclaratorAST *declarator;
 
 public:
+    virtual TypeIdAST *asTypeId()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1888,6 +2199,9 @@ public: // annotations
     Argument *symbol;
 
 public:
+    virtual TypenameTypeParameterAST *asTypenameTypeParameter()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1913,6 +2227,9 @@ public:
     Argument *symbol;
 
 public:
+    virtual TemplateTypeParameterAST *asTemplateTypeParameter()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1929,6 +2246,9 @@ public:
     ExpressionAST *expression;
 
 public:
+    virtual UnaryExpressionAST *asUnaryExpression()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1950,6 +2270,9 @@ public: // annotations
     UsingDeclaration *symbol;
 
 public:
+    virtual UsingAST *asUsing()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1971,6 +2294,9 @@ public:
     UsingNamespaceDirective *symbol;
 
 public:
+    virtual UsingDirectiveAST *asUsingDirective()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -1989,7 +2315,13 @@ public:
     unsigned rparen_token;
     StatementAST *statement;
 
+public: // annotations
+    Block *symbol;
+
 public:
+    virtual WhileStatementAST *asWhileStatement()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -2008,6 +2340,9 @@ public:
     IdentifierListAST *next;
 
 public:
+    virtual IdentifierListAST *asIdentifierList()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -2026,6 +2361,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    virtual ObjCClassDeclarationAST *asObjCClassDeclaration()
+    { return this; }
+
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 

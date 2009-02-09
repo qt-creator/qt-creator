@@ -320,102 +320,36 @@ bool Symbol::isPrivate() const
 { return _visibility == Private; }
 
 bool Symbol::isScopedSymbol() const
-{ return dynamic_cast<const ScopedSymbol *>(this) != 0; }
+{ return asScopedSymbol() != 0; }
 
 bool Symbol::isEnum() const
-{ return dynamic_cast<const Enum *>(this) != 0; }
+{ return asEnum()  != 0; }
 
 bool Symbol::isFunction() const
-{ return dynamic_cast<const Function *>(this) != 0; }
+{ return asFunction() != 0; }
 
 bool Symbol::isNamespace() const
-{ return dynamic_cast<const Namespace *>(this) != 0; }
+{ return asNamespace() != 0; }
 
 bool Symbol::isClass() const
-{ return dynamic_cast<const Class *>(this) != 0; }
+{ return asClass() != 0; }
 
 bool Symbol::isBlock() const
-{ return dynamic_cast<const Block *>(this) != 0; }
+{ return asBlock() != 0; }
 
 bool Symbol::isUsingNamespaceDirective() const
-{ return dynamic_cast<const UsingNamespaceDirective *>(this) != 0; }
+{ return asUsingNamespaceDirective() != 0; }
 
 bool Symbol::isUsingDeclaration() const
-{ return dynamic_cast<const UsingDeclaration *>(this) != 0; }
+{ return asUsingDeclaration() != 0; }
 
 bool Symbol::isDeclaration() const
-{ return dynamic_cast<const Declaration *>(this) != 0; }
+{ return asDeclaration() != 0; }
 
 bool Symbol::isArgument() const
-{ return dynamic_cast<const Argument *>(this) != 0; }
+{ return asArgument() != 0; }
 
 bool Symbol::isBaseClass() const
-{ return dynamic_cast<const BaseClass *>(this) != 0; }
-
-const ScopedSymbol *Symbol::asScopedSymbol() const
-{ return dynamic_cast<const ScopedSymbol *>(this); }
-
-const Enum *Symbol::asEnum() const
-{ return dynamic_cast<const Enum *>(this); }
-
-const Function *Symbol::asFunction() const
-{ return dynamic_cast<const Function *>(this); }
-
-const Namespace *Symbol::asNamespace() const
-{ return dynamic_cast<const Namespace *>(this); }
-
-const Class *Symbol::asClass() const
-{ return dynamic_cast<const Class *>(this); }
-
-const Block *Symbol::asBlock() const
-{ return dynamic_cast<const Block *>(this); }
-
-const UsingNamespaceDirective *Symbol::asUsingNamespaceDirective() const
-{ return dynamic_cast<const UsingNamespaceDirective *>(this); }
-
-const UsingDeclaration *Symbol::asUsingDeclaration() const
-{ return dynamic_cast<const UsingDeclaration *>(this); }
-
-const Declaration *Symbol::asDeclaration() const
-{ return dynamic_cast<const Declaration *>(this); }
-
-const Argument *Symbol::asArgument() const
-{ return dynamic_cast<const Argument *>(this); }
-
-const BaseClass *Symbol::asBaseClass() const
-{ return dynamic_cast<const BaseClass *>(this); }
-
-ScopedSymbol *Symbol::asScopedSymbol()
-{ return dynamic_cast<ScopedSymbol *>(this); }
-
-Enum *Symbol::asEnum()
-{ return dynamic_cast<Enum *>(this); }
-
-Function *Symbol::asFunction()
-{ return dynamic_cast<Function *>(this); }
-
-Namespace *Symbol::asNamespace()
-{ return dynamic_cast<Namespace *>(this); }
-
-Class *Symbol::asClass()
-{ return dynamic_cast<Class *>(this); }
-
-Block *Symbol::asBlock()
-{ return dynamic_cast<Block *>(this); }
-
-UsingNamespaceDirective *Symbol::asUsingNamespaceDirective()
-{ return dynamic_cast<UsingNamespaceDirective *>(this); }
-
-UsingDeclaration *Symbol::asUsingDeclaration()
-{ return dynamic_cast<UsingDeclaration *>(this); }
-
-Declaration *Symbol::asDeclaration()
-{ return dynamic_cast<Declaration *>(this); }
-
-Argument *Symbol::asArgument()
-{ return dynamic_cast<Argument *>(this); }
-
-BaseClass *Symbol::asBaseClass()
-{ return dynamic_cast<BaseClass *>(this); }
+{ return asBaseClass() != 0; }
 
 CPLUSPLUS_END_NAMESPACE

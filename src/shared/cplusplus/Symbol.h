@@ -197,29 +197,29 @@ public:
     /// Returns true if this Symbol is a BaseClass.
     bool isBaseClass() const;
 
-    const ScopedSymbol *asScopedSymbol() const;
-    const Enum *asEnum() const;
-    const Function *asFunction() const;
-    const Namespace *asNamespace() const;
-    const Class *asClass() const;
-    const Block *asBlock() const;
-    const UsingNamespaceDirective *asUsingNamespaceDirective() const;
-    const UsingDeclaration *asUsingDeclaration() const;
-    const Declaration *asDeclaration() const;
-    const Argument *asArgument() const;
-    const BaseClass *asBaseClass() const;
+    virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
+    virtual const Enum *asEnum() const { return 0; }
+    virtual const Function *asFunction() const { return 0; }
+    virtual const Namespace *asNamespace() const { return 0; }
+    virtual const Class *asClass() const { return 0; }
+    virtual const Block *asBlock() const { return 0; }
+    virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const { return 0; }
+    virtual const UsingDeclaration *asUsingDeclaration() const { return 0; }
+    virtual const Declaration *asDeclaration() const { return 0; }
+    virtual const Argument *asArgument() const { return 0; }
+    virtual const BaseClass *asBaseClass() const { return 0; }
 
-    ScopedSymbol *asScopedSymbol();
-    Enum *asEnum();
-    Function *asFunction();
-    Namespace *asNamespace();
-    Class *asClass();
-    Block *asBlock();
-    UsingNamespaceDirective *asUsingNamespaceDirective();
-    UsingDeclaration *asUsingDeclaration();
-    Declaration *asDeclaration();
-    Argument *asArgument();
-    BaseClass *asBaseClass();
+    virtual ScopedSymbol *asScopedSymbol() { return 0; }
+    virtual Enum *asEnum() { return 0; }
+    virtual Function *asFunction() { return 0; }
+    virtual Namespace *asNamespace() { return 0; }
+    virtual Class *asClass() { return 0; }
+    virtual Block *asBlock() { return 0; }
+    virtual UsingNamespaceDirective *asUsingNamespaceDirective() { return 0; }
+    virtual UsingDeclaration *asUsingDeclaration() { return 0; }
+    virtual Declaration *asDeclaration() { return 0; }
+    virtual Argument *asArgument() { return 0; }
+    virtual BaseClass *asBaseClass() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;
