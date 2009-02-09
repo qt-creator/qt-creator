@@ -896,7 +896,10 @@ bool CppCodeCompletion::completeConstructors(Class *klass)
 
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
         Symbol *member = klass->memberAt(i);
-        if (! member->type()->isFunctionType())
+        FullySpecifiedType memberTy = member->type();
+        if (! memberTy)
+            continue;
+        else if (! memberTy->isFunctionType())
             continue;
         else if (! member->identity())
             continue;
@@ -930,8 +933,12 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     QSet<QString> signatures;
     foreach (TypeOfExpression::Result p, results) {
         FullySpecifiedType ty = p.first;
+        if (! ty)
+            continue;
+
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
+
         if (PointerType *ptrTy = ty->asPointerType())
             ty = ptrTy->elementType();
         else
