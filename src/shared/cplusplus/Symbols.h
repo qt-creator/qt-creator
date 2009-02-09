@@ -71,6 +71,12 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
+    virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const
+    { return this; }
+
+    virtual UsingNamespaceDirective *asUsingNamespaceDirective()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 };
@@ -83,6 +89,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const UsingDeclaration *asUsingDeclaration() const
+    { return this; }
+
+    virtual UsingDeclaration *asUsingDeclaration()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -104,6 +116,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const Declaration *asDeclaration() const
+    { return this; }
+
+    virtual Declaration *asDeclaration()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -127,6 +145,12 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
+    virtual const Argument *asArgument() const
+    { return this; }
+
+    virtual Argument *asArgument()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
@@ -146,6 +170,12 @@ public:
     Scope *members() const;
     void addMember(Symbol *member);
 
+    virtual const ScopedSymbol *asScopedSymbol() const
+    { return this; }
+
+    virtual ScopedSymbol *asScopedSymbol()
+    { return this; }
+
 private:
     Scope *_members;
 };
@@ -158,6 +188,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const Block *asBlock() const
+    { return this; }
+
+    virtual Block *asBlock()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -174,6 +210,12 @@ public:
 
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const Enum *asEnum() const
+    { return this; }
+
+    virtual Enum *asEnum()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -230,6 +272,12 @@ public:
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const Function *asFunction() const
+    { return this; }
+
+    virtual Function *asFunction()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -264,6 +312,12 @@ public:
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const Namespace *asNamespace() const
+    { return this; }
+
+    virtual Namespace *asNamespace()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -280,6 +334,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const BaseClass *asBaseClass() const
+    { return this; }
+
+    virtual BaseClass *asBaseClass()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -321,6 +381,12 @@ public:
 
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const Class *asClass() const
+    { return this; }
+
+    virtual Class *asClass()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
