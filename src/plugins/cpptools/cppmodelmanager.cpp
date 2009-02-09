@@ -120,6 +120,9 @@ public:
     void run(QString &fileName);
     void operator()(QString &fileName);
 
+public: // attributes
+    Snapshot snapshot;
+
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
@@ -141,7 +144,6 @@ protected:
 
 private:
     QPointer<CppModelManager> m_modelManager;
-    Snapshot m_snapshot;
     Environment env;
     Preprocessor m_proc;
     QStringList m_includePaths;
@@ -157,9 +159,9 @@ private:
 } // namespace CppTools
 
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
-    : m_modelManager(modelManager),
-    m_snapshot(modelManager->snapshot()),
-    m_proc(this, env)
+    : snapshot(modelManager->snapshot()),
+      m_modelManager(modelManager),
+      m_proc(this, env)
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
@@ -337,8 +339,13 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
 
     processed->insert(fn);
 
-    foreach (QString includedFile, doc->includedFiles()) {
-        mergeEnvironment(m_snapshot.value(includedFile), processed);
+    foreach (Document::Include incl, doc->includes()) {
+        QString includedFile = incl.fileName();
+
+        if (Document::Ptr includedDoc = snapshot.value(includedFile))
+            mergeEnvironment(includedDoc, processed);
+        else
+            run(includedFile);
     }
 
     foreach (const Macro macro, doc->definedMacros()) {
@@ -384,7 +391,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     }
 
     if (! contents.isEmpty()) {
-        Document::Ptr cachedDoc = m_snapshot.value(fileName);
+        Document::Ptr cachedDoc = snapshot.value(fileName);
         if (cachedDoc && m_currentDoc) {
             mergeEnvironment(cachedDoc);
         } else {
@@ -393,8 +400,8 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
             const QByteArray previousFile = env.currentFile;
             const unsigned previousLine = env.currentLine;
 
-            env.currentFile = QByteArray(m_currentDoc->translationUnit()->fileName(),
-                                         m_currentDoc->translationUnit()->fileNameLength());
+            TranslationUnit *unit = m_currentDoc->translationUnit();
+            env.currentFile = QByteArray(unit->fileName(), unit->fileNameLength());
 
             QByteArray preprocessedCode;
             m_proc(contents, &preprocessedCode);
@@ -775,7 +782,12 @@ void CppModelManager::parse(QFutureInterface<void> &future,
                             CppPreprocessor *preproc,
                             QStringList files)
 {
-    QTC_ASSERT(!files.isEmpty(), return);
+    if (files.isEmpty())
+        return;
+
+    foreach (QString file, files) {
+        preproc->snapshot.remove(file);
+    }
 
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);

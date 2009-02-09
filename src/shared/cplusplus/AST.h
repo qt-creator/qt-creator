@@ -60,6 +60,20 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
+template <typename _Tp>
+class List: public Managed
+{
+    List(const List &other);
+    void operator =(const List &other);
+
+public:
+    List()
+    { }
+
+    _Tp value;
+    List *next;
+};
+
 class CPLUSPLUS_EXPORT AST: public Managed
 {
     AST(const AST &other);
@@ -352,6 +366,9 @@ public:
     unsigned semicolon_token;
 
 public:
+    List<Declaration *> *symbols;
+
+public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
@@ -421,6 +438,9 @@ public:
     unsigned token_access_specifier;
     NameAST *name;
     BaseSpecifierAST *next;
+
+public: // annotations
+    BaseClass *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -516,7 +536,7 @@ public:
     unsigned rbrace_token;
 
 public: // annotations
-    Class *class_symbol;
+    Class *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -690,6 +710,9 @@ public:
     unsigned rparen_token;
     SpecifierAST *cv_qualifier_seq;
     ExceptionSpecificationAST *exception_specification;
+
+public: // annotations
+    Function *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -918,6 +941,9 @@ public:
     CtorInitializerAST *ctor_initializer;
     StatementAST *function_body;
 
+public: // annotations
+    Function *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1060,6 +1086,9 @@ protected:
 
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
 {
+public: // annotations
+    Name *name;
+
 public:
     virtual NameAST *clone(MemoryPool *pool) const = 0;
 };
@@ -1188,6 +1217,9 @@ public:
     SpecifierAST *attributes;
     DeclarationAST *linkage_body;
 
+public: // annotations
+    Namespace *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1311,6 +1343,9 @@ public:
     DeclaratorAST *declarator;
     unsigned equal_token;
     ExpressionAST *expression;
+
+public: // annotations
+    Argument *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -1849,6 +1884,9 @@ public:
     unsigned equal_token;
     ExpressionAST *type_id;
 
+public: // annotations
+    Argument *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1870,6 +1908,9 @@ public:
     NameAST *name;
     unsigned equal_token;
     ExpressionAST *type_id;
+
+public:
+    Argument *symbol;
 
 public:
     virtual unsigned firstToken() const;
@@ -1905,6 +1946,9 @@ public:
     NameAST *name;
     unsigned semicolon_token;
 
+public: // annotations
+    UsingDeclaration *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1922,6 +1966,9 @@ public:
     unsigned namespace_token;
     NameAST *name;
     unsigned semicolon_token;
+
+public:
+    UsingNamespaceDirective *symbol;
 
 public:
     virtual unsigned firstToken() const;

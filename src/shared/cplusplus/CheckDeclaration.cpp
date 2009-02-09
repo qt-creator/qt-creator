@@ -136,6 +136,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
     }
 
+    List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
         Name *name = 0;
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
@@ -178,6 +179,10 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
+
+        *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
+        (*decl_it)->value = symbol;
+        decl_it = &(*decl_it)->next;
 
         _scope->enterSymbol(symbol);
     }
@@ -234,6 +239,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     checkFunctionArguments(fun);
 
+    ast->symbol = fun;
     _scope->enterSymbol(fun);
 
     if (ast->ctor_initializer) {
@@ -286,6 +292,7 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
     Identifier *id = identifier(ast->identifier_token);
     Name *namespaceName = control()->nameId(id);
     Namespace *ns = control()->newNamespace(ast->firstToken(), namespaceName);
+    ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
 
@@ -310,6 +317,7 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
                                                  _scope, &argName);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), argName);
+    ast->symbol = arg;
     if (ast->expression)
         arg->setInitializer(true);
     arg->setType(argTy);
@@ -319,15 +327,6 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
-/*
-    Template *templ = control()->newTemplate(ast->firstToken());
-
-    for (DeclarationAST *param = ast->template_parameters; param;
-            param = param->next) {
-       semantic()->check(param, templ->members());
-    }
-*/
-
     Scope *previousScope = switchScope(new Scope(_scope->owner()));
     for (DeclarationAST *param = ast->template_parameters; param;
             param = param->next) {
@@ -343,6 +342,7 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
 }
@@ -351,6 +351,7 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
 }
@@ -359,6 +360,7 @@ bool CheckDeclaration::visit(UsingAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     UsingDeclaration *u = control()->newUsingDeclaration(ast->firstToken(), name);
+    ast->symbol = u;
     _scope->enterSymbol(u);
     return false;
 }
@@ -367,6 +369,7 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(ast->firstToken(), name);
+    ast->symbol = u;
     _scope->enterSymbol(u);
     return false;
 }

@@ -51,7 +51,6 @@
 // THE SOFTWARE.
 
 #include "Control.h"
-#include "MemoryPool.h"
 #include "Literals.h"
 #include "LiteralTable.h"
 #include "TranslationUnit.h"
