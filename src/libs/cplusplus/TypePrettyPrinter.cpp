@@ -92,6 +92,8 @@ QString TypePrettyPrinter::operator()(const FullySpecifiedType &type, const QStr
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
             text += QLatin1Char(' ');
         text += _name;
+    } else if (text.isEmpty()) {
+        text = name;
     }
     (void) switchName(previousName);
     return text;

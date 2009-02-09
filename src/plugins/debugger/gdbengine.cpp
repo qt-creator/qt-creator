@@ -3337,7 +3337,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
             tr("Cannot find special data dumpers"),
             tr("The debugged binary does not contain information needed for "
                     "nice display of Qt data types.\n\n"
-                    "Try might want to try include the file\n\n"
+                    "You might want to try including the file\n\n"
                     ".../ide/main/bin/gdbmacros/gdbmacros.cpp'\n\n"
                     "into your project directly.")
                 );

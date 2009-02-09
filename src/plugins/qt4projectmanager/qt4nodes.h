@@ -187,7 +187,7 @@ public slots:
     void scheduleUpdate();
     void update();
 private slots:
-    void updateUiFiles();
+    void updateUiFiles(const QString& buildConfiguration);
     void buildStateChanged(ProjectExplorer::Project*);
 
 private:

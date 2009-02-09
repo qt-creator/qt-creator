@@ -112,6 +112,7 @@ void QtVersionManager::addVersion(QtVersion *version)
 {
     m_versions.append(version);
     emit qtVersionsChanged();
+    writeVersionsIntoSettings();
 }
 
 void QtVersionManager::updateDocumentation()

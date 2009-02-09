@@ -3115,8 +3115,9 @@ bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool se
         if (!parenList.isEmpty() && !TextEditDocumentLayout::ifdefedOut(block)) {
             for (int i = parenList.count()-1; i >= 0; --i) {
                 Parenthesis paren = parenList.at(i);
-                if (block == cursor->block() && position - block.position() <= paren.pos + 1)
-                    continue;
+                if (block == cursor->block() &&
+                    (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0)))
+                        continue;
                 if (paren.type == Parenthesis::Closed) {
                     ++ignore;
                 } else if (ignore > 0) {

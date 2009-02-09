@@ -46,14 +46,12 @@ GccParser::GccParser()
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    m_regExpLinker.setPattern("^(\\S+)\\(\\S+\\):\\s(.+)$");
+    m_regExpLinker.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 
     //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
     m_makeDir.setPattern("^make.*: (\\w+) directory .(.+).$");
     m_makeDir.setMinimal(true);
-
-    m_linkIndent = false;
 }
 
 QString GccParser::name() const
@@ -76,7 +74,15 @@ void GccParser::stdOutput(const QString & line)
 void GccParser::stdError(const QString & line)
 {
     QString lne = line.trimmed();
-    if (m_regExp.indexIn(lne) > -1) {
+     if (m_regExpLinker.indexIn(lne) > -1) {
+        QString description = m_regExpLinker.cap(2);
+        emit addToTaskWindow(
+            m_regExpLinker.cap(1), //filename
+            ProjectExplorer::BuildParserInterface::Error,
+            -1, //linenumber
+            description);
+        //qDebug()<<"m_regExpLinker"<<m_regExpLinker.cap(2);
+    } else if (m_regExp.indexIn(lne) > -1) {
         ProjectExplorer::BuildParserInterface::PatternType type;
         if (m_regExp.cap(5) == "warning")
             type = ProjectExplorer::BuildParserInterface::Warning;
@@ -86,17 +92,14 @@ void GccParser::stdError(const QString & line)
             type = ProjectExplorer::BuildParserInterface::Unknown;
 
         QString description =  m_regExp.cap(6);
-        if (m_linkIndent)
-            description.prepend(QLatin1String("-> "));
 
-        //qDebug()<<m_regExp.cap(1)<<m_regExp.cap(2)<<m_regExp.cap(3)<<m_regExp.cap(4);
+        //qDebug()<<"m_regExp"<<m_regExp.cap(1)<<m_regExp.cap(2)<<m_regExp.cap(5);
 
         emit addToTaskWindow(
             m_regExp.cap(1), //filename
             type,
             m_regExp.cap(2).toInt(), //line number
             description);
-
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addToTaskWindow(
             m_regExpIncluded.cap(1), //filename
@@ -104,29 +107,7 @@ void GccParser::stdError(const QString & line)
             m_regExpIncluded.cap(2).toInt(), //linenumber
             lne //description
             );
-    } else if (m_regExpLinker.indexIn(lne) > -1) {
-        ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::Error;
-        QString description = m_regExpLinker.cap(2);
-        if (lne.endsWith(QLatin1Char(':'))) {
-            m_linkIndent = true;
-        } else if (m_linkIndent) {
-            description.prepend(QLatin1String("-> "));
-            type = ProjectExplorer::BuildParserInterface::Unknown;
-        }
-        emit addToTaskWindow(
-            m_regExpLinker.cap(1), //filename
-            type,
-            -1, //linenumber
-            description);
+        //qDebug()<<"m_regExpInclude"<<m_regExpIncluded.cap(1)<<m_regExpIncluded.cap(2);
     } else if (lne.startsWith(QLatin1String("collect2:"))) {
-        emit addToTaskWindow(
-            "",
-            ProjectExplorer::BuildParserInterface::Error,
-            -1,
-            lne //description
-            );
-        m_linkIndent = false;
-    } else {
-        m_linkIndent = false;
-    }
-}
+        emit addToTaskWindow("", ProjectExplorer::BuildParserInterface::Error, -1, lne);
+    }}
