@@ -34,7 +34,7 @@
 #ifndef CPLUSPLUS_LOOKUPCONTEXT_H
 #define CPLUSPLUS_LOOKUPCONTEXT_H
 
-#include <cplusplus/CppDocument.h>
+#include "CppDocument.h"
 #include <QPair>
 
 namespace CPlusPlus {

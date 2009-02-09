@@ -32,12 +32,12 @@
 ***************************************************************************/
 
 #include "TypeOfExpression.h"
+#include <TranslationUnit.h>
+#include "LookupContext.h"
+#include "ResolveExpression.h"
+#include "pp.h"
 
 #include <AST.h>
-#include <TranslationUnit.h>
-#include <cplusplus/LookupContext.h>
-#include <cplusplus/ResolveExpression.h>
-#include <cplusplus/pp.h>
 #include <QSet>
 
 using namespace CPlusPlus;

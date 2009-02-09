@@ -33,10 +33,10 @@
 #ifndef CPLUSPLUS_TYPEOFEXPRESSION_H
 #define CPLUSPLUS_TYPEOFEXPRESSION_H
 
-#include <ASTfwd.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/LookupContext.h>
+#include "CppDocument.h"
+#include "LookupContext.h"
 
+#include <ASTfwd.h>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QString>
