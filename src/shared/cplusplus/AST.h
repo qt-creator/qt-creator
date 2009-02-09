@@ -515,6 +515,9 @@ public:
     DeclarationAST *member_specifiers;
     unsigned rbrace_token;
 
+public: // annotations
+    Class *class_symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;

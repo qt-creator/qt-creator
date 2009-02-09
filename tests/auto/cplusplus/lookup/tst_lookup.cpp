@@ -1,12 +1,39 @@
 
 #include <QtTest>
 #include <QObject>
+
+#include <AST.h>
+#include <ASTVisitor.h>
+#include <TranslationUnit.h>
 #include <CppDocument.h>
 #include <LookupContext.h>
 #include <Symbols.h>
 #include <Overview.h>
 
 CPLUSPLUS_USE_NAMESPACE
+
+class ClassSymbols: protected ASTVisitor,
+    public QMap<ClassSpecifierAST *, Class *>
+{
+public:
+    ClassSymbols(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    void operator()(AST *ast)
+    { accept(ast); }
+
+protected:
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *classSymbol = ast->class_symbol;
+        Q_ASSERT(classSymbol != 0);
+
+        insert(ast, classSymbol);
+
+        return true;
+    }
+};
 
 class tst_Lookup: public QObject
 {
@@ -50,6 +77,17 @@ void tst_Lookup::base_class_defined_1()
 
     QCOMPARE(candidates.size(), 1);
     QCOMPARE(candidates.at(0), baseClass);
+
+    TranslationUnit *unit = doc->translationUnit();
+    QVERIFY(unit != 0);
+
+    TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
+    QVERIFY(ast != 0);
+
+    ClassSymbols classSymbols(doc->control());
+    classSymbols(ast);
+
+    QCOMPARE(classSymbols.size(), 2);
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)

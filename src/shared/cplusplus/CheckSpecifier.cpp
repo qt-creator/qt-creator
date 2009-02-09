@@ -300,6 +300,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 {
     Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(ast->firstToken(), className);
+    ast->class_symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
         klass->setClassKey(Class::ClassKey);
