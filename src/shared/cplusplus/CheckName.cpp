@@ -121,6 +121,8 @@ bool CheckName::visit(QualifiedNameAST *ast)
     names.push_back(semantic()->check(ast->unqualified_name, _scope));
     _name = control()->qualifiedNameId(&names[0], names.size(),
                                           ast->global_scope_token != 0);
+
+    ast->name = _name;
     return false;
 }
 
@@ -302,6 +304,7 @@ bool CheckName::visit(OperatorFunctionIdAST *ast)
     } // switch
 
     _name = control()->operatorNameId(kind);
+    ast->name = _name;
     return false;
 }
 
@@ -317,6 +320,7 @@ bool CheckName::visit(SimpleNameAST *ast)
 {
     Identifier *id = identifier(ast->identifier_token);
     _name = control()->nameId(id);
+    ast->name = _name;
     return false;
 }
 
@@ -324,6 +328,7 @@ bool CheckName::visit(DestructorNameAST *ast)
 {
     Identifier *id = identifier(ast->identifier_token);
     _name = control()->destructorNameId(id);
+    ast->name = _name;
     return false;
 }
 
@@ -342,6 +347,7 @@ bool CheckName::visit(TemplateIdAST *ast)
     else
         _name = control()->templateNameId(id, &templateArguments[0],
                                           templateArguments.size());
+    ast->name = _name;
     return false;
 }
 

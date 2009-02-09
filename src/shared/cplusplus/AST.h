@@ -422,6 +422,9 @@ public:
     NameAST *name;
     BaseSpecifierAST *next;
 
+public: // annotations
+    BaseClass *base_class_symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -1060,6 +1063,9 @@ protected:
 
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
 {
+public: // annotations
+    Name *name;
+
 public:
     virtual NameAST *clone(MemoryPool *pool) const = 0;
 };
