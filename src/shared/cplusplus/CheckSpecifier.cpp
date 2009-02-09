@@ -300,7 +300,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 {
     Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(ast->firstToken(), className);
-    ast->class_symbol = klass;
+    ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
         klass->setClassKey(Class::ClassKey);
@@ -315,7 +315,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     for (BaseSpecifierAST *base = ast->base_clause; base; base = base->next) {
         Name *baseClassName = semantic()->check(base->name, _scope);
         BaseClass *baseClass = control()->newBaseClass(ast->firstToken(), baseClassName);
-        base->base_class_symbol = baseClass;
+        base->symbol = baseClass;
         if (base->token_virtual)
             baseClass->setVirtual(true);
         if (base->token_access_specifier) {

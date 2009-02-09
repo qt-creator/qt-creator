@@ -40,7 +40,7 @@ public:
 protected:
     virtual bool visit(ClassSpecifierAST *ast)
     {
-        Class *classSymbol = ast->class_symbol;
+        Class *classSymbol = ast->symbol;
         Q_ASSERT(classSymbol != 0);
 
         insert(ast, classSymbol);
