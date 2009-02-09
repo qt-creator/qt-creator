@@ -135,9 +135,12 @@ bool CheckDeclarator::visit(DeclaratorAST *ast)
     // ### check the initializer
     // FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
 
-    if (ast->initializer && _fullySpecifiedType->isFunction()) {
-        _fullySpecifiedType->asFunction()->setPureVirtual(true);
+    if (ast->initializer && _fullySpecifiedType) {
+        if (Function *funTy = _fullySpecifiedType->asFunctionType()) {
+            funTy->setPureVirtual(true);
+        }
     }
+
     return false;
 }
 

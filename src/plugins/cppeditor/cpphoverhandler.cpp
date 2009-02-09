@@ -147,13 +147,13 @@ static QString buildHelpId(const FullySpecifiedType &type,
     Name *name = 0;
     Scope *scope = 0;
 
-    if (const Function *f = type->asFunction()) {
+    if (const Function *f = type->asFunctionType()) {
         name = f->name();
         scope = f->scope();
-    } else if (const Class *c = type->asClass()) {
+    } else if (const Class *c = type->asClassType()) {
         name = c->name();
         scope = c->scope();
-    } else if (const Enum *e = type->asEnum()) {
+    } else if (const Enum *e = type->asEnumType()) {
         name = e->name();
         scope = e->scope();
     } else if (const NamedType *t = type->asNamedType()) {
@@ -270,7 +270,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             m_helpId = buildHelpId(docType, symbol);
             QString displayName = buildHelpId(firstType, symbol);
 
-            if (!firstType->isClass() && !firstType->isNamedType()) {
+            if (!firstType->isClassType() && !firstType->isNamedType()) {
                 Overview overview;
                 overview.setShowArgumentNames(true);
                 overview.setShowReturnTypes(true);

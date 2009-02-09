@@ -188,7 +188,7 @@ void Function::setTemplateParameters(Scope *templateParameters)
 
 bool Function::isEqualTo(const Type *other) const
 {
-    const Function *o = other->asFunction();
+    const Function *o = other->asFunctionType();
     if (! o)
         return false;
     Name *l = identity();
@@ -323,7 +323,7 @@ FullySpecifiedType Enum::type() const
 
 bool Enum::isEqualTo(const Type *other) const
 {
-    const Enum *o = other->asEnum();
+    const Enum *o = other->asEnumType();
     if (! o)
         return false;
     Name *l = identity();
@@ -356,7 +356,7 @@ Namespace::~Namespace()
 
 bool Namespace::isEqualTo(const Type *other) const
 {
-    const Namespace *o = other->asNamespace();
+    const Namespace *o = other->asNamespaceType();
     if (! o)
         return false;
     Name *l = identity();
@@ -458,7 +458,7 @@ FullySpecifiedType Class::type() const
 
 bool Class::isEqualTo(const Type *other) const
 {
-    const Class *o = other->asClass();
+    const Class *o = other->asClassType();
     if (! o)
         return false;
     Name *l = identity();

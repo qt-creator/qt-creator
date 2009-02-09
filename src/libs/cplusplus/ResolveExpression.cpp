@@ -512,7 +512,7 @@ bool ResolveExpression::visit(CallAST *ast)
     _results.clear();
 
     foreach (Result p, baseResults) {
-        if (Function *funTy = p.first->asFunction()) {
+        if (Function *funTy = p.first->asFunctionType()) {
             unsigned minNumberArguments = 0;
             for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
                 Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
@@ -528,7 +528,7 @@ bool ResolveExpression::visit(CallAST *ast)
                 p.first = funTy->returnType();
                 addResult(p);
             }
-        } else if (Class *classTy = p.first->asClass()) {
+        } else if (Class *classTy = p.first->asClassType()) {
             // Constructor call
             p.first = control()->namedType(classTy->name());
             addResult(p);
@@ -566,7 +566,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
                         resolveArrayOperator(p, namedTy, classObject->asClass());
                 foreach (Result r, overloads) {
                     FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunction();
+                    Function *funTy = ty->asFunctionType();
                     if (! funTy)
                         continue;
 
@@ -621,7 +621,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                                                          classObject->asClass());
                     foreach (Result r, overloads) {
                         FullySpecifiedType ty = r.first;
-                        Function *funTy = ty->asFunction();
+                        Function *funTy = ty->asFunctionType();
                         if (! funTy)
                             continue;
 
@@ -651,7 +651,7 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
 
             if (NamedType *namedTy = ty->asNamedType())
                 results += resolveMember(p, memberName, namedTy);
-            else if (Function *fun = ty->asFunction()) {
+            else if (Function *fun = ty->asFunctionType()) {
                 if (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()) {
                     ty = fun->returnType();
 
@@ -849,7 +849,7 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
             resolvedSymbols.append(klass);
         } else if (candidate->isTypedef()) {
             if (Declaration *decl = candidate->asDeclaration()) {
-                if (Class *asClass = decl->type()->asClass()) {
+                if (Class *asClass = decl->type()->asClassType()) {
                     // typedef struct { } Point;
                     // Point pt;
                     // pt.
@@ -863,7 +863,7 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
                 }
             }
         } else if (Declaration *decl = candidate->asDeclaration()) {
-            if (Function *funTy = decl->type()->asFunction()) {
+            if (Function *funTy = decl->type()->asFunctionType()) {
                 // QString foo("ciao");
                 // foo.
                 if (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope()) {

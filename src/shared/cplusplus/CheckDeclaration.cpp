@@ -130,8 +130,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
 
-    if (_templateParameters) {
-        if (Class *klass = ty->asClass()) {
+    if (_templateParameters && ty) {
+        if (Class *klass = ty->asClassType()) {
             klass->setTemplateParameters(_templateParameters);
         }
     }
@@ -142,7 +142,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
                                                       _scope, &name);
 
-        if (Function *fun = declTy->asFunction()) {
+        Function *fun = 0;
+        if (declTy && 0 != (fun = declTy->asFunctionType())) {
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
@@ -162,7 +163,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
-        if (_templateParameters && it == ast->declarators && ! ty->asClass())
+        if (_templateParameters && it == ast->declarators && ty && ! ty->isClassType())
             symbol->setTemplateParameters(_templateParameters);
 
         symbol->setVisibility(semantic()->currentVisibility());
@@ -225,13 +226,13 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     Name *name = 0;
     FullySpecifiedType funTy = semantic()->check(ast->declarator, qualTy,
                                                  _scope, &name);
-    Function *fun = funTy->asFunction();
-    if (! fun) {
+    if (! (funTy && funTy->isFunctionType())) {
         translationUnit()->error(ast->firstToken(),
                                  "expected a function prototype");
         return false;
     }
 
+    Function *fun = funTy->asFunctionType();
     fun->setName(name);
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());

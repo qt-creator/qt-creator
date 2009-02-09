@@ -217,6 +217,12 @@ public:
     virtual Enum *asEnum()
     { return this; }
 
+    virtual const Enum *asEnumType() const
+    { return this; }
+
+    virtual Enum *asEnumType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -278,6 +284,12 @@ public:
     virtual Function *asFunction()
     { return this; }
 
+    virtual const Function *asFunctionType() const
+    { return this; }
+
+    virtual Function *asFunctionType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -316,6 +328,12 @@ public:
     { return this; }
 
     virtual Namespace *asNamespace()
+    { return this; }
+
+    virtual const Namespace *asNamespaceType() const
+    { return this; }
+
+    virtual Namespace *asNamespaceType()
     { return this; }
 
 protected:
@@ -386,6 +404,12 @@ public:
     { return this; }
 
     virtual Class *asClass()
+    { return this; }
+
+    virtual const Class *asClassType() const
+    { return this; }
+
+    virtual Class *asClassType()
     { return this; }
 
 protected:

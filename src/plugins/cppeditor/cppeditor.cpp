@@ -424,7 +424,7 @@ static bool isCompatible(Name *name, Name *otherName)
 
 static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNameId *declarationName)
 {
-    Function *declTy = declaration->type()->asFunction();
+    Function *declTy = declaration->type()->asFunctionType();
     if (! declTy)
         return false;
 
@@ -507,7 +507,7 @@ void CPPEditor::switchDeclarationDefinition()
 
         if (declaration)
             openEditorAt(declaration);
-    } else if (lastSymbol->type()->isFunction()) {
+    } else if (lastSymbol->type()->isFunctionType()) {
         if (Symbol *def = findDefinition(lastSymbol))
             openEditorAt(def);
     }
@@ -594,7 +594,7 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
 
-    Function *funTy = symbol->type()->asFunction();
+    Function *funTy = symbol->type()->asFunctionType();
     if (! funTy)
         return 0; // symbol does not have function type.
 

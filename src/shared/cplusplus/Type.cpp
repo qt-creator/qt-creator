@@ -64,121 +64,40 @@ Type::~Type()
 { }
 
 bool Type::isVoidType() const
-{ return dynamic_cast<const VoidType *>(this) != 0; }
+{ return asVoidType() != 0; }
 
 bool Type::isIntegerType() const
-{ return dynamic_cast<const IntegerType *>(this) != 0; }
+{ return asIntegerType() != 0; }
 
 bool Type::isFloatType() const
-{ return dynamic_cast<const FloatType *>(this) != 0; }
+{ return asFloatType() != 0; }
 
 bool Type::isPointerType() const
-{ return dynamic_cast<const PointerType *>(this) != 0; }
+{ return asPointerType()  != 0; }
 
 bool Type::isPointerToMemberType() const
-{ return dynamic_cast<const PointerToMemberType *>(this) != 0; }
+{ return asPointerToMemberType() != 0; }
 
 bool Type::isReferenceType() const
-{ return dynamic_cast<const ReferenceType *>(this) != 0; }
+{ return asReferenceType() != 0; }
 
 bool Type::isArrayType() const
-{ return dynamic_cast<const ArrayType *>(this) != 0; }
+{ return asArrayType() != 0; }
 
 bool Type::isNamedType() const
-{ return dynamic_cast<const NamedType *>(this) != 0; }
+{ return asNamedType() != 0; }
 
-bool Type::isFunction() const
-{ return dynamic_cast<const Function *>(this) != 0; }
+bool Type::isFunctionType() const
+{ return asFunctionType() != 0; }
 
-bool Type::isNamespace() const
-{ return dynamic_cast<const Namespace *>(this) != 0; }
+bool Type::isNamespaceType() const
+{ return asNamespaceType() != 0; }
 
-bool Type::isClass() const
-{ return dynamic_cast<const Class *>(this) != 0; }
+bool Type::isClassType() const
+{ return asClassType() != 0; }
 
-bool Type::isEnum() const
-{ return dynamic_cast<const Enum *>(this) != 0; }
-
-bool Type::isScopedSymbol() const
-{ return dynamic_cast<const ScopedSymbol *>(this) != 0; }
-
-const VoidType *Type::asVoidType() const
-{ return dynamic_cast<const VoidType *>(this); }
-
-const IntegerType *Type::asIntegerType() const
-{ return dynamic_cast<const IntegerType *>(this); }
-
-const FloatType *Type::asFloatType() const
-{ return dynamic_cast<const FloatType *>(this); }
-
-const PointerType *Type::asPointerType() const
-{ return dynamic_cast<const PointerType *>(this); }
-
-const PointerToMemberType *Type::asPointerToMemberType() const
-{ return dynamic_cast<const PointerToMemberType *>(this); }
-
-const ReferenceType *Type::asReferenceType() const
-{ return dynamic_cast<const ReferenceType *>(this); }
-
-const ArrayType *Type::asArrayType() const
-{ return dynamic_cast<const ArrayType *>(this); }
-
-const NamedType *Type::asNamedType() const
-{ return dynamic_cast<const NamedType *>(this); }
-
-const Function *Type::asFunction() const
-{ return dynamic_cast<const Function *>(this); }
-
-const Namespace *Type::asNamespace() const
-{ return dynamic_cast<const Namespace *>(this); }
-
-const Class *Type::asClass() const
-{ return dynamic_cast<const Class *>(this); }
-
-const Enum *Type::asEnum() const
-{ return dynamic_cast<const Enum *>(this); }
-
-const ScopedSymbol *Type::asScopedSymbol() const
-{ return dynamic_cast<const ScopedSymbol *>(this); }
-
-VoidType *Type::asVoidType()
-{ return dynamic_cast<VoidType *>(this); }
-
-IntegerType *Type::asIntegerType()
-{ return dynamic_cast<IntegerType *>(this); }
-
-FloatType *Type::asFloatType()
-{ return dynamic_cast<FloatType *>(this); }
-
-PointerType *Type::asPointerType()
-{ return dynamic_cast<PointerType *>(this); }
-
-PointerToMemberType *Type::asPointerToMemberType()
-{ return dynamic_cast<PointerToMemberType *>(this); }
-
-ReferenceType *Type::asReferenceType()
-{ return dynamic_cast<ReferenceType *>(this); }
-
-ArrayType *Type::asArrayType()
-{ return dynamic_cast<ArrayType *>(this); }
-
-NamedType *Type::asNamedType()
-{ return dynamic_cast<NamedType *>(this); }
-
-Function *Type::asFunction()
-{ return dynamic_cast<Function *>(this); }
-
-Namespace *Type::asNamespace()
-{ return dynamic_cast<Namespace *>(this); }
-
-Class *Type::asClass()
-{ return dynamic_cast<Class *>(this); }
-
-Enum *Type::asEnum()
-{ return dynamic_cast<Enum *>(this); }
-
-ScopedSymbol *Type::asScopedSymbol()
-{ return dynamic_cast<ScopedSymbol *>(this); }
+bool Type::isEnumType() const
+{ return asEnumType() != 0; }
 
 void Type::accept(TypeVisitor *visitor)
 {

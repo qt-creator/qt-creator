@@ -512,7 +512,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             context = typeOfExpression.lookupContext();
         }
 
-        if (! resolvedTypes.isEmpty()) {
+        if (! resolvedTypes.isEmpty() && resolvedTypes.first().first) {
             FullySpecifiedType exprTy = resolvedTypes.first().first;
 
             if (exprTy->isReferenceType())
@@ -549,9 +549,9 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
-                if (result.first->isClass()) {
+                if (result.first->isClassType()) {
                     FullySpecifiedType exprTy = result.first;
-                    if (completeConstructors(exprTy->asClass()))
+                    if (completeConstructors(exprTy->asClassType()))
                         return m_startPosition;
                     break;
                 }
@@ -567,7 +567,7 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
                                          const QList<TypeOfExpression::Result> &resolvedTypes,
                                          const LookupContext &)
 {
-    if (Class *klass = exprTy->asClass()) {
+    if (Class *klass = exprTy->asClassType()) {
         completeConstructors(klass);
     } else {
         ConvertToCompletionItem toCompletionItem(this);
@@ -578,7 +578,7 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
         QSet<QString> signatures;
         foreach (TypeOfExpression::Result p, resolvedTypes) {
             FullySpecifiedType ty = p.first;
-            if (Function *fun = ty->asFunction()) {
+            if (Function *fun = ty->asFunctionType()) {
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     QString signature;
                     signature += overview.prettyName(fun->name());
@@ -612,7 +612,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
 
-        if (Class *classTy = ty->asClass()) {
+        if (Class *classTy = ty->asClassType()) {
             Symbol *symbol = result.second;
             if (symbol && ! symbol->isClass())
                 classObjectCandidates.append(classTy);
@@ -641,7 +641,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
 
                 foreach (TypeOfExpression::Result r, overloads) {
                     FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunction();
+                    Function *funTy = ty->asFunctionType();
                     if (! funTy)
                         continue;
 
@@ -674,7 +674,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                     if (! classObjectCandidates.contains(c))
                         classObjectCandidates.append(c);
                 }
-            } else if (Class *classTy = ptrTy->elementType()->asClass()) {
+            } else if (Class *classTy = ptrTy->elementType()->asClassType()) {
                 // typedef struct { int x } *Ptr;
                 // Ptr p;
                 // p->
@@ -715,14 +715,14 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                 ++m_startPosition;
                 namedTy = ptrTy->elementType()->asNamedType();
             }
-        } else if (Class *classTy = ty->asClass()) {
+        } else if (Class *classTy = ty->asClassType()) {
             Symbol *symbol = result.second;
             if (symbol && ! symbol->isClass())
                 classObjectCandidates.append(classTy);
         } else {
             namedTy = ty->asNamedType();
             if (! namedTy) {
-                Function *fun = ty->asFunction();
+                Function *fun = ty->asFunctionType();
                 if (fun && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()))
                     namedTy = fun->returnType()->asNamedType();
             }
@@ -759,24 +759,24 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
     foreach (result, results) {
         FullySpecifiedType ty = result.first;
 
-        if (ty->isClass() || ty->isNamespace())
+        if (ty->isClassType() || ty->isNamespaceType())
             break;
     }
 
     FullySpecifiedType exprTy = result.first;
     if (! exprTy) {
         return false;
-    } else if (exprTy->asNamespace()) {
+    } else if (exprTy->isNamespaceType()) {
         QList<Symbol *> candidates;
         foreach (TypeOfExpression::Result p, results) {
-            if (Namespace *ns = p.first->asNamespace())
+            if (Namespace *ns = p.first->asNamespaceType())
                 candidates.append(ns);
         }
         completeNamespace(candidates, context);
-    } else if (exprTy->isClass()) {
+    } else if (exprTy->isClassType()) {
         QList<Symbol *> candidates;
         foreach (TypeOfExpression::Result p, results) {
-            if (Class *k = p.first->asClass())
+            if (Class *k = p.first->asClassType())
                 candidates.append(k);
         }
         completeClass(candidates, context);
@@ -896,7 +896,7 @@ bool CppCodeCompletion::completeConstructors(Class *klass)
 
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
         Symbol *member = klass->memberAt(i);
-        if (! member->type()->isFunction())
+        if (! member->type()->isFunctionType())
             continue;
         else if (! member->identity())
             continue;
@@ -959,7 +959,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
 
             for (unsigned i = 0; i < scope->symbolCount(); ++i) {
                 Symbol *member = scope->symbolAt(i);
-                Function *fun = member->type()->asFunction();
+                Function *fun = member->type()->asFunctionType();
                 if (! fun)
                     continue;
                 if (wantSignals && ! fun->isSignal())
@@ -1075,7 +1075,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
 
     if (m_completionOperator == T_LPAREN) {
         if (symbol) {
-            Function *function = symbol->type()->asFunction();
+            Function *function = symbol->type()->asFunctionType();
             QTC_ASSERT(function, return);
 
             m_functionArgumentWidget = new FunctionArgumentWidget();
@@ -1094,8 +1094,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (m_autoInsertBraces && symbol) {
-            if (Function *function = symbol->type()->asFunction()) {
+        if (m_autoInsertBraces && symbol && symbol->type()) {
+            if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
                 const bool hasReturnType = function->returnType().isValid()  ||

@@ -63,11 +63,13 @@ Icons::Icons()
 
 QIcon Icons::iconForSymbol(const Symbol *symbol) const
 {
-    if (symbol->isFunction() || (symbol->isDeclaration() && symbol->type()->isFunction()))
+    FullySpecifiedType symbolType = symbol->type();
+    if (symbol->isFunction() || (symbol->isDeclaration() && symbolType &&
+                                 symbolType->isFunctionType()))
     {
         const Function *function = symbol->asFunction();
         if (!function)
-            function = symbol->type()->asFunction();
+            function = symbol->type()->asFunctionType();
 
         if (function->isSlot()) {
             if (function->isPublic()) {

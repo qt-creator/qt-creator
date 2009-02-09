@@ -195,7 +195,7 @@ static const Function *findDeclaration(const Class *cl, const QString &functionN
     const Overview overview;
     for (unsigned j = 0; j < mCount; j++) { // go through all members
         if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
-            if (const Function *fun = decl->type()->asFunction()) {
+            if (const Function *fun = decl->type()->asFunctionType()) {
                 // Format signature
                 QString memberFunction = overview.prettyName(fun->name());
                 memberFunction += QLatin1Char('(');
@@ -233,7 +233,7 @@ static bool isCompatible(const Name *name, const Name *otherName)
 // TODO: remove me, see below
 static bool isCompatible(const Function *definition, const Symbol *declaration, const QualifiedNameId *declarationName)
 {
-    Function *declTy = declaration->type()->asFunction();
+    Function *declTy = declaration->type()->asFunctionType();
     if (! declTy)
         return false;
 
@@ -385,7 +385,7 @@ static void addDeclaration(const QString &docFileName, const Class *cl, const QS
     const unsigned mCount = cl->memberCount();
     for (unsigned j = 0; j < mCount; j++) { // go through all members
         if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
-            if (const Function *fun = decl->type()->asFunction())  {
+            if (const Function *fun = decl->type()->asFunctionType())  {
                 // we are only interested in declarations of methods.
                 // fun->column() returns always 0, what can cause trouble in case in one
                 // line if there is: "private slots: void foo();"

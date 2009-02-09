@@ -66,6 +66,12 @@ class CPLUSPLUS_EXPORT VoidType: public Type
 public:
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const VoidType *asVoidType() const
+    { return this; }
+
+    virtual VoidType *asVoidType()
+    { return this; }
+
 protected:
     virtual void accept0(TypeVisitor *visitor);
 };
@@ -91,6 +97,12 @@ public:
 
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual IntegerType *asIntegerType()
+    { return this; }
+
+    virtual const IntegerType *asIntegerType() const
+    { return this; }
+
 protected:
     virtual void accept0(TypeVisitor *visitor);
 
@@ -115,6 +127,12 @@ public:
 
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const FloatType *asFloatType() const
+    { return this; }
+
+    virtual FloatType *asFloatType()
+    { return this; }
+
 protected:
     virtual void accept0(TypeVisitor *visitor);
 
@@ -131,6 +149,12 @@ public:
     FullySpecifiedType elementType() const;
 
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const PointerType *asPointerType() const
+    { return this; }
+
+    virtual PointerType *asPointerType()
+    { return this; }
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
@@ -150,6 +174,12 @@ public:
 
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const PointerToMemberType *asPointerToMemberType() const
+    { return this; }
+
+    virtual PointerToMemberType *asPointerToMemberType()
+    { return this; }
+
 protected:
     virtual void accept0(TypeVisitor *visitor);
 
@@ -167,6 +197,12 @@ public:
     FullySpecifiedType elementType() const;
 
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ReferenceType *asReferenceType() const
+    { return this; }
+
+    virtual ReferenceType *asReferenceType()
+    { return this; }
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
@@ -186,6 +222,12 @@ public:
 
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const ArrayType *asArrayType() const
+    { return this; }
+
+    virtual ArrayType *asArrayType()
+    { return this; }
+
 protected:
     virtual void accept0(TypeVisitor *visitor);
 
@@ -203,6 +245,12 @@ public:
     Name *name() const;
 
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const NamedType *asNamedType() const
+    { return this; }
+
+    virtual NamedType *asNamedType()
+    { return this; }
 
 protected:
     virtual void accept0(TypeVisitor *visitor);

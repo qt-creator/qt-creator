@@ -75,39 +75,36 @@ public:
     bool isReferenceType() const;
     bool isArrayType() const;
     bool isNamedType() const;
-    bool isFunction() const;
-    bool isNamespace() const;
-    bool isClass() const;
-    bool isEnum() const;
-    bool isScopedSymbol() const;
+    bool isFunctionType() const;
+    bool isNamespaceType() const;
+    bool isClassType() const;
+    bool isEnumType() const;
 
-    const VoidType *asVoidType() const;
-    const IntegerType *asIntegerType() const;
-    const FloatType *asFloatType() const;
-    const PointerType *asPointerType() const;
-    const PointerToMemberType *asPointerToMemberType() const;
-    const ReferenceType *asReferenceType() const;
-    const ArrayType *asArrayType() const;
-    const NamedType *asNamedType() const;
-    const Function *asFunction() const;
-    const Namespace *asNamespace() const;
-    const Class *asClass() const;
-    const Enum *asEnum() const;
-    const ScopedSymbol *asScopedSymbol() const;
+    virtual const VoidType *asVoidType() const { return 0; }
+    virtual const IntegerType *asIntegerType() const { return 0; }
+    virtual const FloatType *asFloatType() const { return 0; }
+    virtual const PointerType *asPointerType() const { return 0; }
+    virtual const PointerToMemberType *asPointerToMemberType() const { return 0; }
+    virtual const ReferenceType *asReferenceType() const { return 0; }
+    virtual const ArrayType *asArrayType() const { return 0; }
+    virtual const NamedType *asNamedType() const { return 0; }
+    virtual const Function *asFunctionType() const { return 0; }
+    virtual const Namespace *asNamespaceType() const { return 0; }
+    virtual const Class *asClassType() const { return 0; }
+    virtual const Enum *asEnumType() const { return 0; }
 
-    VoidType *asVoidType();
-    IntegerType *asIntegerType();
-    FloatType *asFloatType();
-    PointerType *asPointerType();
-    PointerToMemberType *asPointerToMemberType();
-    ReferenceType *asReferenceType();
-    ArrayType *asArrayType();
-    NamedType *asNamedType();
-    Function *asFunction();
-    Namespace *asNamespace();
-    Class *asClass();
-    Enum *asEnum();
-    ScopedSymbol *asScopedSymbol();
+    virtual VoidType *asVoidType() { return 0; }
+    virtual IntegerType *asIntegerType() { return 0; }
+    virtual FloatType *asFloatType() { return 0; }
+    virtual PointerType *asPointerType() { return 0; }
+    virtual PointerToMemberType *asPointerToMemberType() { return 0; }
+    virtual ReferenceType *asReferenceType() { return 0; }
+    virtual ArrayType *asArrayType() { return 0; }
+    virtual NamedType *asNamedType() { return 0; }
+    virtual Function *asFunctionType() { return 0; }
+    virtual Namespace *asNamespaceType() { return 0; }
+    virtual Class *asClassType() { return 0; }
+    virtual Enum *asEnumType() { return 0; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);
