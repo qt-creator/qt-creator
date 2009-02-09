@@ -24,7 +24,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_help \
 #            plugin_regexp \ # don't know what to do with this
             plugin_qtscripteditor \
-            plugin_cpaster \
+#            plugin_cpaster \
             plugin_cmakeprojectmanager \
             plugin_fakevim
 
