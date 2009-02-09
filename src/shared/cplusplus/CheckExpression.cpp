@@ -319,8 +319,8 @@ bool CheckExpression::visit(QtMethodAST *ast)
     Scope dummy;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
                                                   &dummy, &name);
-    Function *fty = methTy->asFunctionType();
-    if (! fty)
+    Function *fty = 0;
+    if (! methTy || 0 == (fty = methTy->asFunctionType()))
         translationUnit()->warning(ast->firstToken(), "expected a function declarator");
     else {
         for (unsigned i = 0; i < fty->argumentCount(); ++i) {
