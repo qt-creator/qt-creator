@@ -148,27 +148,45 @@ Scope *Scope::enclosingBlockScope() const
 }
 
 bool Scope::isNamespaceScope() const
-{ return dynamic_cast<const Namespace *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isNamespace();
+    return false;
+}
 
 bool Scope::isClassScope() const
-{ return dynamic_cast<const Class *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isClass();
+    return false;
+}
 
 bool Scope::isEnumScope() const
-{ return dynamic_cast<const Enum *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isEnum();
+    return false;
+}
 
 bool Scope::isBlockScope() const
-{ return dynamic_cast<const Block *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isBlock();
+    return false;
+}
 
 bool Scope::isPrototypeScope() const
 {
-    if (const Function *f = dynamic_cast<const Function *>(_owner))
+    Function *f = 0;
+    if (_owner && 0 != (f = _owner->asFunction()))
         return f->arguments() == this;
     return false;
 }
 
 bool Scope::isFunctionScope() const
 {
-    if (const Function *f = dynamic_cast<const Function *>(_owner))
+    Function *f = 0;
+    if (_owner && 0 != (f = _owner->asFunction()))
         return f->arguments() != this;
     return false;
 }
