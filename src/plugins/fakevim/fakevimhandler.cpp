@@ -312,6 +312,7 @@ public:
     QStack<EditOperation> m_undoStack;
     QStack<EditOperation> m_redoStack;
     QStack<int> m_undoGroupStack;
+    QMap<int, int> m_undoCursorPosition;
 
     // extra data for '.'
     QString m_dotCommand;
@@ -416,7 +417,14 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         && (ev->modifiers() & Qt::ShiftModifier) == 0) {
         key += 32;
     }
+
+    m_undoCursorPosition[EDITOR(document())->revision()] = m_tc.position();
+    if (m_mode == InsertMode)
+        m_tc.joinPreviousEditBlock();
+    else
+        m_tc.beginEditBlock();
     bool handled = handleKey(key, um, ev->text());
+    m_tc.endEditBlock();
 
     // We fake vi-style end-of-line behaviour
     m_fakeEnd = (atEndOfLine() && m_mode == CommandMode);
@@ -2012,6 +2020,11 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
+    EDITOR(undo());
+    int rev = EDITOR(document())->revision();
+    if (m_undoCursorPosition.contains(rev))
+        m_tc.setPosition(m_undoCursorPosition[rev]);
+#if 0
     if (m_undoStack.isEmpty()) {
         showBlackMessage(tr("Already at oldest change"));
     } else {
@@ -2033,10 +2046,22 @@ void FakeVimHandler::Private::undo()
         m_redoStack.push(op);
         showBlackMessage(QString());
     }
+#endif
 }
 
 void FakeVimHandler::Private::redo()
 {
+    int current = EDITOR(document())->revision();
+    EDITOR(redo());
+    int rev = EDITOR(document())->revision();
+    if (rev == current) {
+        showBlackMessage(tr("Already at newest change"));
+    } else {
+        showBlackMessage(QString());
+        if (m_undoCursorPosition.contains(rev))
+            m_tc.setPosition(m_undoCursorPosition[rev]);
+    }
+#if 0
     if (m_redoStack.isEmpty()) {
         showBlackMessage(tr("Already at newest change"));
     } else {
@@ -2058,6 +2083,7 @@ void FakeVimHandler::Private::redo()
         m_undoStack.push(op);
         showBlackMessage(QString());
     }
+#endif
 }
 
 void FakeVimHandler::Private::recordBeginGroup()
