@@ -1113,7 +1113,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     toInsert.append(QLatin1Char('('));
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (function->argumentCount() == 0 || (function->argumentCount() == 1 &&
+                    if (function->argumentCount() == 0 || (function->argumentCount() == 1  &&
+                                                           function->argumentAt(0)->type() &&
                                                            function->argumentAt(0)->type()->isVoidType())) {
                         toInsert.append(QLatin1Char(')'));
 
