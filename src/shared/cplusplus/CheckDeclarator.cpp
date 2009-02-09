@@ -158,6 +158,7 @@ bool CheckDeclarator::visit(NestedDeclaratorAST *ast)
 bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
 {
     Function *fun = control()->newFunction(ast->firstToken());
+    ast->symbol = fun;
     fun->setReturnType(_fullySpecifiedType);
 
     if (ast->parameters) {

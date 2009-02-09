@@ -711,6 +711,9 @@ public:
     SpecifierAST *cv_qualifier_seq;
     ExceptionSpecificationAST *exception_specification;
 
+public: // annotations
+    Function *symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
