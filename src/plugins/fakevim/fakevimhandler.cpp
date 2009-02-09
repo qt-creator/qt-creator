@@ -1027,7 +1027,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         finishMovement();
         m_desiredColumn = savedColumn;
-    } else if (key == 'l' || key == Key_Right) {
+    } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_moveType = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
         finishMovement();
