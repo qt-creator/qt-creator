@@ -74,19 +74,19 @@ public:
     bool isConversionNameId() const;
     bool isQualifiedNameId() const;
 
-    const NameId *asNameId() const;
-    const TemplateNameId *asTemplateNameId() const;
-    const DestructorNameId *asDestructorNameId() const;
-    const OperatorNameId *asOperatorNameId() const;
-    const ConversionNameId *asConversionNameId() const;
-    const QualifiedNameId *asQualifiedNameId() const;
+    virtual const NameId *asNameId() const { return 0; }
+    virtual const TemplateNameId *asTemplateNameId() const { return 0; }
+    virtual const DestructorNameId *asDestructorNameId() const { return 0; }
+    virtual const OperatorNameId *asOperatorNameId() const { return 0; }
+    virtual const ConversionNameId *asConversionNameId() const { return 0; }
+    virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
 
-    NameId *asNameId();
-    TemplateNameId *asTemplateNameId();
-    DestructorNameId *asDestructorNameId();
-    OperatorNameId *asOperatorNameId();
-    ConversionNameId *asConversionNameId();
-    QualifiedNameId *asQualifiedNameId();
+    virtual NameId *asNameId() { return 0; }
+    virtual TemplateNameId *asTemplateNameId() { return 0; }
+    virtual DestructorNameId *asDestructorNameId() { return 0; }
+    virtual OperatorNameId *asOperatorNameId() { return 0; }
+    virtual ConversionNameId *asConversionNameId() { return 0; }
+    virtual QualifiedNameId *asQualifiedNameId() { return 0; }
 
     virtual bool isEqualTo(const Name *other) const = 0;
 

@@ -77,6 +77,12 @@ public:
 
     virtual bool isEqualTo(const Name *other) const;
 
+    virtual const QualifiedNameId *asQualifiedNameId() const
+    { return this; }
+
+    virtual QualifiedNameId *asQualifiedNameId()
+    { return this; }
+
 protected:
     virtual void accept0(NameVisitor *visitor);
 
@@ -96,6 +102,12 @@ public:
 
     virtual bool isEqualTo(const Name *other) const;
 
+    virtual const NameId *asNameId() const
+    { return this; }
+
+    virtual NameId *asNameId()
+    { return this; }
+
 protected:
     virtual void accept0(NameVisitor *visitor);
 
@@ -112,6 +124,12 @@ public:
     Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
+
+    virtual const DestructorNameId *asDestructorNameId() const
+    { return this; }
+
+    virtual DestructorNameId *asDestructorNameId()
+    { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor);
@@ -136,6 +154,12 @@ public:
     const FullySpecifiedType *templateArguments() const;
 
     virtual bool isEqualTo(const Name *other) const;
+
+    virtual const TemplateNameId *asTemplateNameId() const
+    { return this; }
+
+    virtual TemplateNameId *asTemplateNameId()
+    { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor);
@@ -211,6 +235,12 @@ public:
 
     virtual bool isEqualTo(const Name *other) const;
 
+    virtual const OperatorNameId *asOperatorNameId() const
+    { return this; }
+
+    virtual OperatorNameId *asOperatorNameId()
+    { return this; }
+
 protected:
     virtual void accept0(NameVisitor *visitor);
 
@@ -227,6 +257,12 @@ public:
     FullySpecifiedType type() const;
 
     virtual bool isEqualTo(const Name *other) const;
+
+    virtual const ConversionNameId *asConversionNameId() const
+    { return this; }
+
+    virtual ConversionNameId *asConversionNameId()
+    { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor);
