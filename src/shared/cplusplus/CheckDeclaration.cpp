@@ -286,6 +286,7 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
     Identifier *id = identifier(ast->identifier_token);
     Name *namespaceName = control()->nameId(id);
     Namespace *ns = control()->newNamespace(ast->firstToken(), namespaceName);
+    ast->namespace_symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
 

@@ -1194,6 +1194,9 @@ public:
     SpecifierAST *attributes;
     DeclarationAST *linkage_body;
 
+public: // annotations
+    Namespace *namespace_symbol;
+
 public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
