@@ -1119,7 +1119,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
 
                         // If the function doesn't return anything, automatically place the semicolon,
                         // unless we're doing a scope completion (then it might be function definition).
-                        if (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON) {
+                        FullySpecifiedType retTy = function->returnType();
+                        if (retTy && retTy->isVoidType() && m_completionOperator != T_COLON_COLON) {
                             toInsert.append(QLatin1Char(';'));
                         }
                     }
