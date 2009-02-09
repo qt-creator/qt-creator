@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEBUGGER_CDBDEBUGEVENTCALLBACK_H
+#define DEBUGGER_CDBDEBUGEVENTCALLBACK_H
 
 #include <windows.h>
 #include <dbgeng.h>
@@ -6,12 +7,12 @@
 namespace Debugger {
 namespace Internal {
 
-class MSVCDebugEngine;
+class CdbDebugEngine;
 
-class MSVCDebugEventCallback : public IDebugEventCallbacks
+class CdbDebugEventCallback : public IDebugEventCallbacks
 {
 public:
-    MSVCDebugEventCallback(MSVCDebugEngine* dbg)
+    CdbDebugEventCallback(CdbDebugEngine* dbg)
         : m_pEngine(dbg)
     {}
 
@@ -124,8 +125,10 @@ public:
         );
 
 private:
-    MSVCDebugEngine*   m_pEngine;
+    CdbDebugEngine*   m_pEngine;
 };
 
 } // namespace Internal
 } // namespace Debugger
+
+#endif // DEBUGGER_CDBDEBUGEVENTCALLBACK_H

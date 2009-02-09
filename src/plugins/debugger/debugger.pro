@@ -84,13 +84,19 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-false {
-    HEADERS += msvcdebugengine.h \
-               msvcdebugeventcallback.h \
-               msvcdebugoutput.h
-    SOURCES += msvcdebugengine.cpp \
-               msvcdebugeventcallback.cpp \
-               msvcdebugoutput.cpp
-    LIBS += dbgeng.lib
+win32 {
+
+HEADERS += \
+    cdbdebugengine.h \
+    cdbdebugeventcallback.h \
+    cdbdebugoutput.h
+
+SOURCES += \
+    cdbdebugengine.cpp \
+    cdbdebugeventcallback.cpp \
+    cdbdebugoutput.cpp
+
+LIBS += dbgeng.lib
+
 }
 

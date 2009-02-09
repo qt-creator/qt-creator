@@ -1,9 +1,10 @@
-#ifndef __MSVCDEBUGENGINE_H__
-#define __MSVCDEBUGENGINE_H__
+#ifndef DEBUGGER_CDBENGINE_H
+#define DEBUGGER_CDBENGINE_H
 
 #include "idebuggerengine.h"
-#include "msvcdebugeventcallback.h"
-#include "msvcdebugoutput.h"
+#include "cdbdebugeventcallback.h"
+#include "cdbdebugoutput.h"
+
 #include <windows.h>
 
 namespace Debugger {
@@ -12,12 +13,12 @@ namespace Internal {
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 
-class MSVCDebugEngine : public IDebuggerEngine
+class CdbDebugEngine : public IDebuggerEngine
 {
     Q_OBJECT
 public:
-    MSVCDebugEngine(DebuggerManager *parent);
-    ~MSVCDebugEngine();
+    CdbDebugEngine(DebuggerManager *parent);
+    ~CdbDebugEngine();
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &pos, const QString &exp);
@@ -63,7 +64,7 @@ protected:
 private:
     void startWatchTimer();
     void killWatchTimer();
-    bool isDebuggeeRunning() { return m_watchTimer != -1; }
+    bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
     void updateThreadList();
     void updateStackTrace();
@@ -82,17 +83,17 @@ private:
     IDebugSystemObjects4*   m_pDebugSystemObjects;
     IDebugSymbols3*         m_pDebugSymbols;
     IDebugRegisters2*       m_pDebugRegisters;
-    MSVCDebugEventCallback  m_debugEventCallBack;
-    MSVCDebugOutput         m_debugOutputCallBack;
+    CdbDebugEventCallback   m_debugEventCallBack;
+    CdbDebugOutput          m_debugOutputCallBack;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
 
-    friend class MSVCDebugEventCallback;
-    friend class MSVCDebugOutput;
+    friend class CdbDebugEventCallback;
+    friend class CdbDebugOutput;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif
+#endif // DEBUGGER_CDBENGINE_H

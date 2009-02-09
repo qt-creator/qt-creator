@@ -1,15 +1,15 @@
-#ifndef __MSVCDEBUGOUTPUT_H__
-#define __MSVCDEBUGOUTPUT_H__
+#ifndef DEBUGGER_CDBOUTPUT_H
+#define DEBUGGER_CDBOUTPUT_H
 
 namespace Debugger {
 namespace Internal {
 
-class MSVCDebugEngine;
+class CdbDebugEngine;
 
-class MSVCDebugOutput : public IDebugOutputCallbacks
+class CdbDebugOutput : public IDebugOutputCallbacks
 {
 public:
-    MSVCDebugOutput(MSVCDebugEngine* engine)
+    CdbDebugOutput(CdbDebugEngine* engine)
         : m_pEngine(engine)
     {}
 
@@ -34,10 +34,10 @@ public:
         );
 
 private:
-    MSVCDebugEngine* m_pEngine;
+    CdbDebugEngine* m_pEngine;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // #ifndef __MSVCDEBUGOUTPUT_H__
+#endif // DEBUGGER_CDBOUTPUT_H

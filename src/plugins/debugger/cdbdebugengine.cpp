@@ -1,4 +1,4 @@
-#include "msvcdebugengine.h"
+#include "cdbdebugengine.h"
 
 #include "assert.h"
 #include "debuggermanager.h"
@@ -16,8 +16,8 @@ using namespace Debugger;
 using namespace Debugger::Internal;
 
 
-MSVCDebugEngine::MSVCDebugEngine(DebuggerManager *parent)
-:   IDebuggerEngine(parent),
+CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent)
+  : IDebuggerEngine(parent),
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     //m_hDebuggeeImage(0),
@@ -50,7 +50,7 @@ MSVCDebugEngine::MSVCDebugEngine(DebuggerManager *parent)
     }
 }
 
-MSVCDebugEngine::~MSVCDebugEngine()
+CdbDebugEngine::~CdbDebugEngine()
 {
     if (m_pDebugClient)
         m_pDebugClient->Release();
@@ -64,13 +64,13 @@ MSVCDebugEngine::~MSVCDebugEngine()
         m_pDebugRegisters->Release();
 }
 
-void MSVCDebugEngine::startWatchTimer()
+void CdbDebugEngine::startWatchTimer()
 {
     if (m_watchTimer == -1)
         m_watchTimer = startTimer(0);
 }
 
-void MSVCDebugEngine::killWatchTimer()
+void CdbDebugEngine::killWatchTimer()
 {
     if (m_watchTimer != -1) {
         killTimer(m_watchTimer);
@@ -78,16 +78,16 @@ void MSVCDebugEngine::killWatchTimer()
     }
 }
 
-void MSVCDebugEngine::shutdown()
+void CdbDebugEngine::shutdown()
 {
     exitDebugger();
 }
 
-void MSVCDebugEngine::setToolTipExpression(const QPoint &pos, const QString &exp)
+void CdbDebugEngine::setToolTipExpression(const QPoint &pos, const QString &exp)
 {
 }
 
-bool MSVCDebugEngine::startDebugger()
+bool CdbDebugEngine::startDebugger()
 {
     q->showStatusMessage("Starting Debugger", -1);
 
@@ -110,7 +110,7 @@ bool MSVCDebugEngine::startDebugger()
     //m_pDebugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
 
     if (q->startMode() == q->attachExternal) {
-        qWarning("MSVCDebugEngine: attach to process not yet implemented!");
+        qWarning("CdbDebugEngine: attach to process not yet implemented!");
     } else {
         hr = m_pDebugClient->CreateProcess2Wide(NULL,
                                                 const_cast<PWSTR>(filename.utf16()),
@@ -130,19 +130,19 @@ bool MSVCDebugEngine::startDebugger()
     return true;
 }
 
-void MSVCDebugEngine::exitDebugger()
+void CdbDebugEngine::exitDebugger()
 {
     m_pDebugClient->TerminateCurrentProcess();
     killWatchTimer();
 }
 
-void MSVCDebugEngine::updateWatchModel()
+void CdbDebugEngine::updateWatchModel()
 {
 }
 
-void MSVCDebugEngine::stepExec()
+void CdbDebugEngine::stepExec()
 {
-    //qDebug() << "MSVCDebugEngine::stepExec()";
+    //qDebug() << "CdbDebugEngine::stepExec()";
     //m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     HRESULT hr;
     hr = m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
@@ -150,9 +150,9 @@ void MSVCDebugEngine::stepExec()
     startWatchTimer();
 }
 
-void MSVCDebugEngine::stepOutExec()
+void CdbDebugEngine::stepOutExec()
 {
-    //qDebug() << "MSVCDebugEngine::stepOutExec()";
+    //qDebug() << "CdbDebugEngine::stepOutExec()";
     StackHandler* sh = qq->stackHandler();
     const int idx = sh->currentIndex() + 1;
     QList<StackFrame> stackframes = sh->frames();
@@ -191,26 +191,26 @@ void MSVCDebugEngine::stepOutExec()
     continueInferior();
 }
 
-void MSVCDebugEngine::nextExec()
+void CdbDebugEngine::nextExec()
 {
-    //qDebug() << "MSVCDebugEngine::nextExec()";
+    //qDebug() << "CdbDebugEngine::nextExec()";
     HRESULT hr;
     hr = m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
     startWatchTimer();
 }
 
-void MSVCDebugEngine::stepIExec()
+void CdbDebugEngine::stepIExec()
 {
-    qWarning("MSVCDebugEngine::stepIExec() not implemented");
+    qWarning("CdbDebugEngine::stepIExec() not implemented");
 }
 
-void MSVCDebugEngine::nextIExec()
+void CdbDebugEngine::nextIExec()
 {
     m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     startWatchTimer();
 }
 
-void MSVCDebugEngine::continueInferior()
+void CdbDebugEngine::continueInferior()
 {
     killWatchTimer();
     q->resetLocation();
@@ -224,12 +224,12 @@ void MSVCDebugEngine::continueInferior()
     qq->notifyInferiorRunning();
 }
 
-void MSVCDebugEngine::runInferior()
+void CdbDebugEngine::runInferior()
 {
     continueInferior();
 }
 
-void MSVCDebugEngine::interruptInferior()
+void CdbDebugEngine::interruptInferior()
 {
     //TODO: better use IDebugControl::SetInterrupt?
     if (!m_hDebuggeeProcess)
@@ -241,27 +241,27 @@ void MSVCDebugEngine::interruptInferior()
     qq->notifyInferiorStopped();
 }
 
-void MSVCDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
+void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
 }
 
-void MSVCDebugEngine::runToFunctionExec(const QString &functionName)
+void CdbDebugEngine::runToFunctionExec(const QString &functionName)
 {
 }
 
-void MSVCDebugEngine::jumpToLineExec(const QString &fileName, int lineNumber)
+void CdbDebugEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
 }
 
-void MSVCDebugEngine::assignValueInDebugger(const QString &expr, const QString &value)
+void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &value)
 {
 }
 
-void MSVCDebugEngine::executeDebuggerCommand(const QString &/*command*/)
+void CdbDebugEngine::executeDebuggerCommand(const QString &/*command*/)
 {
 }
 
-void MSVCDebugEngine::activateFrame(int frameIndex)
+void CdbDebugEngine::activateFrame(int frameIndex)
 {
     if (q->status() != DebuggerInferiorStopped)
         return;
@@ -287,7 +287,7 @@ void MSVCDebugEngine::activateFrame(int frameIndex)
         qDebug() << "FULL NAME NOT USABLE: " << frame.file;
 }
 
-void MSVCDebugEngine::selectThread(int index)
+void CdbDebugEngine::selectThread(int index)
 {
     //reset location arrow
     q->resetLocation();
@@ -298,7 +298,7 @@ void MSVCDebugEngine::selectThread(int index)
     updateStackTrace();
 }
 
-void MSVCDebugEngine::attemptBreakpointSynchronization()
+void CdbDebugEngine::attemptBreakpointSynchronization()
 {
     BreakHandler *handler = qq->breakHandler();
     //qDebug() << "attemptBreakpointSynchronization";
@@ -333,35 +333,35 @@ void MSVCDebugEngine::attemptBreakpointSynchronization()
     }
 }
 
-void MSVCDebugEngine::loadSessionData()
+void CdbDebugEngine::loadSessionData()
 {
 }
 
-void MSVCDebugEngine::saveSessionData()
+void CdbDebugEngine::saveSessionData()
 {
 }
 
-void MSVCDebugEngine::reloadDisassembler()
+void CdbDebugEngine::reloadDisassembler()
 {
 }
 
-void MSVCDebugEngine::reloadModules()
+void CdbDebugEngine::reloadModules()
 {
 }
 
-void MSVCDebugEngine::loadSymbols(const QString &moduleName)
+void CdbDebugEngine::loadSymbols(const QString &moduleName)
 {
 }
 
-void MSVCDebugEngine::loadAllSymbols()
+void CdbDebugEngine::loadAllSymbols()
 {
 }
 
-void MSVCDebugEngine::reloadRegisters()
+void CdbDebugEngine::reloadRegisters()
 {
 }
 
-void MSVCDebugEngine::timerEvent(QTimerEvent* te)
+void CdbDebugEngine::timerEvent(QTimerEvent* te)
 {
     if (te->timerId() != m_watchTimer)
         return;
@@ -391,7 +391,7 @@ void MSVCDebugEngine::timerEvent(QTimerEvent* te)
     }
 }
 
-void MSVCDebugEngine::handleDebugEvent()
+void CdbDebugEngine::handleDebugEvent()
 {
     if (m_bIgnoreNextDebugEvent) {
         startWatchTimer();
@@ -414,7 +414,7 @@ void MSVCDebugEngine::handleDebugEvent()
     //}
 }
 
-void MSVCDebugEngine::updateThreadList()
+void CdbDebugEngine::updateThreadList()
 {
     ThreadsHandler* th = qq->threadsHandler();
     QList<ThreadData> threads;
@@ -435,7 +435,7 @@ void MSVCDebugEngine::updateThreadList()
     th->setThreads(threads);
 }
 
-void MSVCDebugEngine::updateStackTrace()
+void CdbDebugEngine::updateStackTrace()
 {
     //qDebug() << "updateStackTrace()";
     HRESULT hr;
@@ -503,17 +503,17 @@ void MSVCDebugEngine::updateStackTrace()
     //m_pDebugControl->OutputStackTrace(DEBUG_OUTCTL_THIS_CLIENT, frames, numFramesFilled, DEBUG_STACK_SOURCE_LINE);
 }
 
-void MSVCDebugEngine::handleDebugOutput(const char* szOutputString)
+void CdbDebugEngine::handleDebugOutput(const char* szOutputString)
 {
     qq->showApplicationOutput("app-dbgoutput", QString::fromLocal8Bit(szOutputString));
 }
 
-void MSVCDebugEngine::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)
+void CdbDebugEngine::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)
 {
-    qDebug() << "MSVCDebugEngine::handleBreakpointEvent()";
+    qDebug() << "CdbDebugEngine::handleBreakpointEvent()";
 }
 
 IDebuggerEngine *createWinEngine(DebuggerManager *parent)
 {
-    return new MSVCDebugEngine(parent);
+    return new CdbDebugEngine(parent);
 }

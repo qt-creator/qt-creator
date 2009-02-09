@@ -1,18 +1,16 @@
-#include "msvcdebugeventcallback.h"
-#include "msvcdebugengine.h"
+#include "cdbdebugeventcallback.h"
+#include "cdbcdebugengine.h"
 #include "debuggermanager.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Debugger {
 namespace Internal {
 
-STDMETHODIMP
-MSVCDebugEventCallback::QueryInterface(
+STDMETHODIMP MSVCDebugEventCallback::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
-    OUT PVOID* Interface
-    )
+    OUT PVOID* Interface)
 {
     *Interface = NULL;
 
@@ -29,30 +27,21 @@ MSVCDebugEventCallback::QueryInterface(
     }
 }
 
-STDMETHODIMP_(ULONG)
-MSVCDebugEventCallback::AddRef(
-    THIS
-    )
+STDMETHODIMP_(ULONG) MSVCDebugEventCallback::AddRef(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 1;
 }
 
-STDMETHODIMP_(ULONG)
-MSVCDebugEventCallback::Release(
-    THIS
-    )
+STDMETHODIMP_(ULONG) MSVCDebugEventCallback::Release(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 0;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::GetInterestMask(
-    THIS_
-    __out PULONG mask
-    )
+STDMETHODIMP MSVCDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 {
     *mask = DEBUG_EVENT_CREATE_PROCESS | DEBUG_EVENT_EXIT_PROCESS
             //| DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
@@ -62,10 +51,7 @@ STDMETHODIMP MSVCDebugEventCallback::GetInterestMask(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::Breakpoint(
-    THIS_
-    __in PDEBUG_BREAKPOINT Bp
-    )
+STDMETHODIMP MSVCDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
 {
     qDebug() << "MSVCDebugEventCallback::Breakpoint";
     m_pEngine->handleBreakpointEvent(Bp);
