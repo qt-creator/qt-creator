@@ -206,7 +206,9 @@ Symbol *Scope::lookat(Identifier *id) const
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
         Name *identity = symbol->identity();
-        if (NameId *nameId = identity->asNameId()) {
+        if (! identity) {
+            continue;
+        } else if (NameId *nameId = identity->asNameId()) {
             if (nameId->identifier()->isEqualTo(id))
                 break;
         } else if (TemplateNameId *t = identity->asTemplateNameId()) {
