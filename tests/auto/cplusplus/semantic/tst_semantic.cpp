@@ -110,7 +110,7 @@ void tst_Semantic::function_declaration_1()
     QVERIFY(decl);
 
     FullySpecifiedType declTy = decl->type();
-    Function *funTy = declTy->asFunction();
+    Function *funTy = declTy->asFunctionType();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 0U);
@@ -133,7 +133,7 @@ void tst_Semantic::function_declaration_2()
     QVERIFY(decl);
 
     FullySpecifiedType declTy = decl->type();
-    Function *funTy = declTy->asFunction();
+    Function *funTy = declTy->asFunctionType();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
     QCOMPARE(funTy->argumentCount(), 1U);
@@ -260,7 +260,7 @@ void tst_Semantic::typedef_1()
     Declaration *typedefPointDecl = doc->globals->symbolAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
     QVERIFY(typedefPointDecl->isTypedef());
-    QCOMPARE(typedefPointDecl->type()->asClass(), anonStruct);
+    QCOMPARE(typedefPointDecl->type()->asClassType(), anonStruct);
 
     Function *mainFun = doc->globals->symbolAt(2)->asFunction();
     QVERIFY(mainFun);
@@ -315,7 +315,7 @@ void tst_Semantic::typedef_3()
     QVERIFY(typedefPointDecl);
     QVERIFY(typedefPointDecl->isTypedef());
     QVERIFY(typedefPointDecl->type()->isPointerType());
-    QCOMPARE(typedefPointDecl->type()->asPointerType()->elementType()->asClass(),
+    QCOMPARE(typedefPointDecl->type()->asPointerType()->elementType()->asClassType(),
              _pointStruct);
 }
 
