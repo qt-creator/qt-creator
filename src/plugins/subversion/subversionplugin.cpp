@@ -895,7 +895,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const QString id = diffArg + source;
     if (Core::IEditor *editor = locateEditor("describeChange", id)) {
         editor->createNew(description);
-        Core::EditorManager::instance()->setCurrentEditor(editor);
+        Core::EditorManager::instance()->activateEditor(editor);
     } else {
         const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VCSBase::DiffOutput, source, codec);
