@@ -200,7 +200,7 @@ FunctionArgumentWidget::FunctionArgumentWidget()
     setParent(m_popupFrame);
     setFocusPolicy(Qt::NoFocus);
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(this);
     layout->setMargin(0);
     m_popupFrame->setLayout(layout);
@@ -968,6 +968,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
 
             for (unsigned i = 0; i < scope->symbolCount(); ++i) {
                 Symbol *member = scope->symbolAt(i);
+                if (! member->type())
+                    continue;
                 Function *fun = member->type()->asFunctionType();
                 if (! fun)
                     continue;

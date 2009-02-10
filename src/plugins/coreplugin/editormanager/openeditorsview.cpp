@@ -80,7 +80,6 @@ OpenEditorsWidget::OpenEditorsWidget()
 
 OpenEditorsWidget::~OpenEditorsWidget()
 {
-    
 }
 
 void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
