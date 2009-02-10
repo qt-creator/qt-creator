@@ -37,5 +37,6 @@
         <comment xml:lang="zh_CN">JavaScript 程序</comment>
         <comment xml:lang="zh_TW">JavaScript 程式</comment>
         <glob pattern="*.js"/>
+        <glob pattern="*.qs"/>
     </mime-type>
 </mime-info>
