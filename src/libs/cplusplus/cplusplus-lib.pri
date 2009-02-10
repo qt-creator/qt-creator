@@ -3,7 +3,7 @@ INCLUDEPATH += $$PWD
 
 include(../../shared/cplusplus/cplusplus.pri)
 
-contains(QT_CONFIG, gui) {
+contains(QT, gui) {
 HEADERS += \
     $$PWD/Icons.h \
     $$PWD/ExpressionUnderCursor.h \
