@@ -167,7 +167,7 @@ private:
 
 HelpPage::HelpPage(CentralWidget *central, QHelpEngine *engine, QObject *parent)
     : QWebPage(parent), centralWidget(central), helpEngine(engine)
-{
+{    
 }
 
 QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
@@ -215,7 +215,7 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
 
 HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     : QWebView(parent), helpEngine(engine), parentWidget(parent)
-{
+{    
     setPage(new HelpPage(parent, helpEngine, this));
 
     page()->setNetworkAccessManager(new HelpNetworkAccessManager(engine, this));
@@ -238,6 +238,7 @@ HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     connect(page(), SIGNAL(linkHovered(QString, QString, QString)), this,
         SIGNAL(highlighted(QString)));
     connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
+    setAcceptDrops(false);
 }
 
 void HelpViewer::setSource(const QUrl &url)
