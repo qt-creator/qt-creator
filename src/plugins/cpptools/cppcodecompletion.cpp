@@ -578,6 +578,8 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
         QSet<QString> signatures;
         foreach (TypeOfExpression::Result p, resolvedTypes) {
             FullySpecifiedType ty = p.first;
+            if (! ty)
+                continue;
             if (Function *fun = ty->asFunctionType()) {
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     QString signature;
@@ -600,7 +602,7 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
 bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
-    if (results.isEmpty())
+    if (results.isEmpty() || ! results.first().first)
         return false;
 
     TypeOfExpression::Result result = results.first();
