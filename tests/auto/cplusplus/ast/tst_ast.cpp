@@ -42,6 +42,8 @@ private slots:
     // expressions
     void simple_name();
     void template_id();
+    void new_expression_1();
+    void new_expression_2();
 
     // statements
     void if_statement();
@@ -89,6 +91,59 @@ void tst_AST::template_id()
     QCOMPARE(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral()->token, 3U);
     QVERIFY(ast->asTemplateId()->template_arguments->next == 0);
     QCOMPARE(ast->asTemplateId()->greater_token, 4U);
+}
+
+void tst_AST::new_expression_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+"new char"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    NewExpressionAST *expr = ast->asNewExpression();
+    QVERIFY(expr != 0);
+
+    QCOMPARE(expr->scope_token, 0U);
+    QCOMPARE(expr->new_token, 1U);
+    QVERIFY(expr->new_placement == 0);
+    QCOMPARE(expr->lparen_token, 0U);
+    QVERIFY(expr->type_id == 0);
+    QCOMPARE(expr->rparen_token, 0U);
+    QVERIFY(expr->new_type_id != 0);
+    QVERIFY(expr->new_initializer == 0);
+
+    QVERIFY(expr->new_type_id->type_specifier != 0);
+    QVERIFY(expr->new_type_id->ptr_operators == 0);
+    QVERIFY(expr->new_type_id->new_array_declarators == 0);
+}
+
+void tst_AST::new_expression_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("\n"
+"::new(__p) _Tp(__val);"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    ExpressionStatementAST *stmt = ast->asExpressionStatement();
+    QVERIFY(stmt != 0);
+    QVERIFY(stmt->expression != 0);
+    QVERIFY(stmt->semicolon_token != 0);
+
+    NewExpressionAST *expr = stmt->expression->asNewExpression();
+    QVERIFY(expr != 0);
+
+    QCOMPARE(expr->scope_token, 1U);
+    QCOMPARE(expr->new_token, 2U);
+    QVERIFY(expr->new_placement != 0);
+    QCOMPARE(expr->lparen_token, 0U);
+    QVERIFY(expr->type_id == 0);
+    QCOMPARE(expr->rparen_token, 0U);
+    QVERIFY(expr->new_type_id != 0);
+    QVERIFY(expr->new_initializer != 0);
 }
 
 void tst_AST::if_statement()

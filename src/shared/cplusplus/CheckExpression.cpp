@@ -214,8 +214,9 @@ bool CheckExpression::visit(TemplateIdAST *ast)
 
 bool CheckExpression::visit(NewExpressionAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
+    // ### FIXME
+    //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    //FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
     // ### process new-typeid
     // ### process new-initializer
     return false;
