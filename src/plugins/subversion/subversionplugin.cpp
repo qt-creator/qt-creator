@@ -864,7 +864,20 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const int number = changeNr.toInt(&ok);
     if (!ok || number < 2)
         return;
-    QStringList args(QLatin1String("diff"));
+    // Run log to obtain message (local utf8)
+    QString description;
+    QStringList args(QLatin1String("log"));
+    args.push_back(QLatin1String("-r"));
+    args.push_back(changeNr);
+    args.push_back(topLevel);
+    const SubversionResponse logResponse = runSvn(args, subversionShortTimeOut, false);
+    if (logResponse.error)
+        return;
+    description = logResponse.stdOut;
+
+    // Run diff (encoding via source codec)
+    args.clear();
+    args.push_back(QLatin1String("diff"));
     args.push_back(QLatin1String("-r"));
     QString diffArg;
     QTextStream(&diffArg) << (number - 1) << ':' << number;
@@ -875,16 +888,17 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const SubversionResponse response = runSvn(args, subversionShortTimeOut, false, codec);
     if (response.error)
         return;
+    description += response.stdOut;
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString id = diffArg + source;
+    const QString id = diffArg + source;    
     if (Core::IEditor *editor = locateEditor("describeChange", id)) {
-        editor->createNew(response.stdOut);
+        editor->createNew(description);
         Core::EditorManager::instance()->setCurrentEditor(editor);
     } else {
         const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
+        Core::IEditor *newEditor = showOutputInEditor(title, description, VCSBase::DiffOutput, source, codec);
         newEditor->setProperty("describeChange", id);
     }
 }
