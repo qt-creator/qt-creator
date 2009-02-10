@@ -69,8 +69,8 @@ MakeStep::~MakeStep()
 ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion * const version)
 {
     QString buildParser;
-    QtVersion::ToolchainType type = version->toolchainType();
-    if ( type == QtVersion::MSVC || type == QtVersion::WINCE)
+    ProjectExplorer::ToolChain::ToolChainType type = version->toolchainType();
+    if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         buildParser = Constants::BUILD_PARSER_MSVC;
     else
         buildParser = Constants::BUILD_PARSER_GCC;
@@ -129,8 +129,8 @@ bool MakeStep::init(const QString &name)
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QtVersion::ToolchainType t =  qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
-    if (t != QtVersion::MSVC && t != QtVersion::WINCE) {
+    ProjectExplorer::ToolChain::ToolChainType t =  qobject_cast<Qt4Project *>(project())->qtVersion(name)->toolchainType();
+    if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
         if (value(name, "makeCmd").toString().isEmpty())
             args << "-w";
     }

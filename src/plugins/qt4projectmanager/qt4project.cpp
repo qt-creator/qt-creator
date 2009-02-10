@@ -231,6 +231,7 @@ void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
   */
 
 Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
+    m_toolChain(0),
     m_manager(manager),
     m_rootProjectNode(new Qt4ProFileNode(this, fileName, this)),
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
@@ -265,6 +266,7 @@ Qt4Project::~Qt4Project()
 {
     m_manager->unregisterProject(this);
     delete m_projectFiles;
+    delete m_toolChain;
 }
 
 void Qt4Project::defaultQtVersionChanged()
@@ -400,6 +402,41 @@ void Qt4Project::scheduleUpdateCodeModel()
     m_updateCodeModelTimer.start();
 }
 
+ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
+{
+    Q_UNUSED(buildConfiguration);
+    ToolChain *m_test;
+    QtVersion *version = qtVersion(activeBuildConfiguration());
+    ToolChain::ToolChainType t = version->toolchainType();
+    if (t == ToolChain::MinGW) {
+        QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
+        QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
+        Environment env = Environment::systemEnvironment();
+        qtVersion(activeBuildConfiguration())->addToEnvironment(env);
+        qmake_cxx = env.searchInPath(qmake_cxx);
+        m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
+    } else if(t == ToolChain::MSVC) {
+        m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
+    } else if(t == ToolChain::WINCE) {
+        m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
+    } else if(t == ToolChain::GCC) {
+        QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
+        QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
+        Environment env = Environment::systemEnvironment();
+        qtVersion(activeBuildConfiguration())->addToEnvironment(env);
+        qmake_cxx = env.searchInPath(qmake_cxx);
+        m_test = ToolChain::createGccToolChain(qmake_cxx);
+    }
+
+    if (m_test == m_toolChain) {
+        delete m_test;
+    } else {
+        delete m_toolChain;
+        m_toolChain = m_test;
+    }
+    return m_toolChain;
+}
+
 void Qt4Project::updateCodeModel()
 {
     if (debug)
@@ -419,40 +456,17 @@ void Qt4Project::updateCodeModel()
     const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
-    QByteArray predefinedMacros;
-    QtVersion::ToolchainType t = qtVersion(activeBuildConfiguration())->toolchainType();
-    if (t == QtVersion::MinGW || t == QtVersion::OTHER) {
-        QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
-        QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
-        qmake_cxx = environment(activeBuildConfiguration()).searchInPath(qmake_cxx);
-        m_preproc.setGcc(qmake_cxx);
-        predefinedMacros = m_preproc.predefinedMacros();
-        foreach (HeaderPath headerPath, m_preproc.systemHeaderPaths()) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                allFrameworkPaths.append(headerPath.path());
-            else
-                allIncludePaths.append(headerPath.path());
-        }
-
-    } else if (t == QtVersion::MSVC || t == QtVersion::WINCE) {
-#ifdef QTCREATOR_WITH_MSVC_INCLUDES
-        Environment env = environment(activeBuildConfiguration());
-        allIncludePaths.append(env.value("INCLUDE").split(QLatin1Char(';')));
-#endif
-        predefinedMacros +=
-                "#define __WIN32__\n"
-                "#define __WIN32\n"
-                "#define _WIN32\n"
-                "#define WIN32\n"
-                "#define __WINNT__\n"
-                "#define __WINNT\n"
-                "#define WINNT\n"
-                "#define _X86_\n"
-                "#define __MSVCRT__\n";
+    ToolChain *tc = toolChain(activeBuildConfiguration());
+    QByteArray predefinedMacros = tc->predefinedMacros();
+    QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+    foreach (HeaderPath headerPath, allHeaderPaths) {
+        if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+            allFrameworkPaths.append(headerPath.path());
+        else
+            allIncludePaths.append(headerPath.path());
     }
 
     allIncludePaths.append(newQtIncludePath);
-
     QDir dir(newQtIncludePath);
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
         if (! info.fileName().startsWith(QLatin1String("Qt")))
@@ -681,7 +695,8 @@ Qt4ProFileNode *Qt4Project::rootProjectNode() const
 ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildConfiguration) const
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
-    env = qtVersion(buildConfiguration)->addToEnvironment(env);
+    qtVersion(buildConfiguration)->addToEnvironment(env);
+    toolChain(buildConfiguration)->addToEnvironment(env);
     return env;
 }
 
