@@ -76,6 +76,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
 #include <QtCore/QtPlugin>
+#include <QtCore/QUrl>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -102,10 +103,9 @@ extern "C" void handleSigInt(int sig)
 using namespace Core;
 using namespace Core::Internal;
 
-namespace {
-    enum { debugMainWindow = 0 };
-}
+static const char *uriListMimeFormatC = "text/uri-list";
 
+enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
     QMainWindow(),
@@ -156,15 +156,15 @@ MainWindow::MainWindow() :
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QString baseName = qApp->style()->objectName();
-#ifdef Q_WS_X11
-    if (baseName == "windows") {
+#ifdef Q_WS_X11    
+    if (baseName == QLatin1String("windows")) {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop
         QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
         if (desktopEnvironment == "kde")
-            baseName = "plastique";
+            baseName = QLatin1String("plastique");
         else
-            baseName = "cleanlooks";
+            baseName = QLatin1String("cleanlooks");
     }
 #endif
     qApp->setStyle(new ManhattanStyle(baseName));
@@ -201,6 +201,7 @@ MainWindow::MainWindow() :
 #endif
 
     statusBar()->setProperty("p_styled", true);
+    setAcceptDrops(true);
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -358,6 +359,55 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit m_coreImpl->coreAboutToClose();
     writeSettings();
     event->accept();
+}
+
+// Check for desktop file manager file drop events
+
+static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
+{
+    if (files)
+        files->clear();
+    // Extract dropped files from Mime data.
+    if (!d->hasFormat(QLatin1String(uriListMimeFormatC)))
+        return false;
+    const QList<QUrl> urls = d->urls();
+    if (urls.empty())
+        return false;
+    // Try to find local files
+    bool hasFiles = false;
+    const QList<QUrl>::const_iterator cend = urls.constEnd();
+    for (QList<QUrl>::const_iterator it = urls.constBegin(); it != cend; ++it) {
+        const QString fileName = it->toLocalFile();
+        if (!fileName.isEmpty()) {
+            hasFiles = true;
+            if (files) {
+                files->push_back(fileName);
+            } else {
+                break; // No result list, sufficient for checking
+            }
+        }
+    }
+    return hasFiles;
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (isDesktopFileManagerDrop(event->mimeData())) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    QStringList files;
+    if (isDesktopFileManagerDrop(event->mimeData(), &files)) {
+        event->accept();
+        openFiles(files);
+    } else {
+        event->ignore();
+    }
 }
 
 IContext *MainWindow::currentContextObject() const

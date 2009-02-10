@@ -104,10 +104,17 @@ void FindToolWindow::setCurrentFilter(int index)
         QWidget *configWidget = m_configWidgets.at(i);
         if (!configWidget)
             continue;
-        if (i == index)
+        if (i == index) {
             m_ui.configWidget->layout()->addWidget(configWidget);
-        else
+            bool enabled = m_filters.at(i)->isEnabled();
+            m_ui.matchCase->setEnabled(enabled);
+            m_ui.wholeWords->setEnabled(enabled);
+            m_ui.searchTerm->setEnabled(enabled);
+            m_ui.searchButton->setEnabled(enabled);
+            configWidget->setEnabled(enabled);
+        } else {
             configWidget->setParent(0);
+        }
     }
 }
 

@@ -150,6 +150,7 @@ WelcomeMode::WelcomeMode() :
     updateWelcomePage(welcomePageData);
 
     l->addWidget(m_d->m_webview);
+    m_d->m_webview->setAcceptDrops(false);
 
 #else
     m_d->m_label->setWordWrap(true);

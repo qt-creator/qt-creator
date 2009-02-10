@@ -42,17 +42,9 @@
 #include <QtCore/QStringList>
 #include <QtGui/QIcon>
 
-#include "shared_global_p.h"
-
 QT_BEGIN_NAMESPACE
 
 namespace qdesigner_internal {
-
-#ifdef BUILD_VSIP
-# define RESOURCE_EXPORT
-#else
-# define RESOURCE_EXPORT QDESIGNER_SHARED_EXPORT
-#endif
 
 struct File;
 struct Prefix;
@@ -125,7 +117,7 @@ typedef QList<Prefix *> PrefixList;
 
     Represents the structure of a Qt Resource File (.qrc) file.
 */
-class RESOURCE_EXPORT ResourceFile
+class ResourceFile
 {
 public:
     ResourceFile(const QString &file_name = QString());
@@ -199,7 +191,7 @@ private:
 
     Wraps a \l ResourceFile as a single-column tree model.
 */
-class RESOURCE_EXPORT ResourceModel : public QAbstractItemModel
+class ResourceModel : public QAbstractItemModel
 {
     Q_OBJECT
 

@@ -38,7 +38,6 @@
 
 #include "subversionoutputwindow.h"
 #include "subversionsubmiteditor.h"
-#include "changenumberdialog.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
 
@@ -70,6 +69,9 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QInputDialog>
+
+#include <limits.h>
 
 using namespace Subversion::Internal;
 
@@ -96,6 +98,7 @@ const char * const SubversionPlugin::ANNOTATE_CURRENT   = "Subversion.AnnotateCu
 const char * const SubversionPlugin::SEPARATOR3         = "Subversion.Separator3";
 const char * const SubversionPlugin::STATUS             = "Subversion.Status";
 const char * const SubversionPlugin::UPDATE             = "Subversion.Update";
+const char * const SubversionPlugin::DESCRIBE           = "Subversion.Describe";
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -186,6 +189,7 @@ SubversionPlugin::SubversionPlugin() :
     m_annotateCurrentAction(0),
     m_statusAction(0),
     m_updateProjectAction(0),
+    m_describeAction(0),
     m_submitCurrentLogAction(0),
     m_submitDiffAction(0),
     m_submitUndoAction(0),
@@ -247,6 +251,16 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
+
+static inline Core::Command *createSeparator(QObject *parent,
+                                             Core::ActionManager *ami,
+                                             const char*id,
+                                             const QList<int> &globalcontext)
+{
+    QAction *tmpaction = new QAction(parent);
+    tmpaction->setSeparator(true);
+    return ami->registerAction(tmpaction, id, globalcontext);
+}
 
 bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -330,10 +344,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     subversionMenu->addAction(command);
 
-    QAction *tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    subversionMenu->addAction(ami->registerAction(tmpaction,
-        SubversionPlugin::SEPARATOR0, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR0, globalcontext));
 
     m_diffProjectAction = new QAction(tr("Diff Project"), this);
     command = ami->registerAction(m_diffProjectAction, SubversionPlugin::DIFF_PROJECT,
@@ -349,10 +360,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     subversionMenu->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    subversionMenu->addAction(ami->registerAction(tmpaction,
-        SubversionPlugin::SEPARATOR1, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR1, globalcontext));
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
     command = ami->registerAction(m_commitAllAction, SubversionPlugin::COMMIT_ALL,
@@ -368,10 +376,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     subversionMenu->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    subversionMenu->addAction(ami->registerAction(tmpaction,
-        SubversionPlugin::SEPARATOR2, globalcontext));
+    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR2, globalcontext));
 
     m_filelogCurrentAction = new QAction(tr("Filelog Current File"), this);
     command = ami->registerAction(m_filelogCurrentAction,
@@ -389,10 +394,12 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
         SLOT(annotateCurrentFile()));
     subversionMenu->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    subversionMenu->addAction(ami->registerAction(tmpaction,
-        SubversionPlugin::SEPARATOR3, globalcontext));
+    m_describeAction = new QAction(tr("Describe..."), this);
+    command = ami->registerAction(m_describeAction, SubversionPlugin::DESCRIBE, globalcontext);
+    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    subversionMenu->addAction(command);
+
+    subversionMenu->addAction(createSeparator(this, ami, SubversionPlugin::SEPARATOR3, globalcontext));
 
     m_statusAction = new QAction(tr("Project Status"), this);
     command = ami->registerAction(m_statusAction, SubversionPlugin::STATUS,
@@ -536,7 +543,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
 
 void SubversionPlugin::updateActions()
 {
-    QString fileName = currentFileName();
+    const QString fileName = currentFileName();
     const bool hasFile = !fileName.isEmpty();
 
     m_addAction->setEnabled(hasFile);
@@ -549,6 +556,7 @@ void SubversionPlugin::updateActions()
     m_filelogCurrentAction->setEnabled(hasFile);
     m_annotateCurrentAction->setEnabled(hasFile);
     m_statusAction->setEnabled(true);
+    m_describeAction->setEnabled(true);
 
     QString baseName;
     if (hasFile)
@@ -856,7 +864,20 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const int number = changeNr.toInt(&ok);
     if (!ok || number < 2)
         return;
-    QStringList args(QLatin1String("diff"));
+    // Run log to obtain message (local utf8)
+    QString description;
+    QStringList args(QLatin1String("log"));
+    args.push_back(QLatin1String("-r"));
+    args.push_back(changeNr);
+    args.push_back(topLevel);
+    const SubversionResponse logResponse = runSvn(args, subversionShortTimeOut, false);
+    if (logResponse.error)
+        return;
+    description = logResponse.stdOut;
+
+    // Run diff (encoding via source codec)
+    args.clear();
+    args.push_back(QLatin1String("diff"));
     args.push_back(QLatin1String("-r"));
     QString diffArg;
     QTextStream(&diffArg) << (number - 1) << ':' << number;
@@ -867,18 +888,38 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const SubversionResponse response = runSvn(args, subversionShortTimeOut, false, codec);
     if (response.error)
         return;
+    description += response.stdOut;
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString id = diffArg + source;
     if (Core::IEditor *editor = locateEditor("describeChange", id)) {
-        editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(editor);
+        editor->createNew(description);
+        Core::EditorManager::instance()->setCurrentEditor(editor);
     } else {
         const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
+        Core::IEditor *newEditor = showOutputInEditor(title, description, VCSBase::DiffOutput, source, codec);
         newEditor->setProperty("describeChange", id);
     }
+}
+
+void SubversionPlugin::slotDescribe()
+{
+    const QStringList topLevels = currentProjectsTopLevels();
+    if (topLevels.size() != 1)
+        return;
+
+    QInputDialog inputDialog(Core::ICore::instance()->mainWindow());
+    inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    inputDialog.setInputMode(QInputDialog::IntInput);
+    inputDialog.setIntRange(2, INT_MAX);
+    inputDialog.setWindowTitle(tr("Describe"));
+    inputDialog.setLabelText(tr("Revision number:"));
+    if (inputDialog.exec() != QDialog::Accepted)
+        return;
+
+    const int revision = inputDialog.intValue();
+    describe(topLevels.front(), QString::number(revision));
 }
 
 void SubversionPlugin::submitCurrentLog()

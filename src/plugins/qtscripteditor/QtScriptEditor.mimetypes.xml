@@ -6,5 +6,6 @@
         <sub-class-of type="text/plain"/>
         <comment>Qt Script file</comment>
         <glob pattern="*.js"/>
+        <glob pattern="*.qs"/>
     </mime-type>
 </mime-info>

@@ -139,8 +139,10 @@ public slots:
     void showOptionsDialog(const QString &category = QString(), const QString &page = QString());
 
 protected:
-    void changeEvent(QEvent *e);
-    void closeEvent(QCloseEvent *event);
+    virtual void changeEvent(QEvent *e);
+    virtual void closeEvent(QCloseEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
 private slots:
     void openFile();

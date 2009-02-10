@@ -14,7 +14,6 @@ HEADERS += annotationhighlighter.h \
     subversionoutputwindow.h \
     settingspage.h \
     subversioneditor.h \
-    changenumberdialog.h \
     subversionsubmiteditor.h \
     subversionsettings.h
 
@@ -24,11 +23,9 @@ SOURCES += annotationhighlighter.cpp \
     subversionoutputwindow.cpp \
     settingspage.cpp \
     subversioneditor.cpp \
-    changenumberdialog.cpp \
     subversionsubmiteditor.cpp \
     subversionsettings.cpp
 
-FORMS += settingspage.ui \
-    changenumberdialog.ui
+FORMS += settingspage.ui
 
 RESOURCES += subversion.qrc

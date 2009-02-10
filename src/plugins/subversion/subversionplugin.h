@@ -119,6 +119,7 @@ private slots:
     void annotateCurrentFile();
     void projectStatus();
     void describe(const QString &source, const QString &changeNr);
+    void slotDescribe();
     void updateProject();
     void submitCurrentLog();
     void diffFiles(const QStringList &);
@@ -165,6 +166,7 @@ private:
     QAction *m_annotateCurrentAction;
     QAction *m_statusAction;
     QAction *m_updateProjectAction;
+    QAction *m_describeAction;
 
     QAction *m_submitCurrentLogAction;
     QAction *m_submitDiffAction;
@@ -187,6 +189,7 @@ private:
     static const char * const SEPARATOR3;
     static const char * const STATUS;
     static const char * const UPDATE;
+    static const char * const DESCRIBE;
 
     static SubversionPlugin *m_subversionPluginInstance;
 
