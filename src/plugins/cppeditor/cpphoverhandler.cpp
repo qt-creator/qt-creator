@@ -256,7 +256,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         const QList<TypeOfExpression::Result> types =
                 typeOfExpression(expression, doc, lastSymbol);
 
-        if (!types.isEmpty() && types.first().first) {
+        if (!types.isEmpty()) {
             FullySpecifiedType firstType = types.first().first;
             Symbol *symbol = types.first().second;
             FullySpecifiedType docType = firstType;

@@ -593,8 +593,6 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
 {
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
-    else if (! symbol->type())
-        return 0;
 
     Function *funTy = symbol->type()->asFunctionType();
     if (! funTy)

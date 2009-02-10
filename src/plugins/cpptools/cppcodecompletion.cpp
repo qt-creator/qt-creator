@@ -578,8 +578,6 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
         QSet<QString> signatures;
         foreach (TypeOfExpression::Result p, resolvedTypes) {
             FullySpecifiedType ty = p.first;
-            if (! ty)
-                continue;
             if (Function *fun = ty->asFunctionType()) {
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     QString signature;
@@ -602,7 +600,7 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
 bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &results,
                                        const LookupContext &context)
 {
-    if (results.isEmpty() || ! results.first().first)
+    if (results.isEmpty())
         return false;
 
     TypeOfExpression::Result result = results.first();
@@ -898,10 +896,7 @@ bool CppCodeCompletion::completeConstructors(Class *klass)
 
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
         Symbol *member = klass->memberAt(i);
-        FullySpecifiedType memberTy = member->type();
-        if (! memberTy)
-            continue;
-        else if (! memberTy->isFunctionType())
+        if (! member->type()->isFunctionType())
             continue;
         else if (! member->identity())
             continue;
@@ -935,12 +930,8 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     QSet<QString> signatures;
     foreach (TypeOfExpression::Result p, results) {
         FullySpecifiedType ty = p.first;
-        if (! ty)
-            continue;
-
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
-
         if (PointerType *ptrTy = ty->asPointerType())
             ty = ptrTy->elementType();
         else
@@ -968,8 +959,6 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
 
             for (unsigned i = 0; i < scope->symbolCount(); ++i) {
                 Symbol *member = scope->symbolAt(i);
-                if (! member->type())
-                    continue;
                 Function *fun = member->type()->asFunctionType();
                 if (! fun)
                     continue;
@@ -1127,15 +1116,13 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (function->argumentCount() == 0 || (function->argumentCount() == 1  &&
-                                                           function->argumentAt(0)->type() &&
+                    if (function->argumentCount() == 0 || (function->argumentCount() == 1 &&
                                                            function->argumentAt(0)->type()->isVoidType())) {
                         extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
                         // unless we're doing a scope completion (then it might be function definition).
-                        FullySpecifiedType retTy = function->returnType();
-                        if (retTy && retTy->isVoidType() && m_completionOperator != T_COLON_COLON) {
+                        if (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON) {
                             extraChars += QLatin1Char(';');
                         }
                     }
