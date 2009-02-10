@@ -61,6 +61,23 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
+class CPLUSPLUS_EXPORT UndefinedType : public Type
+{
+public:
+    static UndefinedType *instance()
+    {
+        static UndefinedType t;
+        return &t;
+    }
+
+    virtual bool isEqualTo(const Type *other) const
+    { return this == other; }
+
+protected:
+    virtual void accept0(TypeVisitor *)
+    { }
+};
+
 class CPLUSPLUS_EXPORT VoidType: public Type
 {
 public:

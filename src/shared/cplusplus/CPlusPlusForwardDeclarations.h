@@ -108,6 +108,7 @@ class QualifiedNameId;
 class FullySpecifiedType;
 class TypeVisitor;
 class Type;
+class UndefinedType;
 class VoidType;
 class IntegerType;
 class FloatType;

@@ -63,6 +63,9 @@ Type::Type()
 Type::~Type()
 { }
 
+bool Type::isUndefinedType() const
+{ return this == UndefinedType::instance(); }
+
 bool Type::isVoidType() const
 { return asVoidType() != 0; }
 

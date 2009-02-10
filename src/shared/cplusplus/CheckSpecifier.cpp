@@ -200,30 +200,30 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_CHAR:
-            if (_fullySpecifiedType.type())
+            if (_fullySpecifiedType)
                 translationUnit()->error(ast->specifier_token,
                                          "duplicate data type in declaration");
             _fullySpecifiedType.setType(control()->integerType(IntegerType::Char));
             break;
 
         case T_WCHAR_T:
-            if (_fullySpecifiedType.type())
+            if (_fullySpecifiedType)
                 translationUnit()->error(ast->specifier_token,
                                          "duplicate data type in declaration");
             _fullySpecifiedType.setType(control()->integerType(IntegerType::WideChar));
             break;
 
         case T_BOOL:
-            if (_fullySpecifiedType.type())
+            if (_fullySpecifiedType)
                 translationUnit()->error(ast->specifier_token,
                                          "duplicate data type in declaration");
             _fullySpecifiedType.setType(control()->integerType(IntegerType::Bool));
             break;
 
         case T_SHORT:
-            if (Type *tp = _fullySpecifiedType.type()) {
+            if (_fullySpecifiedType) {
                 IntegerType *intType = control()->integerType(IntegerType::Int);
-                if (tp != intType)
+                if (_fullySpecifiedType.type() != intType)
                     translationUnit()->error(ast->specifier_token,
                                              "duplicate data type in declaration");
             }
@@ -231,7 +231,8 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_INT:
-            if (Type *tp = _fullySpecifiedType.type()) {
+            if (_fullySpecifiedType) {
+                Type *tp = _fullySpecifiedType.type();
                 IntegerType *shortType = control()->integerType(IntegerType::Short);
                 IntegerType *longType = control()->integerType(IntegerType::Long);
                 IntegerType *longLongType = control()->integerType(IntegerType::LongLong);
@@ -244,7 +245,8 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_LONG:
-            if (Type *tp = _fullySpecifiedType.type()) {
+            if (_fullySpecifiedType) {
+                Type *tp = _fullySpecifiedType.type();
                 IntegerType *intType = control()->integerType(IntegerType::Int);
                 IntegerType *longType = control()->integerType(IntegerType::Long);
                 FloatType *doubleType = control()->floatType(FloatType::Double);
@@ -263,16 +265,16 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_FLOAT:
-            if (_fullySpecifiedType.type())
+            if (_fullySpecifiedType)
                 translationUnit()->error(ast->specifier_token,
                                          "duplicate data type in declaration");
             _fullySpecifiedType.setType(control()->floatType(FloatType::Float));
             break;
 
         case T_DOUBLE:
-            if (Type *tp = _fullySpecifiedType.type()) {
+            if (_fullySpecifiedType) {
                 IntegerType *longType = control()->integerType(IntegerType::Long);
-                if (tp == longType) {
+                if (_fullySpecifiedType.type() == longType) {
                     _fullySpecifiedType.setType(control()->floatType(FloatType::LongDouble));
                     break;
                 }
@@ -283,7 +285,7 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_VOID:
-            if (_fullySpecifiedType.type())
+            if (_fullySpecifiedType)
                 translationUnit()->error(ast->specifier_token,
                                          "duplicate data type in declaration");
             _fullySpecifiedType.setType(control()->voidType());
