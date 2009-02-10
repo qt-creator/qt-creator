@@ -217,7 +217,7 @@ void Scope::enterSymbol(Symbol *symbol)
 
 Symbol *Scope::lookat(Identifier *id) const
 {
-    if (! _hash)
+    if (! _hash || ! id)
         return 0;
 
     const unsigned h = id->hashCode() % _hashSize;
