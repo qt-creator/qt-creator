@@ -579,6 +579,8 @@ CaseStatementAST *CaseStatementAST::clone(MemoryPool *pool) const
 void CaseStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
     visitor->endVisit(this);
 }
