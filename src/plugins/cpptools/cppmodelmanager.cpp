@@ -69,6 +69,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -447,6 +448,12 @@ CppModelManager::CppModelManager(QObject *parent)
     ProjectExplorer::SessionManager *session = m_projectExplorer->session();
     QTC_ASSERT(session, return);
 
+    m_updateEditorSelectionsTimer = new QTimer(this);
+    m_updateEditorSelectionsTimer->setInterval(500);
+    m_updateEditorSelectionsTimer->setSingleShot(true);
+    connect(m_updateEditorSelectionsTimer, SIGNAL(timeout()),
+            this, SLOT(updateEditorSelections()));
+
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
 
@@ -710,8 +717,8 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                     continue;
                 else if (lines.contains(m.line()))
                     continue;
-                else if (lines.size() == MAX_SELECTION_COUNT)
-                    break; // we're done.
+                //else if (lines.size() == MAX_SELECTION_COUNT)
+                    //break; // we're done.
 
                 lines.insert(m.line());
 
@@ -733,10 +740,40 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                 sel.cursor = c;
                 selections.append(sel);
             }
-            ed->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection, selections);
+
+            QList<Editor> todo;
+            foreach (Editor e, todo) {
+                if (e.widget != ed)
+                    todo.append(e);
+            }
+
+            Editor e;
+            e.widget = ed;
+            e.selections = selections;
+            todo.append(e);
+            m_todo = todo;
+            postEditorUpdate();
             break;
         }
     }
+}
+
+void CppModelManager::postEditorUpdate()
+{
+    m_updateEditorSelectionsTimer->start(500);
+}
+
+void CppModelManager::updateEditorSelections()
+{
+    foreach (Editor ed, m_todo) {
+        if (! ed.widget)
+            continue;
+
+        ed.widget->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
+                                      ed.selections);
+    }
+
+    m_todo.clear();
 }
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)

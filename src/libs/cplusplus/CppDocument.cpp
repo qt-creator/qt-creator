@@ -239,6 +239,9 @@ void Document::startSkippingBlocks(unsigned start)
 
 void Document::stopSkippingBlocks(unsigned stop)
 {
+    if (_skippedBlocks.isEmpty())
+        return;
+
     unsigned start = _skippedBlocks.back().begin();
     if (start > stop)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
