@@ -3,14 +3,24 @@ INCLUDEPATH += $$PWD
 
 include(../../shared/cplusplus/cplusplus.pri)
 
+contains(QT_CONFIG, gui) {
 HEADERS += \
-    $$PWD/SimpleLexer.h \
+    $$PWD/Icons.h \
     $$PWD/ExpressionUnderCursor.h \
     $$PWD/TokenUnderCursor.h \
+    $$PWD/OverviewModel.h
+
+SOURCES += \
+    $$PWD/Icons.cpp \
+    $$PWD/ExpressionUnderCursor.cpp \
+    $$PWD/TokenUnderCursor.cpp \
+    $$PWD/OverviewModel.cpp
+}
+
+HEADERS += \
+    $$PWD/SimpleLexer.h \
     $$PWD/CppDocument.h \
-    $$PWD/Icons.h \
     $$PWD/Overview.h \
-    $$PWD/OverviewModel.h \
     $$PWD/NamePrettyPrinter.h \
     $$PWD/TypeOfExpression.h \
     $$PWD/TypePrettyPrinter.h \
@@ -27,12 +37,8 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
-    $$PWD/ExpressionUnderCursor.cpp \
-    $$PWD/TokenUnderCursor.cpp \
     $$PWD/CppDocument.cpp \
-    $$PWD/Icons.cpp \
     $$PWD/Overview.cpp \
-    $$PWD/OverviewModel.cpp \
     $$PWD/NamePrettyPrinter.cpp \
     $$PWD/TypeOfExpression.cpp \
     $$PWD/TypePrettyPrinter.cpp \
