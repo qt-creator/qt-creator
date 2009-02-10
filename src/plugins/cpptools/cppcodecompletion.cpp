@@ -1099,11 +1099,14 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         m_editor->replace(length, toInsert);
     } else {
         QString toInsert = item.m_text;
+        int extraLength = 0;
 
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
         if (m_autoInsertBraces && symbol && symbol->type()) {
+            QString extraChars;
+
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
@@ -1116,30 +1119,42 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                 } else if (function->templateParameterCount() != 0) {
                     // If there are no arguments, then we need the template specification
                     if (function->argumentCount() == 0) {
-                        toInsert.append(QLatin1Char('<'));
+                        extraChars += QLatin1Char('<');
                     }
                 } else {
-                    toInsert.append(QLatin1Char('('));
+                    extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
                     if (function->argumentCount() == 0 || (function->argumentCount() == 1  &&
                                                            function->argumentAt(0)->type() &&
                                                            function->argumentAt(0)->type()->isVoidType())) {
-                        toInsert.append(QLatin1Char(')'));
+                        extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
                         // unless we're doing a scope completion (then it might be function definition).
                         FullySpecifiedType retTy = function->returnType();
                         if (retTy && retTy->isVoidType() && m_completionOperator != T_COLON_COLON) {
-                            toInsert.append(QLatin1Char(';'));
+                            extraChars += QLatin1Char(';');
                         }
                     }
                 }
             }
+
+            // Avoid inserting characters that are already there
+            for (int i = 0; i < extraChars.length(); ++i) {
+                const QChar a = extraChars.at(i);
+                const QChar b = m_editor->characterAt(m_editor->position() + i);
+                if (a == b)
+                    ++extraLength;
+                else
+                    break;
+            }
+
+            toInsert += extraChars;
         }
 
         // Insert the remainder of the name
-        int length = m_editor->position() - m_startPosition;
+        int length = m_editor->position() - m_startPosition + extraLength;
         m_editor->setCurPos(m_startPosition);
         m_editor->replace(length, toInsert);
     }
