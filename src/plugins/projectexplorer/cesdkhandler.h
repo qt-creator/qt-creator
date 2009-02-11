@@ -44,7 +44,7 @@
 
 namespace ProjectExplorer {
 
-class CeSdkInfo
+class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
 public:
     CeSdkInfo();
@@ -76,7 +76,7 @@ inline int CeSdkInfo::majorVersion() { return m_major; }
 inline int CeSdkInfo::minorVersion() { return m_minor; }
 inline bool CeSdkInfo::isSupported() { return m_major >= 5; }
 
-class CeSdkHandler
+class PROJECTEXPLORER_EXPORT CeSdkHandler
 {
 public:
                                     CeSdkHandler();
