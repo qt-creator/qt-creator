@@ -40,8 +40,6 @@
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
 
-//#include <indenter.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -790,11 +788,14 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = NoSubSubMode;
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
-            moveToFirstNonBlankOnLine();
+            moveToStartOfLine();
             finishMovement();
         } else {
             m_mvcount.append(QChar(key));
         }
+    } else if (key == '^') {
+        moveToFirstNonBlankOnLine();
+        finishMovement();
     } else if (0 && key == ',') {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
         m_subsubmode = FtSubSubMode;
@@ -951,7 +952,15 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == 'g') {
-        m_gflag = true;
+        if (m_gflag) {
+            m_gflag = false;
+            m_tc.setPosition(firstPositionInLine(1), KeepAnchor);
+            if (m_config[ConfigStartOfLine] == ConfigOn)
+                moveToFirstNonBlankOnLine();
+            finishMovement();
+        } else {
+            m_gflag = true;
+        }
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
@@ -996,7 +1005,9 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveDown(count());
             moveToDesiredColumn();
         } else {
+            m_moveType = MoveLineWise;
             moveToStartOfLine();
+            setAnchor();
             moveDown(count() + 1);
         }
         finishMovement();
@@ -1021,8 +1032,10 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveUp(count());
             moveToDesiredColumn();
         } else {
+            m_moveType = MoveLineWise;
             moveToStartOfLine();
             moveDown();
+            setAnchor();
             moveUp(count() + 1);
         }
         finishMovement();
@@ -1221,6 +1234,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == Key_Escape) {
         if (m_visualMode != NoVisualMode)
             leaveVisualMode();
+        else
+            handled = false;
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
         if (text.isEmpty())
@@ -1704,11 +1719,15 @@ int FakeVimHandler::Private::indentDist() const
     const TextEditor::TextBlockIterator end(m_tc.block().next());
     return indenter.indentForBottomLine(current, begin, end, QChar(' '));
 #endif
-    return 0;
+    int amount = 0;
+    emit q->indentRegion(&amount, m_tc.block(), m_tc.block(), QChar(' '));
+    return amount;
 }
 
 void FakeVimHandler::Private::indentRegion(QTextBlock begin, QTextBlock end, QChar typedChar)
 {
+    int amount = 0;
+    emit q->indentRegion(&amount, begin, end, typedChar);
 #if 0
     // FIXME: Make independent of TextEditor
     if (!m_texteditor)
@@ -1844,6 +1863,16 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 
 void FakeVimHandler::Private::moveToMatchingParanthesis()
 {
+    bool moved = false;
+    bool forward = false;
+
+    emit q->moveToMatchingParenthesis(&moved, &forward, &m_tc);
+
+    if (moved && forward) {
+       if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
+            m_tc.movePosition(Left, KeepAnchor, 1);
+    }
+
 #if 0
     // FIXME: remove TextEditor dependency
     bool undoFakeEOL = false;

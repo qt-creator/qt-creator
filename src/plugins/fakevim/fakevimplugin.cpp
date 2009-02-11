@@ -56,8 +56,11 @@
 #include <texteditor/interactionsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/textblockiterator.h>
 
 #include <utils/qtcassert.h>
+
+#include <indenter.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QtPlugin>
@@ -122,6 +125,8 @@ private slots:
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
+    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
+    void indentRegion(int *amount, QTextBlock begin, QTextBlock end,  QChar typedChar);
 
 private:
     FakeVimPlugin *q;
@@ -203,6 +208,10 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
+    connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
+        this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
+    connect(handler, SIGNAL(indentRegion(int*,QTextBlock,QTextBlock,QChar)),
+        this, SLOT(indentRegion(int*,QTextBlock,QTextBlock,QChar)));
 
     handler->setupWidget();
     handler->setExtraData(editor);
@@ -248,6 +257,81 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
         Core::ICore::instance()->fileManager()->unblockFileChange(file);
         *handled = true;
     } 
+}
+
+void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
+        QTextCursor *cursor)
+{
+    *moved = false;
+
+    bool undoFakeEOL = false;
+    if (cursor->atBlockEnd() && cursor->block().length() > 1) {
+        cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+        undoFakeEOL = true;
+    }
+    TextEditor::TextBlockUserData::MatchType match
+        = TextEditor::TextBlockUserData::matchCursorForward(cursor);
+    if (match == TextEditor::TextBlockUserData::Match) {
+        *moved = true;
+        *forward = true;
+   } else {
+        if (undoFakeEOL)
+            cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+        if (match == TextEditor::TextBlockUserData::NoMatch) {
+            // backward matching is according to the character before the cursor
+            bool undoMove = false;
+            if (!cursor->atBlockEnd()) {
+                cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+                undoMove = true;
+            }
+            match = TextEditor::TextBlockUserData::matchCursorBackward(cursor);
+            if (match == TextEditor::TextBlockUserData::Match) {
+                *moved = true;
+                *forward = false;
+            } else if (undoMove) {
+                cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+            }
+        }
+    }
+}
+
+void FakeVimPluginPrivate::indentRegion(int *amount, QTextBlock begin, QTextBlock end,
+      QChar typedChar)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+
+    BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget());
+    if (!bt)
+        return;
+
+    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
+    Indenter &indenter = Indenter::instance();
+    indenter.setIndentSize(bt->tabSettings().m_indentSize);
+    indenter.setTabSize(bt->tabSettings().m_tabSize);
+
+    const QTextDocument *doc = begin.document();
+    const TextEditor::TextBlockIterator docStart(doc->begin());
+    QTextBlock cur = begin;
+    do {
+        if (typedChar == 0 && cur.text().simplified().isEmpty()) {
+            *amount = 0;
+            if (cur != end) {
+                QTextCursor cursor(cur);
+                while (!cursor.atBlockEnd())
+                    cursor.deleteChar();
+            }
+        } else {
+            const TextEditor::TextBlockIterator current(cur);
+            const TextEditor::TextBlockIterator next(cur.next());
+            *amount = indenter.indentForBottomLine(current, docStart, next, typedChar);
+            if (cur != end)
+                bt->tabSettings().indentLine(cur, *amount);
+        }
+        if (cur != end)
+           cur = cur.next();
+    } while (cur != end);
 }
 
 void FakeVimPluginPrivate::removeHandler()
