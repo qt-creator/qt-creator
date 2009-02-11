@@ -1181,7 +1181,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-    tryLoadCustomDumpers();
+    //tryLoadCustomDumpers();
 
     // jump over well-known frames
     static int stepCounter = 0;
@@ -3338,7 +3338,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
             tr("The debugged binary does not contain information needed for "
                     "nice display of Qt data types.\n\n"
                     "You might want to try including the file\n\n"
-                    ".../ide/main/bin/gdbmacros/gdbmacros.cpp'\n\n"
+                    ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
                     "into your project directly.")
                 );
     } else {
@@ -3444,11 +3444,12 @@ void GdbEngine::handleEvaluateExpression(const GdbResultRecord &record,
 
 void GdbEngine::handleDumpCustomSetup(const GdbResultRecord &record)
 {
-    qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
+    //qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
     if (record.resultClass == GdbResultDone) {
     } else if (record.resultClass == GdbResultError) {
         QString msg = record.data.findChild("msg").data();
-        qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE: " << msg;
+        //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE: " << msg;
+        q->showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
     }
 }
 
@@ -3586,121 +3587,124 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
 
 void GdbEngine::updateLocals()
 {
-setTokenBarrier();
+    setTokenBarrier();
 
-m_pendingRequests = 0;
-PENDING_DEBUG("\nRESET PENDING");
-m_toolTipCache.clear();
-m_toolTipExpression.clear();
-qq->watchHandler()->reinitializeWatchers();
+    m_pendingRequests = 0;
 
-int level = currentFrame();
-// '2' is 'list with type and value'
-QString cmd = QString("-stack-list-arguments 2 %1 %2").arg(level).arg(level);
-sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
-// '2' is 'list with type and value'
-sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
+    PENDING_DEBUG("\nRESET PENDING");
+    m_toolTipCache.clear();
+    m_toolTipExpression.clear();
+    qq->watchHandler()->reinitializeWatchers();
+
+    int level = currentFrame();
+    // '2' is 'list with type and value'
+    QString cmd = QString("-stack-list-arguments 2 %1 %2").arg(level).arg(level);
+    sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
+    // '2' is 'list with type and value'
+    sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
+
+    tryLoadCustomDumpers();
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
 {
-// stage 1/2
+    // stage 1/2
 
-// Linux:
-// 12^done,stack-args=
-//   [frame={level="0",args=[
-//     {name="argc",type="int",value="1"},
-//     {name="argv",type="char **",value="(char **) 0x7..."}]}]
-// Mac:
-// 78^done,stack-args=
-//    {frame={level="0",args={
-//      varobj=
-//        {exp="this",value="0x38a2fab0",name="var21",numchild="3",
-//             type="CurrentDocumentFind *  const",typecode="PTR",
-//             dynamic_type="",in_scope="true",block_start_addr="0x3938e946",
-//             block_end_addr="0x3938eb2d"},
-//      varobj=
-//         {exp="before",value="@0xbfffb9f8: {d = 0x3a7f2a70}",
-//              name="var22",numchild="1",type="const QString  ...} }}}
-//
-// In both cases, iterating over the children of stack-args/frame/args
-// is ok.
-m_currentFunctionArgs.clear();
-if (record.resultClass == GdbResultDone) {
-    const GdbMi list = record.data.findChild("stack-args");
-    const GdbMi frame = list.findChild("frame");
-    const GdbMi args = frame.findChild("args");
-    m_currentFunctionArgs = args.children();
-} else if (record.resultClass == GdbResultError) {
-    qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen";
-}
+    // Linux:
+    // 12^done,stack-args=
+    //   [frame={level="0",args=[
+    //     {name="argc",type="int",value="1"},
+    //     {name="argv",type="char **",value="(char **) 0x7..."}]}]
+    // Mac:
+    // 78^done,stack-args=
+    //    {frame={level="0",args={
+    //      varobj=
+    //        {exp="this",value="0x38a2fab0",name="var21",numchild="3",
+    //             type="CurrentDocumentFind *  const",typecode="PTR",
+    //             dynamic_type="",in_scope="true",block_start_addr="0x3938e946",
+    //             block_end_addr="0x3938eb2d"},
+    //      varobj=
+    //         {exp="before",value="@0xbfffb9f8: {d = 0x3a7f2a70}",
+    //              name="var22",numchild="1",type="const QString  ...} }}}
+    //
+    // In both cases, iterating over the children of stack-args/frame/args
+    // is ok.
+    m_currentFunctionArgs.clear();
+    if (record.resultClass == GdbResultDone) {
+        const GdbMi list = record.data.findChild("stack-args");
+        const GdbMi frame = list.findChild("frame");
+        const GdbMi args = frame.findChild("args");
+        m_currentFunctionArgs = args.children();
+    } else if (record.resultClass == GdbResultError) {
+        qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen";
+    }
 }
 
 void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
 {
-// stage 2/2
+    // stage 2/2
 
-// There could be shadowed variables
-QList<GdbMi> locals = record.data.findChild("locals").children();
-locals += m_currentFunctionArgs;
+    // There could be shadowed variables
+    QList<GdbMi> locals = record.data.findChild("locals").children();
+    locals += m_currentFunctionArgs;
 
-setLocals(locals);
+    setLocals(locals);
 }
 
 void GdbEngine::setLocals(const QList<GdbMi> &locals) 
 { 
-//qDebug() << m_varToType;
-QHash<QString, int> seen;
+    //qDebug() << m_varToType;
+    QHash<QString, int> seen;
 
-foreach (const GdbMi &item, locals) {
-    // Local variables of inlined code are reported as 
-    // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
-    // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
-    // We do not want these at all. Current hypotheses is that those
-    // "spurious" locals have _two_ "exp" field. Try to filter them:
-    #ifdef Q_OS_MAC
-    int numExps = 0;
-    foreach (const GdbMi &child, item.children())
-        numExps += int(child.name() == "exp");
-    if (numExps > 1)
-        continue;
-    QString name = item.findChild("exp").data();
-    #else
-    QString name = item.findChild("name").data();
-    #endif
-    int n = seen.value(name);
-    if (n) {
-        seen[name] = n + 1;
-        WatchData data;
-        data.iname = "local." + name + QString::number(n + 1);
-        data.name = name + QString(" <shadowed %1>").arg(n);
-        //data.setValue("<shadowed>");
-        setWatchDataValue(data, item.findChild("value"));
-        data.setType("<shadowed>");
-        data.setChildCount(0);
-        insertData(data);
-    } else {
-        seen[name] = 1;
-        WatchData data;
-        data.iname = "local." + name;
-        data.name = name;
-        data.exp = name;
-        data.framekey = m_currentFrame + data.name;
-        setWatchDataType(data, item.findChild("type"));
-        // set value only directly if it is simple enough, otherwise
-        // pass through the insertData() machinery
-        if (isIntOrFloatType(data.type) || isPointerType(data.type))
+    foreach (const GdbMi &item, locals) {
+        // Local variables of inlined code are reported as 
+        // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
+        // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
+        // We do not want these at all. Current hypotheses is that those
+        // "spurious" locals have _two_ "exp" field. Try to filter them:
+        #ifdef Q_OS_MAC
+        int numExps = 0;
+        foreach (const GdbMi &child, item.children())
+            numExps += int(child.name() == "exp");
+        if (numExps > 1)
+            continue;
+        QString name = item.findChild("exp").data();
+        #else
+        QString name = item.findChild("name").data();
+        #endif
+        int n = seen.value(name);
+        if (n) {
+            seen[name] = n + 1;
+            WatchData data;
+            data.iname = "local." + name + QString::number(n + 1);
+            data.name = name + QString(" <shadowed %1>").arg(n);
+            //data.setValue("<shadowed>");
             setWatchDataValue(data, item.findChild("value"));
-        if (!qq->watchHandler()->isExpandedIName(data.iname))
-            data.setChildrenUnneeded();
-        if (isPointerType(data.type) || data.name == "this")
-            data.setChildCount(1);
-        if (0 && m_varToType.contains(data.framekey)) {
-            qDebug() << "RE-USING " << m_varToType.value(data.framekey);
-            data.setType(m_varToType.value(data.framekey));
+            data.setType("<shadowed>");
+            data.setChildCount(0);
+            insertData(data);
+        } else {
+            seen[name] = 1;
+            WatchData data;
+            data.iname = "local." + name;
+            data.name = name;
+            data.exp = name;
+            data.framekey = m_currentFrame + data.name;
+            setWatchDataType(data, item.findChild("type"));
+            // set value only directly if it is simple enough, otherwise
+            // pass through the insertData() machinery
+            if (isIntOrFloatType(data.type) || isPointerType(data.type))
+                setWatchDataValue(data, item.findChild("value"));
+            if (!qq->watchHandler()->isExpandedIName(data.iname))
+                data.setChildrenUnneeded();
+            if (isPointerType(data.type) || data.name == "this")
+                data.setChildCount(1);
+            if (0 && m_varToType.contains(data.framekey)) {
+                qDebug() << "RE-USING " << m_varToType.value(data.framekey);
+                data.setType(m_varToType.value(data.framekey));
+            }
+            insertData(data);
         }
-        insertData(data);
-    }
     }
 }
 
@@ -3958,15 +3962,17 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen");
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
+        sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
         // some older systems like CentOS 4.6 prefer this:
-        sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -3976,13 +3982,14 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen"); // FIXME: remove me
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -3991,14 +3998,15 @@ void GdbEngine::tryLoadCustomDumpers()
 #if defined(Q_OS_WIN)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
     if (QFileInfo(lib).exists()) {
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
-        sendCommand("call LoadLibraryA(\"" + lib + "\")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("call LoadLibraryA(\"" + lib + "\")",
+            WatchDumpCustomSetup);
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -4006,9 +4014,9 @@ void GdbEngine::tryLoadCustomDumpers()
 #endif
 
     // retreive list of dumpable classes
-    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
+    sendSynchronizedCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
         GdbQueryDataDumper1);
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
+    sendSynchronizedCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
 }
 
 

@@ -72,8 +72,8 @@ public:
     QString name() const;
     QIcon icon() const;
     int priority() const;
-    QWidget* widget();
-    const char* uniqueModeName() const;
+    QWidget *widget();
+    const char *uniqueModeName() const;
     QList<int> context() const;
     void activated();
     QString contextHelpId() const { return QLatin1String("Qt Creator"); }

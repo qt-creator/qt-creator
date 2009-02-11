@@ -33,7 +33,8 @@
 
 #include "procinterrupt.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
+
 #include <windows.h>
 #include <Tlhelp32.h>
 
@@ -75,7 +76,37 @@ DWORD findProcessId(DWORD parentId)
     CloseHandle(hProcList);
     return procId;
 }
-#else
+
+bool Debugger::Internal::interruptProcess(int pID)
+{
+    DWORD pid = pID;
+    if (!pid)
+        return false;
+
+    PtrCreateRemoteThread libFunc = resolveCreateRemoteThread();
+    if (libFunc) {
+        DWORD dwThreadId = 0;
+        HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+        HANDLE hthread = libFunc(hproc, NULL, 0, (LPTHREAD_START_ROUTINE)DebugBreak, 0, 0, &dwThreadId);
+        CloseHandle(hthread);
+        if (dwThreadId)
+            return true;
+    }
+    
+    return false;
+}
+
+bool Debugger::Internal::interruptChildProcess(Q_PID parentPID)
+{
+    DWORD pid = findProcessId(parentPID->dwProcessId);
+    return interruptProcess(pid);
+}
+
+#endif // defined(Q_OS_WIN)
+
+
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QString>
@@ -89,12 +120,14 @@ DWORD findProcessId(DWORD parentId)
 
 #include <sys/sysctl.h>
 
-#define OPProcessValueUnknown UINT_MAX
+
+using namespace Debugger::Internal;
 
 /* Mac OS X
 int OPParentIDForProcessID(int pid)
     // Returns the parent process id for the given process id (pid)
 {
+    const uint OPProcessValueUnknown = UINT_MAX;
     struct kinfo_proc info;
     size_t length = sizeof(struct kinfo_proc);
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
@@ -140,44 +173,21 @@ int findChildProcess(int parentId)
     return -1;
 }
 
-#endif
-
 bool Debugger::Internal::interruptProcess(int pID)
 {
-#ifdef Q_OS_WIN
-    DWORD pid = pID;
-    if (!pid)
-        return false;
-
-    PtrCreateRemoteThread libFunc = resolveCreateRemoteThread();
-    if (libFunc) {
-        DWORD dwThreadId = 0;
-        HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-        HANDLE hthread = libFunc(hproc, NULL, 0, (LPTHREAD_START_ROUTINE)DebugBreak, 0, 0, &dwThreadId);
-        CloseHandle(hthread);
-        if (dwThreadId)
-            return true;
-    }
-#else
     int procId = pID;
     if (procId != -1) {
-        if (kill(procId, 2) == 0)
+        if (kill(procId, SIGINT) == 0)
             return true;
     }
-
-#endif
-    
     return false;
 }
 
 bool Debugger::Internal::interruptChildProcess(Q_PID parentPID)
 {
-#ifdef WIN32
-    DWORD pid = findProcessId(parentPID->dwProcessId);
-    return interruptProcess(pid);
-#else
     int procId = findChildProcess(parentPID);
     //qDebug() << "INTERRUPTING PROCESS" << procId;
     return interruptProcess(procId);
-#endif
 }
+
+#endif // defined(Q_OS_LINUX) || defined(Q_OS_MAC)

@@ -68,6 +68,7 @@ int qtGhVersion = QT_VERSION;
 
 #include <ctype.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #ifdef Q_OS_WIN
 #   include <windows.h>
@@ -2484,6 +2485,7 @@ void qDumpObjectData440(
     int extraInt2,
     int extraInt3)
 {
+    //sleep(20);
     if (protocolVersion == 1) {
         QDumper d;
         d.protocolVersion = protocolVersion;
