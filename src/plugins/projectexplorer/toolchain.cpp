@@ -19,6 +19,7 @@ bool ToolChain::equals(ToolChain *a, ToolChain *b)
         return false;
     if (a->type() == b->type())
         a->equals(b);
+    return false;
 }
 
 ToolChain::ToolChain()
@@ -303,6 +304,7 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
 #ifdef QTCREATOR_WITH_MSVC_INCLUDES
     return env.value("INCLUDE").split(QLatin1Char(';'));
 #endif
+    return QStringList();
 }
 
 void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
