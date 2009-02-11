@@ -1181,7 +1181,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-    tryLoadCustomDumpers();
+    //tryLoadCustomDumpers();
 
     // jump over well-known frames
     static int stepCounter = 0;
@@ -3444,11 +3444,12 @@ void GdbEngine::handleEvaluateExpression(const GdbResultRecord &record,
 
 void GdbEngine::handleDumpCustomSetup(const GdbResultRecord &record)
 {
-    qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
+    //qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
     if (record.resultClass == GdbResultDone) {
     } else if (record.resultClass == GdbResultError) {
         QString msg = record.data.findChild("msg").data();
-        qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE: " << msg;
+        //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE: " << msg;
+        q->showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
     }
 }
 
@@ -3589,6 +3590,7 @@ void GdbEngine::updateLocals()
     setTokenBarrier();
 
     m_pendingRequests = 0;
+
     PENDING_DEBUG("\nRESET PENDING");
     m_toolTipCache.clear();
     m_toolTipExpression.clear();
@@ -3600,6 +3602,8 @@ void GdbEngine::updateLocals()
     sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
     // '2' is 'list with type and value'
     sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
+
+    tryLoadCustomDumpers();
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
@@ -3958,15 +3962,17 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen");
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
+        sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
         // some older systems like CentOS 4.6 prefer this:
-        sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -3976,13 +3982,14 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen"); // FIXME: remove me
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSyncronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
+        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -3991,14 +3998,15 @@ void GdbEngine::tryLoadCustomDumpers()
 #if defined(Q_OS_WIN)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
     if (QFileInfo(lib).exists()) {
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 0");
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 0");
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
-        sendCommand("call LoadLibraryA(\"" + lib + "\")");
-        sendCommand("sharedlibrary " + dotEscape(lib));
-        if (qq->useFastStart())
-            sendCommand("set stop-on-solib-events 1");
+        sendSyncronizedCommand("call LoadLibraryA(\"" + lib + "\")",
+            WatchDumpCustomSetup);
+        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
+        //if (qq->useFastStart())
+        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -4006,9 +4014,9 @@ void GdbEngine::tryLoadCustomDumpers()
 #endif
 
     // retreive list of dumpable classes
-    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
+    sendSynchronizedCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
         GdbQueryDataDumper1);
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
+    sendSynchronizedCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
 }
 
 
