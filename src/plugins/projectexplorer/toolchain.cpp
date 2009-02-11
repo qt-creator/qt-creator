@@ -304,7 +304,7 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
 #ifdef QTCREATOR_WITH_MSVC_INCLUDES
     return env.value("INCLUDE").split(QLatin1Char(';'));
 #endif
-    return QStringList();
+    return QList<HeaderPath>();
 }
 
 void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
