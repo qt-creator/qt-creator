@@ -37,6 +37,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
 
+using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using ProjectExplorer::Environment;
 
