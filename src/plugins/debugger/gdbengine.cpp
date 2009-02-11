@@ -3985,9 +3985,9 @@ void GdbEngine::tryLoadCustomDumpers()
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendSyncronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+        sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
-        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 1");
     } else {
@@ -4002,9 +4002,9 @@ void GdbEngine::tryLoadCustomDumpers()
         //    sendCommand("set stop-on-solib-events 0");
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
-        sendSyncronizedCommand("call LoadLibraryA(\"" + lib + "\")",
+        sendSynchronizedCommand("call LoadLibraryA(\"" + lib + "\")",
             WatchDumpCustomSetup);
-        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 1");
     } else {
