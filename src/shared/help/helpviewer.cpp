@@ -216,6 +216,8 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
 HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     : QWebView(parent), helpEngine(engine), parentWidget(parent)
 {    
+    settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    settings()->setAttribute(QWebSettings::JavaEnabled, false);
     setPage(new HelpPage(parent, helpEngine, this));
 
     page()->setNetworkAccessManager(new HelpNetworkAccessManager(engine, this));

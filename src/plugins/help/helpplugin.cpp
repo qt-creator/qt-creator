@@ -570,8 +570,8 @@ void HelpPlugin::activateContext()
             }
             
             if (viewer) {
-                viewer->setHtml(tr("<title>No Documentation</title><br><br>"
-                    "<center><b>%1</b><br><br>No documentation available.").
+                viewer->setHtml(tr("<html><head><title>No Documentation</title></head><body><br/>"
+                    "<center><b>%1</b><br/>No documentation available.</center></body></html>").
                     arg(id));
                 viewer->setSource(QUrl());
                 //activateIndex();
@@ -589,8 +589,8 @@ void HelpPlugin::activateContext()
 
         if (viewer) {
             viewer->setSource(QUrl());
-            viewer->setHtml("<title>No Documentation</title><br><br><center>No"
-                " documentation available.");
+            viewer->setHtml("<html><head><title>No Documentation</title></head><body><br/><br/><center>No"
+                " documentation available.</center></body></html>");
             //activateIndex();
         }
     }
