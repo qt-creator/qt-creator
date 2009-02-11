@@ -161,7 +161,7 @@ bool Debugger::Internal::interruptProcess(int pID)
 #else
     int procId = pID;
     if (procId != -1) {
-        if (kill(procId, 2) == 0)
+        if (kill(procId, SIGINT) == 0)
             return true;
     }
 
