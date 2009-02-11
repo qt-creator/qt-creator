@@ -177,8 +177,7 @@ bool Debugger::Internal::interruptProcess(int pID)
 {
     int procId = pID;
     if (procId != -1) {
-        // used SIGINT previously
-        if (kill(procId, SIGTRAP) == 0)
+        if (kill(procId, SIGINT) == 0)
             return true;
     }
     return false;
