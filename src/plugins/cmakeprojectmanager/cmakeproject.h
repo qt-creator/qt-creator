@@ -42,6 +42,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/ifile.h>
 #include <utils/pathchooser.h>
 
@@ -122,6 +123,7 @@ private:
     CMakeProjectNode* m_rootNode;
     QStringList m_files;
     QList<CMakeTarget> m_targets;
+    ProjectExplorer::ToolChain *m_toolChain;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -137,6 +139,7 @@ public:
     QStringList includeFiles();
     QList<CMakeTarget> targets();
     QString projectName() const;
+    QString compilerName() const;
 private:
     void parseCodeBlocks_project_file();
     void parseProject();
@@ -159,6 +162,7 @@ private:
     bool m_targetType;
     QList<CMakeTarget> m_targets;
     QString m_projectName;
+    QString m_compiler;
 };
 
 class CMakeFile : public Core::IFile
