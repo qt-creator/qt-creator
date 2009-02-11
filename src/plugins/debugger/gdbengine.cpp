@@ -3338,7 +3338,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
             tr("The debugged binary does not contain information needed for "
                     "nice display of Qt data types.\n\n"
                     "You might want to try including the file\n\n"
-                    ".../ide/main/bin/gdbmacros/gdbmacros.cpp'\n\n"
+                    ".../share/qtcreator/gdbmacros/gdbmacros.cpp'\n\n"
                     "into your project directly.")
                 );
     } else {
