@@ -717,8 +717,6 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                     continue;
                 else if (lines.contains(m.line()))
                     continue;
-                //else if (lines.size() == MAX_SELECTION_COUNT)
-                    //break; // we're done.
 
                 lines.insert(m.line());
 

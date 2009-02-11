@@ -168,10 +168,6 @@ private:
 
     mutable QMutex mutex;
 
-    enum {
-        MAX_SELECTION_COUNT = 5
-    };
-
     struct Editor {
         QPointer<TextEditor::BaseTextEditor> widget;
         QList<QTextEdit::ExtraSelection> selections;
