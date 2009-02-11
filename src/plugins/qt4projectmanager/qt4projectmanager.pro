@@ -32,13 +32,9 @@ HEADERS = qt4projectmanagerplugin.h \
     msvcparser.h \
     buildparserfactory.h \
     deployhelper.h \
-    msvcenvironment.h \
-    cesdkhandler.h \
     embeddedpropertiespage.h \
     qt4runconfiguration.h \
     speinfo.h \
-    headerpath.h \
-    gccpreprocessor.h \
     qt4buildconfigwidget.h \
     qt4buildenvironmentwidget.h \
     projectloadwizard.h \
@@ -71,12 +67,9 @@ SOURCES = qt4projectmanagerplugin.cpp \
     msvcparser.cpp \
     buildparserfactory.cpp \
     deployhelper.cpp \
-    msvcenvironment.cpp \
-    cesdkhandler.cpp \
     embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
     speinfo.cpp \
-    gccpreprocessor.cpp \
     qt4buildconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp \

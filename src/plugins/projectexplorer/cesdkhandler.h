@@ -42,8 +42,7 @@
 #define VCINSTALL_MACRO "$(VCInstallDir)"
 #define VSINSTALL_MACRO "$(VSInstallDir)"
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
 class CeSdkInfo
 {
@@ -53,7 +52,7 @@ public:
     inline QString                  binPath();
     inline QString                  includePath();
     inline QString                  libPath();
-    ProjectExplorer::Environment    addToEnvironment(const ProjectExplorer::Environment &env);
+    void                            addToEnvironment(ProjectExplorer::Environment &env);
     inline bool                     isValid();
     inline int                      majorVersion();
     inline int                      minorVersion();
@@ -102,7 +101,6 @@ inline QString CeSdkHandler::fixPaths(QString path) const
     return QDir::toNativeSeparators(QDir::cleanPath(path.replace(VCINSTALL_MACRO, VCInstallDir).replace(VSINSTALL_MACRO, VSInstallDir).replace(QLatin1String(";$(PATH)"), QLatin1String(""))));
 }
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // CE_SDK_HANDLER_H

@@ -38,6 +38,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
@@ -73,17 +74,16 @@ public:
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
 
-    enum ToolchainType { MinGW, MSVC, WINCE, OTHER, INVALID };
-
-    ToolchainType toolchainType() const;
+    ProjectExplorer::ToolChain::ToolChainType toolchainType() const;
 
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
     QString prependPath() const;
     void setPrependPath(const QString &string);
     QString msvcVersion() const;
+    QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
-    ProjectExplorer::Environment addToEnvironment(const ProjectExplorer::Environment &env);
+    void addToEnvironment(ProjectExplorer::Environment &env);
 
     int uniqueId() const;
 

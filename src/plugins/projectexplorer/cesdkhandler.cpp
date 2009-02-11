@@ -37,7 +37,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace ProjectExplorer::Internal;
 using ProjectExplorer::Environment;
 
 CeSdkInfo::CeSdkInfo()
@@ -45,15 +45,13 @@ CeSdkInfo::CeSdkInfo()
 {
 }
 
-Environment CeSdkInfo::addToEnvironment(const Environment &env)
+void CeSdkInfo::addToEnvironment(Environment &env)
 {
     qDebug() << "adding " << name() << "to Environment";
-    Environment e(env);
-    e.set("INCLUDE", m_include);
-    e.set("LIB", m_lib);
-    e.prependOrSetPath(m_bin);
+    env.set("INCLUDE", m_include);
+    env.set("LIB", m_lib);
+    env.prependOrSetPath(m_bin);
     qDebug()<<e.toStringList();
-    return e;
 }
 
 CeSdkHandler::CeSdkHandler()

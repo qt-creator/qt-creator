@@ -75,7 +75,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Arguments:</string>
+          <string>Effective qmake call:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -84,6 +84,9 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="qmakeArgumentsEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>

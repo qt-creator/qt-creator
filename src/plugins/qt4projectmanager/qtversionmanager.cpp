@@ -34,12 +34,12 @@
 #include "qtversionmanager.h"
 
 #include "qt4projectmanagerconstants.h"
-#include "msvcenvironment.h"
-#include "cesdkhandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/cesdkhandler.h>
+#include <projectexplorer/toolchain.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
@@ -495,35 +495,36 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
     if (item) {
         int index = m_ui.qtdirList->indexOfTopLevelItem(item);
         m_ui.errorLabel->setText("");
-        QtVersion::ToolchainType t = m_versions.at(index)->toolchainType();
-        if (t == QtVersion::MinGW) {
+        ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->toolchainType();
+        if (t == ProjectExplorer::ToolChain::MinGW) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(true);
             m_ui.mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (t == QtVersion::MSVC || t == QtVersion::WINCE){
+        } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(true);
             makeMingwVisible(false);
-            QList<MSVCEnvironment> msvcenvironments = MSVCEnvironment::availableVersions();
-            if (msvcenvironments.count() == 0) {
+            QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
+            if (msvcEnvironments.count() == 0) {
                 m_ui.msvcLabel->setText(tr("No Visual Studio Installation found"));
-            } else if (msvcenvironments.count() == 1) {
-                m_ui.msvcLabel->setText( msvcenvironments.at(0).description());
+            } else if (msvcEnvironments.count() == 1) {
+                //TODO m_ui.msvcLabel->setText( msvcEnvironments.at(0).description());
+                m_ui.msvcLabel->setText("");
             } else {
                  m_ui.msvcComboBox->setVisible(true);
                  m_ui.msvcComboBox->clear();
                  bool block = m_ui.msvcComboBox->blockSignals(true);
-                 foreach(const MSVCEnvironment msvcenv, msvcenvironments) {
-                     m_ui.msvcComboBox->addItem(msvcenv.name());
-                     if (msvcenv.name() == m_versions.at(index)->msvcVersion()) {
+                 foreach(const QString &msvcenv, msvcEnvironments) {
+                     m_ui.msvcComboBox->addItem(msvcenv);
+                     if (msvcenv == m_versions.at(index)->msvcVersion()) {
                          m_ui.msvcComboBox->setCurrentIndex(m_ui.msvcComboBox->count() - 1);
-                         m_ui.msvcLabel->setText(msvcenv.description());
+                         m_ui.msvcLabel->setText(""); //TODO
                      }
                  }
                  m_ui.msvcComboBox->blockSignals(block);
             }
-        } else if (t == QtVersion::INVALID) {
+        } else if (t == ProjectExplorer::ToolChain::INVALID) {
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(false);
@@ -532,7 +533,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
                                            .arg(m_versions.at(index)->path()));
             else
                 m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(m_versions.at(index)->path()));
-        } else { //QtVersion::Other
+        } else { //ProjectExplorer::ToolChain::GCC
             m_ui.msvcComboBox->setVisible(false);
             m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(false);
@@ -679,13 +680,14 @@ void QtDirWidget::msvcVersionChanged()
     m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
 
     //get descriptionx
-    QList<MSVCEnvironment> msvcEnvironments = MSVCEnvironment::availableVersions();
-    foreach(const MSVCEnvironment &msvcEnv, msvcEnvironments) {
-        if (msvcEnv.name() == msvcVersion) {
-            m_ui.msvcLabel->setText(msvcEnv.description());
-            break;
-        }
-    }
+    //TODO
+//    QList<MSVCEnvironment> msvcEnvironments = MSVCEnvironment::availableVersions();
+//    foreach(const MSVCEnvironment &msvcEnv, msvcEnvironments) {
+//        if (msvcEnv.name() == msvcVersion) {
+//            m_ui.msvcLabel->setText(msvcEnv.description());
+//            break;
+//        }
+//    }
 }
 
 QList<QtVersion *> QtDirWidget::versions() const
@@ -1176,21 +1178,21 @@ QString QtVersion::qmakeCommand() const
     return QString::null;
 }
 
-QtVersion::ToolchainType QtVersion::toolchainType() const
+ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
 {
     if (!isValid())
-        return INVALID;
+        return ProjectExplorer::ToolChain::INVALID;
     const QString &spec = mkspec();
     if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
-        return MSVC;
+        return ProjectExplorer::ToolChain::MSVC;
     else if (spec == "win32-g++")
-        return MinGW;
+        return ProjectExplorer::ToolChain::MinGW;
     else if (spec == QString::null)
-        return INVALID;
+        return ProjectExplorer::ToolChain::INVALID;
     else if (spec.startsWith("wince"))
-        return WINCE;
+        return ProjectExplorer::ToolChain::WINCE;
     else
-        return OTHER;
+        return ProjectExplorer::ToolChain::GCC;
 }
 
 QString QtVersion::mingwDirectory() const
@@ -1218,70 +1220,26 @@ QString QtVersion::msvcVersion() const
     return m_msvcVersion;
 }
 
+QString QtVersion::wincePlatform() const
+{
+    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
+    return ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
+}
+
 void QtVersion::setMsvcVersion(const QString &version)
 {
     m_msvcVersion = version;
 }
 
-Environment QtVersion::addToEnvironment(const Environment &env)
+void QtVersion::addToEnvironment(Environment &env)
 {
-    Environment e(env);
-    e.set("QTDIR", m_path);
+    env.set("QTDIR", m_path);
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
-    e.prependOrSetPath(qtdirbin);
+    env.prependOrSetPath(qtdirbin);
     // add libdir, includedir and bindir
     // or add Mingw dirs
     // or do nothing on other
-    QtVersion::ToolchainType t = toolchainType();
-    if (t == QtVersion::MinGW) {
-        QFileInfo mingwFileInfo(m_mingwDirectory + "/bin");
-        if (mingwFileInfo.exists())
-            e.prependOrSetPath(m_mingwDirectory + "/bin");
-    } else if (t == QtVersion::MSVC) {
-        QList<MSVCEnvironment> list = MSVCEnvironment::availableVersions();
-        if (list.count() == 1) {
-            e = list.at(0).addToEnvironment(e);
-        } else {
-            foreach(const MSVCEnvironment &m, list) {
-                if (m.name() == m_msvcVersion) {
-                    e = m.addToEnvironment(e);
-                    break;
-                }
-            }
-        }
-    } else if (t == QtVersion::WINCE) {
-        QString msvcPath;
-        // Find MSVC path
-        QList<MSVCEnvironment> list = MSVCEnvironment::availableVersions();
-        if (list.count() == 1) {
-            msvcPath = list.at(0).path();
-            e = list.at(0).addToEnvironment(e);
-        } else {
-            foreach(const MSVCEnvironment &m, list) {
-                if (m.name() == m_msvcVersion) {
-                    e = m.addToEnvironment(e);
-                    msvcPath = m.path();
-                    break;
-                }
-            }
-        }
-        msvcPath += "/";
 
-//        qDebug()<<"MSVC path"<<msvcPath;
-//        qDebug()<<"looking for platform name in"<< path() + "/mkspecs/" + mkspec() +"/qmake.conf";
-        // Find Platform name
-
-        QString platformName = CeSdkHandler::platformName(path() + "/mkspecs/" + mkspec()+ "/qmake.conf");
-//        qDebug()<<"Platform Name"<<platformName;
-
-        CeSdkHandler cesdkhandler;
-        cesdkhandler.parse(msvcPath);
-        e = cesdkhandler.find(platformName).addToEnvironment(e);
-    } else if (t == QtVersion::OTHER) {
-        if (!m_prependPath.isEmpty())
-            e.prependOrSetPath(m_prependPath);
-    }
-    return e;
 }
 
 int QtVersion::uniqueId() const

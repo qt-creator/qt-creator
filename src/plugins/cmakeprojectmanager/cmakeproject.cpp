@@ -67,7 +67,10 @@ using namespace CMakeProjectManager::Internal;
 
 
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
-    : m_manager(manager), m_fileName(fileName), m_rootNode(new CMakeProjectNode(m_fileName))
+    : m_manager(manager),
+      m_fileName(fileName),
+      m_rootNode(new CMakeProjectNode(m_fileName)),
+      m_toolChain(0)
 {
     m_file = new CMakeFile(this, fileName);
 }
@@ -75,12 +78,14 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 CMakeProject::~CMakeProject()
 {
     delete m_rootNode;
+    delete m_toolChain;
 }
 
 // TODO also call this method if the CMakeLists.txt file changed, which is also called if the CMakeList.txt is updated
 // TODO make this function work even if it is reparsing
 void CMakeProject::parseCMakeLists()
 {
+    ProjectExplorer::ToolChain *newToolChain = 0;
     QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
     m_manager->createXmlFile(cmakeStep()->userArguments(activeBuildConfiguration()), sourceDirectory, buildDirectory(activeBuildConfiguration()));
 
@@ -88,6 +93,24 @@ void CMakeProject::parseCMakeLists()
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
+        qDebug()<<"CodeBlocks Compilername"<<cbpparser.compilerName();
+        if (cbpparser.compilerName() == "gcc") {
+            newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
+        } else if (cbpparser.compilerName() == "msvc8") {
+            // TODO hmm
+            //newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain("//TODO");
+            Q_ASSERT(false);
+        } else {
+            // TODO hmm?
+        }
+        if (newToolChain == m_toolChain) {
+            delete newToolChain;
+            newToolChain = 0;
+        } else {
+            delete m_toolChain;
+            m_toolChain = newToolChain;
+        }
+
         m_projectName = cbpparser.projectName();
         qDebug()<<"Building Tree";
         // TODO do a intelligent updating of the tree
@@ -107,18 +130,31 @@ void CMakeProject::parseCMakeLists()
         }
 
         qDebug()<<"Updating CodeModel";
+
+        QStringList allIncludePaths;
+        QStringList allFrameworkPaths;
+        QList<ProjectExplorer::HeaderPath> allHeaderPaths = m_toolChain->systemHeaderPaths();
+        foreach (ProjectExplorer::HeaderPath headerPath, allHeaderPaths) {
+            if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
+                allFrameworkPaths.append(headerPath.path());
+            else
+                allIncludePaths.append(headerPath.path());
+        }
+        allIncludePaths.append(cbpparser.includeFiles());
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
             CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
-            pinfo.includePaths = cbpparser.includeFiles();
+            pinfo.includePaths = allIncludePaths;
             // TODO we only want C++ files, not all other stuff that might be in the project
             pinfo.sourceFiles = m_files;
-            // TODO defines
-            // TODO gcc preprocessor files
+            pinfo.defines = m_toolChain->predefinedMacros();
+            pinfo.frameworkPaths = allFrameworkPaths;
             modelmanager->updateProjectInfo(pinfo);
         }
     } else {
         // TODO report error
+        delete m_toolChain;
+        m_toolChain = 0;
     }
 }
 
@@ -187,6 +223,8 @@ QString CMakeProject::name() const
 {
     return m_projectName;
 }
+
+
 
 Core::IFile *CMakeProject::file() const
 {
@@ -546,6 +584,9 @@ void CMakeCbpParser::parseOption()
     if (attributes().hasAttribute("title"))
         m_projectName = attributes().value("title").toString();
 
+    if (attributes().hasAttribute("compiler"))
+        m_compiler = attributes().value("compiler").toString();
+
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -671,6 +712,11 @@ QStringList CMakeCbpParser::includeFiles()
 QList<CMakeTarget> CMakeCbpParser::targets()
 {
     return m_targets;
+}
+
+QString CMakeCbpParser::compilerName() const
+{
+    return m_compiler;
 }
 
 void CMakeTarget::clear()

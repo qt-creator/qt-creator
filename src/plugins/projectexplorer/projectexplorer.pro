@@ -52,7 +52,8 @@ HEADERS += projectexplorer.h \
     removefiledialog.h \
     nodesvisitor.h \
     projectmodels.h \
-    currentprojectfind.h
+    currentprojectfind.h \
+    toolchain.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -93,7 +94,8 @@ SOURCES += projectexplorer.cpp \
     removefiledialog.cpp \
     nodesvisitor.cpp \
     projectmodels.cpp \
-    currentprojectfind.cpp
+    currentprojectfind.cpp \
+    toolchain.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \

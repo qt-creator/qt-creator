@@ -36,13 +36,13 @@
 
 #include "qtversionmanager.h"
 #include "qt4nodes.h"
-#include "gccpreprocessor.h"
 #include "qmakestep.h"
 #include "makestep.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -214,6 +214,10 @@ private:
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
+    ProjectExplorer::ToolChain *toolChain(const QString &buildConfiguration) const;
+    mutable ProjectExplorer::ToolChain *m_toolChain;
+
+
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
 
@@ -238,7 +242,6 @@ private:
     QTimer m_updateCodeModelTimer;
     QTimer m_addUiFilesTimer;
     QStringList m_uiFilesToAdd;
-    Internal::GCCPreprocessor m_preproc;
 
     friend class Qt4ProjectFile;
 };
