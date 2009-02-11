@@ -151,6 +151,8 @@ WelcomeMode::WelcomeMode() :
 
     l->addWidget(m_d->m_webview);
     m_d->m_webview->setAcceptDrops(false);
+    m_d->m_webview->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    m_d->m_webview->settings()->setAttribute(QWebSettings::JavaEnabled, false);
 
 #else
     m_d->m_label->setWordWrap(true);
