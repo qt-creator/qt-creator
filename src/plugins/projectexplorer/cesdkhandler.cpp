@@ -91,7 +91,7 @@ QString CeSdkHandler::platformName(const QString &qtpath)
 bool CeSdkHandler::parse(const QString &vsdir)
 {
     // look at the file at %VCInstallDir%/vcpackages/WCE.VCPlatform.config
-    // and scan through all installed sdks...    
+    // and scan through all installed sdks...
     m_list.clear();
 
     VCInstallDir = vsdir + "/VC/";
@@ -107,7 +107,7 @@ bool CeSdkHandler::parse(const QString &vsdir)
         return false;
 
     qDebug()<<"parsing";
-    
+
     QString currentElement;
     CeSdkInfo currentItem;
     QXmlStreamReader xml(&configFile);
