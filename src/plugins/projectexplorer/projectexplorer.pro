@@ -53,7 +53,8 @@ HEADERS += projectexplorer.h \
     nodesvisitor.h \
     projectmodels.h \
     currentprojectfind.h \
-    toolchain.h
+    toolchain.h \
+    cesdkhandler.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -95,7 +96,8 @@ SOURCES += projectexplorer.cpp \
     nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
-    toolchain.cpp
+    toolchain.cpp \
+    cesdkhandler.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \
