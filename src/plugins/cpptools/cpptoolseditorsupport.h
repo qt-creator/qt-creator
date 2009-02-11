@@ -65,7 +65,7 @@ public:
     int updateDocumentInterval() const;
     void setUpdateDocumentInterval(int updateDocumentInterval);
 
-    QString contents() const;
+    QString contents();
 
 private Q_SLOTS:
     void updateDocument();
@@ -79,6 +79,7 @@ private:
     QTimer *_updateDocumentTimer;
     int _updateDocumentInterval;
     QFuture<void> _documentParser;
+    QString _cachedContents;
 };
 
 } // namespace Internal

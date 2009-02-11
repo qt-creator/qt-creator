@@ -159,8 +159,12 @@ bool LookupContext::maybeValidSymbol(Symbol *symbol,
 QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visibleScopes,
                                        ResolveMode mode) const
 {
+    QList<Symbol *> candidates;
+
+    if (!name)
+        return candidates;
+
     if (QualifiedNameId *q = name->asQualifiedNameId()) {
-        QList<Symbol *> candidates;
         QList<Scope *> scopes = visibleScopes;
         for (unsigned i = 0; i < q->nameCount(); ++i) {
             Name *name = q->nameAt(i);
@@ -210,7 +214,6 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
         return candidates;
     }
 
-    QList<Symbol *> candidates;
     if (Identifier *id = identifier(name)) {
         for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
             Scope *scope = visibleScopes.at(scopeIndex);

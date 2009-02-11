@@ -165,6 +165,9 @@ static QString buildHelpId(const FullySpecifiedType &type,
         }
     }
 
+    if (! name)
+        return QString();
+
     Overview overview;
     overview.setShowArgumentNames(false);
     overview.setShowReturnTypes(false);

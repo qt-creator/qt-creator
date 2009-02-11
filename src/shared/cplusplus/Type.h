@@ -67,6 +67,7 @@ public:
     Type();
     virtual ~Type();
 
+    bool isUndefinedType() const;
     bool isVoidType() const;
     bool isIntegerType() const;
     bool isFloatType() const;

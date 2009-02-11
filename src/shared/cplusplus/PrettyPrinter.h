@@ -106,7 +106,8 @@ protected:
     virtual bool visit(NestedDeclaratorAST *ast);
     virtual bool visit(NestedExpressionAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
-    virtual bool visit(NewDeclaratorAST *ast);
+    virtual bool visit(NewArrayDeclaratorAST *ast);
+    virtual bool visit(NewPlacementAST *ast);
     virtual bool visit(NewExpressionAST *ast);
     virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);

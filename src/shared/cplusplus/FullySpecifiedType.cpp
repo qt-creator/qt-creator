@@ -52,18 +52,22 @@
 
 #include "FullySpecifiedType.h"
 #include "Type.h"
+#include "CoreTypes.h"
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
 FullySpecifiedType::FullySpecifiedType(Type *type) :
     _type(type), _flags(0)
-{ }
+{
+    if (! type)
+        _type = UndefinedType::instance();
+}
 
 FullySpecifiedType::~FullySpecifiedType()
 { }
 
 bool FullySpecifiedType::isValid() const
-{ return _type != 0; }
+{ return _type != UndefinedType::instance(); }
 
 Type *FullySpecifiedType::type() const
 { return _type; }
@@ -177,7 +181,7 @@ Type &FullySpecifiedType::operator*()
 { return *_type; }
 
 FullySpecifiedType::operator bool() const
-{ return _type != 0; }
+{ return _type != UndefinedType::instance(); }
 
 const Type &FullySpecifiedType::operator*() const
 { return *_type; }

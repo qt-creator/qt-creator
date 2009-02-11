@@ -41,6 +41,8 @@
 #include <QMap>
 #include <QFutureInterface>
 #include <QMutex>
+#include <QTimer>
+#include <QTextEdit>
 
 namespace Core {
 class ICore;
@@ -49,6 +51,7 @@ class IEditor;
 
 namespace TextEditor {
 class ITextEditor;
+class BaseTextEditor;
 }
 
 namespace ProjectExplorer {
@@ -86,6 +89,9 @@ public:
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
+    void stopEditorSelectionsUpdate()
+    { m_updateEditorSelectionsTimer->stop(); }
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
@@ -102,6 +108,8 @@ private Q_SLOTS:
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSessionUnloaded();
     void onProjectAdded(ProjectExplorer::Project *project);
+    void postEditorUpdate();
+    void updateEditorSelections();
 
 private:
     QMap<QString, QByteArray> buildWorkingCopyList();
@@ -163,6 +171,15 @@ private:
     enum {
         MAX_SELECTION_COUNT = 5
     };
+
+    struct Editor {
+        QPointer<TextEditor::BaseTextEditor> widget;
+        QList<QTextEdit::ExtraSelection> selections;
+    };
+
+    QList<Editor> m_todo;
+
+    QTimer *m_updateEditorSelectionsTimer;
 };
 
 } // namespace Internal

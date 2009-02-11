@@ -3104,37 +3104,91 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         return parsePostfixExpression(node);
 }
 
+// new-placement ::= T_LPAREN expression-list T_RPAREN
+bool Parser::parseNewPlacement(NewPlacementAST *&node)
+{
+    if (LA() == T_LPAREN) {
+        unsigned lparen_token = consumeToken();
+        ExpressionListAST *expression_list = 0;
+        if (parseExpressionList(expression_list) && expression_list && LA() == T_RPAREN) {
+            unsigned rparen_token = consumeToken();
+            NewPlacementAST *ast = new (_pool) NewPlacementAST;
+            ast->lparen_token = lparen_token;
+            ast->expression_list = expression_list;
+            ast->rparen_token = rparen_token;
+            node = ast;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// new-expression ::= T_COLON_COLON? T_NEW new-placement.opt
+//                    new-type-id new-initializer.opt
+// new-expression ::= T_COLON_COLON? T_NEW new-placement.opt
+//                    T_LPAREN type-id T_RPAREN new-initializer.opt
 bool Parser::parseNewExpression(ExpressionAST *&node)
 {
-    if (LA() == T_NEW || (LA() == T_COLON_COLON && LA(2) == T_NEW)) {
-        NewExpressionAST *ast = new (_pool) NewExpressionAST;
+    if (! (LA() == T_NEW || (LA() == T_COLON_COLON && LA(2) == T_NEW)))
+        return false;
 
-        if (LA() == T_COLON_COLON)
-            ast->scope_token = consumeToken();
+    NewExpressionAST *ast = new (_pool) NewExpressionAST;
+    if (LA() == T_COLON_COLON)
+        ast->scope_token = consumeToken();
 
-        ast->new_token = consumeToken();
+    ast->new_token = consumeToken();
 
-        if (LA() == T_LPAREN) {
-            consumeToken();
-            parseExpression(ast->expression);
-            if (LA() == T_RPAREN)
-                consumeToken();
+    NewPlacementAST *new_placement = 0;
+
+    if (parseNewPlacement(new_placement)) {
+        unsigned after_new_placement = cursor();
+
+        NewTypeIdAST *new_type_id = 0;
+        if (parseNewTypeId(new_type_id)) {
+            ast->new_placement = new_placement;
+            ast->new_type_id = new_type_id;
+            parseNewInitializer(ast->new_initializer);
+            // recognized new-placement.opt new-type-id new-initializer.opt
+            node = ast;
+            return true;
         }
 
+        rewind(after_new_placement);
         if (LA() == T_LPAREN) {
-            consumeToken();
-            parseTypeId(ast->type_id);
-            if (LA() == T_RPAREN)
-                consumeToken();
-        } else {
-            parseNewTypeId(ast->new_type_id);
+            unsigned lparen_token = consumeToken();
+            ExpressionAST *type_id = 0;
+            if (parseTypeId(type_id) && LA() == T_RPAREN) {
+                ast->new_placement = new_placement;
+                ast->lparen_token = lparen_token;
+                ast->type_id = type_id;
+                ast->rparen_token = consumeToken();
+                parseNewInitializer(ast->new_initializer);
+                node = ast;
+                return true;
+            }
         }
-
-        parseNewInitializer(ast->new_initializer);
-        node = ast;
-        return true;
     }
-    return false;
+
+    rewind(ast->new_token + 1);
+
+    if (LA() == T_LPAREN) {
+        unsigned lparen_token = consumeToken();
+        ExpressionAST *type_id = 0;
+        if (parseTypeId(type_id) && LA() == T_RPAREN) {
+            ast->lparen_token = lparen_token;
+            ast->type_id = type_id;
+            ast->rparen_token = consumeToken();
+            parseNewInitializer(ast->new_initializer);
+            node = ast;
+            return true;
+        }
+    }
+
+    parseNewTypeId(ast->new_type_id);
+    parseNewInitializer(ast->new_initializer);
+    node = ast;
+    return true;
 }
 
 bool Parser::parseNewTypeId(NewTypeIdAST *&node)
@@ -3145,27 +3199,26 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 
     NewTypeIdAST *ast = new (_pool) NewTypeIdAST;
     ast->type_specifier = typeSpec;
-    parseNewDeclarator(ast->new_declarator);
+    PtrOperatorAST **ptrop_it = &ast->ptr_operators;
+    while (parsePtrOperator(*ptrop_it))
+        ptrop_it = &(*ptrop_it)->next;
+    NewArrayDeclaratorAST **it = &ast->new_array_declarators;
+    while (parseNewArrayDeclarator(*it))
+        it = &(*it)->next;
     node = ast;
     return true;
 }
 
-bool Parser::parseNewDeclarator(NewDeclaratorAST *&node)
+
+bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorAST *&node)
 {
-    NewDeclaratorAST *ast = new (_pool) NewDeclaratorAST;
+    if (LA() != T_LBRACKET)
+        return false;
 
-    PtrOperatorAST **ptr_operators_tail = &ast->ptr_operators;
-    while (parsePtrOperator(*ptr_operators_tail))
-        ptr_operators_tail = &(*ptr_operators_tail)->next;
-
-    while (LA() == T_LBRACKET) { // ### create the AST
-        consumeToken();
-        ExpressionAST *expression = 0;
-        parseExpression(expression);
-        unsigned rbracket_token = 0;
-        match(T_RBRACKET, &rbracket_token);
-    }
-
+    NewArrayDeclaratorAST *ast = new (_pool) NewArrayDeclaratorAST;
+    ast->lbracket_token = consumeToken();
+    parseExpression(ast->expression);
+    match(T_RBRACKET, &ast->rbracket_token);
     node = ast;
     return true;
 }

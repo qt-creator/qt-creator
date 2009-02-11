@@ -152,7 +152,8 @@ public:
     virtual NestedDeclaratorAST *asNestedDeclarator() { return 0; }
     virtual NestedExpressionAST *asNestedExpression() { return 0; }
     virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return 0; }
-    virtual NewDeclaratorAST *asNewDeclarator() { return 0; }
+    virtual NewPlacementAST *asNewPlacement() { return 0; }
+    virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return 0; }
     virtual NewExpressionAST *asNewExpression() { return 0; }
     virtual NewInitializerAST *asNewInitializer() { return 0; }
     virtual NewTypeIdAST *asNewTypeId() { return 0; }
@@ -1440,20 +1441,42 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT NewDeclaratorAST: public AST
+class CPLUSPLUS_EXPORT NewPlacementAST: public AST
 {
 public:
-    PtrOperatorAST *ptr_operators;
-    NewDeclaratorAST *declarator;
+    unsigned lparen_token;
+    ExpressionListAST *expression_list;
+    unsigned rparen_token;
 
 public:
-    virtual NewDeclaratorAST *asNewDeclarator()
+    virtual NewPlacementAST *asNewPlacement()
     { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual NewDeclaratorAST *clone(MemoryPool *pool) const;
+    virtual NewPlacementAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT NewArrayDeclaratorAST: public AST
+{
+public:
+    unsigned lbracket_token;
+    ExpressionAST *expression;
+    unsigned rbracket_token;
+    NewArrayDeclaratorAST *next;
+
+public:
+    virtual NewArrayDeclaratorAST *asNewArrayDeclarator()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual NewArrayDeclaratorAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -1464,9 +1487,14 @@ class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
 public:
     unsigned scope_token;
     unsigned new_token;
-    ExpressionAST *expression;
+    NewPlacementAST *new_placement;
+
+    unsigned lparen_token;
     ExpressionAST *type_id;
+    unsigned rparen_token;
+
     NewTypeIdAST *new_type_id;
+
     NewInitializerAST *new_initializer;
 
 public:
@@ -1506,8 +1534,8 @@ class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
 {
 public:
     SpecifierAST *type_specifier;
-    NewInitializerAST *new_initializer;
-    NewDeclaratorAST *new_declarator;
+    PtrOperatorAST *ptr_operators;
+    NewArrayDeclaratorAST *new_array_declarators;
 
 public:
     virtual NewTypeIdAST *asNewTypeId()

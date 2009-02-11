@@ -171,7 +171,7 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
         if (! symbol->isScopedSymbol() || symbol->isFunction()) {
             QString type = _overview.prettyType(symbol->type());
             if (! type.isEmpty()) {
-                if (symbol->type() && ! symbol->type()->isFunctionType())
+                if (! symbol->type()->isFunctionType())
                     name += QLatin1String(": ");
                 name += type;
             }

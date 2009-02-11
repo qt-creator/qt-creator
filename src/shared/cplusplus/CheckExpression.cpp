@@ -214,8 +214,9 @@ bool CheckExpression::visit(TemplateIdAST *ast)
 
 bool CheckExpression::visit(NewExpressionAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
+    // ### FIXME
+    //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    //FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
     // ### process new-typeid
     // ### process new-initializer
     return false;
@@ -319,8 +320,8 @@ bool CheckExpression::visit(QtMethodAST *ast)
     Scope dummy;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
                                                   &dummy, &name);
-    Function *fty = 0;
-    if (! methTy || 0 == (fty = methTy->asFunctionType()))
+    Function *fty = methTy->asFunctionType();
+    if (! fty)
         translationUnit()->warning(ast->firstToken(), "expected a function declarator");
     else {
         for (unsigned i = 0; i < fty->argumentCount(); ++i) {

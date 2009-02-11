@@ -35,6 +35,7 @@
 #include "cppmodelmanager.h"
 
 #include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QTimer>
 
@@ -68,12 +69,14 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
     updateDocument();
 }
 
-QString CppEditorSupport::contents() const
+QString CppEditorSupport::contents()
 {
     if (! _textEditor)
         return QString();
+    else if (! _cachedContents.isEmpty())
+        _cachedContents = _textEditor->contents();
 
-    return _textEditor->contents();
+    return _cachedContents;
 }
 
 int CppEditorSupport::updateDocumentInterval() const
@@ -83,7 +86,20 @@ void CppEditorSupport::setUpdateDocumentInterval(int updateDocumentInterval)
 { _updateDocumentInterval = updateDocumentInterval; }
 
 void CppEditorSupport::updateDocument()
-{ _updateDocumentTimer->start(_updateDocumentInterval); }
+{
+    if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor*>(_textEditor->widget())) {
+        const QList<QTextEdit::ExtraSelection> selections =
+                edit->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection);
+
+        if (! selections.isEmpty())
+            edit->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
+                                     QList<QTextEdit::ExtraSelection>());
+
+        _modelManager->stopEditorSelectionsUpdate();
+    }
+
+    _updateDocumentTimer->start(_updateDocumentInterval);
+}
 
 void CppEditorSupport::updateDocumentNow()
 {
@@ -91,7 +107,9 @@ void CppEditorSupport::updateDocumentNow()
         _updateDocumentTimer->start(_updateDocumentInterval);
     } else {
         _updateDocumentTimer->stop();
+
         QStringList sourceFiles(_textEditor->file()->fileName());
+        _cachedContents = _textEditor->contents();
         _documentParser = _modelManager->refreshSourceFiles(sourceFiles);
     }
 }
