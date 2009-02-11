@@ -923,7 +923,7 @@ QVariant ProScopeFilter::data(const QModelIndex &index, int role) const
 {
     bool checkable =
         m_checkable == ProScopeFilter::Blocks
-        || m_checkable == ProScopeFilter::Variable && sourceVariable(index);
+        || (m_checkable == ProScopeFilter::Variable && sourceVariable(index));
 
     if (checkable && role == Qt::CheckStateRole) {
         QModelIndex srcindex = mapToSource(index);

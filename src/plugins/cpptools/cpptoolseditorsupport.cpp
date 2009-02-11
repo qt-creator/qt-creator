@@ -91,10 +91,6 @@ void CppEditorSupport::updateDocument()
         const QList<QTextEdit::ExtraSelection> selections =
                 edit->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection);
 
-        if (! selections.isEmpty())
-            edit->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
-                                     QList<QTextEdit::ExtraSelection>());
-
         _modelManager->stopEditorSelectionsUpdate();
     }
 
