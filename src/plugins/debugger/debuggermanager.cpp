@@ -543,12 +543,6 @@ void DebuggerManager::notifyStartupFinished()
 {
     setStatus(DebuggerProcessReady);
     showStatusMessage(tr("Startup finished. Debugger ready."), -1);
-    if (m_startMode == attachExternal) {
-        // we continue the execution
-        engine()->continueInferior();
-    } else {
-        engine()->runInferior();
-    }
 }
 
 void DebuggerManager::notifyInferiorStopped()
