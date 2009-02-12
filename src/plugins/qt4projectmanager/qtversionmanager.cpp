@@ -1191,6 +1191,8 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
         return ProjectExplorer::ToolChain::INVALID;
     else if (spec.startsWith("wince"))
         return ProjectExplorer::ToolChain::WINCE;
+    else if (spec.startsWith("linux-icc"))
+        return ProjectExplorer::ToolChain::LinuxICC;
     else
         return ProjectExplorer::ToolChain::GCC;
 }

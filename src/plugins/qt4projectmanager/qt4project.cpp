@@ -419,7 +419,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
     } else if(t == ToolChain::WINCE) {
         m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
-    } else if(t == ToolChain::GCC) {
+    } else if(t == ToolChain::GCC || t == ToolChain::LinuxICC) {
         QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
         Environment env = Environment::systemEnvironment();

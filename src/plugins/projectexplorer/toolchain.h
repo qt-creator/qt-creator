@@ -40,6 +40,7 @@ public:
     enum ToolChainType
     {
         GCC,
+        LinuxICC,
         MinGW,
         MSVC,
         WINCE,
