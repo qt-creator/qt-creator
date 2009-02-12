@@ -186,7 +186,6 @@ private:
     void handleFileExecAndSymbols(const GdbResultRecord &response);
     void handleExecRun(const GdbResultRecord &response);
     void handleExecStart1(const GdbResultRecord &response);
-    void handleExecStart2(const GdbResultRecord &response);
     void handleExecStart3(const GdbResultRecord &response);
     void handleExecJumpToLine(const GdbResultRecord &response);
     void handleExecRunToFunction(const GdbResultRecord &response);
