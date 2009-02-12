@@ -113,7 +113,6 @@ private:
     void exitDebugger();
 
     void continueInferior();
-    void runInferior();
     void interruptInferior();
 
     void runToLineExec(const QString &fileName, int lineNumber);
@@ -179,14 +178,12 @@ private slots:
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
-    void handleStreamOutput(const QString &output, char code);
+    void handleStart(const GdbResultRecord &response);
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
     void handleFileExecAndSymbols(const GdbResultRecord &response);
     void handleExecRun(const GdbResultRecord &response);
-    void handleExecStart1(const GdbResultRecord &response);
-    void handleExecStart3(const GdbResultRecord &response);
     void handleExecJumpToLine(const GdbResultRecord &response);
     void handleExecRunToFunction(const GdbResultRecord &response);
     void handleInfoShared(const GdbResultRecord &response);
@@ -217,7 +214,6 @@ private:
     int m_oldestAcceptableToken;
 
     int m_gdbVersion; // 6.8.0 is 680
-    int m_shared;
 
     // awful hack to keep track of used files
     QHash<QString, QString> m_shortToFullName;

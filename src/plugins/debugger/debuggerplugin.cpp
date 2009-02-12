@@ -282,6 +282,8 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.radioButtonNoPluginBreakpoints->
         setChecked(m_settings.m_pluginNoBreakpoints);
     m_ui.lineEditSelectedPluginBreakpointsPattern->
+        setText(m_settings.m_pluginSelectedBreakpointsPattern);
+    m_ui.lineEditSelectedPluginBreakpointsPattern->
         setEnabled(m_settings.m_pluginSelectedBreakpoints);
 
     m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
@@ -334,7 +336,6 @@ void GdbOptionPage::apply()
         m_ui.radioButtonNoPluginBreakpoints->isChecked();
     m_settings.m_pluginSelectedBreakpointsPattern =
         m_ui.lineEditSelectedPluginBreakpointsPattern->text();
-
 
     *m_plugin->m_manager->settings() = m_settings;
     m_plugin->writeSettings();
