@@ -404,6 +404,7 @@ void Qt4Project::scheduleUpdateCodeModel()
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
+    qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
     Q_UNUSED(buildConfiguration);
     ToolChain *m_test;
     QtVersion *version = qtVersion(activeBuildConfiguration());
@@ -415,10 +416,13 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
+        qDebug()<<"Mingw ToolChain";
     } else if(t == ToolChain::MSVC) {
         m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
+        //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
     } else if(t == ToolChain::WINCE) {
         m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
+        //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
     } else if(t == ToolChain::GCC || t == ToolChain::LinuxICC) {
         QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
@@ -426,7 +430,13 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createGccToolChain(qmake_cxx);
+        //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
+    } else {
+        qDebug()<<"Could not detect ToolChain for"<<version->mkspec();
+        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
+
+
 
     if (m_test == m_toolChain) {
         delete m_test;
@@ -462,6 +472,12 @@ void Qt4Project::updateCodeModel()
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
         allHeaderPaths = tc->systemHeaderPaths();
+        //qDebug()<<"Predifined Macros";
+        //qDebug()<<tc->predefinedMacros();
+        //qDebug()<<"";
+        //qDebug()<<"System Header Paths";
+        //foreach(const HeaderPath &hp, tc->systemHeaderPaths())
+        //    qDebug()<<hp.path();
     }
     foreach (HeaderPath headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
@@ -867,14 +883,14 @@ void Qt4Project::checkForDeletedApplicationProjects()
     foreach (Qt4ProFileNode * node, applicationProFiles())
         paths.append(node->path());
 
-    qDebug()<<"Still existing paths :"<<paths;
+//    qDebug()<<"Still existing paths :"<<paths;
 
     QList<QSharedPointer<Qt4RunConfiguration> > removeList;
     foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
         if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>()) {
             if (!paths.contains(qt4rc->proFilePath())) {
                 removeList.append(qt4rc);
-                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
+//                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
             }
         }
     }
