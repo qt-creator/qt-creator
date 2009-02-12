@@ -419,7 +419,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
     } else if(t == ToolChain::WINCE) {
         m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
-    } else if(t == ToolChain::GCC) {
+    } else if(t == ToolChain::GCC || t == ToolChain::LinuxICC) {
         QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
         Environment env = Environment::systemEnvironment();
@@ -457,8 +457,12 @@ void Qt4Project::updateCodeModel()
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
     ToolChain *tc = toolChain(activeBuildConfiguration());
-    QByteArray predefinedMacros = tc->predefinedMacros();
-    QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+    QByteArray predefinedMacros;
+    QList<HeaderPath> allHeaderPaths;
+    if (tc) {
+        predefinedMacros = tc->predefinedMacros();
+        allHeaderPaths = tc->systemHeaderPaths();
+    }
     foreach (HeaderPath headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());
