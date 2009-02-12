@@ -457,8 +457,12 @@ void Qt4Project::updateCodeModel()
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
     ToolChain *tc = toolChain(activeBuildConfiguration());
-    QByteArray predefinedMacros = tc->predefinedMacros();
-    QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+    QByteArray predefinedMacros;
+    QList<HeaderPath> allHeaderPaths;
+    if (tc) {
+        predefinedMacros = tc->predefinedMacros();
+        allHeaderPaths = tc->systemHeaderPaths();
+    }
     foreach (HeaderPath headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());
