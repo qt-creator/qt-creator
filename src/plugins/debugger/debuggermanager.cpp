@@ -558,7 +558,7 @@ void DebuggerManager::notifyInferiorUpdateFinished()
 void DebuggerManager::notifyInferiorRunningRequested()
 {
     setStatus(DebuggerInferiorRunningRequested);
-    showStatusMessage(tr("Running..."), 5000);
+    showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void DebuggerManager::notifyInferiorRunning()
@@ -576,7 +576,7 @@ void DebuggerManager::notifyInferiorExited()
 void DebuggerManager::notifyInferiorPidChanged(int pid)
 {
     //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    //qDebug() << "PID: " << pid; 
+    qDebug() << "PID: " << pid; 
     emit inferiorPidChanged(pid);
 }
 
