@@ -337,7 +337,6 @@ void GdbOptionPage::apply()
     m_settings.m_pluginSelectedBreakpointsPattern =
         m_ui.lineEditSelectedPluginBreakpointsPattern->text();
 
-
     *m_plugin->m_manager->settings() = m_settings;
     m_plugin->writeSettings();
 }

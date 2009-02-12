@@ -99,10 +99,8 @@ enum GdbCommandType
     GdbQueryPwd,
     GdbQuerySources,
     GdbAsyncOutput2,
+    GdbStart,
     GdbExecRun,
-    GdbExecStart1,
-    GdbExecStart2,
-    GdbExecStart3,
     GdbExecRunToFunction,
     GdbExecStep,
     GdbExecNext,
@@ -460,13 +458,28 @@ void GdbEngine::handleResponse()
                 break;
             }
 
-            case '~':
-            case '@':
+            case '~': {
+                QString data = GdbMi::parseCString(from, to);
+                m_pendingConsoleStreamOutput += data;
+                m_inbuffer = QByteArray(from, to - from);
+                break;
+            }
+
+            case '@': {
+                QString data = GdbMi::parseCString(from, to);
+                m_pendingTargetStreamOutput += data;
+                m_inbuffer = QByteArray(from, to - from);
+                break;
+            }
+
             case '&': {
                 QString data = GdbMi::parseCString(from, to);
-                handleStreamOutput(data, c);
-                //dump(oldfrom, from, record.toString());
+                m_pendingLogStreamOutput += data;
                 m_inbuffer = QByteArray(from, to - from);
+                // On Windows, the contents seem to depend on the debugger
+                // version and/or OS version used.
+                if (data.startsWith("warning:"))
+                    qq->showApplicationOutput(data);
                 break;
             }
 
@@ -759,14 +772,8 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             handleExecRun(record);
             break;
 
-        case GdbExecStart1:
-            handleExecStart1(record);
-            break;
-        case GdbExecStart2:
-            //handleExecStart2(record);
-            break;
-        case GdbExecStart3:
-            handleExecStart3(record);
+        case GdbStart:
+            handleStart(record);
             break;
         case GdbInfoProc:
             handleInfoProc(record);
@@ -1026,84 +1033,6 @@ void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record)
     qDebug() << "HIT: " << file << line << " IN " << frame.toString()
         << " -- " << record.toString();
     q->gotoLocation(file, line, true);
-}
-
-void GdbEngine::handleStreamOutput(const QString &data, char code)
-{
-    // Linux
-    if (data.contains("[New Thread")) {
-        QRegExp re("\\[New Thread 0x([0-9a-f]*) \\(LWP ([0-9]*)\\)\\]");
-        if (re.indexIn(data) != -1)
-            maybeHandleInferiorPidChanged(re.cap(2));
-    }
-
-    // Mac
-    if (data.contains("[Switching to process ")) {
-        QRegExp re("\\[Switching to process ([0-9]*) local thread 0x([0-9a-f]*)\\]");
-        if (re.indexIn(data) != -1)
-            maybeHandleInferiorPidChanged(re.cap(1));
-    }
-
-    // present it twice: now and together with the next 'real' result
-    switch (code) {
-        case '~':
-            m_pendingConsoleStreamOutput += data;
-            break;
-        case '@':
-            m_pendingTargetStreamOutput += data;
-            break;
-        case '&':
-            m_pendingLogStreamOutput += data;
-            // On Windows, the contents seem to depend on the debugger
-            // version and/or OS version used.
-            if (data.startsWith("warning:"))
-                qq->showApplicationOutput(data);
-            break;
-    }
-
-#ifdef Q_OS_LINUX
-    if (data.startsWith("Pending break") && data.contains("\" resolved")) {
-        qDebug() << "SCHEDULING -break-list";
-        //m_breakListOnStopNeeded = true;
-    }
-#endif
-
-#if 0
-    if (m_slurpingPTypeOutput)
-        qDebug() << "SLURP: " << output.data;
-
-    //  "No symbol \"__dlopen\" in current context."
-    //  "No symbol \"dlopen\" in current context."
-    if (output.data.startsWith("No symbol ")
-            && output.data.contains("dlopen")) {
-        m_dlopened = true;
-        return;
-    }
-
-    // output of 'ptype <foo>'
-    if (output.data.startsWith("type = ")) {
-        if (output.data.endsWith("{") || output.data.endsWith("{\\n")) {
-            // multi-line output started here...
-            m_slurpingPTypeOutput = true;
-            m_slurpedPTypeOutput = output.data;
-        } else {
-            // Happens for simple types. Process it immediately
-            m_watchHandler->handleTypeContents(output.data);
-        }
-        return;
-    }
-    if (m_slurpingPTypeOutput) {
-        m_slurpedPTypeOutput += '\n';
-        m_slurpedPTypeOutput += output.data;
-        if (output.data.startsWith("}")) {
-            // this is the last line...
-            m_slurpingPTypeOutput = false;
-            m_watchHandler->handleTypeContents(m_slurpedPTypeOutput);
-            m_slurpedPTypeOutput.clear();
-        }
-        return;
-    }
-#endif
 }
 
 static bool isExitedReason(const QString &reason)
@@ -1633,13 +1562,17 @@ bool GdbEngine::startDebugger()
     }
 
     if (q->startMode() == q->startInternal) {
+        emit gdbInputAvailable(QString(), QString());
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
         #ifdef Q_OS_MAC
         sendCommand("sharedlibrary apply-load-rules all");
         #endif
-        //sendCommand("-gdb-set stop-on-solib-events 1");
-        runInferior();
+        setTokenBarrier();
+        if (!q->m_processArgs.isEmpty())
+            sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
+        sendCommand("set auto-solib-add off");
+        sendCommand("x/2i _start", GdbStart);
     }
 
     if (q->startMode() == q->attachExternal) {
@@ -1678,21 +1611,7 @@ void GdbEngine::continueInferior()
     sendCommand("-exec-continue", GdbExecContinue);
 }
 
-void GdbEngine::runInferior()
-{
-    q->resetLocation();
-    // FIXME: this ignores important startup messages
-    setTokenBarrier();
-    if (!q->m_processArgs.isEmpty())
-        sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
-    qq->notifyInferiorRunningRequested();
-    emit gdbInputAvailable(QString(), QString());
-
-    sendCommand("set auto-solib-add off");
-    sendCommand("x/2i _start", GdbExecStart1);
-}
-
-void GdbEngine::handleExecStart1(const GdbResultRecord &response)
+void GdbEngine::handleStart(const GdbResultRecord &response)
 {
     if (response.resultClass == GdbResultDone) {
         // stdout:&"x/2i _start\n"
@@ -1702,28 +1621,15 @@ void GdbEngine::handleExecStart1(const GdbResultRecord &response)
         QRegExp needle("0x([0-9a-f]+) <_start\\+.*>:");
         if (needle.indexIn(msg) != -1) {
             //qDebug() << "STREAM: " << msg << needle.cap(1);
-            sendCommand("tbreak *0x" + needle.cap(1)); // GdbExecStart3);
-            sendCommand("-exec-run"); // GdbExecStart3);
+            sendCommand("tbreak *0x" + needle.cap(1));
+            sendCommand("-exec-run");
+            qq->notifyInferiorRunningRequested();
         } else {
             qDebug() << "PARSING START ADDRESS FAILED" << msg;
         }
     } else if (response.resultClass == GdbResultError) {
             qDebug() << "PARSING START ADDRESS FAILED" << response.toString();
     }
-}
-
-void GdbEngine::handleExecStart3(const GdbResultRecord &)
-{
-#if defined(Q_OS_WIN)
-    sendCommand("info proc", GdbInfoProc);
-#endif
-#if defined(Q_OS_LINUX)
-    sendCommand("info proc", GdbInfoProc);
-#endif
-#if defined(Q_OS_MAC)
-    sendCommand("info pid", GdbInfoProc, QVariant(), true);
-#endif
-    attemptBreakpointSynchronization();
 }
 
 void GdbEngine::stepExec()
@@ -2244,12 +2150,7 @@ void GdbEngine::attemptBreakpointSynchronization()
         }
     }
 
-    if (updateNeeded) {
-        //interruptAndContinue();
-        //sendListBreakpoints();
-    }
-
-    if (!updateNeeded && q->status() == DebuggerProcessStartingUp) {
+    if (!updateNeeded) {
         // we continue the execution
         continueInferior();
     }
@@ -4016,7 +3917,6 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
     sendCommand("-var-create assign * " + expression);
     sendCommand("-var-assign assign " + value, WatchVarAssign);
 }
-
 
 void GdbEngine::tryLoadCustomDumpers()
 {
