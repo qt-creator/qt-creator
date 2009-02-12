@@ -764,7 +764,7 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             handleExecStart1(record);
             break;
         case GdbExecStart2:
-            handleExecStart2(record);
+            //handleExecStart2(record);
             break;
         case GdbExecStart3:
             handleExecStart3(record);
@@ -1726,7 +1726,7 @@ void GdbEngine::handleExecStart1(const GdbResultRecord &response)
     }
 }
 
-void GdbEngine::handleExecStart3(const GdbResultRecord &response)
+void GdbEngine::handleExecStart3(const GdbResultRecord &)
 {
 #if defined(Q_OS_WIN)
     sendCommand("info proc", GdbInfoProc);

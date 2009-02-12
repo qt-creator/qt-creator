@@ -200,6 +200,11 @@ public:
     bool m_useToolTips;
 
     QString m_scriptFile;
+
+    bool m_pluginAllBreakpoints;
+    bool m_pluginSelectedBreakpoints;
+    bool m_pluginNoBreakpoints;
+    QString m_pluginSelectedBreakpointsPattern;
 };
 
 //
