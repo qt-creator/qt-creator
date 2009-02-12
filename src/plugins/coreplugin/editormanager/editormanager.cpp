@@ -478,7 +478,7 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
 
     m_d->m_currentEditor = editor;
     if (editor) {
-        bool addToHistory = (!ignoreNavigationHistory && editor != currentEditor());
+        bool addToHistory = (!ignoreNavigationHistory);
         if (addToHistory)
             addCurrentPositionToNavigationHistory(true);
 
@@ -678,8 +678,6 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
 
     QList<EditorView*> currentViews;
     EditorView *currentView = 0;
-    if (currentEditor())
-        addCurrentPositionToNavigationHistory(true);
 
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
@@ -812,11 +810,7 @@ void EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEdit
         return;
     }
 
-    bool hasCurrent = (view->currentEditor() != 0);
-
     editor = placeEditor(view, editor);
-    if (!(flags & NoActivate) || !hasCurrent)
-        view->setCurrentEditor(editor);
 
     if (!(flags & NoActivate)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
@@ -1349,6 +1343,9 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
         return;
     if (!editor->file())
         return;
+    
+    qDebug() << "addCurrentPositionToNavigationHistory" << editor->file()->fileName();
+    
     QString fileName = editor->file()->fileName();
     QByteArray state = editor->saveState();
     // cut existing
@@ -1383,8 +1380,20 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
     updateActions();
 }
 
+void EditorManager::updateCurrentPositionInNavigationHistory()
+{
+    if (!m_d->m_currentEditor)
+        return;
+    foreach (EditorManagerPrivate::EditLocation *location, m_d->m_navigationHistory)
+        if (location->editor == m_d->m_currentEditor) {
+            location->state = location->editor->saveState();
+            break;
+        }
+}
+
 void EditorManager::goBackInNavigationHistory()
 {
+    updateCurrentPositionInNavigationHistory();
     while (m_d->currentNavigationHistoryPosition > 0) {
         --m_d->currentNavigationHistoryPosition;
         EditorManagerPrivate::EditLocation *location = m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition);
@@ -1408,6 +1417,7 @@ void EditorManager::goBackInNavigationHistory()
 
 void EditorManager::goForwardInNavigationHistory()
 {
+    updateCurrentPositionInNavigationHistory();
     if (m_d->currentNavigationHistoryPosition >= m_d->m_navigationHistory.size()-1)
         return;
     ++m_d->currentNavigationHistoryPosition;

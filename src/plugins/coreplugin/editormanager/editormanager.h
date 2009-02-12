@@ -229,6 +229,8 @@ private:
     void emptyView(Core::Internal::EditorView *view);
     IEditor *pickUnusedEditor() const;
 
+    void updateCurrentPositionInNavigationHistory();
+
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;
 
