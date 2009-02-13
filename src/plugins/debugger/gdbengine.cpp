@@ -301,6 +301,7 @@ void GdbEngine::initializeVariables()
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
     m_waitingForBreakpointSynchronizationToContinue = false;
+    m_waitingForFirstBreakpointToBeHit = false;
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -1083,52 +1084,47 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QString reason = data.findChild("reason").data();
 
-    QString msg = data.findChild("consolestreamoutput").data();
-    if (reason.isEmpty()) {
-        GdbMi frame = data.findChild("frame");
-        if (frame.findChild("func").data() == startSymbolName()) {
-            //
-            // that's the "early stop"
-            //  
-            frame.findChild("func").data() + '%';
-            #if defined(Q_OS_WIN)
-            sendCommand("info proc", GdbInfoProc);
-            #endif
-            #if defined(Q_OS_LINUX)
-            sendCommand("info proc", GdbInfoProc);
-            #endif
-            #if defined(Q_OS_MAC)
-            sendCommand("info pid", GdbInfoProc, QVariant(), true);
-            #endif
-            sendCommand("-file-list-exec-source-files", GdbQuerySources);
-            tryLoadCustomDumpers();
+    bool isFirstStop = data.findChild("bkptno").data() == "1";
+    if (isFirstStop && m_waitingForFirstBreakpointToBeHit) {
+        //
+        // that's the "early stop"
+        //  
+        #if defined(Q_OS_WIN)
+        sendCommand("info proc", GdbInfoProc);
+        #endif
+        #if defined(Q_OS_LINUX)
+        sendCommand("info proc", GdbInfoProc);
+        #endif
+        #if defined(Q_OS_MAC)
+        sendCommand("info pid", GdbInfoProc, QVariant(), true);
+        #endif
+        sendCommand("-file-list-exec-source-files", GdbQuerySources);
+        tryLoadCustomDumpers();
 
-            // intentionally after tryLoadCustomDumpers(),
-            // otherwise we'd interupt solib loading.
-            if (qq->wantsAllPluginBreakpoints()) {
-                sendCommand("set auto-solib-add on");
-                sendCommand("set stop-on-solib-events 0");
-                sendCommand("sharedlibrary .*");
-            } else if (qq->wantsSelectedPluginBreakpoints()) {
-                sendCommand("set auto-solib-add on");
-                sendCommand("set stop-on-solib-events 1");
-                sendCommand("sharedlibrary "+qq->selectedPluginBreakpointsPattern());
-            } else if (qq->wantsNoPluginBreakpoints()) {
-                // should be like that already
-                sendCommand("set auto-solib-add off");
-                sendCommand("set stop-on-solib-events 0");
-            }
-            // nicer to see a bit of the world we live in
-            reloadModules();
-            // this will "continue" if done
-            m_waitingForBreakpointSynchronizationToContinue = true;
-            QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
-            return;
+        // intentionally after tryLoadCustomDumpers(),
+        // otherwise we'd interupt solib loading.
+        if (qq->wantsAllPluginBreakpoints()) {
+            sendCommand("set auto-solib-add on");
+            sendCommand("set stop-on-solib-events 0");
+            sendCommand("sharedlibrary .*");
+        } else if (qq->wantsSelectedPluginBreakpoints()) {
+            sendCommand("set auto-solib-add on");
+            sendCommand("set stop-on-solib-events 1");
+            sendCommand("sharedlibrary "+qq->selectedPluginBreakpointsPattern());
+        } else if (qq->wantsNoPluginBreakpoints()) {
+            // should be like that already
+            sendCommand("set auto-solib-add off");
+            sendCommand("set stop-on-solib-events 0");
         }
-        qDebug() << "EMPTY REASON FOR STOPPED";
-        // fall through
+        // nicer to see a bit of the world we live in
+        reloadModules();
+        // this will "continue" if done
+        m_waitingForBreakpointSynchronizationToContinue = true;
+        QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
+        return;
     }
 
+    QString msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
         if (qq->wantsSelectedPluginBreakpoints()) {
             qDebug() << "SHARED LIBRARY EVENT " << data.toString();
@@ -1140,6 +1136,17 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         }
         m_modulesListOutdated = true;
         // fall through
+    }
+
+    // seen on XP after removing a breakpoint while running
+    //  stdout:945*stopped,reason="signal-received",signal-name="SIGTRAP",
+    //  signal-meaning="Trace/breakpoint trap",thread-id="2",
+    //  frame={addr="0x7c91120f",func="ntdll!DbgUiConnectToDbg",
+    //  args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"}
+    if (reason == "signal-received"
+          && data.findChild("signal-name").toString() == "SIGTRAP") {
+        continueInferior();
+        return;
     }
 
     if (isExitedReason(reason)) {
@@ -1195,7 +1202,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (isStoppedReason(reason) || reason.isEmpty()) {
         if (m_modulesListOutdated) {
             reloadModules();
-QT_END_INCLUDE_NAMESPACE
             m_modulesListOutdated = false;
         }
         // Need another round trip
@@ -1613,6 +1619,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
         if (needle.indexIn(msg) != -1) {
             //qDebug() << "STREAM: " << msg << needle.cap(1);
             sendCommand("tbreak *0x" + needle.cap(1));
+            m_waitingForFirstBreakpointToBeHit = true;
             sendCommand("-exec-run");
             qq->notifyInferiorRunningRequested();
         } else {
