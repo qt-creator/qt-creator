@@ -475,6 +475,8 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     setCurrentView(0);
     if (m_d->m_currentEditor == editor)
         return;
+    if (m_d->m_currentEditor)
+        updateCurrentPositionInNavigationHistory();
 
     m_d->m_currentEditor = editor;
     if (editor) {
