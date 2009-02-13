@@ -328,6 +328,8 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
+    bool m_waitingForBreakpointSynchronizationToContinue;
+
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
 };
