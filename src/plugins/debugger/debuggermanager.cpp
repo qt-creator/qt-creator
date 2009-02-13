@@ -451,7 +451,7 @@ QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
     dockWidget->setObjectName(widget->windowTitle());
-    dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
     dockWidget->setTitleBarWidget(new QWidget(dockWidget));
     dockWidget->setWidget(widget);
     connect(dockWidget->toggleViewAction(), SIGNAL(toggled(bool)),
@@ -488,7 +488,7 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
 void DebuggerManager::setLocked(bool locked)
 {
     const QDockWidget::DockWidgetFeatures features =
-            (locked) ? QDockWidget::NoDockWidgetFeatures :
+            (locked) ? QDockWidget::DockWidgetClosable :
                        QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable;
 
     foreach (QDockWidget *dockWidget, m_dockWidgets) {
