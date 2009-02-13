@@ -65,8 +65,8 @@ public:
     QString username() const;
     QUrl serverUrl() const;
 
-    bool copyToClipBoard() const;
-    bool displayOutput() const;
+    inline bool copyToClipBoard() const { return m_copy; }
+    inline bool displayOutput() const { return m_output; }
 
 private:
     Ui_SettingsPage m_ui;
