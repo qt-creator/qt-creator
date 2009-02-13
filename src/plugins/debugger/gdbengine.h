@@ -189,6 +189,7 @@ private:
     void handleExecRunToFunction(const GdbResultRecord &response);
     void handleInfoShared(const GdbResultRecord &response);
     void handleInfoProc(const GdbResultRecord &response);
+    void handleInfoThreads(const GdbResultRecord &response);
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);

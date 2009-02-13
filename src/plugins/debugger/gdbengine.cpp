@@ -112,6 +112,7 @@ enum GdbCommandType
     GdbExecInterrupt,
     GdbInfoShared,
     GdbInfoProc,
+    GdbInfoThreads,
     GdbQueryDataDumper1,
     GdbQueryDataDumper2,
 
@@ -800,6 +801,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbInfoProc:
             handleInfoProc(record);
             break;
+        case GdbInfoThreads:
+            handleInfoThreads(record);
+            break;
 
         case GdbShowVersion:
             handleShowVersion(record);
@@ -993,6 +997,19 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record)
     }
 }
 
+void GdbEngine::handleInfoThreads(const GdbResultRecord &record)
+{
+    if (record.resultClass == GdbResultDone) {
+        // FIXME: use something more robust
+        // WIN:     * 3 Thread 2312.0x4d0  0x7c91120f in ?? () 
+        // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
+        QRegExp re(QLatin1String("Thread (\\d+)\\.0x.* in"));
+        QString data = record.data.findChild("consolestreamoutput").data();
+        if (re.indexIn(data) != -1)
+            maybeHandleInferiorPidChanged(re.cap(1));
+    }
+}
+
 void GdbEngine::handleInfoProc(const GdbResultRecord &record)
 {
     if (record.resultClass == GdbResultDone) {
@@ -1084,13 +1101,15 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QString reason = data.findChild("reason").data();
 
-    bool isFirstStop = data.findChild("bkptno").data() == "1";
-    if (isFirstStop && m_waitingForFirstBreakpointToBeHit) {
+    //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
+    //!MAC: startSymbolName == data.findChild("frame").findChild("func")
+    if (m_waitingForFirstBreakpointToBeHit) {
+        m_waitingForFirstBreakpointToBeHit = false;
         //
         // that's the "early stop"
         //  
         #if defined(Q_OS_WIN)
-        sendCommand("info proc", GdbInfoProc);
+        sendCommand("info thread", GdbInfoThreads);
         #endif
         #if defined(Q_OS_LINUX)
         sendCommand("info proc", GdbInfoProc);
