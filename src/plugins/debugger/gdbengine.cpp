@@ -1195,6 +1195,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (isStoppedReason(reason) || reason.isEmpty()) {
         if (m_modulesListOutdated) {
             reloadModules();
+QT_END_INCLUDE_NAMESPACE
             m_modulesListOutdated = false;
         }
         // Need another round trip
@@ -1247,30 +1248,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 void GdbEngine::handleAsyncOutput2(const GdbMi &data)
 {
     qq->notifyInferiorStopped();
-
-    //
-    // Breakpoints
-    //
-    //qDebug() << "BREAK ASYNC: " << data.toString();
-    //sendListBreakpoints();
-    //attemptBreakpointSynchronization();
-    //if (m_breakListOnStopNeeded)
-    //    sendListBreakpoints();
-
-    // something reasonably 'invariant'
-    // Linux:
-    //"79*stopped,reason="end-stepping-range",reason="breakpoint-hit",bkptno="1",
-    //thread-id="1",frame={addr="0x0000000000405d8f",func="run1",
-    //args=[{name="argc",value="1"},{name="argv",value="0x7fffb7c23058"}],
-    //file="test1.cpp",fullname="/home/apoenitz/dev/work/test1/test1.cpp"
-    //,line="261"}"
-    // Mac: (but only sometimes)
-    // "82*stopped,bkpt={number="0",type="step
-    // resume",disp="keep",enabled="y",addr="0x43127171",at="<Find::
-    // Internal::FindToolWindow::invokeFindIncremental()
-    // +225>",thread="1",shlib="/Users/epreuss/dev/ide/main/bin/
-    // workbench.app/Contents/PlugIns/Trolltech/libFind.1.0.0.dylib",
-    // frame="0xbfffd800",thread="1",times="1"},
 
     //
     // Stack
@@ -3461,8 +3438,6 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
             // Fake full stop
-            sendCommand("-file-list-exec-source-files", GdbQuerySources);
-            sendCommand("-break-list", BreakList);
             sendCommand("p 0", GdbAsyncOutput2);  // dummy
             return;
         }
