@@ -144,7 +144,8 @@ private:
 
     bool supportsThreads() const;
 
-    void init();  // called by destructor
+    void initializeConnections();
+    void initializeVariables();
     void queryFullName(const QString &fileName, QString *fullName);
     QString fullName(const QString &fileName);
     QString shortName(const QString &fullName);
@@ -329,6 +330,7 @@ private:
     QMap<QString, QString> m_varToType;
 
     bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_modulesListOutdated;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;

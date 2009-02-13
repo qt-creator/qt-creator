@@ -250,23 +250,16 @@ GdbEngine::GdbEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
-    init();
+    initializeVariables();
+    initializeConnections();
 }
 
 GdbEngine::~GdbEngine()
 {
 }
 
-void GdbEngine::init()
+void GdbEngine::initializeConnections()
 {
-    m_pendingRequests = 0;
-    m_waitingForBreakpointSynchronizationToContinue = false;
-    m_gdbVersion = 100;
-    m_outputCodec = QTextCodec::codecForLocale();
-    m_dataDumperState = DataDumperUninitialized;
-
-    m_oldestAcceptableToken = -1;
-
     // Gdb Process interaction
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)), this,
         SLOT(gdbProcError(QProcess::ProcessError)));
@@ -292,6 +285,22 @@ void GdbEngine::init()
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
+}
+
+void GdbEngine::initializeVariables()
+{
+    m_dataDumperState = DataDumperUninitialized;
+    m_gdbVersion = 100;
+
+    m_fullToShortName.clear();
+    m_shortToFullName.clear();
+    m_varToType.clear();
+
+    m_modulesListOutdated = true;
+    m_oldestAcceptableToken = -1;
+    m_outputCodec = QTextCodec::codecForLocale();
+    m_pendingRequests = 0;
+    m_waitingForBreakpointSynchronizationToContinue = false;
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -1109,6 +1118,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 sendCommand("set auto-solib-add off");
                 sendCommand("set stop-on-solib-events 0");
             }
+            // nicer to see a bit of the world we live in
+            reloadModules();
             // this will "continue" if done
             m_waitingForBreakpointSynchronizationToContinue = true;
             QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
@@ -1118,7 +1129,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         // fall through
     }
 
-    static bool modulesDirty = false;
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
         if (qq->wantsSelectedPluginBreakpoints()) {
             qDebug() << "SHARED LIBRARY EVENT " << data.toString();
@@ -1128,7 +1138,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
             return;
         }
-        modulesDirty = true;
+        m_modulesListOutdated = true;
         // fall through
     }
 
@@ -1183,11 +1193,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
-        if (modulesDirty) {
+        if (m_modulesListOutdated) {
             sendCommand("-file-list-exec-source-files", GdbQuerySources);
             sendCommand("-break-list", BreakList);
             reloadModules();
-            modulesDirty = false;
+            m_modulesListOutdated = false;
         }
         // Need another round trip
         if (reason == "breakpoint-hit") {
@@ -1345,7 +1355,6 @@ void GdbEngine::handleExecRun(const GdbResultRecord &response)
     if (response.resultClass == GdbResultRunning) {
         qq->notifyInferiorRunning();
         q->showStatusMessage(tr("Running..."));
-        //reloadModules();
     } else if (response.resultClass == GdbResultError) {
         QString msg = response.data.findChild("msg").data();
         if (msg == "Cannot find bounds of current function") {
@@ -1433,11 +1442,8 @@ void GdbEngine::exitDebugger()
     if (m_gdbProc.state() != QProcess::NotRunning)
         qDebug() << "PROBLEM STOPPING DEBUGGER";
 
-    m_shortToFullName.clear();
-    m_fullToShortName.clear();
-    m_varToType.clear();
-    m_dataDumperState = DataDumperUninitialized;
     m_outputCollector.shutdown();
+    initializeVariables();
     //q->settings()->m_debugDumpers = false;
 }
 
