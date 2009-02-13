@@ -108,11 +108,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     addObject(m_factory);
 
     // Make sure settings pages and action shortcuts are registered
-    // TODO we don't want to do a full initialization here,
-    // we actually want to call ensureInitStage(FormEditorW::RegisterPlugins)
-    // But due to a bug in kde 4.2.0 this crashes then when opening the file dialog
-    // This should be removed after 4.2.1 is out
-    FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
+    FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
 
     error->clear();
     return true;
