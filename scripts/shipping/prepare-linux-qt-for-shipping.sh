@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-version=4.4.3
+version="4.5-rc1"
 workdir=/home/berlin/dev/qt-${version}-temp
 destdir=/home/berlin/dev/qt-${version}-shipping/qt  # "/qt" suffix for Bitrock
 dir=qt-x11-opensource-src-${version}
