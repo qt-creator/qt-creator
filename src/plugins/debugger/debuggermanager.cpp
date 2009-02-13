@@ -451,10 +451,7 @@ QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
     dockWidget->setObjectName(widget->windowTitle());
-    //dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
-    dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas); // that space is needed.
-    //dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+    dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dockWidget->setTitleBarWidget(new QWidget(dockWidget));
     dockWidget->setWidget(widget);
     connect(dockWidget->toggleViewAction(), SIGNAL(toggled(bool)),
