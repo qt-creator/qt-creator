@@ -330,6 +330,7 @@ private:
     QMap<QString, QString> m_varToType;
 
     bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
 
     DebuggerManager *q;
