@@ -1194,8 +1194,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
         if (m_modulesListOutdated) {
-            sendCommand("-file-list-exec-source-files", GdbQuerySources);
-            sendCommand("-break-list", BreakList);
             reloadModules();
             m_modulesListOutdated = false;
         }
