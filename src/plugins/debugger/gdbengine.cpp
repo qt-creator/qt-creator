@@ -3946,11 +3946,12 @@ void GdbEngine::tryLoadCustomDumpers()
         return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
-    m_dataDumperState = DataDumperLoadTried;
+    m_dataDumperState = DataDumperUnavailable; 
 
 #if defined(Q_OS_LINUX)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
-    if (QFileInfo(lib).isExecutable()) {
+    if (QFileInfo(lib).exists()) {
+        m_dataDumperState = DataDumperLoadTried;
         //sendCommand("p dlopen");
         QString flag = QString::number(RTLD_NOW);
         sendCommand("sharedlibrary libc"); // for malloc
@@ -3961,44 +3962,44 @@ void GdbEngine::tryLoadCustomDumpers()
         sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
         sendCommand("sharedlibrary " + dotEscape(lib));
-    } else {
-        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
-            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 #if defined(Q_OS_MAC)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
-    if (QFileInfo(lib).isExecutable()) {
+    if (QFileInfo(lib).exists()) {
+        m_dataDumperState = DataDumperLoadTried;
         sendCommand("sharedlibrary libc"); // for malloc
         sendCommand("sharedlibrary libdl"); // for dlopen
         QString flag = QString::number(RTLD_NOW);
         sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
         sendCommand("sharedlibrary " + dotEscape(lib));
-    } else {
-        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
-            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 #if defined(Q_OS_WIN)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
     if (QFileInfo(lib).exists()) {
+        m_dataDumperState = DataDumperLoadTried;
         sendCommand("sharedlibrary .*"); // for LoadLibraryA
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
         sendCommand("call LoadLibraryA(\"" + lib + "\")",
             WatchDumpCustomSetup);
         sendCommand("sharedlibrary " + dotEscape(lib));
-    } else {
-        qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
-            << lib << QFileInfo(lib).isExecutable();
     }
 #endif
 
-    // retreive list of dumpable classes
-    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
-        GdbQueryDataDumper1);
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
+    if (m_dataDumperState == DataDumperLoadTried) {
+        // retreive list of dumpable classes
+        sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
+            GdbQueryDataDumper1);
+        sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
+    } else {
+        gdbOutputAvailable("", QString("DEBUG HELPER LIBRARY IS NOT USABLE: "
+            " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
+            .arg(QFileInfo(lib).exists())
+            .arg(QFileInfo(lib).isExecutable()));
+    }
 }
 
 
