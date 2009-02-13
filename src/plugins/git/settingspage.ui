@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>183</height>
+    <height>251</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,10 +69,14 @@
     </widget>
    </item>
    <item>
-    <layout class="QFormLayout" name="logFormLayout">
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::ExpandingFieldsGrow</enum>
-     </property>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="logCountLabel">
+       <property name="text">
+        <string>Log commit display count:</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QSpinBox" name="logCountSpinBox">
        <property name="toolTip">
@@ -83,10 +87,23 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="logCountLabel">
+     <item row="1" column="0">
+      <widget class="QLabel" name="timeoutLabel">
        <property name="text">
-        <string>Log commit display count:</string>
+        <string>Timeout (seconds):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="timeoutSpinBox">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>300</number>
+       </property>
+       <property name="value">
+        <number>30</number>
        </property>
       </widget>
      </item>

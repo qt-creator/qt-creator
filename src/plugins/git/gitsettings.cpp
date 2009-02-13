@@ -40,15 +40,17 @@ static const char *groupC = "Git";
 static const char *sysEnvKeyC = "SysEnv";
 static const char *pathKeyC = "Path";
 static const char *logCountKeyC = "LogCount";
+static const char *timeoutKeyC = "TimeOut";
 
-enum { defaultLogCount =  10 };
+enum { defaultLogCount =  10 , defaultTimeOut = 30};
 
 namespace Git {
 namespace Internal {
 
 GitSettings::GitSettings() :
     adoptPath(false),
-    logCount(defaultLogCount)
+    logCount(defaultLogCount),
+    timeout(defaultTimeOut)
 {
 }
 
@@ -58,6 +60,7 @@ void GitSettings::fromSettings(QSettings *settings)
     adoptPath = settings->value(QLatin1String(sysEnvKeyC), false).toBool();
     path = settings->value(QLatin1String(pathKeyC), QString()).toString();
     logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
+    timeout = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
     settings->endGroup();
 }
 
@@ -67,12 +70,13 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(sysEnvKeyC), adoptPath);
     settings->setValue(QLatin1String(pathKeyC), path);
     settings->setValue(QLatin1String(logCountKeyC), logCount);
+    settings->setValue(QLatin1String(timeoutKeyC), timeout);
     settings->endGroup();
 }
 
 bool GitSettings::equals(const GitSettings &s) const
 {
-    return adoptPath == s.adoptPath  && path == s.path && logCount == s.logCount;
+    return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount && timeout == s.timeout;
 }
 
 }

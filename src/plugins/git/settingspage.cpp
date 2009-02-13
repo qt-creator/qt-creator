@@ -52,6 +52,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.path = m_ui.pathLineEdit->text();
     rc.adoptPath = m_ui.environmentGroupBox->isChecked() && !rc.path.isEmpty();
     rc.logCount = m_ui.logCountSpinBox->value();
+    rc.timeout = m_ui.timeoutSpinBox->value();
     return rc;
 }
 
@@ -60,6 +61,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.environmentGroupBox->setChecked(s.adoptPath);
     m_ui.pathLineEdit->setText(s.path);
     m_ui.logCountSpinBox->setValue(s.logCount);
+    m_ui.timeoutSpinBox->setValue(s.timeout);
 }
 
 void SettingsPageWidget::setSystemPath()
