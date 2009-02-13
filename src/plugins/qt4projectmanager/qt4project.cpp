@@ -404,7 +404,8 @@ void Qt4Project::scheduleUpdateCodeModel()
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
-    qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
+    if (debug)
+        qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
     Q_UNUSED(buildConfiguration);
     ToolChain *m_test= 0;
     QtVersion *version = qtVersion(activeBuildConfiguration());
