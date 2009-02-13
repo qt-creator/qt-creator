@@ -1344,8 +1344,6 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
     if (!editor->file())
         return;
     
-    qDebug() << "addCurrentPositionToNavigationHistory" << editor->file()->fileName();
-    
     QString fileName = editor->file()->fileName();
     QByteArray state = editor->saveState();
     // cut existing
@@ -1382,13 +1380,11 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
 
 void EditorManager::updateCurrentPositionInNavigationHistory()
 {
-    if (!m_d->m_currentEditor)
+    if (!m_d->m_currentEditor
+        || m_d->currentNavigationHistoryPosition < 0
+        || m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition)->editor != m_d->m_currentEditor)
         return;
-    foreach (EditorManagerPrivate::EditLocation *location, m_d->m_navigationHistory)
-        if (location->editor == m_d->m_currentEditor) {
-            location->state = location->editor->saveState();
-            break;
-        }
+    m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition)->state = m_d->m_currentEditor->saveState();
 }
 
 void EditorManager::goBackInNavigationHistory()
