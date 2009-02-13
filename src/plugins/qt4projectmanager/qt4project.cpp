@@ -406,7 +406,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
 {
     qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
     Q_UNUSED(buildConfiguration);
-    ToolChain *m_test;
+    ToolChain *m_test= 0;
     QtVersion *version = qtVersion(activeBuildConfiguration());
     ToolChain::ToolChainType t = version->toolchainType();
     if (t == ToolChain::MinGW) {
@@ -436,9 +436,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
 
-
-
-    if (m_test == m_toolChain) {
+    if (ToolChain::equals(m_test, m_toolChain)) {
         delete m_test;
     } else {
         delete m_toolChain;
