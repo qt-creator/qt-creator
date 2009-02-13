@@ -561,7 +561,7 @@ void DebuggerManager::notifyInferiorUpdateFinished()
 void DebuggerManager::notifyInferiorRunningRequested()
 {
     setStatus(DebuggerInferiorRunningRequested);
-    showStatusMessage(tr("Running..."), 5000);
+    showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void DebuggerManager::notifyInferiorRunning()
@@ -579,7 +579,7 @@ void DebuggerManager::notifyInferiorExited()
 void DebuggerManager::notifyInferiorPidChanged(int pid)
 {
     //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    //qDebug() << "PID: " << pid; 
+    qDebug() << "PID: " << pid; 
     emit inferiorPidChanged(pid);
 }
 
@@ -1082,20 +1082,10 @@ bool DebuggerManager::useCustomDumpers() const
     return m_settings.m_useCustomDumpers;
 }
 
-bool DebuggerManager::useFastStart() const
-{
-    return 0; // && m_settings.m_useFastStart;
-}
-
 void DebuggerManager::setUseCustomDumpers(bool on)
 {
     m_settings.m_useCustomDumpers = on;
     engine()->setUseCustomDumpers(on);
-}
-
-void DebuggerManager::setUseFastStart(bool on)
-{
-    m_settings.m_useFastStart = on;
 }
 
 void DebuggerManager::setDebugDumpers(bool on)

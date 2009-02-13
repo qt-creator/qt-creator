@@ -1183,15 +1183,16 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
     if (!isValid())
         return ProjectExplorer::ToolChain::INVALID;
     const QString &spec = mkspec();
+//    qDebug()<<"spec="<<spec;
     if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return ProjectExplorer::ToolChain::MSVC;
-    else if (spec == "win32-g++")
+    else if (spec.contains("win32-g++"))
         return ProjectExplorer::ToolChain::MinGW;
     else if (spec == QString::null)
         return ProjectExplorer::ToolChain::INVALID;
-    else if (spec.startsWith("wince"))
+    else if (spec.contains("wince"))
         return ProjectExplorer::ToolChain::WINCE;
-    else if (spec.startsWith("linux-icc"))
+    else if (spec.contains("linux-icc"))
         return ProjectExplorer::ToolChain::LinuxICC;
     else
         return ProjectExplorer::ToolChain::GCC;
@@ -1224,7 +1225,7 @@ QString QtVersion::msvcVersion() const
 
 QString QtVersion::wincePlatform() const
 {
-    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
+//    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
     return ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
 }
 
