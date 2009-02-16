@@ -334,6 +334,9 @@ bool Symbol::isNamespace() const
 bool Symbol::isClass() const
 { return asClass() != 0; }
 
+bool Symbol::isForwardClassDeclaration() const
+{ return asForwardClassDeclaration() != 0; }
+
 bool Symbol::isBlock() const
 { return asBlock() != 0; }
 

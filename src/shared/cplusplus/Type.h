@@ -93,6 +93,7 @@ public:
     virtual const Namespace *asNamespaceType() const { return 0; }
     virtual const Class *asClassType() const { return 0; }
     virtual const Enum *asEnumType() const { return 0; }
+    virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return 0; }
 
     virtual VoidType *asVoidType() { return 0; }
     virtual IntegerType *asIntegerType() { return 0; }
@@ -106,6 +107,7 @@ public:
     virtual Namespace *asNamespaceType() { return 0; }
     virtual Class *asClassType() { return 0; }
     virtual Enum *asEnumType() { return 0; }
+    virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return 0; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);

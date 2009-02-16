@@ -132,6 +132,7 @@ class BaseClass;
 class Block;
 class Class;
 class Enum;
+class ForwardClassDeclaration;
 
 class Use;
 

@@ -156,6 +156,9 @@ static QString buildHelpId(const FullySpecifiedType &type,
     } else if (const Enum *e = type->asEnumType()) {
         name = e->name();
         scope = e->scope();
+    } else if (const ForwardClassDeclaration *fwd = type->asForwardClassDeclarationType()) {
+        name = fwd->name();
+        scope = fwd->scope();
     } else if (const NamedType *t = type->asNamedType()) {
         name = t->name();
     } else if (symbol && symbol->isDeclaration()) {
@@ -178,14 +181,19 @@ static QString buildHelpId(const FullySpecifiedType &type,
     qualifiedNames.prepend(overview.prettyName(name));
 
     for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner() && scope->owner()->name() && !scope->isEnumScope()) {
-            Name *name = scope->owner()->name();
+        Symbol *owner = scope->owner();
+
+        if (owner && owner->name() && ! scope->isEnumScope()) {
+            Name *name = owner->name();
+
             Identifier *id = 0;
+
             if (NameId *nameId = name->asNameId()) {
                 id = nameId->identifier();
             } else if (TemplateNameId *nameId = name->asTemplateNameId()) {
                 id = nameId->identifier();
             }
+
             if (id)
                 qualifiedNames.prepend(QString::fromLatin1(id->chars(), id->size()));
         }

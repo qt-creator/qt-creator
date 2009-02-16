@@ -148,6 +148,9 @@ public:
     /// Creates a new UsingDeclaration symbol.
     UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, Name *name = 0);
 
+    /// Creates a new ForwardClassDeclaration symbol.
+    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
+
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 

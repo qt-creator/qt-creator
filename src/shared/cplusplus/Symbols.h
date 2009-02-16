@@ -199,6 +199,42 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ForwardClassDeclaration: public Symbol, public Type
+{
+public:
+    ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ForwardClassDeclaration();
+
+    unsigned templateParameterCount() const;
+    Symbol *templateParameterAt(unsigned index) const;
+
+    Scope *templateParameters() const;
+    void setTemplateParameters(Scope *templateParameters);
+
+    virtual FullySpecifiedType type() const;
+
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ForwardClassDeclaration *asForwardClassDeclaration() const
+    { return this; }
+
+    virtual ForwardClassDeclaration *asForwardClassDeclaration()
+    { return this; }
+
+    virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const
+    { return this; }
+
+    virtual ForwardClassDeclaration *asForwardClassDeclarationType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    Scope *_templateParameters;
+};
+
 class CPLUSPLUS_EXPORT Enum: public ScopedSymbol, public Type
 {
 public:
@@ -295,7 +331,6 @@ protected:
     virtual void accept0(TypeVisitor *visitor);
 
 private:
-    Name *_name;
     Scope *_templateParameters;
     FullySpecifiedType _returnType;
     union {

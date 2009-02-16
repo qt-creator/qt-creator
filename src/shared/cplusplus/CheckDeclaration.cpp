@@ -136,6 +136,23 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
     }
 
+    if (! ast->declarators && ast->decl_specifier_seq && ! ast->decl_specifier_seq->next) {
+        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
+            Name *name = semantic()->check(elab_type_spec->name, _scope);
+            ForwardClassDeclaration *symbol =
+                    control()->newForwardClassDeclaration(elab_type_spec->firstToken(),
+                                                          name);
+
+            if (_templateParameters) {
+                symbol->setTemplateParameters(_templateParameters);
+                _templateParameters = 0;
+            }
+
+            _scope->enterSymbol(symbol);
+            return false;
+        }
+    }
+
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
         Name *name = 0;
