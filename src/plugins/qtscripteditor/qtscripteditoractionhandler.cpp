@@ -70,13 +70,6 @@ void QtScriptEditorActionHandler::createActions()
 }
 
 
-void QtScriptEditorActionHandler::updateActions(UpdateMode um)
-{
-    TextEditor::TextEditorActionHandler::updateActions(um);
-    if (m_runAction)
-        m_runAction->setEnabled(um != NoEditor);
-}
-
 void QtScriptEditorActionHandler::run()
 {
     typedef Core::ScriptManager::Stack Stack;

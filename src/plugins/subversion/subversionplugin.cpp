@@ -103,23 +103,23 @@ const char * const SubversionPlugin::DESCRIBE           = "Subversion.Describe";
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    "Subversion Command Log Editor",
-    Core::Constants::C_GLOBAL,
+    "Subversion Command Log Editor", // kind
+    "Subversion Command Log Editor", // context
     "application/vnd.nokia.text.scs_svn_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
-    "Subversion File Log Editor",
-    Core::Constants::C_GLOBAL,
+    "Subversion File Log Editor",   // kind
+    "Subversion File Log Editor",   // context
     "application/vnd.nokia.text.scs_svn_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
-    "Subversion Annotation Editor",
-    Core::Constants::C_GLOBAL,
+    "Subversion Annotation Editor",  // kind
+    "Subversion Annotation Editor",  // context
     "application/vnd.nokia.text.scs_svn_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
-    "Subversion Diff Editor",
-    Core::Constants::C_GLOBAL,
+    "Subversion Diff Editor",  // kind
+    "Subversion Diff Editor",  // context
     "text/x-patch","diff"}
 };
 

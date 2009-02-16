@@ -59,6 +59,7 @@
 #include "scriptwrappers.h"
 #include "session.h"
 #include "sessiondialog.h"
+#include "buildparserfactory.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -232,6 +233,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     addAutoReleasedObject(new ProjectFileWizardExtension);
+
+    // Build parsers
+    addAutoReleasedObject(new GccParserFactory);
+    addAutoReleasedObject(new MsvcParserFactory);
 
     // context menus
     Core::ActionContainer *msessionContextMenu =

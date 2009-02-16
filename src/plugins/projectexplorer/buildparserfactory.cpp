@@ -31,31 +31,40 @@
 **
 ***************************************************************************/
 
-#ifndef GCCPARSER_H
-#define GCCPARSER_H
+#include "buildparserfactory.h"
 
-#include <projectexplorer/buildparserinterface.h>
+#include "projectexplorerconstants.h"
+#include "gccparser.h"
+#include "msvcparser.h"
 
-#include <QtCore/QRegExp>
+using namespace ProjectExplorer::Internal;
 
-namespace Qt4ProjectManager {
-
-class GccParser : public ProjectExplorer::BuildParserInterface
+GccParserFactory::~GccParserFactory()
 {
-    Q_OBJECT
+}
 
-public:
-    GccParser();
-    QString name() const;
-    virtual void stdOutput(const QString & line);
-    virtual void stdError(const QString & line);
-private:
-    QRegExp m_regExp;
-    QRegExp m_regExpIncluded;
-    QRegExp m_regExpLinker;
-    QRegExp m_makeDir;
-};
+bool GccParserFactory::canCreate(const QString & name) const
+{
+    return (name == Constants::BUILD_PARSER_GCC);
+}
 
-} // namespace ProjectExplorer
+ProjectExplorer::BuildParserInterface * GccParserFactory::create(const QString & name) const
+{
+    Q_UNUSED(name);
+    return new GccParser();
+}
 
-#endif // GCCPARSER_H
+MsvcParserFactory::~MsvcParserFactory()
+{
+}
+
+bool MsvcParserFactory::canCreate(const QString & name) const
+{
+    return (name == Constants::BUILD_PARSER_MSVC);
+}
+
+ProjectExplorer::BuildParserInterface * MsvcParserFactory::create(const QString & name) const
+{
+    Q_UNUSED(name);
+    return new MsvcParser();
+}

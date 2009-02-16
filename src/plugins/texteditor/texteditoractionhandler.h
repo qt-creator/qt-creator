@@ -78,7 +78,7 @@ protected:
     QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot,
                                const QString &title = QString());
 
-    enum UpdateMode { NoEditor , ReadOnlyMode, WriteMode };
+    enum UpdateMode { ReadOnlyMode, WriteMode };
     UpdateMode updateMode() const;
 
     virtual void createActions();
@@ -114,7 +114,7 @@ private slots:
     void selectBlockDown();
     void moveLineUp();
     void moveLineDown();
-    void updateCurrentEditor(Core::IContext *object);
+    void updateCurrentEditor(Core::IEditor *editor);
 
 private:
     QAction *m_undoAction;

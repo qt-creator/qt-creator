@@ -329,8 +329,10 @@ EditorView::~EditorView()
 
 void EditorView::addEditor(IEditor *editor)
 {
-    if (m_container->indexOf(editor->widget()) != -1)
+    if (m_editors.contains(editor))
         return;
+
+    m_editors.append(editor);
 
     m_container->addWidget(editor->widget());
     m_widgetEditorMap.insert(editor->widget(), editor);
@@ -348,7 +350,7 @@ void EditorView::addEditor(IEditor *editor)
 
 bool EditorView::hasEditor(IEditor *editor) const
 {
-    return (m_container->indexOf(editor->widget()) != -1);
+    return m_editors.contains(editor);
 }
 
 void EditorView::closeView()
@@ -360,26 +362,30 @@ void EditorView::closeView()
 void EditorView::removeEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
+    if (!m_editors.contains(editor))
+        return;
+
     const int index = m_container->indexOf(editor->widget());
+    QTC_ASSERT((index != -1), return);
     bool wasCurrent = (index == m_container->currentIndex());
-    if (index != -1) {
-        m_container->removeWidget(editor->widget());
-        m_widgetEditorMap.remove(editor->widget());
-        editor->widget()->setParent(0);
-        disconnect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-        QToolBar *toolBar = editor->toolBar();
-        if (toolBar != 0) {
-            if (m_activeToolBar == toolBar) {
-                m_activeToolBar = m_defaultToolBar;
-                m_activeToolBar->setVisible(true);
-            }
-            m_toolBar->layout()->removeWidget(toolBar);
-            toolBar->setVisible(false);
-            toolBar->setParent(0);
+    m_editors.removeAll(editor);
+
+    m_container->removeWidget(editor->widget());
+    m_widgetEditorMap.remove(editor->widget());
+    editor->widget()->setParent(0);
+    disconnect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+    QToolBar *toolBar = editor->toolBar();
+    if (toolBar != 0) {
+        if (m_activeToolBar == toolBar) {
+            m_activeToolBar = m_defaultToolBar;
+            m_activeToolBar->setVisible(true);
         }
+        m_toolBar->layout()->removeWidget(toolBar);
+        toolBar->setVisible(false);
+        toolBar->setParent(0);
     }
-    if (wasCurrent)
-        setCurrentEditor(currentEditor());
+    if (wasCurrent && m_editors.count())
+        setCurrentEditor(m_editors.last());
 }
 
 IEditor *EditorView::currentEditor() const
@@ -394,6 +400,8 @@ void EditorView::setCurrentEditor(IEditor *editor)
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
         return;
+    m_editors.removeAll(editor);
+    m_editors.append(editor);
 
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);

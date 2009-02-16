@@ -28,9 +28,6 @@ HEADERS = qt4projectmanagerplugin.h \
     makestep.h \
     qmakestep.h \
     qmakebuildstepfactory.h \
-    gccparser.h \
-    msvcparser.h \
-    buildparserfactory.h \
     deployhelper.h \
     embeddedpropertiespage.h \
     qt4runconfiguration.h \
@@ -63,9 +60,6 @@ SOURCES = qt4projectmanagerplugin.cpp \
     makestep.cpp \
     qmakestep.cpp \
     qmakebuildstepfactory.cpp \
-    gccparser.cpp \
-    msvcparser.cpp \
-    buildparserfactory.cpp \
     deployhelper.cpp \
     embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \

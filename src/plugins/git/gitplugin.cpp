@@ -73,22 +73,22 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_KIND,
-    Core::Constants::C_GLOBAL,
+    Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_commandlog",
     "gitlog"},
 {   VCSBase::LogOutput,
     Git::Constants::GIT_LOG_EDITOR_KIND,
-    Core::Constants::C_GLOBAL,
+    Git::Constants::C_GIT_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_filelog",
     "gitfilelog"},
 {   VCSBase::AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_KIND,
-    Core::Constants::C_GLOBAL,
+    Git::Constants::C_GIT_BLAME_EDITOR,
     "application/vnd.nokia.text.scs_git_annotation",
     "gitsannotate"},
 {   VCSBase::DiffOutput,
     Git::Constants::GIT_DIFF_EDITOR_KIND,
-    Core::Constants::C_GLOBAL,
+    Git::Constants::C_GIT_DIFF_EDITOR,
     "text/x-patch","diff"}
 };
 

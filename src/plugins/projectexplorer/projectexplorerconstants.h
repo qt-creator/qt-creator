@@ -176,6 +176,11 @@ const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";
 const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
+// build parsers
+const char * const BUILD_PARSER_MSVC    = "BuildParser.MSVC";
+const char * const BUILD_PARSER_GCC     = "BuildParser.Gcc";
+
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

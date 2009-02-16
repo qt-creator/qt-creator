@@ -54,7 +54,10 @@ HEADERS += projectexplorer.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
-    cesdkhandler.h
+    cesdkhandler.h\
+    buildparserfactory.h\
+    gccparser.h\
+    msvcparser.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -97,7 +100,10 @@ SOURCES += projectexplorer.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
-    cesdkhandler.cpp
+    cesdkhandler.cpp\ 
+    buildparserfactory.cpp \
+    gccparser.cpp\
+    msvcparser.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \

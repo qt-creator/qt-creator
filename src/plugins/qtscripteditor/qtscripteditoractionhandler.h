@@ -48,7 +48,6 @@ public:
 
 private:
     virtual void createActions();
-    virtual void updateActions(UpdateMode um);
 
 private slots:
     void run();
