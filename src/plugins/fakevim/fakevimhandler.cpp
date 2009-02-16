@@ -1246,10 +1246,15 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveRight(qMin(1, rightDist()));
         recordRemoveSelectedText();
     } else if (key == Key_Escape) {
-        if (m_visualMode != NoVisualMode)
+        if (m_visualMode != NoVisualMode) {
             leaveVisualMode();
-        else
+        } else if (m_submode != NoSubMode) {
+            m_submode = NoSubMode;
+            m_subsubmode = NoSubSubMode;
+            finishMovement();
+        } else {
             handled = false;
+        }
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
         if (text.isEmpty())
