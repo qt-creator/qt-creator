@@ -1293,7 +1293,8 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
-        indentRegion(m_tc.block(), m_tc.block().next());
+        if(m_config[ConfigAutoIndent] == ConfigOn)
+            indentRegion(m_tc.block(), m_tc.block().next(), '\n');
     } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
         m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
