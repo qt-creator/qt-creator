@@ -187,10 +187,10 @@ using namespace CppTools::Internal;
 FunctionArgumentWidget::FunctionArgumentWidget()
     : m_item(0)
 {
-    QObject *editorObject = Core::ICore::instance()->editorManager()->currentEditor();
+    QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
-    m_popupFrame = new QFrame(0, Qt::ToolTip|Qt::WindowStaysOnTopHint);
+    m_popupFrame = new QFrame(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
     m_popupFrame->setFocusPolicy(Qt::NoFocus);
     m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -1069,7 +1069,10 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             Function *function = symbol->type()->asFunction();
             QTC_ASSERT(function, return);
 
-            m_functionArgumentWidget = new FunctionArgumentWidget();
+            // Recreate if necessary
+            if (!m_functionArgumentWidget)
+                m_functionArgumentWidget = new FunctionArgumentWidget;
+
             m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.lookupContext());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
