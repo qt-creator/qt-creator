@@ -528,6 +528,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     if (m_submode == ChangeSubMode) {
         if (m_moveType == MoveInclusive)
             moveRight(); // correction
+        if (anchor() >= position())
+           m_anchor++;
         if (!dotCommand.isEmpty())
             m_dotCommand = "c" + dotCommand;
         QString text = recordRemoveSelectedText();
@@ -538,6 +540,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     } else if (m_submode == DeleteSubMode) {
         if (m_moveType == MoveInclusive)
             moveRight(); // correction
+        if (anchor() >= position())
+           m_anchor++;
         if (!dotCommand.isEmpty())
             m_dotCommand = "d" + dotCommand;
         m_registers[m_register] = recordRemoveSelectedText();
@@ -892,6 +896,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '=') {
         m_submode = IndentSubMode;
     } else if (key == '%') {
+        m_moveType = MoveExclusive;
         moveToMatchingParanthesis();
         finishMovement();
     } else if (key == 'a') {
