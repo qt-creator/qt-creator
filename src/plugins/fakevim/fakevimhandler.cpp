@@ -873,7 +873,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         int submode = m_submode;
         moveToEndOfLine();
         m_moveType = MoveExclusive;
-        finishMovement();
+        finishMovement("$");
         if (submode == NoSubMode)
             m_desiredColumn = -1;
     } else if (key == ',') {
