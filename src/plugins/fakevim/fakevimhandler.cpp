@@ -1001,12 +1001,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveLeft();
     } else if (key == 'I') {
         recordBeginGroup();
-        setAnchor();
         enterInsertMode();
         if (m_gflag)
             moveToStartOfLine();
         else
             moveToFirstNonBlankOnLine();
+        m_tc.clearSelection();
     } else if (key == control('i')) {
         if (!m_jumpListRedo.isEmpty()) {
             m_jumpListUndo.append(position());
