@@ -543,6 +543,12 @@ void DebuggerManager::notifyStartupFinished()
     showStatusMessage(tr("Startup finished. Debugger ready."), -1);
 }
 
+void DebuggerManager::notifyInferiorStopRequested()
+{
+    setStatus(DebuggerInferiorStopRequested);
+    showStatusMessage(tr("Stop requested..."), 5000);
+}
+
 void DebuggerManager::notifyInferiorStopped()
 {
     resetLocation();
@@ -657,6 +663,12 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
     QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
+    if (status() != DebuggerInferiorRunning && status() != DebuggerInferiorStopped) {
+        showStatusMessage(tr("Changing breakpoint state requires either a "
+            "fully running or fully stopped application."));
+        return;
+    }
+
     int index = m_breakHandler->indexOf(fileName, lineNumber);
     if (index == -1)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
