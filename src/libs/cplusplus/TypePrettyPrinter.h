@@ -33,7 +33,8 @@
 #ifndef TYPEPRETTYPRINTER_H
 #define TYPEPRETTYPRINTER_H
 
-#include "TypeVisitor.h"
+#include <TypeVisitor.h>
+#include <FullySpecifiedType.h>
 #include <QString>
 #include <QList>
 
@@ -50,23 +51,12 @@ public:
 
     const Overview *overview() const;
 
-    bool showArgumentNames() const;
-    void setShowArgumentNames(bool showArgumentNames);
-
-    bool showReturnTypes() const;
-    void setShowReturnTypes(bool showReturnTypes);
-
-    bool showFunctionSignatures() const;
-    void setShowFunctionSignatures(bool showFunctionSignatures);
-
-    void setMarkArgument(unsigned position); // 1-based
-
     QString operator()(const FullySpecifiedType &type);
     QString operator()(const FullySpecifiedType &type, const QString &name);
 
 protected:
     QString switchText(const QString &text = QString());
-    QList<Type *> switchPtrOperators(const QList<Type *> &ptrOperators);
+    QList<FullySpecifiedType> switchPtrOperators(const QList<FullySpecifiedType> &ptrOperators);
     QString switchName(const QString &name);
 
     void applyPtrOperators(bool wantSpace = true);
@@ -85,15 +75,17 @@ protected:
     virtual void visit(Class *type);
     virtual void visit(Enum *type);
 
+    void space();
+    void out(const QString &text);
+    void out(const QChar &ch);
+    void outCV(const FullySpecifiedType &ty);
+
 private:
     const Overview *_overview;
     QString _name;
     QString _text;
-    QList<Type *> _ptrOperators;
-    unsigned _markArgument;
-    bool _showArgumentNames: 1;
-    bool _showReturnTypes: 1;
-    bool _showFunctionSignatures: 1;
+    FullySpecifiedType _fullySpecifiedType;
+    QList<FullySpecifiedType> _ptrOperators;
 };
 
 } // end of namespace CPlusPlus

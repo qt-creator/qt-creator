@@ -158,8 +158,10 @@ static QString buildHelpId(const FullySpecifiedType &type,
         scope = e->scope();
     } else if (const NamedType *t = type->asNamedType()) {
         name = t->name();
-    } else if (const Declaration *d = symbol->asDeclaration()) {
-        if (d->scope() && d->scope()->owner()->isEnum()) {
+    } else if (symbol && symbol->isDeclaration()) {
+        const Declaration *d = symbol->asDeclaration();
+
+        if (d->scope() && d->scope()->isEnumScope()) {
             name = d->name();
             scope = d->scope();
         }

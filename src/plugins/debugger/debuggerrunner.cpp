@@ -107,11 +107,14 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
   : RunControl(runConfiguration), m_manager(manager), m_running(false)
 {
     connect(m_manager, SIGNAL(debuggingFinished()),
-            this, SLOT(debuggingFinished()));
+            this, SLOT(debuggingFinished()),
+            Qt::QueuedConnection);
     connect(m_manager, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(slotAddToOutputWindowInline(QString)));
+            this, SLOT(slotAddToOutputWindowInline(QString)),
+            Qt::QueuedConnection);
     connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
+            this, SLOT(bringApplicationToForeground(qint64)),
+            Qt::QueuedConnection);
 }
 
 void DebuggerRunControl::start()

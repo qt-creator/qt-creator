@@ -56,7 +56,7 @@ BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorPara
     m_type(t),
     m_kind(QLatin1String(t->kind)),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
-    m_editorHandler(new TextEditor::TextEditorActionHandler(t->kind))
+    m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
 {
 }
 

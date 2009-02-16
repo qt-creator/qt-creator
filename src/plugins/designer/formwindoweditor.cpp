@@ -45,6 +45,8 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 #include <qt_private/formwindowbase_p.h>
 #include <qt_private/qtresourcemodel_p.h>
 
@@ -324,4 +326,26 @@ void FormWindowEditor::setSuggestedFileName(const QString &fileName)
 void FormWindowEditor::activate()
 {
     m_editorWidget->activate();
+}
+
+QString FormWindowEditor::contextHelpId() const
+{
+    // TODO [13.2.09]: Replace this by QDesignerIntegrations context help Id
+    // in the upcoming version of Qt
+    QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
+    QObject *o = core->propertyEditor()->object();
+    if (!o)
+        return QString();
+    const QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
+    const int dbIndex = db->indexOfObject(o, true);
+    if (dbIndex == -1)
+        return QString();
+    QString className = db->item(dbIndex)->name();
+    if (className == QLatin1String("Line"))
+        className = QLatin1String("QFrame");
+    else if (className == QLatin1String("Spacer"))
+        className = QLatin1String("QSpacerItem");
+    else if (className == QLatin1String("QLayoutWidget"))
+        className = QLatin1String("QLayout");
+    return className;
 }

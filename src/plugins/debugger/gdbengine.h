@@ -144,7 +144,8 @@ private:
 
     bool supportsThreads() const;
 
-    void init();  // called by destructor
+    void initializeConnections();
+    void initializeVariables();
     void queryFullName(const QString &fileName, QString *fullName);
     QString fullName(const QString &fileName);
     QString shortName(const QString &fullName);
@@ -188,6 +189,7 @@ private:
     void handleExecRunToFunction(const GdbResultRecord &response);
     void handleInfoShared(const GdbResultRecord &response);
     void handleInfoProc(const GdbResultRecord &response);
+    void handleInfoThreads(const GdbResultRecord &response);
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
@@ -327,6 +329,10 @@ private:
     QList<GdbMi> m_currentFunctionArgs;
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
+
+    bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_waitingForFirstBreakpointToBeHit;
+    bool m_modulesListOutdated;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;

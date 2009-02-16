@@ -18,7 +18,7 @@
 **
 ** Alternatively, this file may be used under the terms of the GNU General
 ** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** Foundation and appearing` in the file LICENSE.GPL included in the packaging
 ** of this file.  Please review the following information to ensure GNU
 ** General Public Licensing requirements will be met:
 **
@@ -91,8 +91,8 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
 
     m_contextId << Core::UniqueIDManager::instance()->uniqueIdentifier(context);
 
-    connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext *)),
-        this, SLOT(updateCurrentEditor(Core::IContext *)));
+    connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+        this, SLOT(updateCurrentEditor(Core::IEditor    *)));
 }
 
 void TextEditorActionHandler::setupActions(BaseTextEditor *editor)
@@ -282,49 +282,31 @@ QAction *TextEditorActionHandler::registerNewAction(const QString &id,
 
 TextEditorActionHandler::UpdateMode TextEditorActionHandler::updateMode() const
 {
-    if (!m_currentEditor)
-        return NoEditor;
+    Q_ASSERT(m_currentEditor != 0);
     return m_currentEditor->file()->isReadOnly() ? ReadOnlyMode : WriteMode;
 }
 
 void TextEditorActionHandler::updateActions()
 {
+    if (!m_currentEditor || !m_initialized)
+        return;
     updateActions(updateMode());
 }
 
 void TextEditorActionHandler::updateActions(UpdateMode um)
 {
-    if (!m_initialized)
-        return;
-    m_pasteAction->setEnabled(um != NoEditor);
-    m_selectAllAction->setEnabled(um != NoEditor);
-    m_gotoAction->setEnabled(um != NoEditor);
-    m_selectEncodingAction->setEnabled(um != NoEditor);
-    m_printAction->setEnabled(um != NoEditor);
-    m_formatAction->setEnabled((m_optionalActions & Format) && um != NoEditor);
-    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != NoEditor);
-    m_collapseAction->setEnabled(um != NoEditor);
-    m_expandAction->setEnabled(um != NoEditor);
-    m_unCollapseAllAction->setEnabled((m_optionalActions & UnCollapseAll) && um != NoEditor);
-    m_decreaseFontSizeAction->setEnabled(um != NoEditor);
-    m_increaseFontSizeAction->setEnabled(um != NoEditor);
-    m_gotoBlockStartAction->setEnabled(um != NoEditor);
-    m_gotoBlockStartWithSelectionAction->setEnabled(um != NoEditor);
-    m_gotoBlockEndAction->setEnabled(um != NoEditor);
-    m_gotoBlockEndWithSelectionAction->setEnabled(um != NoEditor);
-    m_selectBlockUpAction->setEnabled(um != NoEditor);
-    m_selectBlockDownAction->setEnabled(um != NoEditor);
-    m_moveLineUpAction->setEnabled(um != NoEditor);
-    m_moveLineDownAction->setEnabled(um != NoEditor);
+    m_pasteAction->setEnabled(um != ReadOnlyMode);
+    m_formatAction->setEnabled((m_optionalActions & Format) && um != ReadOnlyMode);
+    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != ReadOnlyMode);
+    m_moveLineUpAction->setEnabled(um != ReadOnlyMode);
+    m_moveLineDownAction->setEnabled(um != ReadOnlyMode);
 
-    m_visualizeWhitespaceAction->setEnabled(um != NoEditor);
-    if (m_currentEditor)
-        m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
-    m_cleanWhitespaceAction->setEnabled(um != NoEditor);
+    m_formatAction->setEnabled((m_optionalActions & Format));
+    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection));
+    m_unCollapseAllAction->setEnabled((m_optionalActions & UnCollapseAll));
+    m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
     if (m_textWrappingAction) {
-        m_textWrappingAction->setEnabled(um != NoEditor);
-        if (m_currentEditor)
-            m_textWrappingAction->setChecked(m_currentEditor->displaySettings().m_textWrapping);
+        m_textWrappingAction->setChecked(m_currentEditor->displaySettings().m_textWrapping);
     }
 
     updateRedoAction();
@@ -346,11 +328,12 @@ void TextEditorActionHandler::updateUndoAction()
 
 void TextEditorActionHandler::updateCopyAction()
 {
-    const bool hasCopyableText = m_currentEditor &&  m_currentEditor->textCursor().hasSelection();
+    const bool hasCopyableText = m_currentEditor && m_currentEditor->textCursor().hasSelection();
     if (m_cutAction)
         m_cutAction->setEnabled(hasCopyableText && updateMode() == WriteMode);
-    if (m_copyAction)
+    if (m_copyAction) {
         m_copyAction->setEnabled(hasCopyableText);
+    }
 }
 
 void TextEditorActionHandler::gotoAction()
@@ -422,37 +405,19 @@ FUNCTION(selectBlockDown)
 FUNCTION(moveLineUp)
 FUNCTION(moveLineDown)
 
-void TextEditorActionHandler::updateCurrentEditor(Core::IContext *object)
+void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {
-    do {
-        if (!object) {
-            if (!m_currentEditor)
-                return;
+    m_currentEditor = 0;
 
-            m_currentEditor = 0;
-            break;
-        }
-        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(object->widget());
-        if (!editor) {
-            if (!m_currentEditor)
-                return;
+    if (!editor)
+        return;
 
-            m_currentEditor = 0;
-            break;
-        }
+    BaseTextEditor *baseEditor = qobject_cast<BaseTextEditor *>(editor->widget());
 
-        if (editor == m_currentEditor)
-            return;
-
-        if (editor->actionHack() != this) {
-             m_currentEditor = 0;
-             break;
-         }
-
-        m_currentEditor = editor;
-
-    } while (false);
-    updateActions();
+    if (baseEditor && baseEditor->actionHack() == this) {
+        m_currentEditor = baseEditor;
+        updateActions();
+    }
 }
 
 

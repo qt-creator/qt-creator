@@ -68,6 +68,11 @@ bool Overview::showReturnTypes() const
     return _showReturnTypes;
 }
 
+unsigned Overview::markArgument() const
+{
+    return _markArgument;
+}
+
 void Overview::setMarkArgument(unsigned position)
 {
     _markArgument = position;
@@ -98,9 +103,5 @@ QString Overview::prettyType(const FullySpecifiedType &ty,
                              const QString &name) const
 {
     TypePrettyPrinter pp(this);
-    pp.setMarkArgument(_markArgument);
-    pp.setShowArgumentNames(_showArgumentNames);
-    pp.setShowReturnTypes(_showReturnTypes);
-    pp.setShowFunctionSignatures(_showFunctionSignatures);
     return pp(ty, name);
 }

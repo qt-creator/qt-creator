@@ -38,9 +38,13 @@ namespace Git {
 namespace Constants {
 
 const char * const GIT_COMMAND_LOG_EDITOR_KIND = "Git Command Log Editor";
+const char * const C_GIT_COMMAND_LOG_EDITOR = "Git Command Log Editor";
 const char * const GIT_LOG_EDITOR_KIND = "Git File Log Editor";
+const char * const C_GIT_LOG_EDITOR = "Git File Log Editor";
 const char * const GIT_BLAME_EDITOR_KIND = "Git Annotation Editor";
+const char * const C_GIT_BLAME_EDITOR = "Git Annotation Editor";
 const char * const GIT_DIFF_EDITOR_KIND = "Git Diff Editor";
+const char * const C_GIT_DIFF_EDITOR = "Git Diff Editor";
 
 const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
 const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
