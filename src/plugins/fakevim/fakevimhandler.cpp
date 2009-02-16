@@ -872,6 +872,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '$' || key == Key_End) {
         int submode = m_submode;
         moveToEndOfLine();
+        m_moveType = MoveExclusive;
         finishMovement();
         if (submode == NoSubMode)
             m_desiredColumn = -1;
@@ -939,7 +940,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordBeginGroup();
         m_submode = DeleteSubMode;
         moveDown(qMax(count() - 1, 0));
-        moveRight(rightDist());
+        m_moveType = MoveExclusive;
+        moveToEndOfLine();
         finishMovement();
     } else if (key == control('d')) {
         int sline = cursorLineOnScreen();
