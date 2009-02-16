@@ -150,7 +150,6 @@ void DebuggerManager::init()
 {
     m_status = -1;
     m_busy = false;
-    m_shutdown = false;
 
     m_attachedPID = 0;
     m_startMode = startInternal;
@@ -578,7 +577,7 @@ void DebuggerManager::notifyInferiorExited()
 void DebuggerManager::notifyInferiorPidChanged(int pid)
 {
     //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    qDebug() << "PID: " << pid; 
+    //qDebug() << "PID: " << pid; 
     emit inferiorPidChanged(pid);
 }
 
@@ -590,9 +589,10 @@ void DebuggerManager::showApplicationOutput(const QString &str)
 void DebuggerManager::shutdown()
 {
     //qDebug() << "DEBUGGER_MANAGER SHUTDOWN START";
-    m_shutdown = true;
-    if (m_engine)
+    if (m_engine) {
+        //qDebug() << "SHUTTING DOWN ENGINE" << m_engine;
         m_engine->shutdown();
+    }
     m_engine = 0;
 
     delete scriptEngine;
@@ -835,10 +835,9 @@ void DebuggerManager::cleanupViews()
 
 void DebuggerManager::exitDebugger()
 {
-    if (m_shutdown)
-        return;
-    QTC_ASSERT(m_engine, return);
-    m_engine->exitDebugger();
+    //qDebug() << "DebuggerManager::exitDebugger";
+    if (m_engine)
+        m_engine->exitDebugger();
     cleanupViews();
     setStatus(DebuggerProcessNotReady);
     setBusyCursor(false);
@@ -959,33 +958,6 @@ void DebuggerManager::dumpLog()
     ts << "\n\n=======================================\n\n";
     ts << m_outputWindow->combinedContents();
 }
-
-#if 0
-// call after m_gdbProc exited.
-void GdbEngine::procFinished()
-{
-    //qDebug() << "GDB PROCESS FINISHED";
-    setStatus(DebuggerProcessNotReady);
-    showStatusMessage(tr("Done"), 5000);
-    q->m_breakHandler->procFinished();
-    q->m_watchHandler->cleanup();
-    m_stackHandler->m_stackFrames.clear();
-    m_stackHandler->resetModel();
-    m_threadsHandler->resetModel();
-    if (q->m_modulesHandler)
-        q->m_modulesHandler->procFinished();
-    q->resetLocation();
-    setStatus(DebuggerProcessNotReady);
-    emit q->previousModeRequested();
-    emit q->debuggingFinished();
-    //exitDebugger();
-    //showStatusMessage("Gdb killed");
-    m_shortToFullName.clear();
-    m_fullToShortName.clear();
-    m_shared = 0;
-    q->m_busy = false;
-}
-#endif
 
 void DebuggerManager::addToWatchWindow()
 {

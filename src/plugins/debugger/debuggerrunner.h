@@ -82,6 +82,9 @@ public:
     virtual void stop();
     virtual bool isRunning() const;
 
+signals:
+    void stopRequested();
+
 private slots:
     void debuggingFinished();
     void slotAddToOutputWindowInline(const QString &output);
