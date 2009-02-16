@@ -229,7 +229,7 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     DebuggerSettings *settings() { return &m_settings; }
 
-    enum StartMode { startInternal, startExternal, attachExternal };
+    enum StartMode { StartInternal, StartExternal, AttachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:

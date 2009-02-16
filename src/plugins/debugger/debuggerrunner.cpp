@@ -137,7 +137,7 @@ void DebuggerRunControl::start()
     //<daniel> andre: + "\qtc-gdbmacros\"
 
     //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
-    if (m_manager->startNewDebugger(DebuggerManager::startInternal))
+    if (m_manager->startNewDebugger(DebuggerManager::StartInternal))
         emit started();
     else
         debuggingFinished();
