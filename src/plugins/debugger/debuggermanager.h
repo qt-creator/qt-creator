@@ -466,6 +466,8 @@ private:
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
     DebuggerSettings m_settings;
+    // set during application shutdown
+    bool m_shutdown;
 };
 
 } // namespace Internal
