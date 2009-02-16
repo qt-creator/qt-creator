@@ -1588,6 +1588,8 @@ bool GdbEngine::startDebugger()
 
     sendCommand("set unwindonsignal on");
     sendCommand("pwd", GdbQueryPwd);
+    sendCommand("set width 0");
+    sendCommand("set height 0");
 
     #ifdef Q_OS_MAC
     sendCommand("-gdb-set inferior-auto-start-cfm off");
