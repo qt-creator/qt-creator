@@ -115,6 +115,7 @@ enum GdbCommandType
     GdbInfoThreads,
     GdbQueryDataDumper1,
     GdbQueryDataDumper2,
+    GdbTemporaryContinue,
 
     BreakCondition = 200,
     BreakEnablePending,
@@ -305,6 +306,7 @@ void GdbEngine::initializeVariables()
     m_pendingRequests = 0;
     m_waitingForBreakpointSynchronizationToContinue = false;
     m_waitingForFirstBreakpointToBeHit = false;
+    m_commandsToRunOnTemporaryBreak.clear();
 }
 
 void GdbEngine::gdbProcError(QProcess::ProcessError error)
@@ -650,22 +652,29 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    if (m_gdbProc.state() == QProcess::NotRunning)
+    qq->notifyInferiorStopRequested();
+    if (m_gdbProc.state() == QProcess::NotRunning) {
+        debugMessage("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB");
+        qq->notifyInferiorExited();
         return;
+    }
 
     if (q->m_attachedPID > 0) {
-        if (interruptProcess(q->m_attachedPID))
-            qq->notifyInferiorStopped();
+        if (!interruptProcess(q->m_attachedPID))
+        //    qq->notifyInferiorStopped();
+        //else
+            debugMessage(QString("CANNOT INTERRUPT %1").arg(q->m_attachedPID));
         return;
     }
 
 #ifdef Q_OS_MAC
     sendCommand("-exec-interrupt", GdbExecInterrupt);
-    qq->notifyInferiorStopped();
+    //qq->notifyInferiorStopped();
 #else
-    debugMessage(QString("CANNOT STOP INFERIOR"));
-    if (interruptChildProcess(m_gdbProc.pid()))
-        qq->notifyInferiorStopped();
+    if (!interruptChildProcess(m_gdbProc.pid()))
+    //    qq->notifyInferiorStopped();
+    //else
+        debugMessage(QString("CANNOT STOP INFERIOR"));
 #endif
 }
 
@@ -684,27 +693,19 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 }
 
 void GdbEngine::sendSynchronizedCommand(const QString & command,
-    int type, const QVariant &cookie, bool needStop)
+    int type, const QVariant &cookie, StopNeeded needStop)
 {
-    sendCommand(command, type, cookie, needStop, true);
+    sendCommand(command, type, cookie, needStop, Synchronized);
 }
 
 void GdbEngine::sendCommand(const QString &command, int type,
-    const QVariant &cookie, bool needStop, bool synchronized)
+    const QVariant &cookie, StopNeeded needStop, Synchronization synchronized)
 {
     if (m_gdbProc.state() == QProcess::NotRunning) {
         debugMessage("NO GDB PROCESS RUNNING, CMD IGNORED: " + command);
         return;
     }
 
-    bool temporarilyStopped = false;
-    if (needStop && q->status() == DebuggerInferiorRunning) {
-        q->showStatusMessage(tr("Temporarily stopped"));
-        interruptInferior();
-        temporarilyStopped = true;
-    }
-
-    ++currentToken();
     if (synchronized) {
         ++m_pendingRequests;
         PENDING_DEBUG("   TYPE " << type << " INCREMENTS PENDING TO: "
@@ -717,26 +718,30 @@ void GdbEngine::sendCommand(const QString &command, int type,
     GdbCookie cmd;
     cmd.synchronized = synchronized;
     cmd.command = command;
-    cmd.command = QString::number(currentToken()) + cmd.command;
-    if (cmd.command.contains("%1"))
-        cmd.command = cmd.command.arg(currentToken());
     cmd.type = type;
     cmd.cookie = cookie;
 
-    m_cookieForToken[currentToken()] = cmd;
+    if (needStop && q->status() != DebuggerInferiorStopped
+            && q->status() != DebuggerProcessStartingUp) {
+        // queue the commands that we cannot send at once
+        QTC_ASSERT(q->status() == DebuggerInferiorRunning,
+            qDebug() << "STATUS: " << q->status());
+        q->showStatusMessage(tr("Stopping temporarily."));
+        debugMessage("QUEUING COMMAND " + cmd.command);
+        m_commandsToRunOnTemporaryBreak.append(cmd);
+        interruptInferior();
+    } else if (!command.isEmpty()) {
+        ++currentToken();
+        m_cookieForToken[currentToken()] = cmd;
+        cmd.command = QString::number(currentToken()) + cmd.command;
+        if (cmd.command.contains("%1"))
+            cmd.command = cmd.command.arg(currentToken());
 
-    if (!command.isEmpty()) {
         m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
         //emit gdbInputAvailable(QString(), "         " +  currentTime());
         //emit gdbInputAvailable(QString(), "[" + currentTime() + "]    " + cmd.command);
         emit gdbInputAvailable(QString(), cmd.command);
     }
-
-    if (temporarilyStopped)
-        sendCommand("-exec-continue");
-
-    // slows down
-    //qApp->processEvents();
 }
 
 void GdbEngine::handleResultRecord(const GdbResultRecord &record)
@@ -822,6 +827,7 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             //handleExecRunToFunction(record);
             break;
         case GdbExecInterrupt:
+            qq->notifyInferiorStopped();
             break;
         case GdbExecJumpToLine:
             handleExecJumpToLine(record);
@@ -843,6 +849,10 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             break;
         case GdbQueryDataDumper2:
             handleQueryDataDumper2(record);
+            break;
+        case GdbTemporaryContinue:
+            continueInferior();
+            q->showStatusMessage(tr("Continuing after temporary stop."));
             break;
 
         case BreakList:
@@ -1104,6 +1114,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
     //!MAC: startSymbolName == data.findChild("frame").findChild("func")
     if (m_waitingForFirstBreakpointToBeHit) {
+        qq->notifyInferiorStopped();
         m_waitingForFirstBreakpointToBeHit = false;
         //
         // that's the "early stop"
@@ -1140,6 +1151,23 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         // this will "continue" if done
         m_waitingForBreakpointSynchronizationToContinue = true;
         QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
+        return;
+    }
+
+    if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
+        QTC_ASSERT(q->status() == DebuggerInferiorStopRequested, 
+            qDebug() << "STATUS: " << q->status())
+        qq->notifyInferiorStopped();
+        q->showStatusMessage(tr("Temporarily stopped."));
+        // FIXME: racy
+        foreach (const GdbCookie &cmd, m_commandsToRunOnTemporaryBreak) {
+            debugMessage(QString("RUNNING QUEUED COMMAND %1 %2")
+                .arg(cmd.command).arg(cmd.type));
+            sendCommand(cmd.command, cmd.type, cmd.cookie);
+        }
+        sendCommand("p temporaryStop", GdbTemporaryContinue);
+        m_commandsToRunOnTemporaryBreak.clear();
+        q->showStatusMessage(tr("Handling queued commands."));
         return;
     }
 
@@ -1560,6 +1588,8 @@ bool GdbEngine::startDebugger()
 
     sendCommand("set unwindonsignal on");
     sendCommand("pwd", GdbQueryPwd);
+    sendCommand("set width 0");
+    sendCommand("set height 0");
 
     #ifdef Q_OS_MAC
     sendCommand("-gdb-set inferior-auto-start-cfm off");
@@ -1619,8 +1649,8 @@ void GdbEngine::continueInferior()
 {
     q->resetLocation();
     setTokenBarrier();
-    qq->notifyInferiorRunningRequested();
     emit gdbInputAvailable(QString(), QString());
+    qq->notifyInferiorRunningRequested();
     sendCommand("-exec-continue", GdbExecContinue);
 }
 
@@ -1636,8 +1666,8 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
             //debugMessage("STREAM: " + msg + " " + needle.cap(1));
             sendCommand("tbreak *0x" + needle.cap(1));
             m_waitingForFirstBreakpointToBeHit = true;
-            sendCommand("-exec-run");
             qq->notifyInferiorRunningRequested();
+            sendCommand("-exec-run");
         } else {
             debugMessage("PARSING START ADDRESS FAILED: " + msg);
         }
@@ -1649,8 +1679,8 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
 void GdbEngine::stepExec()
 {
     setTokenBarrier();
-    qq->notifyInferiorRunningRequested();
     emit gdbInputAvailable(QString(), QString());
+    qq->notifyInferiorRunningRequested();
     sendCommand("-exec-step", GdbExecStep);
 }
 
@@ -1671,8 +1701,8 @@ void GdbEngine::stepOutExec()
 void GdbEngine::nextExec()
 {
     setTokenBarrier();
-    qq->notifyInferiorRunningRequested();
     emit gdbInputAvailable(QString(), QString());
+    qq->notifyInferiorRunningRequested();
     sendCommand("-exec-next", GdbExecNext);
 }
 
@@ -1865,8 +1895,8 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
 #endif
-    sendCommand(cmd, BreakInsert, index, true);
-    //processQueueAndContinue();
+    debugMessage(QString("Current state: %1").arg(q->status()));
+    sendCommand(cmd, BreakInsert, index, NeedsStop);
 }
 
 void GdbEngine::handleBreakList(const GdbResultRecord &record)
@@ -2103,10 +2133,11 @@ void GdbEngine::attemptBreakpointSynchronization()
 
     foreach (BreakpointData *data, handler->takeRemovedBreakpoints()) {
         QString bpNumber = data->bpNumber;
+        debugMessage(QString("DELETING BP %1 IN %2").arg(bpNumber)
+            .arg(data->markerFileName));
         if (!bpNumber.trimmed().isEmpty())
-            sendCommand("-break-delete " + bpNumber, BreakDelete, 0, true);
-        //else
-        //    qDebug() << "BP HAS NO NUMBER: " << data->markerFileName;
+            sendCommand("-break-delete " + bpNumber, BreakDelete, QVariant(),
+                NeedsStop);
         delete data;
     }
 
