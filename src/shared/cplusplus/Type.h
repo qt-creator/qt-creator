@@ -80,6 +80,7 @@ public:
     bool isNamespaceType() const;
     bool isClassType() const;
     bool isEnumType() const;
+    bool isForwardClassDeclarationType() const;
 
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const IntegerType *asIntegerType() const { return 0; }
