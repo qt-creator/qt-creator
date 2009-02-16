@@ -152,7 +152,7 @@ void DebuggerManager::init()
     m_busy = false;
 
     m_attachedPID = 0;
-    m_startMode = startInternal;
+    m_startMode = StartInternal;
 
     m_disassemblerHandler = 0;
     m_modulesHandler = 0;
@@ -737,13 +737,13 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 
 void DebuggerManager::startExternalApplication()
 {
-    if (!startNewDebugger(startExternal))
+    if (!startNewDebugger(StartExternal))
         emit debuggingFinished();
 }
 
 void DebuggerManager::attachExternalApplication()
 {
-    if (!startNewDebugger(attachExternal))
+    if (!startNewDebugger(AttachExternal))
         emit debuggingFinished();
 }
 
@@ -752,7 +752,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
     m_startMode = mode;
     // FIXME: Clean up
 
-    if (startMode() == startExternal) {
+    if (startMode() == StartExternal) {
         StartExternalDialog dlg(mainWindow());
         dlg.setExecutableFile(
             configValue(QLatin1String("LastExternalExecutableFile")).toString());
@@ -768,7 +768,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
         m_processArgs = dlg.executableArguments().split(' ');
         m_workingDir = QString();
         m_attachedPID = -1;
-    } else if (startMode() == attachExternal) {
+    } else if (startMode() == AttachExternal) {
         AttachExternalDialog dlg(mainWindow());
         if (dlg.exec() != QDialog::Accepted)
             return false;
@@ -781,7 +781,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
                 tr("Cannot attach to PID 0"));
             return false;
         }
-    } else if (startMode() == startInternal) {
+    } else if (startMode() == StartInternal) {
         if (m_executable.isEmpty()) {
             QString startDirectory = m_executable;
             if (m_executable.isEmpty()) {

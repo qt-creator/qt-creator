@@ -1588,9 +1588,10 @@ bool GdbEngine::startDebugger()
         }
     }
 
-    if (q->startMode() == q->attachExternal) {
+    if (q->startMode() == DebuggerManager::AttachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID));
     } else {
+        // StartInternal or StartExternal
         emit gdbInputAvailable(QString(), QString());
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
@@ -1607,7 +1608,7 @@ bool GdbEngine::startDebugger()
     sendCommand("-data-list-register-names", RegisterListNames);
 
     // set all to "pending"
-    if (q->startMode() == q->attachExternal)
+    if (q->startMode() == DebuggerManager::AttachExternal)
         qq->breakHandler()->removeAllBreakpoints();
     else
         qq->breakHandler()->setAllPending();
