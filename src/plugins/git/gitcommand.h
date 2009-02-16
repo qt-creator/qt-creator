@@ -49,7 +49,7 @@ public:
                         ProjectExplorer::Environment &environment);
 
 
-    void addJob(const QStringList &arguments);
+    void addJob(const QStringList &arguments, int timeout);
     void execute();
 
 private:
@@ -61,9 +61,10 @@ Q_SIGNALS:
 
 private:
     struct Job {
-        explicit Job(const QStringList &a);
+        explicit Job(const QStringList &a, int t);
 
         QStringList arguments;
+        int timeout;
     };
 
     QStringList environment() const;

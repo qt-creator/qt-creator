@@ -170,16 +170,24 @@ bool MinGWToolChain::equals(ToolChain *other) const
 
 void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
+    //qDebug()<<"MinGWToolChain::addToEnvironment";
     QString binDir = m_mingwPath + "/bin";
     if (QFileInfo(binDir).exists())
         env.prependOrSetPath(binDir);
+//    if (QFileInfo(binDir).exists())
+//        qDebug()<<"Adding "<<binDir<<" to the PATH";
 }
 
 
 MSVCToolChain::MSVCToolChain(const QString &name)
     : m_name(name), m_valuesSet(false)
 {
-
+    if (m_name.isEmpty()) { // Could be because system qt doesn't set this
+        QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
+                       QSettings::NativeFormat);
+        if (registry.allKeys().count())
+            m_name = registry.allKeys().first();
+    }
 }
 
 ToolChain::ToolChainType MSVCToolChain::type() const
@@ -211,10 +219,11 @@ QList<HeaderPath> MSVCToolChain::systemHeaderPaths()
     //TODO fix this code
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
-#ifdef QTCREATOR_WITH_MSVC_INCLUDES
-    return env.value("INCLUDE").split(QLatin1Char(';'));
-#endif
-    return QList<HeaderPath>();
+    QList<HeaderPath> headerPaths;
+    foreach(const QString &path, env.value("INCLUDE").split(QLatin1Char(';'))) {
+        headerPaths.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
+    }
+    return headerPaths;
 }
 
 void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
@@ -222,6 +231,8 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     if (!m_valuesSet) {
         QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
                        QSettings::NativeFormat);
+        if (m_name.isEmpty())
+            return;
         QString path = registry.value(m_name).toString();
         ProjectExplorer::Environment oldEnv(env);
         QString desc;
@@ -264,11 +275,12 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         m_valuesSet = true;
     }
 
+    //qDebug()<<"MSVC Environment:";
     QList< QPair<QString, QString> >::const_iterator it, end;
     end = m_values.constEnd();
     for (it = m_values.constBegin(); it != end; ++it) {
         env.set((*it).first, (*it).second);
-        qDebug()<<"variable:"<<(*it).first<<"value:"<<(*it).second;
+        //qDebug()<<"variable:"<<(*it).first<<"value:"<<(*it).second;
     }
 
 }
@@ -325,4 +337,6 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     CeSdkHandler cesdkhandler;
     cesdkhandler.parse(path);
     cesdkhandler.find(m_platform).addToEnvironment(env);
+    //qDebug()<<"WinCE Final Environment:";
+    //qDebug()<<env.toStringList();
 }

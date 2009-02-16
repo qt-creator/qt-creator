@@ -241,12 +241,17 @@ void QtVersionManager::addNewVersionsFromInstaller()
     // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432=c:\\qtcreator\\mingw\\=prependToPath;
     // Duplicate entries are not added, the first new version is set as default.
     QSettings *settings = Core::ICore::instance()->settings();
-    if (!settings->contains(newQtVersionsKey))
+
+    if (!settings->contains(newQtVersionsKey) &&
+        !settings->contains(QLatin1String("Installer/")+newQtVersionsKey))
         return;
 
 //    qDebug()<<"QtVersionManager::addNewVersionsFromInstaller()";
 
     QString newVersionsValue = settings->value(newQtVersionsKey).toString();
+    if (newVersionsValue.isEmpty())
+        newVersionsValue = settings->value(QLatin1String("Installer/")+newQtVersionsKey).toString();
+
     QStringList newVersionsList = newVersionsValue.split(';', QString::SkipEmptyParts);
     bool defaultVersionWasReset = false;
     foreach (QString newVersion, newVersionsList) {
@@ -281,6 +286,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
         }
     }
     settings->remove(newQtVersionsKey);
+    settings->remove(QLatin1String("Installer/")+newQtVersionsKey);
     updateUniqueIdToIndexMap();
 }
 
@@ -1183,14 +1189,17 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::toolchainType() const
     if (!isValid())
         return ProjectExplorer::ToolChain::INVALID;
     const QString &spec = mkspec();
+//    qDebug()<<"spec="<<spec;
     if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
         return ProjectExplorer::ToolChain::MSVC;
-    else if (spec == "win32-g++")
+    else if (spec.contains("win32-g++"))
         return ProjectExplorer::ToolChain::MinGW;
     else if (spec == QString::null)
         return ProjectExplorer::ToolChain::INVALID;
-    else if (spec.startsWith("wince"))
+    else if (spec.contains("wince"))
         return ProjectExplorer::ToolChain::WINCE;
+    else if (spec.contains("linux-icc"))
+        return ProjectExplorer::ToolChain::LinuxICC;
     else
         return ProjectExplorer::ToolChain::GCC;
 }
@@ -1222,7 +1231,7 @@ QString QtVersion::msvcVersion() const
 
 QString QtVersion::wincePlatform() const
 {
-    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
+//    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
     return ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
 }
 

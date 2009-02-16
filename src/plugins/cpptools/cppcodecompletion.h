@@ -86,9 +86,8 @@ private:
     void addMacros(const CPlusPlus::LookupContext &context);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
-    bool completeFunction(CPlusPlus::FullySpecifiedType exprTy,
-                          const QList<CPlusPlus::TypeOfExpression::Result> &,
-                          const CPlusPlus::LookupContext &context);
+    bool completeConstructorOrFunction(CPlusPlus::FullySpecifiedType exprTy,
+                                       const QList<CPlusPlus::TypeOfExpression::Result> &);
 
     bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);

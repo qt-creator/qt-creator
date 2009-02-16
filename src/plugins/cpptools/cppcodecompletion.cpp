@@ -187,10 +187,10 @@ using namespace CppTools::Internal;
 FunctionArgumentWidget::FunctionArgumentWidget()
     : m_item(0)
 {
-    QObject *editorObject = Core::ICore::instance()->editorManager()->currentEditor();
+    QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
-    m_popupFrame = new QFrame(0, Qt::ToolTip|Qt::WindowStaysOnTopHint);
+    m_popupFrame = new QFrame(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
     m_popupFrame->setFocusPolicy(Qt::NoFocus);
     m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -518,7 +518,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (exprTy->isReferenceType())
                 exprTy = exprTy->asReferenceType()->elementType();
 
-            if (m_completionOperator == T_LPAREN && completeFunction(exprTy, resolvedTypes, context)) {
+            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(exprTy, resolvedTypes)) {
                 return m_startPosition;
             } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(resolvedTypes, context)) {
@@ -551,7 +551,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             foreach (const TypeOfExpression::Result &result, results) {
                 if (result.first->isClassType()) {
                     FullySpecifiedType exprTy = result.first;
-                    if (completeConstructors(exprTy->asClassType()))
+                    if (completeConstructorOrFunction(exprTy, QList<TypeOfExpression::Result>()))
                         return m_startPosition;
                     break;
                 }
@@ -563,18 +563,29 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
-                                         const QList<TypeOfExpression::Result> &resolvedTypes,
-                                         const LookupContext &)
+bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType exprTy,
+                                                      const QList<TypeOfExpression::Result> &resolvedTypes)
 {
-    if (Class *klass = exprTy->asClassType()) {
-        completeConstructors(klass);
-    } else {
-        ConvertToCompletionItem toCompletionItem(this);
-        Overview o;
-        o.setShowReturnTypes(true);
-        o.setShowArgumentNames(true);
+    ConvertToCompletionItem toCompletionItem(this);
+    Overview o;
+    o.setShowReturnTypes(true);
+    o.setShowArgumentNames(true);
 
+    if (Class *klass = exprTy->asClassType()) {
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            if (! member->type()->isFunctionType())
+                continue;
+            else if (! member->identity())
+                continue;
+            else if (! member->identity()->isEqualTo(klass->identity()))
+                continue;
+            if (TextEditor::CompletionItem item = toCompletionItem(member)) {
+                item.m_text = o(member->type(), member->name());
+                m_completions.append(item);
+            }
+        }
+    } else {
         QSet<QString> signatures;
         foreach (TypeOfExpression::Result p, resolvedTypes) {
             FullySpecifiedType ty = p.first;
@@ -593,6 +604,10 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
             }
         }
     }
+
+    // If there is only one item, show the function argument widget immediately
+    if (m_completions.size() == 1)
+        complete(m_completions.takeFirst());
 
     return ! m_completions.isEmpty();
 }
@@ -887,30 +902,6 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     }
 }
 
-bool CppCodeCompletion::completeConstructors(Class *klass)
-{
-    ConvertToCompletionItem toCompletionItem(this);
-    Overview o;
-    o.setShowReturnTypes(true);
-    o.setShowArgumentNames(true);
-
-    for (unsigned i = 0; i < klass->memberCount(); ++i) {
-        Symbol *member = klass->memberAt(i);
-        if (! member->type()->isFunctionType())
-            continue;
-        else if (! member->identity())
-            continue;
-        else if (! member->identity()->isEqualTo(klass->identity()))
-            continue;
-        if (TextEditor::CompletionItem item = toCompletionItem(member)) {
-            item.m_text = o(member->type(), member->name());
-            m_completions.append(item);
-        }
-    }
-
-    return ! m_completions.isEmpty();
-}
-
 bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
                                          const QList<TypeOfExpression::Result> &results,
                                          const LookupContext &context,
@@ -1078,7 +1069,10 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             Function *function = symbol->type()->asFunctionType();
             QTC_ASSERT(function, return);
 
-            m_functionArgumentWidget = new FunctionArgumentWidget();
+            // Recreate if necessary
+            if (!m_functionArgumentWidget)
+                m_functionArgumentWidget = new FunctionArgumentWidget;
+
             m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.snapshot());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {

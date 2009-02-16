@@ -84,7 +84,7 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-win32 {
+false {
 
 HEADERS += \
     cdbdebugengine.h \

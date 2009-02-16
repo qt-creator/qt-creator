@@ -404,8 +404,10 @@ void Qt4Project::scheduleUpdateCodeModel()
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
+    if (debug)
+        qDebug()<<"Qt4Project::toolChain() for buildconfiguration:"<<buildConfiguration;
     Q_UNUSED(buildConfiguration);
-    ToolChain *m_test;
+    ToolChain *m_test= 0;
     QtVersion *version = qtVersion(activeBuildConfiguration());
     ToolChain::ToolChainType t = version->toolchainType();
     if (t == ToolChain::MinGW) {
@@ -415,20 +417,27 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
+        qDebug()<<"Mingw ToolChain";
     } else if(t == ToolChain::MSVC) {
         m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
+        //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
     } else if(t == ToolChain::WINCE) {
         m_test = ToolChain::createWinCEToolChain(version->msvcVersion(), version->wincePlatform());
-    } else if(t == ToolChain::GCC) {
+        //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
+    } else if(t == ToolChain::GCC || t == ToolChain::LinuxICC) {
         QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
         Environment env = Environment::systemEnvironment();
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createGccToolChain(qmake_cxx);
+        //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
+    } else {
+        qDebug()<<"Could not detect ToolChain for"<<version->mkspec();
+        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
 
-    if (m_test == m_toolChain) {
+    if (ToolChain::equals(m_test, m_toolChain)) {
         delete m_test;
     } else {
         delete m_toolChain;
@@ -457,8 +466,18 @@ void Qt4Project::updateCodeModel()
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
     ToolChain *tc = toolChain(activeBuildConfiguration());
-    QByteArray predefinedMacros = tc->predefinedMacros();
-    QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+    QByteArray predefinedMacros;
+    QList<HeaderPath> allHeaderPaths;
+    if (tc) {
+        predefinedMacros = tc->predefinedMacros();
+        allHeaderPaths = tc->systemHeaderPaths();
+        //qDebug()<<"Predifined Macros";
+        //qDebug()<<tc->predefinedMacros();
+        //qDebug()<<"";
+        //qDebug()<<"System Header Paths";
+        //foreach(const HeaderPath &hp, tc->systemHeaderPaths())
+        //    qDebug()<<hp.path();
+    }
     foreach (HeaderPath headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());
@@ -696,7 +715,9 @@ ProjectExplorer::Environment Qt4Project::baseEnvironment(const QString &buildCon
 {
     Environment env = useSystemEnvironment(buildConfiguration) ? Environment(QProcess::systemEnvironment()) : Environment();
     qtVersion(buildConfiguration)->addToEnvironment(env);
-    toolChain(buildConfiguration)->addToEnvironment(env);
+    ToolChain *tc = toolChain(buildConfiguration);
+    if (tc)
+        tc->addToEnvironment(env);
     return env;
 }
 
@@ -863,14 +884,14 @@ void Qt4Project::checkForDeletedApplicationProjects()
     foreach (Qt4ProFileNode * node, applicationProFiles())
         paths.append(node->path());
 
-    qDebug()<<"Still existing paths :"<<paths;
+//    qDebug()<<"Still existing paths :"<<paths;
 
     QList<QSharedPointer<Qt4RunConfiguration> > removeList;
     foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
         if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>()) {
             if (!paths.contains(qt4rc->proFilePath())) {
                 removeList.append(qt4rc);
-                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
+//                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
             }
         }
     }

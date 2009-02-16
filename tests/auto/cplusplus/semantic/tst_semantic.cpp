@@ -99,6 +99,7 @@ private slots:
     void typedef_2();
     void typedef_3();
     void const_1();
+    void const_2();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -323,7 +324,7 @@ void tst_Semantic::typedef_3()
 void tst_Semantic::const_1()
 {
     QSharedPointer<Document> doc = document("\n"
-"int foo(const void *s);\n"
+"int foo(const int *s);\n"
     );
 
     QCOMPARE(doc->errorCount, 0U);
@@ -340,7 +341,30 @@ void tst_Semantic::const_1()
     QVERIFY(! arg->type().isConst());
     QVERIFY(arg->type()->isPointerType());
     QVERIFY(arg->type()->asPointerType()->elementType().isConst());
-    QVERIFY(arg->type()->asPointerType()->elementType()->isVoidType());
+    QVERIFY(arg->type()->asPointerType()->elementType()->isIntegerType());
+}
+
+void tst_Semantic::const_2()
+{
+    QSharedPointer<Document> doc = document("\n"
+"int foo(char * const s);\n"
+    );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    QVERIFY(decl);
+    QVERIFY(decl->type()->isFunctionType());
+    Function *funTy = decl->type()->asFunctionType();
+    QVERIFY(funTy->returnType()->isIntegerType());
+    QCOMPARE(funTy->argumentCount(), 1U);
+    Argument *arg = funTy->argumentAt(0)->asArgument();
+    QVERIFY(arg);
+    QVERIFY(arg->type().isConst());
+    QVERIFY(arg->type()->isPointerType());
+    QVERIFY(! arg->type()->asPointerType()->elementType().isConst());
+    QVERIFY(arg->type()->asPointerType()->elementType()->isIntegerType());
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)

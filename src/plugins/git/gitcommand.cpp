@@ -55,8 +55,9 @@ static inline QStringList environmentToList(const ProjectExplorer::Environment &
     return ProjectExplorer::Environment::systemEnvironment().toStringList();
 }
 
-GitCommand::Job::Job(const QStringList &a) :
-    arguments(a)
+GitCommand::Job::Job(const QStringList &a, int t) :
+    arguments(a),
+    timeout(t)
 {
 }
 
@@ -67,9 +68,9 @@ GitCommand::GitCommand(const QString &workingDirectory,
 {
 }
 
-void GitCommand::addJob(const QStringList &arguments)
+void GitCommand::addJob(const QStringList &arguments, int timeout)
 {
-    m_jobs.push_back(Job(arguments));
+    m_jobs.push_back(Job(arguments, timeout));
 }
 
 void GitCommand::execute()
@@ -109,7 +110,7 @@ void GitCommand::run()
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
         process.start(QLatin1String(Constants::GIT_BINARY), m_jobs.at(j).arguments);
-        if (!process.waitForFinished()) {
+        if (!process.waitForFinished(m_jobs.at(j).timeout * 1000)) {
             ok = false;
             error += QLatin1String("Error: Git timed out");
             break;

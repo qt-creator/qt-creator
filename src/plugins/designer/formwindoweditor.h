@@ -63,7 +63,6 @@ class EditorWidget;
 class FormWindowEditor : public Core::IEditor
 {
     Q_OBJECT
-
 public:
     FormWindowEditor(const QList<int> &context,
                      QDesignerFormWindowInterface *form,
@@ -84,8 +83,9 @@ public:
     bool restoreState(const QByteArray &state);
 
     // ContextInterface
-    QList<int> context() const;
-    QWidget *widget();
+    virtual QList<int> context() const;
+    virtual QWidget *widget();
+    virtual QString contextHelpId() const;
 
     QDesignerFormWindowInterface *formWindow() const;
     QWidget *integrationContainer();

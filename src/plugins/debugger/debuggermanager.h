@@ -170,7 +170,11 @@ private:
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
-    virtual bool useFastStart() const = 0;
+    
+    virtual bool wantsAllPluginBreakpoints() const = 0;
+    virtual bool wantsSelectedPluginBreakpoints() const = 0;
+    virtual bool wantsNoPluginBreakpoints() const = 0;
+    virtual QString selectedPluginBreakpointsPattern() const = 0;
 
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
@@ -200,6 +204,11 @@ public:
     bool m_useToolTips;
 
     QString m_scriptFile;
+
+    bool m_pluginAllBreakpoints;
+    bool m_pluginSelectedBreakpoints;
+    bool m_pluginNoBreakpoints;
+    QString m_pluginSelectedBreakpointsPattern;
 };
 
 //
@@ -283,7 +292,6 @@ public slots:
     void setUseCustomDumpers(bool on);
     void setDebugDumpers(bool on);
     void setSkipKnownFrames(bool on);
-    void setUseFastStart(bool on);
 
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
@@ -318,7 +326,14 @@ private:
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
-    bool useFastStart() const;
+    bool wantsAllPluginBreakpoints() const
+        { return m_settings.m_pluginAllBreakpoints; }
+    bool wantsSelectedPluginBreakpoints() const
+        { return m_settings.m_pluginSelectedBreakpoints; }
+    bool wantsNoPluginBreakpoints() const
+        { return m_settings.m_pluginNoBreakpoints; }
+    QString selectedPluginBreakpointsPattern() const
+        { return m_settings.m_pluginSelectedBreakpointsPattern; }
 
     void notifyStartupFinished();
     void notifyInferiorStopped();
@@ -451,6 +466,8 @@ private:
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
     DebuggerSettings m_settings;
+    // set during application shutdown
+    bool m_shutdown;
 };
 
 } // namespace Internal
