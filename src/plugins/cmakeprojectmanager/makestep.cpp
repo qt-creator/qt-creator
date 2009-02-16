@@ -34,6 +34,7 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 #include <QtGui/QFormLayout>
@@ -41,6 +42,11 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QListWidget>
+
+namespace {
+bool debug = false;
+}
+
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -52,10 +58,42 @@ MakeStep::MakeStep(CMakeProject *pro)
 
 MakeStep::~MakeStep()
 {
+    delete m_buildParser;
+    m_buildParser = 0;
 }
 
 bool MakeStep::init(const QString &buildConfiguration)
 {
+    // TODO figure out the correct build parser
+    delete m_buildParser;
+    m_buildParser = 0;
+    QString buildParser = m_pro->buildParser(buildConfiguration);
+    QList<ProjectExplorer::IBuildParserFactory *> buildParserFactories =
+            ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::IBuildParserFactory>();
+
+    foreach (ProjectExplorer::IBuildParserFactory * factory, buildParserFactories)
+        if (factory->canCreate(buildParser)) {
+            m_buildParser = factory->create(buildParser);
+            break;
+        }
+    if (m_buildParser) {
+        connect(m_buildParser, SIGNAL(addToOutputWindow(const QString &)),
+                this, SIGNAL(addToOutputWindow(const QString &)),
+                Qt::DirectConnection);
+        connect(m_buildParser, SIGNAL(addToTaskWindow(const QString &, int, int, const QString &)),
+                this, SLOT(slotAddToTaskWindow(const QString &, int, int, const QString &)),
+                Qt::DirectConnection);
+        connect(m_buildParser, SIGNAL(enterDirectory(const QString &)),
+                this, SLOT(addDirectory(const QString &)),
+                Qt::DirectConnection);
+        connect(m_buildParser, SIGNAL(leaveDirectory(const QString &)),
+                this, SLOT(removeDirectory(const QString &)),
+                Qt::DirectConnection);
+    }
+
+    m_openDirectories.clear();
+    addDirectory(m_pro->buildDirectory(buildConfiguration));
+
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
     setCommand(buildConfiguration, "make"); // TODO give full path here?
@@ -88,6 +126,79 @@ bool MakeStep::immutable() const
 {
     return true;
 }
+
+void MakeStep::stdOut(const QString &line)
+{
+    if (m_buildParser)
+        m_buildParser->stdOutput(line);
+    AbstractProcessStep::stdOut(line);
+}
+
+void MakeStep::stdError(const QString &line)
+{
+    if (m_buildParser)
+        m_buildParser->stdError(line);
+    AbstractProcessStep::stdError(line);
+}
+
+void MakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
+{
+    QString filePath = fn;
+    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
+        // We have no save way to decide which file in which subfolder
+        // is meant. Therefore we apply following heuristics:
+        // 1. Search for unique file in directories currently indicated as open by GNU make
+        //    (Enter directory xxx, Leave directory xxx...) + current directory
+        // 3. Check if file is unique in whole project
+        // 4. Otherwise give up
+
+        filePath = filePath.trimmed();
+
+        QList<QFileInfo> possibleFiles;
+        foreach (const QString &dir, m_openDirectories) {
+            QFileInfo candidate(dir + QLatin1Char('/') + filePath);
+            if (debug)
+                qDebug() << "Checking path " << candidate.filePath();
+            if (candidate.exists()
+                    && !possibleFiles.contains(candidate)) {
+                if (debug)
+                    qDebug() << candidate.filePath() << "exists!";
+                possibleFiles << candidate;
+            }
+        }
+        if (possibleFiles.count() == 0) {
+            if (debug)
+                qDebug() << "No success. Trying all files in project ...";
+            QString fileName = QFileInfo(filePath).fileName();
+            foreach (const QString &file, project()->files(ProjectExplorer::Project::AllFiles)) {
+                QFileInfo candidate(file);
+                if (candidate.fileName() == fileName) {
+                    if (debug)
+                        qDebug() << "Found " << file;
+                    possibleFiles << candidate;
+                }
+            }
+        }
+        if (possibleFiles.count() == 1)
+            filePath = possibleFiles.first().filePath();
+        else
+            qWarning() << "Could not find absolute location of file " << filePath;
+    }
+    emit addToTaskWindow(filePath, type, linenumber, description);
+}
+
+void MakeStep::addDirectory(const QString &dir)
+{
+    if (!m_openDirectories.contains(dir))
+        m_openDirectories.insert(dir);
+}
+
+void MakeStep::removeDirectory(const QString &dir)
+{
+    if (m_openDirectories.contains(dir))
+        m_openDirectories.remove(dir);
+}
+
 
 CMakeProject *MakeStep::project() const
 {
@@ -154,7 +265,6 @@ void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
     }
     // and connect again
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-
 }
 
 //

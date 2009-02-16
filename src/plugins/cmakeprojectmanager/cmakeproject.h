@@ -105,6 +105,7 @@ public:
     MakeStep *makeStep() const;
     CMakeStep *cmakeStep() const;
     QStringList targets() const;
+    QString buildParser(const QString &buildConfiguration) const;
 
 private:
     void parseCMakeLists();

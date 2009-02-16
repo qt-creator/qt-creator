@@ -36,6 +36,8 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -71,9 +73,9 @@ ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion * c
     QString buildParser;
     ProjectExplorer::ToolChain::ToolChainType type = version->toolchainType();
     if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
-        buildParser = Constants::BUILD_PARSER_MSVC;
+        buildParser = ProjectExplorer::Constants::BUILD_PARSER_MSVC;
     else
-        buildParser = Constants::BUILD_PARSER_GCC;
+        buildParser = ProjectExplorer::Constants::BUILD_PARSER_GCC;
 
     QList<IBuildParserFactory *> buildParserFactories =
             ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::IBuildParserFactory>();

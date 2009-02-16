@@ -32,11 +32,11 @@
 ***************************************************************************/
 
 #include "gccparser.h"
-#include "qt4projectmanagerconstants.h"
+#include "projectexplorerconstants.h"
 
 #include <QDebug>
 
-using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 
 GccParser::GccParser()
 {
@@ -56,7 +56,7 @@ GccParser::GccParser()
 
 QString GccParser::name() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::BUILD_PARSER_GCC);
+    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_GCC);
 }
 
 void GccParser::stdOutput(const QString & line)

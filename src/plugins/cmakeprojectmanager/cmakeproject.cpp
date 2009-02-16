@@ -40,6 +40,7 @@
 #include "cmakestep.h"
 #include "makestep.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -103,7 +104,7 @@ void CMakeProject::parseCMakeLists()
         } else {
             // TODO hmm?
         }
-        if (newToolChain == m_toolChain) {
+        if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
             delete newToolChain;
             newToolChain = 0;
         } else {
@@ -156,6 +157,21 @@ void CMakeProject::parseCMakeLists()
         delete m_toolChain;
         m_toolChain = 0;
     }
+}
+
+QString CMakeProject::buildParser(const QString &buildConfiguration) const
+{
+    if (!m_toolChain)
+        return QString::null;
+    if (m_toolChain->type() == ProjectExplorer::ToolChain::GCC
+        || m_toolChain->type() == ProjectExplorer::ToolChain::LinuxICC
+        || m_toolChain->type() == ProjectExplorer::ToolChain::MinGW) {
+        return ProjectExplorer::Constants::BUILD_PARSER_GCC;
+    } else if (m_toolChain->type() == ProjectExplorer::ToolChain::MSVC
+               || m_toolChain->type() == ProjectExplorer::ToolChain::WINCE) {
+        return ProjectExplorer::Constants::BUILD_PARSER_MSVC;
+    }
+    return QString::null;
 }
 
 QStringList CMakeProject::targets() const

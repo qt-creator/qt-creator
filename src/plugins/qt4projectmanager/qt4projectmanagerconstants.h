@@ -79,10 +79,6 @@ const char * const GDBMACROSBUILDSTEP = "trolltech.qt4projectmanager.gdbmaros";
 const char * const QT4RUNSTEP = "trolltech.qt4projectmanager.qt4runstep";
 const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelperrunstep";
 
-// build parsers
-const char * const BUILD_PARSER_MSVC    = "BuildParser.MSVC";
-const char * const BUILD_PARSER_GCC     = "BuildParser.Gcc";
-
 // views
 const char * const VIEW_DETAILED        = "Qt4.View.Detailed";
 const char * const VIEW_PROFILESONLY    = "Qt4.View.ProjectHierarchy";
