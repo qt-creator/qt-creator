@@ -1178,7 +1178,7 @@ unsigned DeclaratorListAST::lastToken() const
 {
     for (const DeclaratorListAST *it = this; it; it = it->next) {
         if (! it->next)
-            return it->lastToken();
+            return it->declarator->lastToken();
     }
     return 0;
 }

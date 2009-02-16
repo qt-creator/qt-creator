@@ -1562,6 +1562,7 @@ bool GdbEngine::startDebugger()
     //sendCommand("set pagination off");
     sendCommand("set breakpoint pending on", BreakEnablePending);
     sendCommand("set print elements 10000");
+    sendCommand("-data-list-register-names", RegisterListNames);
 
     // one of the following is needed to prevent crashes in gdb on code like:
     //  template <class T> T foo() { return T(0); }
@@ -1632,8 +1633,6 @@ bool GdbEngine::startDebugger()
         sendCommand("set auto-solib-add off");
         sendCommand("x/2i " + startSymbolName(), GdbStart);
     }
-
-    sendCommand("-data-list-register-names", RegisterListNames);
 
     // set all to "pending"
     if (q->startMode() == DebuggerManager::AttachExternal)

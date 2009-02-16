@@ -102,6 +102,9 @@ bool Type::isClassType() const
 bool Type::isEnumType() const
 { return asEnumType() != 0; }
 
+bool Type::isForwardClassDeclarationType() const
+{ return asForwardClassDeclarationType() != 0; }
+
 void Type::accept(TypeVisitor *visitor)
 {
     if (visitor->preVisit(this))

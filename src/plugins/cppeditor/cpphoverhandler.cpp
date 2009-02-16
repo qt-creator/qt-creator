@@ -47,6 +47,7 @@
 #include <CoreTypes.h>
 #include <FullySpecifiedType.h>
 #include <Literals.h>
+#include <Control.h>
 #include <Names.h>
 #include <Scope.h>
 #include <Symbol.h>
@@ -141,30 +142,13 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-static QString buildHelpId(const FullySpecifiedType &type,
-                           const Symbol *symbol)
+static QString buildHelpId(Symbol *symbol, Name *name)
 {
-    Name *name = 0;
     Scope *scope = 0;
 
-    if (const Function *f = type->asFunctionType()) {
-        name = f->name();
-        scope = f->scope();
-    } else if (const Class *c = type->asClassType()) {
-        name = c->name();
-        scope = c->scope();
-    } else if (const Enum *e = type->asEnumType()) {
-        name = e->name();
-        scope = e->scope();
-    } else if (const NamedType *t = type->asNamedType()) {
-        name = t->name();
-    } else if (symbol && symbol->isDeclaration()) {
-        const Declaration *d = symbol->asDeclaration();
-
-        if (d->scope() && d->scope()->isEnumScope()) {
-            name = d->name();
-            scope = d->scope();
-        }
+    if (symbol) {
+        scope = symbol->scope();
+        name = symbol->name();
     }
 
     if (! name)
@@ -178,20 +162,88 @@ static QString buildHelpId(const FullySpecifiedType &type,
     qualifiedNames.prepend(overview.prettyName(name));
 
     for (; scope; scope = scope->enclosingScope()) {
-        if (scope->owner() && scope->owner()->name() && !scope->isEnumScope()) {
-            Name *name = scope->owner()->name();
+        Symbol *owner = scope->owner();
+
+        if (owner && owner->name() && ! scope->isEnumScope()) {
+            Name *name = owner->name();
             Identifier *id = 0;
-            if (NameId *nameId = name->asNameId()) {
+
+            if (NameId *nameId = name->asNameId())
                 id = nameId->identifier();
-            } else if (TemplateNameId *nameId = name->asTemplateNameId()) {
+
+            else if (TemplateNameId *nameId = name->asTemplateNameId())
                 id = nameId->identifier();
-            }
+
             if (id)
                 qualifiedNames.prepend(QString::fromLatin1(id->chars(), id->size()));
         }
     }
 
     return qualifiedNames.join(QLatin1String("::"));
+}
+
+// ### move me
+static FullySpecifiedType resolve(const FullySpecifiedType &ty,
+                                  const LookupContext &context,
+                                  Symbol **resolvedSymbol,
+                                  Name **resolvedName)
+{
+    Control *control = context.control();
+
+    if (const PointerType *ptrTy = ty->asPointerType()) {
+        return control->pointerType(resolve(ptrTy->elementType(), context,
+                                            resolvedSymbol, resolvedName));
+
+    } else if (const ReferenceType *refTy = ty->asReferenceType()) {
+        return control->referenceType(resolve(refTy->elementType(), context,
+                                              resolvedSymbol, resolvedName));
+
+    } else if (const PointerToMemberType *ptrToMemTy = ty->asPointerToMemberType()) {
+        return control->pointerToMemberType(ptrToMemTy->memberName(),
+                                            resolve(ptrToMemTy->elementType(), context,
+                                                    resolvedSymbol, resolvedName));
+
+    } else if (const NamedType *namedTy = ty->asNamedType()) {
+        if (resolvedName)
+            *resolvedName = namedTy->name();
+
+        const QList<Symbol *> candidates = context.resolve(namedTy->name());
+
+        foreach (Symbol *c, candidates) {
+            if (c->isClass() || c->isEnum()) {
+                if (resolvedSymbol)
+                    *resolvedSymbol = c;
+
+                return c->type();
+            }
+        }
+
+    } else if (const Namespace *nsTy = ty->asNamespaceType()) {
+        if (resolvedName)
+            *resolvedName = nsTy->name();
+
+    } else if (const Class *classTy = ty->asClassType()) {
+        if (resolvedName)
+            *resolvedName = classTy->name();
+
+        if (resolvedSymbol)
+            *resolvedSymbol = const_cast<Class *>(classTy);
+
+    } else if (const ForwardClassDeclaration *fwdClassTy = ty->asForwardClassDeclarationType()) {
+        if (resolvedName)
+            *resolvedName = fwdClassTy->name();
+
+    } else if (const Enum *enumTy = ty->asEnumType()) {
+        if (resolvedName)
+            *resolvedName = enumTy->name();
+
+    } else if (const Function *funTy = ty->asFunctionType()) {
+        if (resolvedName)
+            *resolvedName = funTy->name();
+
+    }
+
+    return ty;
 }
 
 void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
@@ -262,26 +314,38 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 typeOfExpression(expression, doc, lastSymbol);
 
         if (!types.isEmpty()) {
-            FullySpecifiedType firstType = types.first().first;
-            Symbol *symbol = types.first().second;
-            FullySpecifiedType docType = firstType;
+            const TypeOfExpression::Result result = types.first();
 
-            if (const PointerType *pt = firstType->asPointerType()) {
-                docType = pt->elementType();
-            } else if (const ReferenceType *rt = firstType->asReferenceType()) {
-                docType = rt->elementType();
-            }
+            FullySpecifiedType firstType = result.first; // result of `type of expression'.
+            Symbol *lookupSymbol = result.second;        // lookup symbol
 
-            m_helpId = buildHelpId(docType, symbol);
-            QString displayName = buildHelpId(firstType, symbol);
+            Symbol *resolvedSymbol = 0;
+            Name *resolvedName = 0;
+            firstType = resolve(firstType, typeOfExpression.lookupContext(),
+                                &resolvedSymbol, &resolvedName);
 
-            if (!firstType->isClassType() && !firstType->isNamedType()) {
-                Overview overview;
-                overview.setShowArgumentNames(true);
-                overview.setShowReturnTypes(true);
-                m_toolTip = overview.prettyType(firstType, displayName);
-            } else {
+            m_helpId = buildHelpId(resolvedSymbol, resolvedName);
+
+            Symbol *symbol = result.second;
+            if (resolvedSymbol)
+                symbol = resolvedSymbol;
+
+            Overview overview;
+            overview.setShowArgumentNames(true);
+            overview.setShowReturnTypes(true);
+            overview.setShowFullyQualifiedNamed(true);
+
+            if (lookupSymbol && lookupSymbol->isDeclaration()) {
+                Declaration *decl = lookupSymbol->asDeclaration();
+                m_toolTip = overview.prettyType(firstType, decl->name());
+
+            } else if (firstType->isClassType() || firstType->isEnumType() ||
+                       firstType->isForwardClassDeclarationType()) {
                 m_toolTip = m_helpId;
+
+            } else {
+                m_toolTip = overview.prettyType(firstType, m_helpId);
+
             }
         }
     }
