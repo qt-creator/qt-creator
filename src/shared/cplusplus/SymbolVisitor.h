@@ -82,6 +82,7 @@ public:
     virtual bool visit(Namespace *) { return true; }
     virtual bool visit(Class *) { return true; }
     virtual bool visit(Block *) { return true; }
+    virtual bool visit(ForwardClassDeclaration *) { return true; }
 };
 
 CPLUSPLUS_END_NAMESPACE

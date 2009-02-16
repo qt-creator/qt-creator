@@ -100,7 +100,7 @@ QIcon Icons::iconForSymbol(const Symbol *symbol) const
         }
     } else if (symbol->isEnum()) {
         return _enumIcon;
-    } else if (symbol->isClass()) {
+    } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
         return _classIcon;
     } else if (symbol->isNamespace()) {
         return _namespaceIcon;

@@ -64,8 +64,17 @@ public:
     CMakeProject *project() const;
     bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
+private slots:
+    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
+    void addDirectory(const QString &dir);
+    void removeDirectory(const QString &dir);
+protected:
+    virtual void stdOut(const QString &line);
+    virtual void stdError(const QString &line);
 private:
     CMakeProject *m_pro;
+    ProjectExplorer::BuildParserInterface *m_buildParser;
+    QSet<QString> m_openDirectories;
 };
 
 class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

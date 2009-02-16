@@ -37,8 +37,40 @@
 #include <CoreTypes.h>
 #include <Symbols.h>
 #include <Scope.h>
+#include <QStringList>
+#include <QtDebug>
 
 using namespace CPlusPlus;
+
+
+static QString fullyQualifiedName(Symbol *symbol, const Overview *overview)
+{
+    QStringList nestedNameSpecifier;
+
+    for (Scope *scope = symbol->scope(); scope && scope->enclosingScope();
+         scope = scope->enclosingScope())
+    {
+        Symbol *owner = scope->owner();
+
+        if (! owner) {
+            qWarning() << "invalid scope."; // ### better message.
+            continue;
+        }
+
+        if (! owner->name())
+            nestedNameSpecifier.prepend(QLatin1String("<anonymous>"));
+
+        else {
+            const QString name = overview->prettyName(owner->name());
+
+            nestedNameSpecifier.prepend(name);
+        }
+    }
+
+    nestedNameSpecifier.append(overview->prettyName(symbol->name()));
+
+    return nestedNameSpecifier.join(QLatin1String("::"));
+}
 
 TypePrettyPrinter::TypePrettyPrinter(const Overview *overview)
     : _overview(overview),
@@ -150,16 +182,26 @@ void TypePrettyPrinter::visit(Namespace *type)
     applyPtrOperators();
 }
 
-void TypePrettyPrinter::visit(Class *type)
+void TypePrettyPrinter::visit(Class *classTy)
 {
-    _text += overview()->prettyName(type->name());
+    if (overview()->showFullyQualifiedNames())
+        _text += fullyQualifiedName(classTy, overview());
+
+    else
+        _text += overview()->prettyName(classTy->name());
+
     applyPtrOperators();
 }
 
 
 void TypePrettyPrinter::visit(Enum *type)
 {
-    _text += overview()->prettyName(type->name());
+    if (overview()->showFullyQualifiedNames())
+        _text += fullyQualifiedName(type, overview());
+
+    else
+        _text += overview()->prettyName(type->name());
+
     applyPtrOperators();
 }
 
@@ -259,11 +301,14 @@ void TypePrettyPrinter::visit(Function *type)
     if (! _ptrOperators.isEmpty()) {
         out(QLatin1Char('('));
         applyPtrOperators(false);
+
         if (! _name.isEmpty()) {
             _text += _name;
             _name.clear();
         }
+
         out(QLatin1Char(')'));
+
     } else if (! _name.isEmpty() && _overview->showFunctionSignatures()) {
         space();
         out(_name);

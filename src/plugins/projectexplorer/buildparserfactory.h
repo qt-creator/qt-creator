@@ -36,14 +36,14 @@
 
 #include <projectexplorer/buildparserinterface.h>
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
 namespace Internal {
 
 class GccParserFactory : public ProjectExplorer::IBuildParserFactory
 {
     Q_OBJECT
 public:
-    GccParserFactory() {};
+    GccParserFactory() {}
     virtual ~GccParserFactory();
     virtual bool canCreate(const QString & name) const;
     virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
@@ -53,13 +53,13 @@ class MsvcParserFactory : public ProjectExplorer::IBuildParserFactory
 {
     Q_OBJECT
 public:
-    MsvcParserFactory() {};
+    MsvcParserFactory() {}
     virtual ~MsvcParserFactory();
     virtual bool canCreate(const QString & name) const;
     virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // BUILDPARSERFACTORY_H

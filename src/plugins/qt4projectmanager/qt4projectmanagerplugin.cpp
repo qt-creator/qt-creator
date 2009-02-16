@@ -41,7 +41,6 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "qmakebuildstepfactory.h"
-#include "buildparserfactory.h"
 #include "qtversionmanager.h"
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
@@ -132,9 +131,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QMakeBuildStepFactory);
     addAutoReleasedObject(new MakeBuildStepFactory);
     addAutoReleasedObject(new GdbMacrosBuildStepFactory);
-
-    addAutoReleasedObject(new GccParserFactory);
-    addAutoReleasedObject(new MsvcParserFactory);
 
     m_qtVersionManager = new QtVersionManager;
     addObject(m_qtVersionManager);

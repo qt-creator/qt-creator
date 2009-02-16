@@ -158,12 +158,15 @@ private:
     // queue". resultNeeded == true increments m_pendingResults on
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
-    void sendCommand(const QString & command,
+    enum StopNeeded { DoesNotNeedStop, NeedsStop };
+    enum Synchronization { NotSynchronized, Synchronized };
+    void sendCommand(const QString &command,
         int type = 0, const QVariant &cookie = QVariant(),
-        bool needStop = false, bool synchronized = false);
+        StopNeeded needStop = DoesNotNeedStop,
+        Synchronization synchronized = NotSynchronized);
     void sendSynchronizedCommand(const QString & command,
         int type = 0, const QVariant &cookie = QVariant(),
-        bool needStop = false);
+        StopNeeded needStop = DoesNotNeedStop);
 
     void setTokenBarrier();
 
@@ -193,6 +196,7 @@ private:
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
+    void debugMessage(const QString &msg);
 
     OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;
@@ -333,6 +337,8 @@ private:
     bool m_waitingForBreakpointSynchronizationToContinue;
     bool m_waitingForFirstBreakpointToBeHit;
     bool m_modulesListOutdated;
+
+    QList<GdbCookie> m_commandsToRunOnTemporaryBreak;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;

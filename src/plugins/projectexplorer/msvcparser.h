@@ -34,11 +34,11 @@
 #ifndef MSVCPARSER_H
 #define MSVCPARSER_H
 
-#include <projectexplorer/buildparserinterface.h>
+#include "buildparserinterface.h"
 
 #include <QtCore/QRegExp>
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
 
 class MsvcParser :  public ProjectExplorer::BuildParserInterface
 {

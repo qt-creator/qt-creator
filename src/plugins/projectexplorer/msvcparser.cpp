@@ -32,11 +32,11 @@
 ***************************************************************************/
 
 #include "msvcparser.h"
-#include "qt4projectmanagerconstants.h"
+#include "projectexplorerconstants.h"
 
 #include <QtCore/QStringList>
 
-using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 
 MsvcParser::MsvcParser()
 {
@@ -48,7 +48,7 @@ MsvcParser::MsvcParser()
 
 QString MsvcParser::name() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::BUILD_PARSER_MSVC);
+    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
 }
 
 void MsvcParser::stdError(const QString & line)

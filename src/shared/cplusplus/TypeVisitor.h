@@ -84,6 +84,7 @@ public:
     virtual void visit(Namespace *) {}
     virtual void visit(Class *) {}
     virtual void visit(Enum *) {}
+    virtual void visit(ForwardClassDeclaration *) {}
 };
 
 CPLUSPLUS_END_NAMESPACE

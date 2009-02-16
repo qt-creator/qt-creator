@@ -401,6 +401,53 @@ void BaseClass::setVirtual(bool isVirtual)
 void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
+ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
+                                                 unsigned sourceLocation, Name *name)
+    : Symbol(translationUnit, sourceLocation, name),
+      _templateParameters(0)
+{ }
+
+ForwardClassDeclaration::~ForwardClassDeclaration()
+{ delete _templateParameters; }
+
+unsigned ForwardClassDeclaration::templateParameterCount() const
+{
+    if (! _templateParameters)
+        return 0;
+    return _templateParameters->symbolCount();
+}
+
+Symbol *ForwardClassDeclaration::templateParameterAt(unsigned index) const
+{ return _templateParameters->symbolAt(index); }
+
+Scope *ForwardClassDeclaration::templateParameters() const
+{ return _templateParameters; }
+
+void ForwardClassDeclaration::setTemplateParameters(Scope *templateParameters)
+{ _templateParameters = templateParameters; }
+
+FullySpecifiedType ForwardClassDeclaration::type() const
+{ return FullySpecifiedType(const_cast<ForwardClassDeclaration *>(this)); }
+
+bool ForwardClassDeclaration::isEqualTo(const Type *other) const
+{
+    if (const ForwardClassDeclaration *otherClassFwdTy = other->asForwardClassDeclarationType()) {
+        if (name() == otherClassFwdTy->name())
+            return true;
+        else if (name() && otherClassFwdTy->name())
+            return name()->isEqualTo(otherClassFwdTy->name());
+
+        return false;
+    }
+    return false;
+}
+
+void ForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+void ForwardClassDeclaration::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
 Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
       _key(ClassKey),

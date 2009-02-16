@@ -197,6 +197,9 @@ public:
     /// Returns true if this Symbol is a BaseClass.
     bool isBaseClass() const;
 
+    /// Returns true if this Symbol is a ForwardClassDeclaration.
+    bool isForwardClassDeclaration() const;
+
     virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
@@ -208,6 +211,7 @@ public:
     virtual const Declaration *asDeclaration() const { return 0; }
     virtual const Argument *asArgument() const { return 0; }
     virtual const BaseClass *asBaseClass() const { return 0; }
+    virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
 
     virtual ScopedSymbol *asScopedSymbol() { return 0; }
     virtual Enum *asEnum() { return 0; }
@@ -220,6 +224,7 @@ public:
     virtual Declaration *asDeclaration() { return 0; }
     virtual Argument *asArgument() { return 0; }
     virtual BaseClass *asBaseClass() { return 0; }
+    virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;

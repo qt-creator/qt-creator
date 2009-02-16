@@ -151,6 +151,7 @@ private:
 
     // called from the engines after successful startup
     virtual void notifyStartupFinished() = 0; 
+    virtual void notifyInferiorStopRequested() = 0;
     virtual void notifyInferiorStopped() = 0; 
     virtual void notifyInferiorUpdateFinished() = 0; 
     virtual void notifyInferiorRunningRequested() = 0;
@@ -229,7 +230,7 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     DebuggerSettings *settings() { return &m_settings; }
 
-    enum StartMode { startInternal, startExternal, attachExternal };
+    enum StartMode { StartInternal, StartExternal, AttachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
@@ -339,6 +340,7 @@ private:
     void notifyInferiorStopped();
     void notifyInferiorUpdateFinished();
     void notifyInferiorRunningRequested();
+    void notifyInferiorStopRequested();
     void notifyInferiorRunning();
     void notifyInferiorExited();
     void notifyInferiorPidChanged(int);
@@ -466,8 +468,6 @@ private:
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
     DebuggerSettings m_settings;
-    // set during application shutdown
-    bool m_shutdown;
 };
 
 } // namespace Internal

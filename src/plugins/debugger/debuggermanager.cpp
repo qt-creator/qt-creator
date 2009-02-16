@@ -150,10 +150,9 @@ void DebuggerManager::init()
 {
     m_status = -1;
     m_busy = false;
-    m_shutdown = false;
 
     m_attachedPID = 0;
-    m_startMode = startInternal;
+    m_startMode = StartInternal;
 
     m_disassemblerHandler = 0;
     m_modulesHandler = 0;
@@ -544,6 +543,12 @@ void DebuggerManager::notifyStartupFinished()
     showStatusMessage(tr("Startup finished. Debugger ready."), -1);
 }
 
+void DebuggerManager::notifyInferiorStopRequested()
+{
+    setStatus(DebuggerInferiorStopRequested);
+    showStatusMessage(tr("Stop requested..."), 5000);
+}
+
 void DebuggerManager::notifyInferiorStopped()
 {
     resetLocation();
@@ -578,7 +583,7 @@ void DebuggerManager::notifyInferiorExited()
 void DebuggerManager::notifyInferiorPidChanged(int pid)
 {
     //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    qDebug() << "PID: " << pid; 
+    //qDebug() << "PID: " << pid; 
     emit inferiorPidChanged(pid);
 }
 
@@ -590,9 +595,10 @@ void DebuggerManager::showApplicationOutput(const QString &str)
 void DebuggerManager::shutdown()
 {
     //qDebug() << "DEBUGGER_MANAGER SHUTDOWN START";
-    m_shutdown = true;
-    if (m_engine)
+    if (m_engine) {
+        //qDebug() << "SHUTTING DOWN ENGINE" << m_engine;
         m_engine->shutdown();
+    }
     m_engine = 0;
 
     delete scriptEngine;
@@ -657,6 +663,12 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
     QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
+    if (status() != DebuggerInferiorRunning && status() != DebuggerInferiorStopped) {
+        showStatusMessage(tr("Changing breakpoint state requires either a "
+            "fully running or fully stopped application."));
+        return;
+    }
+
     int index = m_breakHandler->indexOf(fileName, lineNumber);
     if (index == -1)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
@@ -737,13 +749,13 @@ void DebuggerManager::setConfigValue(const QString &name, const QVariant &value)
 
 void DebuggerManager::startExternalApplication()
 {
-    if (!startNewDebugger(startExternal))
+    if (!startNewDebugger(StartExternal))
         emit debuggingFinished();
 }
 
 void DebuggerManager::attachExternalApplication()
 {
-    if (!startNewDebugger(attachExternal))
+    if (!startNewDebugger(AttachExternal))
         emit debuggingFinished();
 }
 
@@ -752,7 +764,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
     m_startMode = mode;
     // FIXME: Clean up
 
-    if (startMode() == startExternal) {
+    if (startMode() == StartExternal) {
         StartExternalDialog dlg(mainWindow());
         dlg.setExecutableFile(
             configValue(QLatin1String("LastExternalExecutableFile")).toString());
@@ -768,7 +780,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
         m_processArgs = dlg.executableArguments().split(' ');
         m_workingDir = QString();
         m_attachedPID = -1;
-    } else if (startMode() == attachExternal) {
+    } else if (startMode() == AttachExternal) {
         AttachExternalDialog dlg(mainWindow());
         if (dlg.exec() != QDialog::Accepted)
             return false;
@@ -781,7 +793,7 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
                 tr("Cannot attach to PID 0"));
             return false;
         }
-    } else if (startMode() == startInternal) {
+    } else if (startMode() == StartInternal) {
         if (m_executable.isEmpty()) {
             QString startDirectory = m_executable;
             if (m_executable.isEmpty()) {
@@ -835,10 +847,9 @@ void DebuggerManager::cleanupViews()
 
 void DebuggerManager::exitDebugger()
 {
-    if (m_shutdown)
-        return;
-    QTC_ASSERT(m_engine, return);
-    m_engine->exitDebugger();
+    //qDebug() << "DebuggerManager::exitDebugger";
+    if (m_engine)
+        m_engine->exitDebugger();
     cleanupViews();
     setStatus(DebuggerProcessNotReady);
     setBusyCursor(false);
@@ -959,33 +970,6 @@ void DebuggerManager::dumpLog()
     ts << "\n\n=======================================\n\n";
     ts << m_outputWindow->combinedContents();
 }
-
-#if 0
-// call after m_gdbProc exited.
-void GdbEngine::procFinished()
-{
-    //qDebug() << "GDB PROCESS FINISHED";
-    setStatus(DebuggerProcessNotReady);
-    showStatusMessage(tr("Done"), 5000);
-    q->m_breakHandler->procFinished();
-    q->m_watchHandler->cleanup();
-    m_stackHandler->m_stackFrames.clear();
-    m_stackHandler->resetModel();
-    m_threadsHandler->resetModel();
-    if (q->m_modulesHandler)
-        q->m_modulesHandler->procFinished();
-    q->resetLocation();
-    setStatus(DebuggerProcessNotReady);
-    emit q->previousModeRequested();
-    emit q->debuggingFinished();
-    //exitDebugger();
-    //showStatusMessage("Gdb killed");
-    m_shortToFullName.clear();
-    m_fullToShortName.clear();
-    m_shared = 0;
-    q->m_busy = false;
-}
-#endif
 
 void DebuggerManager::addToWatchWindow()
 {
