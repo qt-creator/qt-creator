@@ -992,7 +992,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (m_fakeEnd && m_tc.block().length() > 1)
             ++n;
         moveLeft(n);
-        finishMovement();
+        finishMovement("h");
     } else if (key == 'H') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, 0)));
         moveDown(qMax(count() - 1, 0));
@@ -1029,7 +1029,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             setAnchor();
             moveDown(count() + 1);
         }
-        finishMovement();
+        finishMovement("j");
         m_desiredColumn = savedColumn;
     } else if (key == 'J') {
         recordBeginGroup();
@@ -1057,12 +1057,12 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             setAnchor();
             moveUp(count() + 1);
         }
-        finishMovement();
+        finishMovement("k");
         m_desiredColumn = savedColumn;
     } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_moveType = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
-        finishMovement();
+        finishMovement("l");
     } else if (key == 'L') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()))));
         moveUp(qMax(count(), 1));
