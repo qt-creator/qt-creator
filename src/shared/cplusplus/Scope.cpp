@@ -324,6 +324,9 @@ void Scope::addUse(unsigned sourceOffset, Name *name)
     else
         lastVisibleSymbol = _symbols[_symbolCount];
     _uses[_useCount].init(sourceOffset, name, lastVisibleSymbol);
+#else
+    (void) sourceOffset;
+    (void) name;
 #endif
 }
 

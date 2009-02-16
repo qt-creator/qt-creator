@@ -212,7 +212,7 @@ bool CheckExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(NewExpressionAST *ast)
+bool CheckExpression::visit(NewExpressionAST *)
 {
     // ### FIXME
     //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);

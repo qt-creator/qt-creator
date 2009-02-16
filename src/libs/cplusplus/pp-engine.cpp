@@ -777,7 +777,7 @@ QVector<Token> Preprocessor::tokenize(const QByteArray &text) const
     return tokens;
 }
 
-void Preprocessor::processInclude(bool skipCurentPath,
+void Preprocessor::processInclude(bool,
                         TokenIterator firstToken, TokenIterator lastToken,
                         bool acceptMacros)
 {
@@ -786,6 +786,7 @@ void Preprocessor::processInclude(bool skipCurentPath,
     ++tk; // skip `include|nclude_next'
 
     if (acceptMacros && tk->is(T_IDENTIFIER)) {
+        // ### TODO: implement me
 #if 0
         QByteArray name;
         name.reserve(256);

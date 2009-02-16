@@ -79,7 +79,7 @@ Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
 #else
-#   define PENDING_DEBUG(s) 
+#   define PENDING_DEBUG(s)
 #endif
 
 static const QString tooltipIName = "tooltip";
@@ -689,7 +689,7 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
         return;
     debugMessage(QString("FOUND PID %1").arg(pid));
     q->m_attachedPID = pid;
-    qq->notifyInferiorPidChanged(pid); 
+    qq->notifyInferiorPidChanged(pid);
 }
 
 void GdbEngine::sendSynchronizedCommand(const QString & command,
@@ -1011,7 +1011,7 @@ void GdbEngine::handleInfoThreads(const GdbResultRecord &record)
 {
     if (record.resultClass == GdbResultDone) {
         // FIXME: use something more robust
-        // WIN:     * 3 Thread 2312.0x4d0  0x7c91120f in ?? () 
+        // WIN:     * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
         // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
         QRegExp re(QLatin1String("Thread (\\d+)\\.0x.* in"));
         QString data = record.data.findChild("consolestreamoutput").data();
@@ -1118,7 +1118,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         m_waitingForFirstBreakpointToBeHit = false;
         //
         // that's the "early stop"
-        //  
+        //
         #if defined(Q_OS_WIN)
         sendCommand("info thread", GdbInfoThreads);
         #endif
@@ -1155,7 +1155,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(q->status() == DebuggerInferiorStopRequested, 
+        QTC_ASSERT(q->status() == DebuggerInferiorStopRequested,
             qDebug() << "STATUS: " << q->status())
         qq->notifyInferiorStopped();
         q->showStatusMessage(tr("Temporarily stopped."));
@@ -2062,11 +2062,11 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     // 4       breakpoint     keep y   <MULTIPLE>         0x00000000004066ad
     // 4.1                         y     0x00000000004066ad in CTorTester
     //  at /data5/dev/ide/main/tests/manual/gdbdebugger/simple/app.cpp:124
-    // - or - 
+    // - or -
     // everything on a single line on Windows for constructors of classes
     // within namespaces.
     // Sometimes the path is relative too.
-  
+
     QRegExp re("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)");
     re.setMinimal(true);
 
@@ -2592,7 +2592,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED";
         return;
     }
-    
+
     if (q->settings()->m_debugDumpers) {
         // minimize interference
         return;
@@ -2995,7 +2995,7 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
             nodetype += data.type.mid(outertype.size());
         } else {
             // FIXME: doesn't work for QMultiMap
-            nodetype  = data.type + "::Node"; 
+            nodetype  = data.type + "::Node";
         }
         //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
         //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
@@ -3345,7 +3345,7 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
     } else {
         m_qtVersion = 0;
     }
-   
+
     //qDebug() << "CONTENTS: " << contents.toString();
     //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
     m_availableSimpleDumpers.clear();
@@ -3532,7 +3532,7 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     out = out.left(out.lastIndexOf('"'));
     out.replace("\\", "");
     out = "dummy={" + out + "}";
-    
+
     GdbMi contents;
     contents.fromString(out);
     //qDebug() << "CONTENTS" << contents.toString(true);
@@ -3669,13 +3669,13 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
     setLocals(locals);
 }
 
-void GdbEngine::setLocals(const QList<GdbMi> &locals) 
-{ 
+void GdbEngine::setLocals(const QList<GdbMi> &locals)
+{
     //qDebug() << m_varToType;
     QHash<QString, int> seen;
 
     foreach (const GdbMi &item, locals) {
-        // Local variables of inlined code are reported as 
+        // Local variables of inlined code are reported as
         // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
         // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
         // We do not want these at all. Current hypotheses is that those
@@ -3973,7 +3973,7 @@ void GdbEngine::tryLoadCustomDumpers()
         return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
-    m_dataDumperState = DataDumperUnavailable; 
+    m_dataDumperState = DataDumperUnavailable;
 
 #if defined(Q_OS_LINUX)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
