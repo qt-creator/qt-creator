@@ -227,6 +227,7 @@ private:
     void closeEditor(Core::IEditor *editor);
     void closeView(Core::Internal::EditorView *view);
     void emptyView(Core::Internal::EditorView *view);
+    Core::Internal::EditorView *currentEditorView();
     IEditor *pickUnusedEditor() const;
 
     void updateCurrentPositionInNavigationHistory();

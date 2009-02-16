@@ -484,8 +484,8 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
         if (addToHistory)
             addCurrentPositionToNavigationHistory(true);
 
-        EditorView *view = m_d->m_splitter->findView(editor)->view();
-        view->setCurrentEditor(editor);
+        if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor))
+            splitterOrView->view()->setCurrentEditor(editor);
     }
     updateActions();
     updateEditorHistory();
@@ -1560,19 +1560,29 @@ void EditorManager::revertToSaved()
     currEditor->file()->modified(&temp);
 }
 
+Core::Internal::EditorView *EditorManager::currentEditorView()
+{
+    if (m_d->m_currentView)
+        return m_d->m_currentView->view();
+    if (m_d->m_currentEditor)
+        if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(m_d->m_currentEditor))
+            return splitterOrView->view();
+    return m_d->m_view;
+}
 
 void EditorManager::showEditorInfoBar(const QString &kind,
                                       const QString &infoText,
                                       const QString &buttonText,
                                       QObject *object, const char *member)
 {
-    m_d->m_view->showEditorInfoBar(kind, infoText, buttonText, object, member);
+
+    currentEditorView()->showEditorInfoBar(kind, infoText, buttonText, object, member);
 }
 
 
 void EditorManager::hideEditorInfoBar(const QString &kind)
 {
-    m_d->m_view->hideEditorInfoBar(kind);
+    currentEditorView()->hideEditorInfoBar(kind);
 }
 
 QString EditorManager::externalEditorHelpText() const
