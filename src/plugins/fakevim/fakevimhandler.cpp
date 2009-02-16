@@ -882,9 +882,13 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         updateMiniBuffer();
     } else if (key == '.') {
         qDebug() << "REPEATING" << m_dotCommand;
+        QString savedCommand = m_dotCommand;
+        m_dotCommand.clear();
         for (int i = count(); --i >= 0; )
-            foreach (QChar c, m_dotCommand)
+            foreach (QChar c, savedCommand)
                 handleKey(c.unicode(), c.unicode(), QString(c));
+            enterCommandMode();
+            m_dotCommand = savedCommand;
     } else if (key == '=') {
         m_submode = IndentSubMode;
     } else if (key == '%') {
@@ -1269,6 +1273,7 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
         recordEndGroup();
         //qDebug() << "UNDO: " << m_undoStack;
         moveLeft(qMin(1, leftDist()));
+        m_dotCommand += m_lastInsertion;
         enterCommandMode();
     } else if (key == Key_Left) {
         moveLeft(count());
