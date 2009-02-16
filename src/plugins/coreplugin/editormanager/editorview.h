@@ -144,6 +144,7 @@ private:
     QToolButton *m_infoWidgetButton;
     IEditor *m_editorForInfoWidget;
     QSortFilterProxyModel m_proxyModel;
+    QList<IEditor *>m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
 };
 
