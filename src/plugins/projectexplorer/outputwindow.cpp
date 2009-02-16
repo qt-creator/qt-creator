@@ -110,9 +110,12 @@ OutputPane::OutputPane()
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
     m_mainWidget->setLayout(layout);
+
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+            this, SLOT(coreAboutToClose()));
 }
 
-OutputPane::~OutputPane()
+void OutputPane::coreAboutToClose()
 {
     while (m_tabWidget->count()) {
         RunControl *rc = runControlForTab(0);
@@ -120,6 +123,10 @@ OutputPane::~OutputPane()
             rc->stop();
         closeTab(0);
     }
+}
+
+OutputPane::~OutputPane()
+{
     delete m_mainWidget;
 }
 

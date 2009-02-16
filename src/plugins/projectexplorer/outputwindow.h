@@ -84,6 +84,7 @@ public:
     
 public slots:
     void projectRemoved();
+    void coreAboutToClose();
 
 private slots:
     void insertLine();
