@@ -222,6 +222,9 @@ static FullySpecifiedType resolve(const FullySpecifiedType &ty,
         if (resolvedName)
             *resolvedName = nsTy->name();
 
+        if (resolvedSymbol)
+            *resolvedSymbol = const_cast<Namespace *>(nsTy);
+
     } else if (const Class *classTy = ty->asClassType()) {
         if (resolvedName)
             *resolvedName = classTy->name();
@@ -233,13 +236,22 @@ static FullySpecifiedType resolve(const FullySpecifiedType &ty,
         if (resolvedName)
             *resolvedName = fwdClassTy->name();
 
+        if (resolvedSymbol)
+            *resolvedSymbol = const_cast<ForwardClassDeclaration *>(fwdClassTy);
+
     } else if (const Enum *enumTy = ty->asEnumType()) {
         if (resolvedName)
             *resolvedName = enumTy->name();
 
+        if (resolvedSymbol)
+            *resolvedSymbol = const_cast<Enum *>(enumTy);
+
     } else if (const Function *funTy = ty->asFunctionType()) {
         if (resolvedName)
             *resolvedName = funTy->name();
+
+        if (resolvedSymbol)
+            *resolvedSymbol = const_cast<Function *>(funTy);
 
     }
 
