@@ -663,7 +663,7 @@ void GdbEngine::interruptInferior()
     sendCommand("-exec-interrupt", GdbExecInterrupt);
     qq->notifyInferiorStopped();
 #else
-    debugMessage(QString("CANNOT STOP INFERIOR %1").arg(m_gdbProc.pid()));
+    debugMessage(QString("CANNOT STOP INFERIOR"));
     if (interruptChildProcess(m_gdbProc.pid()))
         qq->notifyInferiorStopped();
 #endif
