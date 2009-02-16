@@ -1588,7 +1588,9 @@ bool GdbEngine::startDebugger()
         }
     }
 
-    if (q->startMode() == q->startInternal) {
+    if (q->startMode() == q->attachExternal) {
+        sendCommand("attach " + QString::number(q->m_attachedPID));
+    } else {
         emit gdbInputAvailable(QString(), QString());
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
@@ -1600,20 +1602,6 @@ bool GdbEngine::startDebugger()
             sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
         sendCommand("set auto-solib-add off");
         sendCommand("x/2i " + startSymbolName(), GdbStart);
-    }
-
-    if (q->startMode() == q->attachExternal) {
-        sendCommand("attach " + QString::number(q->m_attachedPID));
-    }
-
-    if (q->startMode() == q->startExternal) {
-        //sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
-        sendCommand("file " + fileName, GdbFileExecAndSymbols);
-        #ifdef Q_OS_MAC
-        sendCommand("sharedlibrary apply-load-rules all");
-        #endif
-        //sendCommand("-file-list-exec-source-files", GdbQuerySources);
-        //sendCommand("-gdb-set stop-on-solib-events 1");
     }
 
     sendCommand("-data-list-register-names", RegisterListNames);
