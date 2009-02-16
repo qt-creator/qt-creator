@@ -1717,23 +1717,6 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 
 int FakeVimHandler::Private::indentDist() const
 {
-#if 0
-    // FIXME: Make independent of TextEditor
-    if (!m_texteditor)
-        return 0;
-
-    TextEditor::TabSettings ts = m_texteditor->tabSettings();
-    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
-    Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(ts.m_indentSize);
-    indenter.setTabSize(ts.m_tabSize);
-
-    QTextDocument *doc = EDITOR(document());
-    const TextEditor::TextBlockIterator current(m_tc.block());
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(m_tc.block().next());
-    return indenter.indentForBottomLine(current, begin, end, QChar(' '));
-#endif
     int amount = 0;
     emit q->indentRegion(&amount, m_tc.block(), m_tc.block(), QChar(' '));
     return amount;
@@ -1743,33 +1726,6 @@ void FakeVimHandler::Private::indentRegion(QTextBlock begin, QTextBlock end, QCh
 {
     int amount = 0;
     emit q->indentRegion(&amount, begin, end, typedChar);
-#if 0
-    // FIXME: Make independent of TextEditor
-    if (!m_texteditor)
-        return 0;
-    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
-    Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(m_config[ConfigShiftWidth].toInt());
-    indenter.setTabSize(m_config[ConfigTabStop].toInt());
-
-    QTextDocument *doc = EDITOR(document());
-    const TextEditor::TextBlockIterator docStart(doc->begin());
-    for(QTextBlock cur = begin; cur != end; cur = cur.next()) {
-        if (typedChar != 0 && cur.text().simplified().isEmpty()) {
-            m_tc.setPosition(cur.position(), KeepAnchor);
-            while (!m_tc.atBlockEnd())
-                m_tc.deleteChar();
-        } else {
-            const TextEditor::TextBlockIterator current(cur);
-            const TextEditor::TextBlockIterator next(cur.next());
-            const int indent = indenter.indentForBottomLine(current, docStart, next, typedChar);
-            ts.indentLine(cur, indent);
-        }
-    }
-#endif
-    Q_UNUSED(begin);
-    Q_UNUSED(end);
-    Q_UNUSED(typedChar);
 }
 
 void FakeVimHandler::Private::indentCurrentLine(QChar typedChar)
@@ -1887,35 +1843,6 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
             m_tc.movePosition(Left, KeepAnchor, 1);
     }
-
-#if 0
-    // FIXME: remove TextEditor dependency
-    bool undoFakeEOL = false;
-    if (atEndOfLine()) {
-        m_tc.movePosition(Left, KeepAnchor, 1);
-        undoFakeEOL = true;
-    }
-    TextEditor::TextBlockUserData::MatchType match
-        = TextEditor::TextBlockUserData::matchCursorForward(&m_tc);
-    if (match == TextEditor::TextBlockUserData::Match) {
-        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
-            m_tc.movePosition(Left, KeepAnchor, 1);
-    } else {
-        if (undoFakeEOL)
-            m_tc.movePosition(Right, KeepAnchor, 1);
-        if (match == TextEditor::TextBlockUserData::NoMatch) {
-            // backward matching is according to the character before the cursor
-            bool undoMove = false;
-            if (!m_tc.atBlockEnd()) {
-                m_tc.movePosition(Right, KeepAnchor, 1);
-                undoMove = true;
-            }
-            match = TextEditor::TextBlockUserData::matchCursorBackward(&m_tc);
-            if (match != TextEditor::TextBlockUserData::Match && undoMove)
-                m_tc.movePosition(Left, KeepAnchor, 1);
-        }
-    }
-#endif
 }
 
 int FakeVimHandler::Private::cursorLineOnScreen() const
