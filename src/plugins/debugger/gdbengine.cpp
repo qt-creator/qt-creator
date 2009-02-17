@@ -3590,7 +3590,6 @@ void GdbEngine::updateLocals()
     setTokenBarrier();
 
     m_pendingRequests = 0;
-
     PENDING_DEBUG("\nRESET PENDING");
     m_toolTipCache.clear();
     m_toolTipExpression.clear();
@@ -3602,8 +3601,6 @@ void GdbEngine::updateLocals()
     sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
     // '2' is 'list with type and value'
     sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
-
-    tryLoadCustomDumpers();
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
