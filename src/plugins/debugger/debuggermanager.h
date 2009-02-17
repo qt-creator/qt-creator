@@ -151,6 +151,7 @@ private:
 
     // called from the engines after successful startup
     virtual void notifyStartupFinished() = 0; 
+    virtual void notifyInferiorStopRequested() = 0;
     virtual void notifyInferiorStopped() = 0; 
     virtual void notifyInferiorUpdateFinished() = 0; 
     virtual void notifyInferiorRunningRequested() = 0;
@@ -339,6 +340,7 @@ private:
     void notifyInferiorStopped();
     void notifyInferiorUpdateFinished();
     void notifyInferiorRunningRequested();
+    void notifyInferiorStopRequested();
     void notifyInferiorRunning();
     void notifyInferiorExited();
     void notifyInferiorPidChanged(int);
