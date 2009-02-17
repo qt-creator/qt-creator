@@ -66,6 +66,7 @@ class RegisterHandler;
 class StackHandler;
 class ThreadsHandler;
 class WatchHandler;
+class SourceFilesWindow;
 class WatchData;
 class BreakpointData;
 
@@ -166,6 +167,7 @@ private:
     virtual StackHandler *stackHandler() = 0;
     virtual ThreadsHandler *threadsHandler() = 0;
     virtual WatchHandler *watchHandler() = 0;
+    virtual SourceFilesWindow *sourceFileWindow() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
     virtual bool skipKnownFrames() const = 0;
@@ -179,6 +181,7 @@ private:
 
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
+    virtual void reloadSourceFiles() = 0;
     virtual void reloadRegisters() = 0;
 };
 
@@ -302,6 +305,9 @@ private slots:
     void reloadDisassembler();
     void disassemblerDockToggled(bool on);
 
+    void reloadSourceFiles();
+    void sourceFilesDockToggled(bool on);
+
     void reloadModules();
     void modulesDockToggled(bool on);
     void loadSymbols(const QString &moduleName);
@@ -323,6 +329,7 @@ private:
     StackHandler *stackHandler() { return m_stackHandler; }
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
+    SourceFilesWindow *sourceFileWindow() { return m_sourceFilesWindow; }
 
     bool skipKnownFrames() const;
     bool debugDumpers() const;
@@ -416,6 +423,7 @@ private:
     QDockWidget *m_outputDock;
     QDockWidget *m_registerDock;
     QDockWidget *m_stackDock;
+    QDockWidget *m_sourceFilesDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
     QList<QDockWidget*> m_dockWidgets;
@@ -427,6 +435,7 @@ private:
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
     WatchHandler *m_watchHandler;
+    SourceFilesWindow *m_sourceFilesWindow;
 
     /// Actions
     friend class DebuggerPlugin;

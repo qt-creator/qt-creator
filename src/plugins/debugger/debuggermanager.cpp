@@ -42,6 +42,7 @@
 #include "moduleswindow.h"
 #include "registerwindow.h"
 #include "stackwindow.h"
+#include "sourcefileswindow.h"
 #include "threadswindow.h"
 #include "watchwindow.h"
 
@@ -165,6 +166,7 @@ void DebuggerManager::init()
     m_outputWindow = new DebuggerOutputWindow;
     m_registerWindow = new RegisterWindow;
     m_stackWindow = new StackWindow;
+    m_sourceFilesWindow = new SourceFilesWindow;
     m_threadsWindow = new ThreadsWindow;
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
@@ -227,6 +229,13 @@ void DebuggerManager::init()
     connect(modulesView, SIGNAL(loadAllSymbolsRequested()),
         this, SLOT(loadAllSymbols()));
 
+    // Source Files
+    //m_sourceFilesHandler = new SourceFilesHandler;
+    QAbstractItemView *sourceFilesView =
+        qobject_cast<QAbstractItemView *>(m_sourceFilesWindow);
+    //sourceFileView->setModel(m_stackHandler->stackModel());
+    connect(sourceFilesView, SIGNAL(reloadSourceFilesRequested()),
+        this, SLOT(reloadSourceFiles()));
 
     // Registers 
     QAbstractItemView *registerView =
@@ -402,6 +411,10 @@ void DebuggerManager::init()
     m_outputDock = createDockForWidget(m_outputWindow);
 
     m_stackDock = createDockForWidget(m_stackWindow);
+
+    m_sourceFilesDock = createDockForWidget(m_sourceFilesWindow);
+    connect(m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
+        this, SLOT(reloadSourceFiles()), Qt::QueuedConnection);
 
     m_threadsDock = createDockForWidget(m_threadsWindow);
 
@@ -1237,6 +1250,26 @@ void DebuggerManager::disassemblerDockToggled(bool on)
 {
     if (on)
         reloadDisassembler();
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Sourec files specific stuff
+//
+//////////////////////////////////////////////////////////////////////
+
+void DebuggerManager::reloadSourceFiles()
+{
+    if (!m_sourceFilesDock || !m_sourceFilesDock->isVisible())
+        return;
+    m_engine->reloadSourceFiles();
+}
+
+void DebuggerManager::sourceFilesDockToggled(bool on)
+{
+    if (on)
+        reloadSourceFiles();
 }
 
 

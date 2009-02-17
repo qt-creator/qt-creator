@@ -222,8 +222,8 @@ private:
     int m_gdbVersion; // 6.8.0 is 680
 
     // awful hack to keep track of used files
-    QHash<QString, QString> m_shortToFullName;
-    QHash<QString, QString> m_fullToShortName;
+    QMap<QString, QString> m_shortToFullName;
+    QMap<QString, QString> m_fullToShortName;
 
     //
     // Breakpoint specific stuff
@@ -263,6 +263,10 @@ private:
     void handleRegisterListNames(const GdbResultRecord &record);
     void handleRegisterListValues(const GdbResultRecord &record);
 
+    //
+    // Source file specific stuff
+    // 
+    void reloadSourceFiles();
 
     //
     // Stack specific stuff
