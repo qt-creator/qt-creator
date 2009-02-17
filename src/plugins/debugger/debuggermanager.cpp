@@ -517,7 +517,6 @@ void DebuggerManager::setLocked(bool locked)
         }
         dockWidget->setTitleBarWidget(titleBarWidget);
         dockWidget->setFeatures(features);
-        dockWidget->toggleViewAction()->setEnabled(true);
     }
 }
 
