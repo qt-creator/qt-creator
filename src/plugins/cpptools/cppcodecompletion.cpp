@@ -563,32 +563,42 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType exprTy,
-                                                      const QList<TypeOfExpression::Result> &resolvedTypes)
+bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType,
+                                                      const QList<TypeOfExpression::Result> &results)
 {
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
     o.setShowReturnTypes(true);
     o.setShowArgumentNames(true);
 
-    if (Class *klass = exprTy->asClassType()) {
-        for (unsigned i = 0; i < klass->memberCount(); ++i) {
-            Symbol *member = klass->memberAt(i);
-            if (! member->type()->isFunctionType())
-                continue;
-            else if (! member->identity())
-                continue;
-            else if (! member->identity()->isEqualTo(klass->identity()))
-                continue;
-            if (TextEditor::CompletionItem item = toCompletionItem(member)) {
-                item.m_text = o(member->type(), member->name());
-                m_completions.append(item);
+    foreach (const TypeOfExpression::Result &result, results) {
+        FullySpecifiedType exprTy = result.first;
+
+        if (Class *klass = exprTy->asClassType()) {
+            for (unsigned i = 0; i < klass->memberCount(); ++i) {
+                Symbol *member = klass->memberAt(i);
+                if (! member->type()->isFunctionType())
+                    continue;
+                else if (! member->identity())
+                    continue;
+                else if (! member->identity()->isEqualTo(klass->identity()))
+                    continue;
+                if (TextEditor::CompletionItem item = toCompletionItem(member)) {
+                    item.m_text = o(member->type(), member->name());
+                    m_completions.append(item);
+                }
             }
+
+            break;
         }
-    } else {
+    }
+
+    if (m_completions.isEmpty()) {
         QSet<QString> signatures;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+
+        foreach (const TypeOfExpression::Result &p, results) {
             FullySpecifiedType ty = p.first;
+
             if (Function *fun = ty->asFunctionType()) {
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     QString signature;
