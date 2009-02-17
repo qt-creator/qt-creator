@@ -77,22 +77,14 @@ class BreakpointData;
 //     DebuggerProcessNotReady
 //          |
 //     DebuggerProcessStartingUp
-//          |
-//     DebuggerReady              [R] [N]
 //          | <-------------------------------------.
 //     DebuggerInferiorRunningRequested             |
-//          |                                       |
-//     DebuggerInferiorRunning                      |
-//          |                                       |
+//          |                                       | 
+//     DebuggerInferiorRunning                      | 
+//          |                                       |  
 //     DebuggerInferiorStopRequested                |
 //          |                                       |
 //     DebuggerInferiorStopped                      |
-//          |                                       |
-//     DebuggerInferiorUpdating                     |
-//          |                                       |
-//     DebuggerInferiorUpdateFinishing              |
-//          |                                       |
-//     DebuggerInferiorReady             [C] [N]    |
 //          |                                       |
 //          `---------------------------------------'
 //
@@ -107,17 +99,11 @@ enum DebuggerStatus
 {
     DebuggerProcessNotReady,          // Debugger not started
     DebuggerProcessStartingUp,        // Debugger starting up
-    DebuggerProcessReady,             // Debugger started, Inferior not yet
-                                      // running or already finished
 
     DebuggerInferiorRunningRequested, // Debuggee requested to run
     DebuggerInferiorRunning,          // Debuggee running
     DebuggerInferiorStopRequested,    // Debuggee running, stop requested
     DebuggerInferiorStopped,          // Debuggee stopped
-
-    DebuggerInferiorUpdating,         // Debuggee updating data views
-    DebuggerInferiorUpdateFinishing,  // Debuggee updating data views aborting
-    DebuggerInferiorReady,
 };
 
 
@@ -151,10 +137,8 @@ private:
     friend class WinEngine;
 
     // called from the engines after successful startup
-    virtual void notifyStartupFinished() = 0; 
     virtual void notifyInferiorStopRequested() = 0;
     virtual void notifyInferiorStopped() = 0; 
-    virtual void notifyInferiorUpdateFinished() = 0; 
     virtual void notifyInferiorRunningRequested() = 0;
     virtual void notifyInferiorRunning() = 0;
     virtual void notifyInferiorExited() = 0;
@@ -343,9 +327,7 @@ private:
     QString selectedPluginBreakpointsPattern() const
         { return m_settings.m_pluginSelectedBreakpointsPattern; }
 
-    void notifyStartupFinished();
     void notifyInferiorStopped();
-    void notifyInferiorUpdateFinished();
     void notifyInferiorRunningRequested();
     void notifyInferiorStopRequested();
     void notifyInferiorRunning();

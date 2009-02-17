@@ -216,7 +216,6 @@ bool ScriptEngine::startDebugger()
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
-    QTimer::singleShot(0, q, SLOT(notifyStartupFinished()));
     return true;
 }
 
