@@ -84,6 +84,10 @@ public:
 private:
     void addKeywords();
     void addMacros(const CPlusPlus::LookupContext &context);
+    void addMacros_helper(const CPlusPlus::LookupContext &context,
+                          const QString &fileName,
+                          QSet<QString> *processed,
+                          QSet<QString> *definedMacros);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
     bool completeConstructorOrFunction(CPlusPlus::FullySpecifiedType exprTy,

@@ -829,30 +829,42 @@ void CppCodeCompletion::addKeywords()
 
 void CppCodeCompletion::addMacros(const LookupContext &context)
 {
-    // macro completion items.
-    QSet<QByteArray> macroNames;
     QSet<QString> processed;
-    QList<QString> todo;
-    todo.append(context.thisDocument()->fileName());
-    while (! todo.isEmpty()) {
-        QString fn = todo.last();
-        todo.removeLast();
-        if (processed.contains(fn))
-            continue;
-        processed.insert(fn);
-        if (Document::Ptr doc = context.document(fn)) {
-            foreach (const Macro &macro, doc->definedMacros()) {
-                macroNames.insert(macro.name());
-            }
-            todo += doc->includedFiles();
-        }
-    }
+    QSet<QString> definedMacros;
 
-    foreach (const QByteArray &macroName, macroNames) {
+    addMacros_helper(context, context.thisDocument()->fileName(),
+                     &processed, &definedMacros);
+
+    foreach (const QString &macroName, definedMacros) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QString::fromUtf8(macroName.constData(), macroName.length());
+        item.m_text = macroName;
         item.m_icon = m_icons.macroIcon();
         m_completions.append(item);
+    }
+}
+
+void CppCodeCompletion::addMacros_helper(const LookupContext &context,
+                                         const QString &fileName,
+                                         QSet<QString> *processed,
+                                         QSet<QString> *definedMacros)
+{
+    Document::Ptr doc = context.document(fileName);
+
+    if (! doc || processed->contains(doc->fileName()))
+        return;
+
+    processed->insert(doc->fileName());
+
+    foreach (const Document::Include &i, doc->includes()) {
+        addMacros_helper(context, i.fileName(), processed, definedMacros);
+    }
+
+    foreach (const Macro &macro, doc->definedMacros()) {
+        const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
+        if (! macro.isHidden())
+            definedMacros->insert(macroName);
+        else
+            definedMacros->remove(macroName);
     }
 }
 
