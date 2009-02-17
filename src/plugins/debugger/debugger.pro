@@ -37,6 +37,7 @@ HEADERS += attachexternaldialog.h \
     scriptengine.h \
     stackhandler.h \
     stackwindow.h \
+    sourcefileswindow.h \
     startexternaldialog.h \
     threadswindow.h \
     watchhandler.h \
@@ -64,6 +65,7 @@ SOURCES += attachexternaldialog.cpp \
     scriptengine.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
+    sourcefileswindow.cpp \
     startexternaldialog.cpp \
     threadswindow.cpp \
     watchhandler.cpp \

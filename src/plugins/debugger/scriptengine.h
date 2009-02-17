@@ -112,6 +112,7 @@ private:
     void reloadDisassembler();
     void reloadModules();
     void reloadRegisters() {}
+    void reloadSourceFiles() {}
 
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);

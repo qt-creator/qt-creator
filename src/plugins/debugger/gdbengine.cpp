@@ -44,6 +44,7 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "sourcefileswindow.h"
 
 #include "startexternaldialog.h"
 #include "attachexternaldialog.h"
@@ -986,6 +987,7 @@ void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
 void GdbEngine::handleQuerySources(const GdbResultRecord &record)
 {
     if (record.resultClass == GdbResultDone) {
+        QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
         m_fullToShortName.clear();
         // "^done,files=[{file="../../../../bin/gdbmacros/gdbmacros.cpp",
@@ -1004,6 +1006,8 @@ void GdbEngine::handleQuerySources(const GdbResultRecord &record)
                 m_fullToShortName[full] = fileName;
             }
         }
+        if (m_shortToFullName != oldShortToFull)
+            qq->sourceFileWindow()->setSourceFiles(m_shortToFullName);
     }
 }
 
@@ -1128,7 +1132,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         #if defined(Q_OS_MAC)
         sendCommand("info pid", GdbInfoProc, QVariant(), true);
         #endif
-        sendCommand("-file-list-exec-source-files", GdbQuerySources);
+        reloadSourceFiles();
         tryLoadCustomDumpers();
 
         // intentionally after tryLoadCustomDumpers(),
@@ -1262,7 +1266,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                  frame.findChild("func").data() + '%';
 
             QApplication::alert(q->mainWindow(), 3000);
-            sendCommand("-file-list-exec-source-files", GdbQuerySources);
+            reloadSourceFiles();
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
@@ -2319,6 +2323,18 @@ void GdbEngine::handleModulesList(const GdbResultRecord &record)
 
 //////////////////////////////////////////////////////////////////////
 //
+// Source files specific stuff
+//
+//////////////////////////////////////////////////////////////////////
+
+void GdbEngine::reloadSourceFiles()
+{
+    sendCommand("-file-list-exec-source-files", GdbQuerySources);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
 // Stack specific stuff
 //
 //////////////////////////////////////////////////////////////////////
@@ -2546,7 +2562,7 @@ bool GdbEngine::supportsThreads() const
 static WatchData m_toolTip;
 static QString m_toolTipExpression;
 static QPoint m_toolTipPos;
-static QHash<QString, WatchData> m_toolTipCache;
+static QMap<QString, WatchData> m_toolTipCache;
 
 static bool hasLetterOrNumber(const QString &exp)
 {
@@ -3672,7 +3688,7 @@ void GdbEngine::handleStackListLocals(const GdbResultRecord &record)
 void GdbEngine::setLocals(const QList<GdbMi> &locals)
 {
     //qDebug() << m_varToType;
-    QHash<QString, int> seen;
+    QMap<QString, int> seen;
 
     foreach (const GdbMi &item, locals) {
         // Local variables of inlined code are reported as
