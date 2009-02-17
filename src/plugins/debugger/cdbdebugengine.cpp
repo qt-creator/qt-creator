@@ -1,9 +1,10 @@
 #include "cdbdebugengine.h"
 
-#include "assert.h"
 #include "debuggermanager.h"
 #include "breakhandler.h"
 #include "stackhandler.h"
+
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QTimerEvent>
@@ -271,7 +272,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     //qDebug() << "ACTIVATE FRAME: " << frameIndex << oldIndex
     //    << stackHandler->currentIndex();
 
-    QWB_ASSERT(frameIndex < stackHandler->stackSize(), return);
+    QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
         stackHandler->setCurrentIndex(frameIndex);
