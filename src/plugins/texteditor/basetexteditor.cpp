@@ -3463,12 +3463,12 @@ void BaseTextEditor::unCollapseAll()
         if (TextBlockUserData::canCollapse(block))
             TextBlockUserData::doCollapse(block, makeVisible);
         block = block.next();
-
     }
 
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
+    centerCursor();
 }
 
 void BaseTextEditor::setTextCodec(QTextCodec *codec)

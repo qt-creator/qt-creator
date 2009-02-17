@@ -296,12 +296,13 @@ void QtVersionManager::updateSystemVersion()
     foreach (QtVersion *version, m_versions) {
         if (version->isSystemVersion()) {
             version->setPath(findSystemQt());
+            version->setName(tr("Auto-detected Qt"));
             haveSystemVersion = true;
         }
     }
     if (haveSystemVersion)
         return;
-    QtVersion *version = new QtVersion(tr("System Qt"),
+    QtVersion *version = new QtVersion(tr("Auto-detected Qt"),
                                        findSystemQt(),
                                        getUniqueId(),
                                        true);
