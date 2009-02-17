@@ -217,6 +217,8 @@ FunctionArgumentWidget::FunctionArgumentWidget()
 void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
                                               const LookupContext &context)
 {
+    m_popupFrame->hide();
+
     m_item = functionSymbol;
     m_context = context;
     m_startpos = m_editor->position();
@@ -230,7 +232,7 @@ void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
     m_popupFrame->move(pos);
     m_popupFrame->show();
 
-    QCoreApplication::instance()->installEventFilter(this);
+    qApp->installEventFilter(this);
 }
 
 void FunctionArgumentWidget::update()
