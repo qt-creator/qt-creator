@@ -1115,9 +1115,34 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QString reason = data.findChild("reason").data();
 
+    if (isExitedReason(reason)) {
+        qq->notifyInferiorExited();
+        QString msg = "Program exited normally";
+        if (reason == "exited") {
+            msg = "Program exited with exit code "
+                + data.findChild("exit-code").toString();
+        } else if (reason == "exited-signalled") {
+            msg = "Program exited after receiving signal "
+                + data.findChild("signal-name").toString();
+        } else if (reason == "signal-received") {
+            msg = "Program exited after receiving signal "
+                + data.findChild("signal-name").toString();
+        }
+        q->showStatusMessage(msg);
+        // FIXME: shouldn't this use a statis change?
+        debugMessage("CALLING PARENT EXITDEBUGGER");
+        q->exitDebugger();
+        return;
+    }
+
+
     //MAC: bool isFirstStop = data.findChild("bkptno").data() == "1";
     //!MAC: startSymbolName == data.findChild("frame").findChild("func")
     if (m_waitingForFirstBreakpointToBeHit) {
+        // If the executable dies already that early we might get something
+        // like stdout:49*stopped,reason="exited",exit-code="0177"
+        // This is handled now above.
+
         qq->notifyInferiorStopped();
         m_waitingForFirstBreakpointToBeHit = false;
         //
@@ -1197,26 +1222,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (reason == "signal-received"
           && data.findChild("signal-name").toString() == "SIGTRAP") {
         continueInferior();
-        return;
-    }
-
-    if (isExitedReason(reason)) {
-        qq->notifyInferiorExited();
-        QString msg = "Program exited normally";
-        if (reason == "exited") {
-            msg = "Program exited with exit code "
-                + data.findChild("exit-code").toString();
-        } else if (reason == "exited-signalled") {
-            msg = "Program exited after receiving signal "
-                + data.findChild("signal-name").toString();
-        } else if (reason == "signal-received") {
-            msg = "Program exited after receiving signal "
-                + data.findChild("signal-name").toString();
-        }
-        q->showStatusMessage(msg);
-        // FIXME: shouldn't this use a statis change?
-        debugMessage("CALLING PARENT EXITDEBUGGER");
-        q->exitDebugger();
         return;
     }
 
