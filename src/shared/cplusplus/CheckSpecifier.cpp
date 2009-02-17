@@ -388,8 +388,9 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
-bool CheckSpecifier::visit(AttributeSpecifierAST *)
+bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
 {
+    accept(ast->next);
     return false;
 }
 

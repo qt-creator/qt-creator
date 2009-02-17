@@ -512,22 +512,21 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             context = typeOfExpression.lookupContext();
         }
 
-        if (! resolvedTypes.isEmpty() && resolvedTypes.first().first) {
-            FullySpecifiedType exprTy = resolvedTypes.first().first;
-
-            if (exprTy->isReferenceType())
-                exprTy = exprTy->asReferenceType()->elementType();
-
-            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(exprTy, resolvedTypes)) {
+        if (! resolvedTypes.isEmpty()) {
+            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(resolvedTypes)) {
                 return m_startPosition;
+
             } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(resolvedTypes, context)) {
                 return m_startPosition;
+
             } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_SIGNAL && completeSignal(exprTy, resolvedTypes, context)) {
+
+            } else if (m_completionOperator == T_SIGNAL      && completeSignal(resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_SLOT && completeSlot(exprTy, resolvedTypes, context)) {
+
+            } else if (m_completionOperator == T_SLOT        && completeSlot(resolvedTypes, context)) {
                 return m_startPosition;
             }
         }
@@ -550,8 +549,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
                 if (result.first->isClassType()) {
-                    FullySpecifiedType exprTy = result.first;
-                    if (completeConstructorOrFunction(exprTy, QList<TypeOfExpression::Result>()))
+                    if (completeConstructorOrFunction(results))
                         return m_startPosition;
                     break;
                 }
@@ -563,32 +561,41 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType exprTy,
-                                                      const QList<TypeOfExpression::Result> &resolvedTypes)
+bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results)
 {
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
     o.setShowReturnTypes(true);
     o.setShowArgumentNames(true);
 
-    if (Class *klass = exprTy->asClassType()) {
-        for (unsigned i = 0; i < klass->memberCount(); ++i) {
-            Symbol *member = klass->memberAt(i);
-            if (! member->type()->isFunctionType())
-                continue;
-            else if (! member->identity())
-                continue;
-            else if (! member->identity()->isEqualTo(klass->identity()))
-                continue;
-            if (TextEditor::CompletionItem item = toCompletionItem(member)) {
-                item.m_text = o(member->type(), member->name());
-                m_completions.append(item);
+    foreach (const TypeOfExpression::Result &result, results) {
+        FullySpecifiedType exprTy = result.first;
+
+        if (Class *klass = exprTy->asClassType()) {
+            for (unsigned i = 0; i < klass->memberCount(); ++i) {
+                Symbol *member = klass->memberAt(i);
+                if (! member->type()->isFunctionType())
+                    continue;
+                else if (! member->identity())
+                    continue;
+                else if (! member->identity()->isEqualTo(klass->identity()))
+                    continue;
+                if (TextEditor::CompletionItem item = toCompletionItem(member)) {
+                    item.m_text = o(member->type(), member->name());
+                    m_completions.append(item);
+                }
             }
+
+            break;
         }
-    } else {
+    }
+
+    if (m_completions.isEmpty()) {
         QSet<QString> signatures;
-        foreach (TypeOfExpression::Result p, resolvedTypes) {
+
+        foreach (const TypeOfExpression::Result &p, results) {
             FullySpecifiedType ty = p.first;
+
             if (Function *fun = ty->asFunctionType()) {
                 if (TextEditor::CompletionItem item = toCompletionItem(fun)) {
                     QString signature;
@@ -819,30 +826,42 @@ void CppCodeCompletion::addKeywords()
 
 void CppCodeCompletion::addMacros(const LookupContext &context)
 {
-    // macro completion items.
-    QSet<QByteArray> macroNames;
     QSet<QString> processed;
-    QList<QString> todo;
-    todo.append(context.thisDocument()->fileName());
-    while (! todo.isEmpty()) {
-        QString fn = todo.last();
-        todo.removeLast();
-        if (processed.contains(fn))
-            continue;
-        processed.insert(fn);
-        if (Document::Ptr doc = context.document(fn)) {
-            foreach (const Macro &macro, doc->definedMacros()) {
-                macroNames.insert(macro.name());
-            }
-            todo += doc->includedFiles();
-        }
-    }
+    QSet<QString> definedMacros;
 
-    foreach (const QByteArray &macroName, macroNames) {
+    addMacros_helper(context, context.thisDocument()->fileName(),
+                     &processed, &definedMacros);
+
+    foreach (const QString &macroName, definedMacros) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QString::fromUtf8(macroName.constData(), macroName.length());
+        item.m_text = macroName;
         item.m_icon = m_icons.macroIcon();
         m_completions.append(item);
+    }
+}
+
+void CppCodeCompletion::addMacros_helper(const LookupContext &context,
+                                         const QString &fileName,
+                                         QSet<QString> *processed,
+                                         QSet<QString> *definedMacros)
+{
+    Document::Ptr doc = context.document(fileName);
+
+    if (! doc || processed->contains(doc->fileName()))
+        return;
+
+    processed->insert(doc->fileName());
+
+    foreach (const Document::Include &i, doc->includes()) {
+        addMacros_helper(context, i.fileName(), processed, definedMacros);
+    }
+
+    foreach (const Macro &macro, doc->definedMacros()) {
+        const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
+        if (! macro.isHidden())
+            definedMacros->insert(macroName);
+        else
+            definedMacros->remove(macroName);
     }
 }
 
@@ -902,8 +921,7 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     }
 }
 
-bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
-                                         const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &results,
                                          const LookupContext &context,
                                          bool wantSignals)
 {
@@ -919,7 +937,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     o.setShowFunctionSignatures(true);
 
     QSet<QString> signatures;
-    foreach (TypeOfExpression::Result p, results) {
+    foreach (const TypeOfExpression::Result &p, results) {
         FullySpecifiedType ty = p.first;
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
