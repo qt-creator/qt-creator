@@ -453,7 +453,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 #endif
 
     cmd = am->registerAction(m_manager->m_continueAction,
-        ProjectExplorer::Constants::DEBUG, QList<int>()<< m_gdbRunningContext);
+        ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
 
     cmd = am->registerAction(m_manager->m_stopAction,
         Constants::INTERRUPT, globalcontext);

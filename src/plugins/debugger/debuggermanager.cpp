@@ -490,9 +490,11 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     m_mainWindow->tabifyDockWidget(m_watchDock, m_outputDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_registerDock);
     m_mainWindow->tabifyDockWidget(m_watchDock, m_threadsDock);
+    m_mainWindow->tabifyDockWidget(m_watchDock, m_sourceFilesDock);
 
     // They are rarely used even in ordinary debugging. Hiding them also saves
     // cycles since the corresponding information won't be retrieved.
+    m_sourceFilesDock->hide();
     m_registerDock->hide();
     m_disassemblerDock->hide();
     m_modulesDock->hide();
@@ -515,6 +517,7 @@ void DebuggerManager::setLocked(bool locked)
         }
         dockWidget->setTitleBarWidget(titleBarWidget);
         dockWidget->setFeatures(features);
+        dockWidget->toggleViewAction()->setEnabled(true);
     }
 }
 
