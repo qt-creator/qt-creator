@@ -3590,6 +3590,7 @@ void GdbEngine::updateLocals()
     setTokenBarrier();
 
     m_pendingRequests = 0;
+
     PENDING_DEBUG("\nRESET PENDING");
     m_toolTipCache.clear();
     m_toolTipExpression.clear();
@@ -3601,6 +3602,8 @@ void GdbEngine::updateLocals()
     sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
     // '2' is 'list with type and value'
     sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
+
+    tryLoadCustomDumpers();
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
@@ -3982,9 +3985,9 @@ void GdbEngine::tryLoadCustomDumpers()
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
-        sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+        sendSyncronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
-        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 1");
     } else {
@@ -3999,9 +4002,9 @@ void GdbEngine::tryLoadCustomDumpers()
         //    sendCommand("set stop-on-solib-events 0");
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
-        sendSynchronizedCommand("call LoadLibraryA(\"" + lib + "\")",
+        sendSyncronizedCommand("call LoadLibraryA(\"" + lib + "\")",
             WatchDumpCustomSetup);
-        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
+        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
         //if (qq->useFastStart())
         //    sendCommand("set stop-on-solib-events 1");
     } else {
