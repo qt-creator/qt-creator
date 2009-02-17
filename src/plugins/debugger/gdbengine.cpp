@@ -1126,7 +1126,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         sendCommand("info proc", GdbInfoProc);
         #endif
         #if defined(Q_OS_MAC)
-        sendCommand("info pid", GdbInfoProc, QVariant(), true);
+        sendCommand("info pid", GdbInfoProc);
         #endif
         sendCommand("-file-list-exec-source-files", GdbQuerySources);
         tryLoadCustomDumpers();
