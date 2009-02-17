@@ -553,12 +553,6 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
     }
 }
 
-void DebuggerManager::notifyStartupFinished()
-{
-    setStatus(DebuggerProcessReady);
-    showStatusMessage(tr("Startup finished. Debugger ready."), -1);
-}
-
 void DebuggerManager::notifyInferiorStopRequested()
 {
     setStatus(DebuggerInferiorStopRequested);
@@ -569,12 +563,6 @@ void DebuggerManager::notifyInferiorStopped()
 {
     resetLocation();
     setStatus(DebuggerInferiorStopped);
-    showStatusMessage(tr("Stopped."), 5000);
-}
-
-void DebuggerManager::notifyInferiorUpdateFinished()
-{
-    setStatus(DebuggerInferiorReady);
     showStatusMessage(tr("Stopped."), 5000);
 }
 
@@ -592,7 +580,7 @@ void DebuggerManager::notifyInferiorRunning()
 
 void DebuggerManager::notifyInferiorExited()
 {
-    setStatus(DebuggerProcessReady);
+    setStatus(DebuggerProcessNotReady);
     showStatusMessage(tr("Stopped."), 5000);
 }
 
@@ -679,7 +667,9 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
     QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
-    if (status() != DebuggerInferiorRunning && status() != DebuggerInferiorStopped) {
+    if (status() != DebuggerInferiorRunning
+         && status() != DebuggerInferiorStopped 
+         && status() != DebuggerProcessNotReady) {
         showStatusMessage(tr("Changing breakpoint state requires either a "
             "fully running or fully stopped application."));
         return;
@@ -842,11 +832,13 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
     else 
         setDebuggerType(GdbDebugger);
 
-    if (!m_engine->startDebugger())
+    setStatus(DebuggerProcessStartingUp);
+    if (!m_engine->startDebugger()) {
+        setStatus(DebuggerProcessNotReady);
         return false;
+    }
 
     m_busy = false;
-    setStatus(DebuggerProcessStartingUp);
     return true;
 }
 
@@ -1049,16 +1041,11 @@ void DebuggerManager::setStatus(int status)
     const bool started = status == DebuggerInferiorRunning
         || status == DebuggerInferiorRunningRequested
         || status == DebuggerInferiorStopRequested
-        || status == DebuggerInferiorStopped
-        || status == DebuggerInferiorUpdating
-        || status == DebuggerInferiorUpdateFinishing
-        || status == DebuggerInferiorReady;
+        || status == DebuggerInferiorStopped;
 
     const bool starting = status == DebuggerProcessStartingUp;
     const bool running = status == DebuggerInferiorRunning;
-    const bool ready = status == DebuggerInferiorStopped
-        || status == DebuggerInferiorReady
-        || status == DebuggerProcessReady;
+    const bool ready = status == DebuggerInferiorStopped;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);

@@ -107,7 +107,7 @@ STDMETHODIMP MSVCDebugEventCallback::CreateProcess(
 {
     m_pEngine->m_hDebuggeeProcess = (HANDLE)Handle;
     m_pEngine->m_hDebuggeeThread = (HANDLE)InitialThreadHandle;
-    m_pEngine->qq->notifyStartupFinished();
+    //m_pEngine->qq->notifyStartupFinished();
     m_pEngine->qq->notifyInferiorRunning();
 
     ULONG currentThreadId;
