@@ -90,8 +90,7 @@ private:
                           QSet<QString> *definedMacros);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
-    bool completeConstructorOrFunction(CPlusPlus::FullySpecifiedType exprTy,
-                                       const QList<CPlusPlus::TypeOfExpression::Result> &);
+    bool completeConstructorOrFunction(const QList<CPlusPlus::TypeOfExpression::Result> &);
 
     bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);
@@ -108,20 +107,17 @@ private:
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
-    bool completeQtMethod(CPlusPlus::FullySpecifiedType exprTy,
-                          const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeQtMethod(const QList<CPlusPlus::TypeOfExpression::Result> &,
                           const CPlusPlus::LookupContext &context,
                           bool wantSignals);
 
-    bool completeSignal(CPlusPlus::FullySpecifiedType exprTy,
-                        const QList<CPlusPlus::TypeOfExpression::Result> &results,
+    bool completeSignal(const QList<CPlusPlus::TypeOfExpression::Result> &results,
                         const CPlusPlus::LookupContext &context)
-    { return completeQtMethod(exprTy, results, context, true); }
+    { return completeQtMethod(results, context, true); }
 
-    bool completeSlot(CPlusPlus::FullySpecifiedType exprTy,
-                      const QList<CPlusPlus::TypeOfExpression::Result> &results,
+    bool completeSlot(const QList<CPlusPlus::TypeOfExpression::Result> &results,
                       const CPlusPlus::LookupContext &context)
-    { return completeQtMethod(exprTy, results, context, false); }
+    { return completeQtMethod(results, context, false); }
 
     int findStartOfName(int pos = -1) const;
 

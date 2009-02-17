@@ -512,22 +512,21 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             context = typeOfExpression.lookupContext();
         }
 
-        if (! resolvedTypes.isEmpty() && resolvedTypes.first().first) {
-            FullySpecifiedType exprTy = resolvedTypes.first().first;
-
-            if (exprTy->isReferenceType())
-                exprTy = exprTy->asReferenceType()->elementType();
-
-            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(exprTy, resolvedTypes)) {
+        if (! resolvedTypes.isEmpty()) {
+            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(resolvedTypes)) {
                 return m_startPosition;
+
             } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(resolvedTypes, context)) {
                 return m_startPosition;
+
             } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_SIGNAL && completeSignal(exprTy, resolvedTypes, context)) {
+
+            } else if (m_completionOperator == T_SIGNAL      && completeSignal(resolvedTypes, context)) {
                 return m_startPosition;
-            } else if (m_completionOperator == T_SLOT && completeSlot(exprTy, resolvedTypes, context)) {
+
+            } else if (m_completionOperator == T_SLOT        && completeSlot(resolvedTypes, context)) {
                 return m_startPosition;
             }
         }
@@ -550,8 +549,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
                 if (result.first->isClassType()) {
-                    FullySpecifiedType exprTy = result.first;
-                    if (completeConstructorOrFunction(exprTy, QList<TypeOfExpression::Result>()))
+                    if (completeConstructorOrFunction(results))
                         return m_startPosition;
                     break;
                 }
@@ -563,8 +561,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType,
-                                                      const QList<TypeOfExpression::Result> &results)
+bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results)
 {
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
@@ -924,8 +921,7 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     }
 }
 
-bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
-                                         const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &results,
                                          const LookupContext &context,
                                          bool wantSignals)
 {
@@ -941,7 +937,7 @@ bool CppCodeCompletion::completeQtMethod(CPlusPlus::FullySpecifiedType,
     o.setShowFunctionSignatures(true);
 
     QSet<QString> signatures;
-    foreach (TypeOfExpression::Result p, results) {
+    foreach (const TypeOfExpression::Result &p, results) {
         FullySpecifiedType ty = p.first;
         if (ReferenceType *refTy = ty->asReferenceType())
             ty = refTy->elementType();
