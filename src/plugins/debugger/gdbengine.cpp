@@ -254,7 +254,6 @@ void GdbEngine::init()
 {
     m_pendingRequests = 0;
     m_gdbVersion = 100;
-    m_shared = 0;
     m_outputCodec = QTextCodec::codecForLocale();
     m_dataDumperState = DataDumperUninitialized;
 
@@ -988,18 +987,6 @@ void GdbEngine::handleInfoShared(const GdbResultRecord &record)
     if (record.resultClass == GdbResultDone) {
         // let the modules handler do the parsing
         handleModulesList(record);
-        QList<Module> modules = qq->modulesHandler()->modules();
-        bool reloadNeeded = false;
-        foreach (const Module &module, modules) {
-            // FIXME: read this from some list
-            if (!module.symbolsRead && !module.moduleName.contains("Q")) {
-                reloadNeeded = true;
-                sendCommand("sharedlibrary " + dotEscape(module.moduleName));
-            }
-        }
-        if (reloadNeeded)
-            reloadModules();
-        continueInferior();
     }
 }
 
@@ -1146,7 +1133,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QString reason = data.findChild("reason").data();
 
-    QString console = data.findChild("consolestreamoutput").data();
+    QString msg = data.findChild("consolestreamoutput").data();
     if (reason.isEmpty()) {
         GdbMi frame = data.findChild("frame");
         if (frame.findChild("func").data() == "_start") {
@@ -1162,11 +1149,27 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             sendCommand("info pid", GdbInfoProc, QVariant(), true);
             #endif
             sendCommand("-file-list-exec-source-files", GdbQuerySources);
-            sendCommand("set auto-solib-add on");
+
             sendCommand("sharedlibrary libc"); // for malloc
             sendCommand("sharedlibrary libdl"); // for dlopen
             tryLoadCustomDumpers();
-            sendCommand("info shared", ModulesList, QVariant());
+
+            // intentionally after tryLoadCustomDumpers(),
+            // otherwise we'd interupt solib loading.
+            if (qq->wantsAllPluginBreakpoints()) {
+                sendCommand("set auto-solib-add on");
+                sendCommand("set stop-on-solib-events 0");
+                sendCommand("sharedlibrary .*");
+            } else if (qq->wantsSelectedPluginBreakpoints()) {
+                sendCommand("set auto-solib-add on");
+                sendCommand("set stop-on-solib-events 1");
+                sendCommand("sharedlibrary "+qq->selectedPluginBreakpointsPattern());
+            } else if (qq->wantsNoPluginBreakpoints()) {
+                // should be like that already
+                sendCommand("set auto-solib-add off");
+                sendCommand("set stop-on-solib-events 0");
+            }
+            reloadModules();
             // this will "continue" if done
             attemptBreakpointSynchronization();
             return;
@@ -1174,36 +1177,19 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         // fall through
     }
 
-#if 0
-    if (console.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        ++m_shared;
-        //if (m_shared == 2)
-        //    tryLoadCustomDumpers();
-        //qDebug() << "SHARED LIBRARY EVENT " << data.toString() << m_shared;
-        if (qq->useFastStart()) {
-            if (1 || m_shared <= 16) { // libpthread?
-                sendCommand("info shared", GdbInfoShared);
-                //sendCommand("sharedlibrary gdbdebugger ");
-                //continueInferior();
-            } else {
-                // auto-load from now on
-                sendCommand("info shared");
-                sendCommand("set auto-solib-add on");
-                sendCommand("-file-list-exec-source-files", GdbQuerySources);
-                sendCommand("-break-list", BreakList);
-                //sendCommand("bt");
-                //QVariant var = QVariant::fromValue<GdbMi>(data);
-                //sendCommand("p 1", GdbAsyncOutput2, var);  // dummy
-                continueInferior();
-            }
-        } else {
-            // slow start requested.
-            q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
+    static bool modulesDirty = false;
+    if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
+        if (qq->wantsSelectedPluginBreakpoints()) {
+            qDebug() << "SHARED LIBRARY EVENT " << data.toString();
+            qDebug() << "PATTERN" << qq->selectedPluginBreakpointsPattern();
+            sendCommand("sharedlibrary " + qq->selectedPluginBreakpointsPattern());
             continueInferior();
+            q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
+            return;
         }
-        return;
+        modulesDirty = true;
+        // fall through
     }
-#endif
 
     if (isExitedReason(reason)) {
         qq->notifyInferiorExited();
@@ -1256,11 +1242,17 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
+        if (modulesDirty) {
+            sendCommand("-file-list-exec-source-files", GdbQuerySources);
+            sendCommand("-break-list", BreakList);
+            reloadModules();
+            modulesDirty = false;
+        }
         // Need another round trip
         if (reason == "breakpoint-hit") {
             q->showStatusMessage(tr("Stopped at breakpoint"));
             GdbMi frame = data.findChild("frame");
-            qDebug() << "HIT BREAKPOINT: " << frame.toString();
+            //qDebug() << "HIT BREAKPOINT: " << frame.toString();
             m_currentFrame = frame.findChild("addr").data() + '%' +
                  frame.findChild("func").data() + '%';
 
@@ -1504,7 +1496,6 @@ void GdbEngine::exitDebugger()
     m_fullToShortName.clear();
     m_varToType.clear();
     m_dataDumperState = DataDumperUninitialized;
-    m_shared = 0;
     m_outputCollector.shutdown();
     //q->settings()->m_debugDumpers = false;
 }
@@ -1572,12 +1563,7 @@ bool GdbEngine::startDebugger()
     q->showStatusMessage(tr("Gdb Running"));
 
     sendCommand("show version", GdbShowVersion);
-    if (qq->useFastStart()) {
-        sendCommand("set auto-solib-add off");
-        sendCommand("set stop-on-solib-events 1");
-    }
     //sendCommand("-enable-timings");
-    //sendCommand("set stop-on-solib-events 1");
     sendCommand("set print static-members off"); // Seemingly doesn't work.
     //sendCommand("define hook-stop\n-thread-list-ids\n-stack-list-frames\nend");
     //sendCommand("define hook-stop\nprint 4\nend");
@@ -4044,8 +4030,6 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen");
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
         sendSynchronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
@@ -4053,8 +4037,6 @@ void GdbEngine::tryLoadCustomDumpers()
         sendSynchronizedCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
         sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 1");
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -4064,14 +4046,10 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
     if (QFileInfo(lib).isExecutable()) {
         //sendCommand("p dlopen"); // FIXME: remove me
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 0");
         QString flag = QString::number(RTLD_NOW);
         sendSyncronizedCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
-        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
@@ -4080,15 +4058,11 @@ void GdbEngine::tryLoadCustomDumpers()
 #if defined(Q_OS_WIN)
     QString lib = q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
     if (QFileInfo(lib).exists()) {
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 0");
         //sendCommand("handle SIGSEGV pass stop print");
         //sendCommand("set unwindonsignal off");
         sendSyncronizedCommand("call LoadLibraryA(\"" + lib + "\")",
             WatchDumpCustomSetup);
-        sendSyncronizedCommand("sharedlibrary " + dotEscape(lib));
-        //if (qq->useFastStart())
-        //    sendCommand("set stop-on-solib-events 1");
+        sendSynchronizedCommand("sharedlibrary " + dotEscape(lib));
     } else {
         qDebug() << "DEBUG HELPER LIBRARY IS NOT USABLE: "
             << lib << QFileInfo(lib).isExecutable();
