@@ -160,7 +160,7 @@ void OutputCollector::newConnectionAvailable()
     if (m_socket)
         return;
     m_socket = m_server->nextPendingConnection();
-    connect(m_socket, SIGNAL(bytesAvailable()), SLOT(bytesAvailable()));
+    connect(m_socket, SIGNAL(readyRead()), SLOT(bytesAvailable()));
 }
 #endif
 
