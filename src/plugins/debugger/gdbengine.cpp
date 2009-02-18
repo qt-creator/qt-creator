@@ -758,8 +758,6 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     GdbCookie cmd = m_cookieForToken.take(token);
 
-    // FIXME: this falsely rejects results from the custom dumper recognition
-    // procedure, too...
     if (record.token < m_oldestAcceptableToken) {
         //qDebug() << "### SKIPPING OLD RESULT " << record.toString();
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
@@ -1632,13 +1630,11 @@ bool GdbEngine::startDebugger()
         sendCommand("attach " + QString::number(q->m_attachedPID));
     } else {
         // StartInternal or StartExternal
-        emit gdbInputAvailable(QString(), QString());
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
         #ifdef Q_OS_MAC
         sendCommand("sharedlibrary apply-load-rules all");
         #endif
-        setTokenBarrier();
         if (!q->m_processArgs.isEmpty())
             sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
         sendCommand("set auto-solib-add off");
@@ -1658,7 +1654,6 @@ void GdbEngine::continueInferior()
 {
     q->resetLocation();
     setTokenBarrier();
-    emit gdbInputAvailable(QString(), QString());
     qq->notifyInferiorRunningRequested();
     sendCommand("-exec-continue", GdbExecContinue);
 }
@@ -1688,7 +1683,6 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
 void GdbEngine::stepExec()
 {
     setTokenBarrier();
-    emit gdbInputAvailable(QString(), QString());
     qq->notifyInferiorRunningRequested();
     sendCommand("-exec-step", GdbExecStep);
 }
@@ -1710,7 +1704,6 @@ void GdbEngine::stepOutExec()
 void GdbEngine::nextExec()
 {
     setTokenBarrier();
-    emit gdbInputAvailable(QString(), QString());
     qq->notifyInferiorRunningRequested();
     sendCommand("-exec-next", GdbExecNext);
 }
@@ -1762,14 +1755,19 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 
 /*!
     \fn void GdbEngine::setTokenBarrier()
-    \brief Sets up internal structures to handle a new debugger turn.
+    \brief Discard the results of all pending watch-updating commands.
 
     This method is called at the beginning of all step/next/finish etc.
     debugger functions.
+    If non-watch-updating commands with call-backs are still in the pipe,
+    it will complain.
 */
 
 void GdbEngine::setTokenBarrier()
 {
+    foreach (const GdbCookie &ck, m_cookieForToken)
+        QTC_ASSERT(ck.synchronized || ck.type == GdbInvalidCommand, return);
+    emit gdbInputAvailable(QString(), "--- token barrier ---");
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -2460,6 +2458,8 @@ void GdbEngine::activateFrame(int frameIndex)
     QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
+        setTokenBarrier();
+
         // Assuming this always succeeds saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
@@ -2936,6 +2936,7 @@ void GdbEngine::setUseCustomDumpers(bool on)
     Q_UNUSED(on);
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
+    setTokenBarrier();
     updateLocals();
 }
 
@@ -3410,6 +3411,7 @@ void GdbEngine::handleVarAssign()
     // everything might have changed, force re-evaluation
     // FIXME: Speed this up by re-using variables and only
     // marking values as 'unknown'
+    setTokenBarrier();
     updateLocals();
 }
 
@@ -3626,8 +3628,6 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
 
 void GdbEngine::updateLocals()
 {
-    setTokenBarrier();
-
     m_pendingRequests = 0;
 
     PENDING_DEBUG("\nRESET PENDING");
