@@ -1764,7 +1764,7 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     \fn void GdbEngine::setTokenBarrier()
     \brief Sets up internal structures to handle a new debugger turn.
 
-    This method is called at the beginnign of all step/next/finish etc.
+    This method is called at the beginning of all step/next/finish etc.
     debugger functions.
 */
 
@@ -2748,7 +2748,7 @@ static QString gdbQuoteTypes(const QString &type)
     //
     // We never will have a perfect solution here (even if we had a full blown
     // C++ parser as we do not have information on what is a type and what is
-    // a vriable name. So "a<b>::c" could either be two comparisons of values
+    // a variable name. So "a<b>::c" could either be two comparisons of values
     // 'a', 'b' and '::c', or a nested type 'c' in a template 'a<b>'. We
     // assume here it is the latter.
     //return type;
