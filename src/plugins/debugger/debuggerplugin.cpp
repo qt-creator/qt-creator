@@ -943,11 +943,11 @@ void DebuggerPlugin::readSettings()
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
 
     m->m_pluginAllBreakpoints =
-        s->value("AllPluginBreakpoints", false).toBool();
+        s->value("AllPluginBreakpoints", true).toBool();
     m->m_pluginSelectedBreakpoints =
         s->value("SelectedPluginBreakpoints", false).toBool();
     m->m_pluginNoBreakpoints =
-        s->value("NoPluginBreakpoints", true).toBool();
+        s->value("NoPluginBreakpoints", false).toBool();
     m->m_pluginSelectedBreakpointsPattern =
         s->value("SelectedPluginBreakpointsPattern").toString();
 
