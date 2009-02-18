@@ -63,6 +63,8 @@
 #include <Names.h>
 #include <NameVisitor.h>
 #include <TypeVisitor.h>
+#include <ASTVisitor.h>
+#include <PrettyPrinter.h>
 #include <Lexer.h>
 #include <Token.h>
 
@@ -70,10 +72,54 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <iostream>
+#include <sstream>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
+
+#if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
+
+#include <cxxabi.h>
+
+class DumpAST: protected ASTVisitor
+{
+public:
+    int depth;
+
+    DumpAST(Control *control)
+        : ASTVisitor(control), depth(0)
+    { }
+
+    void operator()(AST *ast)
+    { accept(ast); }
+
+protected:
+    virtual bool preVisit(AST *ast)
+    {
+        std::ostringstream s;
+        PrettyPrinter pp(control(), s);
+        pp(ast);
+        QString code = QString::fromStdString(s.str());
+        code.replace('\n', ' ');
+        code.replace(QRegExp("\\s+"), " ");
+
+        const char *name = abi::__cxa_demangle(typeid(*ast).name(), 0, 0, 0) + 11;
+
+        QByteArray ind(depth, ' ');
+        ind += name;
+
+        printf("%-40s %s\n", ind.constData(), qPrintable(code));
+        ++depth;
+        return true;
+    }
+
+    virtual void postVisit(AST *)
+    { --depth; }
+};
+
+#endif QTCREATOR_WITH_DUMP_AST
 
 static const char pp_configuration_file[] = "<configuration>";
 
@@ -413,6 +459,12 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
             m_currentDoc->setSource(preprocessedCode);
             m_currentDoc->parse();
+
+#if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
+            DumpAST dump(m_currentDoc->control());
+            dump(m_currentDoc->translationUnit()->ast());
+#endif
+
             m_currentDoc->check();
             m_currentDoc->releaseTranslationUnit(); // release the AST and the token stream.
 
