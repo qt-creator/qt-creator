@@ -930,6 +930,7 @@ bool ResourceModel::reload()
     const bool result = m_resource_file.load();
     if (result)
         setDirty(false);
+    reset();
     return result;
 }
 

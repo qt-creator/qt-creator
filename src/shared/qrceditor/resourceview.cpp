@@ -489,9 +489,7 @@ bool ResourceView::load(QString fileName)
     if (!fi.exists())
         return false;
 
-    const bool result = m_qrcModel->reload();
-    reset();
-    return result;
+    return m_qrcModel->reload();
 }
 
 bool ResourceView::save(void)
