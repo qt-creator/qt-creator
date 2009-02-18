@@ -180,7 +180,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
             scopes.clear();
             foreach (Symbol *candidate, candidates) {
                 if (ScopedSymbol *scoped = candidate->asScopedSymbol()) {
-                    expand(scoped->members(), visibleScopes, &scopes);
+                    scopes.append(scoped->members());
                 }
             }
         }
