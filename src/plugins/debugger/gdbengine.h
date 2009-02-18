@@ -183,6 +183,8 @@ private slots:
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleStart(const GdbResultRecord &response);
+    void handleAttach();
+    void handleAqcuiredInferior();
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
