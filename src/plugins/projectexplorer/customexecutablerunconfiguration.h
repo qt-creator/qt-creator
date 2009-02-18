@@ -37,6 +37,7 @@
 #include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QLineEdit;
 QT_END_NAMESPACE
 
@@ -75,14 +76,15 @@ public:
     virtual QWidget *configurationWidget();
 signals:
     void changed();
-private slots:
+private:
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
     void setWorkingDirectory(const QString &workingDirectory);
-private:
+    void setRunMode(RunMode runMode);
     QString m_executable;
     QString m_workingDirectory;
     QStringList m_cmdArguments;
+    RunMode m_runMode;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
@@ -110,12 +112,14 @@ private slots:
     void setExecutable();
     void setCommandLineArguments(const QString &commandLineArguments);
     void setWorkingDirectory();
+    void termToggled(bool);
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
     Core::Utils::PathChooser *m_executableChooser;
     QLineEdit *m_commandLineArgumentsLineEdit;
     Core::Utils::PathChooser *m_workingDirectory;
+    QCheckBox *m_useTerminalCheck;
 };
 }
 }

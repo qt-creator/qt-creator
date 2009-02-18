@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QWidget;
+class QCheckBox;
 class QLabel;
 class QLineEdit;
 QT_END_NAMESPACE
@@ -78,6 +79,7 @@ public:
 signals:
     void nameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
+    void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
 
     // note those signals might not emited for every change
     void effectiveExecutableChanged();
@@ -86,6 +88,7 @@ signals:
 private slots:
     void setCommandLineArguments(const QString &argumentsString);
     void nameEdited(const QString&);
+    void setRunMode(RunMode runMode);
 
 private:
     void detectQtShadowBuild(const QString &buildConfig) const;
@@ -119,8 +122,10 @@ private slots:
     // TODO connect to signals from qt4runconfiguration for changed arguments and names
     void commandLineArgumentsChanged(const QString &args);
     void nameChanged(const QString &name);
+    void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void effectiveExecutableChanged();
     void effectiveWorkingDirectoryChanged();
+    void termToggled(bool);
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
@@ -128,6 +133,7 @@ private:
     QLabel *m_workingDirectoryLabel;
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
+    QCheckBox *m_useTerminalCheck;
 };
 
 class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

@@ -43,6 +43,7 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
+#include <QtGui/QCheckBox>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -106,16 +107,25 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
+    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"));
+    m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::ApplicationRunConfiguration::Console);
+    toplayout->addRow(QString(), m_useTerminalCheck);
+
     connect(m_argumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(setCommandLineArguments(const QString&)));
 
     connect(m_nameLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(nameEdited(const QString&)));
 
+    connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
+            this, SLOT(termToggled(bool)));
+
     connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(nameChanged(QString)),
             this, SLOT(nameChanged(QString)));
+    connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)),
+            this, SLOT(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)));
 
     connect(qt4RunConfiguration, SIGNAL(effectiveExecutableChanged()),
             this, SLOT(effectiveExecutableChanged()));
@@ -138,6 +148,14 @@ void Qt4RunConfigurationWidget::nameEdited(const QString &name)
     m_ignoreChange = false;
 }
 
+void Qt4RunConfigurationWidget::termToggled(bool on)
+{
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->setRunMode(on ? ApplicationRunConfiguration::Console
+                                         : ApplicationRunConfiguration::Gui);
+    m_ignoreChange = false;
+}
+
 void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 {
     if (!m_ignoreChange)
@@ -148,6 +166,12 @@ void Qt4RunConfigurationWidget::nameChanged(const QString &name)
 {
     if (!m_ignoreChange)
         m_nameLineEdit->setText(name);
+}
+
+void Qt4RunConfigurationWidget::runModeChanged(ApplicationRunConfiguration::RunMode runMode)
+{
+    if (!m_ignoreChange)
+        m_useTerminalCheck->setChecked(runMode == ApplicationRunConfiguration::Console);
 }
 
 void Qt4RunConfigurationWidget::effectiveExecutableChanged()
@@ -172,6 +196,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("CommandLineArguments", m_commandLineArguments);
     writer.saveValue("ProFile", m_proFilePath);
     writer.saveValue("UserSetName", m_userSetName);
+    writer.saveValue("UseTerminal", m_runMode == Console);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -181,6 +206,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
     m_proFilePath = reader.restoreValue("ProFile").toString();
     m_userSetName = reader.restoreValue("UserSetName").toBool();
+    m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     if (!m_proFilePath.isEmpty()) {
         updateCachedValues();
         if (!m_userSetName)
@@ -219,6 +245,12 @@ void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString
 {
     m_commandLineArguments = ProjectExplorer::Environment::parseCombinedArgString(argumentsString);
     emit commandLineArgumentsChanged(argumentsString);
+}
+
+void Qt4RunConfiguration::setRunMode(RunMode runMode)
+{
+    m_runMode = runMode;
+    emit runModeChanged(runMode);
 }
 
 void Qt4RunConfiguration::nameEdited(const QString &name)
@@ -283,8 +315,6 @@ void Qt4RunConfiguration::updateCachedValues()
     m_targets = reader->values(QLatin1String("TARGET"));
 
     m_srcDir = QFileInfo(m_proFilePath).path();
-    const QStringList config = reader->values(QLatin1String("CONFIG"));
-    m_runMode = ProjectExplorer::ApplicationRunConfiguration::Gui;
 
     delete reader;
 

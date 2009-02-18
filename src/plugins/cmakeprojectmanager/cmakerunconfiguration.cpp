@@ -39,7 +39,7 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory)
-    : ProjectExplorer::ApplicationRunConfiguration(pro), m_target(target), m_workingDirectory(workingDirectory)
+    : ProjectExplorer::ApplicationRunConfiguration(pro), m_runMode(Gui), m_target(target), m_workingDirectory(workingDirectory)
 {
     setName(target);
 }
@@ -60,7 +60,7 @@ QString CMakeRunConfiguration::executable() const
 
 ProjectExplorer::ApplicationRunConfiguration::RunMode CMakeRunConfiguration::runMode() const
 {
-    return ProjectExplorer::ApplicationRunConfiguration::Gui;
+    return m_runMode;
 }
 
 QString CMakeRunConfiguration::workingDirectory() const
@@ -85,6 +85,7 @@ void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writ
     ProjectExplorer::ApplicationRunConfiguration::save(writer);
     writer.saveValue("CMakeRunConfiguration.Target", m_target);
     writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
+    writer.saveValue("CMakeRunConfiguration.UseTerminal", m_runMode == Console);
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -92,6 +93,7 @@ void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsRea
     ProjectExplorer::ApplicationRunConfiguration::restore(reader);
     m_target = reader.restoreValue("CMakeRunConfiguration.Target").toString();
     m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
+    m_runMode = reader.restoreValue("CMakeRunConfiguration.UseTerminal").toBool() ? Console : Gui;
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()

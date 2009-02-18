@@ -31,6 +31,7 @@
 #include "environment.h"
 #include "project.h"
 
+#include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
@@ -61,6 +62,9 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory = new Core::Utils::PathChooser();
     layout->addRow("Working Directory:", m_workingDirectory);
 
+    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"));
+    layout->addRow(QString(), m_useTerminalCheck);
+
     setLayout(layout);
     changed();
     
@@ -70,7 +74,9 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
             this, SLOT(setCommandLineArguments(const QString&)));
     connect(m_workingDirectory, SIGNAL(changed()),
             this, SLOT(setWorkingDirectory()));
-    
+    connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
+            this, SLOT(termToggled(bool)));
+
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 }
 
@@ -93,6 +99,14 @@ void CustomExecutableConfigurationWidget::setWorkingDirectory()
     m_ignoreChange = false;
 }
 
+void CustomExecutableConfigurationWidget::termToggled(bool on)
+{
+    m_ignoreChange = true;
+    m_runConfiguration->setRunMode(on ? ApplicationRunConfiguration::Console
+                                      : ApplicationRunConfiguration::Gui);
+    m_ignoreChange = false;
+}
+
 void CustomExecutableConfigurationWidget::changed()
 {
     // We triggered the change, don't update us
@@ -101,6 +115,7 @@ void CustomExecutableConfigurationWidget::changed()
     m_executableChooser->setPath(m_runConfiguration->baseExecutable());
     m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
+    m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == ApplicationRunConfiguration::Console);
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
@@ -166,7 +181,7 @@ QString CustomExecutableRunConfiguration::executable() const
 
 ApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
 {
-    return ApplicationRunConfiguration::Gui;
+    return m_runMode;
 }
 
 QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
@@ -197,6 +212,7 @@ void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) co
     writer.saveValue("Executable", m_executable);
     writer.saveValue("Arguments", m_cmdArguments);
     writer.saveValue("WorkingDirectory", m_workingDirectory);
+    writer.saveValue("UseTerminal", m_runMode == Console);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -205,6 +221,7 @@ void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &r
     m_executable = reader.restoreValue("Executable").toString();
     m_cmdArguments = reader.restoreValue("Arguments").toStringList();
     m_workingDirectory = reader.restoreValue("WorkingDirectory").toString();
+    m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     ApplicationRunConfiguration::restore(reader);
 }
 
@@ -224,6 +241,12 @@ void CustomExecutableRunConfiguration::setCommandLineArguments(const QString &co
 void CustomExecutableRunConfiguration::setWorkingDirectory(const QString &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
+    emit changed();
+}
+
+void CustomExecutableRunConfiguration::setRunMode(RunMode runMode)
+{
+    m_runMode = runMode;
     emit changed();
 }
 

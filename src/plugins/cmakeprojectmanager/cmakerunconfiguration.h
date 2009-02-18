@@ -55,6 +55,7 @@ public:
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 private:
+    RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
 };
