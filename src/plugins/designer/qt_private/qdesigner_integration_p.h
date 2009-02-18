@@ -95,6 +95,8 @@ public:
     bool isResourceEditingEnabled() const;
     bool isSlotNavigationEnabled() const;
 
+    QString contextHelpId() const;
+
 protected:
 
     void setResourceFileWatcherBehaviour(ResourceFileWatcherBehaviour behaviour); // PromptAndReload by default
