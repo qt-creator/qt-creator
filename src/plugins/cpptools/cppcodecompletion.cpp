@@ -775,42 +775,23 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
 bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &results,
                                       const LookupContext &context)
 {
-    if (results.isEmpty())
-        return false; // nothing to do.
+    QList<Symbol *> classes, namespaces;
 
-    // Search for a class or a namespace.
-    TypeOfExpression::Result result;
-    foreach (result, results) {
+    foreach (TypeOfExpression::Result result, results) {
         FullySpecifiedType ty = result.first;
 
-        if (ty->isClassType() || ty->isNamespaceType())
-            break;
+        if (Class *classTy = ty->asClassType())
+            classes.append(classTy);
+
+        else if (Namespace *namespaceTy = ty->asNamespaceType())
+            namespaces.append(namespaceTy);
     }
 
-    FullySpecifiedType exprTy = result.first;
-    if (! exprTy) {
-        return false;
-    } else if (exprTy->isNamespaceType()) {
-        QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, results) {
-            if (Namespace *ns = p.first->asNamespaceType())
-                candidates.append(ns);
-        }
-        completeNamespace(candidates, context);
-    } else if (exprTy->isClassType()) {
-        QList<Symbol *> candidates;
-        foreach (TypeOfExpression::Result p, results) {
-            if (Class *k = p.first->asClassType())
-                candidates.append(k);
-        }
-        completeClass(candidates, context);
-    } else if (Symbol *symbol = result.second) {
-        if (symbol->isTypedef()) {
-            ResolveClass resolveClass;
-            const QList<Symbol *> candidates = resolveClass(result, context);
-            completeClass(candidates, context);
-        }
-    }
+    if (! classes.isEmpty())
+        completeClass(classes, context);
+
+    else if (! namespaces.isEmpty() && m_completions.isEmpty())
+        completeNamespace(namespaces, context);
 
     return ! m_completions.isEmpty();
 }
