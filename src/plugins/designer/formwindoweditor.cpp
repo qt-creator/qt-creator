@@ -49,6 +49,7 @@
 #include <QtDesigner/QDesignerWidgetDataBaseInterface>
 #include <qt_private/formwindowbase_p.h>
 #include <qt_private/qtresourcemodel_p.h>
+#include <qt_private/qdesigner_integration_p.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -330,9 +331,17 @@ void FormWindowEditor::activate()
 
 QString FormWindowEditor::contextHelpId() const
 {
-    // TODO [13.2.09]: Replace this by QDesignerIntegrations context help Id
-    // in the upcoming version of Qt
-    QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
+    const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
+#if QT_VERSION > 0x040500
+    // Present from Qt 4.5.1 onwards. This will show the class documentation
+    // scrolled to the current property.
+    const qdesigner_internal::QDesignerIntegration *integration =
+            qobject_cast<const qdesigner_internal::QDesignerIntegration*>(core->integration());
+    if (integration)
+        return integration->contextHelpId();
+    return QString();
+#else
+    // Pre 4.5.1. This will show the class documentation.
     QObject *o = core->propertyEditor()->object();
     if (!o)
         return QString();
@@ -347,5 +356,7 @@ QString FormWindowEditor::contextHelpId() const
         className = QLatin1String("QSpacerItem");
     else if (className == QLatin1String("QLayoutWidget"))
         className = QLatin1String("QLayout");
+
     return className;
+#endif
 }

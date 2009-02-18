@@ -80,7 +80,7 @@ bool OutputCollector::listen()
         return m_server->isListening();
     m_server = new QLocalServer(this);
     connect(m_server, SIGNAL(newConnection()), SLOT(newConnectionAvailable()));
-    return m_server->listen(QLatin1String("creator-") + QCoreApplication::applicationPid()); // XXX how to make that secure?
+    return m_server->listen(QLatin1String("creator-%1").arg(QCoreApplication::applicationPid())); // XXX how to make that secure?
 #else
     if (!m_serverPath.isEmpty())
         return true;
