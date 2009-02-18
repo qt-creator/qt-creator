@@ -1122,7 +1122,7 @@ void GdbEngine::handleAqcuiredInferior()
     sendCommand("info proc", GdbInfoProc);
     #endif
     #if defined(Q_OS_MAC)
-    sendCommand("info pid", GdbInfoProc, QVariant(), true);
+    sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
     #endif
     reloadSourceFiles();
     tryLoadCustomDumpers();
