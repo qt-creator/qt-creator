@@ -42,7 +42,7 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
-class PrettyPrinter: protected ASTVisitor
+class CPLUSPLUS_EXPORT PrettyPrinter: protected ASTVisitor
 {
 public:
     PrettyPrinter(Control *control, std::ostream &out);
