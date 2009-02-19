@@ -1,14 +1,14 @@
 QT = 
+
 macx:CONFIG -= app_bundle
+
 TARGET = cplusplus0
+
 *-g++*:QMAKE_CXXFLAGS += -fno-rtti \
-    -fno-exceptions \
-    -O2
+    -fno-exceptions
+
 include(../../../src/shared/cplusplus/cplusplus.pri)
 
-# Input
-SOURCES += main.cpp \
-    LinkedNamespace.cpp
 unix { 
     debug:OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
     release:OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
@@ -17,4 +17,6 @@ unix {
     RCC_DIR = $${OUT_PWD}/.rcc/
     UI_DIR = $${OUT_PWD}/.uic/
 }
-HEADERS += LinkedNamespace.h
+
+# Input
+SOURCES += main.cpp
