@@ -166,7 +166,7 @@ void QtLocalPeer::receiveConnection()
         return;
     }
     // ### async this
-    QString message(QString::fromUtf8(uMsg));
+    QString message = QString::fromUtf8(uMsg.constData(), uMsg.size());
     socket->write(ack, qstrlen(ack));
     socket->waitForBytesWritten(1000);
     delete socket;
