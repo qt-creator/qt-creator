@@ -491,21 +491,21 @@ void GdbEngine::handleResponse()
             }
 
             case '~': {
-                QString data = GdbMi::parseCString(from, to);
+                QByteArray data = GdbMi::parseCString(from, to);
                 m_pendingConsoleStreamOutput += data;
                 m_inbuffer = QByteArray(from, to - from);
                 break;
             }
 
             case '@': {
-                QString data = GdbMi::parseCString(from, to);
+                QByteArray data = GdbMi::parseCString(from, to);
                 m_pendingTargetStreamOutput += data;
                 m_inbuffer = QByteArray(from, to - from);
                 break;
             }
 
             case '&': {
-                QString data = GdbMi::parseCString(from, to);
+                QByteArray data = GdbMi::parseCString(from, to);
                 m_pendingLogStreamOutput += data;
                 m_inbuffer = QByteArray(from, to - from);
                 // On Windows, the contents seem to depend on the debugger
@@ -3124,15 +3124,15 @@ void GdbEngine::runCustomDumper(const WatchData & data0, bool dumpChildren)
         addr = "&(" + data.exp + ")";
 
     QByteArray params;
-    params.append(outertype);
+    params.append(outertype.toUtf8());
     params.append('\0');
-    params.append(data.iname);
+    params.append(data.iname.toUtf8());
     params.append('\0');
-    params.append(data.exp);
+    params.append(data.exp.toUtf8());
     params.append('\0');
-    params.append(inner);
+    params.append(inner.toUtf8());
     params.append('\0');
-    params.append(data.iname);
+    params.append(data.iname.toUtf8());
     params.append('\0');
 
     sendWatchParameters(params);
