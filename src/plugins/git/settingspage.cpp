@@ -36,8 +36,10 @@
 #include "gitplugin.h"
 
 #include <QtCore/QDebug>
+#include <QtGui/QMessageBox>
 
-using namespace Git::Internal;
+namespace Git {
+namespace Internal {
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
@@ -101,6 +103,17 @@ void SettingsPage::apply()
 {
     if (!m_widget)
         return;
+    const GitSettings newSettings = m_widget->settings();
+    // Warn if git cannot be found in path if the widget is on top
+    if (m_widget->isVisible()) {
+        bool gitFoundOk;
+        QString errorMessage;
+        newSettings.gitBinaryPath(&gitFoundOk, &errorMessage);
+        if (!gitFoundOk)
+            QMessageBox::warning(m_widget, tr("Git Settings"), errorMessage);
+    }
 
-    GitPlugin::instance()->setSettings(m_widget->settings());
+    GitPlugin::instance()->setSettings(newSettings);
+}
+}
 }

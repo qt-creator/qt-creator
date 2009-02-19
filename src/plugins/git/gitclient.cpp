@@ -102,8 +102,10 @@ GitClient::GitClient(GitPlugin* plugin)
     m_plugin(plugin),
     m_core(Core::ICore::instance())
 {
-    if (QSettings *s = m_core->settings())
+    if (QSettings *s = m_core->settings()) {
         m_settings.fromSettings(s);
+        m_binaryPath = m_settings.gitBinaryPath();
+    }
 }
 
 GitClient::~GitClient()
@@ -478,7 +480,7 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
     if (m_settings.adoptPath)
         environment.set(QLatin1String("PATH"), m_settings.path);
 
-    GitCommand* command = new GitCommand(workingDirectory, environment);
+    GitCommand* command = new GitCommand(m_binaryPath, workingDirectory, environment);
     if (outputToWindow) {
         if (!editor) { // assume that the commands output is the important thing
             connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(appendDataAndPopup(QByteArray)));
@@ -527,10 +529,9 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
 {
     if (Git::Constants::debug)
         qDebug() << "synchronousGit" << workingDirectory << arguments;
-    const QString binary = QLatin1String(Constants::GIT_BINARY);
 
     if (logCommandToWindow)
-        m_plugin->outputWindow()->append(formatCommand(binary, arguments));
+        m_plugin->outputWindow()->append(formatCommand(m_binaryPath, arguments));
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
@@ -540,7 +541,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         environment.set(QLatin1String("PATH"), m_settings.path);
     process.setEnvironment(environment.toStringList());
 
-    process.start(binary, arguments);
+    process.start(m_binaryPath, arguments);
     if (!process.waitForFinished()) {
         if (errorText)
             *errorText = "Error: Git timed out";
@@ -1000,6 +1001,6 @@ void GitClient::setSettings(const GitSettings &s)
         m_settings = s;
         if (QSettings *s = m_core->settings())
             m_settings.toSettings(s);
+        m_binaryPath = m_settings.gitBinaryPath();
     }
 }
-

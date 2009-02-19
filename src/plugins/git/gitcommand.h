@@ -43,9 +43,11 @@ namespace Internal {
 
 class GitCommand : public QObject
 {
+    Q_DISABLE_COPY(GitCommand)
     Q_OBJECT
 public:
-    explicit GitCommand(const QString &workingDirectory,
+    explicit GitCommand(const QString &binaryPath,
+                        const QString &workingDirectory,
                         ProjectExplorer::Environment &environment);
 
 
@@ -67,8 +69,7 @@ private:
         int timeout;
     };
 
-    QStringList environment() const;
-
+    const QString m_binaryPath;
     const QString m_workingDirectory;
     const QStringList m_environment;
 
