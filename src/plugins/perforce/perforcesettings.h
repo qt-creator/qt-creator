@@ -35,6 +35,7 @@
 #define PERFOCESETTINGS_H
 
 #include <QtCore/QString>
+#include <QtCore/QFuture>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -43,23 +44,34 @@ QT_END_NAMESPACE
 namespace Perforce {
 namespace Internal {
 
-struct PerforceSettings {
+class PerforceSettings {
+public:
     PerforceSettings();
-    void fromSettings(QSettings *);
+    ~PerforceSettings();
+    void fromSettings(QSettings *settings);
     void toSettings(QSettings *) const;
-    bool equals(const PerforceSettings &s) const;
+    void setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv);
+    bool isValid() const;
 
-    QString p4Command;
-    QString p4Port;
-    QString p4Client;
-    QString p4User;
-    bool defaultEnv;
+    QString p4Command() const;
+    QString p4Port() const;
+    QString p4Client() const;
+    QString p4User() const;
+    bool defaultEnv() const;
+    QStringList basicP4Args() const;
+private:
+    void run(QFutureInterface<void> &fi);
+    mutable QFuture<void> m_future;
+    mutable QMutex m_mutex;
+
+    QString m_p4Command;
+    QString m_p4Port;
+    QString m_p4Client;
+    QString m_p4User;
+    bool m_defaultEnv;
+    bool m_valid;
+    Q_DISABLE_COPY(PerforceSettings);
 };
-
-inline bool operator==(const PerforceSettings &p1, const PerforceSettings &p2)
-    { return p1.equals(p2); }
-inline bool operator!=(const PerforceSettings &p1, const PerforceSettings &p2)
-    { return !p1.equals(p2); }
 
 } // Internal
 } // Perforce

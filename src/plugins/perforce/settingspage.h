@@ -51,7 +51,12 @@ class SettingsPageWidget : public QWidget {
 public:
     explicit SettingsPageWidget(QWidget *parent);
 
-    PerforceSettings settings() const;
+    QString p4Command() const;
+    bool defaultEnv() const;
+    QString p4Port() const;
+    QString p4User() const;
+    QString p4Client() const;
+
     void setSettings(const PerforceSettings &);
 
 private:

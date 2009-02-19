@@ -49,24 +49,38 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
 }
 
-PerforceSettings SettingsPageWidget::settings() const
+QString SettingsPageWidget::p4Command() const
 {
-    PerforceSettings rc;
-    rc.p4Command = m_ui.pathChooser->path();
-    rc.defaultEnv = m_ui.defaultCheckBox->isChecked();
-    rc.p4Port = m_ui.portLineEdit->text();
-    rc.p4Client = m_ui.clientLineEdit->text();
-    rc.p4User = m_ui.userLineEdit->text();
-    return rc;
+    return m_ui.pathChooser->path();
+}
+
+bool SettingsPageWidget::defaultEnv() const
+{
+    return m_ui.defaultCheckBox->isChecked();
+}
+
+QString SettingsPageWidget::p4Port() const
+{
+    return m_ui.portLineEdit->text();
+}
+
+QString SettingsPageWidget::p4User() const
+{
+    return m_ui.userLineEdit->text();
+}
+
+QString SettingsPageWidget::p4Client() const
+{
+    return m_ui.clientLineEdit->text();
 }
 
 void SettingsPageWidget::setSettings(const PerforceSettings &s)
 {
-    m_ui.pathChooser->setPath(s.p4Command);
-    m_ui.defaultCheckBox->setChecked(s.defaultEnv);
-    m_ui.portLineEdit->setText(s.p4Port);
-    m_ui.clientLineEdit->setText(s.p4Client);
-    m_ui.userLineEdit->setText(s.p4User);
+    m_ui.pathChooser->setPath(s.p4Command());
+    m_ui.defaultCheckBox->setChecked(s.defaultEnv());
+    m_ui.portLineEdit->setText(s.p4Port());
+    m_ui.clientLineEdit->setText(s.p4Client());
+    m_ui.userLineEdit->setText(s.p4User());
 }
 
 SettingsPage::SettingsPage()
@@ -101,5 +115,5 @@ void SettingsPage::apply()
     if (!m_widget)
         return;
 
-    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());
+    PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->p4Command(), m_widget->p4Port(), m_widget->p4Client(), m_widget->p4User(), m_widget->defaultEnv());
 }
