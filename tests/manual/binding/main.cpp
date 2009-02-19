@@ -277,7 +277,7 @@ static void closure(const Location &loc,
         Scope *scope = symbol->members();
 
         for (Symbol *symbol = scope->lookat(id); symbol; symbol = symbol->next()) {
-            if (! symbol->isNamespace())
+            if (symbol->name() != name || ! symbol->isNamespace())
                 continue;
 
             const Location l(symbol);
