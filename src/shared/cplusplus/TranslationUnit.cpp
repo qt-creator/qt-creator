@@ -134,6 +134,14 @@ const Token &TranslationUnit::tokenAt(unsigned index) const
 int TranslationUnit::tokenKind(unsigned index) const
 { return _tokens->at(index).kind; }
 
+const char *TranslationUnit::spell(unsigned index) const
+{
+    if (! index)
+        return 0;
+
+    return _tokens->at(index).spell();
+}
+
 Identifier *TranslationUnit::identifier(unsigned index) const
 { return _tokens->at(index).identifier; }
 
