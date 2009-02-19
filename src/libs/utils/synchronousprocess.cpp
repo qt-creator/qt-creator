@@ -309,12 +309,12 @@ void SynchronousProcess::stdErrReady()
 
 QString SynchronousProcess::convertStdErr(const QByteArray &ba)
 {
-    return QString::fromLocal8Bit(ba).remove(QLatin1Char('\r'));
+    return QString::fromLocal8Bit(ba.constData(), ba.size()).remove(QLatin1Char('\r'));
 }
 
 QString SynchronousProcess::convertStdOut(const QByteArray &ba) const
 {
-    QString stdOut = m_d->m_stdOutCodec ? m_d->m_stdOutCodec->toUnicode(ba) : QString::fromLocal8Bit(ba);
+    QString stdOut = m_d->m_stdOutCodec ? m_d->m_stdOutCodec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
     return stdOut.remove(QLatin1Char('\r'));
 }
 
