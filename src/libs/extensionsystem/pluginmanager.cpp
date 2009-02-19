@@ -459,7 +459,8 @@ bool PluginManager::runningTests() const
  */
 QString PluginManager::testDataDirectory() const
 {
-    QString s = QString::fromLocal8Bit(qgetenv("IDETESTDIR"));
+    QByteArray ba = qgetenv("IDETESTDIR");
+    QString s = QString::fromLocal8Bit(ba.constData(), ba.size());
     if (s.isEmpty()) {
         s = IDE_TEST_DIR;
         s.append("/tests");

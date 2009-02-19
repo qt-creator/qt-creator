@@ -145,5 +145,5 @@ QString TypeOfExpression::preprocessedExpression(const QString &expression,
     Preprocessor preproc(0, env);
     QByteArray preprocessedCode;
     preproc("<expression>", code, &preprocessedCode);
-    return QString::fromUtf8(preprocessedCode);
+    return QString::fromUtf8(preprocessedCode.constData(), preprocessedCode.size());
 }
