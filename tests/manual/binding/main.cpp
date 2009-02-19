@@ -57,6 +57,40 @@
 // NamespaceBinding
 ////////////////////////////////////////////////////////////////////////////////
 
+class Location
+{
+public:
+    Location()
+        : _fileId(0),
+          _sourceLocation(0)
+    { }
+
+    Location(Symbol *symbol)
+        : _fileId(symbol->fileId()),
+          _sourceLocation(symbol->sourceLocation())
+    { }
+
+    Location(StringLiteral *fileId, unsigned sourceLocation)
+        : _fileId(fileId), _sourceLocation(sourceLocation)
+    { }
+
+    inline bool isValid() const
+    { return _fileId != 0; }
+
+    inline operator bool() const
+    { return _fileId != 0; }
+
+    inline StringLiteral *fileId() const
+    { return _fileId; }
+
+    inline unsigned sourceLocation() const
+    { return _sourceLocation; }
+
+private:
+    StringLiteral *_fileId;
+    unsigned _sourceLocation;
+};
+
 class NamespaceBinding
 {
 public:
@@ -81,10 +115,9 @@ public:
     /// Returns the binding associated with the given symbol.
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
 
-    NamespaceBinding *resolveNamespace(QualifiedNameId *q, unsigned index,
-                                       unsigned count);
-
-    NamespaceBinding *resolveNamespace(Name *name, bool lookAtParent = true);
+    NamespaceBinding *resolveNamespace(const Location &loc,
+                                       Name *name,
+                                       bool lookAtParent = true);
 
     /// Helpers.
     std::string qualifiedId() const;
@@ -103,7 +136,7 @@ public: // attributes
     /// This binding's connections.
     Array<NamespaceBinding *> children;
 
-    /// This binding's usings
+    /// This binding's list of using namespaces.
     Array<NamespaceBinding *> usings;
 
     /// This binding's namespace symbols.
@@ -221,7 +254,8 @@ NamespaceBinding *NamespaceBinding::findOrCreateNamespaceBinding(Namespace *symb
     return binding;
 }
 
-static void closure(NamespaceBinding *binding, Name *name,
+static void closure(const Location &loc,
+                    NamespaceBinding *binding, Name *name,
                     Array<NamespaceBinding *> *bindings)
 {
     for (unsigned i = 0; i < bindings->size(); ++i) {
@@ -243,13 +277,15 @@ static void closure(NamespaceBinding *binding, Name *name,
         Scope *scope = symbol->members();
 
         for (Symbol *symbol = scope->lookat(id); symbol; symbol = symbol->next()) {
-            if (symbol->isUsingDeclaration() || symbol->isUsingNamespaceDirective())
+            if (! symbol->isNamespace())
                 continue;
 
-            //printf("found declaration at %s:%d\n", symbol->fileName(), symbol->line());
+            const Location l(symbol);
 
-            // ### FIXME: ignoreUsingDirectives = true;
-            break;
+            if (l.fileId() == loc.fileId() && l.sourceLocation() < loc.sourceLocation()) {
+                ignoreUsingDirectives = true;
+                break;
+            }
         }
     }
 
@@ -259,19 +295,21 @@ static void closure(NamespaceBinding *binding, Name *name,
     for (unsigned i = 0; i < binding->usings.size(); ++i) {
         NamespaceBinding *u = binding->usings.at(i);
 
-        closure(u, name, bindings);
+        closure(loc, u, name, bindings);
     }
 }
 
 
-NamespaceBinding *NamespaceBinding::resolveNamespace(Name *name, bool lookAtParent)
+NamespaceBinding *NamespaceBinding::resolveNamespace(const Location &loc,
+                                                     Name *name,
+                                                     bool lookAtParent)
 {
     if (! name)
         return 0;
 
     else if (NameId *nameId = name->asNameId()) {
         Array<NamespaceBinding *> bindings;
-        closure(this, nameId, &bindings);
+        closure(loc, this, nameId, &bindings);
 
         Array<NamespaceBinding *> results;
 
@@ -291,22 +329,22 @@ NamespaceBinding *NamespaceBinding::resolveNamespace(Name *name, bool lookAtPare
         }
 
         else if (parent && lookAtParent)
-            return parent->resolveNamespace(name);
+            return parent->resolveNamespace(loc, name);
 
     } else if (QualifiedNameId *q = name->asQualifiedNameId()) {
         if (q->nameCount() == 1) {
             assert(q->isGlobal());
 
-            return globalNamespaceBinding()->resolveNamespace(q->nameAt(0));
+            return globalNamespaceBinding()->resolveNamespace(loc, q->nameAt(0));
         }
 
         NamespaceBinding *current = this;
         if (q->isGlobal())
             current = globalNamespaceBinding();
 
-        current = current->resolveNamespace(q->nameAt(0));
+        current = current->resolveNamespace(loc, q->nameAt(0));
         for (unsigned i = 1; current && i < q->nameCount(); ++i)
-            current = current->resolveNamespace(q->nameAt(i), false);
+            current = current->resolveNamespace(loc, q->nameAt(i), false);
 
         return current;
     }
@@ -370,7 +408,7 @@ public:
 protected:
     NamespaceBinding *bind(Symbol *symbol, NamespaceBinding *binding);
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
-    NamespaceBinding *resolveNamespace(Name *name);
+    NamespaceBinding *resolveNamespace(const Location &loc, Name *name);
 
     NamespaceBinding *switchNamespaceBinding(NamespaceBinding *binding);
 
@@ -412,12 +450,12 @@ NamespaceBinding *Binder::findOrCreateNamespaceBinding(Namespace *symbol)
     return namespaceBinding;
 }
 
-NamespaceBinding *Binder::resolveNamespace(Name *name)
+NamespaceBinding *Binder::resolveNamespace(const Location &loc, Name *name)
 {
     if (! namespaceBinding)
         return 0;
 
-    return namespaceBinding->resolveNamespace(name);
+    return namespaceBinding->resolveNamespace(loc, name);
 }
 
 
@@ -443,7 +481,7 @@ bool Binder::visit(Namespace *symbol)
 
 bool Binder::visit(UsingNamespaceDirective *u)
 {
-    NamespaceBinding *resolved = resolveNamespace(u->name());
+    NamespaceBinding *resolved = resolveNamespace(Location(u), u->name());
 
     if (! resolved) {
         unit->error(u->sourceLocation(), "expected namespace-name");
