@@ -66,6 +66,7 @@ class RegisterHandler;
 class StackHandler;
 class ThreadsHandler;
 class WatchHandler;
+class SourceFilesWindow;
 class WatchData;
 class BreakpointData;
 
@@ -76,22 +77,14 @@ class BreakpointData;
 //     DebuggerProcessNotReady
 //          |
 //     DebuggerProcessStartingUp
-//          |
-//     DebuggerReady              [R] [N]
 //          | <-------------------------------------.
 //     DebuggerInferiorRunningRequested             |
-//          |                                       |
-//     DebuggerInferiorRunning                      |
-//          |                                       |
+//          |                                       | 
+//     DebuggerInferiorRunning                      | 
+//          |                                       |  
 //     DebuggerInferiorStopRequested                |
 //          |                                       |
 //     DebuggerInferiorStopped                      |
-//          |                                       |
-//     DebuggerInferiorUpdating                     |
-//          |                                       |
-//     DebuggerInferiorUpdateFinishing              |
-//          |                                       |
-//     DebuggerInferiorReady             [C] [N]    |
 //          |                                       |
 //          `---------------------------------------'
 //
@@ -106,17 +99,11 @@ enum DebuggerStatus
 {
     DebuggerProcessNotReady,          // Debugger not started
     DebuggerProcessStartingUp,        // Debugger starting up
-    DebuggerProcessReady,             // Debugger started, Inferior not yet
-                                      // running or already finished
 
     DebuggerInferiorRunningRequested, // Debuggee requested to run
     DebuggerInferiorRunning,          // Debuggee running
     DebuggerInferiorStopRequested,    // Debuggee running, stop requested
     DebuggerInferiorStopped,          // Debuggee stopped
-
-    DebuggerInferiorUpdating,         // Debuggee updating data views
-    DebuggerInferiorUpdateFinishing,  // Debuggee updating data views aborting
-    DebuggerInferiorReady,
 };
 
 
@@ -150,9 +137,8 @@ private:
     friend class WinEngine;
 
     // called from the engines after successful startup
-    virtual void notifyStartupFinished() = 0; 
+    virtual void notifyInferiorStopRequested() = 0;
     virtual void notifyInferiorStopped() = 0; 
-    virtual void notifyInferiorUpdateFinished() = 0; 
     virtual void notifyInferiorRunningRequested() = 0;
     virtual void notifyInferiorRunning() = 0;
     virtual void notifyInferiorExited() = 0;
@@ -165,15 +151,21 @@ private:
     virtual StackHandler *stackHandler() = 0;
     virtual ThreadsHandler *threadsHandler() = 0;
     virtual WatchHandler *watchHandler() = 0;
+    virtual SourceFilesWindow *sourceFileWindow() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
-    virtual bool useFastStart() const = 0;
+    
+    virtual bool wantsAllPluginBreakpoints() const = 0;
+    virtual bool wantsSelectedPluginBreakpoints() const = 0;
+    virtual bool wantsNoPluginBreakpoints() const = 0;
+    virtual QString selectedPluginBreakpointsPattern() const = 0;
 
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
+    virtual void reloadSourceFiles() = 0;
     virtual void reloadRegisters() = 0;
 };
 
@@ -200,6 +192,11 @@ public:
     bool m_useToolTips;
 
     QString m_scriptFile;
+
+    bool m_pluginAllBreakpoints;
+    bool m_pluginSelectedBreakpoints;
+    bool m_pluginNoBreakpoints;
+    QString m_pluginSelectedBreakpointsPattern;
 };
 
 //
@@ -220,7 +217,7 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     DebuggerSettings *settings() { return &m_settings; }
 
-    enum StartMode { startInternal, startExternal, attachExternal };
+    enum StartMode { StartInternal, StartExternal, AttachExternal };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
@@ -283,7 +280,6 @@ public slots:
     void setUseCustomDumpers(bool on);
     void setDebugDumpers(bool on);
     void setSkipKnownFrames(bool on);
-    void setUseFastStart(bool on);
 
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
@@ -292,6 +288,9 @@ private slots:
 
     void reloadDisassembler();
     void disassemblerDockToggled(bool on);
+
+    void reloadSourceFiles();
+    void sourceFilesDockToggled(bool on);
 
     void reloadModules();
     void modulesDockToggled(bool on);
@@ -314,16 +313,23 @@ private:
     StackHandler *stackHandler() { return m_stackHandler; }
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
+    SourceFilesWindow *sourceFileWindow() { return m_sourceFilesWindow; }
 
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
-    bool useFastStart() const;
+    bool wantsAllPluginBreakpoints() const
+        { return m_settings.m_pluginAllBreakpoints; }
+    bool wantsSelectedPluginBreakpoints() const
+        { return m_settings.m_pluginSelectedBreakpoints; }
+    bool wantsNoPluginBreakpoints() const
+        { return m_settings.m_pluginNoBreakpoints; }
+    QString selectedPluginBreakpointsPattern() const
+        { return m_settings.m_pluginSelectedBreakpointsPattern; }
 
-    void notifyStartupFinished();
     void notifyInferiorStopped();
-    void notifyInferiorUpdateFinished();
     void notifyInferiorRunningRequested();
+    void notifyInferiorStopRequested();
     void notifyInferiorRunning();
     void notifyInferiorExited();
     void notifyInferiorPidChanged(int);
@@ -399,6 +405,7 @@ private:
     QDockWidget *m_outputDock;
     QDockWidget *m_registerDock;
     QDockWidget *m_stackDock;
+    QDockWidget *m_sourceFilesDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
     QList<QDockWidget*> m_dockWidgets;
@@ -410,6 +417,7 @@ private:
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
     WatchHandler *m_watchHandler;
+    SourceFilesWindow *m_sourceFilesWindow;
 
     /// Actions
     friend class DebuggerPlugin;

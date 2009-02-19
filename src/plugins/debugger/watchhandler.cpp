@@ -790,9 +790,9 @@ void WatchHandler::collapseChildren(const QModelIndex &idx)
         return;
     }
     QTC_ASSERT(checkIndex(idx.internalId()), return);
-#if 0
     QString iname0 = m_displaySet.at(idx.internalId()).iname;
     MODEL_DEBUG("COLLAPSE NODE" << iname0);
+#if 0
     QString iname1 = iname0 + '.';
     for (int i = m_completeSet.size(); --i >= 0; ) {
         QString iname = m_completeSet.at(i).iname;
@@ -803,10 +803,10 @@ void WatchHandler::collapseChildren(const QModelIndex &idx)
             m_expandedINames.remove(iname);
         }
     }
+#endif
     m_expandedINames.remove(iname0);
     //MODEL_DEBUG(toString());
     //rebuildModel();
-#endif
 }
 
 void WatchHandler::expandChildren(const QModelIndex &idx)

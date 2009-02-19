@@ -218,7 +218,7 @@ public:
     QTextCursor m_findScope;
     QTextCursor m_selectBlockAnchor;
 
-    void moveCursorVisible();
+    void moveCursorVisible(bool ensureVisible = true);
 };
 
 } // namespace Internal

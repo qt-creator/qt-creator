@@ -57,7 +57,10 @@ public:
     bool showFunctionSignatures() const;
     void setShowFunctionSignatures(bool showFunctionSignatures);
 
-    void setMarkArgument(unsigned position); // 1-based
+    // 1-based
+    // ### rename
+    unsigned markArgument() const;
+    void setMarkArgument(unsigned position);
 
     QString operator()(Name *name) const
     { return prettyName(name); }

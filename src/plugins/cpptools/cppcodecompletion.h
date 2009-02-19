@@ -84,11 +84,14 @@ public:
 private:
     void addKeywords();
     void addMacros(const CPlusPlus::LookupContext &context);
+    void addMacros_helper(const CPlusPlus::LookupContext &context,
+                          const QString &fileName,
+                          QSet<QString> *processed,
+                          QSet<QString> *definedMacros);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
-    bool completeFunction(CPlusPlus::FullySpecifiedType exprTy,
-                          const QList<CPlusPlus::TypeOfExpression::Result> &,
-                          const CPlusPlus::LookupContext &context);
+    bool completeConstructorOrFunction(CPlusPlus::FullySpecifiedType exprTy,
+                                       const QList<CPlusPlus::TypeOfExpression::Result> &);
 
     bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);
@@ -102,6 +105,8 @@ private:
     void completeClass(const QList<CPlusPlus::Symbol *> &candidates,
                        const CPlusPlus::LookupContext &context,
                        bool staticLookup = true);
+
+    bool completeConstructors(CPlusPlus::Class *klass);
 
     bool completeQtMethod(CPlusPlus::FullySpecifiedType exprTy,
                           const QList<CPlusPlus::TypeOfExpression::Result> &,
@@ -118,7 +123,7 @@ private:
                       const CPlusPlus::LookupContext &context)
     { return completeQtMethod(exprTy, results, context, false); }
 
-    static int findStartOfName(const TextEditor::ITextEditor *editor);
+    int findStartOfName(int pos = -1) const;
 
     QList<TextEditor::CompletionItem> m_completions;
 

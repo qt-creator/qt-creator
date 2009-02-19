@@ -2504,14 +2504,13 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         }
     }
 
-
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
             if (d->m_codeFoldingVisible && TextBlockUserData::canCollapse(cursor.block())
                 && !TextBlockUserData::hasClosingCollapseInside(cursor.block().next())
                 && collapseBox(cursor.block()).contains(e->pos())) {
-                setTextCursor(cursor);
                 toggleBlockVisible(cursor.block());
+                d->moveCursorVisible(false);
             } else if (d->m_marksVisible && e->pos().x() > markWidth) {
                 QTextCursor selection = cursor;
                 selection.setVisualNavigation(true);
@@ -3392,15 +3391,16 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
 }
 
 
-void BaseTextEditorPrivate::moveCursorVisible()
+void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
 {
     QTextCursor cursor = q->textCursor();
     if (!cursor.block().isVisible()) {
         cursor.setVisualNavigation(true);
-        cursor.movePosition(QTextCursor::PreviousBlock);
+        cursor.movePosition(QTextCursor::Up);
         q->setTextCursor(cursor);
     }
-    q->ensureCursorVisible();
+    if (ensureVisible)
+        q->ensureCursorVisible();
 }
 
 void BaseTextEditor::collapse()
@@ -3463,12 +3463,12 @@ void BaseTextEditor::unCollapseAll()
         if (TextBlockUserData::canCollapse(block))
             TextBlockUserData::doCollapse(block, makeVisible);
         block = block.next();
-
     }
 
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
+    centerCursor();
 }
 
 void BaseTextEditor::setTextCodec(QTextCodec *codec)

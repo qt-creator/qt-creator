@@ -78,7 +78,7 @@ class FunctionArgumentWidget : public QLabel
 {
 public:
     FunctionArgumentWidget();
-    void showFunctionHint(Function *functionSymbol, const Snapshot &snapshot);
+    void showFunctionHint(Function *functionSymbol, const LookupContext &context);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -95,7 +95,7 @@ private:
 
     QFrame *m_popupFrame;
     Function *m_item;
-    Snapshot m_snapshot;
+    LookupContext m_context;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -187,10 +187,10 @@ using namespace CppTools::Internal;
 FunctionArgumentWidget::FunctionArgumentWidget()
     : m_item(0)
 {
-    QObject *editorObject = Core::ICore::instance()->editorManager()->currentEditor();
+    QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
-    m_popupFrame = new QFrame(0, Qt::ToolTip|Qt::WindowStaysOnTopHint);
+    m_popupFrame = new QFrame(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
     m_popupFrame->setFocusPolicy(Qt::NoFocus);
     m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -215,10 +215,12 @@ FunctionArgumentWidget::FunctionArgumentWidget()
 }
 
 void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
-                                              const Snapshot &snapshot)
+                                              const LookupContext &context)
 {
+    m_popupFrame->hide();
+
     m_item = functionSymbol;
-    m_snapshot = snapshot;
+    m_context = context;
     m_startpos = m_editor->position();
 
     // update the text
@@ -230,7 +232,7 @@ void FunctionArgumentWidget::showFunctionHint(Function *functionSymbol,
     m_popupFrame->move(pos);
     m_popupFrame->show();
 
-    QCoreApplication::instance()->installEventFilter(this);
+    qApp->installEventFilter(this);
 }
 
 void FunctionArgumentWidget::update()
@@ -432,7 +434,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
-    m_startPosition = findStartOfName(editor);
+    m_startPosition = findStartOfName();
     m_completionOperator = T_EOF_SYMBOL;
 
     int endOfOperator = m_startPosition;
@@ -518,9 +520,9 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (exprTy->isReferenceType())
                 exprTy = exprTy->asReferenceType()->elementType();
 
-            if (m_completionOperator == T_LPAREN && completeFunction(exprTy, resolvedTypes, context)) {
+            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(exprTy, resolvedTypes)) {
                 return m_startPosition;
-            } if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
+            } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
                       completeMember(resolvedTypes, context)) {
                 return m_startPosition;
             } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
@@ -531,15 +533,40 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 return m_startPosition;
             }
         }
+
+        if (m_completionOperator == T_LPAREN) {
+            // Find the expression that precedes the current name
+            int index = endOfExpression;
+            while (m_editor->characterAt(index - 1).isSpace())
+                --index;
+            index = findStartOfName(index);
+
+            QTextCursor tc(edit->document());
+            tc.setPosition(index);
+            QString baseExpression = expressionUnderCursor(tc);
+
+            // Resolve the type of this expression
+            QList<TypeOfExpression::Result> results =
+                    typeOfExpression(baseExpression, thisDocument, symbol, TypeOfExpression::Preprocess);
+
+            // If it's a class, add completions for the constructors
+            foreach (const TypeOfExpression::Result &result, results) {
+                if (result.first->isClass()) {
+                    FullySpecifiedType exprTy = result.first;
+                    if (completeConstructorOrFunction(exprTy, QList<TypeOfExpression::Result>()))
+                        return m_startPosition;
+                    break;
+                }
+            }
+        }
     }
 
     // nothing to do.
     return -1;
 }
 
-bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
-                                         const QList<TypeOfExpression::Result> &resolvedTypes,
-                                         const LookupContext &)
+bool CppCodeCompletion::completeConstructorOrFunction(FullySpecifiedType exprTy,
+                                                      const QList<TypeOfExpression::Result> &resolvedTypes)
 {
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
@@ -579,6 +606,10 @@ bool CppCodeCompletion::completeFunction(FullySpecifiedType exprTy,
             }
         }
     }
+
+    // If there is only one item, show the function argument widget immediately
+    if (m_completions.size() == 1)
+        complete(m_completions.takeFirst());
 
     return ! m_completions.isEmpty();
 }
@@ -790,30 +821,42 @@ void CppCodeCompletion::addKeywords()
 
 void CppCodeCompletion::addMacros(const LookupContext &context)
 {
-    // macro completion items.
-    QSet<QByteArray> macroNames;
     QSet<QString> processed;
-    QList<QString> todo;
-    todo.append(context.thisDocument()->fileName());
-    while (! todo.isEmpty()) {
-        QString fn = todo.last();
-        todo.removeLast();
-        if (processed.contains(fn))
-            continue;
-        processed.insert(fn);
-        if (Document::Ptr doc = context.document(fn)) {
-            foreach (const Macro &macro, doc->definedMacros()) {
-                macroNames.insert(macro.name());
-            }
-            todo += doc->includedFiles();
-        }
-    }
+    QSet<QString> definedMacros;
 
-    foreach (const QByteArray &macroName, macroNames) {
+    addMacros_helper(context, context.thisDocument()->fileName(),
+                     &processed, &definedMacros);
+
+    foreach (const QString &macroName, definedMacros) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QString::fromUtf8(macroName.constData(), macroName.length());
+        item.m_text = macroName;
         item.m_icon = m_icons.macroIcon();
         m_completions.append(item);
+    }
+}
+
+void CppCodeCompletion::addMacros_helper(const LookupContext &context,
+                                         const QString &fileName,
+                                         QSet<QString> *processed,
+                                         QSet<QString> *definedMacros)
+{
+    Document::Ptr doc = context.document(fileName);
+
+    if (! doc || processed->contains(doc->fileName()))
+        return;
+
+    processed->insert(doc->fileName());
+
+    foreach (const Document::Include &i, doc->includes()) {
+        addMacros_helper(context, i.fileName(), processed, definedMacros);
+    }
+
+    foreach (const Macro &macro, doc->definedMacros()) {
+        const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
+        if (! macro.isHidden())
+            definedMacros->insert(macroName);
+        else
+            definedMacros->remove(macroName);
     }
 }
 
@@ -1040,8 +1083,11 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             Function *function = symbol->type()->asFunction();
             QTC_ASSERT(function, return);
 
-            m_functionArgumentWidget = new FunctionArgumentWidget();
-            m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.snapshot());
+            // Recreate if necessary
+            if (!m_functionArgumentWidget)
+                m_functionArgumentWidget = new FunctionArgumentWidget;
+
+            m_functionArgumentWidget->showFunctionHint(function, typeOfExpression.lookupContext());
         }
     } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         QString toInsert = item.m_text;
@@ -1052,11 +1098,14 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         m_editor->replace(length, toInsert);
     } else {
         QString toInsert = item.m_text;
+        int extraLength = 0;
 
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
         if (m_autoInsertBraces && symbol) {
+            QString extraChars;
+
             if (Function *function = symbol->type()->asFunction()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
@@ -1069,28 +1118,40 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                 } else if (function->templateParameterCount() != 0) {
                     // If there are no arguments, then we need the template specification
                     if (function->argumentCount() == 0) {
-                        toInsert.append(QLatin1Char('<'));
+                        extraChars += QLatin1Char('<');
                     }
                 } else {
-                    toInsert.append(QLatin1Char('('));
+                    extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
                     if (function->argumentCount() == 0 || (function->argumentCount() == 1 &&
                                                            function->argumentAt(0)->type()->isVoidType())) {
-                        toInsert.append(QLatin1Char(')'));
+                        extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
                         // unless we're doing a scope completion (then it might be function definition).
                         if (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON) {
-                            toInsert.append(QLatin1Char(';'));
+                            extraChars += QLatin1Char(';');
                         }
                     }
                 }
             }
+
+            // Avoid inserting characters that are already there
+            for (int i = 0; i < extraChars.length(); ++i) {
+                const QChar a = extraChars.at(i);
+                const QChar b = m_editor->characterAt(m_editor->position() + i);
+                if (a == b)
+                    ++extraLength;
+                else
+                    break;
+            }
+
+            toInsert += extraChars;
         }
 
         // Insert the remainder of the name
-        int length = m_editor->position() - m_startPosition;
+        int length = m_editor->position() - m_startPosition + extraLength;
         m_editor->setCurPos(m_startPosition);
         m_editor->replace(length, toInsert);
     }
@@ -1135,14 +1196,15 @@ void CppCodeCompletion::cleanup()
     typeOfExpression.setSnapshot(Snapshot());
 }
 
-int CppCodeCompletion::findStartOfName(const TextEditor::ITextEditor *editor)
+int CppCodeCompletion::findStartOfName(int pos) const
 {
-    int pos = editor->position();
+    if (pos == -1)
+        pos = m_editor->position();
     QChar chr;
 
     // Skip to the start of a name
     do {
-        chr = editor->characterAt(--pos);
+        chr = m_editor->characterAt(--pos);
     } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
 
     return pos + 1;

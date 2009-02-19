@@ -56,6 +56,7 @@ struct GitSettings
     bool adoptPath;
     QString path;
     int logCount;
+    int timeout;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

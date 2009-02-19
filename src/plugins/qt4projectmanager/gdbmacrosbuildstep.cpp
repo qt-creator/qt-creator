@@ -124,7 +124,15 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
         qmake.waitForFinished();
 
-        qmake.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), makeArguments);
+        QString makeCmd = qt4Project->qtVersion(m_buildConfiguration)->makeCommand();
+        if (!value(m_buildConfiguration, "makeCmd").toString().isEmpty())
+            makeCmd = value(m_buildConfiguration, "makeCmd").toString();
+        if (!QFileInfo(makeCmd).isAbsolute()) {
+            // Try to detect command in environment
+            QString tmp = qt4Project->environment(m_buildConfiguration).searchInPath(makeCmd);
+            makeCmd = tmp;
+        }
+        qmake.start(makeCmd, makeArguments);
         qmake.waitForFinished();
 
         fi.reportResult(true);

@@ -185,7 +185,9 @@ void CodepasterPlugin::post()
 
     // Submit to codepaster
 
-    m_poster = new CustomPoster(serverUrl());
+    m_poster = new CustomPoster(serverUrl(),
+                                m_settingsPage->copyToClipBoard(),
+                                m_settingsPage->displayOutput());
 
     // Copied from cpaster. Otherwise lineendings will screw up
     if (!data.contains("\r\n")) {

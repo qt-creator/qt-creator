@@ -39,7 +39,6 @@
 #include "iplugin.h"
 
 #include <QtCore/QMetaProperty>
-#include <QtCore/QPluginLoader>
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 #include <QtCore/QWriteLocker>

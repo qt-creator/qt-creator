@@ -93,7 +93,6 @@ public:
     PerforcePlugin();
     ~PerforcePlugin();
 
-    QStringList basicP4Args() const;
     SettingsPage *settingsPage() const { return m_settingsPage; }
 
     bool initialize(const QStringList &arguments, QString *error_message);
@@ -113,8 +112,8 @@ public:
 
     static PerforcePlugin *perforcePluginInstance();
 
-    PerforceSettings settings() const;
-    void setSettings(const PerforceSettings &s);
+    const PerforceSettings& settings() const;
+    void setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv);
 
     // Map a perforce name "//xx" to its real name in the file system
     QString fileNameFromPerforceName(const QString& perforceName, QString *errorMessage) const;

@@ -107,11 +107,16 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
   : RunControl(runConfiguration), m_manager(manager), m_running(false)
 {
     connect(m_manager, SIGNAL(debuggingFinished()),
-            this, SLOT(debuggingFinished()));
+            this, SLOT(debuggingFinished()),
+            Qt::QueuedConnection);
     connect(m_manager, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(slotAddToOutputWindowInline(QString)));
+            this, SLOT(slotAddToOutputWindowInline(QString)),
+            Qt::QueuedConnection);
     connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
+            this, SLOT(bringApplicationToForeground(qint64)),
+            Qt::QueuedConnection);
+    connect(this, SIGNAL(stopRequested()),
+            m_manager, SLOT(exitDebugger()));
 }
 
 void DebuggerRunControl::start()
@@ -132,7 +137,7 @@ void DebuggerRunControl::start()
     //<daniel> andre: + "\qtc-gdbmacros\"
 
     //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
-    if (m_manager->startNewDebugger(DebuggerManager::startInternal))
+    if (m_manager->startNewDebugger(DebuggerManager::StartInternal))
         emit started();
     else
         debuggingFinished();
@@ -145,17 +150,21 @@ void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
 
 void DebuggerRunControl::stop()
 {
-    m_manager->exitDebugger();
+    //qDebug() << "DebuggerRunControl::stop";
+    m_running = false;
+    emit stopRequested();
 }
 
 void DebuggerRunControl::debuggingFinished()
 {
     m_running = false;
+    //qDebug() << "DebuggerRunControl::finished";
     //emit addToOutputWindow(this, tr("Debugging %1 finished").arg(m_executable));
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
+    //qDebug() << "DebuggerRunControl::isRunning" << m_running;
     return m_running;
 }

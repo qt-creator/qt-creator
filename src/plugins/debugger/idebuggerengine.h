@@ -62,7 +62,6 @@ public:
     virtual void nextIExec() = 0;
     
     virtual void continueInferior() = 0;
-    virtual void runInferior() = 0;
     virtual void interruptInferior() = 0;
 
     virtual void runToLineExec(const QString &fileName, int lineNumber) = 0;
@@ -88,6 +87,8 @@ public:
     virtual void reloadRegisters() = 0;
     virtual void setDebugDumpers(bool on) = 0;
     virtual void setUseCustomDumpers(bool on) = 0;
+
+    virtual void reloadSourceFiles() = 0;
 };
 
 } // namespace Internal

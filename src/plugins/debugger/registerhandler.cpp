@@ -33,8 +33,9 @@
 
 #include "registerhandler.h"
 
-#include "assert.h"
 #include "debuggerconstants.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>

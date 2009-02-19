@@ -70,10 +70,6 @@ int qtGhVersion = QT_VERSION;
 #include <stdio.h>
 #include <unistd.h>
 
-#ifdef Q_OS_WIN
-#   include <windows.h>
-#endif
-
 /*!
   \class QDumper
   \brief Helper class for producing "nice" output in Qt Creator's debugger.

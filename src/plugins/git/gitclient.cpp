@@ -207,20 +207,20 @@ void GitClient::diff(const QString &workingDirectory,
        QStringList arguments;
        arguments << QLatin1String("diff") << diffArgs;
        m_plugin->outputWindow()->append(formatCommand(binary, arguments));
-       command->addJob(arguments);
+       command->addJob(arguments, m_settings.timeout);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
            QStringList arguments;
            arguments << QLatin1String("diff") << diffArgs << QLatin1String("--") << unstagedFileNames;
            m_plugin->outputWindow()->append(formatCommand(binary, arguments));
-           command->addJob(arguments);
+           command->addJob(arguments, m_settings.timeout);
         }
         if (!stagedFileNames.empty()) {
            QStringList arguments;
            arguments << QLatin1String("diff") << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
            m_plugin->outputWindow()->append(formatCommand(binary, arguments));
-           command->addJob(arguments);
+           command->addJob(arguments, m_settings.timeout);
         }
     }
     command->execute();
@@ -503,7 +503,7 @@ void GitClient::executeGit(const QString &workingDirectory,
 {
     m_plugin->outputWindow()->append(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow);
-    command->addJob(arguments);
+    command->addJob(arguments, m_settings.timeout);
     command->execute();
 }
 

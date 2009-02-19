@@ -274,14 +274,25 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
     m_ui.scriptFileChooser->setPath(m_settings.m_scriptFile);
     m_ui.environmentEdit->setText(m_settings.m_gdbEnv);
-    m_ui.autoStartBox->setChecked(m_settings.m_autoRun);
-    m_ui.autoQuitBox->setChecked(m_settings.m_autoQuit);
+
+    m_ui.radioButtonAllPluginBreakpoints->
+        setChecked(m_settings.m_pluginAllBreakpoints);
+    m_ui.radioButtonSelectedPluginBreakpoints->
+        setChecked(m_settings.m_pluginSelectedBreakpoints);
+    m_ui.radioButtonNoPluginBreakpoints->
+        setChecked(m_settings.m_pluginNoBreakpoints);
+    m_ui.lineEditSelectedPluginBreakpointsPattern->
+        setText(m_settings.m_pluginSelectedBreakpointsPattern);
+    m_ui.lineEditSelectedPluginBreakpointsPattern->
+        setEnabled(m_settings.m_pluginSelectedBreakpoints);
 
     m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
     m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
     m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
-    m_ui.checkBoxFastStart->setChecked(m_settings.m_useFastStart);
     m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
+
+    connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
+        m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 
 #ifndef QT_DEBUG
 #if 0
@@ -294,13 +305,8 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 #endif
 
     // FIXME
-    m_ui.autoStartBox->hide();
-    m_ui.autoQuitBox->hide();
     m_ui.environmentEdit->hide();
     m_ui.labelEnvironment->hide();
-
-    m_ui.checkBoxFastStart->setChecked(false);
-    m_ui.checkBoxFastStart->hide();
 
     //m_dumpLogAction = new QAction(this);
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
@@ -315,15 +321,21 @@ void GdbOptionPage::apply()
 {
     m_settings.m_gdbCmd   = m_ui.gdbLocationChooser->path();
     m_settings.m_gdbEnv   = m_ui.environmentEdit->text();
-    m_settings.m_autoRun  = m_ui.autoStartBox->isChecked();
-    m_settings.m_autoQuit = m_ui.autoQuitBox->isChecked();
     m_settings.m_scriptFile = m_ui.scriptFileChooser->path();
 
     m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
     m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
     m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
-    m_settings.m_useFastStart = m_ui.checkBoxFastStart->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
+
+    m_settings.m_pluginAllBreakpoints =
+        m_ui.radioButtonAllPluginBreakpoints->isChecked();
+    m_settings.m_pluginSelectedBreakpoints =
+        m_ui.radioButtonSelectedPluginBreakpoints->isChecked();
+    m_settings.m_pluginNoBreakpoints =
+        m_ui.radioButtonNoPluginBreakpoints->isChecked();
+    m_settings.m_pluginSelectedBreakpointsPattern =
+        m_ui.lineEditSelectedPluginBreakpointsPattern->text();
 
     *m_plugin->m_manager->settings() = m_settings;
     m_plugin->writeSettings();
@@ -441,7 +453,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
 #endif
 
     cmd = am->registerAction(m_manager->m_continueAction,
-        ProjectExplorer::Constants::DEBUG, QList<int>()<< m_gdbRunningContext);
+        ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
 
     cmd = am->registerAction(m_manager->m_stopAction,
         Constants::INTERRUPT, globalcontext);
@@ -889,11 +901,16 @@ void DebuggerPlugin::writeSettings() const
     s->setValue("AutoRun", m->m_autoRun);
     s->setValue("AutoQuit", m->m_autoQuit);
 
-    s->setValue("UseFastStart", m->m_useFastStart);
     s->setValue("UseToolTips", m->m_useToolTips);
     s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
     s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
     s->setValue("DebugDumpers", m->m_debugDumpers);
+
+    s->setValue("AllPluginBreakpoints", m->m_pluginAllBreakpoints);
+    s->setValue("SelectedPluginBreakpoints", m->m_pluginSelectedBreakpoints);
+    s->setValue("NoPluginBreakpoints", m->m_pluginNoBreakpoints);
+    s->setValue("SelectedPluginBreakpointsPattern", m->m_pluginSelectedBreakpointsPattern);
+
     s->endGroup();
 }
 
@@ -911,6 +928,7 @@ void DebuggerPlugin::readSettings()
     QString defaultScript;
 
     s->beginGroup(QLatin1String("DebugMode"));
+
     QByteArray ba = s->value("State", QByteArray()).toByteArray();
     m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
     m->m_gdbCmd     = s->value("Location", defaultCommand).toString();
@@ -922,8 +940,17 @@ void DebuggerPlugin::readSettings()
     m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
     m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
     m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
-    m->m_useFastStart     = s->value("UseFastStart", false).toBool();
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
+
+    m->m_pluginAllBreakpoints =
+        s->value("AllPluginBreakpoints", true).toBool();
+    m->m_pluginSelectedBreakpoints =
+        s->value("SelectedPluginBreakpoints", false).toBool();
+    m->m_pluginNoBreakpoints =
+        s->value("NoPluginBreakpoints", false).toBool();
+    m->m_pluginSelectedBreakpointsPattern =
+        s->value("SelectedPluginBreakpointsPattern").toString();
+
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

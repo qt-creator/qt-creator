@@ -329,8 +329,8 @@ void StackedEditorGroup::updateToolBar(IEditor *editor)
         toolBar = m_defaultToolBar;
     if (m_activeToolBar == toolBar)
         return;
-    toolBar->setVisible(true);
     m_activeToolBar->setVisible(false);
+    toolBar->setVisible(true);
     m_activeToolBar = toolBar;
 }
 

@@ -33,8 +33,9 @@
 
 #include "threadswindow.h"
 
-#include "assert.h"
 #include "stackhandler.h"
+
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QComboBox>

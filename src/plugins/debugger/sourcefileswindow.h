@@ -31,49 +31,46 @@
 **
 ***************************************************************************/
 
-#ifndef PERFOCESETTINGS_H
-#define PERFOCESETTINGS_H
+#ifndef DEBUGGER_SOURCEFILEWINDOW_H
+#define DEBUGGER_SOURCEFILEWINDOW_H
 
-#include <QtCore/QString>
-#include <QtCore/QFuture>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
+class QComboBox;
+class QModelIndex;
+class QStandardItemModel;
 QT_END_NAMESPACE
 
-namespace Perforce {
+namespace Debugger {
 namespace Internal {
 
-class PerforceSettings {
+class SourceFilesModel;
+    
+class SourceFilesWindow : public QTreeView
+{
+    Q_OBJECT
+
 public:
-    PerforceSettings();
-    ~PerforceSettings();
-    void fromSettings(QSettings *settings);
-    void toSettings(QSettings *) const;
-    void setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv);
-    bool isValid() const;
+    SourceFilesWindow(QWidget *parent = 0);
+    ~SourceFilesWindow();
 
-    QString p4Command() const;
-    QString p4Port() const;
-    QString p4Client() const;
-    QString p4User() const;
-    bool defaultEnv() const;
-    QStringList basicP4Args() const;
+    void setSourceFiles(const QMap<QString, QString> &sourceFiles);
+
+signals:
+    void reloadSourceFilesRequested();
+
+private slots:
+    void sourceFileActivated(const QModelIndex &index);
+
 private:
-    void run(QFutureInterface<void> &fi);
-    mutable QFuture<void> m_future;
-    mutable QMutex m_mutex;
-
-    QString m_p4Command;
-    QString m_p4Port;
-    QString m_p4Client;
-    QString m_p4User;
-    bool m_defaultEnv;
-    bool m_valid;
-    Q_DISABLE_COPY(PerforceSettings);
+    void contextMenuEvent(QContextMenuEvent *ev);
+    SourceFilesModel *m_model;
 };
 
-} // Internal
-} // Perforce
+} // namespace Internal
+} // namespace Debugger
 
-#endif // PERFOCESETTINGS_H
+#endif // DEBUGGER_SOURCEFILEWINDOW_H
+

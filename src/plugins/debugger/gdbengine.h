@@ -113,7 +113,6 @@ private:
     void exitDebugger();
 
     void continueInferior();
-    void runInferior();
     void interruptInferior();
 
     void runToLineExec(const QString &fileName, int lineNumber);
@@ -145,7 +144,8 @@ private:
 
     bool supportsThreads() const;
 
-    void init();  // called by destructor
+    void initializeConnections();
+    void initializeVariables();
     void queryFullName(const QString &fileName, QString *fullName);
     QString fullName(const QString &fileName);
     QString shortName(const QString &fullName);
@@ -158,12 +158,15 @@ private:
     // queue". resultNeeded == true increments m_pendingResults on
     // send and decrements on receipt, effectively preventing 
     // watch model updates before everything is finished.
-    void sendCommand(const QString & command,
+    enum StopNeeded { DoesNotNeedStop, NeedsStop };
+    enum Synchronization { NotSynchronized, Synchronized };
+    void sendCommand(const QString &command,
         int type = 0, const QVariant &cookie = QVariant(),
-        bool needStop = false, bool synchronized = false);
+        StopNeeded needStop = DoesNotNeedStop,
+        Synchronization synchronized = NotSynchronized);
     void sendSynchronizedCommand(const QString & command,
         int type = 0, const QVariant &cookie = QVariant(),
-        bool needStop = false);
+        StopNeeded needStop = DoesNotNeedStop);
 
     void setTokenBarrier();
 
@@ -179,7 +182,7 @@ private slots:
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
-    void handleStreamOutput(const QString &output, char code);
+    void handleStart(const GdbResultRecord &response);
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
     void handleResultRecord(const GdbResultRecord &response);
@@ -189,9 +192,11 @@ private:
     void handleExecRunToFunction(const GdbResultRecord &response);
     void handleInfoShared(const GdbResultRecord &response);
     void handleInfoProc(const GdbResultRecord &response);
+    void handleInfoThreads(const GdbResultRecord &response);
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
+    void debugMessage(const QString &msg);
 
     OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;
@@ -215,11 +220,10 @@ private:
     int m_oldestAcceptableToken;
 
     int m_gdbVersion; // 6.8.0 is 680
-    int m_shared;
 
     // awful hack to keep track of used files
-    QHash<QString, QString> m_shortToFullName;
-    QHash<QString, QString> m_fullToShortName;
+    QMap<QString, QString> m_shortToFullName;
+    QMap<QString, QString> m_fullToShortName;
 
     //
     // Breakpoint specific stuff
@@ -259,6 +263,10 @@ private:
     void handleRegisterListNames(const GdbResultRecord &record);
     void handleRegisterListValues(const GdbResultRecord &record);
 
+    //
+    // Source file specific stuff
+    // 
+    void reloadSourceFiles();
 
     //
     // Stack specific stuff
@@ -329,6 +337,12 @@ private:
     QList<GdbMi> m_currentFunctionArgs;
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
+
+    bool m_waitingForBreakpointSynchronizationToContinue;
+    bool m_waitingForFirstBreakpointToBeHit;
+    bool m_modulesListOutdated;
+
+    QList<GdbCookie> m_commandsToRunOnTemporaryBreak;
 
     DebuggerManager *q;
     IDebuggerManagerAccessForEngines *qq;
