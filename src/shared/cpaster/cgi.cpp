@@ -112,7 +112,12 @@ QString CGI::decodeURL(const QString &urlText)
             dec.append(' ');
             break;
         default:
-            dec.append(*it);
+            if (ch < 256) {
+                dec.append(ch);
+            } else {
+                // should not happen with proper URLs but stay on the safe side
+                dec.append(QString(*it).toUtf8());
+            }
             break;
         }
         ++it;

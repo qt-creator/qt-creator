@@ -10,9 +10,6 @@ include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/cpptools/cpptools.pri)
 include(../../libs/cplusplus/cplusplus.pri)
 
-# DEFINES += QT_NO_CAST_FROM_ASCII
-DEFINES += QT_NO_CAST_TO_ASCII
-
 QT += gui network script
 
 HEADERS += attachexternaldialog.h \

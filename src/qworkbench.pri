@@ -40,6 +40,9 @@ DEPENDPATH += \
 
 LIBS += -L$$IDE_LIBRARY_PATH
 
+# DEFINES += QT_NO_CAST_FROM_ASCII
+DEFINES += QT_NO_CAST_TO_ASCII
+
 unix {
     debug:OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
     release:OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
