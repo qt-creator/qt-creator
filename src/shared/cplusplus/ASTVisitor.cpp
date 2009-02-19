@@ -77,12 +77,7 @@ int ASTVisitor::tokenKind(unsigned index) const
 { return translationUnit()->tokenKind(index); }
 
 const char *ASTVisitor::spell(unsigned index) const
-{
-    if (! index)
-        return 0;
-
-    return translationUnit()->tokenAt(index).spell();
-}
+{ return translationUnit()->spell(index); }
 
 Identifier *ASTVisitor::identifier(unsigned index) const
 { return translationUnit()->identifier(index); }
