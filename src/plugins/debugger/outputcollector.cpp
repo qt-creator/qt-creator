@@ -39,6 +39,8 @@
 #include <QtNetwork/QLocalSocket>
 #include <QtCore/QCoreApplication>
 
+#include <stdlib.h>
+
 #else
 
 #include <QtCore/QFile>
@@ -80,7 +82,9 @@ bool OutputCollector::listen()
         return m_server->isListening();
     m_server = new QLocalServer(this);
     connect(m_server, SIGNAL(newConnection()), SLOT(newConnectionAvailable()));
-   return m_server->listen(QString::fromLatin1("creator-%1").arg(QCoreApplication::applicationPid())); // XXX how to make that secure?
+    return m_server->listen(QString::fromLatin1("creator-%1-%2")
+                            .arg(QCoreApplication::applicationPid())
+                            .arg(rand()));
 #else
     if (!m_serverPath.isEmpty())
         return true;
