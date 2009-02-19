@@ -389,6 +389,11 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
     UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(ast->firstToken(), name);
     ast->symbol = u;
     _scope->enterSymbol(u);
+
+    if (! (_scope->isBlockScope() || _scope->isNamespaceScope()))
+        translationUnit()->error(ast->firstToken(),
+                                 "using-directive not within namespace or block scope");
+
     return false;
 }
 
