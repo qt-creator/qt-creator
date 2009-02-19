@@ -768,11 +768,15 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
         case ProVariable::RemoveOperator:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    removeEach(&m_valuemap, varName, v);
-                    removeEach(&m_filevaluemap[currentProFile()], varName, v);
+                    // the insertUnique is a hack for the moment to fix the
+                    // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
+                    if (removeEach(&m_valuemap, varName, v) == 0)
+                        insertUnique(&m_valuemap, QString("-%1").arg(varName), v);
+                    if (removeEach(&m_filevaluemap[currentProFile()], varName, v) == 0)
+                        insertUnique(&m_filevaluemap[currentProFile()], QString("-%1").arg(varName), v);
                 }
             } else if (!m_skipLevel) {
-                // this is a hack for the moment to fix the
+                // the insertUnique is a hack for the moment to fix the
                 // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
                 insertUnique(&m_valuemap, QString("-%1").arg(varName), v);
                 insertUnique(&m_filevaluemap[currentProFile()], QString("-%1").arg(varName), v);
