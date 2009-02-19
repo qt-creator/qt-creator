@@ -45,17 +45,21 @@
 #include <QtCore/QCoreApplication>
 #include <QtDebug>
 
-#define USE_UNPATCHED_QPLUGINLOADER 1
+#ifdef Q_OS_LINUX
+#   define USE_UNPATCHED_QPLUGINLOADER 0
+#else
+#   define USE_UNPATCHED_QPLUGINLOADER 1
+#endif
 
 #if USE_UNPATCHED_QPLUGINLOADER
 
-#include <QtCore/QPluginLoader>
-typedef QT_PREPEND_NAMESPACE(QPluginLoader) PluginLoader;
+#   include <QtCore/QPluginLoader>
+    typedef QT_PREPEND_NAMESPACE(QPluginLoader) PluginLoader;
 
 #else
 
-#include "patchedpluginloader.cpp"
-typedef PatchedPluginLoader PluginLoader;
+#   include "patchedpluginloader.cpp"
+    typedef PatchedPluginLoader PluginLoader;
 
 #endif
 
