@@ -42,9 +42,22 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QRegExp>
-#include <QtCore/QPluginLoader>
 #include <QtCore/QCoreApplication>
 #include <QtDebug>
+
+#define USE_UNPATCHED_QPLUGINLOADER 1
+
+#if USE_UNPATCHED_QPLUGINLOADER
+
+#include <QtCore/QPluginLoader>
+typedef QT_PREPEND_NAMESPACE(QPluginLoader) PluginLoader;
+
+#else
+
+#include "patchedpluginloader.cpp"
+typedef PatchedPluginLoader PluginLoader;
+
+#endif
 
 /*!
     \class ExtensionSystem::PluginDependency
@@ -770,7 +783,7 @@ bool PluginSpecPrivate::loadLibrary()
 
 #endif
 
-    QPluginLoader loader(libName);
+    PluginLoader loader(libName);
     if (!loader.load()) {
         hasError = true;
         errorString = loader.errorString();
