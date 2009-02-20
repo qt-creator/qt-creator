@@ -151,7 +151,9 @@ MainWindow::MainWindow() :
     OutputPaneManager::create();
 
     setWindowTitle(tr("Qt Creator"));
+#ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":/core/images/qtcreator_logo_128.png"));
+#endif
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
