@@ -42,8 +42,8 @@ const char * const C_PERFORCEEDITOR  = "Perforce Editor";
 const char * const PERFORCEEDITOR_KIND  = "Perforce Editor";
 const char * const C_PERFORCESUBMITEDITOR  = "Perforce Submit Editor";
 const char * const PERFORCESUBMITEDITOR_KIND  = "Perforce Submit Editor";
-const char * const SUBMIT_CURRENT = "Nokia.Perforce.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Nokia.Perforce.DiffSelectedFilesInLog";
+const char * const SUBMIT_CURRENT = "Perforce.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Perforce.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.p4.submit";
 enum { debug = 0 };
 } // Internal

@@ -71,7 +71,7 @@ namespace Constants {
     const char * const HELPVIEWER_KIND = "Qt Help Viewer";
     const char * const C_MODE_HELP     = "Help Mode";
     const int          P_MODE_HELP     = 70;
-    const char * const ID_MODE_HELP    = "Help.HelpMode";
+    const char * const ID_MODE_HELP    = "Help";
 }
 
 class HELP_EXPORT HelpManager : public QObject

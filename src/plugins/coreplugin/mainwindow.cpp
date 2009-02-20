@@ -312,7 +312,7 @@ bool MainWindow::init(QString *errorMessage)
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the ViewManager needs to be initilized before
     m_outputView = new Core::BaseView;
-    m_outputView->setUniqueViewName("OutputWindow.Buttons");
+    m_outputView->setUniqueViewName("OutputWindow");
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setDefaultPosition(Core::IView::Second);
     pm->addObject(m_outputView);

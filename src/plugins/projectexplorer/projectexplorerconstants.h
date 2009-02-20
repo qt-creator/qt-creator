@@ -38,7 +38,7 @@ namespace ProjectExplorer {
 namespace Constants {
 
 // modes and their priorities
-const char * const MODE_SESSION         = "ProjectExplorer.Mode.Session";
+const char * const MODE_SESSION         = "Project";
 const int          P_MODE_SESSION       = 85;
 
 // actions

@@ -103,14 +103,14 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     Core::Command *command;
 
-    m_postAction = new QAction(tr("Paste snippet..."), this);
-    command = actionManager->registerAction(m_postAction, "CodePaster.post", globalcontext);
+    m_postAction = new QAction(tr("Paste Snippet..."), this);
+    command = actionManager->registerAction(m_postAction, "CodePaster.Post", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+P")));
     connect(m_postAction, SIGNAL(triggered()), this, SLOT(post()));
     cpContainer->addAction(command);
 
-    m_fetchAction = new QAction(tr("Fetch snippet..."), this);
-    command = actionManager->registerAction(m_fetchAction, "CodePaster.fetch", globalcontext);
+    m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
+    command = actionManager->registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+F")));
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);

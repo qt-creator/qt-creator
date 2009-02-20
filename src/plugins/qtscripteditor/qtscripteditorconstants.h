@@ -38,8 +38,8 @@ namespace QtScriptEditor {
 namespace Constants {
 
 const char * const M_CONTEXT = "Qt Script Editor.ContextMenu";
-const char * const RUN = "Qt Script Editor.Run";
-const char * const RUN_SEP = "Qt Script Editor.Run.Separator";
+const char * const RUN = "QtScriptEditor.Run";
+const char * const RUN_SEP = "QtScriptEditor.Run.Separator";
 const char * const C_QTSCRIPTEDITOR = "Qt Script Editor";
 
 const char * const C_QTSCRIPTEDITOR_MIMETYPE = "application/javascript";

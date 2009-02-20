@@ -63,9 +63,9 @@ const char * const IDE_REVISION_STR      = "";
 #undef STRINGIFY_INTERNAL
 
 //modes
-const char * const MODE_WELCOME          = "QtCreator.Mode.Welcome";
-const char * const MODE_EDIT             = "QtCreator.Mode.Edit";
-const char * const MODE_OUTPUT           = "QtCreator.Mode.Output";
+const char * const MODE_WELCOME          = "Welcome";
+const char * const MODE_EDIT             = "Edit";
+const char * const MODE_OUTPUT           = "Output";
 const int          P_MODE_WELCOME        = 100;
 const int          P_MODE_EDIT           = 90;
 const int          P_MODE_OUTPUT         = 10;

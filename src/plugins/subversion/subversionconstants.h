@@ -42,8 +42,8 @@ const char * const SUBVERSIONEDITOR  = "Subversion Editor";
 const char * const SUBVERSIONEDITOR_KIND  = "Subversion Editor";
 const char * const SUBVERSIONCOMMITEDITOR  = "Subversion Commit Editor";
 const char * const SUBVERSIONCOMMITEDITOR_KIND  = "Subversion Commit Editor";
-const char * const SUBMIT_CURRENT = "Nokia.Subversion.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Nokia.Subversion.DiffSelectedFilesInLog";
+const char * const SUBMIT_CURRENT = "Subversion.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Subversion.DiffSelectedFilesInLog";
 enum { debug = 0 };
 
 } // namespace Constants
