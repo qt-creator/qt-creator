@@ -234,15 +234,6 @@ static bool isLeavableFunction(const QString &funcName, const QString &fileName)
     return false;
 }
 
-static QString startSymbolName()
-{
-#ifdef Q_OS_WIN
-    return "WinMainCRTStartup";
-#else
-    return "_start";
-#endif
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1653,7 +1644,7 @@ bool GdbEngine::startDebugger()
         if (!q->m_processArgs.isEmpty())
             sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
         sendCommand("set auto-solib-add off");
-        sendCommand("x/2i " + startSymbolName(), GdbStart);
+        sendCommand("info target", GdbStart);
     }
 
     // set all to "pending"
@@ -1676,14 +1667,14 @@ void GdbEngine::continueInferior()
 void GdbEngine::handleStart(const GdbResultRecord &response)
 {
     if (response.resultClass == GdbResultDone) {
-        // stdout:&"x/2i _start\n"
-        // stdout:~"0x404540 <_start>:\txor    %ebp,%ebp\n"
-        // stdout:~"0x404542 <_start+2>:\tmov    %rdx,%r9\n"
+        // [some leading stdout here]
+        // stdout:&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
+        // [some trailing stdout here]
         QString msg = response.data.findChild("consolestreamoutput").data();
-        QRegExp needle("0x([0-9a-f]+) <" + startSymbolName() + "\\+.*>:");
+        QRegExp needle("\\bEntry point: (0x[0-9a-f]+)\\b");
         if (needle.indexIn(msg) != -1) {
             //debugMessage("STREAM: " + msg + " " + needle.cap(1));
-            sendCommand("tbreak *0x" + needle.cap(1));
+            sendCommand("tbreak *" + needle.cap(1));
             m_waitingForFirstBreakpointToBeHit = true;
             qq->notifyInferiorRunningRequested();
             sendCommand("-exec-run");
@@ -1691,7 +1682,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
             debugMessage("PARSING START ADDRESS FAILED: " + msg);
         }
     } else if (response.resultClass == GdbResultError) {
-        debugMessage("PARSING START ADDRESS FAILED: " + response.toString());
+        debugMessage("FETCHING START ADDRESS FAILED: " + response.toString());
     }
 }
 
