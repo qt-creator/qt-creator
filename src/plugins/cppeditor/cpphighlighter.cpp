@@ -322,11 +322,9 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
     }
 }
 
-void CppHighlighter::highlightDoxygenComment(const QString &text, int position,
-                                             int length)
+void CppHighlighter::highlightDoxygenComment(const QString &text, int position, int)
 {
     int initial = position;
-    int i = position;
 
     const QChar *uc = text.unicode();
     const QChar *it = uc + position;
