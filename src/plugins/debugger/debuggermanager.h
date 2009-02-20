@@ -110,7 +110,7 @@ enum DebuggerStatus
 class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
-class WinEngine;
+class CdbDebugEngine;
 
 // The construct below is not nice but enforces a bit of order. The
 // DebuggerManager interfaces a lots of thing: The DebuggerPlugin,
@@ -131,10 +131,11 @@ public:
 
 private:
     // This is the part of the interface that's exclusively seen by the
-    // debugger engines.
+    // debugger enginesfriend class GdbEngine;.
     friend class GdbEngine;
+    friend class CdbDebugEngine;
+    friend class CdbDebugEventCallback;
     friend class ScriptEngine;
-    friend class WinEngine;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;

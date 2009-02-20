@@ -1,5 +1,5 @@
 #include "cdbdebugeventcallback.h"
-#include "cdbcdebugengine.h"
+#include "cdbdebugengine.h"
 #include "debuggermanager.h"
 
 #include <QtCore/QDebug>
@@ -7,7 +7,7 @@
 namespace Debugger {
 namespace Internal {
 
-STDMETHODIMP MSVCDebugEventCallback::QueryInterface(
+STDMETHODIMP CdbDebugEventCallback::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
     OUT PVOID* Interface)
@@ -27,21 +27,21 @@ STDMETHODIMP MSVCDebugEventCallback::QueryInterface(
     }
 }
 
-STDMETHODIMP_(ULONG) MSVCDebugEventCallback::AddRef(THIS)
+STDMETHODIMP_(ULONG) CdbDebugEventCallback::AddRef(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 1;
 }
 
-STDMETHODIMP_(ULONG) MSVCDebugEventCallback::Release(THIS)
+STDMETHODIMP_(ULONG) CdbDebugEventCallback::Release(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 0;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
+STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 {
     *mask = DEBUG_EVENT_CREATE_PROCESS | DEBUG_EVENT_EXIT_PROCESS
             //| DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
@@ -51,14 +51,14 @@ STDMETHODIMP MSVCDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
+STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
 {
     qDebug() << "MSVCDebugEventCallback::Breakpoint";
     m_pEngine->handleBreakpointEvent(Bp);
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::Exception(
+STDMETHODIMP CdbDebugEventCallback::Exception(
     THIS_
     __in PEXCEPTION_RECORD64 Exception,
     __in ULONG FirstChance
@@ -68,7 +68,7 @@ STDMETHODIMP MSVCDebugEventCallback::Exception(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::CreateThread(
+STDMETHODIMP CdbDebugEventCallback::CreateThread(
     THIS_
     __in ULONG64 Handle,
     __in ULONG64 DataOffset,
@@ -82,7 +82,7 @@ STDMETHODIMP MSVCDebugEventCallback::CreateThread(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::ExitThread(
+STDMETHODIMP CdbDebugEventCallback::ExitThread(
     THIS_
     __in ULONG ExitCode
     )
@@ -90,7 +90,7 @@ STDMETHODIMP MSVCDebugEventCallback::ExitThread(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::CreateProcess(
+STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     THIS_
     __in ULONG64 ImageFileHandle,
     __in ULONG64 Handle,
@@ -120,7 +120,7 @@ STDMETHODIMP MSVCDebugEventCallback::CreateProcess(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::ExitProcess(
+STDMETHODIMP CdbDebugEventCallback::ExitProcess(
     THIS_
     __in ULONG ExitCode
     )
@@ -132,7 +132,7 @@ STDMETHODIMP MSVCDebugEventCallback::ExitProcess(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::LoadModule(
+STDMETHODIMP CdbDebugEventCallback::LoadModule(
     THIS_
     __in ULONG64 ImageFileHandle,
     __in ULONG64 BaseOffset,
@@ -146,7 +146,7 @@ STDMETHODIMP MSVCDebugEventCallback::LoadModule(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::UnloadModule(
+STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     THIS_
     __in_opt PCSTR ImageBaseName,
     __in ULONG64 BaseOffset
@@ -155,7 +155,7 @@ STDMETHODIMP MSVCDebugEventCallback::UnloadModule(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::SystemError(
+STDMETHODIMP CdbDebugEventCallback::SystemError(
     THIS_
     __in ULONG Error,
     __in ULONG Level
@@ -164,7 +164,7 @@ STDMETHODIMP MSVCDebugEventCallback::SystemError(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::SessionStatus(
+STDMETHODIMP CdbDebugEventCallback::SessionStatus(
     THIS_
     __in ULONG Status
     )
@@ -172,7 +172,7 @@ STDMETHODIMP MSVCDebugEventCallback::SessionStatus(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::ChangeDebuggeeState(
+STDMETHODIMP CdbDebugEventCallback::ChangeDebuggeeState(
     THIS_
     __in ULONG Flags,
     __in ULONG64 Argument
@@ -181,7 +181,7 @@ STDMETHODIMP MSVCDebugEventCallback::ChangeDebuggeeState(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::ChangeEngineState(
+STDMETHODIMP CdbDebugEventCallback::ChangeEngineState(
     THIS_
     __in ULONG Flags,
     __in ULONG64 Argument
@@ -190,7 +190,7 @@ STDMETHODIMP MSVCDebugEventCallback::ChangeEngineState(
     return S_OK;
 }
 
-STDMETHODIMP MSVCDebugEventCallback::ChangeSymbolState(
+STDMETHODIMP CdbDebugEventCallback::ChangeSymbolState(
     THIS_
     __in ULONG Flags,
     __in ULONG64 Argument

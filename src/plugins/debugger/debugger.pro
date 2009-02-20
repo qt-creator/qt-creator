@@ -85,7 +85,20 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-false {
+win32 {
+# ---- Detect Debugging Tools For Windows
+
+CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
+
+exists ($$CDB_PATH) {
+message("Experimental: Adding support for $$CDB_PATH")
+
+DEFINES+=CDB_ENABLED
+
+CDB_PLATFORM=i386
+
+INCLUDEPATH+=$$CDB_PATH
+CDB_LIBPATH=$$CDB_PATH/lib/$$CDB_PLATFORM
 
 HEADERS += \
     cdbdebugengine.h \
@@ -97,7 +110,7 @@ SOURCES += \
     cdbdebugeventcallback.cpp \
     cdbdebugoutput.cpp
 
-LIBS += dbgeng.lib
+LIBS += -L$$CDB_LIBPATH Dbghelp.lib dbgeng.lib
 
 }
-
+}

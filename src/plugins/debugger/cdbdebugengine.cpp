@@ -11,11 +11,10 @@
 #include <QFileInfo>
 
 #define DBGHELP_TRANSLATE_TCHAR
-#include <Dbghelp.h>
+#include <inc/Dbghelp.h>
 
 using namespace Debugger;
 using namespace Debugger::Internal;
-
 
 CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent)
   : IDebuggerEngine(parent),
@@ -84,7 +83,7 @@ void CdbDebugEngine::shutdown()
     exitDebugger();
 }
 
-void CdbDebugEngine::setToolTipExpression(const QPoint &pos, const QString &exp)
+void CdbDebugEngine::setToolTipExpression(const QPoint & /*pos*/, const QString & /*exp*/)
 {
 }
 
@@ -110,7 +109,7 @@ bool CdbDebugEngine::startDebugger()
     m_pDebugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
     //m_pDebugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
 
-    if (q->startMode() == q->attachExternal) {
+    if (q->startMode() == DebuggerManager::AttachExternal) {
         qWarning("CdbDebugEngine: attach to process not yet implemented!");
     } else {
         hr = m_pDebugClient->CreateProcess2Wide(NULL,
@@ -225,11 +224,6 @@ void CdbDebugEngine::continueInferior()
     qq->notifyInferiorRunning();
 }
 
-void CdbDebugEngine::runInferior()
-{
-    continueInferior();
-}
-
 void CdbDebugEngine::interruptInferior()
 {
     //TODO: better use IDebugControl::SetInterrupt?
@@ -244,18 +238,25 @@ void CdbDebugEngine::interruptInferior()
 
 void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
 }
 
 void CdbDebugEngine::runToFunctionExec(const QString &functionName)
 {
+    Q_UNUSED(functionName)
 }
 
 void CdbDebugEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
+    Q_UNUSED(fileName)
+    Q_UNUSED(lineNumber)
 }
 
 void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &value)
 {
+    Q_UNUSED(expr)
+    Q_UNUSED(value)
 }
 
 void CdbDebugEngine::executeDebuggerCommand(const QString &/*command*/)
@@ -352,6 +353,7 @@ void CdbDebugEngine::reloadModules()
 
 void CdbDebugEngine::loadSymbols(const QString &moduleName)
 {
+    Q_UNUSED(moduleName)
 }
 
 void CdbDebugEngine::loadAllSymbols()
@@ -506,15 +508,30 @@ void CdbDebugEngine::updateStackTrace()
 
 void CdbDebugEngine::handleDebugOutput(const char* szOutputString)
 {
-    qq->showApplicationOutput("app-dbgoutput", QString::fromLocal8Bit(szOutputString));
+    qq->showApplicationOutput(QString::fromLocal8Bit(szOutputString));
 }
 
 void CdbDebugEngine::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)
 {
+    Q_UNUSED(pBP)
     qDebug() << "CdbDebugEngine::handleBreakpointEvent()";
 }
 
 IDebuggerEngine *createWinEngine(DebuggerManager *parent)
 {
     return new CdbDebugEngine(parent);
+}
+
+void CdbDebugEngine::setDebugDumpers(bool on)
+{
+    Q_UNUSED(on)
+}
+
+void CdbDebugEngine::setUseCustomDumpers(bool on)
+{
+    Q_UNUSED(on)
+}
+
+void CdbDebugEngine::reloadSourceFiles()
+{
 }

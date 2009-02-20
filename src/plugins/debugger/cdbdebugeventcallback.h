@@ -2,7 +2,7 @@
 #define DEBUGGER_CDBDEBUGEVENTCALLBACK_H
 
 #include <windows.h>
-#include <dbgeng.h>
+#include <inc/dbgeng.h>
 
 namespace Debugger {
 namespace Internal {

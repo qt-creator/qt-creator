@@ -5,8 +5,6 @@
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugoutput.h"
 
-#include <windows.h>
-
 namespace Debugger {
 namespace Internal {
 
@@ -32,8 +30,7 @@ public:
     virtual void stepIExec();
     virtual void nextIExec();
     
-    virtual void continueInferior();
-    virtual void runInferior();
+    virtual void continueInferior();    
     virtual void interruptInferior();
 
     virtual void runToLineExec(const QString &fileName, int lineNumber);
@@ -57,6 +54,11 @@ public:
     virtual void loadAllSymbols();
 
     virtual void reloadRegisters();
+
+    virtual void setDebugDumpers(bool on);
+    virtual void setUseCustomDumpers(bool on);
+
+    virtual void reloadSourceFiles();
 
 protected:
     void timerEvent(QTimerEvent*);
