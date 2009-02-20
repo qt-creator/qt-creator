@@ -43,6 +43,7 @@
         <glob pattern="*.c++"/>
         <glob pattern="*.C"/>
         <glob pattern="*.inl"/>
+        <glob pattern="*.qdoc"/>
     </mime-type>
 
     <mime-type type="text/x-objcsrc">
