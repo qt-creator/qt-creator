@@ -329,10 +329,8 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
     const QChar *uc = text.unicode();
     const QChar *it = uc + position;
 
-    QTextCharFormat format = m_formats[CppCommentFormat];
-    QTextCharFormat kwFormat = format;
-    kwFormat.setFontWeight(QFont::Bold);
-    kwFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    const QTextCharFormat &format = m_formats[CppDoxygenCommentFormat];
+    const QTextCharFormat &kwFormat = m_formats[CppDoxygenTagFormat];
 
     while (! it->isNull()) {
         if (it->unicode() == QLatin1Char('\\') ||

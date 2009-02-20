@@ -51,6 +51,8 @@ enum CppFormats {
     CppPreprocessorFormat,
     CppLabelFormat,
     CppCommentFormat,
+    CppDoxygenCommentFormat,
+    CppDoxygenTagFormat,
     NumCppFormats
 };
 
