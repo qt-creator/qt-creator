@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Utils
+QT += network
 
 DEFINES += QWORKBENCH_UTILS_LIBRARY
 

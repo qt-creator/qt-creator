@@ -29,19 +29,31 @@
 
 #include "consoleprocess.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
-#include <QtCore/private/qwineventnotifier_p.h>
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QAbstractEventDispatcher>
+#include <QtCore/private/qwineventnotifier_p.h>
 
-#include <Tlhelp32.h>
+#include <QtNetwork/QLocalSocket>
+
+#include <stdlib.h>
 
 using namespace Core::Utils;
 
 ConsoleProcess::ConsoleProcess(QObject *parent)
     : QObject(parent)
 {
-    m_isRunning = false;
+    m_debug = false;
+    m_appPid = 0;
     m_pid = 0;
+    m_hInferior = NULL;
+    m_tempFile = 0;
+    m_stubSocket = 0;
+    processFinishedNotifier = 0;
+    inferiorFinishedNotifier = 0;
+
+    connect(&m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 }
 
 ConsoleProcess::~ConsoleProcess()
@@ -49,156 +61,234 @@ ConsoleProcess::~ConsoleProcess()
     stop();
 }
 
-void ConsoleProcess::stop()
-{
-    if (m_pid)
-        TerminateProcess(m_pid->hProcess, -1);
-    m_isRunning = false;
-}
-
 bool ConsoleProcess::start(const QString &program, const QStringList &args)
 {
-    if (m_isRunning)
+    if (isRunning())
         return false;
+
+    QString err = stubServerListen();
+    if (!err.isEmpty()) {
+        emit processError(tr("Cannot set up comm channel: %1").arg(err));
+        return false;
+    }
+
+    if (!environment().isEmpty()) {
+        m_tempFile = new QTemporaryFile();
+        if (!m_tempFile->open()) {
+            stubServerShutdown();
+            emit processError(tr("Cannot create temp file: %1").arg(m_tempFile->errorString()));
+            delete m_tempFile;
+            m_tempFile = 0;
+            return false;
+        }
+        QTextStream out(m_tempFile);
+        out.setCodec("UTF-16LE");
+        out.setGenerateByteOrderMark(false);
+        foreach (const QString &var, fixEnvironment(environment()))
+            out << var << QChar(0);
+        out << QChar(0);
+    }
 
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
 
-    if (m_pid) {
-        CloseHandle(m_pid->hThread);
-        CloseHandle(m_pid->hProcess);
-        delete m_pid;
-        m_pid = 0;
-    }
     m_pid = new PROCESS_INFORMATION;
     ZeroMemory(m_pid, sizeof(PROCESS_INFORMATION));
 
-    QString cmdLine = QLatin1String("cmd /k ")
-                      + createCommandline(program, args)
-                      + QLatin1String(" & pause & exit");
+    QString workDir = QDir::toNativeSeparators(workingDirectory());
+    if (!workDir.isEmpty() && !workDir.endsWith('\\'))
+        workDir.append('\\');
+
+    QStringList stubArgs;
+    stubArgs << (m_debug ? "debug" : "exec")
+             << m_stubServer.fullServerName()
+             << workDir
+             << (m_tempFile ? m_tempFile->fileName() : 0)
+             << createCommandline(program, args)
+             << tr("Press <RETURN> to close this window...");
+
+    QString cmdLine = createCommandline(
+            QCoreApplication::applicationDirPath() + "/qtcreator_process_stub.exe", stubArgs);
 
     bool success = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
-                                  0, 0, TRUE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-                                  environment().isEmpty() ? 0
-                                  : createEnvironment(environment()).data(),
-                                  workingDirectory().isEmpty() ? 0
-                                  : (WCHAR*)QDir::convertSeparators(workingDirectory()).utf16(),
+                                  0, 0, FALSE, CREATE_NEW_CONSOLE,
+                                  0, 0,
                                   &si, m_pid);
 
     if (!success) {
+        delete m_pid;
+        m_pid = 0;
+        delete m_tempFile;
+        m_tempFile = 0;
+        stubServerShutdown();
         emit processError(tr("The process could not be started!"));
         return false;
     }
 
-    if (QAbstractEventDispatcher::instance(thread())) {
-        processFinishedNotifier = new QWinEventNotifier(m_pid->hProcess, this);
-        QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), this, SLOT(processDied()));
-        processFinishedNotifier->setEnabled(true);
+    processFinishedNotifier = new QWinEventNotifier(m_pid->hProcess, this);
+    connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(stubExited()));
+    emit wrapperStarted();
+    return true;
+}
+
+void ConsoleProcess::stop()
+{
+    if (m_hInferior != NULL) {
+        TerminateProcess(m_hInferior, (unsigned)-1);
+        cleanupInferior();
     }
-    m_isRunning = true;
-    emit processStarted();
-    return success;
+    if (m_pid) {
+        TerminateProcess(m_pid->hProcess, (unsigned)-1);
+        WaitForSingleObject(m_pid->hProcess, INFINITE);
+        cleanupStub();
+    }
 }
 
 bool ConsoleProcess::isRunning() const
 {
-    return m_isRunning;
+    return m_pid != 0;
 }
 
-void ConsoleProcess::processDied()
+QString ConsoleProcess::stubServerListen()
 {
-    if (processFinishedNotifier) {
-        processFinishedNotifier->setEnabled(false);
-        delete processFinishedNotifier;
-        processFinishedNotifier = 0;
+    if (m_stubServer.listen(QString::fromLatin1("creator-%1-%2")
+                            .arg(QCoreApplication::applicationPid())
+                            .arg(rand())))
+        return QString();
+    return m_stubServer.errorString();
+}
+
+void ConsoleProcess::stubServerShutdown()
+{
+    delete m_stubSocket;
+    m_stubSocket = 0;
+    if (m_stubServer.isListening())
+        m_stubServer.close();
+}
+
+void ConsoleProcess::stubConnectionAvailable()
+{
+    m_stubSocket = m_stubServer.nextPendingConnection();
+    connect(m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
+}
+
+static QString errorMsg(int code)
+{
+    LPVOID lpMsgBuf;
+
+    int len = FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, (DWORD)code, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+    QString ret = QString::fromUtf16((ushort *)lpMsgBuf, len);
+    LocalFree(lpMsgBuf);
+    return ret;
+}
+
+void ConsoleProcess::readStubOutput()
+{
+    while (m_stubSocket->canReadLine()) {
+        QByteArray out = m_stubSocket->readLine();
+        out.chop(2); // \r\n
+        if (out.startsWith("err:chdir ")) {
+            emit processError(tr("Cannot change to working directory %1: %2")
+                              .arg(workingDirectory(), errorMsg(out.mid(10).toInt())));
+        } else if (out.startsWith("err:exec ")) {
+            emit processError(tr("Cannot execute %1: %2")
+                              .arg(m_executable, errorMsg(out.mid(9).toInt())));
+        } else if (out.startsWith("pid ")) {
+            // Will not need it any more
+            delete m_tempFile;
+            m_tempFile = 0;
+
+            m_appPid = out.mid(4).toInt();
+            m_hInferior = OpenProcess(
+                    SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
+                    FALSE, m_appPid);
+            if (m_hInferior == NULL) {
+                emit processError(tr("Cannot obtain a handle to the inferior: %1")
+                                  .arg(errorMsg(GetLastError())));
+                // Uhm, and now what?
+                continue;
+            }
+            inferiorFinishedNotifier = new QWinEventNotifier(m_hInferior, this);
+            connect(inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
+            emit processStarted();
+        } else {
+            emit processError(tr("Unexpected output from helper program."));
+            TerminateProcess(m_pid->hProcess, (unsigned)-1);
+            break;
+        }
     }
-    delete m_pid;
-    m_pid = 0;
-    m_isRunning = false;
+}
+
+void ConsoleProcess::cleanupInferior()
+{
+    delete inferiorFinishedNotifier;
+    inferiorFinishedNotifier = 0;
+    CloseHandle(m_hInferior);
+    m_hInferior = NULL;
+    m_appPid = 0;
+}
+
+void ConsoleProcess::inferiorExited()
+{
+    DWORD chldStatus;
+
+    if (!GetExitCodeProcess(m_hInferior, &chldStatus))
+        emit processError(tr("Cannot obtain exit status from inferior: %1")
+                          .arg(errorMsg(GetLastError())));
+    cleanupInferior();
+    m_appStatus = QProcess::NormalExit;
+    m_appCode = chldStatus;
     emit processStopped();
 }
 
-qint64 ConsoleProcess::applicationPID() const
+void ConsoleProcess::cleanupStub()
 {
-    if (m_pid) {
-        HANDLE hProcList = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-        PROCESSENTRY32 procEntry;
-        procEntry.dwSize = sizeof(PROCESSENTRY32);
-        DWORD procId = 0;
-        BOOL moreProc = Process32First(hProcList, &procEntry);
-        while (moreProc) {
-            if (procEntry.th32ParentProcessID == m_pid->dwProcessId) {
-                procId = procEntry.th32ProcessID;
-                break;
-            }
-            moreProc = Process32Next(hProcList, &procEntry);
-        }
-
-        CloseHandle(hProcList);
-        return procId;
-    }
-    return 0;
+    stubServerShutdown();
+    delete processFinishedNotifier;
+    processFinishedNotifier = 0;
+    CloseHandle(m_pid->hThread);
+    CloseHandle(m_pid->hProcess);
+    delete m_pid;
+    m_pid = 0;
+    delete m_tempFile;
+    m_tempFile = 0;
 }
 
-int ConsoleProcess::exitCode() const
+void ConsoleProcess::stubExited()
 {
-    DWORD exitCode;
-    if (GetExitCodeProcess(m_pid->hProcess, &exitCode))
-        return exitCode;
-    return -1;
+    // The stub exit might get noticed before we read the pid for the kill.
+    if (m_stubSocket && m_stubSocket->state() == QLocalSocket::ConnectedState)
+        m_stubSocket->waitForDisconnected();
+    cleanupStub();
+    if (m_hInferior != NULL) {
+        TerminateProcess(m_hInferior, (unsigned)-1);
+        cleanupInferior();
+        m_appStatus = QProcess::CrashExit;
+        m_appCode = -1;
+        emit processStopped();
+    }
+    emit wrapperStopped();
 }
 
-QByteArray ConsoleProcess::createEnvironment(const QStringList &env)
+QStringList ConsoleProcess::fixEnvironment(const QStringList &env)
 {
-    QByteArray envlist;
-    if (!env.isEmpty()) {
-        QStringList envStrings = env;
-        int pos = 0;
-        // add PATH if necessary (for DLL loading)
-        if (envStrings.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()) {
-            QByteArray path = qgetenv("PATH");
-            if (!path.isEmpty())
-                envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
-        }
-        // add systemroot if needed
-        if (envStrings.filter(QRegExp("^SystemRoot=",Qt::CaseInsensitive)).isEmpty()) {
-            QByteArray systemRoot = qgetenv("SystemRoot");
-            if (!systemRoot.isEmpty())
-                envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
-        }
-#ifdef UNICODE
-        if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-            for (QStringList::ConstIterator it = envStrings.constBegin(); it != envStrings.constEnd(); it++ ) {
-                QString tmp = *it;
-                uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
-                envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
-                pos += tmpSize;
-            }
-            // add the 2 terminating 0 (actually 4, just to be on the safe side)
-            envlist.resize(envlist.size() + 4);
-            envlist[pos++] = 0;
-            envlist[pos++] = 0;
-            envlist[pos++] = 0;
-            envlist[pos++] = 0;
-        } else
-#endif // UNICODE
-        {
-            for (QStringList::ConstIterator it = envStrings.constBegin(); it != envStrings.constEnd(); it++) {
-                QByteArray tmp = (*it).toLocal8Bit();
-                uint tmpSize = tmp.length() + 1;
-                envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
-                pos += tmpSize;
-            }
-            // add the terminating 0 (actually 2, just to be on the safe side)
-            envlist.resize(envlist.size() + 2);
-            envlist[pos++] = 0;
-            envlist[pos++] = 0;
-        }
+    QStringList envStrings = env;
+    // add PATH if necessary (for DLL loading)
+    if (envStrings.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()) {
+        QByteArray path = qgetenv("PATH");
+        if (!path.isEmpty())
+            envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
     }
-    return envlist;
+    // add systemroot if needed
+    if (envStrings.filter(QRegExp("^SystemRoot=",Qt::CaseInsensitive)).isEmpty()) {
+        QByteArray systemRoot = qgetenv("SystemRoot");
+        if (!systemRoot.isEmpty())
+            envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
+    }
+    return envStrings;
 }
 
 QString ConsoleProcess::createCommandline(const QString &program, const QStringList &args)

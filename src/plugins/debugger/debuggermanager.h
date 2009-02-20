@@ -381,6 +381,7 @@ public:
     QString m_buildDir;
     QStringList m_processArgs;
     int m_attachedPID;
+    bool m_useTerminal;
 
 private:
     void init();

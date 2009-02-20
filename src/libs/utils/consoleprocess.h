@@ -37,9 +37,12 @@
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 
+#include <QtNetwork/QLocalServer>
+
 #ifdef Q_OS_WIN
 #include <windows.h>
 class QWinEventNotifier;
+class QTemporaryFile;
 #endif
 
 namespace Core {
@@ -50,41 +53,68 @@ class QWORKBENCH_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractPr
     Q_OBJECT
 
 public:
-    ConsoleProcess(QObject *parent);
+    ConsoleProcess(QObject *parent = 0);
     ~ConsoleProcess();
 
     bool start(const QString &program, const QStringList &args);
     void stop();
 
-    bool isRunning() const;
-    qint64 applicationPID() const;
-    int exitCode() const;
+    void setDebug(bool on) { m_debug = on; }
+    bool isDebug() const { return m_debug; }
+
+    bool isRunning() const; // This reflects the state of the console+stub
+    qint64 applicationPID() const { return m_appPid; }
+    int exitCode() const { return m_appCode; } // This will be the signal number if exitStatus == CrashExit
+    QProcess::ExitStatus exitStatus() const { return m_appStatus; }
+
+#ifdef Q_OS_WIN
+    // These are public for WinGuiProcess. Should be in AbstractProcess, but it has no .cpp so far.
+    static QString createCommandline(const QString &program, const QStringList &args);
+    static QStringList fixEnvironment(const QStringList &env);
+#endif
 
 signals:
     void processError(const QString &error);
+    // These reflect the state of the actual client process
     void processStarted();
     void processStopped();
 
-private:
-    bool m_isRunning;
+    // These reflect the state of the console+stub
+    void wrapperStarted();
+    void wrapperStopped();
 
+private slots:
+    void stubConnectionAvailable();
+    void readStubOutput();
+    void stubExited();
 #ifdef Q_OS_WIN
-public:
-    static QString createCommandline(const QString &program,
-                                     const QStringList &args);
-    static QByteArray createEnvironment(const QStringList &env);
-
-private slots:
-    void processDied();
+    void inferiorExited();
+#endif
 
 private:
+    QString stubServerListen();
+    void stubServerShutdown();
+#ifdef Q_OS_WIN
+    void cleanupStub();
+    void cleanupInferior();
+#endif
+
+    bool m_debug;
+    qint64 m_appPid;
+    int m_appCode;
+    QString m_executable;
+    QProcess::ExitStatus m_appStatus;
+    QLocalServer m_stubServer;
+    QLocalSocket *m_stubSocket;
+#ifdef Q_OS_WIN
     PROCESS_INFORMATION *m_pid;
+    HANDLE m_hInferior;
+    QWinEventNotifier *inferiorFinishedNotifier;
     QWinEventNotifier *processFinishedNotifier;
+    QTemporaryFile *m_tempFile;
 #else
-private:
     QProcess m_process;
-private slots:
-    void processFinished(int, QProcess::ExitStatus);
+    QByteArray m_stubServerDir;
 #endif
 
 };

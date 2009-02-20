@@ -9,6 +9,8 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/cpptools/cpptools.pri)
 include(../../libs/cplusplus/cplusplus.pri)
+include(../../libs/utils/utils.pri)
+INCLUDEPATH += $$PWD/../../libs/utils
 
 QT += gui network script
 

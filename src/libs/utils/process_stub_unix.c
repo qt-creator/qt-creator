@@ -1,0 +1,216 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+**
+** Non-Open Source Usage
+**
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
+**
+***************************************************************************/
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/wait.h>
+#include <sys/ptrace.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+
+extern char **environ;
+
+static int qtcFd;
+static char *sleepMsg;
+
+static void __attribute__((noreturn)) doExit(int code)
+{
+    tcsetpgrp(0, getpid());
+    puts(sleepMsg);
+    fgets(sleepMsg, 2, stdin); /* Minimal size to make it wait */
+    exit(code);
+}
+
+static void sendMsg(const char *msg, int num)
+{
+    int pidStrLen;
+    int ioRet;
+    char pidStr[64];
+
+    pidStrLen = sprintf(pidStr, msg, num);
+    if ((ioRet = write(qtcFd, pidStr, pidStrLen)) != pidStrLen) {
+        fprintf(stderr, "Cannot write to creator comm socket: %s\n",
+                        (ioRet < 0) ? strerror(errno) : "short write");
+        doExit(3);
+    }
+}
+
+enum {
+    ArgCmd = 0,
+    ArgAction,
+    ArgSocket,
+    ArgMsg,
+    ArgDir,
+    ArgEnv
+};
+
+/* syntax: $0 {"run"|"debug"} <pid-socket> <continuation-msg> <workdir> <env...> "" <exe> <args...> */
+/* exit codes: 0 = ok, 1 = invocation error, 3 = internal error */
+int main(int argc, char *argv[])
+{
+    int envIdx = ArgEnv;
+    int errNo;
+    int chldPid;
+    int chldStatus;
+    int chldPipe[2];
+    struct sockaddr_un sau;
+
+    if (argc < ArgEnv) {
+        fprintf(stderr, "This is an internal helper of Qt Creator. Do not run it manually.\n");
+        return 1;
+    }
+    sleepMsg = argv[ArgMsg];
+
+    /* Connect to the master, i.e. Creator. */
+    if ((qtcFd = socket(PF_UNIX, SOCK_STREAM, 0)) < 0) {
+        perror("Cannot create creator comm socket");
+        doExit(3);
+    }
+    sau.sun_family = AF_UNIX;
+    strcpy(sau.sun_path, argv[ArgSocket]);
+    if (connect(qtcFd, (struct sockaddr *)&sau, sizeof(sau))) {
+        fprintf(stderr, "Cannot connect creator comm socket %s: %s\n", sau.sun_path, strerror(errno));
+        doExit(1);
+    }
+
+    if (*argv[ArgDir] && chdir(argv[ArgDir])) {
+        /* Only expected error: no such file or direcotry */
+        sendMsg("err:chdir %d\n", errno);
+        return 1;
+    }
+
+    /* Create execution result notification pipe. */
+    if (pipe(chldPipe)) {
+        perror("Cannot create status pipe");
+        doExit(3);
+    }
+    /* The debugged program is not supposed to inherit these handles. But we cannot
+     * close the writing end before calling exec(). Just handle both ends the same way ... */
+    fcntl(chldPipe[0], F_SETFD, FD_CLOEXEC);
+    fcntl(chldPipe[1], F_SETFD, FD_CLOEXEC);
+    switch ((chldPid = fork())) {
+        case -1:
+            perror("Cannot fork child process failed");
+            doExit(3);
+        case 0:
+            close(qtcFd);
+
+            /* Put the process into an own process group and make it the foregroud
+             * group on this terminal, so it will receive ctrl-c events, etc.
+             * This is the main reason for *all* this stub magic in the first place. */
+            /* If one of these calls fails, the world is about to end anyway, so
+             * don't bother checking the return values. */
+            setpgid(0, 0);
+            tcsetpgrp(0, getpid());
+
+            /* Get a SIGTRAP after exec() has loaded the new program. */
+#ifdef __linux__
+            ptrace(PTRACE_TRACEME);
+#else
+            ptrace(PT_TRACE_ME, 0, 0, 0);
+#endif
+
+            for (envIdx = ArgEnv; *argv[envIdx]; ++envIdx) ;
+            if (envIdx != ArgEnv) {
+                argv[envIdx] = 0;
+                environ = argv + ArgEnv;
+            }
+            ++envIdx;
+
+            execvp(argv[envIdx], argv + envIdx);
+            /* Only expected error: no such file or direcotry, i.e. executable not found */
+            errNo = errno;
+            write(chldPipe[1], &errNo, sizeof(errNo)); /* Only realistic error case is SIGPIPE */
+            _exit(0);
+        default:
+            for (;;) {
+                if (wait(&chldStatus) < 0) {
+                    perror("Cannot obtain exit status of child process");
+                    doExit(3);
+                }
+                if (WIFSTOPPED(chldStatus)) {
+                    /* The child stopped. This can be only the result of ptrace(TRACE_ME). */
+                    /* We won't need the notification pipe any more, as we know that
+                     * the exec() succeeded. */
+                    close(chldPipe[0]);
+                    close(chldPipe[1]);
+                    chldPipe[0] = -1;
+                    /* If we are not debugging, just skip the "handover enabler".
+                     * This is suboptimal, as it makes us ignore setuid/-gid bits. */
+                    if (!strcmp(argv[ArgAction], "debug")) {
+                        /* Stop the child after we detach from it, so we can hand it over to gdb.
+                         * If the signal delivery is not queued, things will go awry. It works on
+                         * Linux and MacOSX ... */
+                        kill(chldPid, SIGSTOP);
+                    }
+#ifdef __linux__
+                    ptrace(PTRACE_DETACH, chldPid, 0, 0);
+#else
+                    ptrace(PT_DETACH, chldPid, 0, 0);
+#endif
+                    sendMsg("pid %d\n", chldPid);
+                } else if (WIFEXITED(chldStatus)) {
+                    /* The child exited normally. */
+                    if (chldPipe[0] >= 0) {
+                        /* The child exited before being stopped by ptrace(). That can only
+                         * mean that the exec() failed. */
+                        switch (read(chldPipe[0], &errNo, sizeof(errNo))) {
+                            default:
+                                /* Read of unknown length. Should never happen ... */
+                                errno = EPROTO;
+                            case -1:
+                                /* Read failed. Should never happen, either ... */
+                                perror("Cannot read status from child process");
+                                doExit(3);
+                            case sizeof(errNo):
+                                /* Child telling us the errno from exec(). */
+                                sendMsg("err:exec %d\n", errNo);
+                                return 3;
+                        }
+                    }
+                    sendMsg("exit %d\n", WEXITSTATUS(chldStatus));
+                    doExit(0);
+                } else {
+                    sendMsg("crash %d\n", WTERMSIG(chldStatus));
+                    doExit(0);
+                }
+            }
+            break;
+    }
+}

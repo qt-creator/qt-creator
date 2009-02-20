@@ -34,6 +34,8 @@
 #include "gdbmi.h"
 #include "outputcollector.h"
 
+#include <consoleprocess.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
@@ -172,12 +174,15 @@ private slots:
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
+    void stubStarted();
+    void stubError(const QString &msg);
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response);
     void handleAttach();
+    void handleStubAttached();
     void handleAqcuiredInferior();
     void handleAsyncOutput2(const GdbMi &data);
     void handleAsyncOutput(const GdbMi &data);
@@ -201,6 +206,8 @@ private:
     QByteArray m_inbuffer;
 
     QProcess m_gdbProc;
+
+    Core::Utils::ConsoleProcess m_stubProc;
 
     QHash<int, GdbCookie> m_cookieForToken;
     QHash<int, QByteArray> m_customOutputForToken;

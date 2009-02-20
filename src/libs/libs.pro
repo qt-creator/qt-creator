@@ -6,4 +6,5 @@ SUBDIRS   = \
     aggregation \
     extensionsystem \
     utils \
+    utils/process_stub.pro \
     cplusplus

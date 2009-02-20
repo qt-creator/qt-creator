@@ -34,6 +34,22 @@
 
 using namespace ProjectExplorer::Internal;
 
+static QByteArray createEnvironment(const QStringList &env)
+{
+    QByteArray envlist;
+    int pos = 0;
+    foreach (const QString &tmp, env) {
+        uint tmpSize = sizeof(TCHAR) * (tmp.length() + 1);
+        envlist.resize(envlist.size() + tmpSize);
+        memcpy(envlist.data() + pos, tmp.utf16(), tmpSize);
+        pos += tmpSize;
+    }
+    envlist.resize(envlist.size() + 2);
+    envlist[pos++] = 0;
+    envlist[pos++] = 0;
+    return envlist;
+}
+
 WinGuiProcess::WinGuiProcess(QObject *parent)
     : QThread(parent)
 {
@@ -113,7 +129,7 @@ void WinGuiProcess::run()
     bool success = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
                                   0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
                                   environment().isEmpty() ? 0
-                                  : ConsoleProcess::createEnvironment(environment()).data(),
+                                  : createEnvironment(ConsoleProcess::fixEnvironment(environment())).data(),
                                   workingDirectory().isEmpty() ? 0
                                   : (WCHAR*)QDir::convertSeparators(workingDirectory()).utf16(),
                                   &si, m_pid);

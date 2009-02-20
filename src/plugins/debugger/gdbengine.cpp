@@ -98,6 +98,7 @@ enum GdbCommandType
     GdbAsyncOutput2,
     GdbStart,
     GdbAttached,
+    GdbStubAttached,
     GdbExecRun,
     GdbExecRunToFunction,
     GdbExecStep,
@@ -241,6 +242,7 @@ GdbEngine::GdbEngine(DebuggerManager *parent)
 {
     q = parent;
     qq = parent->engineInterface();
+    m_stubProc.setDebug(true);
     initializeVariables();
     initializeConnections();
 }
@@ -262,6 +264,10 @@ void GdbEngine::initializeConnections()
         SLOT(readGdbStandardError()));
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)), q,
         SLOT(exitDebugger()));
+
+    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
+    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
+    connect(&m_stubProc, SIGNAL(wrapperStopped()), q, SLOT(exitDebugger()));
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -543,6 +549,25 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     }
 }
 
+void GdbEngine::handleStubAttached()
+{
+    qq->notifyInferiorStopped();
+    m_waitingForBreakpointSynchronizationToContinue = true;
+    handleAqcuiredInferior();
+}
+
+void GdbEngine::stubStarted()
+{
+    q->m_attachedPID = m_stubProc.applicationPID();
+    qq->notifyInferiorPidChanged(q->m_attachedPID);
+    sendCommand("attach " + QString::number(q->m_attachedPID), GdbStubAttached);
+}
+
+void GdbEngine::stubError(const QString &msg)
+{
+    QMessageBox::critical(q->mainWindow(), tr("Debugger Error"), msg);
+}
+
 void GdbEngine::readGdbStandardError()
 {
     qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
@@ -721,6 +746,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
     const QVariant & cookie)
 {
     switch (type) {
+        case GdbStubAttached:
+            handleStubAttached();
+            break;
         case GdbExecNext:
         case GdbExecStep:
         case GdbExecNextI:
@@ -1211,6 +1239,20 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
         } else {
+#ifdef Q_OS_LINUX
+            // For some reason, attaching to a stopped process causes *two* stops
+            // when trying to continue (kernel 2.6.24-23-ubuntu).
+            // Interestingly enough, on MacOSX no signal is delivered at all.
+            if (reason == QLatin1String("signal-received")
+                && data.findChild("signal-name").data() == "SIGSTOP") {
+                GdbMi frameData = data.findChild("frame");
+                if (frameData.findChild("func").data() == "_start"
+                    && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
+                    sendCommand("-exec-continue");
+                    return;
+                }
+            }
+#endif
             q->showStatusMessage(tr("Stopped: \"%1\"").arg(reason));
             handleAsyncOutput2(data);
         }
@@ -1461,23 +1503,31 @@ bool GdbEngine::startDebugger()
         return false;
     }
 
-    if (!m_outputCollector.listen()) {
-        QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
-                              tr("Cannot set up communication with child process: %1")
-                              .arg(m_outputCollector.errorString()));
-        return false;
-    }
-
-    gdbArgs.prepend(QLatin1String("--tty=") + m_outputCollector.serverName());
-
     //gdbArgs.prepend(QLatin1String("--quiet"));
     gdbArgs.prepend(QLatin1String("mi"));
     gdbArgs.prepend(QLatin1String("-i"));
 
-    if (!q->m_workingDir.isEmpty())
-        m_gdbProc.setWorkingDirectory(q->m_workingDir);
-    if (!q->m_environment.isEmpty())
-        m_gdbProc.setEnvironment(q->m_environment);
+    if (q->m_useTerminal) {
+        m_stubProc.stop(); // We leave the console open, so recycle it now.
+
+        m_stubProc.setWorkingDirectory(q->m_workingDir);
+        m_stubProc.setEnvironment(q->m_environment);
+        if (!m_stubProc.start(q->m_executable, q->m_processArgs))
+            return false; // Error message for user is delivered via a signal.
+    } else {
+        if (!m_outputCollector.listen()) {
+            QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
+                                  tr("Cannot set up communication with child process: %1")
+                                  .arg(m_outputCollector.errorString()));
+            return false;
+        }
+        gdbArgs.prepend(QLatin1String("--tty=") + m_outputCollector.serverName());
+
+        if (!q->m_workingDir.isEmpty())
+            m_gdbProc.setWorkingDirectory(q->m_workingDir);
+        if (!q->m_environment.isEmpty())
+            m_gdbProc.setEnvironment(q->m_environment);
+    }
 
     #if 0
     qDebug() << "Command: " << q->settings()->m_gdbCmd;
@@ -1495,6 +1545,9 @@ bool GdbEngine::startDebugger()
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                               tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
         m_outputCollector.shutdown();
+        m_stubProc.blockSignals(true);
+        m_stubProc.stop();
+        m_stubProc.blockSignals(false);
         return false;
     }
 
@@ -1575,7 +1628,7 @@ bool GdbEngine::startDebugger()
 
     if (q->startMode() == DebuggerManager::AttachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID), GdbAttached);
-    } else {
+    } else if (!q->m_useTerminal) {
         // StartInternal or StartExternal
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
