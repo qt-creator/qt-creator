@@ -197,6 +197,8 @@ void Lexer::scan_helper(Token *tok)
     tok->offset = _currentChar - _firstChar;
 
     if (_state == State_MultiLineComment || _state == State_MultiLineDoxyComment) {
+        const int originalState = _state;
+
         if (! _yychar) {
             tok->kind = T_EOF_SYMBOL;
             return;
@@ -218,9 +220,8 @@ void Lexer::scan_helper(Token *tok)
         if (! _scanCommentTokens)
             goto _Lagain;
 
-        else if (_state == State_MultiLineComment)
+        else if (originalState == State_MultiLineComment)
             tok->kind = T_COMMENT;
-
         else
             tok->kind = T_DOXY_COMMENT;
         return; // done
