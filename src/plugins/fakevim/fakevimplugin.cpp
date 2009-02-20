@@ -81,8 +81,8 @@ using namespace ProjectExplorer;
 namespace FakeVim {
 namespace Constants {
 
-const char * const INSTALL_HANDLER        = "FakeVim.InstallHandler";
-const char * const MINI_BUFFER            = "FakeVim.MiniBuffer";
+const char * const INSTALL_HANDLER        = "TextEditor.FakeVimHandler";
+const char * const MINI_BUFFER            = "TextEditor.FakeVimMiniBuffer";
 const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 
 } // namespace Constants
