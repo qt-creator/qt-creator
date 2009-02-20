@@ -176,6 +176,7 @@ private:
     GitPlugin     *m_plugin;
     Core::ICore   *m_core;
     GitSettings   m_settings;
+    QString m_binaryPath;
 };
 
 

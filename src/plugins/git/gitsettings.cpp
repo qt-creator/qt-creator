@@ -32,9 +32,13 @@
 ***************************************************************************/
 
 #include "gitsettings.h"
+#include "gitconstants.h"
+
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 static const char *groupC = "Git";
 static const char *sysEnvKeyC = "SysEnv";
@@ -77,6 +81,31 @@ void GitSettings::toSettings(QSettings *settings) const
 bool GitSettings::equals(const GitSettings &s) const
 {
     return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount && timeout == s.timeout;
+}
+
+QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
+{
+    // Locate binary in path if one is specified, otherwise default
+    // to pathless binary
+    if (ok)
+        *ok = true;
+    if (errorMessage)
+        errorMessage->clear();
+    const QString binary = QLatin1String(Constants::GIT_BINARY);
+    // Easy, git is assumed to be elsewhere accessible
+    if (!adoptPath)
+        return binary;
+    // Search in path?
+    const QString pathBinary = Core::Utils::SynchronousProcess::locateBinary(path, binary);
+    if (pathBinary.isEmpty()) {
+        if (ok)
+            *ok = false;
+        if (errorMessage)
+            *errorMessage = QCoreApplication::translate("GitSettings",
+                                                        "The binary '%1' could not be located in the path '%2'").arg(binary, path);
+        return binary;
+    }
+    return pathBinary;
 }
 
 }

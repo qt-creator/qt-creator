@@ -114,6 +114,12 @@ public:
 
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
 
+    // Helpers to find binaries. Do not use it for other path variables
+    // and file types.
+    static QString locateBinary(const QString &binary);
+    static QString locateBinary(const QString &path, const QString &binary);
+    static QChar pathSeparator();
+
 signals:
     void stdOut(const QByteArray &data, bool firstTime);
     void stdErr(const QByteArray &data, bool firstTime);

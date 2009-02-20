@@ -61,8 +61,10 @@ GitCommand::Job::Job(const QStringList &a, int t) :
 {
 }
 
-GitCommand::GitCommand(const QString &workingDirectory,
+GitCommand::GitCommand(const QString &binaryPath,
+                       const QString &workingDirectory,
                         ProjectExplorer::Environment &environment)  :
+    m_binaryPath(binaryPath),
     m_workingDirectory(workingDirectory),
     m_environment(environmentToList(environment))
 {
@@ -109,7 +111,7 @@ void GitCommand::run()
         if (Git::Constants::debug)
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
-        process.start(QLatin1String(Constants::GIT_BINARY), m_jobs.at(j).arguments);
+        process.start(m_binaryPath, m_jobs.at(j).arguments);
         if (!process.waitForFinished(m_jobs.at(j).timeout * 1000)) {
             ok = false;
             error += QLatin1String("Error: Git timed out");
