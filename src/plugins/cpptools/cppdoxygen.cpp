@@ -163,8 +163,27 @@ static const char *doxy_token_spell[] = {
     "skipline",
     "typedef",
     "until",
-    "var"
+    "var",
+
+    // qdoc
+    "endlist",
+    "endtable",
+    "header",
+    "i",
+    "l",
+    "list",
+    "mainclass",
+    "newcode",
+    "o",
+    "oldcode",
+    "property",
+    "row",
+    "section1",
+    "table"
 };
+
+const char *CppTools::doxygenTagSpell(int index)
+{ return doxy_token_spell[index]; }
 
 static inline int classify1(const QChar *s) {
   if (s[0].unicode() == 'a') {
@@ -179,8 +198,17 @@ static inline int classify1(const QChar *s) {
   else if (s[0].unicode() == 'e') {
     return T_DOXY_E;
   }
+  else if (s[0].unicode() == 'i') {
+    return T_DOXY_I;
+  }
+  else if (s[0].unicode() == 'l') {
+    return T_DOXY_L;
+  }
   else if (s[0].unicode() == 'n') {
     return T_DOXY_N;
+  }
+  else if (s[0].unicode() == 'o') {
+    return T_DOXY_O;
   }
   else if (s[0].unicode() == 'p') {
     return T_DOXY_P;
@@ -262,6 +290,11 @@ static inline int classify3(const QChar *s) {
         return T_DOXY_REF;
       }
     }
+    else if (s[1].unicode() == 'o') {
+      if (s[2].unicode() == 'w') {
+        return T_DOXY_ROW;
+      }
+    }
   }
   else if (s[0].unicode() == 's') {
     if (s[1].unicode() == 'e') {
@@ -337,6 +370,11 @@ static inline int classify4(const QChar *s) {
         }
         else if (s[3].unicode() == 'k') {
           return T_DOXY_LINK;
+        }
+      }
+      else if (s[2].unicode() == 's') {
+        if (s[3].unicode() == 't') {
+          return T_DOXY_LIST;
         }
       }
     }
@@ -496,7 +534,16 @@ static inline int classify5(const QChar *s) {
     }
   }
   else if (s[0].unicode() == 't') {
-    if (s[1].unicode() == 'h') {
+    if (s[1].unicode() == 'a') {
+      if (s[2].unicode() == 'b') {
+        if (s[3].unicode() == 'l') {
+          if (s[4].unicode() == 'e') {
+            return T_DOXY_TABLE;
+          }
+        }
+      }
+    }
+    else if (s[1].unicode() == 'h') {
       if (s[2].unicode() == 'r') {
         if (s[3].unicode() == 'o') {
           if (s[4].unicode() == 'w') {
@@ -570,6 +617,19 @@ static inline int classify6(const QChar *s) {
           if (s[4].unicode() == 'o') {
             if (s[5].unicode() == 't') {
               return T_DOXY_ENDDOT;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0].unicode() == 'h') {
+    if (s[1].unicode() == 'e') {
+      if (s[2].unicode() == 'a') {
+        if (s[3].unicode() == 'd') {
+          if (s[4].unicode() == 'e') {
+            if (s[5].unicode() == 'r') {
+              return T_DOXY_HEADER;
             }
           }
         }
@@ -680,6 +740,11 @@ static inline int classify7(const QChar *s) {
                 return T_DOXY_ENDLINK;
               }
             }
+            else if (s[5].unicode() == 's') {
+              if (s[6].unicode() == 't') {
+                return T_DOXY_ENDLIST;
+              }
+            }
           }
         }
       }
@@ -732,6 +797,36 @@ static inline int classify7(const QChar *s) {
             if (s[5].unicode() == 'l') {
               if (s[6].unicode() == 'y') {
                 return T_DOXY_MANONLY;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0].unicode() == 'n') {
+    if (s[1].unicode() == 'e') {
+      if (s[2].unicode() == 'w') {
+        if (s[3].unicode() == 'c') {
+          if (s[4].unicode() == 'o') {
+            if (s[5].unicode() == 'd') {
+              if (s[6].unicode() == 'e') {
+                return T_DOXY_NEWCODE;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0].unicode() == 'o') {
+    if (s[1].unicode() == 'l') {
+      if (s[2].unicode() == 'd') {
+        if (s[3].unicode() == 'c') {
+          if (s[4].unicode() == 'o') {
+            if (s[5].unicode() == 'd') {
+              if (s[6].unicode() == 'e') {
+                return T_DOXY_OLDCODE;
               }
             }
           }
@@ -904,6 +999,23 @@ static inline int classify8(const QChar *s) {
       }
     }
   }
+  else if (s[0].unicode() == 'e') {
+    if (s[1].unicode() == 'n') {
+      if (s[2].unicode() == 'd') {
+        if (s[3].unicode() == 't') {
+          if (s[4].unicode() == 'a') {
+            if (s[5].unicode() == 'b') {
+              if (s[6].unicode() == 'l') {
+                if (s[7].unicode() == 'e') {
+                  return T_DOXY_ENDTABLE;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0].unicode() == 'h') {
     if (s[1].unicode() == 't') {
       if (s[2].unicode() == 'm') {
@@ -972,8 +1084,40 @@ static inline int classify8(const QChar *s) {
       }
     }
   }
+  else if (s[0].unicode() == 'p') {
+    if (s[1].unicode() == 'r') {
+      if (s[2].unicode() == 'o') {
+        if (s[3].unicode() == 'p') {
+          if (s[4].unicode() == 'e') {
+            if (s[5].unicode() == 'r') {
+              if (s[6].unicode() == 't') {
+                if (s[7].unicode() == 'y') {
+                  return T_DOXY_PROPERTY;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0].unicode() == 's') {
-    if (s[1].unicode() == 'k') {
+    if (s[1].unicode() == 'e') {
+      if (s[2].unicode() == 'c') {
+        if (s[3].unicode() == 't') {
+          if (s[4].unicode() == 'i') {
+            if (s[5].unicode() == 'o') {
+              if (s[6].unicode() == 'n') {
+                if (s[7].unicode() == '1') {
+                  return T_DOXY_SECTION1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1].unicode() == 'k') {
       if (s[2].unicode() == 'i') {
         if (s[3].unicode() == 'p') {
           if (s[4].unicode() == 'l') {
@@ -1128,6 +1272,25 @@ static inline int classify9(const QChar *s) {
                 if (s[7].unicode() == 'l') {
                   if (s[8].unicode() == 'y') {
                     return T_DOXY_LATEXONLY;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0].unicode() == 'm') {
+    if (s[1].unicode() == 'a') {
+      if (s[2].unicode() == 'i') {
+        if (s[3].unicode() == 'n') {
+          if (s[4].unicode() == 'c') {
+            if (s[5].unicode() == 'l') {
+              if (s[6].unicode() == 'a') {
+                if (s[7].unicode() == 's') {
+                  if (s[8].unicode() == 's') {
+                    return T_DOXY_MAINCLASS;
                   }
                 }
               }
@@ -1608,9 +1771,6 @@ static inline int classify15(const QChar *s) {
   return T_DOXY_IDENTIFIER;
 }
 
-const char *CppTools::doxygenTagSpell(int index)
-{ return doxy_token_spell[index]; }
-
 int CppTools::classifyDoxygenTag(const QChar *s, int n) {
   switch (n) {
     case 1: return classify1(s);
@@ -1630,4 +1790,3 @@ int CppTools::classifyDoxygenTag(const QChar *s, int n) {
     default: return T_DOXY_IDENTIFIER;
   } // switch
 }
-
