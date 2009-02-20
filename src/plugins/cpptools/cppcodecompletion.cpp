@@ -32,8 +32,8 @@
 ***************************************************************************/
 
 #include "cppcodecompletion.h"
-
 #include "cppmodelmanager.h"
+#include "cppdoxygen.h"
 
 #include <Control.h>
 #include <AST.h>
@@ -371,45 +371,53 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     const QChar ch3 = pos >  1 ? editor->characterAt(pos - 3) : QChar();
 
     int start = pos;
+    int k = T_EOF_SYMBOL;
 
     if        (ch2 != QLatin1Char('.') && ch == QLatin1Char('.')) {
-        if (kind)
-            *kind = T_DOT;
+        k = T_DOT;
         --start;
     } else if (wantFunctionCall        && ch == QLatin1Char('(')) {
-        if (kind)
-            *kind = T_LPAREN;
+        k = T_LPAREN;
         --start;
     } else if (ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
-        if (kind)
-            *kind = T_COLON_COLON;
+        k = T_COLON_COLON;
         start -= 2;
     } else if (ch2 == QLatin1Char('-') && ch == QLatin1Char('>')) {
-        if (kind)
-            *kind = T_ARROW;
+        k = T_ARROW;
         start -= 2;
     } else if (ch2 == QLatin1Char('.') && ch == QLatin1Char('*')) {
-        if (kind)
-            *kind = T_DOT_STAR;
+        k = T_DOT_STAR;
         start -= 2;
     } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>') && ch == QLatin1Char('*')) {
-        if (kind)
-            *kind = T_ARROW_STAR;
+        k = T_ARROW_STAR;
         start -= 3;
+    } else if (ch == QLatin1Char('@') || ch == QLatin1Char('\\')) {
+        k = T_DOXY_COMMENT;
+        --start;
     }
 
-    if (start != pos) {
-        TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
-        QTextCursor tc(edit->textCursor());
-        tc.setPosition(pos);
-        static CPlusPlus::TokenUnderCursor tokenUnderCursor;
-        const SimpleToken tk = tokenUnderCursor(tc);
-        if (tk.isComment() || tk.isLiteral()) {
-            if (kind)
-                *kind = T_EOF_SYMBOL;
-            return pos;
-        }
+    if (start == pos)
+        return start;
+
+    TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+    QTextCursor tc(edit->textCursor());
+    tc.setPosition(pos);
+
+    static CPlusPlus::TokenUnderCursor tokenUnderCursor;
+    const SimpleToken tk = tokenUnderCursor(tc);
+
+    if (k == T_DOXY_COMMENT && tk.isNot(T_DOXY_COMMENT)) {
+        k = T_EOF_SYMBOL;
+        start = pos;
     }
+
+    else if (tk.is(T_COMMENT) || tk.isLiteral()) {
+        k = T_EOF_SYMBOL;
+        start = pos;
+    }
+
+    if (kind)
+        *kind = k;
 
     return start;
 }
@@ -457,15 +465,31 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     ExpressionUnderCursor expressionUnderCursor;
     QString expression;
 
+
+    if (m_completionOperator == T_DOXY_COMMENT) {
+        for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
+            TextEditor::CompletionItem item(this);
+            item.m_text.append(QString::fromLatin1(doxygenTagSpell(i)));
+            m_completions.append(item);
+        }
+
+        return m_startPosition;
+    }
+
+
     if (m_completionOperator) {
         QTextCursor tc(edit->document());
         tc.setPosition(endOfExpression);
+
         expression = expressionUnderCursor(tc);
+
         if (m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL")))
                 m_completionOperator = T_SIGNAL;
+
             else if (expression.endsWith(QLatin1String("SLOT")))
                 m_completionOperator = T_SLOT;
+
             else if (editor->position() != endOfOperator) {
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();

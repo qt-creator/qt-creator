@@ -30,8 +30,10 @@
 ** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
 **
 ***************************************************************************/
-namespace CppEditor {
-namespace Internal {
+
+#include "cpptools_global.h"
+
+namespace CppTools {
 
 enum DoxygenReservedWord {
   T_DOXY_IDENTIFIER = 0,
@@ -150,11 +152,12 @@ enum DoxygenReservedWord {
   T_DOXY_UNTIL,
   T_DOXY_VAR,
 
+  T_DOXY_LAST_TAG
+
 };
 
-int classifyDoxygen(const QChar *s, int n);
+CPPTOOLS_EXPORT int classifyDoxygenTag(const QChar *s, int n);
+CPPTOOLS_EXPORT const char *doxygenTagSpell(int index);
 
-
-} // namespace Internal
 } // namespace CppEditor::Internal
 

@@ -49,6 +49,9 @@ TokenUnderCursor::~TokenUnderCursor()
 SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor) const
 {
     SimpleLexer tokenize;
+    tokenize.setObjCEnabled(true);
+    tokenize.setSkipComments(false);
+
     QTextBlock block = cursor.block();
     int column = cursor.columnNumber();
 

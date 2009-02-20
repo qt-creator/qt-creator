@@ -34,10 +34,12 @@
 #ifndef CPPTOOLS_GLOBAL_H
 #define CPPTOOLS_GLOBAL_H
 
+#include <QtGlobal>
+
 #if defined(CPPTOOLS_LIBRARY)
 #  define CPPTOOLS_EXPORT Q_DECL_EXPORT
 #else
 #  define CPPTOOLS_EXPORT Q_DECL_IMPORT
 #endif
-        
+
 #endif // CPPTOOLS_GLOBAL_H

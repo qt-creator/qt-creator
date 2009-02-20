@@ -34,20 +34,138 @@
 #include <QString>
 #include "cppdoxygen.h"
 
-using namespace CppEditor::Internal;
+using namespace CppTools;
 
 /*
-
-~
-@
-$
-\
-#
-f[
-f]
-f$
-
+  TODO:
+    ~
+    @
+    $
+    \
+    #
+    f[
+    f]
+    f$
 */
+
+static const char *doxy_token_spell[] = {
+    "identifier",
+
+    "arg",
+    "attention",
+    "author",
+    "callgraph",
+    "code",
+    "dot",
+    "else",
+    "endcode",
+    "endcond",
+    "enddot",
+    "endhtmlonly",
+    "endif",
+    "endlatexonly",
+    "endlink",
+    "endmanonly",
+    "endverbatim",
+    "endxmlonly",
+    "hideinitializer",
+    "htmlonly",
+    "interface",
+    "internal",
+    "invariant",
+    "latexonly",
+    "li",
+    "manonly",
+    "n",
+    "nosubgrouping",
+    "note",
+    "only",
+    "post",
+    "pre",
+    "remarks",
+    "return",
+    "returns",
+    "sa",
+    "see",
+    "showinitializer",
+    "since",
+    "test",
+    "todo",
+    "verbatim",
+    "warning",
+    "xmlonly",
+
+    "a",
+    "addtogroup",
+    "anchor",
+    "b",
+    "c",
+    "class",
+    "cond",
+    "copydoc",
+    "def",
+    "dontinclude",
+    "dotfile",
+    "e",
+    "elseif",
+    "em",
+    "enum",
+    "example",
+    "exception",
+    "exceptions",
+    "file",
+    "htmlinclude",
+    "if",
+    "ifnot",
+    "include",
+    "link",
+    "namespace",
+    "p",
+    "package",
+    "ref",
+    "relates",
+    "relatesalso",
+    "retval",
+    "throw",
+    "throws",
+    "verbinclude",
+    "version",
+    "xrefitem",
+
+    "param",
+
+    "image",
+
+    "defgroup",
+    "page",
+    "paragraph",
+    "section",
+    "struct",
+    "subsection",
+    "subsubsection",
+    "union",
+    "weakgroup",
+
+    "addindex",
+    "brief",
+    "bug",
+    "date",
+    "deprecated",
+    "fn",
+    "ingroup",
+    "line",
+    "mainpage",
+    "name",
+    "overload",
+    "par",
+    "short",
+    "skip",
+    "skipline",
+    "typedef",
+    "until",
+    "var"
+};
+
 static inline int classify1(const QChar *s) {
   if (s[0].unicode() == 'a') {
     return T_DOXY_A;
@@ -1490,7 +1608,10 @@ static inline int classify15(const QChar *s) {
   return T_DOXY_IDENTIFIER;
 }
 
-int CppEditor::Internal::classifyDoxygen(const QChar *s, int n) {
+const char *CppTools::doxygenTagSpell(int index)
+{ return doxy_token_spell[index]; }
+
+int CppTools::classifyDoxygenTag(const QChar *s, int n) {
   switch (n) {
     case 1: return classify1(s);
     case 2: return classify2(s);

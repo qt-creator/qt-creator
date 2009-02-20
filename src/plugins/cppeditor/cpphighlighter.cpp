@@ -32,7 +32,7 @@
 ***************************************************************************/
 
 #include "cpphighlighter.h"
-#include "cppdoxygen.h"
+#include <cpptools/cppdoxygen.h>
 
 #include <Token.h>
 #include <cplusplus/SimpleLexer.h>
@@ -341,8 +341,8 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             while (it->isLetterOrNumber() || it->unicode() == '_')
                 ++it;
 
-            int k = classifyDoxygen(start, it - start);
-            if (k != T_DOXY_IDENTIFIER) {
+            int k = CppTools::classifyDoxygenTag(start, it - start);
+            if (k != CppTools::T_DOXY_IDENTIFIER) {
                 setFormat(initial, start - uc - initial, format);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;
