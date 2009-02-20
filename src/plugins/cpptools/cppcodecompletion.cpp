@@ -470,6 +470,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
             TextEditor::CompletionItem item(this);
             item.m_text.append(QString::fromLatin1(doxygenTagSpell(i)));
+            item.m_icon = m_icons.keywordIcon();
             m_completions.append(item);
         }
 
