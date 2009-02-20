@@ -404,7 +404,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         tc.setPosition(pos);
         static CPlusPlus::TokenUnderCursor tokenUnderCursor;
         const SimpleToken tk = tokenUnderCursor(tc);
-        if (tk.is(T_COMMENT) || tk.isLiteral()) {
+        if (tk.isComment() || tk.isLiteral()) {
             if (kind)
                 *kind = T_EOF_SYMBOL;
             return pos;

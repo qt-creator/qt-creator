@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 #include "cpphighlighter.h"
+#include "cppdoxygen.h"
 
 #include <Token.h>
 #include <cplusplus/SimpleLexer.h>
@@ -115,23 +116,35 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
 
         bool highlightCurrentWordAsPreprocessor = highlightAsPreprocessor;
+
         if (highlightAsPreprocessor)
             highlightAsPreprocessor = false;
 
         if (i == 0 && tk.is(T_POUND)) {
             setFormat(tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
             highlightAsPreprocessor = true;
+
         } else if (highlightCurrentWordAsPreprocessor &&
                    (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(tk.text()))
             setFormat(tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
+
         else if (tk.is(T_INT_LITERAL) || tk.is(T_FLOAT_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppNumberFormat]);
+
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppStringFormat]);
+
         else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppStringFormat]);
-        else if (tk.is(T_COMMENT)) {
-            setFormat(tk.position(), tk.length(), m_formats[CppCommentFormat]);
+
+        else if (tk.isComment()) {
+
+            if (tk.is(T_COMMENT))
+                setFormat(tk.position(), tk.length(), m_formats[CppCommentFormat]);
+
+            else // a doxygen comment
+                highlightDoxygenComment(text, tk.position(), tk.length());
+
             // we need to insert a close comment parenthesis, if
             //  - the line starts in a C Comment (initalState != 0)
             //  - the first token of the line is a T_COMMENT (i == 0 && tk.is(T_COMMENT))
@@ -145,12 +158,16 @@ void CppHighlighter::highlightBlock(const QString &text)
                 // clear the initial state.
                 initialState = 0;
             }
+
         } else if (tk.isKeyword() || isQtKeyword(tk.text()))
             setFormat(tk.position(), tk.length(), m_formats[CppKeywordFormat]);
+
         else if (tk.isOperator())
             setFormat(tk.position(), tk.length(), m_formats[CppOperatorFormat]);
+
         else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON))
             setFormat(tk.position(), tk.length(), m_formats[CppLabelFormat]);
+
         else if (tk.is(T_IDENTIFIER))
             highlightWord(tk.text(), tk.position(), tk.length());
     }
@@ -304,3 +321,40 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
         setFormat(position, length, m_formats[CppTypeFormat]);
     }
 }
+
+void CppHighlighter::highlightDoxygenComment(const QString &text, int position,
+                                             int length)
+{
+    int initial = position;
+    int i = position;
+
+    const QChar *uc = text.unicode();
+    const QChar *it = uc + position;
+
+    QTextCharFormat format = m_formats[CppCommentFormat];
+    QTextCharFormat kwFormat = format;
+    kwFormat.setFontWeight(QFont::Bold);
+    kwFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+
+    while (! it->isNull()) {
+        if (it->unicode() == QLatin1Char('\\') ||
+            it->unicode() == QLatin1Char('@')) {
+            ++it;
+
+            const QChar *start = it;
+            while (it->isLetterOrNumber() || it->unicode() == '_')
+                ++it;
+
+            int k = classifyDoxygen(start, it - start);
+            if (k != T_DOXY_IDENTIFIER) {
+                setFormat(initial, start - uc - initial, format);
+                setFormat(start - uc - 1, it - start + 1, kwFormat);
+                initial = it - uc;
+            }
+        } else
+            ++it;
+    }
+
+    setFormat(initial, it - uc - initial, format);
+}
+

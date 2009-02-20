@@ -15,12 +15,16 @@ HEADERS += cppplugin.h \
     cppeditorconstants.h \
     cppeditorenums.h \
     cppeditor_global.h \
-    cppclasswizard.h
+    cppclasswizard.h \
+    cppdoxygen.h
+
 SOURCES += cppplugin.cpp \
     cppeditoractionhandler.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
     cpphoverhandler.cpp \
     cppfilewizard.cpp \
-    cppclasswizard.cpp
+    cppclasswizard.cpp \
+    cppdoxygen.cpp
+
 RESOURCES += cppeditor.qrc

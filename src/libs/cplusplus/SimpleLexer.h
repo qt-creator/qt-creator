@@ -69,6 +69,7 @@ public:
     bool isLiteral() const;
     bool isOperator() const;
     bool isKeyword() const;
+    bool isComment() const;
 
 public:
     int _kind;
