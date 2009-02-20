@@ -106,11 +106,11 @@ enum DebuggerStatus
     DebuggerInferiorStopped,          // Debuggee stopped
 };
 
-
 class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
 class CdbDebugEngine;
+struct CdbDebugEnginePrivate;
 
 // The construct below is not nice but enforces a bit of order. The
 // DebuggerManager interfaces a lots of thing: The DebuggerPlugin,
@@ -131,11 +131,12 @@ public:
 
 private:
     // This is the part of the interface that's exclusively seen by the
-    // debugger enginesfriend class GdbEngine;.
+    // debugger engines
     friend class GdbEngine;
     friend class CdbDebugEngine;
     friend class CdbDebugEventCallback;
     friend class ScriptEngine;
+    friend struct CdbDebugEnginePrivate;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;

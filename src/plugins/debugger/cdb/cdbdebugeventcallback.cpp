@@ -1,5 +1,39 @@
+/***************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact:  Qt Software Information (qt-info@nokia.com)
+**
+**
+** Non-Open Source Usage
+**
+** Licensees may use this file in accordance with the Qt Beta Version
+** License Agreement, Agreement version 2.2 provided with the Software or,
+** alternatively, in accordance with the terms contained in a written
+** agreement between you and Nokia.
+**
+** GNU General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU General
+** Public License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the packaging
+** of this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+**
+** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt GPL Exception
+** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
+**
+***************************************************************************/
+
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugengine.h"
+#include "cdbdebugengine_p.h"
 #include "debuggermanager.h"
 
 #include <QtCore/QDebug>
@@ -54,7 +88,7 @@ STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
 {
     qDebug() << "MSVCDebugEventCallback::Breakpoint";
-    m_pEngine->handleBreakpointEvent(Bp);
+    m_pEngine->m_d->handleBreakpointEvent(Bp);
     return S_OK;
 }
 
@@ -105,16 +139,16 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     __in ULONG64 StartOffset
     )
 {
-    m_pEngine->m_hDebuggeeProcess = (HANDLE)Handle;
-    m_pEngine->m_hDebuggeeThread = (HANDLE)InitialThreadHandle;
+    m_pEngine->m_d->m_hDebuggeeProcess = (HANDLE)Handle;
+    m_pEngine->m_d->m_hDebuggeeThread = (HANDLE)InitialThreadHandle;
     //m_pEngine->qq->notifyStartupFinished();
-    m_pEngine->qq->notifyInferiorRunning();
+    m_pEngine->m_d->qq->notifyInferiorRunning();
 
     ULONG currentThreadId;
-    if (SUCCEEDED(m_pEngine->m_pDebugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
-        m_pEngine->m_currentThreadId = currentThreadId;
+    if (SUCCEEDED(m_pEngine->m_d->m_pDebugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
+        m_pEngine->m_d->m_currentThreadId = currentThreadId;
     else
-        m_pEngine->m_currentThreadId = 0;
+        m_pEngine->m_d->m_currentThreadId = 0;
 
     m_pEngine->attemptBreakpointSynchronization();
     return S_OK;
@@ -126,9 +160,9 @@ STDMETHODIMP CdbDebugEventCallback::ExitProcess(
     )
 {
     UNREFERENCED_PARAMETER(ExitCode);
-    m_pEngine->m_hDebuggeeProcess = 0;
-    m_pEngine->m_hDebuggeeThread = 0;
-    m_pEngine->qq->notifyInferiorExited();
+    m_pEngine->m_d->m_hDebuggeeProcess = 0;
+    m_pEngine->m_d->m_hDebuggeeThread = 0;
+    m_pEngine->m_d->qq->notifyInferiorExited();
     return S_OK;
 }
 

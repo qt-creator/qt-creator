@@ -17,6 +17,7 @@ CDB_LIBPATH=$$CDB_PATH/lib/$$CDB_PLATFORM
 
 HEADERS += \
     $$PWD/cdbdebugengine.h \
+    $$PWD/cdbdebugengine_p.h \
     $$PWD/cdbdebugeventcallback.h \
     $$PWD/cdbdebugoutput.h
 

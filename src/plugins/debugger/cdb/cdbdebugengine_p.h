@@ -31,61 +31,51 @@
 **
 ***************************************************************************/
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#ifndef DEBUGGER_CDBENGINEPRIVATE_H
+#define DEBUGGER_CDBENGINEPRIVATE_H
 
-#include "cdbdebugoutput.h"
 #include "cdbdebugengine.h"
-#include "cdbdebugengine_p.h"
+#include "cdbdebugeventcallback.h"
+#include "cdbdebugoutput.h"
 
 namespace Debugger {
 namespace Internal {
 
-STDMETHODIMP CdbDebugOutput::QueryInterface(
-    THIS_
-    IN REFIID InterfaceId,
-    OUT PVOID* Interface
-    )
-{
-    *Interface = NULL;
+class DebuggerManager;
+class IDebuggerManagerAccessForEngines;
 
-    if (IsEqualIID(InterfaceId, __uuidof(IUnknown)) ||
-        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacks)))
-    {
-        *Interface = (IDebugOutputCallbacks *)this;
-        AddRef();
-        return S_OK;
-    }
-    else
-    {
-        return E_NOINTERFACE;
-    }
-}
+struct CdbDebugEnginePrivate
+{    
+    explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
+    ~CdbDebugEnginePrivate();
 
-STDMETHODIMP_(ULONG) CdbDebugOutput::AddRef(THIS)
-{
-    // This class is designed to be static so
-    // there's no true refcount.
-    return 1;
-}
+    bool isDebuggeeRunning() const { return m_watchTimer != -1; }
+    void handleDebugEvent();
+    void updateThreadList();
+    void updateStackTrace();
+    void handleDebugOutput(const char* szOutputString);
+    void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
 
-STDMETHODIMP_(ULONG) CdbDebugOutput::Release(THIS)
-{
-    // This class is designed to be static so
-    // there's no true refcount.
-    return 0;
-}
+    HANDLE                  m_hDebuggeeProcess;
+    HANDLE                  m_hDebuggeeThread;
+    int                     m_currentThreadId;
+    bool                    m_bIgnoreNextDebugEvent;
 
-STDMETHODIMP CdbDebugOutput::Output(
-    THIS_
-    IN ULONG mask,
-    IN PCSTR text
-    )
-{
-    UNREFERENCED_PARAMETER(mask);
-    m_pEngine->m_d->handleDebugOutput(text);
-    return S_OK;
-}
+    int                     m_watchTimer;
+    IDebugClient5*          m_pDebugClient;
+    IDebugControl4*         m_pDebugControl;
+    IDebugSystemObjects4*   m_pDebugSystemObjects;
+    IDebugSymbols3*         m_pDebugSymbols;
+    IDebugRegisters2*       m_pDebugRegisters;
+    CdbDebugEventCallback   m_debugEventCallBack;
+    CdbDebugOutput          m_debugOutputCallBack;
+
+    CdbDebugEngine* m_engine;
+    DebuggerManager *q;
+    IDebuggerManagerAccessForEngines *qq;
+};
 
 } // namespace Internal
 } // namespace Debugger
+
+#endif // DEBUGGER_CDBENGINEPRIVATE_H
