@@ -498,24 +498,14 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade(0, 0, 0, 50);
-                    if (option->state & State_Sunken)
-                        shade = QColor(0, 0, 0, 50);
-#ifndef Q_WS_MAC
-                    else if (option->state & State_MouseOver)
-                        shade = QColor(255, 255, 255, 12);
-#endif
-                    else if (option->state & State_On)
-                        shade = QColor(0, 0, 0, 50);
-                    else
-                        shade = QColor(0, 0, 0, 0);
-                    painter->fillRect(rect.adjusted(1, 1, -1, -1), shade);
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    QColor shade(0, 0, 0, 40);
+                    painter->fillRect(rect, shade);
+                    painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
                     painter->drawLine(rect.topLeft(), rect.bottomLeft());
+                    painter->drawLine(rect.topRight(), rect.bottomRight());
+                   // painter->drawLine(rect.bottomLeft()  + QPoint(1, 0), rect.bottomRight()  - QPoint(1, 0));
                     QColor highlight(255, 255, 255, 30);
                     painter->setPen(highlight);
-                    painter->drawLine(rect.topRight(), rect.bottomRight());
-                    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
                 }
                 else if (option->state & State_Enabled &&
                          option->state & State_MouseOver) {
@@ -1020,7 +1010,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             grad.setColorAt(1, QColor(255, 255, 255, 40));
             painter->setPen(QPen(grad, 0));
             painter->drawLine(rect.topRight(), rect.bottomRight());
-            grad.setColorAt(0, QColor(0, 0, 0, 20));
+            grad.setColorAt(0, QColor(0, 0, 0, 30));
             grad.setColorAt(0.4, QColor(0, 0, 0, 70));
             grad.setColorAt(0.7, QColor(0, 0, 0, 70));
             grad.setColorAt(1, QColor(0, 0, 0, 40));
@@ -1030,11 +1020,12 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             else
                 painter->drawLine(rect.topLeft(), rect.bottomLeft());
             QStyleOption toolbutton = *option;
-            toolbutton.rect.adjust(0, 0, -2, 0);
             if (isEmpty)
                 toolbutton.state &= ~(State_Enabled | State_Sunken);
+            painter->save();
+            painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
             drawPrimitive(PE_PanelButtonTool, &toolbutton, painter, widget);
-
+            painter->restore();
             // Draw arrow
             int menuButtonWidth = 12;
             int left = !reverse ? rect.right() - menuButtonWidth : rect.left();
