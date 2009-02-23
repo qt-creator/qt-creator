@@ -152,7 +152,7 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWiz
         const int count = m_context->projects.size();
         for (int i = 0; i < count; i++) {
             ProjectNode *pn = m_context->projects.at(i);
-            projectNames.push_back(pn->name());
+            projectNames.push_back(QFileInfo(pn->path()).fileName());
             if (current == pn)
                 currentIndex = i;
         }
