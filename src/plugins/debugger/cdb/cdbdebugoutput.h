@@ -34,6 +34,9 @@
 #ifndef DEBUGGER_CDBOUTPUT_H
 #define DEBUGGER_CDBOUTPUT_H
 
+#include <windows.h>
+#include <inc/dbgeng.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -42,9 +45,7 @@ class CdbDebugEngine;
 class CdbDebugOutput : public IDebugOutputCallbacks
 {
 public:
-    CdbDebugOutput(CdbDebugEngine* engine)
-        : m_pEngine(engine)
-    {}
+    explicit CdbDebugOutput(CdbDebugEngine* engine);
 
     // IUnknown.
     STDMETHOD(QueryInterface)(

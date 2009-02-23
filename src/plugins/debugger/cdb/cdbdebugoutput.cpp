@@ -31,15 +31,21 @@
 **
 ***************************************************************************/
 
-#include <windows.h>
-#include <inc/dbgeng.h>
 
 #include "cdbdebugoutput.h"
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
 
+#include <windows.h>
+#include <inc/dbgeng.h>
+
 namespace Debugger {
 namespace Internal {
+
+CdbDebugOutput::CdbDebugOutput(CdbDebugEngine* engine)  :
+    m_pEngine(engine)
+{
+}
 
 STDMETHODIMP CdbDebugOutput::QueryInterface(
     THIS_
@@ -55,9 +61,7 @@ STDMETHODIMP CdbDebugOutput::QueryInterface(
         *Interface = (IDebugOutputCallbacks *)this;
         AddRef();
         return S_OK;
-    }
-    else
-    {
+    } else {
         return E_NOINTERFACE;
     }
 }

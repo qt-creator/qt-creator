@@ -41,6 +41,11 @@
 namespace Debugger {
 namespace Internal {
 
+CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine* dbg) :
+    m_pEngine(dbg)
+{
+}
+
 STDMETHODIMP CdbDebugEventCallback::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
@@ -49,14 +54,11 @@ STDMETHODIMP CdbDebugEventCallback::QueryInterface(
     *Interface = NULL;
 
     if (IsEqualIID(InterfaceId, __uuidof(IUnknown)) ||
-        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacks)))
-    {
+        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacks)))  {
         *Interface = (IDebugOutputCallbacks *)this;
         AddRef();
         return S_OK;
-    }
-    else
-    {
+    } else {
         return E_NOINTERFACE;
     }
 }
@@ -87,7 +89,8 @@ STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 
 STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
 {
-    qDebug() << "MSVCDebugEventCallback::Breakpoint";
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO;
     m_pEngine->m_d->handleBreakpointEvent(Bp);
     return S_OK;
 }
@@ -98,7 +101,9 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     __in ULONG FirstChance
     )
 {
-    qDebug() << "MSVCDebugEventCallback::Exception";
+    Q_UNUSED(Exception)
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << FirstChance;
     return S_OK;
 }
 
@@ -109,6 +114,12 @@ STDMETHODIMP CdbDebugEventCallback::CreateThread(
     __in ULONG64 StartOffset
     )
 {
+    Q_UNUSED(Handle)
+    Q_UNUSED(DataOffset)
+    Q_UNUSED(StartOffset)
+
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO;
     //Debugger::ThreadInfo ti;
     //ti.handle = Handle;
     //ti.dataOffset = DataOffset;
@@ -121,6 +132,9 @@ STDMETHODIMP CdbDebugEventCallback::ExitThread(
     __in ULONG ExitCode
     )
 {
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << ExitCode;
+
     return S_OK;
 }
 
@@ -139,10 +153,21 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     __in ULONG64 StartOffset
     )
 {
+    Q_UNUSED(ImageFileHandle)
+    Q_UNUSED(BaseOffset)
+    Q_UNUSED(ModuleSize)
+    Q_UNUSED(ModuleName)
+    Q_UNUSED(ImageName)
+    Q_UNUSED(CheckSum)
+    Q_UNUSED(TimeDateStamp)
+    Q_UNUSED(ThreadDataOffset)
+    Q_UNUSED(StartOffset)
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << ModuleName;
+
     m_pEngine->m_d->m_hDebuggeeProcess = (HANDLE)Handle;
     m_pEngine->m_d->m_hDebuggeeThread = (HANDLE)InitialThreadHandle;
-    //m_pEngine->qq->notifyStartupFinished();
-    m_pEngine->m_d->qq->notifyInferiorRunning();
+    m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorRunning();
 
     ULONG currentThreadId;
     if (SUCCEEDED(m_pEngine->m_d->m_pDebugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
@@ -159,10 +184,12 @@ STDMETHODIMP CdbDebugEventCallback::ExitProcess(
     __in ULONG ExitCode
     )
 {
-    UNREFERENCED_PARAMETER(ExitCode);
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << ExitCode;
+
     m_pEngine->m_d->m_hDebuggeeProcess = 0;
     m_pEngine->m_d->m_hDebuggeeThread = 0;
-    m_pEngine->m_d->qq->notifyInferiorExited();
+    m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorExited();
     return S_OK;
 }
 
@@ -177,6 +204,16 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
     __in ULONG TimeDateStamp
     )
 {
+    Q_UNUSED(ImageFileHandle)
+    Q_UNUSED(BaseOffset)
+    Q_UNUSED(ModuleSize)
+    Q_UNUSED(ModuleName)
+    Q_UNUSED(ImageName)
+    Q_UNUSED(CheckSum)
+    Q_UNUSED(TimeDateStamp)
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << ModuleName;
+
     return S_OK;
 }
 
@@ -186,6 +223,11 @@ STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     __in ULONG64 BaseOffset
     )
 {
+    Q_UNUSED(ImageBaseName)
+    Q_UNUSED(BaseOffset)
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << ImageBaseName;
+
     return S_OK;
 }
 
@@ -195,6 +237,8 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
     __in ULONG Level
     )
 {
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << Error << Level;
     return S_OK;
 }
 
@@ -203,6 +247,7 @@ STDMETHODIMP CdbDebugEventCallback::SessionStatus(
     __in ULONG Status
     )
 {
+    Q_UNUSED(Status)
     return S_OK;
 }
 
@@ -212,6 +257,8 @@ STDMETHODIMP CdbDebugEventCallback::ChangeDebuggeeState(
     __in ULONG64 Argument
     )
 {
+    Q_UNUSED(Flags)
+    Q_UNUSED(Argument)
     return S_OK;
 }
 
@@ -221,6 +268,8 @@ STDMETHODIMP CdbDebugEventCallback::ChangeEngineState(
     __in ULONG64 Argument
     )
 {
+    Q_UNUSED(Flags)
+    Q_UNUSED(Argument)
     return S_OK;
 }
 
@@ -230,6 +279,8 @@ STDMETHODIMP CdbDebugEventCallback::ChangeSymbolState(
     __in ULONG64 Argument
     )
 {
+    Q_UNUSED(Flags)
+    Q_UNUSED(Argument)
     return S_OK;
 }
 

@@ -34,7 +34,6 @@
 #ifndef DEBUGGER_CDBENGINEPRIVATE_H
 #define DEBUGGER_CDBENGINEPRIVATE_H
 
-#include "cdbdebugengine.h"
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugoutput.h"
 
@@ -71,9 +70,11 @@ struct CdbDebugEnginePrivate
     CdbDebugOutput          m_debugOutputCallBack;
 
     CdbDebugEngine* m_engine;
-    DebuggerManager *q;
-    IDebuggerManagerAccessForEngines *qq;
+    DebuggerManager *m_debuggerManager;
+    IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
 };
+
+enum { debugCDB = 0 };
 
 } // namespace Internal
 } // namespace Debugger

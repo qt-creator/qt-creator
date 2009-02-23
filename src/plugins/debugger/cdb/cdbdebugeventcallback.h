@@ -45,9 +45,7 @@ class CdbDebugEngine;
 class CdbDebugEventCallback : public IDebugEventCallbacks
 {
 public:
-    CdbDebugEventCallback(CdbDebugEngine* dbg)
-        : m_pEngine(dbg)
-    {}
+    explicit CdbDebugEventCallback(CdbDebugEngine* dbg);
 
     // IUnknown.
     STDMETHOD(QueryInterface)(
@@ -158,7 +156,7 @@ public:
         );
 
 private:
-    CdbDebugEngine*   m_pEngine;
+    CdbDebugEngine *m_pEngine;
 };
 
 } // namespace Internal
