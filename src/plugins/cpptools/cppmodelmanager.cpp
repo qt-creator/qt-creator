@@ -169,10 +169,15 @@ public:
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
     void setProjectFiles(const QStringList &files);
+    void setTodo(const QStringList &files);
+
     void run(QString &fileName);
     void operator()(QString &fileName);
 
     void resetEnvironment();
+
+    const QSet<QString> &todo() const
+    { return m_todo; }
 
 public: // attributes
     Snapshot snapshot;
@@ -207,6 +212,7 @@ private:
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
+    QSet<QString> m_todo;
 };
 
 } // namespace Internal
@@ -229,6 +235,9 @@ void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
 
 void CppPreprocessor::setProjectFiles(const QStringList &files)
 { m_projectFiles = files; }
+
+void CppPreprocessor::setTodo(const QStringList &files)
+{ m_todo = QSet<QString>::fromList(files); }
 
 void CppPreprocessor::run(QString &fileName)
 { sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
@@ -447,6 +456,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
             m_currentDoc->addDiagnosticMessage(d);
 
             //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
+            return;
         }
     }
 
@@ -483,6 +493,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         m_modelManager->emitDocumentUpdated(m_currentDoc); // ### TODO: compress
 
     (void) switchDocument(previousDoc);
+    m_todo.remove(fileName);
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -904,6 +915,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     files = sources;
     files += headers;
 
+    preproc->setTodo(files);
+
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);
 
@@ -920,8 +933,6 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
         if (future.isCanceled())
             break;
-
-        future.setProgressValue(i);
 
 #ifdef CPPTOOLS_DEBUG_PARSING_TIME
         QTime tm;
@@ -944,6 +955,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         }
 
         preproc->run(fileName);
+
+        future.setProgressValue(files.size() - preproc->todo().size());
 
         if (isSourceFile)
             preproc->resetEnvironment();
