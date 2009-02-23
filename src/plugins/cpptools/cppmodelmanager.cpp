@@ -140,6 +140,10 @@ static const char pp_configuration[] =
     "#define   restrict\n"
     "#define __restrict\n"
 
+    "#define __complex__\n"
+    "#define __imag__\n"
+    "#define __real__\n"
+
     // ### add macros for win32
     "#define __cdecl\n"
     "#define QT_WA(x) x\n"
