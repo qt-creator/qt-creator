@@ -8,27 +8,29 @@ include(cpptools_dependencies.pri)
 DEFINES += QT_NO_CAST_TO_ASCII
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
-HEADERS += cpptools_global.h \
-    cppquickopenfilter.h \
+HEADERS += completionsettingspage.h \
     cppclassesfilter.h \
-    searchsymbols.h \
-    cppfunctionsfilter.h \
-    completionsettingspage.h
-SOURCES += cppquickopenfilter.cpp \
-    cpptoolseditorsupport.cpp \
-    cppclassesfilter.cpp \
-    searchsymbols.cpp \
-    cppfunctionsfilter.cpp \
-    completionsettingspage.cpp
-
-# Input
-SOURCES += cpptoolsplugin.cpp \
-    cppmodelmanager.cpp \
-    cppcodecompletion.cpp
-HEADERS += cpptoolsplugin.h \
-    cppmodelmanager.h \
     cppcodecompletion.h \
+    cppfunctionsfilter.h \
+    cppmodelmanager.h \
     cppmodelmanagerinterface.h \
+    cppquickopenfilter.h \
+    cpptools_global.h \
+    cpptoolsconstants.h \
     cpptoolseditorsupport.h \
-    cpptoolsconstants.h
+    cpptoolsplugin.h \
+    searchsymbols.h \
+    cppdoxygen.h
+
+SOURCES += completionsettingspage.cpp \
+    cppclassesfilter.cpp \
+    cppcodecompletion.cpp \
+    cppfunctionsfilter.cpp \
+    cppmodelmanager.cpp \
+    cppquickopenfilter.cpp \
+    cpptoolseditorsupport.cpp \
+    cpptoolsplugin.cpp \
+    searchsymbols.cpp \
+    cppdoxygen.cpp
+
 FORMS += completionsettingspage.ui

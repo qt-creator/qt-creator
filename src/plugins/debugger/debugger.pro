@@ -85,19 +85,4 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-false {
-
-HEADERS += \
-    cdbdebugengine.h \
-    cdbdebugeventcallback.h \
-    cdbdebugoutput.h
-
-SOURCES += \
-    cdbdebugengine.cpp \
-    cdbdebugeventcallback.cpp \
-    cdbdebugoutput.cpp
-
-LIBS += dbgeng.lib
-
-}
-
+CONFIG(cdbdebugger):include(cdb\cdb.pri)

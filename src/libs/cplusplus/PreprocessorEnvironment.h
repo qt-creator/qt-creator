@@ -56,6 +56,7 @@
 #include "CPlusPlusForwardDeclarations.h"
 
 #include <QVector>
+#include <QList>
 #include <QByteArray>
 
 namespace CPlusPlus {
@@ -88,6 +89,9 @@ public:
 
     Macro **lastMacro()
     { return _macros + _macro_count + 1; }
+
+    void reset();
+    void addMacros(const QList<Macro> &macros);
 
 private:
     static unsigned hashCode(const QByteArray &s);

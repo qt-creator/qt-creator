@@ -66,8 +66,9 @@ class CPLUSPLUS_EXPORT Lexer
 
 public:
     enum State {
-        DefaultState,
-        MultiLineCommentState
+        State_Default,
+        State_MultiLineComment,
+        State_MultiLineDoxyComment
     };
 
     Lexer(TranslationUnit *unit);

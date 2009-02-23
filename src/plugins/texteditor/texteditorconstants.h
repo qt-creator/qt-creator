@@ -84,6 +84,9 @@ const char * const C_OPERATOR            = "Operator";
 const char * const C_PREPROCESSOR        = "Preprocessor";
 const char * const C_LABEL               = "Label";
 const char * const C_COMMENT             = "Comment";
+const char * const C_DOXYGEN_COMMENT     = "Doxygen.Comment";
+const char * const C_DOXYGEN_TAG         = "Doxygen.Tag";
+
 const char * const C_DISABLED_CODE       = "DisabledCode";
 
 const char * const C_ADDED_LINE          = "AddedLine";

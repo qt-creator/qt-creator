@@ -132,7 +132,12 @@ static IDebuggerEngine *winEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
 
 extern IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
-extern IDebuggerEngine *createWinEngine(DebuggerManager *) { return 0; }
+extern IDebuggerEngine *createWinEngine(DebuggerManager *)
+#ifdef CDB_ENABLED
+;
+#else
+{ return 0; }
+#endif
 extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 
 DebuggerManager::DebuggerManager()

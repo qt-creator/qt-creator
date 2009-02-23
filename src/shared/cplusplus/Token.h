@@ -64,6 +64,7 @@ enum Kind {
     T_ERROR,
 
     T_COMMENT,
+    T_DOXY_COMMENT,
     T_IDENTIFIER,
 
     T_FIRST_LITERAL,
@@ -296,6 +297,9 @@ public:
 
     inline bool isKeyword() const
     { return kind >= T_FIRST_KEYWORD && kind < T_FIRST_QT_KEYWORD; }
+
+    inline bool isComment() const
+    { return kind == T_COMMENT || kind == T_DOXY_COMMENT; }
 
     inline bool isObjCAtKeyword() const
     { return kind >= T_FIRST_OBJC_AT_KEYWORD && kind < T_LAST_OBJC_AT_KEYWORD; }

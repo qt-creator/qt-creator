@@ -16,6 +16,7 @@ HEADERS += cppplugin.h \
     cppeditorenums.h \
     cppeditor_global.h \
     cppclasswizard.h
+
 SOURCES += cppplugin.cpp \
     cppeditoractionhandler.cpp \
     cppeditor.cpp \
@@ -23,4 +24,5 @@ SOURCES += cppplugin.cpp \
     cpphoverhandler.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp
+
 RESOURCES += cppeditor.qrc

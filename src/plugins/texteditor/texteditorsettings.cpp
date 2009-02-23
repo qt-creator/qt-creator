@@ -84,6 +84,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_LABEL), tr("Label"), Qt::darkRed));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_COMMENT), tr("Comment"), Qt::darkGreen));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DOXYGEN_COMMENT), tr("Doxygen Comment"), Qt::darkBlue));
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_DOXYGEN_TAG), tr("Doxygen Tag"), Qt::blue));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
 
     // Diff categories

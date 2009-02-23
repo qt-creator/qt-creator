@@ -111,7 +111,7 @@ QWidget *ApplicationRunConfigurationRunner::configurationWidget(QSharedPointer<R
 // ApplicationRunControl
 
 ApplicationRunControl::ApplicationRunControl(QSharedPointer<ApplicationRunConfiguration> runConfiguration)
-    : RunControl(runConfiguration), m_applicationLauncher()
+    : RunControl(runConfiguration)
 {
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
             this, SLOT(slotError(QString)));

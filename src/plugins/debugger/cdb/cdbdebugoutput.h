@@ -31,15 +31,47 @@
 **
 ***************************************************************************/
 
-#ifndef CPPTOOLS_GLOBAL_H
-#define CPPTOOLS_GLOBAL_H
+#ifndef DEBUGGER_CDBOUTPUT_H
+#define DEBUGGER_CDBOUTPUT_H
 
-#include <QtGlobal>
+#include <windows.h>
+#include <inc/dbgeng.h>
 
-#if defined(CPPTOOLS_LIBRARY)
-#  define CPPTOOLS_EXPORT Q_DECL_EXPORT
-#else
-#  define CPPTOOLS_EXPORT Q_DECL_IMPORT
-#endif
+namespace Debugger {
+namespace Internal {
 
-#endif // CPPTOOLS_GLOBAL_H
+class CdbDebugEngine;
+
+class CdbDebugOutput : public IDebugOutputCallbacks
+{
+public:
+    explicit CdbDebugOutput(CdbDebugEngine* engine);
+
+    // IUnknown.
+    STDMETHOD(QueryInterface)(
+        THIS_
+        IN REFIID InterfaceId,
+        OUT PVOID* Interface
+        );
+    STDMETHOD_(ULONG, AddRef)(
+        THIS
+        );
+    STDMETHOD_(ULONG, Release)(
+        THIS
+        );
+
+    // IDebugOutputCallbacks.
+    STDMETHOD(Output)(
+        THIS_
+        IN ULONG mask,
+        IN PCSTR text
+        );
+
+private:
+    CdbDebugEngine* m_pEngine;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+#endif // DEBUGGER_CDBOUTPUT_H

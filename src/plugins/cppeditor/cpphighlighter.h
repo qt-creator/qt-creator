@@ -61,6 +61,10 @@ public:
 
 private:
     void highlightWord(QStringRef word, int position, int length);
+
+    void highlightDoxygenComment(const QString &text, int position,
+                                 int length);
+
     bool isPPKeyword(const QStringRef &text) const;
     bool isQtKeyword(const QStringRef &text) const;
 
