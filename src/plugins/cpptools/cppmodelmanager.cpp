@@ -48,6 +48,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -171,6 +172,8 @@ public:
     void run(QString &fileName);
     void operator()(QString &fileName);
 
+    void resetEnvironment();
+
 public: // attributes
     Snapshot snapshot;
 
@@ -229,6 +232,9 @@ void CppPreprocessor::setProjectFiles(const QStringList &files)
 
 void CppPreprocessor::run(QString &fileName)
 { sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
+
+void CppPreprocessor::resetEnvironment()
+{ env.reset(); }
 
 void CppPreprocessor::operator()(QString &fileName)
 { run(fileName); }
@@ -390,7 +396,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
 
     processed->insert(fn);
 
-    foreach (Document::Include incl, doc->includes()) {
+    foreach (const Document::Include &incl, doc->includes()) {
         QString includedFile = incl.fileName();
 
         if (Document::Ptr includedDoc = snapshot.value(includedFile))
@@ -399,9 +405,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
             run(includedFile);
     }
 
-    foreach (const Macro macro, doc->definedMacros()) {
-        env.bind(macro);
-    }
+    env.addMacros(doc->definedMacros());
 }
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)
@@ -428,55 +432,57 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(fileName, line);
+
         if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
             QString msg;
+
             msg += fileName;
             msg += QLatin1String(": No such file or directory");
+
             Document::DiagnosticMessage d(Document::DiagnosticMessage::Warning,
                                           m_currentDoc->fileName(),
                                           env.currentLine, /*column = */ 0,
                                           msg);
+
             m_currentDoc->addDiagnosticMessage(d);
+
             //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
         }
     }
 
-    if (! contents.isEmpty()) {
-        Document::Ptr cachedDoc = snapshot.value(fileName);
-        if (cachedDoc && m_currentDoc) {
-            mergeEnvironment(cachedDoc);
-        } else {
-            Document::Ptr previousDoc = switchDocument(Document::create(fileName));
+    //qDebug() << "parse file:" << fileName << "contents:" << contents.size();
 
-            const QByteArray previousFile = env.currentFile;
-            const unsigned previousLine = env.currentLine;
+    Document::Ptr doc = snapshot.value(fileName);
+    if (doc) {
+        mergeEnvironment(doc);
+        return;
+    }
 
-            TranslationUnit *unit = m_currentDoc->translationUnit();
-            env.currentFile = QByteArray(unit->fileName(), unit->fileNameLength());
+    doc = Document::create(fileName);
 
-            QByteArray preprocessedCode;
-            m_proc(contents, &preprocessedCode);
-            //qDebug() << preprocessedCode;
+    Document::Ptr previousDoc = switchDocument(doc);
 
-            env.currentFile = previousFile;
-            env.currentLine = previousLine;
+    QByteArray preprocessedCode;
+    m_proc(fileName.toUtf8(), contents, &preprocessedCode);
 
-            m_currentDoc->setSource(preprocessedCode);
-            m_currentDoc->parse();
+    doc->setSource(preprocessedCode);
+
+    doc->parse();
+    doc->check();
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
             DumpAST dump(m_currentDoc->control());
             dump(m_currentDoc->translationUnit()->ast());
 #endif
 
-            m_currentDoc->check();
-            m_currentDoc->releaseTranslationUnit(); // release the AST and the token stream.
+    doc->releaseTranslationUnit();
 
-            if (m_modelManager)
-                m_modelManager->emitDocumentUpdated(m_currentDoc);
-            (void) switchDocument(previousDoc);
-        }
-    }
+    snapshot[fileName] = doc;
+
+    if (m_modelManager)
+        m_modelManager->emitDocumentUpdated(m_currentDoc); // ### TODO: compress
+
+    (void) switchDocument(previousDoc);
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -741,7 +747,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
             QList<TextEditor::BaseTextEditor::BlockRange> blockRanges;
 
-            foreach (const Document::Block block, doc->skippedBlocks()) {
+            foreach (const Document::Block &block, doc->skippedBlocks()) {
                 blockRanges.append(TextEditor::BaseTextEditor::BlockRange(block.begin(), block.end()));
             }
             ed->setIfdefedOutBlocks(blockRanges);
@@ -754,7 +760,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             macroFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
 
             QTextCursor c = ed->textCursor();
-            foreach (const Document::Block block, doc->macroUses()) {
+            foreach (const Document::MacroUse &block, doc->macroUses()) {
                 QTextEdit::ExtraSelection sel;
                 sel.cursor = c;
                 sel.cursor.setPosition(block.begin());
@@ -775,7 +781,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             warningFormat.setUnderlineColor(Qt::darkYellow);
 
             QSet<int> lines;
-            foreach (const Document::DiagnosticMessage m, doc->diagnosticMessages()) {
+            foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
                 if (m.fileName() != fileName)
                     continue;
                 else if (lines.contains(m.line()))
@@ -803,7 +809,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             }
 
             QList<Editor> todo;
-            foreach (Editor e, todo) {
+            foreach (const Editor &e, todo) {
                 if (e.widget != ed)
                     todo.append(e);
             }
@@ -826,7 +832,7 @@ void CppModelManager::postEditorUpdate()
 
 void CppModelManager::updateEditorSelections()
 {
-    foreach (Editor ed, m_todo) {
+    foreach (const Editor &ed, m_todo) {
         if (! ed.widget)
             continue;
 
@@ -876,9 +882,27 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     if (files.isEmpty())
         return;
 
-    foreach (QString file, files) {
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+    QStringList headers, sources;
+    Core::MimeType cSourceTy = db->findByType(QLatin1String("text/x-csrc"));
+    Core::MimeType cppSourceTy = db->findByType(QLatin1String("text/x-c++src"));
+
+    foreach (const QString &file, files) {
+        const QFileInfo fileInfo(file);
+
+        if (cSourceTy.matchesFile(fileInfo) || cppSourceTy.matchesFile(fileInfo))
+            sources.append(file);
+
+        else
+            headers.append(file);
+    }
+
+    foreach (const QString &file, files) {
         preproc->snapshot.remove(file);
     }
+
+    files = sources;
+    files += headers;
 
     // Change the priority of the background parser thread to idle.
     QThread::currentThread()->setPriority(QThread::IdlePriority);
@@ -886,9 +910,9 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     future.setProgressRange(0, files.size());
 
     QString conf = QLatin1String(pp_configuration_file);
-    (void) preproc->run(conf);
-
     const int STEP = 10;
+
+    bool processingHeaders = false;
 
     for (int i = 0; i < files.size(); ++i) {
         if (future.isPaused())
@@ -905,7 +929,24 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 #endif
 
         QString fileName = files.at(i);
+
+        bool isSourceFile = false;
+        if (cppSourceTy.matchesFile(fileName) || cSourceTy.matchesFile(fileName))
+            isSourceFile = true;
+
+        if (isSourceFile)
+            (void) preproc->run(conf);
+
+        else if (! processingHeaders) {
+            (void) preproc->run(conf);
+
+            processingHeaders = true;
+        }
+
         preproc->run(fileName);
+
+        if (isSourceFile)
+            preproc->resetEnvironment();
 
         if (! (i % STEP)) // Yields execution of the current thread.
             QThread::yieldCurrentThread();

@@ -117,6 +117,13 @@ Macro *Environment::bind(const Macro &__macro)
     return m;
 }
 
+void Environment::addMacros(const QList<Macro> &macros)
+{
+    foreach (const Macro &macro, macros) {
+        bind(macro);
+    }
+}
+
 Macro *Environment::remove(const QByteArray &name)
 {
     Macro macro;
@@ -125,6 +132,23 @@ Macro *Environment::remove(const QByteArray &name)
     macro.setFileName(currentFile);
     macro.setLine(currentLine);
     return bind(macro);
+}
+
+void Environment::reset()
+{
+    if (_macros) {
+        qDeleteAll(firstMacro(), lastMacro());
+        free(_macros);
+    }
+
+    if (_hash)
+        free(_hash);
+
+    _macros = 0;
+    _allocated_macros = 0;
+    _macro_count = -1;
+    _hash = 0;
+    _hash_count = 401;
 }
 
 bool Environment::isBuiltinMacro(const QByteArray &s) const
