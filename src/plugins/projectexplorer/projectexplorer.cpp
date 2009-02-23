@@ -441,7 +441,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // session menu
     Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle("&Session");
+    msession->menu()->setTitle(tr("Session"));
     mfile->addMenu(msession, Core::Constants::G_FILE_PROJECT);
     m_sessionMenu = msession->menu();
     connect(mfile->menu(), SIGNAL(aboutToShow()),
