@@ -760,7 +760,6 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             foreach (const Document::Block &block, doc->skippedBlocks()) {
                 blockRanges.append(TextEditor::BaseTextEditor::BlockRange(block.begin(), block.end()));
             }
-            ed->setIfdefedOutBlocks(blockRanges);
 
             QList<QTextEdit::ExtraSelection> selections;
 
@@ -827,6 +826,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             Editor e;
             e.widget = ed;
             e.selections = selections;
+            e.ifdefedOutBlocks = blockRanges;
             todo.append(e);
             m_todo = todo;
             postEditorUpdate();
@@ -848,6 +848,8 @@ void CppModelManager::updateEditorSelections()
 
         ed.widget->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
                                       ed.selections);
+
+        ed.widget->setIfdefedOutBlocks(ed.ifdefedOutBlocks);
     }
 
     m_todo.clear();

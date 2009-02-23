@@ -38,6 +38,8 @@
 #include <projectexplorer/project.h>
 #include <cplusplus/CppDocument.h>
 
+#include <texteditor/basetexteditor.h>
+
 #include <QMap>
 #include <QFutureInterface>
 #include <QMutex>
@@ -171,6 +173,7 @@ private:
     struct Editor {
         QPointer<TextEditor::BaseTextEditor> widget;
         QList<QTextEdit::ExtraSelection> selections;
+        QList<TextEditor::BaseTextEditor::BlockRange> ifdefedOutBlocks;
     };
 
     QList<Editor> m_todo;
