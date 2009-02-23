@@ -48,8 +48,8 @@ const char * const C_GIT_DIFF_EDITOR = "Git Diff Editor";
 
 const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
 const char * const GITSUBMITEDITOR_KIND = "Git Submit Editor";
-const char * const SUBMIT_CURRENT = "Nokia.Git.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Nokia.Git.DiffSelectedFilesInLog";
+const char * const SUBMIT_CURRENT = "Git.SubmitCurrentLog";
+const char * const DIFF_SELECTED = "Git.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
 const char * const GIT_BINARY = "git";
 

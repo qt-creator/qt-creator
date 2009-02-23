@@ -42,7 +42,7 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.4.3/qt";
+#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.5.0/qt";
 
 	const char * const oldInstallBase = QT_INSTALL_DIR;
 	const char * const oldSourceBase = QT_INSTALL_DIR;

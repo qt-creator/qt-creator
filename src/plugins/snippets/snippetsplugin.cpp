@@ -82,7 +82,7 @@ bool SnippetsPlugin::initialize(const QStringList &arguments, QString *)
 
     m_snippetWnd = new SnippetsWindow();
     Core::BaseView *view = new Core::BaseView;
-    view->setUniqueViewName("Snippets.SnippetsTree");
+    view->setUniqueViewName("Snippets");
     view->setWidget(m_snippetWnd);
     view->setContext(QList<int>()
         << core->uniqueIDManager()->uniqueIdentifier(QLatin1String("Snippets Window"))

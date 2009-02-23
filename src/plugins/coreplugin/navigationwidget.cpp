@@ -326,7 +326,7 @@ void NavigationWidget::objectAdded(QObject * obj)
     QShortcut *shortcut = new QShortcut(this);
     shortcut->setWhatsThis(tr("Activate %1 Pane").arg(displayName));
     Core::Command *cmd = am->registerShortcut(shortcut,
-        displayName + QLatin1String(".FocusShortcut"), navicontext);
+        QLatin1String("QtCreator.Sidebar.") + displayName, navicontext);
     cmd->setDefaultKeySequence(factory->activationSequence());
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateSubWidget()));
 

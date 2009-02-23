@@ -281,6 +281,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     m_fileLineEdit->setUseLayoutDirection(true);
     m_fileLineEdit->setHintText(tr("Type to locate"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
+    m_fileLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);

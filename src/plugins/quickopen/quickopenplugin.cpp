@@ -91,14 +91,14 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     m_quickOpenToolWindow = new QuickOpenToolWindow(this);
     m_quickOpenToolWindow->setEnabled(false);
     Core::BaseView *view = new Core::BaseView;
-    view->setUniqueViewName("QuickOpen.ToolWindow");
+    view->setUniqueViewName("QuickOpen");
     view->setWidget(m_quickOpenToolWindow);
     view->setContext(QList<int>() << core->uniqueIDManager()
         ->uniqueIdentifier(QLatin1String("QuickOpenToolWindow")));
     view->setDefaultPosition(Core::IView::First);
     addAutoReleasedObject(view);
 
-    const QString actionId = QLatin1String("QtCreator.View.QuickOpen.ToolWindow");
+    const QString actionId = QLatin1String("QtCreator.QuickOpen");
     QAction *action = new QAction(m_quickOpenToolWindow->windowIcon(), m_quickOpenToolWindow->windowTitle(), this);
     Core::Command *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));

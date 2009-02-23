@@ -42,10 +42,10 @@ const char * const BOOKMARKS_MOVEUP_ACTION      = "Bookmarks.MoveUp";
 const char * const BOOKMARKS_MOVEDOWN_ACTION    = "Bookmarks.MoveDown";
 const char * const BOOKMARKS_PREV_ACTION        = "Bookmarks.Previous";
 const char * const BOOKMARKS_NEXT_ACTION        = "Bookmarks.Next";
-const char * const BOOKMARKS_PREVDIR_ACTION     = "Bookmarks.Previous.Directory";
-const char * const BOOKMARKS_NEXTDIR_ACTION     = "Bookmarks.Next.Directory";
-const char * const BOOKMARKS_PREVDOC_ACTION     = "Bookmarks.Previous.Document";
-const char * const BOOKMARKS_NEXTDOC_ACTION     = "Bookmarks.Next.Document";
+const char * const BOOKMARKS_PREVDIR_ACTION     = "Bookmarks.PreviousDirectory";
+const char * const BOOKMARKS_NEXTDIR_ACTION     = "Bookmarks.NextDirectory";
+const char * const BOOKMARKS_PREVDOC_ACTION     = "Bookmarks.PreviousDocument";
+const char * const BOOKMARKS_NEXTDOC_ACTION     = "Bookmarks.NextDocument";
 
 const char * const BOOKMARKS_MENU               = "Bookmarks.Menu";
 const char * const BOOKMARKS_CONTEXT            = "Bookmarks";

@@ -71,14 +71,14 @@ class CMakeRunner
 {
 public:
     CMakeRunner();
-    void run(QFutureInterface<void> &fi);
     void setExecutable(const QString &executable);
     QString executable() const;
     QString version() const;
     bool supportsQtCreator() const;
-    void waitForUpToDate() const;
 
 private:
+    void run(QFutureInterface<void> &fi);
+    void waitForUpToDate() const;
     QString m_executable;
     QString m_version;
     bool m_supportsQtCreator;

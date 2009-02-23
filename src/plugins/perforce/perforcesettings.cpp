@@ -33,7 +33,11 @@
 
 #include "perforcesettings.h"
 
+#include <qtconcurrent/QtConcurrentTools>
+#include <QtCore/QtConcurrentRun>
 #include <QtCore/QSettings>
+#include <QtCore/QStringList>
+#include <QtCore/QProcess>
 
 static const char *groupC = "Perforce";
 static const char *commandKeyC = "Command";
@@ -55,41 +59,134 @@ static QString defaultCommand()
 namespace Perforce {
 namespace Internal {
 
-PerforceSettings::PerforceSettings() :
-    p4Command(defaultCommand()),
-    defaultEnv(true)
+PerforceSettings::PerforceSettings()
+    : m_valid(false)
 {
+    // We do all the initialization in fromSettings
+}
+
+PerforceSettings::~PerforceSettings()
+{
+    // ensure that we are not still running
+    m_future.waitForFinished();
+}
+
+bool PerforceSettings::isValid() const
+{
+    m_future.waitForFinished();
+    m_mutex.lock();
+    bool valid = m_valid;
+    m_mutex.unlock();
+    return valid;
+}
+
+void PerforceSettings::run(QFutureInterface<void> &fi)
+{
+    m_mutex.lock();
+    QString executable = m_p4Command;
+    QStringList arguments = basicP4Args();
+    m_mutex.unlock();
+
+    // TODO actually check
+    bool valid = true;
+
+    QProcess p4;
+    p4.start(m_p4Command, QStringList() << "client"<<"-o");
+    p4.waitForFinished(2000);
+    if (p4.state() != QProcess::NotRunning) {
+        p4.kill();
+        p4.waitForFinished();
+        valid = false;
+    } else {
+        QString response = p4.readAllStandardOutput();
+        if (!response.contains("View:"))
+            valid = false;
+    }
+
+    m_mutex.lock();
+    if (executable == m_p4Command && arguments == basicP4Args()) // Check that those settings weren't changed in between
+        m_valid = valid;
+    m_mutex.unlock();
+    fi.reportFinished();
 }
 
 void PerforceSettings::fromSettings(QSettings *settings)
 {
+    m_mutex.lock();
     settings->beginGroup(QLatin1String(groupC));
-    p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
-    p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
-    p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
-    p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
+    m_p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    m_defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
+    m_p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
+    m_p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
+    m_p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
     settings->endGroup();
+    m_mutex.unlock();
 
+    m_future = QtConcurrent::run(&PerforceSettings::run, this);
 }
 
 void PerforceSettings::toSettings(QSettings *settings) const
 {
+    m_mutex.lock();
     settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(commandKeyC, p4Command);
-    settings->setValue(defaultKeyC, defaultEnv);
-    settings->setValue(portKeyC, p4Port);
-    settings->setValue(clientKeyC, p4Client);
-    settings->setValue(userKeyC, p4User);
+    settings->setValue(commandKeyC, m_p4Command);
+    settings->setValue(defaultKeyC, m_defaultEnv);
+    settings->setValue(portKeyC, m_p4Port);
+    settings->setValue(clientKeyC, m_p4Client);
+    settings->setValue(userKeyC, m_p4User);
     settings->endGroup();
+    m_mutex.unlock();
 }
 
-bool PerforceSettings::equals(const PerforceSettings &s) const
+void PerforceSettings::setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv)
 {
-    return p4Command  == s.p4Command && p4Port == s.p4Port
-        && p4Client   == s.p4Client  &&  p4User == s.p4User
-        && defaultEnv == s.defaultEnv;
+    m_mutex.lock();
+    m_p4Command = p4Command;
+    m_p4Port = p4Port;
+    m_p4Client = p4Client;
+    m_p4User = p4User;
+    m_defaultEnv = defaultEnv;
+    m_valid = false;
+    m_mutex.unlock();
+    m_future = QtConcurrent::run(&PerforceSettings::run, this);
 }
+
+QString PerforceSettings::p4Command() const
+{
+    return m_p4Command;
+}
+
+QString PerforceSettings::p4Port() const
+{
+    return m_p4Port;
+}
+
+QString PerforceSettings::p4Client() const
+{
+    return m_p4Client;
+}
+
+QString PerforceSettings::p4User() const
+{
+    return m_p4User;
+}
+
+bool PerforceSettings::defaultEnv() const
+{
+    return m_defaultEnv;
+}
+
+QStringList PerforceSettings::basicP4Args() const
+{
+    QStringList lst;
+    if (!m_defaultEnv) {
+        lst << QLatin1String("-c") << m_p4Client;
+        lst << QLatin1String("-p") << m_p4Port;
+        lst << QLatin1String("-u") << m_p4User;
+    }
+    return lst;
+}
+
 
 } // Internal
 } // Perforce

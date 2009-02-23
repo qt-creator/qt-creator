@@ -38,10 +38,10 @@ namespace Designer {
 namespace Constants {
 
 // context
-const char * const C_FORMEDITOR         = "Formeditor";
-const char * const T_FORMEDITOR         = "Formeditor.Toolbar";
-const char * const M_FORMEDITOR         = "Formeditor.Menu";
-const char * const M_FORMEDITOR_PREVIEW = "Formeditor.Menu.Preview";
+const char * const C_FORMEDITOR         = "FormEditor";
+const char * const T_FORMEDITOR         = "FormEditor.Toolbar";
+const char * const M_FORMEDITOR         = "FormEditor.Menu";
+const char * const M_FORMEDITOR_PREVIEW = "FormEditor.Menu.Preview";
 
 // Wizard type
 const char * const FORM_FILE_TYPE       = "Qt4FormFiles";

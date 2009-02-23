@@ -79,6 +79,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     addWidget(m_widget);
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
+    m_ui.findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_ui.replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
