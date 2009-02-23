@@ -43,9 +43,27 @@ namespace Internal {
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 
+// Thin wrapper around the 'DBEng' debugger engine shared library
+// which is loaded at runtime.
+
+class DebuggerEngineLibrary {
+public:
+    DebuggerEngineLibrary();
+    bool init(QString *errorMessage);
+
+    inline HRESULT debugCreate(REFIID interfaceId, PVOID *interfaceHandle) const
+        { return m_debugCreate(interfaceId, interfaceHandle); }
+
+private:
+    // The exported functions of the library
+    typedef HRESULT (*DebugCreateFunction)(REFIID, PVOID *);
+
+    DebugCreateFunction m_debugCreate;
+};
+
 struct CdbDebugEnginePrivate
 {    
-    explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
+    explicit CdbDebugEnginePrivate(const DebuggerEngineLibrary &lib, DebuggerManager *parent,  CdbDebugEngine* engine);
     ~CdbDebugEnginePrivate();
 
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
@@ -80,3 +98,4 @@ enum { debugCDB = 0 };
 } // namespace Debugger
 
 #endif // DEBUGGER_CDBENGINEPRIVATE_H
+

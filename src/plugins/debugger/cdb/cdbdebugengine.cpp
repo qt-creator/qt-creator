@@ -44,14 +44,46 @@
 #include <QtCore/QTimerEvent>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QLibrary>
 
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
+static const char *dbgEngineDllC = "dbgeng";
+static const char *debugCreateFuncC = "DebugCreate";
 
-CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEngine* engine) :
+namespace Debugger {
+namespace Internal {
+
+DebuggerEngineLibrary::DebuggerEngineLibrary() :
+    m_debugCreate(0)
+{
+}
+
+bool DebuggerEngineLibrary::init(QString *errorMessage)
+{
+    // Load
+    QLibrary lib(QLatin1String(dbgEngineDllC), 0);
+
+    if (!lib.isLoaded() && !lib.load()) {
+        *errorMessage = CdbDebugEngine::tr("Unable to load the debugger engine library '%1': %2").
+                        arg(QLatin1String(dbgEngineDllC), lib.errorString());
+        return false;
+    }
+    // Locate symbols
+    void *createFunc = lib.resolve(debugCreateFuncC);
+    if (!createFunc) {
+        *errorMessage = CdbDebugEngine::tr("Unable to resolve '%1' in the debugger engine library '%2'").
+                        arg(QLatin1String(debugCreateFuncC), QLatin1String(dbgEngineDllC));
+        return false;
+    }
+    m_debugCreate = static_cast<DebugCreateFunction>(createFunc);
+    return true;
+}
+
+// --- CdbDebugEnginePrivate
+
+CdbDebugEnginePrivate::CdbDebugEnginePrivate(const DebuggerEngineLibrary &lib, DebuggerManager *parent, CdbDebugEngine* engine) :
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_bIgnoreNextDebugEvent(false),
@@ -63,24 +95,40 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_debuggerManagerAccess(parent->engineInterface())
 {
     HRESULT hr;
-    hr = DebugCreate( __uuidof(IDebugClient5), reinterpret_cast<void**>(&m_pDebugClient));
-    if (FAILED(hr)) m_pDebugClient = 0;
-    hr = DebugCreate( __uuidof(IDebugControl4), reinterpret_cast<void**>(&m_pDebugControl));
-    if (FAILED(hr)) m_pDebugControl = 0;
-    hr = DebugCreate( __uuidof(IDebugSystemObjects4), reinterpret_cast<void**>(&m_pDebugSystemObjects));
-    if (FAILED(hr)) m_pDebugSystemObjects = 0;
-    hr = DebugCreate( __uuidof(IDebugSymbols3), reinterpret_cast<void**>(&m_pDebugSymbols));
-    if (FAILED(hr)) m_pDebugSymbols = 0;
-    hr = DebugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_pDebugRegisters));
-    if (FAILED(hr)) m_pDebugRegisters = 0;
-
-    if (m_pDebugControl) {
-        m_pDebugControl->SetCodeLevel(DEBUG_LEVEL_SOURCE);
-    }
-    if (m_pDebugClient) {
+    hr = lib.debugCreate( __uuidof(IDebugClient5), reinterpret_cast<void**>(&m_pDebugClient));
+    if (FAILED(hr)) {
+        m_pDebugClient = 0;
+    } else {
         m_pDebugClient->SetOutputCallbacks(&m_debugOutputCallBack);
         m_pDebugClient->SetEventCallbacks(&m_debugEventCallBack);
     }
+
+    hr = lib.debugCreate( __uuidof(IDebugControl4), reinterpret_cast<void**>(&m_pDebugControl));
+    if (FAILED(hr)) {
+        m_pDebugControl = 0;
+    } else {
+        m_pDebugControl->SetCodeLevel(DEBUG_LEVEL_SOURCE);
+    }
+
+    hr = lib.debugCreate( __uuidof(IDebugSystemObjects4), reinterpret_cast<void**>(&m_pDebugSystemObjects));
+    if (FAILED(hr)) m_pDebugSystemObjects = 0;
+
+    hr = lib.debugCreate( __uuidof(IDebugSymbols3), reinterpret_cast<void**>(&m_pDebugSymbols));
+    if (FAILED(hr)) m_pDebugSymbols = 0;
+
+    hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_pDebugRegisters));
+    if (FAILED(hr)) m_pDebugRegisters = 0;
+}
+
+IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent)
+{
+    DebuggerEngineLibrary lib;
+    QString errorMessage;
+    if (!lib.init(&errorMessage)) {
+        qWarning("%s", qPrintable(errorMessage));
+        return 0;
+    }
+    return new CdbDebugEngine(lib, parent);
 }
 
 CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
@@ -97,9 +145,9 @@ CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
         m_pDebugRegisters->Release();
 }
 
-CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent)
-  : IDebuggerEngine(parent),
-    m_d(new CdbDebugEnginePrivate(parent, this))
+CdbDebugEngine::CdbDebugEngine(const DebuggerEngineLibrary &lib, DebuggerManager *parent) :
+    IDebuggerEngine(parent),
+    m_d(new CdbDebugEnginePrivate(lib, parent, this))
 {
 }
 
@@ -628,11 +676,6 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)
         qDebug() << Q_FUNC_INFO;
 }
 
-IDebuggerEngine *createWinEngine(DebuggerManager *parent)
-{
-    return new CdbDebugEngine(parent);
-}
-
 void CdbDebugEngine::setDebugDumpers(bool on)
 {
     Q_UNUSED(on)
@@ -646,3 +689,13 @@ void CdbDebugEngine::setUseCustomDumpers(bool on)
 void CdbDebugEngine::reloadSourceFiles()
 {
 }
+
+} // namespace Internal
+} // namespace Debugger
+
+// Accessed by DebuggerManager
+Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::DebuggerManager *parent)
+{
+    return Debugger::Internal::CdbDebugEngine::create(parent);
+}
+

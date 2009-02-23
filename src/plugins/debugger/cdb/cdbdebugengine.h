@@ -41,15 +41,21 @@ namespace Internal {
 
 class DebuggerManager;
 class CdbDebugEventCallback;
+class DebuggerEngineLibrary;
 class CdbDebugOutput;
 struct CdbDebugEnginePrivate;
 
 class CdbDebugEngine : public IDebuggerEngine
 {
+    Q_DISABLE_COPY(CdbDebugEngine)
     Q_OBJECT
+    explicit CdbDebugEngine(const DebuggerEngineLibrary &lib, DebuggerManager *parent);
+
 public:
-    CdbDebugEngine(DebuggerManager *parent);
     ~CdbDebugEngine();
+
+    // Factory function that returns 0 if the debug engine library cannot be found.
+    static IDebuggerEngine *create(DebuggerManager *parent);
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &pos, const QString &exp);
