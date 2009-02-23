@@ -98,43 +98,9 @@ VersionDialog::VersionDialog(QWidget *parent)
     buttonBox->addButton(closeButton, QDialogButtonBox::ButtonRole(QDialogButtonBox::RejectRole | QDialogButtonBox::AcceptRole));
     connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
 
-    buttonBox->addButton(tr("Show License"), QDialogButtonBox::HelpRole);
-    connect(buttonBox , SIGNAL(helpRequested()), this, SLOT(popupLicense()));
-
     QLabel *logoLabel = new QLabel;
     logoLabel->setPixmap(QPixmap(QLatin1String(":/core/images/qtcreator_logo_128.png")));
     layout->addWidget(logoLabel , 0, 0, 1, 1);
     layout->addWidget(copyRightLabel, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 0, 1, 5);
-}
-
-void VersionDialog::popupLicense()
-{
-    QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("License");
-    QVBoxLayout *layout = new QVBoxLayout(dialog);
-    QTextBrowser *licenseBrowser = new QTextBrowser(dialog);
-    layout->addWidget(licenseBrowser);
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    connect(buttonBox , SIGNAL(rejected()), dialog, SLOT(reject()));
-    layout->addWidget(buttonBox);
-
-    // Read file into string
-    ICore *core = ICore::instance();
-    QTC_ASSERT(core, return);
-    QString fileName = core->resourcePath() + "/license.txt";
-    QFile file(fileName);
-
-    QString licenseText;
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        licenseText = "File '" + fileName + "' could not be read.";
-    else
-        licenseText = file.readAll();
-
-    licenseBrowser->setPlainText(licenseText);
-
-    dialog->setMinimumSize(QSize(550, 690));
-    dialog->exec();
-    delete dialog;
 }
