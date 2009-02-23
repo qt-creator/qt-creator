@@ -237,7 +237,12 @@ static QString startSymbolName()
 {
 #ifdef Q_OS_WIN
     return "WinMainCRTStartup";
-#else
+#endif
+#ifdef Q_OS_MAC
+    return "main";
+    return "_start";
+#endif
+#ifdef Q_OS_LINUX
     return "_start";
 #endif
 }
@@ -296,6 +301,7 @@ void GdbEngine::initializeVariables()
 {
     m_dataDumperState = DataDumperUninitialized;
     m_gdbVersion = 100;
+    m_gdbBuildVersion = -1;
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
@@ -483,8 +489,20 @@ void GdbEngine::handleResponse()
                     handleAsyncOutput(record);
                 } else if (asyncClass == "running") {
                     // Archer has 'thread-id="all"' here
+                #ifdef Q_OS_MAC
+                } else if (asyncClass == "shlibs-updated") {
+                    // MAC announces updated libs
+                } else if (asyncClass == "shlibs-added") {
+                    // MAC announces added libs
+                    // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
+                    // kind="-", dyld-addr="0x7f000", reason="dyld", requested-state="Y",
+                    // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib", 
+                    // description="/usr/lib/system/libmathCommon.A_debug.dylib",
+                    // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
+                #endif
                 } else {
-                    qDebug() << "IGNORED ASYNC OUTPUT " << record.toString();
+                    qDebug() << "IGNORED ASYNC OUTPUT "
+                        << asyncClass << record.toString();
                 }
                 break;
             }
@@ -760,7 +778,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     // FIXME: this falsely rejects results from the custom dumper recognition
     // procedure, too...
-    if (record.token < m_oldestAcceptableToken) {
+    if (record.token < m_oldestAcceptableToken && cmd.type >= 300) {
         //qDebug() << "### SKIPPING OLD RESULT " << record.toString();
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
@@ -1160,6 +1178,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         reloadSourceFiles();
         tryLoadCustomDumpers();
 
+		#ifndef Q_OS_MAC
         // intentionally after tryLoadCustomDumpers(),
         // otherwise we'd interupt solib loading.
         if (qq->wantsAllPluginBreakpoints()) {
@@ -1175,11 +1194,13 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             sendCommand("set auto-solib-add off");
             sendCommand("set stop-on-solib-events 0");
         }
+        #endif
         // nicer to see a bit of the world we live in
         reloadModules();
         // this will "continue" if done
         m_waitingForBreakpointSynchronizationToContinue = true;
-        QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
+        //QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
+        attemptBreakpointSynchronization();
         return;
     }
 
@@ -1344,10 +1365,14 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
 
 void GdbEngine::handleShowVersion(const GdbResultRecord &response)
 {
+    //qDebug () << "VERSION 2:" << response.data.findChild("consolestreamoutput").data();
+    //qDebug () << "VERSION:" << response.toString();
+    debugMessage("VERSION:" + response.toString());
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
+        m_gdbBuildVersion = -1;
         QString msg = response.data.findChild("consolestreamoutput").data();
-        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?");
+        QRegExp supported("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?");
         if (supported.indexIn(msg) == -1) {
             debugMessage("UNSUPPORTED GDB VERSION " + msg);
             QStringList list = msg.split("\n");
@@ -1370,8 +1395,10 @@ void GdbEngine::handleShowVersion(const GdbResultRecord &response)
             m_gdbVersion = 10000 * supported.cap(2).toInt()
                          +   100 * supported.cap(3).toInt()
                          +     1 * supported.cap(5).toInt();
-            //debugMessage(QString("GDB VERSION: %1").arg(m_gdbVersion));
+            m_gdbBuildVersion = supported.cap(7).toInt();
+            debugMessage(QString("GDB VERSION: %1").arg(m_gdbVersion));
         }
+        //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
     }
 }
 
@@ -1638,10 +1665,12 @@ bool GdbEngine::startDebugger()
         #ifdef Q_OS_MAC
         sendCommand("sharedlibrary apply-load-rules all");
         #endif
-        setTokenBarrier();
+        //setTokenBarrier();
         if (!q->m_processArgs.isEmpty())
             sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
+        #ifndef Q_OS_MAC
         sendCommand("set auto-solib-add off");
+        #endif
         sendCommand("x/2i " + startSymbolName(), GdbStart);
     }
 
@@ -1670,8 +1699,13 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
         // stdout:~"0x404540 <_start>:\txor    %ebp,%ebp\n"
         // stdout:~"0x404542 <_start+2>:\tmov    %rdx,%r9\n"
         QString msg = response.data.findChild("consolestreamoutput").data();
+        #ifdef Q_OS_MAC
+        // this ends up in 'gettimeoftheday' or such on MacOS 10.4
+        QRegExp needle("0x([0-9a-f]+) <.*\\+.*>:");
+        #else
         QRegExp needle("0x([0-9a-f]+) <" + startSymbolName() + "\\+.*>:");
-        if (needle.indexIn(msg) != -1) {
+        #endif
+        if (needle.lastIndexIn(msg) != -1) {
             //debugMessage("STREAM: " + msg + " " + needle.cap(1));
             sendCommand("tbreak *0x" + needle.cap(1));
             m_waitingForFirstBreakpointToBeHit = true;
@@ -4016,12 +4050,12 @@ void GdbEngine::tryLoadCustomDumpers()
     QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
     if (QFileInfo(lib).exists()) {
         m_dataDumperState = DataDumperLoadTried;
-        sendCommand("sharedlibrary libc"); // for malloc
-        sendCommand("sharedlibrary libdl"); // for dlopen
+        //sendCommand("sharedlibrary libc"); // for malloc
+        //sendCommand("sharedlibrary libdl"); // for dlopen
         QString flag = QString::number(RTLD_NOW);
         sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
-        sendCommand("sharedlibrary " + dotEscape(lib));
+        //sendCommand("sharedlibrary " + dotEscape(lib));
     }
 #endif
 #if defined(Q_OS_WIN)

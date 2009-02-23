@@ -220,6 +220,7 @@ private:
     int m_oldestAcceptableToken;
 
     int m_gdbVersion; // 6.8.0 is 680
+    int m_gdbBuildVersion; // MAC only? 
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
