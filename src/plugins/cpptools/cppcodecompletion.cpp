@@ -391,7 +391,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>') && ch == QLatin1Char('*')) {
         k = T_ARROW_STAR;
         start -= 3;
-    } else if (ch == QLatin1Char('@') || ch == QLatin1Char('\\')) {
+    } else if ((ch2.isNull() || ch2.isSpace()) && (ch == QLatin1Char('@') || ch == QLatin1Char('\\'))) {
         k = T_DOXY_COMMENT;
         --start;
     }
