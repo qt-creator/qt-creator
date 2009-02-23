@@ -456,7 +456,6 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
             m_currentDoc->addDiagnosticMessage(d);
 
             //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
-            return;
         }
     }
 
