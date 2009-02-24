@@ -164,7 +164,7 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
                     if (tc.exec() == QDialog::Accepted) {
                         CentralWidget::instance()->setSourceInNewTab(tc.link());
                     }
-                } else {
+                } else if (links.count() == 1) {
                     CentralWidget::instance()->
                         setSourceInNewTab(links.constBegin().value());
                 }
