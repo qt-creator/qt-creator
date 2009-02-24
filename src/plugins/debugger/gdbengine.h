@@ -92,7 +92,6 @@ public:
     ~GdbEngine();
 
 signals:
-    void gdbResponseAvailable();
     void gdbInputAvailable(const QString &prefix, const QString &msg);
     void gdbOutputAvailable(const QString &prefix, const QString &msg);
     void applicationOutputAvailable(const QString &output);
@@ -173,8 +172,6 @@ private:
     void updateLocals();
 
 private slots:
-    void handleResponse();
-
     void gdbProcError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
@@ -182,6 +179,7 @@ private slots:
 
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
+    void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResultRecord &response);
     void handleAttach();
     void handleAqcuiredInferior();
