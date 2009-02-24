@@ -1,2 +1,2 @@
-#!/bin/sh
-LD_LIBRARY_PATH=`cd .. && pwd`/lib ./qtlibspatcher
+#!/bin/bash
+LD_LIBRARY_PATH=`cd .. && pwd`/lib ./qtlibspatcher "$@"
