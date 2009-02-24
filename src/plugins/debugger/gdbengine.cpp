@@ -1131,6 +1131,7 @@ void GdbEngine::handleAqcuiredInferior()
     reloadSourceFiles();
     tryLoadCustomDumpers();
 
+#ifndef Q_OS_MAC
     // intentionally after tryLoadCustomDumpers(),
     // otherwise we'd interupt solib loading.
     if (qq->wantsAllPluginBreakpoints()) {
@@ -1146,6 +1147,7 @@ void GdbEngine::handleAqcuiredInferior()
         sendCommand("set auto-solib-add off");
         sendCommand("set stop-on-solib-events 0");
     }
+#endif
     // nicer to see a bit of the world we live in
     reloadModules();
     attemptBreakpointSynchronization();
@@ -1185,11 +1187,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
         qq->notifyInferiorStopped();
         m_waitingForFirstBreakpointToBeHit = false;
+        //
         // this will "continue" if done
         m_waitingForBreakpointSynchronizationToContinue = true;
         //
         // that's the "early stop"
-        //
         handleAqcuiredInferior();
         return;
     }
