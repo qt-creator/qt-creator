@@ -1688,6 +1688,17 @@ void GdbEngine::continueInferior()
 void GdbEngine::handleStart(const GdbResultRecord &response)
 {
     if (response.resultClass == GdbResultDone) {
+#ifdef Q_OS_MAC
+        QString addr = response.data.findChild("section-info").findChild("entry-point").data();
+        if (!addr.isEmpty()) {
+            sendCommand("tbreak *" + addr);
+            m_waitingForFirstBreakpointToBeHit = true;
+            qq->notifyInferiorRunningRequested();
+            sendCommand("-exec-run");
+        } else {
+            debugMessage("CANNOT OBTAIN START ADDRESS");
+        }
+#else
         // [some leading stdout here]
         // stdout:&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
         // [some trailing stdout here]
@@ -1702,6 +1713,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
         } else {
             debugMessage("PARSING START ADDRESS FAILED: " + msg);
         }
+#endif
     } else if (response.resultClass == GdbResultError) {
         debugMessage("FETCHING START ADDRESS FAILED: " + response.toString());
     }
