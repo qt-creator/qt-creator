@@ -37,9 +37,9 @@
 namespace Core {
 namespace Constants {
 
-#define IDE_VERSION_MAJOR 0
-#define IDE_VERSION_MINOR 9
-#define IDE_VERSION_RELEASE 2
+#define IDE_VERSION_MAJOR 1
+#define IDE_VERSION_MINOR 0
+#define IDE_VERSION_RELEASE 0
 
 #define STRINGIFY_INTERNAL(x) #x
 #define STRINGIFY(x) STRINGIFY_INTERNAL(x)
