@@ -5,13 +5,13 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.0.0 (Release Candidate)
+    \section1 Version 1.0.0
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note The current version of Qt Creator is 1.0.0 (Release Candidate). It is
+    \note The current version of Qt Creator is 1.0.0 . It is
     possible to edit source code, compile, run and debug applications; other
     features are still under development. Please send bug reports and
     suggestions to qt-creator@trolltech.com. To subscribe, send a
@@ -59,7 +59,7 @@
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
        \o \l{Glossary}
-       \o \l{Known Issues of Version 1.0.0 (Release Candidate)}
+       \o \l{Known Issues of Version 1.0.0}
     \endlist
 
 */
@@ -1420,9 +1420,9 @@
     \previouspage creator-keyboard-shortcuts.html
     \page creator-known-issues.html
 
-    \title Known Issues of Version 1.0.0 (Release Candidate)
+    \title Known Issues of Version 1.0.0
 
-    There are some known issues with Qt Creator 1.0.0 (Release Candidate).
+    There are some known issues with Qt Creator 1.0.0 .
     The development team is aware of those, there is no need to report them as bug.
 
     \list
