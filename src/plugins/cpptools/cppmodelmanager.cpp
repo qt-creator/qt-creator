@@ -73,6 +73,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtConcurrentMap>
 #include <iostream>
 #include <sstream>
 
@@ -171,8 +172,8 @@ public:
     void setProjectFiles(const QStringList &files);
     void setTodo(const QStringList &files);
 
-    void run(QString &fileName);
-    void operator()(QString &fileName);
+    void run(const QString &fileName);
+    void run_helper(const QString &fileName, QList<Document::Ptr> *documents);
 
     void resetEnvironment();
 
@@ -211,8 +212,9 @@ private:
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
-    CPlusPlus::Document::Ptr m_currentDoc;
+    Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
+    QList<Document::Ptr> *m_documents;
 };
 
 } // namespace Internal
@@ -221,7 +223,8 @@ private:
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
-      m_proc(this, env)
+      m_proc(this, env),
+      m_documents(0)
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
@@ -239,14 +242,69 @@ void CppPreprocessor::setProjectFiles(const QStringList &files)
 void CppPreprocessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
 
-void CppPreprocessor::run(QString &fileName)
-{ sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
+
+namespace {
+
+class Process
+{
+    QPointer<CppModelManager> _modelManager;
+
+public:
+    Process(QPointer<CppModelManager> modelManager)
+        : _modelManager(modelManager)
+    { }
+
+    void operator()(Document::Ptr doc)
+    {
+        doc->parse();
+        doc->check();
+        doc->releaseTranslationUnit();
+
+        if (_modelManager)
+            _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
+    }
+};
+
+} // end of anonymous namespace
+
+// #define QTCREATOR_WITH_PARALLEL_INDEXER
+
+void CppPreprocessor::run(const QString &fileName)
+{
+    QList<Document::Ptr> documents;
+    run_helper(fileName, &documents);
+
+#ifdef QTCREATOR_WITH_PARALLEL_INDEXER
+    QFuture<void> future = QtConcurrent::map(documents, Process(m_modelManager));
+    future.waitForFinished();
+
+#else
+    foreach (Document::Ptr doc, documents) {
+        doc->parse();
+        doc->check();
+
+        doc->releaseTranslationUnit();
+
+        if (m_modelManager)
+            m_modelManager->emitDocumentUpdated(doc); // ### TODO: compress
+    }
+#endif
+}
+
+void CppPreprocessor::run_helper(const QString &fileName,
+                                 QList<Document::Ptr> *documents)
+{
+    QList<Document::Ptr> *previousDocuments = m_documents;
+    m_documents = documents;
+
+    QString absoluteFilePath = fileName;
+    sourceNeeded(absoluteFilePath, IncludeGlobal, /*line = */ 0);
+
+    m_documents = previousDocuments;
+}
 
 void CppPreprocessor::resetEnvironment()
 { env.reset(); }
-
-void CppPreprocessor::operator()(QString &fileName)
-{ run(fileName); }
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
@@ -475,23 +533,15 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     m_proc(fileName.toUtf8(), contents, &preprocessedCode);
 
     doc->setSource(preprocessedCode);
+    doc->tokenize();
+    doc->releaseSource();
 
-    doc->parse();
-    doc->check();
+    snapshot.insert(doc->fileName(), doc);
 
-#if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
-            DumpAST dump(m_currentDoc->control());
-            dump(m_currentDoc->translationUnit()->ast());
-#endif
-
-    doc->releaseTranslationUnit();
-
-    snapshot[fileName] = doc;
-
-    if (m_modelManager)
-        m_modelManager->emitDocumentUpdated(m_currentDoc); // ### TODO: compress
+    m_documents->append(doc);
 
     (void) switchDocument(previousDoc);
+
     m_todo.remove(fileName);
 }
 

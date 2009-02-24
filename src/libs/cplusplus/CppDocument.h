@@ -96,8 +96,15 @@ public:
         ParseStatement
     };
 
+    bool isTokenized() const;
+    void tokenize();
+
+    bool isParsed() const;
     bool parse(ParseMode mode = ParseTranlationUnit);
+
     void check();
+
+    void releaseSource();
     void releaseTranslationUnit();
 
     static Ptr create(const QString &fileName);
@@ -233,6 +240,7 @@ private:
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
+    QByteArray _source;
 };
 
 class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>

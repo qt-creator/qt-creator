@@ -230,7 +230,8 @@ Document::Ptr Document::create(const QString &fileName)
 
 void Document::setSource(const QByteArray &source)
 {
-    _translationUnit->setSource(source.constBegin(), source.size());
+    _source = source;
+    _translationUnit->setSource(_source.constBegin(), _source.size());
 }
 
 void Document::startSkippingBlocks(unsigned start)
@@ -248,6 +249,21 @@ void Document::stopSkippingBlocks(unsigned stop)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
     else
         _skippedBlocks.back() = Block(start, stop);
+}
+
+bool Document::isTokenized() const
+{
+    return _translationUnit->isTokenized();
+}
+
+void Document::tokenize()
+{
+    _translationUnit->tokenize();
+}
+
+bool Document::isParsed() const
+{
+    return _translationUnit->isParsed();
 }
 
 bool Document::parse(ParseMode mode)
@@ -293,6 +309,11 @@ void Document::check()
             semantic.check(decl, globals);
         }
     }
+}
+
+void Document::releaseSource()
+{
+    _source.clear();
 }
 
 void Document::releaseTranslationUnit()
