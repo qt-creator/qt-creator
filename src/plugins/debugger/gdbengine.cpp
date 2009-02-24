@@ -270,8 +270,6 @@ void GdbEngine::initializeConnections()
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
             SLOT(readDebugeeOutput(QByteArray)));
-    connect(this, SIGNAL(gdbResponseAvailable()),
-        this, SLOT(handleResponse()), Qt::QueuedConnection);
 
     connect(this, SIGNAL(gdbOutputAvailable(QString,QString)),
         q, SLOT(showDebuggerOutput(QString,QString)),
@@ -576,6 +574,7 @@ void GdbEngine::readGdbStandardOutput()
         }
         handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
     }
+    m_inbuffer.clear();
 }
 
 void GdbEngine::interruptInferior()
