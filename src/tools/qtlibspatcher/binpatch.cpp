@@ -36,9 +36,9 @@
 #include <locale>
 
 #include <qglobal.h>
- 
+
 #include "binpatch.h"
- 
+
 #ifdef Q_OS_WIN
 #	define strcasecmp _stricmp
 #	define strncasecmp _strnicmp
@@ -112,7 +112,7 @@ bool BinPatch::patchHelper(char *inbuffer, const char *oldstr, const char *newst
                     write = false;
                     break;
                 }
-                
+
                 long oldsize = -1;
                 if (useLength) { //VC60
                     oldsize = (unsigned char)(*(inbuffer-1));
@@ -125,7 +125,7 @@ bool BinPatch::patchHelper(char *inbuffer, const char *oldstr, const char *newst
                         }
 
                         oldsize = getBufferStringLength(inbuffer, inend);
-                        
+
                         if (oldsize < 0) {
                             *rw = (long)(inend-inbuffer); //rewind, entire string not in buffer
                             break;
@@ -210,8 +210,8 @@ bool BinPatch::patch(const char *oldstr, const char *newstr)
             break;
         len = fread(data, sizeof(char), sizeof(data), input);
     } while(!(feof(input) && (len <= oldlen || len <= newlen)));
-    
+
     fclose(input);
-    
+
     return true;
 }
