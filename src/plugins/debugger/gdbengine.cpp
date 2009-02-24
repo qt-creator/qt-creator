@@ -101,6 +101,7 @@ enum GdbCommandType
     GdbQuerySources,
     GdbAsyncOutput2,
     GdbStart,
+    GdbAttached,
     GdbExecRun,
     GdbExecRunToFunction,
     GdbExecStep,
@@ -825,6 +826,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbStart:
             handleStart(record);
             break;
+        case GdbAttached:
+            handleAttach();
+            break;
         case GdbInfoProc:
             handleInfoProc(record);
             break;
@@ -1127,6 +1131,42 @@ static bool isStoppedReason(const QString &reason)
     ;
 }
 
+void GdbEngine::handleAqcuiredInferior()
+{
+    #if defined(Q_OS_WIN)
+    sendCommand("info thread", GdbInfoThreads);
+    #endif
+    #if defined(Q_OS_LINUX)
+    sendCommand("info proc", GdbInfoProc);
+    #endif
+    #if defined(Q_OS_MAC)
+    sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
+    #endif
+    reloadSourceFiles();
+    tryLoadCustomDumpers();
+
+#ifndef Q_OS_MAC
+    // intentionally after tryLoadCustomDumpers(),
+    // otherwise we'd interupt solib loading.
+    if (qq->wantsAllPluginBreakpoints()) {
+        sendCommand("set auto-solib-add on");
+        sendCommand("set stop-on-solib-events 0");
+        sendCommand("sharedlibrary .*");
+    } else if (qq->wantsSelectedPluginBreakpoints()) {
+        sendCommand("set auto-solib-add on");
+        sendCommand("set stop-on-solib-events 1");
+        sendCommand("sharedlibrary " + qq->selectedPluginBreakpointsPattern());
+    } else if (qq->wantsNoPluginBreakpoints()) {
+        // should be like that already
+        sendCommand("set auto-solib-add off");
+        sendCommand("set stop-on-solib-events 0");
+    }
+#endif
+    // nicer to see a bit of the world we live in
+    reloadModules();
+    attemptBreakpointSynchronization();
+}
+
 void GdbEngine::handleAsyncOutput(const GdbMi &data)
 {
     const QString reason = data.findChild("reason").data();
@@ -1162,43 +1202,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         qq->notifyInferiorStopped();
         m_waitingForFirstBreakpointToBeHit = false;
         //
-        // that's the "early stop"
-        //  
-        #if defined(Q_OS_WIN)
-        sendCommand("info thread", GdbInfoThreads);
-        #endif
-        #if defined(Q_OS_LINUX)
-        sendCommand("info proc", GdbInfoProc);
-        #endif
-        #if defined(Q_OS_MAC)
-        sendCommand("info pid", GdbInfoProc);
-        #endif
-        reloadSourceFiles();
-        tryLoadCustomDumpers();
-
-		#ifndef Q_OS_MAC
-        // intentionally after tryLoadCustomDumpers(),
-        // otherwise we'd interupt solib loading.
-        if (qq->wantsAllPluginBreakpoints()) {
-            sendCommand("set auto-solib-add on");
-            sendCommand("set stop-on-solib-events 0");
-            sendCommand("sharedlibrary .*");
-        } else if (qq->wantsSelectedPluginBreakpoints()) {
-            sendCommand("set auto-solib-add on");
-            sendCommand("set stop-on-solib-events 1");
-            sendCommand("sharedlibrary "+qq->selectedPluginBreakpointsPattern());
-        } else if (qq->wantsNoPluginBreakpoints()) {
-            // should be like that already
-            sendCommand("set auto-solib-add off");
-            sendCommand("set stop-on-solib-events 0");
-        }
-        #endif
-        // nicer to see a bit of the world we live in
-        reloadModules();
         // this will "continue" if done
         m_waitingForBreakpointSynchronizationToContinue = true;
-        //QTimer::singleShot(0, this, SLOT(attemptBreakpointSynchronization()));
-        attemptBreakpointSynchronization();
+        //
+        // that's the "early stop"
+        handleAqcuiredInferior();
         return;
     }
 
@@ -1498,8 +1506,16 @@ void GdbEngine::exitDebugger()
     if (m_gdbProc.state() == QProcess::Running) {
         debugMessage(QString("WAITING FOR RUNNING GDB TO SHUTDOWN: %1")
             .arg(m_gdbProc.state()));
-        interruptInferior();
-        sendCommand("kill");
+        if (q->status() != DebuggerInferiorStopped
+            && q->status() != DebuggerProcessStartingUp) {
+            QTC_ASSERT(q->status() == DebuggerInferiorRunning,
+                qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
+            interruptInferior();
+        }
+        if (q->startMode() == DebuggerManager::AttachExternal)
+            sendCommand("detach");
+        else
+            sendCommand("kill");
         sendCommand("-gdb-exit");
         // 20s can easily happen when loading webkit debug information
         m_gdbProc.waitForFinished(20000);
@@ -1654,7 +1670,7 @@ bool GdbEngine::startDebugger()
     }
 
     if (q->startMode() == DebuggerManager::AttachExternal) {
-        sendCommand("attach " + QString::number(q->m_attachedPID));
+        sendCommand("attach " + QString::number(q->m_attachedPID), GdbAttached);
     } else {
         // StartInternal or StartExternal
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
@@ -1712,6 +1728,37 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
     } else if (response.resultClass == GdbResultError) {
         debugMessage("PARSING START ADDRESS FAILED: " + response.toString());
     }
+}
+
+void GdbEngine::handleAttach()
+{
+    qq->notifyInferiorStopped();
+    q->showStatusMessage(tr("Attached to running process. Stopped."));
+    handleAqcuiredInferior();
+
+    q->resetLocation();
+
+    //
+    // Stack
+    //
+    qq->stackHandler()->setCurrentIndex(0);
+    updateLocals(); // Quick shot
+
+    sendSynchronizedCommand("-stack-list-frames", StackListFrames);
+    if (supportsThreads())
+        sendSynchronizedCommand("-thread-list-ids", StackListThreads, 0);
+
+    //
+    // Disassembler
+    //
+    // XXX we have no data here ...
+    //m_address = data.findChild("frame").findChild("addr").data();
+    //qq->reloadDisassembler();
+
+    //
+    // Registers
+    //
+    qq->reloadRegisters();
 }
 
 void GdbEngine::stepExec()
