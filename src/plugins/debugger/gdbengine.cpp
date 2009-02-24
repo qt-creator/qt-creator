@@ -590,35 +590,6 @@ void GdbEngine::handleResponse()
     lastTime = QTime::currentTime();
 }
 
-#ifdef Q_OS_MAC
-static void fixMac(QByteArray &out)
-{
-    // HACK: gdb on Mac mixes MI1 and MI2 syntax. Not nice.
-    // it returns:   9^done,locals={{name="a"},{name="w"}}
-    // instead of:   9^done,locals=[{name="a"},{name="w"}]
-    if (!out.contains("locals={{name"))
-        return;
-
-    static const QByteArray termArray("(gdb) ");
-    int pos = out.indexOf(termArray);
-    if (pos == -1)
-        return;
-
-    int pos1 = out.indexOf("={{");
-    if (pos1 == -1)
-        return;
-
-    int pos2 = out.indexOf("]]");
-    if (pos2 == -1)
-        return;
-
-    if (pos1 < pos && pos2 < pos) {
-        out[pos1 + 1] = '[';
-        out[pos2 + 1] = ']';
-    }
-}
-#endif
-
 void GdbEngine::readGdbStandardError()
 {
     qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
@@ -636,10 +607,6 @@ void GdbEngine::readGdbStandardOutput()
     QByteArray out = m_gdbProc.readAllStandardOutput();
 
     //qDebug() << "\n\n\nPLUGIN OUT: '" <<  out.data() << "'\n\n\n";
-
-    #ifdef Q_OS_MAC
-    fixMac(out);
-    #endif
 
     m_inbuffer.append(out);
     //QTC_ASSERT(!m_inbuffer.isEmpty(), return);
