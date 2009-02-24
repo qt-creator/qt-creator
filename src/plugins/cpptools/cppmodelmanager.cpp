@@ -173,9 +173,10 @@ public:
     void setTodo(const QStringList &files);
 
     void run(const QString &fileName);
-    void run_helper(const QString &fileName, QList<Document::Ptr> *documents);
 
     void resetEnvironment();
+
+    void parseCollectedDocuments();
 
     const QSet<QString> &todo() const
     { return m_todo; }
@@ -214,7 +215,7 @@ private:
     QSet<QString> m_included;
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
-    QList<Document::Ptr> *m_documents;
+    QList<Document::Ptr> m_documents;
 };
 
 } // namespace Internal
@@ -223,8 +224,7 @@ private:
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
-      m_proc(this, env),
-      m_documents(0)
+      m_proc(this, env)
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
@@ -267,44 +267,23 @@ public:
 
 } // end of anonymous namespace
 
-// #define QTCREATOR_WITH_PARALLEL_INDEXER
-
 void CppPreprocessor::run(const QString &fileName)
 {
-    QList<Document::Ptr> documents;
-    run_helper(fileName, &documents);
-
-#ifdef QTCREATOR_WITH_PARALLEL_INDEXER
-    QFuture<void> future = QtConcurrent::map(documents, Process(m_modelManager));
-    future.waitForFinished();
-
-#else
-    foreach (Document::Ptr doc, documents) {
-        doc->parse();
-        doc->check();
-
-        doc->releaseTranslationUnit();
-
-        if (m_modelManager)
-            m_modelManager->emitDocumentUpdated(doc); // ### TODO: compress
-    }
-#endif
-}
-
-void CppPreprocessor::run_helper(const QString &fileName,
-                                 QList<Document::Ptr> *documents)
-{
-    QList<Document::Ptr> *previousDocuments = m_documents;
-    m_documents = documents;
-
     QString absoluteFilePath = fileName;
     sourceNeeded(absoluteFilePath, IncludeGlobal, /*line = */ 0);
 
-    m_documents = previousDocuments;
+    if (m_documents.size() >= 8)
+        parseCollectedDocuments();
 }
 
 void CppPreprocessor::resetEnvironment()
 { env.reset(); }
+
+void CppPreprocessor::parseCollectedDocuments()
+{
+    QtConcurrent::blockingMap(m_documents, Process(m_modelManager));
+    m_documents.clear();
+}
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
@@ -538,7 +517,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     snapshot.insert(doc->fileName(), doc);
 
-    m_documents->append(doc);
+    m_documents.append(doc);
 
     (void) switchDocument(previousDoc);
 
@@ -1019,6 +998,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         qDebug() << fileName << "parsed in:" << tm.elapsed();
 #endif
     }
+
+    preproc->parseCollectedDocuments();
 
     future.setProgressValue(files.size());
 
