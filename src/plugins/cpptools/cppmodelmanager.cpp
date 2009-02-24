@@ -281,7 +281,9 @@ void CppPreprocessor::resetEnvironment()
 
 void CppPreprocessor::parseCollectedDocuments()
 {
+    QThread::currentThread()->setPriority(QThread::IdlePriority);
     QtConcurrent::blockingMap(m_documents, Process(m_modelManager));
+    QThread::currentThread()->setPriority(QThread::NormalPriority);
     m_documents.clear();
 }
 
@@ -947,13 +949,9 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
     preproc->setTodo(files);
 
-    // Change the priority of the background parser thread to idle.
-    QThread::currentThread()->setPriority(QThread::IdlePriority);
-
     future.setProgressRange(0, files.size());
 
     QString conf = QLatin1String(pp_configuration_file);
-    const int STEP = 10;
 
     bool processingHeaders = false;
 
@@ -964,10 +962,8 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         if (future.isCanceled())
             break;
 
-#ifdef CPPTOOLS_DEBUG_PARSING_TIME
-        QTime tm;
-        tm.start();
-#endif
+        // Change the priority of the background parser thread to idle.
+        QThread::currentThread()->setPriority(QThread::IdlePriority);
 
         QString fileName = files.at(i);
 
@@ -991,20 +987,13 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         if (isSourceFile)
             preproc->resetEnvironment();
 
-        if (! (i % STEP)) // Yields execution of the current thread.
-            QThread::yieldCurrentThread();
-
-#ifdef CPPTOOLS_DEBUG_PARSING_TIME
-        qDebug() << fileName << "parsed in:" << tm.elapsed();
-#endif
+        // Restore the previous thread priority.
+        QThread::currentThread()->setPriority(QThread::NormalPriority);
     }
 
     preproc->parseCollectedDocuments();
 
     future.setProgressValue(files.size());
-
-    // Restore the previous thread priority.
-    QThread::currentThread()->setPriority(QThread::NormalPriority);
 
     delete preproc;
 }
