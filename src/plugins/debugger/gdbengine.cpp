@@ -554,24 +554,29 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
+    int newstart = 0;
+    int scan = m_inbuffer.size();
+
     m_inbuffer.append(m_gdbProc.readAllStandardOutput());
 
-    int newstart = 0;
     while (newstart < m_inbuffer.size()) {
         int start = newstart;
-        int end = m_inbuffer.indexOf('\n', start);
+        int end = m_inbuffer.indexOf('\n', scan);
         if (end < 0) {
             m_inbuffer.remove(0, start);
             return;
         }
         newstart = end + 1;
+        scan = newstart;
         if (end == start)
             continue;
+        #ifdef Q_OS_WIN
         if (m_inbuffer.at(end - 1) == '\r') {
             --end;
             if (end == start)
                 continue;
         }
+        #endif
         handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
     }
     m_inbuffer.clear();
