@@ -215,14 +215,17 @@ void testIO()
     qDebug() << "qDebug() 1";
     qDebug() << "qDebug() 2";
     qDebug() << "qDebug() 3";
+    qDebug() << "qDebug <foo & bar>";
 
     std::cout << "std::cout @@ 1" << std::endl;
     std::cout << "std::cout @@ 2\n";
     std::cout << "std::cout @@ 3" << std::endl;
+    std::cout << "std::cout <foo & bar>\n";
 
     std::cerr << "std::cerr 1\n";
     std::cerr << "std::cerr 2\n";
     std::cerr << "std::cerr 3\n";
+    std::cerr << "std::cerr <foo & bar>\n";
 }
 
 void testQLinkedList()
@@ -961,7 +964,7 @@ void testHidden()
 
 int main(int argc, char *argv[])
 {
-    //testIO();
+    testIO();
     testHidden();
     testArray();
 

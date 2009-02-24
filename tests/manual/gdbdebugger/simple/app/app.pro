@@ -7,3 +7,5 @@ DESTDIR = ..
 # Input
 SOURCES += ../app.cpp
 QT += network
+
+message("this says <foo & bar>")

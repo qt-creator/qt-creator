@@ -205,7 +205,7 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
     if (type == CT_Splitter && widget && widget->property("minisplitter").toBool())
         return QSize(1, 1);
     else if (type == CT_ComboBox && panelWidget(widget))
-        newSize += QSize(10, 0);
+        newSize += QSize(14, 0);
     return newSize;
 }
 
@@ -503,31 +503,21 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade(0, 0, 0, 50);
-                    if (option->state & State_Sunken)
-                        shade = QColor(0, 0, 0, 50);
-#ifndef Q_WS_MAC
-                    else if (option->state & State_MouseOver)
-                        shade = QColor(255, 255, 255, 10);
-#endif
-                    else if (option->state & State_On)
-                        shade = QColor(0, 0, 0, 50);
-                    else
-                        shade = QColor(0, 0, 0, 0);
-                    painter->fillRect(rect.adjusted(1, 1, -1, -1), shade);
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    QColor shade(0, 0, 0, 40);
+                    painter->fillRect(rect, shade);
+                    painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
                     painter->drawLine(rect.topLeft(), rect.bottomLeft());
+                    painter->drawLine(rect.topRight(), rect.bottomRight());
+                   // painter->drawLine(rect.bottomLeft()  + QPoint(1, 0), rect.bottomRight()  - QPoint(1, 0));
                     QColor highlight(255, 255, 255, 30);
                     painter->setPen(highlight);
-                    painter->drawLine(rect.topRight(), rect.bottomRight());
-                    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
                 }
                 else if (option->state & State_Enabled &&
                          option->state & State_MouseOver) {
-                    QColor lighter(255, 255, 255, 35);
+                    QColor lighter(255, 255, 255, 37);
                     painter->fillRect(rect, lighter);
                 }
-            }
+           }
         }
         break;
 
@@ -670,11 +660,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 imagePainter.translate(sx + bsx, sy + bsy);
 
                 if (!(option->state & State_Enabled)) {
-                    imagePainter.translate(1, 1);
-                    imagePainter.setBrush(option->palette.light().color());
-                    imagePainter.setPen(option->palette.light().color());
-                    imagePainter.drawPolygon(a);
-                    imagePainter.translate(-1, -1);
+                    QColor foreGround(150, 150, 150, 150);
                     imagePainter.setBrush(option->palette.mid().color());
                     imagePainter.setPen(option->palette.mid().color());
                 } else {
@@ -781,18 +767,19 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                         editRect.translate(-4 - cb->iconSize.width(), 0);
                     else
                         editRect.translate(cb->iconSize.width() + 4, 0);
+
+                    // Reserve some space for the down-arrow
+                    editRect.adjust(0, 0, -13, 0);
                 }
 
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
 
-                // Reserve some space for the down-arrow
-                QRect rect = editRect.adjusted(0, 0, -8, 0);
-                QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, rect.width());
-                drawItemText(painter, rect.translated(0, 1),
+                QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, editRect.width());
+                drawItemText(painter, editRect.translated(0, 1),
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, StyleHelper::panelTextColor());
-                drawItemText(painter, rect,
+                drawItemText(painter, editRect,
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
             } else {
@@ -1015,8 +1002,10 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         break;
 
     case CC_ComboBox:
-        {
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             painter->save();
+            bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
+            bool reverse = option->direction == Qt::RightToLeft;
 
             // Draw tool button
             QLinearGradient grad(option->rect.topRight(), option->rect.bottomRight());
@@ -1026,28 +1015,36 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             grad.setColorAt(1, QColor(255, 255, 255, 40));
             painter->setPen(QPen(grad, 0));
             painter->drawLine(rect.topRight(), rect.bottomRight());
-            grad.setColorAt(0, QColor(0, 0, 0, 20));
+            grad.setColorAt(0, QColor(0, 0, 0, 30));
             grad.setColorAt(0.4, QColor(0, 0, 0, 70));
             grad.setColorAt(0.7, QColor(0, 0, 0, 70));
             grad.setColorAt(1, QColor(0, 0, 0, 40));
             painter->setPen(QPen(grad, 0));
-            painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
+            if (!reverse)
+                painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
+            else
+                painter->drawLine(rect.topLeft(), rect.bottomLeft());
             QStyleOption toolbutton = *option;
-            toolbutton.rect.adjust(0, 0, -2, 0);
+            if (isEmpty)
+                toolbutton.state &= ~(State_Enabled | State_Sunken);
+            painter->save();
+            painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
             drawPrimitive(PE_PanelButtonTool, &toolbutton, painter, widget);
-
+            painter->restore();
             // Draw arrow
             int menuButtonWidth = 12;
-            bool reverse = option->direction == Qt::RightToLeft;
             int left = !reverse ? rect.right() - menuButtonWidth : rect.left();
             int right = !reverse ? rect.right() : rect.left() + menuButtonWidth;
-            QRect arrowRect((left + right) / 2 - 5, rect.center().y() - 3, 9, 9);
+            QRect arrowRect((left + right) / 2 + (reverse ? 6 : -6), rect.center().y() - 3, 9, 9);
             if (option->state & State_On)
                 arrowRect.translate(d->style->pixelMetric(PM_ButtonShiftHorizontal, option, widget),
                                     d->style->pixelMetric(PM_ButtonShiftVertical, option, widget));
+
             QStyleOption arrowOpt = *option;
             arrowOpt.rect = arrowRect;
-            QPalette pal = option->palette;
+            if (isEmpty)
+                arrowOpt.state &= ~(State_Enabled | State_Sunken);
+
             if (styleHint(SH_ComboBox_Popup, option, widget)) {
                 arrowOpt.rect.translate(0, -3);
                 drawPrimitive(PE_IndicatorArrowUp, &arrowOpt, painter, widget);
