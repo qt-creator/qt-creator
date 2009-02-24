@@ -167,7 +167,6 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
     static const struct
     {
         const char *fileName;
-        const char *sourceLocation;
     } libraries[] = {
 #ifdef Q_OS_WIN
         { "/bin/Qt3Supportd4.dll" },
@@ -223,7 +222,7 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         { "/bin/pixeltool" },
         { "/bin/qcollectiongenerator" },
         { "/bin/qdbus" },
-        { "/bin/qdbuscpp2xml" }
+        { "/bin/qdbuscpp2xml" },
         { "/bin/qdbuscpp2xml" },
         { "/bin/qdbusviewer" },
         { "/bin/qdbusxml2cpp" },
@@ -495,7 +494,7 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         { "/plugins/sqldrivers/libqsqlite.so" },
         { "/plugins/sqldrivers/libqsqlite2.so" },
         { "/plugins/sqldrivers/libqsqlmysql.so" },
-        { "/plugins/sqldrivers/libqsqlpsql.so" },
+        { "/plugins/sqldrivers/libqsqlpsql.so" }
 #endif
     };
 
