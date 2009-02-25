@@ -38,13 +38,13 @@
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
-#	define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.5.0/qt";
+#   define QT_INSTALL_DIR "C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.5.0/qt";
 
-	const char * const oldInstallBase = QT_INSTALL_DIR;
-	const char * const oldSourceBase = QT_INSTALL_DIR;
+    const char * const oldInstallBase = QT_INSTALL_DIR;
+    const char * const oldSourceBase = QT_INSTALL_DIR;
 #else
-    const char * const oldSourceBase = "/home/berlin/dev/qt-4.5.0-temp/this_path_is_supposed/to_be_very_long/hopefully_this/is_long_enough/qt-x11-opensource-src-4.5.0";
-    const char * const oldInstallBase = "/home/berlin/dev/qt-4.5.0-shipping/this_path_is_supposed/to_be_very_long/hopefully_this/is_long_enough/qt";
+    const char * const oldSourceBase = "/home/berlin/dev/qt-4.5.0-opensource-temp/this_path_is_supposed_to_be_very_long_hopefully_this_is_long_enough/qt-x11-opensource-src-4.5.0";
+    const char * const oldInstallBase = "/home/berlin/dev/qt-4.5.0-opensource-shipping/this_path_is_supposed_to_be_very_long_hopefully_this_is_long_enough/qt";
 #endif
 
 
