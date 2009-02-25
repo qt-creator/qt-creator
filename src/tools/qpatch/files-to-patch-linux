@@ -281,6 +281,7 @@ plugins/sqldrivers/libqsqlite.so
 plugins/sqldrivers/libqsqlite2.so
 plugins/sqldrivers/libqsqlmysql.so
 plugins/sqldrivers/libqsqlpsql.so
+%%
 lib/libQtCore.la
 lib/libQt3Support.la
 lib/libQtCLucene.la
