@@ -9,17 +9,13 @@ int main(int argc, char *argv[])
     args.removeFirst();
 
     if (args.size() != 3) {
-        std::cerr << "Usage: qpatch file oldQtDir newQtDir" << std::endl;
+        std::cerr << "Usage: qpatch file.list oldQtDir newQtDir" << std::endl;
         return EXIT_FAILURE;
     }
 
     const QString files = args.takeFirst();
     const QByteArray qtDirPath = QFile::encodeName(args.takeFirst());
     const QByteArray newQtPath = QFile::encodeName(args.takeFirst());
-
-    QString suffix;
-    if (! args.isEmpty())
-        suffix = args.takeFirst();
 
     if (qtDirPath.size() < newQtPath.size()) {
         std::cerr << "qpatch: error: newQtDir needs to be less than " << qtDirPath.size() << " characters."
@@ -33,44 +29,54 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    QStringList filesToPatch;
+    QStringList filesToPatch, textFilesToPatch;
+    bool readingTextFilesToPatch = false;
+
+    // read the input file
     QTextStream in(&fn);
+
     forever {
-        QString line;
-        line = in.readLine();
+        const QString line = in.readLine();
 
         if (line.isNull())
             break;
 
-        filesToPatch.append(line);
+        else if (line.isEmpty())
+            continue;
+
+        else if (line.startsWith(QLatin1String("%%")))
+            readingTextFilesToPatch = true;
+
+        else if (readingTextFilesToPatch)
+            textFilesToPatch.append(line);
+
+        else
+            filesToPatch.append(line);
     }
 
-
     foreach (QString fileName, filesToPatch) {
+        QString prefix = newQtPath;
 
-        QString prefix;
-        prefix += newQtPath;
         if (! prefix.endsWith(QLatin1Char('/')))
             prefix += QLatin1Char('/');
 
         fileName.prepend(prefix);
 
-        qDebug() << "patch file:" << fileName;
-        continue;
-
         QFile file(fileName);
         if (! file.open(QFile::ReadOnly)) {
-            std::cerr << "qpatch: warning: file not found" << std::endl;
+            std::cerr << "qpatch: warning: file `" << qPrintable(fileName) << "' not found" << std::endl;
             continue;
         }
 
-        const QFile::Permissions permissions = file.permissions();
-
         const QByteArray source = file.readAll();
         file.close();
+
         int index = 0;
 
-        QVector<char> patched;
+        if (! file.open(QFile::WriteOnly | QFile::Truncate)) {
+            std::cerr << "qpatch: error: file `" << qPrintable(fileName) << "' not writable" << std::endl;
+            continue;
+        }
 
         forever {
             int start = source.indexOf(qtDirPath, index);
@@ -78,26 +84,26 @@ int main(int argc, char *argv[])
                 break;
 
             int endOfString = start;
-            while (source.at(endOfString))
-                ++endOfString;
+            for (; endOfString < source.size(); ++endOfString) {
+                if (! source.at(endOfString))
+                    break;
+            }
 
             ++endOfString; // include the '\0'
 
-            //qDebug() << "*** found string:" << source.mid(start, endOfString - start);
-
-            for (int i = index; i < start; ++i)
-                patched.append(source.at(i));
+            if (index != start)
+                file.write(source.constData() + index, start - index);
 
             int length = endOfString - start;
             QVector<char> s;
 
-            for (const char *x = newQtPath.constData(); x != newQtPath.constEnd() - 1; ++x)
+            for (const char *x = newQtPath.constData(); x != newQtPath.constEnd(); ++x)
                 s.append(*x);
 
             const int qtDirPathLength = qtDirPath.size();
 
-            for (const char *x = source.constData() + start + qtDirPathLength - 1;
-            x != source.constData() + endOfString; ++x)
+            for (const char *x = source.constData() + start + qtDirPathLength;
+                    x != source.constData() + endOfString; ++x)
                 s.append(*x);
 
             const int oldSize = s.size();
@@ -105,20 +111,44 @@ int main(int argc, char *argv[])
             for (int i = oldSize; i < length; ++i)
                 s.append('\0');
 
-            for (int i = 0; i < s.size(); ++i)
-                patched.append(s.at(i));
+#if 0
+            std::cout << "replace string: " << source.mid(start, endOfString - start).constData()
+                    << " with: " << s.constData() << std::endl;
+#endif
+
+            file.write(s.constData(), s.size());
 
             index = endOfString;
         }
 
-        for (int i = index; i < source.size(); ++i)
-            patched.append(source.at(i));
+        if (index != source.size())
+            file.write(source.constData() + index, source.size() - index);
+    }
 
-        QFile out(fileName /* + suffix*/);
-        out.setPermissions(permissions);
-        if (out.open(QFile::WriteOnly)) {
-            out.write(patched.constData(), patched.size());
+    foreach (QString fileName, textFilesToPatch) {
+        QString prefix = newQtPath;
+
+        if (! prefix.endsWith(QLatin1Char('/')))
+            prefix += QLatin1Char('/');
+
+        fileName.prepend(prefix);
+
+        QFile file(fileName);
+        if (! file.open(QFile::ReadOnly)) {
+            std::cerr << "qpatch: warning: file `" << qPrintable(fileName) << "' not found" << std::endl;
+            continue;
         }
+
+        QByteArray source = file.readAll();
+        file.close();
+
+        if (! file.open(QFile::WriteOnly | QFile::Truncate)) {
+            std::cerr << "qpatch: error: file `" << qPrintable(fileName) << "' not writable" << std::endl;
+            continue;
+        }
+
+        source.replace(qtDirPath, newQtPath);
+        file.write(source);
     }
 
     return 0;
