@@ -1,21 +1,21 @@
 
-#include <QtCore>
+//#include <QCoreApplication>
+#include <QStringList>
+#include <QFile>
+#include <QVector>
+#include <QTextStream>
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
-    QStringList args = app.arguments();
-    args.removeFirst();
-
-    if (args.size() != 3) {
+    if (argc != 4) {
         std::cerr << "Usage: qpatch file.list oldQtDir newQtDir" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const QString files = args.takeFirst();
-    const QByteArray qtDirPath = QFile::encodeName(args.takeFirst());
-    const QByteArray newQtPath = QFile::encodeName(args.takeFirst());
+    const QByteArray files = argv[1];
+    const QByteArray qtDirPath = argv[2];
+    const QByteArray newQtPath = argv[3];
 
     if (qtDirPath.size() < newQtPath.size()) {
         std::cerr << "qpatch: error: newQtDir needs to be less than " << qtDirPath.size() << " characters."
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    QFile fn(files);
+    QFile fn(QFile::decodeName(files));
     if (! fn.open(QFile::ReadOnly)) {
         std::cerr << "qpatch: error: file not found" << std::endl;
         return EXIT_FAILURE;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     }
 
     foreach (QString fileName, filesToPatch) {
-        QString prefix = newQtPath;
+        QString prefix = QFile::decodeName(newQtPath);
 
         if (! prefix.endsWith(QLatin1Char('/')))
             prefix += QLatin1Char('/');
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     }
 
     foreach (QString fileName, textFilesToPatch) {
-        QString prefix = newQtPath;
+        QString prefix = QFile::decodeName(newQtPath);
 
         if (! prefix.endsWith(QLatin1Char('/')))
             prefix += QLatin1Char('/');
