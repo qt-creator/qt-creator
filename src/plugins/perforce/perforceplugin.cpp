@@ -1,35 +1,31 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 
 #include "perforceplugin.h"
 
@@ -220,7 +216,6 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_coreListener = new CoreListener(this);
     addObject(m_coreListener);
-
 
     //register actions
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
@@ -682,6 +677,8 @@ void PerforcePlugin::updateActions()
 
 bool PerforcePlugin::managesDirectory(const QString &directory) const
 {
+    if (!checkP4Command())
+        return false;
     const QString p4Path = directory + QLatin1String("/...");
     QStringList args;
     args << QLatin1String("fstat") << QLatin1String("-m1") << p4Path;
@@ -758,7 +755,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     tempfile.setAutoRemove(true);
     const QChar newLine = QLatin1Char('\n');
     const QChar blank = QLatin1Char(' ');
-    QStringList actualArgs = basicP4Args();
+    QStringList actualArgs = m_settings.basicP4Args();
     if (!extraArgs.isEmpty()) {
         if (tempfile.open()) {
             QTextStream stream(&tempfile);
@@ -773,7 +770,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     actualArgs << args;
 
     if (logFlags & CommandToWindow) {
-        QString command = m_settings.p4Command;
+        QString command = m_settings.p4Command();
         command += blank;
         command += actualArgs.join(QString(blank));
         const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
@@ -799,7 +796,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         connect(&process, SIGNAL(stdOutBuffered(QString,bool)), m_perforceOutputWindow, SLOT(append(QString,bool)));
     }
 
-    const Core::Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command, actualArgs);
+    const Core::Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), actualArgs);
     if (Perforce::Constants::debug)
         qDebug() << sp_resp;
 
@@ -817,7 +814,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         response.message = tr("The process terminated abnormally.");
         break;
     case Core::Utils::SynchronousProcessResponse::StartFailed:
-        response.message = tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(m_settings.p4Command);
+        response.message = tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(m_settings.p4Command());
         break;
     case Core::Utils::SynchronousProcessResponse::Hang:
         response.message = tr("Perforce did not respond within timeout limit (%1 ms).").arg(p4Timeout );
@@ -969,8 +966,8 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             proc.setEnvironment(environment());
 
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-            proc.start(m_settings.p4Command,
-                basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
+            proc.start(m_settings.p4Command(),
+                m_settings.basicP4Args() << QLatin1String("submit") << QLatin1String("-i"));
             if (!proc.waitForStarted(p4Timeout)) {
                 showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
@@ -1018,8 +1015,8 @@ QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QProcess proc;
     proc.setEnvironment(environment());
-    proc.start(m_settings.p4Command,
-        basicP4Args() << QLatin1String("fstat") << serverFilePath);
+    proc.start(m_settings.p4Command(),
+        m_settings.basicP4Args() << QLatin1String("fstat") << serverFilePath);
 
     QString path;
     if (proc.waitForFinished(3000)) {
@@ -1047,22 +1044,9 @@ QString PerforcePlugin::currentFileName()
     return fileName;
 }
 
-QStringList PerforcePlugin::basicP4Args() const
-{
-    QStringList lst;
-    if (!m_settings.defaultEnv) {
-        lst << QLatin1String("-c") << m_settings.p4Client;
-        lst << QLatin1String("-p") << m_settings.p4Port;
-        lst << QLatin1String("-u") << m_settings.p4User;
-    }
-    return lst;
-}
-
 bool PerforcePlugin::checkP4Command() const
 {
-    if (m_settings.p4Command.isEmpty())
-        return false;
-    return true;
+    return m_settings.isValid();
 }
 
 QString PerforcePlugin::pendingChangesData()
@@ -1074,8 +1058,8 @@ QString PerforcePlugin::pendingChangesData()
     QString user;
     QProcess proc;
     proc.setEnvironment(environment());
-    proc.start(m_settings.p4Command,
-        basicP4Args() << QLatin1String("info"));
+    proc.start(m_settings.p4Command(),
+        m_settings.basicP4Args() << QLatin1String("info"));
     if (proc.waitForFinished(3000)) {
         QString output = QString::fromUtf8(proc.readAllStandardOutput());
         if (!output.isEmpty()) {
@@ -1087,8 +1071,8 @@ QString PerforcePlugin::pendingChangesData()
     }
     if (user.isEmpty())
         return data;
-    proc.start(m_settings.p4Command,
-        basicP4Args() << QLatin1String("changes") << QLatin1String("-s") << QLatin1String("pending") << QLatin1String("-u") << user);
+    proc.start(m_settings.p4Command(),
+        m_settings.basicP4Args() << QLatin1String("changes") << QLatin1String("-s") << QLatin1String("pending") << QLatin1String("-u") << user);
     if (proc.waitForFinished(3000))
         data = QString::fromUtf8(proc.readAllStandardOutput());
     return data;
@@ -1139,17 +1123,24 @@ PerforcePlugin::~PerforcePlugin()
     }
 }
 
-PerforceSettings PerforcePlugin::settings() const
+const PerforceSettings& PerforcePlugin::settings() const
 {
     return m_settings;
 }
 
-void PerforcePlugin::setSettings(const PerforceSettings &s)
+void PerforcePlugin::setSettings(const QString &p4Command, const QString &p4Port, const QString &p4Client, const QString p4User, bool defaultEnv)
 {
-    if (s != m_settings) {
-        m_settings = s;
-        if (QSettings *settings = Core::ICore::instance()->settings())
-            m_settings.toSettings(settings);
+
+    if (m_settings.p4Command() == p4Command
+        && m_settings.p4Port() == p4Port
+        && m_settings.p4Client() == p4Client
+        && m_settings.p4User() == p4User
+        && m_settings.defaultEnv() == defaultEnv)
+    {
+        // Nothing to do
+    } else {
+        m_settings.setSettings(p4Command, p4Port, p4Client, p4User, defaultEnv);
+        m_settings.toSettings(Core::ICore::instance()->settings());
     }
 }
 
@@ -1162,9 +1153,9 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
         return perforceName;
     // "where" remaps the file to client file tree
     QProcess proc;
-    QStringList args(basicP4Args());
+    QStringList args(m_settings.basicP4Args());
     args << QLatin1String("where") << perforceName;
-    proc.start(m_settings.p4Command, args);
+    proc.start(m_settings.p4Command(), args);
     if (!proc.waitForFinished()) {
         *errorMessage = tr("Timeout waiting for \"where\" (%1).").arg(perforceName);
         return QString();

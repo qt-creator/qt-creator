@@ -70,7 +70,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="pathLabel">
           <property name="text">
-           <string>Path:</string>
+           <string>Create in:</string>
           </property>
          </widget>
         </item>

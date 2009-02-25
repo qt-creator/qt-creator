@@ -6,3 +6,6 @@
 #define   restrict
 #define __restrict
 #define __weak
+#define __complex__
+#define __imag__
+#define __real__

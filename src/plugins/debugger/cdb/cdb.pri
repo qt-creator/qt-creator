@@ -25,9 +25,6 @@ SOURCES += \
     $$PWD/cdbdebugengine.cpp \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp
-
-LIBS += -L$$CDB_LIBPATH Dbghelp.lib dbgeng.lib
-
 } else {
    error("Debugging Tools for Windows could not be found in $$CDB_PATH")
 }

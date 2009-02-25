@@ -16,14 +16,14 @@ fi
 OLD=`sed 's/\./\\\\./g' <<<"$1"`
 NEW=`sed 's/\./\\\\./g' <<<"$2"`
 
-OLD_MAJOR=`sed 's/^\([0-9]\+\)\.[0-9]\+\.[0-9]\+$/\1/' <<<"$1"`
-NEW_MAJOR=`sed 's/^\([0-9]\+\)\.[0-9]\+\.[0-9]\+$/\1/' <<<"$2"`
+OLD_MAJOR=`sed 's/^\([0-9]\)\.[0-9]\.[0-9]$/\1/' <<<"$1"`
+NEW_MAJOR=`sed 's/^\([0-9]\)\.[0-9]\.[0-9]$/\1/' <<<"$2"`
 
-OLD_MINOR=`sed 's/^[0-9]\+\.\([0-9]\+\)\.[0-9]\+$/\1/' <<<"$1"`
-NEW_MINOR=`sed 's/^[0-9]\+\.\([0-9]\+\)\.[0-9]\+$/\1/' <<<"$2"`
+OLD_MINOR=`sed 's/^[0-9]\.\([0-9]\)\.[0-9]$/\1/' <<<"$1"`
+NEW_MINOR=`sed 's/^[0-9]\.\([0-9]\)\.[0-9]$/\1/' <<<"$2"`
 
-OLD_RELEASE=`sed 's/^[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/\1/' <<<"$1"`
-NEW_RELEASE=`sed 's/^[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/\1/' <<<"$2"`
+OLD_RELEASE=`sed 's/^[0-9]\.[0-9]\.\([0-9]\)$/\1/' <<<"$1"`
+NEW_RELEASE=`sed 's/^[0-9]\.[0-9]\.\([0-9]\)$/\1/' <<<"$2"`
 
 OLD_THREE="${OLD_MAJOR}${OLD_MINOR}${OLD_RELEASE}"
 NEW_THREE="${NEW_MAJOR}${NEW_MINOR}${NEW_RELEASE}"
@@ -53,7 +53,7 @@ echo
 
 
 ## Make script safe to call from anywhere by going home first
-SCRIPT_DIR=`dirname "${PWD}/$0"`
+SCRIPT_DIR=`dirname "${PWD}/$0"`/..
 echo "Entering directory \`${SCRIPT_DIR}'"
 pushd "${SCRIPT_DIR}" &>/dev/null || exit 1
 
@@ -61,7 +61,7 @@ pushd "${SCRIPT_DIR}" &>/dev/null || exit 1
 ## Patch *.pluginspec
 while read i ; do
     echo "Patching \`$i'"
-    TMPFILE=`mktemp`
+    TMPFILE=`mktemp versionPatch.XXXXXX`
     sed -e 's/version="'"${OLD}"'"/version="'"${NEW}"'"/' \
             -e 's/compatVersion="'"${OLD}"'"/compatVersion="'"${NEW}"'"/' \
             "${i}" > "${TMPFILE}"
@@ -70,7 +70,7 @@ done < <(find . -name '*.pluginspec')
 
 
 ## Patch coreconstants.h
-TMPFILE=`mktemp`
+TMPFILE=`mktemp versionPatch.XXXXXX`
 CORE_CONSTANT_H="${SCRIPT_DIR}/src/plugins/coreplugin/coreconstants.h"
 echo "Patching \`${CORE_CONSTANT_H}'"
 sed \
@@ -82,8 +82,8 @@ mv -f "${TMPFILE}" "${CORE_CONSTANT_H}"
 
 
 ## Patch installer.rc
-TMPFILE=`mktemp`
-INSTALLER_RC="${SCRIPT_DIR}/../ide/nightly_builds/installer/installer.rc"
+TMPFILE=`mktemp versionPatch.XXXXXX`
+INSTALLER_RC="${SCRIPT_DIR}/../../dev/ide/nightly_builds/installer/installer.rc"
 echo "Patching \`${INSTALLER_RC}'"
 sed \
         -e "s/"${OLD_DOT_FOUR}"/"${NEW_DOT_FOUR}"/" \
@@ -94,8 +94,8 @@ mv -f "${TMPFILE}" "${INSTALLER_RC}"
 
 
 ## Patch Info.plist
-TMPFILE=`mktemp`
-INFO_PLIST="${SCRIPT_DIR}/src/app/Info.plist"
+TMPFILE=`mktemp versionPatch.XXXXXX`
+INFO_PLIST="${SCRIPT_DIR}/share/qtcreator/Info.plist"
 echo "Patching \`${INFO_PLIST}'"
 sed \
         -e "s/"${OLD}"/"${NEW}"/" \
@@ -104,7 +104,7 @@ mv -f "${TMPFILE}" "${INFO_PLIST}"
 
 
 ## Patch qtcreator.qdocconf
-TMPFILE=`mktemp`
+TMPFILE=`mktemp versionPatch.XXXXXX`
 QDOCCONF="${SCRIPT_DIR}/doc/qtcreator.qdocconf"
 echo "Patching \`${QDOCCONF}'"
 sed \
@@ -115,11 +115,11 @@ mv -f "${TMPFILE}" "${QDOCCONF}"
 
 
 ## Patch qtcreator.qdoc
-TMPFILE=`mktemp`
+TMPFILE=`mktemp versionPatch.XXXXXX`
 QDOC="${SCRIPT_DIR}/doc/qtcreator.qdoc"
 echo "Patching \`${QDOC}'"
 sed \
-        -e 's/\(The current version of Qt Creator is \)'${OLD_DOT_THREE}'/\1'${NEW_DOT_THREE}'/' \
+        -e 's/'${OLD_DOT_THREE}'/'${NEW_DOT_THREE}'/' \
     "${QDOC}" > "${TMPFILE}"
 mv -f "${TMPFILE}" "${QDOC}"
 

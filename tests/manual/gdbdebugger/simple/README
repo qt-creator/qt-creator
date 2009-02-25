@@ -1,0 +1,10 @@
+
+Thinks to check:
+
+- loading of custom dumpers (as seen on QByteArray/QString)
+- availability of Qt debug information (custom display of QObject derived
+class)
+- availabitily of Qt sources (single step into some Qt *._cpp_ file)
+- setting of breakpoints on dynamically loaded plugins (try plugin.cpp here)
+- check I/O  (qDebug, std::cout, std::cerr)
+

@@ -9,11 +9,9 @@ macx {
     SCHEMES.files = $$PWD/qtcreator/schemes
     GDBDEBUGGER.path = Contents/Resources
     GDBDEBUGGER.files = $$PWD/qtcreator/gdbmacros
-    LICENSE.path = Contents/Resources
-    LICENSE.files = $$PWD/qtcreator/license.txt
     RUNINTERMINAL.path = Contents/Resources
     RUNINTERMINAL.files = $$PWD/qtcreator/runInTerminal.command
-    QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER LICENSE RUNINTERMINAL
+    QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER RUNINTERMINAL
     QMAKE_INFO_PLIST = $$PWD/qtcreator/Info.plist
 }
 
@@ -43,9 +41,6 @@ win32|linux-* {
 }
 
 linux-* {
-    licenses.files          += $$PWD/qtcreator/license.txt
-    licenses.path            = /share/qtcreator
-
     keymaps.files           += $$PWD/qtcreator/schemes/MS_Visual_C++.kms
     keymaps.files           += $$PWD/qtcreator/schemes/Xcode.kms
     keymaps.path             = /share/qtcreator/schemes
@@ -71,7 +66,6 @@ linux-* {
     projecttemplates.path    = /share/qtcreator/templates/qt4project
 
     INSTALLS += \
-       licenses \
        keymaps \
        gdbsupport \
        designertemplates \

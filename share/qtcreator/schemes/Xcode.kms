@@ -114,13 +114,13 @@
  <shortcut id="QtCreator.DocumentToNextGroup" >
   <key value="" />
  </shortcut>
- <shortcut id="QtCreator.Mode.QtCreator.Mode.Output" >
+ <shortcut id="QtCreator.Mode.Output" >
   <key value="Meta+6" />
  </shortcut>
- <shortcut id="QtCreator.Mode.QtCreator.Mode.Welcome" >
+ <shortcut id="QtCreator.Mode.Welcome" >
   <key value="Meta+1" />
  </shortcut>
- <shortcut id="QtCreator.Mode.QtCreator.Mode.Edit" >
+ <shortcut id="QtCreator.Mode.Edit" >
   <key value="Meta+2" />
  </shortcut>
  <shortcut id="Find.FindInCurrentDocument" >
@@ -150,13 +150,13 @@
  <shortcut id="Find.WholeWords" >
   <key value="" />
  </shortcut>
- <shortcut id="QtCreator.View.QuickOpen.ToolWindow" >
+ <shortcut id="QtCreator.QuickOpen" >
   <key value="Ctrl+Shift+D" />
  </shortcut>
  <shortcut id="TextEditor.CompleteThis" >
   <key value="Alt+Esc" />
  </shortcut>
- <shortcut id="QtCreator.Mode.ProjectExplorer.Mode.Session" >
+ <shortcut id="QtCreator.Mode.Project" >
   <key value="Meta+4" />
  </shortcut>
  <shortcut id="ProjectExplorer.NewSession" >
@@ -282,22 +282,22 @@
  <shortcut id="FormEditor.Preview" >
   <key value="Ctrl+Alt+R" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.Windows" >
+ <shortcut id="FormEditor.Menu.Preview.Windows" >
   <key value="" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.Motif" >
+ <shortcut id="FormEditor.Menu.Preview.Motif" >
   <key value="" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.CDE" >
+ <shortcut id="FormEditor.Menu.Preview.CDE" >
   <key value="" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.Plastique" >
+ <shortcut id="FormEditor.Menu.Preview.Plastique" >
   <key value="" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.Cleanlooks" >
+ <shortcut id="FormEditor.Menu.Preview.Cleanlooks" >
   <key value="" />
  </shortcut>
- <shortcut id="Formeditor.Menu.Preview.Macintosh (aqua)" >
+ <shortcut id="FormEditor.Menu.Preview.Macintosh (aqua)" >
   <key value="" />
  </shortcut>
  <shortcut id="FormEditor.FormSettings" >
@@ -369,7 +369,7 @@
  <shortcut id="Help.Context" >
   <key value="F1" />
  </shortcut>
- <shortcut id="QtCreator.Mode.Help.HelpMode" >
+ <shortcut id="QtCreator.Mode.Help" >
   <key value="Meta+5" />
  </shortcut>
  <shortcut id="Help.IndexShortcut" >
@@ -387,13 +387,13 @@
  <shortcut id="Qt4Builder.RunQMakeContextMenu" >
   <key value="" />
  </shortcut>
- <shortcut id="Qt Script Editor.Run" >
+ <shortcut id="QtScriptEditor.Run" >
   <key value="Ctrl+R" />
  </shortcut>
- <shortcut id="CodePaster.post" >
+ <shortcut id="CodePaster.Post" >
   <key value="Alt+C, Alt+P" />
  </shortcut>
- <shortcut id="CodePaster.fetch" >
+ <shortcut id="CodePaster.Fetch" >
   <key value="Alt+C, Alt+F" />
  </shortcut>
  <shortcut id="Debugger.StartExternal" >
@@ -456,7 +456,7 @@
  <shortcut id="Debugger.AddToWatch" >
   <key value="" />
  </shortcut>
- <shortcut id="QtCreator.Mode.Debugger.Mode.Debug" >
+ <shortcut id="QtCreator.Mode.Debug" >
   <key value="Meta+3" />
  </shortcut>
  <shortcut id="Perforce.Edit" >
@@ -504,10 +504,10 @@
  <shortcut id="Perforce.Filelog" >
   <key value="" />
  </shortcut>
- <shortcut id="Nokia.Perforce.SubmitCurrentLog" >
+ <shortcut id="Perforce.SubmitCurrentLog" >
   <key value="" />
  </shortcut>
- <shortcut id="Nokia.Perforce.DiffSelectedFilesInLog" >
+ <shortcut id="Perforce.DiffSelectedFilesInLog" >
   <key value="" />
  </shortcut>
  <shortcut id="Bookmarks.Toggle" >
@@ -525,10 +525,10 @@
  <shortcut id="Bookmarks.Next" >
   <key value="Meta+." />
  </shortcut>
- <shortcut id="Bookmarks.Previous.Document" >
+ <shortcut id="Bookmarks.PreviousDocument" >
   <key value="" />
  </shortcut>
- <shortcut id="Bookmarks.Next.Document" >
+ <shortcut id="Bookmarks.NextDocument" >
   <key value="" />
  </shortcut>
  <shortcut id="TextEditor.SelectEncoding" >

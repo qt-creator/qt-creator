@@ -1,35 +1,31 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 
 #include <cplusplus/pp.h>
 
@@ -48,6 +44,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -72,6 +69,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtConcurrentMap>
 #include <iostream>
 #include <sstream>
 
@@ -140,6 +138,10 @@ static const char pp_configuration[] =
     "#define   restrict\n"
     "#define __restrict\n"
 
+    "#define __complex__\n"
+    "#define __imag__\n"
+    "#define __real__\n"
+
     // ### add macros for win32
     "#define __cdecl\n"
     "#define QT_WA(x) x\n"
@@ -164,8 +166,16 @@ public:
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
     void setProjectFiles(const QStringList &files);
-    void run(QString &fileName);
-    void operator()(QString &fileName);
+    void setTodo(const QStringList &files);
+
+    void run(const QString &fileName);
+
+    void resetEnvironment();
+
+    void parseCollectedDocuments();
+
+    const QSet<QString> &todo() const
+    { return m_todo; }
 
 public: // attributes
     Snapshot snapshot;
@@ -199,7 +209,9 @@ private:
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
-    CPlusPlus::Document::Ptr m_currentDoc;
+    Document::Ptr m_currentDoc;
+    QSet<QString> m_todo;
+    QList<Document::Ptr> m_documents;
 };
 
 } // namespace Internal
@@ -223,11 +235,53 @@ void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
 void CppPreprocessor::setProjectFiles(const QStringList &files)
 { m_projectFiles = files; }
 
-void CppPreprocessor::run(QString &fileName)
-{ sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
+void CppPreprocessor::setTodo(const QStringList &files)
+{ m_todo = QSet<QString>::fromList(files); }
 
-void CppPreprocessor::operator()(QString &fileName)
-{ run(fileName); }
+
+namespace {
+
+class Process
+{
+    QPointer<CppModelManager> _modelManager;
+
+public:
+    Process(QPointer<CppModelManager> modelManager)
+        : _modelManager(modelManager)
+    { }
+
+    void operator()(Document::Ptr doc)
+    {
+        doc->parse();
+        doc->check();
+        doc->releaseTranslationUnit();
+
+        if (_modelManager)
+            _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
+    }
+};
+
+} // end of anonymous namespace
+
+void CppPreprocessor::run(const QString &fileName)
+{
+    QString absoluteFilePath = fileName;
+    sourceNeeded(absoluteFilePath, IncludeGlobal, /*line = */ 0);
+
+    if (m_documents.size() >= 8)
+        parseCollectedDocuments();
+}
+
+void CppPreprocessor::resetEnvironment()
+{ env.reset(); }
+
+void CppPreprocessor::parseCollectedDocuments()
+{
+    QThread::currentThread()->setPriority(QThread::IdlePriority);
+    QtConcurrent::blockingMap(m_documents, Process(m_modelManager));
+    QThread::currentThread()->setPriority(QThread::NormalPriority);
+    m_documents.clear();
+}
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
@@ -386,7 +440,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
 
     processed->insert(fn);
 
-    foreach (Document::Include incl, doc->includes()) {
+    foreach (const Document::Include &incl, doc->includes()) {
         QString includedFile = incl.fileName();
 
         if (Document::Ptr includedDoc = snapshot.value(includedFile))
@@ -395,9 +449,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *process
             run(includedFile);
     }
 
-    foreach (const Macro macro, doc->definedMacros()) {
-        env.bind(macro);
-    }
+    env.addMacros(doc->definedMacros());
 }
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)
@@ -424,55 +476,50 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(fileName, line);
+
         if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
             QString msg;
+
             msg += fileName;
             msg += QLatin1String(": No such file or directory");
+
             Document::DiagnosticMessage d(Document::DiagnosticMessage::Warning,
                                           m_currentDoc->fileName(),
                                           env.currentLine, /*column = */ 0,
                                           msg);
+
             m_currentDoc->addDiagnosticMessage(d);
+
             //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
         }
     }
 
-    if (! contents.isEmpty()) {
-        Document::Ptr cachedDoc = snapshot.value(fileName);
-        if (cachedDoc && m_currentDoc) {
-            mergeEnvironment(cachedDoc);
-        } else {
-            Document::Ptr previousDoc = switchDocument(Document::create(fileName));
+    //qDebug() << "parse file:" << fileName << "contents:" << contents.size();
 
-            const QByteArray previousFile = env.currentFile;
-            const unsigned previousLine = env.currentLine;
-
-            TranslationUnit *unit = m_currentDoc->translationUnit();
-            env.currentFile = QByteArray(unit->fileName(), unit->fileNameLength());
-
-            QByteArray preprocessedCode;
-            m_proc(contents, &preprocessedCode);
-            //qDebug() << preprocessedCode;
-
-            env.currentFile = previousFile;
-            env.currentLine = previousLine;
-
-            m_currentDoc->setSource(preprocessedCode);
-            m_currentDoc->parse();
-
-#if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
-            DumpAST dump(m_currentDoc->control());
-            dump(m_currentDoc->translationUnit()->ast());
-#endif
-
-            m_currentDoc->check();
-            m_currentDoc->releaseTranslationUnit(); // release the AST and the token stream.
-
-            if (m_modelManager)
-                m_modelManager->emitDocumentUpdated(m_currentDoc);
-            (void) switchDocument(previousDoc);
-        }
+    Document::Ptr doc = snapshot.value(fileName);
+    if (doc) {
+        mergeEnvironment(doc);
+        return;
     }
+
+    doc = Document::create(fileName);
+
+    Document::Ptr previousDoc = switchDocument(doc);
+
+    QByteArray preprocessedCode;
+    m_proc(fileName.toUtf8(), contents, &preprocessedCode);
+
+    doc->setSource(preprocessedCode);
+    doc->tokenize();
+    doc->releaseSource();
+
+    snapshot.insert(doc->fileName(), doc);
+
+    m_documents.append(doc);
+
+    (void) switchDocument(previousDoc);
+
+    m_todo.remove(fileName);
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -737,10 +784,9 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
             QList<TextEditor::BaseTextEditor::BlockRange> blockRanges;
 
-            foreach (const Document::Block block, doc->skippedBlocks()) {
+            foreach (const Document::Block &block, doc->skippedBlocks()) {
                 blockRanges.append(TextEditor::BaseTextEditor::BlockRange(block.begin(), block.end()));
             }
-            ed->setIfdefedOutBlocks(blockRanges);
 
             QList<QTextEdit::ExtraSelection> selections;
 
@@ -750,7 +796,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             macroFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
 
             QTextCursor c = ed->textCursor();
-            foreach (const Document::Block block, doc->macroUses()) {
+            foreach (const Document::MacroUse &block, doc->macroUses()) {
                 QTextEdit::ExtraSelection sel;
                 sel.cursor = c;
                 sel.cursor.setPosition(block.begin());
@@ -771,7 +817,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             warningFormat.setUnderlineColor(Qt::darkYellow);
 
             QSet<int> lines;
-            foreach (const Document::DiagnosticMessage m, doc->diagnosticMessages()) {
+            foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
                 if (m.fileName() != fileName)
                     continue;
                 else if (lines.contains(m.line()))
@@ -799,7 +845,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             }
 
             QList<Editor> todo;
-            foreach (Editor e, todo) {
+            foreach (const Editor &e, todo) {
                 if (e.widget != ed)
                     todo.append(e);
             }
@@ -807,6 +853,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             Editor e;
             e.widget = ed;
             e.selections = selections;
+            e.ifdefedOutBlocks = blockRanges;
             todo.append(e);
             m_todo = todo;
             postEditorUpdate();
@@ -822,12 +869,14 @@ void CppModelManager::postEditorUpdate()
 
 void CppModelManager::updateEditorSelections()
 {
-    foreach (Editor ed, m_todo) {
+    foreach (const Editor &ed, m_todo) {
         if (! ed.widget)
             continue;
 
         ed.widget->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
                                       ed.selections);
+
+        ed.widget->setIfdefedOutBlocks(ed.ifdefedOutBlocks);
     }
 
     m_todo.clear();
@@ -872,19 +921,35 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     if (files.isEmpty())
         return;
 
-    foreach (QString file, files) {
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+    QStringList headers, sources;
+    Core::MimeType cSourceTy = db->findByType(QLatin1String("text/x-csrc"));
+    Core::MimeType cppSourceTy = db->findByType(QLatin1String("text/x-c++src"));
+
+    foreach (const QString &file, files) {
+        const QFileInfo fileInfo(file);
+
+        if (cSourceTy.matchesFile(fileInfo) || cppSourceTy.matchesFile(fileInfo))
+            sources.append(file);
+
+        else
+            headers.append(file);
+    }
+
+    foreach (const QString &file, files) {
         preproc->snapshot.remove(file);
     }
 
-    // Change the priority of the background parser thread to idle.
-    QThread::currentThread()->setPriority(QThread::IdlePriority);
+    files = sources;
+    files += headers;
+
+    preproc->setTodo(files);
 
     future.setProgressRange(0, files.size());
 
     QString conf = QLatin1String(pp_configuration_file);
-    (void) preproc->run(conf);
 
-    const int STEP = 10;
+    bool processingHeaders = false;
 
     for (int i = 0; i < files.size(); ++i) {
         if (future.isPaused())
@@ -893,28 +958,38 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         if (future.isCanceled())
             break;
 
-        future.setProgressValue(i);
-
-#ifdef CPPTOOLS_DEBUG_PARSING_TIME
-        QTime tm;
-        tm.start();
-#endif
+        // Change the priority of the background parser thread to idle.
+        QThread::currentThread()->setPriority(QThread::IdlePriority);
 
         QString fileName = files.at(i);
+
+        bool isSourceFile = false;
+        if (cppSourceTy.matchesFile(fileName) || cSourceTy.matchesFile(fileName))
+            isSourceFile = true;
+
+        if (isSourceFile)
+            (void) preproc->run(conf);
+
+        else if (! processingHeaders) {
+            (void) preproc->run(conf);
+
+            processingHeaders = true;
+        }
+
         preproc->run(fileName);
 
-        if (! (i % STEP)) // Yields execution of the current thread.
-            QThread::yieldCurrentThread();
+        future.setProgressValue(files.size() - preproc->todo().size());
 
-#ifdef CPPTOOLS_DEBUG_PARSING_TIME
-        qDebug() << fileName << "parsed in:" << tm.elapsed();
-#endif
+        if (isSourceFile)
+            preproc->resetEnvironment();
+
+        // Restore the previous thread priority.
+        QThread::currentThread()->setPriority(QThread::NormalPriority);
     }
 
-    future.setProgressValue(files.size());
+    preproc->parseCollectedDocuments();
 
-    // Restore the previous thread priority.
-    QThread::currentThread()->setPriority(QThread::NormalPriority);
+    future.setProgressValue(files.size());
 
     delete preproc;
 }
