@@ -266,8 +266,6 @@ void GdbEngine::initializeConnections()
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
             SLOT(readDebugeeOutput(QByteArray)));
-    connect(this, SIGNAL(gdbResponseAvailable()),
-        this, SLOT(handleResponse()), Qt::QueuedConnection);
 
     connect(this, SIGNAL(gdbOutputAvailable(QString,QString)),
         q, SLOT(showDebuggerOutput(QString,QString)),
@@ -337,12 +335,6 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     q->exitDebugger();
 }
 
-static void skipSpaces(const char *&from, const char *to)
-{
-    while (from != to && QChar(*from).isSpace())
-        ++from;
-}
-
 static inline bool isNameChar(char c)
 {
     // could be 'stopped' or 'shlibs-added'
@@ -365,15 +357,6 @@ static void dump(const char *first, const char *middle, const QString & to)
 }
 #endif
 
-static void skipTerminator(const char *&from, const char *to)
-{
-    skipSpaces(from, to);
-    // skip '(gdb)'
-    if (from[0] == '(' && from[1] == 'g' && from[3] == 'b' && from[4] == ')')
-        from += 5;
-    skipSpaces(from, to);
-}
-
 void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
     emit applicationOutputAvailable(m_outputCodec->toUnicode(
@@ -385,235 +368,180 @@ void GdbEngine::debugMessage(const QString &msg)
     emit gdbOutputAvailable("debug:", msg);
 }
 
-// called asyncronously as response to Gdb stdout output in
-// gdbResponseAvailable()
-void GdbEngine::handleResponse()
+void GdbEngine::handleResponse(const QByteArray &buff)
 {
     static QTime lastTime;
 
     emit gdbOutputAvailable("            ", currentTime());
-    emit gdbOutputAvailable("stdout:", m_inbuffer);
+    emit gdbOutputAvailable("stdout:", buff);
 
 #if 0
     qDebug() // << "#### start response handling #### "
         << currentTime()
         << lastTime.msecsTo(QTime::currentTime()) << "ms,"
-        << "buf: " << m_inbuffer.left(1500) << "..."
-        //<< "buf: " << m_inbuffer
-        << "size:" << m_inbuffer.size();
+        << "buf: " << buff.left(1500) << "..."
+        //<< "buf: " << buff
+        << "size:" << buff.size();
 #else
-    //qDebug() << "buf: " << m_inbuffer;
+    //qDebug() << "buf: " << buff;
 #endif
 
     lastTime = QTime::currentTime();
 
-    while (1) {
-        if (m_inbuffer.isEmpty())
+    if (buff.isEmpty() || buff == "(gdb) ")
+        return;
+
+    const char *from = buff.constData();
+    const char *to = from + buff.size();
+    const char *inner;
+
+    int token = -1;
+    // token is a sequence of numbers
+    for (inner = from; inner != to; ++inner)
+        if (*inner < '0' || *inner > '9')
             break;
+    if (from != inner) {
+        token = QByteArray(from, inner - from).toInt();
+        from = inner;
+        //qDebug() << "found token " << token;
+    }
 
-        const char *from = m_inbuffer.constData();
-        // FIXME: check for line ending in '\n(gdb)\n'
-        const char *to = from + m_inbuffer.size();
-        const char *inner;
+    // next char decides kind of record
+    const char c = *from++;
+    //qDebug() << "CODE:" << c;
+    switch (c) {
+        case '*':
+        case '+':
+        case '=': {
+            QByteArray asyncClass;
+            for (; from != to; ++from) {
+                const char c = *from;
+                if (!isNameChar(c))
+                    break;
+                asyncClass += *from;
+            }
+            //qDebug() << "ASYNCCLASS" << asyncClass;
 
-        //const char *oldfrom = from;
+            GdbMi record;
+            while (from != to) {
+                if (*from != ',') {
+                    qDebug() << "MALFORMED ASYNC OUTPUT" << from;
+                    return;
+                }
+                ++from; // skip ','
+                GdbMi data;
+                data.parseResultOrValue(from, to);
+                if (data.isValid()) {
+                    //qDebug() << "parsed response: " << data.toString();
+                    record.m_children += data;
+                    record.m_type = GdbMi::Tuple;
+                }
+            }
+            if (asyncClass == "stopped") {
+                handleAsyncOutput(record);
+            } else if (asyncClass == "running") {
+                // Archer has 'thread-id="all"' here
+            #ifdef Q_OS_MAC
+            } else if (asyncClass == "shlibs-updated") {
+                // MAC announces updated libs
+            } else if (asyncClass == "shlibs-added") {
+                // MAC announces added libs
+                // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
+                // kind="-", dyld-addr="0x7f000", reason="dyld", requested-state="Y",
+                // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib",
+                // description="/usr/lib/system/libmathCommon.A_debug.dylib",
+                // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
+            #endif
+            } else {
+                qDebug() << "IGNORED ASYNC OUTPUT "
+                    << asyncClass << record.toString();
+            }
+            break;
+        }
 
-        //skipSpaces(from, to);
-        skipTerminator(from, to);
-        int token = -1;
+        case '~': {
+            m_pendingConsoleStreamOutput += GdbMi::parseCString(from, to);
+            break;
+        }
 
-        // token is a sequence of numbers
-        for (inner = from; inner != to; ++inner)
-            if (*inner < '0' || *inner > '9')
-                break;
-        if (from != inner) {
-            token = QString(QByteArray(from, inner - from)).toInt();
+        case '@': {
+            m_pendingTargetStreamOutput += GdbMi::parseCString(from, to);
+            break;
+        }
+
+        case '&': {
+            QByteArray data = GdbMi::parseCString(from, to);
+            m_pendingLogStreamOutput += data;
+            // On Windows, the contents seem to depend on the debugger
+            // version and/or OS version used.
+            if (data.startsWith("warning:"))
+                qq->showApplicationOutput(data);
+            break;
+        }
+
+        case '^': {
+            GdbResultRecord record;
+
+            record.token = token;
+
+            for (inner = from; inner != to; ++inner)
+                if (*inner < 'a' || *inner > 'z')
+                    break;
+
+            QByteArray resultClass(from, inner - from);
+
+            if (resultClass == "done")
+                record.resultClass = GdbResultDone;
+            else if (resultClass == "running")
+                record.resultClass = GdbResultRunning;
+            else if (resultClass == "connected")
+                record.resultClass = GdbResultConnected;
+            else if (resultClass == "error")
+                record.resultClass = GdbResultError;
+            else if (resultClass == "exit")
+                record.resultClass = GdbResultExit;
+            else
+                record.resultClass = GdbResultUnknown;
+
             from = inner;
-            //qDebug() << "found token " << token;
-        }
+            if (from != to) {
+                if (*from != ',') {
+                    qDebug() << "MALFORMED RESULT OUTPUT" << from;
+                    return;
+                }
+                ++from;
+                record.data.parseTuple_helper(from, to);
+                record.data.m_type = GdbMi::Tuple;
+                record.data.m_name = "data";
+            }
 
-        if (from == to) {
-            //qDebug() << "Returning: " << toString();
+            //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
+            //qDebug() << "\nTARGET STREAM:" + m_pendingTargetStreamOutput;
+            //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
+            record.data.setStreamOutput("logstreamoutput",
+                m_pendingLogStreamOutput);
+            record.data.setStreamOutput("targetstreamoutput",
+                m_pendingTargetStreamOutput);
+            record.data.setStreamOutput("consolestreamoutput",
+                m_pendingConsoleStreamOutput);
+            QByteArray custom = m_customOutputForToken[token];
+            if (!custom.isEmpty())
+                record.data.setStreamOutput("customvaluecontents",
+                    '{' + custom + '}');
+            //m_customOutputForToken.remove(token);
+            m_pendingLogStreamOutput.clear();
+            m_pendingTargetStreamOutput.clear();
+            m_pendingConsoleStreamOutput.clear();
+
+            handleResultRecord(record);
             break;
         }
-
-        // next char decides kind of record
-        const char c = *from++;
-        //qDebug() << "CODE:" << c;
-
-        switch (c) {
-            case '*':
-            case '+':
-            case '=': {
-                QByteArray asyncClass;
-                for (; from != to; ++from) {
-                    const char c = *from;
-                    if (!isNameChar(c))
-                        break;
-                    asyncClass += *from;
-                }
-                //qDebug() << "ASYNCCLASS" << asyncClass;
-
-                GdbMi record;
-                while (from != to && *from == ',') {
-                    ++from; // skip ','
-                    GdbMi data;
-                    data.parseResultOrValue(from, to);
-                    if (data.isValid()) {
-                        //qDebug() << "parsed response: " << data.toString();
-                        record.m_children += data;
-                        record.m_type = GdbMi::Tuple;
-                    }
-                }
-                //dump(oldfrom, from, record.toString());
-                skipTerminator(from, to);
-                m_inbuffer = QByteArray(from, to - from);
-                if (asyncClass == "stopped") {
-                    handleAsyncOutput(record);
-                } else if (asyncClass == "running") {
-                    // Archer has 'thread-id="all"' here
-                #ifdef Q_OS_MAC
-                } else if (asyncClass == "shlibs-updated") {
-                    // MAC announces updated libs
-                } else if (asyncClass == "shlibs-added") {
-                    // MAC announces added libs
-                    // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
-                    // kind="-", dyld-addr="0x7f000", reason="dyld", requested-state="Y",
-                    // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib", 
-                    // description="/usr/lib/system/libmathCommon.A_debug.dylib",
-                    // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
-                #endif
-                } else {
-                    qDebug() << "IGNORED ASYNC OUTPUT "
-                        << asyncClass << record.toString();
-                }
-                break;
-            }
-
-            case '~': {
-                QByteArray data = GdbMi::parseCString(from, to);
-                m_pendingConsoleStreamOutput += data;
-                m_inbuffer = QByteArray(from, to - from);
-                break;
-            }
-
-            case '@': {
-                QByteArray data = GdbMi::parseCString(from, to);
-                m_pendingTargetStreamOutput += data;
-                m_inbuffer = QByteArray(from, to - from);
-                break;
-            }
-
-            case '&': {
-                QByteArray data = GdbMi::parseCString(from, to);
-                m_pendingLogStreamOutput += data;
-                m_inbuffer = QByteArray(from, to - from);
-                // On Windows, the contents seem to depend on the debugger
-                // version and/or OS version used.
-                if (data.startsWith("warning:"))
-                    qq->showApplicationOutput(data);
-                break;
-            }
-
-            case '^': {
-                GdbResultRecord record;
-
-                record.token = token;
-
-                for (inner = from; inner != to; ++inner)
-                    if (*inner < 'a' || *inner > 'z')
-                        break;
-
-                QByteArray resultClass(from, inner - from);
-
-                if (resultClass == "done")
-                    record.resultClass = GdbResultDone;
-                else if (resultClass == "running")
-                    record.resultClass = GdbResultRunning;
-                else if (resultClass == "connected")
-                    record.resultClass = GdbResultConnected;
-                else if (resultClass == "error")
-                    record.resultClass = GdbResultError;
-                else if (resultClass == "exit")
-                    record.resultClass = GdbResultExit;
-                else
-                    record.resultClass = GdbResultUnknown;
-
-                from = inner;
-                skipSpaces(from, to);
-                if (from != to && *from == ',') {
-                    ++from;
-                    record.data.parseTuple_helper(from, to);
-                    record.data.m_type = GdbMi::Tuple;
-                    record.data.m_name = "data";
-                }
-                skipSpaces(from, to);
-                skipTerminator(from, to);
-
-                //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
-                //qDebug() << "\nTARGET STREAM:" + m_pendingTargetStreamOutput;
-                //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
-                record.data.setStreamOutput("logstreamoutput",
-                    m_pendingLogStreamOutput);
-                record.data.setStreamOutput("targetstreamoutput",
-                    m_pendingTargetStreamOutput);
-                record.data.setStreamOutput("consolestreamoutput",
-                    m_pendingConsoleStreamOutput);
-                QByteArray custom = m_customOutputForToken[token];
-                if (!custom.isEmpty())
-                    record.data.setStreamOutput("customvaluecontents",
-                        '{' + custom + '}');
-                //m_customOutputForToken.remove(token);
-                m_pendingLogStreamOutput.clear();
-                m_pendingTargetStreamOutput.clear();
-                m_pendingConsoleStreamOutput.clear();
-
-                //dump(oldfrom, from, record.toString());
-                m_inbuffer = QByteArray(from, to - from);
-                handleResultRecord(record);
-                break;
-            }
-            default: {
-                qDebug() << "FIXME: UNKNOWN CODE: " << c << " IN " << m_inbuffer;
-                m_inbuffer = QByteArray(from, to - from);
-                break;
-            }
+        default: {
+            qDebug() << "UNKNOWN RESPONSE TYPE" << c;
+            break;
         }
     }
-
-    //qDebug() << "##### end response handling ####\n\n\n"
-    //    << currentTime() << lastTime.msecsTo(QTime::currentTime());
-    lastTime = QTime::currentTime();
 }
-
-#ifdef Q_OS_MAC
-static void fixMac(QByteArray &out)
-{
-    // HACK: gdb on Mac mixes MI1 and MI2 syntax. Not nice.
-    // it returns:   9^done,locals={{name="a"},{name="w"}}
-    // instead of:   9^done,locals=[{name="a"},{name="w"}]
-    if (!out.contains("locals={{name"))
-        return;
-
-    static const QByteArray termArray("(gdb) ");
-    int pos = out.indexOf(termArray);
-    if (pos == -1)
-        return;
-
-    int pos1 = out.indexOf("={{");
-    if (pos1 == -1)
-        return;
-
-    int pos2 = out.indexOf("]]");
-    if (pos2 == -1)
-        return;
-
-    if (pos1 < pos && pos2 < pos) {
-        out[pos1 + 1] = '[';
-        out[pos2 + 1] = ']';
-    }
-}
-#endif
 
 void GdbEngine::readGdbStandardError()
 {
@@ -622,34 +550,32 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
-    // This is the function called whenever the Gdb process created
-    // output. As a rule of thumb, stdout contains _real_ Gdb output
-    // as responses to our command
-    // and "spontaneous" events like messages on loaded shared libraries.
-    // OTOH, stderr contains application output produced by qDebug etc.
-    // There is no organized way to pass application stdout output.
+    int newstart = 0;
+    int scan = m_inbuffer.size();
 
-    QByteArray out = m_gdbProc.readAllStandardOutput();
+    m_inbuffer.append(m_gdbProc.readAllStandardOutput());
 
-    //qDebug() << "\n\n\nPLUGIN OUT: '" <<  out.data() << "'\n\n\n";
-
-    #ifdef Q_OS_MAC
-    fixMac(out);
-    #endif
-
-    m_inbuffer.append(out);
-    //QTC_ASSERT(!m_inbuffer.isEmpty(), return);
-
-    char c = m_inbuffer[m_inbuffer.size() - 1];
-    static const QByteArray termArray("(gdb) ");
-    if (out.indexOf(termArray) == -1 && c != 10 && c != 13) {
-        //qDebug() << "\n\nBuffer not yet filled, waiting for more data to arrive";
-        //qDebug() << m_inbuffer.data() << m_inbuffer.size();
-        //qDebug() << "\n\n";
-        return;
+    while (newstart < m_inbuffer.size()) {
+        int start = newstart;
+        int end = m_inbuffer.indexOf('\n', scan);
+        if (end < 0) {
+            m_inbuffer.remove(0, start);
+            return;
+        }
+        newstart = end + 1;
+        scan = newstart;
+        if (end == start)
+            continue;
+        #ifdef Q_OS_WIN
+        if (m_inbuffer.at(end - 1) == '\r') {
+            --end;
+            if (end == start)
+                continue;
+        }
+        #endif
+        handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
     }
-
-    emit gdbResponseAvailable();
+    m_inbuffer.clear();
 }
 
 void GdbEngine::interruptInferior()
@@ -1660,8 +1586,14 @@ bool GdbEngine::startDebugger()
             sendCommand("-exec-arguments " + q->m_processArgs.join(" "));
         #ifndef Q_OS_MAC
         sendCommand("set auto-solib-add off");
-        #endif
         sendCommand("info target", GdbStart);
+        #else
+        // On MacOS, breaking in at the entry point wreaks havoc.
+        sendCommand("tbreak main");
+        m_waitingForFirstBreakpointToBeHit = true;
+        qq->notifyInferiorRunningRequested();
+        sendCommand("-exec-run");
+        #endif
     }
 
     // set all to "pending"
@@ -1683,6 +1615,9 @@ void GdbEngine::continueInferior()
 
 void GdbEngine::handleStart(const GdbResultRecord &response)
 {
+#ifdef Q_OS_MAC
+    Q_UNUSED(response);
+#else
     if (response.resultClass == GdbResultDone) {
         // [some leading stdout here]
         // stdout:&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
@@ -1701,6 +1636,7 @@ void GdbEngine::handleStart(const GdbResultRecord &response)
     } else if (response.resultClass == GdbResultError) {
         debugMessage("FETCHING START ADDRESS FAILED: " + response.toString());
     }
+#endif
 }
 
 void GdbEngine::handleAttach()

@@ -1,0 +1,23 @@
+QtCreator 1.0.0
+===============
+QtCreator is a crossplatform C++ IDE for development with the Qt framework.
+
+Supported Platforms
+===================
+The binary packages support
+
+Windows XP SP2, Windows Vista
+(K)Ubuntu Linux 5.04, (K)Ubuntu Linux 7.04 32bit and 64bit
+Mac OS 10.4 and later
+
+Building the sources require Qt 4.5.0 or later.
+
+Third-party components
+======================
+QtCreator includes the following third-party components,
+we thank the authors who made this possible:
+
+* Open Source front-end for C++ (license MIT), enhanced for use in Qt Creator
+  Roberto Raggi <roberto.raggi@gmail.com>
+  QtCreator/src/shared/cplusplus
+
