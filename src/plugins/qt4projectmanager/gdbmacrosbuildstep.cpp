@@ -62,7 +62,8 @@ bool GdbMacrosBuildStep::init(const QString &buildConfiguration)
 void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 {
     QStringList files;
-    files << "gdbmacros.cpp" << "gdbmacros.pro";
+    files << "gdbmacros.cpp" << "gdbmacros.pro"
+          << "LICENSE.LGPL" << "LGPL_EXCEPTION.TXT";
 
     QVariant v = value("clean");
     if (v.isNull() || v.toBool() == false) {
