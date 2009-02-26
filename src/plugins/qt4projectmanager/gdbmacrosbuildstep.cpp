@@ -37,6 +37,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -72,10 +74,15 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         QDir dir;
         dir.mkpath(destDir);
         foreach (const QString &file, files) {
-            QFile destination(destDir + file);
-            if (destination.exists())
-                destination.remove();
-            QFile::copy(dumperPath + file, destDir + file);
+            QString source = dumperPath + file;
+            QString dest = destDir + file;
+            QFileInfo destInfo(dest);
+            if (destInfo.exists()) {
+                if (destInfo.lastModified() >= QFileInfo(source).lastModified())
+                    continue;
+                QFile::remove(dest);
+            }
+            QFile::copy(source, dest);
         }
 
         Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
