@@ -420,6 +420,13 @@ void Qt4Project::updateCodeModel()
     if (t == QtVersion::MinGW || t == QtVersion::OTHER) {
         QStringList list = rootProjectNode()->variableValue(Internal::CxxCompilerVar);
         QString qmake_cxx = list.isEmpty() ? QString::null : list.first();
+
+        if (qmake_cxx.isEmpty()) {
+            // macx-xcode mkspec resets the value of QMAKE_CXX.
+            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
+            qmake_cxx = QLatin1String("cc");
+        }
+
         qmake_cxx = environment(activeBuildConfiguration()).searchInPath(qmake_cxx);
         m_preproc.setGcc(qmake_cxx);
         predefinedMacros = m_preproc.predefinedMacros();

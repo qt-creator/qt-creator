@@ -691,17 +691,10 @@ void Qt4ProFileNode::update()
 
     Qt4PriFileNode::update(fileForCurrentProject, reader);
 
-    QString qmakeCxx = reader->value(QLatin1String("QMAKE_CXX"));
-    if (qmakeCxx.isEmpty()) {
-        // macx-xcode mkspec resets the value of QMAKE_CXX.
-        // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
-        qmakeCxx = QLatin1String("c++");
-    }
-
     // update other variables
     QHash<Qt4Variable, QStringList> newVarValues;
 
-    newVarValues[CxxCompilerVar] << qmakeCxx;
+    newVarValues[CxxCompilerVar] << reader->value(QLatin1String("QMAKE_CXX"));
     newVarValues[DefinesVar] = reader->values(QLatin1String("DEFINES"));
     newVarValues[IncludePathVar] = includePaths(reader);
     newVarValues[UiDirVar] = uiDirPaths(reader);
