@@ -61,15 +61,14 @@ bool GdbMacrosBuildStep::init(const QString &buildConfiguration)
 
 void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 {
+    QStringList files;
+    files << "gdbmacros.cpp" << "gdbmacros.pro";
+
     QVariant v = value("clean");
     if (v.isNull() || v.toBool() == false) {
         addToOutputWindow("<b>Creating gdb macros library...</b>");
         // Normal run
         QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
-        QStringList files;
-        files << "gdbmacros.cpp"
-              << "gdbmacros.pro";
-
         QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
         QDir dir;
         dir.mkpath(destDir);
@@ -149,10 +148,6 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         make.setWorkingDirectory(destDir);
         make.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), QStringList()<<"distclean");
         make.waitForFinished();
-
-        QStringList files;
-        files << "gdbmacros.cpp"
-              << "gdbmacros.pro";
 
         QStringList directories;
         directories << "debug"
