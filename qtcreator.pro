@@ -11,3 +11,11 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src
+
+# for Qt Creator translations
+QTC_BUILD_ROOT = $$PWD
+QTC_INSTALL_TRANSLATIONS = $$PWD/translations
+
+include(translations/translations.pri)
+translations.path = $$QTC_INSTALL_TRANSLATIONS
+translations.files = $$QTC_INSTALL_TRANSLATIONS/*.qm
