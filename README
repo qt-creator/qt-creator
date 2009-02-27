@@ -4,13 +4,13 @@ QtCreator is a crossplatform C++ IDE for development with the Qt framework.
 
 Supported Platforms
 ===================
-The binary packages support
+The binary packages support the following platforms:
 
 Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 5.04, (K)Ubuntu Linux 7.04 32bit and 64bit
 Mac OS 10.4 and later
 
-Building the sources require Qt 4.5.0 or later.
+Building the sources requires Qt 4.5.0 or later.
 
 Third-party components
 ======================
