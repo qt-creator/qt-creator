@@ -47,19 +47,21 @@
     To learn more about the Qt Creator, click on one of the links below:
 
     \list
-       \o \l{A Quick Tour of Qt Creator}
-       \o \l{Creating a Project in Qt Creator}
-       \o \l{The Code Editor}
-       \o \l{Build Settings}
-       \o \l{Qt Version Management}
-       \o \l{Writing a Simple Program with Qt Creator}
-       \o \l{Qt Creator and Version Control Systems}
-       \o \l{Navigating Quickly Around Your Code with Locator}
-       \o \l{Debugging with Qt Creator}
-       \o \l{Tips and Tricks}
-       \o \l{Keyboard Shortcuts}
-       \o \l{Glossary}
-       \o \l{Known Issues of Version 1.0.0}
+       \o   \l{A Quick Tour of Qt Creator}
+       \o   \l{Creating a Project in Qt Creator}
+       \o   \l{The Code Editor}
+       \o   \l{Build Settings}
+       \o   \l{Qt Version Management}
+       \o   \l{Writing a Simple Program with Qt Creator}
+       \o   \l{Qt Creator and Version Control Systems}
+       \o   \l{Navigating Quickly Around Your Code with Locator}
+       \o   \l{Debugging with Qt Creator}
+       \o   \l{Tips and Tricks}
+       \o   \l{Keyboard Shortcuts}
+       \o   \l{Glossary}
+       \o   \l{Supported Platforms}
+       \o   \l{Known Issues of Version 1.0.0}
+       \o   \l{Acknowledgements}
     \endlist
 
 */
@@ -1147,7 +1149,7 @@
 
     \note In this scenario, some breakpoints may not be set by the debugger.
 
-        
+
     \section2 Disassembler View and Registers View
 
     By default, both the \gui Disassembler and \gui Registers view are hidden.
@@ -1420,6 +1422,27 @@
 /*!
     \contentspage index.html
     \previouspage creator-keyboard-shortcuts.html
+    \page creator-supported-platforms.html
+
+    \title Supported Platforms
+
+    Qt Creator is available in binary packages for the following platforms:
+
+    \list
+        \o  Windows XP Service Pack 2
+        \o  Windows Vista
+        \o  (K)Ubuntu Linux 5.04
+        \o  (K)Ubuntu Linux 7.04 32bit and 64 bit
+        \o  Mac OS 10.4 and later
+    \endlist
+
+    \note Building the sources requires \bold{Qt 4.5.0} or later.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-supported-platforms.html
     \page creator-known-issues.html
 
     \title Known Issues of Version 1.0.0
@@ -1463,7 +1486,7 @@
            \l{https://bugs.launchpad.net/ubuntu/+source/gdb/+bug/230315/} for
            details. The only solution to this problem is to boot another
            kernel.
-        
+
         \o Gdb may take long to load debugging symbols, especially from large
            libraries like \c libQtWebKit. Starting the debugging module can
            take up to several minutes without visible progress.
@@ -1475,3 +1498,22 @@
     \endlist
 */
 
+
+/*!
+    \contentspage index.html
+    \previouspage creator-known-issues.html
+    \page creator-acknowledgements.html
+
+    \title Acknowledgements
+
+    \section1 Third-party Components
+
+    Qt Creator contains the following third-party components:
+
+    \list
+    \o  \bold{Open Source front-end for C++ (license MIT)}, enhanced for use in
+        Qt Creator. \br
+        Roberto Raggi <roberto.raggi@gmail.com> \br
+        QtCreator/src/shard/cplusplus
+    \endlist
+*/
