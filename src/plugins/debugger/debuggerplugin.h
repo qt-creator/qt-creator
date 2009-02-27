@@ -93,6 +93,7 @@ private slots:
 
     void breakpointMarginActionTriggered();
     void focusCurrentEditor(Core::IMode *mode);
+    void showSettingsDialog();
 
 private:
     void readSettings();

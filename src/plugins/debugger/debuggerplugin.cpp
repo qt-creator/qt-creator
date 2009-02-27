@@ -707,6 +707,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
 
+    connect(m_manager, SIGNAL(settingsDialogRequested()),
+        this, SLOT(showSettingsDialog()));
+
     return true;
 }
 
@@ -961,6 +964,11 @@ void DebuggerPlugin::focusCurrentEditor(IMode *mode)
 
     if (editorManager->currentEditor())
         editorManager->currentEditor()->widget()->setFocus();
+}
+
+void DebuggerPlugin::showSettingsDialog()
+{
+    Core::ICore::instance()->showOptionsDialog("Debugger", "Gdb");
 }
 
 #include "debuggerplugin.moc"

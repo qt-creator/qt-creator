@@ -102,12 +102,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
+    QAction *act3 = 0;
+    QAction *act4 = 0;
+    QAction *act5 = new QAction("Debugger properties...", &menu);
 
     menu.addAction(act1);
     menu.addAction(act2);
 
-    QAction *act3 = 0;
-    QAction *act4 = 0;
     QModelIndex idx = indexAt(ev->pos());
     QModelIndex mi0 = idx.sibling(idx.row(), 0);
     QString exp = model()->data(mi0).toString();
@@ -128,6 +129,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         act4->setChecked(visual);
         // FIXME: menu.addAction(act4);
     }
+    menu.addSeparator();
+    menu.addAction(act5);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -144,6 +147,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             emit requestRemoveWatchExpression(exp);
     else if (act == act4)
         model()->setData(mi0, !visual, VisualRole);
+    else if (act == act5)
+        emit settingsDialogRequested();
 }
 
 void WatchWindow::resizeColumnsToContents()

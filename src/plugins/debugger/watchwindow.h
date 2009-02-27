@@ -63,6 +63,7 @@ signals:
     void requestAssignValue(const QString &exp, const QString &value);
     void requestExpandChildren(const QModelIndex &idx);
     void requestCollapseChildren(const QModelIndex &idx);
+    void settingsDialogRequested();
 
 private slots:
     void handleChangedItem(QWidget *);

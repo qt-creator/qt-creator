@@ -258,6 +258,8 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger(QString,QString)));
     connect(localsView, SIGNAL(requestWatchExpression(QString)),
         this, SLOT(watchExpression(QString)));
+    connect(localsView, SIGNAL(settingsDialogRequested()),
+        this, SIGNAL(settingsDialogRequested()));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
@@ -276,6 +278,8 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
+    connect(watchersView, SIGNAL(settingsDialogRequested()),
+        this, SIGNAL(settingsDialogRequested()));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);

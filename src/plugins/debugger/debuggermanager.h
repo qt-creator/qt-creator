@@ -371,6 +371,7 @@ signals:
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &output);
+    void settingsDialogRequested();
 
 public:
     // FIXME: make private
