@@ -85,7 +85,7 @@ bool ApplicationRunConfigurationRunner::canRun(QSharedPointer<RunConfiguration> 
 
 QString ApplicationRunConfigurationRunner::displayName() const
 {
-    return QObject::tr("Run");
+    return tr("Run");
 }
 
 RunControl* ApplicationRunConfigurationRunner::run(QSharedPointer<RunConfiguration> runConfiguration, const QString &mode)

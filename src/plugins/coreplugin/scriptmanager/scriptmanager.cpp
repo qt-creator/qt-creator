@@ -234,7 +234,7 @@ bool ScriptManagerPrivate::runScript(const QString &script, QString *errorMessag
         const QStringList backTrace = m_engine.uncaughtExceptionBacktrace();
         parseBackTrace(backTrace, *stack);
         const QString backtrace = backTrace.join(QString(QLatin1Char('\n')));
-        *errorMessage = QObject::tr("Exception at line %1: %2\n%3").arg(errorLineNumber).arg(engineError(m_engine)).arg(backtrace);
+        *errorMessage = ScriptManager::tr("Exception at line %1: %2\n%3").arg(errorLineNumber).arg(engineError(m_engine)).arg(backtrace);
     }
     m_engine.popContext();
     return !failed;
@@ -301,7 +301,7 @@ QString ScriptManagerPrivate::engineError(QScriptEngine &scriptEngine)
     QScriptValue error = scriptEngine.evaluate(QLatin1String("Error"));
     if (error.isValid())
         return error.toString();
-    return QObject::tr("Unknown error");
+    return ScriptManager::tr("Unknown error");
 }
 
 } // namespace Internal

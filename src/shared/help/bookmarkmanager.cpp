@@ -616,8 +616,8 @@ BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)
     , helpEngine(_helpEngine)
 {
     folderIcon = QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon);
-    treeModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Bookmark"));
-    listModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Bookmark"));
+    treeModel->setHeaderData(0, Qt::Horizontal, tr("Bookmark"));
+    listModel->setHeaderData(0, Qt::Horizontal, tr("Bookmark"));
 
     connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
         SLOT(itemChanged(QStandardItem*)));
