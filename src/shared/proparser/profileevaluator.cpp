@@ -1447,11 +1447,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         ret += val;
             }
             break;
-#if 0 // Disabled, as it is relatively useless, too slow and dangerous.
         case E_SYSTEM:
-            if (!m_skipLevel) { // FIXME: should exec only if the result is being used
-                                // (i.e., if this is nested into an assignment) - these
-                                // are less likely to have side effects
+            if (!m_skipLevel) {
                 if (args.count() < 1 || args.count() > 2) {
                     q->logMessage(format("system(execute) requires one or two arguments."));
                 } else {
@@ -1476,7 +1473,6 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
             }
             break;
-#endif
         case E_UNIQUE:
             if(args.count() != 1) {
                 q->logMessage(format("unique(var) requires one argument."));
