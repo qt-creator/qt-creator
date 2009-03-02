@@ -186,14 +186,14 @@ namespace CPlusPlus {
 
         QByteArray operator()(const QByteArray &source);
 
-        void operator()(const QByteArray &filename,
+    private:
+        void preprocess(const QByteArray &filename,
                         const QByteArray &source,
                         QByteArray *result);
 
-        void operator()(const QByteArray &source,
+        void preprocess(const QByteArray &source,
                         QByteArray *result);
 
-    private:
         void resetIfLevel();
         bool testIfLevel();
         int skipping() const;

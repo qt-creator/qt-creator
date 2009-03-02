@@ -202,7 +202,7 @@ protected:
 private:
     QPointer<CppModelManager> m_modelManager;
     Environment env;
-    Preprocessor m_proc;
+    Preprocessor preprocess;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
     QMap<QString, QByteArray> m_workingCopy;
@@ -220,7 +220,7 @@ private:
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
-      m_proc(this, env)
+      preprocess(this, env)
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
@@ -506,8 +506,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     Document::Ptr previousDoc = switchDocument(doc);
 
-    QByteArray preprocessedCode;
-    m_proc(fileName.toUtf8(), contents, &preprocessedCode);
+    const QByteArray preprocessedCode = preprocess(fileName.toUtf8(), contents);
 
     doc->setSource(preprocessedCode);
     doc->tokenize();

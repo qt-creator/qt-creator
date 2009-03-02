@@ -485,25 +485,25 @@ QByteArray Preprocessor::operator()(const QByteArray &filename,
                                     const QByteArray &source)
 {
     QByteArray preprocessed;
-    operator()(filename, source, &preprocessed);
+    preprocess(filename, source, &preprocessed);
     return preprocessed;
 }
 
 QByteArray Preprocessor::operator()(const QByteArray &source)
 {
     QByteArray preprocessed;
-    operator()(source, &preprocessed);
+    preprocess(source, &preprocessed);
     return preprocessed;
 }
 
-void Preprocessor::operator () (const QByteArray &filename,
-                      const QByteArray &source,
-                      QByteArray *result)
+void Preprocessor::preprocess(const QByteArray &filename,
+                              const QByteArray &source,
+                              QByteArray *result)
 {
     const QByteArray previousFile = env.currentFile;
     env.currentFile = filename;
 
-    operator () (source, result);
+    preprocess(source, result);
 
     env.currentFile = previousFile;
 }
@@ -523,7 +523,7 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
     return state;
 }
 
-void Preprocessor::operator()(const QByteArray &source, QByteArray *result)
+void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
 {
     pushState(createStateFromSource(source));
 
