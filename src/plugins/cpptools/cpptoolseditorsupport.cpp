@@ -61,7 +61,8 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
     if (! _textEditor)
         return;
 
-    connect(_textEditor, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
+    connect(_textEditor, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
+    connect(this, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
     updateDocument();
 }
 
@@ -105,4 +106,6 @@ void CppEditorSupport::updateDocumentNow()
         _documentParser = _modelManager->refreshSourceFiles(sourceFiles);
     }
 }
+
+
 

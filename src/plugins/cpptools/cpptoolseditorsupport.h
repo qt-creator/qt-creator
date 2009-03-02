@@ -63,6 +63,9 @@ public:
 
     QString contents();
 
+Q_SIGNALS:
+    void contentsChanged();
+
 private Q_SLOTS:
     void updateDocument();
     void updateDocumentNow();
