@@ -11,10 +11,10 @@
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note The current version of Qt Creator is 1.0.0 . It is
-    possible to edit source code, compile, run and debug applications; other
-    features are still under development. Please send bug reports and
-    suggestions to qt-creator@trolltech.com. To subscribe, send a
+    \note Please report bugs and
+    suggestions to the Qt Software task tracker at 
+    http://www.qtsoftware.com/developer/task-tracker.
+    You can also join the discussion list qt-creator@trolltech.com. To subscribe, send a
     message with the word \e subscribe to qt-creator-request@trolltech.com.
     For more information on Qt mailing lists, visit http://lists.trolltech.com
 
@@ -52,7 +52,6 @@
        \o   \l{The Code Editor}
        \o   \l{Build Settings}
        \o   \l{Qt Version Management}
-       \o   \l{Creating a Project in Qt Creator}
        \o   \l{Writing a Simple Program with Qt Creator}
        \o   \l{Qt Creator and Version Control Systems}
        \o   \l{Navigating Quickly Around Your Code with Locator}
@@ -226,8 +225,10 @@
 
     \table
         \row
-            \i  \inlineimage qtcreator-texteditor-general.png
             \i  \inlineimage qtcreator-texteditor-fonts.png
+            \i  \inlineimage qtcreator-texteditor-behavior.png
+        \row
+            \i  \inlineimage qtcreator-texteditor-display.png
             \i  \inlineimage qtcreator-texteditor-completion.png
     \endtable
 
@@ -372,7 +373,7 @@
 
     Qt Creator automatically detects if \c qmake is in the environment variable
     \c PATH. This \l{glossary-system-qt}{version of Qt} is referred to as
-    \bold{System Qt}. If you intend to use only one version of Qt - it is
+    \bold{Auto-detected Qt}. If you intend to use only one version of Qt - it is
     already in your path and correctly set up for command line usage - you do
     not need to manually configure your Qt version.
 

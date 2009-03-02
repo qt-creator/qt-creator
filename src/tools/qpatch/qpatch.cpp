@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
             std::cerr << "qpatch: error: file `" << qPrintable(fileName) << "' not writable" << std::endl;
             continue;
         }
+        std::cout << "patching file `" << qPrintable(fileName) << "'" << std::endl;
 
         forever {
             int start = source.indexOf(qtDirPath, index);
@@ -121,6 +122,10 @@ int main(int argc, char *argv[])
             index = endOfString;
         }
 
+        if (index == 0) {
+            std::cerr << "qpatch: warning: file `" << qPrintable(fileName) << "' didn't contain string to patch" << std::endl;
+        }
+
         if (index != source.size())
             file.write(source.constData() + index, source.size() - index);
     }
@@ -146,6 +151,8 @@ int main(int argc, char *argv[])
             std::cerr << "qpatch: error: file `" << qPrintable(fileName) << "' not writable" << std::endl;
             continue;
         }
+
+        std::cout << "patching text file `" << qPrintable(fileName) << "'" << std::endl;
 
         source.replace(qtDirPath, newQtPath);
         file.write(source);

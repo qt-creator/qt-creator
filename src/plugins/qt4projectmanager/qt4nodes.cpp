@@ -693,6 +693,7 @@ void Qt4ProFileNode::update()
 
     // update other variables
     QHash<Qt4Variable, QStringList> newVarValues;
+
     newVarValues[CxxCompilerVar] << reader->value(QLatin1String("QMAKE_CXX"));
     newVarValues[DefinesVar] = reader->values(QLatin1String("DEFINES"));
     newVarValues[IncludePathVar] = includePaths(reader);
