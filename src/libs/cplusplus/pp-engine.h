@@ -181,6 +181,11 @@ namespace CPlusPlus {
     public:
         Preprocessor(Client *client, Environment &env);
 
+        QByteArray operator()(const QByteArray &filename,
+                              const QByteArray &source);
+
+        QByteArray operator()(const QByteArray &source);
+
         void operator()(const QByteArray &filename,
                         const QByteArray &source,
                         QByteArray *result);

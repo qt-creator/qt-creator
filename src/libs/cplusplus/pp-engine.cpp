@@ -481,6 +481,21 @@ void Preprocessor::popState()
     _savedStates.removeLast();
 }
 
+QByteArray Preprocessor::operator()(const QByteArray &filename,
+                                    const QByteArray &source)
+{
+    QByteArray preprocessed;
+    operator()(filename, source, &preprocessed);
+    return preprocessed;
+}
+
+QByteArray Preprocessor::operator()(const QByteArray &source)
+{
+    QByteArray preprocessed;
+    operator()(source, &preprocessed);
+    return preprocessed;
+}
+
 void Preprocessor::operator () (const QByteArray &filename,
                       const QByteArray &source,
                       QByteArray *result)
