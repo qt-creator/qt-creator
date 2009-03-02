@@ -66,12 +66,12 @@ void CppEditorSupport::setTextEditor(TextEditor::ITextEditor *textEditor)
     updateDocument();
 }
 
-QString CppEditorSupport::contents()
+QByteArray CppEditorSupport::contents()
 {
     if (! _textEditor)
-        return QString();
+        return QByteArray();
     else if (! _cachedContents.isEmpty())
-        _cachedContents = _textEditor->contents();
+        _cachedContents = _textEditor->contents().toUtf8();
 
     return _cachedContents;
 }
@@ -96,13 +96,15 @@ void CppEditorSupport::updateDocument()
 
 void CppEditorSupport::updateDocumentNow()
 {
+    qDebug() << "*** update document now";
+
     if (_documentParser.isRunning()) {
         _updateDocumentTimer->start(_updateDocumentInterval);
     } else {
         _updateDocumentTimer->stop();
 
         QStringList sourceFiles(_textEditor->file()->fileName());
-        _cachedContents = _textEditor->contents();
+        _cachedContents = _textEditor->contents().toUtf8();
         _documentParser = _modelManager->refreshSourceFiles(sourceFiles);
     }
 }

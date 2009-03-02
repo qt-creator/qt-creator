@@ -61,7 +61,7 @@ public:
     int updateDocumentInterval() const;
     void setUpdateDocumentInterval(int updateDocumentInterval);
 
-    QString contents();
+    QByteArray contents(); // UTF-8 encoded
 
 Q_SIGNALS:
     void contentsChanged();
@@ -78,7 +78,7 @@ private:
     QTimer *_updateDocumentTimer;
     int _updateDocumentInterval;
     QFuture<void> _documentParser;
-    QString _cachedContents;
+    QByteArray _cachedContents;
 };
 
 } // namespace Internal

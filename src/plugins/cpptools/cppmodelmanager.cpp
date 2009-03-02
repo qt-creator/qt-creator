@@ -662,7 +662,7 @@ QMap<QString, QByteArray> CppModelManager::buildWorkingCopyList()
         TextEditor::ITextEditor *textEditor = it.key();
         CppEditorSupport *editorSupport = it.value();
         QString fileName = textEditor->file()->fileName();
-        workingCopy[fileName] = editorSupport->contents().toUtf8();
+        workingCopy[fileName] = editorSupport->contents();
     }
 
     // add the project configuration file
@@ -846,12 +846,12 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
             QList<Editor> todo;
             foreach (const Editor &e, todo) {
-                if (e.widget != ed)
+                if (e.textEditor != textEditor)
                     todo.append(e);
             }
 
             Editor e;
-            e.widget = ed;
+            e.textEditor = textEditor;
             e.selections = selections;
             e.ifdefedOutBlocks = blockRanges;
             todo.append(e);
@@ -870,16 +870,22 @@ void CppModelManager::postEditorUpdate()
 void CppModelManager::updateEditorSelections()
 {
     foreach (const Editor &ed, m_todo) {
-        if (! ed.widget)
+        if (! ed.textEditor)
             continue;
 
-        ed.widget->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
-                                      ed.selections);
+        TextEditor::ITextEditor *textEditor = ed.textEditor;
+        TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(textEditor->widget());
+        if (! editor)
+            continue;
 
-        ed.widget->setIfdefedOutBlocks(ed.ifdefedOutBlocks);
+        editor->setExtraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection,
+                                   ed.selections);
+
+        editor->setIfdefedOutBlocks(ed.ifdefedOutBlocks);
     }
 
     m_todo.clear();
+
 }
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)

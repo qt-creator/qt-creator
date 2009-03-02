@@ -167,7 +167,7 @@ private:
     mutable QMutex mutex;
 
     struct Editor {
-        QPointer<TextEditor::BaseTextEditor> widget;
+        QPointer<TextEditor::ITextEditor> textEditor;
         QList<QTextEdit::ExtraSelection> selections;
         QList<TextEditor::BaseTextEditor::BlockRange> ifdefedOutBlocks;
     };
