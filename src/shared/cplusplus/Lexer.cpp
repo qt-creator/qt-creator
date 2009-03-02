@@ -428,7 +428,12 @@ void Lexer::scan_helper(Token *tok)
             bool doxy = false;
 
             if (_yychar == '*' || _yychar == '!') {
+                const char ch = _yychar;
+
                 yyinp();
+
+                if (ch == '*' && _yychar == '/')
+                    goto _Ldone;
 
                 if (! _yychar || std::isspace(_yychar))
                     doxy = true;
@@ -444,6 +449,7 @@ void Lexer::scan_helper(Token *tok)
                 }
             }
 
+        _Ldone:
             if (_yychar)
                 yyinp();
             else
