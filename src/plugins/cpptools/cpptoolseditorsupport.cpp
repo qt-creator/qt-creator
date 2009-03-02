@@ -96,8 +96,6 @@ void CppEditorSupport::updateDocument()
 
 void CppEditorSupport::updateDocumentNow()
 {
-    qDebug() << "*** update document now";
-
     if (_documentParser.isRunning()) {
         _updateDocumentTimer->start(_updateDocumentInterval);
     } else {
