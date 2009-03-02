@@ -426,6 +426,11 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         Environment env = Environment::systemEnvironment();
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
+        if (qmake_cxx.isEmpty()) {
+            // macx-xcode mkspec resets the value of QMAKE_CXX.
+            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
+            qmake_cxx = QLatin1String("cc");
+        }
         m_test = ToolChain::createGccToolChain(qmake_cxx);
         //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
     } else {

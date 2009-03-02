@@ -45,7 +45,8 @@ linux-* {
     keymaps.files           += $$PWD/qtcreator/schemes/Xcode.kms
     keymaps.path             = /share/qtcreator/schemes
 
-    gdbsupport.files        += $$PWD/qtcreator/gdbmacros/GPL_EXCEPTION.TXT
+    gdbsupport.files        += $$PWD/qtcreator/gdbmacros/LICENSE.LGPL
+    gdbsupport.files        += $$PWD/qtcreator/gdbmacros/LGPL_EXCEPTION.TXT
     gdbsupport.files        += $$PWD/qtcreator/gdbmacros/gdbmacros.cpp
     gdbsupport.files        += $$PWD/qtcreator/gdbmacros/gdbmacros.pro
     gdbsupport.path          = /share/qtcreator/gdbmacros

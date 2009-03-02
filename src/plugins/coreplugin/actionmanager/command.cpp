@@ -128,7 +128,7 @@ void CommandPrivate::setCategory(const QString &name)
 QString CommandPrivate::category() const
 {
     if (m_category.isEmpty())
-        return QObject::tr("Other");
+        return tr("Other");
     return m_category;
 }
 

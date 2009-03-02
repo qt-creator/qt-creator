@@ -615,13 +615,13 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     // check for circular dependencies
     if (circularityCheckQueue.contains(spec)) {
         spec->d->hasError = true;
-        spec->d->errorString = q->tr("Circular dependency detected:\n");
+        spec->d->errorString = PluginManager::tr("Circular dependency detected:\n");
         int index = circularityCheckQueue.indexOf(spec);
         for (int i = index; i < circularityCheckQueue.size(); ++i) {
-            spec->d->errorString.append(q->tr("%1(%2) depends on\n")
+            spec->d->errorString.append(PluginManager::tr("%1(%2) depends on\n")
                 .arg(circularityCheckQueue.at(i)->name()).arg(circularityCheckQueue.at(i)->version()));
         }
-        spec->d->errorString.append(q->tr("%1(%2)").arg(spec->name()).arg(spec->version()));
+        spec->d->errorString.append(PluginManager::tr("%1(%2)").arg(spec->name()).arg(spec->version()));
         return false;
     }
     circularityCheckQueue.append(spec);
@@ -629,7 +629,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     if (spec->state() == PluginSpec::Invalid || spec->state() == PluginSpec::Read) {
         spec->d->hasError = true;
         spec->d->errorString += "\n";
-        spec->d->errorString += q->tr("Cannot load plugin because dependencies are not resolved");
+        spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
         return false;
     }
     // add dependencies
@@ -637,7 +637,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
         if (!loadQueue(depSpec, queue, circularityCheckQueue)) {
             spec->d->hasError = true;
             spec->d->errorString =
-                q->tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                PluginManager::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
                     .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
             return false;
         }
@@ -666,7 +666,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         if (depSpec->state() != destState) {
             spec->d->hasError = true;
             spec->d->errorString =
-                q->tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                PluginManager::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
                     .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
             return;
         }

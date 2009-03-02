@@ -37,6 +37,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
+
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -59,23 +61,28 @@ bool GdbMacrosBuildStep::init(const QString &buildConfiguration)
 
 void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
 {
+    QStringList files;
+    files << "gdbmacros.cpp" << "gdbmacros.pro"
+          << "LICENSE.LGPL" << "LGPL_EXCEPTION.TXT";
+
     QVariant v = value("clean");
     if (v.isNull() || v.toBool() == false) {
         addToOutputWindow("<b>Creating gdb macros library...</b>");
         // Normal run
         QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
-        QStringList files;
-        files << "gdbmacros.cpp"
-              << "gdbmacros.pro";
-
         QString destDir = m_buildDirectory + "/qtc-gdbmacros/";
         QDir dir;
         dir.mkpath(destDir);
         foreach (const QString &file, files) {
-            QFile destination(destDir + file);
-            if (destination.exists())
-                destination.remove();
-            QFile::copy(dumperPath + file, destDir + file);
+            QString source = dumperPath + file;
+            QString dest = destDir + file;
+            QFileInfo destInfo(dest);
+            if (destInfo.exists()) {
+                if (destInfo.lastModified() >= QFileInfo(source).lastModified())
+                    continue;
+                QFile::remove(dest);
+            }
+            QFile::copy(source, dest);
         }
 
         Qt4Project *qt4Project = static_cast<Qt4Project *>(project());
@@ -142,10 +149,6 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         make.setWorkingDirectory(destDir);
         make.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), QStringList()<<"distclean");
         make.waitForFinished();
-
-        QStringList files;
-        files << "gdbmacros.cpp"
-              << "gdbmacros.pro";
 
         QStringList directories;
         directories << "debug"

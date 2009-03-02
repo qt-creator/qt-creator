@@ -69,7 +69,7 @@ bool DebuggerRunner::canRun(RunConfigurationPtr runConfiguration, const QString 
 
 QString DebuggerRunner::displayName() const
 {
-    return QObject::tr("Debug");
+    return tr("Debug");
 }
 
 RunControl* DebuggerRunner::run(RunConfigurationPtr runConfiguration, const QString &mode)
