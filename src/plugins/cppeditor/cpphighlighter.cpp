@@ -127,7 +127,8 @@ void CppHighlighter::highlightBlock(const QString &text)
         else if (tk.is(T_INT_LITERAL) || tk.is(T_FLOAT_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppNumberFormat]);
 
-        else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL))
+        else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||
+                 tk.is(T_AT_STRING_LITERAL))
             setFormat(tk.position(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
