@@ -51,7 +51,6 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-#include <QVector>
 #include <QList>
 #include <QByteArray>
 
