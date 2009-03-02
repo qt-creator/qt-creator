@@ -62,6 +62,9 @@ class Macro;
 class CPLUSPLUS_EXPORT Environment
 {
 public:
+    typedef Macro **iterator;
+
+public:
     Environment();
     ~Environment();
 
@@ -72,22 +75,14 @@ public:
     Macro *remove(const QByteArray &name);
 
     Macro *resolve(const QByteArray &name) const;
-    bool isBuiltinMacro(const QByteArray &name) const;
 
-    const Macro *const *firstMacro() const
-    { return _macros; }
-
-    Macro **firstMacro()
-    { return _macros; }
-
-    const Macro *const *lastMacro() const
-    { return _macros + _macro_count + 1; }
-
-    Macro **lastMacro()
-    { return _macros + _macro_count + 1; }
+    iterator firstMacro() const;
+    iterator lastMacro() const;
 
     void reset();
     void addMacros(const QList<Macro> &macros);
+
+    static bool isBuiltinMacro(const QByteArray &name);
 
 private:
     static unsigned hashCode(const QByteArray &s);

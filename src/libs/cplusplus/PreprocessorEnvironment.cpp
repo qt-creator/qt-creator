@@ -97,7 +97,7 @@ Macro *Environment::bind(const Macro &__macro)
         else
             _allocated_macros <<= 1;
 
-        _macros = (Macro **) realloc(_macros, sizeof(Macro *) * _allocated_macros);
+        _macros = reinterpret_cast<Macro **>(realloc(_macros, sizeof(Macro *) * _allocated_macros));
     }
 
     _macros[_macro_count] = m;
@@ -147,7 +147,7 @@ void Environment::reset()
     _hash_count = 401;
 }
 
-bool Environment::isBuiltinMacro(const QByteArray &s) const
+bool Environment::isBuiltinMacro(const QByteArray &s)
 {
     if (s.length() != 8)
         return false;
@@ -211,6 +211,12 @@ bool Environment::isBuiltinMacro(const QByteArray &s) const
     return false;
 }
 
+Environment::iterator Environment::firstMacro() const
+{ return _macros; }
+
+Environment::iterator Environment::lastMacro() const
+{ return _macros + _macro_count + 1; }
+
 Macro *Environment::resolve(const QByteArray &name) const
 {
     if (! _macros)
@@ -244,10 +250,10 @@ void Environment::rehash()
         _hash_count <<= 1;
     }
 
-    _hash = (Macro **) calloc(_hash_count, sizeof(Macro *));
+    _hash = reinterpret_cast<Macro **>(calloc(_hash_count, sizeof(Macro *)));
 
-    for (Macro **it = firstMacro(); it != lastMacro(); ++it) {
-        Macro *m= *it;
+    for (iterator it = firstMacro(); it != lastMacro(); ++it) {
+        Macro *m = *it;
         const unsigned h = m->_hashcode % _hash_count;
         m->_next = _hash[h];
         _hash[h] = m;
