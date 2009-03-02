@@ -779,7 +779,7 @@ void DebuggerManager::attachCore()
         emit debuggingFinished();
 }
 
-bool DebuggerManager::startNewDebugger(StartMode mode)
+bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
 {
     m_startMode = mode;
     // FIXME: Clean up
@@ -838,19 +838,20 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
             m_attachedPID = 0;
         }
     } else if (startMode() == AttachCore) {
-        StartExternalDialog dlg(mainWindow());
+        AttachCoreDialog dlg(mainWindow());
         dlg.setExecutableFile(
             configValue(QLatin1String("LastExternalExecutableFile")).toString());
-        dlg.setExecutableArguments(
-            configValue(QLatin1String("LastExternalExecutableArguments")).toString());
+        dlg.setCoreFile(
+            configValue(QLatin1String("LastExternalCoreFile")).toString());
         if (dlg.exec() != QDialog::Accepted)
             return false;
         setConfigValue(QLatin1String("LastExternalExecutableFile"),
             dlg.executableFile());
-        setConfigValue(QLatin1String("LastExternalExecutableArguments"),
-            dlg.executableArguments());
+        setConfigValue(QLatin1String("LastExternalCoreFile"),
+            dlg.coreFile());
         m_executable = dlg.executableFile();
-        m_processArgs = dlg.executableArguments().split(' ');
+        m_coreFile = dlg.coreFile();
+        m_processArgs.clear();
         m_workingDir = QString();
         m_attachedPID = -1;
     }

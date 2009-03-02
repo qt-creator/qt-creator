@@ -53,6 +53,7 @@
 #include <QtCore/QTimer>
 
 #include <QtGui/QAction>
+#include <QtGui/QApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
@@ -114,6 +115,7 @@ enum GdbCommandType
     GdbQueryDataDumper1,
     GdbQueryDataDumper2,
     GdbTemporaryContinue,
+    GdbTargetCore,
 
     BreakCondition = 200,
     BreakEnablePending,
@@ -913,6 +915,14 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
 }
 
+void GdbEngine::handleTargetCore(const GdbResultRecord &record)
+{
+    Q_UNUSED(record);
+    reloadModules();
+    reloadSourceFiles();
+    qq->notifyInferiorStopped();
+}
+
 void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
 {
     // FIXME: remove this special case as soon as 'pwd'
@@ -1461,7 +1471,7 @@ void GdbEngine::exitDebugger()
                 qDebug() << "STATUS ON EXITDEBUGGER: " << q->status());
             interruptInferior();
         }
-        if (q->startMode() == DebuggerManager::AttachExternal)
+        if (q->startMode() == AttachExternal)
             sendCommand("detach");
         else
             sendCommand("kill");
@@ -1494,9 +1504,6 @@ bool GdbEngine::startDebugger()
 {
     QStringList gdbArgs;
 
-    QFileInfo fi(q->m_executable);
-    QString fileName = '"' + fi.absoluteFilePath() + '"';
-
     if (m_gdbProc.state() != QProcess::NotRunning) {
         debugMessage("GDB IS ALREADY RUNNING!");
         return false;
@@ -1516,8 +1523,8 @@ bool GdbEngine::startDebugger()
     } else {
         if (!m_outputCollector.listen()) {
             QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
-                                  tr("Cannot set up communication with child process: %1")
-                                  .arg(m_outputCollector.errorString()));
+                tr("Cannot set up communication with child process: %1")
+                    .arg(m_outputCollector.errorString()));
             return false;
         }
         gdbArgs.prepend(QLatin1String("--tty=") + m_outputCollector.serverName());
@@ -1625,10 +1632,20 @@ bool GdbEngine::startDebugger()
         }
     }
 
-    if (q->startMode() == DebuggerManager::AttachExternal) {
+    if (q->startMode() == AttachExternal) {
         sendCommand("attach " + QString::number(q->m_attachedPID), GdbAttached);
-    } else if (!q->m_useTerminal) {
-        // StartInternal or StartExternal
+    } else if (q->startMode() == AttachCore) {
+        QFileInfo fi(q->m_executable);
+        QString fileName = '"' + fi.absoluteFilePath() + '"';
+        QFileInfo fi2(q->m_coreFile);
+        QString coreName = '"' + fi.absoluteFilePath() + '"';
+        sendCommand("-file-exec-and-symbols " + fileName);
+        sendCommand("target core" + coreName, GdbTargetCore);
+    } else if (q->m_useTerminal) {
+        // nothing needed, stub takes care
+    } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
+        QFileInfo fi(q->m_executable);
+        QString fileName = '"' + fi.absoluteFilePath() + '"';
         sendCommand("-file-exec-and-symbols " + fileName, GdbFileExecAndSymbols);
         //sendCommand("file " + fileName, GdbFileExecAndSymbols);
         #ifdef Q_OS_MAC
@@ -1649,7 +1666,7 @@ bool GdbEngine::startDebugger()
     }
 
     // set all to "pending"
-    if (q->startMode() == DebuggerManager::AttachExternal)
+    if (q->startMode() == AttachExternal || q->startMode() == AttachCore)
         qq->breakHandler()->removeAllBreakpoints();
     else
         qq->breakHandler()->setAllPending();

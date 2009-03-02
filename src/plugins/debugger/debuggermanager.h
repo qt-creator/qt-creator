@@ -102,6 +102,14 @@ enum DebuggerStatus
     DebuggerInferiorStopped,          // Debuggee stopped
 };
 
+enum DebuggerStartMode
+{
+    StartInternal,                    // Start current start project's binary
+    StartExternal,                    // Start binary found in file system
+    AttachExternal,                   // Attach to running process
+    AttachCore                        // Attach to a core file
+};
+
 class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
@@ -215,11 +223,10 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     DebuggerSettings *settings() { return &m_settings; }
 
-    enum StartMode { StartInternal, StartExternal, AttachExternal, AttachCore };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
-    bool startNewDebugger(StartMode mode);
+    bool startNewDebugger(DebuggerStartMode mode);
     void exitDebugger(); 
 
     void setSimpleDockWidgetArrangement();
@@ -354,7 +361,7 @@ public:
     // one of the interfaces
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
-    StartMode startMode() const { return m_startMode; }
+    DebuggerStartMode startMode() const { return m_startMode; }
 
 signals:
     void debuggingFinished();
@@ -377,6 +384,7 @@ signals:
 public:
     // FIXME: make private
     QString m_executable;
+    QString m_coreFile;
     QStringList m_environment;
     QString m_workingDir;
     QString m_buildDir;
@@ -394,7 +402,7 @@ private:
     void toggleBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &pos, const QString &exp0);
 
-    StartMode m_startMode;
+    DebuggerStartMode m_startMode;
     DebuggerType m_debuggerType;
 
     /// Views

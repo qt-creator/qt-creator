@@ -197,6 +197,7 @@ private:
     void handleShowVersion(const GdbResultRecord &response);
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
+    void handleTargetCore(const GdbResultRecord &response);
     void debugMessage(const QString &msg);
 
     OutputCollector m_outputCollector;

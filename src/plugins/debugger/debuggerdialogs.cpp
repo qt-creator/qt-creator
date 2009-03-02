@@ -29,6 +29,11 @@
 
 #include "debuggerdialogs.h"
 
+#include "ui_attachcoredialog.h"
+#include "ui_attachexternaldialog.h"
+#include "ui_attachremotedialog.h"
+#include "ui_startexternaldialog.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -54,17 +59,46 @@ using namespace Debugger::Internal;
 ///////////////////////////////////////////////////////////////////////
 
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent), m_ui(new Ui::AttachCoreDialog)
 {
-    setupUi(this);
+    m_ui->setupUi(this);
 
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    m_ui->execFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
 
-    //connect(procView, SIGNAL(activated(const QModelIndex &)),
-    //    this, SLOT(procSelected(const QModelIndex &)));
+    m_ui->coreFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->coreFileName->setPromptDialogTitle(tr("Select Executable"));
+
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
+AttachCoreDialog::~AttachCoreDialog()
+{
+    delete m_ui;
+}
+
+QString AttachCoreDialog::executableFile() const
+{
+    return m_ui->execFileName->path();
+}
+
+void AttachCoreDialog::setExecutableFile(const QString &fileName)
+{
+    m_ui->execFileName->setPath(fileName);
+}
+
+QString AttachCoreDialog::coreFile() const
+{
+    return m_ui->coreFileName->path();
+}
+
+void AttachCoreDialog::setCoreFile(const QString &fileName)
+{
+    m_ui->coreFileName->setPath(fileName);
+}
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -74,21 +108,26 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 ///////////////////////////////////////////////////////////////////////
 
 AttachExternalDialog::AttachExternalDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent), m_ui(new Ui::AttachExternalDialog)
 {
-    setupUi(this);
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->setupUi(this);
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_model = new QStandardItemModel(this);
 
-    procView->setSortingEnabled(true);
+    m_ui->procView->setSortingEnabled(true);
 
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(procView, SIGNAL(activated(const QModelIndex &)),
-        this, SLOT(procSelected(const QModelIndex &)));
+    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
+        this, SLOT(procSelected(QModelIndex)));
 
     rebuildProcessList();
+}
+
+AttachExternalDialog::~AttachExternalDialog()
+{
+    delete m_ui;
 }
 
 static bool isProcessName(const QString &procname)
@@ -132,7 +171,7 @@ void AttachExternalDialog::rebuildProcessList()
 {
     QStringList procnames = QDir("/proc/").entryList();
     if (procnames.isEmpty()) {
-        procView->hide();
+        m_ui->procView->hide();
         return;
     }
     
@@ -165,11 +204,11 @@ void AttachExternalDialog::rebuildProcessList()
     //model->setHeaderData(2, Qt::Horizontal, "Parent", Qt::DisplayRole);
     m_model->setHeaderData(2, Qt::Horizontal, "State", Qt::DisplayRole);
 
-    procView->setModel(m_model);
-    procView->expandAll();
-    procView->resizeColumnToContents(0);
-    procView->resizeColumnToContents(1);
-    procView->sortByColumn(1, Qt::AscendingOrder);
+    m_ui->procView->setModel(m_model);
+    m_ui->procView->expandAll();
+    m_ui->procView->resizeColumnToContents(0);
+    m_ui->procView->resizeColumnToContents(1);
+    m_ui->procView->sortByColumn(1, Qt::AscendingOrder);
 }
 
 void AttachExternalDialog::procSelected(const QModelIndex &index0)
@@ -178,13 +217,13 @@ void AttachExternalDialog::procSelected(const QModelIndex &index0)
     QStandardItem *item = m_model->itemFromIndex(index);
     if (!item)
         return;
-    pidLineEdit->setText(item->text());
+    m_ui->pidLineEdit->setText(item->text());
     accept();
 }
 
 int AttachExternalDialog::attachPID() const
 {
-    return pidLineEdit->text().toInt();
+    return m_ui->pidLineEdit->text().toInt();
 }
 
 
@@ -196,31 +235,35 @@ int AttachExternalDialog::attachPID() const
 ///////////////////////////////////////////////////////////////////////
 
 AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid)
-  : QDialog(parent)
+  : QDialog(parent), m_ui(new Ui::AttachRemoteDialog)
 {
-    setupUi(this);
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->setupUi(this);
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_defaultPID = pid;
     m_model = new QStandardItemModel(this);
 
-    procView->setSortingEnabled(true);
+    m_ui->procView->setSortingEnabled(true);
 
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(procView, SIGNAL(activated(const QModelIndex &)),
-        this, SLOT(procSelected(const QModelIndex &)));
+    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
+        this, SLOT(procSelected(QModelIndex)));
 
-
-    pidLineEdit->setText(m_defaultPID);
+    m_ui->pidLineEdit->setText(m_defaultPID);
     rebuildProcessList();
+}
+
+AttachRemoteDialog::~AttachRemoteDialog()
+{
+    delete m_ui;
 }
 
 void AttachRemoteDialog::rebuildProcessList()
 {
     QStringList procnames = QDir("/proc/").entryList();
     if (procnames.isEmpty()) {
-        procView->hide();
+        m_ui->procView->hide();
         return;
     }
     
@@ -253,10 +296,10 @@ void AttachRemoteDialog::rebuildProcessList()
     //model->setHeaderData(2, Qt::Horizontal, "Parent", Qt::DisplayRole);
     m_model->setHeaderData(2, Qt::Horizontal, "State", Qt::DisplayRole);
 
-    procView->setModel(m_model);
-    procView->expandAll();
-    procView->resizeColumnToContents(0);
-    procView->resizeColumnToContents(1);
+    m_ui->procView->setModel(m_model);
+    m_ui->procView->expandAll();
+    m_ui->procView->resizeColumnToContents(0);
+    m_ui->procView->resizeColumnToContents(1);
 }
 
 void AttachRemoteDialog::procSelected(const QModelIndex &index0)
@@ -265,13 +308,13 @@ void AttachRemoteDialog::procSelected(const QModelIndex &index0)
     QStandardItem *item = m_model->itemFromIndex(index);
     if (!item)
         return;
-    pidLineEdit->setText(item->text());
+    m_ui->pidLineEdit->setText(item->text());
     accept();
 }
 
 int AttachRemoteDialog::attachPID() const
 {
-    return pidLineEdit->text().toInt();
+    return m_ui->pidLineEdit->text().toInt();
 }
 
 
@@ -284,40 +327,45 @@ int AttachRemoteDialog::attachPID() const
 
 
 StartExternalDialog::StartExternalDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
-    setupUi(this);
-    execFile->setExpectedKind(Core::Utils::PathChooser::File);
-    execFile->setPromptDialogTitle(tr("Select Executable"));
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->setupUi(this);
+    m_ui->execFile->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     //execLabel->setHidden(false);
     //execEdit->setHidden(false);
     //browseButton->setHidden(false);
 
-    execLabel->setText(tr("Executable:"));
-    argLabel->setText(tr("Arguments:"));
+    m_ui->execLabel->setText(tr("Executable:"));
+    m_ui->argLabel->setText(tr("Arguments:"));
 
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+StartExternalDialog::~StartExternalDialog()
+{
+    delete m_ui;
 }
 
 void StartExternalDialog::setExecutableFile(const QString &str)
 {
-    execFile->setPath(str);
+    m_ui->execFile->setPath(str);
 }
 
 void StartExternalDialog::setExecutableArguments(const QString &str)
 {
-    argsEdit->setText(str);
+    m_ui->argsEdit->setText(str);
 }
 
 QString StartExternalDialog::executableFile() const
 {
-    return execFile->path();
+    return m_ui->execFile->path();
 }
 
 QString StartExternalDialog::executableArguments() const
 {
-    return argsEdit->text();
+    return m_ui->argsEdit->text();
 }

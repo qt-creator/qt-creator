@@ -48,6 +48,7 @@
 #include <QtCore/QTimer>
 
 #include <QtGui/QAction>
+#include <QtGui/QApplication>
 #include <QtGui/QToolTip>
 
 #include <QtScript/QScriptContext>

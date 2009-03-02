@@ -30,39 +30,53 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
-#include "ui_attachcoredialog.h"
-#include "ui_attachexternaldialog.h"
-#include "ui_attachremotedialog.h"
-#include "ui_startexternaldialog.h"
+#include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
+
+class QModelIndex;
 class QStandardItemModel;
+
+namespace Ui {
+class AttachCoreDialog;
+class AttachExternalDialog;
+class AttachRemoteDialog;
+class StartExternalDialog;
+} // namespace Ui
+
 QT_END_NAMESPACE
 
 
 namespace Debugger {
 namespace Internal {
 
-class AttachCoreDialog : public QDialog, Ui::AttachCoreDialog
+class AttachCoreDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit AttachCoreDialog(QWidget *parent);
+    ~AttachCoreDialog();
 
     void setExecutableFile(const QString &executable);
     void setCoreFile(const QString &core);
 
     QString executableFile() const;
     QString coreFile() const;
+
+private:
+    Ui::AttachCoreDialog *m_ui;
 };
 
-class AttachExternalDialog : public QDialog, Ui::AttachExternalDialog
+
+class AttachExternalDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit AttachExternalDialog(QWidget *parent);
+    ~AttachExternalDialog();
+
     int attachPID() const;
 
 private slots:
@@ -70,16 +84,19 @@ private slots:
     void procSelected(const QModelIndex &);
 
 private:
+    Ui::AttachExternalDialog *m_ui;
     QStandardItemModel *m_model;
 };
 
 
-class AttachRemoteDialog : public QDialog, Ui::AttachRemoteDialog
+class AttachRemoteDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit AttachRemoteDialog(QWidget *parent, const QString &pid);
+    ~AttachRemoteDialog();
+
     int attachPID() const;
 
 private slots:
@@ -87,23 +104,28 @@ private slots:
     void procSelected(const QModelIndex &);
 
 private:
+    Ui::AttachRemoteDialog *m_ui;
     QString m_defaultPID;
     QStandardItemModel *m_model;
 };
 
 
-class StartExternalDialog : public QDialog, Ui::StartExternalDialog
+class StartExternalDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit StartExternalDialog(QWidget *parent);
+    ~StartExternalDialog();
 
     void setExecutableFile(const QString &executable);
     void setExecutableArguments(const QString &args);
 
     QString executableFile() const;
     QString executableArguments() const;
+
+private:
+    Ui::StartExternalDialog *m_ui;
 };
 
 } // namespace Debugger
