@@ -69,8 +69,14 @@ const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
     return 0;
 }
 
-const char *MacroExpander::operator () (const char *__first, const char *__last,
-                                        QByteArray *__result)
+const char *MacroExpander::operator()(const char *first, const char *last,
+                                      QByteArray *result)
+{
+    return expand(first, last, result);
+}
+
+const char *MacroExpander::expand(const char *__first, const char *__last,
+                                  QByteArray *__result)
 {
     generated_lines = 0;
     __first = skip_blanks (__first, __last);

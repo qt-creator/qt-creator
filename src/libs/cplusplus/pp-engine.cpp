@@ -50,6 +50,8 @@
 
 #include <Lexer.h>
 #include <Token.h>
+#include <Literals.h>
+
 #include <QtDebug>
 #include <algorithm>
 
@@ -450,7 +452,8 @@ private:
 Preprocessor::Preprocessor(Client *client, Environment &env)
     : client(client),
       env(env),
-      expand(env)
+      _expand(env),
+      _result(0)
 {
     resetIfLevel ();
 }
@@ -501,11 +504,21 @@ void Preprocessor::preprocess(const QByteArray &filename,
                               QByteArray *result)
 {
     const QByteArray previousFile = env.currentFile;
+
     env.currentFile = filename;
-
     preprocess(source, result);
-
     env.currentFile = previousFile;
+}
+
+void Preprocessor::expand(const QByteArray &source, QByteArray *result)
+{
+    _expand(source, result);
+}
+
+void Preprocessor::expand(const char *first, const char *last, QByteArray *result)
+{
+    const QByteArray source = QByteArray::fromRawData(first, last - first);
+    return expand(source, result);
 }
 
 Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
@@ -525,6 +538,9 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
 
 void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
 {
+    QByteArray *previousResult = _result;
+    _result = result;
+
     pushState(createStateFromSource(source));
 
     const unsigned previousCurrentLine = env.currentLine;
@@ -533,16 +549,16 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
     while (true) {
         if (env.currentLine != _dot->lineno) {
             if (env.currentLine > _dot->lineno) {
-                result->append("\n# ");
-                result->append(QByteArray::number(_dot->lineno));
-                result->append(' ');
-                result->append('"');
-                result->append(env.currentFile);
-                result->append('"');
-                result->append('\n');
+                _result->append("\n# ");
+                _result->append(QByteArray::number(_dot->lineno));
+                _result->append(' ');
+                _result->append('"');
+                _result->append(env.currentFile);
+                _result->append('"');
+                _result->append('\n');
             } else {
                 for (unsigned i = env.currentLine; i < _dot->lineno; ++i)
-                    result->append('\n');
+                    _result->append('\n');
             }
             env.currentLine = _dot->lineno;
         }
@@ -580,12 +596,12 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
             } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
         } else {
             if (_dot->joined)
-                result->append("\\\n");
+                _result->append("\\\n");
             else if (_dot->whitespace)
-                result->append(' ');
+                _result->append(' ');
 
             if (_dot->isNot(T_IDENTIFIER)) {
-                result->append(tokenSpell(*_dot));
+                _result->append(tokenSpell(*_dot));
                 ++_dot;
             } else {
                 const TokenIterator identifierToken = _dot;
@@ -599,7 +615,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
                         client->startExpandingMacro(identifierToken->offset,
                                                     trivial, spell);
 
-                    expand(spell.constBegin(), spell.constEnd(), result);
+                    expand(spell, _result);
 
                     if (client)
                         client->stopExpandingMacro(_dot->offset, trivial);
@@ -609,7 +625,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
 
                 Macro *m = env.resolve(spell);
                 if (! m) {
-                    result->append(spell);
+                    _result->append(spell);
                 } else {
                     if (! m->isFunctionLike()) {
                         if (_dot->isNot(T_LPAREN)) {
@@ -618,7 +634,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
                                                             *m, spell);
 
                             m->setHidden(true);
-                            expand(m->definition(), result);
+                            expand(m->definition(), _result);
                             m->setHidden(false);
 
                             if (client)
@@ -650,7 +666,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
                             popState();
 
                             if (! m) {
-                                result->append(tmp);
+                                _result->append(tmp);
                                 continue;
                             }
                         }
@@ -659,7 +675,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
                     // collect the actual arguments
                     if (_dot->isNot(T_LPAREN)) {
                         // ### warnng expected T_LPAREN
-                        result->append(m->name());
+                        _result->append(m->name());
                         continue;
                     }
 
@@ -689,7 +705,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
                                                         *m, text);
                         }
 
-                        expand(beginOfText, endOfText, result);
+                        expand(beginOfText, endOfText, _result);
 
                         if (client)
                             client->stopExpandingMacro(_dot->offset, *m);
@@ -701,6 +717,7 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
 
     popState();
     env.currentLine = previousCurrentLine;
+    _result = previousResult;
 }
 
 const char *Preprocessor::startOfToken(const Token &token) const
@@ -788,9 +805,8 @@ QVector<Token> Preprocessor::tokenize(const QByteArray &text) const
     return tokens;
 }
 
-void Preprocessor::processInclude(bool,
-                        TokenIterator firstToken, TokenIterator lastToken,
-                        bool acceptMacros)
+void Preprocessor::processInclude(bool, TokenIterator firstToken,
+                                  TokenIterator lastToken, bool acceptMacros)
 {
     RangeLexer tk(firstToken, lastToken);
     ++tk; // skip T_POUND
@@ -1011,7 +1027,8 @@ void Preprocessor::processEndif(TokenIterator, TokenIterator)
 }
 
 void Preprocessor::processIfdef(bool checkUndefined,
-                      TokenIterator firstToken, TokenIterator lastToken)
+                                TokenIterator firstToken,
+                                TokenIterator lastToken)
 {
     RangeLexer tk(firstToken, lastToken);
 
@@ -1054,47 +1071,47 @@ void Preprocessor::resetIfLevel ()
     _true_test[iflevel] = false;
 }
 
-Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective (const QByteArray &__directive) const
+Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective(const QByteArray &directive) const
 {
-    switch (__directive.size())
+    switch (directive.size())
     {
     case 2:
-        if (__directive[0] == 'i' && __directive[1] == 'f')
+        if (directive[0] == 'i' && directive[1] == 'f')
             return PP_IF;
         break;
 
     case 4:
-        if (__directive[0] == 'e' && __directive == "elif")
+        if (directive[0] == 'e' && directive == "elif")
             return PP_ELIF;
-        else if (__directive[0] == 'e' && __directive == "else")
+        else if (directive[0] == 'e' && directive == "else")
             return PP_ELSE;
         break;
 
     case 5:
-        if (__directive[0] == 'i' && __directive == "ifdef")
+        if (directive[0] == 'i' && directive == "ifdef")
             return PP_IFDEF;
-        else if (__directive[0] == 'u' && __directive == "undef")
+        else if (directive[0] == 'u' && directive == "undef")
             return PP_UNDEF;
-        else if (__directive[0] == 'e' && __directive == "endif")
+        else if (directive[0] == 'e' && directive == "endif")
             return PP_ENDIF;
         break;
 
     case 6:
-        if (__directive[0] == 'i' && __directive == "ifndef")
+        if (directive[0] == 'i' && directive == "ifndef")
             return PP_IFNDEF;
-        else if (__directive[0] == 'i' && __directive == "import")
+        else if (directive[0] == 'i' && directive == "import")
             return PP_IMPORT;
-        else if (__directive[0] == 'd' && __directive == "define")
+        else if (directive[0] == 'd' && directive == "define")
             return PP_DEFINE;
         break;
 
     case 7:
-        if (__directive[0] == 'i' && __directive == "include")
+        if (directive[0] == 'i' && directive == "include")
             return PP_INCLUDE;
         break;
 
     case 12:
-        if (__directive[0] == 'i' && __directive == "include_next")
+        if (directive[0] == 'i' && directive == "include_next")
             return PP_INCLUDE_NEXT;
         break;
 
@@ -1117,7 +1134,7 @@ int Preprocessor::skipping() const
 { return _skipping[iflevel]; }
 
 Value Preprocessor::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
-                         const QByteArray &source) const
+                                   const QByteArray &source) const
 {
     ExpressionEvaluator eval(&env);
     const Value result = eval(firstToken, lastToken, source);
