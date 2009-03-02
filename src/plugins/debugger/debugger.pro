@@ -14,11 +14,11 @@ INCLUDEPATH += $$PWD/../../libs/utils
 
 QT += gui network script
 
-HEADERS += attachexternaldialog.h \
-    attachremotedialog.h \
+HEADERS += \
     breakhandler.h \
     breakwindow.h \
     debuggerconstants.h \
+    debuggerdialogs.h \
     debuggermanager.h \
     debuggeroutputwindow.h \
     debuggerplugin.h \
@@ -39,16 +39,15 @@ HEADERS += attachexternaldialog.h \
     stackhandler.h \
     stackwindow.h \
     sourcefileswindow.h \
-    startexternaldialog.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h
 
-SOURCES += attachexternaldialog.cpp \
-    attachremotedialog.cpp \
+SOURCES += \
     breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
+    debuggerdialogs.cpp \
     debuggermanager.cpp \
     debuggeroutputwindow.cpp \
     debuggerplugin.cpp \
@@ -67,13 +66,13 @@ SOURCES += attachexternaldialog.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
     sourcefileswindow.cpp \
-    startexternaldialog.cpp \
     threadswindow.cpp \
     watchhandler.cpp \
     watchwindow.cpp
 
 FORMS += attachexternaldialog.ui \
     attachremotedialog.ui \
+    attachcoredialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
     gdboptionpage.ui \

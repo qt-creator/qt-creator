@@ -51,8 +51,7 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 
-#include "startexternaldialog.h"
-#include "attachexternaldialog.h"
+#include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
 
@@ -294,6 +293,9 @@ void DebuggerManager::init()
     m_attachExternalAction = new QAction(this);
     m_attachExternalAction->setText(tr("Attach to Running External Application..."));
 
+    m_attachCoreAction = new QAction(this);
+    m_attachCoreAction->setText(tr("Attach to Core..."));
+
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
     m_continueAction->setIcon(QIcon(":/gdbdebugger/images/debugger_continue_small.png"));
@@ -362,6 +364,8 @@ void DebuggerManager::init()
         this, SLOT(startExternalApplication()));
     connect(m_attachExternalAction, SIGNAL(triggered()),
         this, SLOT(attachExternalApplication()));
+    connect(m_attachCoreAction, SIGNAL(triggered()),
+        this, SLOT(attachCore()));
 
     connect(m_stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
@@ -769,6 +773,12 @@ void DebuggerManager::attachExternalApplication()
         emit debuggingFinished();
 }
 
+void DebuggerManager::attachCore()
+{
+    if (!startNewDebugger(AttachCore))
+        emit debuggingFinished();
+}
+
 bool DebuggerManager::startNewDebugger(StartMode mode)
 {
     m_startMode = mode;
@@ -827,6 +837,22 @@ bool DebuggerManager::startNewDebugger(StartMode mode)
             //m_processArgs = sd.processArgs.join(QLatin1String(" "));
             m_attachedPID = 0;
         }
+    } else if (startMode() == AttachCore) {
+        StartExternalDialog dlg(mainWindow());
+        dlg.setExecutableFile(
+            configValue(QLatin1String("LastExternalExecutableFile")).toString());
+        dlg.setExecutableArguments(
+            configValue(QLatin1String("LastExternalExecutableArguments")).toString());
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        setConfigValue(QLatin1String("LastExternalExecutableFile"),
+            dlg.executableFile());
+        setConfigValue(QLatin1String("LastExternalExecutableArguments"),
+            dlg.executableArguments());
+        m_executable = dlg.executableFile();
+        m_processArgs = dlg.executableArguments().split(' ');
+        m_workingDir = QString();
+        m_attachedPID = -1;
     }
 
     emit debugModeRequested();
@@ -1053,6 +1079,7 @@ void DebuggerManager::setStatus(int status)
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
+    m_attachCoreAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 

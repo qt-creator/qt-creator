@@ -215,7 +215,7 @@ public:
     QLabel *statusLabel() const { return m_statusLabel; }
     DebuggerSettings *settings() { return &m_settings; }
 
-    enum StartMode { StartInternal, StartExternal, AttachExternal };
+    enum StartMode { StartInternal, StartExternal, AttachExternal, AttachCore };
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
 public slots:
@@ -241,6 +241,7 @@ public slots:
     void interruptDebuggingRequest();
     void startExternalApplication();
     void attachExternalApplication();
+    void attachCore();
 
     void jumpToLineExec();
     void runToLineExec();
@@ -423,6 +424,7 @@ private:
     friend class DebuggerPlugin;
     QAction *m_startExternalAction;
     QAction *m_attachExternalAction;
+    QAction *m_attachCoreAction;
     QAction *m_continueAction;
     QAction *m_stopAction;
     QAction *m_resetAction; // FIXME: Should not be needed in a stable release

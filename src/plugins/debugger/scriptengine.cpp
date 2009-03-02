@@ -29,7 +29,7 @@
 
 #include "scriptengine.h"
 
-#include "attachexternaldialog.h"
+#include "debuggerdialogs.h"
 #include "breakhandler.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
@@ -37,7 +37,6 @@
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
-#include "startexternaldialog.h"
 #include "watchhandler.h"
 
 #include <utils/qtcassert.h>

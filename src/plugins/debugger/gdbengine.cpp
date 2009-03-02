@@ -42,8 +42,7 @@
 #include "watchhandler.h"
 #include "sourcefileswindow.h"
 
-#include "startexternaldialog.h"
-#include "attachexternaldialog.h"
+#include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
 
