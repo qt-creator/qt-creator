@@ -27,37 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERCONSTANTS_H
-#define DEBUGGERCONSTANTS_H
+#include "winutils.h"
+#include <windows.h>
 
-namespace Debugger {
-namespace Constants {
+#include <QtCore/QString>
 
-// modes and their priorities
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
-const int          P_MODE_DEBUG         = 85;
+namespace Core {
+namespace Utils {
 
-// common actions
-const char * const INTERRUPT            = "Debugger.Interrupt";
-const char * const RESET                = "Debugger.Reset";
-const char * const STEP                 = "Debugger.StepLine";
-const char * const STEPOUT              = "Debugger.StepOut";
-const char * const NEXT                 = "Debugger.NextLine";
-const char * const STEPI                = "Debugger.StepInstruction";
-const char * const NEXTI                = "Debugger.NextInstruction";
+QWORKBENCH_UTILS_EXPORT QString winErrorMessage(unsigned long error)
+{
+    QString rc = QString::fromLatin1("#%1: ").arg(error);
+    ushort *lpMsgBuf;
 
-const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
-
-const char * const C_GDBDEBUGGER        = "Gdb Debugger";
-const char * const GDBRUNNING           = "Gdb.Running";
-
-const char * const PROPERTY_REGISTER_FORMAT = "Debugger.Property.RegisterFormat";
-
-namespace Internal {
-    enum { debug = 0 };
+    const int len = FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+    if (len) {
+        rc = QString::fromUtf16(lpMsgBuf, len);
+        LocalFree(lpMsgBuf);
+    } else {
+        rc += QString::fromLatin1("<unknown error>");
+    }
+    return rc;
 }
-} // namespace Constants
-} // namespace Debugger
 
-#endif // DEBUGGERCONSTANTS_H
-
+} // namespace Utils
+} // namespace Core

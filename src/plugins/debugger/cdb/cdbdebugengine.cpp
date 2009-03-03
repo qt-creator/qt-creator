@@ -198,7 +198,7 @@ bool CdbDebugEngine::startDebugger()
     m_d->m_pDebugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
     //m_pDebugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
 
-    if (m_d->m_debuggerManager->startMode() == DebuggerManager::AttachExternal) {
+    if (m_d->m_debuggerManager->startMode() == AttachExternal) {
         qWarning("CdbDebugEngine: attach to process not yet implemented!");
         return false;
     } else {
