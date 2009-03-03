@@ -27,37 +27,22 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERCONSTANTS_H
-#define DEBUGGERCONSTANTS_H
+#ifndef WINUTILS_H
+#define WINUTILS_H
 
-namespace Debugger {
-namespace Constants {
+#include "utils_global.h"
 
-// modes and their priorities
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
-const int          P_MODE_DEBUG         = 85;
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
-// common actions
-const char * const INTERRUPT            = "Debugger.Interrupt";
-const char * const RESET                = "Debugger.Reset";
-const char * const STEP                 = "Debugger.StepLine";
-const char * const STEPOUT              = "Debugger.StepOut";
-const char * const NEXT                 = "Debugger.NextLine";
-const char * const STEPI                = "Debugger.StepInstruction";
-const char * const NEXTI                = "Debugger.NextInstruction";
+namespace Core {
+namespace Utils {
 
-const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
+// Helper to format a Windows error message, taking the
+// code as returned by the GetLastError()-API.
+QWORKBENCH_UTILS_EXPORT QString winErrorMessage(unsigned long error);
 
-const char * const C_GDBDEBUGGER        = "Gdb Debugger";
-const char * const GDBRUNNING           = "Gdb.Running";
-
-const char * const PROPERTY_REGISTER_FORMAT = "Debugger.Property.RegisterFormat";
-
-namespace Internal {
-    enum { debug = 0 };
-}
-} // namespace Constants
-} // namespace Debugger
-
-#endif // DEBUGGERCONSTANTS_H
-
+} // namespace Utils
+} // namespace Core
+#endif // WINUTILS_H

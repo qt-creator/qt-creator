@@ -86,4 +86,7 @@ HEADERS += $$PWD/modeltest.h
 DEFINES += USE_MODEL_TEST=1
 }
 
-CONFIG(cdbdebugger):include(cdb\cdb.pri)
+win32 {
+    include(win/win.pri)
+    CONFIG(cdbdebugger):include(cdb\cdb.pri)
+}    

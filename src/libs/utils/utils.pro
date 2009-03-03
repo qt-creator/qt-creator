@@ -26,8 +26,13 @@ SOURCES += \
     submiteditorwidget.cpp \
     synchronousprocess.cpp
 
-win32:SOURCES += consoleprocess_win.cpp
-else:SOURCES += consoleprocess_unix.cpp
+win32 {
+    SOURCES += consoleprocess_win.cpp \
+               winutils.cpp
+    HEADERS += winutils.h
+} else {
+    SOURCES += consoleprocess_unix.cpp
+}
 
 HEADERS += \
     utils_global.h \

@@ -52,7 +52,9 @@
 #include "watchhandler.h"
 
 #include "debuggerdialogs.h"
-
+#ifdef Q_OS_WIN
+#  include "peutils.h"
+#endif
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -432,6 +434,8 @@ void DebuggerManager::init()
     winEngine = createWinEngine(this);
     scriptEngine = createScriptEngine(this);
     setDebuggerType(GdbDebugger);
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine;
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
@@ -549,7 +553,8 @@ void DebuggerManager::clearStatusMessage()
 void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
 {
     Q_UNUSED(timeout)
-    //qDebug() << "STATUS: " << msg;
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << "STATUS MSG: " << msg;
     showDebuggerOutput("status:", msg);
     m_statusLabel->setText("   " + msg);
     if (timeout > 0) {
@@ -594,8 +599,9 @@ void DebuggerManager::notifyInferiorExited()
 
 void DebuggerManager::notifyInferiorPidChanged(int pid)
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << pid;
     //QMessageBox::warning(0, "PID", "PID: " + QString::number(pid)); 
-    //qDebug() << "PID: " << pid; 
     emit inferiorPidChanged(pid);
 }
 
@@ -606,11 +612,11 @@ void DebuggerManager::showApplicationOutput(const QString &str)
 
 void DebuggerManager::shutdown()
 {
-    //qDebug() << "DEBUGGER_MANAGER SHUTDOWN START";
-    if (m_engine) {
-        //qDebug() << "SHUTTING DOWN ENGINE" << m_engine;
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << m_engine;
+
+    if (m_engine)
         m_engine->shutdown();
-    }
     m_engine = 0;
 
     delete scriptEngine;
@@ -673,6 +679,9 @@ void DebuggerManager::toggleBreakpoint()
 
 void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+
     QTC_ASSERT(m_engine, return);
     QTC_ASSERT(m_breakHandler, return);
     if (status() != DebuggerInferiorRunning
@@ -779,8 +788,43 @@ void DebuggerManager::attachCore()
         emit debuggingFinished();
 }
 
+// Figure out the debugger type of an exexcutable
+static bool determineDebuggerType(const QString &executable,
+                                  DebuggerManager::DebuggerType *dt,
+                                  QString *errorMessage)
+{
+    if (executable.endsWith(QLatin1String(".js"))) {
+        *dt = DebuggerManager::ScriptDebugger;
+        return true;
+    }
+#ifndef Q_WS_WIN
+    *dt = DebuggerManager::GdbDebugger;
+    return true;
+#else
+    // If a file has PDB files, it has been compiled by VS.
+    QStringList pdbFiles;
+    if (!getPDBFiles(executable, &pdbFiles, errorMessage))
+        return false;
+    if (pdbFiles.empty()) {
+        *dt = DebuggerManager::GdbDebugger;
+        return true;
+    }
+    // We need the CDB debugger in order to be able to debug VS
+    // executables
+    if (!winEngine) {
+        *errorMessage = DebuggerManager::tr("Debugging VS executables is not supported.");
+        return false;
+    }
+    *dt = DebuggerManager::WinDebugger;
+    return true;
+#endif
+}
+
 bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << mode;
+
     m_startMode = mode;
     // FIXME: Clean up
 
@@ -858,11 +902,18 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
 
     emit debugModeRequested();
 
-    if (m_executable.endsWith(".js"))
-        setDebuggerType(ScriptDebugger);
-    else 
-        setDebuggerType(GdbDebugger);
+    DebuggerType type;
+    QString errorMessage;
+    if (!determineDebuggerType(m_executable, &type, &errorMessage)) {
+        QMessageBox::warning(mainWindow(), tr("Warning"),
+                tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
+        return false;
 
+    }
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << m_executable << type;
+
+    setDebuggerType(type);
     setStatus(DebuggerProcessStartingUp);
     if (!m_engine->startDebugger()) {
         setStatus(DebuggerProcessNotReady);
@@ -886,7 +937,9 @@ void DebuggerManager::cleanupViews()
 
 void DebuggerManager::exitDebugger()
 {
-    //qDebug() << "DebuggerManager::exitDebugger";
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO;
+
     if (m_engine)
         m_engine->exitDebugger();
     cleanupViews();
@@ -962,6 +1015,9 @@ void DebuggerManager::nextIExec()
 
 void DebuggerManager::executeDebuggerCommand(const QString &command)
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO <<command;
+
     QTC_ASSERT(m_engine, return);
     m_engine->executeDebuggerCommand(command);
 }
@@ -1030,6 +1086,9 @@ void DebuggerManager::watchExpression(const QString &expression)
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+
     QTC_ASSERT(m_breakHandler, return);
     QTC_ASSERT(m_engine, return);
     m_breakHandler->setBreakpoint(fileName, lineNumber);
@@ -1062,7 +1121,8 @@ void DebuggerManager::breakAtMain()
 
 void DebuggerManager::setStatus(int status)
 {
-    //qDebug() << "STATUS CHANGE: from" << m_status << "to" << status;
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << m_status << "to" << status;
 
     if (status == m_status)
         return;
@@ -1179,8 +1239,9 @@ void DebuggerManager::continueExec()
 
 void DebuggerManager::interruptDebuggingRequest()
 {
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << status();
     QTC_ASSERT(m_engine, return);
-    //qDebug() << "INTERRUPTING AT" << status();
     bool interruptIsExit = (status() != DebuggerInferiorRunning);
     if (interruptIsExit)
         exitDebugger();
@@ -1197,8 +1258,11 @@ void DebuggerManager::runToLineExec()
     QString fileName;
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
-    if (!fileName.isEmpty())
+    if (!fileName.isEmpty()) {
+        if (Debugger::Constants::Internal::debug)
+            qDebug() << Q_FUNC_INFO << fileName << lineNumber;
         m_engine->runToLineExec(fileName, lineNumber);
+    }
 }
 
 void DebuggerManager::runToFunctionExec()
@@ -1228,7 +1292,9 @@ void DebuggerManager::runToFunctionExec()
             }
         }
     }
-    //qDebug() << "RUN TO FUNCTION " << functionName;
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << functionName;
+
     if (!functionName.isEmpty())
         m_engine->runToFunctionExec(functionName);
 }
@@ -1238,8 +1304,11 @@ void DebuggerManager::jumpToLineExec()
     QString fileName;
     int lineNumber = -1;
     emit currentTextEditorRequested(&fileName, &lineNumber, 0);
-    if (!fileName.isEmpty())
+    if (!fileName.isEmpty()) {
+        if (Debugger::Constants::Internal::debug)
+            qDebug() << Q_FUNC_INFO << fileName << lineNumber;
         m_engine->jumpToLineExec(fileName, lineNumber);
+    }
 }
 
 void DebuggerManager::resetLocation()

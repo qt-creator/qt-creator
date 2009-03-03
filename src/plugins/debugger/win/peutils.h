@@ -27,37 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERCONSTANTS_H
-#define DEBUGGERCONSTANTS_H
+#ifndef PEUTILS_H
+#define PEUTILS_H
 
+#include <QtCore/qnamespace.h>
+
+QT_BEGIN_NAMESPACE
+class QStringList;
+class QString;
+QT_END_NAMESPACE
+
+/* Helper functions to extract information from PE Win32 executable
+ * files (cf dumpbin utility). */
 namespace Debugger {
-namespace Constants {
-
-// modes and their priorities
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
-const int          P_MODE_DEBUG         = 85;
-
-// common actions
-const char * const INTERRUPT            = "Debugger.Interrupt";
-const char * const RESET                = "Debugger.Reset";
-const char * const STEP                 = "Debugger.StepLine";
-const char * const STEPOUT              = "Debugger.StepOut";
-const char * const NEXT                 = "Debugger.NextLine";
-const char * const STEPI                = "Debugger.StepInstruction";
-const char * const NEXTI                = "Debugger.NextInstruction";
-
-const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
-
-const char * const C_GDBDEBUGGER        = "Gdb Debugger";
-const char * const GDBRUNNING           = "Gdb.Running";
-
-const char * const PROPERTY_REGISTER_FORMAT = "Debugger.Property.RegisterFormat";
-
 namespace Internal {
-    enum { debug = 0 };
+
+// Return a list of Program-Database (*.pdb) files a PE executable refers to. */
+bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage);
+
 }
-} // namespace Constants
-} // namespace Debugger
+}
 
-#endif // DEBUGGERCONSTANTS_H
-
+#endif // PEUTILS_H

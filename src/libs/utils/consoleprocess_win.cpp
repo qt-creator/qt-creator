@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "consoleprocess.h"
+#include "winutils.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -122,7 +123,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         delete m_tempFile;
         m_tempFile = 0;
         stubServerShutdown();
-        emit processError(tr("The process could not be started!"));
+        emit processError(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
     }
 
@@ -173,18 +174,6 @@ void ConsoleProcess::stubConnectionAvailable()
     connect(m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
 }
 
-static QString errorMsg(int code)
-{
-    LPVOID lpMsgBuf;
-
-    int len = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, (DWORD)code, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-    QString ret = QString::fromUtf16((ushort *)lpMsgBuf, len);
-    LocalFree(lpMsgBuf);
-    return ret;
-}
-
 void ConsoleProcess::readStubOutput()
 {
     while (m_stubSocket->canReadLine()) {
@@ -192,10 +181,10 @@ void ConsoleProcess::readStubOutput()
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
             emit processError(tr("Cannot change to working directory %1: %2")
-                              .arg(workingDirectory(), errorMsg(out.mid(10).toInt())));
+                              .arg(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emit processError(tr("Cannot execute %1: %2")
-                              .arg(m_executable, errorMsg(out.mid(9).toInt())));
+                              .arg(m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
             delete m_tempFile;
@@ -207,7 +196,7 @@ void ConsoleProcess::readStubOutput()
                     FALSE, m_appPid);
             if (m_hInferior == NULL) {
                 emit processError(tr("Cannot obtain a handle to the inferior: %1")
-                                  .arg(errorMsg(GetLastError())));
+                                  .arg(winErrorMessage(GetLastError())));
                 // Uhm, and now what?
                 continue;
             }
@@ -237,7 +226,7 @@ void ConsoleProcess::inferiorExited()
 
     if (!GetExitCodeProcess(m_hInferior, &chldStatus))
         emit processError(tr("Cannot obtain exit status from inferior: %1")
-                          .arg(errorMsg(GetLastError())));
+                          .arg(winErrorMessage(GetLastError())));
     cleanupInferior();
     m_appStatus = QProcess::NormalExit;
     m_appCode = chldStatus;
