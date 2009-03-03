@@ -748,18 +748,8 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                 else {
                     if (! m->isFunctionLike()) {
-
-                        if (client)
-                            client->startExpandingMacro(identifierToken->offset,
-                                                        *m, spell);
-
-                        m->setHidden(true);
-                        const QByteArray tmp = expand(m->definition());
-                        m->setHidden(false);
-
-                        if (client)
-                            client->stopExpandingMacro(_dot->offset, *m);
-
+                        QByteArray tmp;
+                        expandObjectLikeMacro(identifierToken, spell, m, &tmp);
 
                         if (_dot->isNot(T_LPAREN)) {
                             _result->append(tmp);
@@ -825,6 +815,23 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+}
+
+void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
+                                         const QByteArray &spell,
+                                         Macro *m,
+                                         QByteArray *result)
+{
+    if (client)
+        client->startExpandingMacro(identifierToken->offset,
+                                    *m, spell);
+
+    m->setHidden(true);
+    expand(m->definition(), result);
+    m->setHidden(false);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, *m);
 }
 
 void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m)

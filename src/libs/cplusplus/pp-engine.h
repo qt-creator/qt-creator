@@ -104,6 +104,9 @@ private:
     QByteArray expand(const QByteArray &source);
     void expand(const QByteArray &source, QByteArray *result);
     void expand(const char *first, const char *last, QByteArray *result);
+    void expandObjectLikeMacro(TokenIterator identifierToken,
+                               const QByteArray &spell,
+                               Macro *m, QByteArray *result);
     void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m);
 
     void resetIfLevel();
