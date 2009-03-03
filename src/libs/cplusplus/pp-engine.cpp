@@ -492,6 +492,13 @@ QByteArray Preprocessor::operator()(const QByteArray &filename,
     return preprocessed;
 }
 
+QByteArray Preprocessor::expand(const QByteArray &source)
+{
+    QByteArray result;
+    expand(source, &result);
+    return result;
+}
+
 void Preprocessor::expand(const QByteArray &source, QByteArray *result)
 {
     _expand(source, result);
@@ -610,45 +617,43 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 }
 
                 Macro *m = env.resolve(spell);
-                if (! m) {
+
+                if (! m)
                     _result->append(spell);
-                } else {
+
+                else {
                     if (! m->isFunctionLike()) {
+
+                        if (client)
+                            client->startExpandingMacro(identifierToken->offset,
+                                                        *m, spell);
+
+                        m->setHidden(true);
+                        const QByteArray tmp = expand(m->definition());
+                        m->setHidden(false);
+
+                        if (client)
+                            client->stopExpandingMacro(_dot->offset, *m);
+
+
                         if (_dot->isNot(T_LPAREN)) {
-                            if (client)
-                                client->startExpandingMacro(identifierToken->offset,
-                                                            *m, spell);
-
-                            m->setHidden(true);
-                            expand(m->definition(), _result);
-                            m->setHidden(false);
-
-                            if (client)
-                                client->stopExpandingMacro(_dot->offset, *m);
-
+                            _result->append(tmp);
                             continue;
+
                         } else {
-                            QByteArray tmp;
-
-                            if (client)
-                                client->startExpandingMacro(identifierToken->offset,
-                                                            *m, spell);
-                            m->setHidden(true);
-                            expand(m->definition(), &tmp);
-                            m->setHidden(false);
-
-                            if (client)
-                                client->stopExpandingMacro(_dot->offset, *m);
-
                             m = 0; // reset the active the macro
 
                             pushState(createStateFromSource(tmp));
+
                             if (_dot->is(T_IDENTIFIER)) {
                                 const QByteArray id = tokenSpell(*_dot);
-                                Macro *macro = env.resolve(id);
-                                if (macro && macro->isFunctionLike())
-                                    m = macro;
+
+                                if (Macro *macro = env.resolve(id)) {
+                                    if (macro->isFunctionLike())
+                                        m = macro;
+                                }
                             }
+
                             popState();
 
                             if (! m) {
@@ -669,14 +674,17 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                     while (_dot->isNot(T_EOF_SYMBOL)) {
                         if (_dot->is(T_LPAREN))
                             ++count;
+
                         else if (_dot->is(T_RPAREN)) {
                             if (! --count)
                                 break;
                         }
+
                         ++_dot;
                     }
                     if (_dot->isNot(T_RPAREN)) {
                         // ### warning expected T_RPAREN
+
                     } else {
                         const char *beginOfText = startOfToken(*identifierToken);
                         const char *endOfText = endOfToken(*_dot);
@@ -717,7 +725,7 @@ const char *Preprocessor::endOfToken(const Token &token) const
 QByteArray Preprocessor::tokenSpell(const Token &token) const
 {
     const QByteArray text = QByteArray::fromRawData(_source.constBegin() + token.offset,
-                                                    token.length);
+                                                     token.length);
     return text;
 }
 
