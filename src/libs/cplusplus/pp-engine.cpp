@@ -741,12 +741,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                     continue;
                 }
 
-                Macro *m = env->resolve(spell);
-
-                if (! m)
-                    _result->append(spell);
-
-                else {
+                if (Macro *m = env->resolve(spell)) {
                     if (! m->isFunctionLike()) {
                         if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
                             continue;
@@ -757,21 +752,18 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                     // `m' is function-like macro.
 
-                    // collect the actual arguments
-                    if (_dot->isNot(T_LPAREN)) {
-                        // ### warnng expected T_LPAREN
-                        _result->append(m->name());
-                        continue;
+                    if (_dot->is(T_LPAREN)) {
+                        skipActualArguments();
+
+                        if (_dot->is(T_RPAREN)) {
+                            expandFunctionLikeMacro(identifierToken, m);
+                            continue;
+                        }
                     }
-
-                    skipActualArguments();
-
-                    if (_dot->isNot(T_RPAREN))
-                        _result->append(spell);
-
-                    else
-                        expandFunctionLikeMacro(identifierToken, m);
                 }
+
+                // it's not a function or object-like macro.
+                _result->append(spell);
             }
         }
     }
@@ -786,6 +778,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 void Preprocessor::skipActualArguments()
 {
     int count = 0;
+
     while (_dot->isNot(T_EOF_SYMBOL)) {
         if (_dot->is(T_LPAREN))
             ++count;
