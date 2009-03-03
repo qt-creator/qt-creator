@@ -94,7 +94,6 @@ public:
 
 public: // attributes
     int lines;
-    int generated_lines;
 };
 
 } // namespace CPlusPlus

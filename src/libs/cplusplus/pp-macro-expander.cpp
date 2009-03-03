@@ -67,8 +67,9 @@ inline static bool comment_p (const char *__first, const char *__last)
 }
 
 MacroExpander::MacroExpander(Environment *env, pp_frame *frame)
-    : env(env), frame(frame),
-      lines(0), generated_lines(0)
+    : env(env),
+      frame(frame),
+      lines(0)
 { }
 
 const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
@@ -96,7 +97,6 @@ const char *MacroExpander::operator()(const char *first, const char *last,
 const char *MacroExpander::expand(const char *__first, const char *__last,
                                   QByteArray *__result)
 {
-    generated_lines = 0;
     __first = skip_blanks (__first, __last);
     lines = skip_blanks.lines;
 
@@ -292,8 +292,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                     __tmp.reserve (256);
 
                     MacroExpander expand_macro (env);
-                    expand_macro (macro->definition(), &__tmp);
-                    generated_lines += expand_macro.lines;
+                    expand_macro(macro->definition(), &__tmp);
 
                     if (! __tmp.isEmpty ())
                     {
@@ -371,7 +370,6 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             macro->setHidden(true);
             expand_macro (macro->definition(), __result);
             macro->setHidden(false);
-            generated_lines += expand_macro.lines;
         }
         else
             __result->append(*__first++);
