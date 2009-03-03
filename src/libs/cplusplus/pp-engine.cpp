@@ -692,8 +692,24 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
             if (_dot->joined)
                 _result->append("\\\n");
 
-            else if (_dot->whitespace)
-                _result->append(' ');
+            else if (_dot->whitespace) {
+                TokenIterator begin = _tokens.constBegin();
+                Q_ASSERT(begin != first);
+
+                const unsigned endOfPreviousToken = (_dot - 1)->end();
+                const unsigned beginOfToken = _dot->begin();
+
+                const char *it = _source.constBegin() + endOfPreviousToken;
+                const char *end = _source.constBegin() + beginOfToken;
+
+                for (; it != end; ++it) {
+                    if (std::isspace(*it))
+                        _result->append(*it);
+
+                    else
+                        _result->append(' ');
+                }
+            }
 
             if (_dot->isNot(T_IDENTIFIER)) {
                 _result->append(tokenSpell(*_dot));
