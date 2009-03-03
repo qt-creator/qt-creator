@@ -14,5 +14,6 @@ unix {
     SOURCES += process_stub_unix.c
 } else {
     SOURCES += process_stub_win.c
+    LIBS += -lshell32
 }
 
