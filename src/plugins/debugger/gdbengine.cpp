@@ -467,12 +467,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '~': {
-            m_pendingConsoleStreamOutput += GdbMi::parseCString(from, to);
+            QByteArray data = GdbMi::parseCString(from, to);
+            m_pendingConsoleStreamOutput += data;
+            if (data.startsWith("Reading symbols from ")) {
+                q->showStatusMessage(tr("Reading ")
+                    + QString::fromLatin1(data.mid(21)));
+            }
             break;
         }
 
         case '@': {
-            m_pendingTargetStreamOutput += GdbMi::parseCString(from, to);
+            QByteArray data = GdbMi::parseCString(from, to);
+            m_pendingTargetStreamOutput += data;
             break;
         }
 
@@ -812,6 +818,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             continueInferior();
             q->showStatusMessage(tr("Continuing after temporary stop."));
             break;
+        case GdbTargetCore:
+            handleTargetCore(record);
+            break;
 
         case BreakList:
             handleBreakList(record);
@@ -918,9 +927,33 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
 void GdbEngine::handleTargetCore(const GdbResultRecord &record)
 {
     Q_UNUSED(record);
-    reloadModules();
-    reloadSourceFiles();
+
     qq->notifyInferiorStopped();
+    q->showStatusMessage(tr("Core file loaded."));
+
+    q->resetLocation();
+
+    //
+    // Stack
+    //
+    qq->stackHandler()->setCurrentIndex(0);
+    updateLocals(); // Quick shot
+
+    sendSynchronizedCommand("-stack-list-frames", StackListFrames);
+    if (supportsThreads())
+        sendSynchronizedCommand("-thread-list-ids", StackListThreads, 0);
+
+    //
+    // Disassembler
+    //
+    // XXX we have no data here ...
+    //m_address = data.findChild("frame").findChild("addr").data();
+    //qq->reloadDisassembler();
+
+    //
+    // Registers
+    //
+    qq->reloadRegisters();
 }
 
 void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
@@ -1070,9 +1103,9 @@ static bool isStoppedReason(const QString &reason)
         || reason == QLatin1String("location-reached")   // -exec-until
         || reason == QLatin1String("access-watchpoint-trigger")
         || reason == QLatin1String("read-watchpoint-trigger")
-#ifdef Q_OS_MAC
+        #ifdef Q_OS_MAC
         || reason.isEmpty()
-#endif
+        #endif
     ;
 }
 
@@ -1090,7 +1123,7 @@ void GdbEngine::handleAqcuiredInferior()
     reloadSourceFiles();
     tryLoadCustomDumpers();
 
-#ifndef Q_OS_MAC
+    #ifndef Q_OS_MAC
     // intentionally after tryLoadCustomDumpers(),
     // otherwise we'd interupt solib loading.
     if (qq->wantsAllPluginBreakpoints()) {
@@ -1106,7 +1139,8 @@ void GdbEngine::handleAqcuiredInferior()
         sendCommand("set auto-solib-add off");
         sendCommand("set stop-on-solib-events 0");
     }
-#endif
+    #endif
+
     // nicer to see a bit of the world we live in
     reloadModules();
     attemptBreakpointSynchronization();
@@ -1236,7 +1270,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         }
         // Need another round trip
         if (reason == "breakpoint-hit") {
-            q->showStatusMessage(tr("Stopped at breakpoint"));
+            q->showStatusMessage(tr("Stopped at breakpoint."));
             GdbMi frame = data.findChild("frame");
             //debugMessage("HIT BREAKPOINT: " + frame.toString());
             m_currentFrame = frame.findChild("addr").data() + '%' +
@@ -1513,7 +1547,9 @@ bool GdbEngine::startDebugger()
     gdbArgs.prepend(QLatin1String("mi"));
     gdbArgs.prepend(QLatin1String("-i"));
 
-    if (q->m_useTerminal) {
+    if (q->startMode() == AttachCore) {
+        // nothing to do
+    } else if (q->m_useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
 
         m_stubProc.setWorkingDirectory(q->m_workingDir);
@@ -1557,7 +1593,7 @@ bool GdbEngine::startDebugger()
         return false;
     }
 
-    q->showStatusMessage(tr("Gdb Running"));
+    q->showStatusMessage(tr("Gdb Running..."));
 
     sendCommand("show version", GdbShowVersion);
     //sendCommand("-enable-timings");
@@ -1638,9 +1674,10 @@ bool GdbEngine::startDebugger()
         QFileInfo fi(q->m_executable);
         QString fileName = '"' + fi.absoluteFilePath() + '"';
         QFileInfo fi2(q->m_coreFile);
-        QString coreName = '"' + fi.absoluteFilePath() + '"';
+        // quoting core name below fails in gdb 6.8-debian
+        QString coreName = fi2.absoluteFilePath();
         sendCommand("-file-exec-and-symbols " + fileName);
-        sendCommand("target core" + coreName, GdbTargetCore);
+        sendCommand("target core " + coreName, GdbTargetCore);
     } else if (q->m_useTerminal) {
         // nothing needed, stub takes care
     } else if (q->startMode() == StartInternal || q->startMode() == StartExternal) {
@@ -1668,7 +1705,7 @@ bool GdbEngine::startDebugger()
     // set all to "pending"
     if (q->startMode() == AttachExternal || q->startMode() == AttachCore)
         qq->breakHandler()->removeAllBreakpoints();
-    else
+    else if (q->startMode() == StartInternal || q->startMode() == StartExternal)
         qq->breakHandler()->setAllPending();
 
     return true;
@@ -3700,8 +3737,6 @@ void GdbEngine::updateLocals()
     sendSynchronizedCommand(cmd, StackListArguments);                 // stage 1/2
     // '2' is 'list with type and value'
     sendSynchronizedCommand("-stack-list-locals 2", StackListLocals); // stage 2/2
-
-    //tryLoadCustomDumpers();
 }
 
 void GdbEngine::handleStackListArguments(const GdbResultRecord &record)
@@ -4102,7 +4137,7 @@ void GdbEngine::tryLoadCustomDumpers()
             GdbQueryDataDumper1);
         sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
     } else {
-        gdbOutputAvailable("", QString("DEBUG HELPER LIBRARY IS NOT USABLE: "
+        debugMessage(QString("DEBUG HELPER LIBRARY IS NOT USABLE: "
             " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
             .arg(QFileInfo(lib).exists())
             .arg(QFileInfo(lib).isExecutable()));

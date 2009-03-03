@@ -1076,7 +1076,9 @@ void DebuggerManager::setStatus(int status)
 
     const bool starting = status == DebuggerProcessStartingUp;
     const bool running = status == DebuggerInferiorRunning;
-    const bool ready = status == DebuggerInferiorStopped;
+
+    const bool ready = status == DebuggerInferiorStopped
+            && startMode() != AttachCore;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
