@@ -694,8 +694,6 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 _result->append("\\\n");
 
             else if (_dot->whitespace) {
-                TokenIterator begin = _tokens.constBegin();
-
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
                 const unsigned beginOfToken = _dot->begin();
 
@@ -814,26 +812,10 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                     if (_dot->isNot(T_RPAREN)) {
                         // ### warning expected T_RPAREN
-
-                    } else {
-                        const char *beginOfText = startOfToken(*identifierToken);
-                        const char *endOfText = endOfToken(*_dot);
-                        ++_dot; // skip T_RPAREN
-
-                        if (client) {
-                            const QByteArray text =
-                                    QByteArray::fromRawData(beginOfText,
-                                                            endOfText - beginOfText);
-
-                            client->startExpandingMacro(identifierToken->offset,
-                                                        *m, text);
-                        }
-
-                        expand(beginOfText, endOfText, _result);
-
-                        if (client)
-                            client->stopExpandingMacro(_dot->offset, *m);
                     }
+
+                    else
+                        expandFunctionLikeMacro(identifierToken, m);
                 }
             }
         }
@@ -844,6 +826,27 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+}
+
+void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m)
+{
+    const char *beginOfText = startOfToken(*identifierToken);
+    const char *endOfText = endOfToken(*_dot);
+    ++_dot; // skip T_RPAREN
+
+    if (client) {
+        const QByteArray text =
+                QByteArray::fromRawData(beginOfText,
+                                        endOfText - beginOfText);
+
+        client->startExpandingMacro(identifierToken->offset,
+                                    *m, text);
+    }
+
+    expand(beginOfText, endOfText, _result);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, *m);
 }
 
 const char *Preprocessor::startOfToken(const Token &token) const
