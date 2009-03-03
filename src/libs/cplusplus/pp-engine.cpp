@@ -54,6 +54,7 @@
 
 #include <QtDebug>
 #include <algorithm>
+#include <cctype>
 
 namespace CPlusPlus {
 
@@ -694,7 +695,6 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
             else if (_dot->whitespace) {
                 TokenIterator begin = _tokens.constBegin();
-                Q_ASSERT(begin != first);
 
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
                 const unsigned beginOfToken = _dot->begin();

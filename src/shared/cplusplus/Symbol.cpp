@@ -166,9 +166,7 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *
       _index(0),
       _next(0)
 {
-    if (sourceLocation)
-        _sourceOffset = translationUnit->tokenAt(sourceLocation).offset;
-
+    setSourceLocation(sourceLocation);
     setName(name);
 }
 
@@ -202,6 +200,16 @@ unsigned Symbol::sourceLocation() const
 unsigned Symbol::sourceOffset() const
 { return _sourceOffset; }
 
+void Symbol::setSourceLocation(unsigned sourceLocation)
+{
+    _sourceLocation = sourceLocation;
+
+    if (_sourceLocation)
+        _sourceOffset = translationUnit()->tokenAt(sourceLocation).offset;
+    else
+        _sourceOffset = 0;
+}
+
 unsigned Symbol::line() const
 {
     unsigned line = 0, column = 0;
@@ -212,14 +220,10 @@ unsigned Symbol::line() const
 
 unsigned Symbol::column() const
 {
-#ifdef CPLUSPLUS_WITH_COLUMNS
     unsigned line = 0, column = 0;
     StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
     return column;
-#else
-    return 0;
-#endif
 }
 
 StringLiteral *Symbol::fileId() const

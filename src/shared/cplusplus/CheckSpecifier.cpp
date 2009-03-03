@@ -296,8 +296,13 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
 
 bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 {
+    unsigned sourceLocation = ast->firstToken();
+
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
     Name *className = semantic()->check(ast->name, _scope);
-    Class *klass = control()->newClass(ast->firstToken(), className);
+    Class *klass = control()->newClass(sourceLocation, className);
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
@@ -358,8 +363,12 @@ bool CheckSpecifier::visit(ElaboratedTypeSpecifierAST *ast)
 
 bool CheckSpecifier::visit(EnumSpecifierAST *ast)
 {
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
     Name *name = semantic()->check(ast->name, _scope);
-    Enum *e = control()->newEnum(ast->firstToken(), name);
+    Enum *e = control()->newEnum(sourceLocation, name);
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);

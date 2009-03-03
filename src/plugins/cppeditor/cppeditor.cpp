@@ -392,12 +392,67 @@ void CPPEditor::updateMethodBoxIndex()
         lastIndex = index;
     }
 
+    QList<QTextEdit::ExtraSelection> selections;
+
     if (lastIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
         m_methodCombo->setCurrentIndex(lastIndex.row());
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
+
+#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
+    Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr thisDocument = snapshot.value(file()->fileName());
+    if (! thisDocument)
+        return;
+
+    if (Symbol *symbol = thisDocument->findSymbolAt(line, column)) {
+        QTextCursor tc = textCursor();
+        tc.movePosition(QTextCursor::EndOfWord);
+
+        ExpressionUnderCursor expressionUnderCursor;
+
+        const QString expression = expressionUnderCursor(tc);
+        //qDebug() << "expression:" << expression;
+
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.setSnapshot(m_modelManager->snapshot());
+
+        const QList<TypeOfExpression::Result> results =
+                typeOfExpression(expression, thisDocument, symbol, TypeOfExpression::Preprocess);
+
+        LookupContext context = typeOfExpression.lookupContext();
+
+        foreach (const TypeOfExpression::Result &result, results) {
+            FullySpecifiedType ty = result.first;
+            Symbol *symbol = result.second;
+
+            if (file()->fileName() != symbol->fileName())
+                continue;
+
+            if (symbol) {
+                int column = symbol->column();
+
+                if (column != 0)
+                    --column;
+
+                QTextCursor c(document()->findBlockByNumber(symbol->line() - 1));
+                c.setPosition(c.position() + column);
+                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+                QTextEdit::ExtraSelection sel;
+                sel.cursor = c;
+                sel.format.setBackground(Qt::darkYellow);
+
+                selections.append(sel);
+                //break;
+            }
+        }
+    }
+
+    setExtraSelections(CodeSemanticsSelection, selections);
+#endif // QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
 }
 
 void CPPEditor::updateMethodBoxToolTip()
@@ -893,5 +948,14 @@ TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
 bool CPPEditor::openEditorAt(Symbol *s)
 {
     const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-    return openCppEditorAt(fileName, s->line(), s->column());
+
+#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
+    unsigned column = s->column();
+    if (column)
+        --column;
+#else
+    unsigned column = 0;
+#endif
+
+    return openCppEditorAt(fileName, s->line(), column);
 }

@@ -134,10 +134,15 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
     if (! ast->declarators && ast->decl_specifier_seq && ! ast->decl_specifier_seq->next) {
         if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
+
+            unsigned sourceLocation = elab_type_spec->firstToken();
+
+            if (elab_type_spec->name)
+                sourceLocation = elab_type_spec->name->firstToken();
+
             Name *name = semantic()->check(elab_type_spec->name, _scope);
             ForwardClassDeclaration *symbol =
-                    control()->newForwardClassDeclaration(elab_type_spec->firstToken(),
-                                                          name);
+                    control()->newForwardClassDeclaration(sourceLocation, name);
 
             if (_templateParameters) {
                 symbol->setTemplateParameters(_templateParameters);
@@ -155,8 +160,15 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
                                                       _scope, &name);
 
+        unsigned location = 0;
+        if (it->declarator)
+            location = it->declarator->firstToken();
+        else
+            location = ast->firstToken();
+
         Function *fun = 0;
         if (declTy && 0 != (fun = declTy->asFunctionType())) {
+            fun->setSourceLocation(location);
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
@@ -165,12 +177,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             translationUnit()->warning(ast->firstToken(),
                                        "expected a function declaration");
         }
-
-        unsigned location = 0;
-        if (it->declarator)
-            location = it->declarator->firstToken();
-        else
-            location = ast->firstToken();
 
         Declaration *symbol = control()->newDeclaration(location, name);
         symbol->setType(control()->integerType(IntegerType::Int));
@@ -246,6 +252,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     }
 
     Function *fun = funTy->asFunctionType();
+    if (ast->declarator)
+        fun->setSourceLocation(ast->declarator->firstToken());
     fun->setName(name);
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());
@@ -305,7 +313,13 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
 {
     Identifier *id = identifier(ast->identifier_token);
     Name *namespaceName = control()->nameId(id);
-    Namespace *ns = control()->newNamespace(ast->firstToken(), namespaceName);
+
+    unsigned sourceLocation = ast->firstToken();
+
+    if (ast->identifier_token)
+        sourceLocation = ast->identifier_token;
+
+    Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
@@ -325,12 +339,17 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *)
 
 bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 {
+    unsigned sourceLocation = 0;
+
+    if (ast->declarator)
+        sourceLocation = ast->declarator->firstToken();
+
     Name *argName = 0;
     FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
     FullySpecifiedType argTy = semantic()->check(ast->declarator, ty.qualifiedType(),
                                                  _scope, &argName);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    Argument *arg = control()->newArgument(ast->firstToken(), argName);
+    Argument *arg = control()->newArgument(sourceLocation, argName);
     ast->symbol = arg;
     if (ast->expression)
         arg->setInitializer(true);
@@ -354,8 +373,12 @@ bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 
 bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
 {
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
     Name *name = semantic()->check(ast->name, _scope);
-    Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
     ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
@@ -363,8 +386,12 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
 
 bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
 {
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
     Name *name = semantic()->check(ast->name, _scope);
-    Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
     ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
@@ -373,7 +400,12 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
 bool CheckDeclaration::visit(UsingAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
-    UsingDeclaration *u = control()->newUsingDeclaration(ast->firstToken(), name);
+
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
+    UsingDeclaration *u = control()->newUsingDeclaration(sourceLocation, name);
     ast->symbol = u;
     _scope->enterSymbol(u);
     return false;
@@ -382,7 +414,12 @@ bool CheckDeclaration::visit(UsingAST *ast)
 bool CheckDeclaration::visit(UsingDirectiveAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
-    UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(ast->firstToken(), name);
+
+    unsigned sourceLocation = ast->firstToken();
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+
+    UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(sourceLocation, name);
     ast->symbol = u;
     _scope->enterSymbol(u);
 

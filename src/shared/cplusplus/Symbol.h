@@ -234,6 +234,7 @@ public:
     Name *identity() const;
 
     void setScope(Scope *scope); // ### make me private
+    void setSourceLocation(unsigned sourceLocation); // ### make me private
 
     void visitSymbol(SymbolVisitor *visitor);
     static void visitSymbol(Symbol *symbol, SymbolVisitor *visitor);

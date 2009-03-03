@@ -815,14 +815,17 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
             warningFormat.setUnderlineColor(Qt::darkYellow);
 
-            QSet<int> lines;
+            QSet<QPair<unsigned, unsigned> > lines;
             foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
                 if (m.fileName() != fileName)
                     continue;
-                else if (lines.contains(m.line()))
+
+                const QPair<unsigned, unsigned> coordinates = qMakePair(m.line(), m.column());
+
+                if (lines.contains(coordinates))
                     continue;
 
-                lines.insert(m.line());
+                lines.insert(coordinates);
 
                 QTextEdit::ExtraSelection sel;
                 if (m.isWarning())
@@ -831,14 +834,28 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                     sel.format = errorFormat;
 
                 QTextCursor c(ed->document()->findBlockByNumber(m.line() - 1));
-                const QString text = c.block().text();
-                for (int i = 0; i < text.size(); ++i) {
-                    if (! text.at(i).isSpace()) {
-                        c.setPosition(c.position() + i);
-                        break;
+
+                // ### check for generated tokens.
+
+                int column = m.column();
+
+                if (column > c.block().length()) {
+                    column = 0;
+
+                    const QString text = c.block().text();
+                    for (int i = 0; i < text.size(); ++i) {
+                        if (! text.at(i).isSpace()) {
+                            ++column;
+                            break;
+                        }
                     }
                 }
-                c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+                if (column != 0)
+                    --column;
+
+                c.setPosition(c.position() + column);
+                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
                 sel.cursor = c;
                 selections.append(sel);
             }
