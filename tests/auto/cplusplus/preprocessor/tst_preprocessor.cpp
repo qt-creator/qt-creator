@@ -18,8 +18,9 @@ void tst_Preprocessor::pp_with_no_client()
     Client *client = 0; // no client.
     Environment env;
 
-    Preprocessor preprocess(client, env);
-    QByteArray preprocessed = preprocess("#define foo(a,b) a + b\nfoo(1, 2)\n");
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess("<stdin>",
+                                         "#define foo(a,b) a + b\nfoo(1, 2)\n");
     QByteArray expected = "1 + 2";
     QCOMPARE(preprocessed.trimmed(), expected);
 }
