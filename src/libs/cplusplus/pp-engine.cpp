@@ -726,44 +726,33 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                 const QByteArray spell = tokenSpell(*identifierToken);
 
-                if (env->isBuiltinMacro(spell)) {
-                    const Macro trivial;
+                if (env->isBuiltinMacro(spell))
+                    expandBuiltinMacro(identifierToken, spell);
 
-                    if (client)
-                        client->startExpandingMacro(identifierToken->offset,
-                                                    trivial, spell);
+                else {
+                    if (Macro *m = env->resolve(spell)) {
+                        if (! m->isFunctionLike()) {
+                            if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
+                                continue;
 
-                    expand(spell, _result);
+                            // the macro expansion generated something that looks like
+                            // a function-like macro.
+                        }
 
-                    if (client)
-                        client->stopExpandingMacro(_dot->offset, trivial);
+                        // `m' is function-like macro.
+                        if (_dot->is(T_LPAREN)) {
+                            skipActualArguments();
 
-                    continue;
-                }
-
-                if (Macro *m = env->resolve(spell)) {
-                    if (! m->isFunctionLike()) {
-                        if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
-                            continue;
-
-                        // the macro expansion generated something that looks like
-                        // a function-like macro.
-                    }
-
-                    // `m' is function-like macro.
-
-                    if (_dot->is(T_LPAREN)) {
-                        skipActualArguments();
-
-                        if (_dot->is(T_RPAREN)) {
-                            expandFunctionLikeMacro(identifierToken, m);
-                            continue;
+                            if (_dot->is(T_RPAREN)) {
+                                expandFunctionLikeMacro(identifierToken, m);
+                                continue;
+                            }
                         }
                     }
-                }
 
-                // it's not a function or object-like macro.
-                _result->append(spell);
+                    // it's not a function or object-like macro.
+                    _result->append(spell);
+                }
             }
         }
     }
@@ -823,6 +812,21 @@ Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
 
     _result->append(tmp);
     return 0;
+}
+
+void Preprocessor::expandBuiltinMacro(TokenIterator identifierToken,
+                                      const QByteArray &spell)
+{
+    const Macro trivial;
+
+    if (client)
+        client->startExpandingMacro(identifierToken->offset,
+                                    trivial, spell);
+
+    expand(spell, _result);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, trivial);
 }
 
 void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
