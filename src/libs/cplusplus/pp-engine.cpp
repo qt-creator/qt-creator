@@ -495,6 +495,7 @@ QByteArray Preprocessor::operator()(const QByteArray &filename,
 QByteArray Preprocessor::expand(const QByteArray &source)
 {
     QByteArray result;
+    result.reserve(256);
     expand(source, &result);
     return result;
 }
