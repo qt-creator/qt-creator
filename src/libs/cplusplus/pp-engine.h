@@ -138,8 +138,6 @@ public:
     QByteArray operator()(const QByteArray &filename,
                           const QByteArray &source);
 
-    QByteArray operator()(const QByteArray &source);
-
 private:
     enum { MAX_LEVEL = 512 };
 
@@ -169,9 +167,6 @@ private:
 
     void preprocess(const QByteArray &filename,
                     const QByteArray &source,
-                    QByteArray *result);
-
-    void preprocess(const QByteArray &source,
                     QByteArray *result);
 
     void expand(const QByteArray &source, QByteArray *result);

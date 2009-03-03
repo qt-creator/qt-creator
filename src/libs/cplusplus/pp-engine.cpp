@@ -492,24 +492,6 @@ QByteArray Preprocessor::operator()(const QByteArray &filename,
     return preprocessed;
 }
 
-QByteArray Preprocessor::operator()(const QByteArray &source)
-{
-    QByteArray preprocessed;
-    preprocess(source, &preprocessed);
-    return preprocessed;
-}
-
-void Preprocessor::preprocess(const QByteArray &filename,
-                              const QByteArray &source,
-                              QByteArray *result)
-{
-    const QByteArray previousFile = env.currentFile;
-
-    env.currentFile = filename;
-    preprocess(source, result);
-    env.currentFile = previousFile;
-}
-
 void Preprocessor::expand(const QByteArray &source, QByteArray *result)
 {
     _expand(source, result);
@@ -536,12 +518,16 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
     return state;
 }
 
-void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
+void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &source,
+                              QByteArray *result)
 {
     QByteArray *previousResult = _result;
     _result = result;
 
     pushState(createStateFromSource(source));
+
+    const QByteArray previousFileName = env.currentFile;
+    env.currentFile = fileName;
 
     const unsigned previousCurrentLine = env.currentLine;
     env.currentLine = 0;
@@ -716,6 +702,8 @@ void Preprocessor::preprocess(const QByteArray &source, QByteArray *result)
     }
 
     popState();
+
+    env.currentFile = previousFileName;
     env.currentLine = previousCurrentLine;
     _result = previousResult;
 }
