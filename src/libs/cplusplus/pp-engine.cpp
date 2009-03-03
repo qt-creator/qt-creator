@@ -808,6 +808,9 @@ QVector<Token> Preprocessor::tokenize(const QByteArray &text) const
 void Preprocessor::processInclude(bool, TokenIterator firstToken,
                                   TokenIterator lastToken, bool acceptMacros)
 {
+    if (! client)
+        return; // nothing to do.
+
     RangeLexer tk(firstToken, lastToken);
     ++tk; // skip T_POUND
     ++tk; // skip `include|nclude_next'
@@ -825,34 +828,34 @@ void Preprocessor::processInclude(bool, TokenIterator firstToken,
         //processInclude(skipCurentPath, tokenize(name), /*accept macros=*/ false);
         (void) switchSource(previousSource);
 #endif
+
     } else if (tk->is(T_LESS)) {
+
         TokenIterator start = tk.dot();
+
         for (; tk->isNot(T_EOF_SYMBOL); ++tk) {
             if (tk->is(T_GREATER))
                 break;
         }
+
         const char *beginOfPath = endOfToken(*start);
         const char *endOfPath = startOfToken(*tk);
-        const QByteArray path = QByteArray::fromRawData(beginOfPath,
-                                                        endOfPath - beginOfPath);
 
-        QString fn = QString::fromUtf8(path.constData(), path.length());
+        QString fn = QString::fromUtf8(beginOfPath, endOfPath - beginOfPath);
+        client->sourceNeeded(fn, Client::IncludeGlobal, firstToken->lineno);
 
-        if (client)
-            client->sourceNeeded(fn, Client::IncludeGlobal, firstToken->lineno);
     } else if (tk->is(T_ANGLE_STRING_LITERAL) || tk->is(T_STRING_LITERAL)) {
+
         const QByteArray spell = tokenSpell(*tk);
         const char *beginOfPath = spell.constBegin();
         const char *endOfPath = spell.constEnd();
         const char quote = *beginOfPath;
-        if (beginOfPath + 1 != endOfPath && ((quote == '"' && endOfPath[-1] == '"') ||
-                                             (quote == '<' && endOfPath[-1] == '>'))) {
-            const QByteArray path = QByteArray::fromRawData(beginOfPath + 1,
-                                                            spell.length() - 2);
-            QString fn = QString::fromUtf8(path.constData(), path.length());
 
-            if (client)
-                client->sourceNeeded(fn, Client::IncludeLocal, firstToken->lineno);
+        if (beginOfPath + 1 != endOfPath && ((quote == '"' && endOfPath[-1] == '"') ||
+                                              (quote == '<' && endOfPath[-1] == '>'))) {
+
+            QString fn = QString::fromUtf8(beginOfPath + 1, spell.length() - 2);
+            client->sourceNeeded(fn, Client::IncludeLocal, firstToken->lineno);
         }
     }
 }
@@ -1141,7 +1144,7 @@ Value Preprocessor::evalExpression(TokenIterator firstToken, TokenIterator lastT
     return result;
 }
 
-bool Preprocessor::isQtReservedWord (const QByteArray &macroId) const
+bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
 {
     const int size = macroId.size();
     if      (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_SIGNALS")
