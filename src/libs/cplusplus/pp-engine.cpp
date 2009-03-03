@@ -764,18 +764,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                         continue;
                     }
 
-                    int count = 0;
-                    while (_dot->isNot(T_EOF_SYMBOL)) {
-                        if (_dot->is(T_LPAREN))
-                            ++count;
-
-                        else if (_dot->is(T_RPAREN)) {
-                            if (! --count)
-                                break;
-                        }
-
-                        ++_dot;
-                    }
+                    skipActualArguments();
 
                     if (_dot->isNot(T_RPAREN))
                         _result->append(spell);
@@ -792,6 +781,22 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+}
+
+void Preprocessor::skipActualArguments()
+{
+    int count = 0;
+    while (_dot->isNot(T_EOF_SYMBOL)) {
+        if (_dot->is(T_LPAREN))
+            ++count;
+
+        else if (_dot->is(T_RPAREN)) {
+            if (! --count)
+                break;
+        }
+
+        ++_dot;
+    }
 }
 
 Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
