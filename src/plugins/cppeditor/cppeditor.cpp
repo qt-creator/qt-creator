@@ -416,8 +416,11 @@ void CPPEditor::updateMethodBoxIndex()
         const QString expression = expressionUnderCursor(tc);
         //qDebug() << "expression:" << expression;
 
+        Snapshot snapshot;
+        snapshot.insert(thisDocument->fileName(), thisDocument);
+
         TypeOfExpression typeOfExpression;
-        typeOfExpression.setSnapshot(m_modelManager->snapshot());
+        typeOfExpression.setSnapshot(snapshot);
 
         const QList<TypeOfExpression::Result> results =
                 typeOfExpression(expression, thisDocument, symbol, TypeOfExpression::Preprocess);
@@ -439,6 +442,19 @@ void CPPEditor::updateMethodBoxIndex()
 
                 QTextCursor c(document()->findBlockByNumber(symbol->line() - 1));
                 c.setPosition(c.position() + column);
+
+                const QString text = c.block().text();
+
+                int i = column;
+                for (; i < text.length(); ++i) {
+                    const QChar &ch = text.at(i);
+
+                    if (ch == QLatin1Char('*') || ch == QLatin1Char('&'))
+                        c.movePosition(QTextCursor::NextCharacter);
+                    else
+                        break;
+                }
+
                 c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 
                 QTextEdit::ExtraSelection sel;

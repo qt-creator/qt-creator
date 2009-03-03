@@ -694,8 +694,6 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 _result->append("\\\n");
 
             else if (_dot->whitespace) {
-                TokenIterator begin = _tokens.constBegin();
-
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
                 const unsigned beginOfToken = _dot->begin();
 
@@ -728,112 +726,32 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                 const QByteArray spell = tokenSpell(*identifierToken);
 
-                if (env->isBuiltinMacro(spell)) {
-                    const Macro trivial;
-
-                    if (client)
-                        client->startExpandingMacro(identifierToken->offset,
-                                                    trivial, spell);
-
-                    expand(spell, _result);
-
-                    if (client)
-                        client->stopExpandingMacro(_dot->offset, trivial);
-
-                    continue;
-                }
-
-                Macro *m = env->resolve(spell);
-
-                if (! m)
-                    _result->append(spell);
+                if (env->isBuiltinMacro(spell))
+                    expandBuiltinMacro(identifierToken, spell);
 
                 else {
-                    if (! m->isFunctionLike()) {
+                    if (Macro *m = env->resolve(spell)) {
+                        if (! m->isFunctionLike()) {
+                            if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
+                                continue;
 
-                        if (client)
-                            client->startExpandingMacro(identifierToken->offset,
-                                                        *m, spell);
+                            // the macro expansion generated something that looks like
+                            // a function-like macro.
+                        }
 
-                        m->setHidden(true);
-                        const QByteArray tmp = expand(m->definition());
-                        m->setHidden(false);
+                        // `m' is function-like macro.
+                        if (_dot->is(T_LPAREN)) {
+                            skipActualArguments();
 
-                        if (client)
-                            client->stopExpandingMacro(_dot->offset, *m);
-
-
-                        if (_dot->isNot(T_LPAREN)) {
-                            _result->append(tmp);
-                            continue;
-
-                        } else {
-                            m = 0; // reset the active the macro
-
-                            pushState(createStateFromSource(tmp));
-
-                            if (_dot->is(T_IDENTIFIER)) {
-                                const QByteArray id = tokenSpell(*_dot);
-
-                                if (Macro *macro = env->resolve(id)) {
-                                    if (macro->isFunctionLike())
-                                        m = macro;
-                                }
-                            }
-
-                            popState();
-
-                            if (! m) {
-                                _result->append(tmp);
+                            if (_dot->is(T_RPAREN)) {
+                                expandFunctionLikeMacro(identifierToken, m);
                                 continue;
                             }
                         }
                     }
 
-                    // `m' is function-like macro.
-
-                    // collect the actual arguments
-                    if (_dot->isNot(T_LPAREN)) {
-                        // ### warnng expected T_LPAREN
-                        _result->append(m->name());
-                        continue;
-                    }
-
-                    int count = 0;
-                    while (_dot->isNot(T_EOF_SYMBOL)) {
-                        if (_dot->is(T_LPAREN))
-                            ++count;
-
-                        else if (_dot->is(T_RPAREN)) {
-                            if (! --count)
-                                break;
-                        }
-
-                        ++_dot;
-                    }
-
-                    if (_dot->isNot(T_RPAREN)) {
-                        // ### warning expected T_RPAREN
-
-                    } else {
-                        const char *beginOfText = startOfToken(*identifierToken);
-                        const char *endOfText = endOfToken(*_dot);
-                        ++_dot; // skip T_RPAREN
-
-                        if (client) {
-                            const QByteArray text =
-                                    QByteArray::fromRawData(beginOfText,
-                                                            endOfText - beginOfText);
-
-                            client->startExpandingMacro(identifierToken->offset,
-                                                        *m, text);
-                        }
-
-                        expand(beginOfText, endOfText, _result);
-
-                        if (client)
-                            client->stopExpandingMacro(_dot->offset, *m);
-                    }
+                    // it's not a function or object-like macro.
+                    _result->append(spell);
                 }
             }
         }
@@ -844,6 +762,109 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+}
+
+void Preprocessor::skipActualArguments()
+{
+    int count = 0;
+
+    while (_dot->isNot(T_EOF_SYMBOL)) {
+        if (_dot->is(T_LPAREN))
+            ++count;
+
+        else if (_dot->is(T_RPAREN)) {
+            if (! --count)
+                break;
+        }
+
+        ++_dot;
+    }
+}
+
+Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
+                                            const QByteArray &spell,
+                                            Macro *m)
+{
+    QByteArray tmp;
+    expandObjectLikeMacro(identifierToken, spell, m, &tmp);
+
+    if (_dot->is(T_LPAREN)) {
+        // check if the expension generated a function-like macro.
+
+        m = 0; // reset the active the macro
+
+        pushState(createStateFromSource(tmp));
+
+        if (_dot->is(T_IDENTIFIER)) {
+            const QByteArray id = tokenSpell(*_dot);
+
+            if (Macro *macro = env->resolve(id)) {
+                if (macro->isFunctionLike())
+                    m = macro;
+            }
+        }
+
+        popState();
+
+        if (m != 0)
+            return m;
+    }
+
+    _result->append(tmp);
+    return 0;
+}
+
+void Preprocessor::expandBuiltinMacro(TokenIterator identifierToken,
+                                      const QByteArray &spell)
+{
+    const Macro trivial;
+
+    if (client)
+        client->startExpandingMacro(identifierToken->offset,
+                                    trivial, spell);
+
+    expand(spell, _result);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, trivial);
+}
+
+void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
+                                         const QByteArray &spell,
+                                         Macro *m,
+                                         QByteArray *result)
+{
+    if (client)
+        client->startExpandingMacro(identifierToken->offset,
+                                    *m, spell);
+
+    m->setHidden(true);
+    expand(m->definition(), result);
+    m->setHidden(false);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, *m);
+}
+
+void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m)
+{
+    const char *beginOfText = startOfToken(*identifierToken);
+    const char *endOfText = endOfToken(*_dot);
+    ++_dot; // skip T_RPAREN
+
+    if (client) {
+        const QByteArray text =
+                QByteArray::fromRawData(beginOfText,
+                                        endOfText - beginOfText);
+
+        client->startExpandingMacro(identifierToken->offset,
+                                    *m, text);
+    }
+
+    expand(beginOfText, endOfText, _result);
+
+    if (client)
+        client->stopExpandingMacro(_dot->offset, *m);
 }
 
 const char *Preprocessor::startOfToken(const Token &token) const

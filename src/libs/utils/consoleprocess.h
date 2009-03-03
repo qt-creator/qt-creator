@@ -67,12 +67,6 @@ public:
     int exitCode() const { return m_appCode; } // This will be the signal number if exitStatus == CrashExit
     QProcess::ExitStatus exitStatus() const { return m_appStatus; }
 
-#ifdef Q_OS_WIN
-    // These are public for WinGuiProcess. Should be in AbstractProcess, but it has no .cpp so far.
-    static QString createCommandline(const QString &program, const QStringList &args);
-    static QStringList fixEnvironment(const QStringList &env);
-#endif
-
 signals:
     void processError(const QString &error);
     // These reflect the state of the actual client process

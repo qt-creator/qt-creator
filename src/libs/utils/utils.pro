@@ -27,7 +27,8 @@ SOURCES += \
     synchronousprocess.cpp
 
 win32 {
-    SOURCES += consoleprocess_win.cpp \
+    SOURCES += abstractprocess_win.cpp \
+               consoleprocess_win.cpp \
                winutils.cpp
     HEADERS += winutils.h
 } else {

@@ -305,6 +305,7 @@ private:
 
     void tryLoadCustomDumpers();
     void runCustomDumper(const WatchData &data, bool dumpChildren);
+    void runDirectDumper(const WatchData &data, bool dumpChildren);
     bool isCustomValueDumperAvailable(const QString &type) const;
 
     void handleVarListChildren(const GdbResultRecord &record,
@@ -316,11 +317,13 @@ private:
         const WatchData &cookie);
     void handleToolTip(const GdbResultRecord &record,
         const QString &cookie);
-    void handleDumpCustomValue1(const GdbResultRecord &record,
-        const WatchData &cookie);
     void handleQueryDataDumper1(const GdbResultRecord &record);
     void handleQueryDataDumper2(const GdbResultRecord &record);
+    void handleDumpCustomValue1(const GdbResultRecord &record,
+        const WatchData &cookie);
     void handleDumpCustomValue2(const GdbResultRecord &record,
+        const WatchData &cookie);
+    void handleDumpCustomValue3(const GdbResultRecord &record,
         const WatchData &cookie);
     void handleDumpCustomEditValue(const GdbResultRecord &record);
     void handleDumpCustomSetup(const GdbResultRecord &record);

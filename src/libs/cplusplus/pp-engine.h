@@ -104,6 +104,12 @@ private:
     QByteArray expand(const QByteArray &source);
     void expand(const QByteArray &source, QByteArray *result);
     void expand(const char *first, const char *last, QByteArray *result);
+    void expandBuiltinMacro(TokenIterator identifierToken,
+                            const QByteArray &spell);
+    void expandObjectLikeMacro(TokenIterator identifierToken,
+                               const QByteArray &spell,
+                               Macro *m, QByteArray *result);
+    void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m);
 
     void resetIfLevel();
     bool testIfLevel();
@@ -123,9 +129,16 @@ private:
     QByteArray tokenSpell(const CPlusPlus::Token &token) const;
     QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
 
+    void skipActualArguments();
+
     void processNewline();
+
     void processSkippingBlocks(bool skippingBlocks,
                                TokenIterator dot, TokenIterator lastToken);
+
+    Macro *processObjectLikeMacro(TokenIterator identifierToken,
+                                  const QByteArray &spell,
+                                  Macro *m);
 
     void processDirective(TokenIterator dot, TokenIterator lastToken);
     void processInclude(bool skipCurrentPath,

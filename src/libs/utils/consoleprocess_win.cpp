@@ -85,7 +85,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         QTextStream out(m_tempFile);
         out.setCodec("UTF-16LE");
         out.setGenerateByteOrderMark(false);
-        foreach (const QString &var, fixEnvironment(environment()))
+        foreach (const QString &var, fixWinEnvironment(environment()))
             out << var << QChar(0);
         out << QChar(0);
     }
@@ -106,10 +106,10 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
              << m_stubServer.fullServerName()
              << workDir
              << (m_tempFile ? m_tempFile->fileName() : 0)
-             << createCommandline(program, args)
+             << createWinCommandline(program, args)
              << tr("Press <RETURN> to close this window...");
 
-    QString cmdLine = createCommandline(
+    QString cmdLine = createWinCommandline(
             QCoreApplication::applicationDirPath() + "/qtcreator_process_stub.exe", stubArgs);
 
     bool success = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
@@ -262,54 +262,3 @@ void ConsoleProcess::stubExited()
     emit wrapperStopped();
 }
 
-QStringList ConsoleProcess::fixEnvironment(const QStringList &env)
-{
-    QStringList envStrings = env;
-    // add PATH if necessary (for DLL loading)
-    if (envStrings.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()) {
-        QByteArray path = qgetenv("PATH");
-        if (!path.isEmpty())
-            envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
-    }
-    // add systemroot if needed
-    if (envStrings.filter(QRegExp("^SystemRoot=",Qt::CaseInsensitive)).isEmpty()) {
-        QByteArray systemRoot = qgetenv("SystemRoot");
-        if (!systemRoot.isEmpty())
-            envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
-    }
-    return envStrings;
-}
-
-QString ConsoleProcess::createCommandline(const QString &program, const QStringList &args)
-{
-    QString programName = program;
-    if (!programName.startsWith(QLatin1Char('\"')) && !programName.endsWith(QLatin1Char('\"')) && programName.contains(" "))
-        programName = "\"" + programName + "\"";
-    programName.replace("/", "\\");
-
-    QString cmdLine;
-    // add the prgram as the first arrg ... it works better
-    cmdLine = programName + " ";
-    for (int i = 0; i < args.size(); ++i) {
-        QString tmp = args.at(i);
-        // in the case of \" already being in the string the \ must also be escaped
-        tmp.replace( "\\\"", "\\\\\"" );
-        // escape a single " because the arguments will be parsed
-        tmp.replace( "\"", "\\\"" );
-        if (tmp.isEmpty() || tmp.contains(' ') || tmp.contains('\t')) {
-            // The argument must not end with a \ since this would be interpreted
-            // as escaping the quote -- rather put the \ behind the quote: e.g.
-            // rather use "foo"\ than "foo\"
-            QString endQuote("\"");
-            int i = tmp.length();
-            while (i > 0 && tmp.at(i - 1) == '\\') {
-                --i;
-                endQuote += "\\";
-            }
-            cmdLine += QString(" \"") + tmp.left(i) + endQuote;
-        } else {
-            cmdLine += ' ' + tmp;
-        }
-    }
-    return cmdLine;
-}
