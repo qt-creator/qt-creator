@@ -699,8 +699,15 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 const unsigned endOfPreviousToken = (_dot - 1)->end();
                 const unsigned beginOfToken = _dot->begin();
 
-                const char *it = _source.constBegin() + endOfPreviousToken;
+                const char *start = _source.constBegin() + endOfPreviousToken;
                 const char *end = _source.constBegin() + beginOfToken;
+
+                const char *it = end - 1;
+                for (; it != start - 1; --it) {
+                    if (*it == '\n')
+                        break;
+                }
+                ++it;
 
                 for (; it != end; ++it) {
                     if (std::isspace(*it))
