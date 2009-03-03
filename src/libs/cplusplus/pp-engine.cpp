@@ -748,34 +748,11 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                 else {
                     if (! m->isFunctionLike()) {
-                        QByteArray tmp;
-                        expandObjectLikeMacro(identifierToken, spell, m, &tmp);
-
-                        if (_dot->isNot(T_LPAREN)) {
-                            _result->append(tmp);
+                        if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
                             continue;
 
-                        } else {
-                            m = 0; // reset the active the macro
-
-                            pushState(createStateFromSource(tmp));
-
-                            if (_dot->is(T_IDENTIFIER)) {
-                                const QByteArray id = tokenSpell(*_dot);
-
-                                if (Macro *macro = env->resolve(id)) {
-                                    if (macro->isFunctionLike())
-                                        m = macro;
-                                }
-                            }
-
-                            popState();
-
-                            if (! m) {
-                                _result->append(tmp);
-                                continue;
-                            }
-                        }
+                        // the macro expansion generated something that looks like
+                        // a function-like macro.
                     }
 
                     // `m' is function-like macro.
@@ -815,6 +792,39 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+}
+
+Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
+                                            const QByteArray &spell,
+                                            Macro *m)
+{
+    QByteArray tmp;
+    expandObjectLikeMacro(identifierToken, spell, m, &tmp);
+
+    if (_dot->is(T_LPAREN)) {
+        // check if the expension generated a function-like macro.
+
+        m = 0; // reset the active the macro
+
+        pushState(createStateFromSource(tmp));
+
+        if (_dot->is(T_IDENTIFIER)) {
+            const QByteArray id = tokenSpell(*_dot);
+
+            if (Macro *macro = env->resolve(id)) {
+                if (macro->isFunctionLike())
+                    m = macro;
+            }
+        }
+
+        popState();
+
+        if (m != 0)
+            return m;
+    }
+
+    _result->append(tmp);
+    return 0;
 }
 
 void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,

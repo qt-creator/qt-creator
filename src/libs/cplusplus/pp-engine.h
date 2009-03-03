@@ -128,8 +128,13 @@ private:
     QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
 
     void processNewline();
+
     void processSkippingBlocks(bool skippingBlocks,
                                TokenIterator dot, TokenIterator lastToken);
+
+    Macro *processObjectLikeMacro(TokenIterator identifierToken,
+                                  const QByteArray &spell,
+                                  Macro *m);
 
     void processDirective(TokenIterator dot, TokenIterator lastToken);
     void processInclude(bool skipCurrentPath,
