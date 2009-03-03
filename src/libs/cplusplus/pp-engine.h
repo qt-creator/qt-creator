@@ -191,6 +191,10 @@ private:
     QByteArray tokenSpell(const CPlusPlus::Token &token) const;
     QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
 
+    void processNewline();
+    void processSkippingBlocks(bool skippingBlocks,
+                               TokenIterator dot, TokenIterator lastToken);
+
     void processDirective(TokenIterator dot, TokenIterator lastToken);
     void processInclude(bool skipCurrentPath,
                         TokenIterator dot, TokenIterator lastToken,

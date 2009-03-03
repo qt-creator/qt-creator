@@ -526,6 +526,51 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
     return state;
 }
 
+void Preprocessor::processNewline()
+{
+    if (env.currentLine == _dot->lineno)
+        return;
+
+    if (env.currentLine > _dot->lineno) {
+        _result->append("\n# ");
+        _result->append(QByteArray::number(_dot->lineno));
+        _result->append(' ');
+        _result->append('"');
+        _result->append(env.currentFile);
+        _result->append('"');
+        _result->append('\n');
+    } else {
+        for (unsigned i = env.currentLine; i < _dot->lineno; ++i)
+            _result->append('\n');
+    }
+
+    env.currentLine = _dot->lineno;
+}
+
+void Preprocessor::processSkippingBlocks(bool skippingBlocks,
+                                         TokenIterator start, TokenIterator /*end*/)
+{
+    if (! client)
+        return;
+
+    if (skippingBlocks != _skipping[iflevel]) {
+        unsigned offset = start->offset;
+
+        if (_skipping[iflevel]) {
+            if (_dot->newline)
+                ++offset;
+
+            client->startSkippingBlocks(offset);
+
+        } else {
+            if (offset)
+                --offset;
+
+            client->stopSkippingBlocks(offset);
+        }
+    }
+}
+
 void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &source,
                               QByteArray *result)
 {
@@ -541,62 +586,43 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     env.currentLine = 0;
 
     while (true) {
-        if (env.currentLine != _dot->lineno) {
-            if (env.currentLine > _dot->lineno) {
-                _result->append("\n# ");
-                _result->append(QByteArray::number(_dot->lineno));
-                _result->append(' ');
-                _result->append('"');
-                _result->append(env.currentFile);
-                _result->append('"');
-                _result->append('\n');
-            } else {
-                for (unsigned i = env.currentLine; i < _dot->lineno; ++i)
-                    _result->append('\n');
-            }
-            env.currentLine = _dot->lineno;
-        }
+        processNewline();
 
         if (_dot->is(T_EOF_SYMBOL)) {
             break;
+
         } else if (_dot->is(T_POUND) && (! _dot->joined && _dot->newline)) {
+            // handle the preprocessor directive
+
             TokenIterator start = _dot;
             do {
                 ++_dot;
             } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
 
-            //qDebug() << QByteArray(first + beginPP.offset,
-                                   //tokens.last().end() - beginPP.offset);
-
             const bool skippingBlocks = _skipping[iflevel];
 
             processDirective(start, _dot);
+            processSkippingBlocks(skippingBlocks, start, _dot);
 
-            if (client && skippingBlocks != _skipping[iflevel]) {
-                unsigned offset = start->offset;
-                if (_skipping[iflevel]) {
-                    if (_dot->newline)
-                        ++offset;
-                    client->startSkippingBlocks(offset);
-                } else {
-                    if (offset)
-                        --offset;
-                    client->stopSkippingBlocks(offset);
-                }
-            }
         } else if (skipping()) {
+            // skip the current line
+
             do {
                 ++_dot;
             } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
+
         } else {
+
             if (_dot->joined)
                 _result->append("\\\n");
+
             else if (_dot->whitespace)
                 _result->append(' ');
 
             if (_dot->isNot(T_IDENTIFIER)) {
                 _result->append(tokenSpell(*_dot));
                 ++_dot;
+
             } else {
                 const TokenIterator identifierToken = _dot;
                 ++_dot; // skip T_IDENTIFIER
