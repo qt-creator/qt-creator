@@ -815,6 +815,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
             warningFormat.setUnderlineColor(Qt::darkYellow);
 
+#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
             QSet<QPair<unsigned, unsigned> > lines;
             foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
                 if (m.fileName() != fileName)
@@ -859,7 +860,35 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                 sel.cursor = c;
                 selections.append(sel);
             }
+#else
+            QSet<int> lines;
+            foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
+                if (m.fileName() != fileName)
+                    continue;
+                else if (lines.contains(m.line()))
+                    continue;
 
+                lines.insert(m.line());
+
+                QTextEdit::ExtraSelection sel;
+                if (m.isWarning())
+                    sel.format = warningFormat;
+                else
+                    sel.format = errorFormat;
+
+                QTextCursor c(ed->document()->findBlockByNumber(m.line() - 1));
+                const QString text = c.block().text();
+                for (int i = 0; i < text.size(); ++i) {
+                    if (! text.at(i).isSpace()) {
+                        c.setPosition(c.position() + i);
+                        break;
+                    }
+                }
+                c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                sel.cursor = c;
+                selections.append(sel);
+            }
+#endif
             QList<Editor> todo;
             foreach (const Editor &e, todo) {
                 if (e.textEditor != textEditor)
