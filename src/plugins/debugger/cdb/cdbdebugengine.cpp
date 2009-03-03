@@ -35,6 +35,7 @@
 #include "stackhandler.h"
 
 #include <utils/qtcassert.h>
+#include <utils/consoleprocess.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimerEvent>
@@ -202,12 +203,19 @@ bool CdbDebugEngine::startDebugger()
         qWarning("CdbDebugEngine: attach to process not yet implemented!");
         return false;
     } else {
+        QString cmd = Core::Utils::AbstractProcess::createWinCommandline(filename, m_d->m_debuggerManager->m_processArgs);
+        PCWSTR env = 0;
+        QByteArray envData;
+        if (!m_d->m_debuggerManager->m_environment.empty()) {
+            envData = Core::Utils::AbstractProcess::createWinEnvironment(Core::Utils::AbstractProcess::fixWinEnvironment(m_d->m_debuggerManager->m_environment));
+            env = reinterpret_cast<PCWSTR>(envData.data());
+        }
         HRESULT hr = m_d->m_pDebugClient->CreateProcess2Wide(NULL,
-                                                const_cast<PWSTR>(filename.utf16()),
+                                                const_cast<PWSTR>(cmd.utf16()),
                                                 &dbgopts,
                                                 sizeof(dbgopts),
-                                                NULL,  // TODO: think about the initial directory
-                                                NULL); // TODO: think about setting the environment
+                                                m_d->m_debuggerManager->m_workingDir.utf16(),
+                                                env);
         if (FAILED(hr)) {
             //qWarning("CreateProcess2Wide failed");
             m_d->m_debuggerManagerAccess->notifyInferiorExited();
@@ -503,7 +511,7 @@ void CdbDebugEngine::reloadRegisters()
 }
 
 void CdbDebugEngine::timerEvent(QTimerEvent* te)
-{    
+{
     if (te->timerId() != m_d->m_watchTimer)
         return;
 
