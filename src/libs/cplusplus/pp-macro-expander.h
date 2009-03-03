@@ -49,56 +49,53 @@
 #ifndef PP_MACRO_EXPANDER_H
 #define PP_MACRO_EXPANDER_H
 
+#include "pp-scanner.h"
+#include <QVector>
+#include <QByteArray>
+
 namespace CPlusPlus {
 
-    struct pp_frame
-    {
-        Macro *expanding_macro;
-        const QVector<QByteArray> actuals;
+class Environment;
 
-        pp_frame (Macro *expanding_macro, const QVector<QByteArray> &actuals)
-            : expanding_macro (expanding_macro),
-              actuals (actuals)
-        { }
-    };
+struct pp_frame;
 
-    class MacroExpander
-    {
-        Environment &env;
-        pp_frame *frame;
+class MacroExpander
+{
+    Environment *env;
+    pp_frame *frame;
 
-        pp_skip_number skip_number;
-        pp_skip_identifier skip_identifier;
-        pp_skip_string_literal skip_string_literal;
-        pp_skip_char_literal skip_char_literal;
-        pp_skip_argument skip_argument;
-        pp_skip_comment_or_divop skip_comment_or_divop;
-        pp_skip_blanks skip_blanks;
-        pp_skip_whitespaces skip_whitespaces;
+    pp_skip_number skip_number;
+    pp_skip_identifier skip_identifier;
+    pp_skip_string_literal skip_string_literal;
+    pp_skip_char_literal skip_char_literal;
+    pp_skip_argument skip_argument;
+    pp_skip_comment_or_divop skip_comment_or_divop;
+    pp_skip_blanks skip_blanks;
+    pp_skip_whitespaces skip_whitespaces;
 
-        const QByteArray *resolve_formal (const QByteArray &name);
+    const QByteArray *resolve_formal(const QByteArray &name);
 
-    public:
-        MacroExpander (Environment &env, pp_frame *frame = 0);
+public:
+    MacroExpander(Environment *env, pp_frame *frame = 0);
 
-        const char *operator () (const char *first, const char *last,
-                                 QByteArray *result);
+    const char *operator()(const char *first, const char *last,
+                             QByteArray *result);
 
-        const char *operator () (const QByteArray &source,
-                                 QByteArray *result)
-        { return operator()(source.constBegin(), source.constEnd(), result); }
+    const char *operator()(const QByteArray &source,
+                             QByteArray *result)
+    { return operator()(source.constBegin(), source.constEnd(), result); }
 
-        const char *expand(const char *first, const char *last,
-                           QByteArray *result);
+    const char *expand(const char *first, const char *last,
+                       QByteArray *result);
 
-        const char *skip_argument_variadics (const QVector<QByteArray> &actuals,
-                                             Macro *macro,
-                                             const char *first, const char *last);
+    const char *skip_argument_variadics(const QVector<QByteArray> &actuals,
+                                         Macro *macro,
+                                         const char *first, const char *last);
 
-    public: // attributes
-        int lines;
-        int generated_lines;
-    };
+public: // attributes
+    int lines;
+    int generated_lines;
+};
 
 } // namespace CPlusPlus
 

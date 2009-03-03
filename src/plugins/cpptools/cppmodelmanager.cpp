@@ -220,7 +220,7 @@ private:
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
-      preprocess(this, env)
+      preprocess(this, &env)
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)

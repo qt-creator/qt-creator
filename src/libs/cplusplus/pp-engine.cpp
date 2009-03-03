@@ -55,7 +55,83 @@
 #include <QtDebug>
 #include <algorithm>
 
+namespace CPlusPlus {
+
+struct Value
+{
+    enum Kind {
+        Kind_Long,
+        Kind_ULong,
+    };
+
+    Kind kind;
+
+    union {
+        long l;
+        unsigned long ul;
+    };
+
+
+    Value()
+        : kind(Kind_Long), l(0)
+    { }
+
+    inline bool is_ulong () const
+    { return kind == Kind_ULong; }
+
+    inline void set_ulong (unsigned long v)
+    {
+        ul = v;
+        kind = Kind_ULong;
+    }
+
+    inline void set_long (long v)
+    {
+        l = v;
+        kind = Kind_Long;
+    }
+
+    inline bool is_zero () const
+    { return l == 0; }
+
+#define PP_DEFINE_BIN_OP(name, op) \
+    inline Value operator op(const Value &other) const \
+    { \
+        Value v = *this; \
+        if (v.is_ulong () || other.is_ulong ()) \
+            v.set_ulong (v.ul op other.ul); \
+        else \
+            v.set_long (v.l op other.l); \
+        return v; \
+    }
+
+    PP_DEFINE_BIN_OP(op_add, +)
+    PP_DEFINE_BIN_OP(op_sub, -)
+    PP_DEFINE_BIN_OP(op_mult, *)
+    PP_DEFINE_BIN_OP(op_div, /)
+    PP_DEFINE_BIN_OP(op_mod, %)
+    PP_DEFINE_BIN_OP(op_lhs, <<)
+    PP_DEFINE_BIN_OP(op_rhs, >>)
+    PP_DEFINE_BIN_OP(op_lt, <)
+    PP_DEFINE_BIN_OP(op_gt, >)
+    PP_DEFINE_BIN_OP(op_le, <=)
+    PP_DEFINE_BIN_OP(op_ge, >=)
+    PP_DEFINE_BIN_OP(op_eq, ==)
+    PP_DEFINE_BIN_OP(op_ne, !=)
+    PP_DEFINE_BIN_OP(op_bit_and, &)
+    PP_DEFINE_BIN_OP(op_bit_or, |)
+    PP_DEFINE_BIN_OP(op_bit_xor, ^)
+    PP_DEFINE_BIN_OP(op_and, &&)
+    PP_DEFINE_BIN_OP(op_or, ||)
+
+#undef PP_DEFINE_BIN_OP
+};
+
+} // end of namespace CPlusPlus
+
+
 using namespace CPlusPlus;
+
 
 namespace {
 
@@ -449,7 +525,7 @@ private:
 } // end of anonymous namespace
 
 
-Preprocessor::Preprocessor(Client *client, Environment &env)
+Preprocessor::Preprocessor(Client *client, Environment *env)
     : client(client),
       env(env),
       _expand(env),
@@ -528,23 +604,23 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
 
 void Preprocessor::processNewline()
 {
-    if (env.currentLine == _dot->lineno)
+    if (env->currentLine == _dot->lineno)
         return;
 
-    if (env.currentLine > _dot->lineno) {
+    if (env->currentLine > _dot->lineno) {
         _result->append("\n# ");
         _result->append(QByteArray::number(_dot->lineno));
         _result->append(' ');
         _result->append('"');
-        _result->append(env.currentFile);
+        _result->append(env->currentFile);
         _result->append('"');
         _result->append('\n');
     } else {
-        for (unsigned i = env.currentLine; i < _dot->lineno; ++i)
+        for (unsigned i = env->currentLine; i < _dot->lineno; ++i)
             _result->append('\n');
     }
 
-    env.currentLine = _dot->lineno;
+    env->currentLine = _dot->lineno;
 }
 
 void Preprocessor::processSkippingBlocks(bool skippingBlocks,
@@ -579,11 +655,11 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
     pushState(createStateFromSource(source));
 
-    const QByteArray previousFileName = env.currentFile;
-    env.currentFile = fileName;
+    const QByteArray previousFileName = env->currentFile;
+    env->currentFile = fileName;
 
-    const unsigned previousCurrentLine = env.currentLine;
-    env.currentLine = 0;
+    const unsigned previousCurrentLine = env->currentLine;
+    env->currentLine = 0;
 
     while (true) {
         processNewline();
@@ -628,7 +704,8 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 ++_dot; // skip T_IDENTIFIER
 
                 const QByteArray spell = tokenSpell(*identifierToken);
-                if (env.isBuiltinMacro(spell)) {
+
+                if (env->isBuiltinMacro(spell)) {
                     const Macro trivial;
 
                     if (client)
@@ -643,7 +720,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                     continue;
                 }
 
-                Macro *m = env.resolve(spell);
+                Macro *m = env->resolve(spell);
 
                 if (! m)
                     _result->append(spell);
@@ -675,7 +752,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                             if (_dot->is(T_IDENTIFIER)) {
                                 const QByteArray id = tokenSpell(*_dot);
 
-                                if (Macro *macro = env.resolve(id)) {
+                                if (Macro *macro = env->resolve(id)) {
                                     if (macro->isFunctionLike())
                                         m = macro;
                                 }
@@ -689,6 +766,8 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                             }
                         }
                     }
+
+                    // `m' is function-like macro.
 
                     // collect the actual arguments
                     if (_dot->isNot(T_LPAREN)) {
@@ -709,6 +788,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                         ++_dot;
                     }
+
                     if (_dot->isNot(T_RPAREN)) {
                         // ### warning expected T_RPAREN
 
@@ -738,8 +818,8 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
     popState();
 
-    env.currentFile = previousFileName;
-    env.currentLine = previousCurrentLine;
+    env->currentFile = previousFileName;
+    env->currentLine = previousCurrentLine;
     _result = previousResult;
 }
 
@@ -899,8 +979,8 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     }
 
     Macro macro;
-    macro.setFileName(env.currentFile);
-    macro.setLine(env.currentLine);
+    macro.setFileName(env->currentFile);
+    macro.setLine(env->currentLine);
     macro.setName(tokenText(*tk));
     ++tk; // skip T_IDENTIFIER
 
@@ -961,7 +1041,7 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
         macro.setDefinition(definition.trimmed());
     }
 
-    env.bind(macro);
+    env->bind(macro);
 
     if (client)
         client->macroAdded(macro);
@@ -1063,7 +1143,7 @@ void Preprocessor::processIfdef(bool checkUndefined,
     if (testIfLevel()) {
         if (tk->is(T_IDENTIFIER)) {
             const QByteArray macroName = tokenSpell(*tk);
-            bool value = env.resolve(macroName) != 0 || env.isBuiltinMacro(macroName);
+            bool value = env->resolve(macroName) != 0 || env->isBuiltinMacro(macroName);
 
             if (checkUndefined)
                 value = ! value;
@@ -1083,7 +1163,7 @@ void Preprocessor::processUndef(TokenIterator firstToken, TokenIterator lastToke
 
     if (tk->is(T_IDENTIFIER)) {
         const QByteArray macroName = tokenText(*tk);
-        const Macro *macro = env.remove(macroName);
+        const Macro *macro = env->remove(macroName);
 
         if (client && macro)
             client->macroAdded(*macro);
@@ -1162,7 +1242,7 @@ int Preprocessor::skipping() const
 Value Preprocessor::evalExpression(TokenIterator firstToken, TokenIterator lastToken,
                                    const QByteArray &source) const
 {
-    ExpressionEvaluator eval(&env);
+    ExpressionEvaluator eval(env);
     const Value result = eval(firstToken, lastToken, source);
     return result;
 }

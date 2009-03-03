@@ -60,80 +60,12 @@ namespace CPlusPlus {
 
 namespace CPlusPlus {
 
-struct Value
-{
-    enum Kind {
-        Kind_Long,
-        Kind_ULong,
-    };
-
-    Kind kind;
-
-    union {
-        long l;
-        unsigned long ul;
-    };
-
-
-    Value()
-        : kind(Kind_Long), l(0)
-    { }
-
-    inline bool is_ulong () const
-    { return kind == Kind_ULong; }
-
-    inline void set_ulong (unsigned long v)
-    {
-        ul = v;
-        kind = Kind_ULong;
-    }
-
-    inline void set_long (long v)
-    {
-        l = v;
-        kind = Kind_Long;
-    }
-
-    inline bool is_zero () const
-    { return l == 0; }
-
-#define PP_DEFINE_BIN_OP(name, op) \
-    inline Value operator op(const Value &other) const \
-    { \
-        Value v = *this; \
-        if (v.is_ulong () || other.is_ulong ()) \
-            v.set_ulong (v.ul op other.ul); \
-        else \
-            v.set_long (v.l op other.l); \
-        return v; \
-    }
-
-    PP_DEFINE_BIN_OP(op_add, +)
-    PP_DEFINE_BIN_OP(op_sub, -)
-    PP_DEFINE_BIN_OP(op_mult, *)
-    PP_DEFINE_BIN_OP(op_div, /)
-    PP_DEFINE_BIN_OP(op_mod, %)
-    PP_DEFINE_BIN_OP(op_lhs, <<)
-    PP_DEFINE_BIN_OP(op_rhs, >>)
-    PP_DEFINE_BIN_OP(op_lt, <)
-    PP_DEFINE_BIN_OP(op_gt, >)
-    PP_DEFINE_BIN_OP(op_le, <=)
-    PP_DEFINE_BIN_OP(op_ge, >=)
-    PP_DEFINE_BIN_OP(op_eq, ==)
-    PP_DEFINE_BIN_OP(op_ne, !=)
-    PP_DEFINE_BIN_OP(op_bit_and, &)
-    PP_DEFINE_BIN_OP(op_bit_or, |)
-    PP_DEFINE_BIN_OP(op_bit_xor, ^)
-    PP_DEFINE_BIN_OP(op_and, &&)
-    PP_DEFINE_BIN_OP(op_or, ||)
-
-#undef PP_DEFINE_BIN_OP
-};
+struct Value;
 
 class CPLUSPLUS_EXPORT Preprocessor
 {
 public:
-    Preprocessor(Client *client, Environment &env);
+    Preprocessor(Client *client, Environment *env);
 
     QByteArray operator()(const QByteArray &filename,
                           const QByteArray &source);
@@ -218,7 +150,7 @@ private:
 
 private:
     Client *client;
-    Environment &env;
+    Environment *env;
     MacroExpander _expand;
 
     bool _skipping[MAX_LEVEL]; // ### move in state

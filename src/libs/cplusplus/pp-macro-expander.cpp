@@ -32,6 +32,24 @@
 #include "pp-macro-expander.h"
 #include <QDateTime>
 
+namespace CPlusPlus {
+
+
+
+struct pp_frame
+{
+    Macro *expanding_macro;
+    const QVector<QByteArray> actuals;
+
+    pp_frame(Macro *expanding_macro, const QVector<QByteArray> &actuals)
+        : expanding_macro (expanding_macro),
+          actuals (actuals)
+    { }
+};
+
+
+} // end of namespace CPlusPlus
+
 using namespace CPlusPlus;
 
 inline static bool comment_p (const char *__first, const char *__last)
@@ -48,7 +66,7 @@ inline static bool comment_p (const char *__first, const char *__last)
     return (*__first == '/' || *__first == '*');
 }
 
-MacroExpander::MacroExpander (Environment &env, pp_frame *frame)
+MacroExpander::MacroExpander(Environment *env, pp_frame *frame)
     : env(env), frame(frame),
       lines(0), generated_lines(0)
 { }
@@ -87,10 +105,10 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
         if (*__first == '\n')
         {
             __result->append("\n# ");
-            __result->append(QByteArray::number(env.currentLine));
+            __result->append(QByteArray::number(env->currentLine));
             __result->append(' ');
             __result->append('"');
-            __result->append(env.currentFile);
+            __result->append(env->currentFile);
             __result->append('"');
             __result->append('\n');
             ++lines;
@@ -214,20 +232,20 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                 continue;
             }
 
-            Macro *macro = env.resolve (fast_name);
-            if (! macro || macro->isHidden() || env.hideNext)
+            Macro *macro = env->resolve (fast_name);
+            if (! macro || macro->isHidden() || env->hideNext)
             {
                 if (fast_name.size () == 7 && fast_name [0] == 'd' && fast_name == "defined")
-                    env.hideNext = true;
+                    env->hideNext = true;
                 else
-                    env.hideNext = false;
+                    env->hideNext = false;
 
                 if (fast_name.size () == 8 && fast_name [0] == '_' && fast_name [1] == '_')
                 {
                     if (fast_name == "__LINE__")
                     {
                         char buf [16];
-                        const size_t count = qsnprintf (buf, 16, "%d", env.currentLine + lines);
+                        const size_t count = qsnprintf (buf, 16, "%d", env->currentLine + lines);
                         __result->append(buf, count);
                         continue;
                     }
@@ -235,7 +253,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                     else if (fast_name == "__FILE__")
                     {
                         __result->append('"');
-                        __result->append(env.currentFile);
+                        __result->append(env->currentFile);
                         __result->append('"');
                         continue;
                     }
@@ -287,7 +305,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                         if (__end_id == __tmp_end)
                         {
                             const QByteArray __id (__begin_id, __end_id - __begin_id);
-                            m = env.resolve (__id);
+                            m = env->resolve (__id);
                         }
 
                         if (! m)
