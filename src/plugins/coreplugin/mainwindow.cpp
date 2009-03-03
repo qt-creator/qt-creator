@@ -612,6 +612,7 @@ void MainWindow::registerDefaultActions()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Undo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
+    tmpaction->setEnabled(false);
 
     // Redo Action
     tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
@@ -620,36 +621,42 @@ void MainWindow::registerDefaultActions()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultText(tr("&Redo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
+    tmpaction->setEnabled(false);
 
     // Cut Action
     tmpaction = new QAction(QIcon(Constants::ICON_CUT), tr("Cu&t"), this);
     cmd = am->registerAction(tmpaction, Constants::CUT, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
+    tmpaction->setEnabled(false);
 
     // Copy Action
     tmpaction = new QAction(QIcon(Constants::ICON_COPY), tr("&Copy"), this);
     cmd = am->registerAction(tmpaction, Constants::COPY, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
+    tmpaction->setEnabled(false);
 
     // Paste Action
     tmpaction = new QAction(QIcon(Constants::ICON_PASTE), tr("&Paste"), this);
     cmd = am->registerAction(tmpaction, Constants::PASTE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
+    tmpaction->setEnabled(false);
 
     // Select All
     tmpaction = new QAction(tr("&Select All"), this);
     cmd = am->registerAction(tmpaction, Constants::SELECTALL, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
+    tmpaction->setEnabled(false);
 
     // Goto Action
     tmpaction = new QAction(tr("&Go To Line..."), this);
     cmd = am->registerAction(tmpaction, Constants::GOTO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
+    tmpaction->setEnabled(false);
 
     // Options Action
     m_optionsAction = new QAction(tr("&Options..."), this);
@@ -993,23 +1000,26 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
     Q_UNUSED(now)
+    IContext *newContext = 0;
     if (focusWidget())    {
         IContext *context = 0;
         QWidget *p = focusWidget();
         while (p) {
             context = m_contextWidgets.value(p);
             if (context) {
-                if (m_activeContext != context)
-                    updateContextObject(context);
+                newContext = context;
                 break;
             }
             p = p->parentWidget();
         }
     }
+    updateContextObject(newContext);
 }
 
 void MainWindow::updateContextObject(IContext  *context)
 {
+    if (context == m_activeContext)
+        return;
     IContext *oldContext = m_activeContext;
     m_activeContext = context;
     if (!context || oldContext != m_activeContext) {
@@ -1101,10 +1111,6 @@ void MainWindow::updateContext()
 
     if (m_activeContext)
         contexts += m_activeContext->context();
-    IEditor *editor = m_editorManager->currentEditor();
-    if (editor && (EditorManagerPlaceHolder::current() != 0)) {
-        contexts += editor->context();
-    }
 
     contexts += m_additionalContexts;
 
