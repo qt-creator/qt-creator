@@ -110,7 +110,10 @@ QString CMakeManager::createXmlFile(const QStringList &arguments, const QString 
     buildDirectory.mkpath(buildDirectoryPath);
     QProcess cmake;
     cmake.setWorkingDirectory(buildDirectoryPath);
-    cmake.start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << "-GCodeBlocks - Unix Makefiles");
+
+    QString generator = "-GCodeBlocks - Unix Makefiles";
+    cmake.start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << generator);
+
     qDebug()<<cmakeExecutable()<<sourceDirectory << arguments;
     cmake.waitForFinished(-1);
     cmake.setProcessChannelMode(QProcess::MergedChannels);

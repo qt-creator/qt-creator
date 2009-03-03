@@ -111,8 +111,12 @@ void CMakeProject::parseCMakeLists()
         m_projectName = cbpparser.projectName();
         qDebug()<<"Building Tree";
         // TODO do a intelligent updating of the tree
-        buildTree(m_rootNode, cbpparser.fileList());
-        foreach (ProjectExplorer::FileNode *fn, cbpparser.fileList())
+
+        QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
+        // Manually add the CMakeLists.txt file
+        fileList.append(new ProjectExplorer::FileNode(sourceDirectory + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+        buildTree(m_rootNode, fileList);
+        foreach (ProjectExplorer::FileNode *fn, fileList)
             m_files.append(fn->path());
         m_files.sort();
 
@@ -208,7 +212,7 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
 ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *rootNode, QString directory)
 {
     QString relativePath = QDir(QFileInfo(rootNode->path()).path()).relativeFilePath(directory);
-    QStringList parts = relativePath.split("/");
+    QStringList parts = relativePath.split("/", QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = rootNode;
     foreach (const QString &part, parts) {
         // Find folder in subFolders
