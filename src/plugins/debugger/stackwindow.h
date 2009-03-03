@@ -61,6 +61,7 @@ private slots:
 private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
+    void copyContentsToClipboard();
 
     bool m_alwaysResizeColumnsToContents;
 };

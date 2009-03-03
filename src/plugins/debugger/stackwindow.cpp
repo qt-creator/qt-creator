@@ -33,14 +33,18 @@
 
 #include <utils/qtcassert.h>
 
-#include <QAction>
-#include <QComboBox>
-#include <QDebug>
-#include <QHeaderView>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QTreeView>
-#include <QVBoxLayout>
+#include <QtCore/QDebug>
+
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
+#include <QtGui/QComboBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QTreeView>
+#include <QtGui/QVBoxLayout>
+
 
 using Debugger::Internal::StackWindow;
 
@@ -81,20 +85,49 @@ void StackWindow::rowActivated(const QModelIndex &index)
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
+
+    QAction *act0 = new QAction(tr("Copy contents to clipboard"), &menu);
+    act0->setEnabled(model() != 0);
+
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+
     QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
 
+    menu.addAction(act0);
+    menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act1)
+    if (act == act0)
+        copyContentsToClipboard();
+    else if (act == act1)
         resizeColumnsToContents();
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+}
+
+void StackWindow::copyContentsToClipboard()
+{
+    QString str;
+    int n = model()->rowCount();
+    int m = model()->columnCount();
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j != m; ++j) {
+            QModelIndex index = model()->index(i, j);
+            str += model()->data(index).toString();
+            str += '\t';
+        }
+        str += '\n';
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+    #ifdef Q_OS_LINUX
+    clipboard->setText(str, QClipboard::Selection);
+    #endif
+    clipboard->setText(str, QClipboard::Clipboard);
 }
 
 void StackWindow::resizeColumnsToContents()
