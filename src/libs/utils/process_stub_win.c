@@ -109,6 +109,7 @@ enum {
 int main()
 {
     int argc;
+    int creationFlags;
     wchar_t **argv;
     wchar_t *env = 0;
     STARTUPINFOW si;
@@ -159,7 +160,7 @@ int main()
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
 
-    int creationFlags = CREATE_UNICODE_ENVIRONMENT;
+    creationFlags = CREATE_UNICODE_ENVIRONMENT;
     if (!wcscmp(argv[ArgAction], L"debug"))
         creationFlags |= DEBUG_ONLY_THIS_PROCESS;
     if (!CreateProcessW(0, argv[ArgCmdLine], 0, 0, FALSE, creationFlags, env, 0, &si, &pi)) {
