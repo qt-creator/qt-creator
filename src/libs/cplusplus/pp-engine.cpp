@@ -810,9 +810,8 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                         ++_dot;
                     }
 
-                    if (_dot->isNot(T_RPAREN)) {
-                        // ### warning expected T_RPAREN
-                    }
+                    if (_dot->isNot(T_RPAREN))
+                        _result->append(spell);
 
                     else
                         expandFunctionLikeMacro(identifierToken, m);
