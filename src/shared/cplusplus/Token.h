@@ -312,7 +312,8 @@ public:
             unsigned whitespace : 1;
             unsigned joined     : 1;
             unsigned expanded   : 1;
-            unsigned pad        : 4;
+            unsigned generated  : 1;
+            unsigned pad        : 3;
             unsigned length     : 16;
         };
     };
