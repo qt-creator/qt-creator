@@ -960,6 +960,9 @@ void testHidden()
 
 int main(int argc, char *argv[])
 {
+    QString hallo = "hallo";
+    QStringList list;
+    list << "aaa" << "bbb" << "cc";
     testIO();
     testHidden();
     testArray();
