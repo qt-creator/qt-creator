@@ -969,15 +969,14 @@ TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
 bool CPPEditor::openEditorAt(Symbol *s)
 {
     const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-
-#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
+    unsigned line = s->line();
     unsigned column = s->column();
+
     if (column)
         --column;
-#else
+
     if (s->isGenerated())
         unsigned column = 0;
-#endif
 
-    return openCppEditorAt(fileName, s->line(), column);
+    return openCppEditorAt(fileName, line, column);
 }
