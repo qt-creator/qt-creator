@@ -741,10 +741,11 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
                         // `m' is function-like macro.
                         if (_dot->is(T_LPAREN)) {
-                            skipActualArguments();
+                            QVector<MacroArgumentReference> actuals;
+                            collectActualArguments(&actuals);
 
                             if (_dot->is(T_RPAREN)) {
-                                expandFunctionLikeMacro(identifierToken, m);
+                                expandFunctionLikeMacro(identifierToken, m, actuals);
                                 continue;
                             }
                         }
@@ -764,21 +765,56 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
     _result = previousResult;
 }
 
-void Preprocessor::skipActualArguments()
+void Preprocessor::collectActualArguments(QVector<MacroArgumentReference> *actuals)
 {
-    int count = 0;
+    if (_dot->isNot(T_LPAREN))
+        return;
+
+    ++_dot;
+
+    if (_dot->is(T_RPAREN))
+        return;
+
+    actuals->append(collectOneActualArgument());
+
+    while (_dot->is(T_COMMA)) {
+        ++_dot;
+
+        actuals->append(collectOneActualArgument());
+    }
+}
+
+MacroArgumentReference Preprocessor::collectOneActualArgument()
+{
+    const unsigned position = _dot->begin();
 
     while (_dot->isNot(T_EOF_SYMBOL)) {
-        if (_dot->is(T_LPAREN))
-            ++count;
+        if (_dot->is(T_COMMA) || _dot->is(T_RPAREN))
+            break;
 
-        else if (_dot->is(T_RPAREN)) {
-            if (! --count)
-                break;
+        if (_dot->isNot(T_LPAREN))
+            ++_dot;
+
+        else {
+            int count = 0;
+
+            for (; _dot->isNot(T_EOF_SYMBOL); ++_dot) {
+                if (_dot->is(T_LPAREN))
+                    ++count;
+
+                else if (_dot->is(T_RPAREN)) {
+                    if (! --count) {
+                        ++_dot;
+                        break;
+                    }
+                }
+            }
         }
-
-        ++_dot;
     }
+
+    const unsigned end = _dot->begin();
+
+    return MacroArgumentReference(position, end - position);
 }
 
 Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
@@ -846,7 +882,9 @@ void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
         client->stopExpandingMacro(_dot->offset, *m);
 }
 
-void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m)
+void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken,
+                                           Macro *m,
+                                           const QVector<MacroArgumentReference> &actuals)
 {
     const char *beginOfText = startOfToken(*identifierToken);
     const char *endOfText = endOfToken(*_dot);
@@ -858,7 +896,7 @@ void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken, Macro 
                                         endOfText - beginOfText);
 
         client->startExpandingMacro(identifierToken->offset,
-                                    *m, text);
+                                    *m, text, actuals);
     }
 
     expand(beginOfText, endOfText, _result);

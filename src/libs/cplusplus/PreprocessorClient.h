@@ -31,7 +31,7 @@
 #define CPLUSPLUS_PP_CLIENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
-#include <QtGlobal>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
@@ -41,6 +41,23 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 
 class Macro;
+
+class CPLUSPLUS_EXPORT MacroArgumentReference
+{
+  unsigned _position;
+  unsigned _length;
+
+public:
+  MacroArgumentReference(unsigned position = 0, unsigned length = 0)
+    : _position(position), _length(length)
+  { }
+
+  unsigned position() const
+  { return _position; }
+
+  unsigned length() const
+  { return _length; }
+};
 
 class CPLUSPLUS_EXPORT Client
 {
@@ -63,7 +80,9 @@ public:
 
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,
-                                   const QByteArray &originalTextt) = 0;
+                                   const QByteArray &originalText,
+                                   const QVector<MacroArgumentReference> &actuals
+                                            = QVector<MacroArgumentReference>()) = 0;
 
   virtual void stopExpandingMacro(unsigned offset,
                                   const Macro &macro) = 0;
