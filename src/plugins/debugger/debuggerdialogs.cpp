@@ -34,6 +34,10 @@
 #include "ui_attachremotedialog.h"
 #include "ui_startexternaldialog.h"
 
+#ifdef Q_OS_WIN
+#  include "dbgwinutils.h"
+#endif
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -41,16 +45,10 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QFileDialog>
 #include <QtGui/QPushButton>
-
-#ifdef Q_OS_WINDOWS
-#include <windows.h>
-#include <tlhelp32.h>
-#include <tchar.h>
-#include <stdio.h>
-#endif
+#include <QtGui/QProxyModel>
+#include <QtGui/QSortFilterProxyModel>
 
 using namespace Debugger::Internal;
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -100,34 +98,21 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
     m_ui->coreFileName->setPath(fileName);
 }
 
-
 ///////////////////////////////////////////////////////////////////////
 //
-// AttachExternalDialog
+// process model helpers
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachExternalDialog::AttachExternalDialog(QWidget *parent)
-  : QDialog(parent), m_ui(new Ui::AttachExternalDialog)
+static QStandardItemModel *createProcessModel(QObject *parent)
 {
-    m_ui->setupUi(this);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_model = new QStandardItemModel(this);
-
-    m_ui->procView->setSortingEnabled(true);
-
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
-        this, SLOT(procSelected(QModelIndex)));
-
-    rebuildProcessList();
-}
-
-AttachExternalDialog::~AttachExternalDialog()
-{
-    delete m_ui;
+    QStandardItemModel *rc = new QStandardItemModel(parent);
+    QStringList columns;
+    columns << AttachExternalDialog::tr("Process ID")
+            << AttachExternalDialog::tr("Name")
+            << AttachExternalDialog::tr("State");
+    rc->setHorizontalHeaderLabels(columns);
+    return rc;
 }
 
 static bool isProcessName(const QString &procname)
@@ -138,87 +123,122 @@ static bool isProcessName(const QString &procname)
     return true;
 }
 
-struct ProcData
+bool operator<(const ProcData &p1, const ProcData &p2)
 {
-    QString ppid;
-    QString name;
-    QString state;
-};
-
-static void insertItem(QStandardItem *root, const QString &pid,
-    const QMap<QString, ProcData> &procs, QMap<QString, QStandardItem *> &known)
-{
-    //qDebug() << "HANDLING " << pid;
-    QStandardItem *parent = 0;
-    const ProcData &proc = procs[pid];
-    if (1 || pid == "0") { // FIXME: a real tree is not-so-nice to search
-        parent = root;
-    } else {
-        if (!known.contains(proc.ppid))
-            insertItem(root, proc.ppid, procs, known);
-        parent = known[proc.ppid];
-    }
-    QList<QStandardItem *> row;
-    row.append(new QStandardItem(pid));
-    row.append(new QStandardItem(proc.name));
-    //row.append(new QStandardItem(proc.ppid));
-    row.append(new QStandardItem(proc.state));
-    parent->appendRow(row);
-    known[pid] = row[0];
+    return p1.name < p2.name;
 }
 
-void AttachExternalDialog::rebuildProcessList()
+// Determine UNIX processes by reading "/proc"
+static QList<ProcData> unixProcessList()
 {
-    QStringList procnames = QDir("/proc/").entryList();
-    if (procnames.isEmpty()) {
-        m_ui->procView->hide();
-        return;
-    }
-    
-    typedef QMap<QString, ProcData> Procs;
-    Procs procs;
+    QList<ProcData> rc;
+    const QStringList procnames = QDir(QLatin1String("/proc/")).entryList();
+    if (procnames.isEmpty())
+        return rc;
 
     foreach (const QString &procname, procnames) {
         if (!isProcessName(procname))
             continue;
-        QString filename = "/proc/" + procname + "/stat";
+        QString filename = QLatin1String("/proc/");
+        filename += procname;
+        filename += QLatin1String("/stat");
         QFile file(filename);
         file.open(QIODevice::ReadOnly);
-        QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
-        //qDebug() << filename << data;
+        const QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
         ProcData proc;
         proc.name = data.at(1);
-        if (proc.name.startsWith('(') && proc.name.endsWith(')'))
+        if (proc.name.startsWith(QLatin1Char('(')) && proc.name.endsWith(QLatin1Char(')')))
             proc.name = proc.name.mid(1, proc.name.size() - 2);
         proc.state = data.at(2);
         proc.ppid = data.at(3);
-        procs[procname] = proc;
+        rc.push_back(proc);
     }
+    return rc;
+}
 
-    m_model->clear();
-    QMap<QString, QStandardItem *> known;
-    for (Procs::const_iterator it = procs.begin(); it != procs.end(); ++it)
-        insertItem(m_model->invisibleRootItem(), it.key(), procs, known);
-    m_model->setHeaderData(0, Qt::Horizontal, "Process ID", Qt::DisplayRole);
-    m_model->setHeaderData(1, Qt::Horizontal, "Name", Qt::DisplayRole);
-    //model->setHeaderData(2, Qt::Horizontal, "Parent", Qt::DisplayRole);
-    m_model->setHeaderData(2, Qt::Horizontal, "State", Qt::DisplayRole);
+static void populateProcessModel(QStandardItemModel *model)
+{
+#ifdef Q_OS_WIN
+    QList<ProcData> processes = winProcessList();
+#else
+    QList<ProcData> processes = unixProcessList();
+#endif
+    qStableSort(processes);
 
-    m_ui->procView->setModel(m_model);
+    if (const int rowCount = model->rowCount())
+        model->removeRows(0, rowCount);
+
+    QStandardItem *root  = model->invisibleRootItem();
+    foreach(const ProcData &proc, processes) {
+        QList<QStandardItem *> row;
+        row.append(new QStandardItem(proc.ppid));
+        row.append(new QStandardItem(proc.name));
+        if (!proc.image.isEmpty())
+            row.back()->setToolTip(proc.image);
+        row.append(new QStandardItem(proc.state));
+        root->appendRow(row);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// AttachExternalDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
+        QDialog(parent),
+        m_ui(new Ui::AttachExternalDialog),
+        m_model(createProcessModel(this)),
+        m_proxyModel(new QSortFilterProxyModel(this))
+{
+    m_ui->setupUi(this);
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    m_proxyModel->setSourceModel(m_model);
+    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxyModel->setFilterKeyColumn(1);
+    m_ui->procView->setModel(m_proxyModel);
+    m_ui->procView->setSortingEnabled(true);
+
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    QPushButton *refreshButton = new QPushButton(tr("Refresh"));
+    connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
+    m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
+
+    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
+        this, SLOT(procSelected(QModelIndex)));
+    connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
+            m_ui->filterLineEdit, SLOT(clear()));
+    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
+            m_proxyModel, SLOT(setFilterFixedString(QString)));
+
+    rebuildProcessList();
+}
+
+AttachExternalDialog::~AttachExternalDialog()
+{
+    delete m_ui;
+}
+
+void AttachExternalDialog::rebuildProcessList()
+{
+    populateProcessModel(m_model);
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);
     m_ui->procView->sortByColumn(1, Qt::AscendingOrder);
 }
 
-void AttachExternalDialog::procSelected(const QModelIndex &index0)
+void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
 {
+    const QModelIndex index0 = m_proxyModel->mapToSource(proxyIndex);
     QModelIndex index = index0.sibling(index0.row(), 0);
-    QStandardItem *item = m_model->itemFromIndex(index);
-    if (!item)
-        return;
-    m_ui->pidLineEdit->setText(item->text());
-    accept();
+    if (const QStandardItem *item = m_model->itemFromIndex(index)) {
+        m_ui->pidLineEdit->setText(item->text());
+        m_ui->buttonBox->button(QDialogButtonBox::Ok)->animateClick();
+    }
 }
 
 int AttachExternalDialog::attachPID() const
@@ -226,22 +246,22 @@ int AttachExternalDialog::attachPID() const
     return m_ui->pidLineEdit->text().toInt();
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // AttachRemoteDialog
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid)
-  : QDialog(parent), m_ui(new Ui::AttachRemoteDialog)
+AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid) :
+        QDialog(parent),
+        m_ui(new Ui::AttachRemoteDialog),
+        m_model(createProcessModel(this))
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_defaultPID = pid;
-    m_model = new QStandardItemModel(this);
 
+    m_ui->procView->setModel(m_model);
     m_ui->procView->setSortingEnabled(true);
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -261,42 +281,7 @@ AttachRemoteDialog::~AttachRemoteDialog()
 
 void AttachRemoteDialog::rebuildProcessList()
 {
-    QStringList procnames = QDir("/proc/").entryList();
-    if (procnames.isEmpty()) {
-        m_ui->procView->hide();
-        return;
-    }
-    
-    typedef QMap<QString, ProcData> Procs;
-    Procs procs;
-
-    foreach (const QString &procname, procnames) {
-        if (!isProcessName(procname))
-            continue;
-        QString filename = "/proc/" + procname + "/stat";
-        QFile file(filename);
-        file.open(QIODevice::ReadOnly);
-        QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
-        //qDebug() << filename << data;
-        ProcData proc;
-        proc.name = data.at(1);
-        if (proc.name.startsWith('(') && proc.name.endsWith(')'))
-            proc.name = proc.name.mid(1, proc.name.size() - 2);
-        proc.state = data.at(2);
-        proc.ppid = data.at(3);
-        procs[procname] = proc;
-    }
-
-    m_model->clear();
-    QMap<QString, QStandardItem *> known;
-    for (Procs::const_iterator it = procs.begin(); it != procs.end(); ++it)
-        insertItem(m_model->invisibleRootItem(), it.key(), procs, known);
-    m_model->setHeaderData(0, Qt::Horizontal, "Process ID", Qt::DisplayRole);
-    m_model->setHeaderData(1, Qt::Horizontal, "Name", Qt::DisplayRole);
-    //model->setHeaderData(2, Qt::Horizontal, "Parent", Qt::DisplayRole);
-    m_model->setHeaderData(2, Qt::Horizontal, "State", Qt::DisplayRole);
-
-    m_ui->procView->setModel(m_model);
+    populateProcessModel(m_model);
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);
@@ -316,8 +301,6 @@ int AttachRemoteDialog::attachPID() const
 {
     return m_ui->pidLineEdit->text().toInt();
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////
 //

@@ -443,15 +443,15 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_mes
         Constants::STARTEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-#ifndef Q_OS_WIN
     cmd = am->registerAction(m_manager->m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
     mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    cmd = am->registerAction(m_manager->m_attachCoreAction,
-        Constants::ATTACHCORE, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-#endif
+    if (m_manager->m_attachCoreAction) {
+        cmd = am->registerAction(m_manager->m_attachCoreAction,
+                                 Constants::ATTACHCORE, globalcontext);
+        mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    }
 
     cmd = am->registerAction(m_manager->m_continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);

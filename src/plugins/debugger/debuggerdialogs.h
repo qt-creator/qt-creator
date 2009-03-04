@@ -36,6 +36,7 @@ QT_BEGIN_NAMESPACE
 
 class QModelIndex;
 class QStandardItemModel;
+class QSortFilterProxyModel;
 
 namespace Ui {
 class AttachCoreDialog;
@@ -49,6 +50,14 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
+
+struct ProcData
+{
+    QString ppid;
+    QString name;
+    QString image;
+    QString state;
+};
 
 class AttachCoreDialog : public QDialog
 {
@@ -68,7 +77,6 @@ private:
     Ui::AttachCoreDialog *m_ui;
 };
 
-
 class AttachExternalDialog : public QDialog
 {
     Q_OBJECT
@@ -85,6 +93,7 @@ private slots:
 
 private:
     Ui::AttachExternalDialog *m_ui;
+    QSortFilterProxyModel *m_proxyModel;
     QStandardItemModel *m_model;
 };
 
