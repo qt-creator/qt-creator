@@ -67,6 +67,7 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
 
 void BreakWindow::resizeEvent(QResizeEvent *ev)
 {
+/*
     QHeaderView *hv = header();
     int totalSize = ev->size().width() - 180;
     hv->resizeSection(0, 60);
@@ -75,6 +76,7 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
     hv->resizeSection(3, (totalSize * 30) / 100);
     hv->resizeSection(4, 70);
     hv->resizeSection(5, 50);
+*/
     QTreeView::resizeEvent(ev);
 }
 

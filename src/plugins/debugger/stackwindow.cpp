@@ -65,6 +65,7 @@ StackWindow::StackWindow(QWidget *parent)
 
 void StackWindow::resizeEvent(QResizeEvent *event)
 {
+/*
     QHeaderView *hv = header();
 
     int totalSize = event->size().width() - 120;
@@ -74,6 +75,7 @@ void StackWindow::resizeEvent(QResizeEvent *event)
         hv->resizeSection(2, totalSize / 2);
         hv->resizeSection(3, 55);
     }
+*/
     QTreeView::resizeEvent(event);
 }
 
@@ -136,14 +138,16 @@ void StackWindow::resizeColumnsToContents()
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);
+    resizeColumnToContents(3);
 }
 
 void StackWindow::setAlwaysResizeColumnsToContents(bool on)
 {
     m_alwaysResizeColumnsToContents = on;
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
+    QHeaderView::ResizeMode mode =
+        on ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
     header()->setResizeMode(1, mode);
     header()->setResizeMode(2, mode);
+    header()->setResizeMode(3, mode);
 }
