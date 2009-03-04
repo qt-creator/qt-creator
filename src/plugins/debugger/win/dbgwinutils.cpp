@@ -65,7 +65,7 @@ QList<ProcData> winProcessList()
     for (bool hasNext = Process32First(snapshot, &pe); hasNext; hasNext = Process32Next(snapshot, &pe)) {
         ProcData procData;
         procData.ppid = QString::number(pe.th32ProcessID);
-        procData.name = QString::fromUtf16(pe.szExeFile);
+        procData.name = QString::fromUtf16(reinterpret_cast<ushort*>(pe.szExeFile));
 #ifdef USE_PSAPI
         procData.image = imageName(pe.th32ProcessID);
 #endif

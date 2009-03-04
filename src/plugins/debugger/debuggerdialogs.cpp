@@ -41,6 +41,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QFileDialog>
@@ -115,7 +116,7 @@ static QStandardItemModel *createProcessModel(QObject *parent)
     return rc;
 }
 
-static bool isProcessName(const QString &procname)
+static bool isUnixProcessId(const QString &procname)
 {
     for (int i = 0; i != procname.size(); ++i)
         if (!procname.at(i).isDigit())
@@ -132,31 +133,45 @@ bool operator<(const ProcData &p1, const ProcData &p2)
 static QList<ProcData> unixProcessList()
 {
     QList<ProcData> rc;
-    const QStringList procnames = QDir(QLatin1String("/proc/")).entryList();
-    if (procnames.isEmpty())
+    const QStringList procIds = QDir(QLatin1String("/proc/")).entryList();
+    if (procIds.isEmpty())
         return rc;
 
-    foreach (const QString &procname, procnames) {
-        if (!isProcessName(procname))
+    foreach (const QString &procId, procIds) {
+        if (!isUnixProcessId(procId))
             continue;
         QString filename = QLatin1String("/proc/");
-        filename += procname;
+        filename += procId;
         filename += QLatin1String("/stat");
         QFile file(filename);
         file.open(QIODevice::ReadOnly);
         const QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
         ProcData proc;
+        proc.ppid = procId;
         proc.name = data.at(1);
-        if (proc.name.startsWith(QLatin1Char('(')) && proc.name.endsWith(QLatin1Char(')')))
-            proc.name = proc.name.mid(1, proc.name.size() - 2);
+        if (proc.name.startsWith(QLatin1Char('(')) && proc.name.endsWith(QLatin1Char(')'))) {
+            proc.name.truncate(proc.name.size() - 1);
+            proc.name.remove(0, 1);
+        }
         proc.state = data.at(2);
-        proc.ppid = data.at(3);
+        // PPID is element 3
         rc.push_back(proc);
     }
     return rc;
 }
 
-static void populateProcessModel(QStandardItemModel *model)
+static inline QStandardItem *createStandardItem(const QString &text, 
+                                                bool enabled)
+{    
+    QStandardItem *rc = new QStandardItem(text);
+    rc->setEnabled(enabled);
+    return rc;
+}
+
+// Populate a standard item model with a list
+// of processes and gray out the excludePid.
+static void populateProcessModel(QStandardItemModel *model, 
+                                 const QString &excludePid = QString())
 {
 #ifdef Q_OS_WIN
     QList<ProcData> processes = winProcessList();
@@ -167,15 +182,16 @@ static void populateProcessModel(QStandardItemModel *model)
 
     if (const int rowCount = model->rowCount())
         model->removeRows(0, rowCount);
-
+    
     QStandardItem *root  = model->invisibleRootItem();
     foreach(const ProcData &proc, processes) {
+        const bool enabled = proc.ppid != excludePid;
         QList<QStandardItem *> row;
-        row.append(new QStandardItem(proc.ppid));
-        row.append(new QStandardItem(proc.name));
+        row.append(createStandardItem(proc.ppid, enabled));
+        row.append(createStandardItem(proc.name, enabled));
         if (!proc.image.isEmpty())
             row.back()->setToolTip(proc.image);
-        row.append(new QStandardItem(proc.state));
+        row.append(createStandardItem(proc.state, enabled));
         root->appendRow(row);
     }
 }
@@ -188,12 +204,14 @@ static void populateProcessModel(QStandardItemModel *model)
 
 AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
         QDialog(parent),
+        m_selfPid(QString::number(QCoreApplication::applicationPid())),
         m_ui(new Ui::AttachExternalDialog),
         m_model(createProcessModel(this)),
         m_proxyModel(new QSortFilterProxyModel(this))
 {
     m_ui->setupUi(this);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    okButton()->setDefault(true);
+    okButton()->setEnabled(false);
 
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -209,6 +227,9 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
 
     connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
         this, SLOT(procSelected(QModelIndex)));
+    connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(pidChanged(QString)));
+
     connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
             m_ui->filterLineEdit, SLOT(clear()));
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
@@ -222,13 +243,17 @@ AttachExternalDialog::~AttachExternalDialog()
     delete m_ui;
 }
 
+QPushButton *AttachExternalDialog::okButton() const
+{
+    return m_ui->buttonBox->button(QDialogButtonBox::Ok);
+}
+
 void AttachExternalDialog::rebuildProcessList()
 {
-    populateProcessModel(m_model);
+    populateProcessModel(m_model, m_selfPid);
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);
-    m_ui->procView->sortByColumn(1, Qt::AscendingOrder);
 }
 
 void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
@@ -237,13 +262,19 @@ void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
     QModelIndex index = index0.sibling(index0.row(), 0);
     if (const QStandardItem *item = m_model->itemFromIndex(index)) {
         m_ui->pidLineEdit->setText(item->text());
-        m_ui->buttonBox->button(QDialogButtonBox::Ok)->animateClick();
+        if (okButton()->isEnabled())
+            okButton()->animateClick();
     }
 }
 
 int AttachExternalDialog::attachPID() const
 {
     return m_ui->pidLineEdit->text().toInt();
+}
+
+void AttachExternalDialog::pidChanged(const QString &pid)
+{
+    okButton()->setEnabled(!pid.isEmpty() && pid != m_selfPid);
 }
 
 ///////////////////////////////////////////////////////////////////////
