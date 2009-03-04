@@ -1258,8 +1258,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
-        if (text.isEmpty())
-            handled = false;
+        handled = false;
     }
 
     return handled;
@@ -1389,24 +1388,24 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
         }
         enterCommandMode();
         updateMiniBuffer();
-    } else if (key == Key_Up && isSearchMode()) {
+    } else if ((key == Key_Up || key == Key_PageUp) && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entires in the history into account.
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
         }
-    } else if (key == Key_Up && m_mode == ExMode) {
+    } else if ((key == Key_Up || key == Key_PageUp) && m_mode == ExMode) {
         if (m_commandHistoryIndex > 0) {
             --m_commandHistoryIndex;
             showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
         }
-    } else if (key == Key_Down && isSearchMode()) {
+    } else if ((key == Key_Down || key == Key_PageDown) && isSearchMode()) {
         if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
         }
-    } else if (key == Key_Down && m_mode == ExMode) {
+    } else if ((key == Key_Down || key == Key_PageDown) && m_mode == ExMode) {
         if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
             ++m_commandHistoryIndex;
             showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
@@ -1414,9 +1413,12 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
     } else if (key == Key_Tab) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
-    } else {
+    } else if (QChar(key).isPrint()) {
         m_commandBuffer += QChar(key);
         updateMiniBuffer();
+    } else {
+        qDebug() << "IGNORED IN MINIBUFFER MODE: " << key << text;
+        return false;
     }
     return true;
 }
@@ -1520,6 +1522,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     if (cmd.isEmpty()) {
         m_tc.setPosition(firstPositionInLine(beginLine));
         showBlackMessage(QString());
+        enterCommandMode();
     } else if (cmd == "q!" || cmd == "q") { // :q
         quit();
     } else if (reDelete.indexIn(cmd) != -1) { // :d
@@ -2181,20 +2184,27 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    if (ev->type() == QEvent::KeyPress && ob == d->editor())
-        return d->handleEvent(static_cast<QKeyEvent *>(ev));
+    if (ev->type() == QEvent::KeyPress && ob == d->editor()) {
+        QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
+        //qDebug() << "KEYPRESS" << kev->key();
+        return d->handleEvent(kev);
+    }
 
     if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         int key = kev->key();
         int mods = kev->modifiers();
+        //qDebug() << "SHORTCUT OVERRIDE" << key;
         bool handleIt = (key == Qt::Key_Escape)
             || (key >= Key_A && key <= Key_Z && mods == Qt::ControlModifier);
+        //qDebug() << "SHORTCUT HANDLING" << handleIt;
         if (handleIt && d->handleEvent(kev)) {
+            //qDebug() << "SHORTCUT HANDLED";
             d->enterCommandMode();
             ev->accept();
             return true;
         }
+        //qDebug() << "NOT OVERRIDDEN";
     }
 
     return QObject::eventFilter(ob, ev);
