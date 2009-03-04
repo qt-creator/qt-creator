@@ -109,7 +109,8 @@ private:
     void expandObjectLikeMacro(TokenIterator identifierToken,
                                const QByteArray &spell,
                                Macro *m, QByteArray *result);
-    void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m);
+    void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m,
+                                 const QVector<MacroArgumentReference> &actuals);
 
     void resetIfLevel();
     bool testIfLevel();
@@ -129,7 +130,8 @@ private:
     QByteArray tokenSpell(const CPlusPlus::Token &token) const;
     QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
 
-    void skipActualArguments();
+    void collectActualArguments(QVector<MacroArgumentReference> *actuals);
+    MacroArgumentReference collectOneActualArgument();
 
     void processNewline();
 

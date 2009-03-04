@@ -43,6 +43,7 @@
 namespace CPlusPlus {
 
 class Macro;
+class MacroArgumentReference;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -63,7 +64,8 @@ public:
     void addIncludeFile(const QString &fileName, unsigned line);
 
     void appendMacro(const Macro &macro);
-    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
+    void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+                     const QVector<MacroArgumentReference> &range);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -201,6 +203,7 @@ public:
 
     class MacroUse: public Block {
         Macro _macro;
+        QVector<Block> _arguments;
 
     public:
         inline MacroUse(const Macro &macro,
@@ -212,6 +215,18 @@ public:
 
         const Macro &macro() const
         { return _macro; }
+
+        bool isFunctionLike() const
+        { return _macro.isFunctionLike(); }
+
+        QVector<Block> arguments() const
+        { return _arguments; }
+
+        void setArguments(const QVector<Block> &arguments)
+        { _arguments = arguments; }
+
+        void addArgument(const Block &block)
+        { _arguments.append(block); }
     };
 
     QList<Include> includes() const
@@ -241,12 +256,15 @@ private:
 
 class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
 {
-public:
-    Snapshot()
-    { }
+    typedef QMap<QString, Document::Ptr> _Base;
 
-    ~Snapshot()
-    { }
+public:
+    Snapshot();
+    ~Snapshot();
+
+    void insert(Document::Ptr doc);
+
+    using _Base::insert;
 };
 
 } // end of namespace CPlusPlus

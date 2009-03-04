@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "CppDocument.h"
+#include "pp.h"
 
 #include <Control.h>
 #include <TranslationUnit.h>
@@ -145,9 +146,18 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
-void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
+void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+                           const QVector<MacroArgumentReference> &actuals)
 {
-    _macroUses.append(MacroUse(macro, offset, offset + length));
+    MacroUse use(macro, offset, offset + length);
+
+    foreach (const MacroArgumentReference &actual, actuals) {
+        const Block arg(actual.position(), actual.position() + actual.length());
+
+        use.addArgument(arg);
+    }
+
+    _macroUses.append(use);
 }
 
 TranslationUnit *Document::translationUnit() const
@@ -316,3 +326,18 @@ void Document::releaseTranslationUnit()
 {
     _translationUnit->release();
 }
+
+Snapshot::Snapshot()
+{
+}
+
+Snapshot::~Snapshot()
+{
+}
+
+void Snapshot::insert(Document::Ptr doc)
+{
+    if (doc)
+        insert(doc->fileName(), doc);
+}
+
