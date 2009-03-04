@@ -1520,6 +1520,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     if (cmd.isEmpty()) {
         m_tc.setPosition(firstPositionInLine(beginLine));
         showBlackMessage(QString());
+        enterCommandMode();
     } else if (cmd == "q!" || cmd == "q") { // :q
         quit();
     } else if (reDelete.indexIn(cmd) != -1) { // :d
