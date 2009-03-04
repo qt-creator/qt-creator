@@ -436,6 +436,9 @@ void CPPEditor::updateMethodBoxIndex()
             else if (symbol->isGenerated())
                 continue;
 
+            else if (symbol->isBlock())
+                continue;
+
             if (symbol) {
                 int column = symbol->column();
 
@@ -656,8 +659,6 @@ void CPPEditor::jumpToDefinition()
                     return; // done
             }
         }
-
-        qDebug() << "No results for expression:" << expression;
     }
 }
 
