@@ -1643,8 +1643,8 @@ bool GdbEngine::startDebugger()
     sendCommand("set print elements 10000");
     sendCommand("-data-list-register-names", RegisterListNames);
 
-    sendCommand("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
-        "/home/sandbox/qtsdk-2009.01/qt");
+    //sendCommand("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
+    //    "/home/sandbox/qtsdk-2009.01/qt");
 
     // one of the following is needed to prevent crashes in gdb on code like:
     //  template <class T> T foo() { return T(0); }
@@ -1896,6 +1896,7 @@ void GdbEngine::setTokenBarrier()
 {
     foreach (const GdbCookie &ck, m_cookieForToken)
         QTC_ASSERT(ck.synchronized || ck.type == GdbInvalidCommand, return);
+    PENDING_DEBUG("\n--- token barrier ---\n");
     emit gdbInputAvailable(QString(), "--- token barrier ---");
     m_oldestAcceptableToken = currentToken();
 }
@@ -3145,6 +3146,134 @@ void GdbEngine::runCustomDumper(const WatchData &data0, bool dumpChildren)
     extraArgs[1] = "0";
     extraArgs[2] = "0";
     extraArgs[3] = "0";
+
+    int extraArgCount = 0;
+
+    // "generic" template dumpers: passing sizeof(argument)
+    // gives already most information the dumpers need
+    foreach (const QString &arg, inners)
+        extraArgs[extraArgCount++] = sizeofTypeExpression(arg);
+
+    // in rare cases we need more or less:
+    if (outertype == m_namespace + "QObject") {
+        extraArgs[0] = "(char*)&((('"
+            + m_namespace + "QObjectPrivate'*)&"
+            + data.exp + ")->children)-(char*)&" + data.exp;
+    } else if (outertype == m_namespace + "QVector") {
+        extraArgs[1] = "(char*)&(("
+            + data.exp + ").d->array)-(char*)" + data.exp + ".d";
+    } else if (outertype == m_namespace + "QObjectSlot"
+            || outertype == m_namespace + "QObjectSignal") {
+        // we need the number out of something like
+        // iname="local.ob.slots.[2]deleteLater()"
+        int lastOpened = data.iname.lastIndexOf('[');
+        int lastClosed = data.iname.lastIndexOf(']');
+        QString slotNumber = "-1";
+        if (lastOpened != -1 && lastClosed != -1)
+            slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
+        extraArgs[0] = slotNumber;
+    } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
+        QString nodetype;
+        if (m_qtVersion >= (4 << 16) + (5 << 8) + 0) {
+            nodetype  = m_namespace + "QMapNode";
+            nodetype += data.type.mid(outertype.size());
+        } else {
+            // FIXME: doesn't work for QMultiMap
+            nodetype  = data.type + "::Node";
+        }
+        //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
+        //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
+        extraArgs[2] = sizeofTypeExpression(nodetype);
+        extraArgs[3] = "(size_t)&(('" + nodetype + "'*)0)->value";
+    } else if (outertype == m_namespace + "QMapNode") {
+        extraArgs[2] = sizeofTypeExpression(data.type);
+        extraArgs[3] = "(size_t)&(('" + data.type + "'*)0)->value";
+    } else if (outertype == "std::vector") {
+        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
+        if (inners.at(0) == "bool") {
+            outertype = "std::vector::bool";
+        } else {
+            //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
+            //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
+        }
+    } else if (outertype == "std::deque") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
+    } else if (outertype == "std::stack") {
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
+    } else if (outertype == "std::map") {
+        // We don't want the comparator and the allocator confuse gdb.
+        // But we need the offset of the second item in the value pair.
+        // We read the type of the pair from the allocator argument because
+        // that gets the constness "right" (in the sense that gdb can
+        // read it back;
+        QString pairType = inners.at(3);
+        // remove 'std::allocator<...>':
+        pairType = pairType.mid(15, pairType.size() - 15 - 2);
+        extraArgs[2] = "(size_t)&(('" + pairType + "'*)0)->second";
+        extraArgs[3] = "0";
+    } else if (outertype == "std::basic_string") {
+        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
+        if (inners.at(0) == "char") {
+            outertype = "std::string";
+        } else if (inners.at(0) == "wchar_t") {
+            outertype = "std::wstring";
+        }
+        extraArgs[0] = "0";
+        extraArgs[1] = "0";
+        extraArgs[2] = "0";
+        extraArgs[3] = "0";
+    }
+
+    //int protocol = (data.iname.startsWith("watch") && data.type == "QImage") ? 3 : 2;
+    //int protocol = data.iname.startsWith("watch") ? 3 : 2;
+    int protocol = 2;
+    //int protocol = isDisplayedIName(data.iname) ? 3 : 2;
+
+    QString addr;
+    if (data.addr.startsWith("0x"))
+        addr = "(void*)" + data.addr;
+    else
+        addr = "&(" + data.exp + ")";
+
+    QByteArray params;
+    params.append(outertype.toUtf8());
+    params.append('\0');
+    params.append(data.iname.toUtf8());
+    params.append('\0');
+    params.append(data.exp.toUtf8());
+    params.append('\0');
+    params.append(inner.toUtf8());
+    params.append('\0');
+    params.append(data.iname.toUtf8());
+    params.append('\0');
+
+    sendWatchParameters(params);
+
+    QString cmd ="call "
+            + QString("qDumpObjectData440(")
+            + QString::number(protocol)
+            + ',' + "%1+1"                // placeholder for token
+            + ',' + addr
+            + ',' + (dumpChildren ? "1" : "0")
+            + ',' + extraArgs[0]
+            + ',' + extraArgs[1]
+            + ',' + extraArgs[2]
+            + ',' + extraArgs[3] + ')';
+
+    //qDebug() << "CMD: " << cmd;
+
+    QVariant var;
+    var.setValue(data);
+    sendSynchronizedCommand(cmd, WatchDumpCustomValue1, var);
+
+    q->showStatusMessage(
+        tr("Retrieving data for watch view (%1 requests pending)...")
+            .arg(m_pendingRequests + 1), 10000);
+
+    // retrieve response
+    sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDumpCustomValue2, var);
 }
 
 void GdbEngine::createGdbVariable(const WatchData &data)

@@ -951,7 +951,7 @@ void WatchHandler::showEditValue(const WatchData &data)
 
 void WatchHandler::removeWatchExpression(const QString &exp)
 {
-    MODEL_DEBUG("REMOVE WATCH: " << iname);
+    MODEL_DEBUG("REMOVE WATCH: " << exp);
     m_watchers.removeOne(exp);
     for (int i = m_completeSet.size(); --i >= 0;) {
         const WatchData & data = m_completeSet.at(i);
