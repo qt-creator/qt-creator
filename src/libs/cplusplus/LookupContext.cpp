@@ -407,10 +407,13 @@ void LookupContext::expandClass(Scope *scope,
             Name *baseClassName = baseClass->name();
             const QList<Symbol *> baseClassCandidates = resolveClass(baseClassName,
                                                                      classVisibleScopes);
+
+#if 0
             if (baseClassCandidates.isEmpty()) {
                 Overview overview;
                 qDebug() << "unresolved base class:" << overview.prettyName(baseClassName);
             }
+#endif
 
             for (int j = 0; j < baseClassCandidates.size(); ++j) {
                 if (Class *baseClassSymbol = baseClassCandidates.at(j)->asClass())

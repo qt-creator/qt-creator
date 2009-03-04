@@ -97,6 +97,8 @@ private:
         TokenIterator dot;
     };
 
+    bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
+
     void preprocess(const QByteArray &filename,
                     const QByteArray &source,
                     QByteArray *result);
@@ -133,7 +135,7 @@ private:
     void collectActualArguments(QVector<MacroArgumentReference> *actuals);
     MacroArgumentReference collectOneActualArgument();
 
-    void processNewline();
+    void processNewline(bool force = false);
 
     void processSkippingBlocks(bool skippingBlocks,
                                TokenIterator dot, TokenIterator lastToken);
@@ -179,6 +181,7 @@ private:
     TokenIterator _dot;
 
     QByteArray *_result;
+    bool _markGeneratedTokens;
 };
 
 } // namespace CPlusPlus

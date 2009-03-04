@@ -370,8 +370,7 @@ void CPPEditor::jumpToMethod(int)
         return;
 
     Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(true);
-    int line = symbol->line();
-    gotoLine(line);
+    openEditorAt(symbol);
     Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
     setFocus();
 }

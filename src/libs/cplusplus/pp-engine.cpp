@@ -530,7 +530,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
     : client(client),
       env(env),
       _expand(env),
-      _result(0)
+      _result(0),
+      _markGeneratedTokens(false)
 {
     resetIfLevel ();
 }
@@ -603,12 +604,12 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
     return state;
 }
 
-void Preprocessor::processNewline()
+void Preprocessor::processNewline(bool force)
 {
-    if (env->currentLine == _dot->lineno)
+    if (! force && env->currentLine == _dot->lineno)
         return;
 
-    if (env->currentLine > _dot->lineno) {
+    if (force || env->currentLine > _dot->lineno) {
         _result->append("\n# ");
         _result->append(QByteArray::number(_dot->lineno));
         _result->append(' ');
@@ -646,6 +647,50 @@ void Preprocessor::processSkippingBlocks(bool skippingBlocks,
             client->stopSkippingBlocks(offset);
         }
     }
+}
+
+bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
+                                       TokenIterator dot)
+{
+    bool previous = _markGeneratedTokens;
+    _markGeneratedTokens = markGeneratedTokens;
+
+    if (previous != _markGeneratedTokens) {
+        if (! dot)
+            dot = _dot;
+
+        if (_markGeneratedTokens)
+            _result->append("\n#pragma push(gen)");
+        else
+            _result->append("\n#pragma pop(gen)");
+
+        processNewline(/*force = */ true);
+
+        const char *begin = _source.constBegin();
+        const char *end   = begin;
+
+        if (markGeneratedTokens)
+            end += dot->begin();
+        else
+            end += (dot - 1)->end();
+
+        const char *it = end - 1;
+        for (; it != begin - 1; --it) {
+            if (*it == '\n')
+                break;
+        }
+        ++it;
+
+        for (; it != end; ++it) {
+            if (! std::isspace(*it))
+                _result->append(' ');
+
+            else
+                _result->append(*it);
+        }
+    }
+
+    return previous;
 }
 
 void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &source,
@@ -846,7 +891,9 @@ Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
             return m;
     }
 
+    const bool was = markGeneratedTokens(true, identifierToken);
     _result->append(tmp);
+    (void) markGeneratedTokens(was);
     return 0;
 }
 
@@ -859,7 +906,9 @@ void Preprocessor::expandBuiltinMacro(TokenIterator identifierToken,
         client->startExpandingMacro(identifierToken->offset,
                                     trivial, spell);
 
+    const bool was = markGeneratedTokens(true, identifierToken);
     expand(spell, _result);
+    (void) markGeneratedTokens(was);
 
     if (client)
         client->stopExpandingMacro(_dot->offset, trivial);
@@ -899,7 +948,9 @@ void Preprocessor::expandFunctionLikeMacro(TokenIterator identifierToken,
                                     *m, text, actuals);
     }
 
+    const bool was = markGeneratedTokens(true, identifierToken);
     expand(beginOfText, endOfText, _result);
+    (void) markGeneratedTokens(was);
 
     if (client)
         client->stopExpandingMacro(_dot->offset, *m);
