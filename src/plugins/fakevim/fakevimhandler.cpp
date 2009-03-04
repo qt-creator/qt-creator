@@ -1389,24 +1389,24 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
         }
         enterCommandMode();
         updateMiniBuffer();
-    } else if (key == Key_Up && isSearchMode()) {
+    } else if ((key == Key_Up || key == Key_PageUp) && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entires in the history into account.
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
         }
-    } else if (key == Key_Up && m_mode == ExMode) {
+    } else if ((key == Key_Up || key == Key_PageUp) && m_mode == ExMode) {
         if (m_commandHistoryIndex > 0) {
             --m_commandHistoryIndex;
             showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
         }
-    } else if (key == Key_Down && isSearchMode()) {
+    } else if ((key == Key_Down || key == Key_PageDown) && isSearchMode()) {
         if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
             ++m_searchHistoryIndex;
             showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
         }
-    } else if (key == Key_Down && m_mode == ExMode) {
+    } else if ((key == Key_Down || key == Key_PageDown) && m_mode == ExMode) {
         if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
             ++m_commandHistoryIndex;
             showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
