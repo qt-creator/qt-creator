@@ -62,9 +62,8 @@ ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
     setWindowTitle(tr("Project Explorer"));
     setWindowIcon(QIcon(":/projectexplorer/images/projectexplorer.png"));
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorerPlugin *projectExplorer = m_projectExplorer = pm->getObject<ProjectExplorerPlugin>();
-    m_session = projectExplorer->session();
+    m_projectExplorer = ProjectExplorerPlugin::instance();
+    m_session = m_projectExplorer->session();
 
     connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
     connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));

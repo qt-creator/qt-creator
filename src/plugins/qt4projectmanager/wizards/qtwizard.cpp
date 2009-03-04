@@ -32,7 +32,6 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QByteArray>
@@ -60,8 +59,7 @@ static inline Core::BaseFileWizardParameters
 
 // -------------------- QtWizard
 QtWizard::QtWizard(const QString &name, const QString &description, const QIcon &icon) :
-    Core::BaseFileWizard(wizardParameters(name, description, icon)),
-    m_projectExplorer(ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>())
+    Core::BaseFileWizard(wizardParameters(name, description, icon))
 {
 }
 
@@ -89,7 +87,7 @@ bool QtWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMe
 {
     // Post-Generate: Open the project
     const QString proFileName = l.back().path();
-    if (!m_projectExplorer->openProject(proFileName)) {
+    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
         *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
         return false;
     }

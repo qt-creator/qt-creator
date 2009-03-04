@@ -45,7 +45,6 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -439,7 +438,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *error_message)
 
 void GitPlugin::extensionsInitialized()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
 }
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)

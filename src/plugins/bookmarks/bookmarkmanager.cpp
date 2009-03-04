@@ -36,7 +36,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
@@ -306,18 +305,15 @@ QWidget *BookmarkContext::widget()
 // BookmarkManager
 ////
 
-BookmarkManager::BookmarkManager() :
-    m_bookmarkIcon(QIcon(QLatin1String(":/bookmarks/images/bookmark.png")))
+BookmarkManager::BookmarkManager()
+  : m_bookmarkIcon(QIcon(QLatin1String(":/bookmarks/images/bookmark.png")))
 {
     m_selectionModel = new QItemSelectionModel(this, this);
 
     connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
             this, SLOT(updateActionStatus()));
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorerPlugin *projectExplorer = pm->getObject<ProjectExplorerPlugin>();
-
-    connect(projectExplorer->session(), SIGNAL(sessionLoaded()),
+    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded()),
             this, SLOT(loadBookmarks()));
 
     updateActionStatus();
@@ -559,9 +555,7 @@ TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 /* Returns the current session. */
 SessionManager *BookmarkManager::sessionManager() const
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorerPlugin *pe = pm->getObject<ProjectExplorerPlugin>();
-    return pe->session();
+    return ProjectExplorerPlugin::instance()->session();
 }
 
 BookmarkManager::State BookmarkManager::state() const

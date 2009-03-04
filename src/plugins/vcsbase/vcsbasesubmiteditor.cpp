@@ -30,10 +30,10 @@
 #include "vcsbasesubmiteditor.h"
 #include "submiteditorfile.h"
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/submiteditorwidget.h>
 #include <find/basetextfind.h>
 
@@ -316,23 +316,24 @@ QIcon VCSBaseSubmitEditor::submitIcon()
 
 QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
 {
+    using namespace ProjectExplorer;
     if (name)
         name->clear();
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
-    if (!projectExplorer)
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    if (!pe)
         return QStringList();
     QStringList files;
-    if (const ProjectExplorer::Project *currentProject = projectExplorer->currentProject()) {
-        files << currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    if (const Project *currentProject = pe->currentProject()) {
+        files << currentProject->files(Project::ExcludeGeneratedFiles);
         if (name)
             *name = currentProject->name();
     } else {
-        if (const ProjectExplorer::SessionManager *session = projectExplorer->session()) {
+        if (const SessionManager *session = pe->session()) {
             if (name)
                 *name = session->file()->fileName();
-        const QList<ProjectExplorer::Project *> projects = session->projects();
-        foreach (ProjectExplorer::Project *project, projects)
-            files << project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+            const QList<Project *> projects = session->projects();
+            foreach (Project *project, projects)
+                files << project->files(Project::ExcludeGeneratedFiles);
         }
     }
     if (nativeSeparators && !files.empty()) {

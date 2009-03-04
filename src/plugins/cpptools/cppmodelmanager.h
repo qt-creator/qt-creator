@@ -148,7 +148,6 @@ private:
 
 private:
     Core::ICore *m_core;
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     CPlusPlus::Snapshot m_snapshot;
 
     // cache

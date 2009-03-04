@@ -34,9 +34,6 @@
 
 #include <coreplugin/basefilewizard.h>
 
-namespace ProjectExplorer {
-class ProjectExplorerPlugin;
-}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -66,8 +63,6 @@ protected:
 
 private:
     bool postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage);
-
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 };
 
 } // namespace Internal

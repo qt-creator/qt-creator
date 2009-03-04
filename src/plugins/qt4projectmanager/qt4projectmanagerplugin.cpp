@@ -100,8 +100,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()
-        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
 
     Core::ActionManager *am = core->actionManager();
 

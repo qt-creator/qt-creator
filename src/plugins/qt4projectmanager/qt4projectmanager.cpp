@@ -37,7 +37,6 @@
 #include "qtversionmanager.h"
 #include "qmakestep.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/messagemanager.h>
@@ -111,8 +110,7 @@ void Qt4Manager::notifyChanged(const QString &name)
 
 void Qt4Manager::init()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()
-        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
 }
 
 int Qt4Manager::projectContext() const

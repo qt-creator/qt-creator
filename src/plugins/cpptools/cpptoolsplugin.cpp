@@ -44,7 +44,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QFileInfo>
@@ -219,7 +218,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     const Core::ICore *core = Core::ICore::instance();
     const Core::MimeDatabase *mimeDatase = core->mimeDatabase();
     ProjectExplorer::ProjectExplorerPlugin *explorer =
-        ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+       ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = (explorer ? explorer->currentProject() : 0);
 
     const QFileInfo fi(fileName);

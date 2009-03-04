@@ -42,7 +42,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/messageoutputwindow.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/itexteditor.h>
 
 #include <QtCore/QtPlugin>
@@ -116,8 +115,6 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
 void CodepasterPlugin::extensionsInitialized()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()
-        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
 }
 
 QString CodepasterPlugin::serverUrl() const

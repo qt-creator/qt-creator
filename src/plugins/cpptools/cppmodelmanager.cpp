@@ -48,7 +48,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
@@ -545,12 +544,12 @@ CppModelManager::CppModelManager(QObject *parent)
     m_core = Core::ICore::instance(); // FIXME
     m_dirty = true;
 
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()
-                        ->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    ProjectExplorer::ProjectExplorerPlugin *pe = 
+       ProjectExplorer::ProjectExplorerPlugin::instance();
 
-    QTC_ASSERT(m_projectExplorer, return);
+    QTC_ASSERT(pe, return);
 
-    ProjectExplorer::SessionManager *session = m_projectExplorer->session();
+    ProjectExplorer::SessionManager *session = pe->session();
     QTC_ASSERT(session, return);
 
     m_updateEditorSelectionsTimer = new QTimer(this);
@@ -586,7 +585,9 @@ CppModelManager::~CppModelManager()
 { }
 
 Snapshot CppModelManager::snapshot() const
-{ return m_snapshot; }
+{
+    return m_snapshot;
+}
 
 void CppModelManager::ensureUpdated()
 {

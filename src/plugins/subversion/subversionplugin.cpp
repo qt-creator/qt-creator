@@ -50,7 +50,6 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
@@ -432,10 +431,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 void SubversionPlugin::extensionsInitialized()
 {
-    using namespace ExtensionSystem;
-    using namespace ProjectExplorer;
-
-    m_projectExplorer = PluginManager::instance()->getObject<ProjectExplorerPlugin>();
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (m_projectExplorer) {
         connect(m_projectExplorer,
             SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),

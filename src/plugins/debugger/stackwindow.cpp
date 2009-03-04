@@ -66,6 +66,7 @@ StackWindow::StackWindow(QWidget *parent)
 void StackWindow::resizeEvent(QResizeEvent *event)
 {
     QHeaderView *hv = header();
+
     int totalSize = event->size().width() - 120;
     if (totalSize > 10) {
         hv->resizeSection(0, 45);

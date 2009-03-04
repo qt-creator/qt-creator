@@ -37,7 +37,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icorelistener.h>
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 
@@ -70,7 +69,6 @@ private:
 
     QAction *m_postAction;
     QAction *m_fetchAction;
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     SettingsPage  *m_settingsPage;
     CustomFetcher *m_fetcher;
     CustomPoster  *m_poster;

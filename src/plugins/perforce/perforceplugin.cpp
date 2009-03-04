@@ -47,7 +47,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <vcsbase/basevcseditorfactory.h>
@@ -386,7 +385,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
 
 void PerforcePlugin::extensionsInitialized()
 {
-    m_projectExplorer = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProjectExplorerPlugin>();
+    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (m_projectExplorer) {
         connect(m_projectExplorer,
             SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
