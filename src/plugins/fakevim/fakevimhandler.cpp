@@ -1441,9 +1441,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
             return -1;
         }
         cmd = cmd.mid(1);
-        QTextCursor tc = m_tc;
-        tc.setPosition(mark);
-        return tc.block().blockNumber() + 1;
+        return lineForPosition(mark);
     }
     if (c == '-') {
         int n = readLineCode(cmd);
