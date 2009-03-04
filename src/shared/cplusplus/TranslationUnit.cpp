@@ -182,8 +182,10 @@ void TranslationUnit::tokenize()
     pushLineOffset(0);
     pushPreprocessorLine(0, 1, fileId());
 
-    Identifier *lineId = control()->findOrInsertIdentifier("line");
+    Identifier *lineId   = control()->findOrInsertIdentifier("line");
+    Identifier *genId    = control()->findOrInsertIdentifier("gen");
 
+    bool generated = false;
     Token tk;
     do {
         lex(&tk);
@@ -192,16 +194,29 @@ void TranslationUnit::tokenize()
         if (tk.is(T_POUND)) {
             unsigned offset = tk.offset;
             lex(&tk);
-            if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
+
+            if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == genId) {
+                // it's a gen directive.
                 lex(&tk);
-            if (! tk.newline && tk.is(T_INT_LITERAL)) {
-                unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
-                lex(&tk);
-                if (! tk.newline && tk.is(T_STRING_LITERAL)) {
-                    StringLiteral *fileName = control()->findOrInsertFileName(tk.string->chars(),
-                                                                              tk.string->size());
-                    pushPreprocessorLine(offset, line, fileName);
+
+                if (! tk.newline && tk.is(T_TRUE)) {
                     lex(&tk);
+                    generated = true;
+                } else {
+                    generated = false;
+                }
+            } else {
+                if (! tk.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
+                    lex(&tk);
+                if (! tk.newline && tk.is(T_INT_LITERAL)) {
+                    unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
+                    lex(&tk);
+                    if (! tk.newline && tk.is(T_STRING_LITERAL)) {
+                        StringLiteral *fileName = control()->findOrInsertFileName(tk.string->chars(),
+                                                                                  tk.string->size());
+                        pushPreprocessorLine(offset, line, fileName);
+                        lex(&tk);
+                    }
                 }
             }
             while (tk.isNot(T_EOF_SYMBOL) && ! tk.newline)
@@ -214,6 +229,7 @@ void TranslationUnit::tokenize()
             braces.pop();
             (*_tokens)[open_brace_index].close_brace = _tokens->size();
         }
+        tk.generated = generated;
         _tokens->push_back(tk);
     } while (tk.kind);
 

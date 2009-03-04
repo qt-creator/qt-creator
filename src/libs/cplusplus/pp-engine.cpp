@@ -660,9 +660,9 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
             dot = _dot;
 
         if (_markGeneratedTokens)
-            _result->append("\n#pragma push(gen)");
+            _result->append("\n#gen true");
         else
-            _result->append("\n#pragma pop(gen)");
+            _result->append("\n#gen false");
 
         processNewline(/*force = */ true);
 
