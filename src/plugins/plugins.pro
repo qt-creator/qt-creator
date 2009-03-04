@@ -26,15 +26,9 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qtscripteditor \
 #            plugin_cpaster \
             plugin_cmakeprojectmanager \
-            plugin_fakevim
-
-# These two plugins require private headers from Qt and therefore don't work
-# with an installed/released version of Qt.
-exists($$(QTDIR)/.qmake.cache) {
-    SUBDIRS += plugin_designer plugin_resourceeditor
-} else {
-    message(Designer and Resource Editor plugins are not build! They require private headers and do not compile with your released/installed version of Qt)
-}
+            plugin_fakevim \
+            plugin_designer \
+            plugin_resourceeditor
 
 plugin_coreplugin.subdir = coreplugin
 
