@@ -72,7 +72,7 @@ OpenEditorsWidget::OpenEditorsWidget()
             this, SLOT(updateCurrentItem(Core::IEditor*)));
     connect(m_ui.editorList, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
             this, SLOT(selectEditor(QTreeWidgetItem*)));
-    updateEditorList();
+    //updateEditorList();
 }
 
 OpenEditorsWidget::~OpenEditorsWidget()
