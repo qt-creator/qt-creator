@@ -233,6 +233,8 @@ public:
 
     Name *identity() const;
 
+    bool isGenerated() const;
+
     void setScope(Scope *scope); // ### make me private
     void setSourceLocation(unsigned sourceLocation); // ### make me private
 
@@ -255,6 +257,8 @@ private:
     Scope *_scope;
     unsigned _index;
     Symbol *_next;
+
+    bool _isGenerated: 1;
 
     class IdentityForName;
     class HashCode;

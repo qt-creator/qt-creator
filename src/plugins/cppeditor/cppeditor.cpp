@@ -137,7 +137,7 @@ protected:
 
 } // end of anonymous namespace
 
-QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
+static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
 {
     Name *symbolName = s->name();
     if (! symbolName)
@@ -433,11 +433,17 @@ void CPPEditor::updateMethodBoxIndex()
             if (file()->fileName() != symbol->fileName())
                 continue;
 
+            else if (symbol->isGenerated())
+                continue;
+
             if (symbol) {
                 int column = symbol->column();
 
                 if (column != 0)
                     --column;
+
+                if (symbol->isGenerated())
+                    column = 0;
 
                 QTextCursor c(document()->findBlockByNumber(symbol->line() - 1));
                 c.setPosition(c.position() + column);
@@ -969,7 +975,8 @@ bool CPPEditor::openEditorAt(Symbol *s)
     if (column)
         --column;
 #else
-    unsigned column = 0;
+    if (s->isGenerated())
+        unsigned column = 0;
 #endif
 
     return openCppEditorAt(fileName, s->line(), column);

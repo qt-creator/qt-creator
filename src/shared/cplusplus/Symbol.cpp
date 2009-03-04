@@ -164,7 +164,8 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *
       _visibility(Symbol::Public),
       _scope(0),
       _index(0),
-      _next(0)
+      _next(0),
+      _isGenerated(false)
 {
     setSourceLocation(sourceLocation);
     setName(name);
@@ -200,14 +201,24 @@ unsigned Symbol::sourceLocation() const
 unsigned Symbol::sourceOffset() const
 { return _sourceOffset; }
 
+bool Symbol::isGenerated() const
+{ return _isGenerated; }
+
 void Symbol::setSourceLocation(unsigned sourceLocation)
 {
     _sourceLocation = sourceLocation;
 
-    if (_sourceLocation)
-        _sourceOffset = translationUnit()->tokenAt(sourceLocation).offset;
-    else
+    if (! _sourceLocation) {
+        _isGenerated = false;
         _sourceOffset = 0;
+    } else {
+        TranslationUnit *unit = translationUnit();
+
+        const Token &tk = unit->tokenAt(sourceLocation);
+
+        _isGenerated = tk.generated;
+        _sourceOffset = tk.offset;
+    }
 }
 
 unsigned Symbol::line() const
