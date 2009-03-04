@@ -177,8 +177,7 @@ void testQHash()
     hgx1["111111111128.0"] = 28.0;
     hgx1["111111111111111111129.0"] = 29.0;
 #endif
-
-#if 1
+if 1
     QHash<int, QString> hgg2;
     hgg2[22] = "22.0";
 

@@ -1258,8 +1258,7 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
-        if (text.isEmpty())
-            handled = false;
+        handled = false;
     }
 
     return handled;
@@ -1414,9 +1413,12 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
     } else if (key == Key_Tab) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
-    } else {
+    } else if (QChar(key).isPrint()) {
         m_commandBuffer += QChar(key);
         updateMiniBuffer();
+    } else {
+        qDebug() << "IGNORED IN MINIBUFFER MODE: " << key << text;
+        return false;
     }
     return true;
 }
@@ -2182,20 +2184,27 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    if (ev->type() == QEvent::KeyPress && ob == d->editor())
-        return d->handleEvent(static_cast<QKeyEvent *>(ev));
+    if (ev->type() == QEvent::KeyPress && ob == d->editor()) {
+        QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
+        //qDebug() << "KEYPRESS" << kev->key();
+        return d->handleEvent(kev);
+    }
 
     if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         int key = kev->key();
         int mods = kev->modifiers();
+        //qDebug() << "SHORTCUT OVERRIDE" << key;
         bool handleIt = (key == Qt::Key_Escape)
             || (key >= Key_A && key <= Key_Z && mods == Qt::ControlModifier);
+        //qDebug() << "SHORTCUT HANDLING" << handleIt;
         if (handleIt && d->handleEvent(kev)) {
+            //qDebug() << "SHORTCUT HANDLED";
             d->enterCommandMode();
             ev->accept();
             return true;
         }
+        //qDebug() << "NOT OVERRIDDEN";
     }
 
     return QObject::eventFilter(ob, ev);
