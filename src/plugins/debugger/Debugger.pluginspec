@@ -1,4 +1,4 @@
-<plugin name="Debugger" version="1.0.0" compatVersion="1.0.0">
+<plugin name="Debugger" version="1.0.80" compatVersion="1.0.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,9 +19,9 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Debugger integration.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="CppEditor" version="1.0.0"/><!-- Debugger plugin adds items to the editor's context menu -->
-        <dependency name="ProjectExplorer" version="1.0.0"/>
-        <dependency name="Core" version="1.0.0"/>
-        <dependency name="Find" version="1.0.0"/>
+        <dependency name="CppEditor" version="1.0.80"/><!-- Debugger plugin adds items to the editor's context menu -->
+        <dependency name="ProjectExplorer" version="1.0.80"/>
+        <dependency name="Core" version="1.0.80"/>
+        <dependency name="Find" version="1.0.80"/>
     </dependencyList>
 </plugin>

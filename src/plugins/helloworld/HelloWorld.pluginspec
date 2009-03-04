@@ -1,4 +1,4 @@
-<plugin name="HelloWorld" version="1.0.0" compatVersion="1.0.0">
+<plugin name="HelloWorld" version="1.0.80" compatVersion="1.0.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,6 +19,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Hello World sample plugin.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.0.0"/>
+        <dependency name="Core" version="1.0.80"/>
     </dependencyList>
 </plugin>
