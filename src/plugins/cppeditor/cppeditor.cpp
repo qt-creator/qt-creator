@@ -137,7 +137,7 @@ protected:
 
 } // end of anonymous namespace
 
-QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
+static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
 {
     Name *symbolName = s->name();
     if (! symbolName)
@@ -433,11 +433,20 @@ void CPPEditor::updateMethodBoxIndex()
             if (file()->fileName() != symbol->fileName())
                 continue;
 
+            else if (symbol->isGenerated())
+                continue;
+
+            else if (symbol->isBlock())
+                continue;
+
             if (symbol) {
                 int column = symbol->column();
 
                 if (column != 0)
                     --column;
+
+                if (symbol->isGenerated())
+                    column = 0;
 
                 QTextCursor c(document()->findBlockByNumber(symbol->line() - 1));
                 c.setPosition(c.position() + column);
@@ -650,8 +659,6 @@ void CPPEditor::jumpToDefinition()
                     return; // done
             }
         }
-
-        qDebug() << "No results for expression:" << expression;
     }
 }
 
@@ -963,14 +970,14 @@ TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
 bool CPPEditor::openEditorAt(Symbol *s)
 {
     const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-
-#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
+    unsigned line = s->line();
     unsigned column = s->column();
+
     if (column)
         --column;
-#else
-    unsigned column = 0;
-#endif
 
-    return openCppEditorAt(fileName, s->line(), column);
+    if (s->isGenerated())
+        unsigned column = 0;
+
+    return openCppEditorAt(fileName, line, column);
 }

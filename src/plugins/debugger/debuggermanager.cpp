@@ -137,7 +137,8 @@ extern IDebuggerEngine *createWinEngine(DebuggerManager *)
 #endif
 extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 
-DebuggerManager::DebuggerManager()
+DebuggerManager::DebuggerManager() :
+    m_attachCoreAction(0)
 {
     init();
 }
@@ -245,7 +246,6 @@ void DebuggerManager::init()
     m_registerHandler = new RegisterHandler;
     registerView->setModel(m_registerHandler->model());
 
-
     m_watchHandler = new WatchHandler;
 
     // Locals
@@ -295,8 +295,11 @@ void DebuggerManager::init()
     m_attachExternalAction = new QAction(this);
     m_attachExternalAction->setText(tr("Attach to Running External Application..."));
 
+#ifndef Q_OS_WIN
     m_attachCoreAction = new QAction(this);
     m_attachCoreAction->setText(tr("Attach to Core..."));
+    connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
+#endif
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
@@ -366,8 +369,6 @@ void DebuggerManager::init()
         this, SLOT(startExternalApplication()));
     connect(m_attachExternalAction, SIGNAL(triggered()),
         this, SLOT(attachExternalApplication()));
-    connect(m_attachCoreAction, SIGNAL(triggered()),
-        this, SLOT(attachCore()));
 
     connect(m_stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
@@ -788,7 +789,7 @@ void DebuggerManager::attachCore()
         emit debuggingFinished();
 }
 
-// Figure out the debugger type of an exexcutable
+// Figure out the debugger type of an executable
 static bool determineDebuggerType(const QString &executable,
                                   DebuggerManager::DebuggerType *dt,
                                   QString *errorMessage)
@@ -820,6 +821,20 @@ static bool determineDebuggerType(const QString &executable,
 #endif
 }
 
+// Figure out the debugger type of a PID
+static bool determineDebuggerType(int  /* pid */,
+                                  DebuggerManager::DebuggerType *dt,
+                                  QString * /*errorMessage*/)
+{
+#ifdef Q_OS_WIN
+    // Preferably Windows debugger
+    *dt = winEngine ? DebuggerManager::WinDebugger : DebuggerManager::GdbDebugger;
+#else
+    *dt = DebuggerManager::GdbDebugger;
+#endif
+    return true;
+}
+
 bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
 {
     if (Debugger::Constants::Internal::debug)
@@ -828,7 +843,8 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
     m_startMode = mode;
     // FIXME: Clean up
 
-    if (startMode() == StartExternal) {
+    switch  (startMode()) {
+    case StartExternal: {
         StartExternalDialog dlg(mainWindow());
         dlg.setExecutableFile(
             configValue(QLatin1String("LastExternalExecutableFile")).toString());
@@ -844,7 +860,9 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
         m_processArgs = dlg.executableArguments().split(' ');
         m_workingDir = QString();
         m_attachedPID = -1;
-    } else if (startMode() == AttachExternal) {
+    }
+        break;
+    case AttachExternal: {
         AttachExternalDialog dlg(mainWindow());
         if (dlg.exec() != QDialog::Accepted)
             return false;
@@ -857,7 +875,9 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
                 tr("Cannot attach to PID 0"));
             return false;
         }
-    } else if (startMode() == StartInternal) {
+    }
+        break;
+    case StartInternal:
         if (m_executable.isEmpty()) {
             QString startDirectory = m_executable;
             if (m_executable.isEmpty()) {
@@ -881,7 +901,8 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
             //m_processArgs = sd.processArgs.join(QLatin1String(" "));
             m_attachedPID = 0;
         }
-    } else if (startMode() == AttachCore) {
+        break;
+    case AttachCore: {
         AttachCoreDialog dlg(mainWindow());
         dlg.setExecutableFile(
             configValue(QLatin1String("LastExternalExecutableFile")).toString());
@@ -899,12 +920,17 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
         m_workingDir = QString();
         m_attachedPID = -1;
     }
+        break;
+    }
 
     emit debugModeRequested();
 
     DebuggerType type;
     QString errorMessage;
-    if (!determineDebuggerType(m_executable, &type, &errorMessage)) {
+    const bool hasDebugger = startMode() == AttachExternal ?
+         determineDebuggerType(m_attachedPID, &type, &errorMessage) :
+         determineDebuggerType(m_executable, &type, &errorMessage);
+    if (!hasDebugger) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
                 tr("Cannot debug '%1': %2").arg(m_executable, errorMessage));
         return false;
@@ -1142,7 +1168,8 @@ void DebuggerManager::setStatus(int status)
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
-    m_attachCoreAction->setEnabled(!started && !starting);
+    if (m_attachCoreAction)
+        m_attachCoreAction->setEnabled(!started && !starting);
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 

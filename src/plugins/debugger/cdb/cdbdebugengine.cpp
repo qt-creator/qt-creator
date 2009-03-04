@@ -35,6 +35,7 @@
 #include "stackhandler.h"
 
 #include <utils/qtcassert.h>
+#include <utils/winutils.h>
 #include <utils/consoleprocess.h>
 
 #include <QtCore/QDebug>
@@ -48,6 +49,31 @@
 
 static const char *dbgEngineDllC = "dbgeng";
 static const char *debugCreateFuncC = "DebugCreate";
+
+static QString debugEngineComError(HRESULT hr)
+{
+    if (!FAILED(hr))
+        return QLatin1String("S_OK");
+    switch (hr) {
+        case E_FAIL:
+        break;
+        case E_INVALIDARG:
+        return QLatin1String("E_INVALIDARG");
+        case E_NOINTERFACE:
+        return QLatin1String("E_NOINTERFACE");
+        case E_OUTOFMEMORY:
+        return QLatin1String("E_OUTOFMEMORY");
+        case E_UNEXPECTED:
+        return QLatin1String("E_UNEXPECTED");
+        case E_NOTIMPL:
+        return QLatin1String("E_NOTIMPL");
+    }
+    if (hr == HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED))
+        return QLatin1String("ERROR_ACCESS_DENIED");;
+    if (hr == HRESULT_FROM_NT(STATUS_CONTROL_C_EXIT))
+        return QLatin1String("STATUS_CONTROL_C_EXIT");
+    return Core::Utils::winErrorMessage(HRESULT_CODE(hr));
+}
 
 namespace Debugger {
 namespace Internal {
@@ -177,13 +203,47 @@ void CdbDebugEngine::setToolTipExpression(const QPoint & /*pos*/, const QString 
 }
 
 bool CdbDebugEngine::startDebugger()
+{    
+    m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
+    QString errorMessage;
+    bool rc = false;
+    switch (m_d->m_debuggerManager->startMode()) {
+    case AttachExternal:
+        rc = startAttachDebugger(m_d->m_debuggerManager->m_attachedPID, &errorMessage);
+        break;
+    case StartInternal:
+    case StartExternal:
+        rc = startDebuggerWithExecutable(&errorMessage);
+        break;
+    case AttachCore:
+        errorMessage = tr("CdbDebugEngine: Attach to core not supported!");
+        break;
+    }
+    if (rc) {
+        m_d->m_debuggerManager->showStatusMessage(tr("Debugger Running"), -1);
+        startWatchTimer();
+    } else {
+        qWarning("%s\n", qPrintable(errorMessage));
+    }
+    return rc;
+}
+
+bool CdbDebugEngine::startAttachDebugger(unsigned long pid, QString *errorMessage)
+{
+    const HRESULT hr = m_d->m_pDebugClient->AttachProcess(NULL, pid,
+                                                          DEBUG_ATTACH_NONINVASIVE |DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND);
+    if (debugCDB)
+        qDebug() << "Attaching to " << pid << " returns " << hr;
+    if (FAILED(hr)) {
+        *errorMessage = tr("AttachProcess failed for pid %1: %2").arg(pid).arg(debugEngineComError(hr));
+        return false;
+    }
+    return true;
+}
+
+bool CdbDebugEngine::startDebuggerWithExecutable(QString *errorMessage)
 {
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
-
-    //if (!q->m_workingDir.isEmpty())
-    //    m_gdbProc.setWorkingDirectory(q->m_workingDir);
-    //if (!q->m_environment.isEmpty())
-    //    m_gdbProc.setEnvironment(q->m_environment);
 
     DEBUG_CREATE_PROCESS_OPTIONS dbgopts;
     memset(&dbgopts, 0, sizeof(dbgopts));
@@ -199,32 +259,28 @@ bool CdbDebugEngine::startDebugger()
     m_d->m_pDebugSymbols->SetSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS);
     //m_pDebugSymbols->AddSymbolOptions(SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS | SYMOPT_NO_IMAGE_SEARCH);
 
-    if (m_d->m_debuggerManager->startMode() == AttachExternal) {
-        qWarning("CdbDebugEngine: attach to process not yet implemented!");
-        return false;
-    } else {
-        QString cmd = Core::Utils::AbstractProcess::createWinCommandline(filename, m_d->m_debuggerManager->m_processArgs);
-        PCWSTR env = 0;
-        QByteArray envData;
-        if (!m_d->m_debuggerManager->m_environment.empty()) {
-            envData = Core::Utils::AbstractProcess::createWinEnvironment(Core::Utils::AbstractProcess::fixWinEnvironment(m_d->m_debuggerManager->m_environment));
-            env = reinterpret_cast<PCWSTR>(envData.data());
-        }
-        HRESULT hr = m_d->m_pDebugClient->CreateProcess2Wide(NULL,
-                                                const_cast<PWSTR>(cmd.utf16()),
-                                                &dbgopts,
-                                                sizeof(dbgopts),
-                                                m_d->m_debuggerManager->m_workingDir.utf16(),
-                                                env);
-        if (FAILED(hr)) {
-            //qWarning("CreateProcess2Wide failed");
-            m_d->m_debuggerManagerAccess->notifyInferiorExited();
-            return false;
-        }
+    // TODO console
+    const QString cmd = Core::Utils::AbstractProcess::createWinCommandline(filename, m_d->m_debuggerManager->m_processArgs);
+    if (debugCDB)
+        qDebug() << "Starting " << cmd;
+    PCWSTR env = 0;
+    QByteArray envData;
+    if (!m_d->m_debuggerManager->m_environment.empty()) {
+        envData = Core::Utils::AbstractProcess::createWinEnvironment(Core::Utils::AbstractProcess::fixWinEnvironment(m_d->m_debuggerManager->m_environment));
+        env = reinterpret_cast<PCWSTR>(envData.data());
     }
-
-    m_d->m_debuggerManager->showStatusMessage(tr("Debugger Running"), -1);
-    startWatchTimer();
+    const HRESULT hr = m_d->m_pDebugClient->CreateProcess2Wide(NULL,
+                                                               const_cast<PWSTR>(cmd.utf16()),
+                                                               &dbgopts,
+                                                               sizeof(dbgopts),
+                                                               m_d->m_debuggerManager->m_workingDir.utf16(),
+                                                               env);
+    if (FAILED(hr)) {
+        *errorMessage = tr("CreateProcess2Wide failed for '%1': %2").arg(cmd).arg(debugEngineComError(hr));
+        m_d->m_debuggerManagerAccess->notifyInferiorExited();
+        return false;
+    }
+    m_d->m_debuggerManagerAccess->notifyInferiorRunning();
     return true;
 }
 

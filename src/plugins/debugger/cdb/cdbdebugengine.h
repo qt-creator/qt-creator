@@ -99,6 +99,8 @@ protected:
     void timerEvent(QTimerEvent*);
 
 private:
+    bool startAttachDebugger(unsigned long pid, QString *errorMessage);
+    bool startDebuggerWithExecutable(QString *errorMessage);
     void startWatchTimer();
     void killWatchTimer();
 
