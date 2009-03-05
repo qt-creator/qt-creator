@@ -798,8 +798,9 @@ static bool determineDebuggerType(const QString &executable,
         *dt = DebuggerManager::ScriptDebugger;
         return true;
     }
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     *dt = DebuggerManager::GdbDebugger;
+    Q_UNUSED(errorMessage)
     return true;
 #else
     // If a file has PDB files, it has been compiled by VS.

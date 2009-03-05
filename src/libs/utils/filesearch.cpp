@@ -108,9 +108,10 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
                     const char *beforeRegion = regionPtr - 1;
                     bool equal = true;
                     if (wholeWord &&
-                        ( ((*beforeRegion >= '0' && *beforeRegion <= '9') || *beforeRegion >= 'A')
-                        || ((*afterRegion >= '0' && *afterRegion <= '9') || *afterRegion >= 'A')))
-                    {
+                            (  isalnum(*beforeRegion)
+                            || (*beforeRegion == '_')
+                            || isalnum(*afterRegion)
+                            || (*afterRegion == '_'))) {
                         equal = false;
                     }
 

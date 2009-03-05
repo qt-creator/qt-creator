@@ -37,6 +37,7 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QStandardItemModel;
 class QSortFilterProxyModel;
+class QPushButton;
 
 namespace Ui {
 class AttachCoreDialog;
@@ -90,11 +91,15 @@ public:
 private slots:
     void rebuildProcessList();
     void procSelected(const QModelIndex &);
+    void pidChanged(const QString &);
 
 private:
+    inline QPushButton *okButton() const;
+    const QString m_selfPid;
+
     Ui::AttachExternalDialog *m_ui;
-    QSortFilterProxyModel *m_proxyModel;
     QStandardItemModel *m_model;
+    QSortFilterProxyModel *m_proxyModel;
 };
 
 

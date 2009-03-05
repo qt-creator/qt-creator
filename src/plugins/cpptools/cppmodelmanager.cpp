@@ -116,7 +116,7 @@ protected:
     { --depth; }
 };
 
-#endif QTCREATOR_WITH_DUMP_AST
+#endif // QTCREATOR_WITH_DUMP_AST
 
 static const char pp_configuration_file[] = "<configuration>";
 
