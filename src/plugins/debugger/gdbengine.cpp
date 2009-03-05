@@ -1045,7 +1045,7 @@ void GdbEngine::handleInfoThreads(const GdbResultRecord &record)
         // FIXME: use something more robust
         // WIN:     * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
         // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
-        QRegExp re(QLatin1String("Thread (\\d+)\\.0x.* in"));
+        QRegExp re(QLatin1String("^\\*? +\\d+ +[Tt]hread (\\d+)\\.0x.* in"));
         QString data = record.data.findChild("consolestreamoutput").data();
         if (re.indexIn(data) != -1)
             maybeHandleInferiorPidChanged(re.cap(1));
