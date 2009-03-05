@@ -57,6 +57,13 @@
 #include <QtGui/QTextEdit>
 
 
+//#define DEBUG_KEY  1
+#if DEBUG_KEY
+#   define KEY_DEBUG(s) qDebug() << s
+#else
+#   define KEY_DEBUG(s)
+#endif
+
 using namespace FakeVim::Internal;
 using namespace FakeVim::Constants;
 
@@ -90,7 +97,6 @@ enum Mode
     ExMode,
     SearchForwardMode,
     SearchBackwardMode,
-    PassingMode, // lets keyevents to be passed to the main application
 };
 
 enum SubMode
@@ -165,12 +171,20 @@ int lineCount(const QString &text)
     return text.count(QChar('\n'));
 }
 
+enum EventResult
+{
+    EventHandled,
+    EventUnhandled,
+    EventPassedToCore
+};
+
 class FakeVimHandler::Private
 {
 public:
     Private(FakeVimHandler *parent, QWidget *widget);
 
-    bool handleEvent(QKeyEvent *ev);
+    EventResult handleEvent(QKeyEvent *ev);
+    bool wantsOverride(QKeyEvent *ev);
     void handleExCommand(const QString &cmd);
 
     void setupWidget();
@@ -182,11 +196,11 @@ private:
     static int control(int key) { return key + 256; }
 
     void init();
-    bool handleKey(int key, int unmodified, const QString &text);
-    bool handleInsertMode(int key, int unmodified, const QString &text);
-    bool handleCommandMode(int key, int unmodified, const QString &text);
-    bool handleRegisterMode(int key, int unmodified, const QString &text);
-    bool handleMiniBufferModes(int key, int unmodified, const QString &text);
+    EventResult handleKey(int key, int unmodified, const QString &text);
+    EventResult handleInsertMode(int key, int unmodified, const QString &text);
+    EventResult handleCommandMode(int key, int unmodified, const QString &text);
+    EventResult handleRegisterMode(int key, int unmodified, const QString &text);
+    EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
     void finishMovement(const QString &text = QString());
     void search(const QString &needle, bool forward);
 
@@ -261,6 +275,7 @@ public:
 
     FakeVimHandler *q;
     Mode m_mode;
+    bool m_passing; // let the core see the next event
     SubMode m_submode;
     SubSubMode m_subsubmode;
     int m_subsubdata;
@@ -301,7 +316,6 @@ public:
     int anchor() const { return m_anchor; }
     int position() const { return m_tc.position(); }
     QString selectedText() const;
-
 
     void undo();
     void redo();
@@ -360,6 +374,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_mode = CommandMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
+    m_passing = false;
     m_fakeEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
@@ -379,25 +394,62 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_config[ConfigAutoIndent]  = ConfigOff;
 }
 
-bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
+bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
+{
+    const int key = ev->key();
+    const int mods = ev->modifiers();
+    KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
+
+    if (key == Key_Escape) {
+        // Not sure this feels good. People of ten hit Esc several times
+        if (m_visualMode == NoVisualMode && m_mode == CommandMode)
+            return false;
+        return true;
+    }
+
+    // We are interested in overriding  most Ctrl key combinations
+    if (mods == Qt::ControlModifier && key >= Key_A && key <= Key_Z && key != Key_K) {
+        // Ctrl-K is special as it is the Core's default notion of QuickOpen
+        if (m_passing) {
+            KEY_DEBUG(" PASSING CTRL KEY");
+            // We get called twice on the same key
+            //m_passing = false;
+            return false;
+        }
+        KEY_DEBUG(" NOT PASSING CTRL KEY");
+        //updateMiniBuffer();
+        return true;
+    }
+
+    // Let other shortcuts trigger
+    return false;
+}
+
+EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
     int key = ev->key();
     const int um = key; // keep unmodified key around
-
-    // FIXME
-    if (m_mode == PassingMode && key != Qt::Key_Control && key != Qt::Key_Shift) {
-        if (key == ',') { // use ',,' to leave, too.
-            quit();
-            return true;
-        }
-        m_mode = CommandMode;
-        updateMiniBuffer();
-        return false;
-    }
+    const int mods = ev->modifiers();
 
     if (key == Key_Shift || key == Key_Alt || key == Key_Control
-        || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
-        return false;
+            || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
+    {
+        KEY_DEBUG("PLAIN MODIFIER");
+        return EventUnhandled;
+    }
+
+    if (m_passing) {
+        KEY_DEBUG("PASSING PLAIN KEY..." << ev->key() << ev->text());
+        //if (key == ',') { // use ',,' to leave, too.
+        //    qDebug() << "FINISHED...";
+        //    quit();
+        //    return EventHandled;
+        //}
+        m_passing = false;
+        updateMiniBuffer();
+        KEY_DEBUG("   PASS TO CORE");
+        return EventPassedToCore;
+    }
 
     // Fake "End of line"
     m_tc = EDITOR(textCursor());
@@ -406,11 +458,10 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_fakeEnd)
         moveRight();
 
-    if ((ev->modifiers() & Qt::ControlModifier) != 0) {
+    if ((mods & Qt::ControlModifier) != 0) {
         key += 256;
         key += 32; // make it lower case
-    } else if (key >= Key_A && key <= Key_Z
-        && (ev->modifiers() & Qt::ShiftModifier) == 0) {
+    } else if (key >= Key_A && key <= Key_Z && (mods & Qt::ShiftModifier) == 0) {
         key += 32;
     }
 
@@ -419,7 +470,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         m_tc.joinPreviousEditBlock();
     else
         m_tc.beginEditBlock();
-    bool handled = handleKey(key, um, ev->text());
+    EventResult result = handleKey(key, um, ev->text());
     m_tc.endEditBlock();
 
     // We fake vi-style end-of-line behaviour
@@ -430,7 +481,7 @@ bool FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     EDITOR(setTextCursor(m_tc));
     EDITOR(ensureCursorVisible());
-    return handled;
+    return result;
 }
 
 void FakeVimHandler::Private::setupWidget()
@@ -489,7 +540,8 @@ void FakeVimHandler::Private::restoreWidget()
     updateSelection();
 }
 
-bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &text)
+EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
+    const QString &text)
 {
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     //qDebug() << "\nUNDO: " << m_undoStack << "\nREDO: " << m_redoStack;
@@ -500,7 +552,7 @@ bool FakeVimHandler::Private::handleKey(int key, int unmodified, const QString &
     if (m_mode == ExMode || m_mode == SearchForwardMode
             || m_mode == SearchBackwardMode)
         return handleMiniBufferModes(key, unmodified, text);
-    return false;
+    return EventUnhandled;
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
@@ -632,8 +684,8 @@ void FakeVimHandler::Private::updateSelection()
 void FakeVimHandler::Private::updateMiniBuffer()
 {
     QString msg;
-    if (m_mode == PassingMode) {
-        msg = "-- PASSING --";
+    if (m_passing) {
+        msg = "-- PASSING --  ";
     } else if (!m_currentMessage.isEmpty()) {
         msg = m_currentMessage;
         m_currentMessage.clear();
@@ -665,6 +717,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         if (!msg.isEmpty() && m_mode != CommandMode)
             msg += QChar(10073); // '|'; // FIXME: Use a real "cursor"
     }
+
     emit q->commandBufferChanged(msg);
 
     int linesInDoc = linesInDocument();
@@ -702,10 +755,10 @@ void FakeVimHandler::Private::notImplementedYet()
     updateMiniBuffer();
 }
 
-bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
+EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     const QString &text)
 {
-    bool handled = true;
+    EventResult handled = EventHandled;
 
     if (m_submode == RegisterSubMode) {
         m_register = key;
@@ -878,7 +931,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_desiredColumn = -1;
     } else if (key == ',') {
         // FIXME: use some other mechanism
-        m_mode = PassingMode;
+        //m_passing = true;
+        m_passing = !m_passing;
         updateMiniBuffer();
     } else if (key == '.') {
         qDebug() << "REPEATING" << m_dotCommand;
@@ -1064,6 +1118,8 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveUp(qMax(count(), 1));
         moveToFirstNonBlankOnLine();
         finishMovement();
+    } else if (key == control('l')) {
+        // screen redraw. should not be needed
     } else if (key == 'm') {
         m_subsubmode = MarkSubSubMode;
     } else if (key == 'M') {
@@ -1253,18 +1309,17 @@ bool FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_submode = NoSubMode;
             m_subsubmode = NoSubSubMode;
             finishMovement();
-        } else {
-            handled = false;
         }
     } else {
         qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
-        handled = false;
+        handled = EventUnhandled;
     }
 
     return handled;
 }
 
-bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text)
+EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
+    const QString &text)
 {
     if (key == Key_Escape) {
         // start with '1', as one instance was already physically inserted
@@ -1345,13 +1400,13 @@ bool FakeVimHandler::Private::handleInsertMode(int key, int, const QString &text
             }
         }
     } else {
-        return false;
+        return EventUnhandled;
     }
     updateMiniBuffer();
-    return true;
+    return EventHandled;
 }
 
-bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
+EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
     const QString &text)
 {
     Q_UNUSED(text)
@@ -1418,9 +1473,9 @@ bool FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
         updateMiniBuffer();
     } else {
         qDebug() << "IGNORED IN MINIBUFFER MODE: " << key << text;
-        return false;
+        return EventUnhandled;
     }
-    return true;
+    return EventHandled;
 }
 
 // 1 based.
@@ -2186,25 +2241,23 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
     if (ev->type() == QEvent::KeyPress && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
-        //qDebug() << "KEYPRESS" << kev->key();
-        return d->handleEvent(kev);
+        KEY_DEBUG("KEYPRESS" << kev->key());
+        EventResult res = d->handleEvent(kev);
+        // returning false core the app see it
+        KEY_DEBUG("HANDLED CODE:" << res);
+        //return res != EventPassedToCore;
+        return true;
     }
 
     if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
-        int key = kev->key();
-        int mods = kev->modifiers();
-        //qDebug() << "SHORTCUT OVERRIDE" << key;
-        bool handleIt = (key == Qt::Key_Escape)
-            || (key >= Key_A && key <= Key_Z && mods == Qt::ControlModifier);
-        //qDebug() << "SHORTCUT HANDLING" << handleIt;
-        if (handleIt && d->handleEvent(kev)) {
-            //qDebug() << "SHORTCUT HANDLED";
-            d->enterCommandMode();
-            ev->accept();
+        if (d->wantsOverride(kev)) {
+            KEY_DEBUG("OVERRIDING SHORTCUT" << kev->key());
+            ev->accept(); // accepting means "don't run the shortcuts"
             return true;
         }
-        //qDebug() << "NOT OVERRIDDEN";
+        KEY_DEBUG("NO SHORTCUT OVERRIDE" << kev->key());
+        return true;
     }
 
     return QObject::eventFilter(ob, ev);
