@@ -758,14 +758,14 @@ void GitPlugin::updateActions()
     const QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
     // First check for file commands and if the current file is inside
     // a Git-repository
-    m_diffAction->setText(tr("Diff %1").arg(fileName));
-    m_statusAction->setText(tr("Status related to %1").arg(fileName));
-    m_logAction->setText(tr("Log %1").arg(fileName));
-    m_blameAction->setText(tr("Blame %1").arg(fileName));
-    m_undoFileAction->setText(tr("Undo changes for %1").arg(fileName));
-    m_stageAction->setText(tr("Stage %1 for commit").arg(fileName));
-    m_unstageAction->setText(tr("Unstage %1 from commit").arg(fileName));
-    m_revertAction->setText(tr("Revert %1...").arg(fileName));
+    m_diffAction->setText(tr("Diff \"%1\"").arg(fileName));
+    m_statusAction->setText(tr("Status related to \"%1\"").arg(fileName));
+    m_logAction->setText(tr("Log \"%1\"").arg(fileName));
+    m_blameAction->setText(tr("Blame \"%1\"").arg(fileName));
+    m_undoFileAction->setText(tr("Undo changes for \"%1\"").arg(fileName));
+    m_stageAction->setText(tr("Stage \"%1\" for commit").arg(fileName));
+    m_unstageAction->setText(tr("Unstage \"%1\" from commit").arg(fileName));
+    m_revertAction->setText(tr("Revert \"%1\"...").arg(fileName));
     if (repository.isEmpty()) {
         // If the file is not in a repository, the corresponding project will
         // be neither and we can disable everything and return
