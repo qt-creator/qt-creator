@@ -1514,6 +1514,6 @@
     \o  \bold{Open Source front-end for C++ (license MIT)}, enhanced for use in
         Qt Creator. \br
         Roberto Raggi <roberto.raggi@gmail.com> \br
-        QtCreator/src/shard/cplusplus
+        QtCreator/src/shared/cplusplus
     \endlist
 */
