@@ -1068,6 +1068,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_tc.setPosition(m_jumpListRedo.takeLast());
         }
     } else if (key == 'j' || key == Key_Down) {
+        //qDebug() << "DESIRED COLUMN" << m_desiredColumn;
         int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode
                 || m_submode == RegisterSubMode) {
@@ -1143,7 +1144,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToEndOfLine();
         recordInsertText("\n");
         moveToStartOfLine();
-        if (m_config[ConfigAutoIndent] == ConfigOn)
+        if (0 && m_config[ConfigAutoIndent] == ConfigOn)
             recordInsertText(QString(indentDist(), ' '));
         else
             recordInsertText(QString(numSpaces, ' '));
@@ -1353,7 +1354,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
-        if(m_config[ConfigAutoIndent] == ConfigOn)
+        if (0 && m_config[ConfigAutoIndent] == ConfigOn)
             indentRegion(m_tc.block(), m_tc.block().next(), '\n');
     } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
@@ -1382,7 +1383,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
                 m_tc.deleteChar();
         }
         m_tc.insertText(text);
-        if (m_config[ConfigAutoIndent] == ConfigOn
+        if (0 && m_config[ConfigAutoIndent] == ConfigOn
                 && isElectricCharacter(text.at(0))) {
             const QString leftText = m_tc.block().text()
                 .left(m_tc.position() - 1 - m_tc.block().position());
@@ -2244,9 +2245,10 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         KEY_DEBUG("KEYPRESS" << kev->key());
         EventResult res = d->handleEvent(kev);
         // returning false core the app see it
-        KEY_DEBUG("HANDLED CODE:" << res);
+        //KEY_DEBUG("HANDLED CODE:" << res);
         //return res != EventPassedToCore;
-        return true;
+        //return true;
+        return res == EventHandled;
     }
 
     if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
