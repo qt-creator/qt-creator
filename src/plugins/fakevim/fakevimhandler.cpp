@@ -941,8 +941,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         for (int i = count(); --i >= 0; )
             foreach (QChar c, savedCommand)
                 handleKey(c.unicode(), c.unicode(), QString(c));
-            enterCommandMode();
-            m_dotCommand = savedCommand;
+        enterCommandMode();
+        m_dotCommand = savedCommand;
     } else if (key == '=') {
         m_submode = IndentSubMode;
     } else if (key == '%') {
@@ -1249,7 +1249,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         m_submode = DeleteSubMode;
         moveRight(qMin(count(), rightDist()));
-        finishMovement("l");
+        m_dotCommand = QString("%1x").arg(count());
+        finishMovement();
     } else if (key == 'X') {
         if (leftDist() > 0) {
             setAnchor();
