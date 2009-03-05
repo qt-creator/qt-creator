@@ -29,65 +29,42 @@
 
 #include "procinterrupt.h"
 
+using namespace Debugger::Internal;
+
 #if defined(Q_OS_WIN)
+
+#define _WIN32_WINNT 0x0501 /* WinXP, needed for DebugBreakProcess() */
 
 #include <windows.h>
 
-using namespace Debugger::Internal;
-
-typedef HANDLE (WINAPI *PtrCreateRemoteThread)(
-    HANDLE hProcess,
-    LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    SIZE_T dwStackSize,
-    LPTHREAD_START_ROUTINE lpStartAddress,
-    LPVOID lpParameter,
-    DWORD dwCreationFlags,
-    LPDWORD lpThreadId);
-
-PtrCreateRemoteThread resolveCreateRemoteThread()
-{
-    HINSTANCE hLib = LoadLibraryA("Kernel32");
-    return (PtrCreateRemoteThread)GetProcAddress(hLib, "CreateRemoteThread");
-}
-
 bool Debugger::Internal::interruptProcess(int pID)
 {
-    DWORD pid = pID;
-    if (!pid)
+    if (pID <= 0)
         return false;
 
-    PtrCreateRemoteThread libFunc = resolveCreateRemoteThread();
-    if (libFunc) {
-        DWORD dwThreadId = 0;
-        HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-        HANDLE hthread = libFunc(hproc, NULL, 0, (LPTHREAD_START_ROUTINE)DebugBreak, 0, 0, &dwThreadId);
-        CloseHandle(hthread);
-        if (dwThreadId)
-            return true;
-    }
-    
-    return false;
+    HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, pID);
+    if (hproc == NULL)
+        return false;
+
+    bool ok = DebugBreakProcess(hproc) != 0;
+
+    CloseHandle(hproc);
+
+    return ok;
 }
 
-#endif // defined(Q_OS_WIN)
-
-
-
-#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#else // Q_OS_WIN
 
 #include <sys/types.h>
 #include <signal.h>
 
-using namespace Debugger::Internal;
-
 bool Debugger::Internal::interruptProcess(int pID)
 {
-    int procId = pID;
-    if (procId != -1) {
-        if (kill(procId, SIGINT) == 0)
+    if (pID > 0) {
+        if (kill(pID, SIGTRAP) == 0)
             return true;
     }
     return false;
 }
 
-#endif // defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#endif // !Q_OS_WIN
