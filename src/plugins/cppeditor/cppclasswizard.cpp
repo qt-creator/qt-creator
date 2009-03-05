@@ -183,7 +183,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
         return false;
 
     const QString unqualifiedClassName = namespaceList.takeLast();
-    const QString guard = Core::Utils::headerGuard(unqualifiedClassName);
+    const QString guard = Core::Utils::headerGuard(params.headerFile);
 
     // == Header file ==
     QTextStream headerStr(header);

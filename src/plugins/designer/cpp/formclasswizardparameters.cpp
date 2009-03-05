@@ -73,7 +73,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     const QString unqualifiedClassName = namespaceList.takeLast();
 
     // Include guards
-    const QString guard = Core::Utils::headerGuard(unqualifiedClassName);
+    const QString guard = Core::Utils::headerGuard(headerFile);
 
     QString uiInclude = QLatin1String("ui_");
     uiInclude += QFileInfo(uiFile).baseName();

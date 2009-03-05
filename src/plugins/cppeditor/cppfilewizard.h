@@ -49,7 +49,6 @@ public:
                   QObject *parent = 0);
 
 protected:
-    static QString toAlphaNum(const QString &s);
     QString fileContents(FileType type, const QString &baseName) const;
 
 protected:

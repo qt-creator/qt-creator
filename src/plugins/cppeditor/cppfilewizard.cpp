@@ -31,6 +31,8 @@
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
 
+#include <utils/codegeneration.h>
+
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -48,20 +50,6 @@ CppFileWizard::CppFileWizard(const BaseFileWizardParameters &parameters,
 {
 }
 
-QString CppFileWizard::toAlphaNum(const QString &s)
-{
-    QString rc;
-    const int len = s.size();
-    const QChar underscore =  QLatin1Char('_');
-
-    for (int i = 0; i < len; i++) {
-        const QChar c = s.at(i);
-        if (c == underscore || c.isLetterOrNumber())
-            rc += c;
-    }
-    return rc;
-}
-
 Core::GeneratedFiles CppFileWizard::generateFilesFromPath(const QString &path,
                                                           const QString &name,
                                                           QString * /*errorMessage*/) const
@@ -69,11 +57,11 @@ Core::GeneratedFiles CppFileWizard::generateFilesFromPath(const QString &path,
 {
     const QString mimeType = m_type == Source ? QLatin1String(Constants::CPP_SOURCE_MIMETYPE) : QLatin1String(Constants::CPP_HEADER_MIMETYPE);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
+
     Core::GeneratedFile file(fileName);
     file.setEditorKind(QLatin1String(Constants::C_CPPEDITOR));
-    const QString cleanName = toAlphaNum(QFileInfo(name).baseName());
-
     file.setContents(fileContents(m_type, fileName));
+
     return Core::GeneratedFiles() << file;
 }
 
@@ -84,8 +72,7 @@ QString CppFileWizard::fileContents(FileType type, const QString &fileName) cons
     QTextStream str(&contents);
     switch (type) {
     case Header: {
-            QString guard = toAlphaNum(baseName).toUpper();
-            guard += QLatin1String("_H");
+            const QString guard = Core::Utils::headerGuard(fileName);
             str << QLatin1String("#ifndef ") << guard
                 << QLatin1String("\n#define ") <<  guard <<  QLatin1String("\n\n#endif // ")
                 << guard << QLatin1String("\n");
