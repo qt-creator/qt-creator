@@ -369,10 +369,7 @@ void CPPEditor::jumpToMethod(int)
     if (! symbol)
         return;
 
-    Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(true);
     openEditorAt(symbol);
-    Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
-    setFocus();
 }
 
 void CPPEditor::updateMethodBoxIndex()

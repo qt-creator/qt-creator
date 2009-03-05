@@ -123,9 +123,9 @@ protected:
 } // namespace TextEditor
 
 ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
-                                             int line,
-                                             int column,
-                                             const QString &editorKind)
+                                          int line,
+                                          int column,
+                                          const QString &editorKind)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory(true);
