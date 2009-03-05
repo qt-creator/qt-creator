@@ -277,41 +277,53 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_diffAction = new QAction(tr("Diff Current File"), this);
     command = actionManager->registerAction(m_diffAction, "Git.Diff", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+D")));
+#endif
     connect(m_diffAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     gitContainer->addAction(command);
 
     m_statusAction = new QAction(tr("File Status"), this);
     command = actionManager->registerAction(m_statusAction, "Git.Status", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+S")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(statusFile()));
     gitContainer->addAction(command);
 
     m_logAction = new QAction(tr("Log File"), this);
     command = actionManager->registerAction(m_logAction, "Git.Log", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+L")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logAction, SIGNAL(triggered()), this, SLOT(logFile()));
     gitContainer->addAction(command);
 
     m_blameAction = new QAction(tr("Blame"), this);
     command = actionManager->registerAction(m_blameAction, "Git.Blame", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_blameAction, SIGNAL(triggered()), this, SLOT(blameFile()));
     gitContainer->addAction(command);
 
     m_undoFileAction = new QAction(tr("Undo Changes"), this);
     command = actionManager->registerAction(m_undoFileAction, "Git.Undo", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+U")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_undoFileAction, SIGNAL(triggered()), this, SLOT(undoFileChanges()));
     gitContainer->addAction(command);
 
     m_stageAction = new QAction(tr("Stage File for Commit"), this);
     command = actionManager->registerAction(m_stageAction, "Git.Stage", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stageAction, SIGNAL(triggered()), this, SLOT(stageFile()));
     gitContainer->addAction(command);
@@ -332,7 +344,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_diffProjectAction = new QAction(tr("Diff Current Project"), this);
     command = actionManager->registerAction(m_diffProjectAction, "Git.DiffProject", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence("Alt+G,Alt+Shift+D"));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
@@ -345,7 +359,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_logProjectAction = new QAction(tr("Log Project"), this);
     command = actionManager->registerAction(m_logProjectAction, "Git.LogProject", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     gitContainer->addAction(command);
@@ -380,7 +396,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_commitAction = new QAction(tr("Commit..."), this);
     command = actionManager->registerAction(m_commitAction, "Git.Commit", globalcontext);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+C")));
+#endif
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_commitAction, SIGNAL(triggered()), this, SLOT(startCommit()));
     gitContainer->addAction(command);

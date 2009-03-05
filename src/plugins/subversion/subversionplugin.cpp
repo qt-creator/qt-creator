@@ -321,7 +321,9 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     command = ami->registerAction(m_addAction, SubversionPlugin::ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+A")));
+#endif
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
 
@@ -351,7 +353,9 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     command = ami->registerAction(m_diffCurrentAction,
         SubversionPlugin::DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+D")));
+#endif
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     subversionMenu->addAction(command);
 
@@ -367,7 +371,9 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     command = ami->registerAction(m_commitCurrentAction,
         SubversionPlugin::COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifndef Q_OS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+S,Alt+C")));
+#endif
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     subversionMenu->addAction(command);
 
