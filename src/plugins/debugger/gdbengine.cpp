@@ -620,23 +620,13 @@ void GdbEngine::interruptInferior()
         return;
     }
 
-    if (q->m_attachedPID > 0) {
-        if (!interruptProcess(q->m_attachedPID))
-        //    qq->notifyInferiorStopped();
-        //else
-            debugMessage(QString("CANNOT INTERRUPT %1").arg(q->m_attachedPID));
+    if (q->m_attachedPID <= 0) {
+        debugMessage("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED");
         return;
     }
 
-#ifdef Q_OS_MAC
-    sendCommand("-exec-interrupt", GdbExecInterrupt);
-    //qq->notifyInferiorStopped();
-#else
-    if (!interruptChildProcess(m_gdbProc.pid()))
-    //    qq->notifyInferiorStopped();
-    //else
-        debugMessage(QString("CANNOT STOP INFERIOR"));
-#endif
+    if (!interruptProcess(q->m_attachedPID))
+        debugMessage(QString("CANNOT INTERRUPT %1").arg(q->m_attachedPID));
 }
 
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)

@@ -36,7 +36,6 @@ namespace Debugger {
 namespace Internal {
 
 bool interruptProcess(int pID);
-bool interruptChildProcess(Q_PID parentPID);
 
 } // Internal
 } // GdbDebugger

@@ -32,7 +32,6 @@
 #if defined(Q_OS_WIN)
 
 #include <windows.h>
-#include <Tlhelp32.h>
 
 using namespace Debugger::Internal;
 
@@ -49,28 +48,6 @@ PtrCreateRemoteThread resolveCreateRemoteThread()
 {
     HINSTANCE hLib = LoadLibraryA("Kernel32");
     return (PtrCreateRemoteThread)GetProcAddress(hLib, "CreateRemoteThread");
-}
-
-DWORD findProcessId(DWORD parentId)
-{
-    HANDLE hProcList = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-
-    PROCESSENTRY32 procEntry;
-    procEntry.dwSize = sizeof(PROCESSENTRY32);
-
-    DWORD procId = 0;
-
-    BOOL moreProc = Process32First(hProcList, &procEntry);
-    while (moreProc) {
-        if (procEntry.th32ParentProcessID == parentId) {
-            procId = procEntry.th32ProcessID;
-            break;
-        }
-        moreProc = Process32Next(hProcList, &procEntry);
-    }
-
-    CloseHandle(hProcList);
-    return procId;
 }
 
 bool Debugger::Internal::interruptProcess(int pID)
@@ -92,82 +69,16 @@ bool Debugger::Internal::interruptProcess(int pID)
     return false;
 }
 
-bool Debugger::Internal::interruptChildProcess(Q_PID parentPID)
-{
-    DWORD pid = findProcessId(parentPID->dwProcessId);
-    return interruptProcess(pid);
-}
-
 #endif // defined(Q_OS_WIN)
 
 
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfoList>
-#include <QtCore/QByteArray>
-#include <QtCore/QDebug>
-
 #include <sys/types.h>
 #include <signal.h>
 
-#include <sys/sysctl.h>
-
-
 using namespace Debugger::Internal;
-
-/* Mac OS X
-int OPParentIDForProcessID(int pid)
-    // Returns the parent process id for the given process id (pid)
-{
-    const uint OPProcessValueUnknown = UINT_MAX;
-    struct kinfo_proc info;
-    size_t length = sizeof(struct kinfo_proc);
-    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
-    if (sysctl(mib, 4, &info, &length, NULL, 0) < 0)
-        return OPProcessValueUnknown;
-    if (length == 0)
-        return OPProcessValueUnknown;
-    return info.kp_eproc.e_ppid;
-}
-*/
-
-int findParentProcess(int procId)
-{
-    QFile statFile(QLatin1String("/proc/") + QString::number(procId) + 
-                   QLatin1String("/stat"));
-    if (!statFile.open(QIODevice::ReadOnly))
-        return -1;
-    
-    QByteArray line = statFile.readLine();
-    line = line.mid(line.indexOf(')') + 4);
-    //qDebug() << "1: " << line;
-    line = line.left(line.indexOf(' '));
-    //qDebug() << "2: " << line;
-    
-    return QString(line).toInt();
-}
-
-int findChildProcess(int parentId)
-{
-    QDir proc(QLatin1String("/proc"));
-    QFileInfoList procList = proc.entryInfoList(QDir::Dirs);
-    foreach (const QFileInfo &info, procList) {
-        int procId = 0;
-        bool ok = false;
-        procId = info.baseName().toInt(&ok);
-        if (!ok || !procId)
-            continue;
-        
-        if (findParentProcess(procId) == parentId)
-            return procId;
-    }
-    
-    return -1;
-}
 
 bool Debugger::Internal::interruptProcess(int pID)
 {
@@ -177,13 +88,6 @@ bool Debugger::Internal::interruptProcess(int pID)
             return true;
     }
     return false;
-}
-
-bool Debugger::Internal::interruptChildProcess(Q_PID parentPID)
-{
-    int procId = findChildProcess(parentPID);
-    //qDebug() << "INTERRUPTING PROCESS" << procId;
-    return interruptProcess(procId);
 }
 
 #endif // defined(Q_OS_LINUX) || defined(Q_OS_MAC)
