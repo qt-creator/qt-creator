@@ -1154,7 +1154,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (projectChanged || m_currentNode != node) {
         m_currentNode = node;
         if (debug)
-            qDebug() << "ProjectExplorer - currentNodeChanged(" << node->path() << ", " << (project ? project->name() : "0") << ")";
+            qDebug() << "ProjectExplorer - currentNodeChanged(" << (node ? node->path() : "0") << ", " << (project ? project->name() : "0") << ")";
         emit currentNodeChanged(m_currentNode, project);
     }
     if (projectChanged) {
