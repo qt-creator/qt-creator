@@ -18,9 +18,9 @@
     message with the word \e subscribe to qt-creator-request@trolltech.com.
     For more information on Qt mailing lists, visit http://lists.trolltech.com
 
+    \image qtcreator-screenshots.png
+
     \table
-    \row
-        \o \inlineimage qtcreator-screenshots.png
     \row
         \o Qt Creator includes a wide range of useful features. Among them are:
     \list 1
