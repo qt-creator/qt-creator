@@ -977,7 +977,7 @@ bool CPPEditor::openEditorAt(Symbol *s)
         --column;
 
     if (s->isGenerated())
-        unsigned column = 0;
+        column = 0;
 
     return openCppEditorAt(fileName, line, column);
 }

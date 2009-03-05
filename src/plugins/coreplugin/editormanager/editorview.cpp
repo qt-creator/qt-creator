@@ -207,8 +207,8 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     m_lockButton(new QToolButton),
     m_defaultToolBar(new QToolBar(this)),
     m_infoWidget(new QFrame(this)),
-    m_statusWidget(new QFrame(this)),
-    m_editorForInfoWidget(0)
+    m_editorForInfoWidget(0),
+    m_statusWidget(new QFrame(this))
 {
     QVBoxLayout *tl = new QVBoxLayout(this);
     tl->setSpacing(0);
