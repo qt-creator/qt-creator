@@ -123,10 +123,12 @@ static bool isProcessName(const QString &procname)
     return true;
 }
 
+QT_BEGIN_NAMESPACE
 bool operator<(const ProcData &p1, const ProcData &p2)
 {
     return p1.name < p2.name;
 }
+QT_END_NAMESPACE
 
 // Determine UNIX processes by reading "/proc"
 static QList<ProcData> unixProcessList()
@@ -189,8 +191,8 @@ static void populateProcessModel(QStandardItemModel *model)
 AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
         QDialog(parent),
         m_ui(new Ui::AttachExternalDialog),
-        m_model(createProcessModel(this)),
-        m_proxyModel(new QSortFilterProxyModel(this))
+        m_proxyModel(new QSortFilterProxyModel(this)),
+        m_model(createProcessModel(this))
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
