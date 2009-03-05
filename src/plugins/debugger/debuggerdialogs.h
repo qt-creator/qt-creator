@@ -35,8 +35,6 @@
 QT_BEGIN_NAMESPACE
 
 class QModelIndex;
-class QStandardItemModel;
-class QSortFilterProxyModel;
 class QPushButton;
 
 namespace Ui {
@@ -51,6 +49,8 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
+
+class ProcessListFilterModel;
 
 struct ProcData
 {
@@ -98,8 +98,7 @@ private:
     const QString m_selfPid;
 
     Ui::AttachExternalDialog *m_ui;
-    QStandardItemModel *m_model;
-    QSortFilterProxyModel *m_proxyModel;
+    ProcessListFilterModel *m_model;
 };
 
 
@@ -116,11 +115,13 @@ public:
 private slots:
     void rebuildProcessList();
     void procSelected(const QModelIndex &);
+    void pidChanged(const QString &);
 
 private:
+    inline QPushButton *okButton() const;
     Ui::AttachRemoteDialog *m_ui;
     QString m_defaultPID;
-    QStandardItemModel *m_model;
+    ProcessListFilterModel *m_model;
 };
 
 

@@ -49,7 +49,72 @@
 #include <QtGui/QProxyModel>
 #include <QtGui/QSortFilterProxyModel>
 
-using namespace Debugger::Internal;
+
+namespace Debugger {
+    namespace Internal {
+
+bool operator<(const ProcData &p1, const ProcData &p2)
+{
+    return p1.name < p2.name;
+}
+
+// A filterable process list model
+class ProcessListFilterModel : public QSortFilterProxyModel {
+public:
+    explicit ProcessListFilterModel(QObject *parent);
+    QString processIdAt(const QModelIndex &index) const;
+    void populate(QList<ProcData> processes, const QString &excludePid = QString());
+
+private:
+    QStandardItemModel *m_model;
+};
+
+ProcessListFilterModel::ProcessListFilterModel(QObject *parent) :
+   QSortFilterProxyModel(parent),
+   m_model(new QStandardItemModel(this))
+{
+    QStringList columns;
+    columns << AttachExternalDialog::tr("Process ID")
+            << AttachExternalDialog::tr("Name")
+            << AttachExternalDialog::tr("State");
+    m_model->setHorizontalHeaderLabels(columns);
+    setSourceModel(m_model);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setFilterKeyColumn(1);
+}
+
+QString ProcessListFilterModel::processIdAt(const QModelIndex &index) const
+{
+    if (index.isValid()) {
+        const QModelIndex index0 = mapToSource(index);
+        QModelIndex index = index0.sibling(index0.row(), 0);
+        if (const QStandardItem *item = m_model->itemFromIndex(index))
+            return item->text();
+    }
+    return QString();
+}
+
+void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &excludePid)
+{
+    qStableSort(processes);
+
+    if (const int rowCount = m_model->rowCount())
+        m_model->removeRows(0, rowCount);
+
+    QStandardItem *root  = m_model->invisibleRootItem();
+    foreach(const ProcData &proc, processes) {
+        QList<QStandardItem *> row;
+        row.append(new QStandardItem(proc.ppid));
+        row.append(new QStandardItem(proc.name));
+        if (!proc.image.isEmpty())
+            row.back()->setToolTip(proc.image);
+        row.append(new QStandardItem(proc.state));
+        if (proc.ppid == excludePid)
+            foreach(QStandardItem *i, row)
+                i->setEnabled(false);
+        root->appendRow(row);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -105,17 +170,6 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QStandardItemModel *createProcessModel(QObject *parent)
-{
-    QStandardItemModel *rc = new QStandardItemModel(parent);
-    QStringList columns;
-    columns << AttachExternalDialog::tr("Process ID")
-            << AttachExternalDialog::tr("Name")
-            << AttachExternalDialog::tr("State");
-    rc->setHorizontalHeaderLabels(columns);
-    return rc;
-}
-
 static bool isUnixProcessId(const QString &procname)
 {
     for (int i = 0; i != procname.size(); ++i)
@@ -123,13 +177,6 @@ static bool isUnixProcessId(const QString &procname)
             return false;
     return true;
 }
-
-QT_BEGIN_NAMESPACE
-bool operator<(const ProcData &p1, const ProcData &p2)
-{
-    return p1.name < p2.name;
-}
-QT_END_NAMESPACE
 
 // Determine UNIX processes by reading "/proc"
 static QList<ProcData> unixProcessList()
@@ -162,40 +209,13 @@ static QList<ProcData> unixProcessList()
     return rc;
 }
 
-static inline QStandardItem *createStandardItem(const QString &text, 
-                                                bool enabled)
-{    
-    QStandardItem *rc = new QStandardItem(text);
-    rc->setEnabled(enabled);
-    return rc;
-}
-
-// Populate a standard item model with a list
-// of processes and gray out the excludePid.
-static void populateProcessModel(QStandardItemModel *model, 
-                                 const QString &excludePid = QString())
+static QList<ProcData> processList()
 {
 #ifdef Q_OS_WIN
-    QList<ProcData> processes = winProcessList();
+    return winProcessList();
 #else
-    QList<ProcData> processes = unixProcessList();
+    return unixProcessList();
 #endif
-    qStableSort(processes);
-
-    if (const int rowCount = model->rowCount())
-        model->removeRows(0, rowCount);
-    
-    QStandardItem *root  = model->invisibleRootItem();
-    foreach(const ProcData &proc, processes) {
-        const bool enabled = proc.ppid != excludePid;
-        QList<QStandardItem *> row;
-        row.append(createStandardItem(proc.ppid, enabled));
-        row.append(createStandardItem(proc.name, enabled));
-        if (!proc.image.isEmpty())
-            row.back()->setToolTip(proc.image);
-        row.append(createStandardItem(proc.state, enabled));
-        root->appendRow(row);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -208,17 +228,13 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
         QDialog(parent),
         m_selfPid(QString::number(QCoreApplication::applicationPid())),
         m_ui(new Ui::AttachExternalDialog),
-        m_proxyModel(new QSortFilterProxyModel(this)),
-        m_model(createProcessModel(this))
+        m_model(new ProcessListFilterModel(this))
 {
     m_ui->setupUi(this);
     okButton()->setDefault(true);
     okButton()->setEnabled(false);
 
-    m_proxyModel->setSourceModel(m_model);
-    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_proxyModel->setFilterKeyColumn(1);
-    m_ui->procView->setModel(m_proxyModel);
+    m_ui->procView->setModel(m_model);
     m_ui->procView->setSortingEnabled(true);
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -227,7 +243,8 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
     m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
 
-    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
+    // Do not use activated, will be single click in Oxygen
+    connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
         this, SLOT(procSelected(QModelIndex)));
     connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(pidChanged(QString)));
@@ -235,7 +252,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent) :
     connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
             m_ui->filterLineEdit, SLOT(clear()));
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
-            m_proxyModel, SLOT(setFilterFixedString(QString)));
+            m_model, SLOT(setFilterFixedString(QString)));
 
     rebuildProcessList();
 }
@@ -252,7 +269,7 @@ QPushButton *AttachExternalDialog::okButton() const
 
 void AttachExternalDialog::rebuildProcessList()
 {
-    populateProcessModel(m_model, m_selfPid);
+    m_model->populate(processList(), m_selfPid);
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);
@@ -260,10 +277,9 @@ void AttachExternalDialog::rebuildProcessList()
 
 void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
 {
-    const QModelIndex index0 = m_proxyModel->mapToSource(proxyIndex);
-    QModelIndex index = index0.sibling(index0.row(), 0);
-    if (const QStandardItem *item = m_model->itemFromIndex(index)) {
-        m_ui->pidLineEdit->setText(item->text());
+    const QString proccessId  = m_model->processIdAt(proxyIndex);
+    if (!proccessId.isEmpty()) {
+        m_ui->pidLineEdit->setText(proccessId);
         if (okButton()->isEnabled())
             okButton()->animateClick();
     }
@@ -276,7 +292,7 @@ int AttachExternalDialog::attachPID() const
 
 void AttachExternalDialog::pidChanged(const QString &pid)
 {
-    okButton()->setEnabled(!pid.isEmpty() && pid != m_selfPid);
+    okButton()->setEnabled(!pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -288,7 +304,7 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid) :
         QDialog(parent),
         m_ui(new Ui::AttachRemoteDialog),
-        m_model(createProcessModel(this))
+        m_model(new ProcessListFilterModel(this))
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -300,8 +316,21 @@ AttachRemoteDialog::AttachRemoteDialog(QWidget *parent, const QString &pid) :
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(m_ui->procView, SIGNAL(activated(QModelIndex)),
+    // Do not use activated, will be single click in Oxygen
+    connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
         this, SLOT(procSelected(QModelIndex)));
+
+    QPushButton *refreshButton = new QPushButton(tr("Refresh"));
+    connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
+    m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
+
+    connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(pidChanged(QString)));
+
+    connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
+            m_ui->filterLineEdit, SLOT(clear()));
+    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
+            m_model, SLOT(setFilterFixedString(QString)));
 
     m_ui->pidLineEdit->setText(m_defaultPID);
     rebuildProcessList();
@@ -312,28 +341,39 @@ AttachRemoteDialog::~AttachRemoteDialog()
     delete m_ui;
 }
 
+QPushButton *AttachRemoteDialog::okButton() const
+{
+    return m_ui->buttonBox->button(QDialogButtonBox::Ok);
+}
+
 void AttachRemoteDialog::rebuildProcessList()
 {
-    populateProcessModel(m_model);
+    m_model->populate(processList());
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);
 }
 
 void AttachRemoteDialog::procSelected(const QModelIndex &index0)
-{
-    QModelIndex index = index0.sibling(index0.row(), 0);
-    QStandardItem *item = m_model->itemFromIndex(index);
-    if (!item)
-        return;
-    m_ui->pidLineEdit->setText(item->text());
-    accept();
+{    
+    const QString proccessId  = m_model->processIdAt(index0);
+    if (!proccessId.isEmpty()) {
+        m_ui->pidLineEdit->setText(proccessId);
+        if (okButton()->isEnabled())
+            okButton()->animateClick();
+    }
 }
 
 int AttachRemoteDialog::attachPID() const
 {
     return m_ui->pidLineEdit->text().toInt();
 }
+
+void AttachRemoteDialog::pidChanged(const QString &pid)
+{
+    okButton()->setEnabled(!pid.isEmpty() && pid != QLatin1String("0"));
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -384,4 +424,7 @@ QString StartExternalDialog::executableFile() const
 QString StartExternalDialog::executableArguments() const
 {
     return m_ui->argsEdit->text();
+}
+
+}
 }
