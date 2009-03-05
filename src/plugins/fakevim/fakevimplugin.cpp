@@ -357,12 +357,14 @@ void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
-    //qDebug() << "SHOW COMMAND BUFFER" << contents;
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (handler) {
-        Core::EditorManager::instance()->showEditorInfoBar( 
+        //qDebug() << "SHOW COMMAND BUFFER" << contents;
+        Core::EditorManager::instance()->showEditorStatusBar( 
             QLatin1String(Constants::MINI_BUFFER), contents,
             tr("Quit FakeVim"), handler, SLOT(quit()));
+    } else {
+        qDebug() << "\nNO HANDLER\n";
     }
 }
 

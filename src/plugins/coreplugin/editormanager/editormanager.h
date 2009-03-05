@@ -157,6 +157,13 @@ public:
 
     void hideEditorInfoBar(const QString &kind);
 
+    void showEditorStatusBar(const QString &kind,
+                           const QString &infoText,
+                           const QString &buttonText = QString(),
+                           QObject *object = 0, const char *member = 0);
+
+    void hideEditorStatusBar(const QString &kind);
+
     EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
 
     void setExternalEditor(const QString &);

@@ -207,6 +207,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     m_lockButton(new QToolButton),
     m_defaultToolBar(new QToolBar(this)),
     m_infoWidget(new QFrame(this)),
+    m_statusWidget(new QFrame(this)),
     m_editorForInfoWidget(0)
 {
     QVBoxLayout *tl = new QVBoxLayout(this);
@@ -269,7 +270,6 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         m_infoWidget->setBackgroundRole(QPalette::ToolTipBase);
         m_infoWidget->setAutoFillBackground(true);
 
-
         QHBoxLayout *hbox = new QHBoxLayout(m_infoWidget);
         hbox->setMargin(2);
         m_infoWidgetLabel = new QLabel("Placeholder");
@@ -289,12 +289,47 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
 
         hbox->addWidget(closeButton);
 
-
         m_infoWidget->setVisible(false);
         tl->addWidget(m_infoWidget);
     }
+
     tl->addWidget(m_container);
 
+    {
+        m_statusWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+        m_statusWidget->setLineWidth(1);
+        m_statusWidget->setForegroundRole(QPalette::ToolTipText);
+        m_statusWidget->setBackgroundRole(QPalette::ToolTipBase);
+        m_statusWidget->setAutoFillBackground(true);
+
+
+        QHBoxLayout *hbox = new QHBoxLayout(m_statusWidget);
+        hbox->setMargin(2);
+        m_statusWidgetLabel = new QLabel("Placeholder");
+        m_statusWidgetLabel->setForegroundRole(QPalette::ToolTipText);
+        hbox->addWidget(m_statusWidgetLabel);
+        hbox->addStretch(1);
+
+        m_statusWidgetButton = new QToolButton;
+        m_statusWidgetButton->setText(tr("Placeholder"));
+        hbox->addWidget(m_statusWidgetButton);
+
+        QToolButton *closeButton = new QToolButton;
+        closeButton->setAutoRaise(true);
+        closeButton->setIcon(QIcon(":/core/images/clear.png"));
+        closeButton->setToolTip(tr("Close"));
+        connect(closeButton, SIGNAL(clicked()), m_statusWidget, SLOT(hide()));
+
+        hbox->addWidget(closeButton);
+
+        m_statusWidget->setVisible(false);
+        tl->addWidget(m_statusWidget);
+    }
+
+}
+
+EditorView::~EditorView()
+{
 }
 
 void EditorView::showEditorInfoBar(const QString &kind,
@@ -318,9 +353,25 @@ void EditorView::hideEditorInfoBar(const QString &kind)
         m_infoWidget->setVisible(false);
 }
 
-
-EditorView::~EditorView()
+void EditorView::showEditorStatusBar(const QString &kind,
+                                           const QString &infoText,
+                                           const QString &buttonText,
+                                           QObject *object, const char *member)
 {
+    m_statusWidgetKind = kind;
+    m_statusWidgetLabel->setText(infoText);
+    m_statusWidgetButton->setText(buttonText);
+    m_statusWidgetButton->disconnect();
+    if (object && member)
+        connect(m_infoWidgetButton, SIGNAL(clicked()), object, member);
+    m_statusWidget->setVisible(true);
+    //m_editorForInfoWidget = currentEditor();
+}
+
+void EditorView::hideEditorStatusBar(const QString &kind)
+{
+    if (kind == m_statusWidgetKind)
+        m_statusWidget->setVisible(false);
 }
 
 void EditorView::addEditor(IEditor *editor)
@@ -406,7 +457,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     updateEditorStatus(editor);
     updateToolBar(editor);
 
-
+    // FIXME: this keeps the editor hidden if switching from A to B and back
     if (editor != m_editorForInfoWidget) {
         m_infoWidget->hide();
         m_editorForInfoWidget = 0;
@@ -415,9 +466,9 @@ void EditorView::setCurrentEditor(IEditor *editor)
 
 void EditorView::checkEditorStatus()
 {
-        IEditor *editor = qobject_cast<IEditor *>(sender());
-        if (editor == currentEditor())
-            updateEditorStatus(editor);
+    IEditor *editor = qobject_cast<IEditor *>(sender());
+    if (editor == currentEditor())
+        updateEditorStatus(editor);
 }
 
 void EditorView::updateEditorStatus(IEditor *editor)

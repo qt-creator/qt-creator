@@ -113,6 +113,11 @@ public:
                            QObject *object, const char *member);
     void hideEditorInfoBar(const QString &kind);
 
+    void showEditorStatusBar(const QString &kind,
+                           const QString &infoText,
+                           const QString &buttonText,
+                           QObject *object, const char *member);
+    void hideEditorStatusBar(const QString &kind);
 
 public slots:
     void closeView();
@@ -139,8 +144,12 @@ private:
     QLabel *m_infoWidgetLabel;
     QToolButton *m_infoWidgetButton;
     IEditor *m_editorForInfoWidget;
+    QString m_statusWidgetKind;
+    QFrame *m_statusWidget;
+    QLabel *m_statusWidgetLabel;
+    QToolButton *m_statusWidgetButton;
     QSortFilterProxyModel m_proxyModel;
-    QList<IEditor *>m_editors;
+    QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
 };
 

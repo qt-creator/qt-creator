@@ -1581,6 +1581,20 @@ void EditorManager::hideEditorInfoBar(const QString &kind)
     currentEditorView()->hideEditorInfoBar(kind);
 }
 
+void EditorManager::showEditorStatusBar(const QString &kind,
+                                      const QString &infoText,
+                                      const QString &buttonText,
+                                      QObject *object, const char *member)
+{
+
+    currentEditorView()->showEditorStatusBar(kind, infoText, buttonText, object, member);
+}
+
+void EditorManager::hideEditorStatusBar(const QString &kind)
+{
+    currentEditorView()->hideEditorStatusBar(kind);
+}
+
 QString EditorManager::externalEditorHelpText() const
 {
     QString help = tr(
