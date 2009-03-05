@@ -353,7 +353,7 @@ void DebuggerManager::init()
     m_breakByFunctionAction->setText(tr("Set Breakpoint at Function..."));
 
     m_breakAtMainAction = new QAction(this);
-    m_breakAtMainAction->setText(tr("Set Breakpoint at Function 'main'"));
+    m_breakAtMainAction->setText(tr("Set Breakpoint at Function \"main\""));
 
     m_watchAction = new QAction(this);
     m_watchAction->setText(tr("Add to Watch Window"));
