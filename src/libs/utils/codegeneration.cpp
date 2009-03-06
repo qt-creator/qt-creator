@@ -36,10 +36,26 @@
 namespace Core {
 namespace Utils {
 
+static QString toAlphaNum(const QString &s)
+{
+    QString rc;
+    const int len = s.size();
+    const QChar underscore =  QLatin1Char('_');
+
+    for (int i = 0; i < len; i++) {
+        const QChar c = s.at(i);
+        if (c == underscore || c.isLetterOrNumber())
+            rc += c;
+    }
+    return rc;
+}
+
 QWORKBENCH_UTILS_EXPORT QString headerGuard(const QString &file)
 {
-    QString rc = QFileInfo(file).baseName().toUpper();
-    rc += QLatin1String("_H");
+    const QFileInfo fi(file);
+    QString rc = toAlphaNum(fi.completeBaseName()).toUpper();
+    rc += QLatin1Char('_');
+    rc += toAlphaNum(fi.suffix()).toUpper();
     return rc;
 }
 

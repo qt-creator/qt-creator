@@ -91,6 +91,13 @@ STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
     return S_OK;
 }
 
+static inline QString msgException(const EXCEPTION_RECORD64 *Exception, ULONG FirstChance)
+{
+    return QString::fromLatin1("An exception occurred: Code=0x%1 FirstChance=%2").
+                               arg(QString::number(Exception->ExceptionCode, 16)).
+                               arg(FirstChance);
+}
+
 STDMETHODIMP CdbDebugEventCallback::Exception(
     THIS_
     __in PEXCEPTION_RECORD64 Exception,
@@ -99,7 +106,11 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
 {
     Q_UNUSED(Exception)
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << FirstChance;
+        qDebug() << Q_FUNC_INFO << msgException(Exception, FirstChance);
+
+    // First chance are harmless
+    if (!FirstChance)
+        qWarning("%s", qPrintable(msgException(Exception, FirstChance)));
     return S_OK;
 }
 
@@ -161,8 +172,7 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << ModuleName;
 
-    m_pEngine->m_d->m_hDebuggeeProcess = (HANDLE)Handle;
-    m_pEngine->m_d->m_hDebuggeeThread = (HANDLE)InitialThreadHandle;
+    m_pEngine->m_d->setDebuggeeHandles(reinterpret_cast<HANDLE>(Handle), reinterpret_cast<HANDLE>(InitialThreadHandle));
     m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorRunning();
 
     ULONG currentThreadId;
@@ -183,8 +193,7 @@ STDMETHODIMP CdbDebugEventCallback::ExitProcess(
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << ExitCode;
 
-    m_pEngine->m_d->m_hDebuggeeProcess = 0;
-    m_pEngine->m_d->m_hDebuggeeThread = 0;
+    m_pEngine->m_d->setDebuggeeHandles(0, 0);
     m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorExited();
     return S_OK;
 }

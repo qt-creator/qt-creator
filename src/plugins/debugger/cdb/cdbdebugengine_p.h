@@ -62,6 +62,8 @@ struct CdbDebugEnginePrivate
     explicit CdbDebugEnginePrivate(const DebuggerEngineLibrary &lib, DebuggerManager *parent,  CdbDebugEngine* engine);
     ~CdbDebugEnginePrivate();
 
+    void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
+
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
     void updateThreadList();
