@@ -43,6 +43,8 @@ class IEditor;
 
 namespace Internal {
 
+class EditorModel;
+
 class OpenEditorsWindow : public QWidget
 {
     Q_OBJECT
@@ -53,7 +55,7 @@ public:
     OpenEditorsWindow(QWidget *parent = 0);
     ~OpenEditorsWindow() {}
 
-    void setEditors(const QList<IEditor *>&editors, IEditor *current);
+    void setEditors(const QList<IEditor *>&editors, IEditor *current, EditorModel *model);
 
     bool event(QEvent *e);
     bool eventFilter(QObject *src, QEvent *e);
@@ -61,8 +63,6 @@ public:
     void setVisible(bool visible);
     void selectNextEditor();
     void selectPreviousEditor();
-    IEditor *selectedEditor() const { return m_current; }
-    void setSelectedEditor(IEditor *);
 
 private slots:
     void editorClicked(QTreeWidgetItem *item);
@@ -75,7 +75,7 @@ private:
     static const int MARGIN;
 
     static void updateItem(QTreeWidgetItem *item, IEditor *editor);
-    void updateSelectedEditor();
+    void ensureCurrentVisible();
     bool isCentering();
     void centerOnItem(int selectedIndex);
     void selectUpDown(bool up);
@@ -84,7 +84,6 @@ private:
 
     QTreeWidget *m_editorList;
     QTimer m_autoHide;
-    IEditor *m_current;
 };
 
 } // namespace Internal

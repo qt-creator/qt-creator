@@ -70,6 +70,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
 
+Q_DECLARE_METATYPE(Core::IEditor*)
+
 using namespace Core;
 using namespace Core::Internal;
 
@@ -740,6 +742,26 @@ IEditor *EditorManager::pickUnusedEditor() const
     return 0;
 }
 
+
+void EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view)
+{
+    IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();
+    if (editor)  {
+        if (view)
+            activateEditor(view, editor);
+        else
+            activateEditor(editor);
+        return;
+    }
+
+    if (view)
+        setCurrentView(m_d->m_splitter->findView(view));
+
+    QString fileName = index.data(Qt::UserRole + 1).toString();
+    QByteArray kind = index.data(Qt::UserRole + 2).toByteArray();
+    openEditor(fileName, kind);
+}
+
 void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
     SplitterOrView *splitterOrView = m_d->m_currentView;
@@ -1244,7 +1266,7 @@ void EditorManager::gotoNextDocHistory()
     if (dialog->isVisible()) {
         dialog->selectNextEditor();
     } else {
-        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor);
+        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor, m_d->m_editorModel);
         dialog->selectNextEditor();
         showWindowPopup();
     }
@@ -1256,7 +1278,7 @@ void EditorManager::gotoPreviousDocHistory()
     if (dialog->isVisible()) {
         dialog->selectPreviousEditor();
     } else {
-        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor);
+        dialog->setEditors(m_d->m_editorHistory, m_d->m_currentEditor, m_d->m_editorModel);
         dialog->selectPreviousEditor();
         showWindowPopup();
     }
@@ -1451,24 +1473,30 @@ QByteArray EditorManager::saveState() const
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    stream << QByteArray("EditorManagerV1");
+    stream << QByteArray("EditorManagerV2");
+
+    QList<IEditor *> editors = openedEditors();
+    foreach (IEditor *editor, editors) {
+        if (!editor->file()->fileName().isEmpty()) {
+            QByteArray state = editor->saveState();
+            if (!state.isEmpty())
+                m_d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
+        }
+    }
 
     stream << m_d->m_editorStates;
 
-    QList<IEditor *> editors = openedEditors();
-    int editorCount = editors.count();
+    
+    QList<EditorModel::Entry> entries = m_d->m_editorModel->entries();
+    stream << entries.count();
 
-    if (editors.contains(m_d->m_currentEditor)) {
-        editors.removeAll(m_d->m_currentEditor);
-        editors.prepend(m_d->m_currentEditor);
+    if (IEditor *current = m_d->m_currentEditor) // current first
+        stream << current->file()->fileName() << current->displayName() << QByteArray(current->kind());
+    foreach (EditorModel::Entry entry, entries) {
+        if (entry.editor && entry.editor == m_d->m_currentEditor) // all but current
+            continue;
+        stream << entry.fileName() << entry.displayName() << entry.kind();
     }
-
-
-    stream << editorCount;
-    foreach (IEditor *editor, editors) {
-        stream << editor->file()->fileName() << QByteArray(editor->kind());
-    }
-
     return bytes;
 }
 
@@ -1480,7 +1508,7 @@ bool EditorManager::restoreState(const QByteArray &state)
     QByteArray version;
     stream >> version;
 
-    if (version != "EditorManagerV1")
+    if (version != "EditorManagerV2")
         return false;
 
     QMap<QString, QVariant> editorstates;
@@ -1500,11 +1528,16 @@ bool EditorManager::restoreState(const QByteArray &state)
     while (--editorCount >= 0) {
         QString fileName;
         stream >> fileName;
+        QString displayName;
+        stream >> displayName;
         QByteArray kind;
         stream >> kind;
-        IEditor *editor = openEditor(fileName, kind, IgnoreNavigationHistory | NoActivate);
-        if (!toActivate)
-            toActivate = editor;
+
+        if (!toActivate) {
+            toActivate = openEditor(fileName, kind, IgnoreNavigationHistory | NoActivate);
+        } else if (!fileName.isEmpty() && !displayName.isEmpty()){
+            m_d->m_editorModel->addRestoredEditor(fileName, displayName, kind);
+        }
     }
 
     if (toActivate)
@@ -1702,6 +1735,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
         return 0;
 
     IEditor *duplicate = editor->duplicate(0);
+    duplicate->restoreState(editor->saveState());
     emit editorCreated(duplicate, duplicate->file()->fileName());
     addEditor(duplicate, true);
     return duplicate;

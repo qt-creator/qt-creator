@@ -29,6 +29,7 @@
 
 #include "openeditorswindow.h"
 #include "editormanager.h"
+#include "editorview.h"
 
 #include <QtGui/QHeaderView>
 
@@ -43,8 +44,7 @@ const int OpenEditorsWindow::MARGIN = 4;
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
-    m_editorList(new QTreeWidget(this)),
-    m_current(0)
+    m_editorList(new QTreeWidget(this))
 {
     resize(QSize(WIDTH, HEIGHT));
     m_editorList->setColumnCount(1);
@@ -113,8 +113,6 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
         if (e->type() == QEvent::KeyPress) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Escape) {
-                m_current = EditorManager::instance()->currentEditor();
-                updateSelectedEditor();
                 setVisible(false);
                 return true;
             }
@@ -140,7 +138,7 @@ void OpenEditorsWindow::selectUpDown(bool up)
     int index = m_editorList->indexOfTopLevelItem(m_editorList->currentItem());
     if (index < 0)
         return;
-    IEditor *editor = 0;
+    QTreeWidgetItem *editor = 0;
     int count = 0;
     while (!editor && count < itemCount) {
         if (up) {
@@ -152,12 +150,13 @@ void OpenEditorsWindow::selectUpDown(bool up)
             if (index >= itemCount)
                 index = 0;
         }
-        editor = m_editorList->topLevelItem(index)
-            ->data(0, Qt::UserRole).value<IEditor *>();
+        editor = m_editorList->topLevelItem(index);
         count++;
     }
-    if (editor)
-        setSelectedEditor(editor);
+    if (editor) {
+        m_editorList->setCurrentItem(editor);
+        ensureCurrentVisible();
+    }
 }
 
 void OpenEditorsWindow::selectPreviousEditor()
@@ -188,7 +187,7 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *current)
+void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *current, EditorModel *model)
 {
     static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
     static const QIcon emptyIcon(QLatin1String(":/core/images/empty14.png"));
@@ -214,24 +213,40 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
         item->setText(0, title);
         item->setToolTip(0, editor->file()->fileName());
         item->setData(0, Qt::UserRole, QVariant::fromValue(editor));
-        //item->setFlags(Qt::ItemIsSelectable);
-
         item->setTextAlignment(0, Qt::AlignLeft);
 
         m_editorList->addTopLevelItem(item);
 
+        if (editor == current)
+            m_editorList->setCurrentItem(item);
+
     }
-    setSelectedEditor(current);
+
+    // add purely restored editors which are not initialised yet
+    foreach (EditorModel::Entry entry, model->entries()) {
+        if (entry.editor)
+            return;
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        QString title = entry.displayName();
+        item->setIcon(0, emptyIcon);
+        item->setText(0, title);
+        item->setToolTip(0, entry.fileName());
+        item->setData(0, Qt::UserRole+1, QVariant::fromValue(entry.kind()));
+        item->setTextAlignment(0, Qt::AlignLeft);
+
+        m_editorList->addTopLevelItem(item);
+    }
 }
 
 
 void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
 {
-    IEditor *editor = 0;
-    if (item)
-        editor = item->data(0, Qt::UserRole).value<IEditor*>();
-    if (editor)
+    if (!item)
+        return;
+    if (IEditor *editor = item->data(0, Qt::UserRole).value<IEditor*>())
         EditorManager::instance()->activateEditor(editor);
+    else
+        EditorManager::instance()->openEditor(item->toolTip(0), item->data(0, Qt::UserRole+1).toByteArray());
 }
 
 void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
@@ -241,27 +256,8 @@ void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
 }
 
 
-void OpenEditorsWindow::setSelectedEditor(IEditor *editor)
+void OpenEditorsWindow::ensureCurrentVisible()
 {
-    m_current = editor;
-    updateSelectedEditor();
-}
-
-void OpenEditorsWindow::updateSelectedEditor()
-{
-    if (m_current == 0 && m_editorList->currentItem()) {
-        m_editorList->currentItem()->setSelected(false);
-        return;
-    }
-    int num = m_editorList->topLevelItemCount();
-    for (int i = 0; i < num; ++i) {
-        IEditor *editor = m_editorList->topLevelItem(i)
-                                  ->data(0, Qt::UserRole).value<IEditor *>();
-        if (editor == m_current) {
-            m_editorList->setCurrentItem(m_editorList->topLevelItem(i));
-            break;
-        }
-    }
     m_editorList->scrollTo(m_editorList->currentIndex(), QAbstractItemView::PositionAtCenter);
 }
 

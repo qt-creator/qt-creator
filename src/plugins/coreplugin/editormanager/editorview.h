@@ -70,11 +70,24 @@ public:
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
     void addEditor(IEditor *editor, bool isDuplicate = false);
+    void addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind);
+
+    struct Entry {
+        Entry():editor(0){}
+        IEditor *editor;
+        QString fileName() const;
+        QString displayName() const;
+        QByteArray kind() const;
+        QString m_fileName;
+        QString m_displayName;
+        QByteArray m_kind;
+    };
+    QList<Entry> entries() const { return m_editors; }
 
     void removeEditor(IEditor *editor);
     void emitDataChanged(IEditor *editor);
 
-    QList<IEditor *> editors() const { return m_editors; }
+    QList<IEditor *> editors() const;
     bool isDuplicate(IEditor *editor) const;
     QList<IEditor *> duplicatesFor(IEditor *editor) const;
     IEditor *originalForDuplicate(IEditor *duplicate) const;
@@ -83,8 +96,12 @@ public:
 
 private slots:
     void itemChanged();
+
 private:
-    QList<IEditor *> m_editors;
+    void addEntry(const Entry &entry);
+    int findEditor(IEditor *editor) const;
+    int findFileName(const QString &filename) const;
+    QList<Entry> m_editors;
     QList<IEditor *>m_duplicateEditors;
 };
 

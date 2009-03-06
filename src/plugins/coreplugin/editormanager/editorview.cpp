@@ -61,6 +61,18 @@ using namespace Core::Internal;
 
 
 //================EditorModel====================
+
+QString EditorModel::Entry::fileName() const {
+    return editor ? editor->file()->fileName() : m_fileName;
+}
+QString EditorModel::Entry::displayName() const {
+    return editor ? editor->displayName() : m_displayName;
+}
+QByteArray EditorModel::Entry::kind() const
+{
+    return editor ? QByteArray(editor->kind()) : m_kind;
+}
+
 int EditorModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -74,6 +86,15 @@ int EditorModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
+QList<IEditor *> EditorModel::editors() const
+{
+    QList<IEditor *> result;
+    foreach (Entry entry, m_editors)
+        if (entry.editor)
+            result += entry.editor;
+    return result;
+}
+
 void EditorModel::addEditor(IEditor *editor, bool isDuplicate)
 {
     if (isDuplicate) {
@@ -81,23 +102,69 @@ void EditorModel::addEditor(IEditor *editor, bool isDuplicate)
         return;
     }
 
-    int index = 0;
+    Entry entry;
+    entry.editor = editor;
+    addEntry(entry);
+}
 
-    QString fileName = editor->file()->fileName();
-    for (index = 0; index < m_editors.count(); ++index)
-        if (fileName < m_editors.at(index)->file()->fileName())
+void EditorModel::addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind)
+{
+    Entry entry;
+    entry.m_fileName = fileName;
+    entry.m_displayName = displayName;
+    entry.m_kind = kind;
+    addEntry(entry);
+}
+
+void EditorModel::addEntry(const Entry &entry)
+{
+    QString fileName = entry.fileName();
+
+    int previousIndex = findFileName(fileName);
+    if (previousIndex >= 0) {
+        if (entry.editor && m_editors.at(previousIndex).editor == 0) {
+            m_editors[previousIndex] = entry;
+            QModelIndex mindex = index(previousIndex, 0);
+            emit dataChanged(mindex, mindex);
+        }
+        return;
+    }
+
+    int index;
+    for (index = 0; index < m_editors.count(); ++index) {
+        if (fileName < m_editors.at(index).fileName())
             break;
+    }
 
     beginInsertRows(QModelIndex(), index, index);
-    m_editors.insert(index, editor);
-    connect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+    m_editors.insert(index, entry);
+    if (entry.editor)
+        connect(entry.editor, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
+}
+
+
+int EditorModel::findEditor(IEditor *editor) const
+{
+    for (int i = 0; i < m_editors.count(); ++i)
+        if (m_editors.at(i).editor == editor)
+            return i;
+    return -1;
+}
+
+int EditorModel::findFileName(const QString &filename) const
+{
+    for (int i = 0; i < m_editors.count(); ++i) {
+        if (m_editors.at(i).fileName() == filename)
+            return i;
+    }
+    return -1;
 }
 
 void EditorModel::removeEditor(IEditor *editor)
 {
     m_duplicateEditors.removeAll(editor);
-    int idx = m_editors.indexOf(editor);
+    int idx = findEditor(editor);
     if (idx < 0)
         return;
     beginRemoveRows(QModelIndex(), idx, idx);
@@ -114,9 +181,9 @@ bool EditorModel::isDuplicate(IEditor *editor) const
 IEditor *EditorModel::originalForDuplicate(IEditor *duplicate) const
 {
     IFile *file = duplicate->file();
-    foreach(IEditor *e, m_editors)
-        if (e->file() == file)
-            return e;
+    foreach(Entry e, m_editors)
+        if (e.editor && e.editor->file() == file)
+            return e.editor;
     return 0;
 }
 
@@ -132,7 +199,7 @@ QList<IEditor *> EditorModel::duplicatesFor(IEditor *editor) const
 
 void EditorModel::emitDataChanged(IEditor *editor)
 {
-    int idx = m_editors.indexOf(editor);
+    int idx = findEditor(editor);
     if (idx < 0)
         return;
     QModelIndex mindex = index(idx, 0);
@@ -151,23 +218,26 @@ QVariant EditorModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    IEditor *editor = m_editors.at(index.row());
-    QTC_ASSERT(editor, return QVariant());
+    Entry e = m_editors.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return editor->file()->isModified()
-                ? editor->displayName() + QLatin1String("*")
-                : editor->displayName();
+        return (e.editor && e.editor->file()->isModified())
+                ? e.displayName() + QLatin1String("*")
+                : e.displayName();
     case Qt::DecorationRole:
-        return editor->file()->isReadOnly()
+        return (e.editor && e.editor->file()->isReadOnly())
                 ? QIcon(QLatin1String(":/core/images/locked.png"))
                 : QIcon();
     case Qt::ToolTipRole:
-        return editor->file()->fileName().isEmpty()
-                ? editor->displayName()
-                : QDir::toNativeSeparators(editor->file()->fileName());
+        return e.fileName().isEmpty()
+                ? e.displayName()
+                : QDir::toNativeSeparators(e.fileName());
     case Qt::UserRole:
-        return qVariantFromValue(editor);
+        return qVariantFromValue(e.editor);
+    case Qt::UserRole + 1:
+        return e.fileName();
+    case Qt::UserRole + 2:
+        return e.editor ? QByteArray(e.editor->kind()) : e.kind();
     default:
         return QVariant();
     }
@@ -176,7 +246,7 @@ QVariant EditorModel::data(const QModelIndex &index, int role) const
 
 QModelIndex EditorModel::indexOf(IEditor *editor) const
 {
-    int idx = m_editors.indexOf(editor);
+    int idx = findEditor(editor);
     if (idx < 0)
         return indexOf(editor->file()->fileName());
     return createIndex(idx, 0);
@@ -184,9 +254,9 @@ QModelIndex EditorModel::indexOf(IEditor *editor) const
 
 QModelIndex EditorModel::indexOf(const QString &fileName) const
 {
-    for (int i = 0; i < m_editors.count(); ++i)
-        if (m_editors.at(i)->file()->fileName() == fileName)
-            return createIndex(i, 0);
+    int idx = findFileName(fileName);
+    if (idx >= 0)
+        return createIndex(idx, 0);
     return QModelIndex();
 }
 
@@ -524,9 +594,13 @@ void EditorView::makeEditorWritable()
 
 void EditorView::listSelectionActivated(int index)
 {
+    EditorManager *em = CoreImpl::instance()->editorManager();
     QAbstractItemModel *model = m_editorList->model();
-    IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>();
-    CoreImpl::instance()->editorManager()->activateEditor(this, editor);
+    if (IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>()) {
+        em->activateEditor(this, editor);
+    } else {
+        em->activateEditor(model->index(index, 0), this);
+    }
 }
 
 
