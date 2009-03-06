@@ -89,6 +89,13 @@
 using namespace FakeVim::Internal;
 using namespace FakeVim::Constants;
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// FakeVimHandler
+//
+///////////////////////////////////////////////////////////////////////
+
 #define StartOfLine    QTextCursor::StartOfLine
 #define EndOfLine      QTextCursor::EndOfLine
 #define MoveAnchor     QTextCursor::MoveAnchor
@@ -98,12 +105,6 @@ using namespace FakeVim::Constants;
 #define Right          QTextCursor::Right
 #define Left           QTextCursor::Left
 #define EndOfDocument  QTextCursor::End
-
-///////////////////////////////////////////////////////////////////////
-//
-// FakeVimHandler
-//
-///////////////////////////////////////////////////////////////////////
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
@@ -427,7 +428,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
 
     if (key == Key_Escape) {
-        // Not sure this feels good. People of ten hit Esc several times
+        // Not sure this feels good. People often hit Esc several times
         if (m_visualMode == NoVisualMode && m_mode == CommandMode)
             return false;
         return true;
@@ -1846,6 +1847,7 @@ void FakeVimHandler::Private::indentRegion(QChar typedChar)
         qSwap(beginLine, endLine);
     int amount = 0;
     emit q->indentRegion(&amount, beginLine, endLine, typedChar);
+    m_dotCommand = QString("%1==").arg(endLine - beginLine + 1);
 }
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
@@ -1856,18 +1858,21 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
         qSwap(beginLine, endLine);
     int len = m_config[ConfigShiftWidth].toInt() * repeat;
     QString indent(len, ' ');
+    int firstPos = firstPositionInLine(beginLine);
 
     recordBeginGroup();
-    recordPosition();
+    //setPosition(firstPos);
+    //recordPosition();
 
     for (int line = beginLine; line <= endLine; ++line) {
         setPosition(firstPositionInLine(line));
         recordInsertText(indent);
     }
 
-    setPosition(firstPositionInLine(beginLine));
+    setPosition(firstPos);
     moveToFirstNonBlankOnLine();
     recordEndGroup();
+    m_dotCommand = QString("%1>>").arg(endLine - beginLine + 1);
 }
 
 void FakeVimHandler::Private::shiftRegionLeft(int repeat)
@@ -1878,9 +1883,11 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
         qSwap(beginLine, endLine);
     int shift = m_config[ConfigShiftWidth].toInt() * repeat;
     int tab = m_config[ConfigTabStop].toInt();
+    int firstPos = firstPositionInLine(beginLine);
 
     recordBeginGroup();
-    recordPosition();
+    //setPosition(firstPos);
+    //recordPosition();
 
     for (int line = beginLine; line <= endLine; ++line) {
         int pos = firstPositionInLine(line);
@@ -1902,9 +1909,10 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
         setPosition(pos);
     }
 
-    setPosition(firstPositionInLine(beginLine));
+    setPosition(firstPos);
     moveToFirstNonBlankOnLine();
     recordEndGroup();
+    m_dotCommand = QString("%1<<").arg(endLine - beginLine + 1);
 }
 
 void FakeVimHandler::Private::moveToDesiredColumn()
