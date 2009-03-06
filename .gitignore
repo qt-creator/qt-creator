@@ -72,7 +72,7 @@ src/xml/lib/
 # Binaries
 # --------
 bin/*.dll
-bin/qtcreator
+bin/qtcreator.bin
 bin/qtcreator.exe
 doc/qtcreator.qch
 tests/manual/cplusplus/cplusplus0

@@ -20,12 +20,13 @@ macx {
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH 
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
 } else {
-    IDE_APP_TARGET   = qtcreator
+    IDE_APP_TARGET   = qtcreator.bin
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/lib/qtcreator
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins/
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
 win32 {
+    IDE_APP_TARGET   = qtcreator
     IDE_LIBRARY_PATH ~= s|/+|\|
     IDE_APP_PATH ~= s|/+|\|
 }
