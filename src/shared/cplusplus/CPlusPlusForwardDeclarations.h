@@ -131,6 +131,7 @@ class Enum;
 class ForwardClassDeclaration;
 
 class Use;
+class Token;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

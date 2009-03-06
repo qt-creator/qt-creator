@@ -33,7 +33,10 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 
+#include <functional>
+#include <QtConcurrentRun>
 #include <qtconcurrent/runextensions.h>
+
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -171,8 +174,6 @@ public:
 
     void resetEnvironment();
 
-    void parseCollectedDocuments();
-
     const QSet<QString> &todo() const
     { return m_todo; }
 
@@ -211,7 +212,6 @@ private:
     QSet<QString> m_included;
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
-    QList<Document::Ptr> m_documents;
 };
 
 } // namespace Internal
@@ -241,7 +241,7 @@ void CppPreprocessor::setTodo(const QStringList &files)
 
 namespace {
 
-class Process
+class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
 
@@ -250,7 +250,7 @@ public:
         : _modelManager(modelManager)
     { }
 
-    void operator()(Document::Ptr doc)
+    void operator()(Document::Ptr doc) const
     {
         doc->parse();
         doc->check();
@@ -267,21 +267,10 @@ void CppPreprocessor::run(const QString &fileName)
 {
     QString absoluteFilePath = fileName;
     sourceNeeded(absoluteFilePath, IncludeGlobal, /*line = */ 0);
-
-    if (m_documents.size() >= 8)
-        parseCollectedDocuments();
 }
 
 void CppPreprocessor::resetEnvironment()
 { env.reset(); }
-
-void CppPreprocessor::parseCollectedDocuments()
-{
-    QThread::currentThread()->setPriority(QThread::IdlePriority);
-    QtConcurrent::blockingMap(m_documents, Process(m_modelManager));
-    QThread::currentThread()->setPriority(QThread::NormalPriority);
-    m_documents.clear();
-}
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
@@ -514,12 +503,11 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     doc->releaseSource();
 
     snapshot.insert(doc->fileName(), doc);
+    m_todo.remove(fileName);
 
-    m_documents.append(doc);
+    QtConcurrent::run(Process(m_modelManager), doc);
 
     (void) switchDocument(previousDoc);
-
-    m_todo.remove(fileName);
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -1040,8 +1028,6 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         // Restore the previous thread priority.
         QThread::currentThread()->setPriority(QThread::NormalPriority);
     }
-
-    preproc->parseCollectedDocuments();
 
     future.setProgressValue(files.size());
 

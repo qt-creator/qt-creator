@@ -67,6 +67,7 @@ public:
     Control *control() const;
     TranslationUnit *translationUnit() const;
 
+    const Token &tokenAt(unsigned index) const;
     int tokenKind(unsigned index) const;
     const char *spell(unsigned index) const;
     Identifier *identifier(unsigned index) const;
@@ -74,10 +75,18 @@ public:
     NumericLiteral *numericLiteral(unsigned index) const;
     StringLiteral *stringLiteral(unsigned index) const;
 
+    void getPosition(unsigned offset,
+                     unsigned *line,
+                     unsigned *column = 0,
+                     StringLiteral **fileName = 0) const;
+
     void getTokenPosition(unsigned index,
                           unsigned *line,
                           unsigned *column = 0,
                           StringLiteral **fileName = 0) const;
+
+    void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;
+    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;
 
     void accept(AST *ast);
 
