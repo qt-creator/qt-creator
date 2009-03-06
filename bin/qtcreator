@@ -1,3 +1,5 @@
 #!/bin/bash
 
-"`dirname \"$0\"`/qtcreator.bin" ${1+"$@"}
+bindir=$(dirname "$0")
+libdir=$(cd ${bindir}/../lib ; pwd)
+LD_LIBRARY_PATH="${libdir}" "${bindir}/qtcreator.bin" ${1+"$@"}
