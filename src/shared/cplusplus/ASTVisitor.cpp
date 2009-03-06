@@ -69,6 +69,9 @@ Control *ASTVisitor::control() const
 TranslationUnit *ASTVisitor::translationUnit() const
 { return _control->translationUnit(); }
 
+const Token &ASTVisitor::tokenAt(unsigned index) const
+{ return translationUnit()->tokenAt(index); }
+
 int ASTVisitor::tokenKind(unsigned index) const
 { return translationUnit()->tokenKind(index); }
 
@@ -87,10 +90,22 @@ NumericLiteral *ASTVisitor::numericLiteral(unsigned index) const
 StringLiteral *ASTVisitor::stringLiteral(unsigned index) const
 { return translationUnit()->stringLiteral(index); }
 
+void ASTVisitor::getPosition(unsigned offset,
+                             unsigned *line,
+                             unsigned *column,
+                             StringLiteral **fileName) const
+{ translationUnit()->getPosition(offset, line, column, fileName); }
+
 void ASTVisitor::getTokenPosition(unsigned index,
                                   unsigned *line,
                                   unsigned *column,
                                   StringLiteral **fileName) const
 { translationUnit()->getTokenPosition(index, line, column, fileName); }
+
+void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
+{ getPosition(tokenAt(index).begin(), line, column); }
+
+void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
+{ getPosition(tokenAt(index).end(), line, column); }
 
 CPLUSPLUS_END_NAMESPACE
