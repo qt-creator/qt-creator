@@ -122,7 +122,7 @@ private slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
-    void indentRegion(int *amount, QTextBlock begin, QTextBlock end,  QChar typedChar);
+    void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
 
 private:
     FakeVimPlugin *q;
@@ -206,8 +206,8 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
         this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
-    connect(handler, SIGNAL(indentRegion(int*,QTextBlock,QTextBlock,QChar)),
-        this, SLOT(indentRegion(int*,QTextBlock,QTextBlock,QChar)));
+    connect(handler, SIGNAL(indentRegion(int*,int,int,QChar)),
+        this, SLOT(indentRegion(int*,int,int,QChar)));
 
     handler->setupWidget();
     handler->setExtraData(editor);
@@ -291,7 +291,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
     }
 }
 
-void FakeVimPluginPrivate::indentRegion(int *amount, QTextBlock begin, QTextBlock end,
+void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
       QChar typedChar)
 {
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
@@ -307,7 +307,9 @@ void FakeVimPluginPrivate::indentRegion(int *amount, QTextBlock begin, QTextBloc
     indenter.setIndentSize(bt->tabSettings().m_indentSize);
     indenter.setTabSize(bt->tabSettings().m_tabSize);
 
-    const QTextDocument *doc = begin.document();
+    const QTextDocument *doc = bt->document();
+    QTextBlock begin = doc->findBlockByNumber(beginLine);
+    QTextBlock end = doc->findBlockByNumber(endLine);
     const TextEditor::TextBlockIterator docStart(doc->begin());
     QTextBlock cur = begin;
     do {

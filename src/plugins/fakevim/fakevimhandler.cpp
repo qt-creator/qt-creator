@@ -35,8 +35,8 @@
 // Instead emit signals and let the FakeVimPlugin channel the information to
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
-//
-//
+
+
 // Some conventions:
 //
 // Use 1 based line numbers and 0 based column numbers. Even though
@@ -253,8 +253,9 @@ private:
     bool isElectricCharacter(QChar c) const
         { return c == '{' || c == '}' || c == '#'; }
     int indentDist() const;
-    void indentRegion(QTextBlock first, QTextBlock last, QChar typedChar=0);
-    void indentCurrentLine(QChar typedChar);
+    void indentRegion(QChar lastTyped = QChar());
+    void shiftRegionLeft(int repeat = 1);
+    void shiftRegionRight(int repeat = 1);
 
     void moveToFirstNonBlankOnLine();
     void moveToDesiredColumn();
@@ -327,9 +328,6 @@ public:
     QString m_lastInsertion;
 
     // undo handling
-    void shiftRegionLeft(int repeat = 1);
-    void shiftRegionRight(int repeat = 1);
-
     void recordOperation(const EditOperation &op);
     void recordInsert(int position, const QString &data);
     void recordRemove(int position, const QString &data);
@@ -632,15 +630,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     } else if (m_submode == ReplaceSubMode) {
         m_submode = NoSubMode;
     } else if (m_submode == IndentSubMode) {
-        QTextDocument *doc = EDITOR(document());
-        int start = m_tc.selectionStart();
-        int end = m_tc.selectionEnd();
-        if (start > end)
-            qSwap(start, end);
-        QTextBlock startBlock = doc->findBlock(start);
-        indentRegion(doc->findBlock(start), doc->findBlock(end).next());
-        setPosition(startBlock.position());
-        moveToFirstNonBlankOnLine();
+        indentRegion();
         m_submode = NoSubMode;
     } else if (m_submode == ShiftRightSubMode) {
         shiftRegionRight(1);
@@ -831,7 +821,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_dotCommand = QString("%1>>").arg(count());
         finishMovement();
     } else if (m_submode == IndentSubMode && key == '=') {
-        indentRegion(m_tc.block(), m_tc.block().next());
+        setAnchor();
+        moveDown(count() - 1);
+        m_moveType = MoveLineWise;
+        m_dotCommand = QString("%1>>").arg(count());
         finishMovement();
     } else if (m_submode == ZSubMode) {
         //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
@@ -993,21 +986,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         enterCommandMode();
         m_dotCommand = savedCommand;
     } else if (key == '<' && m_visualMode == NoVisualMode) {
-        m_savedYankPosition = m_tc.position();
         m_submode = ShiftLeftSubMode;
     } else if (key == '<' && m_visualMode != NoVisualMode) {
-        m_savedYankPosition = m_tc.position();
         shiftRegionLeft(1);
         leaveVisualMode();
     } else if (key == '>' && m_visualMode == NoVisualMode) {
-        m_savedYankPosition = m_tc.position();
         m_submode = ShiftRightSubMode;
     } else if (key == '>' && m_visualMode != NoVisualMode) {
-        m_savedYankPosition = m_tc.position();
         shiftRegionRight(1);
         leaveVisualMode();
-    } else if (key == '=') {
+    } else if (key == '=' && m_visualMode == NoVisualMode) {
         m_submode = IndentSubMode;
+    } else if (key == '=' && m_visualMode != NoVisualMode) {
+        indentRegion();
+        leaveVisualMode();
     } else if (key == '%') {
         m_moveType = MoveExclusive;
         moveToMatchingParanthesis();
@@ -1419,7 +1411,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_tc.insertBlock();
         m_lastInsertion += "\n";
         if (0 && m_config[ConfigAutoIndent] == ConfigOn)
-            indentRegion(m_tc.block(), m_tc.block().next(), '\n');
+            indentRegion('\n');
     } else if (key == Key_Backspace || key == control('h')) {
         m_tc.deletePreviousChar();
         m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
@@ -1451,18 +1443,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
                 && isElectricCharacter(text.at(0))) {
             const QString leftText = m_tc.block().text()
                 .left(m_tc.position() - 1 - m_tc.block().position());
-            if (leftText.simplified().isEmpty()) {
-                if (m_tc.hasSelection()) {
-                    QTextDocument *doc = EDITOR(document());
-                    QTextBlock block = doc->findBlock(qMin(m_tc.selectionStart(),
-                                m_tc.selectionEnd()));
-                    const QTextBlock end = doc->findBlock(qMax(m_tc.selectionStart(),
-                                m_tc.selectionEnd())).next();
-                    indentRegion(block, end, text.at(0));
-                } else {
-                    indentCurrentLine(text.at(0));
-                }
-            }
+            if (leftText.simplified().isEmpty())
+                indentRegion(text.at(0));
         }
     } else {
         return EventUnhandled;
@@ -1850,43 +1832,46 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 int FakeVimHandler::Private::indentDist() const
 {
     int amount = 0;
-    emit q->indentRegion(&amount, m_tc.block(), m_tc.block(), QChar(' '));
+    int line = cursorLineInDocument();
+    emit q->indentRegion(&amount, line, line, QChar(' '));
     return amount;
 }
 
-void FakeVimHandler::Private::indentRegion(QTextBlock begin, QTextBlock end, QChar typedChar)
+void FakeVimHandler::Private::indentRegion(QChar typedChar)
 {
+    //int savedPos = anchor();
+    int beginLine = lineForPosition(anchor());
+    int endLine = lineForPosition(position());
+    if (beginLine > endLine)
+        qSwap(beginLine, endLine);
     int amount = 0;
-    emit q->indentRegion(&amount, begin, end, typedChar);
-}
-
-void FakeVimHandler::Private::indentCurrentLine(QChar typedChar)
-{
-    indentRegion(m_tc.block(), m_tc.block().next(), typedChar);
+    emit q->indentRegion(&amount, beginLine, endLine, typedChar);
 }
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
 {
-    int savedPos = anchor();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
     int len = m_config[ConfigShiftWidth].toInt() * repeat;
     QString indent(len, ' ');
+
     recordBeginGroup();
     recordPosition();
+
     for (int line = beginLine; line <= endLine; ++line) {
         setPosition(firstPositionInLine(line));
         recordInsertText(indent);
     }
+
+    setPosition(firstPositionInLine(beginLine));
+    moveToFirstNonBlankOnLine();
     recordEndGroup();
-    setPosition(savedPos);
 }
 
 void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 {
-    int savedPos = anchor();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
@@ -1916,8 +1901,10 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
         text = recordRemoveSelectedText();
         setPosition(pos);
     }
+
+    setPosition(firstPositionInLine(beginLine));
+    moveToFirstNonBlankOnLine();
     recordEndGroup();
-    setPosition(savedPos);
 }
 
 void FakeVimHandler::Private::moveToDesiredColumn()

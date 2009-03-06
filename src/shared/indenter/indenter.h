@@ -35,6 +35,7 @@
 
 namespace SharedTools {
 namespace IndenterInternal {
+
 /* String constants and regexps required by the indenter. Separate for code cleanliness*/
 struct Constants {
     Constants();
@@ -115,6 +116,7 @@ private:
     bool isUnfinishedLine();
     bool isContinuationLine();
     int indentForContinuationLine();
+
     int indentForStandaloneLine();
 
     IndenterInternal::Constants m_constants;
