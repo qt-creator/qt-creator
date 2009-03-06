@@ -327,8 +327,8 @@ public:
     QString m_lastInsertion;
 
     // undo handling
-    void recordShiftRegionLeft(int repeat = 1);
-    void recordShiftRegionRight(int repeat = 1);
+    void shiftRegionLeft(int repeat = 1);
+    void shiftRegionRight(int repeat = 1);
 
     void recordOperation(const EditOperation &op);
     void recordInsert(int position, const QString &data);
@@ -643,11 +643,11 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         moveToFirstNonBlankOnLine();
         m_submode = NoSubMode;
     } else if (m_submode == ShiftRightSubMode) {
-        recordShiftRegionRight(1);
+        shiftRegionRight(1);
         m_submode = NoSubMode;
         updateMiniBuffer();
     } else if (m_submode == ShiftLeftSubMode) {
-        recordShiftRegionLeft(1);
+        shiftRegionLeft(1);
         m_submode = NoSubMode;
         updateMiniBuffer();
     }
@@ -955,7 +955,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == '!' && m_visualMode == NoVisualMode) {
         m_submode = FilterSubMode;
-    } else if (key == '!' && m_visualMode == VisualLineMode) {
+    } else if (key == '!' && m_visualMode != NoVisualMode) {
         enterExMode();
         m_commandBuffer = "'<,'>!";
         m_commandHistory.append(QString());
@@ -992,12 +992,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                 handleKey(c.unicode(), c.unicode(), QString(c));
         enterCommandMode();
         m_dotCommand = savedCommand;
-    } else if (key == '<') {
+    } else if (key == '<' && m_visualMode == NoVisualMode) {
         m_savedYankPosition = m_tc.position();
         m_submode = ShiftLeftSubMode;
-    } else if (key == '>') {
+    } else if (key == '<' && m_visualMode != NoVisualMode) {
+        m_savedYankPosition = m_tc.position();
+        shiftRegionLeft(1);
+        leaveVisualMode();
+    } else if (key == '>' && m_visualMode == NoVisualMode) {
         m_savedYankPosition = m_tc.position();
         m_submode = ShiftRightSubMode;
+    } else if (key == '>' && m_visualMode != NoVisualMode) {
+        m_savedYankPosition = m_tc.position();
+        shiftRegionRight(1);
+        leaveVisualMode();
     } else if (key == '=') {
         m_submode = IndentSubMode;
     } else if (key == '%') {
@@ -1734,7 +1742,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     } else if (cmd.startsWith(">")) {
         m_anchor = firstPositionInLine(beginLine);
         setPosition(firstPositionInLine(endLine));
-        recordShiftRegionRight(1);
+        shiftRegionRight(1);
         leaveVisualMode();
         enterCommandMode();
         showBlackMessage(tr("%1 lines >ed %2 time")
@@ -1857,7 +1865,7 @@ void FakeVimHandler::Private::indentCurrentLine(QChar typedChar)
     indentRegion(m_tc.block(), m_tc.block().next(), typedChar);
 }
 
-void FakeVimHandler::Private::recordShiftRegionRight(int repeat)
+void FakeVimHandler::Private::shiftRegionRight(int repeat)
 {
     int savedPos = anchor();
     int beginLine = lineForPosition(anchor());
@@ -1876,7 +1884,7 @@ void FakeVimHandler::Private::recordShiftRegionRight(int repeat)
     setPosition(savedPos);
 }
 
-void FakeVimHandler::Private::recordShiftRegionLeft(int repeat)
+void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 {
     int savedPos = anchor();
     int beginLine = lineForPosition(anchor());
