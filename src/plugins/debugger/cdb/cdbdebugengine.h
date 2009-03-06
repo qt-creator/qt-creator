@@ -37,7 +37,6 @@ namespace Internal {
 
 class DebuggerManager;
 class CdbDebugEventCallback;
-class DebuggerEngineLibrary;
 class CdbDebugOutput;
 struct CdbDebugEnginePrivate;
 
@@ -45,7 +44,7 @@ class CdbDebugEngine : public IDebuggerEngine
 {
     Q_DISABLE_COPY(CdbDebugEngine)
     Q_OBJECT
-    explicit CdbDebugEngine(const DebuggerEngineLibrary &lib, DebuggerManager *parent);
+    explicit CdbDebugEngine(DebuggerManager *parent);
 
 public:
     ~CdbDebugEngine();

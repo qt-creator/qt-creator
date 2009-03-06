@@ -32,12 +32,15 @@
 
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugoutput.h"
+#include "stackhandler.h"
+#include "debuggermanager.h"
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
+class WatchHandler;
 
 // Thin wrapper around the 'DBEng' debugger engine shared library
 // which is loaded at runtime.
@@ -57,9 +60,20 @@ private:
     DebugCreateFunction m_debugCreate;
 };
 
+
+// Helper struct for stack traces
+struct CdbStackTrace {
+    CdbStackTrace() : frameCount(0) {}
+    enum { maxFrames = 100 };
+
+    ULONG frameCount;
+    DEBUG_STACK_FRAME frames[maxFrames];
+};
+
 struct CdbDebugEnginePrivate
 {    
-    explicit CdbDebugEnginePrivate(const DebuggerEngineLibrary &lib, DebuggerManager *parent,  CdbDebugEngine* engine);
+    explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
+    bool init(QString *errorMessage);
     ~CdbDebugEnginePrivate();
 
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
@@ -68,6 +82,9 @@ struct CdbDebugEnginePrivate
     void handleDebugEvent();
     void updateThreadList();
     void updateStackTrace();
+    bool updateLocals(int frameIndex, WatchHandler *wh, QString *errorMessage);
+    bool getCdbStrackTrace(CdbStackTrace *st, QString *errorMessage);
+    bool getStackTrace(QList<StackFrame> *stackFrames, int *current, QString *errorMessage);
     void handleDebugOutput(const char* szOutputString);
     void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
 
@@ -88,6 +105,7 @@ struct CdbDebugEnginePrivate
     CdbDebugEngine* m_engine;
     DebuggerManager *m_debuggerManager;
     IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
+    DebuggerStartMode m_mode;
 };
 
 enum { debugCDB = 0 };
