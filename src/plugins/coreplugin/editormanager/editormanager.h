@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QSettings;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -125,6 +126,8 @@ public:
     QList<IEditor*> openedEditors() const;
 
     Internal::EditorModel *openedEditorsModel() const;
+    void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0);
+
 
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
     //QList<EditorGroup *> editorGroups() const;
