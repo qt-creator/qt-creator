@@ -28,13 +28,11 @@
 **************************************************************************/
 
 #include "cmakeproject.h"
-#include "ui_cmakeconfigurewidget.h"
-#include "cmakeconfigurewidget.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakerunconfiguration.h"
-#include "cmakestep.h"
 #include "makestep.h"
+#include "cmakeopenprojectwizard.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -84,9 +82,8 @@ void CMakeProject::parseCMakeLists()
 {
     ProjectExplorer::ToolChain *newToolChain = 0;
     QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
-    m_manager->createXmlFile(cmakeStep()->userArguments(activeBuildConfiguration()), sourceDirectory, buildDirectory(activeBuildConfiguration()));
 
-    QString cbpFile = findCbpFile(buildDirectory(activeBuildConfiguration()));
+    QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
@@ -161,6 +158,8 @@ void CMakeProject::parseCMakeLists()
 
 QString CMakeProject::buildParser(const QString &buildConfiguration) const
 {
+    // TODO this is actually slightly wrong, but do i care?
+    // this should call toolchain(buildConfiguration)
     if (!m_toolChain)
         return QString::null;
     if (m_toolChain->type() == ProjectExplorer::ToolChain::GCC
@@ -181,20 +180,6 @@ QStringList CMakeProject::targets() const
         results << ct.title;
     return results;
 }
-
-QString CMakeProject::findCbpFile(const QDir &directory)
-{
-    // Find the cbp file
-    //   TODO the cbp file is named like the project() command in the CMakeList.txt file
-    //   so this method below could find the wrong cbp file, if the user changes the project()
-    //   name
-    foreach (const QString &cbpFile , directory.entryList()) {
-        if (cbpFile.endsWith(".cbp"))
-            return directory.path() + "/" + cbpFile;
-    }
-    return QString::null;
-}
-
 
 void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
 {
@@ -324,46 +309,38 @@ MakeStep *CMakeProject::makeStep() const
     return 0;
 }
 
-CMakeStep *CMakeProject::cmakeStep() const
-{
-    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
-        if (CMakeStep *cs = qobject_cast<CMakeStep *>(bs))
-            return cs;
-    }
-    return 0;
-}
-
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
-    // TODO
     Project::restoreSettingsImpl(reader);
     bool hasUserFile = !buildConfigurations().isEmpty();
     if (!hasUserFile) {
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        // TODO check wheter there's already a CMakeCache.txt in the src directory,
-        // then we don't need to ask, we simply need to build in the src directory
+        CMakeOpenProjectWizard copw(m_manager, QFileInfo(m_fileName).absolutePath());
+        copw.exec();
+        // TODO handle cancel....
 
-        CMakeConfigureDialog ccd(Core::ICore::instance()->mainWindow(), m_manager, QFileInfo(m_fileName).absolutePath());
-        ccd.exec();
-
-        qDebug()<<"ccd.buildDirectory()"<<ccd.buildDirectory();
+        qDebug()<<"ccd.buildDirectory()"<<copw.buildDirectory();
 
         // Now create a standard build configuration
-        CMakeStep *cmakeStep = new CMakeStep(this);
         MakeStep *makeStep = new MakeStep(this);
 
-        insertBuildStep(0, cmakeStep);
-        insertBuildStep(1, makeStep);
+        insertBuildStep(0, makeStep);
 
         addBuildConfiguration("all");
         setActiveBuildConfiguration("all");
         makeStep->setBuildTarget("all", "all", true);
-        if (!ccd.buildDirectory().isEmpty())
-        setValue("all", "buildDirectory", ccd.buildDirectory());
-        cmakeStep->setUserArguments("all", ccd.arguments());
+        if (!copw.buildDirectory().isEmpty())
+            setValue("all", "buildDirectory", copw.buildDirectory());
+        //TODO save arguments somewhere copw.arguments()
+    } else {
+        // We have a user file, but we could still be missing the cbp file
+        // TODO check that we have a cbp file and if not, open up a dialog ?
+        // or simply run createXml with the saved settings
+
     }
+
 
     parseCMakeLists(); // Gets the directory from the active buildconfiguration
 
