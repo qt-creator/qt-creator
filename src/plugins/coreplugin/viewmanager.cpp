@@ -47,8 +47,8 @@
 using namespace Core;
 using namespace Core::Internal;
 
-ViewManager::ViewManager(MainWindow *mainWnd)  :
-    ViewManagerInterface(mainWnd),
+ViewManager::ViewManager(MainWindow *mainWnd)
+  : QObject(mainWnd),
     m_mainWnd(mainWnd)
 {
     for (int i = 0; i < 3; ++i) {

@@ -30,8 +30,6 @@
 #ifndef VIEWMANAGER_H
 #define VIEWMANAGER_H
 
-#include "viewmanagerinterface.h"
-
 #include <QtCore/QMap>
 #include <QtGui/QWidget>
 
@@ -45,15 +43,14 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class UniqueIDManager;
+class IView;
 
 namespace Internal {
 
 class MainWindow;
 class NavigationWidget;
 
-class ViewManager
-  : public Core::ViewManagerInterface
+class ViewManager : public QObject
 {
     Q_OBJECT
 
