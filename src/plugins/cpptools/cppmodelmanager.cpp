@@ -187,7 +187,6 @@ protected:
     QByteArray tryIncludeFile(QString &fileName, IncludeType type);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
-    void mergeEnvironment(CPlusPlus::Document::Ptr doc, QSet<QString> *processed);
 
     virtual void macroAdded(const Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
@@ -212,6 +211,7 @@ private:
     QSet<QString> m_included;
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
+    QSet<QString> m_processed;
 };
 
 } // namespace Internal
@@ -270,7 +270,10 @@ void CppPreprocessor::run(const QString &fileName)
 }
 
 void CppPreprocessor::resetEnvironment()
-{ env.reset(); }
+{
+    env.reset();
+    m_processed.clear();
+}
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
@@ -414,27 +417,21 @@ void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
 
 void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 {
-    QSet<QString> processed;
-    mergeEnvironment(doc, &processed);
-}
-
-void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *processed)
-{
     if (! doc)
         return;
 
     const QString fn = doc->fileName();
 
-    if (processed->contains(fn))
+    if (m_processed.contains(fn))
         return;
 
-    processed->insert(fn);
+    m_processed.insert(fn);
 
     foreach (const Document::Include &incl, doc->includes()) {
         QString includedFile = incl.fileName();
 
         if (Document::Ptr includedDoc = snapshot.value(includedFile))
-            mergeEnvironment(includedDoc, processed);
+            mergeEnvironment(includedDoc);
         else
             run(includedFile);
     }
