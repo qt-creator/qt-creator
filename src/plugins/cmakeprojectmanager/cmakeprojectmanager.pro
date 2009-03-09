@@ -7,17 +7,15 @@ HEADERS = cmakeproject.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
     cmakeprojectnodes.h \
-    cmakestep.h \
     makestep.h \
     cmakerunconfiguration.h \
-    cmakeconfigurewidget.h
+    cmakeopenprojectwizard.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
-    cmakestep.cpp \
     makestep.cpp \
     cmakerunconfiguration.cpp \
-    cmakeconfigurewidget.cpp
+    cmakeopenprojectwizard.cpp
 RESOURCES += cmakeproject.qrc
-FORMS += cmakeconfigurewidget.ui
+FORMS += 

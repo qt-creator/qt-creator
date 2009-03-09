@@ -247,7 +247,7 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
             tf.flush();
             tf.waitForBytesWritten(30000);
 
-            QProcess run;
+            QProcess run; // TODO run in the environment we want to add to...
             QString cmdPath = env.searchInPath("cmd");
             run.start(cmdPath, QStringList()<<"/c"<<filename);
             run.waitForFinished();

@@ -37,6 +37,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
 
+QT_FORWARD_DECLARE_CLASS(QProcess)
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -56,7 +58,8 @@ public:
     virtual QString mimeType() const;
     QString cmakeExecutable() const;
 
-    QString createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory);
+    QProcess* createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory);
+    static QString findCbpFile(const QDir &);
 private:
     int m_projectContext;
     int m_projectLanguage;

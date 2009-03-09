@@ -94,7 +94,7 @@ QString CMakeManager::cmakeExecutable() const
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-QString CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory)
+QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory)
 {
     // We create a cbp file, only if we didn't find a cbp file in the base directory
     // Yet that can still override cbp files in subdirectories
@@ -108,19 +108,28 @@ QString CMakeManager::createXmlFile(const QStringList &arguments, const QString 
     QString buildDirectoryPath = buildDirectory.absolutePath();
     qDebug()<<"Creating cbp file in"<<buildDirectoryPath;
     buildDirectory.mkpath(buildDirectoryPath);
-    QProcess cmake;
-    cmake.setWorkingDirectory(buildDirectoryPath);
+    QProcess * cmake = new QProcess;
+    cmake->setWorkingDirectory(buildDirectoryPath);
 
     QString generator = "-GCodeBlocks - Unix Makefiles";
-    cmake.start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << generator);
-
-    qDebug()<<cmakeExecutable()<<sourceDirectory << arguments;
-    cmake.waitForFinished(-1);
-    cmake.setProcessChannelMode(QProcess::MergedChannels);
-    QString output = cmake.readAll();
-    qDebug()<<"cmake output: \n"<<output;
-    return output;
+    qDebug()<<cmakeExecutable()<<sourceDirectory << arguments<<generator;
+    cmake->start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << generator);
+    return cmake;
 }
+
+QString CMakeManager::findCbpFile(const QDir &directory)
+{
+    // Find the cbp file
+    //   TODO the cbp file is named like the project() command in the CMakeList.txt file
+    //   so this method below could find the wrong cbp file, if the user changes the project()
+    //   2name
+    foreach (const QString &cbpFile , directory.entryList()) {
+        if (cbpFile.endsWith(".cbp"))
+            return directory.path() + "/" + cbpFile;
+    }
+    return QString::null;
+}
+
 
 
 /////

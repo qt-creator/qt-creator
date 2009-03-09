@@ -803,10 +803,7 @@ void MainWindow::openFiles(const QStringList &fileNames)
 void MainWindow::setFocusToEditor()
 {
     QWidget *focusWidget = qApp->focusWidget();
-    // ### Duplicated code from EditMode::makeSureEditorManagerVisible
-    IMode *currentMode = m_coreImpl->modeManager()->currentMode();
-    if (currentMode && currentMode->uniqueModeName() != QLatin1String(Constants::MODE_EDIT) &&
-        currentMode->uniqueModeName() != QLatin1String("GdbDebugger.Mode.Debug"))
+    if (!EditorManager::instance()->isVisible())
     {
         m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
     }
@@ -814,11 +811,23 @@ void MainWindow::setFocusToEditor()
     if (IEditor *editor = m_editorManager->currentEditor())
             editor->widget()->setFocus();
 
-    if (focusWidget && focusWidget == qApp->focusWidget()) {
-        if (FindToolBarPlaceHolder::getCurrent())
-            FindToolBarPlaceHolder::getCurrent()->hide();
-        OutputPaneManager::instance()->slotHide();
-        RightPaneWidget::instance()->setShown(false);
+    bool focusWasAlreadyInEditor = (focusWidget && focusWidget == qApp->focusWidget());
+    if (focusWasAlreadyInEditor) {
+        bool stuffVisible =
+                (FindToolBarPlaceHolder::getCurrent() &&
+                 FindToolBarPlaceHolder::getCurrent()->isVisible())
+             || (OutputPanePlaceHolder::getCurrent() &&
+                 OutputPanePlaceHolder::getCurrent()->isVisible())
+             || (RightPanePlaceHolder::current() &&
+                 RightPanePlaceHolder::current()->isVisible());
+        if (stuffVisible) {
+            if (FindToolBarPlaceHolder::getCurrent())
+                FindToolBarPlaceHolder::getCurrent()->hide();
+            OutputPaneManager::instance()->slotHide();
+            RightPaneWidget::instance()->setShown(false);
+        } else {
+            m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
+        }
     }
 }
 

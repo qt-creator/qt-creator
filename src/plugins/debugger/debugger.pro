@@ -88,5 +88,5 @@ DEFINES += USE_MODEL_TEST=1
 
 win32 {
     include(win/win.pri)
-    CONFIG(cdbdebugger):include(cdb\cdb.pri)
+    CONFIG(cdbdebugger):include(cdb/cdb.pri)
 }    

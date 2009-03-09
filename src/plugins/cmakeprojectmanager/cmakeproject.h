@@ -33,7 +33,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "makestep.h"
-#include "cmakestep.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -99,13 +98,11 @@ public:
 
     virtual QStringList files(FilesMode fileMode) const;
     MakeStep *makeStep() const;
-    CMakeStep *cmakeStep() const;
     QStringList targets() const;
     QString buildParser(const QString &buildConfiguration) const;
 
 private:
     void parseCMakeLists();
-    QString findCbpFile(const QDir &);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
