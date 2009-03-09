@@ -71,6 +71,7 @@ public:
 
     void addEditor(IEditor *editor, bool isDuplicate = false);
     void addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind);
+    QModelIndex firstRestoredEditor() const;
 
     struct Entry {
         Entry():editor(0){}

@@ -116,6 +116,14 @@ void EditorModel::addRestoredEditor(const QString &fileName, const QString &disp
     addEntry(entry);
 }
 
+QModelIndex EditorModel::firstRestoredEditor() const
+{
+    for (int i = 0; i < m_editors.count(); ++i)
+        if (!m_editors.at(i).editor)
+            return createIndex(i, 0);
+    return QModelIndex();
+}
+
 void EditorModel::addEntry(const Entry &entry)
 {
     QString fileName = entry.fileName();

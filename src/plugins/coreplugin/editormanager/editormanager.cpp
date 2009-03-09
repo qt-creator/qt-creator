@@ -713,8 +713,13 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
             }
         }
 
-        if (newCurrent)
+        if (newCurrent) {
             activateEditor(view, newCurrent, NoActivate);
+        } else {
+            QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
+            if (idx.isValid())
+                activateEditor(idx, view);
+        }
     }
 
 
