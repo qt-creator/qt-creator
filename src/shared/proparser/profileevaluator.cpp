@@ -198,11 +198,17 @@ public:
     bool m_invertNext;
     int m_skipLevel;
     bool m_cumulative;
+    bool m_isFirstVariableValue;
     QString m_lastVarName;
     ProVariable::VariableOperator m_variableOperator;
     QString m_origfile;
     QString m_oldPath;                              // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
+
+    // we need the following two variables for handling
+    // CONFIG = foo bar $$CONFIG
+    QHash<QString, QStringList> m_tempValuemap;         // used while evaluating (variable operator value1 value2 ...)
+    QHash<const ProFile*, QHash<QString, QStringList> > m_tempFilevaluemap; // used while evaluating (variable operator value1 value2 ...)
 
     QHash<QString, QStringList> m_valuemap;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
@@ -229,6 +235,7 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
     m_condition = ConditionFalse;
     m_invertNext = false;
     m_skipLevel = 0;
+    m_isFirstVariableValue = true;
 }
 
 bool ProFileEvaluator::Private::read(ProFile *pro)
@@ -556,12 +563,17 @@ bool ProFileEvaluator::Private::visitBeginProVariable(ProVariable *variable)
 {
     m_lastVarName = variable->variable();
     m_variableOperator = variable->variableOperator();
+    m_isFirstVariableValue = true;
+    m_tempValuemap = m_valuemap;
+    m_tempFilevaluemap = m_filevaluemap;
     return true;
 }
 
 bool ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
 {
     Q_UNUSED(variable);
+    m_valuemap = m_tempValuemap;
+    m_filevaluemap = m_tempFilevaluemap;
     m_lastVarName.clear();
     return true;
 }
@@ -702,8 +714,8 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
     if (varName == QLatin1String("TARGET")
             && m_lineNo == m_prevLineNo
             && currentProFile() == m_prevProFile) {
-        QStringList targets = m_valuemap.value(QLatin1String("TARGET"));
-        m_valuemap.remove(QLatin1String("TARGET"));
+        QStringList targets = m_tempValuemap.value(QLatin1String("TARGET"));
+        m_tempValuemap.remove(QLatin1String("TARGET"));
         QStringList lastTarget(targets.takeLast());
         lastTarget << v.join(QLatin1String(" "));
         targets.push_back(lastTarget.join(QLatin1String(" ")));
@@ -740,25 +752,30 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
         case ProVariable::SetOperator:          // =
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    m_valuemap[varName] = v;
-                    m_filevaluemap[currentProFile()][varName] = v;
+                    if (m_isFirstVariableValue) {
+                        m_tempValuemap[varName] = v;
+                        m_tempFilevaluemap[currentProFile()][varName] = v;
+                    } else { // handle lines "CONFIG = foo bar"
+                        m_tempValuemap[varName] += v;
+                        m_tempFilevaluemap[currentProFile()][varName] += v;
+                    }
                 }
             } else {
                 // We are greedy for values.
-                m_valuemap[varName] += v;
-                m_filevaluemap[currentProFile()][varName] += v;
+                m_tempValuemap[varName] += v;
+                m_tempFilevaluemap[currentProFile()][varName] += v;
             }
             break;
         case ProVariable::UniqueAddOperator:    // *=
             if (!m_skipLevel || m_cumulative) {
-                insertUnique(&m_valuemap, varName, v);
-                insertUnique(&m_filevaluemap[currentProFile()], varName, v);
+                insertUnique(&m_tempValuemap, varName, v);
+                insertUnique(&m_tempFilevaluemap[currentProFile()], varName, v);
             }
             break;
         case ProVariable::AddOperator:          // +=
             if (!m_skipLevel || m_cumulative) {
-                m_valuemap[varName] += v;
-                m_filevaluemap[currentProFile()][varName] += v;
+                m_tempValuemap[varName] += v;
+                m_tempFilevaluemap[currentProFile()][varName] += v;
             }
             break;
         case ProVariable::RemoveOperator:       // -=
@@ -766,16 +783,16 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                 if (!m_skipLevel) {
                     // the insertUnique is a hack for the moment to fix the
                     // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
-                    if (removeEach(&m_valuemap, varName, v) == 0)
-                        insertUnique(&m_valuemap, QString("-%1").arg(varName), v);
-                    if (removeEach(&m_filevaluemap[currentProFile()], varName, v) == 0)
-                        insertUnique(&m_filevaluemap[currentProFile()], QString("-%1").arg(varName), v);
+                    if (removeEach(&m_tempValuemap, varName, v) == 0)
+                        insertUnique(&m_tempValuemap, QString("-%1").arg(varName), v);
+                    if (removeEach(&m_tempFilevaluemap[currentProFile()], varName, v) == 0)
+                        insertUnique(&m_tempFilevaluemap[currentProFile()], QString("-%1").arg(varName), v);
                 }
             } else if (!m_skipLevel) {
                 // the insertUnique is a hack for the moment to fix the
                 // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
-                insertUnique(&m_valuemap, QString("-%1").arg(varName), v);
-                insertUnique(&m_filevaluemap[currentProFile()], QString("-%1").arg(varName), v);
+                insertUnique(&m_tempValuemap, QString("-%1").arg(varName), v);
+                insertUnique(&m_tempFilevaluemap[currentProFile()], QString("-%1").arg(varName), v);
             } else {
                 // We are stingy with our values, too.
             }
@@ -812,13 +829,14 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                 if (!m_skipLevel || m_cumulative) {
                     // We could make a union of modified and unmodified values,
                     // but this will break just as much as it fixes, so leave it as is.
-                    replaceInList(&m_valuemap[varName], regexp, replace, global);
-                    replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
+                    replaceInList(&m_tempValuemap[varName], regexp, replace, global);
+                    replaceInList(&m_tempFilevaluemap[currentProFile()][varName], regexp, replace, global);
                 }
             }
             break;
 
     }
+    m_isFirstVariableValue = false;
     return true;
 }
 

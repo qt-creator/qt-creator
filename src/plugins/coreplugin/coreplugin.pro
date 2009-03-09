@@ -123,7 +123,6 @@ HEADERS += mainwindow.h \
     iversioncontrol.h \
     iview.h \
     ifilewizardextension.h \
-    viewmanagerinterface.h \
     icorelistener.h \
     versiondialog.h \
     scriptmanager/metatypedeclarations.h \
