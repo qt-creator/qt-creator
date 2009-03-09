@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 
 bindir=$(dirname "$0")
 libdir=$(cd ${bindir}/../lib ; pwd)
-LD_LIBRARY_PATH="${libdir}" "${bindir}/qtcreator.bin" ${1+"$@"}
+LD_LIBRARY_PATH="${libdir}:${LD_LIBRARY_PATH}" "${bindir}/qtcreator.bin" ${1+"$@"}
