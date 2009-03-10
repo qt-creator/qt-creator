@@ -142,6 +142,9 @@ public slots:
 private slots:
     void describe();
     void slotActivateAnnotation();
+    void slotPopulateDiffBrowser();
+    void slotDiffBrowse(int);
+    void slotDiffCursorPositionChanged();
 
 private:
     // Implement to return a set of change identifiers in

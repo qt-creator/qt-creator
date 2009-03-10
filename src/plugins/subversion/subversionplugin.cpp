@@ -1039,7 +1039,9 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    return e->editableInterface();
+    Core::IEditor *ie = e->editableInterface();
+    Core::EditorManager::instance()->activateEditor(ie);
+    return ie;
 }
 
 SubversionSettings SubversionPlugin::settings() const

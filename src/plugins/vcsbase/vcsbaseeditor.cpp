@@ -35,12 +35,14 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -55,10 +57,13 @@
 #include <QtGui/QMenu>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
+#include <QtGui/QComboBox>
+#include <QtGui/QToolBar>
 
 namespace VCSBase {
 
 // VCSBaseEditorEditable: An editable with no support for duplicates
+// Creates a browse combo in the toolbar for diff output.
 class VCSBaseEditorEditable : public TextEditor::BaseTextEditorEditable
 {
 public:
@@ -73,12 +78,12 @@ public:
 private:
     const char *m_kind;
     QList<int> m_context;
-
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
-                                             const VCSBaseEditorParameters *type)
-    : BaseTextEditorEditable(editor), m_kind(type->kind)
+                                             const VCSBaseEditorParameters *type)  :
+    BaseTextEditorEditable(editor),
+    m_kind(type->kind)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
@@ -90,6 +95,34 @@ QList<int> VCSBaseEditorEditable::context() const
     return m_context;
 }
 
+// Diff editable: creates a browse combo in the toolbar for diff output.
+class VCSBaseDiffEditorEditable : public VCSBaseEditorEditable
+{
+public:
+    VCSBaseDiffEditorEditable(VCSBaseEditor *, const VCSBaseEditorParameters *type);
+
+    virtual QToolBar *toolBar()                { return m_toolBar; }
+    QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
+
+private:
+    QComboBox *m_diffFileBrowseComboBox;
+    QToolBar *m_toolBar;
+};
+
+VCSBaseDiffEditorEditable::VCSBaseDiffEditorEditable(VCSBaseEditor *e, const VCSBaseEditorParameters *type) :
+    VCSBaseEditorEditable(e, type),
+    m_diffFileBrowseComboBox(new QComboBox),
+    m_toolBar(new QToolBar)
+{
+    m_diffFileBrowseComboBox->setMinimumContentsLength(20);
+    m_diffFileBrowseComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    // Make the combo box prefer to expand
+    QSizePolicy policy = m_diffFileBrowseComboBox->sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_diffFileBrowseComboBox->setSizePolicy(policy);
+    m_toolBar->addWidget(m_diffFileBrowseComboBox);
+}
+
 // ----------- VCSBaseEditorPrivate
 
 struct VCSBaseEditorPrivate
@@ -97,13 +130,20 @@ struct VCSBaseEditorPrivate
     VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent);
 
     const VCSBaseEditorParameters *m_parameters;
+
     QAction *m_describeAction;
     QString m_currentChange;
     QString m_source;
+
+    QRegExp m_diffFilePattern;
+    QList<int> m_diffSections; // line number where this section starts
+    int m_cursorLine;
 };
 
-VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent)
-    : m_parameters(type), m_describeAction(new QAction(parent))
+VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent)  :
+        m_parameters(type),
+        m_describeAction(new QAction(parent)),
+        m_cursorLine(-1)
 {
 }
 
@@ -131,8 +171,13 @@ void VCSBaseEditor::init()
         // Annotation highlighting depends on contents, which is set later on
         connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
         break;
-    case DiffOutput:
-        baseTextDocument()->setSyntaxHighlighter(createDiffHighlighter());
+    case DiffOutput: {
+        DiffHighlighter *dh = createDiffHighlighter();
+        baseTextDocument()->setSyntaxHighlighter(dh);
+        d->m_diffFilePattern = dh->filePattern();
+        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
+        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotDiffCursorPositionChanged()));
+    }
         break;
     }
 }
@@ -178,7 +223,87 @@ bool VCSBaseEditor::isModified() const
 
 TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
 {
-    return new VCSBaseEditorEditable(this, d->m_parameters);
+    if (d->m_parameters->type != DiffOutput)
+        return new VCSBaseEditorEditable(this, d->m_parameters);
+    // Diff: set up diff file browsing
+    VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
+    QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
+    connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
+    return de;
+}
+
+void VCSBaseEditor::slotPopulateDiffBrowser()
+{
+    VCSBaseDiffEditorEditable *de = static_cast<VCSBaseDiffEditorEditable*>(editableInterface());
+    QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
+    diffBrowseComboBox->clear();
+    d->m_diffSections.clear();
+    // Create a list of section line numbers (diffed files)
+    // and populate combo with filenames.
+    const QTextBlock cend = document()->end();
+    int lineNumber = 0;
+    QString lastFileName;
+    for (QTextBlock it = document()->begin(); it != cend; it = it.next(), lineNumber++) {
+        const QString text = it.text();
+        // Check for a new diff section (not repeating the last filename)
+        if (d->m_diffFilePattern.exactMatch(text)) {
+            const QString file = fileNameFromDiffSpecification(it);
+            if (!file.isEmpty() && lastFileName != file) {
+                lastFileName = file;
+                // ignore any headers
+                d->m_diffSections.push_back(d->m_diffSections.empty() ? 0 : lineNumber);
+                diffBrowseComboBox->addItem(QFileInfo(file).fileName());
+            }
+        }
+    }
+}
+
+void VCSBaseEditor::slotDiffBrowse(int index)        
+{
+    // goto diffed file as indicated by index/line number
+    if (index < 0 || index >= d->m_diffSections.size())
+        return;    
+    const int lineNumber = d->m_diffSections.at(index);
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->addCurrentPositionToNavigationHistory(true);
+    gotoLine(lineNumber + 1, 0); // TextEdit uses 1..n convention
+    editorManager->addCurrentPositionToNavigationHistory();
+}
+
+// Locate a line number in the list of diff sections.
+static int sectionOfLine(int line, const QList<int> &sections)
+{
+    const int sectionCount = sections.size();
+    if (!sectionCount)
+        return -1;
+    // The section at s indicates where the section begins.
+    for (int s = 0; s < sectionCount; s++) {
+        if (line < sections.at(s))
+            return s - 1;
+    }
+    return sectionCount - 1;
+}
+
+void VCSBaseEditor::slotDiffCursorPositionChanged()
+{
+    // Adapt diff file browse combo to new position
+    // if the cursor goes across a file line.
+    QTC_ASSERT(d->m_parameters->type == DiffOutput, return)
+    const int newCursorLine = textCursor().blockNumber();    
+    if (newCursorLine == d->m_cursorLine)
+        return;
+    // Which section does it belong to?
+    d->m_cursorLine = newCursorLine;
+    const int section = sectionOfLine(d->m_cursorLine, d->m_diffSections);
+    if (section != -1) {
+        VCSBaseDiffEditorEditable *de = static_cast<VCSBaseDiffEditorEditable*>(editableInterface());
+        QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
+        if (diffBrowseComboBox->currentIndex() != section) {
+            const bool blocked = diffBrowseComboBox->blockSignals(true);
+            diffBrowseComboBox->setCurrentIndex(section);
+            diffBrowseComboBox->blockSignals(blocked);
+        }
+    }
 }
 
 void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
