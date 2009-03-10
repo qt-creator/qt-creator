@@ -60,6 +60,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 
@@ -95,6 +96,29 @@ DebuggerSettings::DebuggerSettings()
     m_useToolTips = false;
     m_useCustomDumpers = true;
     m_listSourceFiles = false;
+}
+
+
+QString DebuggerSettings::dump()
+{
+    QString out;
+    QTextStream ts(&out);
+    ts  << "Debugger settings: "
+        << "  gdbCmd: " << m_gdbCmd
+        << "  gdbEnv: " << m_gdbEnv 
+        << "  autoRun: " << m_autoRun
+        << "  autoQuit: " << m_autoQuit
+        << "  useCustomDumpers: " << m_useCustomDumpers
+        << "  skipKnownFrames: " << m_skipKnownFrames
+        << "  debugDumpers: " << m_debugDumpers
+        << "  useToolTips: " << m_useToolTips
+        << "  listSourceFiles: " << m_listSourceFiles
+        << "  scriptFile: " << m_scriptFile
+        << "  pluginAllBreakpoints: " << m_pluginAllBreakpoints
+        << "  pluginSelectedBreakpoints: " << m_pluginSelectedBreakpoints
+        << "  pluginNoBreakpoints: " << m_pluginNoBreakpoints
+        << "  pluginSelectedBreakpointsPattern: " << m_pluginSelectedBreakpointsPattern;
+    return out;
 }
 
 ///////////////////////////////////////////////////////////////////////

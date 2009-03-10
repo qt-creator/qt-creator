@@ -1558,6 +1558,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
+    debugMessage(q->settings()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
