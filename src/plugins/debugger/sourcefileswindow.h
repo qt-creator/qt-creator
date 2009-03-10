@@ -53,6 +53,7 @@ public:
     ~SourceFilesWindow();
 
     void setSourceFiles(const QMap<QString, QString> &sourceFiles);
+    void removeAll();
 
 signals:
     void reloadSourceFilesRequested();

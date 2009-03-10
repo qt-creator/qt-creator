@@ -283,6 +283,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.lineEditSelectedPluginBreakpointsPattern->
         setEnabled(m_settings.m_pluginSelectedBreakpoints);
 
+    m_ui.checkBoxListSourceFiles->setChecked(m_settings.m_listSourceFiles);
     m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
     m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
     m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
@@ -321,6 +322,7 @@ void GdbOptionPage::apply()
     m_settings.m_scriptFile = m_ui.scriptFileChooser->path();
 
     m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
+    m_settings.m_listSourceFiles = m_ui.checkBoxListSourceFiles->isChecked();
     m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
     m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
@@ -907,6 +909,7 @@ void DebuggerPlugin::writeSettings() const
 
     s->setValue("UseToolTips", m->m_useToolTips);
     s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
+    s->setValue("ListSourceFiles", m->m_listSourceFiles);
     s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
     s->setValue("DebugDumpers", m->m_debugDumpers);
 
@@ -945,6 +948,7 @@ void DebuggerPlugin::readSettings()
     m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
     m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
+    m->m_listSourceFiles  = s->value("ListSourceFiles", false).toBool();
 
     m->m_pluginAllBreakpoints =
         s->value("AllPluginBreakpoints", true).toBool();

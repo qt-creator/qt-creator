@@ -134,7 +134,7 @@ public:
 public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
     void breakByFunction(const QString &functionName);
-    void activateBreakPoint(int index);
+    void activateBreakpoint(int index);
     void removeBreakpoint(int index);
 
 signals:

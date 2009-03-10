@@ -534,7 +534,7 @@ void BreakHandler::loadSessionData()
     updateMarkers();
 }
 
-void BreakHandler::activateBreakPoint(int index)
+void BreakHandler::activateBreakpoint(int index)
 {
     const BreakpointData *data = at(index);
     //qDebug() << "BREAKPOINT ACTIVATED: " << data->fileName;

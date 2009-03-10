@@ -164,6 +164,7 @@ private:
     virtual bool debugDumpers() const = 0;
     virtual bool useCustomDumpers() const = 0;
     
+    virtual bool wantsSourceFileList() const = 0;
     virtual bool wantsAllPluginBreakpoints() const = 0;
     virtual bool wantsSelectedPluginBreakpoints() const = 0;
     virtual bool wantsNoPluginBreakpoints() const = 0;
@@ -196,6 +197,7 @@ public:
     bool m_debugDumpers;
     bool m_useFastStart;
     bool m_useToolTips;
+    bool m_listSourceFiles;
 
     QString m_scriptFile;
 
@@ -307,6 +309,7 @@ private slots:
     void registerDockToggled(bool on);
     void setStatus(int status);
     void clearStatusMessage();
+    void attemptBreakpointSynchronization();
 
 private:
     //
@@ -324,6 +327,8 @@ private:
     bool skipKnownFrames() const;
     bool debugDumpers() const;
     bool useCustomDumpers() const;
+    bool wantsSourceFileList() const
+        { return m_settings.m_listSourceFiles; }
     bool wantsAllPluginBreakpoints() const
         { return m_settings.m_pluginAllBreakpoints; }
     bool wantsSelectedPluginBreakpoints() const

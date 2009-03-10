@@ -141,7 +141,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
      <property name="toolTip">
       <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
@@ -152,7 +152,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QCheckBox" name="checkBoxUseToolTips">
      <property name="toolTip">
       <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
@@ -162,7 +162,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QCheckBox" name="checkBoxDebugDumpers">
      <property name="toolTip">
       <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
@@ -172,7 +172,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -184,6 +184,16 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="checkBoxListSourceFiles">
+     <property name="toolTip">
+      <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
+     </property>
+     <property name="text">
+      <string>Populate source file view automatically</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

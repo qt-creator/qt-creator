@@ -47,8 +47,10 @@ public slots:
     void setAlwaysResizeColumnsToContents(bool on);
 
 signals:
-    void breakPointDeleted(int index);
-    void breakPointActivated(int index);
+    void breakpointDeleted(int index);
+    void breakpointActivated(int index);
+    void breakpointSynchronizationRequested();
+    void settingsDialogRequested();
 
 private slots:
     void rowActivated(const QModelIndex &index);

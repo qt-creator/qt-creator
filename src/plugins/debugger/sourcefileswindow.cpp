@@ -207,3 +207,10 @@ void SourceFilesWindow::setSourceFiles(const QMap<QString, QString> &sourceFiles
     m_model->setSourceFiles(sourceFiles);
     header()->setResizeMode(0, QHeaderView::ResizeToContents);
 }
+
+void SourceFilesWindow::removeAll()
+{
+    m_model->setSourceFiles(QMap<QString, QString>());
+    header()->setResizeMode(0, QHeaderView::ResizeToContents);
+}
+    
