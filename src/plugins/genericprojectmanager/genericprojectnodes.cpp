@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "genericprojectnodes.h"
+#include <QDir>
 #include <QFileInfo>
 #include <QSettings>
 #include <QtDebug>
@@ -66,12 +67,12 @@ void GenericProjectNode::refresh()
     FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType, /*generated = */ false);
     fileNodes.append(projectFileNode);
 
+    QDir projectPath(path());
+
     foreach (const QString &file, _files) {
-        QFileInfo fileInfo(file);
-
+        QFileInfo fileInfo(projectPath, file);
         QString filePath = fileInfo.absoluteFilePath();
-
-        FileType fileType = SourceType;
+        FileType fileType = SourceType; // ### FIXME
 
         FileNode *fileNode = new FileNode(filePath, fileType, /*generated = */ false);
 
