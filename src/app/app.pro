@@ -13,8 +13,6 @@ win32 {
 }
 linux-* {
     LIBS *= -lExtensionSystem -lAggregation
-    ISGCC33=$$(GCC33)
-    !equals(ISGCC33, 1):QT += svg dbus
 
     target.path  = /bin
     INSTALLS    += target

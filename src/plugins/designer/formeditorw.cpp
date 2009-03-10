@@ -358,12 +358,21 @@ void FormEditorW::setupActions()
 
     //tool actions
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutHorizontally"));
+#ifndef Q_OS_MAC
     addToolAction(m_fwm->actionHorizontalLayout(), am, m_context,
                   m_toolActionIds.back(), mformtools, tr("Ctrl+H"));
-
+#else
+    addToolAction(m_fwm->actionHorizontalLayout(), am, m_context,
+                  m_toolActionIds.back(), mformtools, tr("Meta+H"));
+#endif
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutVertically"));
+#ifndef Q_OS_MAC
     addToolAction(m_fwm->actionVerticalLayout(), am, m_context,
                   m_toolActionIds.back(),  mformtools, tr("Ctrl+L"));
+#else
+    addToolAction(m_fwm->actionVerticalLayout(), am, m_context,
+                  m_toolActionIds.back(),  mformtools, tr("Meta+L"));
+#endif
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SplitHorizontal"));
     addToolAction(m_fwm->actionSplitHorizontal(), am, m_context,
@@ -378,16 +387,26 @@ void FormEditorW::setupActions()
                   m_toolActionIds.back(),  mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutGrid"));
+#ifndef Q_OS_MAC
     addToolAction(m_fwm->actionGridLayout(), am, m_context,
                   m_toolActionIds.back(),  mformtools, tr("Ctrl+G"));
+#else
+    addToolAction(m_fwm->actionGridLayout(), am, m_context,
+                  m_toolActionIds.back(),  mformtools, tr("Meta+G"));
+#endif
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutBreak"));
     addToolAction(m_fwm->actionBreakLayout(), am, m_context,
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutAdjustSize"));
+#ifndef Q_OS_MAC
     addToolAction(m_fwm->actionAdjustSize(), am, m_context,
                   m_toolActionIds.back(),  mformtools, tr("Ctrl+J"));
+#else
+    addToolAction(m_fwm->actionAdjustSize(), am, m_context,
+                  m_toolActionIds.back(),  mformtools, tr("Meta+J"));
+#endif
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SimplifyLayout"));
     addToolAction(m_fwm->actionSimplifyLayout(), am, m_context,
