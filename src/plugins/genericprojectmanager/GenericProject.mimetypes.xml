@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/x-generic-project">
+    <sub-class-of type="text/plain"/>
+    <comment>Generic Project file</comment>
+    <glob pattern="*.files"/>
+  </mime-type>
+</mime-info>
