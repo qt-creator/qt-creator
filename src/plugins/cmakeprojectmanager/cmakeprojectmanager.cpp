@@ -111,7 +111,11 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     QProcess * cmake = new QProcess;
     cmake->setWorkingDirectory(buildDirectoryPath);
 
-    QString generator = "-GCodeBlocks - Unix Makefiles";
+#ifdef Q_OS_WIN
+    QString generator = "-GCodeBlocks - MinGW Makefiles";
+#else // Q_OS_WIN
+   QString generator = "-GCodeBlocks - Unix Makefiles";
+#endif // Q_OS_WIN
     qDebug()<<cmakeExecutable()<<sourceDirectory << arguments<<generator;
     cmake->start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << generator);
     return cmake;

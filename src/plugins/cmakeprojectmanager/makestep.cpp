@@ -92,7 +92,11 @@ bool MakeStep::init(const QString &buildConfiguration)
 
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
+#ifdef Q_OS_WIN
+    setCommand(buildConfiguration, "mingw32-make");
+#else // Q_OS_WIN
     setCommand(buildConfiguration, "make"); // TODO give full path here?
+#endif // Q_OS_WIN
     setArguments(buildConfiguration, value(buildConfiguration, "buildTargets").toStringList()); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
