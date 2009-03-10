@@ -106,6 +106,27 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
 }
 
+// Return the project files relevant for VCS
+static const QStringList currentProjectFiles(QString *name)
+{
+    QStringList files = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true, name);
+    if (!files.empty()) {
+        // Filter out mkspecs/qconfig.pri
+        QString exclusion = QLatin1String("mkspecs");
+        exclusion += QDir::separator();
+        exclusion += QLatin1String("qconfig.pri");
+        for (QStringList::iterator it = files.begin(); it != files.end(); ) {
+            if (it->endsWith(exclusion)) {
+                it = files.erase(it);
+                break;
+            } else {
+                ++it;
+            }
+        }
+    }
+    return files;
+}
+
 const char * const PerforcePlugin::PERFORCE_MENU = "Perforce.Menu";
 const char * const PerforcePlugin::EDIT = "Perforce.Edit";
 const char * const PerforcePlugin::ADD = "Perforce.Add";
@@ -450,7 +471,7 @@ void PerforcePlugin::diffCurrentFile()
 void PerforcePlugin::diffCurrentProject()
 {
     QString name;
-    const QStringList nativeFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true, &name);
+    const QStringList nativeFiles = currentProjectFiles(&name);
     p4Diff(nativeFiles, name);
 }
 
@@ -509,7 +530,7 @@ void PerforcePlugin::submit()
 
     // Assemble file list of project
     QString name;
-    const QStringList nativeFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true, &name);
+    const QStringList nativeFiles = currentProjectFiles(&name);
     PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles,
                                         CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result2.error) {
@@ -846,7 +867,9 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     e->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
-    return e->editableInterface();
+    Core::IEditor *ie = e->editableInterface();
+    Core::EditorManager::instance()->activateEditor(ie);
+    return ie;
 }
 
 QStringList PerforcePlugin::environment() const

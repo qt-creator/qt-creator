@@ -115,4 +115,9 @@ void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
     }
 }
 
+QRegExp DiffHighlighter::filePattern() const
+{
+    return m_d->m_filePattern;
+}
+
 } // namespace VCSBase
