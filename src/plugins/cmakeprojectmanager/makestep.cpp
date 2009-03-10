@@ -48,7 +48,7 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 MakeStep::MakeStep(CMakeProject *pro)
-    : AbstractProcessStep(pro), m_pro(pro)
+    : AbstractProcessStep(pro), m_pro(pro), m_buildParser(0)
 {
 }
 
