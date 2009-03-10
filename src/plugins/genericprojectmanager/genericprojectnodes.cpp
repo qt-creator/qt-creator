@@ -50,36 +50,88 @@ Core::IFile *GenericProjectNode::projectFile() const
 QString GenericProjectNode::projectFilePath() const
 { return _projectFile->fileName(); }
 
+static QStringList convertToAbsoluteFiles(const QDir &dir, const QStringList &paths)
+{
+    QStringList absolutePaths;
+    foreach (const QString &file, paths) {
+        QFileInfo fileInfo(dir, file);
+        absolutePaths.append(fileInfo.absoluteFilePath());
+    }
+    absolutePaths.removeDuplicates();
+    return absolutePaths;
+}
+
 void GenericProjectNode::refresh()
 {
-    QSettings projectInfo(projectFilePath(), QSettings::IniFormat);
-
-    _files        = projectInfo.value(QLatin1String("files")).toStringList();
-    _generated    = projectInfo.value(QLatin1String("generated")).toStringList();
-    _includePaths = projectInfo.value(QLatin1String("includes")).toStringList();
-    _defines      = projectInfo.value(QLatin1String("defines")).toStringList();
-    _toolChainId  = projectInfo.value(QLatin1String("toolchain"), QLatin1String("gcc")).toString().toLower();
-
     using namespace ProjectExplorer;
 
-    QList<FileNode *> fileNodes;
-
-    FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType, /*generated = */ false);
-    fileNodes.append(projectFileNode);
+    removeFileNodes(fileNodes(), this);
+    removeFolderNodes(subFolderNodes(), this);
 
     QDir projectPath(path());
 
+    QSettings projectInfo(projectFilePath(), QSettings::IniFormat);
+
+    _files = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("files")).toStringList());
+    _generated = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("generated")).toStringList());
+    _includePaths = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("includes")).toStringList());
+    _defines      = projectInfo.value(QLatin1String("defines")).toStringList();
+    _toolChainId  = projectInfo.value(QLatin1String("toolchain"), QLatin1String("gcc")).toString().toLower();
+
+    FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType,
+                                             /* generated = */ false);
+    addFileNodes(QList<FileNode *>() << projectFileNode, this);
+
+    QHash<QString, FolderNode *> folders;
+    QHash<FolderNode *, QStringList> filesInFolder;
+    QList<FolderNode *> folderNodes;
+
     foreach (const QString &file, _files) {
         QFileInfo fileInfo(projectPath, file);
-        QString filePath = fileInfo.absoluteFilePath();
-        FileType fileType = SourceType; // ### FIXME
 
-        FileNode *fileNode = new FileNode(filePath, fileType, /*generated = */ false);
+        if (! fileInfo.isFile())
+            continue; // not a file.
 
-        fileNodes.append(fileNode);
+        QString folderPath = fileInfo.canonicalPath();
+        if (! folderPath.startsWith(path())) {
+            qDebug() << "*** skip:" << folderPath;
+            continue;
+        }
+
+        folderPath = folderPath.mid(path().length() + 1);
+
+        FolderNode *folder = folders.value(folderPath);
+        if (! folder) {
+            folder = new FolderNode(folderPath);
+            folders.insert(folderPath, folder);
+
+            folderNodes.append(folder);
+        }
+
+        filesInFolder[folder].append(fileInfo.canonicalFilePath());
     }
 
-    addFileNodes(fileNodes, this);
+    addFolderNodes(folderNodes, this);
+
+    QHashIterator<FolderNode *, QStringList> it(filesInFolder);
+    while (it.hasNext()) {
+        it.next();
+
+        FolderNode *folder = it.key();
+        QStringList files = it.value();
+
+        QList<FileNode *> fileNodes;
+        foreach (const QString &filePath, files) {
+            QFileInfo fileInfo(projectPath, filePath);
+
+            FileNode *fileNode = new FileNode(fileInfo.absoluteFilePath(),
+                                              SourceType, /*generated = */ false);
+
+            fileNodes.append(fileNode);
+        }
+
+        addFileNodes(fileNodes, folder);
+    }
 }
 
 QStringList GenericProjectNode::files() const
