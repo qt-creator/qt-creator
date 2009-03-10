@@ -86,6 +86,7 @@ public:
     QList<Entry> entries() const { return m_editors; }
 
     void removeEditor(IEditor *editor);
+    void removeAllRestoredEditors();
     void emitDataChanged(IEditor *editor);
 
     QList<IEditor *> editors() const;
