@@ -181,6 +181,17 @@ void EditorModel::removeEditor(IEditor *editor)
     disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
+void EditorModel::removeAllRestoredEditors()
+{
+    for (int i = m_editors.count()-1; i >= 0; --i) {
+        if (!m_editors.at(i).editor) {
+            beginRemoveRows(QModelIndex(), i, i);
+            m_editors.removeAt(i);
+            endRemoveRows();
+        }
+    }
+}
+
 bool EditorModel::isDuplicate(IEditor *editor) const
 {
     return m_duplicateEditors.contains(editor);
