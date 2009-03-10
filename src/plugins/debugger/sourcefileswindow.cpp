@@ -178,28 +178,40 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
         this, SLOT(sourceFileActivated(QModelIndex)));
 }
 
-SourceFilesWindow::~SourceFilesWindow()
-{
-}
-
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    qDebug() << "ACTIVATED: " << index.row() << index.column();
+    qDebug() << "ACTIVATED: " << index.row() << index.column()
+        << model()->data(index);
+    emit fileOpenRequested(model()->data(index).toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QModelIndex index = indexAt(ev->pos());
+    index = index.sibling(index.row(), 0);
+    QString name = model()->data(index).toString();
+
     QMenu menu;
     QAction *act1 = new QAction(tr("Reload data"), &menu);
     //act1->setCheckable(true);
-
+    QAction *act2 = 0;
+    if (name.isEmpty()) {
+        act2 = new QAction(tr("Open file"), &menu);
+        act2->setEnabled(false);
+    } else {
+        act2 = new QAction(tr("Open file \"%1\"'").arg(name), &menu);
+        act2->setEnabled(true);
+    }
+    
     menu.addAction(act1);
+    menu.addAction(act2);
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act1) {
+    if (act == act1)
         emit reloadSourceFilesRequested();
-    }
+    else if (act == act2)
+        emit fileOpenRequested(name);
 }
 
 void SourceFilesWindow::setSourceFiles(const QMap<QString, QString> &sourceFiles)

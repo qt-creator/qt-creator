@@ -245,6 +245,7 @@ public slots:
     QVariant sessionValue(const QString &name);
 
     void gotoLocation(const QString &file, int line, bool setLocationMarker);
+    void fileOpen(const QString &file);
     void resetLocation();
 
     void interruptDebuggingRequest();
