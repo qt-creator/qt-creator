@@ -1298,12 +1298,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                  frame.findChild("func").data() + '%';
 
             QApplication::alert(q->mainWindow(), 3000);
-<<<<<<< HEAD:src/plugins/debugger/gdbengine.cpp
-            //reloadSourceFiles();
-=======
             if (qq->wantsSourceFileList())
                 reloadSourceFiles();
->>>>>>> c0b1386361695fca7865a79af193c74c3d2ac495:src/plugins/debugger/gdbengine.cpp
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
