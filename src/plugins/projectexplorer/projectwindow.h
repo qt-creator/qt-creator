@@ -62,6 +62,12 @@ private slots:
     void saveStatus();
 
     void updateTreeWidget();
+
+    void updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project *startupProject);
+    void updateTreeWidgetProjectAdded(ProjectExplorer::Project *addedProject);
+    void updateTreeWidgetProjectRemoved(ProjectExplorer::Project *removedProject);
+    void updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project *removedProject);
+
     void handleItem(QTreeWidgetItem *item, int column);
     void handleCurrentItemChanged(QTreeWidgetItem *);
 

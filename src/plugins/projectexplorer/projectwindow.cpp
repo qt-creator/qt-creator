@@ -65,10 +65,9 @@ ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
     m_projectExplorer = ProjectExplorerPlugin::instance();
     m_session = m_projectExplorer->session();
 
-    connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
-    connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
-
     m_treeWidget = new QTreeWidget(this);
+    m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeWidget->setFrameStyle(QFrame::NoFrame);
     m_treeWidget->setRootIsDecorated(false);
     m_treeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
@@ -79,7 +78,7 @@ ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
         );
 
     connect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-            this, SLOT(handleItem(QTreeWidgetItem*, int)), Qt::QueuedConnection);
+            this, SLOT(handleItem(QTreeWidgetItem*, int)));
     connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem *)),
             this, SLOT(handleCurrentItemChanged(QTreeWidgetItem*)));
 
@@ -116,10 +115,14 @@ ProjectWindow::ProjectWindow(QWidget *parent) : QWidget(parent)
     topLayout->setSpacing(0);
     topLayout->addWidget(splitter);
 
-    connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(updateTreeWidget()));
-    connect(m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), this, SLOT(updateTreeWidget()));
-    connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this, SLOT(updateTreeWidget()));
-    connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this, SLOT(updateTreeWidget()));
+    connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
+    connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
+
+    connect(m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project*)));
+    connect(m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectAdded(ProjectExplorer::Project*)));
+    connect(m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetProjectRemoved(ProjectExplorer::Project*)));
+    connect(m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)), this, SLOT(updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project*)));
+
 }
 
 ProjectWindow::~ProjectWindow()
@@ -128,12 +131,21 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::restoreStatus()
 {
+    m_panelsTabWidget->setFocus();
+
+    if (!m_treeWidget->currentItem() && m_treeWidget->topLevelItemCount()) {
+        m_treeWidget->setCurrentItem(m_treeWidget->topLevelItem(0), 0, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+    }
+
     const QVariant lastPanel = m_session->value(QLatin1String("ProjectWindow/Panel"));
     if (lastPanel.isValid()) {
         const int index = lastPanel.toInt();
         if (index < m_panelsTabWidget->count())
             m_panelsTabWidget->setCurrentIndex(index);
     }
+
+    if ((m_panelsTabWidget->currentIndex() == -1) && m_panelsTabWidget->count())
+        m_panelsTabWidget->setCurrentIndex(0);
 }
 
 void ProjectWindow::saveStatus()
@@ -172,52 +184,69 @@ void ProjectWindow::showProperties(ProjectExplorer::Project *project, const QMod
     }
 }
 
-void ProjectWindow::updateTreeWidget()
+void ProjectWindow::updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project *startupProject)
 {
-    // This setFocus prevents a crash, which I (daniel) spend the better part of a day tracking down.
-    // To explain: Consider the case that a widget on either the build or run settings has Focus
-    // Us clearing the m_treewidget will emit a currentItemChanged(0) signal
-    // Which is connected to showProperties
-    // showProperties will now remove the widget that has focus from m_panelsTabWidget, so the treewidget
-    // gets focus, which will in focusIn select the first entry (due to QTreeWidget::clear() implementation,
-    // there are still items in the model) which emits another currentItemChanged() signal
-    // That one runs fully thorough and deletes all widgets, even that one that we are currently removing
-    // from m_panelsTabWidget.
-    // To prevent that, we simply prevent the focus switching....
-    QWidget *focusWidget = qApp->focusWidget();
-    while (focusWidget) {
-        if (focusWidget == this) {
-            m_treeWidget->setFocus();
-            break;
+    int count = m_treeWidget->topLevelItemCount();
+    for (int i = 0; i < count; ++i) {
+        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
+        if (Project *project = findProject(item->text(2))) {
+            bool checked = (startupProject == project);
+            if (item->checkState(1) != (checked ? Qt::Checked : Qt::Unchecked))
+                item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
+        } else {
+            item->setCheckState(1, Qt::Unchecked);
         }
-        focusWidget = focusWidget->parentWidget();
-    }
-    m_treeWidget->clear();
-
-    foreach(Project *project, m_session->projects()) {
-        const QFileInfo fileInfo(project->file()->fileName());
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, fileInfo.baseName());
-        item->setIcon(0, Core::FileIconProvider::instance()->icon(fileInfo));
-        item->setText(2, fileInfo.filePath());
-
-        if (project->isApplication()) {
-            bool checked = (m_session->startupProject() == project);
-            item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
-        }
-
-        m_treeWidget->addTopLevelItem(item);
-
     }
 }
 
+void ProjectWindow::updateTreeWidgetProjectAdded(ProjectExplorer::Project *projectAdded)
+{
+    int position = m_session->projects().indexOf(projectAdded);
+    const QFileInfo fileInfo(projectAdded->file()->fileName());
+
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    item->setText(0, fileInfo.baseName());
+    item->setIcon(0, Core::FileIconProvider::instance()->icon(fileInfo));
+    item->setText(2, fileInfo.filePath());
+
+    if (projectAdded->isApplication()) {
+        bool checked = (m_session->startupProject() == projectAdded);
+        item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
+    }
+
+    m_treeWidget->insertTopLevelItem(position, item);
+}
+
+void ProjectWindow::updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Project *projectRemoved) {
+    int count = m_treeWidget->topLevelItemCount();
+    for (int i = 0; i < count; ++i) {
+        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
+        if (item->text(2) == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
+            if (m_treeWidget->currentItem() == item) {
+                    m_treeWidget->setCurrentItem(0);
+            }
+        }
+    }
+}
+
+void ProjectWindow::updateTreeWidgetProjectRemoved(ProjectExplorer::Project *projectRemoved)
+{    
+    int count = m_treeWidget->topLevelItemCount();
+    for (int i = 0; i < count; ++i) {
+        QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
+        if (item->text(2) == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
+            QTreeWidgetItem *it = m_treeWidget->takeTopLevelItem(i);
+            delete it;
+            break;
+        }
+    }
+}
 
 Project *ProjectWindow::findProject(const QString &path) const
 {
     QList<Project*> projects = m_session->projects();
     foreach (Project* project, projects)
-        if (project->file()->fileName() == path)
+        if (QFileInfo(project->file()->fileName()).filePath() == path)
             return project;
     return 0;
 }
@@ -232,22 +261,26 @@ void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
             showProperties(project, QModelIndex());
             return;
         }
+    } else {
+        showProperties(0, QModelIndex());
     }
 }
 
 
 void ProjectWindow::handleItem(QTreeWidgetItem *item, int column)
 {
+
     if (!item || column != 1) // startup project
         return;
 
     const QString path = item->text(2);
     Project *project = findProject(path);
-
     if (project && project->isApplication()) {
-        if (!(item->checkState(1) == Qt::Checked)) {
-            item->setCheckState(1, Qt::Checked); // uncheck not supported
-        } else {
+        if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
+            if (m_session->startupProject() == project) {
+                item->setCheckState(1, Qt::Checked); // uncheck not supported
+            }
+        } else { // is now checked
             m_session->setStartupProject(project);
         }
     }

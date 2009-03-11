@@ -144,7 +144,7 @@ public:
     SessionNode *sessionNode() const;
 
     Project *projectForNode(ProjectExplorer::Node *node) const;
-    Node *nodeForFile(const QString &fileName) const;
+    Node *nodeForFile(const QString &fileName, Project *project = 0) const;
     Project *projectForFile(const QString &fileName) const;
 
 

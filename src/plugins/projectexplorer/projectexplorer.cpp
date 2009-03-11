@@ -1121,7 +1121,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (node)
         filePath = node->path();
     else
-        node = m_session->nodeForFile(filePath);
+        node = m_session->nodeForFile(filePath, project);
 
     Core::ICore *core = Core::ICore::instance();
 
