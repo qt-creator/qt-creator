@@ -2310,17 +2310,10 @@ void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringL
         + visitor.values(QLatin1String("FORMS3"));
     sourceFiles << forms;
 
-#if QT_VERSION >= 0x040500
     sourceFiles.sort();
     sourceFiles.removeDuplicates();
     tsFileNames.sort();
     tsFileNames.removeDuplicates();
-#else
-    sourceFiles = sourceFiles.toSet().toList();
-    sourceFiles.sort();
-    tsFileNames = tsFileNames.toSet().toList();
-    tsFileNames.sort();
-#endif
 
     varMap->insert("SOURCES", sourceFiles);
     varMap->insert("CODECFORTR", QStringList() << codecForTr);
