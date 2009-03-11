@@ -85,18 +85,23 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     QModelIndex index = indexAt(ev->pos());
     QAction *act0 = new QAction("Delete breakpoint", &menu);
+    act0->setEnabled(index.isValid());
     QAction *act1 = new QAction("Adjust column widths to contents", &menu);
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
-    QAction *act3 = new QAction("Edit condition...", &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    if (index.isValid()) {
-        menu.addAction(act0);
-        menu.addAction(act3);
-        menu.addSeparator();
-    }
+    QAction *act3 = new QAction("Edit condition...", &menu);
+    act0->setEnabled(index.isValid());
+    QAction *act4 = new QAction("Syncronize breakpoints", &menu);
+    QAction *act5 = new QAction("Debugger properties...", &menu);
+
+    menu.addAction(act0);
+    menu.addAction(act3);
+    menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
+    menu.addAction(act4);
+    menu.addAction(act5);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -108,6 +113,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
         editCondition(index);
+    else if (act == act4)
+        emit breakpointSynchronizationRequested();
+    else if (act == act5)
+        emit settingsDialogRequested();
 }
 
 void BreakWindow::deleteBreakpoint(const QModelIndex &idx)
@@ -116,7 +125,7 @@ void BreakWindow::deleteBreakpoint(const QModelIndex &idx)
     if (row == model()->rowCount() - 1)
         --row;
     setCurrentIndex(idx.sibling(row, 0));
-    emit breakPointDeleted(idx.row());
+    emit breakpointDeleted(idx.row());
 }
 
 void BreakWindow::editCondition(const QModelIndex &idx)
@@ -158,6 +167,6 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
 
 void BreakWindow::rowActivated(const QModelIndex &index)
 {
-    emit breakPointActivated(index.row());
+    emit breakpointActivated(index.row());
 }
 

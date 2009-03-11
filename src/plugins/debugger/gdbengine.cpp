@@ -1140,7 +1140,8 @@ void GdbEngine::handleAqcuiredInferior()
     #if defined(Q_OS_MAC)
     sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
     #endif
-    //reloadSourceFiles();
+    if (qq->wantsSourceFileList())
+        reloadSourceFiles();
     tryLoadCustomDumpers();
 
     #ifndef Q_OS_MAC
@@ -1297,7 +1298,12 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                  frame.findChild("func").data() + '%';
 
             QApplication::alert(q->mainWindow(), 3000);
+<<<<<<< HEAD:src/plugins/debugger/gdbengine.cpp
             //reloadSourceFiles();
+=======
+            if (qq->wantsSourceFileList())
+                reloadSourceFiles();
+>>>>>>> c0b1386361695fca7865a79af193c74c3d2ac495:src/plugins/debugger/gdbengine.cpp
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
             sendCommand("p 0", GdbAsyncOutput2, var);  // dummy
@@ -1556,6 +1562,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
+    debugMessage(q->settings()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {

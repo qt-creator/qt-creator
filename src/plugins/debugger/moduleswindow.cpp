@@ -48,6 +48,16 @@ ModulesWindow::ModulesWindow(QWidget *parent)
     setAlternatingRowColors(true);
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
+
+    connect(this, SIGNAL(activated(QModelIndex)),
+        this, SLOT(moduleActivated(QModelIndex)));
+}
+
+void ModulesWindow::moduleActivated(const QModelIndex &index)
+{
+    qDebug() << "ACTIVATED: " << index.row() << index.column()
+        << model()->data(index);
+    emit fileOpenRequested(model()->data(index).toString());
 }
 
 void ModulesWindow::resizeEvent(QResizeEvent *event)
@@ -73,19 +83,30 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString name = model()->data(index).toString();
 
     QMenu menu;
-    QAction *act0 = new QAction("Update module list", &menu);
-    QAction *act1 = new QAction("Adjust column widths to contents", &menu);
-    QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
+    QAction *act0 = new QAction(tr("Update module list"), &menu);
+    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    QAction *act3 = new QAction("Show source files for module " + name, &menu);
-    QAction *act4 = new QAction("Load symbols for all modules", &menu);
-    QAction *act5 = new QAction("Load symbols for module " + name, &menu);
+    QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name),
+         &menu);
+    QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
+    QAction *act5 = 0;
+    QAction *act6 = 0;
+    if (name.isEmpty()) {
+        act5 = new QAction(tr("Load symbols for module"), &menu);
+        act6 = new QAction(tr("Edit file"), &menu);
+    } else {
+        act5 = new QAction(tr("Load symbols for module \"%1\"").arg(name), &menu);
+        act6 = new QAction(tr("Edit file \"%1\"").arg(name), &menu);
+    }
     act5->setDisabled(name.isEmpty());
+    act6->setDisabled(name.isEmpty());
 
     menu.addAction(act0);
     menu.addAction(act4);
     menu.addAction(act5);
+    menu.addAction(act6);
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
@@ -104,6 +125,8 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         emit loadAllSymbolsRequested();
     else if (act == act5)
         emit loadSymbolsRequested(name);
+    else if (act == act6)
+        emit fileOpenRequested(name);
 }
 
 void ModulesWindow::resizeColumnsToContents()

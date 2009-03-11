@@ -60,6 +60,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 
@@ -94,6 +95,30 @@ DebuggerSettings::DebuggerSettings()
     m_debugDumpers = false;
     m_useToolTips = false;
     m_useCustomDumpers = true;
+    m_listSourceFiles = false;
+}
+
+
+QString DebuggerSettings::dump()
+{
+    QString out;
+    QTextStream ts(&out);
+    ts  << "Debugger settings: "
+        << "  gdbCmd: " << m_gdbCmd
+        << "  gdbEnv: " << m_gdbEnv 
+        << "  autoRun: " << m_autoRun
+        << "  autoQuit: " << m_autoQuit
+        << "  useCustomDumpers: " << m_useCustomDumpers
+        << "  skipKnownFrames: " << m_skipKnownFrames
+        << "  debugDumpers: " << m_debugDumpers
+        << "  useToolTips: " << m_useToolTips
+        << "  listSourceFiles: " << m_listSourceFiles
+        << "  scriptFile: " << m_scriptFile
+        << "  pluginAllBreakpoints: " << m_pluginAllBreakpoints
+        << "  pluginSelectedBreakpoints: " << m_pluginSelectedBreakpoints
+        << "  pluginNoBreakpoints: " << m_pluginNoBreakpoints
+        << "  pluginSelectedBreakpointsPattern: " << m_pluginSelectedBreakpointsPattern;
+    return out;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -209,10 +234,14 @@ void DebuggerManager::init()
     QAbstractItemView *breakView =
         qobject_cast<QAbstractItemView *>(m_breakWindow);
     breakView->setModel(m_breakHandler->model());
-    connect(breakView, SIGNAL(breakPointActivated(int)),
-        m_breakHandler, SLOT(activateBreakPoint(int)));
-    connect(breakView, SIGNAL(breakPointDeleted(int)),
+    connect(breakView, SIGNAL(breakpointActivated(int)),
+        m_breakHandler, SLOT(activateBreakpoint(int)));
+    connect(breakView, SIGNAL(breakpointDeleted(int)),
         m_breakHandler, SLOT(removeBreakpoint(int)));
+    connect(breakView, SIGNAL(settingsDialogRequested()),
+        this, SIGNAL(settingsDialogRequested()));
+    connect(breakView, SIGNAL(breakpointSynchronizationRequested()),
+        this, SLOT(attemptBreakpointSynchronization()));
     connect(m_breakHandler, SIGNAL(gotoLocation(QString,int,bool)),
         this, SLOT(gotoLocation(QString,int,bool)));
     connect(m_breakHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
@@ -231,6 +260,8 @@ void DebuggerManager::init()
         this, SLOT(loadSymbols(QString)));
     connect(modulesView, SIGNAL(loadAllSymbolsRequested()),
         this, SLOT(loadAllSymbols()));
+    connect(modulesView, SIGNAL(fileOpenRequested(QString)),
+        this, SLOT(fileOpen(QString)));
 
     // Source Files
     //m_sourceFilesHandler = new SourceFilesHandler;
@@ -239,6 +270,8 @@ void DebuggerManager::init()
     //sourceFileView->setModel(m_stackHandler->stackModel());
     connect(sourceFilesView, SIGNAL(reloadSourceFilesRequested()),
         this, SLOT(reloadSourceFiles()));
+    connect(sourceFilesView, SIGNAL(fileOpenRequested(QString)),
+        this, SLOT(fileOpen(QString)));
 
     // Registers 
     QAbstractItemView *registerView =
@@ -635,6 +668,7 @@ void DebuggerManager::shutdown()
     delete m_outputWindow;
     delete m_registerWindow;
     delete m_stackWindow;
+    delete m_sourceFilesWindow;
     delete m_threadsWindow;
     delete m_tooltipWindow;
     delete m_watchersWindow;
@@ -646,6 +680,7 @@ void DebuggerManager::shutdown()
     m_outputWindow = 0;
     m_registerWindow = 0;
     m_stackWindow = 0;
+    m_sourceFilesWindow = 0;
     m_threadsWindow = 0;
     m_tooltipWindow = 0;
     m_watchersWindow = 0;
@@ -698,6 +733,11 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
     else
         m_breakHandler->removeBreakpoint(index);
+    m_engine->attemptBreakpointSynchronization();
+}
+
+void DebuggerManager::attemptBreakpointSynchronization()
+{
     m_engine->attemptBreakpointSynchronization();
 }
 
@@ -960,6 +1000,7 @@ void DebuggerManager::cleanupViews()
     disassemblerHandler()->removeAll();
     modulesHandler()->removeAll();
     watchHandler()->cleanup();
+    m_sourceFilesWindow->removeAll();
 }
 
 void DebuggerManager::exitDebugger()
@@ -1215,6 +1256,7 @@ void DebuggerManager::setBusyCursor(bool busy)
     m_outputWindow->setCursor(cursor);
     m_registerWindow->setCursor(cursor);
     m_stackWindow->setCursor(cursor);
+    m_sourceFilesWindow->setCursor(cursor);
     m_threadsWindow->setCursor(cursor);
     m_tooltipWindow->setCursor(cursor);
     m_watchersWindow->setCursor(cursor);
@@ -1351,6 +1393,13 @@ void DebuggerManager::gotoLocation(const QString &fileName, int line,
     // connected to the plugin
     emit gotoLocationRequested(fileName, line, setMarker);
 }
+
+void DebuggerManager::fileOpen(const QString &fileName)
+{
+    // connected to the plugin
+    emit gotoLocationRequested(fileName, 1, false);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////

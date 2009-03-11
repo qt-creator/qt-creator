@@ -1493,7 +1493,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
         updateMiniBuffer();
     } else if ((key == Key_Up || key == Key_PageUp) && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
-        // takes only matching entires in the history into account.
+        // takes only matching entries in the history into account.
         if (m_searchHistoryIndex > 0) {
             --m_searchHistoryIndex;
             showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));

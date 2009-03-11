@@ -628,6 +628,7 @@ QList<IFile *> EditorManager::filesForEditors(QList<IEditor *> editors) const
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
+    m_d->m_editorModel->removeAllRestoredEditors();
     return closeEditors(openedEditors(), askAboutModifiedEditors);
 }
 

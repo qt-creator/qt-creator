@@ -191,8 +191,6 @@ private:
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;
 
-    QMap<QAction*, QString> m_recentFilesActions;
-
     // actions
     QShortcut *m_focusToEditor;
     QAction *m_newAction;

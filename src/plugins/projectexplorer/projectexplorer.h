@@ -38,7 +38,6 @@
 #include <coreplugin/icorelistener.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QMap>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QList>
 #include <QtCore/QQueue>
@@ -248,7 +247,6 @@ private:
 
     QStringList m_recentProjects;
     static const int m_maxRecentProjects = 7;
-    QMap<QAction*, QString> m_recentProjectsActions;
 
     QString m_lastOpenDirectory;
     QSharedPointer<RunConfiguration> m_delayedRunConfiguration;

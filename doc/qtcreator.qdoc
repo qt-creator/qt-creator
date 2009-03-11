@@ -700,7 +700,7 @@
 
     \section1 Usage
 
-    You can find the version control menu entires in a sub-menu of the
+    You can find the version control menu entries in a sub-menu of the
     \gui{Tools} menu. The version control system displayed here is the system
     that manages the current project.
 
