@@ -54,6 +54,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <set>
 #include <stack>
 #include <string>
 #include <vector>
@@ -581,6 +582,22 @@ void testStdMap()
 #endif
 }
 
+void testStdSet()
+{
+    std::set<int> hgg0;
+    hgg0.insert(11);
+    hgg0.insert(22);
+    hgg0.insert(33);
+#if 1
+    std::set<QString> hgg1;
+    hgg1.insert("22.0");
+
+    QObject ob;
+    std::set<QPointer<QObject> > hash;
+    QPointer<QObject> ptr(&ob);
+#endif
+}
+
 void testStdStack()
 {
     std::stack<int *> plist1;
@@ -969,6 +986,7 @@ int main(int argc, char *argv[])
     testStdDeque();
     testStdList();
     testStdMap();
+    testStdSet();
     testStdStack();
     testStdString();
     testStdVector();

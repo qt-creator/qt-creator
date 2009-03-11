@@ -424,6 +424,16 @@ static QString niceType(QString type)
             type.replace(re3.cap(0), "std::map<" + re3.cap(1) + ", " + re3.cap(2) + ">");
         }
 
+        // std::set
+        static QRegExp re4("std::set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>");
+        re1.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re4.indexIn(type) == -1 || re4.cap(1) != re4.cap(2)
+                || re4.cap(1) != re4.cap(3)) 
+                break;
+            type.replace(re4.cap(0), "std::set<" + re4.cap(1) + ">");
+        }
+
         type.replace(" >", ">");
     }
     return type;
