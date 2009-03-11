@@ -136,14 +136,12 @@ static void insertUnique(QHash<QString, QStringList> *map,
             sl.append(str);
 }
 
-static int removeEach(QHash<QString, QStringList> *map,
+static void removeEach(QHash<QString, QStringList> *map,
     const QString &key, const QStringList &value)
 {
-    int count = 0;
     QStringList &sl = (*map)[key];
     foreach (const QString &str, value)
-        count += sl.removeAll(str);
-    return count;
+        sl.removeAll(str);
 }
 
 /*
