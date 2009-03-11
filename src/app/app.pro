@@ -11,7 +11,7 @@ win32 {
     CONFIG(debug, debug|release):LIBS *= -lExtensionSystemd -lAggregationd
     else:LIBS *= -lExtensionSystem -lAggregation
 }
-linux-* {
+unix:!macx {
     LIBS *= -lExtensionSystem -lAggregation
 
     target.path  = /bin
