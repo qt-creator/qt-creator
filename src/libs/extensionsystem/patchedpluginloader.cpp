@@ -114,8 +114,6 @@ public:
 
     QObject *instance();
 
-    static QObjectList staticInstances();
-
     bool load();
     bool unload();
     bool isLoaded() const;
@@ -831,9 +829,6 @@ QString PatchedPluginLoader::errorString() const
     return (!d || d->errorString.isEmpty()) ? QLibrary::tr("Unknown error") : d->errorString;
 }
 
-typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
-Q_GLOBAL_STATIC(StaticInstanceFunctionList, staticInstanceFunctionList)
-
 void PatchedPluginLoader::setLoadHints(QLibrary::LoadHints loadHints)
 {
     if (!d) {
@@ -852,24 +847,6 @@ QLibrary::LoadHints PatchedPluginLoader::loadHints() const
     }
     return d->loadHints;
 }
-
-void qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction function)
-{
-    staticInstanceFunctionList()->append(function);
-}
-
-QObjectList PatchedPluginLoader::staticInstances()
-{
-    QObjectList instances;
-    StaticInstanceFunctionList *functions = staticInstanceFunctionList();
-    if (functions) {
-        for (int i = 0; i < functions->count(); ++i)
-            instances.append((*functions)[i]());
-    }
-    return instances;
-}
-
-
 
 
 

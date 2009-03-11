@@ -60,6 +60,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 
@@ -95,6 +96,29 @@ DebuggerSettings::DebuggerSettings()
     m_useToolTips = false;
     m_useCustomDumpers = true;
     m_listSourceFiles = false;
+}
+
+
+QString DebuggerSettings::dump()
+{
+    QString out;
+    QTextStream ts(&out);
+    ts  << "Debugger settings: "
+        << "  gdbCmd: " << m_gdbCmd
+        << "  gdbEnv: " << m_gdbEnv 
+        << "  autoRun: " << m_autoRun
+        << "  autoQuit: " << m_autoQuit
+        << "  useCustomDumpers: " << m_useCustomDumpers
+        << "  skipKnownFrames: " << m_skipKnownFrames
+        << "  debugDumpers: " << m_debugDumpers
+        << "  useToolTips: " << m_useToolTips
+        << "  listSourceFiles: " << m_listSourceFiles
+        << "  scriptFile: " << m_scriptFile
+        << "  pluginAllBreakpoints: " << m_pluginAllBreakpoints
+        << "  pluginSelectedBreakpoints: " << m_pluginSelectedBreakpoints
+        << "  pluginNoBreakpoints: " << m_pluginNoBreakpoints
+        << "  pluginSelectedBreakpointsPattern: " << m_pluginSelectedBreakpointsPattern;
+    return out;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -236,6 +260,8 @@ void DebuggerManager::init()
         this, SLOT(loadSymbols(QString)));
     connect(modulesView, SIGNAL(loadAllSymbolsRequested()),
         this, SLOT(loadAllSymbols()));
+    connect(modulesView, SIGNAL(fileOpenRequested(QString)),
+        this, SLOT(fileOpen(QString)));
 
     // Source Files
     //m_sourceFilesHandler = new SourceFilesHandler;
@@ -244,6 +270,8 @@ void DebuggerManager::init()
     //sourceFileView->setModel(m_stackHandler->stackModel());
     connect(sourceFilesView, SIGNAL(reloadSourceFilesRequested()),
         this, SLOT(reloadSourceFiles()));
+    connect(sourceFilesView, SIGNAL(fileOpenRequested(QString)),
+        this, SLOT(fileOpen(QString)));
 
     // Registers 
     QAbstractItemView *registerView =
@@ -1365,6 +1393,13 @@ void DebuggerManager::gotoLocation(const QString &fileName, int line,
     // connected to the plugin
     emit gotoLocationRequested(fileName, line, setMarker);
 }
+
+void DebuggerManager::fileOpen(const QString &fileName)
+{
+    // connected to the plugin
+    emit gotoLocationRequested(fileName, 1, false);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////

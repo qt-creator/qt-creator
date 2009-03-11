@@ -1138,13 +1138,12 @@ void MainWindow::aboutToShowRecentFiles()
     ActionContainer *aci =
         m_actionManager->actionContainer(Constants::M_FILE_RECENTFILES);
     aci->menu()->clear();
-    m_recentFilesActions.clear();
 
     bool hasRecentFiles = false;
-    foreach (QString s, m_fileManager->recentFiles()) {
+    foreach (const QString &fileName, m_fileManager->recentFiles()) {
         hasRecentFiles = true;
-        QAction *action = aci->menu()->addAction(s);
-        m_recentFilesActions.insert(action, s);
+        QAction *action = aci->menu()->addAction(fileName);
+        action->setData(fileName);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
     aci->menu()->setEnabled(hasRecentFiles);
@@ -1152,9 +1151,12 @@ void MainWindow::aboutToShowRecentFiles()
 
 void MainWindow::openRecentFile()
 {
-    QAction *a = qobject_cast<QAction*>(sender());
-    if (m_recentFilesActions.contains(a)) {
-        editorManager()->openEditor(m_recentFilesActions.value(a));
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action)
+        return;
+    QString fileName = action->data().toString();
+    if (!fileName.isEmpty()) {
+        editorManager()->openEditor(fileName);
         editorManager()->ensureEditorManagerVisible();
     }
 }

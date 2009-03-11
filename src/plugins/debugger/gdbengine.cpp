@@ -1558,6 +1558,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
+    debugMessage(q->settings()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
@@ -3194,6 +3195,11 @@ void GdbEngine::runCustomDumper(const WatchData &data0, bool dumpChildren)
     } else if (outertype == "std::stack") {
         // remove 'std::allocator<...>':
         extraArgs[1] = "0";
+    } else if (outertype == "std::set") {
+        // remove 'std::less<...>':
+        extraArgs[1] = "0";
+        // remove 'std::allocator<...>':
+        extraArgs[2] = "0";
     } else if (outertype == "std::map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.

@@ -50,13 +50,13 @@ class SourceFilesWindow : public QTreeView
 
 public:
     SourceFilesWindow(QWidget *parent = 0);
-    ~SourceFilesWindow();
 
     void setSourceFiles(const QMap<QString, QString> &sourceFiles);
     void removeAll();
 
 signals:
     void reloadSourceFilesRequested();
+    void fileOpenRequested(QString file);
 
 private slots:
     void sourceFileActivated(const QModelIndex &index);

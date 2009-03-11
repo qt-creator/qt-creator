@@ -1106,12 +1106,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'i') {
         recordBeginGroup();
+        m_dotCommand = "i"; //QString("%1i").arg(count());
         enterInsertMode();
         updateMiniBuffer();
         if (atEndOfLine())
             moveLeft();
     } else if (key == 'I') {
         recordBeginGroup();
+        m_dotCommand = "I"; //QString("%1I").arg(count());
         enterInsertMode();
         if (m_gflag)
             moveToStartOfLine();
@@ -1192,6 +1194,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'o' || key == 'O') {
         recordBeginGroup();
         recordPosition();
+        m_dotCommand = QString("%1o").arg(count());
         enterInsertMode();
         moveToFirstNonBlankOnLine();
         int numSpaces = leftDist();
@@ -1255,7 +1258,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveRight(qMin(count(), rightDist()));
         m_registers[m_register] = recordRemoveSelectedText();
-        //m_dotCommand = QString("%1s").arg(count());
+        m_dotCommand = "s"; //QString("%1s").arg(count());
         m_opcount.clear();
         m_mvcount.clear();
         enterInsertMode();

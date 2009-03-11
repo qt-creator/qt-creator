@@ -47,17 +47,18 @@ signals:
     void displaySourceRequested(const QString &modulesName);
     void loadSymbolsRequested(const QString &modulesName);
     void loadAllSymbolsRequested();
+    void fileOpenRequested(QString);
 
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
+    void moduleActivated(const QModelIndex &);
 
-protected:
+private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void setModel(QAbstractItemModel *model);
 
-private:
     bool m_alwaysResizeColumnsToContents;
 };
 

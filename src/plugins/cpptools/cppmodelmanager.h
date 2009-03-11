@@ -38,6 +38,7 @@
 
 #include <QMap>
 #include <QFutureInterface>
+#include <QFutureSynchronizer>
 #include <QMutex>
 #include <QTimer>
 #include <QTextEdit>
@@ -174,6 +175,8 @@ private:
     QList<Editor> m_todo;
 
     QTimer *m_updateEditorSelectionsTimer;
+
+    QFutureSynchronizer<void> m_synchronizer;
 };
 
 } // namespace Internal

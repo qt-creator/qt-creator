@@ -185,6 +185,7 @@ class DebuggerSettings
 {
 public:
     DebuggerSettings();
+    QString dump();
 
 public:
     QString m_gdbCmd;
@@ -195,7 +196,6 @@ public:
     bool m_useCustomDumpers;
     bool m_skipKnownFrames;
     bool m_debugDumpers;
-    bool m_useFastStart;
     bool m_useToolTips;
     bool m_listSourceFiles;
 
@@ -245,6 +245,7 @@ public slots:
     QVariant sessionValue(const QString &name);
 
     void gotoLocation(const QString &file, int line, bool setLocationMarker);
+    void fileOpen(const QString &file);
     void resetLocation();
 
     void interruptDebuggingRequest();

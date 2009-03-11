@@ -77,7 +77,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/listutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
@@ -1493,7 +1492,6 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         Core::ICore::instance()->actionManager()->actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
-    m_recentProjectsActions.clear();
 
     menu->setEnabled(!m_recentProjects.isEmpty());
 
@@ -1502,7 +1500,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         if (s.endsWith(".qws"))
             continue;
         QAction *action = menu->addAction(s);
-        m_recentProjectsActions.insert(action, s);
+        action->setData(s);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
     }
 }
@@ -1513,10 +1511,11 @@ void ProjectExplorerPlugin::openRecentProject()
         qDebug() << "ProjectExplorerPlugin::openRecentProject()";
 
     QAction *a = qobject_cast<QAction*>(sender());
-    if (m_recentProjectsActions.contains(a)) {
-        const QString fileName = m_recentProjectsActions.value(a);
+    if (!a)
+        return;
+    QString fileName = a->data().toString();
+    if (!fileName.isEmpty())
         openProject(fileName);
-    }
 }
 
 void ProjectExplorerPlugin::invalidateProject(Project *project)
