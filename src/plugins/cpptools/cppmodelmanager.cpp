@@ -35,6 +35,7 @@
 
 #include <functional>
 #include <QtConcurrentRun>
+#include <QFutureSynchronizer>
 #include <qtconcurrent/runextensions.h>
 
 #include <texteditor/itexteditor.h>
@@ -163,6 +164,7 @@ class CppPreprocessor: public CPlusPlus::Client
 {
 public:
     CppPreprocessor(QPointer<CppModelManager> modelManager);
+    virtual ~CppPreprocessor();
 
     void setWorkingCopy(const QMap<QString, QByteArray> &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
@@ -212,6 +214,7 @@ private:
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
+    QFutureSynchronizer<void> m_synchronizer;
 };
 
 } // namespace Internal
@@ -221,6 +224,11 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
       preprocess(this, &env)
+{
+    m_synchronizer.setCancelOnWait(true);
+}
+
+CppPreprocessor::~CppPreprocessor()
 { }
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
@@ -502,7 +510,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     snapshot.insert(doc->fileName(), doc);
     m_todo.remove(fileName);
 
-    QtConcurrent::run(Process(m_modelManager), doc);
+    m_synchronizer.addFuture(QtConcurrent::run(Process(m_modelManager), doc));
 
     (void) switchDocument(previousDoc);
 }
@@ -528,6 +536,8 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
 {
+    m_synchronizer.setCancelOnWait(true);
+
     m_core = Core::ICore::instance(); // FIXME
     m_dirty = true;
 
@@ -701,6 +711,8 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
         QFuture<void> result = QtConcurrent::run(&CppModelManager::parse,
                                                  preproc, sourceFiles);
+
+        m_synchronizer.addFuture(result);
 
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
