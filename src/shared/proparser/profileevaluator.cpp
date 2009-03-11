@@ -1847,7 +1847,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 dirstr = file.left(slsh+1);
                 file = file.right(file.length() - slsh - 1);
             }
-            if (file.contains('*') || file.contains('?'))
+            if (file.contains(QLatin1Char('*')) || file.contains(QLatin1Char('?')))
                 cond = QDir(dirstr).entryList(QStringList(file)).count();
 
             break;
