@@ -28,7 +28,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_cmakeprojectmanager \
             plugin_fakevim \
             plugin_designer \
-            plugin_resourceeditor
+            plugin_resourceeditor \
+            debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
 
