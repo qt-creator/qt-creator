@@ -157,6 +157,7 @@ private:
     QAction *m_actionPrint;
     QAction *m_actionPreview;
     QActionGroup *m_actionGroupPreviewInStyle;
+    QAction *m_actionAboutPlugins;
 
     QList<int> m_context;
 

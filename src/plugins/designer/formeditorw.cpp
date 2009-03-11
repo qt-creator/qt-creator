@@ -173,7 +173,10 @@ FormEditorW::FormEditorW() :
     m_core(Core::ICore::instance()),
     m_initStage(RegisterPlugins),
     m_actionGroupEditMode(0),
-    m_actionPrint(0)
+    m_actionPrint(0),
+    m_actionPreview(0),
+    m_actionGroupPreviewInStyle(0),
+    m_actionAboutPlugins(0)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -250,10 +253,14 @@ void FormEditorW::fullInit()
         }
     }
 
+    if (m_actionAboutPlugins)
+        m_actionAboutPlugins->setEnabled(true);
+
     if (Designer::Constants::Internal::debug) {
         qDebug() << Q_FUNC_INFO << initTime->elapsed() << "ms";
         delete initTime;
     }
+
     m_initStage = FullyInitialized;
 }
 
@@ -438,6 +445,15 @@ void FormEditorW::setupActions()
     createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator3"));
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
     addToolAction(actionFormSettings, am, globalcontext, QLatin1String("FormEditor.FormSettings"), mformtools);
+
+#if QT_VERSION > 0x040500
+    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
+    m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
+    addToolAction(m_actionAboutPlugins,  am,  globalcontext,
+                   QLatin1String("FormEditor.AboutPlugins"), mformtools);
+    connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm, SLOT(aboutPlugins()));
+    m_actionAboutPlugins->setEnabled(false);
+#endif
 
     // FWM
     connect(m_fwm, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)), this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
