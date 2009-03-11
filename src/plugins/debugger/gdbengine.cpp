@@ -2991,6 +2991,12 @@ static void setWatchDataAddress(WatchData &data, const GdbMi &mi)
     }
 }
 
+static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid())
+        data.saddr = mi.data();
+}
+
 static bool extractTemplate(const QString &type, QString *tmplate, QString *inner)
 {
     // Input "Template<Inner1,Inner2,...>::Foo" will return "Template::Foo" in
@@ -3195,6 +3201,11 @@ void GdbEngine::runCustomDumper(const WatchData &data0, bool dumpChildren)
     } else if (outertype == "std::stack") {
         // remove 'std::allocator<...>':
         extraArgs[1] = "0";
+    } else if (outertype == "std::set") {
+        // remove 'std::less<...>':
+        extraArgs[1] = "0";
+        // remove 'std::allocator<...>':
+        extraArgs[2] = "0";
     } else if (outertype == "std::map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.
@@ -3724,6 +3735,7 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     setWatchDataValue(data, contents.findChild("value"),
         contents.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, contents.findChild("addr"));
+    setWatchDataSAddress(data, contents.findChild("saddr"));
     setWatchDataChildCount(data, contents.findChild("numchild"));
     setWatchDataValueToolTip(data, contents.findChild("valuetooltip"));
     setWatchDataValueDisabled(data, contents.findChild("valuedisabled"));
@@ -3772,6 +3784,7 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         setWatchDataValue(data1, item.findChild("value"),
             item.findChild("valueencoded").data().toInt());
         setWatchDataAddress(data1, item.findChild("addr"));
+        setWatchDataSAddress(data1, item.findChild("saddr"));
         setWatchDataValueToolTip(data1, item.findChild("valuetooltip"));
         setWatchDataValueDisabled(data1, item.findChild("valuedisabled"));
         if (!qq->watchHandler()->isExpandedIName(data1.iname))
@@ -4030,6 +4043,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
+        setWatchDataSAddress(data, item.findChild("saddr"));
         data.setChildCount(0);
         insertData(data);
     } else if (parent.iname.endsWith('.')) {
@@ -4051,6 +4065,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
+        setWatchDataSAddress(data, item.findChild("saddr"));
         setWatchDataChildCount(data, item.findChild("numchild"));
         if (!qq->watchHandler()->isExpandedIName(data.iname))
             data.setChildrenUnneeded();

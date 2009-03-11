@@ -712,6 +712,17 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         QFuture<void> result = QtConcurrent::run(&CppModelManager::parse,
                                                  preproc, sourceFiles);
 
+        if (m_synchronizer.futures().size() > 10) {
+            QList<QFuture<void> > futures = m_synchronizer.futures();
+
+            m_synchronizer.clearFutures();
+
+            foreach (QFuture<void> future, futures) {
+                if (! (future.isFinished() || future.isCanceled()))
+                    m_synchronizer.addFuture(future);
+            }
+        }
+
         m_synchronizer.addFuture(result);
 
         if (sourceFiles.count() > 1) {

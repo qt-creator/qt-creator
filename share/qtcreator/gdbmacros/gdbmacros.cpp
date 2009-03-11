@@ -60,6 +60,7 @@ int qtGhVersion = QT_VERSION;
 #include <list>
 #include <map>
 #include <string>
+#include <set>
 #include <vector>
 
 #include <ctype.h>
@@ -797,6 +798,7 @@ static void qDumpInnerValueOrPointer(QDumper &d,
     if (strippedtype) {
         if (deref(addr)) {
             P(d, "addr", deref(addr));
+            P(d, "saddr", deref(addr));
             P(d, "type", strippedtype);
             qDumpInnerValueHelper(d, strippedtype, deref(addr));
         } else {
@@ -1223,6 +1225,7 @@ static void qDumpQList(QDumper &d)
             P(d, "name", i);
             if (innerTypeIsPointer) {
                 void *p = ldata.d->array + i + pdata->begin;
+                P(d, "saddr", p);
                 if (p) {
                     //P(d, "value","@" << p);
                     qDumpInnerValue(d, strippedInnerType.data(), deref(p));
@@ -2236,6 +2239,49 @@ static void qDumpStdMap(QDumper &d)
     d.disarm();
 }
 
+static void qDumpStdSet(QDumper &d)
+{
+    typedef std::set<int> DummyType;
+    const DummyType &set = *reinterpret_cast<const DummyType*>(d.data);
+    const void *p = d.data;
+    qCheckAccess(p);
+    p = deref(p);
+
+    int nn = set.size();
+    qCheck(nn >= 0);
+    DummyType::const_iterator it = set.begin();
+    for (int i = 0; i < nn && i < 10 && it != set.end(); ++i, ++it)
+        qCheckAccess(it.operator->());
+
+    P(d, "numchild", nn);
+    P(d, "value", "<" << nn << " items>");
+    P(d, "valuedisabled", "true");
+    P(d, "valueoffset", d.extraInt[0]);
+    
+    if (d.dumpChildren) {
+        int valueOffset = 0; // d.extraInt[0];
+        QByteArray strippedInnerType = stripPointerType(d.innertype);
+        const char *stripped =
+            isPointerType(d.innertype) ? strippedInnerType.data() : 0;
+
+        P(d, "extra"," valueOffset: " << valueOffset);
+
+        d << ",children=[";
+        it = set.begin();
+        for (int i = 0; i < 1000 && it != set.end(); ++i, ++it) {
+            const void *node = it.operator->();
+            d.beginHash();
+            P(d, "name", i);
+            qDumpInnerValueOrPointer(d, d.innertype, stripped, node);
+            d.endHash();
+        }
+        if (it != set.end())
+            d.putEllipsis();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
@@ -2452,6 +2498,8 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpStdList(d);
             else if (isEqual(type, "std::map"))
                 qDumpStdMap(d);
+            else if (isEqual(type, "std::set"))
+                qDumpStdSet(d);
             else if (isEqual(type, "std::string") || isEqual(type, "string"))
                 qDumpStdString(d);
             else if (isEqual(type, "std::wstring"))
@@ -2527,6 +2575,7 @@ void qDumpObjectData440(
             "\"std::basic_string\","
             "\"std::list\","
             "\"std::map\","
+            "\"std::set\","
             "\"std::string\","
             "\"std::vector\","
             "\"std::wstring\","

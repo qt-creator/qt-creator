@@ -54,6 +54,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <set>
 #include <stack>
 #include <string>
 #include <vector>
@@ -283,6 +284,11 @@ void testQList()
     li.append(102);
     li.append(102);
     li.append(102);
+
+    QList<int *> lpi;
+    lpi.append(new int(1));
+    lpi.append(new int(2));
+    lpi.append(new int(3));
 
 
     for (int i = 0; i != 3; ++i) {
@@ -578,6 +584,22 @@ void testStdMap()
     map["Hallo"] = QPointer<QObject>(&ob);
     map["Welt"] = QPointer<QObject>(&ob);
     map["."] = QPointer<QObject>(&ob);
+#endif
+}
+
+void testStdSet()
+{
+    std::set<int> hgg0;
+    hgg0.insert(11);
+    hgg0.insert(22);
+    hgg0.insert(33);
+#if 1
+    std::set<QString> hgg1;
+    hgg1.insert("22.0");
+
+    QObject ob;
+    std::set<QPointer<QObject> > hash;
+    QPointer<QObject> ptr(&ob);
 #endif
 }
 
@@ -969,6 +991,7 @@ int main(int argc, char *argv[])
     testStdDeque();
     testStdList();
     testStdMap();
+    testStdSet();
     testStdStack();
     testStdString();
     testStdVector();
