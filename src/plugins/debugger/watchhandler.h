@@ -113,6 +113,7 @@ public:
     QString type;         // displayed type
     QString variable;     // name of internal Gdb variable if created
     QString addr;         // displayed adress
+    QString saddr;        // stored address (pointer in container)
     QString framekey;     // key for type cache
     QScriptValue scriptValue; // if needed...
     int childCount;

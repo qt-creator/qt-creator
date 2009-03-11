@@ -285,6 +285,11 @@ void testQList()
     li.append(102);
     li.append(102);
 
+    QList<int *> lpi;
+    lpi.append(new int(1));
+    lpi.append(new int(2));
+    lpi.append(new int(3));
+
 
     for (int i = 0; i != 3; ++i) {
         lu.append(i);
