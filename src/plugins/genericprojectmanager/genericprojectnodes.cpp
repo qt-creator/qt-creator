@@ -30,6 +30,8 @@
 #include "genericprojectnodes.h"
 #include "genericproject.h"
 
+#include <projectexplorer/projectexplorer.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
@@ -60,6 +62,8 @@ void GenericProjectNode::refresh()
     // remove the existing nodes.
     removeFileNodes(fileNodes(), this);
     removeFolderNodes(subFolderNodes(), this);
+
+    ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
 
     FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType,
                                              /* generated = */ false);
@@ -96,6 +100,8 @@ void GenericProjectNode::refresh()
 
         addFileNodes(fileNodes, folder);
     }
+
+    _folderByName.clear();
 }
 
 ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const QStringList &components, int end)

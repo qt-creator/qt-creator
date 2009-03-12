@@ -42,6 +42,7 @@
 #include <utils/pathchooser.h>
 
 QT_BEGIN_NAMESPACE
+class QPushButton;
 class QStringListModel;
 QT_END_NAMESPACE
 
@@ -85,13 +86,16 @@ public:
     QStringList includePaths() const;
     void setIncludePaths(const QStringList &includePaths);
 
-    QStringList files() const;
-    QStringList generated() const;
     QStringList defines() const;
+    void setDefines(const QStringList &defines);
+
+    QStringList files() const;
+    QStringList generated() const;    
     QString toolChainId() const;
 
 public Q_SLOTS:
     void setToolChainId(const QString &toolChainId);
+    void refresh();
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -99,7 +103,6 @@ protected:
 
 private:
     void parseProject();
-    void refresh();
 
     Manager *_manager;
     QString _fileName;
@@ -156,11 +159,14 @@ public:
 
 private Q_SLOTS:
     void buildDirectoryChanged();
+    void markDirty();
+    void applyChanges();
 
 private:
     GenericProject *_project;
     Core::Utils::PathChooser *_pathChooser;
     QString _buildConfiguration;
+    QPushButton *_applyButton;
     QStringListModel *_includePathsModel;
     QStringListModel *_definesModel;
 };

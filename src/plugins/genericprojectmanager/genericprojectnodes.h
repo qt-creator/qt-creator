@@ -78,7 +78,6 @@ private:
 private:
     GenericProject *_project;
     Core::IFile *_projectFile;
-
     QHash<QString, FolderNode *> _folderByName;
 };
 
