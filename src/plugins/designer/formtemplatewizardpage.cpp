@@ -29,6 +29,7 @@
 
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
+#include "designerconstants.h"
 
 #include <qt_private/abstractnewformwidget_p.h>
 
@@ -278,6 +279,8 @@ namespace {
 
 QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
 {
+    if (Designer::Constants::Internal::debug)
+        qDebug() << '>' << Q_FUNC_INFO << newUiClassName;
     QDomDocument domUi;
     if (!domUi.setContent(uiXml)) {
         qWarning("Failed to parse:\n%s", uiXml.toUtf8().constData());
@@ -320,6 +323,8 @@ QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QS
         }
     }
     const QString rc = domUi.toString();
+    if (Designer::Constants::Internal::debug > 1)
+        qDebug() << '<' << Q_FUNC_INFO << newUiClassName << rc;
     return rc;
 }
 #endif // USE_XSLT 
