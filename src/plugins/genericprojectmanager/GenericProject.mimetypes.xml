@@ -2,7 +2,7 @@
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
   <mime-type type="text/x-generic-project">
     <sub-class-of type="text/plain"/>
-    <comment>Generic Project file</comment>
-    <glob pattern="*.files"/>
+    <comment>Generic Qt Creator Project file</comment>
+    <glob pattern="*.creator"/>
   </mime-type>
 </mime-info>
