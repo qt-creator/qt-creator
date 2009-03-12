@@ -32,7 +32,7 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtGui/QTextEdit>
+#include <QtGui/QPlainTextEdit>
 
 namespace ProjectExplorer {
 
@@ -58,7 +58,7 @@ public:
     void setFocus();
 
 private:
-    QTextEdit *m_textEdit;
+    QPlainTextEdit *m_textEdit;
 };
 
 } // namespace Internal
