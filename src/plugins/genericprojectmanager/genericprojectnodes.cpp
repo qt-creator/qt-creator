@@ -234,12 +234,6 @@ void GenericProjectNode::setIncludePaths(const QStringList &includePaths)
 QStringList GenericProjectNode::defines() const
 { return _defines; }
 
-QString GenericProjectNode::toolChainId() const
-{ return _toolChainId; }
-
-void GenericProjectNode::setToolChainId(const QString &toolChainId)
-{ _toolChainId = toolChainId; }
-
 bool GenericProjectNode::hasTargets() const
 {
     qDebug() << Q_FUNC_INFO;

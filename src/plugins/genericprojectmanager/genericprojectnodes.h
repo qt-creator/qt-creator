@@ -69,9 +69,6 @@ public:
 
     void refresh();
 
-    QString toolChainId() const;
-    void setToolChainId(const QString &toolChainId);
-
     QStringList includePaths() const;
     void setIncludePaths(const QStringList &includePaths);
 
@@ -89,7 +86,6 @@ private:
     QStringList _generated;
     QStringList _includePaths;
     QStringList _defines;
-    QString _toolChainId;
 
     QHash<QString, FolderNode *> _folderByName;
 };

@@ -40,13 +40,14 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
-#include <QtDebug>
-#include <QDir>
-#include <QSettings>
+#include <QtCore/QtDebug>
+#include <QtCore/QDir>
+#include <QtCore/QSettings>
+#include <QtCore/QProcess>
 
-#include <QProcess>
-#include <QFormLayout>
-#include <QMainWindow>
+#include <QtGui/QFormLayout>
+#include <QtGui/QMainWindow>
+#include <QtGui/QComboBox>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -80,8 +81,6 @@ void GenericProject::refresh()
     qDebug() << Q_FUNC_INFO;
 
     _rootNode->refresh();
-
-    setToolChain(_rootNode->toolChainId());
 
     CppTools::CppModelManagerInterface *modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
@@ -123,6 +122,8 @@ void GenericProject::setToolChain(const QString &toolChainId)
 
     qDebug() << Q_FUNC_INFO;
 
+    _toolChainId = toolChainId;
+
     delete _toolChain;
     _toolChain = 0;
 
@@ -143,7 +144,6 @@ void GenericProject::setToolChain(const QString &toolChainId)
     } else if (toolChainId == QLatin1String("gcc") || toolChainId == QLatin1String("icc")) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         _toolChain = ToolChain::createGccToolChain(qmake_cxx);
-
     }
 }
 
@@ -169,6 +169,9 @@ QString GenericProject::buildParser(const QString &buildConfiguration) const
 
     return QString();
 }
+
+QString GenericProject::toolChainId() const
+{ return _toolChainId; }
 
 QString GenericProject::name() const
 {
@@ -248,7 +251,7 @@ QList<ProjectExplorer::BuildStepConfigWidget*> GenericProject::subConfigWidgets(
      makeStep()->setBuildTarget(buildConfiguration, "all", true);
  }
 
-ProjectExplorer::ProjectNode *GenericProject::rootProjectNode() const
+GenericProjectNode *GenericProject::rootProjectNode() const
 {
     qDebug() << Q_FUNC_INFO;
 
@@ -306,8 +309,7 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     if (toolChainId.isEmpty())
         toolChainId = QLatin1String("gcc");
 
-    toolChainId = toolChainId.toLower(); // ### move
-    _rootNode->setToolChainId(toolChainId);
+    setToolChain(toolChainId.toLower()); // ### move
 
     const QStringList includePaths = reader.restoreValue(QLatin1String("includePaths")).toStringList();
     _rootNode->setIncludePaths(includePaths);
@@ -319,7 +321,7 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 
     Project::saveSettingsImpl(writer);
 
-    writer.saveValue("toolChain", _rootNode->toolChainId());
+    writer.saveValue("toolChain", _toolChainId);
     writer.saveValue("includePaths", _rootNode->includePaths());
 }
 
@@ -339,6 +341,13 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     fl->addRow("Build directory:", _pathChooser);
 
     connect(_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
+
+    QComboBox *toolChainChooser = new QComboBox;
+    toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
+    toolChainChooser->setCurrentIndex(toolChainChooser->findText(_project->toolChainId()));
+    fl->addRow("Tool chain:", toolChainChooser);
+
+    connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChain(QString)));
 }
 
 GenericBuildSettingsWidget::~GenericBuildSettingsWidget()

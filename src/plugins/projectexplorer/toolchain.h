@@ -62,6 +62,7 @@ public:
     static ToolChain *createMSVCToolChain(const QString &name);
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
+    static QStringList supportedToolChains();
 
 protected:
     virtual bool equals(ToolChain *other) const = 0;

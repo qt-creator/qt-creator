@@ -69,14 +69,17 @@ public:
     virtual QList<ProjectExplorer::BuildStepConfigWidget*> subConfigWidgets();
 
     virtual void newBuildConfiguration(const QString &buildConfiguration);
-    virtual ProjectExplorer::ProjectNode *rootProjectNode() const;
+    virtual GenericProjectNode *rootProjectNode() const;
     virtual QStringList files(FilesMode fileMode) const;
-
-    void setToolChain(const QString &toolChainId);
 
     QStringList targets() const;
     MakeStep *makeStep() const;
     QString buildParser(const QString &buildConfiguration) const;
+
+    QString toolChainId() const;
+
+public Q_SLOTS:
+    void setToolChain(const QString &toolChainId);
 
 private:
     void refresh();
@@ -93,6 +96,7 @@ private:
 
     GenericProjectNode* _rootNode;
     ProjectExplorer::ToolChain *_toolChain;
+    QString _toolChainId;
 };
 
 class GenericProjectFile : public Core::IFile
