@@ -23,6 +23,8 @@ protected:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
+
+    virtual bool postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage);
 };
 
 } // end of namespace Internal
