@@ -262,6 +262,8 @@ void DebuggerManager::init()
         this, SLOT(loadAllSymbols()));
     connect(modulesView, SIGNAL(fileOpenRequested(QString)),
         this, SLOT(fileOpen(QString)));
+    connect(modulesView, SIGNAL(newDockRequested(QWidget*)),
+        this, SLOT(createNewDock(QWidget*)));
 
     // Source Files
     //m_sourceFilesHandler = new SourceFilesHandler;
@@ -506,6 +508,16 @@ void DebuggerManager::createDockWidgets()
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
     m_watchDock = createDockForWidget(localsAndWatchers);
+}
+
+void DebuggerManager::createNewDock(QWidget *widget)
+{
+    QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), m_mainWindow);
+    dockWidget->setObjectName(widget->windowTitle());
+    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
+    dockWidget->setWidget(widget);
+    m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+    dockWidget->show();
 }
 
 QDockWidget *DebuggerManager::createDockForWidget(QWidget *widget)

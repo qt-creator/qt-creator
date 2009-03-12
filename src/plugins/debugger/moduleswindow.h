@@ -48,11 +48,13 @@ signals:
     void loadSymbolsRequested(const QString &modulesName);
     void loadAllSymbolsRequested();
     void fileOpenRequested(QString);
+    void newDockRequested(QWidget *w);
 
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
     void moduleActivated(const QModelIndex &);
+    void showSymbols(const QString &name);
 
 private:
     void resizeEvent(QResizeEvent *ev);

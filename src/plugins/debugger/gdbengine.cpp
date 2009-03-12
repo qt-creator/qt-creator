@@ -2428,6 +2428,8 @@ void GdbEngine::handleModulesList(const GdbResultRecord &record)
 {
     QList<Module> modules;
     if (record.resultClass == GdbResultDone) {
+        // that's console-based output, likely Linux or Windows,
+        // but we can avoid the #ifdef here
         QString data = record.data.findChild("consolestreamoutput").data();
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
@@ -2441,6 +2443,21 @@ void GdbEngine::handleModulesList(const GdbResultRecord &record)
             module.moduleName = ts.readLine().trimmed();
             module.symbolsRead = (symbolsRead == "Yes");
             modules.append(module);
+        }
+        if (modules.isEmpty()) {
+            // Mac has^done,shlib-info={num="1",name="dyld",kind="-",
+            // dyld-addr="0x8fe00000",reason="dyld",requested-state="Y",
+            // state="Y",path="/usr/lib/dyld",description="/usr/lib/dyld",
+            // loaded_addr="0x8fe00000",slide="0x0",prefix="__dyld_"},
+            // shlib-info={...}...
+            foreach (const GdbMi &item, record.data.children()) {
+                Module module;
+                module.moduleName = item.findChild("path").data();
+                module.symbolsRead = (item.findChild("state").data() == "Y");
+                module.startAddress = item.findChild("loaded_addr").data();
+                module.endAddress = "<unknown>";
+                modules.append(module);
+            }
         }
     }
     qq->modulesHandler()->setModules(modules);
