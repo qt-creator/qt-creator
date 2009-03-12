@@ -861,7 +861,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_semicolonKey = key;
         handleFfTt(key);
         m_subsubmode = NoSubSubMode;
-        finishMovement();
+        finishMovement(QString("%1%2%3")
+            .arg(count())
+            .arg(QChar(m_semicolonType))
+            .arg(QChar(m_semicolonKey)));
     } else if (m_submode == ReplaceSubMode) {
         if (count() < rightDist() && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
