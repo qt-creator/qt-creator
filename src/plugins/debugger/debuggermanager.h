@@ -294,7 +294,6 @@ private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
     void showApplicationOutput(const QString &data);
-    void showWidgetInDock(QWidget *dock);
 
     void reloadDisassembler();
     void disassemblerDockToggled(bool on);
