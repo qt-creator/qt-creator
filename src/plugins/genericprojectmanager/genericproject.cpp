@@ -193,7 +193,7 @@ QStringList GenericProject::includePaths() const
 { return _includePaths; }
 
 void GenericProject::setIncludePaths(const QStringList &includePaths)
-{ _includePaths = convertToAbsoluteFiles(includePaths); }
+{ _includePaths = includePaths; }
 
 QStringList GenericProject::defines() const
 { return _defines; }
@@ -369,6 +369,8 @@ MakeStep *GenericProject::makeStep() const
 
 void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
+    qDebug() << Q_FUNC_INFO;
+
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
