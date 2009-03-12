@@ -262,13 +262,6 @@ QStringList GenericProject::files(FilesMode fileMode) const
     return _rootNode->files();
 }
 
-void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
-{
-    qDebug() << Q_FUNC_INFO;
-
-    Project::saveSettingsImpl(writer);
-}
-
 QStringList GenericProject::targets() const
 {
     QStringList targets;
@@ -308,6 +301,26 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
         const QFileInfo fileInfo(file()->fileName());
         setValue(all, buildDirectory, fileInfo.absolutePath());
     }
+
+    QString toolChainId = reader.restoreValue(QLatin1String("toolChain")).toString();
+    if (toolChainId.isEmpty())
+        toolChainId = QLatin1String("gcc");
+
+    toolChainId = toolChainId.toLower(); // ### move
+    _rootNode->setToolChainId(toolChainId);
+
+    const QStringList includePaths = reader.restoreValue(QLatin1String("includePaths")).toStringList();
+    _rootNode->setIncludePaths(includePaths);
+}
+
+void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
+{
+    qDebug() << Q_FUNC_INFO;
+
+    Project::saveSettingsImpl(writer);
+
+    writer.saveValue("toolChain", _rootNode->toolChainId());
+    writer.saveValue("includePaths", _rootNode->includePaths());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

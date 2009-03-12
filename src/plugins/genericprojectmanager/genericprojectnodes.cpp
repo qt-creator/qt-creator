@@ -74,9 +74,7 @@ void GenericProjectNode::refresh()
 
     _files        = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("files")).toStringList());
     _generated    = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("generated")).toStringList());
-    _includePaths = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("includes")).toStringList());
     _defines      = projectInfo.value(QLatin1String("defines")).toStringList();
-    _toolChainId  = projectInfo.value(QLatin1String("toolchain"), QLatin1String("gcc")).toString().toLower();
 
     FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType,
                                              /* generated = */ false);
@@ -230,11 +228,17 @@ QStringList GenericProjectNode::generated() const
 QStringList GenericProjectNode::includePaths() const
 { return _includePaths; }
 
+void GenericProjectNode::setIncludePaths(const QStringList &includePaths)
+{ _includePaths = convertToAbsoluteFiles(QDir(path()), includePaths); }
+
 QStringList GenericProjectNode::defines() const
 { return _defines; }
 
 QString GenericProjectNode::toolChainId() const
 { return _toolChainId; }
+
+void GenericProjectNode::setToolChainId(const QString &toolChainId)
+{ _toolChainId = toolChainId; }
 
 bool GenericProjectNode::hasTargets() const
 {

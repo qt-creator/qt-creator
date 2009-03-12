@@ -69,11 +69,15 @@ public:
 
     void refresh();
 
+    QString toolChainId() const;
+    void setToolChainId(const QString &toolChainId);
+
+    QStringList includePaths() const;
+    void setIncludePaths(const QStringList &includePaths);
+
     QStringList files() const;
     QStringList generated() const;
-    QStringList includePaths() const;
     QStringList defines() const;
-    QString toolChainId() const;
 
 private:
     FolderNode *findOrCreateFolderByName(const QString &filePath);
