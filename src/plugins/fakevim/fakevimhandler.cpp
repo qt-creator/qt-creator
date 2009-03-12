@@ -177,7 +177,7 @@ QDebug &operator<<(QDebug &ts, const EditOperation &op)
         ts << "\n  EDIT BLOCK WITH " << op.itemCount << " ITEMS";
     } else {
         ts << "\n  EDIT AT " << op.position
-           << "\n      FROM " << op.from << "\n      TO " << op.to;
+           << "  FROM   " << op.from << "   TO    " << op.to;
     }
     return ts;
 }
@@ -1399,7 +1399,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     const QString &text)
 {
-    if (key == Key_Escape) {
+    if (key == Key_Escape || key == 27) {
         // start with '1', as one instance was already physically inserted
         // while typing
         QString data = m_lastInsertion;
@@ -1412,6 +1412,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         //qDebug() << "UNDO: " << m_undoStack;
         moveLeft(qMin(1, leftDist()));
         m_dotCommand += m_lastInsertion;
+        m_dotCommand += QChar(27);
         enterCommandMode();
     } else if (key == Key_Left) {
         moveLeft(count());
@@ -2275,13 +2276,14 @@ void FakeVimHandler::Private::recordPosition()
     op.position = m_tc.position();
     m_undoStack.push(op);
     m_redoStack.clear();
-    //qDebug() << "MOVE: " << op;
-    //qDebug() << "\nSTACK: " << m_undoStack;
+    UNDO_DEBUG("MOVE: " << op);
+    UNDO_DEBUG("\nUNDO STACK: " << m_undoStack << "\n");
+    UNDO_DEBUG("\nREDO STACK: " << m_redoStack << "\n");
 }
 
 void FakeVimHandler::Private::recordOperation(const EditOperation &op)
 {
-    UNDO_DEBUG("OP: " << op);
+    UNDO_DEBUG("RECORD OP: " << op);
     // No need to record operations that actually do not change anything.
     if (op.from.isEmpty() && op.to.isEmpty() && op.itemCount == 0)
         return;
@@ -2290,7 +2292,8 @@ void FakeVimHandler::Private::recordOperation(const EditOperation &op)
         return;
     m_undoStack.push(op);
     m_redoStack.clear();
-    UNDO_DEBUG("\nSTACK: " << m_undoStack);
+    UNDO_DEBUG("\nUNDO STACK: " << m_undoStack << "\n");
+    UNDO_DEBUG("\nREDO STACK: " << m_redoStack << "\n");
 }
 
 void FakeVimHandler::Private::recordInsert(int position, const QString &data)
