@@ -476,8 +476,10 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
             //else
                 tt += "<tr><td>value</td><td> : </td><td>"; 
                 tt += htmlQuote(data.value) + "</td></tr>";
-            tt += "<tr><td>addr</td><td> : </td><td>";
+            tt += "<tr><td>object addr</td><td> : </td><td>";
             tt += htmlQuote(data.addr) + "</td></tr>";
+            tt += "<tr><td>stored addr</td><td> : </td><td>";
+            tt += htmlQuote(data.saddr) + "</td></tr>";
             tt += "<tr><td>iname</td><td> : </td><td>";
             tt += htmlQuote(data.iname) + "</td></tr>";
             tt += "</table>";

@@ -38,9 +38,6 @@
 #endif
 
 #include "designerconstants.h"
-#if QT_VERSION < 0x040500
-#    include "settings.h"
-#endif
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>

@@ -781,18 +781,9 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
         case ProVariable::RemoveOperator:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    // the insertUnique is a hack for the moment to fix the
-                    // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
-                    if (removeEach(&m_tempValuemap, varName, v) == 0)
-                        insertUnique(&m_tempValuemap, QString("-%1").arg(varName), v);
-                    if (removeEach(&m_tempFilevaluemap[currentProFile()], varName, v) == 0)
-                        insertUnique(&m_tempFilevaluemap[currentProFile()], QString("-%1").arg(varName), v);
+                    removeEach(&m_tempValuemap, varName, v);
+                    removeEach(&m_tempFilevaluemap[currentProFile()], varName, v);
                 }
-            } else if (!m_skipLevel) {
-                // the insertUnique is a hack for the moment to fix the
-                // CONFIG -= app_bundle problem on Mac (add it to a variable -CONFIG as was done before)
-                insertUnique(&m_tempValuemap, QString("-%1").arg(varName), v);
-                insertUnique(&m_tempFilevaluemap[currentProFile()], QString("-%1").arg(varName), v);
             } else {
                 // We are stingy with our values, too.
             }
@@ -987,11 +978,9 @@ QString ProFileEvaluator::Private::currentDirectory() const
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)
 {
-    bool fOK;
-    bool *ok = &fOK;
     QStringList ret;
-    if (ok)
-        *ok = true;
+//    if (ok)
+//        *ok = true;
     if (str.isEmpty())
         return ret;
 
@@ -1007,7 +996,10 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     const ushort DOT = '.';
     const ushort SPACE = ' ';
     const ushort TAB = '\t';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
 
+    ushort unicode, quote = 0;
     const QChar *str_data = str.data();
     const int str_len = str.length();
 
@@ -1017,13 +1009,120 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     int replaced = 0;
     QString current;
     for (int i = 0; i < str_len; ++i) {
-        ushort c = str_data[i].unicode();
+        unicode = str_data[i].unicode();
         const int start_var = i;
-        if (c == BACKSLASH) {
+        if (unicode == DOLLAR && str_len > i+2) {
+            unicode = str_data[++i].unicode();
+            if (unicode == DOLLAR) {
+                term = 0;
+                var.clear();
+                args.clear();
+                enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
+                unicode = str_data[++i].unicode();
+                if (unicode == LSQUARE) {
+                    unicode = str_data[++i].unicode();
+                    term = RSQUARE;
+                    var_type = PROPERTY;
+                } else if (unicode == LCURLY) {
+                    unicode = str_data[++i].unicode();
+                    var_type = VAR;
+                    term = RCURLY;
+                } else if (unicode == LPAREN) {
+                    unicode = str_data[++i].unicode();
+                    var_type = ENVIRON;
+                    term = RPAREN;
+                }
+                forever {
+                    if (!(unicode & (0xFF<<8)) &&
+                       unicode != DOT && unicode != UNDERSCORE &&
+                       //unicode != SINGLEQUOTE && unicode != DOUBLEQUOTE &&
+                       (unicode < 'a' || unicode > 'z') && (unicode < 'A' || unicode > 'Z') &&
+                       (unicode < '0' || unicode > '9'))
+                        break;
+                    var.append(QChar(unicode));
+                    if (++i == str_len)
+                        break;
+                    unicode = str_data[i].unicode();
+                    // at this point, i points to either the 'term' or 'next' character (which is in unicode)
+                }
+                if (var_type == VAR && unicode == LPAREN) {
+                    var_type = FUNCTION;
+                    int depth = 0;
+                    forever {
+                        if (++i == str_len)
+                            break;
+                        unicode = str_data[i].unicode();
+                        if (unicode == LPAREN) {
+                            depth++;
+                        } else if (unicode == RPAREN) {
+                            if (!depth)
+                                break;
+                            --depth;
+                        }
+                        args.append(QChar(unicode));
+                    }
+                    if (++i < str_len)
+                        unicode = str_data[i].unicode();
+                    else
+                        unicode = 0;
+                    // at this point i is pointing to the 'next' character (which is in unicode)
+                    // this might actually be a term character since you can do $${func()}
+                }
+                if (term) {
+                    if (unicode != term) {
+                        q->logMessage(format("Missing %1 terminator [found %2]")
+                            .arg(QChar(term))
+                            .arg(unicode ? QString(unicode) : QString::fromLatin1(("end-of-line"))));
+//                        if (ok)
+//                            *ok = false;
+                        return QStringList();
+                    }
+                } else {
+                    // move the 'cursor' back to the last char of the thing we were looking at
+                    --i;
+                }
+                // since i never points to the 'next' character, there is no reason for this to be set
+                unicode = 0;
+
+                QStringList replacement;
+                if (var_type == ENVIRON) {
+                    replacement = split_value_list(QString::fromLocal8Bit(qgetenv(var.toLatin1().constData())));
+                } else if (var_type == PROPERTY) {
+                    replacement << propertyValue(var);
+                } else if (var_type == FUNCTION) {
+                    replacement << evaluateExpandFunction(var, args);
+                } else if (var_type == VAR) {
+                    replacement = values(var);
+                }
+                if (!(replaced++) && start_var)
+                    current = str.left(start_var);
+                if (!replacement.isEmpty()) {
+                    if (quote) {
+                        current += replacement.join(QString(Option::field_sep));
+                    } else {
+                        current += replacement.takeFirst();
+                        if (!replacement.isEmpty()) {
+                            if (!current.isEmpty())
+                                ret.append(current);
+                            current = replacement.takeLast();
+                            if (!replacement.isEmpty())
+                                ret += replacement;
+                        }
+                    }
+                }
+            } else {
+                if (replaced)
+                    current.append(QLatin1Char('$'));
+            }
+        }
+        if (quote && unicode == quote) {
+            unicode = 0;
+            quote = 0;
+        } else if (unicode == BACKSLASH) {
             bool escape = false;
-            const char *symbols = "[]{}()$\\";
+            const char *symbols = "[]{}()$\\'\"";
             for (const char *s = symbols; *s; ++s) {
-                if (str_data[i+1] == (ushort)*s) {
+                if (str_data[i+1].unicode() == (ushort)*s) {
                     i++;
                     escape = true;
                     if (!(replaced++))
@@ -1032,129 +1131,27 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                     break;
                 }
             }
-            if (!escape && replaced)
-                current.append(QChar(c));
-            continue;
-        }
-        if (c == SPACE || c == TAB) {
-            c = 0;
+            if (escape || !replaced)
+                unicode =0;
+        } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
+            quote = unicode;
+            unicode = 0;
+            if (!(replaced++) && i)
+                current = str.left(i);
+        } else if (!quote && (unicode == SPACE || unicode == TAB)) {
+            unicode = 0;
             if (!current.isEmpty()) {
-                unquote(&current);
                 ret.append(current);
                 current.clear();
             }
-        } else if (c == DOLLAR && str_len > i+2) {
-            c = str_data[++i].unicode();
-            if (c == DOLLAR) {
-                term = 0;
-                var.clear();
-                args.clear();
-                enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
-                c = str_data[++i].unicode();
-                if (c == LSQUARE) {
-                    c = str_data[++i].unicode();
-                    term = RSQUARE;
-                    var_type = PROPERTY;
-                } else if (c == LCURLY) {
-                    c = str_data[++i].unicode();
-                    var_type = VAR;
-                    term = RCURLY;
-                } else if (c == LPAREN) {
-                    c = str_data[++i].unicode();
-                    var_type = ENVIRON;
-                    term = RPAREN;
-                }
-                while (1) {
-                    if (!(c & (0xFF<<8)) &&
-                       c != DOT && c != UNDERSCORE &&
-                       (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
-                        break;
-                    var.append(QChar(c));
-                    if (++i == str_len)
-                        break;
-                    c = str_data[i].unicode();
-                }
-                if (var_type == VAR && c == LPAREN) {
-                    var_type = FUNCTION;
-                    int depth = 0;
-                    while (1) {
-                        if (++i == str_len)
-                            break;
-                        c = str_data[i].unicode();
-                        if (c == LPAREN) {
-                            depth++;
-                        } else if (c == RPAREN) {
-                            if (!depth)
-                                break;
-                            --depth;
-                        }
-                        args.append(QChar(c));
-                    }
-                    if (i < str_len-1)
-                        c = str_data[++i].unicode();
-                    else
-                        c = 0;
-                }
-                if (term) {
-                    if (c != term) {
-                        q->logMessage(format("Missing %1 terminator [found %2]")
-                            .arg(QChar(term)).arg(QChar(c)));
-                        if (ok)
-                            *ok = false;
-                        return QStringList();
-                    }
-                    c = 0;
-                } else if (i > str_len-1) {
-                    c = 0;
-                }
-
-                QStringList replacement;
-                if (var_type == ENVIRON) {
-                    replacement << QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
-                } else if (var_type == PROPERTY) {
-                    replacement << propertyValue(var);
-                    //if (prop)
-                    //    replacement = QStringList(prop->value(var));
-                } else if (var_type == FUNCTION) {
-                    replacement << evaluateExpandFunction(var, args);
-                } else if (var_type == VAR) {
-                    replacement += values(var);
-                }
-                if (!(replaced++) && start_var)
-                    current = str.left(start_var);
-                if (!replacement.isEmpty()) {
-                    /* If a list is beteen two strings make sure it expands in such a way
-                     * that the string to the left is prepended to the first string and
-                     * the string to the right is appended to the last string, example:
-                     *  LIST = a b c
-                     *  V3 = x/$$LIST/f.cpp
-                     *  message($$member(V3,0))     # Outputs "x/a"
-                     *  message($$member(V3,1))     # Outputs "b"
-                     *  message($$member(V3,2))     # Outputs "c/f.cpp"
-                     */
-                    current.append(replacement.at(0));
-                    for (int i = 1; i < replacement.count(); ++i) {
-                        unquote(&current);
-                        ret.append(current);
-                        current = replacement.at(i);
-                    }
-                }
-            } else {
-                if (replaced)
-                    current.append(QLatin1Char('$'));
-            }
         }
-        if (replaced && c != 0)
-            current.append(QChar(c));
+        if (replaced && unicode)
+            current.append(QChar(unicode));
     }
-    if (!replaced) {
-        current = str;
-        unquote(&current);
+    if (!replaced)
+        ret = QStringList(str);
+    else if (!current.isEmpty())
         ret.append(current);
-    } else if (!current.isEmpty()) {
-        unquote(&current);
-        ret.append(current);
-    }
     return ret;
 }
 
@@ -1456,11 +1453,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         ret += val;
             }
             break;
-#if 0 // Disabled, as it is relatively useless, too slow and dangerous.
         case E_SYSTEM:
-            if (!m_skipLevel) { // FIXME: should exec only if the result is being used
-                                // (i.e., if this is nested into an assignment) - these
-                                // are less likely to have side effects
+            if (!m_skipLevel) {
                 if (args.count() < 1 || args.count() > 2) {
                     q->logMessage(format("system(execute) requires one or two arguments."));
                 } else {
@@ -1485,7 +1479,6 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
             }
             break;
-#endif
         case E_UNIQUE:
             if(args.count() != 1) {
                 q->logMessage(format("unique(var) requires one argument."));
@@ -1860,7 +1853,7 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                 dirstr = file.left(slsh+1);
                 file = file.right(file.length() - slsh - 1);
             }
-            if (file.contains('*') || file.contains('?'))
+            if (file.contains(QLatin1Char('*')) || file.contains(QLatin1Char('?')))
                 cond = QDir(dirstr).entryList(QStringList(file)).count();
 
             break;
@@ -2317,17 +2310,10 @@ void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringL
         + visitor.values(QLatin1String("FORMS3"));
     sourceFiles << forms;
 
-#if QT_VERSION >= 0x040500
     sourceFiles.sort();
     sourceFiles.removeDuplicates();
     tsFileNames.sort();
     tsFileNames.removeDuplicates();
-#else
-    sourceFiles = sourceFiles.toSet().toList();
-    sourceFiles.sort();
-    tsFileNames = tsFileNames.toSet().toList();
-    tsFileNames.sort();
-#endif
 
     varMap->insert("SOURCES", sourceFiles);
     varMap->insert("CODECFORTR", QStringList() << codecForTr);

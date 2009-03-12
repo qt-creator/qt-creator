@@ -826,10 +826,12 @@ Project *SessionManager::projectForNode(Node *node) const
     return project;
 }
 
-Node *SessionManager::nodeForFile(const QString &fileName) const
+Node *SessionManager::nodeForFile(const QString &fileName, Project *project) const
 {
     Node *node = 0;
-    if (Project *project = projectForFile(fileName)) {
+    if (!project)
+        project = projectForFile(fileName);
+    if (project) {
         FindNodesForFileVisitor findNodes(fileName);
         project->rootProjectNode()->accept(&findNodes);
 

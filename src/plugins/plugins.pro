@@ -29,7 +29,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_fakevim \
             plugin_designer \
             plugin_resourceeditor \
-	    plugin_genericprojectmanager
+	    plugin_genericprojectmanager \
+            debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
 

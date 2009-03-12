@@ -174,7 +174,7 @@ int main()
        the Windows kernel runs amok when we attempt this.
        So instead we start a debugged process, eat all the initial
        debug events, suspend the process and detach from it. If gdb
-       tries to attach *now*, everthing goes smoothly. Yay. */
+       tries to attach *now*, everything goes smoothly. Yay. */
     if (creationFlags & DEBUG_ONLY_THIS_PROCESS) {
         do {
             if (!WaitForDebugEvent (&dbev, INFINITE))
