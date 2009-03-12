@@ -2310,9 +2310,9 @@ static void qDumpStdWString(QDumper &d)
         qCheckAccess(str.c_str() + str.size() - 1);
     }
 
-    d << "value='";
+    d << ",value=\"";
     d.putBase64Encoded((const char *)str.c_str(), str.size() * sizeof(wchar_t));
-    d << "'";
+    d << "\"";
     P(d, "valueencoded", (sizeof(wchar_t) == 2 ? "2" : "3"));
     P(d, "type", "std::wstring");
     P(d, "numchild", "0");
