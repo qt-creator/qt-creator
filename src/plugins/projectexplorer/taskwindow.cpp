@@ -334,8 +334,9 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
     if (file.isEmpty() || line == -1)
         return;
 
-    if (QFileInfo(file).exists()) {
-        TextEditor::BaseTextEditor::openEditorAt(file, line);
+    QFileInfo fi(file);
+    if (fi.exists()) {
+        TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), line);
         Core::EditorManager::instance()->ensureEditorManagerVisible();
     }
     else
