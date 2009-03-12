@@ -1078,8 +1078,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_moveType = MoveInclusive;
         moveToWordBoundary(true, true);
         finishMovement();
-    } else if (key == 'f' || key == 'F') {
+    } else if (key == 'f') {
         m_subsubmode = FtSubSubMode;
+        m_moveType = MoveInclusive;
+        m_subsubdata = key;
+    } else if (key == 'F') {
+        m_subsubmode = FtSubSubMode;
+        m_moveType = MoveExclusive;
         m_subsubdata = key;
     } else if (key == 'g') {
         if (m_gflag) {
@@ -1269,7 +1274,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount.clear();
         m_mvcount.clear();
         enterInsertMode();
-    } else if (key == 't' || key == 'T') {
+    } else if (key == 't') {
+        m_moveType = MoveInclusive;
+        m_subsubmode = FtSubSubMode;
+        m_subsubdata = key;
+    } else if (key == 'T') {
+        m_moveType = MoveExclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == 'u') {
@@ -1986,11 +1996,6 @@ void FakeVimHandler::Private::handleFfTt(int key)
             if (m_subsubdata == 't')
                 --pos;
             else if (m_subsubdata == 'T')
-                ++pos;
-            // FIXME: strange correction...
-            if (m_submode == DeleteSubMode && m_subsubdata == 'f')
-                ++pos;
-            if (m_submode == DeleteSubMode && m_subsubdata == 't')
                 ++pos;
 
             if (forward)
