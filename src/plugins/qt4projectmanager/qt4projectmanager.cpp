@@ -130,13 +130,6 @@ QString Qt4Manager::mimeType() const
 
 ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
 {
-    typedef QMultiMap<QString, QString> DependencyMap;
-    const QString dotSubDir = QLatin1String(".subdir");
-    const QString dotDepends = QLatin1String(".depends");
-    const QChar slash = QLatin1Char('/');
-
-    QString errorMessage;
-
     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
     messageManager->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
 

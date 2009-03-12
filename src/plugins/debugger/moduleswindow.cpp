@@ -117,7 +117,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     act6->setDisabled(name.isEmpty());
     act7->setDisabled(name.isEmpty());
     #ifndef Q_OS_LINUX
-    act7->setDisabled(true)l
+    act7->setDisabled(true);
     #endif
 
     menu.addAction(act0);

@@ -904,13 +904,19 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         // Special case were subdir is just an identifier:
         //   "SUBDIR = subid
         //    subid.subdir = realdir"
+        // or
+        //   "SUBDIR = subid
+        //    subid.file = realdir/realfile.pro"
 
         QString realDir;
         QString realFile;
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
+        const QString subDirFileKey = subDirVar + QLatin1String(".file");
         if (reader->contains(subDirKey))
             realDir = QFileInfo(reader->value(subDirKey)).filePath();
-         else
+        else if (reader->contains(subDirFileKey))
+            realDir = QFileInfo(reader->value(subDirFileKey)).filePath();
+        else
             realDir = subDirVar;
         QFileInfo info(realDir);
         if (!info.isAbsolute())
