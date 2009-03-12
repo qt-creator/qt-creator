@@ -76,23 +76,37 @@ public:
     MakeStep *makeStep() const;
     QString buildParser(const QString &buildConfiguration) const;
 
+    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
+
+    QStringList includePaths() const;
+    void setIncludePaths(const QStringList &includePaths);
+
+    QStringList files() const;
+    QStringList generated() const;
+    QStringList defines() const;
+
     QString toolChainId() const;
 
 public Q_SLOTS:
-    void setToolChain(const QString &toolChainId);
-
-private:
-    void refresh();
+    void setToolChainId(const QString &toolChainId);
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
 private:
+    void parseProject();
+    void refresh();
+
     Manager *_manager;
     QString _fileName;
     GenericProjectFile *_file;
     QString _projectName;
+
+    QStringList _files;
+    QStringList _generated;
+    QStringList _includePaths;
+    QStringList _defines;
 
     GenericProjectNode* _rootNode;
     ProjectExplorer::ToolChain *_toolChain;

@@ -38,10 +38,12 @@
 namespace GenericProjectManager {
 namespace Internal {
 
+class GenericProject;
+
 class GenericProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    GenericProjectNode(Core::IFile *projectFile);
+    GenericProjectNode(GenericProject *project, Core::IFile *projectFile);
     virtual ~GenericProjectNode();
 
     Core::IFile *projectFile() const;
@@ -69,23 +71,13 @@ public:
 
     void refresh();
 
-    QStringList includePaths() const;
-    void setIncludePaths(const QStringList &includePaths);
-
-    QStringList files() const;
-    QStringList generated() const;
-    QStringList defines() const;
-
 private:
     FolderNode *findOrCreateFolderByName(const QString &filePath);
     FolderNode *findOrCreateFolderByName(const QStringList &components, int end);
 
 private:
+    GenericProject *_project;
     Core::IFile *_projectFile;
-    QStringList _files;
-    QStringList _generated;
-    QStringList _includePaths;
-    QStringList _defines;
 
     QHash<QString, FolderNode *> _folderByName;
 };

@@ -111,9 +111,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     qDebug() << Q_FUNC_INFO;
 
     _file = new GenericProjectFile(this, fileName);
-    _rootNode = new GenericProjectNode(_file);
-
-    refresh();
+    _rootNode = new GenericProjectNode(this, _file);
 }
 
 GenericProject::~GenericProject()
@@ -122,6 +120,15 @@ GenericProject::~GenericProject()
 
     delete _rootNode;
     delete _toolChain;
+}
+
+void GenericProject::parseProject()
+{
+    QSettings projectInfo(_fileName, QSettings::IniFormat);
+
+    _files     = convertToAbsoluteFiles(projectInfo.value(QLatin1String("files")).toStringList());
+    _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
+    _defines   = projectInfo.value(QLatin1String("defines")).toStringList();
 }
 
 void GenericProject::refresh()
@@ -150,21 +157,48 @@ void GenericProject::refresh()
                 allIncludePaths.append(headerPath.path());
         }
 
-        allIncludePaths += _rootNode->includePaths();
+        allIncludePaths += includePaths();
 
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.includePaths = allIncludePaths;
 
         // ### add _defines.
-        pinfo.sourceFiles = _rootNode->files();
-        pinfo.sourceFiles += _rootNode->generated();
+        pinfo.sourceFiles = files();
+        pinfo.sourceFiles += generated();
 
         modelManager->updateProjectInfo(pinfo);
         modelManager->updateSourceFiles(pinfo.sourceFiles);
     }
 }
 
-void GenericProject::setToolChain(const QString &toolChainId)
+QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths) const
+{
+    const QDir projectDir(QFileInfo(_fileName).dir());
+    QStringList absolutePaths;
+    foreach (const QString &file, paths) {
+        QFileInfo fileInfo(projectDir, file);
+        absolutePaths.append(fileInfo.absoluteFilePath());
+    }
+    absolutePaths.removeDuplicates();
+    return absolutePaths;
+}
+
+QStringList GenericProject::files() const
+{ return _files; }
+
+QStringList GenericProject::generated() const
+{ return _generated; }
+
+QStringList GenericProject::includePaths() const
+{ return _includePaths; }
+
+void GenericProject::setIncludePaths(const QStringList &includePaths)
+{ _includePaths = convertToAbsoluteFiles(includePaths); }
+
+QStringList GenericProject::defines() const
+{ return _defines; }
+
+void GenericProject::setToolChainId(const QString &toolChainId)
 {
     using namespace ProjectExplorer;
 
@@ -310,7 +344,7 @@ QStringList GenericProject::files(FilesMode fileMode) const
 {
     qDebug() << Q_FUNC_INFO;
 
-    return _rootNode->files();
+    return _files; // ### TODO: handle generated files here.
 }
 
 QStringList GenericProject::targets() const
@@ -357,10 +391,11 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     if (toolChainId.isEmpty())
         toolChainId = QLatin1String("gcc");
 
-    setToolChain(toolChainId.toLower()); // ### move
+    setToolChainId(toolChainId.toLower()); // ### move
+    setIncludePaths(reader.restoreValue(QLatin1String("includePaths")).toStringList());
 
-    const QStringList includePaths = reader.restoreValue(QLatin1String("includePaths")).toStringList();
-    _rootNode->setIncludePaths(includePaths);
+    parseProject();
+    refresh();
 }
 
 void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
@@ -370,7 +405,7 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
     Project::saveSettingsImpl(writer);
 
     writer.saveValue("toolChain", _toolChainId);
-    writer.saveValue("includePaths", _rootNode->includePaths());
+    writer.saveValue("includePaths", _includePaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +429,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
     toolChainChooser->setCurrentIndex(toolChainChooser->findText(_project->toolChainId()));
     fl->addRow(tr("Tool chain:"), toolChainChooser);
-    connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChain(QString)));
+    connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChainId(QString)));
 
     // include paths
     QListView *includePathsView = new QListView;
