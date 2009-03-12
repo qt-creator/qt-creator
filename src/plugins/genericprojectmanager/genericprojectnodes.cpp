@@ -65,6 +65,92 @@ void GenericProjectNode::refresh()
 {
     using namespace ProjectExplorer;
 
+    // remove the existing nodes.
+    removeFileNodes(fileNodes(), this);
+    removeFolderNodes(subFolderNodes(), this);
+
+    QDir projectPath(path());
+    QSettings projectInfo(projectFilePath(), QSettings::IniFormat);
+
+    _files        = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("files")).toStringList());
+    _generated    = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("generated")).toStringList());
+    _includePaths = convertToAbsoluteFiles(projectPath, projectInfo.value(QLatin1String("includes")).toStringList());
+    _defines      = projectInfo.value(QLatin1String("defines")).toStringList();
+    _toolChainId  = projectInfo.value(QLatin1String("toolchain"), QLatin1String("gcc")).toString().toLower();
+
+    FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType,
+                                             /* generated = */ false);
+
+    addFileNodes(QList<FileNode *>() << projectFileNode, this);
+
+    QStringList filePaths;
+    QHash<QString, QStringList> filesInPath;
+
+    foreach (const QString &absoluteFileName, _files) {
+        QFileInfo fileInfo(absoluteFileName);
+        const QString absoluteFilePath = fileInfo.path();
+
+        if (! absoluteFilePath.startsWith(path()))
+            continue; // `file' is not part of the project.
+
+        const QString relativeFilePath = absoluteFilePath.mid(path().length() + 1);
+
+        if (! filePaths.contains(relativeFilePath))
+            filePaths.append(relativeFilePath);
+
+        filesInPath[relativeFilePath].append(absoluteFileName);
+    }
+
+    foreach (const QString &filePath, filePaths) {
+        FolderNode *folder = findOrCreateFolderByName(filePath);
+
+        QList<FileNode *> fileNodes;
+        foreach (const QString &file, filesInPath.value(filePath)) {
+            FileType fileType = SourceType; // ### FIXME
+            FileNode *fileNode = new FileNode(file, fileType, /*generated = */ false);
+            fileNodes.append(fileNode);
+        }
+
+        addFileNodes(fileNodes, folder);
+    }
+}
+
+ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const QStringList &components, int end)
+{
+    if (! end)
+        return 0;
+
+    QString folderName;
+    for (int i = 0; i < end; ++i) {
+        folderName.append(components.at(i));
+        folderName += QLatin1Char('/'); // ### FIXME
+    }
+
+    FolderNode *folder = _folderByName.value(folderName);
+    if (! folder) {
+        folder = new FolderNode(components.at(end - 1));
+        _folderByName.insert(folderName, folder);
+
+        FolderNode *parent = findOrCreateFolderByName(components, end - 1);
+        if (! parent)
+            parent = this;
+        addFolderNodes(QList<FolderNode*>() << folder, parent);
+    }
+
+    return folder;
+}
+
+ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const QString &filePath)
+{
+    QStringList components = filePath.split(QLatin1Char('/'));
+    return findOrCreateFolderByName(components, components.length());
+}
+
+#if 0
+void GenericProjectNode::refresh()
+{
+    using namespace ProjectExplorer;
+
     removeFileNodes(fileNodes(), this);
     removeFolderNodes(subFolderNodes(), this);
 
@@ -133,6 +219,7 @@ void GenericProjectNode::refresh()
         addFileNodes(fileNodes, folder);
     }
 }
+#endif
 
 QStringList GenericProjectNode::files() const
 { return _files; }

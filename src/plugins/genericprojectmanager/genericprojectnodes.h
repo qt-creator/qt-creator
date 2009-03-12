@@ -33,6 +33,7 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
 #include <QStringList>
+#include <QHash>
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -75,12 +76,18 @@ public:
     QString toolChainId() const;
 
 private:
+    FolderNode *findOrCreateFolderByName(const QString &filePath);
+    FolderNode *findOrCreateFolderByName(const QStringList &components, int end);
+
+private:
     Core::IFile *_projectFile;
     QStringList _files;
     QStringList _generated;
     QStringList _includePaths;
     QStringList _defines;
     QString _toolChainId;
+
+    QHash<QString, FolderNode *> _folderByName;
 };
 
 } // namespace Internal
