@@ -61,8 +61,6 @@ private slots:
     void restoreStatus();
     void saveStatus();
 
-    void updateTreeWidget();
-
     void updateTreeWidgetStatupProjectChanged(ProjectExplorer::Project *startupProject);
     void updateTreeWidgetProjectAdded(ProjectExplorer::Project *addedProject);
     void updateTreeWidgetProjectRemoved(ProjectExplorer::Project *removedProject);
