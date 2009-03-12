@@ -29,6 +29,7 @@
 
 #include "genericprojectplugin.h"
 #include "genericprojectmanager.h"
+#include "genericprojectwizard.h"
 #include "makestep.h"
 
 #include <coreplugin/icore.h>
@@ -57,8 +58,9 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
         return false;
 
-    addAutoReleasedObject(new Manager());
-    addAutoReleasedObject(new MakeBuildStepFactory());
+    addAutoReleasedObject(new Manager);
+    addAutoReleasedObject(new MakeBuildStepFactory);
+    addAutoReleasedObject(new GenericProjectWizard);
 
     return true;
 }
