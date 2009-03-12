@@ -227,6 +227,7 @@ private:
     EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
     void finishMovement(const QString &text = QString());
     void search(const QString &needle, bool forward);
+    void highlightMatches(const QString &needle);
 
     int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
     int opCount() const { return m_opcount.isEmpty() ? 1 : m_opcount.toInt(); }
@@ -391,6 +392,8 @@ public:
     void recordJump();
     QList<int> m_jumpListUndo;
     QList<int> m_jumpListRedo;
+
+    QList<QTextEdit::ExtraSelection> m_searchSelections;
 };
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
@@ -416,6 +419,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_cursorWidth = EDITOR(cursorWidth());
 
     m_config[ConfigStartOfLine] = ConfigOn;
+    m_config[ConfigHlSearch]    = ConfigOn;
     m_config[ConfigTabStop]     = "8";
     m_config[ConfigSmartTab]    = ConfigOff;
     m_config[ConfigShiftWidth]  = "8";
@@ -659,7 +663,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 
 void FakeVimHandler::Private::updateSelection()
 {
-    QList<QTextEdit::ExtraSelection> selections;
+    QList<QTextEdit::ExtraSelection> selections = m_searchSelections;
     if (m_visualMode != NoVisualMode) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = m_tc;
@@ -1788,6 +1792,16 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     }
 }
 
+static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)
+{
+    // FIXME: Rough mapping of a common case
+    if (needle->startsWith("\\<") && needle->endsWith("\\>"))
+        (*flags) |= QTextDocument::FindWholeWords;
+    needle->replace("\\<", ""); // start of word
+    needle->replace("\\>", ""); // end of word
+    //qDebug() << "NEEDLE " << needle0 << needle;
+}
+
 void FakeVimHandler::Private::search(const QString &needle0, bool forward)
 {
     showBlackMessage((forward ? '/' : '?') + needle0);
@@ -1796,14 +1810,8 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
     if (!forward)
         flags |= QTextDocument::FindBackward;
 
-    // FIXME: Rough mapping of a common case
     QString needle = needle0;
-    if (needle.startsWith("\\<") && needle.endsWith("\\>"))
-        flags |= QTextDocument::FindWholeWords;
-    needle.replace("\\<", ""); // start of word
-    needle.replace("\\>", ""); // end of word
-
-    //qDebug() << "NEEDLE " << needle0 << needle << "FORWARD" << forward << flags;
+    vimPatternToQtPattern(&needle, &flags);
 
     if (forward)
         m_tc.movePosition(Right, MoveAnchor, 1);
@@ -1817,6 +1825,7 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
         // making this unconditional feels better, but is not "vim like"
         if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+        highlightMatches(needle);
         return;
     }
 
@@ -1831,10 +1840,39 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
             showRedMessage("search hit BOTTOM, continuing at TOP");
         else
             showRedMessage("search hit TOP, continuing at BOTTOM");
+        highlightMatches(needle);
         return;
     }
 
     m_tc = orig;
+}
+
+void FakeVimHandler::Private::highlightMatches(const QString &needle0)
+{
+    if (m_config[ConfigHlSearch] == ConfigOff)
+        return;
+
+    QTextCursor tc = m_tc;
+    tc.movePosition(QTextCursor::Start, MoveAnchor);
+
+    QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
+    QString needle = needle0;
+    vimPatternToQtPattern(&needle, &flags);
+
+    m_searchSelections.clear();
+
+    EDITOR(setTextCursor(tc));
+    while (EDITOR(find(needle, flags))) {
+        tc = EDITOR(textCursor());
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = tc;
+        sel.format = tc.blockCharFormat();
+        sel.format.setBackground(QColor(177, 177, 0));
+        m_searchSelections.append(sel);
+        tc.movePosition(Right, MoveAnchor);
+        EDITOR(setTextCursor(tc));
+    }
+    updateSelection();
 }
 
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
