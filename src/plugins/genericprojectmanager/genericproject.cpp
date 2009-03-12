@@ -48,6 +48,8 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
 #include <QtGui/QComboBox>
+#include <QtGui/QStringListModel>
+#include <QtGui/QListWidget>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -55,6 +57,52 @@ using namespace GenericProjectManager::Internal;
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericProject
 ////////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class ListModel: public QStringListModel
+{
+public:
+    ListModel(QObject *parent)
+        : QStringListModel(parent) {}
+
+    virtual ~ListModel() {}
+
+    virtual int rowCount(const QModelIndex &parent) const
+    { return 1 + QStringListModel::rowCount(parent); }
+
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const
+    { return QStringListModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled; }
+
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const
+    {
+        if (row == stringList().size())
+            return createIndex(row, column);
+
+        return QStringListModel::index(row, column, parent);
+    }
+
+    virtual QVariant data(const QModelIndex &index, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (index.row() == stringList().size())
+                return tr("<new>");
+        }
+
+        return QStringListModel::data(index, role);
+    }
+
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role)
+    {
+        if (role == Qt::EditRole && index.row() == stringList().size())
+            insertRow(index.row(), QModelIndex());
+
+        return QStringListModel::setData(index, value, role);
+    }
+};
+
+} // end of anonymous namespace
+
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : _manager(manager),
       _fileName(fileName),
@@ -334,20 +382,29 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     qDebug() << Q_FUNC_INFO;
 
     QFormLayout *fl = new QFormLayout(this);
-    
+
+    // build directory
     _pathChooser = new Core::Utils::PathChooser(this);
     _pathChooser->setEnabled(true);
-
-    fl->addRow("Build directory:", _pathChooser);
-
+    fl->addRow(tr("Build directory:"), _pathChooser);
     connect(_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
 
+    // tool chain
     QComboBox *toolChainChooser = new QComboBox;
     toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
     toolChainChooser->setCurrentIndex(toolChainChooser->findText(_project->toolChainId()));
-    fl->addRow("Tool chain:", toolChainChooser);
-
+    fl->addRow(tr("Tool chain:"), toolChainChooser);
     connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChain(QString)));
+
+    // include paths
+    QListView *includePathsView = new QListView;
+    includePathsView->setModel(new ListModel(this));
+    fl->addRow(tr("Include paths:"), includePathsView);
+
+    // defines
+    QListView *definesView = new QListView;
+    definesView->setModel(new ListModel(this));
+    fl->addRow(tr("Defines:"), definesView);
 }
 
 GenericBuildSettingsWidget::~GenericBuildSettingsWidget()
