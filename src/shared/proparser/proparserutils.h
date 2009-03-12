@@ -116,17 +116,6 @@ QString Option::dirlist_sep;
 QString Option::dir_sep;
 QChar Option::field_sep;
 
-static void unquote(QString *string)
-{
-    PRE(string);
-    if ( (string->startsWith(QLatin1Char('\"')) && string->endsWith(QLatin1Char('\"')))
-        || (string->startsWith(QLatin1Char('\'')) && string->endsWith(QLatin1Char('\''))) )
-    {
-        string->remove(0,1);
-        string->remove(string->length() - 1,1);
-    }
-}
-
 static void insertUnique(QHash<QString, QStringList> *map,
     const QString &key, const QStringList &value)
 {
@@ -136,14 +125,12 @@ static void insertUnique(QHash<QString, QStringList> *map,
             sl.append(str);
 }
 
-static int removeEach(QHash<QString, QStringList> *map,
+static void removeEach(QHash<QString, QStringList> *map,
     const QString &key, const QStringList &value)
 {
-    int count = 0;
     QStringList &sl = (*map)[key];
     foreach (const QString &str, value)
-        count += sl.removeAll(str);
-    return count;
+        sl.removeAll(str);
 }
 
 /*
@@ -223,7 +210,8 @@ static QStringList split_arg_list(QString params)
             quote = 0;
         } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
             quote = unicode;
-        } else if (!parens && !quote && unicode == COMMA) {
+        }
+        if (!parens && !quote && unicode == COMMA) {
             QString mid = params.mid(last, x - last).trimmed();
             args << mid;
             last = x+1;
@@ -232,8 +220,6 @@ static QStringList split_arg_list(QString params)
                 ++last;
         }
     }
-    for (int i = 0; i < args.count(); i++)
-        unquote(&args[i]);
     return args;
 }
 
@@ -241,34 +227,35 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
 {
     QString build;
     QStringList ret;
-    QStack<QChar> quote;
+    QStack<char> quote;
 
-    const QChar LPAREN = QLatin1Char('(');
-    const QChar RPAREN = QLatin1Char(')');
-    const QChar SINGLEQUOTE = QLatin1Char('\'');
-    const QChar DOUBLEQUOTE = QLatin1Char('"');
-    const QChar BACKSLASH = QLatin1Char('\\');
-    const QChar SEMICOLON = QLatin1Char(';');
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
+    const ushort BACKSLASH = '\\';
+    const ushort SEMICOLON = ';';
 
+    ushort unicode;
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
     for (int x = 0, parens = 0; x < vals_len; x++) {
-        QChar c = vals_data[x];
-        if (x != vals_len-1 && c == BACKSLASH &&
-           vals_data[x+1].unicode() == '\'' || vals_data[x+1] == DOUBLEQUOTE) {
-            build += vals_data[x++]; // get that 'escape'
-        } else if (!quote.isEmpty() && c == quote.top()) {
+        unicode = vals_data[x].unicode();
+        if (x != (int)vals_len-1 && unicode == BACKSLASH &&
+            (vals_data[x+1].unicode() == SINGLEQUOTE || vals_data[x+1].unicode() == DOUBLEQUOTE)) {
+            build += vals_data[x++]; //get that 'escape'
+        } else if (!quote.isEmpty() && unicode == quote.top()) {
             quote.pop();
-        } else if (c == SINGLEQUOTE || c == DOUBLEQUOTE) {
-            quote.push(c);
-        } else if (c == RPAREN) {
+        } else if (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
+            quote.push(unicode);
+        } else if (unicode == RPAREN) {
             --parens;
-        } else if (c == LPAREN) {
+        } else if (unicode == LPAREN) {
             ++parens;
         }
 
-        if (!parens && quote.isEmpty() && ((do_semicolon && c == SEMICOLON) ||
-                                          vals_data[x] == Option::field_sep)) {
+        if (!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
+                                           vals_data[x] == Option::field_sep)) {
             ret << build;
             build.clear();
         } else {

@@ -299,7 +299,7 @@ void Qt4RunConfiguration::updateCachedValues()
     }
 
 #if defined (Q_OS_MAC)
-    if (!reader->values("-CONFIG").contains("app_bundle")) {
+    if (reader->values("CONFIG").contains("app_bundle")) {
         destDir += QLatin1Char('/')
                    + "${QMAKE_TARGET}"
                    + QLatin1String(".app/Contents/MacOS");

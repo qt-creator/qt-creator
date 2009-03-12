@@ -73,7 +73,12 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     }
 
     QStringList xtermArgs;
-    xtermArgs << "-e" << (QCoreApplication::applicationDirPath() + "/qtcreator_process_stub")
+    xtermArgs << "-e"
+#ifdef Q_OS_MAC
+              << (QCoreApplication::applicationDirPath() + "/../Resources/qtcreator_process_stub")
+#else
+              << (QCoreApplication::applicationDirPath() + "/qtcreator_process_stub")
+#endif
               << (m_debug ? "debug" : "exec")
               << m_stubServer.fullServerName()
               << tr("Press <RETURN> to close this window...")
