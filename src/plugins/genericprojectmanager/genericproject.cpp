@@ -404,8 +404,8 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 
     Project::saveSettingsImpl(writer);
 
-    writer.saveValue("toolChain", _toolChainId);
-    writer.saveValue("includePaths", _includePaths);
+    writer.saveValue(QLatin1String("toolChain"), _toolChainId);
+    writer.saveValue(QLatin1String("includePaths"), _includePaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -433,12 +433,16 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
 
     // include paths
     QListView *includePathsView = new QListView;
-    includePathsView->setModel(new ListModel(this));
+    _includePathsModel = new ListModel(this);
+    _includePathsModel->setStringList(_project->includePaths());
+    includePathsView->setModel(_includePathsModel);
     fl->addRow(tr("Include paths:"), includePathsView);
 
     // defines
     QListView *definesView = new QListView;
-    definesView->setModel(new ListModel(this));
+    _definesModel = new ListModel(this);
+    _definesModel->setStringList(_project->defines());
+    definesView->setModel(_definesModel);
     fl->addRow(tr("Defines:"), definesView);
 }
 

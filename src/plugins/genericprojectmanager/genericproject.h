@@ -41,6 +41,10 @@
 #include <coreplugin/ifile.h>
 #include <utils/pathchooser.h>
 
+QT_BEGIN_NAMESPACE
+class QStringListModel;
+QT_END_NAMESPACE
+
 namespace GenericProjectManager {
 namespace Internal{
 
@@ -84,7 +88,6 @@ public:
     QStringList files() const;
     QStringList generated() const;
     QStringList defines() const;
-
     QString toolChainId() const;
 
 public Q_SLOTS:
@@ -158,6 +161,8 @@ private:
     GenericProject *_project;
     Core::Utils::PathChooser *_pathChooser;
     QString _buildConfiguration;
+    QStringListModel *_includePathsModel;
+    QStringListModel *_definesModel;
 };
 
 } // namespace Internal
