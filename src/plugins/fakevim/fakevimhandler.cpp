@@ -294,6 +294,8 @@ private:
     void updateSelection();
     void quit();
     QWidget *editor() const;
+    QChar characterAtCursor() const
+        { return m_tc.document()->characterAt(m_tc.position()); }
 
 public:
     QTextEdit *m_textedit;
@@ -1146,6 +1148,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
                 moveToEndOfLine();
                 recordRemoveNextChar();
+                while (characterAtCursor() == ' ')
+                    recordRemoveNextChar();
                 if (!m_gflag)
                     recordInsertText(" ");
             }
@@ -1999,12 +2003,10 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
 {
     // FIXME: 'w' should stop on empty lines, too
     int repeat = count();
-    QTextDocument *doc = m_tc.document();
     int n = lastPositionInDocument() - 1;
-    QChar c = doc->characterAt(m_tc.position());
-    int lastClass = charClass(c, simple);
+    int lastClass = charClass(characterAtCursor(), simple);
     while (true) {
-        c = doc->characterAt(m_tc.position());
+        QChar c = characterAtCursor();
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && thisClass != 0)
             --repeat;
