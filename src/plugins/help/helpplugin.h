@@ -64,10 +64,10 @@ class SideBarItem;
 namespace Help {
 
 namespace Constants {
-    const char * const HELPVIEWER_KIND = "Qt Help Viewer";
-    const char * const C_MODE_HELP     = "Help Mode";
-    const int          P_MODE_HELP     = 70;
-    const char * const ID_MODE_HELP    = "Help";
+    const char * const C_MODE_HELP    = "Help Mode";
+    const char * const C_HELP_SIDEBAR = "Help Sidebar";
+    const int          P_MODE_HELP    = 70;
+    const char * const ID_MODE_HELP   = "Help";
 }
 
 class HELP_EXPORT HelpManager : public QObject
@@ -124,6 +124,7 @@ private slots:
     void switchToHelpMode(const QUrl &source);
     void switchToHelpMode(const QMap<QString, QUrl> &urls, const QString &keyword);
     void slotHideRightPane();
+    void copyFromSideBar();
 
     void openGettingStarted();
 
