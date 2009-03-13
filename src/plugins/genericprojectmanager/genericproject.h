@@ -89,6 +89,8 @@ public:
     QStringList defines() const;
     void setDefines(const QStringList &defines);
 
+    QStringList allIncludePaths() const;
+    QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;    
     QString toolChainId() const;
@@ -112,6 +114,7 @@ private:
     QStringList _files;
     QStringList _generated;
     QStringList _includePaths;
+    QStringList _projectIncludePaths;
     QStringList _defines;
 
     GenericProjectNode* _rootNode;

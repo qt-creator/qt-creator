@@ -115,16 +115,21 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
         folderName += QLatin1Char('/'); // ### FIXME
     }
 
-    FolderNode *folder = _folderByName.value(folderName);
-    if (! folder) {
-        folder = new FolderNode(components.at(end - 1));
-        _folderByName.insert(folderName, folder);
+    const QString component = components.at(end - 1);
 
-        FolderNode *parent = findOrCreateFolderByName(components, end - 1);
-        if (! parent)
-            parent = this;
-        addFolderNodes(QList<FolderNode*>() << folder, parent);
-    }
+    if (component.isEmpty())
+        return this;
+
+    else if (FolderNode *folder = _folderByName.value(folderName))
+        return folder;
+
+    FolderNode *folder = new FolderNode(component);
+    _folderByName.insert(folderName, folder);
+
+    FolderNode *parent = findOrCreateFolderByName(components, end - 1);
+    if (! parent)
+        parent = this;
+    addFolderNodes(QList<FolderNode*>() << folder, parent);
 
     return folder;
 }

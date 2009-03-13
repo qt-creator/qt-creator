@@ -130,6 +130,9 @@ void GenericProject::parseProject()
     _files     = convertToAbsoluteFiles(projectInfo.value(QLatin1String("files")).toStringList());
     _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
     _defines   = projectInfo.value(QLatin1String("defines")).toStringList();
+    _projectIncludePaths = projectInfo.value(QLatin1String("includePaths")).toStringList();
+    
+    qDebug() << "project include paths:" << _projectIncludePaths;
 }
 
 void GenericProject::refresh()
@@ -158,7 +161,7 @@ void GenericProject::refresh()
                 allIncludePaths.append(headerPath.path());
         }
 
-        allIncludePaths += includePaths();
+        allIncludePaths += this->allIncludePaths();
 
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.includePaths = allIncludePaths;
@@ -183,6 +186,18 @@ QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths) con
     absolutePaths.removeDuplicates();
     return absolutePaths;
 }
+
+QStringList GenericProject::allIncludePaths() const
+{
+    QStringList paths;
+    paths += _includePaths;
+    paths += _projectIncludePaths;
+    paths.removeDuplicates();
+    return paths;
+}
+
+QStringList GenericProject::projectIncludePaths() const
+{ return _projectIncludePaths; }
 
 QStringList GenericProject::files() const
 { return _files; }
@@ -398,7 +413,11 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
         toolChainId = QLatin1String("gcc");
 
     setToolChainId(toolChainId.toLower()); // ### move
-    setIncludePaths(reader.restoreValue(QLatin1String("includePaths")).toStringList());
+
+    const QStringList userIncludePaths =
+            reader.restoreValue(QLatin1String("includePaths")).toStringList();
+
+    setIncludePaths(allIncludePaths());
 
     parseProject();
     refresh();
@@ -440,7 +459,8 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     // include paths
     QListView *includePathsView = new QListView;
     _includePathsModel = new ListModel(this);
-    _includePathsModel->setStringList(_project->includePaths());
+
+    _includePathsModel->setStringList(_project->allIncludePaths());
     includePathsView->setModel(_includePathsModel);
     fl->addRow(tr("Include paths:"), includePathsView);
 
