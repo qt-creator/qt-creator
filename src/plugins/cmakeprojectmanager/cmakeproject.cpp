@@ -112,6 +112,7 @@ void CMakeProject::parseCMakeLists()
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
         // Manually add the CMakeLists.txt file
         fileList.append(new ProjectExplorer::FileNode(sourceDirectory + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+
         buildTree(m_rootNode, fileList);
         foreach (ProjectExplorer::FileNode *fn, fileList)
             m_files.append(fn->path());
@@ -309,6 +310,7 @@ MakeStep *CMakeProject::makeStep() const
     return 0;
 }
 
+
 void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
@@ -340,7 +342,6 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // or simply run createXml with the saved settings
 
     }
-
 
     parseCMakeLists(); // Gets the directory from the active buildconfiguration
 
