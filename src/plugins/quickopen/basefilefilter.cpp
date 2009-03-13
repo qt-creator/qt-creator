@@ -43,16 +43,17 @@ BaseFileFilter::BaseFileFilter()
 
 QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
 {
-    QList<FilterEntry> value;
-    QString entry = trimWildcards(origEntry);
-    QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+    QList<FilterEntry> matches;
+    QList<FilterEntry> badMatches;
+    QString needle = trimWildcards(origEntry);
+    QStringMatcher matcher(needle, Qt::CaseInsensitive);
+    const QRegExp regexp("*"+needle+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
-        return value;
-    bool hasWildcard = (entry.contains('*') || entry.contains('?'));
+        return matches;
+    bool hasWildcard = (needle.contains('*') || needle.contains('?'));
     QStringList searchListPaths;
     QStringList searchListNames;
-    if (!m_previousEntry.isEmpty() && !m_forceNewSearchList && entry.contains(m_previousEntry)) {
+    if (!m_previousEntry.isEmpty() && !m_forceNewSearchList && needle.contains(m_previousEntry)) {
         searchListPaths = m_previousResultPaths;
         searchListNames = m_previousResultNames;
     } else {
@@ -62,7 +63,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
     m_previousResultPaths.clear();
     m_previousResultNames.clear();
     m_forceNewSearchList = false;
-    m_previousEntry = entry;
+    m_previousEntry = needle;
     QStringListIterator paths(searchListPaths);
     QStringListIterator names(searchListNames);
     while (paths.hasNext() && names.hasNext()) {
@@ -74,12 +75,17 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
             FilterEntry entry(this, fi.fileName(), path);
             entry.extraInfo = QDir::toNativeSeparators(fi.path());
             entry.resolveFileIcon = true;
-            value.append(entry);
+            if (name.startsWith(needle))
+                matches.append(entry);
+            else
+                badMatches.append(entry);
             m_previousResultPaths.append(path);
             m_previousResultNames.append(name);
         }
     }
-    return value;
+   
+    matches.append(badMatches); 
+    return matches;
 }
 
 void BaseFileFilter::accept(QuickOpen::FilterEntry selection) const

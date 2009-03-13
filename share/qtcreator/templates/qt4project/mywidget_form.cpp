@@ -2,7 +2,7 @@
 #include "%UI_HDR%"
 
 %CLASS%::%CLASS%(QWidget *parent)
-    : %BASECLASS%(parent), ui(new Ui::%CLASS%Class)
+    : %BASECLASS%(parent), ui(new Ui::%CLASS%)
 {
     ui->setupUi(this);
 }

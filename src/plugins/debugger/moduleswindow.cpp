@@ -30,13 +30,23 @@
 #include "moduleswindow.h"
 #include "moduleshandler.h" // for model roles
 
-#include <QAction>
-#include <QDebug>
-#include <QHeaderView>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QToolButton>
+#include <QtCore/QDebug>
+#include <QtCore/QProcess>
+#include <QtCore/QRegExp>
 
+#include <QtGui/QAction>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QToolButton>
+#include <QtGui/QTreeWidget>
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+// ModulesWindow
+//
+///////////////////////////////////////////////////////////////////////////
 
 using Debugger::Internal::ModulesWindow;
 
@@ -93,20 +103,28 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
     QAction *act5 = 0;
     QAction *act6 = 0;
+    QAction *act7 = 0;
     if (name.isEmpty()) {
         act5 = new QAction(tr("Load symbols for module"), &menu);
         act6 = new QAction(tr("Edit file"), &menu);
+        act7 = new QAction(tr("Show symbols"), &menu);
     } else {
         act5 = new QAction(tr("Load symbols for module \"%1\"").arg(name), &menu);
         act6 = new QAction(tr("Edit file \"%1\"").arg(name), &menu);
+        act7 = new QAction(tr("Show symbols in file \"%1\"").arg(name), &menu);
     }
     act5->setDisabled(name.isEmpty());
     act6->setDisabled(name.isEmpty());
+    act7->setDisabled(name.isEmpty());
+    #ifndef Q_OS_LINUX
+    act7->setDisabled(true);
+    #endif
 
     menu.addAction(act0);
     menu.addAction(act4);
     menu.addAction(act5);
     menu.addAction(act6);
+    menu.addAction(act7);
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
@@ -127,6 +145,8 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         emit loadSymbolsRequested(name);
     else if (act == act6)
         emit fileOpenRequested(name);
+    else if (act == act7)
+        showSymbols(name);
 }
 
 void ModulesWindow::resizeColumnsToContents()
@@ -154,3 +174,32 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
     setAlwaysResizeColumnsToContents(true);
 }
     
+void ModulesWindow::showSymbols(const QString &name)
+{
+    if (name.isEmpty())
+        return;
+    QProcess proc;
+    proc.start("nm", QStringList() << "-D" << name);
+    proc.waitForFinished();
+    QTreeWidget *w = new QTreeWidget;
+    w->setColumnCount(3);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    //w->header()->hide();
+    w->setHeaderLabels(QStringList() << tr("Address") << tr("Code") << tr("Symbol"));
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(name));
+    QString contents = QString::fromLocal8Bit(proc.readAllStandardOutput());
+    QRegExp re("([0-9a-f]+)?\\s+([^\\s]+)\\s+([^\\s]+)");
+    foreach (QString line, contents.split('\n')) {
+        if (re.indexIn(line) != -1) {
+            QTreeWidgetItem *it = new QTreeWidgetItem;
+            it->setData(0, Qt::DisplayRole, re.cap(1));
+            it->setData(1, Qt::DisplayRole, re.cap(2));
+            it->setData(2, Qt::DisplayRole, re.cap(3));
+            w->addTopLevelItem(it);
+        } else {
+            qDebug() << "UNHANDLED LINE" << line;
+        }
+    }
+    emit newDockRequested(w);
+}

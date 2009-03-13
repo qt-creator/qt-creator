@@ -36,14 +36,14 @@ using namespace Designer::Internal;
 
 void SettingsManager::beginGroup(const QString &prefix)
 {
-    if (Designer::Constants::Internal::debug)
+    if (Designer::Constants::Internal::debug > 1)
         qDebug() << Q_FUNC_INFO << addPrefix(prefix);
     m_settings.beginGroup(addPrefix(prefix));
 }
 
 void SettingsManager::endGroup()
 {
-    if (Designer::Constants::Internal::debug)
+    if (Designer::Constants::Internal::debug > 1)
         qDebug() << Q_FUNC_INFO;
     m_settings.endGroup();
 }
@@ -55,7 +55,7 @@ bool SettingsManager::contains(const QString &key) const
 
 void SettingsManager::setValue(const QString &key, const QVariant &value)
 {
-    if (Designer::Constants::Internal::debug)
+    if (Designer::Constants::Internal::debug > 1)
         qDebug() << Q_FUNC_INFO  << addPrefix(key) << ": " << value;
     m_settings.setValue(addPrefix(key), value);
 }
@@ -63,7 +63,7 @@ void SettingsManager::setValue(const QString &key, const QVariant &value)
 QVariant SettingsManager::value(const QString &key, const QVariant &defaultValue) const
 {
     QVariant result = m_settings.value(addPrefix(key), defaultValue);
-    if (Designer::Constants::Internal::debug)
+    if (Designer::Constants::Internal::debug > 1)
         qDebug() << Q_FUNC_INFO << addPrefix(key) << ": " << result;
     return result;
 }

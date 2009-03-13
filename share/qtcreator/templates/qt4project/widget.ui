@@ -1,9 +1,6 @@
-<ui version="4.0" stdsetdef="1" >
+<ui version="4.0">
  <class>%CLASS%Class</class>
- <widget class="%BASECLASS%" name="%CLASS%Class" >
-  <property name="objectName" >
-   <cstring>%CLASS%Class</cstring>
-  </property>
+ <widget class="%BASECLASS%" name="%CLASS%" >
   <property name="geometry" >
    <rect>
     <x>0</x>

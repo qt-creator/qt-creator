@@ -65,6 +65,7 @@
 #include "basefilewizard.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <utils/pathchooser.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
@@ -836,10 +837,10 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
                                           const QString &defaultLocation)
 {
     QString defaultDir = defaultLocation;
-    if (defaultDir.isEmpty()) {
-        if (!m_coreImpl->fileManager()->currentFile().isEmpty())
-            defaultDir = QFileInfo(m_coreImpl->fileManager()->currentFile()).absolutePath();
-    }
+    if (defaultDir.isEmpty() && !m_coreImpl->fileManager()->currentFile().isEmpty())
+        defaultDir = QFileInfo(m_coreImpl->fileManager()->currentFile()).absolutePath();
+    if (defaultDir.isEmpty())
+        defaultDir = Core::Utils::PathChooser::homePath();
 
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
