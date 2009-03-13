@@ -37,6 +37,8 @@ namespace Internal {
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
+    Q_OBJECT
+    friend class CMakeProject;
 public:
     CMakeProjectNode(const QString &fileName);
     virtual bool hasTargets() const;
@@ -52,10 +54,6 @@ public:
     virtual bool renameFile(const ProjectExplorer::FileType fileType,
                              const QString &filePath,
                              const QString &newFilePath);
-
-    // TODO is protected in base class, and that's correct
-    using ProjectNode::addFileNodes;
-    using ProjectNode::addFolderNodes;
 };
 
 } // namespace Internal

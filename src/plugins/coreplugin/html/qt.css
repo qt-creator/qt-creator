@@ -332,36 +332,36 @@ Layout BOTTOM - Recent Projects und Recent Sessions
 /*Recent Projects*/
 .layout_bottom .rec_proj_container{
 	
-	width:50%;
-	float:left;
-	
+        margin-left:50%;
+
 	}
 
 .layout_bottom .rec_proj_container .rec_proj_box{
 	
-	margin-right:10px;
-	
-	}
+        margin-left:10px;
+
+        }
 
 
 
 /*Recent Sessions*/
 .layout_bottom .rec_sess_container{
-	
-	margin-left:50%;
-	
+
+        width:50%;
+        float:left;
+
 	}
 
 .layout_bottom .rec_sess_container .rec_sess_box{
 	
-	margin-left:10px;
-	
+        margin-right:10px;
+
 	}
 	
 /*Restore Session Button inlusive CSS HOVER*/
 a.restore_session{
 	
-	float:right;
+        float:right;
 	display:block;
     background-image:url(images/btn_restore_session.png);
     width:137px;

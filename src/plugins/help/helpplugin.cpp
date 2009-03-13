@@ -374,11 +374,27 @@ void HelpPlugin::createRightPaneSideBar()
 
     m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
+    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
+        << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
+        this));
+
+    QAction *copyActionSideBar = new QAction(this);
+    Core::Command *cmd = m_core->actionManager()->registerAction(copyActionSideBar,
+        Core::Constants::COPY, QList<int>()
+        << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR));
+    connect(copyActionSideBar, SIGNAL(triggered()), this, SLOT(copyFromSideBar()));
+    copyActionSideBar->setText(cmd->action()->text());
+    copyActionSideBar->setIcon(cmd->action()->icon());
 
     m_rightPaneSideBar = new QWidget;
     m_rightPaneSideBar->setLayout(rightPaneLayout);
     m_rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
     addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
+}
+
+void HelpPlugin::copyFromSideBar()
+{
+    m_helpViewerForSideBar->copy();
 }
 
 void HelpPlugin::rightPaneBackward()

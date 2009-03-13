@@ -386,14 +386,30 @@ void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNod
                 qDebug("Project node has already a parent folder"));
             folder->setParentFolderNode(parentFolder);
             folder->setProjectNode(this);
-            parentFolder->m_subFolderNodes.append(folder);
+
+            // Find the correct place to insert
+            if (parentFolder->m_subFolderNodes.count() == 0 || sortNodesByPath(parentFolder->m_subFolderNodes.last(), folder)) {
+                // empty list or greater then last node
+                parentFolder->m_subFolderNodes.append(folder);
+            } else {
+                // Binary Search for insertion point
+                int l = 0;
+                int r = parentFolder->m_subFolderNodes.count();
+                while (l != r) {
+                    int i = (l + r) / 2;
+                    if (sortNodesByPath(folder, parentFolder->m_subFolderNodes.at(i))) {
+                        r = i;
+                    } else {
+                        l = i + 1;
+                    }
+                }
+                parentFolder->m_subFolderNodes.insert(l, folder);
+            }
 
             // project nodes have to be added via addProjectNodes
             QTC_ASSERT(folder->nodeType() != ProjectNodeType,
                 qDebug("project nodes have to be added via addProjectNodes"));
         }
-        qSort(parentFolder->m_subFolderNodes.begin(), parentFolder->m_subFolderNodes.end(),
-              sortNodesByPath);
 
         if (emitSignals)
             foreach (NodesWatcher *watcher, m_watchers)
@@ -461,9 +477,25 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
 
             file->setParentFolderNode(folder);
             file->setProjectNode(this);
-            folder->m_fileNodes.append(file);
+            // Now find the correct place to insert file
+            if (folder->m_fileNodes.count() == 0 || sortNodesByPath(folder->m_fileNodes.last(), file)) {
+                // empty list or greater then last node
+                folder->m_fileNodes.append(file);
+            } else {
+                // Binary Search for insertion point
+                int l = 0;
+                int r = folder->m_fileNodes.count();
+                while (l != r) {
+                    int i = (l + r) / 2;
+                    if (sortNodesByPath(file, folder->m_fileNodes.at(i))) {
+                        r = i;
+                    } else {
+                        l = i + 1;
+                    }
+                }
+                folder->m_fileNodes.insert(l, file);
+            }
         }
-        qSort(folder->m_fileNodes.begin(), folder->m_fileNodes.end(), sortNodesByPath);
 
         if (emitSignals)
             foreach (NodesWatcher *watcher, m_watchers)

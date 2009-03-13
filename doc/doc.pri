@@ -21,7 +21,11 @@ qch_docs.commands = $$HELPGENERATOR -o $$QCH_FILE $$QHP_FILE
 qch_docs.depends += html_docs
 qch_docs.files = $$QCH_FILE
 
-linux-* {
+unix:!macx {
+    system("mkdir -p `dirname $$QCH_FILE` && touch $$QCH_FILE")
+}
+
+unix:!macx {
     qch_docs.path = /share/doc/qtcreator
     INSTALLS += qch_docs
 }
