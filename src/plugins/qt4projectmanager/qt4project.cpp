@@ -229,20 +229,13 @@ void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
 Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_toolChain(0),
     m_manager(manager),
-    m_rootProjectNode(new Qt4ProFileNode(this, fileName, this)),
+    m_rootProjectNode(0),
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
     m_projectFiles(new Qt4ProjectFiles)
 {
     m_manager->registerProject(this);
-    m_rootProjectNode->registerWatcher(m_nodesWatcher);
-    connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(filesAdded()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(filesRemoved()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SLOT(scheduleUpdateCodeModel()));
 
     connect(qt4ProjectManager()->versionManager(), SIGNAL(defaultQtVersionChanged()),
             this, SLOT(defaultQtVersionChanged()));
@@ -304,6 +297,15 @@ void Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
     // or if not, is reset to the default
     foreach (const QString &bc, buildConfigurations())
         qtVersionId(bc);
+
+    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
+    m_rootProjectNode->registerWatcher(m_nodesWatcher);
+    connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(updateFileList()));
+    connect(m_nodesWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateFileList()));
+    connect(m_nodesWatcher, SIGNAL(filesAdded()), this, SLOT(updateFileList()));
+    connect(m_nodesWatcher, SIGNAL(filesRemoved()), this, SLOT(updateFileList()));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
+            this, SLOT(scheduleUpdateCodeModel()));
 
     update();
 
@@ -685,7 +687,7 @@ void Qt4Project::addDefaultBuild()
                 insertBuildStep(0, gdbmacrostep);
 
                 GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
-                gdbmacrosCleanStep ->setValue("clean", true);
+                gdbmacrosCleanStep->setValue("clean", true);
                 insertCleanStep(0, gdbmacrosCleanStep );
                 break;
             }

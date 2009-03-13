@@ -97,7 +97,10 @@ bool MakeStep::init(const QString &buildConfiguration)
 #else // Q_OS_WIN
     setCommand(buildConfiguration, "make"); // TODO give full path here?
 #endif // Q_OS_WIN
-    setArguments(buildConfiguration, value(buildConfiguration, "buildTargets").toStringList()); // TODO
+
+    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
+    arguments << additionalArguments(buildConfiguration);
+    setArguments(buildConfiguration, arguments); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
@@ -219,14 +222,30 @@ void MakeStep::setBuildTarget(const QString &buildConfiguration, const QString &
         setValue(buildConfiguration, "buildTargets", old.removeOne(target));
 }
 
+QStringList MakeStep::additionalArguments(const QString &buildConfiguration) const
+{
+    return value(buildConfiguration, "additionalArguments").toStringList();
+}
+
+void MakeStep::setAdditionalArguments(const QString &buildConfiguration, const QStringList &list)
+{
+    setValue(buildConfiguration, "additionalArguments", list);
+}
+
 //
 // CMakeBuildStepConfigWidget
 //
+
 MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
     : m_makeStep(makeStep)
 {
     QFormLayout *fl = new QFormLayout(this);
     setLayout(fl);
+
+    m_additionalArguments = new QLineEdit(this);
+    fl->addRow("Additional arguments:", m_additionalArguments);
+
+    connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
 
     m_targetsList = new QListWidget;
     fl->addRow("Targets:", m_targetsList);
@@ -238,7 +257,13 @@ MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
     }
+
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+}
+
+void MakeBuildStepConfigWidget::additionalArgumentsEdited()
+{
+    m_makeStep->setAdditionalArguments(m_buildConfiguration, ProjectExplorer::Environment::parseCombinedArgString(m_additionalArguments->text()));
 }
 
 void MakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
@@ -253,8 +278,6 @@ QString MakeBuildStepConfigWidget::displayName() const
 
 void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 {
-    // TODO
-
     // disconnect to make the changes to the items
     disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildConfiguration = buildConfiguration;
@@ -265,6 +288,8 @@ void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
     }
     // and connect again
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+
+    m_additionalArguments->setText(ProjectExplorer::Environment::joinArgumentList(m_makeStep->additionalArguments(m_buildConfiguration)));
 }
 
 //

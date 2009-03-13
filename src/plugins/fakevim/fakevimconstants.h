@@ -36,12 +36,13 @@ namespace Constants {
 const char * const ConfigOn          = "on";
 const char * const ConfigOff         = "off";
 
+const char * const ConfigAutoIndent  = "autoindent";
+const char * const ConfigExpandTab   = "expandtab";
+const char * const ConfigHlSearch    = "hlsearch";
+const char * const ConfigShiftWidth  = "shiftwidth";
+const char * const ConfigSmartTab    = "smarttab";
 const char * const ConfigStartOfLine = "startofline";
 const char * const ConfigTabStop     = "tabstop";
-const char * const ConfigSmartTab    = "smarttab";
-const char * const ConfigShiftWidth  = "shiftwidth";
-const char * const ConfigExpandTab   = "expandtab";
-const char * const ConfigAutoIndent  = "autoindent";
 
 } // namespace Constants
 } // namespace FakeVim

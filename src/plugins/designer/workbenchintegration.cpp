@@ -125,6 +125,16 @@ static QList<Document::Ptr> findDocumentsIncluding(const CPlusPlus::Snapshot &do
     return docList;
 }
 
+// Does klass inherit baseClass?
+static bool inherits(const Overview &o, const Class *klass, const QString &baseClass)
+{
+    const int baseClassCount = klass->baseClassCount();
+    for (int b = 0; b < baseClassCount; b++)
+        if (o.prettyName(klass->baseClassAt(b)->name()) == baseClass)
+            return true;
+    return false;
+}
+
 // Check for a class name where haystack is a member class of an object.
 // So, haystack can be shorter (can have some namespaces omitted because of a
 // "using namespace" declaration, for example, comparing
@@ -141,7 +151,9 @@ static bool matchMemberClassName(const QString &needle, const QString &hayStack)
     return separatorPos > 1 && needle.at(separatorPos) == QLatin1Char(':');
 }
 
-// Find class definition in namespace
+// Find class definition in namespace (that is, the outer class
+// containing a member of the desired class type) or inheriting the desired class
+// in case of forms using the Multiple Inheritance approach
 static const Class *findClass(const Namespace *parentNameSpace, const QString &className, QString *namespaceName)
 {
     if (Designer::Constants::Internal::debug)
@@ -153,8 +165,9 @@ static const Class *findClass(const Namespace *parentNameSpace, const QString &c
         const Symbol *sym = parentNameSpace->memberAt(i);
         // we have found a class - we are interested in classes only
         if (const Class *cl = sym->asClass()) {
+            // 1) we go through class members
             const unsigned classMemberCount = cl->memberCount();
-            for (unsigned j = 0; j < classMemberCount; j++) // we go through class members
+            for (unsigned j = 0; j < classMemberCount; j++)
                 if (const Declaration *decl = cl->memberAt(j)->asDeclaration()) {
                 // we want to know if the class contains a member (so we look into
                 // a declaration) of uiClassName type
@@ -166,6 +179,9 @@ static const Class *findClass(const Namespace *parentNameSpace, const QString &c
                     if (nt && matchMemberClassName(className, o.prettyName(nt->name())))
                             return cl;
                 } // decl
+            // 2) does it inherit the desired class
+            if (inherits(o, cl, className))
+                return cl;
         } else {
             // Check namespaces
             if (const Namespace *ns = sym->asNamespace()) {
@@ -386,8 +402,15 @@ static void addDeclaration(const QString &docFileName, const Class *cl, const QS
                 // fun->column() returns always 0, what can cause trouble in case in one
                 // line if there is: "private slots: void foo();"
                 if (fun->isSlot() && fun->isPrivate()) {
-                    if (ITextEditable *editable = editableAt(docFileName, fun->line(), fun->column()))
-                        editable->insert(declaration + QLatin1String("    "));
+                    const int line = fun->line(); // [1..n]
+                    const int column = fun->column();
+                    if (ITextEditable *editable = editableAt(docFileName, line, column)) {
+                        // Figure out indentation (symbol - len("void ")) and insert after
+                        editable->gotoLine(line + 1, 1);
+                        editable->position(ITextEditor::StartOfLine);
+                        const QString indentation = QString(qMax(0, column - 6), QLatin1Char(' '));
+                        editable->insert(indentation + declaration);
+                    }
                     return;
                 }
             }
@@ -483,7 +506,7 @@ static ClassDocumentPtrPair
                              unsigned maxIncludeDepth, QString *namespaceName)
 {
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << doc->fileName() << maxIncludeDepth;
+        qDebug() << Q_FUNC_INFO << doc->fileName() << className << maxIncludeDepth;
     // Check document
     if (const Class *cl = findClass(doc->globalNamespace(), className, namespaceName))
         return ClassDocumentPtrPair(cl, doc);
@@ -523,6 +546,9 @@ static inline QString uiClassName(QString formObjectName)
     return formObjectName;
 }
 
+// Goto slot invoked by the designer context menu. Either navigates
+// to an existing slot function or create a new one.
+
 bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
                                           const QString &signalSignature,
                                           const QStringList &parameterNames,
@@ -538,7 +564,7 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     const QFileInfo fi(currentUiFile);
     const QString uicedName = QLatin1String("ui_") + fi.baseName() + QLatin1String(".h");
 
-    // take all docs
+    // take all docs, find the ones that include the ui_xx.h.
 
     const CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
     QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
@@ -546,7 +572,7 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
     if (docList.isEmpty()) {
-        *errorMessage = tr("No documents matching %1 could be found.").arg(uicedName);
+        *errorMessage = tr("No documents matching '%1' could be found.\nRebuilding the project might help.").arg(uicedName);
         return false;
     }
 
@@ -557,8 +583,8 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     if (Designer::Constants::Internal::debug)
         qDebug() << "Checking docs for " << uiClass;
 
-    // Find the class definition in the file itself or in the directly
-    // included files (order 1).
+    // Find the class definition (ui class defined as member or base class)
+    // in the file itself or in the directly included files (order 1).
     QString namespaceName;
     const Class *cl = 0;
     Document::Ptr doc;
@@ -578,6 +604,8 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
 
     Overview o;
     const QString className = namespaceName + o.prettyName(cl->name());
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "Found class  " << className << doc->fileName();
 
     const QString functionName = QLatin1String("on_") + objectName + QLatin1Char('_') + signalSignature;
     const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);

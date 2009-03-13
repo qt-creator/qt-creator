@@ -63,10 +63,6 @@ int qtGhVersion = QT_VERSION;
 #include <set>
 #include <vector>
 
-#include <ctype.h>
-#include <stdio.h>
-#include <unistd.h>
-
 /*!
   \class QDumper
   \brief Helper class for producing "nice" output in Qt Creator's debugger.
@@ -246,7 +242,7 @@ static const void *addOffset(const void *p, int offset)
 
 static const void *skipvtable(const void *p)
 {
-    return sizeof(void*) + reinterpret_cast<const char *>(p);
+    return sizeof(void *) + reinterpret_cast<const char *>(p);
 }
 
 static const void *deref(const void *p)
@@ -266,7 +262,7 @@ static bool isEqual(const char *s, const char *t)
 
 static bool startsWith(const char *s, const char *t)
 {
-    return qstrncmp(s, t, strlen(t)) == 0;
+    return qstrncmp(s, t, qstrlen(t)) == 0;
 }
 
 // provoke segfault when address is not readable
@@ -277,7 +273,7 @@ static bool startsWith(const char *s, const char *t)
 
 const char *stripNamespace(const char *type)
 {
-    static const size_t nslen = strlen(NS);
+    static const size_t nslen = qstrlen(NS);
     return startsWith(type, NS) ? type + nslen : type;
 }
 

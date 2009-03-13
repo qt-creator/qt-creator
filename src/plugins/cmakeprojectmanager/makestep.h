@@ -60,6 +60,8 @@ public:
     CMakeProject *project() const;
     bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
+    QStringList additionalArguments(const QString &buildConfiguration) const;
+    void setAdditionalArguments(const QString &buildConfiguration, const QStringList &list);
 private slots:
     void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
     void addDirectory(const QString &dir);
@@ -82,10 +84,12 @@ public:
     virtual void init(const QString &buildConfiguration);
 private slots:
     void itemChanged(QListWidgetItem*);
+    void additionalArgumentsEdited();
 private:
     QString m_buildConfiguration;
     MakeStep * m_makeStep;
     QListWidget *m_targetsList;
+    QLineEdit *m_additionalArguments;
 };
 
 class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory

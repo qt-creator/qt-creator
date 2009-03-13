@@ -42,7 +42,7 @@ using namespace ProjectExplorer::Internal;
 
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
-    m_textEdit = new QTextEdit();
+    m_textEdit = new QPlainTextEdit();
     m_textEdit->setWindowTitle(tr("Compile Output"));
     m_textEdit->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     m_textEdit->setReadOnly(true);
@@ -74,7 +74,7 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 void CompileOutputWindow::appendText(const QString &text)
 {
-    m_textEdit->append(text);
+    m_textEdit->appendHtml(text);
 }
 
 void CompileOutputWindow::clearContents()

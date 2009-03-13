@@ -402,6 +402,7 @@ private:
     void init();
     void setDebuggerType(DebuggerType type);
     QDockWidget *createDockForWidget(QWidget *widget);
+    Q_SLOT void createNewDock(QWidget *widget);
 
     void shutdown();
 

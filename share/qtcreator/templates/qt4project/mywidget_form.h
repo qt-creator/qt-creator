@@ -5,7 +5,7 @@
 
 namespace Ui
 {
-    class %CLASS%Class;
+    class %CLASS%;
 }
 
 class %CLASS% : public %BASECLASS%
@@ -17,7 +17,7 @@ public:
     ~%CLASS%();
 
 private:
-    Ui::%CLASS%Class *ui;
+    Ui::%CLASS% *ui;
 };
 
 #endif // %PRE_DEF%
