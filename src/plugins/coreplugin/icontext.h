@@ -51,6 +51,25 @@ public:
     virtual QString contextHelpId() const { return QString(); }
 };
 
+class BaseContext : public Core::IContext
+{
+public:
+    BaseContext(QWidget *widget, const QList<int> &context, QObject *parent = 0)
+        : Core::IContext(parent),
+        m_widget(widget),
+        m_context(context)
+    {
+    }
+
+    QList<int> context() const { return m_context; }
+
+    QWidget *widget() { return m_widget; }
+
+private:
+    QWidget *m_widget;
+    QList<int> m_context;
+};
+
 } // namespace Core
 
 #endif //ICONTEXT_H
