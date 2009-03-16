@@ -5,8 +5,6 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtDebug>
-
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
@@ -14,6 +12,7 @@ using namespace GenericProjectManager::Internal;
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesEditable
 ////////////////////////////////////////////////////////////////////////////////////////
+
 ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
                                          TextEditor::TextEditorActionHandler *handler)
     : Core::IEditorFactory(manager),
@@ -26,10 +25,13 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
 }
 
 ProjectFilesFactory::~ProjectFilesFactory()
-{ }
+{
+}
 
 Manager *ProjectFilesFactory::manager() const
-{ return _manager; }
+{
+    return _manager;
+}
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
@@ -39,10 +41,14 @@ Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 }
 
 QStringList ProjectFilesFactory::mimeTypes() const
-{ return _mimeTypes; }
+{
+    return _mimeTypes;
+}
 
 QString ProjectFilesFactory::kind() const
-{ return QLatin1String(Constants::FILES_EDITOR); }
+{
+    return QLatin1String(Constants::FILES_EDITOR);
+}
 
 Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 {
@@ -57,6 +63,7 @@ Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesEditable
 ////////////////////////////////////////////////////////////////////////////////////////
+
 ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
     : TextEditor::BaseTextEditorEditable(editor)
 {
@@ -68,13 +75,19 @@ ProjectFilesEditable::~ProjectFilesEditable()
 { }
 
 QList<int> ProjectFilesEditable::context() const
-{ return _context; }
+{
+    return _context;
+}
 
 const char *ProjectFilesEditable::kind() const
-{ return Constants::FILES_EDITOR; }
+{
+    return Constants::FILES_EDITOR;
+}
 
 bool ProjectFilesEditable::duplicateSupported() const
-{ return true; }
+{
+    return true;
+}
 
 Core::IEditor *ProjectFilesEditable::duplicate(QWidget *parent)
 {
@@ -83,13 +96,12 @@ Core::IEditor *ProjectFilesEditable::duplicate(QWidget *parent)
                                                         parentEditor->factory(),
                                                         parentEditor->actionHandler());
     return editor->editableInterface();
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesEditor
 ////////////////////////////////////////////////////////////////////////////////////////
+
 ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *factory,
                                        TextEditor::TextEditorActionHandler *handler)
     : TextEditor::BaseTextEditor(parent),
@@ -105,17 +117,24 @@ ProjectFilesEditor::~ProjectFilesEditor()
 { }
 
 ProjectFilesFactory *ProjectFilesEditor::factory() const
-{ return _factory; }
+{
+    return _factory;
+}
 
 TextEditor::TextEditorActionHandler *ProjectFilesEditor::actionHandler() const
-{ return _actionHandler; }
+{
+    return _actionHandler;
+}
 
 TextEditor::BaseTextEditorEditable *ProjectFilesEditor::createEditableInterface()
-{ return new ProjectFilesEditable(this); }
+{
+    return new ProjectFilesEditable(this);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesDocument
 ////////////////////////////////////////////////////////////////////////////////////////
+
 ProjectFilesDocument::ProjectFilesDocument(Manager *manager)
     : _manager(manager)
 {
