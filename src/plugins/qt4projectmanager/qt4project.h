@@ -181,6 +181,8 @@ public:
     // called by qt4ProjectNode to add ui_*.h files to the codemodel
     void addUiFilesToCodeModel(const QStringList &files);
 
+    QString makeCommand(const QString &buildConfiguration) const;
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);

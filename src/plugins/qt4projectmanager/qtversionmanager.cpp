@@ -1143,21 +1143,6 @@ void QtVersion::updateMkSpec() const
 //    qDebug()<<"mkspec for "<<m_path<<" is "<<mkspec;
 }
 
-QString QtVersion::makeCommand() const
-{
-#ifdef Q_OS_WIN
-    const QString &spec = mkspec();
-    if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
-        return "nmake.exe";
-    else if (spec.startsWith("wince"))
-        return "nmake.exe";
-    else
-        return "mingw32-make.exe";
-#else
-    return "make";
-#endif
-}
-
 QString QtVersion::qmakeCommand() const
 {
     // We can't use versionInfo QT_INSTALL_BINS here

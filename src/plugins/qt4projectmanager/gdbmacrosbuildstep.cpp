@@ -127,7 +127,7 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         qmake.start(m_qmake, QStringList()<<"-spec"<<mkspec<<configarguments<<"gdbmacros.pro");
         qmake.waitForFinished();
 
-        QString makeCmd = qt4Project->qtVersion(m_buildConfiguration)->makeCommand();
+        QString makeCmd = qt4Project->makeCommand(m_buildConfiguration);
         if (!value(m_buildConfiguration, "makeCmd").toString().isEmpty())
             makeCmd = value(m_buildConfiguration, "makeCmd").toString();
         if (!QFileInfo(makeCmd).isAbsolute()) {
@@ -147,7 +147,7 @@ void GdbMacrosBuildStep::run(QFutureInterface<bool> & fi)
         QProcess make;
         make.setEnvironment(qt4Project->environment(m_buildConfiguration).toStringList());
         make.setWorkingDirectory(destDir);
-        make.start(qt4Project->qtVersion(m_buildConfiguration)->makeCommand(), QStringList()<<"distclean");
+        make.start(qt4Project->makeCommand(m_buildConfiguration), QStringList()<<"distclean");
         make.waitForFinished();
 
         QStringList directories;

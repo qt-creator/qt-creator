@@ -401,6 +401,11 @@ void Qt4Project::scheduleUpdateCodeModel()
     m_updateCodeModelTimer.start();
 }
 
+QString Qt4Project::makeCommand(const QString &buildConfiguration) const
+{
+    return toolChain(buildConfiguration)->makeCommand();
+}
+
 ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfiguration) const
 {
     if (debug)
@@ -416,7 +421,7 @@ ProjectExplorer::ToolChain *Qt4Project::toolChain(const QString &buildConfigurat
         qtVersion(activeBuildConfiguration())->addToEnvironment(env);
         qmake_cxx = env.searchInPath(qmake_cxx);
         m_test = ToolChain::createMinGWToolChain(qmake_cxx, version->mingwDirectory());
-        qDebug()<<"Mingw ToolChain";
+        //qDebug()<<"Mingw ToolChain";
     } else if(t == ToolChain::MSVC) {
         m_test = ToolChain::createMSVCToolChain(version->msvcVersion());
         //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";

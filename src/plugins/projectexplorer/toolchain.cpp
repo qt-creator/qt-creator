@@ -154,6 +154,11 @@ void GccToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     Q_UNUSED(env)
 }
 
+QString GccToolChain::makeCommand() const
+{
+    return "make";
+}
+
 bool GccToolChain::equals(ToolChain *other) const
 {
     return (m_gcc == static_cast<GccToolChain *>(other)->m_gcc);
@@ -184,6 +189,11 @@ void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         env.prependOrSetPath(binDir);
 //    if (QFileInfo(binDir).exists())
 //        qDebug()<<"Adding "<<binDir<<" to the PATH";
+}
+
+QString MinGWToolChain::makeCommand() const
+{
+    return "mingw32-make.exe";
 }
 
 
@@ -291,6 +301,11 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         //qDebug()<<"variable:"<<(*it).first<<"value:"<<(*it).second;
     }
 
+}
+
+QString MSVCToolChain::makeCommand() const
+{
+    return "nmake.exe";
 }
 
 WinCEToolChain::WinCEToolChain(const QString &name, const QString &platform)

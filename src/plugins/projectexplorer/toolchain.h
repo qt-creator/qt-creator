@@ -52,11 +52,13 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths() = 0;
     virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
+    virtual QString makeCommand() const = 0;
 
     ToolChain();
     virtual ~ToolChain();
     
     static bool equals(ToolChain *, ToolChain *);
+    // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);
     static ToolChain *createMinGWToolChain(const QString &gcc, const QString &mingwPath);
     static ToolChain *createMSVCToolChain(const QString &name);
@@ -77,6 +79,7 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
+    virtual QString makeCommand() const;
 
 protected:
     virtual bool equals(ToolChain *other) const;
@@ -93,6 +96,7 @@ public:
     MinGWToolChain(const QString &gcc, const QString &mingwPath);
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
+    virtual QString makeCommand() const;
 protected:
     virtual bool equals(ToolChain *other) const;
 private:
@@ -108,6 +112,7 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
+    virtual QString makeCommand() const;
 protected:
     virtual bool equals(ToolChain *other) const;
     QString m_name;
