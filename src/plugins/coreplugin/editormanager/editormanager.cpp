@@ -75,7 +75,7 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 using namespace Core;
 using namespace Core::Internal;
 
-enum { debugEditorManager=1 };
+enum { debugEditorManager=0 };
 
 static inline ExtensionSystem::PluginManager *pluginManager()
 {
