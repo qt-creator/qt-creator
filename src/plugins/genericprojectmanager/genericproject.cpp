@@ -109,8 +109,6 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       _fileName(fileName),
       _toolChain(0)
 {
-    qDebug() << Q_FUNC_INFO;
-
     QFileInfo fileInfo(_fileName);
     const QString projectBaseName = fileInfo.baseName();
     QDir dir = fileInfo.dir();
@@ -127,8 +125,6 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 
 GenericProject::~GenericProject()
 {
-    qDebug() << Q_FUNC_INFO;
-
     _manager->unregisterProject(this);
 
     delete _rootNode;
@@ -189,8 +185,6 @@ void GenericProject::parseProject()
 
 void GenericProject::refresh()
 {
-    qDebug() << Q_FUNC_INFO;
-
     parseProject();
 
     _rootNode->refresh();
@@ -275,8 +269,6 @@ void GenericProject::setToolChainId(const QString &toolChainId)
 {
     using namespace ProjectExplorer;
 
-    qDebug() << Q_FUNC_INFO;
-
     _toolChainId = toolChainId;
 
     delete _toolChain;
@@ -304,8 +296,6 @@ void GenericProject::setToolChainId(const QString &toolChainId)
 
 QString GenericProject::buildParser(const QString &buildConfiguration) const
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (_toolChain) {
         switch (_toolChain->type()) {
         case ProjectExplorer::ToolChain::GCC:
@@ -330,50 +320,36 @@ QString GenericProject::toolChainId() const
 
 QString GenericProject::name() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return _projectName;
 }
 
 Core::IFile *GenericProject::file() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return _file;
 }
 
 ProjectExplorer::IProjectManager *GenericProject::projectManager() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return _manager;
 }
 
 QList<ProjectExplorer::Project *> GenericProject::dependsOn()
 {
-    qDebug() << Q_FUNC_INFO;
-
     return QList<Project *>();
 }
 
 bool GenericProject::isApplication() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return true;
 }
 
 ProjectExplorer::Environment GenericProject::environment(const QString &) const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return ProjectExplorer::Environment::systemEnvironment();
 }
 
 QString GenericProject::buildDirectory(const QString &buildConfiguration) const
 {
-    qDebug() << Q_FUNC_INFO;
-
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
 
     if (buildDirectory.isEmpty()) {
@@ -387,36 +363,26 @@ QString GenericProject::buildDirectory(const QString &buildConfiguration) const
 
 ProjectExplorer::BuildStepConfigWidget *GenericProject::createConfigWidget()
 {
-    qDebug() << Q_FUNC_INFO;
-
     return new GenericBuildSettingsWidget(this);
 }
 
 QList<ProjectExplorer::BuildStepConfigWidget*> GenericProject::subConfigWidgets()
 {
-    qDebug() << Q_FUNC_INFO;
-
     return QList<ProjectExplorer::BuildStepConfigWidget*>();
 }
 
  void GenericProject::newBuildConfiguration(const QString &buildConfiguration)
  {
-     qDebug() << Q_FUNC_INFO;
-
      makeStep()->setBuildTarget(buildConfiguration, "all", true);
  }
 
 GenericProjectNode *GenericProject::rootProjectNode() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return _rootNode;
 }
 
 QStringList GenericProject::files(FilesMode fileMode) const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return _files; // ### TODO: handle generated files here.
 }
 
@@ -430,8 +396,6 @@ QStringList GenericProject::targets() const
 
 MakeStep *GenericProject::makeStep() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
         if (MakeStep *ms = qobject_cast<MakeStep *>(bs))
             return ms;
@@ -442,8 +406,6 @@ MakeStep *GenericProject::makeStep() const
 
 void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
@@ -479,8 +441,6 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
 
 void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Project::saveSettingsImpl(writer);
 
     writer.saveValue(QLatin1String("toolChain"), _toolChainId);
@@ -493,8 +453,6 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     : _project(project)
 {
-    qDebug() << Q_FUNC_INFO;
-
     QFormLayout *fl = new QFormLayout(this);
 
     // build directory
@@ -519,16 +477,12 @@ QString GenericBuildSettingsWidget::displayName() const
 
 void GenericBuildSettingsWidget::init(const QString &buildConfiguration)
 {
-    qDebug() << Q_FUNC_INFO;
-
     _buildConfiguration = buildConfiguration;
     _pathChooser->setPath(_project->buildDirectory(buildConfiguration));
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    qDebug() << Q_FUNC_INFO;
-
     _project->setValue(_buildConfiguration, "buildDirectory", _pathChooser->path());
 }
 
@@ -546,54 +500,44 @@ GenericProjectFile::~GenericProjectFile()
 
 bool GenericProjectFile::save(const QString &)
 {
-    qDebug() << Q_FUNC_INFO;
     return false;
 }
 
 QString GenericProjectFile::fileName() const
 {
-    qDebug() << Q_FUNC_INFO;
     return _fileName;
 }
 
 QString GenericProjectFile::defaultPath() const
 {
-    qDebug() << Q_FUNC_INFO;
     return QString();
 }
 
 QString GenericProjectFile::suggestedFileName() const
 {
-    qDebug() << Q_FUNC_INFO;
     return QString();
 }
 
 QString GenericProjectFile::mimeType() const
 {
-    qDebug() << Q_FUNC_INFO;
     return Constants::GENERICMIMETYPE;
 }
 
 bool GenericProjectFile::isModified() const
 {
-    qDebug() << Q_FUNC_INFO;
     return false;
 }
 
 bool GenericProjectFile::isReadOnly() const
 {
-    qDebug() << Q_FUNC_INFO;
     return true;
 }
 
 bool GenericProjectFile::isSaveAsAllowed() const
 {
-    qDebug() << Q_FUNC_INFO;
     return false;
 }
 
 void GenericProjectFile::modified(ReloadBehavior *)
 {
-    qDebug() << Q_FUNC_INFO;
 }
-

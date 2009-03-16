@@ -160,30 +160,22 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
 
 bool GenericProjectNode::hasTargets() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return true;
 }
 
 QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supportedActions() const
 {
-    qDebug() << Q_FUNC_INFO;
-
     return QList<ProjectAction>();
 }
 
 bool GenericProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Q_UNUSED(proFilePaths);
     return false;
 }
 
 bool GenericProjectNode::removeSubProjects(const QStringList &proFilePaths)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Q_UNUSED(proFilePaths);
     return false;
 }
@@ -191,8 +183,6 @@ bool GenericProjectNode::removeSubProjects(const QStringList &proFilePaths)
 bool GenericProjectNode::addFiles(const ProjectExplorer::FileType fileType,
                                   const QStringList &filePaths, QStringList *notAdded)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notAdded);
@@ -202,8 +192,6 @@ bool GenericProjectNode::addFiles(const ProjectExplorer::FileType fileType,
 bool GenericProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
                                      const QStringList &filePaths, QStringList *notRemoved)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Q_UNUSED(fileType);
     Q_UNUSED(filePaths);
     Q_UNUSED(notRemoved);
@@ -213,8 +201,6 @@ bool GenericProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
 bool GenericProjectNode::renameFile(const ProjectExplorer::FileType fileType,
                                     const QString &filePath, const QString &newFilePath)
 {
-    qDebug() << Q_FUNC_INFO;
-
     Q_UNUSED(fileType);
     Q_UNUSED(filePath);
     Q_UNUSED(newFilePath);

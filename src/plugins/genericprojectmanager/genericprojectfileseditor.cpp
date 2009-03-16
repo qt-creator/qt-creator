@@ -45,8 +45,6 @@ QString ProjectFilesFactory::kind() const
 
 Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 {
-    qDebug() << Q_FUNC_INFO << fileName;
-
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 
     if (Core::IEditor *editor = editorManager->openEditor(fileName, kind()))
