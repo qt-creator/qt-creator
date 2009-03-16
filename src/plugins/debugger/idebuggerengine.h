@@ -83,6 +83,7 @@ public:
     virtual void reloadRegisters() = 0;
     virtual void setDebugDumpers(bool on) = 0;
     virtual void setUseCustomDumpers(bool on) = 0;
+    virtual void recheckCustomDumperAvailability() = 0;
 
     virtual void reloadSourceFiles() = 0;
 };

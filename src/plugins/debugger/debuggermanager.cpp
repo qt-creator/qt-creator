@@ -296,6 +296,8 @@ void DebuggerManager::init()
         this, SLOT(watchExpression(QString)));
     connect(localsView, SIGNAL(settingsDialogRequested()),
         this, SIGNAL(settingsDialogRequested()));
+    connect(localsView, SIGNAL(requestRecheckCustomDumperAvailability()),
+        this, SLOT(recheckCustomDumperAvailability()));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
@@ -316,6 +318,8 @@ void DebuggerManager::init()
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
     connect(watchersView, SIGNAL(settingsDialogRequested()),
         this, SIGNAL(settingsDialogRequested()));
+    connect(watchersView, SIGNAL(requestRecheckCustomDumperAvailability()),
+        this, SLOT(recheckCustomDumperAvailability()));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
@@ -791,18 +795,6 @@ QVariant DebuggerManager::sessionValue(const QString &name)
     return value;
 }
 
-void DebuggerManager::querySessionValue(const QString &name, QVariant *value)
-{
-    // this is answered by the plugin
-    emit sessionValueRequested(name, value);
-}
-
-void DebuggerManager::setSessionValue(const QString &name, const QVariant &value)
-{
-    // this is answered by the plugin
-    emit setSessionValueRequested(name, value);
-}
-
 QVariant DebuggerManager::configValue(const QString &name)
 {
     // this is answered by the plugin
@@ -993,13 +985,13 @@ bool DebuggerManager::startNewDebugger(DebuggerStartMode mode)
         qDebug() << m_executable << type;
 
     setDebuggerType(type);
+    setBusyCursor(false);
     setStatus(DebuggerProcessStartingUp);
     if (!m_engine->startDebugger()) {
         setStatus(DebuggerProcessNotReady);
         return false;
     }
 
-    m_busy = false;
     return true;
 }
 
@@ -1199,6 +1191,18 @@ void DebuggerManager::breakAtMain()
 #endif
 }
 
+static bool isAllowedTransition(int from, int to)
+{
+    return (from == -1)
+      || (from == DebuggerProcessNotReady && to == DebuggerProcessStartingUp)
+      || (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
+      || (from == DebuggerInferiorStopped && to == DebuggerInferiorRunningRequested)
+      || (from == DebuggerInferiorRunningRequested && to == DebuggerInferiorRunning)
+      || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)
+      || (from == DebuggerInferiorStopRequested && to == DebuggerInferiorStopped)
+      || (to == DebuggerProcessNotReady);  
+}
+
 void DebuggerManager::setStatus(int status)
 {
     if (Debugger::Constants::Internal::debug)
@@ -1206,6 +1210,10 @@ void DebuggerManager::setStatus(int status)
 
     if (status == m_status)
         return;
+
+    if (!isAllowedTransition(m_status, status))
+        qDebug() << "UNEXPECTED TRANSITION:  " << m_status << status;
+
 
     m_status = status;
 
@@ -1255,9 +1263,9 @@ void DebuggerManager::setStatus(int status)
 
 void DebuggerManager::setBusyCursor(bool busy)
 {
+    //qDebug() << "BUSY FROM: " << m_busy << " TO: " <<  m_busy;
     if (busy == m_busy)
         return;
-    //qDebug() << "BUSY: " << busy;
     m_busy = busy;
 
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
@@ -1413,6 +1421,16 @@ void DebuggerManager::fileOpen(const QString &fileName)
 }
 
 
+//////////////////////////////////////////////////////////////////////
+//
+// Watch specific stuff
+//
+//////////////////////////////////////////////////////////////////////
+
+void DebuggerManager::recheckCustomDumperAvailability()
+{
+    m_engine->recheckCustomDumperAvailability();
+}
 
 //////////////////////////////////////////////////////////////////////
 //

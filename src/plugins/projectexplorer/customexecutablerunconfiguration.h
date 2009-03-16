@@ -52,18 +52,25 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public Applicati
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
     friend class Internal::CustomExecutableConfigurationWidget;    
     Q_OBJECT
+
 public:
     CustomExecutableRunConfiguration(Project *pro);
     ~CustomExecutableRunConfiguration();
     virtual QString type() const;
-    // returns the executable,
-    // looks in the environment for it
-    // and might even ask the user if none is specified
+
+    /**
+     * Returns the executable, looks in the environment for it and might even
+     * ask the user if none is specified
+     */
     virtual QString executable() const;
-    // Returns only what is stored in the internal variable
-    // not what we might get after extending it with a path
-    // or asking the user. This value is needed for the configuration widget
+
+    /**
+     * Returns only what is stored in the internal variable, not what we might
+     * get after extending it with a path or asking the user. This value is
+     * needed for the configuration widget.
+     */
     QString baseExecutable() const;
+
     virtual ApplicationRunConfiguration::RunMode runMode() const;
     virtual QString workingDirectory() const;
     QString baseWorkingDirectory() const;
@@ -74,8 +81,10 @@ public:
     virtual void restore(const PersistentSettingsReader &reader);
 
     virtual QWidget *configurationWidget();
+
 signals:
     void changed();
+
 private:
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
@@ -90,6 +99,7 @@ private:
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
 {
     Q_OBJECT
+
 public:
     CustomExecutableRunConfigurationFactory();
     virtual ~CustomExecutableRunConfigurationFactory();
@@ -101,11 +111,14 @@ public:
 };
 
 namespace Internal {
+
 class CustomExecutableConfigurationWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc);
+
 private slots:
     void changed();
 
@@ -113,6 +126,7 @@ private slots:
     void setCommandLineArguments(const QString &commandLineArguments);
     void setWorkingDirectory();
     void termToggled(bool);
+
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
@@ -121,7 +135,8 @@ private:
     Core::Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
 };
-}
-}
+
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // CUSTOMEXECUTABLERUNCONFIGURATION_H

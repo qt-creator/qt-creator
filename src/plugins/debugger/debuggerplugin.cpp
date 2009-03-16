@@ -395,10 +395,10 @@ void DebuggerPlugin::shutdown()
     m_manager = 0;
 }
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
-    Q_UNUSED(error_message);
+    Q_UNUSED(errorMessage);
 
     m_manager = new DebuggerManager;
 

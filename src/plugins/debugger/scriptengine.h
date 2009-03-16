@@ -99,6 +99,7 @@ private:
 
     void setDebugDumpers(bool) {}
     void setUseCustomDumpers(bool) {}
+    void recheckCustomDumperAvailability() {}
 
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString & command);

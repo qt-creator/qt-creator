@@ -304,6 +304,7 @@ private:
     void maybeHandleInferiorPidChanged(const QString &pid);
 
     void tryLoadCustomDumpers();
+    Q_SLOT void recheckCustomDumperAvailability();
     void runCustomDumper(const WatchData &data, bool dumpChildren);
     void runDirectDumper(const WatchData &data, bool dumpChildren);
     bool isCustomValueDumperAvailable(const QString &type) const;
@@ -317,8 +318,7 @@ private:
         const WatchData &cookie);
     void handleToolTip(const GdbResultRecord &record,
         const QString &cookie);
-    void handleQueryDataDumper1(const GdbResultRecord &record);
-    void handleQueryDataDumper2(const GdbResultRecord &record);
+    void handleQueryDataDumper(const GdbResultRecord &record);
     void handleDumpCustomValue1(const GdbResultRecord &record,
         const WatchData &cookie);
     void handleDumpCustomValue2(const GdbResultRecord &record,
