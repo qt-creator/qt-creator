@@ -1053,7 +1053,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if (key == 'd' && m_visualMode == VisualLineMode) {
+    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
@@ -1321,7 +1321,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_moveType = MoveExclusive;
         }
         finishMovement("W");
-    } else if (key == 'x') { // = "dl"
+    } else if (key == 'x' && m_visualMode == NoVisualMode) { // = "dl"
         m_moveType = MoveExclusive;
         if (atEndOfLine())
             moveLeft();
@@ -1393,7 +1393,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             finishMovement();
         }
     } else {
-        qDebug() << "IGNORED IN COMMAND MODE: " << key << text;
+        qDebug() << "IGNORED IN COMMAND MODE: " << key << text
+            << " VISUAL: " << m_visualMode;
         handled = EventUnhandled;
     }
 
