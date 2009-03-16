@@ -21,3 +21,13 @@ we thank the authors who made this possible:
   Roberto Raggi <roberto.raggi@gmail.com>
   QtCreator/src/shared/cplusplus
 
+Compiling Qt Creator
+====================
+You need Qt 4.5 to build Qt Creator.
+We recommend that you build Qt Creator not in the source directory, but in a separate directory.
+To do that, use the following commands:
+mkdir $BUILD_DIRECTORY
+cd $BUILD_DIRECTORY
+qmake $SOURCE_DIRECTORY/qtcreator.pro
+make (or mingw32-make or nmake, depending on your platform)
+

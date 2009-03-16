@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "filesearch.h"
+#include <cctype>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>

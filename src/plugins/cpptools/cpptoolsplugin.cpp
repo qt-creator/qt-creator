@@ -231,7 +231,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
         return QString();
 
     const QDir absoluteDir = fi.absoluteDir();
-    const QString baseName = fi.baseName();
+    const QString baseName = fi.completeBaseName();
     const QStringList suffixes = matchingCandidateSuffixes(mimeDatase, type);
 
     const QString privateHeaderSuffix = QLatin1String("_p");
