@@ -49,7 +49,6 @@ namespace Internal {
 ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int>& context)
     : BaseTextEditorEditable(editor), m_context(context)
 {
-
 }
 
 ScriptEditor::ScriptEditor(const Context &context,
@@ -61,6 +60,7 @@ ScriptEditor::ScriptEditor(const Context &context,
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
+    setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     setMimeType(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
 

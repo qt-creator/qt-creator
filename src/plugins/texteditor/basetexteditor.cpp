@@ -1198,13 +1198,29 @@ bool BaseTextEditor::lineSeparatorsAllowed() const
 
 void BaseTextEditor::setCodeFoldingVisible(bool b)
 {
-    d->m_codeFoldingVisible = b;
+    d->m_codeFoldingVisible = b && d->m_codeFoldingSupported;
     slotUpdateExtraAreaWidth();
 }
 
 bool BaseTextEditor::codeFoldingVisible() const
 {
     return d->m_codeFoldingVisible;
+}
+
+/**
+ * Sets whether code folding is supported by the syntax highlighter. When not
+ * supported (the default), this makes sure the code folding is not shown.
+ *
+ * Needs to be called before calling setCodeFoldingVisible.
+ */
+void BaseTextEditor::setCodeFoldingSupported(bool b)
+{
+    d->m_codeFoldingSupported = b;
+}
+
+bool BaseTextEditor::codeFoldingSupported() const
+{
+    return d->m_codeFoldingSupported;
 }
 
 void BaseTextEditor::setRevisionsVisible(bool b)
@@ -1294,6 +1310,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_extraArea(0),
     m_marksVisible(false),
     m_codeFoldingVisible(false),
+    m_codeFoldingSupported(false),
     m_revisionsVisible(false),
     m_lineNumbersVisible(true),
     m_highlightCurrentLine(true),

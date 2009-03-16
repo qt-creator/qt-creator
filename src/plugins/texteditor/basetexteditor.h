@@ -68,6 +68,7 @@ struct StorageSettings;
 
 struct Parenthesis;
 typedef QVector<Parenthesis> Parentheses;
+
 struct TEXTEDITOR_EXPORT Parenthesis
 {
     enum Type { Opened, Closed };
@@ -82,7 +83,6 @@ struct TEXTEDITOR_EXPORT Parenthesis
     static int closeCollapseAtPos(const Parentheses &parentheses);
     static bool hasClosingCollapse(const Parentheses &parentheses);
 };
-
 
 
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
@@ -284,6 +284,9 @@ public:
 
     void setCodeFoldingVisible(bool b);
     bool codeFoldingVisible() const;
+
+    void setCodeFoldingSupported(bool b);
+    bool codeFoldingSupported() const;
 
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
