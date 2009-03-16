@@ -33,8 +33,6 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
-#include "proeditormodel.h"
-#include "procommandmanager.h"
 
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/fontsettings.h>
@@ -42,17 +40,14 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
-#include <QtGui/QHeaderView>
-#include <QtGui/QTextEdit>
 
-using namespace ExtensionSystem;
-using namespace Core;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
-using namespace ProjectExplorer;
 
+//
+// ProFileEditorEditable
+//
 
 ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
     : BaseTextEditorEditable(editor)
@@ -63,10 +58,28 @@ ProFileEditorEditable::ProFileEditorEditable(ProFileEditor *editor)
 //    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
-TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
+QList<int> ProFileEditorEditable::context() const
 {
-    return new ProFileEditorEditable(this);
+    return m_context;
 }
+
+Core::IEditor *ProFileEditorEditable::duplicate(QWidget *parent)
+{
+    ProFileEditor *ret = new ProFileEditor(parent, qobject_cast<ProFileEditor*>(editor())->factory(),
+                                           qobject_cast<ProFileEditor*>(editor())->actionHandler());
+    ret->duplicateFrom(editor());
+    ret->initialize();
+    return ret->editableInterface();
+}
+
+const char *ProFileEditorEditable::kind() const
+{
+    return Qt4ProjectManager::Constants::PROFILE_EDITOR;
+}
+
+//
+// ProFileEditorEditor
+//
 
 ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditor(parent), m_factory(factory), m_ah(ah)
@@ -85,18 +98,9 @@ ProFileEditor::~ProFileEditor()
 {
 }
 
-QList<int> ProFileEditorEditable::context() const
+TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
 {
-    return m_context;
-}
-
-Core::IEditor *ProFileEditorEditable::duplicate(QWidget *parent)
-{
-    ProFileEditor *ret = new ProFileEditor(parent, qobject_cast<ProFileEditor*>(editor())->factory(),
-                                           qobject_cast<ProFileEditor*>(editor())->actionHandler());
-    ret->duplicateFrom(editor());
-    ret->initialize();
-    return ret->editableInterface();
+    return new ProFileEditorEditable(this);
 }
 
 void ProFileEditor::initialize()
@@ -107,11 +111,6 @@ void ProFileEditor::initialize()
             this, SLOT(setFontSettings(const TextEditor::FontSettings&)));
 
     setFontSettings(settings->fontSettings());
-}
-
-const char *ProFileEditorEditable::kind() const
-{
-    return Qt4ProjectManager::Constants::PROFILE_EDITOR;
 }
 
 void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
@@ -132,6 +131,10 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
 }
+
+//
+// ProFileDocument
+//
 
 ProFileDocument::ProFileDocument(Qt4Manager *manager)
         : TextEditor::BaseTextDocument(), m_manager(manager)

@@ -5,6 +5,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 using namespace GenericProjectManager;
@@ -12,7 +13,7 @@ using namespace GenericProjectManager::Internal;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// ProjectFilesEditable
+// ProjectFilesFactory
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
@@ -114,6 +115,8 @@ ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *fac
     Manager *manager = factory->manager();
     ProjectFilesDocument *doc = new ProjectFilesDocument(manager);
     setBaseTextDocument(doc);
+
+    handler->setupActions(this);
 }
 
 ProjectFilesEditor::~ProjectFilesEditor()
