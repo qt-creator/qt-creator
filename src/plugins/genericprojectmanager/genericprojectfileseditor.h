@@ -64,6 +64,8 @@ public:
                        TextEditor::TextEditorActionHandler *handler);
     virtual ~ProjectFilesEditor();
 
+    void initialize();
+
     ProjectFilesFactory *factory() const;
     TextEditor::TextEditorActionHandler *actionHandler() const;
 

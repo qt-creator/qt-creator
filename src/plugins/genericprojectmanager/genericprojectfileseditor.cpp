@@ -4,6 +4,8 @@
 
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -36,7 +38,7 @@ Manager *ProjectFilesFactory::manager() const
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
     ProjectFilesEditor *ed = new ProjectFilesEditor(parent, this, _actionHandler);
-    // ### initialize
+    ed->initialize();
     return ed->editableInterface();
 }
 
@@ -95,6 +97,7 @@ Core::IEditor *ProjectFilesEditable::duplicate(QWidget *parent)
     ProjectFilesEditor *editor = new ProjectFilesEditor(parent,
                                                         parentEditor->factory(),
                                                         parentEditor->actionHandler());
+    editor->initialize();
     return editor->editableInterface();
 }
 
@@ -115,6 +118,16 @@ ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *fac
 
 ProjectFilesEditor::~ProjectFilesEditor()
 { }
+
+void ProjectFilesEditor::initialize()
+{
+    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
+
+    connect(settings, SIGNAL(fontSettingsChanged(const TextEditor::FontSettings&)),
+            this, SLOT(setFontSettings(const TextEditor::FontSettings&)));
+
+    setFontSettings(settings->fontSettings());
+}
 
 ProjectFilesFactory *ProjectFilesEditor::factory() const
 {
