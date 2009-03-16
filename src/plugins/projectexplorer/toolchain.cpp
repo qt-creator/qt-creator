@@ -59,6 +59,14 @@ QStringList ToolChain::availableMSVCVersions()
     return versions;
 }
 
+QStringList ToolChain::supportedToolChains()
+{
+    return QStringList() << QLatin1String("gcc")
+                         << QLatin1String("mingw")
+                         << QLatin1String("msvc")
+                         << QLatin1String("wince");
+}
+
 GccToolChain::GccToolChain(const QString &gcc)
     : m_gcc(gcc)
 {

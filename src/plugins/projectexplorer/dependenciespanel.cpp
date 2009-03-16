@@ -43,9 +43,9 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-///
-/// DependenciesModel
-///
+//
+// DependenciesModel
+//
 
 class DependenciesModel : public QAbstractListModel
 {
@@ -137,9 +137,9 @@ Qt::ItemFlags DependenciesModel::flags(const QModelIndex &index) const
     return rc;
 }
 
-///
-/// DependenciesWidget
-///
+//
+// DependenciesWidget
+//
 
 class DependenciesWidget : public QWidget
 {
@@ -165,9 +165,9 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     m_ui.dependenciesView->setHeaderHidden(true);
 }
 
-///
-/// DependenciesPanel
-///
+//
+// DependenciesPanel
+//
 
 DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project)
     : PropertiesPanel()
@@ -190,9 +190,9 @@ QWidget *DependenciesPanel::widget()
     return m_widget;
 }
 
-///
-/// DependenciesPanelFactory
-///
+//
+// DependenciesPanelFactory
+//
 
 DependenciesPanelFactory::DependenciesPanelFactory(SessionManager *session)
     : m_session(session)

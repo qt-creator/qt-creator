@@ -29,6 +29,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_fakevim \
             plugin_designer \
             plugin_resourceeditor \
+	    plugin_genericprojectmanager \
             debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
@@ -149,3 +150,10 @@ plugin_cmakeprojectmanager.depends += plugin_projectexplorer
 plugin_cmakeprojectmanager.depends += plugin_cpptools
 plugin_cmakeprojectmanager.depends += plugin_cppeditor
 plugin_cmakeprojectmanager.depends += plugin_help
+
+plugin_genericprojectmanager.subdir = genericprojectmanager
+plugin_genericprojectmanager.depends = plugin_texteditor
+plugin_genericprojectmanager.depends += plugin_projectexplorer
+plugin_genericprojectmanager.depends += plugin_cpptools
+plugin_genericprojectmanager.depends += plugin_cppeditor
+plugin_genericprojectmanager.depends += plugin_help
