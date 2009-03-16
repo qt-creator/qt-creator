@@ -65,10 +65,23 @@ void GenericProjectNode::refresh()
 
     ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
 
-    FileNode *projectFileNode = new FileNode(projectFilePath(), ProjectFileType,
-                                             /* generated = */ false);
+    FileNode *projectFilesNode = new FileNode(_project->filesFileName(),
+                                              ProjectFileType,
+                                              /* generated = */ false);
 
-    addFileNodes(QList<FileNode *>() << projectFileNode, this);
+    FileNode *projectIncludesNode = new FileNode(_project->includesFileName(),
+                                                 ProjectFileType,
+                                                 /* generated = */ false);
+
+    FileNode *projectConfigNode = new FileNode(_project->configFileName(),
+                                               ProjectFileType,
+                                               /* generated = */ false);
+
+    addFileNodes(QList<FileNode *>()
+                 << projectFilesNode
+                 << projectIncludesNode
+                 << projectConfigNode,
+                 this);
 
     QStringList filePaths;
     QHash<QString, QStringList> filesInPath;

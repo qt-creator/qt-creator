@@ -59,6 +59,10 @@ public:
     GenericProject(Manager *manager, const QString &filename);
     virtual ~GenericProject();
 
+    QString filesFileName() const;
+    QString includesFileName() const;
+    QString configFileName() const;
+
     virtual QString name() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IProjectManager *projectManager() const;
@@ -110,6 +114,9 @@ private:
 
     Manager *_manager;
     QString _fileName;
+    QString _filesFileName;
+    QString _includesFileName;
+    QString _configFileName;
     GenericProjectFile *_file;
     QString _projectName;
 

@@ -111,6 +111,14 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 {
     qDebug() << Q_FUNC_INFO;
 
+    QFileInfo fileInfo(_fileName);
+    const QString projectBaseName = fileInfo.baseName();
+    QDir dir = fileInfo.dir();
+
+    _filesFileName = QFileInfo(dir, projectBaseName + QLatin1String(".files")).absoluteFilePath();
+    _includesFileName = QFileInfo(dir, projectBaseName + QLatin1String(".includes")).absoluteFilePath();
+    _configFileName = QFileInfo(dir, projectBaseName + QLatin1String(".config")).absoluteFilePath();
+
     _file = new GenericProjectFile(this, fileName);
     _rootNode = new GenericProjectNode(this, _file);
 
@@ -126,6 +134,15 @@ GenericProject::~GenericProject()
     delete _rootNode;
     delete _toolChain;
 }
+
+QString GenericProject::filesFileName() const
+{ return _filesFileName; }
+
+QString GenericProject::includesFileName() const
+{ return _includesFileName; }
+
+QString GenericProject::configFileName() const
+{ return _configFileName; }
 
 QStringList GenericProject::readLines(const QString &absoluteFileName) const
 {
@@ -155,20 +172,17 @@ QStringList GenericProject::readLines(const QString &absoluteFileName) const
 void GenericProject::parseProject()
 {
     const QFileInfo projectFileInfo(_fileName);
-    const QDir projectDir = projectFileInfo.dir();
-    const QString projectName = projectFileInfo.baseName();
-    const QFileInfo projectFiles(projectDir, projectName + QLatin1String(".files"));
-    const QFileInfo projectIncludes(projectDir, projectName + QLatin1String(".includes"));
-    const QFileInfo projectConfig(projectDir, projectName + QLatin1String(".config"));
 
     QSettings projectInfo(_fileName, QSettings::IniFormat);
 
-    _files = convertToAbsoluteFiles(readLines(projectFiles.absoluteFilePath()));
-    _projectIncludePaths = readLines(projectIncludes.absoluteFilePath());
+    _files = convertToAbsoluteFiles(readLines(filesFileName()));
+    _files.removeDuplicates();
+
+    _projectIncludePaths = readLines(includesFileName());
+    _projectIncludePaths.removeDuplicates();
 
     _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
     _defines   = projectInfo.value(QLatin1String("defines")).toStringList();
-    _projectIncludePaths = projectInfo.value(QLatin1String("includePaths")).toStringList();
 
     emit fileListChanged();
 }
