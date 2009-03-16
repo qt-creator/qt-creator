@@ -205,7 +205,7 @@ void ProjectWindow::updateTreeWidgetProjectAdded(ProjectExplorer::Project *proje
     const QFileInfo fileInfo(projectAdded->file()->fileName());
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, fileInfo.baseName());
+    item->setText(0, projectAdded->name());
     item->setIcon(0, Core::FileIconProvider::instance()->icon(fileInfo));
     item->setText(2, fileInfo.filePath());
 
