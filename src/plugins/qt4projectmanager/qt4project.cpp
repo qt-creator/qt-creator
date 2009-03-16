@@ -256,6 +256,7 @@ Qt4Project::~Qt4Project()
     m_manager->unregisterProject(this);
     delete m_projectFiles;
     delete m_toolChain;
+    m_toolChain = 0;
 }
 
 void Qt4Project::defaultQtVersionChanged()

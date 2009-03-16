@@ -40,8 +40,10 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
+#include <QtCore/QMap>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QDateTime>
 #include <QtCore/QProcess>
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
@@ -80,15 +82,14 @@ CMakeProject::~CMakeProject()
 // TODO make this function work even if it is reparsing
 void CMakeProject::parseCMakeLists()
 {
-    ProjectExplorer::ToolChain *newToolChain = 0;
     QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
-
     QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
     m_rootNode->setFolderName(QFileInfo(cbpFile).baseName());
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
         qDebug()<<"CodeBlocks Compilername"<<cbpparser.compilerName();
+        ProjectExplorer::ToolChain *newToolChain = 0;
         if (cbpparser.compilerName() == "gcc") {
             newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
         } else if (cbpparser.compilerName() == "msvc8") {
@@ -97,7 +98,9 @@ void CMakeProject::parseCMakeLists()
             Q_ASSERT(false);
         } else {
             // TODO hmm?
+            qDebug()<<"Not implemented yet!!! Qt Creator doesn't know which toolchain to use for"<<cbpparser.compilerName();
         }
+
         if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
             delete newToolChain;
             newToolChain = 0;
@@ -107,27 +110,29 @@ void CMakeProject::parseCMakeLists()
         }
 
         m_projectName = cbpparser.projectName();
+        m_rootNode->setFolderName(cbpparser.projectName());
         qDebug()<<"Building Tree";
-        // TODO do a intelligent updating of the tree
 
+        // TODO do a intelligent updating of the tree
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
         // Manually add the CMakeLists.txt file
         fileList.append(new ProjectExplorer::FileNode(sourceDirectory + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
 
         buildTree(m_rootNode, fileList);
+        m_files.clear();
         foreach (ProjectExplorer::FileNode *fn, fileList)
             m_files.append(fn->path());
         m_files.sort();
 
         qDebug()<<"Adding Targets";
         m_targets = cbpparser.targets();
-        qDebug()<<"Printing targets";
-        foreach(CMakeTarget ct, m_targets) {
-            qDebug()<<ct.title<<" with executable:"<<ct.executable;
-            qDebug()<<"WD:"<<ct.workingDirectory;
-            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
-            qDebug()<<"";
-        }
+//        qDebug()<<"Printing targets";
+//        foreach(CMakeTarget ct, m_targets) {
+//            qDebug()<<ct.title<<" with executable:"<<ct.executable;
+//            qDebug()<<"WD:"<<ct.workingDirectory;
+//            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
+//            qDebug()<<"";
+//        }
 
         qDebug()<<"Updating CodeModel";
 
@@ -147,12 +152,62 @@ void CMakeProject::parseCMakeLists()
             pinfo.includePaths = allIncludePaths;
             // TODO we only want C++ files, not all other stuff that might be in the project
             pinfo.sourceFiles = m_files;
-            pinfo.defines = m_toolChain->predefinedMacros();
+            pinfo.defines = m_toolChain->predefinedMacros(); // TODO this is to simplistic
             pinfo.frameworkPaths = allFrameworkPaths;
             modelmanager->updateProjectInfo(pinfo);
         }
+
+        // Create run configurations for m_targets
+        qDebug()<<"Create run configurations of m_targets";
+        QMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
+        foreach(QSharedPointer<ProjectExplorer::RunConfiguration> cmakeRunConfiguration, runConfigurations()) {
+            if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.dynamicCast<CMakeRunConfiguration>()) {
+                existingRunConfigurations.insert(rc->title(), rc);
+            }
+        }
+
+        bool setActive = false;
+        foreach(const CMakeTarget &ct, m_targets) {
+            if (ct.executable.isEmpty())
+                continue;
+            if (ct.title.endsWith("/fast"))
+                continue;
+            QMap<QString, QSharedPointer<CMakeRunConfiguration> >::iterator it =
+                    existingRunConfigurations.find(ct.title);
+            if (it != existingRunConfigurations.end()) {
+                // Already exists, so override the settings...
+                QSharedPointer<CMakeRunConfiguration> rc = it.value();
+                qDebug()<<"Updating Run Configuration with title"<<ct.title;
+                qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
+                qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
+                rc->setExecutable(ct.executable);
+                rc->setWorkingDirectory(ct.workingDirectory);
+                existingRunConfigurations.erase(it);
+            } else {
+                // Does not exist yet
+                qDebug()<<"Adding new run configuration with title"<<ct.title;
+                qDebug()<<"  Executable:"<<ct.executable<<"WD:"<<ct.workingDirectory;
+                QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
+                addRunConfiguration(rc);
+                // The first one gets the honour of beeing the active one
+                if (!setActive) {
+                    setActiveRunConfiguration(rc);
+                    setActive = true;
+                }
+            }
+        }
+        QMap<QString, QSharedPointer<CMakeRunConfiguration> >::const_iterator it =
+                existingRunConfigurations.constBegin();
+        for( ; it != existingRunConfigurations.constEnd(); ++it) {
+            QSharedPointer<CMakeRunConfiguration> rc = it.value();
+            qDebug()<<"Removing old RunConfiguration with title:"<<rc->title();
+            qDebug()<<"  Executable:"<<rc->executable()<<rc->workingDirectory();
+            removeRunConfiguration(rc);
+        }
+        qDebug()<<"\n";
     } else {
         // TODO report error
+        qDebug()<<"Parsing failed";
         delete m_toolChain;
         m_toolChain = 0;
     }
@@ -341,30 +396,26 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // We have a user file, but we could still be missing the cbp file
         // TODO check that we have a cbp file and if not, open up a dialog ?
         // or simply run createXml with the saved settings
-
+        QFileInfo sourceFileInfo(m_fileName);
+        QStringList needToCreate;
+        QStringList needToUpdate;
+        foreach(const QString &buildConfiguration, buildConfigurations()) {
+            QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
+            QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory));
+            QFileInfo cbpFileFi(cbpFile);
+            if (!cbpFileFi.exists())
+                needToCreate << buildDirectory;
+            else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+                needToUpdate << buildDirectory;
+        }
+        if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
+            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
+            copw.exec();
+        }
     }
 
     parseCMakeLists(); // Gets the directory from the active buildconfiguration
-
-    if (!hasUserFile) {
-        // Create run configurations for m_targets
-        qDebug()<<"Create run configurations of m_targets";
-        bool setActive = false;
-        foreach(const CMakeTarget &ct, m_targets) {
-            if (ct.executable.isEmpty())
-                continue;
-            QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory));
-            addRunConfiguration(rc);
-            // The first one gets the honour of beeing the active one
-            if (!setActive) {
-                setActiveRunConfiguration(rc);
-                setActive = true;
-            }
-        }
-
-    }
 }
-
 
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IFile(parent), m_project(parent), m_fileName(fileName)

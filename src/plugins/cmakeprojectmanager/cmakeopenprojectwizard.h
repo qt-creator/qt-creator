@@ -4,6 +4,7 @@
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
 #include <QtGui/QWizard>
 #include <QtGui/QPlainTextEdit>
 
@@ -29,6 +30,7 @@ public:
         CMakeRunPageId
     };
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QStringList &needToCreate, const QStringList &needToUpdate);
     virtual int nextId() const;
     QString buildDirectory() const;
     QString sourceDirectory() const;
@@ -43,6 +45,7 @@ private:
     QString m_buildDirectory;
     QString m_sourceDirectory;
     QStringList m_arguments;
+    bool m_creatingCbpFiles;
 };
 
 class InSourceBuildPage : public QWizardPage
@@ -82,6 +85,7 @@ class CMakeRunPage : public QWizardPage
     Q_OBJECT
 public:
     CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard);
+    CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &buildDirectory, bool update);
     virtual void cleanupPage();
     virtual bool isComplete() const;
 private slots:
@@ -89,12 +93,15 @@ private slots:
     void cmakeFinished();
     void cmakeReadyRead();
 private:
+    void initWidgets();
     CMakeOpenProjectWizard *m_cmakeWizard;
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;
     QProcess *m_cmakeProcess;
     QLineEdit *m_argumentsLineEdit;
+    QLabel *m_descriptionLabel;
     bool m_complete;
+    QString m_buildDirectory;
 };
 
 }

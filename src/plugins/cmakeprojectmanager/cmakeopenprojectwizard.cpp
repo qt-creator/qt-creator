@@ -10,6 +10,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QPlainTextEdit>
 #include <QtCore/QDateTime>
+#include <QtCore/QStringList>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -27,7 +28,8 @@ using namespace CMakeProjectManager::Internal;
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory)
     : m_cmakeManager(cmakeManager),
-      m_sourceDirectory(sourceDirectory)
+      m_sourceDirectory(sourceDirectory),
+      m_creatingCbpFiles(false)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -46,6 +48,18 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     setStartId(startid);
 }
 
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
+                                               const QStringList &needToCreate, const QStringList &needToUpdate)
+    : m_cmakeManager(cmakeManager),
+      m_sourceDirectory(sourceDirectory),
+      m_creatingCbpFiles(true)
+{
+    foreach(const QString &buildDirectory, needToCreate)
+        addPage(new CMakeRunPage(this, buildDirectory, false));
+    foreach(const QString &buildDirectory, needToUpdate)
+        addPage(new CMakeRunPage(this, buildDirectory, true));
+}
+
 CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
 {
     return m_cmakeManager;
@@ -53,6 +67,8 @@ CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
 
 int CMakeOpenProjectWizard::nextId() const
 {
+    if (m_creatingCbpFiles)
+        return QWizard::nextId();
     int cid = currentId();
     if (cid == InSourcePageId) {
         if (existsUpToDateXmlFile())
@@ -169,15 +185,43 @@ void ShadowBuildPage::buildDirectoryChanged()
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
-      m_complete(false)
+      m_complete(false),
+      m_buildDirectory(m_cmakeWizard->buildDirectory())
+{
+    initWidgets();
+}
+
+CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &buildDirectory, bool update)
+    : QWizardPage(cmakeWizard),
+      m_cmakeWizard(cmakeWizard),
+      m_complete(false),
+      m_buildDirectory(buildDirectory)
+{
+    initWidgets();
+    // TODO tell the user more?
+    if (update)
+        m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
+                                       "Creator needs to update this file by running cmake. "
+                                       "If you want to add additional command line arguments, "
+                                       "add them in the below.").arg(m_buildDirectory));
+    else
+        m_descriptionLabel->setText(tr("The directory %1, specified in a buildconfiguration, "
+                                       "does not contain a cbp file. Qt Creator needs to "
+                                       "recreate this file, by running cmake. "
+                                       "Some projects require command line arguments to "
+                                       "the initial cmake call.").arg(m_buildDirectory));
+}
+
+void CMakeRunPage::initWidgets()
 {
     QFormLayout *fl = new QFormLayout;
     setLayout(fl);
-    QLabel *label = new QLabel(this);
-    label->setWordWrap(true);
-    label->setText(tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file, by running cmake. "
-                   "Some projects require command line arguments to the initial cmake call.").arg(m_cmakeWizard->buildDirectory()));
-    fl->addRow(label);
+    m_descriptionLabel = new QLabel(this);
+    m_descriptionLabel->setWordWrap(true);
+    m_descriptionLabel->setText(tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file, by running cmake. "
+                   "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
+
+    fl->addRow(m_descriptionLabel);
 
     m_argumentsLineEdit = new QLineEdit(this);
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
@@ -198,7 +242,7 @@ void CMakeRunPage::runCMake()
     m_argumentsLineEdit->setEnabled(false);
     QStringList arguments = ProjectExplorer::Environment::parseCombinedArgString(m_argumentsLineEdit->text());
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
-    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_cmakeWizard->buildDirectory());
+    m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory);
     connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
     connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
 }

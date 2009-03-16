@@ -42,7 +42,7 @@ class CMakeProject;
 class CMakeRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
 public:
-    CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory);
+    CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title);
     virtual ~CMakeRunConfiguration();
     virtual QString type() const;
     virtual QString executable() const;
@@ -52,12 +52,18 @@ public:
     virtual ProjectExplorer::Environment environment() const;
     virtual QWidget *configurationWidget();
 
+    void setExecutable(const QString &executable);
+    void setWorkingDirectory(const QString &workingDirectory);
+
+    QString title() const;
+
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 private:
     RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
+    QString m_title;
 };
 
 /* The run configuration factory is used for restoring run configurations from
