@@ -178,7 +178,12 @@ void GenericProject::parseProject()
     _projectIncludePaths.removeDuplicates();
 
     _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
-    _defines   = projectInfo.value(QLatin1String("defines")).toStringList();
+
+    _defines.clear();
+
+    QFile configFn(configFileName());
+    if (configFn.open(QFile::ReadOnly))
+        _defines = configFn.readAll();
 
     emit fileListChanged();
 }
@@ -198,6 +203,8 @@ void GenericProject::refresh()
 
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.defines = predefinedMacros;
+        pinfo.defines += '\n';
+        pinfo.defines += _defines;
 
         QStringList allIncludePaths, allFrameworkPaths;
 
@@ -259,11 +266,8 @@ QStringList GenericProject::includePaths() const
 void GenericProject::setIncludePaths(const QStringList &includePaths)
 { _includePaths = includePaths; }
 
-QStringList GenericProject::defines() const
+QByteArray GenericProject::defines() const
 { return _defines; }
-
-void GenericProject::setDefines(const QStringList &defines)
-{ _defines = defines; }
 
 void GenericProject::setToolChainId(const QString &toolChainId)
 {

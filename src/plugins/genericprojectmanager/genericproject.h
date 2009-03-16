@@ -90,9 +90,7 @@ public:
     QStringList includePaths() const;
     void setIncludePaths(const QStringList &includePaths);
 
-    QStringList defines() const;
-    void setDefines(const QStringList &defines);
-
+    QByteArray defines() const;
     QStringList allIncludePaths() const;
     QStringList projectIncludePaths() const;
     QStringList files() const;
@@ -124,7 +122,7 @@ private:
     QStringList _generated;
     QStringList _includePaths;
     QStringList _projectIncludePaths;
-    QStringList _defines;
+    QByteArray _defines;
 
     GenericProjectNode* _rootNode;
     ProjectExplorer::ToolChain *_toolChain;
