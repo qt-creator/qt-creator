@@ -795,18 +795,6 @@ QVariant DebuggerManager::sessionValue(const QString &name)
     return value;
 }
 
-void DebuggerManager::querySessionValue(const QString &name, QVariant *value)
-{
-    // this is answered by the plugin
-    emit sessionValueRequested(name, value);
-}
-
-void DebuggerManager::setSessionValue(const QString &name, const QVariant &value)
-{
-    // this is answered by the plugin
-    emit setSessionValueRequested(name, value);
-}
-
 QVariant DebuggerManager::configValue(const QString &name)
 {
     // this is answered by the plugin

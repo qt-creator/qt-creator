@@ -237,8 +237,6 @@ public slots:
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
-    void querySessionValue(const QString &name, QVariant *value);
-    void setSessionValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name);
     void queryConfigValue(const QString &name, QVariant *value);
     void setConfigValue(const QString &name, const QVariant &value);
