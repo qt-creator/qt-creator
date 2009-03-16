@@ -22,6 +22,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
 {
     _mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
     _mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
+    _mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
 }
 
 ProjectFilesFactory::~ProjectFilesFactory()
