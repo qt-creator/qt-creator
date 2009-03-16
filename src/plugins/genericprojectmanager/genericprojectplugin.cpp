@@ -30,21 +30,30 @@
 #include "genericprojectplugin.h"
 #include "genericprojectmanager.h"
 #include "genericprojectwizard.h"
+#include "genericprojectconstants.h"
+#include "genericprojectfileseditor.h"
 #include "makestep.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
+#include <texteditor/texteditoractionhandler.h>
+
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
+using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
 GenericProjectPlugin::GenericProjectPlugin()
+    : _projectFilesEditorFactory(0)
 { }
 
 GenericProjectPlugin::~GenericProjectPlugin()
-{ }
+{
+    removeObject(_projectFilesEditorFactory);
+    delete _projectFilesEditorFactory;
+}
 
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
@@ -58,7 +67,15 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
         return false;
 
-    addAutoReleasedObject(new Manager);
+    Manager *manager = new Manager;
+
+    TextEditor::TextEditorActionHandler *actionHandler =
+            new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR);
+
+    _projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
+    addObject(_projectFilesEditorFactory);
+
+    addAutoReleasedObject(manager);
     addAutoReleasedObject(new MakeBuildStepFactory);
     addAutoReleasedObject(new GenericProjectWizard);
 

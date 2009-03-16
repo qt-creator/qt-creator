@@ -37,6 +37,8 @@
 namespace GenericProjectManager {
 namespace Internal {
 
+class ProjectFilesFactory;
+
 class GenericProjectPlugin: public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -47,6 +49,9 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
+
+private:
+    ProjectFilesFactory *_projectFilesEditorFactory;
 };
 
 } // namespace Internal

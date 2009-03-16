@@ -113,31 +113,71 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 
     _file = new GenericProjectFile(this, fileName);
     _rootNode = new GenericProjectNode(this, _file);
+
+    _manager->registerProject(this);
 }
 
 GenericProject::~GenericProject()
 {
     qDebug() << Q_FUNC_INFO;
 
+    _manager->unregisterProject(this);
+
     delete _rootNode;
     delete _toolChain;
 }
 
+QStringList GenericProject::readLines(const QString &absoluteFileName) const
+{
+    QStringList lines;
+
+    QFile file(absoluteFileName);
+    if (file.open(QFile::ReadOnly)) {
+        QTextStream stream(&file);
+
+        forever {
+            QString line = stream.readLine();
+            if (line.isNull())
+                break;
+
+            line = line.trimmed();
+            if (line.isEmpty())
+                continue;
+
+            lines.append(line);
+        }
+    }
+
+    return lines;
+}
+
+
 void GenericProject::parseProject()
 {
+    const QFileInfo projectFileInfo(_fileName);
+    const QDir projectDir = projectFileInfo.dir();
+    const QString projectName = projectFileInfo.baseName();
+    const QFileInfo projectFiles(projectDir, projectName + QLatin1String(".files"));
+    const QFileInfo projectIncludes(projectDir, projectName + QLatin1String(".includes"));
+    const QFileInfo projectConfig(projectDir, projectName + QLatin1String(".config"));
+
     QSettings projectInfo(_fileName, QSettings::IniFormat);
 
-    _files     = convertToAbsoluteFiles(projectInfo.value(QLatin1String("files")).toStringList());
+    _files = convertToAbsoluteFiles(readLines(projectFiles.absoluteFilePath()));
+    _projectIncludePaths = readLines(projectIncludes.absoluteFilePath());
+
     _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
     _defines   = projectInfo.value(QLatin1String("defines")).toStringList();
     _projectIncludePaths = projectInfo.value(QLatin1String("includePaths")).toStringList();
-    
-    qDebug() << "project include paths:" << _projectIncludePaths;
+
+    emit fileListChanged();
 }
 
 void GenericProject::refresh()
 {
     qDebug() << Q_FUNC_INFO;
+
+    parseProject();
 
     _rootNode->refresh();
 

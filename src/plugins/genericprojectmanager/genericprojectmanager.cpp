@@ -35,6 +35,8 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QtDebug>
+
 using namespace GenericProjectManager::Internal;
 
 Manager::Manager()
@@ -60,9 +62,24 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
 
-    if (fileInfo.isFile())
-        return new GenericProject(this, fileName);
+    if (fileInfo.isFile()) {
+        GenericProject *project = new GenericProject(this, fileName);
+        return project;
+    }
 
     return 0;
+}
+
+void Manager::registerProject(GenericProject *project)
+{ _projects.append(project); }
+
+void Manager::unregisterProject(GenericProject *project)
+{ _projects.removeAll(project); }
+
+void Manager::notifyChanged(const QString &fileName)
+{
+    foreach (GenericProject *project, _projects) {
+        project->refresh();
+    }
 }
 

@@ -106,6 +106,8 @@ protected:
 private:
     void parseProject();
 
+    QStringList readLines(const QString &absoluteFileName) const;
+
     Manager *_manager;
     QString _fileName;
     GenericProjectFile *_file;

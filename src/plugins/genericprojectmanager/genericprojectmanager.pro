@@ -8,6 +8,7 @@ HEADERS = genericproject.h \
     genericprojectconstants.h \
     genericprojectnodes.h \
     genericprojectwizard.h \
+    genericprojectfileseditor.h \
     pkgconfigtool.h \
     makestep.h
 SOURCES = genericproject.cpp \
@@ -15,6 +16,7 @@ SOURCES = genericproject.cpp \
     genericprojectmanager.cpp \
     genericprojectnodes.cpp \
     genericprojectwizard.cpp \
+    genericprojectfileseditor.cpp \
     pkgconfigtool.cpp \
     makestep.cpp
 RESOURCES += genericproject.qrc
