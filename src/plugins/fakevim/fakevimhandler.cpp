@@ -1053,7 +1053,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualLineMode) {
+   } else if ((key == 'd' || key == 'x') && m_visualMode == VisualCharMode) { 
+        recordBeginGroup();
+        leaveVisualMode();
+        m_submode = DeleteSubMode;
+        finishMovement();
+   } else if ((key == 'd' || key == 'x') && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
