@@ -268,8 +268,12 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 {
     const GenericProjectWizardDialog *wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
     const QString projectPath = wizard->path();
-    const QString projectName = QFileInfo(projectPath).baseName() + QLatin1String(".creator");
     const QDir dir(projectPath);
+    const QString projectName = QFileInfo(projectPath).baseName();
+    const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".creator")).absoluteFilePath();
+    const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
+    const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
+    const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
 
     Core::ICore *core = Core::ICore::instance();
     Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
@@ -294,18 +298,23 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
             includePaths.append(path);
     }
 
-    QString projectContents;
-    QTextStream stream(&projectContents);
-    stream << "files=" << sources.join(",");
-    stream << endl;
-    stream << "includePaths=" << includePaths.join(",");
-    stream << endl;
+    Core::GeneratedFile generatedCreatorFile(creatorFileName);
+    generatedCreatorFile.setContents(QLatin1String("[General]\n"));
 
-    Core::GeneratedFile file(QFileInfo(dir, projectName).absoluteFilePath()); // ### fixme
-    file.setContents(projectContents);
+    Core::GeneratedFile generatedFilesFile(filesFileName);
+    generatedFilesFile.setContents(sources.join(QLatin1String("\n")));
+
+    Core::GeneratedFile generatedIncludesFile(includesFileName);
+    generatedIncludesFile.setContents(includePaths.join(QLatin1String("\n")));
+
+    Core::GeneratedFile generatedConfigFile(configFileName);
+    generatedConfigFile.setContents(QLatin1String("// ADD PREDEFINED MACROS HERE!\n"));
 
     Core::GeneratedFiles files;
-    files.append(file);
+    files.append(generatedFilesFile);
+    files.append(generatedIncludesFile);
+    files.append(generatedConfigFile);
+    files.append(generatedCreatorFile);
 
     return files;
 }

@@ -171,16 +171,11 @@ public:
 
 private Q_SLOTS:
     void buildDirectoryChanged();
-    void markDirty();
-    void applyChanges();
 
 private:
     GenericProject *_project;
     Core::Utils::PathChooser *_pathChooser;
     QString _buildConfiguration;
-    QPushButton *_applyButton;
-    QStringListModel *_includePathsModel;
-    QStringListModel *_definesModel;
 };
 
 } // namespace Internal

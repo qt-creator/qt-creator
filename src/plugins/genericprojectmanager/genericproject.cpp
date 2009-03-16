@@ -509,30 +509,6 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     toolChainChooser->setCurrentIndex(toolChainChooser->findText(_project->toolChainId()));
     fl->addRow(tr("Tool chain:"), toolChainChooser);
     connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChainId(QString)));
-
-    // include paths
-    QListView *includePathsView = new QListView;
-    _includePathsModel = new ListModel(this);
-
-    _includePathsModel->setStringList(_project->allIncludePaths());
-    includePathsView->setModel(_includePathsModel);
-    fl->addRow(tr("Include paths:"), includePathsView);
-
-    // defines
-    QListView *definesView = new QListView;
-    _definesModel = new ListModel(this);
-    _definesModel->setStringList(_project->defines());
-    definesView->setModel(_definesModel);
-    fl->addRow(tr("Defines:"), definesView);
-
-    _applyButton = new QPushButton(tr("Apply"));
-    _applyButton->setEnabled(false);
-    fl->addRow(QString(), _applyButton);
-    connect(_applyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
-    connect(_includePathsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(markDirty()));
-    connect(_definesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(markDirty()));
 }
 
 GenericBuildSettingsWidget::~GenericBuildSettingsWidget()
@@ -554,20 +530,6 @@ void GenericBuildSettingsWidget::buildDirectoryChanged()
     qDebug() << Q_FUNC_INFO;
 
     _project->setValue(_buildConfiguration, "buildDirectory", _pathChooser->path());
-}
-
-void GenericBuildSettingsWidget::markDirty()
-{
-    _applyButton->setEnabled(true);
-}
-
-void GenericBuildSettingsWidget::applyChanges()
-{
-    _project->setIncludePaths(_includePathsModel->stringList());
-    _project->setDefines(_definesModel->stringList());
-
-    _project->refresh();
-    _applyButton->setEnabled(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

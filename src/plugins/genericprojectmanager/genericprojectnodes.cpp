@@ -77,6 +77,11 @@ void GenericProjectNode::refresh()
                                                ProjectFileType,
                                                /* generated = */ false);
 
+    QStringList files = _project->files();
+    files.removeAll(_project->filesFileName());
+    files.removeAll(_project->includesFileName());
+    files.removeAll(_project->configFileName());
+
     addFileNodes(QList<FileNode *>()
                  << projectFilesNode
                  << projectIncludesNode
@@ -86,7 +91,7 @@ void GenericProjectNode::refresh()
     QStringList filePaths;
     QHash<QString, QStringList> filesInPath;
 
-    foreach (const QString &absoluteFileName, _project->files()) {
+    foreach (const QString &absoluteFileName, files) {
         QFileInfo fileInfo(absoluteFileName);
         const QString absoluteFilePath = fileInfo.path();
 
