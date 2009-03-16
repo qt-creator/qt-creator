@@ -60,7 +60,6 @@ MakeStep::~MakeStep()
 
 bool MakeStep::init(const QString &buildConfiguration)
 {
-    qDebug() << "***************** here!";
     // TODO figure out the correct build parser
     delete m_buildParser;
     m_buildParser = 0;
@@ -71,8 +70,6 @@ bool MakeStep::init(const QString &buildConfiguration)
     QList<ProjectExplorer::IBuildParserFactory *> buildParserFactories =
             ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::IBuildParserFactory>();
 
-    qDebug() << "***** build parsers count:" << buildParserFactories.size();
-
     foreach (ProjectExplorer::IBuildParserFactory *factory, buildParserFactories) {
         if (factory->canCreate(buildParser)) {
             m_buildParser = factory->create(buildParser);
@@ -81,8 +78,6 @@ bool MakeStep::init(const QString &buildConfiguration)
     }
 
     if (m_buildParser) {
-        qDebug() << "***** set up the connections";
-
         connect(m_buildParser, SIGNAL(addToOutputWindow(const QString &)),
                 this, SIGNAL(addToOutputWindow(const QString &)),
                 Qt::DirectConnection);
@@ -153,8 +148,6 @@ void MakeStep::stdError(const QString &line)
 
 void MakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
 {
-    qDebug() << "**************" << Q_FUNC_INFO;
-
     QString filePath = fn;
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
