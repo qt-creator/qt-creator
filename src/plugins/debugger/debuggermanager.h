@@ -311,6 +311,7 @@ private slots:
     void setStatus(int status);
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
+    void recheckCustomDumperAvailability();
 
 private:
     //

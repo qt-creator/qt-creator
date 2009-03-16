@@ -112,8 +112,7 @@ enum GdbCommandType
     GdbInfoShared,
     GdbInfoProc,
     GdbInfoThreads,
-    GdbQueryDataDumper1,
-    GdbQueryDataDumper2,
+    GdbQueryDataDumper,
     GdbTemporaryContinue,
     GdbTargetCore,
 
@@ -799,11 +798,8 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbInfoShared:
             handleInfoShared(record);
             break;
-        case GdbQueryDataDumper1:
-            handleQueryDataDumper1(record);
-            break;
-        case GdbQueryDataDumper2:
-            handleQueryDataDumper2(record);
+        case GdbQueryDataDumper:
+            handleQueryDataDumper(record);
             break;
         case GdbTemporaryContinue:
             continueInferior();
@@ -1570,7 +1566,7 @@ bool GdbEngine::startDebugger()
     gdbArgs.prepend(QLatin1String("mi"));
     gdbArgs.prepend(QLatin1String("-i"));
 
-    if (q->startMode() == AttachCore) {
+    if (q->startMode() == AttachCore || q->startMode() == AttachExternal) {
         // nothing to do
     } else if (q->m_useTerminal) {
         m_stubProc.stop(); // We leave the console open, so recycle it now.
@@ -1778,6 +1774,7 @@ void GdbEngine::handleAttach()
     handleAqcuiredInferior();
 
     q->resetLocation();
+    recheckCustomDumperAvailability();
 
     //
     // Stack
@@ -3520,14 +3517,9 @@ void GdbEngine::updateWatchModel2()
     }
 }
 
-void GdbEngine::handleQueryDataDumper1(const GdbResultRecord &record)
+void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
 {
-    Q_UNUSED(record);
-}
-
-void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
-{
-    //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
+    qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("consolestreamoutput");
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker
@@ -3568,6 +3560,8 @@ void GdbEngine::handleQueryDataDumper2(const GdbResultRecord &record)
                 );
     } else {
         m_dataDumperState = DataDumperAvailable;
+        q->showStatusMessage(tr("%1 custom dumpers found")
+            .arg(m_availableSimpleDumpers.size()));
     }
     //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDumpers;
 }
@@ -4274,9 +4268,8 @@ void GdbEngine::tryLoadCustomDumpers()
 
     if (m_dataDumperState == DataDumperLoadTried) {
         // retreive list of dumpable classes
-        sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)",
-            GdbQueryDataDumper1);
-        sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper2);
+        sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
+        sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
     } else {
         debugMessage(QString("DEBUG HELPER LIBRARY IS NOT USABLE: "
             " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
@@ -4285,6 +4278,12 @@ void GdbEngine::tryLoadCustomDumpers()
     }
 }
 
+void GdbEngine::recheckCustomDumperAvailability()
+{
+    // retreive list of dumpable classes
+    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
+    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
+}
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent)
 {
