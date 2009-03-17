@@ -174,8 +174,6 @@ void ProFileReader::errorMessage(const QString &message)
 
 ProFile *ProFileReader::proFileFor(const QString &name)
 {
-    qDebug()<<"Asking for "<<name;
-    qDebug()<<"in "<<m_includeFiles.keys();
     QMap<QString, ProFile *>::const_iterator it = m_includeFiles.constFind(name);
     if (it == m_includeFiles.constEnd())
         return 0;

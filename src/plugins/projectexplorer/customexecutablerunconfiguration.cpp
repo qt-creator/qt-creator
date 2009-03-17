@@ -51,23 +51,29 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     QFormLayout *layout = new QFormLayout();
     layout->setMargin(0);
 
-    m_executableChooser = new Core::Utils::PathChooser();
+    m_userName = new QLineEdit(this);
+    layout->addRow("Name:", m_userName);
+
+    m_executableChooser = new Core::Utils::PathChooser(this);
     m_executableChooser->setExpectedKind(Core::Utils::PathChooser::File);
     layout->addRow("Executable:", m_executableChooser);
 
-    m_commandLineArgumentsLineEdit = new QLineEdit;
+    m_commandLineArgumentsLineEdit = new QLineEdit(this);
     m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
     layout->addRow("Arguments:", m_commandLineArgumentsLineEdit);
 
-    m_workingDirectory = new Core::Utils::PathChooser();
+    m_workingDirectory = new Core::Utils::PathChooser(this);
     layout->addRow("Working Directory:", m_workingDirectory);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"));
+    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
     setLayout(layout);
     changed();
     
+
+    connect(m_userName, SIGNAL(textEdited(QString)),
+            this, SLOT(setUserName(QString)));
     connect(m_executableChooser, SIGNAL(changed()),
             this, SLOT(setExecutable()));
     connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
@@ -99,6 +105,13 @@ void CustomExecutableConfigurationWidget::setWorkingDirectory()
     m_ignoreChange = false;
 }
 
+void CustomExecutableConfigurationWidget::setUserName(const QString &name)
+{
+    m_ignoreChange = true;
+    m_runConfiguration->setUserName(name);
+    m_ignoreChange = false;
+}
+
 void CustomExecutableConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
@@ -116,10 +129,12 @@ void CustomExecutableConfigurationWidget::changed()
     m_commandLineArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == ApplicationRunConfiguration::Console);
+    m_userName->setText(m_runConfiguration->userName());
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
-    : ApplicationRunConfiguration(pro)
+    : ApplicationRunConfiguration(pro),
+      m_userSetName(false)
 {
     m_workingDirectory = "$BUILDDIR";
     setName("Custom Executable");
@@ -137,6 +152,11 @@ QString CustomExecutableRunConfiguration::type() const
 QString CustomExecutableRunConfiguration::baseExecutable() const
 {
     return m_executable;
+}
+
+QString CustomExecutableRunConfiguration::userName() const
+{
+    return m_userName;
 }
 
 QString CustomExecutableRunConfiguration::executable() const
@@ -213,6 +233,8 @@ void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) co
     writer.saveValue("Arguments", m_cmdArguments);
     writer.saveValue("WorkingDirectory", m_workingDirectory);
     writer.saveValue("UseTerminal", m_runMode == Console);
+    writer.saveValue("UserSetName", m_userSetName);
+    writer.saveValue("UserName", m_userName);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -222,13 +244,16 @@ void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &r
     m_cmdArguments = reader.restoreValue("Arguments").toStringList();
     m_workingDirectory = reader.restoreValue("WorkingDirectory").toString();
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
+    m_userSetName = reader.restoreValue("UserSetName").toBool();
+    m_userName = reader.restoreValue("UserName").toString();
     ApplicationRunConfiguration::restore(reader);
 }
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 {
     m_executable = executable;
-    setName(tr("Run %1").arg(m_executable));
+    if (!m_userSetName)
+        setName(tr("Run %1").arg(m_executable));
     emit changed();
 }
 
@@ -253,6 +278,20 @@ void CustomExecutableRunConfiguration::setRunMode(RunMode runMode)
 QWidget *CustomExecutableRunConfiguration::configurationWidget()
 {
     return new CustomExecutableConfigurationWidget(this);
+}
+
+void CustomExecutableRunConfiguration::setUserName(const QString &name)
+{
+    if (name.isEmpty()) {
+        m_userName = name;
+        m_userSetName = false;
+        setName(tr("Run %1").arg(m_executable));
+    } else {
+        m_userName = name;
+        m_userSetName = true;
+        setName(name);
+    }
+    emit changed();
 }
 
 // Factory

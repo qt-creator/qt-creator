@@ -71,6 +71,11 @@ public:
      */
     QString baseExecutable() const;
 
+    /**
+     * Returns the name the user has set, if he has set one
+     */
+    QString userName() const;
+
     virtual ApplicationRunConfiguration::RunMode runMode() const;
     virtual QString workingDirectory() const;
     QString baseWorkingDirectory() const;
@@ -89,11 +94,14 @@ private:
     void setExecutable(const QString &executable);
     void setCommandLineArguments(const QString &commandLineArguments);
     void setWorkingDirectory(const QString &workingDirectory);
+    void setUserName(const QString &name);
     void setRunMode(RunMode runMode);
     QString m_executable;
     QString m_workingDirectory;
     QStringList m_cmdArguments;
     RunMode m_runMode;
+    bool m_userSetName;
+    QString m_userName;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
@@ -124,6 +132,7 @@ private slots:
 
     void setExecutable();
     void setCommandLineArguments(const QString &commandLineArguments);
+    void setUserName(const QString &name);
     void setWorkingDirectory();
     void termToggled(bool);
 
@@ -131,6 +140,7 @@ private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
     Core::Utils::PathChooser *m_executableChooser;
+    QLineEdit *m_userName;
     QLineEdit *m_commandLineArgumentsLineEdit;
     Core::Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
