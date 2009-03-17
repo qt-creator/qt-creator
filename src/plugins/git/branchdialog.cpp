@@ -258,6 +258,7 @@ void BranchDialog::slotRemoteBranchActivated(const QModelIndex &i)
 
 void BranchDialog::changeEvent(QEvent *e)
 {
+    QDialog::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);

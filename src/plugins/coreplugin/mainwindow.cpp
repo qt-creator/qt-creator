@@ -986,6 +986,7 @@ void MainWindow::removeContextObject(IContext *context)
 
 void MainWindow::changeEvent(QEvent *e)
 {
+    QMainWindow::changeEvent(e);
     if (e->type() == QEvent::ActivationChange) {
         if (isActiveWindow()) {
             if (debugMainWindow)

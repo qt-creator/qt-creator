@@ -236,6 +236,7 @@ void BuildStepsPage::downBuildStep()
 
 void BuildStepsPage::changeEvent(QEvent *e)
 {
+    BuildStepConfigWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);
