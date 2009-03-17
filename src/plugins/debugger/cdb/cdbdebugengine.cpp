@@ -992,11 +992,6 @@ void CdbDebugEngine::setDebugDumpers(bool on)
     Q_UNUSED(on)
 }
 
-void CdbDebugEngine::setUseCustomDumpers(bool on)
-{
-    Q_UNUSED(on)
-}
-
 void CdbDebugEngine::recheckCustomDumperAvailability()
 {
 }

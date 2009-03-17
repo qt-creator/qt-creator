@@ -29,6 +29,8 @@
 
 #include "watchwindow.h"
 
+#include "debuggeractions.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 
@@ -106,6 +108,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act4 = 0;
     QAction *act5 = new QAction("Debugger properties...", &menu);
     QAction *act6 = new QAction("Re-check availability of custom dumpers", &menu);
+    QAction *act7 = action(UseDumpers);
 
     menu.addAction(act1);
     menu.addAction(act2);
@@ -132,6 +135,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
     menu.addAction(act6);
+    menu.addAction(act7);
     menu.addAction(act5);
 
     QAction *act = menu.exec(ev->globalPos());

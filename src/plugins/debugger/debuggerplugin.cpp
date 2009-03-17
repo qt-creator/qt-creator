@@ -29,6 +29,7 @@
 
 #include "debuggerplugin.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
@@ -286,7 +287,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.checkBoxListSourceFiles->setChecked(m_settings.m_listSourceFiles);
     m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
     m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
-    m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useCustomDumpers);
+    m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useDumpers);
     m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
 
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
@@ -310,7 +311,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
     //
     connect(m_ui.checkBoxUseCustomDumpers, SIGNAL(clicked(bool)),
-        m_plugin->m_manager, SLOT(setUseCustomDumpers(bool)));
+        action(UseDumpers), SLOT(trigger(bool)));
 
     return w;
 }
@@ -324,7 +325,7 @@ void GdbOptionPage::apply()
     m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
     m_settings.m_listSourceFiles = m_ui.checkBoxListSourceFiles->isChecked();
     m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
-    m_settings.m_useCustomDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
+    m_settings.m_useDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
 
     m_settings.m_pluginAllBreakpoints =
@@ -908,7 +909,7 @@ void DebuggerPlugin::writeSettings() const
     s->setValue("AutoQuit", m->m_autoQuit);
 
     s->setValue("UseToolTips", m->m_useToolTips);
-    s->setValue("UseCustomDumpers", m->m_useCustomDumpers);
+    s->setValue("UseCustomDumpers", m->m_useDumpers);
     s->setValue("ListSourceFiles", m->m_listSourceFiles);
     s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
     s->setValue("DebugDumpers", m->m_debugDumpers);
@@ -946,7 +947,7 @@ void DebuggerPlugin::readSettings()
 
     m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
     m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
-    m->m_useCustomDumpers = s->value("UseCustomDumpers", true).toBool();
+    m->m_useDumpers       = s->value("UseCustomDumpers", true).toBool();
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
     m->m_listSourceFiles  = s->value("ListSourceFiles", false).toBool();
 

@@ -29,6 +29,7 @@
 
 #include "debuggermanager.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
 
@@ -94,7 +95,7 @@ DebuggerSettings::DebuggerSettings()
     m_skipKnownFrames = false;
     m_debugDumpers = false;
     m_useToolTips = false;
-    m_useCustomDumpers = true;
+    m_useDumpers = true;
     m_listSourceFiles = false;
 }
 
@@ -108,7 +109,7 @@ QString DebuggerSettings::dump()
         << "  gdbEnv: " << m_gdbEnv 
         << "  autoRun: " << m_autoRun
         << "  autoQuit: " << m_autoQuit
-        << "  useCustomDumpers: " << m_useCustomDumpers
+        << "  useCustomDumpers: " << m_useDumpers
         << "  skipKnownFrames: " << m_skipKnownFrames
         << "  debugDumpers: " << m_debugDumpers
         << "  useToolTips: " << m_useToolTips
@@ -476,6 +477,9 @@ void DebuggerManager::init()
     setDebuggerType(GdbDebugger);
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine;
+
+    connect(action(UseDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setUseDumpers(bool)));
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
@@ -1292,16 +1296,15 @@ bool DebuggerManager::debugDumpers() const
     return m_settings.m_debugDumpers;
 }
 
-bool DebuggerManager::useCustomDumpers() const
+bool DebuggerManager::useDumpers() const
 {
-    return m_settings.m_useCustomDumpers;
+    return m_settings.m_useDumpers;
 }
 
-void DebuggerManager::setUseCustomDumpers(bool on)
+void DebuggerManager::setUseDumpers(bool on)
 {
     QTC_ASSERT(m_engine, return);
-    m_settings.m_useCustomDumpers = on;
-    m_engine->setUseCustomDumpers(on);
+    m_settings.m_useDumpers = on;
 }
 
 void DebuggerManager::setDebugDumpers(bool on)

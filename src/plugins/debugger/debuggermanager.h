@@ -162,7 +162,7 @@ private:
     virtual void showApplicationOutput(const QString &data) = 0;
     virtual bool skipKnownFrames() const = 0;
     virtual bool debugDumpers() const = 0;
-    virtual bool useCustomDumpers() const = 0;
+    virtual bool useDumpers() const = 0;
     
     virtual bool wantsSourceFileList() const = 0;
     virtual bool wantsAllPluginBreakpoints() const = 0;
@@ -193,7 +193,7 @@ public:
     bool m_autoRun;
     bool m_autoQuit;
 
-    bool m_useCustomDumpers;
+    bool m_useDumpers;
     bool m_skipKnownFrames;
     bool m_debugDumpers;
     bool m_useToolTips;
@@ -284,11 +284,11 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-    void setUseCustomDumpers(bool on);
     void setDebugDumpers(bool on);
     void setSkipKnownFrames(bool on);
 
 private slots:
+    void setUseDumpers(bool on);
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
     void showApplicationOutput(const QString &data);
@@ -326,7 +326,7 @@ private:
 
     bool skipKnownFrames() const;
     bool debugDumpers() const;
-    bool useCustomDumpers() const;
+    bool useDumpers() const;
     bool wantsSourceFileList() const
         { return m_settings.m_listSourceFiles; }
     bool wantsAllPluginBreakpoints() const
