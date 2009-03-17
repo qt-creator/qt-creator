@@ -30,7 +30,6 @@
 #include "cppplugin.h"
 #include "cppclasswizard.h"
 #include "cppeditor.h"
-#include "cppeditoractionhandler.h"
 #include "cppeditorconstants.h"
 #include "cppeditorenums.h"
 #include "cppfilewizard.h"
@@ -47,6 +46,7 @@
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <cpptools/cpptoolsconstants.h>
 
@@ -207,7 +207,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    m_actionHandler = new CPPEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);

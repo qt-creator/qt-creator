@@ -44,7 +44,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class CPPEditorActionHandler;
 class CppPluginEditorFactory;
 
 class CppPlugin : public ExtensionSystem::IPlugin
@@ -73,7 +72,7 @@ private:
 
     static CppPlugin *m_instance;
 
-    CPPEditorActionHandler *m_actionHandler;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
     CppPluginEditorFactory *m_factory;
 };
 
