@@ -135,6 +135,8 @@ public:
 
     static QString msgNoChangedFiles();
 
+    static const char *noColorOption;
+
 public slots:
     void show(const QString &source, const QString &id);
 

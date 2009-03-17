@@ -109,7 +109,8 @@ bool RemoteBranchModel::refreshBranches(const QString &workingDirectory, bool re
                                         int *currentBranch, QString *errorMessage)
 {
     // Run branch command with verbose.
-    QStringList branchArgs(QLatin1String("-v"));
+    QStringList branchArgs;
+    branchArgs << QLatin1String(GitClient::noColorOption) << QLatin1String("-v");
     QString output;
     *currentBranch = -1;
     if (remoteBranches)
