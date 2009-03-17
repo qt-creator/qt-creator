@@ -109,21 +109,7 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 {
     QTC_ASSERT(m_instance, /**/);
 
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    connect(settings, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
-    connect(settings, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-
-    // tab settings rely on font settings
-    editor->setFontSettings(settings->fontSettings());
-    editor->setTabSettings(settings->tabSettings());
-    editor->setStorageSettings(settings->storageSettings());
-    editor->setDisplaySettings(settings->displaySettings());
+    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 }
 
 void QtScriptEditorPlugin::registerActions()

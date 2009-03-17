@@ -88,7 +88,7 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_contextId << Core::UniqueIDManager::instance()->uniqueIdentifier(context);
 
     connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-        this, SLOT(updateCurrentEditor(Core::IEditor    *)));
+        this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 
 void TextEditorActionHandler::setupActions(BaseTextEditor *editor)

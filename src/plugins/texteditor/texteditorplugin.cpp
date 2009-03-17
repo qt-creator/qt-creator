@@ -140,26 +140,12 @@ void TextEditorPlugin::extensionsInitialized()
     m_editorFactory->actionHandler()->initializeActions();
 }
 
-void TextEditorPlugin::initializeEditor(TextEditor::PlainTextEditor *editor)
+void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
 {
     // common actions
     m_editorFactory->actionHandler()->setupActions(editor);
 
-    // settings
-    connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    connect(m_settings, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
-    connect(m_settings, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(m_settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-
-    // tab settings rely on font settings
-    editor->setFontSettings(m_settings->fontSettings());
-    editor->setTabSettings(m_settings->tabSettings());
-    editor->setStorageSettings(m_settings->storageSettings());
-    editor->setDisplaySettings(m_settings->displaySettings());
+    TextEditorSettings::instance()->initializeEditor(editor);
 }
 
 void TextEditorPlugin::invokeCompletion()

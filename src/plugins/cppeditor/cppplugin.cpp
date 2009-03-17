@@ -47,6 +47,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 #include <cpptools/cpptoolsconstants.h>
 
@@ -128,25 +129,9 @@ CppPlugin *CppPlugin::instance()
 
 void CppPlugin::initializeEditor(CPPEditor *editor)
 {
-    // common actions
     m_actionHandler->setupActions(editor);
 
-    // settings
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    connect(settings, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
-    connect(settings, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-
-    // tab settings rely on font settings
-    editor->setFontSettings(settings->fontSettings());
-    editor->setTabSettings(settings->tabSettings());
-    editor->setStorageSettings(settings->storageSettings());
-    editor->setDisplaySettings(settings->displaySettings());
+    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),

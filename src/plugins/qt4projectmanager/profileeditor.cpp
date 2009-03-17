@@ -68,7 +68,7 @@ Core::IEditor *ProFileEditorEditable::duplicate(QWidget *parent)
     ProFileEditor *ret = new ProFileEditor(parent, qobject_cast<ProFileEditor*>(editor())->factory(),
                                            qobject_cast<ProFileEditor*>(editor())->actionHandler());
     ret->duplicateFrom(editor());
-    ret->initialize();
+    TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
     return ret->editableInterface();
 }
 
@@ -101,16 +101,6 @@ ProFileEditor::~ProFileEditor()
 TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
 {
     return new ProFileEditorEditable(this);
-}
-
-void ProFileEditor::initialize()
-{
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-
-    connect(settings, SIGNAL(fontSettingsChanged(const TextEditor::FontSettings&)),
-            this, SLOT(setFontSettings(const TextEditor::FontSettings&)));
-
-    setFontSettings(settings->fontSettings());
 }
 
 void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)

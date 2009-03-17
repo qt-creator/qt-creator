@@ -74,7 +74,6 @@ public:
     ProFileEditor(QWidget *parent, ProFileEditorFactory *factory,
                   TextEditor::TextEditorActionHandler *ah);
     ~ProFileEditor();
-    void initialize();
 
     bool save(const QString &fileName = QString());
 
