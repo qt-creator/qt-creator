@@ -322,6 +322,9 @@ public:
     virtual Function *asFunctionType()
     { return this; }
 
+    bool isAmbiguous() const; // internal
+    void setAmbiguous(bool isAmbiguous); // internal
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -337,6 +340,7 @@ private:
             unsigned _isPureVirtual: 1;
             unsigned _isConst: 1;
             unsigned _isVolatile: 1;
+            unsigned _isAmbiguous: 1;
             unsigned _methodKey: 3;
         };
     };

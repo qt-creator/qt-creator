@@ -57,8 +57,8 @@
 using namespace Git;
 using namespace Git::Internal;
 
-const char *const kGitDirectoryC = ".git";
-const char *const kBranchIndicatorC = "# On branch";
+static const char *const kGitDirectoryC = ".git";
+static const char *const kBranchIndicatorC = "# On branch";
 
 static inline QString msgServerFailure()
 {
@@ -107,6 +107,8 @@ GitClient::GitClient(GitPlugin* plugin)
 GitClient::~GitClient()
 {
 }
+
+const char *GitClient::noColorOption = "--no-color";
 
 QString GitClient::findRepositoryForFile(const QString &fileName)
 {
@@ -201,22 +203,24 @@ void GitClient::diff(const QString &workingDirectory,
     // when using the submit dialog.
     GitCommand *command = createCommand(workingDirectory, editor);
     // Directory diff?
+    QStringList commonDiffArgs;
+    commonDiffArgs << QLatin1String("diff") << QLatin1String(noColorOption);
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
-       QStringList arguments;
-       arguments << QLatin1String("diff") << diffArgs;
+       QStringList arguments(commonDiffArgs);
+       arguments << diffArgs;
        m_plugin->outputWindow()->append(formatCommand(binary, arguments));
        command->addJob(arguments, m_settings.timeout);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
-           QStringList arguments;
-           arguments << QLatin1String("diff") << diffArgs << QLatin1String("--") << unstagedFileNames;
+           QStringList arguments(commonDiffArgs);
+           arguments << QLatin1String("--") << unstagedFileNames;
            m_plugin->outputWindow()->append(formatCommand(binary, arguments));
            command->addJob(arguments, m_settings.timeout);
         }
         if (!stagedFileNames.empty()) {
-           QStringList arguments;
-           arguments << QLatin1String("diff") << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
+           QStringList arguments(commonDiffArgs);
+           arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
            m_plugin->outputWindow()->append(formatCommand(binary, arguments));
            command->addJob(arguments, m_settings.timeout);
         }
@@ -231,9 +235,9 @@ void GitClient::diff(const QString &workingDirectory,
     if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileName;
     QStringList arguments;
-    arguments << QLatin1String("diff");
+    arguments << QLatin1String("diff") << QLatin1String(noColorOption);
     if (!fileName.isEmpty())
-        arguments << diffArgs << QLatin1String("--") << fileName;
+        arguments << diffArgs  << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);
@@ -245,6 +249,7 @@ void GitClient::diff(const QString &workingDirectory,
 
 void GitClient::status(const QString &workingDirectory)
 {
+    // @TODO: Use "--no-color" once it is supported
     QStringList statusArgs(QLatin1String("status"));
     statusArgs << QLatin1String("-u");
     executeGit(workingDirectory, statusArgs, 0, true);
@@ -255,7 +260,8 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName)
     if (Git::Constants::debug)
         qDebug() << "log" << workingDirectory << fileName;
 
-    QStringList arguments(QLatin1String("log"));
+    QStringList arguments;
+    arguments << QLatin1String("log") << QLatin1String(noColorOption);
 
     if (m_settings.logCount > 0)
          arguments << QLatin1String("-n") << QString::number(m_settings.logCount);
@@ -274,8 +280,8 @@ void GitClient::show(const QString &source, const QString &id)
 {
     if (Git::Constants::debug)
         qDebug() << "show" << source << id;
-    QStringList arguments(QLatin1String("show"));
-    arguments << id;
+    QStringList arguments;
+    arguments << QLatin1String("show") << QLatin1String(noColorOption) << id;
 
     const QString title =  tr("Git Show %1").arg(id);
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
@@ -450,7 +456,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << id;
     QStringList args(QLatin1String("show"));
-    args << id;
+    args << QLatin1String(noColorOption) << id;
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
@@ -633,10 +639,12 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
     QByteArray outputText;
     QByteArray errorText;
+    // @TODO: Use "--no-color" once it is supported
     QStringList statusArgs(QLatin1String("status"));
     if (untracked)
         statusArgs << QLatin1String("-u");
     const bool statusRc = synchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    GitCommand::removeColorCodes(&outputText);
     if (output)
         *output = QString::fromLocal8Bit(outputText).remove(QLatin1Char('\r'));
     // Is it something really fatal?
@@ -958,14 +966,14 @@ void GitClient::stashPop(const QString &workingDirectory)
 void GitClient::branchList(const QString &workingDirectory)
 {
     QStringList arguments(QLatin1String("branch"));
-    arguments << QLatin1String("-r");
+    arguments << QLatin1String("-r") << QLatin1String(noColorOption);
     executeGit(workingDirectory, arguments, 0, true);
 }
 
 void GitClient::stashList(const QString &workingDirectory)
 {
     QStringList arguments(QLatin1String("stash"));
-    arguments << QLatin1String("list");
+    arguments << QLatin1String("list") << QLatin1String(noColorOption);
     executeGit(workingDirectory, arguments, 0, true);
 }
 

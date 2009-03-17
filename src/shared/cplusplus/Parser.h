@@ -107,7 +107,7 @@ public:
     bool parseSimpleDeclaration(DeclarationAST *&node, bool acceptStructDeclarator = false);
     bool parseDeclarationStatement(StatementAST *&node);
     bool parseCoreDeclarator(DeclaratorAST *&node);
-    bool parseDeclarator(DeclaratorAST *&node);
+    bool parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer = false);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
     bool parseElaboratedTypeSpecifier(SpecifierAST *&node);

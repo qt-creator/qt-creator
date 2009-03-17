@@ -50,6 +50,10 @@ public:
     void addJob(const QStringList &arguments, int timeout);
     void execute();
 
+    // Clean output from carriage return and ANSI color codes.
+    // Workaround until all relevant commands support "--no-color".
+    static void removeColorCodes(QByteArray *data);
+
 private:
     void run();
 

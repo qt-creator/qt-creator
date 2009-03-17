@@ -805,6 +805,7 @@ public:
     unsigned rparen_token;
     SpecifierAST *cv_qualifier_seq;
     ExceptionSpecificationAST *exception_specification;
+    ExpressionAST *as_cpp_initializer;
 
 public: // annotations
     Function *symbol;

@@ -214,7 +214,6 @@ private:
     Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
-    QFutureSynchronizer<void> m_synchronizer;
 };
 
 } // namespace Internal
@@ -224,9 +223,7 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
       preprocess(this, &env)
-{
-    m_synchronizer.setCancelOnWait(true);
-}
+{ }
 
 CppPreprocessor::~CppPreprocessor()
 { }
@@ -510,7 +507,9 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     snapshot.insert(doc->fileName(), doc);
     m_todo.remove(fileName);
 
-    m_synchronizer.addFuture(QtConcurrent::run(Process(m_modelManager), doc));
+    Process process(m_modelManager);
+
+    process(doc);
 
     (void) switchDocument(previousDoc);
 }

@@ -121,6 +121,10 @@ void GitCommand::run()
     // Special hack: Always produce output for diff
     if (ok && output.isEmpty() && m_jobs.front().arguments.at(0) == QLatin1String("diff")) {
         output += "The file does not differ from HEAD";
+    } else {
+        // @TODO: Remove, see below
+        if (ok && m_jobs.front().arguments.at(0) == QLatin1String("status"))
+            removeColorCodes(&output);
     }
 
     if (ok && !output.isEmpty())
@@ -131,6 +135,29 @@ void GitCommand::run()
 
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
+}
+
+// Clean output from carriage return and ANSI color codes.
+// @TODO: Remove once all relevant commands support "--no-color",
+//("status" is  missing it as of git 1.6.2)
+
+void GitCommand::removeColorCodes(QByteArray *data)
+{
+    // Remove ansi color codes that look like "ESC[<stuff>m"
+    const QByteArray ansiColorEscape("\033[");
+    int escapePos = 0;
+    while (true) {
+        const int nextEscapePos = data->indexOf(ansiColorEscape, escapePos);
+        if (nextEscapePos == -1)
+            break;
+        const int endEscapePos = data->indexOf('m', nextEscapePos + ansiColorEscape.size());
+        if (endEscapePos != -1) {
+            data->remove(nextEscapePos, endEscapePos - nextEscapePos + 1);
+            escapePos = nextEscapePos;
+        } else {
+            escapePos = nextEscapePos + ansiColorEscape.size();
+        }
+    }
 }
 
 } // namespace Internal
