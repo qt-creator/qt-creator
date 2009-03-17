@@ -977,7 +977,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
     return false;
 }
 
-bool Parser::parseDeclarator(DeclaratorAST *&node)
+bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 {
     if (! parseCoreDeclarator(node))
         return false;
@@ -988,6 +988,25 @@ bool Parser::parseDeclarator(DeclaratorAST *&node)
         unsigned startOfPostDeclarator = cursor();
 
         if (LA() == T_LPAREN) {
+            if (stopAtCppInitializer) {
+                unsigned lparen_token = cursor();
+                ExpressionAST *initializer = 0;
+
+                bool blocked = blockErrors(true);
+                if (parseInitializer(initializer)) {
+                    if (NestedExpressionAST *expr = initializer->asNestedExpression()) {
+                        if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
+                            rewind(lparen_token);
+                            blockErrors(blocked);
+                            return true;
+                        }
+                    }
+                }
+
+                blockErrors(blocked);
+                rewind(lparen_token);
+            }
+
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
             ast->lparen_token = consumeToken();
             parseParameterDeclarationClause(ast->parameters);
@@ -1494,7 +1513,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
     if (acceptStructDeclarator && LA() == T_COLON) {
         // anonymous bit-field declaration.
         // ### TODO create the AST
-    } else if (! parseDeclarator(node)) {
+    } else if (! parseDeclarator(node, /*stopAtCppInitializer = */ ! acceptStructDeclarator)) {
         return false;
     }
 
