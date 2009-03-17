@@ -1618,7 +1618,7 @@ void ProjectExplorerPlugin::addExistingFiles()
 
 void ProjectExplorerPlugin::openFile()
 {
-    if (m_currentNode)
+    if (!m_currentNode)
         return;
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(m_currentNode->path());
