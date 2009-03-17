@@ -1128,7 +1128,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     if (function->argumentCount() == 0) {
                         extraChars += QLatin1Char('<');
                     }
-                } else {
+                } else if (! function->isAmbiguous()) {
                     extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis

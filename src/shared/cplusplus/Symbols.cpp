@@ -255,6 +255,12 @@ bool Function::isPureVirtual() const
 void Function::setPureVirtual(bool isPureVirtual)
 { _isPureVirtual = isPureVirtual; }
 
+bool Function::isAmbiguous() const
+{ return _isAmbiguous; }
+
+void Function::setAmbiguous(bool isAmbiguous)
+{ _isAmbiguous = isAmbiguous; }
+
 void Function::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
