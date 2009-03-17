@@ -225,7 +225,7 @@ void OpenEditorsWindow::setEditors(const QList<IEditor *>&editors, IEditor *curr
     // add purely restored editors which are not initialised yet
     foreach (EditorModel::Entry entry, model->entries()) {
         if (entry.editor)
-            return;
+            continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
         QString title = entry.displayName();
         item->setIcon(0, emptyIcon);
