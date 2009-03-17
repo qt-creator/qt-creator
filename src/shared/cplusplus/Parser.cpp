@@ -997,7 +997,29 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
                     if (NestedExpressionAST *expr = initializer->asNestedExpression()) {
                         if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
                             rewind(lparen_token);
+
+                            // check for ambiguous declarators.
+
+                            consumeToken();
+                            ParameterDeclarationClauseAST *parameter_declaration_clause = 0;
+                            if (parseParameterDeclarationClause(parameter_declaration_clause) && LA() == T_RPAREN) {
+                                unsigned rparen_token = consumeToken();
+
+                                FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
+                                ast->lparen_token = lparen_token;
+                                ast->parameters = parameter_declaration_clause;
+                                ast->as_cpp_initializer = initializer;
+                                ast->rparen_token = rparen_token;
+                                *postfix_ptr = ast;
+                                postfix_ptr = &(*postfix_ptr)->next;
+
+                                blockErrors(blocked);
+                                return true;
+                            }
+
+
                             blockErrors(blocked);
+                            rewind(lparen_token);
                             return true;
                         }
                     }
