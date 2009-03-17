@@ -45,6 +45,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QLibrary>
 #include <QtCore/QCoreApplication>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
@@ -218,6 +220,10 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
     IDebuggerEngine(parent),
     m_d(new CdbDebugEnginePrivate(parent, this))
 {
+    // m_d->m_consoleStubProc.setDebug(true);
+    connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
+    connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
+    connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
 }
 
 CdbDebugEngine::~CdbDebugEngine()
@@ -260,14 +266,24 @@ bool CdbDebugEngine::startDebugger()
     QString errorMessage;
     bool rc = false;
     m_d->m_bIgnoreNextDebugEvent = false;
-    m_d->m_mode = m_d->m_debuggerManager->startMode();
-    switch (m_d->m_mode) {
+    const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
+    switch (mode) {
     case AttachExternal:
         rc = startAttachDebugger(m_d->m_debuggerManager->m_attachedPID, &errorMessage);
         break;
     case StartInternal:
     case StartExternal:
-        rc = startDebuggerWithExecutable(&errorMessage);
+        if (m_d->m_debuggerManager->m_useTerminal) {
+            // Launch console stub and wait for its startup
+            m_d->m_consoleStubProc.stop(); // We leave the console open, so recycle it now.
+            m_d->m_consoleStubProc.setWorkingDirectory(m_d->m_debuggerManager->m_workingDir);
+            m_d->m_consoleStubProc.setEnvironment(m_d->m_debuggerManager->m_environment);
+            rc = m_d->m_consoleStubProc.start(m_d->m_debuggerManager->m_executable, m_d->m_debuggerManager->m_processArgs);
+            if (!rc)
+                errorMessage = tr("The console stub process was unable to start '%1'.").arg(m_d->m_debuggerManager->m_executable);
+        } else {
+            rc = startDebuggerWithExecutable(mode, &errorMessage);
+        }
         break;
     case AttachCore:
         errorMessage = tr("CdbDebugEngine: Attach to core not supported!");
@@ -282,7 +298,7 @@ bool CdbDebugEngine::startDebugger()
     return rc;
 }
 
-bool CdbDebugEngine::startAttachDebugger(unsigned long pid, QString *errorMessage)
+bool CdbDebugEngine::startAttachDebugger(qint64 pid, QString *errorMessage)
 {
     // Need to aatrach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
@@ -293,11 +309,13 @@ bool CdbDebugEngine::startAttachDebugger(unsigned long pid, QString *errorMessag
     if (FAILED(hr)) {
         *errorMessage = tr("AttachProcess failed for pid %1: %2").arg(pid).arg(msgDebugEngineComResult(hr));
         return false;
+    } else {
+        m_d->m_mode = AttachExternal;
     }
     return true;
 }
 
-bool CdbDebugEngine::startDebuggerWithExecutable(QString *errorMessage)
+bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage)
 {
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
 
@@ -335,6 +353,8 @@ bool CdbDebugEngine::startDebuggerWithExecutable(QString *errorMessage)
         *errorMessage = tr("CreateProcess2Wide failed for '%1': %2").arg(cmd, msgDebugEngineComResult(hr));
         m_d->m_debuggerManagerAccess->notifyInferiorExited();
         return false;
+    } else {
+        m_d->m_mode = sm;
     }
     m_d->m_debuggerManagerAccess->notifyInferiorRunning();
     return true;
@@ -790,6 +810,31 @@ void CdbDebugEngine::timerEvent(QTimerEvent* te)
     }
 }
 
+void CdbDebugEngine::slotConsoleStubStarted()
+{
+    const qint64 appPid = m_d->m_consoleStubProc.applicationPID();
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << appPid;
+    // Attach to console process
+    QString errorMessage;
+    if (startAttachDebugger(appPid, &errorMessage)) {
+        m_d->m_debuggerManager->m_attachedPID = appPid;
+        m_d->m_debuggerManagerAccess->notifyInferiorPidChanged(appPid);
+    } else {
+        QMessageBox::critical(m_d->m_debuggerManager->mainWindow(), tr("Debugger Error"), errorMessage);
+    }
+}
+
+void CdbDebugEngine::slotConsoleStubError(const QString &msg)
+{
+    QMessageBox::critical(m_d->m_debuggerManager->mainWindow(), tr("Debugger Error"), msg);
+}
+
+void CdbDebugEngine::slotConsoleStubTerminated()
+{
+    exitDebugger();
+}
+
 void CdbDebugEnginePrivate::handleDebugEvent()
 {
     if (debugCDB)
@@ -931,6 +976,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
 
 void CdbDebugEnginePrivate::handleDebugOutput(const char* szOutputString)
 {
+    qDebug() << Q_FUNC_INFO << szOutputString;
     m_debuggerManagerAccess->showApplicationOutput(QString::fromLocal8Bit(szOutputString));
 }
 
@@ -949,6 +995,10 @@ void CdbDebugEngine::setDebugDumpers(bool on)
 void CdbDebugEngine::setUseCustomDumpers(bool on)
 {
     Q_UNUSED(on)
+}
+
+void CdbDebugEngine::recheckCustomDumperAvailability()
+{
 }
 
 void CdbDebugEngine::reloadSourceFiles()
