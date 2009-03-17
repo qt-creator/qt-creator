@@ -43,6 +43,19 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+class CustomDirectoryPathChooser : public Core::Utils::PathChooser
+{
+public:
+    CustomDirectoryPathChooser(QWidget *parent)
+        : Core::Utils::PathChooser(parent)
+    {
+    }
+    virtual bool validatePath(const QString &path, QString *errorMessage = 0)
+    {
+        return true;
+    }
+};
+
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc)
     : m_ignoreChange(false)
 {
@@ -55,14 +68,15 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->addRow("Name:", m_userName);
 
     m_executableChooser = new Core::Utils::PathChooser(this);
-    m_executableChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    m_executableChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     layout->addRow("Executable:", m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
     m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
     layout->addRow("Arguments:", m_commandLineArgumentsLineEdit);
 
-    m_workingDirectory = new Core::Utils::PathChooser(this);
+    m_workingDirectory = new CustomDirectoryPathChooser(this);
+    m_workingDirectory->setExpectedKind(Core::Utils::PathChooser::Directory);
     layout->addRow("Working Directory:", m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
@@ -71,7 +85,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     setLayout(layout);
     changed();
     
-
     connect(m_userName, SIGNAL(textEdited(QString)),
             this, SLOT(setUserName(QString)));
     connect(m_executableChooser, SIGNAL(changed()),

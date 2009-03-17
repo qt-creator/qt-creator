@@ -77,7 +77,7 @@ public:
     // Returns the suggested label title when used in a form layout
     static QString label();
 
-    bool validatePath(const QString &path, QString *errorMessage = 0);
+    virtual bool validatePath(const QString &path, QString *errorMessage = 0);
 
     // Return the home directory, which needs some fixing under Windows.
     static QString homePath();
