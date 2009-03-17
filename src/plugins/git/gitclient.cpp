@@ -235,9 +235,9 @@ void GitClient::diff(const QString &workingDirectory,
     if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileName;
     QStringList arguments;
-    arguments << QLatin1String("diff");
+    arguments << QLatin1String("diff") << QLatin1String(noColorOption);
     if (!fileName.isEmpty())
-        arguments << diffArgs << QLatin1String(noColorOption) << QLatin1String("--") << fileName;
+        arguments << diffArgs  << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);

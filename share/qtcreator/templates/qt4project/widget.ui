@@ -1,5 +1,5 @@
 <ui version="4.0">
- <class>%CLASS%Class</class>
+ <class>%CLASS%</class>
  <widget class="%BASECLASS%" name="%CLASS%" >
   <property name="geometry" >
    <rect>
