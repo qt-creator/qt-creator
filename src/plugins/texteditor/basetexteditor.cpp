@@ -1245,61 +1245,6 @@ int BaseTextEditor::visibleWrapColumn() const
     return d->m_visibleWrapColumn;
 }
 
-void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
-{
-    const QTextCharFormat textFormat = fs.toTextCharFormat(QLatin1String(Constants::C_TEXT));
-    const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
-    const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
-    const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
-    const QTextCharFormat searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
-    const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
-    const QTextCharFormat currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
-    const QTextCharFormat ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
-    QFont font(textFormat.font());
-
-    const QColor foreground = textFormat.foreground().color();
-    const QColor background = textFormat.background().color();
-    QPalette p = palette();
-    p.setColor(QPalette::Text, foreground);
-    p.setColor(QPalette::Foreground, foreground);
-    p.setColor(QPalette::Base, background);
-    p.setColor(QPalette::Highlight, (selectionFormat.background().style() != Qt::NoBrush) ?
-               selectionFormat.background().color() :
-               QApplication::palette().color(QPalette::Highlight));
-    p.setColor(QPalette::HighlightedText, selectionFormat.foreground().color());
-    p.setBrush(QPalette::Inactive, QPalette::Highlight, p.highlight());
-    p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
-    setPalette(p);
-    setFont(font);
-    setTabSettings(d->m_document->tabSettings()); // update tabs, they depend on the font
-
-    // Line numbers
-    QPalette ep = d->m_extraArea->palette();
-    ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
-    ep.setColor(QPalette::Background, lineNumberFormat.background().style() != Qt::NoBrush ?
-                lineNumberFormat.background().color() : background);
-    d->m_extraArea->setPalette(ep);
-
-    // Search results
-    d->m_searchResultFormat.setBackground(searchResultFormat.background());
-    d->m_searchScopeFormat.setBackground(searchScopeFormat.background());
-    d->m_currentLineFormat.setBackground(currentLineFormat.background());
-
-    // Matching braces
-    d->m_matchFormat.setForeground(parenthesesFormat.foreground());
-    d->m_rangeFormat.setBackground(parenthesesFormat.background());
-
-    // Disabled code
-    d->m_ifdefedOutFormat.setForeground(ifdefedOutFormat.foreground());
-
-    slotUpdateExtraAreaWidth();
-}
-
-void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)
-{
-    d->m_document->setStorageSettings(storageSettings);
-}
-
 //--------- BaseTextEditorPrivate -----------
 
 BaseTextEditorPrivate::BaseTextEditorPrivate()
@@ -1698,6 +1643,18 @@ void BaseTextEditorPrivate::removeBlockSelection(const QString &text)
     q->setTextCursor(cursor);
 }
 
+void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
+{
+    QTextCursor cursor = q->textCursor();
+    if (!cursor.block().isVisible()) {
+        cursor.setVisualNavigation(true);
+        cursor.movePosition(QTextCursor::Up);
+        q->setTextCursor(cursor);
+    }
+    if (ensureVisible)
+        q->ensureCursorVisible();
+}
+
 void BaseTextEditor::paintEvent(QPaintEvent *e)
 {
     /*
@@ -2074,15 +2031,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     }
 }
 
-void BaseTextEditor::slotUpdateExtraAreaWidth()
-{
-    if (isLeftToRight())
-        setViewportMargins(extraAreaWidth(), 0, 0, 0);
-    else
-        setViewportMargins(0, 0, extraAreaWidth(), 0);
-}
-
-
 QWidget *BaseTextEditor::extraArea() const
 {
     return d->m_extraArea;
@@ -2130,65 +2078,12 @@ int BaseTextEditor::extraAreaWidth(int *markWidthPtr) const
     return space;
 }
 
-void BaseTextEditor::slotModificationChanged(bool m)
+void BaseTextEditor::slotUpdateExtraAreaWidth()
 {
-    if (m)
-        return;
-
-    QTextDocument *doc = document();
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    int oldLastSaveRevision = documentLayout->lastSaveRevision;
-    documentLayout->lastSaveRevision = doc->revision();
-
-    if (oldLastSaveRevision != documentLayout->lastSaveRevision) {
-        QTextBlock block = doc->begin();
-        while (block.isValid()) {
-            if (block.revision() < 0 || block.revision() != oldLastSaveRevision) {
-                block.setRevision(-documentLayout->lastSaveRevision - 1);
-            } else {
-                block.setRevision(documentLayout->lastSaveRevision);
-            }
-            block = block.next();
-        }
-    }
-    d->m_extraArea->update();
-}
-
-void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
-{
-    static bool blockRecursion = false;
-    if (blockRecursion)
-        return;
-    if (block.previous().isValid() && block.userState() != block.previous().userState()) {
-        /* The syntax highlighting state changes. This opens up for
-           the possibility that the paragraph has braces that support
-           code folding. In this case, do the save thing and also
-           update the previous block, which might contain a collapse
-           box which now is invalid.*/
-        blockRecursion = true;
-        emit requestBlockUpdate(block.previous());
-        blockRecursion = false;
-    }
-}
-
-void BaseTextEditor::slotUpdateRequest(const QRect &r, int dy)
-{
-    if (dy)
-        d->m_extraArea->scroll(0, dy);
-    else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
-        d->m_extraArea->update(0, r.y(), d->m_extraArea->width(), r.height());
-    }
-
-    if (r.contains(viewport()->rect()))
-        slotUpdateExtraAreaWidth();
-}
-
-
-void BaseTextEditor::setCollapseIndicatorAlpha(int alpha)
-{
-    d->extraAreaCollapseAlpha = alpha;
-    d->m_extraArea->update();
+    if (isLeftToRight())
+        setViewportMargins(extraAreaWidth(), 0, 0, 0);
+    else
+        setViewportMargins(0, 0, extraAreaWidth(), 0);
 }
 
 void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
@@ -2389,6 +2284,85 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     }
 }
 
+void BaseTextEditor::slotModificationChanged(bool m)
+{
+    if (m)
+        return;
+
+    QTextDocument *doc = document();
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    int oldLastSaveRevision = documentLayout->lastSaveRevision;
+    documentLayout->lastSaveRevision = doc->revision();
+
+    if (oldLastSaveRevision != documentLayout->lastSaveRevision) {
+        QTextBlock block = doc->begin();
+        while (block.isValid()) {
+            if (block.revision() < 0 || block.revision() != oldLastSaveRevision) {
+                block.setRevision(-documentLayout->lastSaveRevision - 1);
+            } else {
+                block.setRevision(documentLayout->lastSaveRevision);
+            }
+            block = block.next();
+        }
+    }
+    d->m_extraArea->update();
+}
+
+void BaseTextEditor::slotUpdateRequest(const QRect &r, int dy)
+{
+    if (dy)
+        d->m_extraArea->scroll(0, dy);
+    else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
+        d->m_extraArea->update(0, r.y(), d->m_extraArea->width(), r.height());
+    }
+
+    if (r.contains(viewport()->rect()))
+        slotUpdateExtraAreaWidth();
+}
+
+void BaseTextEditor::slotCursorPositionChanged()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+    if (d->m_parenthesesMatchingEnabled)
+        d->m_parenthesesMatchingTimer->start(50);
+
+    if (d->m_highlightCurrentLine) {
+        QTextEdit::ExtraSelection sel;
+        sel.format.setBackground(d->m_currentLineFormat.background());
+        sel.format.setProperty(QTextFormat::FullWidthSelection, true);
+        sel.cursor = textCursor();
+        sel.cursor.clearSelection();
+        extraSelections.append(sel);
+    }
+
+    setExtraSelections(CurrentLineSelection, extraSelections);
+}
+
+void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
+{
+    static bool blockRecursion = false;
+    if (blockRecursion)
+        return;
+    if (block.previous().isValid() && block.userState() != block.previous().userState()) {
+        /* The syntax highlighting state changes. This opens up for
+           the possibility that the paragraph has braces that support
+           code folding. In this case, do the save thing and also
+           update the previous block, which might contain a collapse
+           box which now is invalid.*/
+        blockRecursion = true;
+        emit requestBlockUpdate(block.previous());
+        blockRecursion = false;
+    }
+}
+
+void BaseTextEditor::setCollapseIndicatorAlpha(int alpha)
+{
+    d->extraAreaCollapseAlpha = alpha;
+    d->m_extraArea->update();
+}
+
 void BaseTextEditor::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->autoScrollTimer.timerId()) {
@@ -2578,25 +2552,6 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             }
         }
     }
-}
-
-void BaseTextEditor::slotCursorPositionChanged()
-{
-    QList<QTextEdit::ExtraSelection> extraSelections;
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
-
-    if (d->m_highlightCurrentLine) {
-        QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(d->m_currentLineFormat.background());
-        sel.format.setProperty(QTextFormat::FullWidthSelection, true);
-        sel.cursor = textCursor();
-        sel.cursor.clearSelection();
-        extraSelections.append(sel);
-    }
-
-    setExtraSelections(CurrentLineSelection, extraSelections);
 }
 
 QTextBlock TextBlockUserData::testCollapse(const QTextBlock& block)
@@ -2842,50 +2797,6 @@ void BaseTextEditor::handleBackspaceKey()
     cursor.endEditBlock();
 }
 
-
-void BaseTextEditor::format()
-{
-    QTextCursor cursor = textCursor();
-    cursor.beginEditBlock();
-    indent(document(), cursor, QChar::Null);
-    cursor.endEditBlock();
-}
-
-void BaseTextEditor::unCommentSelection()
-{
-}
-
-void BaseTextEditor::setTabSettings(const TabSettings &ts)
-{
-    d->m_document->setTabSettings(ts);
-    int charWidth = QFontMetrics(font()).width(QChar(' '));
-    setTabStopWidth(charWidth * ts.m_tabSize);
-}
-
-void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
-{
-    setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
-    setLineNumbersVisible(ds.m_displayLineNumbers);
-    setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
-    setCodeFoldingVisible(ds.m_displayFoldingMarkers);
-    setHighlightCurrentLine(ds.m_highlightCurrentLine);
-
-    if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
-        if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
-            highlighter->rehighlight();
-        QTextOption option =  document()->defaultTextOption();
-        if (ds.m_visualizeWhitespace)
-            option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
-        else
-            option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces);
-        option.setFlags(option.flags() | QTextOption::AddSpaceForLineAndParagraphSeparators);
-        document()->setDefaultTextOption(option);
-    }
-
-    d->m_displaySettings = ds;
-}
-
-
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
 {
   d->clearVisibleCollapsedBlock();
@@ -2962,7 +2873,8 @@ void BaseTextEditorPrivate::updateMarksLineNumber()
     }
 }
 
-void BaseTextEditor::markBlocksAsChanged(QList<int> blockNumbers) {
+void BaseTextEditor::markBlocksAsChanged(QList<int> blockNumbers)
+{
     QTextBlock block = document()->begin();
     while (block.isValid()) {
         if (block.revision() < 0)
@@ -3403,17 +3315,101 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
         documentLayout->requestUpdate();
 }
 
-
-void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
+void BaseTextEditor::format()
 {
-    QTextCursor cursor = q->textCursor();
-    if (!cursor.block().isVisible()) {
-        cursor.setVisualNavigation(true);
-        cursor.movePosition(QTextCursor::Up);
-        q->setTextCursor(cursor);
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    indent(document(), cursor, QChar::Null);
+    cursor.endEditBlock();
+}
+
+void BaseTextEditor::unCommentSelection()
+{
+}
+
+void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
+{
+    const QTextCharFormat textFormat = fs.toTextCharFormat(QLatin1String(Constants::C_TEXT));
+    const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
+    const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
+    const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
+    const QTextCharFormat searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
+    const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
+    const QTextCharFormat currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
+    const QTextCharFormat ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
+    QFont font(textFormat.font());
+
+    const QColor foreground = textFormat.foreground().color();
+    const QColor background = textFormat.background().color();
+    QPalette p = palette();
+    p.setColor(QPalette::Text, foreground);
+    p.setColor(QPalette::Foreground, foreground);
+    p.setColor(QPalette::Base, background);
+    p.setColor(QPalette::Highlight, (selectionFormat.background().style() != Qt::NoBrush) ?
+               selectionFormat.background().color() :
+               QApplication::palette().color(QPalette::Highlight));
+    p.setColor(QPalette::HighlightedText, selectionFormat.foreground().color());
+    p.setBrush(QPalette::Inactive, QPalette::Highlight, p.highlight());
+    p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
+    setPalette(p);
+    setFont(font);
+    setTabSettings(d->m_document->tabSettings()); // update tabs, they depend on the font
+
+    // Line numbers
+    QPalette ep = d->m_extraArea->palette();
+    ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
+    ep.setColor(QPalette::Background, lineNumberFormat.background().style() != Qt::NoBrush ?
+                lineNumberFormat.background().color() : background);
+    d->m_extraArea->setPalette(ep);
+
+    // Search results
+    d->m_searchResultFormat.setBackground(searchResultFormat.background());
+    d->m_searchScopeFormat.setBackground(searchScopeFormat.background());
+    d->m_currentLineFormat.setBackground(currentLineFormat.background());
+
+    // Matching braces
+    d->m_matchFormat.setForeground(parenthesesFormat.foreground());
+    d->m_rangeFormat.setBackground(parenthesesFormat.background());
+
+    // Disabled code
+    d->m_ifdefedOutFormat.setForeground(ifdefedOutFormat.foreground());
+
+    slotUpdateExtraAreaWidth();
+}
+
+void BaseTextEditor::setTabSettings(const TabSettings &ts)
+{
+    d->m_document->setTabSettings(ts);
+    int charWidth = QFontMetrics(font()).width(QChar(' '));
+    setTabStopWidth(charWidth * ts.m_tabSize);
+}
+
+void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
+{
+    setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+    setLineNumbersVisible(ds.m_displayLineNumbers);
+    setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
+    setCodeFoldingVisible(ds.m_displayFoldingMarkers);
+    setHighlightCurrentLine(ds.m_highlightCurrentLine);
+
+    if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
+        if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
+            highlighter->rehighlight();
+        QTextOption option =  document()->defaultTextOption();
+        if (ds.m_visualizeWhitespace)
+            option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
+        else
+            option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces);
+        option.setFlags(option.flags() | QTextOption::AddSpaceForLineAndParagraphSeparators);
+        document()->setDefaultTextOption(option);
     }
-    if (ensureVisible)
-        q->ensureCursorVisible();
+
+    d->m_displaySettings = ds;
+}
+
+void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)
+{
+    d->m_document->setStorageSettings(storageSettings);
 }
 
 void BaseTextEditor::collapse()
