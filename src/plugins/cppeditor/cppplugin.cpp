@@ -60,9 +60,9 @@ static const char *sourceSuffixKeyC = "CppEditor/SourceSuffix";
 
 using namespace CppEditor::Internal;
 
-//////////////////////////// CppPluginEditorFactory /////////////////////////////
+//////////////////////////// CppEditorFactory /////////////////////////////
 
-CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
+CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
     m_kind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND)),
     m_owner(owner)
 {
@@ -77,18 +77,18 @@ CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
                                         QLatin1String("h"));
 }
 
-QString CppPluginEditorFactory::kind() const
+QString CppEditorFactory::kind() const
 {
     return m_kind;
 }
 
-Core::IFile *CppPluginEditorFactory::open(const QString &fileName)
+Core::IFile *CppEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
-Core::IEditor *CppPluginEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)
 {
     CPPEditor *editor = new CPPEditor(parent);
     editor->setRevisionsVisible(true);
@@ -97,7 +97,7 @@ Core::IEditor *CppPluginEditorFactory::createEditor(QWidget *parent)
     return editor->editableInterface();
 }
 
-QStringList CppPluginEditorFactory::mimeTypes() const
+QStringList CppEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
 }
@@ -159,7 +159,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_factory = new CppPluginEditorFactory(this);
+    m_factory = new CppEditorFactory(this);
     addObject(m_factory);
 
     addAutoReleasedObject(new CppHoverHandler);
