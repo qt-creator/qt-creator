@@ -1682,6 +1682,10 @@ FunctionDeclaratorAST *FunctionDeclaratorAST::clone(MemoryPool *pool) const
 void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(parameters, visitor);
+        for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next)
+            accept(it, visitor);
+        accept(exception_specification, visitor);
     }
     visitor->endVisit(this);
 }
