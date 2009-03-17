@@ -157,6 +157,7 @@ bool CheckDeclarator::visit(NestedDeclaratorAST *ast)
 bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
 {
     Function *fun = control()->newFunction(ast->firstToken());
+    fun->setAmbiguous(ast->as_cpp_initializer != 0);
     ast->symbol = fun;
     fun->setReturnType(_fullySpecifiedType);
 

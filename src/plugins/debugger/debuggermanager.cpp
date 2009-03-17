@@ -1195,10 +1195,11 @@ static bool isAllowedTransition(int from, int to)
 {
     return (from == -1)
       || (from == DebuggerProcessNotReady && to == DebuggerProcessStartingUp)
-      || (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
+      //|| (from == DebuggerProcessStartingUp && to == DebuggerInferiorStopped)
       || (from == DebuggerInferiorStopped && to == DebuggerInferiorRunningRequested)
       || (from == DebuggerInferiorRunningRequested && to == DebuggerInferiorRunning)
       || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopRequested)
+      || (from == DebuggerInferiorRunning && to == DebuggerInferiorStopped)
       || (from == DebuggerInferiorStopRequested && to == DebuggerInferiorStopped)
       || (to == DebuggerProcessNotReady);  
 }
@@ -1213,7 +1214,6 @@ void DebuggerManager::setStatus(int status)
 
     if (!isAllowedTransition(m_status, status))
         qDebug() << "UNEXPECTED TRANSITION:  " << m_status << status;
-
 
     m_status = status;
 

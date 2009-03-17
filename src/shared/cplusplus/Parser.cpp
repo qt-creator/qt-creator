@@ -977,7 +977,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
     return false;
 }
 
-bool Parser::parseDeclarator(DeclaratorAST *&node)
+bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 {
     if (! parseCoreDeclarator(node))
         return false;
@@ -988,6 +988,47 @@ bool Parser::parseDeclarator(DeclaratorAST *&node)
         unsigned startOfPostDeclarator = cursor();
 
         if (LA() == T_LPAREN) {
+            if (stopAtCppInitializer) {
+                unsigned lparen_token = cursor();
+                ExpressionAST *initializer = 0;
+
+                bool blocked = blockErrors(true);
+                if (parseInitializer(initializer)) {
+                    if (NestedExpressionAST *expr = initializer->asNestedExpression()) {
+                        if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
+                            rewind(lparen_token);
+
+                            // check for ambiguous declarators.
+
+                            consumeToken();
+                            ParameterDeclarationClauseAST *parameter_declaration_clause = 0;
+                            if (parseParameterDeclarationClause(parameter_declaration_clause) && LA() == T_RPAREN) {
+                                unsigned rparen_token = consumeToken();
+
+                                FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
+                                ast->lparen_token = lparen_token;
+                                ast->parameters = parameter_declaration_clause;
+                                ast->as_cpp_initializer = initializer;
+                                ast->rparen_token = rparen_token;
+                                *postfix_ptr = ast;
+                                postfix_ptr = &(*postfix_ptr)->next;
+
+                                blockErrors(blocked);
+                                return true;
+                            }
+
+
+                            blockErrors(blocked);
+                            rewind(lparen_token);
+                            return true;
+                        }
+                    }
+                }
+
+                blockErrors(blocked);
+                rewind(lparen_token);
+            }
+
             FunctionDeclaratorAST *ast = new (_pool) FunctionDeclaratorAST;
             ast->lparen_token = consumeToken();
             parseParameterDeclarationClause(ast->parameters);
@@ -1494,7 +1535,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
     if (acceptStructDeclarator && LA() == T_COLON) {
         // anonymous bit-field declaration.
         // ### TODO create the AST
-    } else if (! parseDeclarator(node)) {
+    } else if (! parseDeclarator(node, /*stopAtCppInitializer = */ ! acceptStructDeclarator)) {
         return false;
     }
 
