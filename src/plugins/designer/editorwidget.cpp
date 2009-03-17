@@ -41,7 +41,7 @@ using namespace Designer::Constants;
 
 enum { ActionEditorTab, SignalSlotEditorTab };
 
-enum { wantSignalSlotEditor = 0 };
+enum { wantSignalSlotEditor = 1 };
 
 namespace Designer {
 namespace Internal {
