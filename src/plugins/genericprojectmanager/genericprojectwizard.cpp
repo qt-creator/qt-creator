@@ -166,6 +166,7 @@ void GenericProjectWizardDialog::updateFilesView(const QModelIndex &current,
 
 void GenericProjectWizardDialog::initializePage(int id)
 {
+#if 0
     if (id == _secondPageId) {
         using namespace Core::Utils;
 
@@ -174,6 +175,7 @@ void GenericProjectWizardDialog::initializePage(int id)
         QDirModel *dirModel = qobject_cast<QDirModel *>(_dirView->model());
         _dirView->setRootIndex(dirModel->index(projectPath));
     }
+#endif
 }
 
 bool GenericProjectWizardDialog::validateCurrentPage()
