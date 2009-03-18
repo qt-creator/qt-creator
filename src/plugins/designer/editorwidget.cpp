@@ -170,6 +170,7 @@ EditorWidget::EditorWidget(QWidget *formWindow) :
     if (wantSignalSlotEditor) {
         m_bottomTab = new QTabWidget;
         m_bottomTab->setTabPosition(QTabWidget::South);
+        m_bottomTab->setDocumentMode(true);
         m_bottomTab->addTab(m_designerSubWindows[ActionEditorSubWindow], tr("Action editor"));
         m_bottomTab->addTab(m_designerSubWindows[SignalSlotEditorSubWindow], tr("Signals and slots editor"));
         m_centerVertSplitter->addWidget(m_bottomTab);
