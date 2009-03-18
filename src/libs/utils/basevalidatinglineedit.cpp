@@ -150,5 +150,10 @@ void BaseValidatingLineEdit::slotReturnPressed()
         emit validReturnPressed();
 }
 
+void BaseValidatingLineEdit::triggerChanged()
+{
+    slotChanged(text());
+}
+
 } // namespace Utils
 } // namespace Core

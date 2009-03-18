@@ -244,8 +244,9 @@ public:
     GdbOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
 
     // IOptionsPage
-    QString name() const { return tr("Gdb"); }
-    QString category() const { return "Debugger"; }
+    QString id() const { return QLatin1String("Gdb"); }
+    QString trName() const { return tr("Gdb"); }
+    QString category() const { return QLatin1String("Debugger"); }
     QString trCategory() const { return tr("Debugger"); }
 
     QWidget *createPage(QWidget *parent);

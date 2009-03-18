@@ -52,14 +52,19 @@ SettingsPage::SettingsPage()
     }
 }
 
-QString SettingsPage::name() const
+QString SettingsPage::id() const
 {
-    return "General";
+    return QLatin1String("General");
+}
+
+QString SettingsPage::trName() const
+{
+    return tr("General");
 }
 
 QString SettingsPage::category() const
 {
-    return "CodePaster";
+    return QLatin1String("CodePaster");
 }
 
 QString SettingsPage::trCategory() const

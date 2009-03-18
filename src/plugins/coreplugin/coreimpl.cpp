@@ -64,9 +64,9 @@ QStringList CoreImpl::showNewItemDialog(const QString &title,
     return m_mainwindow->showNewItemDialog(title, wizards, defaultLocation);
 }
 
-void CoreImpl::showOptionsDialog(const QString &group, const QString &page)
+bool CoreImpl::showOptionsDialog(const QString &group, const QString &page, QWidget *parent)
 {
-    m_mainwindow->showOptionsDialog(group, page);
+    return m_mainwindow->showOptionsDialog(group, page, parent);
 }
 
 ActionManager *CoreImpl::actionManager() const

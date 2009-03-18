@@ -33,13 +33,14 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-
-#include <QtGui/QFileDialog>
+#include <vcsbase/vcsbaseconstants.h>
 #include <utils/pathchooser.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtGui/QFileDialog>
 
 using namespace Subversion::Internal;
 using namespace Core::Utils;
-
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
@@ -73,19 +74,24 @@ SettingsPage::SettingsPage()
 {
 }
 
-QString SettingsPage::name() const
-{
-    return tr("General");
-}
-
-QString SettingsPage::category() const
+QString SettingsPage::id() const
 {
     return QLatin1String("Subversion");
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::trName() const
 {
     return tr("Subversion");
+}
+
+QString SettingsPage::category() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
+}
+
+QString SettingsPage::trCategory() const
+{
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

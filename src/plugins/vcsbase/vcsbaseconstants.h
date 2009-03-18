@@ -30,11 +30,15 @@
 #ifndef VCSBASE_CONSTANTS_H
 #define VCSBASE_CONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace VCSBase {
 namespace Constants {
 
+const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control System");
+
 namespace Internal {
-enum { debug = 0 };
+    enum { debug = 0 };
 } // namespace Internal
 
 } // namespace Constants

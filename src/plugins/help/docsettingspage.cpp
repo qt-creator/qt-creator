@@ -41,14 +41,20 @@ DocSettingsPage::DocSettingsPage(QHelpEngine *helpEngine)
 {
 }
 
-QString DocSettingsPage::name() const
+QString DocSettingsPage::id() const
 {
-    return "Documentation";
+    return QLatin1String("Documentation");
 }
+
+QString DocSettingsPage::trName() const
+{
+    return tr("Documentation");
+}
+
 
 QString DocSettingsPage::category() const
 {
-    return "Help";
+    return QLatin1String("Help");
 }
 
 QString DocSettingsPage::trCategory() const

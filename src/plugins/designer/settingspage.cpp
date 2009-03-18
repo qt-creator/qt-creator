@@ -43,7 +43,12 @@ SettingsPage::~SettingsPage()
 {
 }
 
-QString SettingsPage::name() const
+QString SettingsPage::id() const
+{
+    return m_designerPage->name();
+}
+
+QString SettingsPage::trName() const
 {
     return m_designerPage->name();
 }

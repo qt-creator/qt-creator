@@ -131,7 +131,12 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QString QtVersionManager::name() const
+QString QtVersionManager::id() const
+{
+    return QLatin1String(Constants::QTVERSION_PAGE);
+}
+
+QString QtVersionManager::trName() const
 {
     return tr(Constants::QTVERSION_PAGE);
 }

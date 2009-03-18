@@ -59,7 +59,13 @@ ShortcutSettings::~ShortcutSettings()
 }
 
 // IOptionsPage
-QString ShortcutSettings::name() const
+
+QString ShortcutSettings::id() const
+{
+    return QLatin1String("Keyboard");
+}
+
+QString ShortcutSettings::trName() const
 {
     return tr("Keyboard");
 }

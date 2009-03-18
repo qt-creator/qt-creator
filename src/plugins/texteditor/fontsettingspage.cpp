@@ -204,7 +204,12 @@ FontSettingsPage::~FontSettingsPage()
     delete d_ptr;
 }
 
-QString FontSettingsPage::name() const
+QString FontSettingsPage::id() const
+{
+    return d_ptr->m_name;
+}
+
+QString FontSettingsPage::trName() const
 {
     return d_ptr->m_name;
 }

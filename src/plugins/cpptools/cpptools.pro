@@ -20,7 +20,8 @@ HEADERS += completionsettingspage.h \
     cpptoolseditorsupport.h \
     cpptoolsplugin.h \
     searchsymbols.h \
-    cppdoxygen.h
+    cppdoxygen.h \
+    cppfilesettingspage.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -31,6 +32,8 @@ SOURCES += completionsettingspage.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
     searchsymbols.cpp \
-    cppdoxygen.cpp
+    cppdoxygen.cpp \
+    cppfilesettingspage.cpp
 
-FORMS += completionsettingspage.ui
+FORMS += completionsettingspage.ui \
+    cppfilesettingspage.ui

@@ -161,7 +161,8 @@ public:
     QtVersionManager();
     ~QtVersionManager();
 
-    QString name() const;
+    QString id() const;
+    QString trName() const;
     QString category() const;
     QString trCategory() const;
 

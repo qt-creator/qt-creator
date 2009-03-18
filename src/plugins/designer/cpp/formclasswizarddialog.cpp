@@ -63,11 +63,6 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 
-void FormClassWizardDialog::setSuffixes(const QString &header, const QString &source,  const QString &form)
-{
-    m_classPage->setSuffixes(header, source, form);
-}
-
 QString FormClassWizardDialog::path() const
 {
     return m_classPage->path();

@@ -31,7 +31,6 @@
 #define SETTINGSPAGE_H
 
 #include "ui_settingspage.h"
-#include "quickopenconstants.h"
 
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
@@ -56,9 +55,10 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(QuickOpenPlugin *plugin);
-    QString name() const { return tr(Constants::FILTER_OPTIONS_PAGE); }
-    QString category() const { return Constants::QUICKOPEN_CATEGORY; }
-    QString trCategory() const { return tr(Constants::QUICKOPEN_CATEGORY); }
+    QString id() const;
+    QString trName() const;
+    QString category() const;
+    QString trCategory() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

@@ -38,6 +38,21 @@
 
 namespace Core {
 
+/*!
+  \class Core::IOptionsPage
+  \brief The IOptionsPage is an interface for providing options pages.
+
+  Guidelines for implementing:
+  \list
+  \o id() is an id used for filtering when calling ICore:: showOptionsDialog()
+  \o trName() is the (translated) name for display.
+  \o category() is the category used for filtering when calling ICore:: showOptionsDialog()
+  \o trCategory() is the translated category
+  \o apply() is called to store the settings. It should detect if any changes have been
+         made and store those.
+  \endlist
+*/
+
 class CORE_EXPORT IOptionsPage : public QObject
 {
     Q_OBJECT
@@ -45,7 +60,8 @@ public:
     IOptionsPage(QObject *parent = 0) : QObject(parent) {}
     virtual ~IOptionsPage() {}
 
-    virtual QString name() const = 0;
+    virtual QString id() const = 0;
+    virtual QString trName() const = 0;
     virtual QString category() const = 0;
     virtual QString trCategory() const = 0;
 

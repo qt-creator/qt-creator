@@ -32,7 +32,9 @@
 #include "formclasswizardparameters.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -66,6 +68,8 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     m_ui->extensionWidget->setVisible(false);
     connect(m_ui->moreButton, SIGNAL(clicked(bool)), m_ui->extensionWidget, SLOT(setVisible(bool)));
 
+    connect(m_ui->settingsToolButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
+
     restoreSettings();
 }
 
@@ -74,11 +78,33 @@ FormClassWizardPage::~FormClassWizardPage()
     delete m_ui;
 }
 
-void FormClassWizardPage::setSuffixes(const QString &header, const QString &source,  const QString &form)
+// Retrieve settings of CppTools plugin.
+static inline bool lowerCaseFiles(const Core::ICore *core)
 {
-    m_ui->newClassWidget->setSourceExtension(source);
-    m_ui->newClassWidget->setHeaderExtension(header);
-    m_ui->newClassWidget->setFormExtension(form);
+    QString camelCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    camelCaseSettingsKey += QLatin1Char('/');
+    camelCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    return core->settings()->value(camelCaseSettingsKey, QVariant(false)).toBool();
+}
+
+// Set up new class widget from settings
+void FormClassWizardPage::initParameters()
+{
+    Core::ICore *core = Core::ICore::instance();
+    const Core::MimeDatabase *mdb = core->mimeDatabase();
+    m_ui->newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    m_ui->newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
+    m_ui->newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
+}
+
+void FormClassWizardPage::slotSettings()
+{
+    const QString id = QLatin1String(CppTools::Constants::CPP_SETTINGS_ID);
+    const QString cat = QLatin1String(CppTools::Constants::CPP_SETTINGS_CATEGORY);
+    if (Core::ICore::instance()->showOptionsDialog(cat, id, this)) {
+        initParameters();
+        m_ui->newClassWidget->triggerUpdateFileNames();
+    }
 }
 
 void FormClassWizardPage::setClassName(const QString &suggestedClassName)

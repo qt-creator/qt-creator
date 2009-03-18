@@ -52,17 +52,18 @@ class ClassNamePage : public QWizardPage
     Q_OBJECT
 
 public:
-    ClassNamePage(const QString &sourceSuffix,
-                  const QString &headerSuffix,
-                  QWidget *parent = 0);
+    explicit ClassNamePage(QWidget *parent = 0);
 
     bool isComplete() const { return m_isValid; }
     Core::Utils::NewClassWidget *newClassWidget() const { return m_newClassWidget; }
 
 private slots:
     void slotValidChanged();
+    void slotSettings();
 
 private:
+    void initParameters();
+
     Core::Utils::NewClassWidget *m_newClassWidget;
     bool m_isValid;
 };
@@ -82,9 +83,7 @@ class CppClassWizardDialog : public QWizard
     Q_OBJECT
     Q_DISABLE_COPY(CppClassWizardDialog)
 public:
-    explicit CppClassWizardDialog(const QString &sourceSuffix,
-                                  const QString &headerSuffix,
-                                  QWidget *parent = 0);
+    explicit CppClassWizardDialog(QWidget *parent = 0);
 
     void setPath(const QString &path);
     CppClassWizardParameters parameters() const;

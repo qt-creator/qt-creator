@@ -865,11 +865,15 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
     return wizard->runWizard(defaultDir, this);
 }
 
-void MainWindow::showOptionsDialog(const QString &category, const QString &page)
+bool MainWindow::showOptionsDialog(const QString &category,
+                                   const QString &page,
+                                   QWidget *parent)
 {
     emit m_coreImpl->optionsDialogRequested();
-    SettingsDialog dlg(this, category, page);
-    dlg.exec();
+    if (!parent)
+        parent = this;
+    SettingsDialog dlg(parent, category, page);
+    return dlg.execDialog();
 }
 
 void MainWindow::saveAll()

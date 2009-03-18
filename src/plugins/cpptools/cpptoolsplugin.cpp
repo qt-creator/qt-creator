@@ -30,6 +30,7 @@
 #include "cpptoolsplugin.h"
 
 #include "completionsettingspage.h"
+#include "cppfilesettingspage.h"
 #include "cppclassesfilter.h"
 #include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"
@@ -90,6 +91,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
+    addAutoReleasedObject(new CppFileSettingsPage);
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);

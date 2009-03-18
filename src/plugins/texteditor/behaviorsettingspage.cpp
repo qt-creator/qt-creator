@@ -73,7 +73,12 @@ BehaviorSettingsPage::~BehaviorSettingsPage()
     delete m_d;
 }
 
-QString BehaviorSettingsPage::name() const
+QString BehaviorSettingsPage::id() const
+{
+    return m_d->m_parameters.name;
+}
+
+QString BehaviorSettingsPage::trName() const
 {
     return m_d->m_parameters.name;
 }

@@ -47,8 +47,9 @@ public:
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
                                   const QString &defaultLocation = QString());
-    void showOptionsDialog(const QString &group = QString(),
-                                   const QString &page = QString());
+    bool showOptionsDialog(const QString &group = QString(),
+                           const QString &page = QString(),
+                           QWidget *parent = 0);
 
     ActionManager *actionManager() const;
     FileManager *fileManager() const ;

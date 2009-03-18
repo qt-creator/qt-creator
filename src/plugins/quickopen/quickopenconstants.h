@@ -30,11 +30,13 @@
 #ifndef QUICKOPENCONSTANTS_H
 #define QUICKOPENCONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace QuickOpen {
 namespace Constants {
 
-const char * const FILTER_OPTIONS_PAGE = "Filters";
-const char * const QUICKOPEN_CATEGORY = "Locator";
+const char * const FILTER_OPTIONS_PAGE = QT_TRANSLATE_NOOP("Locator", "Filters");
+const char * const QUICKOPEN_CATEGORY = QT_TRANSLATE_NOOP("Locator", "Locator");
 const char * const TASK_INDEX = "QuickOpen.Task.Index";
 
 } // namespace Constants

@@ -92,7 +92,8 @@ class CMakeSettingsPage : public Core::IOptionsPage
 public:
     CMakeSettingsPage();
     virtual ~CMakeSettingsPage();
-    virtual QString name() const;
+    virtual QString id() const;
+    virtual QString trName() const;
     virtual QString category() const;
     virtual QString trCategory() const;
 

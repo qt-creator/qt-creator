@@ -70,6 +70,7 @@ class QWORKBENCH_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(bool formInputCheckable READ formInputCheckable WRITE setFormInputCheckable DESIGNABLE true)
     Q_PROPERTY(bool formInputChecked READ formInputChecked WRITE setFormInputChecked DESIGNABLE true)
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
+    Q_PROPERTY(bool lowerCaseFiles READ lowerCaseFiles WRITE setLowerCaseFiles)
     // Utility "USER" property for wizards containing file names.
     Q_PROPERTY(QStringList files READ files DESIGNABLE false USER true)
 public:
@@ -95,6 +96,7 @@ public:
     QString headerExtension() const;
     QString formExtension() const;
     bool allowDirectories() const;
+    bool lowerCaseFiles() const;
 
     bool isValid(QString *error = 0) const;
 
@@ -123,18 +125,24 @@ public slots:
     void setHeaderExtension(const QString &e);
     void setFormExtension(const QString &e);
     void setAllowDirectories(bool v);
+    void setLowerCaseFiles(bool v);
 
     /* Suggest a class name from the base class by stripping the leading 'Q'
      * character. This will happen automagically if the base class combo
      * changes until the class line edited is manually edited. */
     void suggestClassNameFromBase();
 
+public slots:
+    // Trigger an update (after changing settings)
+    void triggerUpdateFileNames();
+
 private slots:
-    void updateFileNames(const QString &t);
+    void slotUpdateFileNames(const QString &t);
     void slotValidChanged();
     void slotActivated();
     void classNameEdited();
     void slotFormInputChecked();
+
 
 private:
     void setFormInputCheckable(bool checkable, bool force);

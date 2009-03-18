@@ -67,7 +67,12 @@ DisplaySettingsPage::~DisplaySettingsPage()
     delete m_d;
 }
 
-QString DisplaySettingsPage::name() const
+QString DisplaySettingsPage::id() const
+{
+    return m_d->m_parameters.name;
+}
+
+QString DisplaySettingsPage::trName() const
 {
     return m_d->m_parameters.name;
 }

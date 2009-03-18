@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "quickopenplugin.h"
+#include "quickopenconstants.h"
 #include "quickopenfiltersfilter.h"
 #include "quickopenmanager.h"
 #include "quickopentoolwindow.h"
@@ -243,7 +244,7 @@ void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
         filters = m_filters;
     QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
     Core::FutureProgress *progress = Core::ICore::instance()
-            ->progressManager()->addTask(task, tr("Indexing"), Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
+            ->progressManager()->addTask(task, tr("Indexing"), QuickOpen::Constants::TASK_INDEX, Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 

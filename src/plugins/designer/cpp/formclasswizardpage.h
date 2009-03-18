@@ -49,8 +49,6 @@ public:
     explicit FormClassWizardPage(QWidget * parent = 0);
     ~FormClassWizardPage();
 
-    void setSuffixes(const QString &header, const QString &source,  const QString &form);
-
     virtual bool isComplete () const;
     virtual bool validatePage();
 
@@ -59,18 +57,20 @@ public:
     QString path() const;
 
     // Fill out applicable parameters
-    void getParameters(FormClassWizardParameters *) const;
+    void getParameters(FormClassWizardParameters *) const;       
 
 public slots:
     void setClassName(const QString &suggestedClassName);
     void setPath(const QString &);
     void setRetranslationSupport(bool);
     void setUiClassEmbedding(int v);
+    void slotSettings();
 
 private slots:
     void slotValidChanged();
 
 private:
+    void initParameters();
     void saveSettings();
     void restoreSettings();
 

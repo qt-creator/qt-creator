@@ -54,8 +54,6 @@ public:
     explicit FormClassWizardDialog(const WizardPageList &extensionPages,
                                    QWidget *parent = 0);
 
-    void setSuffixes(const QString &header, const QString &source,  const QString &form);
-
     QString path() const;
 
     FormClassWizardParameters parameters() const;

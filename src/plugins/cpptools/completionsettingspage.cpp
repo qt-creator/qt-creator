@@ -47,7 +47,12 @@ CompletionSettingsPage::~CompletionSettingsPage()
     delete m_page;
 }
 
-QString CompletionSettingsPage::name() const
+QString CompletionSettingsPage::id() const
+{
+    return QLatin1String("Completion");
+}
+
+QString CompletionSettingsPage::trName() const
 {
     return tr("Completion");
 }
