@@ -43,12 +43,12 @@ namespace Internal {
 
 class GenericProject;
 
-class MakeStep : public ProjectExplorer::AbstractProcessStep
+class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    MakeStep(GenericProject *pro);
-    ~MakeStep();
+    GenericMakeStep(GenericProject *pro);
+    ~GenericMakeStep();
     virtual bool init(const QString &buildConfiguration);
 
     virtual void run(QFutureInterface<bool> &fi);
@@ -73,22 +73,22 @@ private:
     QSet<QString> m_openDirectories;
 };
 
-class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MakeBuildStepConfigWidget(MakeStep *makeStep);
+    GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
 private slots:
     void itemChanged(QListWidgetItem*);
 private:
     QString m_buildConfiguration;
-    MakeStep * m_makeStep;
+    GenericMakeStep *m_makeStep;
     QListWidget *m_targetsList;
 };
 
-class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     virtual bool canCreate(const QString &name) const;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, const QString &name) const;

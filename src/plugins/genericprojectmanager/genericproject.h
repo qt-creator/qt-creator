@@ -32,23 +32,28 @@
 
 #include "genericprojectmanager.h"
 #include "genericprojectnodes.h"
-#include "makestep.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/ifile.h>
-#include <utils/pathchooser.h>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
 class QStringListModel;
 QT_END_NAMESPACE
 
-namespace GenericProjectManager {
-namespace Internal{
+namespace Core {
+namespace Utils {
+class PathChooser;
+}
+}
 
+namespace GenericProjectManager {
+namespace Internal {
+
+class GenericMakeStep;
 class GenericProjectFile;
 
 class GenericProject : public ProjectExplorer::Project
@@ -82,7 +87,7 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
 
     QStringList targets() const;
-    MakeStep *makeStep() const;
+    GenericMakeStep *makeStep() const;
     QString buildParser(const QString &buildConfiguration) const;
 
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;

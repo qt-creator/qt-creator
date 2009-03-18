@@ -75,11 +75,11 @@ private:
     QSet<QString> m_openDirectories;
 };
 
-class MakeBuildStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MakeBuildStepConfigWidget(MakeStep *makeStep);
+    MakeStepConfigWidget(MakeStep *makeStep);
     virtual QString displayName() const;
     virtual void init(const QString &buildConfiguration);
 private slots:
@@ -87,12 +87,12 @@ private slots:
     void additionalArgumentsEdited();
 private:
     QString m_buildConfiguration;
-    MakeStep * m_makeStep;
+    MakeStep *m_makeStep;
     QListWidget *m_targetsList;
     QLineEdit *m_additionalArguments;
 };
 
-class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     virtual bool canCreate(const QString &name) const;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, const QString &name) const;
@@ -100,7 +100,7 @@ class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
     virtual QString displayNameForName(const QString &name) const;
 };
 
-}
-}
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // MAKESTEP_H

@@ -27,12 +27,13 @@
 **
 **************************************************************************/
 
-#include "makestep.h"
+#include "genericmakestep.h"
 #include "genericprojectconstants.h"
 #include "genericproject.h"
-#include <extensionsystem/pluginmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QCheckBox>
@@ -43,22 +44,21 @@ namespace {
 bool debug = false;
 }
 
-
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
-MakeStep::MakeStep(GenericProject *pro)
+GenericMakeStep::GenericMakeStep(GenericProject *pro)
     : AbstractProcessStep(pro), m_pro(pro), m_buildParser(0)
 {
 }
 
-MakeStep::~MakeStep()
+GenericMakeStep::~GenericMakeStep()
 {
     delete m_buildParser;
     m_buildParser = 0;
 }
 
-bool MakeStep::init(const QString &buildConfiguration)
+bool GenericMakeStep::init(const QString &buildConfiguration)
 {
     // TODO figure out the correct build parser
     delete m_buildParser;
@@ -107,46 +107,46 @@ bool MakeStep::init(const QString &buildConfiguration)
     return AbstractProcessStep::init(buildConfiguration);
 }
 
-void MakeStep::run(QFutureInterface<bool> &fi)
+void GenericMakeStep::run(QFutureInterface<bool> &fi)
 {
     AbstractProcessStep::run(fi);
 }
 
-QString MakeStep::name()
+QString GenericMakeStep::name()
 {
     return Constants::MAKESTEP;
 }
 
-QString MakeStep::displayName()
+QString GenericMakeStep::displayName()
 {
     return "Make";
 }
 
-ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
+ProjectExplorer::BuildStepConfigWidget *GenericMakeStep::createConfigWidget()
 {
-    return new MakeBuildStepConfigWidget(this);
+    return new GenericMakeStepConfigWidget(this);
 }
 
-bool MakeStep::immutable() const
+bool GenericMakeStep::immutable() const
 {
     return true;
 }
 
-void MakeStep::stdOut(const QString &line)
+void GenericMakeStep::stdOut(const QString &line)
 {
     if (m_buildParser)
         m_buildParser->stdOutput(line);
     AbstractProcessStep::stdOut(line);
 }
 
-void MakeStep::stdError(const QString &line)
+void GenericMakeStep::stdError(const QString &line)
 {
     if (m_buildParser)
         m_buildParser->stdError(line);
     AbstractProcessStep::stdError(line);
 }
 
-void MakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
+void GenericMakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
 {
     QString filePath = fn;
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
@@ -192,30 +192,30 @@ void MakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber,
     emit addToTaskWindow(filePath, type, linenumber, description);
 }
 
-void MakeStep::addDirectory(const QString &dir)
+void GenericMakeStep::addDirectory(const QString &dir)
 {
     if (!m_openDirectories.contains(dir))
         m_openDirectories.insert(dir);
 }
 
-void MakeStep::removeDirectory(const QString &dir)
+void GenericMakeStep::removeDirectory(const QString &dir)
 {
     if (m_openDirectories.contains(dir))
         m_openDirectories.remove(dir);
 }
 
 
-GenericProject *MakeStep::project() const
+GenericProject *GenericMakeStep::project() const
 {
     return m_pro;
 }
 
-bool MakeStep::buildsTarget(const QString &buildConfiguration, const QString &target) const
+bool GenericMakeStep::buildsTarget(const QString &buildConfiguration, const QString &target) const
 {
     return value(buildConfiguration, "buildTargets").toStringList().contains(target);
 }
 
-void MakeStep::setBuildTarget(const QString &buildConfiguration, const QString &target, bool on)
+void GenericMakeStep::setBuildTarget(const QString &buildConfiguration, const QString &target, bool on)
 {
     QStringList old = value(buildConfiguration, "buildTargets").toStringList();
     if (on && !old.contains(target))
@@ -225,9 +225,10 @@ void MakeStep::setBuildTarget(const QString &buildConfiguration, const QString &
 }
 
 //
-// GenericBuildStepConfigWidget
+// GenericMakeStepConfigWidget
 //
-MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
+
+GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeStep)
     : m_makeStep(makeStep)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -246,17 +247,17 @@ MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 }
 
-void MakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
+void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
     m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
 }
 
-QString MakeBuildStepConfigWidget::displayName() const
+QString GenericMakeStepConfigWidget::displayName() const
 {
     return "Make";
 }
 
-void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
+void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     // TODO
 
@@ -273,29 +274,28 @@ void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 }
 
 //
-// MakeBuildStepFactory
+// GenericMakeStepFactory
 //
 
-bool MakeBuildStepFactory::canCreate(const QString &name) const
+bool GenericMakeStepFactory::canCreate(const QString &name) const
 {
     return (Constants::MAKESTEP == name);
 }
 
-ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
+ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
     GenericProject *pro = qobject_cast<GenericProject *>(project);
     Q_ASSERT(pro);
-    return new MakeStep(pro);
+    return new GenericMakeStep(pro);
 }
 
-QStringList MakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
+QStringList GenericMakeStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
 {
     return QStringList();
 }
 
-QString MakeBuildStepFactory::displayNameForName(const QString & /* name */) const
+QString GenericMakeStepFactory::displayNameForName(const QString & /* name */) const
 {
     return "Make";
 }
-

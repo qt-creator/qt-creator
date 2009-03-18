@@ -30,9 +30,10 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include <extensionsystem/pluginmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QCheckBox>
@@ -42,7 +43,6 @@
 namespace {
 bool debug = false;
 }
-
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -122,7 +122,7 @@ QString MakeStep::displayName()
 
 ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
-    return new MakeBuildStepConfigWidget(this);
+    return new MakeStepConfigWidget(this);
 }
 
 bool MakeStep::immutable() const
@@ -233,10 +233,10 @@ void MakeStep::setAdditionalArguments(const QString &buildConfiguration, const Q
 }
 
 //
-// CMakeBuildStepConfigWidget
+// MakeStepConfigWidget
 //
 
-MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
+MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     : m_makeStep(makeStep)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -261,22 +261,22 @@ MakeBuildStepConfigWidget::MakeBuildStepConfigWidget(MakeStep *makeStep)
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 }
 
-void MakeBuildStepConfigWidget::additionalArgumentsEdited()
+void MakeStepConfigWidget::additionalArgumentsEdited()
 {
     m_makeStep->setAdditionalArguments(m_buildConfiguration, ProjectExplorer::Environment::parseCombinedArgString(m_additionalArguments->text()));
 }
 
-void MakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
+void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
     m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
 }
 
-QString MakeBuildStepConfigWidget::displayName() const
+QString MakeStepConfigWidget::displayName() const
 {
     return "Make";
 }
 
-void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
+void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     // disconnect to make the changes to the items
     disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
@@ -293,15 +293,15 @@ void MakeBuildStepConfigWidget::init(const QString &buildConfiguration)
 }
 
 //
-// MakeBuildStepFactory
+// MakeStepFactory
 //
 
-bool MakeBuildStepFactory::canCreate(const QString &name) const
+bool MakeStepFactory::canCreate(const QString &name) const
 {
     return (Constants::MAKESTEP == name);
 }
 
-ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
@@ -309,12 +309,12 @@ ProjectExplorer::BuildStep *MakeBuildStepFactory::create(ProjectExplorer::Projec
     return new MakeStep(pro);
 }
 
-QStringList MakeBuildStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
+QStringList MakeStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
 {
     return QStringList();
 }
 
-QString MakeBuildStepFactory::displayNameForName(const QString & /* name */) const
+QString MakeStepFactory::displayNameForName(const QString & /* name */) const
 {
     return "Make";
 }

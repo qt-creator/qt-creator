@@ -29,16 +29,14 @@
 
 #include "genericproject.h"
 #include "genericprojectconstants.h"
-#include "genericprojectnodes.h"
-#include "makestep.h"
+#include "genericmakestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
-
-#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QDir>
@@ -54,10 +52,6 @@
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
-
-////////////////////////////////////////////////////////////////////////////////////
-// GenericProject
-////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
 
@@ -103,6 +97,10 @@ public:
 };
 
 } // end of anonymous namespace
+
+////////////////////////////////////////////////////////////////////////////////////
+// GenericProject
+////////////////////////////////////////////////////////////////////////////////////
 
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
@@ -401,10 +399,10 @@ QStringList GenericProject::targets() const
     return targets;
 }
 
-MakeStep *GenericProject::makeStep() const
+GenericMakeStep *GenericProject::makeStep() const
 {
     foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
-        if (MakeStep *ms = qobject_cast<MakeStep *>(bs))
+        if (GenericMakeStep *ms = qobject_cast<GenericMakeStep *>(bs))
             return ms;
     }
 
@@ -416,7 +414,7 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
-        MakeStep *makeStep = new MakeStep(this);
+        GenericMakeStep *makeStep = new GenericMakeStep(this);
         insertBuildStep(0, makeStep);
 
         const QLatin1String all("all");
@@ -457,6 +455,7 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericBuildSettingsWidget
 ////////////////////////////////////////////////////////////////////////////////////
+
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     : m_project(project)
 {
@@ -496,6 +495,7 @@ void GenericBuildSettingsWidget::buildDirectoryChanged()
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericProjectFile
 ////////////////////////////////////////////////////////////////////////////////////
+
 GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName)
     : Core::IFile(parent),
       m_project(parent),

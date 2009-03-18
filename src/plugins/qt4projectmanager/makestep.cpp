@@ -301,7 +301,6 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
             m_makeStep->value(buildConfiguration, "makeargs").toStringList();
         m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     }
-
 }
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
