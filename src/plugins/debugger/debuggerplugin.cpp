@@ -948,6 +948,7 @@ void DebuggerPlugin::readSettings()
     m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
     m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
     m->m_useDumpers       = s->value("UseCustomDumpers", true).toBool();
+    action(UseDumpers)->setChecked(m->m_useDumpers);
     m->m_useToolTips      = s->value("UseToolTips", false).toBool();
     m->m_listSourceFiles  = s->value("ListSourceFiles", false).toBool();
 
