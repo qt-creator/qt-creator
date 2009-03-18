@@ -39,6 +39,12 @@
 
 using namespace ProjectExplorer;
 
+static const char * const PROCESS_COMMAND          = "abstractProcess.command";
+static const char * const PROCESS_WORKINGDIRECTORY = "abstractProcess.workingDirectory";
+static const char * const PROCESS_ARGUMENTS        = "abstractProcess.arguments";
+static const char * const PROCESS_ENABLED          = "abstractProcess.enabled";
+static const char * const PROCESS_ENVIRONMENT      = "abstractProcess.Environment";
+
 AbstractProcessStep::AbstractProcessStep(Project *pro)
   : BuildStep(pro)
 {
@@ -46,62 +52,61 @@ AbstractProcessStep::AbstractProcessStep(Project *pro)
 
 void AbstractProcessStep::setCommand(const QString &buildConfiguration, const QString &cmd)
 {
-    setValue(buildConfiguration, "abstractProcess.command", cmd);
+    setValue(buildConfiguration, PROCESS_COMMAND, cmd);
 }
 
 QString AbstractProcessStep::command(const QString &buildConfiguration) const
 {
-    return value(buildConfiguration, "abstractProcess.command").toString();
+    return value(buildConfiguration, PROCESS_COMMAND).toString();
 }
 
 void AbstractProcessStep::setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory)
 {
-    setValue(buildConfiguration, "abstractProcess.workingDirectory", workingDirectory);
+    setValue(buildConfiguration, PROCESS_WORKINGDIRECTORY, workingDirectory);
 }
 
 QString AbstractProcessStep::workingDirectory(const QString &buildConfiguration) const
 {
-    return value(buildConfiguration, "abstractProcess.workingDirectory").toString();
+    return value(buildConfiguration, PROCESS_WORKINGDIRECTORY).toString();
 }
 
 void AbstractProcessStep::setArguments(const QString &buildConfiguration, const QStringList &arguments)
 {
-    setValue(buildConfiguration, "abstractProcess.arguments", arguments);
+    setValue(buildConfiguration, PROCESS_ARGUMENTS, arguments);
 }
 
 QStringList AbstractProcessStep::arguments(const QString &buildConfiguration) const
 {
-    return value(buildConfiguration, "abstractProcess.arguments").toStringList();
+    return value(buildConfiguration, PROCESS_ARGUMENTS).toStringList();
 }
 
 void AbstractProcessStep::setEnabled(const QString &buildConfiguration, bool b)
 {
-    setValue(buildConfiguration, "abstractProcess.enabled", b);
+    setValue(buildConfiguration, PROCESS_ENABLED, b);
 }
 
 bool AbstractProcessStep::enabled(const QString &buildConfiguration) const
 {
-    return value(buildConfiguration, "abstractProcess.enabled").toBool();
+    return value(buildConfiguration, PROCESS_ENABLED).toBool();
 }
 
 void AbstractProcessStep::setEnvironment(const QString &buildConfiguration, Environment env)
 {
-    setValue(buildConfiguration, "abstractProcess.Environment", env.toStringList());
+    setValue(buildConfiguration, PROCESS_ENVIRONMENT, env.toStringList());
 }
 
 Environment AbstractProcessStep::environment(const QString &buildConfiguration) const
 {
-    return Environment(value(buildConfiguration, "abstractProcess.Environment").toStringList());
+    return Environment(value(buildConfiguration, PROCESS_ENVIRONMENT).toStringList());
 }
 
 bool AbstractProcessStep::init(const QString &name)
 {
-    m_command = value(name, "abstractProcess.command").toString();
-    m_arguments = value(name, "abstractProcess.arguments").toStringList();
-    QVariant var = value(name, "abstractProcess.enabled");
-    m_enabled =  var.isValid() && var.toBool();
-    m_workingDirectory = value(name, "abstractProcess.workingDirectory").toString();
-    m_environment = Environment(value(name, "abstractProcess.Environment").toStringList());
+    m_command = command(name);
+    m_arguments = arguments(name);
+    m_enabled = enabled(name);
+    m_workingDirectory = workingDirectory(name);
+    m_environment = environment(name);
     return true;
 }
 
