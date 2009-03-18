@@ -239,8 +239,6 @@ void DebuggerManager::init()
         m_breakHandler, SLOT(activateBreakpoint(int)));
     connect(breakView, SIGNAL(breakpointDeleted(int)),
         m_breakHandler, SLOT(removeBreakpoint(int)));
-    connect(breakView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
     connect(breakView, SIGNAL(breakpointSynchronizationRequested()),
         this, SLOT(attemptBreakpointSynchronization()));
     connect(m_breakHandler, SIGNAL(gotoLocation(QString,int,bool)),
@@ -295,10 +293,6 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger(QString,QString)));
     connect(localsView, SIGNAL(requestWatchExpression(QString)),
         this, SLOT(watchExpression(QString)));
-    connect(localsView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
-    connect(localsView, SIGNAL(requestRecheckCustomDumperAvailability()),
-        this, SLOT(recheckCustomDumperAvailability()));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
@@ -317,10 +311,6 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
-    connect(watchersView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
-    connect(watchersView, SIGNAL(requestRecheckCustomDumperAvailability()),
-        this, SLOT(recheckCustomDumperAvailability()));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
@@ -480,6 +470,8 @@ void DebuggerManager::init()
 
     connect(action(UseDumpers), SIGNAL(triggered(bool)),
         this, SLOT(setUseDumpers(bool)));
+    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setDebugDumpers(bool)));
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
@@ -1311,7 +1303,6 @@ void DebuggerManager::setDebugDumpers(bool on)
 {
     QTC_ASSERT(m_engine, return);
     m_settings.m_debugDumpers = on;
-    m_engine->setDebugDumpers(on);
 }
 
 void DebuggerManager::setSkipKnownFrames(bool on)
@@ -1423,17 +1414,6 @@ void DebuggerManager::fileOpen(const QString &fileName)
     emit gotoLocationRequested(fileName, 1, false);
 }
 
-
-//////////////////////////////////////////////////////////////////////
-//
-// Watch specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-void DebuggerManager::recheckCustomDumperAvailability()
-{
-    m_engine->recheckCustomDumperAvailability();
-}
 
 //////////////////////////////////////////////////////////////////////
 //

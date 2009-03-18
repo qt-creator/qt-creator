@@ -287,7 +287,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.checkBoxListSourceFiles->setChecked(m_settings.m_listSourceFiles);
     m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
     m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
-    m_ui.checkBoxUseCustomDumpers->setChecked(m_settings.m_useDumpers);
+    m_ui.checkBoxUseDumpers->setChecked(m_settings.m_useDumpers);
     m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
 
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
@@ -310,8 +310,8 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     //m_dumpLogAction = new QAction(this);
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
     //
-    connect(m_ui.checkBoxUseCustomDumpers, SIGNAL(clicked(bool)),
-        action(UseDumpers), SLOT(trigger(bool)));
+    connect(m_ui.checkBoxUseDumpers, SIGNAL(clicked()),
+        action(UseDumpers), SLOT(trigger()));
 
     return w;
 }
@@ -325,7 +325,7 @@ void GdbOptionPage::apply()
     m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
     m_settings.m_listSourceFiles = m_ui.checkBoxListSourceFiles->isChecked();
     m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
-    m_settings.m_useDumpers = m_ui.checkBoxUseCustomDumpers->isChecked();
+    m_settings.m_useDumpers = m_ui.checkBoxUseDumpers->isChecked();
     m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
 
     m_settings.m_pluginAllBreakpoints =

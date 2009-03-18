@@ -89,10 +89,6 @@ public:
     virtual void loadAllSymbols();
 
     virtual void reloadRegisters();
-
-    virtual void setDebugDumpers(bool on);
-    virtual void recheckCustomDumperAvailability();
-
     virtual void reloadSourceFiles();
 
 protected:

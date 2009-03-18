@@ -987,15 +987,6 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)
         qDebug() << Q_FUNC_INFO;
 }
 
-void CdbDebugEngine::setDebugDumpers(bool on)
-{
-    Q_UNUSED(on)
-}
-
-void CdbDebugEngine::recheckCustomDumperAvailability()
-{
-}
-
 void CdbDebugEngine::reloadSourceFiles()
 {
 }

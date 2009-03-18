@@ -284,10 +284,10 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-    void setDebugDumpers(bool on);
     void setSkipKnownFrames(bool on);
 
 private slots:
+    void setDebugDumpers(bool on);
     void setUseDumpers(bool on);
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
@@ -309,7 +309,6 @@ private slots:
     void setStatus(int status);
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
-    void recheckCustomDumperAvailability();
 
 private:
     //

@@ -287,6 +287,10 @@ void GdbEngine::initializeConnections()
 
     connect(action(UseDumpers), SIGNAL(triggered(bool)),
         this, SLOT(setUseDumpers(bool)));
+    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setDebugDumpers(bool)));
+    connect(action(RecheckDumpers), SIGNAL(triggered()),
+        this, SLOT(recheckCustomDumperAvailability()));
 }
 
 void GdbEngine::initializeVariables()

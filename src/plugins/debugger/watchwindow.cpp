@@ -106,9 +106,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     act2->setChecked(m_alwaysResizeColumnsToContents);
     QAction *act3 = 0;
     QAction *act4 = 0;
-    QAction *act5 = new QAction("Debugger properties...", &menu);
-    QAction *act6 = new QAction("Re-check availability of custom dumpers", &menu);
-    QAction *act7 = action(UseDumpers);
+    QAction *act5 = action(RecheckDumpers);
+    QAction *act6 = action(UseDumpers);
+    QAction *act7 = action(SettingsDialog);
 
     menu.addAction(act1);
     menu.addAction(act2);
@@ -134,9 +134,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         // FIXME: menu.addAction(act4);
     }
     menu.addSeparator();
-    menu.addAction(act6);
-    menu.addAction(act7);
     menu.addAction(act5);
+    menu.addAction(act6);
+    menu.addSeparator();
+    menu.addAction(act7);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -153,10 +154,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             emit requestRemoveWatchExpression(exp);
     else if (act == act4)
         model()->setData(mi0, !visual, VisualRole);
-    else if (act == act5)
-        emit settingsDialogRequested();
-    else if (act == act6)
-        emit requestRecheckCustomDumperAvailability();
+    else 
+        act->trigger();
 }
 
 void WatchWindow::resizeColumnsToContents()

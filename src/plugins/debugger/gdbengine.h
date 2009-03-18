@@ -130,7 +130,7 @@ private:
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
 
-    void setDebugDumpers(bool on);
+    Q_SLOT void setDebugDumpers(bool on);
     Q_SLOT void setUseDumpers(bool on);
 
     //
