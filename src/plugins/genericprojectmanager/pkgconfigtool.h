@@ -30,7 +30,7 @@ private:
     void packages_helper() const;
 
 private:
-    mutable QList<Package> _packages;
+    mutable QList<Package> m_packages;
 };
 
 } // end of namespace Internal

@@ -110,23 +110,23 @@ private:
 
     QStringList readLines(const QString &absoluteFileName) const;
 
-    Manager *_manager;
-    QString _fileName;
-    QString _filesFileName;
-    QString _includesFileName;
-    QString _configFileName;
-    GenericProjectFile *_file;
-    QString _projectName;
+    Manager *m_manager;
+    QString m_fileName;
+    QString m_filesFileName;
+    QString m_includesFileName;
+    QString m_configFileName;
+    GenericProjectFile *m_file;
+    QString m_projectName;
 
-    QStringList _files;
-    QStringList _generated;
-    QStringList _includePaths;
-    QStringList _projectIncludePaths;
-    QByteArray _defines;
+    QStringList m_files;
+    QStringList m_generated;
+    QStringList m_includePaths;
+    QStringList m_projectIncludePaths;
+    QByteArray m_defines;
 
-    GenericProjectNode* _rootNode;
-    ProjectExplorer::ToolChain *_toolChain;
-    QString _toolChainId;
+    GenericProjectNode *m_rootNode;
+    ProjectExplorer::ToolChain *m_toolChain;
+    QString m_toolChainId;
 };
 
 class GenericProjectFile : public Core::IFile
@@ -151,8 +151,8 @@ public:
     virtual void modified(ReloadBehavior *behavior);
 
 private:
-    GenericProject *_project;
-    QString _fileName;
+    GenericProject *m_project;
+    QString m_fileName;
 };
 
 class GenericBuildSettingsWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -171,9 +171,9 @@ private Q_SLOTS:
     void buildDirectoryChanged();
 
 private:
-    GenericProject *_project;
-    Core::Utils::PathChooser *_pathChooser;
-    QString _buildConfiguration;
+    GenericProject *m_project;
+    Core::Utils::PathChooser *m_pathChooser;
+    QString m_buildConfiguration;
 };
 
 } // namespace Internal

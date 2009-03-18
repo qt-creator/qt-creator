@@ -46,13 +46,13 @@ using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
 GenericProjectPlugin::GenericProjectPlugin()
-    : _projectFilesEditorFactory(0)
+    : m_projectFilesEditorFactory(0)
 { }
 
 GenericProjectPlugin::~GenericProjectPlugin()
 {
-    removeObject(_projectFilesEditorFactory);
-    delete _projectFilesEditorFactory;
+    removeObject(m_projectFilesEditorFactory);
+    delete m_projectFilesEditorFactory;
 }
 
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
@@ -72,8 +72,8 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     TextEditor::TextEditorActionHandler *actionHandler =
             new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR);
 
-    _projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
-    addObject(_projectFilesEditorFactory);
+    m_projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
+    addObject(m_projectFilesEditorFactory);
 
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new MakeBuildStepFactory);

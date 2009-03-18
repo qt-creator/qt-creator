@@ -40,7 +40,7 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const
     {
         if (index.column() == 0 && role == Qt::CheckStateRole) {
-            if (_selectedPaths.contains(index))
+            if (m_selectedPaths.contains(index))
                 return Qt::Checked;
 
             return Qt::Unchecked;
@@ -53,9 +53,9 @@ public:
     {
         if (index.column() == 0 && role == Qt::CheckStateRole) {
             if (value.toBool())
-                _selectedPaths.insert(index);
+                m_selectedPaths.insert(index);
             else
-                _selectedPaths.remove(index);
+                m_selectedPaths.remove(index);
 
             return true;
         }
@@ -64,20 +64,20 @@ public:
     }
 
     void clearSelectedPaths()
-    { _selectedPaths.clear(); }
+    { m_selectedPaths.clear(); }
 
     QSet<QString> selectedPaths() const
     {
         QSet<QString> paths;
 
-        foreach (const QModelIndex &index, _selectedPaths)
+        foreach (const QModelIndex &index, m_selectedPaths)
             paths.insert(filePath(index));
 
         return paths;
     }
 
 private:
-    QSet<QModelIndex> _selectedPaths;
+    QSet<QModelIndex> m_selectedPaths;
 };
 
 } // end of anonymous namespace
@@ -98,10 +98,10 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     firstPage->setTitle(tr("Project"));
 
     QFormLayout *layout = new QFormLayout(firstPage);
-    _pathChooser = new PathChooser;
-    layout->addRow(tr("Source Directory:"), _pathChooser);
+    m_pathChooser = new PathChooser;
+    layout->addRow(tr("Source Directory:"), m_pathChooser);
 
-    _firstPageId = addPage(firstPage);
+    m_firstPageId = addPage(firstPage);
 
 #if 0
     // second page
@@ -110,9 +110,9 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
 
     QFormLayout *secondPageLayout = new QFormLayout(secondPage);
 
-    _dirView = new QTreeView;
-    _dirModel = new DirModel(this);
-    _dirView->setModel(_dirModel);
+    m_dirView = new QTreeView;
+    m_dirModel = new DirModel(this);
+    m_dirView->setModel(_dirModel);
 
     Core::ICore *core = Core::ICore::instance();
     Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
@@ -127,10 +127,10 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
         nameFilters.append(nameFilter);
     }
 
-    _filesView = new QListView;
-    _filesModel = new QDirModel(this);
-    _filesModel->setNameFilters(nameFilters);
-    _filesModel->setFilter(QDir::Files);
+    m_filesView = new QListView;
+    m_filesModel = new QDirModel(this);
+    m_filesModel->setNameFilters(nameFilters);
+    m_filesModel->setFilter(QDir::Files);
 
     connect(_dirView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateFilesView(QModelIndex,QModelIndex)));
@@ -138,7 +138,7 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     secondPageLayout->addRow(_dirView);
     secondPageLayout->addRow(_filesView);
 
-    _secondPageId = addPage(secondPage);
+    m_secondPageId = addPage(secondPage);
 #endif
 }
 
@@ -146,34 +146,34 @@ GenericProjectWizardDialog::~GenericProjectWizardDialog()
 { }
 
 QString GenericProjectWizardDialog::path() const
-{ return _pathChooser->path(); }
+{ return m_pathChooser->path(); }
 
 void GenericProjectWizardDialog::updateFilesView(const QModelIndex &current,
                                                  const QModelIndex &)
 {
     if (! current.isValid())
-        _filesView->setModel(0);
+        m_filesView->setModel(0);
 
     else {
-        const QString selectedPath = _dirModel->filePath(current);
+        const QString selectedPath = m_dirModel->filePath(current);
 
-        if (! _filesView->model())
-            _filesView->setModel(_filesModel);
+        if (! m_filesView->model())
+            m_filesView->setModel(m_filesModel);
 
-        _filesView->setRootIndex(_filesModel->index(selectedPath));
+        m_filesView->setRootIndex(m_filesModel->index(selectedPath));
     }
 }
 
 void GenericProjectWizardDialog::initializePage(int id)
 {
 #if 0
-    if (id == _secondPageId) {
+    if (id == m_secondPageId) {
         using namespace Core::Utils;
 
-        const QString projectPath = _pathChooser->path();
+        const QString projectPath = m_pathChooser->path();
 
         QDirModel *dirModel = qobject_cast<QDirModel *>(_dirView->model());
-        _dirView->setRootIndex(dirModel->index(projectPath));
+        m_dirView->setRootIndex(dirModel->index(projectPath));
     }
 #endif
 }
@@ -182,10 +182,10 @@ bool GenericProjectWizardDialog::validateCurrentPage()
 {
     using namespace Core::Utils;
 
-    if (currentId() == _firstPageId) {
-        return ! _pathChooser->path().isEmpty();
+    if (currentId() == m_firstPageId) {
+        return ! m_pathChooser->path().isEmpty();
 
-    } else if (currentId() == _secondPageId) {
+    } else if (currentId() == m_secondPageId) {
         return true;
     }
 

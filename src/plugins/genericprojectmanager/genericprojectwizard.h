@@ -37,16 +37,16 @@ protected:
     virtual bool validateCurrentPage();
 
 private:
-    int _firstPageId;
-    int _secondPageId;
+    int m_firstPageId;
+    int m_secondPageId;
 
-    Core::Utils::PathChooser *_pathChooser;
+    Core::Utils::PathChooser *m_pathChooser;
 
-    QTreeView *_dirView;
-    QDirModel *_dirModel;
+    QTreeView *m_dirView;
+    QDirModel *m_dirModel;
 
-    QListView *_filesView;
-    QDirModel *_filesModel;
+    QListView *m_filesView;
+    QDirModel *m_filesModel;
 };
 
 class GenericProjectWizard : public Core::BaseFileWizard

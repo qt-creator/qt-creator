@@ -51,7 +51,7 @@ public:
     virtual void extensionsInitialized();
 
 private:
-    ProjectFilesFactory *_projectFilesEditorFactory;
+    ProjectFilesFactory *m_projectFilesEditorFactory;
 };
 
 } // namespace Internal

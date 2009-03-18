@@ -105,40 +105,40 @@ public:
 } // end of anonymous namespace
 
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
-    : _manager(manager),
-      _fileName(fileName),
-      _toolChain(0)
+    : m_manager(manager),
+      m_fileName(fileName),
+      m_toolChain(0)
 {
-    QFileInfo fileInfo(_fileName);
+    QFileInfo fileInfo(m_fileName);
     const QString projectBaseName = fileInfo.baseName();
     QDir dir = fileInfo.dir();
 
-    _filesFileName    = QFileInfo(dir, projectBaseName + QLatin1String(".files")).absoluteFilePath();
-    _includesFileName = QFileInfo(dir, projectBaseName + QLatin1String(".includes")).absoluteFilePath();
-    _configFileName   = QFileInfo(dir, projectBaseName + QLatin1String(".config")).absoluteFilePath();
+    m_filesFileName    = QFileInfo(dir, projectBaseName + QLatin1String(".files")).absoluteFilePath();
+    m_includesFileName = QFileInfo(dir, projectBaseName + QLatin1String(".includes")).absoluteFilePath();
+    m_configFileName   = QFileInfo(dir, projectBaseName + QLatin1String(".config")).absoluteFilePath();
 
-    _file = new GenericProjectFile(this, fileName);
-    _rootNode = new GenericProjectNode(this, _file);
+    m_file = new GenericProjectFile(this, fileName);
+    m_rootNode = new GenericProjectNode(this, m_file);
 
-    _manager->registerProject(this);
+    m_manager->registerProject(this);
 }
 
 GenericProject::~GenericProject()
 {
-    _manager->unregisterProject(this);
+    m_manager->unregisterProject(this);
 
-    delete _rootNode;
-    delete _toolChain;
+    delete m_rootNode;
+    delete m_toolChain;
 }
 
 QString GenericProject::filesFileName() const
-{ return _filesFileName; }
+{ return m_filesFileName; }
 
 QString GenericProject::includesFileName() const
-{ return _includesFileName; }
+{ return m_includesFileName; }
 
 QString GenericProject::configFileName() const
-{ return _configFileName; }
+{ return m_configFileName; }
 
 QStringList GenericProject::readLines(const QString &absoluteFileName) const
 {
@@ -167,23 +167,23 @@ QStringList GenericProject::readLines(const QString &absoluteFileName) const
 
 void GenericProject::parseProject()
 {
-    const QFileInfo projectFileInfo(_fileName);
+    const QFileInfo projectFileInfo(m_fileName);
 
-    QSettings projectInfo(_fileName, QSettings::IniFormat);
+    QSettings projectInfo(m_fileName, QSettings::IniFormat);
 
-    _files = convertToAbsoluteFiles(readLines(filesFileName()));
-    _files.removeDuplicates();
+    m_files = convertToAbsoluteFiles(readLines(filesFileName()));
+    m_files.removeDuplicates();
 
-    _projectIncludePaths = readLines(includesFileName());
-    _projectIncludePaths.removeDuplicates();
+    m_projectIncludePaths = readLines(includesFileName());
+    m_projectIncludePaths.removeDuplicates();
 
-    _generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
+    m_generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
 
-    _defines.clear();
+    m_defines.clear();
 
     QFile configFile(configFileName());
     if (configFile.open(QFile::ReadOnly))
-        _defines = configFile.readAll();
+        m_defines = configFile.readAll();
 
     emit fileListChanged();
 }
@@ -192,23 +192,23 @@ void GenericProject::refresh()
 {
     parseProject();
 
-    _rootNode->refresh();
+    m_rootNode->refresh();
 
     CppTools::CppModelManagerInterface *modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
-    if (_toolChain && modelManager) {
-        const QByteArray predefinedMacros = _toolChain->predefinedMacros();
-        const QList<ProjectExplorer::HeaderPath> systemHeaderPaths = _toolChain->systemHeaderPaths();
+    if (m_toolChain && modelManager) {
+        const QByteArray predefinedMacros = m_toolChain->predefinedMacros();
+        const QList<ProjectExplorer::HeaderPath> systemHeaderPaths = m_toolChain->systemHeaderPaths();
 
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.defines = predefinedMacros;
         pinfo.defines += '\n';
-        pinfo.defines += _defines;
+        pinfo.defines += m_defines;
 
         QStringList allIncludePaths, allFrameworkPaths;
 
-        foreach (const ProjectExplorer::HeaderPath &headerPath, _toolChain->systemHeaderPaths()) {
+        foreach (const ProjectExplorer::HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
                 allFrameworkPaths.append(headerPath.path());
 
@@ -235,7 +235,7 @@ void GenericProject::refresh()
 
 QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths) const
 {
-    const QDir projectDir(QFileInfo(_fileName).dir());
+    const QDir projectDir(QFileInfo(m_fileName).dir());
     QStringList absolutePaths;
     foreach (const QString &file, paths) {
         QFileInfo fileInfo(projectDir, file);
@@ -248,63 +248,63 @@ QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths) con
 QStringList GenericProject::allIncludePaths() const
 {
     QStringList paths;
-    paths += _includePaths;
-    paths += _projectIncludePaths;
+    paths += m_includePaths;
+    paths += m_projectIncludePaths;
     paths.removeDuplicates();
     return paths;
 }
 
 QStringList GenericProject::projectIncludePaths() const
-{ return _projectIncludePaths; }
+{ return m_projectIncludePaths; }
 
 QStringList GenericProject::files() const
-{ return _files; }
+{ return m_files; }
 
 QStringList GenericProject::generated() const
-{ return _generated; }
+{ return m_generated; }
 
 QStringList GenericProject::includePaths() const
-{ return _includePaths; }
+{ return m_includePaths; }
 
 void GenericProject::setIncludePaths(const QStringList &includePaths)
-{ _includePaths = includePaths; }
+{ m_includePaths = includePaths; }
 
 QByteArray GenericProject::defines() const
-{ return _defines; }
+{ return m_defines; }
 
 void GenericProject::setToolChainId(const QString &toolChainId)
 {
     using namespace ProjectExplorer;
 
-    _toolChainId = toolChainId;
+    m_toolChainId = toolChainId;
 
-    delete _toolChain;
-    _toolChain = 0;
+    delete m_toolChain;
+    m_toolChain = 0;
 
     if (toolChainId == QLatin1String("mingw")) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         const QString mingwDirectory; // ### FIXME
 
-        _toolChain = ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory);
+        m_toolChain = ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory);
 
     } else if (toolChainId == QLatin1String("msvc")) {
         const QString msvcVersion; // ### FIXME
-        _toolChain = ToolChain::createMSVCToolChain(msvcVersion);
+        m_toolChain = ToolChain::createMSVCToolChain(msvcVersion);
 
     } else if (toolChainId == QLatin1String("wince")) {
         const QString msvcVersion, wincePlatform; // ### FIXME
-        _toolChain = ToolChain::createWinCEToolChain(msvcVersion, wincePlatform);
+        m_toolChain = ToolChain::createWinCEToolChain(msvcVersion, wincePlatform);
 
     } else if (toolChainId == QLatin1String("gcc") || toolChainId == QLatin1String("icc")) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
-        _toolChain = ToolChain::createGccToolChain(qmake_cxx);
+        m_toolChain = ToolChain::createGccToolChain(qmake_cxx);
     }
 }
 
 QString GenericProject::buildParser(const QString &buildConfiguration) const
 {
-    if (_toolChain) {
-        switch (_toolChain->type()) {
+    if (m_toolChain) {
+        switch (m_toolChain->type()) {
         case ProjectExplorer::ToolChain::GCC:
         case ProjectExplorer::ToolChain::LinuxICC:
         case ProjectExplorer::ToolChain::MinGW:
@@ -323,21 +323,21 @@ QString GenericProject::buildParser(const QString &buildConfiguration) const
 }
 
 QString GenericProject::toolChainId() const
-{ return _toolChainId; }
+{ return m_toolChainId; }
 
 QString GenericProject::name() const
 {
-    return _projectName;
+    return m_projectName;
 }
 
 Core::IFile *GenericProject::file() const
 {
-    return _file;
+    return m_file;
 }
 
 ProjectExplorer::IProjectManager *GenericProject::projectManager() const
 {
-    return _manager;
+    return m_manager;
 }
 
 QList<ProjectExplorer::Project *> GenericProject::dependsOn()
@@ -360,7 +360,7 @@ QString GenericProject::buildDirectory(const QString &buildConfiguration) const
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
 
     if (buildDirectory.isEmpty()) {
-        QFileInfo fileInfo(_fileName);
+        QFileInfo fileInfo(m_fileName);
 
         buildDirectory = fileInfo.absolutePath();
     }
@@ -385,12 +385,12 @@ QList<ProjectExplorer::BuildStepConfigWidget*> GenericProject::subConfigWidgets(
 
 GenericProjectNode *GenericProject::rootProjectNode() const
 {
-    return _rootNode;
+    return m_rootNode;
 }
 
 QStringList GenericProject::files(FilesMode fileMode) const
 {
-    return _files; // ### TODO: handle generated files here.
+    return m_files; // ### TODO: handle generated files here.
 }
 
 QStringList GenericProject::targets() const
@@ -450,30 +450,30 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 {
     Project::saveSettingsImpl(writer);
 
-    writer.saveValue(QLatin1String("toolChain"), _toolChainId);
-    writer.saveValue(QLatin1String("includePaths"), _includePaths);
+    writer.saveValue(QLatin1String("toolChain"), m_toolChainId);
+    writer.saveValue(QLatin1String("includePaths"), m_includePaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericBuildSettingsWidget
 ////////////////////////////////////////////////////////////////////////////////////
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
-    : _project(project)
+    : m_project(project)
 {
     QFormLayout *fl = new QFormLayout(this);
 
     // build directory
-    _pathChooser = new Core::Utils::PathChooser(this);
-    _pathChooser->setEnabled(true);
-    fl->addRow(tr("Build directory:"), _pathChooser);
-    connect(_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
+    m_pathChooser = new Core::Utils::PathChooser(this);
+    m_pathChooser->setEnabled(true);
+    fl->addRow(tr("Build directory:"), m_pathChooser);
+    connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
 
     // tool chain
     QComboBox *toolChainChooser = new QComboBox;
     toolChainChooser->addItems(ProjectExplorer::ToolChain::supportedToolChains());
-    toolChainChooser->setCurrentIndex(toolChainChooser->findText(_project->toolChainId()));
+    toolChainChooser->setCurrentIndex(toolChainChooser->findText(m_project->toolChainId()));
     fl->addRow(tr("Tool chain:"), toolChainChooser);
-    connect(toolChainChooser, SIGNAL(activated(QString)), _project, SLOT(setToolChainId(QString)));
+    connect(toolChainChooser, SIGNAL(activated(QString)), m_project, SLOT(setToolChainId(QString)));
 }
 
 GenericBuildSettingsWidget::~GenericBuildSettingsWidget()
@@ -484,13 +484,13 @@ QString GenericBuildSettingsWidget::displayName() const
 
 void GenericBuildSettingsWidget::init(const QString &buildConfiguration)
 {
-    _buildConfiguration = buildConfiguration;
-    _pathChooser->setPath(_project->buildDirectory(buildConfiguration));
+    m_buildConfiguration = buildConfiguration;
+    m_pathChooser->setPath(m_project->buildDirectory(buildConfiguration));
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    _project->setValue(_buildConfiguration, "buildDirectory", _pathChooser->path());
+    m_project->setValue(m_buildConfiguration, "buildDirectory", m_pathChooser->path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -498,8 +498,8 @@ void GenericBuildSettingsWidget::buildDirectoryChanged()
 ////////////////////////////////////////////////////////////////////////////////////
 GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName)
     : Core::IFile(parent),
-      _project(parent),
-      _fileName(fileName)
+      m_project(parent),
+      m_fileName(fileName)
 { }
 
 GenericProjectFile::~GenericProjectFile()
@@ -512,7 +512,7 @@ bool GenericProjectFile::save(const QString &)
 
 QString GenericProjectFile::fileName() const
 {
-    return _fileName;
+    return m_fileName;
 }
 
 QString GenericProjectFile::defaultPath() const

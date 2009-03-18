@@ -57,9 +57,9 @@ public:
     void unregisterProject(GenericProject *project);
 
 private:
-    int _projectContext;
-    int _projectLanguage;
-    QList<GenericProject *> _projects;
+    int m_projectContext;
+    int m_projectLanguage;
+    QList<GenericProject *> m_projects;
 };
 
 } // namespace Internal

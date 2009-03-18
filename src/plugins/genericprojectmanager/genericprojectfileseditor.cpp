@@ -19,12 +19,12 @@ using namespace GenericProjectManager::Internal;
 ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
                                          TextEditor::TextEditorActionHandler *handler)
     : Core::IEditorFactory(manager),
-      _manager(manager),
-      _actionHandler(handler)
+      m_manager(manager),
+      m_actionHandler(handler)
 {
-    _mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
-    _mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
-    _mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
+    m_mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
+    m_mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
+    m_mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
 }
 
 ProjectFilesFactory::~ProjectFilesFactory()
@@ -33,19 +33,19 @@ ProjectFilesFactory::~ProjectFilesFactory()
 
 Manager *ProjectFilesFactory::manager() const
 {
-    return _manager;
+    return m_manager;
 }
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
-    ProjectFilesEditor *ed = new ProjectFilesEditor(parent, this, _actionHandler);
+    ProjectFilesEditor *ed = new ProjectFilesEditor(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(ed);
     return ed->editableInterface();
 }
 
 QStringList ProjectFilesFactory::mimeTypes() const
 {
-    return _mimeTypes;
+    return m_mimeTypes;
 }
 
 QString ProjectFilesFactory::kind() const
@@ -71,7 +71,7 @@ ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
     : TextEditor::BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    _context << uidm->uniqueIdentifier(Constants::C_FILESEDITOR);
+    m_context << uidm->uniqueIdentifier(Constants::C_FILESEDITOR);
 }
 
 ProjectFilesEditable::~ProjectFilesEditable()
@@ -79,7 +79,7 @@ ProjectFilesEditable::~ProjectFilesEditable()
 
 QList<int> ProjectFilesEditable::context() const
 {
-    return _context;
+    return m_context;
 }
 
 const char *ProjectFilesEditable::kind() const
@@ -109,8 +109,8 @@ Core::IEditor *ProjectFilesEditable::duplicate(QWidget *parent)
 ProjectFilesEditor::ProjectFilesEditor(QWidget *parent, ProjectFilesFactory *factory,
                                        TextEditor::TextEditorActionHandler *handler)
     : TextEditor::BaseTextEditor(parent),
-      _factory(factory),
-      _actionHandler(handler)
+      m_factory(factory),
+      m_actionHandler(handler)
 {
     Manager *manager = factory->manager();
     ProjectFilesDocument *doc = new ProjectFilesDocument(manager);
@@ -124,12 +124,12 @@ ProjectFilesEditor::~ProjectFilesEditor()
 
 ProjectFilesFactory *ProjectFilesEditor::factory() const
 {
-    return _factory;
+    return m_factory;
 }
 
 TextEditor::TextEditorActionHandler *ProjectFilesEditor::actionHandler() const
 {
-    return _actionHandler;
+    return m_actionHandler;
 }
 
 TextEditor::BaseTextEditorEditable *ProjectFilesEditor::createEditableInterface()
@@ -142,7 +142,7 @@ TextEditor::BaseTextEditorEditable *ProjectFilesEditor::createEditableInterface(
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesDocument::ProjectFilesDocument(Manager *manager)
-    : _manager(manager)
+    : m_manager(manager)
 {
     setMimeType(QLatin1String(Constants::FILES_MIMETYPE));
 }
@@ -155,6 +155,6 @@ bool ProjectFilesDocument::save(const QString &name)
     if (! BaseTextDocument::save(name))
         return false;
 
-    _manager->notifyChanged(name);
+    m_manager->notifyChanged(name);
     return true;
 }

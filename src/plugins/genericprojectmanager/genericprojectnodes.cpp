@@ -42,18 +42,18 @@ using namespace GenericProjectManager::Internal;
 
 GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *projectFile)
     : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absolutePath()),
-      _project(project),
-      _projectFile(projectFile)
+      m_project(project),
+      m_projectFile(projectFile)
 {}
 
 GenericProjectNode::~GenericProjectNode()
 { }
 
 Core::IFile *GenericProjectNode::projectFile() const
-{ return _projectFile; }
+{ return m_projectFile; }
 
 QString GenericProjectNode::projectFilePath() const
-{ return _projectFile->fileName(); }
+{ return m_projectFile->fileName(); }
 
 void GenericProjectNode::refresh()
 {
@@ -65,22 +65,22 @@ void GenericProjectNode::refresh()
 
     ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
 
-    FileNode *projectFilesNode = new FileNode(_project->filesFileName(),
+    FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
                                               ProjectFileType,
                                               /* generated = */ false);
 
-    FileNode *projectIncludesNode = new FileNode(_project->includesFileName(),
+    FileNode *projectIncludesNode = new FileNode(m_project->includesFileName(),
                                                  ProjectFileType,
                                                  /* generated = */ false);
 
-    FileNode *projectConfigNode = new FileNode(_project->configFileName(),
+    FileNode *projectConfigNode = new FileNode(m_project->configFileName(),
                                                ProjectFileType,
                                                /* generated = */ false);
 
-    QStringList files = _project->files();
-    files.removeAll(_project->filesFileName());
-    files.removeAll(_project->includesFileName());
-    files.removeAll(_project->configFileName());
+    QStringList files = m_project->files();
+    files.removeAll(m_project->filesFileName());
+    files.removeAll(m_project->includesFileName());
+    files.removeAll(m_project->configFileName());
 
     addFileNodes(QList<FileNode *>()
                  << projectFilesNode
@@ -119,7 +119,7 @@ void GenericProjectNode::refresh()
         addFileNodes(fileNodes, folder);
     }
 
-    _folderByName.clear();
+    m_folderByName.clear();
 }
 
 ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const QStringList &components, int end)
@@ -138,11 +138,11 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     if (component.isEmpty())
         return this;
 
-    else if (FolderNode *folder = _folderByName.value(folderName))
+    else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
     FolderNode *folder = new FolderNode(component);
-    _folderByName.insert(folderName, folder);
+    m_folderByName.insert(folderName, folder);
 
     FolderNode *parent = findOrCreateFolderByName(components, end - 1);
     if (! parent)

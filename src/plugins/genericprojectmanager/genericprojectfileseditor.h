@@ -32,9 +32,9 @@ public:
     virtual Core::IFile *open(const QString &fileName);
 
 private:
-    Manager *_manager;
-    TextEditor::TextEditorActionHandler *_actionHandler;
-    QStringList _mimeTypes;
+    Manager *m_manager;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
+    QStringList m_mimeTypes;
 };
 
 class ProjectFilesEditable: public TextEditor::BaseTextEditorEditable
@@ -52,7 +52,7 @@ public:
     virtual Core::IEditor *duplicate(QWidget *parent);
 
 private:
-    QList<int> _context;
+    QList<int> m_context;
 };
 
 class ProjectFilesEditor: public TextEditor::BaseTextEditor
@@ -70,8 +70,8 @@ public:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 
 private:
-    ProjectFilesFactory *_factory;
-    TextEditor::TextEditorActionHandler *_actionHandler;
+    ProjectFilesFactory *m_factory;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 class ProjectFilesDocument: public TextEditor::BaseTextDocument
@@ -85,7 +85,7 @@ public:
     virtual bool save(const QString &name);
 
 private:
-    Manager *_manager;
+    Manager *m_manager;
 };
 
 } // end of namespace Internal

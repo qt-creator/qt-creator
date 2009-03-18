@@ -114,7 +114,7 @@ private:
     QString m_projectName;
 
     // TODO probably need a CMake specific node structure
-    CMakeProjectNode* m_rootNode;
+    CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeTarget> m_targets;
     ProjectExplorer::ToolChain *m_toolChain;

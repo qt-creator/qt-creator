@@ -42,18 +42,18 @@ using namespace GenericProjectManager::Internal;
 Manager::Manager()
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    _projectContext      = uidm->uniqueIdentifier(GenericProjectManager::Constants::PROJECTCONTEXT);
-    _projectLanguage     = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
+    m_projectContext  = uidm->uniqueIdentifier(GenericProjectManager::Constants::PROJECTCONTEXT);
+    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Manager::~Manager()
 { }
 
 int Manager::projectContext() const
-{ return _projectContext; }
+{ return m_projectContext; }
 
 int Manager::projectLanguage() const
-{ return _projectLanguage; }
+{ return m_projectLanguage; }
 
 QString Manager::mimeType() const
 { return QLatin1String(Constants::GENERICMIMETYPE); }
@@ -71,14 +71,14 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 }
 
 void Manager::registerProject(GenericProject *project)
-{ _projects.append(project); }
+{ m_projects.append(project); }
 
 void Manager::unregisterProject(GenericProject *project)
-{ _projects.removeAll(project); }
+{ m_projects.removeAll(project); }
 
 void Manager::notifyChanged(const QString &fileName)
 {
-    foreach (GenericProject *project, _projects) {
+    foreach (GenericProject *project, m_projects) {
         if (fileName == project->filesFileName()        ||
                 fileName == project->includesFileName() ||
                 fileName == project->configFileName())

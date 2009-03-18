@@ -96,7 +96,7 @@ class MakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
     virtual QString displayNameForName(const QString &name) const;
 };
 
-}
-}
+} // namespace Internal
+} // namespace GenericProjectManager
 
 #endif // MAKESTEP_H

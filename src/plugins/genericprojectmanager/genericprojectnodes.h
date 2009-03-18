@@ -76,9 +76,9 @@ private:
     FolderNode *findOrCreateFolderByName(const QStringList &components, int end);
 
 private:
-    GenericProject *_project;
-    Core::IFile *_projectFile;
-    QHash<QString, FolderNode *> _folderByName;
+    GenericProject *m_project;
+    Core::IFile *m_projectFile;
+    QHash<QString, FolderNode *> m_folderByName;
 };
 
 } // namespace Internal

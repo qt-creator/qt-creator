@@ -14,10 +14,10 @@ PkgConfigTool::~PkgConfigTool()
 
 QList<PkgConfigTool::Package> PkgConfigTool::packages() const
 {
-    if (_packages.isEmpty())
+    if (m_packages.isEmpty())
         packages_helper();
 
-    return _packages;
+    return m_packages;
 }
 
 void PkgConfigTool::packages_helper() const
@@ -95,7 +95,6 @@ void PkgConfigTool::packages_helper() const
             }
         }
 
-        _packages.append(package);
+        m_packages.append(package);
     }
 }
-
