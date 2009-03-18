@@ -979,9 +979,8 @@ bool CPPEditor::openEditorAt(Symbol *s)
 
     if (baseTextDocument()->fileName() == fileName) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->addCurrentPositionToNavigationHistory(true);
-        gotoLine(line, column);
         editorManager->addCurrentPositionToNavigationHistory();
+        gotoLine(line, column);
         setFocus();
         return true;
     }

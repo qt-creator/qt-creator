@@ -128,12 +128,11 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                           const QString &editorKind)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->addCurrentPositionToNavigationHistory(true);
+    editorManager->addCurrentPositionToNavigationHistory();
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, Core::EditorManager::IgnoreNavigationHistory);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);
-        editorManager->addCurrentPositionToNavigationHistory();
         return texteditor;
     }
     return 0;
@@ -565,6 +564,8 @@ Core::IFile *BaseTextEditor::file()
 void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
     d->m_contentsChanged = true;
+    // add last edit position to history
+    Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(true);
 
     // Keep the line numbers and the block information for the text marks updated
     if (charsRemoved != 0) {
