@@ -36,6 +36,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QAction>
@@ -76,7 +77,7 @@ Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
     ProFileEditor *rc = new ProFileEditor(parent, this, m_actionHandler);
-    rc->initialize();
+    TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }
 

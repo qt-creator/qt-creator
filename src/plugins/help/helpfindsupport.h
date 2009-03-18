@@ -34,6 +34,10 @@
 
 #include <find/ifindsupport.h>
 
+QT_BEGIN_NAMESPACE
+class HelpViewer;
+QT_END_NAMESPACE
+
 namespace Help {
 namespace Internal {
 
@@ -63,6 +67,31 @@ private:
     bool find(const QString &ttf, QTextDocument::FindFlags findFlags, bool incremental);
 
     CentralWidget *m_centralWidget;
+};
+
+class HelpViewerFindSupport : public Find::IFindSupport
+{
+    Q_OBJECT
+public:
+    HelpViewerFindSupport(HelpViewer *viewer);
+
+    bool isEnabled() const { return true; }
+    bool supportsReplace() const { return false; }
+    void resetIncrementalSearch() {}
+    void clearResults() {}
+    QString currentFindString() const;
+    QString completedFindString() const { return QString(); }
+
+    bool findIncremental(const QString &txt, QTextDocument::FindFlags findFlags);
+    bool findStep(const QString &txt, QTextDocument::FindFlags findFlags);
+    bool replaceStep(const QString &, const QString &,
+        QTextDocument::FindFlags ) { return false; }
+    int replaceAll(const QString &, const QString &,
+        QTextDocument::FindFlags ) { return 0; }
+
+private:
+    bool find(const QString &ttf, QTextDocument::FindFlags findFlags, bool incremental);
+    HelpViewer *m_viewer;
 };
 
 } // namespace Internal

@@ -30,7 +30,6 @@
 #include "cppplugin.h"
 #include "cppclasswizard.h"
 #include "cppeditor.h"
-#include "cppeditoractionhandler.h"
 #include "cppeditorconstants.h"
 #include "cppeditorenums.h"
 #include "cppfilewizard.h"
@@ -47,6 +46,8 @@
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 #include <cpptools/cpptoolsconstants.h>
 
@@ -60,9 +61,9 @@ static const char *sourceSuffixKeyC = "CppEditor/SourceSuffix";
 
 using namespace CppEditor::Internal;
 
-//////////////////////////// CppPluginEditorFactory /////////////////////////////
+//////////////////////////// CppEditorFactory /////////////////////////////
 
-CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
+CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
     m_kind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND)),
     m_owner(owner)
 {
@@ -77,18 +78,18 @@ CppPluginEditorFactory::CppPluginEditorFactory(CppPlugin *owner) :
                                         QLatin1String("h"));
 }
 
-QString CppPluginEditorFactory::kind() const
+QString CppEditorFactory::kind() const
 {
     return m_kind;
 }
 
-Core::IFile *CppPluginEditorFactory::open(const QString &fileName)
+Core::IFile *CppEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
     return iface ? iface->file() : 0;
 }
 
-Core::IEditor *CppPluginEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)
 {
     CPPEditor *editor = new CPPEditor(parent);
     editor->setRevisionsVisible(true);
@@ -97,7 +98,7 @@ Core::IEditor *CppPluginEditorFactory::createEditor(QWidget *parent)
     return editor->editableInterface();
 }
 
-QStringList CppPluginEditorFactory::mimeTypes() const
+QStringList CppEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
 }
@@ -128,25 +129,9 @@ CppPlugin *CppPlugin::instance()
 
 void CppPlugin::initializeEditor(CPPEditor *editor)
 {
-    // common actions
     m_actionHandler->setupActions(editor);
 
-    // settings
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    connect(settings, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
-            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
-    connect(settings, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-
-    // tab settings rely on font settings
-    editor->setFontSettings(settings->fontSettings());
-    editor->setTabSettings(settings->tabSettings());
-    editor->setStorageSettings(settings->storageSettings());
-    editor->setDisplaySettings(settings->displaySettings());
+    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
@@ -159,7 +144,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_factory = new CppPluginEditorFactory(this);
+    m_factory = new CppEditorFactory(this);
     addObject(m_factory);
 
     addAutoReleasedObject(new CppHoverHandler);
@@ -207,7 +192,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     am->actionContainer(CppEditor::Constants::M_CONTEXT)->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    m_actionHandler = new CPPEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);

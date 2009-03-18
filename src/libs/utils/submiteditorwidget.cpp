@@ -366,6 +366,7 @@ bool SubmitEditorWidget::hasCheckedFiles() const
 
 void SubmitEditorWidget::changeEvent(QEvent *e)
 {
+    QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_d->m_ui.retranslateUi(this);
