@@ -34,10 +34,12 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 using namespace Designer;
 using namespace Designer::Internal;
@@ -62,13 +64,22 @@ QString FormClassWizard::formSuffix() const
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
 }
 
+// Retrieve settings of CppTools plugin.
+static inline bool lowerCaseFiles()
+{
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+}
+
 QWizard *FormClassWizard::createWizardDialog(QWidget *parent,
                                              const QString &defaultPath,
                                              const WizardPageList &extensionPages) const
 {
     FormClassWizardDialog *wizardDialog = new FormClassWizardDialog(extensionPages,
                                                                     parent);
-    wizardDialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
     wizardDialog->setPath(defaultPath);
     return wizardDialog;
 }

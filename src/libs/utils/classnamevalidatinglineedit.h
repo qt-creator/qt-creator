@@ -46,6 +46,7 @@ class QWORKBENCH_UTILS_EXPORT ClassNameValidatingLineEdit
 {
     Q_DISABLE_COPY(ClassNameValidatingLineEdit)
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
+    Q_PROPERTY(bool lowerCaseFileName READ lowerCaseFileName WRITE setLowerCaseFileName)
     Q_OBJECT
 
 public:
@@ -54,6 +55,9 @@ public:
 
     bool namespacesEnabled() const;
     void setNamespacesEnabled(bool b);
+
+    bool lowerCaseFileName() const;
+    void setLowerCaseFileName(bool v);
 
     // Clean an input string to get a valid class name.
     static QString createClassName(const QString &name);

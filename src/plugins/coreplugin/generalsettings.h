@@ -47,7 +47,8 @@ class GeneralSettings : public IOptionsPage
 public:
     GeneralSettings();
 
-    QString name() const;
+    QString id() const;
+    QString trName() const;
     QString category() const;
     QString trCategory() const;
     QWidget* createPage(QWidget *parent);

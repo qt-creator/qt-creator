@@ -36,19 +36,24 @@
 
 using namespace Help::Internal;
     
-FilterSettingsPage::FilterSettingsPage(QHelpEngine *helpEngine)
+FilterSettingsPage::FilterSettingsPage(QHelpEngine *helpEngine) :
+    m_helpEngine(helpEngine)
 {
-    m_helpEngine = helpEngine;    
 }
 
-QString FilterSettingsPage::name() const
+QString FilterSettingsPage::id() const
 {
-    return "Filters";
+    return QLatin1String("Filters");
+}
+
+QString FilterSettingsPage::trName() const
+{
+    return tr("Filters");
 }
 
 QString FilterSettingsPage::category() const
 {
-    return "Help";
+    return QLatin1String("Help");
 }
 
 QString FilterSettingsPage::trCategory() const

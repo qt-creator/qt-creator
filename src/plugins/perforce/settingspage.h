@@ -66,7 +66,8 @@ class SettingsPage : public Core::IOptionsPage
 public:
     SettingsPage();
 
-    QString name() const;
+    QString id() const;
+    QString trName() const;
     QString category() const;
     QString trCategory() const;
 

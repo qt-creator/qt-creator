@@ -56,9 +56,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 
-static const char *headerSuffixKeyC = "CppEditor/HeaderSuffix";
-static const char *sourceSuffixKeyC = "CppEditor/SourceSuffix";
-
 using namespace CppEditor::Internal;
 
 //////////////////////////// CppEditorFactory /////////////////////////////
@@ -197,18 +194,6 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
-    // Check Suffixes
-    if (const QSettings *settings = core->settings()) {
-        const QString headerSuffixKey = QLatin1String(headerSuffixKeyC);
-        if (settings->contains(headerSuffixKey)) {
-            const QString headerSuffix = settings->value(headerSuffixKey, QString()).toString();
-            if (!headerSuffix.isEmpty())
-                core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE), headerSuffix);
-            const QString sourceSuffix = settings->value(QLatin1String(sourceSuffixKeyC), QString()).toString();
-            if (!sourceSuffix.isEmpty())
-                core->mimeDatabase()->setPreferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE), sourceSuffix);
-        }
-    }
     return true;
 }
 

@@ -49,6 +49,10 @@ public:
                    const QString &initialPage = QString());
     ~SettingsDialog();
 
+    // Run the dialog and return true if 'Ok' was choosen or 'Apply' was invoked
+    // at least once
+    bool execDialog();
+
 private slots:
     void pageSelected(QTreeWidgetItem *cat);
     void accept();
@@ -57,6 +61,7 @@ private slots:
 
 private:
     QList<Core::IOptionsPage*> m_pages;
+    bool m_applied;
 };
 
 } // namespace Internal

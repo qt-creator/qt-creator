@@ -132,7 +132,9 @@ public slots:
                                   const QList<IWizard *> &wizards,
                                   const QString &defaultLocation = QString());
 
-    void showOptionsDialog(const QString &category = QString(), const QString &page = QString());
+    bool showOptionsDialog(const QString &category = QString(),
+                           const QString &page = QString(),
+                           QWidget *parent = 0);
 
 protected:
     virtual void changeEvent(QEvent *e);

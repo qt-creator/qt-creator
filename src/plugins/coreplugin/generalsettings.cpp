@@ -43,7 +43,12 @@ GeneralSettings::GeneralSettings():
 {
 }
 
-QString GeneralSettings::name() const
+QString GeneralSettings::id() const
+{
+    return QLatin1String("General");
+}
+
+QString GeneralSettings::trName() const
 {
     return tr("General");
 }

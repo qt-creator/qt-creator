@@ -72,6 +72,9 @@ public:
     QColor errorColor() const;
     void setErrorColor(const  QColor &);
 
+    // Trigger an update (after changing settings)
+    void triggerChanged();
+
     static QColor textColor(const QWidget *w);
     static void setTextColor(QWidget *w, const QColor &c);
 

@@ -30,6 +30,8 @@
 #ifndef CPPTOOLSCONSTANTS_H
 #define CPPTOOLSCONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace CppTools {
 namespace Constants {
 
@@ -40,6 +42,14 @@ const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+
+// QSettings keys for use by the "New Class" wizards.
+const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
+const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
+enum { lowerCaseFilesDefault = 1 };
+
+const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File naming conventions");
+const char * const CPP_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
 
 } // namespace Constants
 } // namespace CppTools

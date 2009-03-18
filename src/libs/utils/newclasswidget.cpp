@@ -84,7 +84,7 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
     m_d->m_ui.baseClassComboBox->setEditable(false);
 
     connect(m_d->m_ui.classLineEdit, SIGNAL(updateFileName(QString)),
-            this, SLOT(updateFileNames(QString)));
+            this, SLOT(slotUpdateFileNames(QString)));
     connect(m_d->m_ui.classLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(classNameEdited()));
     connect(m_d->m_ui.baseClassComboBox, SIGNAL(currentIndexChanged(int)),
@@ -357,6 +357,16 @@ void NewClassWidget::setAllowDirectories(bool v)
     }
 }
 
+bool NewClassWidget::lowerCaseFiles() const
+{
+    return m_d->m_ui.classLineEdit->lowerCaseFileName();
+}
+
+void NewClassWidget::setLowerCaseFiles(bool v)
+{
+    m_d->m_ui.classLineEdit->setLowerCaseFileName(v);
+}
+
 void NewClassWidget::slotValidChanged()
 {
     const bool newValid = isValid();
@@ -415,7 +425,12 @@ bool NewClassWidget::isValid(QString *error) const
     return true;
 }
 
-void NewClassWidget::updateFileNames(const QString &baseName)
+void NewClassWidget::triggerUpdateFileNames()
+{
+    m_d->m_ui.classLineEdit->triggerChanged();
+}
+
+void NewClassWidget::slotUpdateFileNames(const QString &baseName)
 {
     if (debugNewClassWidget)
         qDebug() << Q_FUNC_INFO << baseName << m_d->m_headerExtension << m_d->m_sourceExtension;

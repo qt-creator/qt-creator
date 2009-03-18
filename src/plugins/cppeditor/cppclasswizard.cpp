@@ -30,6 +30,10 @@
 #include "cppclasswizard.h"
 #include "cppeditorconstants.h"
 
+#include <cpptools/cpptoolsconstants.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+
 #include <utils/codegeneration.h>
 #include <utils/newclasswidget.h>
 #include <utils/qtcassert.h>
@@ -37,19 +41,21 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
+#include <QtCore/QSettings>
 
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
+#include <QtGui/QSpacerItem>
 #include <QtGui/QWizard>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 
-
 // ========= ClassNamePage =========
 
-ClassNamePage::ClassNamePage(const QString &sourceSuffix,
-                             const QString &headerSuffix,
-                             QWidget *parent) :
+ClassNamePage::ClassNamePage(QWidget *parent) :
     QWizardPage(parent),
     m_isValid(false)
 {
@@ -58,8 +64,6 @@ ClassNamePage::ClassNamePage(const QString &sourceSuffix,
 
     m_newClassWidget = new Core::Utils::NewClassWidget;
     // Order, set extensions first before suggested name is derived
-    m_newClassWidget->setHeaderExtension(headerSuffix);
-    m_newClassWidget->setSourceExtension(sourceSuffix);
     m_newClassWidget->setBaseClassInputVisible(true);
     m_newClassWidget->setBaseClassChoices(QStringList() << QString()
             << QLatin1String("QObject")
@@ -70,11 +74,51 @@ ClassNamePage::ClassNamePage(const QString &sourceSuffix,
     m_newClassWidget->setNamespacesEnabled(true);
     m_newClassWidget->setAllowDirectories(true);
 
-    connect(m_newClassWidget, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
+    connect(m_newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 
-    QVBoxLayout *pageLayout = new QVBoxLayout(this);
+    QVBoxLayout *pageLayout = new QVBoxLayout(this);   
     pageLayout->addWidget(m_newClassWidget);
+    QSpacerItem *vSpacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
+    pageLayout->addItem(vSpacer);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    pageLayout->addLayout(buttonLayout);
+    QSpacerItem *hSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored);
+    buttonLayout->addItem(hSpacer);
+    QToolButton *settingsButton = new QToolButton;
+    settingsButton->setText(tr("Configure..."));
+    connect(settingsButton, SIGNAL(clicked()), this, SLOT(slotSettings()));
+    buttonLayout->addWidget(settingsButton);
+    initParameters();
+}
+
+// Retrieve settings of CppTools plugin.
+static inline bool lowerCaseFiles(const Core::ICore *core)
+{
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return core->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+}
+
+// Set up new class widget from settings
+void ClassNamePage::initParameters()
+{
+    Core::ICore *core = Core::ICore::instance();
+    const Core::MimeDatabase *mdb = core->mimeDatabase();
+    m_newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)));
+    m_newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)));
+    m_newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
+}
+
+void ClassNamePage::slotSettings()
+{
+    const QString id = QLatin1String(CppTools::Constants::CPP_SETTINGS_ID);
+    const QString cat = QLatin1String(CppTools::Constants::CPP_SETTINGS_CATEGORY);
+    if (Core::ICore::instance()->showOptionsDialog(cat, id, this)) {
+        initParameters();
+        m_newClassWidget->triggerUpdateFileNames();
+    }
 }
 
 void ClassNamePage::slotValidChanged()
@@ -86,11 +130,9 @@ void ClassNamePage::slotValidChanged()
     }
 }
 
-CppClassWizardDialog::CppClassWizardDialog(const QString &sourceSuffix,
-                                           const QString &headerSuffix,
-                                           QWidget *parent) :
+CppClassWizardDialog::CppClassWizardDialog(QWidget *parent) :
     QWizard(parent),
-    m_classNamePage(new ClassNamePage(sourceSuffix, headerSuffix, this))
+    m_classNamePage(new ClassNamePage(this))
 {
     Core::BaseFileWizard::setupWizard(this);
     setWindowTitle(tr("C++ Class Wizard"));
@@ -136,7 +178,7 @@ QWizard *CppClassWizard::createWizardDialog(QWidget *parent,
                                             const QString &defaultPath,
                                             const WizardPageList &extensionPages) const
 {
-    CppClassWizardDialog *wizard = new CppClassWizardDialog(sourceSuffix(), headerSuffix(), parent);
+    CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
     foreach (QWizardPage *p, extensionPages)
         wizard->addPage(p);
     wizard->setPath(defaultPath);

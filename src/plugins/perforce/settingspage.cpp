@@ -31,6 +31,9 @@
 #include "perforcesettings.h"
 #include "perforceplugin.h"
 
+#include <vcsbase/vcsbaseconstants.h>
+
+#include <QtCore/QCoreApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
 
@@ -83,19 +86,24 @@ SettingsPage::SettingsPage()
 {
 }
 
-QString SettingsPage::name() const
-{
-    return tr("General");
-}
-
-QString SettingsPage::category() const
+QString SettingsPage::id() const
 {
     return QLatin1String("Perforce");
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::trName() const
 {
     return tr("Perforce");
+}
+
+QString SettingsPage::category() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
+}
+
+QString SettingsPage::trCategory() const
+{
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

@@ -70,8 +70,9 @@ public:
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation = QString()) = 0;
 
-    virtual void showOptionsDialog(const QString &group = QString(),
-                                   const QString &page = QString()) = 0;
+    virtual bool showOptionsDialog(const QString &group = QString(),
+                                   const QString &page = QString(),
+                                   QWidget *parent = 0) = 0;
 
     virtual ActionManager *actionManager() const = 0;
     virtual FileManager *fileManager() const = 0;

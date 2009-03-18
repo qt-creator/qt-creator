@@ -234,15 +234,19 @@ QString CMakeSettingsPage::findCmakeExecutable() const
     return env.searchInPath("cmake");
 }
 
-
-QString CMakeSettingsPage::name() const
+QString CMakeSettingsPage::id() const
 {
-    return "CMake";
+    return QLatin1String("CMake");
+}
+
+QString CMakeSettingsPage::trName() const
+{
+    return tr("CMake");
 }
 
 QString CMakeSettingsPage::category() const
 {
-    return "CMake";
+    return QLatin1String("CMake");
 }
 
 QString CMakeSettingsPage::trCategory() const

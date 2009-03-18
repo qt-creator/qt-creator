@@ -27,42 +27,74 @@
 **
 **************************************************************************/
 
-#ifndef DESIGNER_SETTINGSPAGE_H
-#define DESIGNER_SETTINGSPAGE_H
+#ifndef CPPSETTINGSPAGE_H
+#define CPPSETTINGSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QDesignerOptionsPageInterface;
+namespace Ui {
+    class CppFileSettingsPage;
+}
+class QSettings;
 QT_END_NAMESPACE
 
-namespace Designer {
+namespace CppTools {
 namespace Internal {
 
-class SettingsPageWidget;
+struct CppFileSettings {
+    CppFileSettings();
 
-class SettingsPage : public Core::IOptionsPage
-{
+    QString headerSuffix;
+    QString sourceSuffix;
+    bool lowerCaseFiles;
+
+    void toSettings(QSettings *) const;
+    void fromSettings(QSettings *);
+    void applySuffixesToMimeDB();
+
+    bool equals(const CppFileSettings &rhs) const;
+};
+
+inline bool operator==(const CppFileSettings &s1, const CppFileSettings &s2) { return s1.equals(s2); }
+inline bool operator!=(const CppFileSettings &s1, const CppFileSettings &s2) { return !s1.equals(s2); }
+
+class CppFileSettingsWidget : public QWidget {
     Q_OBJECT
-
 public:
-    explicit SettingsPage(QDesignerOptionsPageInterface *designerPage);
-    virtual ~SettingsPage();
+    explicit CppFileSettingsWidget(QWidget *parent = 0);
+    virtual ~CppFileSettingsWidget();
 
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
+    CppFileSettings settings() const;
+    void setSettings(const CppFileSettings &s);
+
+private:
+    Ui::CppFileSettingsPage *m_ui;
+};
+
+class CppFileSettingsPage : public Core::IOptionsPage
+{
+public:
+    explicit CppFileSettingsPage(QObject *parent = 0);
+    virtual ~CppFileSettingsPage();
+
+    virtual QString id() const;
+    virtual QString trName() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
-    virtual void finish();
+    virtual void finish() { }
 
 private:
-    QDesignerOptionsPageInterface *m_designerPage;
+    QPointer<CppFileSettingsWidget> m_widget;
+    CppFileSettings m_settings;
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace CppTools
 
-#endif // DESIGNER_SETTINGSPAGE_H
+#endif // CPPSETTINGSPAGE_H

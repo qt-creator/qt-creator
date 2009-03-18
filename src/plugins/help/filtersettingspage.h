@@ -47,7 +47,8 @@ class FilterSettingsPage : public Core::IOptionsPage
 public:
     FilterSettingsPage(QHelpEngine *helpEngine);
 
-    QString name() const;
+    QString id() const;
+    QString trName() const;
     QString category() const;
     QString trCategory() const;
 

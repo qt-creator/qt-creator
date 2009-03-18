@@ -11,11 +11,11 @@ SOURCES     = customwidgets.cpp
 
 linux-* {
   # form abs path to qtcreator lib dir
-  GH_LIB=$$dirname(PWD)
-  GH_LIB=$$dirname(GH_LIB)
-  GH_LIB=$$dirname(GH_LIB)
-  GH_LIB=$$GH_LIB/lib
-  QMAKE_RPATHDIR *= $$GH_LIB
+  QTC_LIBS=$$dirname(PWD)
+  QTC_LIBS=$$dirname(QTC_LIBS)
+  QTC_LIBS=$$dirname(QTC_LIBS)
+  QTC_LIBS=$$QTC_LIBS/lib/qtcreator
+  QMAKE_RPATHDIR *= $$QTC_LIBS
 }
 
 INCLUDEPATH += ../../../src/libs
@@ -24,7 +24,7 @@ macx {
     CONFIG(debug, debug|release):LIBS += -lUtils_debug
     else:LIBS += -lUtils
 } else {
-    LIBS += -L../../../lib -lUtils
+    LIBS += -L$$QTC_LIBS -lUtils
 }
 
 DESTDIR= $$[QT_INSTALL_PLUGINS]/designer

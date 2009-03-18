@@ -39,7 +39,7 @@ using namespace Core::Internal;
 
 SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
                                const QString &initialPage)
-    : QDialog(parent)
+    : QDialog(parent), m_applied(false)
 {
     setupUi(this);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -60,7 +60,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     int index = 0;
     foreach (IOptionsPage *page, pages) {
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setText(0, page->name());
+        item->setText(0, page->trName());
         item->setData(0, Qt::UserRole, index);
 
         QStringList categoriesId = page->category().split(QLatin1Char('|'));
@@ -94,7 +94,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
         m_pages.append(page);
         stackedPages->addWidget(page->createPage(stackedPages));
 
-        if (page->name() == initialPage && currentCategory == initialCategory) {
+        if (page->id() == initialPage && currentCategory == initialCategory) {
             stackedPages->setCurrentIndex(stackedPages->count());
             pageTree->setCurrentItem(item);
         }
@@ -123,6 +123,7 @@ void SettingsDialog::pageSelected(QTreeWidgetItem *)
 
 void SettingsDialog::accept()
 {
+    m_applied = true;
     foreach (IOptionsPage *page, m_pages) {
         page->apply();
         page->finish();
@@ -141,4 +142,12 @@ void SettingsDialog::apply()
 {
     foreach (IOptionsPage *page, m_pages)
         page->apply();
+    m_applied = true;
+}
+
+bool SettingsDialog::execDialog()
+{
+    m_applied = false;
+    exec();
+    return m_applied;
 }

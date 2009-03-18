@@ -39,7 +39,11 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title)
-    : ProjectExplorer::ApplicationRunConfiguration(pro), m_runMode(Gui), m_target(target), m_workingDirectory(workingDirectory), m_title(title)
+    : ProjectExplorer::ApplicationRunConfiguration(pro)
+    , m_runMode(Gui)
+    , m_target(target)
+    , m_workingDirectory(workingDirectory)
+    , m_title(title)
 {
     setName(title);
 }

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "settingspage.h"
+#include "quickopenconstants.h"
 
 #include "quickopenplugin.h"
 #include "iquickopenfilter.h"
@@ -35,6 +36,8 @@
 
 #include <qtconcurrent/QtConcurrentTools>
 #include <utils/qtcassert.h>
+
+#include <QtCore/QCoreApplication>
 
 Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*)
 
@@ -44,6 +47,26 @@ using namespace QuickOpen::Internal;
 SettingsPage::SettingsPage(QuickOpenPlugin *plugin)
     : m_plugin(plugin), m_page(0)
 {
+}
+
+QString SettingsPage::id() const
+{
+    return QLatin1String(Constants::FILTER_OPTIONS_PAGE);
+}
+
+QString SettingsPage::trName() const
+{
+    return QCoreApplication::translate("Locator", QuickOpen::Constants::FILTER_OPTIONS_PAGE);
+}
+
+QString SettingsPage::category() const
+{
+    return Constants::QUICKOPEN_CATEGORY;
+}
+
+QString SettingsPage::trCategory() const
+{
+    return QCoreApplication::translate("Locator", QuickOpen::Constants::QUICKOPEN_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

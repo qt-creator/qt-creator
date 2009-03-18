@@ -54,6 +54,7 @@ using ProjectExplorer::PersistentSettingsWriter;
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
     : ApplicationRunConfiguration(pro),
       m_proFilePath(proFilePath),
+      m_runMode(Gui),
       m_userSetName(false),
       m_configWidget(0),
       m_executableLabel(0),
@@ -111,11 +112,11 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::ApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 
-    connect(m_argumentsLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(setCommandLineArguments(const QString&)));
+    connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(setCommandLineArguments(QString)));
 
-    connect(m_nameLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(nameEdited(const QString&)));
+    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(nameEdited(QString)));
 
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));

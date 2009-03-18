@@ -43,13 +43,15 @@ struct ClassNameValidatingLineEditPrivate {
     const QRegExp m_nameRegexp;
     const QString m_namespaceDelimiter;
     bool m_namespacesEnabled;
+    bool m_lowerCaseFileName;
 };
 
 // Match something like "Namespace1::Namespace2::ClassName".
 ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
     m_nameRegexp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*")),
     m_namespaceDelimiter(QLatin1String("::")),
-    m_namespacesEnabled(false)
+    m_namespacesEnabled(false),
+    m_lowerCaseFileName(true)
 {
     QTC_ASSERT(m_nameRegexp.isValid(), return);
 }
@@ -96,7 +98,7 @@ void ClassNameValidatingLineEdit::slotChanged(const QString &t)
     Core::Utils::BaseValidatingLineEdit::slotChanged(t);
     if (isValid()) {
         // Suggest file names, strip namespaces
-        QString fileName = t.toLower();
+        QString fileName = m_d->m_lowerCaseFileName ? t.toLower() : t;
         if (m_d->m_namespacesEnabled) {
             const int namespaceIndex = fileName.lastIndexOf(m_d->m_namespaceDelimiter);
             if (namespaceIndex != -1)
@@ -130,6 +132,16 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     }
 
     return className;
+}
+
+bool ClassNameValidatingLineEdit::lowerCaseFileName() const
+{
+    return m_d->m_lowerCaseFileName;
+}
+
+void ClassNameValidatingLineEdit::setLowerCaseFileName(bool v)
+{
+    m_d->m_lowerCaseFileName = v;
 }
 
 } // namespace Utils

@@ -42,6 +42,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QToolButton" name="settingsToolButton">
+       <property name="text">
+        <string>Configure...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="moreButton">
        <property name="text">
         <string>More</string>
