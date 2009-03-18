@@ -977,5 +977,14 @@ bool CPPEditor::openEditorAt(Symbol *s)
     if (s->isGenerated())
         column = 0;
 
+    if (baseTextDocument()->fileName() == fileName) {
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->addCurrentPositionToNavigationHistory(true);
+        gotoLine(line, column);
+        editorManager->addCurrentPositionToNavigationHistory();
+        setFocus();
+        return true;
+    }
+
     return openCppEditorAt(fileName, line, column);
 }
