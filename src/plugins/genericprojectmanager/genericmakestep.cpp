@@ -30,6 +30,7 @@
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
 #include "genericproject.h"
+#include "ui_genericmakestep.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -98,11 +99,21 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
 
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
-    if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
-        setCommand(buildConfiguration, toolChain->makeCommand());
-    else
-        setCommand(buildConfiguration, "make");
-    setArguments(buildConfiguration, value(buildConfiguration, "buildTargets").toStringList()); // TODO
+
+    QString command = value(buildConfiguration, "makeCommand").toString();
+    if (command.isEmpty()) {
+        if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
+            command = toolChain->makeCommand();
+        else
+            command = QLatin1String("make");
+    }
+    setCommand(buildConfiguration, command);
+
+    const QStringList targets = value(buildConfiguration, "buildTargets").toStringList();
+    QStringList arguments = value(buildConfiguration, "makeArguments").toStringList();
+    arguments.append(targets);
+    setArguments(buildConfiguration, arguments);
+
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);
 }
@@ -231,25 +242,23 @@ void GenericMakeStep::setBuildTarget(const QString &buildConfiguration, const QS
 GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeStep)
     : m_makeStep(makeStep)
 {
-    QFormLayout *fl = new QFormLayout(this);
-    setLayout(fl);
-
-    m_targetsList = new QListWidget;
-    fl->addRow("Targets:", m_targetsList);
+    m_ui = new Ui::GenericMakeStep;
+    m_ui->setupUi(this);
 
     // TODO update this list also on rescans of the GenericLists.txt
     GenericProject *pro = m_makeStep->project();
-    foreach(const QString& target, pro->targets()) {
-        QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
+    foreach (const QString &target, pro->targets()) {
+        QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
     }
-    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-}
 
-void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
-{
-    m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
+    connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)),
+            this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(m_ui->makeLineEdit, SIGNAL(textEdited(const QString&)),
+            this, SLOT(makeLineEditTextEdited()));
+    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+            this, SLOT(makeArgumentsLineEditTextEdited()));
 }
 
 QString GenericMakeStepConfigWidget::displayName() const
@@ -259,18 +268,48 @@ QString GenericMakeStepConfigWidget::displayName() const
 
 void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
 {
-    // TODO
-
-    // disconnect to make the changes to the items
-    disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildConfiguration = buildConfiguration;
-    int count = m_targetsList->count();
-    for(int i = 0; i < count; ++i) {
-        QListWidgetItem *item = m_targetsList->item(i);
+
+    // TODO: Label should update when tool chain is changed
+    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->command(buildConfiguration)));
+
+    const QString &makeCommand = m_makeStep->value(buildConfiguration, "makeCommand").toString();
+    m_ui->makeLineEdit->setText(makeCommand);
+
+    const QStringList &makeArguments =
+            m_makeStep->value(buildConfiguration, "makeArguments").toStringList();
+    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+
+    // Disconnect to make the changes to the items
+    disconnect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+
+    int count = m_ui->targetsList->count();
+    for (int i = 0; i < count; ++i) {
+        QListWidgetItem *item = m_ui->targetsList->item(i);
         item->setCheckState(m_makeStep->buildsTarget(buildConfiguration, item->text()) ? Qt::Checked : Qt::Unchecked);
     }
+
     // and connect again
-    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+}
+
+void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
+{
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
+    m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
+}
+
+void GenericMakeStepConfigWidget::makeLineEditTextEdited()
+{
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
+    m_makeStep->setValue(m_buildConfiguration, "makeCommand", m_ui->makeLineEdit->text());
+}
+
+void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
+{
+    QTC_ASSERT(!m_buildConfiguration.isNull(), return);
+    m_makeStep->setValue(m_buildConfiguration, "makeArguments",
+                         ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
 }
 
 //

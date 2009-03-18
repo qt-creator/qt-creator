@@ -20,3 +20,4 @@ SOURCES = genericproject.cpp \
     pkgconfigtool.cpp \
     genericmakestep.cpp
 RESOURCES += genericproject.qrc
+FORMS += genericmakestep.ui

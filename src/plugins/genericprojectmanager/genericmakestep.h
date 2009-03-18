@@ -27,16 +27,18 @@
 **
 **************************************************************************/
 
-#ifndef MAKESTEP_H
-#define MAKESTEP_H
+#ifndef GENERICMAKESTEP_H
+#define GENERICMAKESTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QListWidget;
 class QListWidgetItem;
 QT_END_NAMESPACE
+
+namespace Ui {
+class GenericMakeStep;
+}
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -82,10 +84,12 @@ public:
     virtual void init(const QString &buildConfiguration);
 private slots:
     void itemChanged(QListWidgetItem*);
+    void makeLineEditTextEdited();
+    void makeArgumentsLineEditTextEdited();
 private:
     QString m_buildConfiguration;
+    Ui::GenericMakeStep *m_ui;
     GenericMakeStep *m_makeStep;
-    QListWidget *m_targetsList;
 };
 
 class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
@@ -99,4 +103,4 @@ class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 } // namespace Internal
 } // namespace GenericProjectManager
 
-#endif // MAKESTEP_H
+#endif // GENERICMAKESTEP_H
