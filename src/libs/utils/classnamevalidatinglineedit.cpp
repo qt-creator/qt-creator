@@ -51,7 +51,7 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
     m_nameRegexp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*")),
     m_namespaceDelimiter(QLatin1String("::")),
     m_namespacesEnabled(false),
-    m_lowerCaseFileName(false)
+    m_lowerCaseFileName(true)
 {
     QTC_ASSERT(m_nameRegexp.isValid(), return);
 }

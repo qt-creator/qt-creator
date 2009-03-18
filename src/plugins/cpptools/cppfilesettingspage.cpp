@@ -64,7 +64,8 @@ void CppFileSettings::fromSettings(QSettings *s)
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
     headerSuffix= s->value(QLatin1String(headerSuffixKeyC), QLatin1String("h")).toString();
     sourceSuffix = s->value(QLatin1String(sourceSuffixKeyC), QLatin1String("cpp")).toString();
-    lowerCaseFiles = s->value(QLatin1String(Constants::LOWERCASE_CPPFILES_KEY), QVariant(true)).toBool();
+    const bool lowerCaseDefault = Constants::lowerCaseFilesDefault;
+    lowerCaseFiles = s->value(QLatin1String(Constants::LOWERCASE_CPPFILES_KEY), QVariant(lowerCaseDefault)).toBool();
     s->endGroup();
 }
 

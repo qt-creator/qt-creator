@@ -84,6 +84,7 @@ static inline bool lowerCaseFiles(const Core::ICore *core)
     QString camelCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
     camelCaseSettingsKey += QLatin1Char('/');
     camelCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+
     return core->settings()->value(camelCaseSettingsKey, QVariant(false)).toBool();
 }
 

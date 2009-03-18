@@ -67,10 +67,11 @@ QString FormClassWizard::formSuffix() const
 // Retrieve settings of CppTools plugin.
 static inline bool lowerCaseFiles()
 {
-    QString camelCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
-    camelCaseSettingsKey += QLatin1Char('/');
-    camelCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-    return Core::ICore::instance()->settings()->value(camelCaseSettingsKey, QVariant(false)).toBool();
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 QWizard *FormClassWizard::createWizardDialog(QWidget *parent,

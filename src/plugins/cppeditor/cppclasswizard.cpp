@@ -94,10 +94,11 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
 // Retrieve settings of CppTools plugin.
 static inline bool lowerCaseFiles(const Core::ICore *core)
 {
-    QString camelCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
-    camelCaseSettingsKey += QLatin1Char('/');
-    camelCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
-    return core->settings()->value(camelCaseSettingsKey, QVariant(false)).toBool();
+    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
+    lowerCaseSettingsKey += QLatin1Char('/');
+    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
+    return core->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 // Set up new class widget from settings
