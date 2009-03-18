@@ -87,7 +87,11 @@ HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
 QString HelpViewerFindSupport::currentFindString() const
 {
     QTC_ASSERT(m_viewer, return QString());
+#if !defined(QT_NO_WEBKIT)   
     return m_viewer->selectedText();
+#else
+    return QString();
+#endif
 }
 
 bool HelpViewerFindSupport::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
@@ -116,9 +120,9 @@ bool HelpViewerFindSupport::find(const QString &txt, QTextDocument::FindFlags fi
 
     return m_viewer->findText(txt, options);
 #else
-    QTextCursor cursor = viewer->textCursor();
-    QTextDocument *doc = viewer->document();
-    QTextBrowser *browser = qobject_cast<QTextBrowser*>(viewer);
+    QTextCursor cursor = m_viewer->textCursor();
+    QTextDocument *doc = m_viewer->document();
+    QTextBrowser *browser = qobject_cast<QTextBrowser*>(m_viewer);
 
     if (!browser || !doc || cursor.isNull())
         return false;
@@ -137,7 +141,7 @@ bool HelpViewerFindSupport::find(const QString &txt, QTextDocument::FindFlags fi
         }
     }
     if (!found.isNull()) {
-        viewer->setTextCursor(found);
+        m_viewer->setTextCursor(found);
     }
     return true;
 #endif
