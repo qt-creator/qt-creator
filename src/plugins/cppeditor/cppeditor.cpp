@@ -185,6 +185,7 @@ CPPEditor::CPPEditor(QWidget *parent)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
+    setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 //    new QShortcut(QKeySequence("Ctrl+Alt+M"), this, SLOT(foo()), 0, Qt::WidgetShortcut);

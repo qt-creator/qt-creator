@@ -414,6 +414,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
 
+#ifdef Q_OS_MAC
+    // Show in Finder action
+    m_showInFinder = new QAction(tr("Show in Finder..."), this);
+    cmd = am->registerAction(m_showInFinder, ProjectExplorer::Constants::SHOWINFINDER,
+                       globalcontext);
+    mfilec->addAction(cmd, Constants::G_FILE_OPEN);
+#endif
+
     // Open With menu
     mfilec->addMenu(openWith, ProjectExplorer::Constants::G_FILE_OPEN);
 
@@ -625,6 +633,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
     connect(m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+#ifdef Q_OS_MAC
+    connect(m_showInFinder, SIGNAL(triggered()), this, SLOT(showInFinder()));
+#endif
     connect(m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
     connect(m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
 
@@ -1624,6 +1635,21 @@ void ProjectExplorerPlugin::openFile()
     em->openEditor(m_currentNode->path());
     em->ensureEditorManagerVisible();
 }
+
+#ifdef Q_OS_MAC
+void ProjectExplorerPlugin::showInFinder()
+{
+    if (!m_currentNode)
+        return;
+    QProcess::execute("/usr/bin/osascript", QStringList()
+                      << "-e"
+                      << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
+                      .arg(m_currentNode->path()));
+    QProcess::execute("/usr/bin/osascript", QStringList()
+                      << "-e"
+                      << "tell application \"Finder\" to activate");
+}
+#endif
 
 void ProjectExplorerPlugin::removeFile()
 {

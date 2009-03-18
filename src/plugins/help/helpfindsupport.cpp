@@ -78,3 +78,71 @@ bool HelpFindSupport::findStep(const QString &txt, QTextDocument::FindFlags find
     QTC_ASSERT(m_centralWidget, return false);
     return m_centralWidget->find(txt, findFlags, false);
 }
+
+HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
+        : m_viewer(viewer)
+{
+}
+
+QString HelpViewerFindSupport::currentFindString() const
+{
+    QTC_ASSERT(m_viewer, return QString());
+#if !defined(QT_NO_WEBKIT)   
+    return m_viewer->selectedText();
+#else
+    return QString();
+#endif
+}
+
+bool HelpViewerFindSupport::findIncremental(const QString &txt, QTextDocument::FindFlags findFlags)
+{
+    QTC_ASSERT(m_viewer, return false);
+    findFlags &= ~QTextDocument::FindBackward;
+    return find(txt, findFlags, true);
+}
+
+bool HelpViewerFindSupport::findStep(const QString &txt, QTextDocument::FindFlags findFlags)
+{
+    QTC_ASSERT(m_viewer, return false);
+    return find(txt, findFlags, false);
+}
+
+bool HelpViewerFindSupport::find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental)
+{
+    QTC_ASSERT(m_viewer, return false);
+#if !defined(QT_NO_WEBKIT)
+    Q_UNUSED(incremental);
+    QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
+    if (findFlags & QTextDocument::FindBackward)
+        options |= QWebPage::FindBackward;
+    if (findFlags & QTextDocument::FindCaseSensitively)
+        options |= QWebPage::FindCaseSensitively;
+
+    return m_viewer->findText(txt, options);
+#else
+    QTextCursor cursor = m_viewer->textCursor();
+    QTextDocument *doc = m_viewer->document();
+    QTextBrowser *browser = qobject_cast<QTextBrowser*>(m_viewer);
+
+    if (!browser || !doc || cursor.isNull())
+        return false;
+    if (incremental)
+        cursor.setPosition(cursor.selectionStart());
+
+    QTextCursor found = doc->find(txt, cursor, findFlags);
+    if (found.isNull()) {
+        if ((findFlags&QTextDocument::FindBackward) == 0)
+            cursor.movePosition(QTextCursor::Start);
+        else
+            cursor.movePosition(QTextCursor::End);
+        found = doc->find(txt, cursor, findFlags);
+        if (found.isNull()) {
+            return false;
+        }
+    }
+    if (!found.isNull()) {
+        m_viewer->setTextCursor(found);
+    }
+    return true;
+#endif
+}

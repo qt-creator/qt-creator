@@ -36,6 +36,7 @@
 
 namespace TextEditor {
 
+class BaseTextEditor;
 class BehaviorSettingsPage;
 class DisplaySettingsPage;
 class FontSettingsPage;
@@ -58,6 +59,8 @@ public:
     ~TextEditorSettings();
 
     static TextEditorSettings *instance();
+
+    void initializeEditor(BaseTextEditor *editor);
 
     FontSettings fontSettings() const;
     TabSettings tabSettings() const;

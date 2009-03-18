@@ -132,7 +132,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBoxUseCustomDumpers">
+    <widget class="QCheckBox" name="checkBoxUseDumpers">
      <property name="toolTip">
       <string>Checking this will make the debugger try to use code to format certain data (QObject, QString, std::string etc.) nicely.</string>
      </property>

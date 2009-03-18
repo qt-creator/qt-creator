@@ -17,6 +17,7 @@ QT += gui network script
 HEADERS += \
     breakhandler.h \
     breakwindow.h \
+    debuggeractions.h \
     debuggerconstants.h \
     debuggerdialogs.h \
     debuggermanager.h \
@@ -47,6 +48,7 @@ SOURCES += \
     breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
+    debuggeractions.cpp \
     debuggerdialogs.cpp \
     debuggermanager.cpp \
     debuggeroutputwindow.cpp \

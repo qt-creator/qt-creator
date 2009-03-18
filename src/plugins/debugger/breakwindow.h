@@ -50,7 +50,6 @@ signals:
     void breakpointDeleted(int index);
     void breakpointActivated(int index);
     void breakpointSynchronizationRequested();
-    void settingsDialogRequested();
 
 private slots:
     void rowActivated(const QModelIndex &index);

@@ -95,6 +95,7 @@ void ProjectWizardPage::setAddToVersionControlEnabled(bool b)
 
 void ProjectWizardPage::changeEvent(QEvent *e)
 {
+    QWizardPage::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);

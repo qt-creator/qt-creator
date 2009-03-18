@@ -29,6 +29,7 @@
 
 #include "debuggermanager.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
 
@@ -94,7 +95,7 @@ DebuggerSettings::DebuggerSettings()
     m_skipKnownFrames = false;
     m_debugDumpers = false;
     m_useToolTips = false;
-    m_useCustomDumpers = true;
+    m_useDumpers = true;
     m_listSourceFiles = false;
 }
 
@@ -108,7 +109,7 @@ QString DebuggerSettings::dump()
         << "  gdbEnv: " << m_gdbEnv 
         << "  autoRun: " << m_autoRun
         << "  autoQuit: " << m_autoQuit
-        << "  useCustomDumpers: " << m_useCustomDumpers
+        << "  useCustomDumpers: " << m_useDumpers
         << "  skipKnownFrames: " << m_skipKnownFrames
         << "  debugDumpers: " << m_debugDumpers
         << "  useToolTips: " << m_useToolTips
@@ -238,8 +239,6 @@ void DebuggerManager::init()
         m_breakHandler, SLOT(activateBreakpoint(int)));
     connect(breakView, SIGNAL(breakpointDeleted(int)),
         m_breakHandler, SLOT(removeBreakpoint(int)));
-    connect(breakView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
     connect(breakView, SIGNAL(breakpointSynchronizationRequested()),
         this, SLOT(attemptBreakpointSynchronization()));
     connect(m_breakHandler, SIGNAL(gotoLocation(QString,int,bool)),
@@ -294,10 +293,6 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger(QString,QString)));
     connect(localsView, SIGNAL(requestWatchExpression(QString)),
         this, SLOT(watchExpression(QString)));
-    connect(localsView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
-    connect(localsView, SIGNAL(requestRecheckCustomDumperAvailability()),
-        this, SLOT(recheckCustomDumperAvailability()));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
@@ -316,10 +311,6 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
-    connect(watchersView, SIGNAL(settingsDialogRequested()),
-        this, SIGNAL(settingsDialogRequested()));
-    connect(watchersView, SIGNAL(requestRecheckCustomDumperAvailability()),
-        this, SLOT(recheckCustomDumperAvailability()));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
@@ -476,6 +467,11 @@ void DebuggerManager::init()
     setDebuggerType(GdbDebugger);
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine;
+
+    connect(action(UseDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setUseDumpers(bool)));
+    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setDebugDumpers(bool)));
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
@@ -1292,23 +1288,21 @@ bool DebuggerManager::debugDumpers() const
     return m_settings.m_debugDumpers;
 }
 
-bool DebuggerManager::useCustomDumpers() const
+bool DebuggerManager::useDumpers() const
 {
-    return m_settings.m_useCustomDumpers;
+    return m_settings.m_useDumpers;
 }
 
-void DebuggerManager::setUseCustomDumpers(bool on)
+void DebuggerManager::setUseDumpers(bool on)
 {
     QTC_ASSERT(m_engine, return);
-    m_settings.m_useCustomDumpers = on;
-    m_engine->setUseCustomDumpers(on);
+    m_settings.m_useDumpers = on;
 }
 
 void DebuggerManager::setDebugDumpers(bool on)
 {
     QTC_ASSERT(m_engine, return);
     m_settings.m_debugDumpers = on;
-    m_engine->setDebugDumpers(on);
 }
 
 void DebuggerManager::setSkipKnownFrames(bool on)
@@ -1420,17 +1414,6 @@ void DebuggerManager::fileOpen(const QString &fileName)
     emit gotoLocationRequested(fileName, 1, false);
 }
 
-
-//////////////////////////////////////////////////////////////////////
-//
-// Watch specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-void DebuggerManager::recheckCustomDumperAvailability()
-{
-    m_engine->recheckCustomDumperAvailability();
-}
 
 //////////////////////////////////////////////////////////////////////
 //

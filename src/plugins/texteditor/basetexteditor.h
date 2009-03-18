@@ -68,6 +68,7 @@ struct StorageSettings;
 
 struct Parenthesis;
 typedef QVector<Parenthesis> Parentheses;
+
 struct TEXTEDITOR_EXPORT Parenthesis
 {
     enum Type { Opened, Closed };
@@ -82,7 +83,6 @@ struct TEXTEDITOR_EXPORT Parenthesis
     static int closeCollapseAtPos(const Parentheses &parentheses);
     static bool hasClosingCollapse(const Parentheses &parentheses);
 };
-
 
 
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
@@ -285,6 +285,9 @@ public:
     void setCodeFoldingVisible(bool b);
     bool codeFoldingVisible() const;
 
+    void setCodeFoldingSupported(bool b);
+    bool codeFoldingSupported() const;
+
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
 
@@ -303,10 +306,6 @@ public:
 
 public slots:
     void setDisplayName(const QString &title);
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-    virtual void format();
-    virtual void unCommentSelection();
-    virtual void setStorageSettings(const TextEditor::StorageSettings &);
 
     void paste();
     void cut();
@@ -352,6 +351,7 @@ protected:
 
 public:
     void duplicateFrom(BaseTextEditor *editor);
+
 protected:
     BaseTextDocument *baseTextDocument() const;
     void setBaseTextDocument(BaseTextDocument *doc);
@@ -377,8 +377,8 @@ public:
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = 0) const;
     virtual void extraAreaPaintEvent(QPaintEvent *);
-    virtual void extraAreaMouseEvent(QMouseEvent *);
     virtual void extraAreaLeaveEvent(QEvent *);
+    virtual void extraAreaMouseEvent(QMouseEvent *);
 
     const TabSettings &tabSettings() const;
     const DisplaySettings &displaySettings() const;
@@ -415,8 +415,12 @@ public:
     void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
 
 public slots:
+    virtual void format();
+    virtual void unCommentSelection();
+    virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
+    virtual void setStorageSettings(const TextEditor::StorageSettings &);
 
 protected:
     bool viewportEvent(QEvent *event);
@@ -433,7 +437,6 @@ protected:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
-
 
 protected slots:
     virtual void slotUpdateExtraAreaWidth();

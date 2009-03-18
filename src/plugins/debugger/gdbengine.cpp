@@ -29,6 +29,7 @@
 
 #include "gdbengine.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "gdbmi.h"
@@ -283,6 +284,13 @@ void GdbEngine::initializeConnections()
     connect(this, SIGNAL(applicationOutputAvailable(QString)),
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
+
+    connect(action(UseDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setUseDumpers(bool)));
+    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
+        this, SLOT(setDebugDumpers(bool)));
+    connect(action(RecheckDumpers), SIGNAL(triggered()),
+        this, SLOT(recheckCustomDumperAvailability()));
 }
 
 void GdbEngine::initializeVariables()
@@ -3073,9 +3081,9 @@ static QString sizeofTypeExpression(const QString &type)
     return "sizeof(" + gdbQuoteTypes(type) + ")";
 }
 
-void GdbEngine::setUseCustomDumpers(bool on)
+void GdbEngine::setUseDumpers(bool on)
 {
-    //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
+    qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     Q_UNUSED(on);
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
@@ -3086,7 +3094,7 @@ void GdbEngine::setUseCustomDumpers(bool on)
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
     DebuggerSettings *s = q->settings();
-    if (!s->m_useCustomDumpers)
+    if (!s->m_useDumpers)
         return false;
 
     if (q->startMode() == AttachCore) {

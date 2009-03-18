@@ -34,6 +34,7 @@
 #include "cdbdebugoutput.h"
 #include "stackhandler.h"
 #include "debuggermanager.h"
+#include <utils/consoleprocess.h>
 
 namespace Debugger {
 namespace Internal {
@@ -106,6 +107,7 @@ struct CdbDebugEnginePrivate
     DebuggerManager *m_debuggerManager;
     IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
     DebuggerStartMode m_mode;
+    Core::Utils::ConsoleProcess m_consoleStubProc;
 };
 
 enum { debugCDB = 0 };

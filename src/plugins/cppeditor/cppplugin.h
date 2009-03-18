@@ -44,8 +44,7 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class CPPEditorActionHandler;
-class CppPluginEditorFactory;
+class CppEditorFactory;
 
 class CppPlugin : public ExtensionSystem::IPlugin
 {
@@ -68,21 +67,21 @@ private slots:
     void jumpToDefinition();
 
 private:
-    friend class CppPluginEditorFactory;
+    friend class CppEditorFactory;
     Core::IEditor *createEditor(QWidget *parent);
 
     static CppPlugin *m_instance;
 
-    CPPEditorActionHandler *m_actionHandler;
-    CppPluginEditorFactory *m_factory;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
+    CppEditorFactory *m_factory;
 };
 
-class CppPluginEditorFactory : public Core::IEditorFactory
+class CppEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 public:
-    CppPluginEditorFactory(CppPlugin *owner);
+    CppEditorFactory(CppPlugin *owner);
 
     virtual QStringList mimeTypes() const;
 

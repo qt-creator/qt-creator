@@ -29,6 +29,7 @@
 
 #include "breakwindow.h"
 
+#include "debuggeractions.h"
 #include "ui_breakcondition.h"
 
 #include <QAction>
@@ -93,7 +94,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act3 = new QAction("Edit condition...", &menu);
     act0->setEnabled(index.isValid());
     QAction *act4 = new QAction("Syncronize breakpoints", &menu);
-    QAction *act5 = new QAction("Debugger properties...", &menu);
+    QAction *act5 = action(SettingsDialog);
 
     menu.addAction(act0);
     menu.addAction(act3);
@@ -116,7 +117,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == act4)
         emit breakpointSynchronizationRequested();
     else if (act == act5)
-        emit settingsDialogRequested();
+        act->trigger();
 }
 
 void BreakWindow::deleteBreakpoint(const QModelIndex &idx)

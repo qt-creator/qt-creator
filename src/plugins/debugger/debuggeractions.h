@@ -27,27 +27,57 @@
 **
 **************************************************************************/
 
-#include "cppeditoractionhandler.h"
-#include "cppeditorconstants.h"
-#include "cppeditor.h"
-#include <QAction>
+#ifndef DEBUGGER_ACTIONS_H
+#define DEBUGGER_ACTIONS_H
 
-using namespace CppEditor::Internal;
+#include <QtGui/QAction>
 
-CPPEditorActionHandler::CPPEditorActionHandler(const QString &context,
-                                               uint optionalActions)
-    : TextEditor::TextEditorActionHandler(context, optionalActions)
-{ }
+namespace Debugger {
+namespace Internal {
 
-CPPEditorActionHandler::~CPPEditorActionHandler()
-{ }
-
-void CPPEditorActionHandler::createActions()
+enum ActionCode
 {
-    TextEditor::TextEditorActionHandler::createActions();
-}
+    // General
+    SettingsDialog,
+    AdjustColumnWidths,
+    AlwaysAdjustColumnWidths,
 
-void CPPEditorActionHandler::updateActions(UpdateMode um)
-{
-    TextEditor::TextEditorActionHandler::updateActions(um);
-}
+    LockView,
+
+    // Gdb
+    GdbLocation,
+    GdbEnvironment,
+    GdbScriptFile,
+    GdbAutoRun,
+    GdbAutoQuit,
+
+    // Watchers & Locals
+    WatchExpression,
+    RemoveWatchExpression,
+    WatchModelUpdate,
+    RecheckDumpers,
+    UseDumpers,
+    DebugDumpers,
+    UseToolTips,
+
+    // Source List
+    ListSourceFiles,
+
+    // Running
+    SkipKnowFrames,
+
+    // Breakpoints
+    SynchronizeBreakpoints,
+    AllPluginBreakpoints,
+    SelectedPluginBreakpoints,
+    NoPluginBreakpoints,
+    SelectedPluginBreakpointsPattern,
+};
+
+QAction *action(ActionCode code);
+
+
+} // namespace Internal
+} // namespace Debugger
+
+#endif // DEBUGGER_WATCHWINDOW_H

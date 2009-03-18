@@ -31,6 +31,7 @@
 #define DEBUGGER_CDBENGINE_H
 
 #include "idebuggerengine.h"
+#include "debuggermanager.h"
 
 namespace Debugger {
 namespace Internal {
@@ -88,18 +89,19 @@ public:
     virtual void loadAllSymbols();
 
     virtual void reloadRegisters();
-
-    virtual void setDebugDumpers(bool on);
-    virtual void setUseCustomDumpers(bool on);
-
     virtual void reloadSourceFiles();
 
 protected:
     void timerEvent(QTimerEvent*);
 
+private slots:
+    void slotConsoleStubStarted();
+    void slotConsoleStubError(const QString &msg);
+    void slotConsoleStubTerminated();
+
 private:
-    bool startAttachDebugger(unsigned long pid, QString *errorMessage);
-    bool startDebuggerWithExecutable(QString *errorMessage);
+    bool startAttachDebugger(qint64 pid, QString *errorMessage);
+    bool startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage);
     void startWatchTimer();
     void killWatchTimer();
 

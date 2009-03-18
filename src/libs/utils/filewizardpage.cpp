@@ -88,6 +88,7 @@ void FileWizardPage::setName(const QString &name)
 
 void FileWizardPage::changeEvent(QEvent *e)
 {
+    QWizardPage::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_d->m_ui.retranslateUi(this);

@@ -29,6 +29,7 @@
 
 #include "texteditorsettings.h"
 
+#include "basetexteditor.h"
 #include "behaviorsettingspage.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
@@ -136,6 +137,29 @@ TextEditorSettings::~TextEditorSettings()
 TextEditorSettings *TextEditorSettings::instance()
 {
     return m_instance;
+}
+
+/**
+ * Initializes editor settings. Also connects signals to keep them up to date
+ * when they are changed.
+ */
+void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
+{
+    // Connect to settings change signals
+    connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            editor, SLOT(setFontSettings(TextEditor::FontSettings)));
+    connect(this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
+            editor, SLOT(setTabSettings(TextEditor::TabSettings)));
+    connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+    connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+
+    // Apply current settings (tab settings depend on font settings)
+    editor->setFontSettings(fontSettings());
+    editor->setTabSettings(tabSettings());
+    editor->setStorageSettings(storageSettings());
+    editor->setDisplaySettings(displaySettings());
 }
 
 FontSettings TextEditorSettings::fontSettings() const

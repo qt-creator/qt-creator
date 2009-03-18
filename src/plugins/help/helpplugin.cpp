@@ -373,6 +373,9 @@ void HelpPlugin::createRightPaneSideBar()
     rightPaneLayout->addWidget(rightPaneToolBar);
 
     m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate();
+    agg->add(m_helpViewerForSideBar);
+    agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
     m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
         << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
