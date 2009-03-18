@@ -50,6 +50,10 @@ class PathChooser;
 }
 }
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace GenericProjectManager {
 namespace Internal {
 
@@ -89,8 +93,7 @@ public:
     QStringList targets() const;
     GenericMakeStep *makeStep() const;
     QString buildParser(const QString &buildConfiguration) const;
-
-    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
+    ProjectExplorer::ToolChain *toolChain() const;
 
     QStringList includePaths() const;
     void setIncludePaths(const QStringList &includePaths);
@@ -112,6 +115,7 @@ protected:
 
 private:
     void parseProject();
+    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
 
     QStringList readLines(const QString &absoluteFileName) const;
 

@@ -32,6 +32,7 @@
 #include "genericproject.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFormLayout>
@@ -97,11 +98,10 @@ bool GenericMakeStep::init(const QString &buildConfiguration)
 
     setEnabled(buildConfiguration, true);
     setWorkingDirectory(buildConfiguration, m_pro->buildDirectory(buildConfiguration));
-#ifdef Q_OS_WIN
-    setCommand(buildConfiguration, "mingw32-make");
-#else // Q_OS_WIN
-    setCommand(buildConfiguration, "make"); // TODO give full path here?
-#endif // Q_OS_WIN
+    if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
+        setCommand(buildConfiguration, toolChain->makeCommand());
+    else
+        setCommand(buildConfiguration, "make");
     setArguments(buildConfiguration, value(buildConfiguration, "buildTargets").toStringList()); // TODO
     setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
     return AbstractProcessStep::init(buildConfiguration);

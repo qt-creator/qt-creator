@@ -44,7 +44,7 @@
 #include <QtCore/QXmlStreamReader>
 
 namespace CMakeProjectManager {
-namespace Internal{
+namespace Internal {
 
 class CMakeFile;
 

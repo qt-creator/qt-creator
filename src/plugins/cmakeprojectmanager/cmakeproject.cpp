@@ -233,7 +233,7 @@ QString CMakeProject::buildParser(const QString &buildConfiguration) const
 QStringList CMakeProject::targets() const
 {
     QStringList results;
-    foreach(const CMakeTarget &ct, m_targets)
+    foreach (const CMakeTarget &ct, m_targets)
         results << ct.title;
     return results;
 }

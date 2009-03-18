@@ -55,6 +55,10 @@ using namespace GenericProjectManager::Internal;
 
 namespace {
 
+/**
+ * An editable string list model. New strings can be added by editing the entry
+ * called "<new>", displayed at the end.
+ */
 class ListModel: public QStringListModel
 {
 public:
@@ -318,6 +322,11 @@ QString GenericProject::buildParser(const QString &buildConfiguration) const
     }
 
     return QString();
+}
+
+ProjectExplorer::ToolChain *GenericProject::toolChain() const
+{
+    return m_toolChain;
 }
 
 QString GenericProject::toolChainId() const
