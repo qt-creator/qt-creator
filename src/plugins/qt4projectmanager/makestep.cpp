@@ -272,9 +272,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     : BuildStepConfigWidget(), m_makeStep(makeStep)
 {
     m_ui.setupUi(this);
-    connect(m_ui.makeLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui.makeLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeLineEditTextEdited()));
-    connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
 }
 
@@ -312,5 +312,6 @@ void MakeStepConfigWidget::makeLineEditTextEdited()
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
-    m_makeStep->setValue(m_buildConfiguration, "makeargs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
+    m_makeStep->setValue(m_buildConfiguration, "makeargs",
+                         ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
 }

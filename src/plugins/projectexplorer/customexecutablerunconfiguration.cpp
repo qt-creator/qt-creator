@@ -61,7 +61,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 {
     m_runConfiguration = rc;
     
-    QFormLayout *layout = new QFormLayout();
+    QFormLayout *layout = new QFormLayout;
     layout->setMargin(0);
 
     m_userName = new QLineEdit(this);
@@ -147,7 +147,8 @@ void CustomExecutableConfigurationWidget::changed()
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
     : ApplicationRunConfiguration(pro),
-      m_userSetName(false)
+      m_userSetName(false),
+      m_runMode(Gui)
 {
     m_workingDirectory = "$BUILDDIR";
     setName("Custom Executable");

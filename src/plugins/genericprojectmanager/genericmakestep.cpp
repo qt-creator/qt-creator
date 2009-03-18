@@ -255,9 +255,9 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
 
     connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)),
             this, SLOT(itemChanged(QListWidgetItem*)));
-    connect(m_ui->makeLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui->makeLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeLineEditTextEdited()));
-    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
 }
 
