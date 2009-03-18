@@ -147,8 +147,8 @@ void CustomExecutableConfigurationWidget::changed()
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
     : ApplicationRunConfiguration(pro),
-      m_userSetName(false),
-      m_runMode(Gui)
+      m_runMode(Gui),
+      m_userSetName(false)
 {
     m_workingDirectory = "$BUILDDIR";
     setName("Custom Executable");
