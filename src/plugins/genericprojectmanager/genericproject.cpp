@@ -181,9 +181,9 @@ void GenericProject::parseProject()
 
     _defines.clear();
 
-    QFile configFn(configFileName());
-    if (configFn.open(QFile::ReadOnly))
-        _defines = configFn.readAll();
+    QFile configFile(configFileName());
+    if (configFile.open(QFile::ReadOnly))
+        _defines = configFile.readAll();
 
     emit fileListChanged();
 }
@@ -225,8 +225,11 @@ void GenericProject::refresh()
         pinfo.sourceFiles = files();
         pinfo.sourceFiles += generated();
 
+        QStringList filesToUpdate = pinfo.sourceFiles;
+        filesToUpdate.append(QLatin1String("<configuration>")); // XXX don't hardcode configuration file name
+
         modelManager->updateProjectInfo(pinfo);
-        modelManager->updateSourceFiles(pinfo.sourceFiles);
+        modelManager->updateSourceFiles(filesToUpdate);
     }
 }
 
