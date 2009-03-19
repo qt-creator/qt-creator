@@ -5,6 +5,6 @@ Thinks to check:
 - availability of Qt debug information (custom display of QObject derived
 class)
 - availabitily of Qt sources (single step into some Qt *._cpp_ file)
-- setting of breakpoints on dynamically loaded plugins (try plugin.cpp here)
+- setting of breakpoints on dynamically loaded plugins (try plugin.cpp here, especially in constructors)
 - check I/O  (qDebug, std::cout, std::cerr)
 

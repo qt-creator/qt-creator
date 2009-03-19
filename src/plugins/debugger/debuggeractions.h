@@ -30,12 +30,114 @@
 #ifndef DEBUGGER_ACTIONS_H
 #define DEBUGGER_ACTIONS_H
 
-#include <QtGui/QAction>
+#include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QSettings;
+QT_END_NAMESPACE
+
 
 namespace Debugger {
 namespace Internal {
 
-enum ActionCode
+enum ApplyMode { ImmediateApply, DeferedApply };
+
+class QtcSettingsItem : public QObject
+{
+    Q_OBJECT
+
+public:
+    QtcSettingsItem(QObject *parent = 0);
+
+    virtual QVariant value() const;
+    Q_SLOT virtual void setValue(const QVariant &value, bool doemit = true);
+
+    virtual QVariant defaultValue() const;
+    Q_SLOT virtual void setDefaultValue(const QVariant &value);
+
+    virtual QAction *action() const;
+
+    // used for persistency
+    virtual QString settingsKey() const;
+    Q_SLOT virtual void setSettingsKey(const QString &key);
+    Q_SLOT virtual void setSettingsKey(const QString &group, const QString &key);
+
+    virtual QString settingsGroup() const;
+    Q_SLOT virtual void setSettingsGroup(const QString &group);
+
+    virtual void readSettings(QSettings *settings);
+    Q_SLOT virtual void writeSettings(QSettings *settings);
+    
+    virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
+    Q_SLOT virtual void applyDeferedChange();
+
+    virtual QString text() const;
+    Q_SLOT virtual void setText(const QString &value);
+
+    virtual QString textPattern() const;
+    Q_SLOT virtual void setTextPattern(const QString &value);
+
+signals:
+    void valueChanged(const QVariant &newValue);
+    void boolValueChanged(bool newValue);
+    void stringValueChanged(const QString &newValue);
+
+private:
+    Q_SLOT void uncheckableButtonClicked();
+    Q_SLOT void checkableButtonClicked(bool);
+    Q_SLOT void lineEditEditingFinished();
+    Q_SLOT void pathChooserEditingFinished();
+    Q_SLOT void actionTriggered(bool);
+
+    QVariant m_value;
+    QVariant m_defaultValue;
+    QVariant m_deferedValue; // basically a temporary copy of m_value 
+    QString m_settingsKey;
+    QString m_settingsGroup;
+    QString m_textPattern;
+    QAction *m_action;
+    QHash<QObject *, ApplyMode> m_applyModes;
+};
+
+class QtcSettings : public QObject
+{
+    Q_OBJECT
+
+public:
+    QtcSettings(QObject *parent = 0);
+    ~QtcSettings();
+    
+    void insertItem(int code, QtcSettingsItem *item);
+
+    QAction *action(int code);
+    QtcSettingsItem *item(int code);
+    QtcSettingsItem *createItem(int code);
+
+    // Convienience
+    bool boolValue(int code);
+    int intValue(int code);
+    QString stringValue(int code);
+    virtual QString dump();
+
+    void connectWidget(int code, QWidget *, ApplyMode applyMode = DeferedApply);
+    void applyDeferedChange(int code);
+    void applyDeferedChanges();
+
+public slots:
+    void readSettings(QSettings *settings);
+    void writeSettings(QSettings *settings);
+
+private:
+    QHash<int, QtcSettingsItem *> m_items; 
+};
+
+
+///////////////////////////////////////////////////////////
+
+enum DebuggerSettingsCode
 {
     // General
     SettingsDialog,
@@ -64,7 +166,7 @@ enum ActionCode
     ListSourceFiles,
 
     // Running
-    SkipKnowFrames,
+    SkipKnownFrames,
 
     // Breakpoints
     SynchronizeBreakpoints,
@@ -72,10 +174,12 @@ enum ActionCode
     SelectedPluginBreakpoints,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
+
+    AutoQuit,
 };
 
-QAction *action(ActionCode code);
-
+// singleton access
+QtcSettings *theDebuggerSettings();
 
 } // namespace Internal
 } // namespace Debugger

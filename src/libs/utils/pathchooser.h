@@ -89,6 +89,7 @@ private:
 signals:
     void validChanged();
     void changed();
+    void editingFinished();
     void beforeBrowsing();
     void browsingFinished();
     void returnPressed();

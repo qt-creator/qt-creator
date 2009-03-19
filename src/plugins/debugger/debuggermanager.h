@@ -160,52 +160,13 @@ private:
     virtual SourceFilesWindow *sourceFileWindow() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
-    virtual bool skipKnownFrames() const = 0;
-    virtual bool debugDumpers() const = 0;
-    virtual bool useDumpers() const = 0;
     
-    virtual bool wantsSourceFileList() const = 0;
-    virtual bool wantsAllPluginBreakpoints() const = 0;
-    virtual bool wantsSelectedPluginBreakpoints() const = 0;
-    virtual bool wantsNoPluginBreakpoints() const = 0;
-    virtual QString selectedPluginBreakpointsPattern() const = 0;
-
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
     virtual void reloadSourceFiles() = 0;
     virtual void reloadRegisters() = 0;
 };
 
-
-//
-// DebuggerSettings
-//
-
-class DebuggerSettings
-{
-public:
-    DebuggerSettings();
-    QString dump();
-
-public:
-    QString m_gdbCmd;
-    QString m_gdbEnv;
-    bool m_autoRun;
-    bool m_autoQuit;
-
-    bool m_useDumpers;
-    bool m_skipKnownFrames;
-    bool m_debugDumpers;
-    bool m_useToolTips;
-    bool m_listSourceFiles;
-
-    QString m_scriptFile;
-
-    bool m_pluginAllBreakpoints;
-    bool m_pluginSelectedBreakpoints;
-    bool m_pluginNoBreakpoints;
-    QString m_pluginSelectedBreakpointsPattern;
-};
 
 //
 // DebuggerManager
@@ -223,7 +184,6 @@ public:
     IDebuggerManagerAccessForEngines *engineInterface();
     QMainWindow *mainWindow() const { return m_mainWindow; }
     QLabel *statusLabel() const { return m_statusLabel; }
-    DebuggerSettings *settings() { return &m_settings; }
 
     enum DebuggerType { GdbDebugger, ScriptDebugger, WinDebugger };
 
@@ -258,7 +218,6 @@ public slots:
     void breakByFunction();
     void breakByFunction(const QString &functionName);
     void setBreakpoint(const QString &fileName, int lineNumber);
-    void watchExpression(const QString &expression);
     void breakAtMain();
     void activateFrame(int index);
     void selectThread(int index);
@@ -272,7 +231,6 @@ public slots:
 
     void addToWatchWindow();
     void updateWatchModel();
-    void removeWatchExpression(const QString &iname);
     void expandChildren(const QModelIndex &idx);
     void collapseChildren(const QModelIndex &idx);
     
@@ -284,11 +242,7 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-    void setSkipKnownFrames(bool on);
-
 private slots:
-    void setDebugDumpers(bool on);
-    void setUseDumpers(bool on);
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
     void showApplicationOutput(const QString &data);
@@ -322,20 +276,6 @@ private:
     ThreadsHandler *threadsHandler() { return m_threadsHandler; }
     WatchHandler *watchHandler() { return m_watchHandler; }
     SourceFilesWindow *sourceFileWindow() { return m_sourceFilesWindow; }
-
-    bool skipKnownFrames() const;
-    bool debugDumpers() const;
-    bool useDumpers() const;
-    bool wantsSourceFileList() const
-        { return m_settings.m_listSourceFiles; }
-    bool wantsAllPluginBreakpoints() const
-        { return m_settings.m_pluginAllBreakpoints; }
-    bool wantsSelectedPluginBreakpoints() const
-        { return m_settings.m_pluginSelectedBreakpoints; }
-    bool wantsNoPluginBreakpoints() const
-        { return m_settings.m_pluginNoBreakpoints; }
-    QString selectedPluginBreakpointsPattern() const
-        { return m_settings.m_pluginSelectedBreakpointsPattern; }
 
     void notifyInferiorStopped();
     void notifyInferiorRunningRequested();
@@ -383,7 +323,6 @@ signals:
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &output);
-    void settingsDialogRequested();
 
 public:
     // FIXME: make private
@@ -473,7 +412,6 @@ private:
 
     IDebuggerEngine *engine();
     IDebuggerEngine *m_engine;
-    DebuggerSettings m_settings;
 };
 
 } // namespace Internal

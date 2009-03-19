@@ -88,40 +88,6 @@ using namespace Debugger::Constants;
 static const QString tooltipIName = "tooltip";
 
 
-DebuggerSettings::DebuggerSettings()
-{
-    m_autoRun = false;
-    m_autoQuit = false;
-    m_skipKnownFrames = false;
-    m_debugDumpers = false;
-    m_useToolTips = false;
-    m_useDumpers = true;
-    m_listSourceFiles = false;
-}
-
-
-QString DebuggerSettings::dump()
-{
-    QString out;
-    QTextStream ts(&out);
-    ts  << "Debugger settings: "
-        << "  gdbCmd: " << m_gdbCmd
-        << "  gdbEnv: " << m_gdbEnv 
-        << "  autoRun: " << m_autoRun
-        << "  autoQuit: " << m_autoQuit
-        << "  useCustomDumpers: " << m_useDumpers
-        << "  skipKnownFrames: " << m_skipKnownFrames
-        << "  debugDumpers: " << m_debugDumpers
-        << "  useToolTips: " << m_useToolTips
-        << "  listSourceFiles: " << m_listSourceFiles
-        << "  scriptFile: " << m_scriptFile
-        << "  pluginAllBreakpoints: " << m_pluginAllBreakpoints
-        << "  pluginSelectedBreakpoints: " << m_pluginSelectedBreakpoints
-        << "  pluginNoBreakpoints: " << m_pluginNoBreakpoints
-        << "  pluginSelectedBreakpointsPattern: " << m_pluginSelectedBreakpointsPattern;
-    return out;
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // BreakByFunctionDialog
@@ -291,8 +257,6 @@ void DebuggerManager::init()
         this, SLOT(collapseChildren(QModelIndex)));
     connect(localsView, SIGNAL(requestAssignValue(QString,QString)),
         this, SLOT(assignValueInDebugger(QString,QString)));
-    connect(localsView, SIGNAL(requestWatchExpression(QString)),
-        this, SLOT(watchExpression(QString)));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
@@ -303,10 +267,6 @@ void DebuggerManager::init()
         this, SLOT(expandChildren(QModelIndex)));
     connect(watchersView, SIGNAL(requestCollapseChildren(QModelIndex)),
         this, SLOT(collapseChildren(QModelIndex)));
-    connect(watchersView, SIGNAL(requestWatchExpression(QString)),
-        this, SLOT(watchExpression(QString)));
-    connect(watchersView, SIGNAL(requestRemoveWatchExpression(QString)),
-        this, SLOT(removeWatchExpression(QString)));
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
@@ -467,11 +427,6 @@ void DebuggerManager::init()
     setDebuggerType(GdbDebugger);
     if (Debugger::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine;
-
-    connect(action(UseDumpers), SIGNAL(triggered(bool)),
-        this, SLOT(setUseDumpers(bool)));
-    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
-        this, SLOT(setDebugDumpers(bool)));
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
@@ -775,12 +730,6 @@ void DebuggerManager::collapseChildren(const QModelIndex &idx)
 {
     QTC_ASSERT(m_watchHandler, return);
     m_watchHandler->collapseChildren(idx);
-}
-
-void DebuggerManager::removeWatchExpression(const QString &exp)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->removeWatchExpression(exp);
 }
 
 QVariant DebuggerManager::sessionValue(const QString &name)
@@ -1143,13 +1092,7 @@ void DebuggerManager::addToWatchWindow()
     if (!editor)
         return;
     QTextCursor tc = editor->textCursor();
-    watchExpression(tc.selectedText());
-}
-
-void DebuggerManager::watchExpression(const QString &expression)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->watchExpression(expression);
+    theDebuggerSettings()->item(WatchExpression)->setValue(tc.selectedText());
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
@@ -1278,38 +1221,6 @@ void DebuggerManager::setBusyCursor(bool busy)
     m_watchersWindow->setCursor(cursor);
 }
 
-bool DebuggerManager::skipKnownFrames() const
-{
-    return m_settings.m_skipKnownFrames;
-}
-
-bool DebuggerManager::debugDumpers() const
-{
-    return m_settings.m_debugDumpers;
-}
-
-bool DebuggerManager::useDumpers() const
-{
-    return m_settings.m_useDumpers;
-}
-
-void DebuggerManager::setUseDumpers(bool on)
-{
-    QTC_ASSERT(m_engine, return);
-    m_settings.m_useDumpers = on;
-}
-
-void DebuggerManager::setDebugDumpers(bool on)
-{
-    QTC_ASSERT(m_engine, return);
-    m_settings.m_debugDumpers = on;
-}
-
-void DebuggerManager::setSkipKnownFrames(bool on)
-{
-    m_settings.m_skipKnownFrames = on;
-}
-
 void DebuggerManager::queryCurrentTextEditor(QString *fileName, int *lineNumber,
     QObject **object)
 {
@@ -1334,7 +1245,6 @@ void DebuggerManager::interruptDebuggingRequest()
         m_engine->interruptInferior();
     }
 }
-
 
 void DebuggerManager::runToLineExec()
 {

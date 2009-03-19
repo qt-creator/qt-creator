@@ -285,11 +285,12 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(action(UseDumpers), SIGNAL(triggered(bool)),
+    QtcSettings *s = theDebuggerSettings();
+    connect(s->item(UseDumpers), SIGNAL(boolValueChanged(bool)),
         this, SLOT(setUseDumpers(bool)));
-    connect(action(DebugDumpers), SIGNAL(triggered(bool)),
+    connect(s->item(DebugDumpers), SIGNAL(boolValueChanged(bool)),
         this, SLOT(setDebugDumpers(bool)));
-    connect(action(RecheckDumpers), SIGNAL(triggered()),
+    connect(s->action(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
 }
 
@@ -319,7 +320,8 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
         case QProcess::FailedToStart:
             msg = QString(tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")).arg(q->settings()->m_gdbCmd);
+                "permissions to invoke the program."))
+                .arg(theDebuggerSettings()->stringValue(GdbLocation));
             break;
         case QProcess::Crashed:
             msg = tr("The Gdb process crashed some time after starting "
@@ -1144,22 +1146,24 @@ void GdbEngine::handleAqcuiredInferior()
     #if defined(Q_OS_MAC)
     sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
     #endif
-    if (qq->wantsSourceFileList())
+    if (theDebuggerSettings()->boolValue(UseDumpers))
         reloadSourceFiles();
     tryLoadCustomDumpers();
 
     #ifndef Q_OS_MAC
     // intentionally after tryLoadCustomDumpers(),
     // otherwise we'd interupt solib loading.
-    if (qq->wantsAllPluginBreakpoints()) {
+    QtcSettings *s = theDebuggerSettings();
+    if (s->boolValue(AllPluginBreakpoints)) {
         sendCommand("set auto-solib-add on");
         sendCommand("set stop-on-solib-events 0");
         sendCommand("sharedlibrary .*");
-    } else if (qq->wantsSelectedPluginBreakpoints()) {
+    } else if (s->boolValue(SelectedPluginBreakpoints)) {
         sendCommand("set auto-solib-add on");
         sendCommand("set stop-on-solib-events 1");
-        sendCommand("sharedlibrary " + qq->selectedPluginBreakpointsPattern());
-    } else if (qq->wantsNoPluginBreakpoints()) {
+        sendCommand("sharedlibrary "
+            + s->stringValue(SelectedPluginBreakpointsPattern));
+    } else if (s->boolValue(NoPluginBreakpoints)) {
         // should be like that already
         sendCommand("set auto-solib-add off");
         sendCommand("set stop-on-solib-events 0");
@@ -1232,11 +1236,13 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     }
 
     QString msg = data.findChild("consolestreamoutput").data();
+    QtcSettings *s = theDebuggerSettings();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        if (qq->wantsSelectedPluginBreakpoints()) {
+        if (s->boolValue(SelectedPluginBreakpoints)) {
             debugMessage("SHARED LIBRARY EVENT: " + data.toString());
-            debugMessage("PATTERN: " + qq->selectedPluginBreakpointsPattern());
-            sendCommand("sharedlibrary " + qq->selectedPluginBreakpointsPattern());
+            QString pattern =  s->stringValue(SelectedPluginBreakpointsPattern);
+            debugMessage("PATTERN: " + pattern);
+            sendCommand("sharedlibrary " + pattern);
             continueInferior();
             q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
             return;
@@ -1260,7 +1266,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
     // jump over well-known frames
     static int stepCounter = 0;
-    if (qq->skipKnownFrames()) {
+    if (s->boolValue(SkipKnownFrames)) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             GdbMi frame = data.findChild("frame");
             //debugMessage(frame.toString());
@@ -1302,7 +1308,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                  frame.findChild("func").data() + '%';
 
             QApplication::alert(q->mainWindow(), 3000);
-            if (qq->wantsSourceFileList())
+            if (s->boolValue(ListSourceFiles))
                 reloadSourceFiles();
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
@@ -1562,7 +1568,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
-    debugMessage(q->settings()->dump());
+    debugMessage(theDebuggerSettings()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
@@ -1608,8 +1614,9 @@ bool GdbEngine::startDebugger()
     qDebug() << "ExeFile: " << q->m_executable;
     #endif
 
-    q->showStatusMessage(tr("Starting Debugger: ") + q->settings()->m_gdbCmd + ' ' + gdbArgs.join(" "));
-    m_gdbProc.start(q->settings()->m_gdbCmd, gdbArgs);
+    QString loc = theDebuggerSettings()->stringValue(GdbLocation);
+    q->showStatusMessage(tr("Starting Debugger: ") + loc + ' ' + gdbArgs.join(" "));
+    m_gdbProc.start(loc, gdbArgs);
     if (!m_gdbProc.waitForStarted()) {
         QMessageBox::critical(q->mainWindow(), tr("Debugger Startup Failure"),
                               tr("Cannot start debugger: %1").arg(m_gdbProc.errorString()));
@@ -1683,7 +1690,7 @@ bool GdbEngine::startDebugger()
             "dyld \".*CarbonDataFormatters.*\" all");
     #endif
 
-    QString scriptFileName = q->settings()->m_scriptFile;
+    QString scriptFileName = theDebuggerSettings()->stringValue(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
         QFile scriptFile(scriptFileName);
         if (scriptFile.open(QIODevice::ReadOnly)) {
@@ -2759,7 +2766,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
     }
 
-    if (q->settings()->m_debugDumpers) {
+    if (theDebuggerSettings()->boolValue(DebugDumpers)) {
         // minimize interference
         return;
     }
@@ -3093,8 +3100,7 @@ void GdbEngine::setUseDumpers(bool on)
 
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
-    DebuggerSettings *s = q->settings();
-    if (!s->m_useDumpers)
+    if (!theDebuggerSettings()->boolValue(UseDumpers))
         return false;
 
     if (q->startMode() == AttachCore) {
@@ -3103,8 +3109,10 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
             || type == "QStringList" || type.endsWith("::QStringList");
     }
 
-    if (s->m_debugDumpers && qq->stackHandler()->isDebuggingDumpers())
+    if (theDebuggerSettings()->boolValue(DebugDumpers)
+            && qq->stackHandler()->isDebuggingDumpers())
         return false;
+
     if (m_dataDumperState != DataDumperAvailable)
         return false;
 
@@ -3696,7 +3704,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumpers easier
-        if (q->settings()->m_debugDumpers
+        if (theDebuggerSettings()->boolValue(DebugDumpers)
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
             // Fake full stop

@@ -257,40 +257,41 @@ private:
     friend class DebuggerPlugin;
     Ui::GdbOptionPage m_ui;
 
-    DebuggerSettings m_settings;
     DebuggerPlugin *m_plugin;
 };
 
 QWidget *GdbOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_settings = *m_plugin->m_manager->settings();
     m_ui.setupUi(w);
+    QtcSettings *s = theDebuggerSettings();
     m_ui.gdbLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
-    m_ui.gdbLocationChooser->setPath(m_settings.m_gdbCmd);
     m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
-    m_ui.scriptFileChooser->setPath(m_settings.m_scriptFile);
-    m_ui.environmentEdit->setText(m_settings.m_gdbEnv);
 
-    m_ui.radioButtonAllPluginBreakpoints->
-        setChecked(m_settings.m_pluginAllBreakpoints);
-    m_ui.radioButtonSelectedPluginBreakpoints->
-        setChecked(m_settings.m_pluginSelectedBreakpoints);
-    m_ui.radioButtonNoPluginBreakpoints->
-        setChecked(m_settings.m_pluginNoBreakpoints);
+    s->connectWidget(GdbLocation, m_ui.gdbLocationChooser);
+    s->connectWidget(GdbScriptFile, m_ui.scriptFileChooser);
+    s->connectWidget(GdbEnvironment, m_ui.environmentEdit);
+
+    s->connectWidget(AllPluginBreakpoints,
+        m_ui.radioButtonAllPluginBreakpoints);
+    s->connectWidget(SelectedPluginBreakpoints,
+        m_ui.radioButtonSelectedPluginBreakpoints);
+    s->connectWidget(NoPluginBreakpoints,
+        m_ui.radioButtonNoPluginBreakpoints);
+    s->connectWidget(SelectedPluginBreakpointsPattern,
+        m_ui.lineEditSelectedPluginBreakpointsPattern);
+
+    s->connectWidget(UseDumpers, m_ui.checkBoxUseDumpers);
+    s->connectWidget(SkipKnownFrames, m_ui.checkBoxSkipKnownFrames);
+    s->connectWidget(UseToolTips, m_ui.checkBoxUseToolTips);
+    s->connectWidget(DebugDumpers, m_ui.checkBoxDebugDumpers);
+    s->connectWidget(SelectedPluginBreakpointsPattern,
+        m_ui.lineEditSelectedPluginBreakpointsPattern);
+
     m_ui.lineEditSelectedPluginBreakpointsPattern->
-        setText(m_settings.m_pluginSelectedBreakpointsPattern);
-    m_ui.lineEditSelectedPluginBreakpointsPattern->
-        setEnabled(m_settings.m_pluginSelectedBreakpoints);
-
-    m_ui.checkBoxListSourceFiles->setChecked(m_settings.m_listSourceFiles);
-    m_ui.checkBoxSkipKnownFrames->setChecked(m_settings.m_skipKnownFrames);
-    m_ui.checkBoxDebugDumpers->setChecked(m_settings.m_debugDumpers);
-    m_ui.checkBoxUseDumpers->setChecked(m_settings.m_useDumpers);
-    m_ui.checkBoxUseToolTips->setChecked(m_settings.m_useToolTips);
-
+        setEnabled(s->boolValue(SelectedPluginBreakpoints));
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
         m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 
@@ -310,36 +311,15 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 
     //m_dumpLogAction = new QAction(this);
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
-    //
-    connect(m_ui.checkBoxUseDumpers, SIGNAL(clicked()),
-        action(UseDumpers), SLOT(trigger()));
 
     return w;
 }
 
 void GdbOptionPage::apply()
 {
-    m_settings.m_gdbCmd   = m_ui.gdbLocationChooser->path();
-    m_settings.m_gdbEnv   = m_ui.environmentEdit->text();
-    m_settings.m_scriptFile = m_ui.scriptFileChooser->path();
-
-    m_settings.m_skipKnownFrames = m_ui.checkBoxSkipKnownFrames->isChecked();
-    m_settings.m_listSourceFiles = m_ui.checkBoxListSourceFiles->isChecked();
-    m_settings.m_debugDumpers = m_ui.checkBoxDebugDumpers->isChecked();
-    m_settings.m_useDumpers = m_ui.checkBoxUseDumpers->isChecked();
-    m_settings.m_useToolTips = m_ui.checkBoxUseToolTips->isChecked();
-
-    m_settings.m_pluginAllBreakpoints =
-        m_ui.radioButtonAllPluginBreakpoints->isChecked();
-    m_settings.m_pluginSelectedBreakpoints =
-        m_ui.radioButtonSelectedPluginBreakpoints->isChecked();
-    m_settings.m_pluginNoBreakpoints =
-        m_ui.radioButtonNoPluginBreakpoints->isChecked();
-    m_settings.m_pluginSelectedBreakpointsPattern =
-        m_ui.lineEditSelectedPluginBreakpointsPattern->text();
-
-    *m_plugin->m_manager->settings() = m_settings;
-    m_plugin->writeSettings();
+    QtcSettings *s = theDebuggerSettings();
+    s->applyDeferedChanges();
+    s->writeSettings(ICore::instance()->settings());
 }
 
 } // namespace Internal
@@ -716,7 +696,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
 
-    connect(m_manager, SIGNAL(settingsDialogRequested()),
+    connect(theDebuggerSettings()->action(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
 
     return true;
@@ -810,7 +790,7 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
-    if (!m_manager->settings()->m_useToolTips)
+    if (!theDebuggerSettings()->boolValue(UseToolTips))
         return;
 
     QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
@@ -899,34 +879,17 @@ void DebuggerPlugin::writeSettings() const
     QTC_ASSERT(m_manager->mainWindow(), return);
 
     QSettings *s = settings();
-    DebuggerSettings *m = m_manager->settings();
+    theDebuggerSettings()->writeSettings(s);
     s->beginGroup(QLatin1String("DebugMode"));
     s->setValue("State", m_manager->mainWindow()->saveState());
     s->setValue("Locked", m_toggleLockedAction->isChecked());
-    s->setValue("Location", m->m_gdbCmd);
-    s->setValue("Environment", m->m_gdbEnv);
-    s->setValue("ScriptFile", m->m_scriptFile);
-    s->setValue("AutoRun", m->m_autoRun);
-    s->setValue("AutoQuit", m->m_autoQuit);
-
-    s->setValue("UseToolTips", m->m_useToolTips);
-    s->setValue("UseCustomDumpers", m->m_useDumpers);
-    s->setValue("ListSourceFiles", m->m_listSourceFiles);
-    s->setValue("SkipKnowFrames", m->m_skipKnownFrames);
-    s->setValue("DebugDumpers", m->m_debugDumpers);
-
-    s->setValue("AllPluginBreakpoints", m->m_pluginAllBreakpoints);
-    s->setValue("SelectedPluginBreakpoints", m->m_pluginSelectedBreakpoints);
-    s->setValue("NoPluginBreakpoints", m->m_pluginNoBreakpoints);
-    s->setValue("SelectedPluginBreakpointsPattern", m->m_pluginSelectedBreakpointsPattern);
-
     s->endGroup();
 }
 
 void DebuggerPlugin::readSettings()
 {
     QSettings *s = settings();
-    DebuggerSettings *m = &m_manager->m_settings; 
+    theDebuggerSettings()->readSettings(s);
 
     QString defaultCommand("gdb");
 #if defined(Q_OS_WIN32)
@@ -937,31 +900,8 @@ void DebuggerPlugin::readSettings()
     QString defaultScript;
 
     s->beginGroup(QLatin1String("DebugMode"));
-
     QByteArray ba = s->value("State", QByteArray()).toByteArray();
     m_toggleLockedAction->setChecked(s->value("Locked", true).toBool());
-    m->m_gdbCmd     = s->value("Location", defaultCommand).toString();
-    m->m_scriptFile = s->value("ScriptFile", defaultScript).toString();
-    m->m_gdbEnv     = s->value("Environment", "").toString();
-    m->m_autoRun    = s->value("AutoRun", true).toBool();
-    m->m_autoQuit   = s->value("AutoQuit", true).toBool();
-
-    m->m_skipKnownFrames  = s->value("SkipKnownFrames", false).toBool();
-    m->m_debugDumpers     = s->value("DebugDumpers", false).toBool();
-    m->m_useDumpers       = s->value("UseCustomDumpers", true).toBool();
-    action(UseDumpers)->setChecked(m->m_useDumpers);
-    m->m_useToolTips      = s->value("UseToolTips", false).toBool();
-    m->m_listSourceFiles  = s->value("ListSourceFiles", false).toBool();
-
-    m->m_pluginAllBreakpoints =
-        s->value("AllPluginBreakpoints", true).toBool();
-    m->m_pluginSelectedBreakpoints =
-        s->value("SelectedPluginBreakpoints", false).toBool();
-    m->m_pluginNoBreakpoints =
-        s->value("NoPluginBreakpoints", false).toBool();
-    m->m_pluginSelectedBreakpointsPattern =
-        s->value("SelectedPluginBreakpointsPattern").toString();
-
     s->endGroup();
 
     m_manager->mainWindow()->restoreState(ba);

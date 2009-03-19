@@ -58,8 +58,6 @@ public slots:
     void setModel(QAbstractItemModel *model);
 
 signals:
-    void requestWatchExpression(const QString &exp);
-    void requestRemoveWatchExpression(const QString &exp);
     void requestAssignValue(const QString &exp, const QString &value);
     void requestExpandChildren(const QModelIndex &idx);
     void requestCollapseChildren(const QModelIndex &idx);

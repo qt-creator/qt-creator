@@ -92,23 +92,20 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
-        emit requestRemoveWatchExpression(exp); 
+        theDebuggerSettings()->item(RemoveWatchExpression)->setValue(exp);
     }
     QTreeView::keyPressEvent(ev);
 }
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QtcSettings *s = theDebuggerSettings();
     QMenu menu;
     QAction *act1 = new QAction("Adjust column widths to contents", &menu);
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    QAction *act3 = 0;
     QAction *act4 = 0;
-    QAction *act5 = action(RecheckDumpers);
-    QAction *act6 = action(UseDumpers);
-    QAction *act7 = action(SettingsDialog);
 
     menu.addAction(act1);
     menu.addAction(act2);
@@ -121,10 +118,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     bool visual = false;
     if (idx.isValid()) {
         menu.addSeparator();
-        if (m_type == LocalsType)
-            act3 = new QAction("Watch expression '" + exp + "'", &menu);
-        else 
-            act3 = new QAction("Remove expression '" + exp + "'", &menu);
+        int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
+        QAction *act3 = s->action(type);
+        act3->setText(exp);
         menu.addAction(act3);
     
         visual = model()->data(mi0, VisualRole).toBool();
@@ -134,28 +130,19 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         // FIXME: menu.addAction(act4);
     }
     menu.addSeparator();
-    menu.addAction(act5);
-    menu.addAction(act6);
+    menu.addAction(s->action(RecheckDumpers));
+    menu.addAction(s->action(UseDumpers));
     menu.addSeparator();
-    menu.addAction(act7);
+    menu.addAction(s->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (!act)
-        ;
-    else if (act == act1)
+    if (act == act1)
         resizeColumnsToContents();
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == act3)
-        if (m_type == LocalsType)
-            emit requestWatchExpression(exp);
-        else
-            emit requestRemoveWatchExpression(exp);
     else if (act == act4)
         model()->setData(mi0, !visual, VisualRole);
-    else 
-        act->trigger();
 }
 
 void WatchWindow::resizeColumnsToContents()

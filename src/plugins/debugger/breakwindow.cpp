@@ -94,7 +94,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act3 = new QAction("Edit condition...", &menu);
     act0->setEnabled(index.isValid());
     QAction *act4 = new QAction("Syncronize breakpoints", &menu);
-    QAction *act5 = action(SettingsDialog);
 
     menu.addAction(act0);
     menu.addAction(act3);
@@ -102,7 +101,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addAction(act4);
-    menu.addAction(act5);
+    menu.addAction(theDebuggerSettings()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -116,8 +115,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         editCondition(index);
     else if (act == act4)
         emit breakpointSynchronizationRequested();
-    else if (act == act5)
-        act->trigger();
 }
 
 void BreakWindow::deleteBreakpoint(const QModelIndex &idx)

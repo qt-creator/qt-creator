@@ -160,8 +160,8 @@ public:
     
 //public slots:
     void cleanup();
-    void watchExpression(const QString &exp);
-    void removeWatchExpression(const QString &exp);
+    Q_SLOT void watchExpression(const QString &exp);
+    Q_SLOT void removeWatchExpression(const QString &exp);
     void reinitializeWatchers();
 
     void collapseChildren(const QModelIndex &idx);

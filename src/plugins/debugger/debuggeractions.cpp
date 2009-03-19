@@ -29,11 +29,314 @@
 
 #include "debuggeractions.h"
 
+#include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
+
+#include <QtCore/QSettings>
 #include <QtGui/QAction>
-#include <QtGui/QApplication>
+#include <QtGui/QAbstractButton>
+#include <QtGui/QRadioButton>
+#include <QtGui/QCheckBox>
+#include <QtGui/QLineEdit>
 
 namespace Debugger {
 namespace Internal {
+
+//////////////////////////////////////////////////////////////////////////
+//
+// QtcSettingsItem
+//
+//////////////////////////////////////////////////////////////////////////
+
+QtcSettingsItem::QtcSettingsItem(QObject *parent)
+  : QObject(parent)
+{
+    m_action = new QAction(this);
+    connect(m_action, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+}
+
+QVariant QtcSettingsItem::value() const
+{
+    return m_value;
+}
+
+void QtcSettingsItem::setValue(const QVariant &value, bool doemit)
+{
+    if (value != m_value) {
+        m_value = value;
+        if (m_action->isCheckable())
+            m_action->setChecked(m_value.toBool());
+        if (doemit) {
+            emit valueChanged(m_value);
+            emit boolValueChanged(m_value.toBool());
+            emit stringValueChanged(m_value.toString());
+        }
+    }
+}
+
+QVariant QtcSettingsItem::defaultValue() const
+{
+    return m_defaultValue;
+}
+
+void QtcSettingsItem::setDefaultValue(const QVariant &value)
+{
+    m_defaultValue = value;
+}
+
+QString QtcSettingsItem::settingsKey() const
+{
+    return m_settingsKey;
+}
+
+void QtcSettingsItem::setSettingsKey(const QString &key)
+{
+    m_settingsKey = key;
+}
+
+void QtcSettingsItem::setSettingsKey(const QString &group, const QString &key)
+{
+    m_settingsKey = key;
+    m_settingsGroup = group;
+}
+
+QString QtcSettingsItem::settingsGroup() const
+{
+    return m_settingsGroup;
+}
+
+void QtcSettingsItem::setSettingsGroup(const QString &group)
+{
+    m_settingsGroup = group;
+}
+
+QString QtcSettingsItem::text() const
+{
+    return m_action->text();
+}
+
+void QtcSettingsItem::setText(const QString &value)
+{
+    if (!value.isEmpty() && !m_textPattern.isEmpty())
+        m_action->setText(m_textPattern.arg(value));
+    else
+        m_action->setText(value);
+}
+
+QString QtcSettingsItem::textPattern() const
+{
+    return m_textPattern;
+}
+
+void QtcSettingsItem::setTextPattern(const QString &value)
+{
+    m_textPattern = value;
+}
+
+void QtcSettingsItem::readSettings(QSettings *settings)
+{
+    if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
+        return;
+    settings->beginGroup(m_settingsGroup);
+    setValue(settings->value(m_settingsKey, m_defaultValue), false);
+    qDebug() << "READING: " << m_settingsKey << " -> " << m_value;
+    settings->endGroup();
+}
+
+void QtcSettingsItem::writeSettings(QSettings *settings)
+{
+    if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
+        return;
+    settings->beginGroup(m_settingsGroup);
+    settings->setValue(m_settingsKey, m_value);
+    qDebug() << "WRITING: " << m_settingsKey << " -> " << m_value;
+    settings->endGroup();
+}
+   
+QAction *QtcSettingsItem::action() const
+{
+    return m_action;
+}
+ 
+void QtcSettingsItem::connectWidget(QWidget *widget, ApplyMode applyMode)
+{
+    using namespace Core::Utils;
+    //qDebug() << "CONNECT WIDGET " << widget << " TO " << m_settingsKey;
+    m_applyModes[widget] = applyMode;
+    m_deferedValue = m_value;
+    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
+        if (button->isCheckable()) {
+            button->setChecked(m_value.toBool());
+            connect(button, SIGNAL(clicked(bool)),
+                this, SLOT(checkableButtonClicked(bool)));
+        } else {
+            connect(button, SIGNAL(clicked()),
+                this, SLOT(uncheckableButtonClicked()));
+        }
+    } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
+        lineEdit->setText(m_value.toString());
+        //qDebug() << "SETTING TEXT" << lineEdit->text(); 
+        connect(lineEdit, SIGNAL(editingFinished()),
+            this, SLOT(lineEditEditingFinished()));
+    } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {
+        pathChooser->setPath(m_value.toString());
+        connect(pathChooser, SIGNAL(editingFinished()),
+            this, SLOT(pathChooserEditingFinished()));
+        connect(pathChooser, SIGNAL(browsingFinished()),
+            this, SLOT(pathChooserEditingFinished()));
+    } else {
+        qDebug() << "CANNOT CONNECT WIDGET " << widget;
+    }
+}
+
+void QtcSettingsItem::applyDeferedChange()
+{
+    setValue(m_deferedValue);
+}
+
+void QtcSettingsItem::uncheckableButtonClicked()
+{
+    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
+    QTC_ASSERT(button, return);
+    qDebug() << "UNCHECKABLE BUTTON: " << sender();
+    m_action->trigger();
+}
+
+void QtcSettingsItem::checkableButtonClicked(bool)
+{
+    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
+    QTC_ASSERT(button, return);
+    qDebug() << "CHECKABLE BUTTON: " << sender();
+    if (m_applyModes[sender()] == DeferedApply)
+        m_deferedValue = button->isChecked();
+    else
+        setValue(button->isChecked());
+}
+
+void QtcSettingsItem::lineEditEditingFinished()
+{
+    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
+    QTC_ASSERT(lineEdit, return);
+    qDebug() << "LINEEDIT: " << sender() << lineEdit->text();
+    if (m_applyModes[sender()] == DeferedApply)
+        m_deferedValue = lineEdit->text();
+    else
+        setValue(lineEdit->text());
+}
+
+void QtcSettingsItem::pathChooserEditingFinished()
+{
+    using namespace Core::Utils;
+    PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
+    QTC_ASSERT(pathChooser, return);
+    qDebug() << "PATHCHOOSER: " << sender() << pathChooser->path();
+    if (m_applyModes[sender()] == DeferedApply)
+        m_deferedValue = pathChooser->path();
+    else
+        setValue(pathChooser->path());
+}
+
+void QtcSettingsItem::actionTriggered(bool on)
+{
+    Q_UNUSED(on);
+    if (QAction *action = qobject_cast<QAction *>(sender())) {
+        if (action->isCheckable())
+            setValue(action->isChecked());
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// QtcSettings
+//
+//////////////////////////////////////////////////////////////////////////
+
+
+QtcSettings::QtcSettings(QObject *parent)
+    : QObject(parent)
+{}
+
+QtcSettings::~QtcSettings()
+{
+    qDeleteAll(m_items);
+}
+    
+QtcSettingsItem *QtcSettings::createItem(int code)
+{
+    return m_items[code] = new QtcSettingsItem;
+}
+
+void QtcSettings::insertItem(int code, QtcSettingsItem *item)
+{
+    m_items[code] = item;
+}
+
+void QtcSettings::readSettings(QSettings *settings)
+{
+    foreach (QtcSettingsItem *item, m_items)
+        item->readSettings(settings);
+}
+
+void QtcSettings::writeSettings(QSettings *settings)
+{
+    foreach (QtcSettingsItem *item, m_items)
+        item->writeSettings(settings);
+}
+   
+QtcSettingsItem *QtcSettings::item(int code)
+{
+    QTC_ASSERT(m_items.value(code, 0), return 0);
+    return m_items.value(code, 0);
+}
+
+bool QtcSettings::boolValue(int code)
+{
+    return item(code)->value().toBool();
+}
+
+QString QtcSettings::stringValue(int code)
+{
+    return item(code)->value().toString();
+}
+
+int QtcSettings::intValue(int code)
+{
+    return item(code)->value().toInt();
+}
+
+QAction *QtcSettings::action(int code)
+{
+    return item(code)->action();
+}
+
+void QtcSettings::applyDeferedChanges()
+{
+    foreach (QtcSettingsItem *item, m_items)
+        item->applyDeferedChange();
+}
+   
+void QtcSettings::applyDeferedChange(int code)
+{
+    return item(code)->applyDeferedChange();
+}
+
+void QtcSettings::connectWidget(int code, QWidget *widget, ApplyMode applyMode)
+{
+    item(code)->connectWidget(widget, applyMode);
+}
+
+QString QtcSettings::dump()
+{
+    QString out;
+    QTextStream ts(&out);
+    ts  << "Debugger settings: ";
+    foreach (QtcSettingsItem *item, m_items)
+        ts << "\n" << item->value().toString();
+    return out;
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,60 +345,135 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////////////
 
-struct ActionData
-{
-    ActionCode code;
-    const char *text;
-    bool checkable;
-};
+#if 0
+    QString dump();
 
-static ActionData data[] =
-{
-    //
-    //  General
-    // 
-    { AdjustColumnWidths,
-        QT_TR_NOOP("Adjust column widths to contents"), false },
-    { AlwaysAdjustColumnWidths,
-        QT_TR_NOOP("Adjust column widths to contents"), true },
+    QString m_gdbCmd;
+    QString m_gdbEnv;
+    bool m_autoRun;
+    bool m_autoQuit;
 
-    //
-    // Locals & Watchers
-    //
-    { WatchExpression,
-        QT_TR_NOOP("Watch expression '%1'"), false },
-    { WatchExpression,
-        QT_TR_NOOP("Watch expression '%1'"), false },
-    { SettingsDialog,
-        QT_TR_NOOP("Debugger properties..."), false },
-    { UseDumpers,
-        QT_TR_NOOP("Use custom dumpers"), true },
-    { DebugDumpers,
-        QT_TR_NOOP("Debug custom dumpers"), true },
-    { RecheckDumpers,
-        QT_TR_NOOP("Recheck custom dumper availability"), true },
+    bool m_useDumpers;
+    bool m_skipKnownFrames;
+    bool m_debugDumpers;
+    bool m_useToolTips;
+    bool m_listSourceFiles;
+
+    QString m_scriptFile;
+
+    bool m_pluginAllBreakpoints;
+    bool m_pluginSelectedBreakpoints;
+    bool m_pluginNoBreakpoints;
+    QString m_pluginSelectedBreakpointsPattern;
+#endif
+
+
+QtcSettings *theDebuggerSettings()
+{
+    static QtcSettings *instance = 0;
+    if (instance)
+        return instance;
+
+    instance = new QtcSettings;
+
+    QtcSettingsItem *item = 0;
+
+    item = instance->createItem(AdjustColumnWidths);
+    item->setText(QObject::tr("Adjust column widths to contents"));
+
+    item = instance->createItem(AlwaysAdjustColumnWidths);
+    item->setText(QObject::tr("Always adjust column widths to contents"));
+    item->action()->setCheckable(true);
+
+    item = instance->createItem(WatchExpression);
+    item->setTextPattern(QObject::tr("Watch expression \"%1\""));
+
+    item = instance->createItem(RemoveWatchExpression);
+    item->setTextPattern(QObject::tr("Remove watch expression \"%1\""));
+
+    item = instance->createItem(SettingsDialog);
+    item->setText(QObject::tr("Debugger properties..."));
+
+    item = instance->createItem(DebugDumpers);
+    item->setText(QObject::tr("Debug custom dumpers"));
+    item->action()->setCheckable(true);
+
+    item = instance->createItem(RecheckDumpers);
+    item->setText(QObject::tr("Recheck custom dumper availability"));
 
     //
     // Breakpoints
     //
-    { SynchronizeBreakpoints,
-        QT_TR_NOOP("Syncronize breakpoints"), false },
-};
+    item = instance->createItem(SynchronizeBreakpoints);
+    item->setText(QObject::tr("Syncronize breakpoints"));
 
-QAction *action(ActionCode code)
-{
-    static QHash<ActionCode, QAction *> actions;
+    //
+    item = instance->createItem(AutoQuit);
+    item->setText(QObject::tr("Automatically quit debugger"));
+    item->action()->setCheckable(true);
 
-    if (actions.isEmpty()) {
-        for (int i = 0; i != sizeof(data)/sizeof(data[0]); ++i) {
-            const ActionData &d = data[i];
-            QAction *act = new QAction(QObject::tr(d.text), 0);
-            act->setCheckable(d.checkable);
-            actions[d.code] = act;
-        }
-    }
+    item = instance->createItem(SkipKnownFrames);
+    item->setText(QObject::tr("Skip known frames"));
+    item->action()->setCheckable(true);
 
-    return actions.value(code);
+    item = instance->createItem(UseToolTips);
+    item->setText(QObject::tr("Use tooltips when debugging"));
+    item->action()->setCheckable(true);
+
+    item = instance->createItem(ListSourceFiles);
+    item->setText(QObject::tr("List source files"));
+    item->action()->setCheckable(true);
+
+
+    //
+    // Settings
+    //
+    item = instance->createItem(GdbLocation);
+    item->setSettingsKey("DebugMode", "Location");
+
+    item = instance->createItem(GdbEnvironment);
+    item->setSettingsKey("DebugMode", "Environment");
+
+    item = instance->createItem(GdbScriptFile);
+    item->setSettingsKey("DebugMode", "ScriptFile");
+
+    item = instance->createItem(GdbAutoQuit);
+    item->setSettingsKey("DebugMode", "AutoQuit");
+
+    item = instance->createItem(GdbAutoRun);
+    item->setSettingsKey("DebugMode", "AutoRun");
+
+    item = instance->createItem(UseToolTips);
+    item->setSettingsKey("DebugMode", "UseToolTips");
+
+    item = instance->createItem(UseDumpers);
+    item->setSettingsKey("DebugMode", "UseCustomDumpers");
+    item->setText(QObject::tr("Use custom dumpers"));
+    item->action()->setCheckable(true);
+
+
+    item = instance->createItem(ListSourceFiles);
+    item->setSettingsKey("DebugMode", "ListSourceFiles");
+
+    item = instance->createItem(SkipKnownFrames);
+    item->setSettingsKey("DebugMode", "SkipKnownFrames");
+
+    item = instance->createItem(DebugDumpers);
+    item->setSettingsKey("DebugMode", "DebugDumpers");
+
+    item = instance->createItem(AllPluginBreakpoints);
+    item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
+
+    item = instance->createItem(SelectedPluginBreakpoints);
+    item->setSettingsKey("DebugMode", "SelectedPluginBreakpoints");
+
+    item = instance->createItem(NoPluginBreakpoints);
+    item->setSettingsKey("DebugMode", "NoPluginBreakpoints");
+
+    item = instance->createItem(SelectedPluginBreakpointsPattern);
+    item->setSettingsKey("DebugMode", "SelectedPluginBreakpointsPattern");
+
+    return instance;
 }
 
 } // namespace Internal

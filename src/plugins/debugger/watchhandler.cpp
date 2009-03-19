@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "watchhandler.h"
+#include "debuggeractions.h"
 
 #if USE_MODEL_TEST
 #include "modeltest.h"
@@ -38,6 +39,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
 
+#include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QToolTip>
@@ -365,6 +367,14 @@ WatchHandler::WatchHandler()
     m_completeSet = initialSet();
     m_incompleteSet.clear();
     m_displaySet = m_completeSet;
+
+    QtcSettings *s = theDebuggerSettings();
+
+    connect(s->item(WatchExpression), SIGNAL(stringValueChanged(QString)),
+        this, SLOT(watchExpression(QString)));
+
+    connect(s->item(RemoveWatchExpression), SIGNAL(stringValueChanged(QString)),
+        this, SLOT(removeWatchExpression(QString)));
 }
 
 bool WatchHandler::setData(const QModelIndex &idx,
