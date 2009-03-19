@@ -952,7 +952,7 @@ void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *nod
     foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
         if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>()) {
             if (qt4rc->proFilePath() == node->path()) {
-                qt4rc->updateCachedValues();
+                qt4rc->invalidateCachedTargetInformation();
             }
         }
     }
@@ -1011,3 +1011,43 @@ void Qt4Project::notifyChanged(const QString &name)
             node->update();
     }
 }
+
+void Qt4Project::invalidateCachedTargetInformation()
+{
+    foreach(QSharedPointer<RunConfiguration> rc, runConfigurations()) {
+        QSharedPointer<Qt4RunConfiguration> qt4rc = rc.dynamicCast<Qt4RunConfiguration>();
+        if (qt4rc) {
+            qt4rc->invalidateCachedTargetInformation();
+        }
+    }
+}
+
+
+/*!
+  Handle special case were a subproject of the qt directory is opened, and
+  qt was configured to be built as a shadow build -> also build in the sub-
+  project in the correct shadow build directory.
+  */
+
+// TODO this function should be called on project first load
+// and it should check against all configured qt versions ?
+//void Qt4Project::detectQtShadowBuild(const QString &buildConfiguration) const
+//{
+//    if (project()->activeBuildConfiguration() == buildConfiguration)
+//        return;
+//
+//    const QString currentQtDir = static_cast<Qt4Project *>(project())->qtDir(buildConfiguration);
+//    const QString qtSourceDir = static_cast<Qt4Project *>(project())->qtVersion(buildConfiguration)->sourcePath();
+//
+//    // if the project is a sub-project of Qt and Qt was shadow-built then automatically
+//    // adjust the build directory of the sub-project.
+//    if (project()->file()->fileName().startsWith(qtSourceDir) && qtSourceDir != currentQtDir) {
+//        project()->setValue(buildConfiguration, "useShadowBuild", true);
+//        QString buildDir = QFileInfo(project()->file()->fileName()).absolutePath();
+//        buildDir.replace(qtSourceDir, currentQtDir);
+//        project()->setValue(buildConfiguration, "buildDirectory", buildDir);
+//        project()->setValue(buildConfiguration, "autoShadowBuild", true);
+//    }
+//}
+
+

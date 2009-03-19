@@ -183,6 +183,11 @@ public:
 
     QString makeCommand(const QString &buildConfiguration) const;
 
+    // Is called by qmakestep qt4configurationwidget if the settings change
+    // Informs all Qt4RunConfigurations that their cached values are now invalid
+    // the Qt4RunConfigurations will update as soon as asked
+    void invalidateCachedTargetInformation();
+
 public slots:
     void update();
     void proFileParseError(const QString &errorMessage);

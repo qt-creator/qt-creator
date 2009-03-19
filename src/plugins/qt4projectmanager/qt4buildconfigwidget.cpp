@@ -115,7 +115,7 @@ void Qt4BuildConfigWidget::init(const QString &buildConfiguration)
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_ui->shadowBuildDirEdit->setPath(m_pro->buildDirectory(buildConfiguration));
-    shadowBuildLineEditTextChanged(); // Update the import label
+    updateImportLabel();
 }
 
 void Qt4BuildConfigWidget::changeConfigName(const QString &newName)
@@ -173,12 +173,8 @@ void Qt4BuildConfigWidget::shadowBuildCheckBoxClicked(bool checked)
         m_pro->setValue(m_buildConfiguration, "buildDirectory", QVariant(QString::null));
 }
 
-void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
+void Qt4BuildConfigWidget::updateImportLabel()
 {
-    m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
-    // if the directory already exists
-    // check if we have a build in there and
-    // offer to import it
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
@@ -186,6 +182,18 @@ void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
             m_ui->importLabel->setVisible(true);
         }
     }
+}
+
+void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
+{
+    if (m_pro->value(m_buildConfiguration, "buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
+    m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
+    // if the directory already exists
+    // check if we have a build in there and
+    // offer to import it
+    updateImportLabel();
+
+    m_pro->invalidateCachedTargetInformation();
 
 //    QFileInfo fi(m_ui->shadowBuildDirEdit->path());
 //    if (fi.exists()) {

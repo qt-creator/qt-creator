@@ -73,8 +73,15 @@ public:
 
     QString proFilePath() const;
 
-    // Should just be called from qt4project, since that knows that the file changed on disc
-    void updateCachedValues();
+    // TODO detectQtShadowBuild() ? how did this work ?
+
+public slots:
+    // This function is called if:
+    // X the pro file changes
+    // X the active buildconfiguration changes
+    // X  the qmake parameters change
+    // X  the build directory changes
+    void invalidateCachedTargetInformation();
 
 signals:
     void nameChanged(const QString&);
@@ -82,8 +89,7 @@ signals:
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
 
     // note those signals might not emited for every change
-    void effectiveExecutableChanged();
-    void effectiveWorkingDirectoryChanged();
+    void effectiveTargetInformationChanged();
 
 private slots:
     void setCommandLineArguments(const QString &argumentsString);
@@ -91,10 +97,7 @@ private slots:
     void setRunMode(RunMode runMode);
 
 private:
-    void detectQtShadowBuild(const QString &buildConfig) const;
-    QString resolveVariables(const QString &buildConfiguration, const QString& in) const;
-    QString qmakeBuildConfigFromBuildConfiguration(const QString &buildConfigurationName) const;
-
+    void updateTarget();
     QStringList m_commandLineArguments;
     Qt4ProFileNode *m_proFileNode;
     QString m_proFilePath; // Full path to the Application Pro File
@@ -102,13 +105,13 @@ private:
     // Cached startup sub project information
     QStringList m_targets;
     QString m_executable;
-    QString m_srcDir;
     QString m_workingDir;
     ProjectExplorer::ApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
     QWidget *m_configWidget;
     QLabel *m_executableLabel;
     QLabel *m_workingDirectoryLabel;
+    bool m_cachedTargetInformationValid;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -116,6 +119,9 @@ class Qt4RunConfigurationWidget : public QWidget
     Q_OBJECT
 public:
     Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4runconfigration, QWidget *parent);
+protected:
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
 private slots:
     void setCommandLineArguments(const QString &arguments);
     void nameEdited(const QString &name);
@@ -123,8 +129,7 @@ private slots:
     void commandLineArgumentsChanged(const QString &args);
     void nameChanged(const QString &name);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
-    void effectiveExecutableChanged();
-    void effectiveWorkingDirectoryChanged();
+    void effectiveTargetInformationChanged();
     void termToggled(bool);
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
@@ -134,6 +139,7 @@ private:
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
+    bool m_isShown;
 };
 
 class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

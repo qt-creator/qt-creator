@@ -63,6 +63,7 @@ private slots:
     void manageQtVersions();
 
 private:
+    void updateImportLabel();
     Ui::Qt4BuildConfigWidget *m_ui;
     Qt4Project *m_pro;
     QString m_buildConfiguration;

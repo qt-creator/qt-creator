@@ -58,17 +58,16 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
       m_userSetName(false),
       m_configWidget(0),
       m_executableLabel(0),
-      m_workingDirectoryLabel(0)
+      m_workingDirectoryLabel(0),
+      m_cachedTargetInformationValid(false)
 {
     setName(tr("Qt4RunConfiguration"));
     if (!m_proFilePath.isEmpty()) {
-        updateCachedValues();
         setName(QFileInfo(m_proFilePath).baseName());
     }
+
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
-            this, SIGNAL(effectiveExecutableChanged()));
-    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
-            this, SIGNAL(effectiveWorkingDirectoryChanged()));
+            this, SLOT(invalidateCachedTargetInformation()));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
@@ -87,7 +86,7 @@ QString Qt4RunConfiguration::type() const
 /////
 
 Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4RunConfiguration, QWidget *parent)
-    : QWidget(parent), m_qt4RunConfiguration(qt4RunConfiguration), m_ignoreChange(false)
+    : QWidget(parent), m_qt4RunConfiguration(qt4RunConfiguration), m_ignoreChange(false), m_isShown(false)
 {
     QFormLayout *toplayout = new QFormLayout(this);
     toplayout->setMargin(0);
@@ -128,11 +127,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)));
 
-    connect(qt4RunConfiguration, SIGNAL(effectiveExecutableChanged()),
-            this, SLOT(effectiveExecutableChanged()));
-    connect(qt4RunConfiguration, SIGNAL(effectiveWorkingDirectoryChanged()),
-            this, SLOT(effectiveWorkingDirectoryChanged()));
-
+    connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
+            this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
 }
 
 void Qt4RunConfigurationWidget::setCommandLineArguments(const QString &args)
@@ -175,18 +171,28 @@ void Qt4RunConfigurationWidget::runModeChanged(ApplicationRunConfiguration::RunM
         m_useTerminalCheck->setChecked(runMode == ApplicationRunConfiguration::Console);
 }
 
-void Qt4RunConfigurationWidget::effectiveExecutableChanged()
+void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
-    m_executableLabel->setText(m_qt4RunConfiguration->executable());
+    if (m_isShown) {
+        m_executableLabel->setText(m_qt4RunConfiguration->executable());
+        m_workingDirectoryLabel->setText(m_qt4RunConfiguration->workingDirectory());
+    }
 }
 
-void Qt4RunConfigurationWidget::effectiveWorkingDirectoryChanged()
+void Qt4RunConfigurationWidget::showEvent(QShowEvent *event)
 {
-    m_workingDirectoryLabel->setText(m_qt4RunConfiguration->workingDirectory());
+    m_isShown = true;
+    effectiveTargetInformationChanged();
+    QWidget::showEvent(event);
+}
+
+void Qt4RunConfigurationWidget::hideEvent(QHideEvent *event)
+{
+    m_isShown = false;
+    QWidget::hideEvent(event);
 }
 
 ////// TODO c&p above
-
 QWidget *Qt4RunConfiguration::configurationWidget()
 {
     return new Qt4RunConfigurationWidget(this, 0);
@@ -209,7 +215,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     if (!m_proFilePath.isEmpty()) {
-        updateCachedValues();
+        m_cachedTargetInformationValid = false;
         if (!m_userSetName)
             setName(QFileInfo(m_proFilePath).baseName());
     }
@@ -217,7 +223,8 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
 
 QString Qt4RunConfiguration::executable() const
 {
-    return resolveVariables(project()->activeBuildConfiguration(), m_executable);
+    const_cast<Qt4RunConfiguration *>(this)->updateTarget();
+    return m_executable;
 }
 
 ApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
@@ -227,7 +234,8 @@ ApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
 
 QString Qt4RunConfiguration::workingDirectory() const
 {
-    return resolveVariables(project()->activeBuildConfiguration(), m_workingDir);
+    const_cast<Qt4RunConfiguration *>(this)->updateTarget();
+    return m_workingDir;
 }
 
 QStringList Qt4RunConfiguration::commandLineArguments() const
@@ -271,179 +279,98 @@ QString Qt4RunConfiguration::proFilePath() const
     return m_proFilePath;
 }
 
-// and needs to be reloaded.
-// Check wheter it is
-void Qt4RunConfiguration::updateCachedValues()
+void Qt4RunConfiguration::updateTarget()
 {
-    ProFileReader *reader = static_cast<Qt4Project *>(project())->createProFileReader();
+    if (m_cachedTargetInformationValid)
+        return;
+    //qDebug()<<"updateTarget";
+    Qt4Project *pro = static_cast<Qt4Project *>(project());
+    ProFileReader *reader = pro->createProFileReader();
     reader->setCumulative(false);
+    reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));
+
+    // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
+    QtVersion::QmakeBuildConfig defaultBuildConfiguration = pro->qtVersion(pro->activeBuildConfiguration())->defaultBuildConfig();
+    QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->qmakeStep()->value(pro->activeBuildConfiguration(), "buildConfiguration").toInt());
+    QStringList addedUserConfigArguments;
+    QStringList removedUserConfigArguments;
+    if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
+        removedUserConfigArguments << "debug_and_release";
+    if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
+        addedUserConfigArguments << "debug_and_release";
+    if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(projectBuildConfiguration & QtVersion::DebugBuild))
+        addedUserConfigArguments << "release";
+    if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
+        addedUserConfigArguments << "debug";
+
+    reader->setUserConfigCmdArgs(addedUserConfigArguments, removedUserConfigArguments);
+
+    QHash<QString, QStringList>::const_iterator it;
+
     if (!reader->readProFile(m_proFilePath)) {
         delete reader;
         Core::ICore::instance()->messageManager()->printToOutputPane(QString("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
         return;
     }
 
-    QString destDir;
+    // Extract data
+    QString relSubDir = QFileInfo(project()->file()->fileName()).absoluteDir().relativeFilePath(QFileInfo(m_proFilePath).path());
+    QString baseDir = QDir(project()->buildDirectory(project()->activeBuildConfiguration())).absoluteFilePath(relSubDir);
 
+    //qDebug()<<relSubDir<<baseDir;
+
+    // Working Directory
     if (reader->contains("DESTDIR")) {
-        // TODO Can return different destdirs for different scopes!
-        destDir = reader->value("DESTDIR");
-        if (QDir::isRelativePath(destDir)) {
-            destDir = "${BASEDIR}" + QLatin1Char('/') + destDir;
+        //qDebug()<<"reader contains destdir:"<<reader->value("DESTDIR");
+        m_workingDir = reader->value("DESTDIR");
+        if (QDir::isRelativePath(m_workingDir)) {
+            m_workingDir = baseDir + QLatin1Char('/') + m_workingDir;
+            //qDebug()<<"was relative and expanded to"<<m_workingDir;
         }
     } else {
-        destDir = "${BASEDIR}";
+        //qDebug()<<"reader didn't contain DESTDIR, setting to "<<baseDir;
+        m_workingDir = baseDir;
+
 #if defined(Q_OS_WIN)
+        QString qmakeBuildConfig = "release";
+        if (projectBuildConfiguration & QtVersion::DebugBuild)
+            qmakeBuildConfig = "debug";
         if (!reader->contains("DESTDIR"))
-            destDir += QLatin1Char('/') + "${QMAKE_BUILDCONFIG}";
+            destDir += QLatin1Char('/') + qmakeBuildConfig;
 #endif
     }
 
 #if defined (Q_OS_MAC)
     if (reader->values("CONFIG").contains("app_bundle")) {
+        QString qmakeBuildConfig = "release";
+        if (projectBuildConfiguration & QtVersion::DebugBuild)
+            qmakeBuildConfig = "debug";
         destDir += QLatin1Char('/')
-                   + "${QMAKE_TARGET}"
+                   + qmakeBuildConfig
                    + QLatin1String(".app/Contents/MacOS");
     }
 #endif
-    m_workingDir = destDir;
-    m_executable = destDir + QLatin1Char('/') + "${QMAKE_TARGET}";
+
+    m_workingDir = QDir::cleanPath(m_workingDir);
+    m_executable = QDir::cleanPath(m_workingDir + QLatin1Char('/') + reader->value("TARGET"));
+    //qDebug()<<"##### updateTarget sets:"<<m_workingDir<<m_executable;
 
 #if defined (Q_OS_WIN)
     m_executable += QLatin1String(".exe");
 #endif
 
-    m_targets = reader->values(QLatin1String("TARGET"));
-
-    m_srcDir = QFileInfo(m_proFilePath).path();
-
     delete reader;
 
-    emit effectiveExecutableChanged();
-    emit effectiveWorkingDirectoryChanged();
+    m_cachedTargetInformationValid = true;
+
+    emit effectiveTargetInformationChanged();
 }
 
-QString Qt4RunConfiguration::resolveVariables(const QString &buildConfiguration, const QString& in) const
+void Qt4RunConfiguration::invalidateCachedTargetInformation()
 {
-    detectQtShadowBuild(buildConfiguration);
-    
-    QString relSubDir = QFileInfo(project()->file()->fileName()).absoluteDir().relativeFilePath(m_srcDir);
-    QString baseDir = QDir(project()->buildDirectory(buildConfiguration)).absoluteFilePath(relSubDir);
-
-    Core::VariableManager *vm = Core::ICore::instance()->variableManager();
-    if (!vm)
-        return QString();
-    QString dest;
-    bool found = false;
-    vm->insert("QMAKE_BUILDCONFIG", qmakeBuildConfigFromBuildConfiguration(buildConfiguration));
-    vm->insert("BASEDIR", baseDir);
-
-
-    /*
-      TODO This is a hack to detect correct target (there might be different targets in
-      different scopes)
-    */
-
-    // This code also works for workingDirectory,
-    // since directories are executable.
-    foreach (const QString &target, m_targets) {
-        dest = in;
-        vm->insert("QMAKE_TARGET", target);
-        dest = QDir::cleanPath(vm->resolve(dest));
-        vm->remove("QMAKE_TARGET");
-        QFileInfo fi(dest);
-        if (fi.exists() && (fi.isExecutable() || dest.endsWith(".js"))) {
-            found = true;
-            break;
-        }
-    }
-    vm->remove("BASEDIR");
-    vm->remove("QMAKE_BUILDCONFIG");
-    if (found)
-        return dest;
-    else
-        return QString();
+    m_cachedTargetInformationValid = false;
+    emit effectiveTargetInformationChanged();
 }
-
-/* This function tries to find out wheter qmake/make will put the binary in "/debug/" or in "/release/"
-   That is this function is strictly only for windows.
-   We look wheter make gets an explicit parameter "debug" or "release"
-   That works because if we have either debug or release there then it is surely a
-   debug_and_release buildconfiguration and thus we are put in a subdirectory.
-
-   Now if there is no explicit debug or release parameter, then we need to look at what qmake's CONFIG
-   value is, if it is not debug_and_release, we don't care and return ""
-   otherwise we look at wheter the default is debug or not
-
-   Note: When fixing this function consider those cases
-       qmake CONFIG+=debug_and_release CONFIG+=debug
-       make release
-    => we should return release
-
-        qmake CONFIG+=debug_and_release CONFIG+=debug
-        make
-    => we should return debug
-
-        qmake CONFIG-=debug_and_release CONFIG+=debug
-        make
-    => we should return "", since the executable is not put in a subdirectory
-
-   Not a function to be proud of
-*/
-QString Qt4RunConfiguration::qmakeBuildConfigFromBuildConfiguration(const QString &buildConfigurationName) const
-{
-    MakeStep *ms = qobject_cast<Qt4Project *>(project())->makeStep();
-    QStringList makeargs = ms->value(buildConfigurationName, "makeargs").toStringList();
-    if (makeargs.contains("debug"))
-        return "debug";
-    else if (makeargs.contains("release"))
-        return "release";
-
-    // Oh we don't have an explicit make argument
-    QMakeStep *qs = qobject_cast<Qt4Project *>(project())->qmakeStep();
-    QVariant qmakeBuildConfiguration = qs->value(buildConfigurationName, "buildConfiguration");
-    if (qmakeBuildConfiguration.isValid()) {
-        QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(qmakeBuildConfiguration.toInt());
-        if (projectBuildConfiguration & QtVersion::DebugBuild)
-            return "debug";
-        else
-            return "release";
-    } else {
-        // Old style always CONFIG+=debug_and_release
-        if (qobject_cast<Qt4Project *>(project())->qtVersion(buildConfigurationName)->defaultBuildConfig() & QtVersion::DebugBuild)
-            return "debug";
-        else
-            return "release";
-    }
-
-    // enable us to infer the right string
-    return "";
-}
-
-/*!
-  Handle special case were a subproject of the qt directory is opened, and
-  qt was configured to be built as a shadow build -> also build in the sub-
-  project in the correct shadow build directory.
-  */
-void Qt4RunConfiguration::detectQtShadowBuild(const QString &buildConfiguration) const
-{
-    if (project()->activeBuildConfiguration() == buildConfiguration)
-        return;
-
-    const QString currentQtDir = static_cast<Qt4Project *>(project())->qtDir(buildConfiguration);
-    const QString qtSourceDir = static_cast<Qt4Project *>(project())->qtVersion(buildConfiguration)->sourcePath();
-
-    // if the project is a sub-project of Qt and Qt was shadow-built then automatically
-    // adjust the build directory of the sub-project.
-    if (project()->file()->fileName().startsWith(qtSourceDir) && qtSourceDir != currentQtDir) {
-        project()->setValue(buildConfiguration, "useShadowBuild", true);
-        QString buildDir = QFileInfo(project()->file()->fileName()).absolutePath();
-        buildDir.replace(qtSourceDir, currentQtDir);
-        project()->setValue(buildConfiguration, "buildDirectory", buildDir);
-        project()->setValue(buildConfiguration, "autoShadowBuild", true);
-    }
-}
-
 
 ///
 /// Qt4RunConfigurationFactory

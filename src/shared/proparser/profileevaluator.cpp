@@ -217,6 +217,8 @@ public:
 
     int m_prevLineNo;                               // Checking whether we're assigning the same TARGET
     ProFile *m_prevProFile;                         // See m_prevLineNo
+    QStringList m_addUserConfigCmdArgs;
+    QStringList m_removeUserConfigCmdArgs;
 };
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_)
@@ -628,6 +630,12 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
             // But this also creates a lot of problems
             evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
+
+            QStringList tmp = m_valuemap.value("CONFIG");
+            tmp.append(m_addUserConfigCmdArgs);
+            foreach(const QString &remove, m_removeUserConfigCmdArgs)
+                tmp.removeAll(remove);
+            m_valuemap.insert("CONFIG", tmp);
             m_cumulative = cumulative;
         }
 
@@ -822,6 +830,7 @@ bool ProFileEvaluator::Private::visitProValue(ProValue *value)
                     // but this will break just as much as it fixes, so leave it as is.
                     replaceInList(&m_tempValuemap[varName], regexp, replace, global);
                     replaceInList(&m_tempFilevaluemap[currentProFile()][varName], regexp, replace, global);
+
                 }
             }
             break;
@@ -1679,14 +1688,16 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
             }
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
             const QStringList &configs = valuesDirect(QLatin1String("CONFIG"));
+
             for (int i = configs.size() - 1; i >= 0; i--) {
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (configs[i] == mutuals[mut].trimmed()) {
                         cond = (configs[i] == args[0]);
-                        break;
+                        goto done_T_CONFIG;
                     }
                 }
             }
+          done_T_CONFIG:
             break;
         }
         case T_CONTAINS: {
@@ -1713,12 +1724,12 @@ bool ProFileEvaluator::Private::evaluateConditionalFunction(const QString &funct
                     for (int mut = 0; mut < mutuals.count(); mut++) {
                         if (val == mutuals[mut].trimmed()) {
                             cond = (regx.exactMatch(val) || val == args[1]);
-                            break;
+                            goto done_T_CONTAINS;
                         }
                     }
                 }
             }
-
+          done_T_CONTAINS:
             break;
         }
         case T_COUNT: {
@@ -2282,6 +2293,12 @@ void ProFileEvaluator::setCumulative(bool on)
 void ProFileEvaluator::setOutputDir(const QString &dir)
 {
     d->m_outputDir = dir;
+}
+
+void ProFileEvaluator::setUserConfigCmdArgs(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs)
+{
+    d->m_addUserConfigCmdArgs = addUserConfigCmdArgs;
+    d->m_removeUserConfigCmdArgs = removeUserConfigCmdArgs;
 }
 
 void evaluateProFile(const ProFileEvaluator &visitor, QHash<QByteArray, QStringList> *varMap)

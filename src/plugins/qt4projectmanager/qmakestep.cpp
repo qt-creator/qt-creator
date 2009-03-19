@@ -234,6 +234,7 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
     Q_ASSERT(!m_buildConfiguration.isNull());
     m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
+    static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
 }
 
 void QMakeStepConfigWidget::buildConfigurationChanged()
@@ -247,6 +248,7 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
     }
     m_step->setValue(m_buildConfiguration, "buildConfiguration", int(buildConfiguration));
     m_ui.qmakeArgumentsEdit->setPlainText(ProjectExplorer::Environment::joinArgumentList(m_step->arguments(m_buildConfiguration)));
+    static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
 }
 
 QString QMakeStepConfigWidget::displayName() const
