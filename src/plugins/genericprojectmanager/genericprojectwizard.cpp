@@ -4,16 +4,17 @@
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/filenamevalidatinglineedit.h>
+#include <utils/filewizardpage.h>
 #include <utils/pathchooser.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QtDebug>
 
-#include <QtGui/QWizard>
+#include <QtGui/QDirModel>
 #include <QtGui/QFormLayout>
 #include <QtGui/QListView>
 #include <QtGui/QTreeView>
-#include <QtGui/QDirModel>
 
 using namespace GenericProjectManager::Internal;
 using namespace Core::Utils;
@@ -94,14 +95,12 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     setWindowTitle(tr("Import Existing Project"));
 
     // first page
-    QWizardPage *firstPage = new QWizardPage;
-    firstPage->setTitle(tr("Project"));
+    m_firstPage = new FileWizardPage;
+    m_firstPage->setTitle(tr("Import Project"));
+    m_firstPage->setNameLabel(tr("Project name:"));
+    m_firstPage->setPathLabel(tr("Location:"));
 
-    QFormLayout *layout = new QFormLayout(firstPage);
-    m_pathChooser = new PathChooser;
-    layout->addRow(tr("Source Directory:"), m_pathChooser);
-
-    m_firstPageId = addPage(firstPage);
+    addPage(m_firstPage);
 
 #if 0
     // second page
@@ -146,7 +145,14 @@ GenericProjectWizardDialog::~GenericProjectWizardDialog()
 { }
 
 QString GenericProjectWizardDialog::path() const
-{ return m_pathChooser->path(); }
+{
+    return m_firstPage->path();
+}
+
+QString GenericProjectWizardDialog::projectName() const
+{
+    return m_firstPage->name();
+}
 
 void GenericProjectWizardDialog::updateFilesView(const QModelIndex &current,
                                                  const QModelIndex &)
@@ -182,12 +188,11 @@ bool GenericProjectWizardDialog::validateCurrentPage()
 {
     using namespace Core::Utils;
 
-    if (currentId() == m_firstPageId) {
-        return ! m_pathChooser->path().isEmpty();
-
-    } else if (currentId() == m_secondPageId) {
+#if 0
+    if (currentId() == m_secondPageId) {
         return true;
     }
+#endif
 
     return QWizard::validateCurrentPage();
 }
@@ -271,7 +276,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const GenericProjectWizardDialog *wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);
-    const QString projectName = QFileInfo(projectPath).baseName();
+    const QString projectName = wizard->projectName();
     const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".creator")).absoluteFilePath();
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
     const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();

@@ -39,7 +39,8 @@ namespace Utils {
 
 struct BaseValidatingLineEditPrivate;
 
-/* Base class for validating line edits that performs validation in a virtual
+/**
+ * Base class for validating line edits that performs validation in a virtual
  * validate() function to be implemented in derived classes.
  * When invalid, the text color will turn red and a tooltip will
  * contain the error message. This approach is less intrusive than a
@@ -47,9 +48,10 @@ struct BaseValidatingLineEditPrivate;
  *
  * The widget has a concept of an "initialText" which can be something like
  * "<Enter name here>". This results in state 'DisplayingInitialText', which
- * is not valid, but is not marked red. */
-
-class QWORKBENCH_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit {
+ * is not valid, but is not marked red.
+ */
+class QWORKBENCH_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit
+{
     Q_OBJECT
     Q_DISABLE_COPY(BaseValidatingLineEdit)
     Q_PROPERTY(QString initialText READ initialText WRITE setInitialText DESIGNABLE true)
@@ -97,4 +99,5 @@ private:
 
 } // namespace Utils
 } // namespace Core
+
 #endif // BASEVALIDATINGLINEEDIT_H

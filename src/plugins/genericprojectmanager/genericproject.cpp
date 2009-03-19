@@ -31,6 +31,7 @@
 #include "genericprojectconstants.h"
 #include "genericmakestep.h"
 
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
@@ -112,12 +113,12 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       m_toolChain(0)
 {
     QFileInfo fileInfo(m_fileName);
-    const QString projectBaseName = fileInfo.baseName();
     QDir dir = fileInfo.dir();
 
-    m_filesFileName    = QFileInfo(dir, projectBaseName + QLatin1String(".files")).absoluteFilePath();
-    m_includesFileName = QFileInfo(dir, projectBaseName + QLatin1String(".includes")).absoluteFilePath();
-    m_configFileName   = QFileInfo(dir, projectBaseName + QLatin1String(".config")).absoluteFilePath();
+    m_projectName      = fileInfo.baseName();
+    m_filesFileName    = QFileInfo(dir, m_projectName + QLatin1String(".files")).absoluteFilePath();
+    m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
+    m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();
 
     m_file = new GenericProjectFile(this, fileName);
     m_rootNode = new GenericProjectNode(this, m_file);

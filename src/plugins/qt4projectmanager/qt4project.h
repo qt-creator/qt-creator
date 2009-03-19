@@ -78,8 +78,7 @@ class Qt4Manager;
 class Qt4Project;
 class Qt4RunStep;
 
-class Qt4ProjectFile
-    : public Core::IFile
+class Qt4ProjectFile : public Core::IFile
 {
     Q_OBJECT
 
@@ -108,8 +107,7 @@ private:
     QString m_filePath;
 };
 
-class Qt4Project
-  : public ProjectExplorer::Project
+class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
 

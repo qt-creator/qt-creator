@@ -39,10 +39,15 @@ namespace Utils {
 
 struct FileWizardPagePrivate;
 
-/* Standard wizard page for a single file letting the user choose name
- * and path. Sets the "FileNames" QWizard field. */
-
-class QWORKBENCH_UTILS_EXPORT FileWizardPage : public QWizardPage {
+/**
+ * Standard wizard page for a single file letting the user choose name
+ * and path. Sets the "FileNames" QWizard field.
+ *
+ * The name and path labels can be changed. By default they are simply "Name:"
+ * and "Path:".
+ */
+class QWORKBENCH_UTILS_EXPORT FileWizardPage : public QWizardPage
+{
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardPage)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
@@ -56,7 +61,10 @@ public:
 
     virtual bool isComplete() const;
 
-    // Validate a base name  entry field (potentially containing extension)
+    void setNameLabel(const QString &label);
+    void setPathLabel(const QString &label);
+
+    // Validate a base name entry field (potentially containing extension)
     static bool validateBaseName(const QString &name, QString *errorMessage = 0);
 
 signals:

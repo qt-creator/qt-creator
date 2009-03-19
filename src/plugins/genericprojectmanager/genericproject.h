@@ -36,7 +36,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/toolchain.h>
 #include <coreplugin/ifile.h>
 
 QT_BEGIN_NAMESPACE

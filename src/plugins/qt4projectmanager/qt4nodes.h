@@ -98,7 +98,8 @@ class Qt4PriFileNode;
 class Qt4ProFileNode;
 
 // Implements ProjectNode for qt4 pro files
-class Qt4PriFileNode : public ProjectExplorer::ProjectNode {
+class Qt4PriFileNode : public ProjectExplorer::ProjectNode
+{
     Q_OBJECT
     Q_DISABLE_COPY(Qt4PriFileNode)
 public:
@@ -164,7 +165,8 @@ private:
 };
 
 // Implements ProjectNode for qt4 pro files
-class Qt4ProFileNode : public Qt4PriFileNode {
+class Qt4ProFileNode : public Qt4PriFileNode
+{
     Q_OBJECT
     Q_DISABLE_COPY(Qt4ProFileNode)
 public:
@@ -208,7 +210,8 @@ private:
     friend class Qt4NodeHierarchy;
 };
 
-class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher {
+class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher
+{
     Q_OBJECT
     Q_DISABLE_COPY(Qt4NodesWatcher)
 public:

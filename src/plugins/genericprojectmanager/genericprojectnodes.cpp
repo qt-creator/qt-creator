@@ -30,12 +30,10 @@
 #include "genericprojectnodes.h"
 #include "genericproject.h"
 
+#include <coreplugin/ifile.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QDir>
 #include <QFileInfo>
-#include <QSettings>
-#include <QtDebug>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -44,7 +42,9 @@ GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *pro
     : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absolutePath()),
       m_project(project),
       m_projectFile(projectFile)
-{}
+{
+    setFolderName(QFileInfo(projectFile->fileName()).baseName());
+}
 
 GenericProjectNode::~GenericProjectNode()
 { }
