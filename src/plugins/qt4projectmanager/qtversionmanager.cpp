@@ -1235,7 +1235,6 @@ void QtVersion::addToEnvironment(Environment &env)
     // add libdir, includedir and bindir
     // or add Mingw dirs
     // or do nothing on other
-
 }
 
 int QtVersion::uniqueId() const

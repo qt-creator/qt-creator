@@ -288,6 +288,16 @@ void Environment::modify(const QList<EnvironmentItem> & list)
     *this = resultEnvironment;
 }
 
+bool Environment::operator!=(const Environment &other)
+{
+    return !(*this == other);
+}
+
+bool Environment::operator==(const Environment &other)
+{
+    return m_values == other.m_values;
+}
+
 QStringList Environment::parseCombinedArgString(const QString &program)
 {
     QStringList args;
@@ -340,4 +350,6 @@ QString Environment::joinArgumentList(const QStringList &arguments)
     }
     return result;
 }
+
+
 
