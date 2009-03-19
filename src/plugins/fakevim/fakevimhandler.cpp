@@ -381,6 +381,10 @@ public:
 
     // vi style configuration
     QHash<QString, QString> m_config;
+    bool hasConfig(const char *name) const
+        { return m_config[name] == ConfigOn; }
+    bool hasConfig(const char *name, const char *value) const
+        { return m_config[name].contains(value); } // FIXME
 
     // for restoring cursor position
     int m_savedYankPosition;
@@ -425,6 +429,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_config[ConfigShiftWidth]  = "8";
     m_config[ConfigExpandTab]   = ConfigOff;
     m_config[ConfigAutoIndent]  = ConfigOff;
+    m_config[ConfigBackspace]   = "indent,eol,start";
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -1104,7 +1109,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (m_gflag) {
             m_gflag = false;
             m_tc.setPosition(firstPositionInLine(1), KeepAnchor);
-            if (m_config[ConfigStartOfLine] == ConfigOn)
+            if (hasConfig(ConfigStartOfLine))
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
@@ -1113,7 +1118,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
-        if (m_config[ConfigStartOfLine] == ConfigOn)
+        if (hasConfig(ConfigStartOfLine))
             moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == 'h' || key == Key_Left
@@ -1229,7 +1234,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToEndOfLine();
         recordInsertText("\n");
         moveToStartOfLine();
-        if (0 && m_config[ConfigAutoIndent] == ConfigOn)
+        if (0 && hasConfig(ConfigAutoIndent))
             recordInsertText(QString(indentDist(), ' '));
         else
             recordInsertText(QString(numSpaces, ' '));
@@ -1447,11 +1452,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
-        if (0 && m_config[ConfigAutoIndent] == ConfigOn)
+        if (0 && hasConfig(ConfigAutoIndent))
             indentRegion('\n');
     } else if (key == Key_Backspace || key == control('h')) {
-        m_tc.deletePreviousChar();
-        m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
+        if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
+            m_tc.deletePreviousChar();
+            m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
+        }
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
         m_lastInsertion.clear();
@@ -1461,7 +1468,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     } else if (key == Key_PageUp || key == control('b')) {
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
-    } else if (key == Key_Tab && m_config[ConfigExpandTab] == ConfigOn) {
+    } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
         QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
@@ -1476,8 +1483,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
                 m_tc.deleteChar();
         }
         m_tc.insertText(text);
-        if (0 && m_config[ConfigAutoIndent] == ConfigOn
-                && isElectricCharacter(text.at(0))) {
+        if (0 && hasConfig(ConfigAutoIndent) && isElectricCharacter(text.at(0))) {
             const QString leftText = m_tc.block().text()
                 .left(m_tc.position() - 1 - m_tc.block().position());
             if (leftText.simplified().isEmpty())
@@ -1500,10 +1506,11 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
         enterCommandMode();
         updateMiniBuffer();
     } else if (key == Key_Backspace) {
-        if (m_commandBuffer.isEmpty())
+        if (m_commandBuffer.isEmpty()) {
             enterCommandMode();
-        else
+        } else {
             m_commandBuffer.chop(1);
+        }
         updateMiniBuffer();
     } else if (key == Key_Left) {
         // FIXME:
