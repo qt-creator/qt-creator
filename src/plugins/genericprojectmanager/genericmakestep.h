@@ -34,11 +34,11 @@
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
-QT_END_NAMESPACE
 
 namespace Ui {
 class GenericMakeStep;
 }
+QT_END_NAMESPACE
 
 namespace GenericProjectManager {
 namespace Internal {
