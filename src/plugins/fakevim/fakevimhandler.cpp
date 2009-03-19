@@ -422,6 +422,8 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_savedYankPosition = 0;
     m_cursorWidth = EDITOR(cursorWidth());
 
+#if 1
+    // Plain
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigHlSearch]    = ConfigOn;
     m_config[ConfigTabStop]     = "8";
@@ -429,7 +431,18 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_config[ConfigShiftWidth]  = "8";
     m_config[ConfigExpandTab]   = ConfigOff;
     m_config[ConfigAutoIndent]  = ConfigOff;
+    m_config[ConfigBackspace]   = "";
+#else
+    // Qt Local
+    m_config[ConfigStartOfLine] = ConfigOn;
+    m_config[ConfigHlSearch]    = ConfigOn;
+    m_config[ConfigTabStop]     = "4";
+    m_config[ConfigSmartTab]    = ConfigOff;
+    m_config[ConfigShiftWidth]  = "4";
+    m_config[ConfigExpandTab]   = ConfigOn;
+    m_config[ConfigAutoIndent]  = ConfigOff;
     m_config[ConfigBackspace]   = "indent,eol,start";
+#endif
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
