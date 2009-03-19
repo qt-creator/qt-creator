@@ -342,11 +342,8 @@ void Qt4RunConfiguration::updateTarget()
 
 #if defined (Q_OS_MAC)
     if (reader->values("CONFIG").contains("app_bundle")) {
-        QString qmakeBuildConfig = "release";
-        if (projectBuildConfiguration & QtVersion::DebugBuild)
-            qmakeBuildConfig = "debug";
         m_workingDir += QLatin1Char('/')
-                   + qmakeBuildConfig
+                   + reader->value("TARGET")
                    + QLatin1String(".app/Contents/MacOS");
     }
 #endif
