@@ -255,14 +255,10 @@ void DebuggerManager::init()
         this, SLOT(expandChildren(QModelIndex)));
     connect(localsView, SIGNAL(requestCollapseChildren(QModelIndex)),
         this, SLOT(collapseChildren(QModelIndex)));
-    connect(localsView, SIGNAL(requestAssignValue(QString,QString)),
-        this, SLOT(assignValueInDebugger(QString,QString)));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
     watchersView->setModel(m_watchHandler->model());
-    connect(watchersView, SIGNAL(requestAssignValue(QString,QString)),
-        this, SLOT(assignValueInDebugger(QString,QString)));
     connect(watchersView, SIGNAL(requestExpandChildren(QModelIndex)),
         this, SLOT(expandChildren(QModelIndex)));
     connect(watchersView, SIGNAL(requestCollapseChildren(QModelIndex)),
@@ -271,6 +267,8 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
+    connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
+        this, SLOT(assignValueInDebugger()));
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);
@@ -965,6 +963,15 @@ void DebuggerManager::exitDebugger()
     emit debuggingFinished();
 }
 
+void DebuggerManager::assignValueInDebugger()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender())) {
+        QString str = action->data().toString();
+        int i = str.indexOf('=');
+        if (i != -1)
+            assignValueInDebugger(str.left(i), str.mid(i + 1));
+    }
+}
 void DebuggerManager::assignValueInDebugger(const QString &expr, const QString &value)
 {
     QTC_ASSERT(m_engine, return);
@@ -1092,7 +1099,7 @@ void DebuggerManager::addToWatchWindow()
     if (!editor)
         return;
     QTextCursor tc = editor->textCursor();
-    theDebuggerSetting(WatchExpression)->setValue(tc.selectedText());
+    theDebuggerAction(WatchExpression)->setValue(tc.selectedText());
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)

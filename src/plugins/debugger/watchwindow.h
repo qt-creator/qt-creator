@@ -58,12 +58,10 @@ public slots:
     void setModel(QAbstractItemModel *model);
 
 signals:
-    void requestAssignValue(const QString &exp, const QString &value);
     void requestExpandChildren(const QModelIndex &idx);
     void requestCollapseChildren(const QModelIndex &idx);
 
 private slots:
-    void handleChangedItem(QWidget *);
     void expandNode(const QModelIndex &index);
     void collapseNode(const QModelIndex &index);
 

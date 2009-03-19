@@ -35,8 +35,9 @@
 #include <QtCore/QVariant>
 #include <QtCore/QList>
 
+#include <QtGui/QAction>
+
 QT_BEGIN_NAMESPACE
-class QAction;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -46,12 +47,12 @@ namespace Internal {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class QtcSettingsItem : public QObject
+class DebuggerAction : public QAction
 {
     Q_OBJECT
 
 public:
-    QtcSettingsItem(QObject *parent = 0);
+    DebuggerAction(QObject *parent = 0);
 
     virtual QVariant value() const;
     Q_SLOT virtual void setValue(const QVariant &value, bool doemit = true);
@@ -59,8 +60,8 @@ public:
     virtual QVariant defaultValue() const;
     Q_SLOT virtual void setDefaultValue(const QVariant &value);
 
-    virtual QAction *action();
     virtual QAction *updatedAction(const QString &newText);
+    Q_SLOT virtual void trigger(const QVariant &data);
 
     // used for persistency
     virtual QString settingsKey() const;
@@ -75,9 +76,6 @@ public:
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
     Q_SLOT virtual void apply(QSettings *settings);
-
-    virtual QString text() const;
-    Q_SLOT virtual void setText(const QString &value);
 
     virtual QString textPattern() const;
     Q_SLOT virtual void setTextPattern(const QString &value);
@@ -101,20 +99,19 @@ private:
     QString m_settingsGroup;
     QString m_textPattern;
     QString m_textData;
-    QAction *m_action;
     QHash<QObject *, ApplyMode> m_applyModes;
 };
 
-class QtcSettingsPool : public QObject
+class DebuggerSettings : public QObject
 {
     Q_OBJECT
 
 public:
-    QtcSettingsPool(QObject *parent = 0);
-    ~QtcSettingsPool();
+    DebuggerSettings(QObject *parent = 0);
+    ~DebuggerSettings();
     
-    void insertItem(int code, QtcSettingsItem *item);
-    QtcSettingsItem *item(int code);
+    void insertItem(int code, DebuggerAction *item);
+    DebuggerAction *item(int code);
 
     QString dump();
 
@@ -123,13 +120,13 @@ public slots:
     void writeSettings(QSettings *settings);
 
 private:
-    QHash<int, QtcSettingsItem *> m_items; 
+    QHash<int, DebuggerAction *> m_items; 
 };
 
 
 ///////////////////////////////////////////////////////////
 
-enum DebuggerSettingsCode
+enum DebuggerActionCode
 {
     // General
     SettingsDialog,
@@ -154,6 +151,7 @@ enum DebuggerSettingsCode
     UseDumpers,
     DebugDumpers,
     UseToolTips,
+    AssignValue,
 
     // Source List
     ListSourceFiles,
@@ -172,8 +170,8 @@ enum DebuggerSettingsCode
 };
 
 // singleton access
-QtcSettingsPool *theDebuggerSettings();
-QtcSettingsItem *theDebuggerSetting(int code);
+DebuggerSettings *theDebuggerSettings();
+DebuggerAction *theDebuggerAction(int code);
 
 // convienience
 bool theDebuggerBoolSetting(int code);

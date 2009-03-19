@@ -368,28 +368,11 @@ WatchHandler::WatchHandler()
     m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 
-    connect(theDebuggerSetting(WatchExpression)->action(),
+    connect(theDebuggerAction(WatchExpression),
         SIGNAL(triggered()), this, SLOT(watchExpression()));
 
-    connect(theDebuggerSetting(RemoveWatchExpression)->action(),
+    connect(theDebuggerAction(RemoveWatchExpression),
         SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
-}
-
-bool WatchHandler::setData(const QModelIndex &idx,
-    const QVariant &value, int role)
-{
-/*
-    Q_UNUSED(idx);
-    Q_UNUSED(value);
-    Q_UNUSED(role);
-    if (role == VisualRole) {
-        QString iname = inameFromIndex(index);
-        setDisplayedIName(iname, value.toBool());
-        return true;
-    }
-    return true;
-*/
-    return QAbstractItemModel::setData(idx, value, role);
 }
 
 static QString niceType(QString type)
@@ -510,6 +493,9 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
             break;
         }
 
+        case ExpressionRole:
+            return data.exp;
+
         case INameRole:
             return data.iname;
 
@@ -543,7 +529,7 @@ Qt::ItemFlags WatchHandler::flags(const QModelIndex &idx) const
     // enabled, editable, selectable, checkable, and can be used both as the
     // source of a drag and drop operation and as a drop target.
 
-    static const ItemFlags DefaultNotEditable =
+    static const ItemFlags notEditable =
           ItemIsSelectable
         | ItemIsDragEnabled
         | ItemIsDropEnabled
@@ -551,12 +537,15 @@ Qt::ItemFlags WatchHandler::flags(const QModelIndex &idx) const
         // | ItemIsTristate
         | ItemIsEnabled;
 
-    static const ItemFlags DefaultEditable =
-        DefaultNotEditable | ItemIsEditable;
+    static const ItemFlags editable = notEditable | ItemIsEditable;
 
     const WatchData &data = m_displaySet.at(node);
-    return idx.column() == 1 &&
-        data.isWatcher() ? DefaultEditable : DefaultNotEditable;
+
+    if (data.isWatcher() && idx.column() == 0)
+        return editable; // watcher names are
+    if (idx.column() == 1) 
+        return editable; // values are editable
+    return  notEditable;
 }
 
 QVariant WatchHandler::headerData(int section, Qt::Orientation orientation,

@@ -132,7 +132,7 @@ public:
     bool changed;
 };
 
-enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
+enum { INameRole = Qt::UserRole, ExpressionRole, VisualRole, ExpandedRole };
 
 
 class WatchHandler : public QAbstractItemModel
@@ -146,7 +146,6 @@ public:
     //
     //  QAbstractItemModel
     //
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant data(const QModelIndex &index, int role) const;
     QModelIndex index(int, int, const QModelIndex &idx) const;
     QModelIndex parent(const QModelIndex &idx) const;

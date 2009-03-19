@@ -285,11 +285,11 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(theDebuggerSetting(UseDumpers), SIGNAL(boolValueChanged(bool)),
+    connect(theDebuggerAction(UseDumpers), SIGNAL(boolValueChanged(bool)),
         this, SLOT(setUseDumpers(bool)));
-    connect(theDebuggerSetting(DebugDumpers), SIGNAL(boolValueChanged(bool)),
+    connect(theDebuggerAction(DebugDumpers), SIGNAL(boolValueChanged(bool)),
         this, SLOT(setDebugDumpers(bool)));
-    connect(theDebuggerSetting(RecheckDumpers)->action(), SIGNAL(triggered()),
+    connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
 }
 
@@ -320,7 +320,7 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
             msg = QString(tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program."))
-                .arg(theDebuggerSetting(GdbLocation)->value().toString());
+                .arg(theDebuggerStringSetting(GdbLocation));
             break;
         case QProcess::Crashed:
             msg = tr("The Gdb process crashed some time after starting "
@@ -1235,12 +1235,11 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 
     QString msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        if (theDebuggerSetting(SelectedPluginBreakpoints)->value().toBool()) {
+        if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
             debugMessage("SHARED LIBRARY EVENT: " + data.toString());
-            QString pattern = theDebuggerSetting(SelectedPluginBreakpointsPattern)
-                ->value().toString();
-            debugMessage("PATTERN: " + pattern);
-            sendCommand("sharedlibrary " + pattern);
+            QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
+            debugMessage("PATTERN: " + pat);
+            sendCommand("sharedlibrary " + pat);
             continueInferior();
             q->showStatusMessage(tr("Loading %1...").arg(QString(data.toString())));
             return;
@@ -1306,7 +1305,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                  frame.findChild("func").data() + '%';
 
             QApplication::alert(q->mainWindow(), 3000);
-            if (theDebuggerSetting(ListSourceFiles)->value().toBool())
+            if (theDebuggerAction(ListSourceFiles)->value().toBool())
                 reloadSourceFiles();
             sendCommand("-break-list", BreakList);
             QVariant var = QVariant::fromValue<GdbMi>(data);
