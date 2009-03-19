@@ -673,12 +673,14 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true;
     // Prompt user.
-    const QMessageBox::StandardButton answer = QMessageBox::question(m_core->mainWindow(), tr("Closing git editor"),  tr("Do you want to commit the change?"),
-                                                                     QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
+    const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
+            editor->promptSubmit(tr("Closing git editor"),
+                                 tr("Do you want to commit the change?"),
+                                 tr("The commit message check failed. Do you want to commit the change?"));
     switch (answer) {
-    case QMessageBox::Cancel:
+    case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
-    case QMessageBox::No:
+    case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
         cleanChangeTmpFile();
         return true; // Cancel all
     default:

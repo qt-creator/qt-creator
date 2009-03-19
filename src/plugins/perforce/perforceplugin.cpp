@@ -961,21 +961,24 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
     Core::IFile *fileIFace = editor->file();
     if (!fileIFace)
         return true;
+    const PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(editor);
+    if (!perforceEditor)
+        return true;
     QFileInfo editorFile(fileIFace->fileName());
     QFileInfo changeFile(m_changeTmpFile->fileName());
-    if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {
-        const QMessageBox::StandardButton answer =
-            QMessageBox::question(core->mainWindow(),
-                tr("Closing p4 Editor"),
-                tr("Do you want to submit this change list?"),
-                QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
-        if (answer == QMessageBox::Cancel)
+    if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {        
+         const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
+            perforceEditor->promptSubmit(tr("Closing p4 Editor"),
+                                         tr("Do you want to submit this change list?"),
+                                         tr("The commit message check failed. Do you want to submit this change list"));
+
+        if (answer == VCSBase::VCSBaseSubmitEditor::SubmitCanceled)
             return false;
 
         core->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         core->fileManager()->unblockFileChange(fileIFace);
-        if (answer == QMessageBox::Yes) {
+        if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
             QByteArray change = m_changeTmpFile->readAll();
             m_changeTmpFile->close();
             if (!checkP4Command()) {

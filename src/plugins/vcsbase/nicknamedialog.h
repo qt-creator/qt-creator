@@ -27,62 +27,55 @@
 **
 **************************************************************************/
 
-#include "vcsbaseplugin.h"
-#include "diffhighlighter.h"
-#include "vcsbasesettingspage.h"
+#ifndef NICKNAMEDIALOG_H
+#define NICKNAMEDIALOG_H
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/mimedatabase.h>
+#include <QtGui/QDialog>
 
-#include <QtCore/QtPlugin>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class NickNameDialog;
+}
+class QSortFilterProxyModel;
+class QModelIndex;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace VCSBase {
 namespace Internal {
 
-VCSBasePlugin *VCSBasePlugin::m_instance = 0;
+/* Nick name dialog: Manages a list of users read from an extended
+ * mail cap file, consisting of 4 columns:
+ * "Name Mail [AliasName [AliasMail]]".
+ * The names can be used for insertion into "RevBy:" fields; aliases will
+ * be preferred. */
 
-VCSBasePlugin::VCSBasePlugin() :
-    m_settingsPage(0)
-{
-    m_instance = this;
-}
+class NickNameDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit NickNameDialog(QWidget *parent = 0);
+    virtual ~NickNameDialog();
 
-VCSBasePlugin::~VCSBasePlugin()
-{
-    m_instance = 0;
-}
+    QString nickName() const;
 
-bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    // Fill/clear the global nick name cache
+    static bool readNickNamesFromMailCapFile(const QString &file, QString *errorMessage);
+    static void clearNickNames();
+    // Return a list for a completer on the field line edits
+    static QStringList nickNameList();
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))
-        return false;
+private slots:
+    void slotCurrentItemChanged(const QModelIndex &);
+    void slotDoubleClicked(const QModelIndex &);
 
-    m_settingsPage = new VCSBaseSettingsPage;
-    addAutoReleasedObject(m_settingsPage);
-    return true;
-}
+private:
+    QPushButton *okButton() const;
 
-void VCSBasePlugin::extensionsInitialized()
-{
-}
-
-VCSBasePlugin *VCSBasePlugin::instance()
-{
-    return m_instance;
-}
-
-VCSBaseSettings VCSBasePlugin::settings() const
-{
-    return m_settingsPage->settings();
-}
+    Ui::NickNameDialog *m_ui;
+    QSortFilterProxyModel *m_filterModel;
+};
 
 } // namespace Internal
 } // namespace VCSBase
 
-Q_EXPORT_PLUGIN(VCSBase::Internal::VCSBasePlugin)
+#endif // NICKNAMEDIALOG_H

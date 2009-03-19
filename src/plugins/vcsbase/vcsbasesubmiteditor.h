@@ -50,7 +50,9 @@ namespace Core {
 }
 
 namespace VCSBase {
-
+namespace Internal {
+    struct VCSBaseSettings;
+}
 struct VCSBaseSubmitEditorPrivate;
 
 /* Utility struct to parametrize a VCSBaseSubmitEditor. */
@@ -104,6 +106,12 @@ public:
 
     virtual ~VCSBaseSubmitEditor();
 
+    // A utility routine to be called when clsing a submit editor.
+    // Runs checks on the message and prompts according to configuration.
+    enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
+    PromptSubmitResult promptSubmit(const QString &title, const QString &question,
+                                    const QString &checkFailureQuestion) const;
+
     int fileNameColumn() const;
     void setFileNameColumn(int c);
 
@@ -147,6 +155,9 @@ private slots:
     void slotDiffSelectedVCSFiles(const QStringList &rawList);
     bool save(const QString &fileName);
     void slotDescriptionChanged();
+    void slotCheckSubmitMessage();
+    void slotInsertNickName();
+    void slotSetFieldNickName(int);
 
 protected:
     /* These hooks allow for modifying the contents that goes to
@@ -156,6 +167,10 @@ protected:
     virtual bool setFileContents(const QString &contents);
 
 private:
+    void createUserFields(const QString &fieldConfigFile);
+    bool checkSubmitMessage(QString *errorMessage) const;
+    QString promptForNickName();
+
     VCSBaseSubmitEditorPrivate *m_d;
 };
 

@@ -37,6 +37,9 @@
 namespace VCSBase {
 namespace Internal {
 
+struct VCSBaseSettings;
+class VCSBaseSettingsPage;
+
 class VCSBasePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -51,8 +54,11 @@ public:
 
     static VCSBasePlugin *instance();
 
+    VCSBaseSettings settings() const;
+
 private:
     static VCSBasePlugin *m_instance;
+    VCSBaseSettingsPage *m_settingsPage;
 };
 
 } // namespace Internal
