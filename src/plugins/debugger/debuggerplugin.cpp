@@ -269,9 +269,12 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
-    theDebuggerSetting(GdbLocation)->connectWidget(m_ui.gdbLocationChooser);
-    theDebuggerSetting(GdbScriptFile)->connectWidget(m_ui.scriptFileChooser);
-    theDebuggerSetting(GdbEnvironment)->connectWidget(m_ui.environmentEdit);
+    theDebuggerSetting(GdbLocation)
+        ->connectWidget(m_ui.gdbLocationChooser);
+    theDebuggerSetting(GdbScriptFile)
+        ->connectWidget(m_ui.scriptFileChooser);
+    theDebuggerSetting(GdbEnvironment)
+        ->connectWidget(m_ui.environmentEdit);
 
     theDebuggerSetting(AllPluginBreakpoints)
         ->connectWidget(m_ui.radioButtonAllPluginBreakpoints);
@@ -282,10 +285,14 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     theDebuggerSetting(SelectedPluginBreakpointsPattern)
         ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
-    theDebuggerSetting(UseDumpers)->connectWidget(m_ui.checkBoxUseDumpers);
-    theDebuggerSetting(SkipKnownFrames)->connectWidget(m_ui.checkBoxSkipKnownFrames);
-    theDebuggerSetting(UseToolTips)->connectWidget(m_ui.checkBoxUseToolTips);
-    theDebuggerSetting(DebugDumpers)->connectWidget(m_ui.checkBoxDebugDumpers);
+    theDebuggerSetting(UseDumpers)
+        ->connectWidget(m_ui.checkBoxUseDumpers);
+    theDebuggerSetting(SkipKnownFrames)
+        ->connectWidget(m_ui.checkBoxSkipKnownFrames);
+    theDebuggerSetting(UseToolTips)
+        ->connectWidget(m_ui.checkBoxUseToolTips);
+    theDebuggerSetting(DebugDumpers)
+        ->connectWidget(m_ui.checkBoxDebugDumpers);
     theDebuggerSetting(SelectedPluginBreakpointsPattern)
         ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
