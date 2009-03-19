@@ -54,7 +54,7 @@ using namespace Debugger::Internal;
 //
 /////////////////////////////////////////////////////////////////////
 
-enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
+enum { INameRole = Qt::UserRole, ExpressionRole, VisualRole, ExpandedRole };
 
 class WatchDelegate : public QItemDelegate
 {
@@ -71,7 +71,10 @@ public:
     {
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setText(index.model()->data(index, Qt::EditRole).toString());
+        if (index.column() == 1) 
+            lineEdit->setText(index.model()->data(index, Qt::DisplayRole).toString());
+        else
+            lineEdit->setText(index.model()->data(index, ExpressionRole).toString());
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *,
@@ -80,7 +83,7 @@ public:
         QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
         QString value = lineEdit->text();
-        QString exp = index.model()->data(index, Qt::EditRole).toString();
+        QString exp = index.model()->data(index, ExpressionRole).toString();
         if (index.column() == 1) {
             // the value column
             theDebuggerSetting(AssignValue)->trigger(exp + '=' + value);

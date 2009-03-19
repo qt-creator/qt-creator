@@ -966,7 +966,10 @@ void DebuggerManager::exitDebugger()
 void DebuggerManager::assignValueInDebugger()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
-        qDebug() << "HANDLING " << action->data().toString();
+        QString str = action->data().toString();
+        int i = str.indexOf('=');
+        if (i != -1)
+            assignValueInDebugger(str.left(i), str.mid(i + 1));
     }
 }
 void DebuggerManager::assignValueInDebugger(const QString &expr, const QString &value)

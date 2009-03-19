@@ -440,9 +440,6 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
     const WatchData &data = m_displaySet.at(node);
 
     switch (role) {
-        case Qt::EditRole:
-            return data.exp;
-
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0: return data.name;
@@ -495,6 +492,9 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
             }
             break;
         }
+
+        case ExpressionRole:
+            return data.exp;
 
         case INameRole:
             return data.iname;
