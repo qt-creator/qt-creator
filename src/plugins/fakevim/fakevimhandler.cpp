@@ -1034,10 +1034,15 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_moveType = MoveExclusive;
         moveToWordBoundary(true, false);
         finishMovement();
-    } else if (key == 'c') {
+    } else if (key == 'c' && m_visualMode == NoVisualMode) {
         setAnchor();
         recordBeginGroup();
         m_submode = ChangeSubMode;
+    } else if (key == 'c' && m_visualMode == VisualCharMode) { 
+        recordBeginGroup();
+        leaveVisualMode();
+        m_submode = ChangeSubMode;
+        finishMovement();
     } else if (key == 'C') {
         setAnchor();
         recordBeginGroup();
@@ -1053,12 +1058,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-   } else if ((key == 'd' || key == 'x') && m_visualMode == VisualCharMode) { 
+    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualCharMode) { 
         recordBeginGroup();
         leaveVisualMode();
         m_submode = DeleteSubMode;
         finishMovement();
-   } else if ((key == 'd' || key == 'x') && m_visualMode == VisualLineMode) {
+    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualLineMode) {
         leaveVisualMode();
         int beginLine = lineForPosition(m_marks['<']);
         int endLine = lineForPosition(m_marks['>']);
