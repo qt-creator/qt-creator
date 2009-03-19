@@ -117,10 +117,7 @@ QString QtcSettingsItem::text() const
 
 void QtcSettingsItem::setText(const QString &value)
 {
-    if (!value.isEmpty() && !m_textPattern.isEmpty())
-        m_action->setText(m_textPattern.arg(value));
-    else
-        m_action->setText(value);
+    m_action->setText(value);
 }
 
 QString QtcSettingsItem::textPattern() const
@@ -131,6 +128,25 @@ QString QtcSettingsItem::textPattern() const
 void QtcSettingsItem::setTextPattern(const QString &value)
 {
     m_textPattern = value;
+}
+
+QAction *QtcSettingsItem::updatedAction(const QString &text0)
+{
+    QString text = text0;
+    bool enabled = true;
+    if (!m_textPattern.isEmpty()) {
+        if (text.isEmpty()) {
+            text = m_textPattern;
+            text.remove("\"%1\"");
+            text.remove("%1");
+            enabled = false;
+        } else {
+            text = m_textPattern.arg(text0);
+        }
+    }
+    m_action->setEnabled(enabled);
+    m_action->setText(text);
+    return m_action;
 }
 
 void QtcSettingsItem::readSettings(QSettings *settings)
@@ -153,7 +169,7 @@ void QtcSettingsItem::writeSettings(QSettings *settings)
     settings->endGroup();
 }
    
-QAction *QtcSettingsItem::action() const
+QAction *QtcSettingsItem::action()
 {
     return m_action;
 }
@@ -355,6 +371,13 @@ QtcSettingsPool *theDebuggerSettings()
     instance->insertItem(RemoveWatchExpression, item);
     item->setTextPattern(QObject::tr("Remove watch expression \"%1\""));
 
+    item = new QtcSettingsItem(instance);
+    instance->insertItem(WatchExpressionInWindow, item);
+    item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
+
+    //
+    // Dumpers
+    //
     item = new QtcSettingsItem(instance);
     instance->insertItem(SettingsDialog, item);
     item->setText(QObject::tr("Debugger properties..."));

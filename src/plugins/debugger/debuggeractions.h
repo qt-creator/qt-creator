@@ -59,7 +59,8 @@ public:
     virtual QVariant defaultValue() const;
     Q_SLOT virtual void setDefaultValue(const QVariant &value);
 
-    virtual QAction *action() const;
+    virtual QAction *action();
+    virtual QAction *updatedAction(const QString &newText);
 
     // used for persistency
     virtual QString settingsKey() const;
@@ -99,6 +100,7 @@ private:
     QString m_settingsKey;
     QString m_settingsGroup;
     QString m_textPattern;
+    QString m_textData;
     QAction *m_action;
     QHash<QObject *, ApplyMode> m_applyModes;
 };
@@ -145,6 +147,7 @@ enum DebuggerSettingsCode
 
     // Watchers & Locals
     WatchExpression,
+    WatchExpressionInWindow,
     RemoveWatchExpression,
     WatchModelUpdate,
     RecheckDumpers,

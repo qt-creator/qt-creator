@@ -115,19 +115,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex mi1 = idx.sibling(idx.row(), 0);
     QString value = model()->data(mi1).toString();
     bool visual = false;
-    if (idx.isValid()) {
-        menu.addSeparator();
-        int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
-        QAction *act3 = theDebuggerSetting(type)->action();
-        act3->setText(exp);
-        menu.addAction(act3);
-    
-        visual = model()->data(mi0, VisualRole).toBool();
-        act4 = new QAction("Watch expression '" + exp + "' in separate widget", &menu);
-        act4->setCheckable(true);
-        act4->setChecked(visual);
-        // FIXME: menu.addAction(act4);
-    }
+
+    menu.addSeparator();
+    int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
+    menu.addAction(theDebuggerSetting(type)->updatedAction(exp));
+
+    visual = model()->data(mi0, VisualRole).toBool();
+    //act4 = theDebuggerSetting(WatchExpressionInWindow)->action();
+    //act4->setCheckable(true);
+    //act4->setChecked(visual);
+    // FIXME: menu.addAction(act4);
+
     menu.addSeparator();
     menu.addAction(theDebuggerSetting(RecheckDumpers)->action());
     menu.addAction(theDebuggerSetting(UseDumpers)->action());
