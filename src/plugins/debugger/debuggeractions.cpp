@@ -49,10 +49,9 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerAction::DebuggerAction(QObject *parent)
-  : QObject(parent)
+  : QAction(parent)
 {
-    m_action = new QAction(this);
-    connect(m_action, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+    connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
 QVariant DebuggerAction::value() const
@@ -64,8 +63,8 @@ void DebuggerAction::setValue(const QVariant &value, bool doemit)
 {
     if (value != m_value) {
         m_value = value;
-        if (m_action->isCheckable())
-            m_action->setChecked(m_value.toBool());
+        if (this->isCheckable())
+            this->setChecked(m_value.toBool());
         if (doemit) {
             emit valueChanged(m_value);
             emit boolValueChanged(m_value.toBool());
@@ -110,16 +109,6 @@ void DebuggerAction::setSettingsGroup(const QString &group)
     m_settingsGroup = group;
 }
 
-QString DebuggerAction::text() const
-{
-    return m_action->text();
-}
-
-void DebuggerAction::setText(const QString &value)
-{
-    m_action->setText(value);
-}
-
 QString DebuggerAction::textPattern() const
 {
     return m_textPattern;
@@ -144,10 +133,10 @@ QAction *DebuggerAction::updatedAction(const QString &text0)
             text = m_textPattern.arg(text0);
         }
     }
-    m_action->setEnabled(enabled);
-    m_action->setData(text0);
-    m_action->setText(text);
-    return m_action;
+    this->setEnabled(enabled);
+    this->setData(text0);
+    this->setText(text);
+    return this;
 }
 
 void DebuggerAction::readSettings(QSettings *settings)
@@ -170,11 +159,6 @@ void DebuggerAction::writeSettings(QSettings *settings)
     settings->endGroup();
 }
    
-QAction *DebuggerAction::action()
-{
-    return m_action;
-}
- 
 void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
     using namespace Core::Utils;
@@ -218,7 +202,7 @@ void DebuggerAction::uncheckableButtonClicked()
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
     //qDebug() << "UNCHECKABLE BUTTON: " << sender();
-    m_action->trigger();
+    QAction::trigger();
 }
 
 void DebuggerAction::checkableButtonClicked(bool)
@@ -255,19 +239,16 @@ void DebuggerAction::pathChooserEditingFinished()
         setValue(pathChooser->path());
 }
 
-void DebuggerAction::actionTriggered(bool on)
+void DebuggerAction::actionTriggered(bool)
 {
-    Q_UNUSED(on);
-    if (QAction *action = qobject_cast<QAction *>(sender())) {
-        if (action->isCheckable())
-            setValue(action->isChecked());
-    }
+    if (this->isCheckable())
+        setValue(this->isChecked());
 }
 
-void DebuggerAction::trigger(const QVariant &data) const
+void DebuggerAction::trigger(const QVariant &data)
 {
-    m_action->setData(data);
-    m_action->trigger();
+    setData(data);
+    QAction::trigger();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -345,7 +326,7 @@ DebuggerSettings *theDebuggerSettings()
     item = new DebuggerAction(instance);
     instance->insertItem(AlwaysAdjustColumnWidths, item);
     item->setText(QObject::tr("Always adjust column widths to contents"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(WatchExpression, item);
@@ -372,7 +353,7 @@ DebuggerSettings *theDebuggerSettings()
     item = new DebuggerAction(instance);
     instance->insertItem(DebugDumpers, item);
     item->setText(QObject::tr("Debug custom dumpers"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(RecheckDumpers, item);
@@ -389,22 +370,22 @@ DebuggerSettings *theDebuggerSettings()
     item = new DebuggerAction(instance);
     instance->insertItem(AutoQuit, item);
     item->setText(QObject::tr("Automatically quit debugger"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setText(QObject::tr("Skip known frames"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setText(QObject::tr("Use tooltips when debugging"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setText(QObject::tr("List source files"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
 
     //
@@ -438,7 +419,7 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(UseDumpers, item);
     item->setSettingsKey("DebugMode", "UseCustomDumpers");
     item->setText(QObject::tr("Use custom dumpers"));
-    item->action()->setCheckable(true);
+    item->setCheckable(true);
 
 
     item = new DebuggerAction(instance);

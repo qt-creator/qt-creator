@@ -267,7 +267,7 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
-    connect(theDebuggerAction(AssignValue)->action(), SIGNAL(triggered()),
+    connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()));
 
     // Tooltip

@@ -289,7 +289,7 @@ void GdbEngine::initializeConnections()
         this, SLOT(setUseDumpers(bool)));
     connect(theDebuggerAction(DebugDumpers), SIGNAL(boolValueChanged(bool)),
         this, SLOT(setDebugDumpers(bool)));
-    connect(theDebuggerAction(RecheckDumpers)->action(), SIGNAL(triggered()),
+    connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
 }
 

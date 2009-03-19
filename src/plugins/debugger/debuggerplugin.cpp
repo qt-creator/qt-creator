@@ -715,7 +715,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
 
-    connect(theDebuggerAction(SettingsDialog)->action(), SIGNAL(triggered()),
+    connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
 
     return true;

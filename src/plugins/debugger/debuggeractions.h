@@ -35,8 +35,9 @@
 #include <QtCore/QVariant>
 #include <QtCore/QList>
 
+#include <QtGui/QAction>
+
 QT_BEGIN_NAMESPACE
-class QAction;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -46,7 +47,7 @@ namespace Internal {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class DebuggerAction : public QObject
+class DebuggerAction : public QAction
 {
     Q_OBJECT
 
@@ -59,9 +60,8 @@ public:
     virtual QVariant defaultValue() const;
     Q_SLOT virtual void setDefaultValue(const QVariant &value);
 
-    virtual QAction *action();
     virtual QAction *updatedAction(const QString &newText);
-    Q_SLOT virtual void trigger(const QVariant &data) const;
+    Q_SLOT virtual void trigger(const QVariant &data);
 
     // used for persistency
     virtual QString settingsKey() const;
@@ -76,9 +76,6 @@ public:
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
     Q_SLOT virtual void apply(QSettings *settings);
-
-    virtual QString text() const;
-    Q_SLOT virtual void setText(const QString &value);
 
     virtual QString textPattern() const;
     Q_SLOT virtual void setTextPattern(const QString &value);
@@ -102,7 +99,6 @@ private:
     QString m_settingsGroup;
     QString m_textPattern;
     QString m_textData;
-    QAction *m_action;
     QHash<QObject *, ApplyMode> m_applyModes;
 };
 

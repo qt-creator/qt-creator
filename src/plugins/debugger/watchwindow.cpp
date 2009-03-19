@@ -185,10 +185,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     //menu.addAction(act3);
 
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(RecheckDumpers)->action());
-    menu.addAction(theDebuggerAction(UseDumpers)->action());
+    menu.addAction(theDebuggerAction(RecheckDumpers));
+    menu.addAction(theDebuggerAction(UseDumpers));
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(SettingsDialog)->action());
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
