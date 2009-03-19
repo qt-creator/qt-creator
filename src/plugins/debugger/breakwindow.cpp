@@ -101,7 +101,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addAction(act4);
-    menu.addAction(theDebuggerSetting(SettingsDialog)->action());
+    menu.addAction(theDebuggerAction(SettingsDialog)->action());
 
     QAction *act = menu.exec(ev->globalPos());
 

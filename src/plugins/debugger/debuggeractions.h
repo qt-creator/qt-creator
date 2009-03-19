@@ -46,12 +46,12 @@ namespace Internal {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class QtcSettingsItem : public QObject
+class DebuggerAction : public QObject
 {
     Q_OBJECT
 
 public:
-    QtcSettingsItem(QObject *parent = 0);
+    DebuggerAction(QObject *parent = 0);
 
     virtual QVariant value() const;
     Q_SLOT virtual void setValue(const QVariant &value, bool doemit = true);
@@ -106,16 +106,16 @@ private:
     QHash<QObject *, ApplyMode> m_applyModes;
 };
 
-class QtcSettingsPool : public QObject
+class DebuggerSettings : public QObject
 {
     Q_OBJECT
 
 public:
-    QtcSettingsPool(QObject *parent = 0);
-    ~QtcSettingsPool();
+    DebuggerSettings(QObject *parent = 0);
+    ~DebuggerSettings();
     
-    void insertItem(int code, QtcSettingsItem *item);
-    QtcSettingsItem *item(int code);
+    void insertItem(int code, DebuggerAction *item);
+    DebuggerAction *item(int code);
 
     QString dump();
 
@@ -124,13 +124,13 @@ public slots:
     void writeSettings(QSettings *settings);
 
 private:
-    QHash<int, QtcSettingsItem *> m_items; 
+    QHash<int, DebuggerAction *> m_items; 
 };
 
 
 ///////////////////////////////////////////////////////////
 
-enum DebuggerSettingsCode
+enum DebuggerActionCode
 {
     // General
     SettingsDialog,
@@ -174,8 +174,8 @@ enum DebuggerSettingsCode
 };
 
 // singleton access
-QtcSettingsPool *theDebuggerSettings();
-QtcSettingsItem *theDebuggerSetting(int code);
+DebuggerSettings *theDebuggerSettings();
+DebuggerAction *theDebuggerAction(int code);
 
 // convienience
 bool theDebuggerBoolSetting(int code);

@@ -44,23 +44,23 @@ namespace Internal {
 
 //////////////////////////////////////////////////////////////////////////
 //
-// QtcSettingsItem
+// DebuggerAction
 //
 //////////////////////////////////////////////////////////////////////////
 
-QtcSettingsItem::QtcSettingsItem(QObject *parent)
+DebuggerAction::DebuggerAction(QObject *parent)
   : QObject(parent)
 {
     m_action = new QAction(this);
     connect(m_action, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
-QVariant QtcSettingsItem::value() const
+QVariant DebuggerAction::value() const
 {
     return m_value;
 }
 
-void QtcSettingsItem::setValue(const QVariant &value, bool doemit)
+void DebuggerAction::setValue(const QVariant &value, bool doemit)
 {
     if (value != m_value) {
         m_value = value;
@@ -74,63 +74,63 @@ void QtcSettingsItem::setValue(const QVariant &value, bool doemit)
     }
 }
 
-QVariant QtcSettingsItem::defaultValue() const
+QVariant DebuggerAction::defaultValue() const
 {
     return m_defaultValue;
 }
 
-void QtcSettingsItem::setDefaultValue(const QVariant &value)
+void DebuggerAction::setDefaultValue(const QVariant &value)
 {
     m_defaultValue = value;
 }
 
-QString QtcSettingsItem::settingsKey() const
+QString DebuggerAction::settingsKey() const
 {
     return m_settingsKey;
 }
 
-void QtcSettingsItem::setSettingsKey(const QString &key)
+void DebuggerAction::setSettingsKey(const QString &key)
 {
     m_settingsKey = key;
 }
 
-void QtcSettingsItem::setSettingsKey(const QString &group, const QString &key)
+void DebuggerAction::setSettingsKey(const QString &group, const QString &key)
 {
     m_settingsKey = key;
     m_settingsGroup = group;
 }
 
-QString QtcSettingsItem::settingsGroup() const
+QString DebuggerAction::settingsGroup() const
 {
     return m_settingsGroup;
 }
 
-void QtcSettingsItem::setSettingsGroup(const QString &group)
+void DebuggerAction::setSettingsGroup(const QString &group)
 {
     m_settingsGroup = group;
 }
 
-QString QtcSettingsItem::text() const
+QString DebuggerAction::text() const
 {
     return m_action->text();
 }
 
-void QtcSettingsItem::setText(const QString &value)
+void DebuggerAction::setText(const QString &value)
 {
     m_action->setText(value);
 }
 
-QString QtcSettingsItem::textPattern() const
+QString DebuggerAction::textPattern() const
 {
     return m_textPattern;
 }
 
-void QtcSettingsItem::setTextPattern(const QString &value)
+void DebuggerAction::setTextPattern(const QString &value)
 {
     m_textPattern = value;
 }
 
-QAction *QtcSettingsItem::updatedAction(const QString &text0)
+QAction *DebuggerAction::updatedAction(const QString &text0)
 {
     QString text = text0;
     bool enabled = true;
@@ -150,7 +150,7 @@ QAction *QtcSettingsItem::updatedAction(const QString &text0)
     return m_action;
 }
 
-void QtcSettingsItem::readSettings(QSettings *settings)
+void DebuggerAction::readSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
@@ -160,7 +160,7 @@ void QtcSettingsItem::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void QtcSettingsItem::writeSettings(QSettings *settings)
+void DebuggerAction::writeSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
@@ -170,12 +170,12 @@ void QtcSettingsItem::writeSettings(QSettings *settings)
     settings->endGroup();
 }
    
-QAction *QtcSettingsItem::action()
+QAction *DebuggerAction::action()
 {
     return m_action;
 }
  
-void QtcSettingsItem::connectWidget(QWidget *widget, ApplyMode applyMode)
+void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
     using namespace Core::Utils;
     //qDebug() << "CONNECT WIDGET " << widget << " TO " << m_settingsKey;
@@ -206,14 +206,14 @@ void QtcSettingsItem::connectWidget(QWidget *widget, ApplyMode applyMode)
     }
 }
 
-void QtcSettingsItem::apply(QSettings *s)
+void DebuggerAction::apply(QSettings *s)
 {
     setValue(m_deferedValue);
     if (s)
         writeSettings(s);
 }
 
-void QtcSettingsItem::uncheckableButtonClicked()
+void DebuggerAction::uncheckableButtonClicked()
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
@@ -221,7 +221,7 @@ void QtcSettingsItem::uncheckableButtonClicked()
     m_action->trigger();
 }
 
-void QtcSettingsItem::checkableButtonClicked(bool)
+void DebuggerAction::checkableButtonClicked(bool)
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
@@ -232,7 +232,7 @@ void QtcSettingsItem::checkableButtonClicked(bool)
         setValue(button->isChecked());
 }
 
-void QtcSettingsItem::lineEditEditingFinished()
+void DebuggerAction::lineEditEditingFinished()
 {
     QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
     QTC_ASSERT(lineEdit, return);
@@ -243,7 +243,7 @@ void QtcSettingsItem::lineEditEditingFinished()
         setValue(lineEdit->text());
 }
 
-void QtcSettingsItem::pathChooserEditingFinished()
+void DebuggerAction::pathChooserEditingFinished()
 {
     using namespace Core::Utils;
     PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
@@ -255,7 +255,7 @@ void QtcSettingsItem::pathChooserEditingFinished()
         setValue(pathChooser->path());
 }
 
-void QtcSettingsItem::actionTriggered(bool on)
+void DebuggerAction::actionTriggered(bool on)
 {
     Q_UNUSED(on);
     if (QAction *action = qobject_cast<QAction *>(sender())) {
@@ -264,7 +264,7 @@ void QtcSettingsItem::actionTriggered(bool on)
     }
 }
 
-void QtcSettingsItem::trigger(const QVariant &data) const
+void DebuggerAction::trigger(const QVariant &data) const
 {
     m_action->setData(data);
     m_action->trigger();
@@ -272,49 +272,49 @@ void QtcSettingsItem::trigger(const QVariant &data) const
 
 //////////////////////////////////////////////////////////////////////////
 //
-// QtcSettingsPool
+// DebuggerSettings
 //
 //////////////////////////////////////////////////////////////////////////
 
 
-QtcSettingsPool::QtcSettingsPool(QObject *parent)
+DebuggerSettings::DebuggerSettings(QObject *parent)
     : QObject(parent)
 {}
 
-QtcSettingsPool::~QtcSettingsPool()
+DebuggerSettings::~DebuggerSettings()
 {
     qDeleteAll(m_items);
 }
     
-void QtcSettingsPool::insertItem(int code, QtcSettingsItem *item)
+void DebuggerSettings::insertItem(int code, DebuggerAction *item)
 {
     m_items[code] = item;
 }
 
-void QtcSettingsPool::readSettings(QSettings *settings)
+void DebuggerSettings::readSettings(QSettings *settings)
 {
-    foreach (QtcSettingsItem *item, m_items)
+    foreach (DebuggerAction *item, m_items)
         item->readSettings(settings);
 }
 
-void QtcSettingsPool::writeSettings(QSettings *settings)
+void DebuggerSettings::writeSettings(QSettings *settings)
 {
-    foreach (QtcSettingsItem *item, m_items)
+    foreach (DebuggerAction *item, m_items)
         item->writeSettings(settings);
 }
    
-QtcSettingsItem *QtcSettingsPool::item(int code)
+DebuggerAction *DebuggerSettings::item(int code)
 {
     QTC_ASSERT(m_items.value(code, 0), return 0);
     return m_items.value(code, 0);
 }
 
-QString QtcSettingsPool::dump()
+QString DebuggerSettings::dump()
 {
     QString out;
     QTextStream ts(&out);
     ts  << "Debugger settings: ";
-    foreach (QtcSettingsItem *item, m_items)
+    foreach (DebuggerAction *item, m_items)
         ts << "\n" << item->value().toString();
     return out;
 }
@@ -323,107 +323,85 @@ QString QtcSettingsPool::dump()
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Debugger specific stuff
+// Debugger specific actions and settings
 //
 //////////////////////////////////////////////////////////////////////////
 
-#if 0
-    QString dump();
 
-    QString m_gdbCmd;
-    QString m_gdbEnv;
-    bool m_autoRun;
-    bool m_autoQuit;
-
-    bool m_useDumpers;
-    bool m_skipKnownFrames;
-    bool m_debugDumpers;
-    bool m_useToolTips;
-    bool m_listSourceFiles;
-
-    QString m_scriptFile;
-
-    bool m_pluginAllBreakpoints;
-    bool m_pluginSelectedBreakpoints;
-    bool m_pluginNoBreakpoints;
-    QString m_pluginSelectedBreakpointsPattern;
-#endif
-
-
-QtcSettingsPool *theDebuggerSettings()
+DebuggerSettings *theDebuggerSettings()
 {
-    static QtcSettingsPool *instance = 0;
+    static DebuggerSettings *instance = 0;
     if (instance)
         return instance;
 
-    instance = new QtcSettingsPool;
+    instance = new DebuggerSettings;
 
-    QtcSettingsItem *item = 0;
+    DebuggerAction *item = 0;
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(AdjustColumnWidths, item);
     item->setText(QObject::tr("Adjust column widths to contents"));
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(AlwaysAdjustColumnWidths, item);
     item->setText(QObject::tr("Always adjust column widths to contents"));
     item->action()->setCheckable(true);
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(WatchExpression, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\""));
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(RemoveWatchExpression, item);
     item->setTextPattern(QObject::tr("Remove watch expression \"%1\""));
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(AssignValue, item);
 
     //
     // Dumpers
     //
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SettingsDialog, item);
     item->setText(QObject::tr("Debugger properties..."));
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(DebugDumpers, item);
     item->setText(QObject::tr("Debug custom dumpers"));
     item->action()->setCheckable(true);
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(RecheckDumpers, item);
     item->setText(QObject::tr("Recheck custom dumper availability"));
 
     //
     // Breakpoints
     //
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SynchronizeBreakpoints, item);
     item->setText(QObject::tr("Syncronize breakpoints"));
 
     //
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(AutoQuit, item);
     item->setText(QObject::tr("Automatically quit debugger"));
     item->action()->setCheckable(true);
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setText(QObject::tr("Skip known frames"));
     item->action()->setCheckable(true);
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setText(QObject::tr("Use tooltips when debugging"));
     item->action()->setCheckable(true);
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setText(QObject::tr("List source files"));
     item->action()->setCheckable(true);
@@ -432,69 +410,69 @@ QtcSettingsPool *theDebuggerSettings()
     //
     // Settings
     //
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(GdbLocation, item);
     item->setSettingsKey("DebugMode", "Location");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(GdbEnvironment, item);
     item->setSettingsKey("DebugMode", "Environment");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(GdbScriptFile, item);
     item->setSettingsKey("DebugMode", "ScriptFile");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(GdbAutoQuit, item);
     item->setSettingsKey("DebugMode", "AutoQuit");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(GdbAutoRun, item);
     item->setSettingsKey("DebugMode", "AutoRun");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setSettingsKey("DebugMode", "UseToolTips");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(UseDumpers, item);
     item->setSettingsKey("DebugMode", "UseCustomDumpers");
     item->setText(QObject::tr("Use custom dumpers"));
     item->action()->setCheckable(true);
 
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setSettingsKey("DebugMode", "SkipKnownFrames");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(DebugDumpers, item);
     item->setSettingsKey("DebugMode", "DebugDumpers");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(AllPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SelectedPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpoints");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(NoPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "NoPluginBreakpoints");
 
-    item = new QtcSettingsItem(instance);
+    item = new DebuggerAction(instance);
     instance->insertItem(SelectedPluginBreakpointsPattern, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpointsPattern");
 
     return instance;
 }
 
-QtcSettingsItem *theDebuggerSetting(int code)
+DebuggerAction *theDebuggerAction(int code)
 {
     return theDebuggerSettings()->item(code);
 }

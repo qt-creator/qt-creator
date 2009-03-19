@@ -86,11 +86,11 @@ public:
         QString exp = index.model()->data(index, ExpressionRole).toString();
         if (index.column() == 1) {
             // the value column
-            theDebuggerSetting(AssignValue)->trigger(exp + '=' + value);
+            theDebuggerAction(AssignValue)->trigger(exp + '=' + value);
         } else if (index.column() == 0) {
             // the watcher name column
-            theDebuggerSetting(RemoveWatchExpression)->trigger(exp);
-            theDebuggerSetting(WatchExpression)->trigger(lineEdit->text());
+            theDebuggerAction(RemoveWatchExpression)->trigger(exp);
+            theDebuggerAction(WatchExpression)->trigger(lineEdit->text());
         }
     }
 
@@ -146,7 +146,7 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
-        theDebuggerSetting(RemoveWatchExpression)->setValue(exp);
+        theDebuggerAction(RemoveWatchExpression)->setValue(exp);
     }
     QTreeView::keyPressEvent(ev);
 }
@@ -173,10 +173,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
     int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
-    menu.addAction(theDebuggerSetting(type)->updatedAction(exp));
+    menu.addAction(theDebuggerAction(type)->updatedAction(exp));
 
     visual = model()->data(mi0, VisualRole).toBool();
-    //act4 = theDebuggerSetting(WatchExpressionInWindow)->action();
+    //act4 = theDebuggerAction(WatchExpressionInWindow)->action();
     //act4->setCheckable(true);
     //act4->setChecked(visual);
     //menu.addAction(act4);
@@ -185,10 +185,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     //menu.addAction(act3);
 
     menu.addSeparator();
-    menu.addAction(theDebuggerSetting(RecheckDumpers)->action());
-    menu.addAction(theDebuggerSetting(UseDumpers)->action());
+    menu.addAction(theDebuggerAction(RecheckDumpers)->action());
+    menu.addAction(theDebuggerAction(UseDumpers)->action());
     menu.addSeparator();
-    menu.addAction(theDebuggerSetting(SettingsDialog)->action());
+    menu.addAction(theDebuggerAction(SettingsDialog)->action());
 
     QAction *act = menu.exec(ev->globalPos());
 

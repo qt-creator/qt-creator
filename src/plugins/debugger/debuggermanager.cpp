@@ -267,7 +267,7 @@ void DebuggerManager::init()
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
-    connect(theDebuggerSetting(AssignValue)->action(), SIGNAL(triggered()),
+    connect(theDebuggerAction(AssignValue)->action(), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()));
 
     // Tooltip
@@ -1099,7 +1099,7 @@ void DebuggerManager::addToWatchWindow()
     if (!editor)
         return;
     QTextCursor tc = editor->textCursor();
-    theDebuggerSetting(WatchExpression)->setValue(tc.selectedText());
+    theDebuggerAction(WatchExpression)->setValue(tc.selectedText());
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)

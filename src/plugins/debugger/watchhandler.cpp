@@ -368,10 +368,10 @@ WatchHandler::WatchHandler()
     m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 
-    connect(theDebuggerSetting(WatchExpression)->action(),
+    connect(theDebuggerAction(WatchExpression)->action(),
         SIGNAL(triggered()), this, SLOT(watchExpression()));
 
-    connect(theDebuggerSetting(RemoveWatchExpression)->action(),
+    connect(theDebuggerAction(RemoveWatchExpression)->action(),
         SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
 }
 
