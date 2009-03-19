@@ -314,8 +314,10 @@ void Qt4RunConfiguration::updateTarget()
     }
 
     // Extract data
-    QString relSubDir = QFileInfo(project()->file()->fileName()).absoluteDir().relativeFilePath(QFileInfo(m_proFilePath).path());
-    QString baseDir = QDir(project()->buildDirectory(project()->activeBuildConfiguration())).absoluteFilePath(relSubDir);
+    QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
+    QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
+    QDir baseBuildDirectory = project()->buildDirectory(project()->activeBuildConfiguration());
+    QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
 
     //qDebug()<<relSubDir<<baseDir;
 
