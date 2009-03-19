@@ -339,6 +339,7 @@ DebuggerSettings *theDebuggerSettings()
     item = new DebuggerAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
+    //item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(AssignValue, item);

@@ -499,9 +499,6 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
         case INameRole:
             return data.iname;
 
-        case VisualRole:
-            return m_displayedINames.contains(data.iname);
-    
         case ExpandedRole:
             //qDebug() << " FETCHING: " << data.iname
             //    << m_expandedINames.contains(data.iname)
