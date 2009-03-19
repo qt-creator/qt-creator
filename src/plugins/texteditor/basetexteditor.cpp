@@ -959,7 +959,7 @@ void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
         slotSelectionChanged();
 }
 
-void BaseTextEditor::gotoLine(int line, int column, bool saveNewPosition)
+void BaseTextEditor::gotoLine(int line, int column)
 {
     const int blockNumber = line - 1;
     const QTextBlock &block = document()->findBlockByNumber(blockNumber);
@@ -977,8 +977,7 @@ void BaseTextEditor::gotoLine(int line, int column, bool saveNewPosition)
         setTextCursor(cursor);
         centerCursor();
     }
-    if (saveNewPosition)
-        saveCurrentCursorPositionForNavigation();
+    saveCurrentCursorPositionForNavigation();
 }
 
 int BaseTextEditor::position(ITextEditor::PositionOperation posOp, int at) const
@@ -1115,9 +1114,11 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
     stream >> hval;
     stream >> lval;
     stream >> cval;
-    gotoLine(lval, cval, false);
+    d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
+    gotoLine(lval, cval);
     verticalScrollBar()->setValue(vval);
     horizontalScrollBar()->setValue(hval);
+    saveCurrentCursorPositionForNavigation();
     return true;
 }
 

@@ -241,7 +241,7 @@ public:
 
     // ITextEditor
 
-    void gotoLine(int line, int column = 0, bool saveNewPosition = true);
+    void gotoLine(int line, int column = 0);
 
     int position(
         ITextEditor::PositionOperation posOp = ITextEditor::Current
