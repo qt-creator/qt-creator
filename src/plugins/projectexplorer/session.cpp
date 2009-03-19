@@ -638,7 +638,9 @@ bool SessionManager::loadImpl(const QString &fileName)
                                     tr("Could not load session %1").arg(fileName));
             success = false;
         }
-        setStartupProject(m_file->m_startupProject);
+        // m_file->load() sets the m_file->startupProject
+        // but doesn't emit this signal, so we do it here
+        emit startupProjectChanged(m_file->m_startupProject);
     }
 
     if (success) {
