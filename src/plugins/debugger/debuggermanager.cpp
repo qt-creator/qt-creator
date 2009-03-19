@@ -1092,7 +1092,7 @@ void DebuggerManager::addToWatchWindow()
     if (!editor)
         return;
     QTextCursor tc = editor->textCursor();
-    theDebuggerSettings()->item(WatchExpression)->setValue(tc.selectedText());
+    theDebuggerSetting(WatchExpression)->setValue(tc.selectedText());
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)

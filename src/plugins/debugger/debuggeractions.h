@@ -33,6 +33,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -72,7 +73,7 @@ public:
     Q_SLOT virtual void writeSettings(QSettings *settings);
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
-    Q_SLOT virtual void applyDeferedChange();
+    Q_SLOT virtual void apply(QSettings *settings);
 
     virtual QString text() const;
     Q_SLOT virtual void setText(const QString &value);
@@ -102,29 +103,18 @@ private:
     QHash<QObject *, ApplyMode> m_applyModes;
 };
 
-class QtcSettings : public QObject
+class QtcSettingsPool : public QObject
 {
     Q_OBJECT
 
 public:
-    QtcSettings(QObject *parent = 0);
-    ~QtcSettings();
+    QtcSettingsPool(QObject *parent = 0);
+    ~QtcSettingsPool();
     
     void insertItem(int code, QtcSettingsItem *item);
-
-    QAction *action(int code);
     QtcSettingsItem *item(int code);
-    QtcSettingsItem *createItem(int code);
 
-    // Convienience
-    bool boolValue(int code);
-    int intValue(int code);
-    QString stringValue(int code);
-    virtual QString dump();
-
-    void connectWidget(int code, QWidget *, ApplyMode applyMode = DeferedApply);
-    void applyDeferedChange(int code);
-    void applyDeferedChanges();
+    QString dump();
 
 public slots:
     void readSettings(QSettings *settings);
@@ -179,7 +169,12 @@ enum DebuggerSettingsCode
 };
 
 // singleton access
-QtcSettings *theDebuggerSettings();
+QtcSettingsPool *theDebuggerSettings();
+QtcSettingsItem *theDebuggerSetting(int code);
+
+// convienience
+bool theDebuggerBoolSetting(int code);
+QString theDebuggerStringSetting(int code);
 
 } // namespace Internal
 } // namespace Debugger

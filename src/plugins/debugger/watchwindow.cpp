@@ -92,14 +92,13 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
-        theDebuggerSettings()->item(RemoveWatchExpression)->setValue(exp);
+        theDebuggerSetting(RemoveWatchExpression)->setValue(exp);
     }
     QTreeView::keyPressEvent(ev);
 }
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QtcSettings *s = theDebuggerSettings();
     QMenu menu;
     QAction *act1 = new QAction("Adjust column widths to contents", &menu);
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
@@ -119,7 +118,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (idx.isValid()) {
         menu.addSeparator();
         int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
-        QAction *act3 = s->action(type);
+        QAction *act3 = theDebuggerSetting(type)->action();
         act3->setText(exp);
         menu.addAction(act3);
     
@@ -130,10 +129,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         // FIXME: menu.addAction(act4);
     }
     menu.addSeparator();
-    menu.addAction(s->action(RecheckDumpers));
-    menu.addAction(s->action(UseDumpers));
+    menu.addAction(theDebuggerSetting(RecheckDumpers)->action());
+    menu.addAction(theDebuggerSetting(UseDumpers)->action());
     menu.addSeparator();
-    menu.addAction(s->action(SettingsDialog));
+    menu.addAction(theDebuggerSetting(SettingsDialog)->action());
 
     QAction *act = menu.exec(ev->globalPos());
 

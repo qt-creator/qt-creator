@@ -264,34 +264,33 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    QtcSettings *s = theDebuggerSettings();
     m_ui.gdbLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
     m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
-    s->connectWidget(GdbLocation, m_ui.gdbLocationChooser);
-    s->connectWidget(GdbScriptFile, m_ui.scriptFileChooser);
-    s->connectWidget(GdbEnvironment, m_ui.environmentEdit);
+    theDebuggerSetting(GdbLocation)->connectWidget(m_ui.gdbLocationChooser);
+    theDebuggerSetting(GdbScriptFile)->connectWidget(m_ui.scriptFileChooser);
+    theDebuggerSetting(GdbEnvironment)->connectWidget(m_ui.environmentEdit);
 
-    s->connectWidget(AllPluginBreakpoints,
-        m_ui.radioButtonAllPluginBreakpoints);
-    s->connectWidget(SelectedPluginBreakpoints,
-        m_ui.radioButtonSelectedPluginBreakpoints);
-    s->connectWidget(NoPluginBreakpoints,
-        m_ui.radioButtonNoPluginBreakpoints);
-    s->connectWidget(SelectedPluginBreakpointsPattern,
-        m_ui.lineEditSelectedPluginBreakpointsPattern);
+    theDebuggerSetting(AllPluginBreakpoints)
+        ->connectWidget(m_ui.radioButtonAllPluginBreakpoints);
+    theDebuggerSetting(SelectedPluginBreakpoints)
+        ->connectWidget(m_ui.radioButtonSelectedPluginBreakpoints);
+    theDebuggerSetting(NoPluginBreakpoints)
+        ->connectWidget(m_ui.radioButtonNoPluginBreakpoints);
+    theDebuggerSetting(SelectedPluginBreakpointsPattern)
+        ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
-    s->connectWidget(UseDumpers, m_ui.checkBoxUseDumpers);
-    s->connectWidget(SkipKnownFrames, m_ui.checkBoxSkipKnownFrames);
-    s->connectWidget(UseToolTips, m_ui.checkBoxUseToolTips);
-    s->connectWidget(DebugDumpers, m_ui.checkBoxDebugDumpers);
-    s->connectWidget(SelectedPluginBreakpointsPattern,
-        m_ui.lineEditSelectedPluginBreakpointsPattern);
+    theDebuggerSetting(UseDumpers)->connectWidget(m_ui.checkBoxUseDumpers);
+    theDebuggerSetting(SkipKnownFrames)->connectWidget(m_ui.checkBoxSkipKnownFrames);
+    theDebuggerSetting(UseToolTips)->connectWidget(m_ui.checkBoxUseToolTips);
+    theDebuggerSetting(DebugDumpers)->connectWidget(m_ui.checkBoxDebugDumpers);
+    theDebuggerSetting(SelectedPluginBreakpointsPattern)
+        ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
     m_ui.lineEditSelectedPluginBreakpointsPattern->
-        setEnabled(s->boolValue(SelectedPluginBreakpoints));
+        setEnabled(theDebuggerSetting(SelectedPluginBreakpoints)->value().toBool());
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
         m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 
@@ -317,9 +316,22 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 
 void GdbOptionPage::apply()
 {
-    QtcSettings *s = theDebuggerSettings();
-    s->applyDeferedChanges();
-    s->writeSettings(ICore::instance()->settings());
+    QSettings *s = ICore::instance()->settings();
+
+    theDebuggerSetting(GdbLocation)->apply(s);
+    theDebuggerSetting(GdbScriptFile)->apply(s);
+    theDebuggerSetting(GdbEnvironment)->apply(s);
+
+    theDebuggerSetting(AllPluginBreakpoints)->apply(s);
+    theDebuggerSetting(SelectedPluginBreakpoints)->apply(s);
+    theDebuggerSetting(NoPluginBreakpoints)->apply(s);
+    theDebuggerSetting(SelectedPluginBreakpointsPattern)->apply(s);
+
+    theDebuggerSetting(UseDumpers)->apply(s);
+    theDebuggerSetting(SkipKnownFrames)->apply(s);
+    theDebuggerSetting(UseToolTips)->apply(s);
+    theDebuggerSetting(DebugDumpers)->apply(s);
+    theDebuggerSetting(SelectedPluginBreakpointsPattern)->apply(s);
 }
 
 } // namespace Internal
@@ -696,7 +708,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_manager, SIGNAL(debugModeRequested()),
         this, SLOT(activateDebugMode()));
 
-    connect(theDebuggerSettings()->action(SettingsDialog), SIGNAL(triggered()),
+    connect(theDebuggerSetting(SettingsDialog)->action(), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
 
     return true;
@@ -790,7 +802,7 @@ void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber
 void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
     const QPoint &point, int pos)
 {
-    if (!theDebuggerSettings()->boolValue(UseToolTips))
+    if (!theDebuggerSetting(UseToolTips)->value().toBool())
         return;
 
     QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());

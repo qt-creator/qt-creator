@@ -368,12 +368,10 @@ WatchHandler::WatchHandler()
     m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 
-    QtcSettings *s = theDebuggerSettings();
-
-    connect(s->item(WatchExpression), SIGNAL(stringValueChanged(QString)),
+    connect(theDebuggerSetting(WatchExpression), SIGNAL(stringValueChanged(QString)),
         this, SLOT(watchExpression(QString)));
 
-    connect(s->item(RemoveWatchExpression), SIGNAL(stringValueChanged(QString)),
+    connect(theDebuggerSetting(RemoveWatchExpression), SIGNAL(stringValueChanged(QString)),
         this, SLOT(removeWatchExpression(QString)));
 }
 

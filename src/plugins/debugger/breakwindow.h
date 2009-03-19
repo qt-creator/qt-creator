@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_BREAKWINDOW_H
 #define DEBUGGER_BREAKWINDOW_H
 
-#include <QTreeView>
+#include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {
