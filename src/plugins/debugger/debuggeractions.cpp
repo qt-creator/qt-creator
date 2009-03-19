@@ -139,7 +139,7 @@ void QtcSettingsItem::readSettings(QSettings *settings)
         return;
     settings->beginGroup(m_settingsGroup);
     setValue(settings->value(m_settingsKey, m_defaultValue), false);
-    qDebug() << "READING: " << m_settingsKey << " -> " << m_value;
+    //qDebug() << "READING: " << m_settingsKey << " -> " << m_value;
     settings->endGroup();
 }
 
@@ -149,7 +149,7 @@ void QtcSettingsItem::writeSettings(QSettings *settings)
         return;
     settings->beginGroup(m_settingsGroup);
     settings->setValue(m_settingsKey, m_value);
-    qDebug() << "WRITING: " << m_settingsKey << " -> " << m_value;
+    //qDebug() << "WRITING: " << m_settingsKey << " -> " << m_value;
     settings->endGroup();
 }
    
@@ -200,7 +200,7 @@ void QtcSettingsItem::uncheckableButtonClicked()
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
-    qDebug() << "UNCHECKABLE BUTTON: " << sender();
+    //qDebug() << "UNCHECKABLE BUTTON: " << sender();
     m_action->trigger();
 }
 
@@ -208,7 +208,7 @@ void QtcSettingsItem::checkableButtonClicked(bool)
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
-    qDebug() << "CHECKABLE BUTTON: " << sender();
+    //qDebug() << "CHECKABLE BUTTON: " << sender();
     if (m_applyModes[sender()] == DeferedApply)
         m_deferedValue = button->isChecked();
     else
@@ -219,7 +219,7 @@ void QtcSettingsItem::lineEditEditingFinished()
 {
     QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
     QTC_ASSERT(lineEdit, return);
-    qDebug() << "LINEEDIT: " << sender() << lineEdit->text();
+    //qDebug() << "LINEEDIT: " << sender() << lineEdit->text();
     if (m_applyModes[sender()] == DeferedApply)
         m_deferedValue = lineEdit->text();
     else
@@ -231,7 +231,7 @@ void QtcSettingsItem::pathChooserEditingFinished()
     using namespace Core::Utils;
     PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
     QTC_ASSERT(pathChooser, return);
-    qDebug() << "PATHCHOOSER: " << sender() << pathChooser->path();
+    //qDebug() << "PATHCHOOSER: " << sender() << pathChooser->path();
     if (m_applyModes[sender()] == DeferedApply)
         m_deferedValue = pathChooser->path();
     else
