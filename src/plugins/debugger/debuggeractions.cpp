@@ -145,6 +145,7 @@ QAction *QtcSettingsItem::updatedAction(const QString &text0)
         }
     }
     m_action->setEnabled(enabled);
+    m_action->setData(text0);
     m_action->setText(text);
     return m_action;
 }

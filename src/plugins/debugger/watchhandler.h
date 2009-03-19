@@ -160,7 +160,9 @@ public:
     
 //public slots:
     void cleanup();
+    Q_SLOT void watchExpression(); // data in action->data().toString()
     Q_SLOT void watchExpression(const QString &exp);
+    Q_SLOT void removeWatchExpression();
     Q_SLOT void removeWatchExpression(const QString &exp);
     void reinitializeWatchers();
 

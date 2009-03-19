@@ -3533,7 +3533,7 @@ void GdbEngine::updateWatchModel2()
 
 void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
 {
-    qDebug() << "DATA DUMPER TRIAL:" << record.toString();
+    //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("consolestreamoutput");
     QByteArray out = output.data();
     out = out.mid(out.indexOf('"') + 2); // + 1 is success marker

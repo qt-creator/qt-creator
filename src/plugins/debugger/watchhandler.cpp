@@ -368,11 +368,11 @@ WatchHandler::WatchHandler()
     m_incompleteSet.clear();
     m_displaySet = m_completeSet;
 
-    connect(theDebuggerSetting(WatchExpression), SIGNAL(stringValueChanged(QString)),
-        this, SLOT(watchExpression(QString)));
+    connect(theDebuggerSetting(WatchExpression)->action(),
+        SIGNAL(triggered()), this, SLOT(watchExpression()));
 
-    connect(theDebuggerSetting(RemoveWatchExpression), SIGNAL(stringValueChanged(QString)),
-        this, SLOT(removeWatchExpression(QString)));
+    connect(theDebuggerSetting(RemoveWatchExpression)->action(),
+        SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
 }
 
 bool WatchHandler::setData(const QModelIndex &idx,
@@ -884,6 +884,12 @@ void WatchHandler::insertData(const WatchData &data)
     //MODEL_DEBUG("INSERT RESULT" << toString());
 }
 
+void WatchHandler::watchExpression()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender()))
+        watchExpression(action->data().toString());
+}
+
 void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
@@ -967,6 +973,12 @@ void WatchHandler::showEditValue(const WatchData &data)
     }
     if (w)
         w->show();
+}
+
+void WatchHandler::removeWatchExpression()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender()))
+        removeWatchExpression(action->data().toString());
 }
 
 void WatchHandler::removeWatchExpression(const QString &exp)
