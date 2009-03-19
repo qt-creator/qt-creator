@@ -202,7 +202,6 @@ void MakeStep::removeDirectory(const QString &dir)
         m_openDirectories.remove(dir);
 }
 
-
 CMakeProject *MakeStep::project() const
 {
     return m_pro;

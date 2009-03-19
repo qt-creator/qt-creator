@@ -143,7 +143,7 @@ QString GenericProject::includesFileName() const
 QString GenericProject::configFileName() const
 { return m_configFileName; }
 
-QStringList GenericProject::readLines(const QString &absoluteFileName) const
+static QStringList readLines(const QString &absoluteFileName)
 {
     QStringList lines;
 
@@ -168,34 +168,41 @@ QStringList GenericProject::readLines(const QString &absoluteFileName) const
 }
 
 
-void GenericProject::parseProject()
+void GenericProject::parseProject(RefreshOptions options)
 {
-    const QFileInfo projectFileInfo(m_fileName);
+    if (options & Files) {
+        m_files = convertToAbsoluteFiles(readLines(filesFileName()));
+        m_files.removeDuplicates();
+    }
 
-    QSettings projectInfo(m_fileName, QSettings::IniFormat);
+    if (options & Configuration) {
+        m_projectIncludePaths = readLines(includesFileName());
+        m_projectIncludePaths.removeDuplicates();
 
-    m_files = convertToAbsoluteFiles(readLines(filesFileName()));
-    m_files.removeDuplicates();
+        QSettings projectInfo(m_fileName, QSettings::IniFormat);
+        m_generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
 
-    m_projectIncludePaths = readLines(includesFileName());
-    m_projectIncludePaths.removeDuplicates();
+        m_defines.clear();
 
-    m_generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
+        QFile configFile(configFileName());
+        if (configFile.open(QFile::ReadOnly))
+            m_defines = configFile.readAll();
+    }
 
-    m_defines.clear();
-
-    QFile configFile(configFileName());
-    if (configFile.open(QFile::ReadOnly))
-        m_defines = configFile.readAll();
-
-    emit fileListChanged();
+    if (options & Files)
+        emit fileListChanged();
 }
 
-void GenericProject::refresh()
+void GenericProject::refresh(RefreshOptions options)
 {
-    parseProject();
+    QSet<QString> oldFileList;
+    if (!(options & Configuration))
+        oldFileList = m_files.toSet();
 
-    m_rootNode->refresh();
+    parseProject(options);
+
+    if (options & Files)
+        m_rootNode->refresh();
 
     CppTools::CppModelManagerInterface *modelManager =
         ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
@@ -214,7 +221,6 @@ void GenericProject::refresh()
         foreach (const ProjectExplorer::HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
                 allFrameworkPaths.append(headerPath.path());
-
             else
                 allIncludePaths.append(headerPath.path());
         }
@@ -228,8 +234,17 @@ void GenericProject::refresh()
         pinfo.sourceFiles = files();
         pinfo.sourceFiles += generated();
 
-        QStringList filesToUpdate = pinfo.sourceFiles;
-        filesToUpdate.append(QLatin1String("<configuration>")); // XXX don't hardcode configuration file name
+        QStringList filesToUpdate;
+
+        if (options & Configuration) {
+            filesToUpdate = pinfo.sourceFiles;
+            filesToUpdate.append(QLatin1String("<configuration>")); // XXX don't hardcode configuration file name
+        } else if (options & Files) {
+            // Only update files that got added to the list
+            QSet<QString> newFileList = m_files.toSet();
+            newFileList.subtract(oldFileList);
+            filesToUpdate.append(newFileList.toList());
+        }
 
         modelManager->updateProjectInfo(pinfo);
         modelManager->updateSourceFiles(filesToUpdate);
@@ -450,8 +465,7 @@ void GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
 
     setIncludePaths(allIncludePaths());
 
-    parseProject();
-    refresh();
+    refresh(Everything);
 }
 
 void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)

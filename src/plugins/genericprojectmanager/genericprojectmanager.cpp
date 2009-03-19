@@ -79,10 +79,12 @@ void Manager::unregisterProject(GenericProject *project)
 void Manager::notifyChanged(const QString &fileName)
 {
     foreach (GenericProject *project, m_projects) {
-        if (fileName == project->filesFileName()        ||
-                fileName == project->includesFileName() ||
-                fileName == project->configFileName())
-            project->refresh();
+        if (fileName == project->filesFileName()) {
+            project->refresh(GenericProject::Files);
+        }
+        else if (fileName == project->includesFileName() ||
+                 fileName == project->configFileName()) {
+            project->refresh(GenericProject::Configuration);
+        }
     }
 }
-
