@@ -336,7 +336,7 @@ void Qt4RunConfiguration::updateTarget()
         if (projectBuildConfiguration & QtVersion::DebugBuild)
             qmakeBuildConfig = "debug";
         if (!reader->contains("DESTDIR"))
-            destDir += QLatin1Char('/') + qmakeBuildConfig;
+            m_workingDir += QLatin1Char('/') + qmakeBuildConfig;
 #endif
     }
 
@@ -345,7 +345,7 @@ void Qt4RunConfiguration::updateTarget()
         QString qmakeBuildConfig = "release";
         if (projectBuildConfiguration & QtVersion::DebugBuild)
             qmakeBuildConfig = "debug";
-        destDir += QLatin1Char('/')
+        m_workingDir += QLatin1Char('/')
                    + qmakeBuildConfig
                    + QLatin1String(".app/Contents/MacOS");
     }
