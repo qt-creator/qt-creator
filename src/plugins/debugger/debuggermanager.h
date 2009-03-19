@@ -237,6 +237,7 @@ public slots:
     void sessionLoaded();
     void aboutToSaveSession();
 
+    void assignValueInDebugger();
     void assignValueInDebugger(const QString &expr, const QString &value);
     void executeDebuggerCommand(const QString &command);
 

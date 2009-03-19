@@ -61,6 +61,7 @@ public:
 
     virtual QAction *action();
     virtual QAction *updatedAction(const QString &newText);
+    Q_SLOT virtual void trigger(const QVariant &data) const;
 
     // used for persistency
     virtual QString settingsKey() const;
@@ -154,6 +155,7 @@ enum DebuggerSettingsCode
     UseDumpers,
     DebugDumpers,
     UseToolTips,
+    AssignValue,
 
     // Source List
     ListSourceFiles,

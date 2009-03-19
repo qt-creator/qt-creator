@@ -702,6 +702,7 @@ void testStdVector()
 
 void testQString()
 {
+    int i = 0;
     QString str = "Hello ";
     str += " big, ";
     str += " fat ";

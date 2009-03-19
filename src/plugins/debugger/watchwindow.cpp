@@ -31,12 +31,15 @@
 
 #include "debuggeractions.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
+#include <QtGui/QItemDelegate>
 #include <QtGui/QLineEdit>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
@@ -44,7 +47,57 @@
 
 using namespace Debugger::Internal;
 
+
+/////////////////////////////////////////////////////////////////////
+//
+// WatchDelegate
+//
+/////////////////////////////////////////////////////////////////////
+
 enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
+
+class WatchDelegate : public QItemDelegate
+{
+public:
+    WatchDelegate(QObject *parent) : QItemDelegate(parent) {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+        const QModelIndex &) const
+    {
+        return new QLineEdit(parent);
+    }
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    {
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+        QTC_ASSERT(lineEdit, return);
+        lineEdit->setText(index.model()->data(index, Qt::EditRole).toString());
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *,
+        const QModelIndex &index) const
+    {
+        QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
+        QTC_ASSERT(lineEdit, return);
+        QString value = lineEdit->text();
+        QString exp = index.model()->data(index, Qt::EditRole).toString();
+        if (index.column() == 1) {
+            // the value column
+            theDebuggerSetting(AssignValue)->trigger(exp + '=' + value);
+        } else if (index.column() == 0) {
+            // the watcher name column
+            theDebuggerSetting(RemoveWatchExpression)->trigger(exp);
+            theDebuggerSetting(WatchExpression)->trigger(lineEdit->text());
+        }
+    }
+
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+        const QModelIndex &) const
+    {
+        editor->setGeometry(option.rect);
+    }
+};
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -53,16 +106,14 @@ enum { INameRole = Qt::UserRole, VisualRole, ExpandedRole };
 /////////////////////////////////////////////////////////////////////
 
 WatchWindow::WatchWindow(Type type, QWidget *parent)
-    : QTreeView(parent)
-    , m_alwaysResizeColumnsToContents(true), m_type(type)
+    : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type)
 {
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(true);
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
+    setItemDelegate(new WatchDelegate(this));
 
-    connect(itemDelegate(), SIGNAL(commitData(QWidget *)),
-        this, SLOT(handleChangedItem(QWidget *)));
     connect(this, SIGNAL(expanded(QModelIndex)),
         this, SLOT(expandNode(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
@@ -104,6 +155,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
+    //QAction *act3 = 0;
     QAction *act4 = 0;
 
     menu.addAction(act1);
@@ -124,7 +176,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     //act4 = theDebuggerSetting(WatchExpressionInWindow)->action();
     //act4->setCheckable(true);
     //act4->setChecked(visual);
-    // FIXME: menu.addAction(act4);
+    //menu.addAction(act4);
+
+    //act3 = new QAction(tr("Add to watch window..."), &menu); 
+    //menu.addAction(act3);
 
     menu.addSeparator();
     menu.addAction(theDebuggerSetting(RecheckDumpers)->action());
@@ -138,6 +193,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         resizeColumnsToContents();
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
+    else if (act == act4)
+        model()->setData(mi0, !visual, VisualRole);
     else if (act == act4)
         model()->setData(mi0, !visual, VisualRole);
 }
@@ -198,12 +255,5 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
             resetHelper(idx1);
         }
     }
-}
-
-void WatchWindow::handleChangedItem(QWidget *widget)
-{
-    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget);
-    if (lineEdit)
-        requestAssignValue("foo", lineEdit->text());
 }
 

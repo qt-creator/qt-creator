@@ -264,6 +264,11 @@ void QtcSettingsItem::actionTriggered(bool on)
     }
 }
 
+void QtcSettingsItem::trigger(const QVariant &data) const
+{
+    m_action->setData(data);
+    m_action->trigger();
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -375,6 +380,9 @@ QtcSettingsPool *theDebuggerSettings()
     item = new QtcSettingsItem(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
+
+    item = new QtcSettingsItem(instance);
+    instance->insertItem(AssignValue, item);
 
     //
     // Dumpers
