@@ -719,8 +719,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         }
     }
 
-
     emit editorsClosed(acceptedEditors);
+
     foreach (IEditor *editor, acceptedEditors) {
         delete editor;
     }
@@ -1358,7 +1358,7 @@ QList<IEditor*> EditorManager::editorHistory() const
     return m_d->m_editorHistory;
 }
 
-void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
+void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
 {
     IEditor *editor = currentEditor();
     if (!editor)
@@ -1367,7 +1367,15 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
         return;
     
     QString fileName = editor->file()->fileName();
-    QByteArray state = editor->saveState();
+    bool compress;
+    QByteArray state;
+    if (saveState.isNull()) {
+        state = editor->saveState();
+        compress = false;
+    } else {
+        state = saveState;
+        compress = true;
+    }
     // cut existing
     int firstIndexToRemove;
     if (compress && m_d->currentNavigationHistoryPosition > 0) {
