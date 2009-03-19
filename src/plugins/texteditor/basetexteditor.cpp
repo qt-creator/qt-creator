@@ -961,6 +961,7 @@ void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
 
 void BaseTextEditor::gotoLine(int line, int column)
 {
+    d->m_lastCursorChangeWasInteresting = false; // avoid adding the previous position to history
     const int blockNumber = line - 1;
     const QTextBlock &block = document()->findBlockByNumber(blockNumber);
     if (block.isValid()) {

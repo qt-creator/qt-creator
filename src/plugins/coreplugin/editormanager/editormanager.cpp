@@ -1358,7 +1358,7 @@ QList<IEditor*> EditorManager::editorHistory() const
     return m_d->m_editorHistory;
 }
 
-void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
+void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState, bool compress)
 {
     IEditor *editor = currentEditor();
     if (!editor)
@@ -1367,14 +1367,11 @@ void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &save
         return;
     
     QString fileName = editor->file()->fileName();
-    bool compress;
     QByteArray state;
     if (saveState.isNull()) {
         state = editor->saveState();
-        compress = false;
     } else {
         state = saveState;
-        compress = true;
     }
     // cut existing
     int firstIndexToRemove;
