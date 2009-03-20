@@ -87,8 +87,6 @@ public:
 
     QString descriptionText() const;
     void setDescriptionText(const QString &text);
-    // Should be used to normalize newlines.
-    QString trimmedDescriptionText() const;
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);

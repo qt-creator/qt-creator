@@ -391,7 +391,7 @@ bool VCSBaseSubmitEditor::save(const QString &fileName)
 
 QString VCSBaseSubmitEditor::fileContents() const
 {
-    return m_d->m_widget->trimmedDescriptionText();
+    return m_d->m_widget->descriptionText();
 }
 
 bool VCSBaseSubmitEditor::setFileContents(const QString &contents)

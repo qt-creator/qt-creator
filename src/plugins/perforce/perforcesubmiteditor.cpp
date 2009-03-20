@@ -152,7 +152,7 @@ void PerforceSubmitEditor::updateEntries()
     const QString newLine = QString(QLatin1Char('\n'));
     const QString tab = QString(QLatin1Char('\t'));
 
-    QStringList lines = submitEditorWidget()->trimmedDescriptionText().split(newLine);
+    QStringList lines = submitEditorWidget()->descriptionText().split(newLine);
     while (lines.last().isEmpty())
         lines.removeLast();
     // Description

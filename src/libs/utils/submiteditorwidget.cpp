@@ -230,17 +230,34 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
     }
 }
 
-QString SubmitEditorWidget::trimmedDescriptionText() const
+// Make sure we have one terminating NL
+static inline QString trimMessageText(const QString &t)
 {
-    // Make sure we have one terminating NL
-    QString text = descriptionText().trimmed();
-    text += QLatin1Char('\n');
-    return text;
+    QString rc = t.trimmed();
+    rc += QLatin1Char('\n');
+    return rc;
+}
+
+// Extract the wrapped text from a text edit, which performs
+// the wrapping only optically.
+static QString wrappedText(const QTextEdit *e)
+{
+    const QChar newLine = QLatin1Char('\n');
+    QString rc;
+    QTextCursor cursor(e->document());
+    cursor.movePosition(QTextCursor::Start);    
+    while (!cursor.atEnd()) {
+        cursor.select(QTextCursor::LineUnderCursor);
+        rc += cursor.selectedText();
+        rc += newLine;
+        cursor.movePosition(QTextCursor::Right);
+    }
+    return rc;
 }
 
 QString SubmitEditorWidget::descriptionText() const
 {
-    QString rc = m_d->m_ui.description->toPlainText();
+    QString rc = trimMessageText(lineWrap() ? wrappedText(m_d->m_ui.description) : m_d->m_ui.description->toPlainText());
     // append field entries
     foreach(const SubmitEditorWidgetPrivate::FieldEntry &fe, m_d->m_fieldEntries) {
         const QString fieldText = fe.second->text().trimmed();
