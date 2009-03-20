@@ -483,15 +483,17 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
     }
 
     const QStringList fileList = editor->checkedFiles();
+    bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
         Core::ICore::instance()->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         Core::ICore::instance()->fileManager()->unblockFileChange(fileIFace);
-        commit(m_changeTmpFile->fileName(), fileList);
+        closeEditor= commit(m_changeTmpFile->fileName(), fileList);
     }
-    cleanChangeTmpFile();
-    return true;
+    if (closeEditor)
+        cleanChangeTmpFile();
+    return closeEditor;
 }
 
 void SubversionPlugin::diffFiles(const QStringList &files)

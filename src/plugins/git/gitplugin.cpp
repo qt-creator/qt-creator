@@ -695,20 +695,22 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     const QStringList fileList = editor->checkedFiles();
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileList;
+    bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
         m_core->fileManager()->blockFileChange(fileIFace);
         fileIFace->save();
         m_core->fileManager()->unblockFileChange(fileIFace);
 
-        m_gitClient->addAndCommit(m_submitRepository,
-                                  editor->panelData(),
-                                  m_changeTmpFile->fileName(),
-                                  fileList,
-                                  m_submitOrigCommitFiles);
+        closeEditor = m_gitClient->addAndCommit(m_submitRepository,
+                                                editor->panelData(),
+                                                m_changeTmpFile->fileName(),
+                                                fileList,
+                                                m_submitOrigCommitFiles);
     }
-    cleanChangeTmpFile();
-    return true;
+    if (closeEditor)
+        cleanChangeTmpFile();
+    return closeEditor;
 }
 
 void GitPlugin::pull()

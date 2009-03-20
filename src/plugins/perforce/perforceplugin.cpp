@@ -517,16 +517,14 @@ void PerforcePlugin::submit()
     m_changeTmpFile = new QTemporaryFile(this);
     if (!m_changeTmpFile->open()) {
         showOutput(tr("Cannot create temporary file."), true);
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+        cleanChangeTmpFile();
         return;
     }
 
     PerforceResponse result = runP4Cmd(QStringList()<< QLatin1String("change") << QLatin1String("-o"), QStringList(),
                                        CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result.error) {
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+        cleanChangeTmpFile();
         return;
     }
 
@@ -539,8 +537,7 @@ void PerforcePlugin::submit()
     PerforceResponse result2 = runP4Cmd(QStringList(QLatin1String("fstat")), nativeFiles,
                                         CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result2.error) {
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+        cleanChangeTmpFile();
         return;
     }
 
@@ -552,8 +549,7 @@ void PerforcePlugin::submit()
     }
     if (depotFileNames.isEmpty()) {
         showOutput(tr("Project has no files"));
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+        cleanChangeTmpFile();
         return;
     }
 
@@ -959,6 +955,16 @@ void PerforcePlugin::submitCurrentLog()
     em->closeEditors(QList<Core::IEditor*>() << em->currentEditor());
 }
 
+void PerforcePlugin::cleanChangeTmpFile()
+{
+    if (m_changeTmpFile) {
+        if (m_changeTmpFile->isOpen())
+            m_changeTmpFile->close();
+        delete m_changeTmpFile;
+        m_changeTmpFile = 0;
+    }
+}
+
 bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
 {
     if (!m_changeTmpFile || !editor)
@@ -989,14 +995,13 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
         fileIFace->save();
         core->fileManager()->unblockFileChange(fileIFace);
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
+            m_changeTmpFile->seek(0);
             QByteArray change = m_changeTmpFile->readAll();
-            m_changeTmpFile->close();
             if (!checkP4Command()) {
                 showOutput(tr("No p4 executable specified!"), true);
-                delete m_changeTmpFile;
-                m_changeTmpFile = 0;
                 return false;
             }
+
             QProcess proc;
             proc.setEnvironment(environment());
 
@@ -1006,8 +1011,6 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             if (!proc.waitForStarted(p4Timeout)) {
                 showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
-                delete m_changeTmpFile;
-                m_changeTmpFile = 0;
                 return false;
             }
             proc.write(change);
@@ -1016,8 +1019,6 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             if (!proc.waitForFinished()) {
                 showOutput(tr("Cannot execute p4 submit."), true);
                 QApplication::restoreOverrideCursor();
-                delete m_changeTmpFile;
-                m_changeTmpFile = 0;
                 return false;
             }
             const QString output = QString::fromUtf8(proc.readAll());
@@ -1027,9 +1028,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             }
             QApplication::restoreOverrideCursor();
         }
-        m_changeTmpFile->close();
-        delete m_changeTmpFile;
-        m_changeTmpFile = 0;
+        cleanChangeTmpFile();
     }
     return true;
 }
