@@ -30,6 +30,7 @@
 #include "vcsbaseplugin.h"
 #include "diffhighlighter.h"
 #include "vcsbasesettingspage.h"
+#include "nicknamedialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -37,6 +38,7 @@
 #include <coreplugin/mimedatabase.h>
 
 #include <QtCore/QtPlugin>
+#include <QtCore/QDebug>
 
 namespace VCSBase {
 namespace Internal {
@@ -44,7 +46,8 @@ namespace Internal {
 VCSBasePlugin *VCSBasePlugin::m_instance = 0;
 
 VCSBasePlugin::VCSBasePlugin() :
-    m_settingsPage(0)
+    m_settingsPage(0),
+    m_nickNameModel(0)
 {
     m_instance = this;
 }
@@ -65,6 +68,11 @@ bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     m_settingsPage = new VCSBaseSettingsPage;
     addAutoReleasedObject(m_settingsPage);
+    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
+            this, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)));
+    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
+            this, SLOT(slotSettingsChanged()));
+    slotSettingsChanged();
     return true;
 }
 
@@ -80,6 +88,32 @@ VCSBasePlugin *VCSBasePlugin::instance()
 VCSBaseSettings VCSBasePlugin::settings() const
 {
     return m_settingsPage->settings();
+}
+
+/* Delayed creation/update of the nick name model. */
+QStandardItemModel *VCSBasePlugin::nickNameModel()
+{
+    if (!m_nickNameModel) {
+        m_nickNameModel = NickNameDialog::createModel(this);
+        populateNickNameModel();
+    }
+    return m_nickNameModel;
+}
+
+void VCSBasePlugin::populateNickNameModel()
+{
+    QString errorMessage;
+    if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap,
+                                                      m_nickNameModel,
+                                                      &errorMessage)) {
+            qWarning("%s", qPrintable(errorMessage));
+        }
+}
+
+void VCSBasePlugin::slotSettingsChanged()
+{
+    if (m_nickNameModel)
+        populateNickNameModel();
 }
 
 } // namespace Internal

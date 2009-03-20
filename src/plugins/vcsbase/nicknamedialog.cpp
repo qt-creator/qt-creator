@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "nicknamedialog.h"
-#include "vcsbaseplugin.h"
 #include "ui_nicknamedialog.h"
 
 #include <QtCore/QDebug>
@@ -120,13 +119,18 @@ QString NickNameEntry::nickName() const
 QList<QStandardItem *> NickNameEntry::toModelRow() const
 {
     const QVariant nickNameData = nickName();    
+    const Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     QStandardItem *i1 = new QStandardItem(name);
+    i1->setFlags(flags);
     i1->setData(nickNameData, NickNameRole);
     QStandardItem *i2 = new QStandardItem(email);
+    i1->setFlags(flags);
     i2->setData(nickNameData, NickNameRole);
     QStandardItem *i3 = new QStandardItem(aliasName);
+    i3->setFlags(flags);
     i3->setData(nickNameData, NickNameRole);
     QStandardItem *i4 = new QStandardItem(aliasEmail);
+    i4->setFlags(flags);
     i4->setData(nickNameData, NickNameRole);
     QList<QStandardItem *> row;
     row << i1 << i2 << i3 << i4;
@@ -145,31 +149,10 @@ QDebug operator<<(QDebug d, const NickNameEntry &e)
     return  d;
 }
 
-// Globally cached model tacked onto the plugin.
-static QStandardItemModel *nickModel()
-{
-    static QStandardItemModel *model = 0;
-    if (!model) {
-        model = new QStandardItemModel(VCSBasePlugin::instance());
-        QStringList headers;
-        headers << NickNameDialog::tr("Name")
-                << NickNameDialog::tr("E-mail")
-                << NickNameDialog::tr("Alias")
-                << NickNameDialog::tr("Alias e-mail");
-        model->setHorizontalHeaderLabels(headers);
-    }
-    return model;
-}
-
-static inline void clearModel(QStandardItemModel *model)
-{
-    if (const int rowCount = model->rowCount())
-        model->removeRows(0, rowCount);
-}
-
-NickNameDialog::NickNameDialog(QWidget *parent) :
+NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         QDialog(parent),
         m_ui(new Ui::NickNameDialog),
+        m_model(model),
         m_filterModel(new QSortFilterProxyModel(this))
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -177,7 +160,7 @@ NickNameDialog::NickNameDialog(QWidget *parent) :
     okButton()->setEnabled(false);
 
     // Populate model and grow tree to accommodate it
-    m_filterModel->setSourceModel(nickModel());
+    m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_ui->filterTreeView->setModel(m_filterModel);
     const int columnCount = m_filterModel->columnCount();
@@ -221,26 +204,35 @@ QString NickNameDialog::nickName() const
     const QModelIndex index = m_ui->filterTreeView->selectionModel()->currentIndex();
     if (index.isValid()) {
         const QModelIndex sourceIndex = m_filterModel->mapToSource(index);
-        if (const QStandardItem *item = nickModel()->itemFromIndex(sourceIndex))
+        if (const QStandardItem *item = m_model->itemFromIndex(sourceIndex))
             return NickNameEntry::nickNameOf(item);
     }
     return QString();
 }
 
-void NickNameDialog::clearNickNames()
+QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
-    clearModel(nickModel());
+    QStandardItemModel *model = new QStandardItemModel(parent);
+    QStringList headers;
+    headers << tr("Name") << tr("E-mail")
+            << tr("Alias") << tr("Alias e-mail");
+    model->setHorizontalHeaderLabels(headers);
+    return model;
 }
 
-bool NickNameDialog::readNickNamesFromMailCapFile(const QString &fileName, QString *errorMessage)
+bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
+                                                  QStandardItemModel *model,
+                                                  QString *errorMessage)
 {
+    if (const int rowCount = model->rowCount())
+        model->removeRows(0, rowCount);
+    if (fileName.isEmpty())
+        return true;
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
          *errorMessage = tr("Cannot open '%1': %2").arg(fileName, file.errorString());
          return false;
     }
-    QStandardItemModel *model = nickModel();
-    clearModel(model);
     // Split into lines and read
     NickNameEntry entry;
     const QStringList lines = QString::fromUtf8(file.readAll()).trimmed().split(QLatin1Char('\n'));
@@ -256,10 +248,9 @@ bool NickNameDialog::readNickNamesFromMailCapFile(const QString &fileName, QStri
     return true;
 }
 
-QStringList NickNameDialog::nickNameList()
+QStringList NickNameDialog::nickNameList(const QStandardItemModel *model)
 {
     QStringList  rc;
-    const QStandardItemModel *model = nickModel();
     const int rowCount = model->rowCount();
     for (int r = 0; r < rowCount; r++)
         rc.push_back(NickNameEntry::nickNameOf(model->item(r, 0)));

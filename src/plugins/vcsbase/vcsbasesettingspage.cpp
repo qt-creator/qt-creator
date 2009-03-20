@@ -67,16 +67,19 @@ VCSBaseSettings VCSBaseSettingsWidget::settings() const
     rc.nickNameFieldListFile = m_ui->nickNameFieldsFileChooser->path();
     rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->path();
     rc.promptForSubmit = m_ui->promptForSubmitCheckBox->isChecked();
+    rc.lineWrap= m_ui->lineWrapCheckBox->isChecked();
+    rc.lineWrapWidth = m_ui->lineWrapSpinBox->value();
     return rc;
 }
 
 void VCSBaseSettingsWidget::setSettings(const VCSBaseSettings &s)
 {
-
     m_ui->nickNameMailMapChooser->setPath(s.nickNameMailMap);
     m_ui->nickNameFieldsFileChooser->setPath(s.nickNameFieldListFile);
     m_ui->submitMessageCheckScriptChooser->setPath(s.submitMessageCheckScript);
     m_ui->promptForSubmitCheckBox->setChecked(s.promptForSubmit);
+    m_ui->lineWrapCheckBox->setChecked(s.lineWrap);
+    m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
 }
 
 // --------------- VCSBaseSettingsPage
@@ -84,18 +87,10 @@ VCSBaseSettingsPage::VCSBaseSettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
     m_settings.fromSettings(Core::ICore::instance()->settings());
-    updateNickNames();
 }
 
 void VCSBaseSettingsPage::updateNickNames()
 {
-    if (m_settings.nickNameMailMap.isEmpty()) {
-        NickNameDialog::clearNickNames();
-    } else {
-        QString errorMessage;
-        if (!NickNameDialog::readNickNamesFromMailCapFile(m_settings.nickNameMailMap, &errorMessage))
-            qWarning("%s", qPrintable(errorMessage));
-    }
 }
 
 VCSBaseSettingsPage::~VCSBaseSettingsPage()
@@ -136,7 +131,7 @@ void VCSBaseSettingsPage::apply()
         if (newSettings != m_settings) {
             m_settings = newSettings;
             m_settings.toSettings(Core::ICore::instance()->settings());
-            updateNickNames();
+            emit settingsChanged(m_settings);
         }
     }
 }

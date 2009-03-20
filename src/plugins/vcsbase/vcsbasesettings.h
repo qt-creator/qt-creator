@@ -35,6 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 class QSettings;
+class QDebug;
 QT_END_NAMESPACE
 
 namespace VCSBase {
@@ -51,6 +52,9 @@ struct VCSBaseSettings {
 
     QString submitMessageCheckScript;
 
+    bool lineWrap;
+    int lineWrapWidth;
+
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
 
@@ -60,6 +64,7 @@ struct VCSBaseSettings {
 inline bool operator==(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return s1.equals(s2); }
 inline bool operator!=(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return !s1.equals(s2); }
 
+QDebug operator<<(QDebug,const VCSBaseSettings& );
 } // namespace Internal
 } // namespace VCSBase
 

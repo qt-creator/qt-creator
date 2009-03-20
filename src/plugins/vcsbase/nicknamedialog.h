@@ -37,6 +37,7 @@ namespace Ui {
     class NickNameDialog;
 }
 class QSortFilterProxyModel;
+class QStandardItemModel;
 class QModelIndex;
 class QPushButton;
 QT_END_NAMESPACE
@@ -48,23 +49,24 @@ namespace Internal {
  * mail cap file, consisting of 4 columns:
  * "Name Mail [AliasName [AliasMail]]".
  * The names can be used for insertion into "RevBy:" fields; aliases will
- * be preferred. The static functions to read/clear the mail map
- * files access a global model which is shared by all instances of the
- * dialog to achieve updating. */
+ * be preferred. */
 
 class NickNameDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit NickNameDialog(QWidget *parent = 0);
+    explicit NickNameDialog(QStandardItemModel *model, QWidget *parent = 0);
     virtual ~NickNameDialog();
 
     QString nickName() const;
 
-    // Fill/clear the global nick name cache
-    static bool readNickNamesFromMailCapFile(const QString &file, QString *errorMessage);
-    static void clearNickNames();
+    // Utilities to initialize/populate the model
+    static QStandardItemModel *createModel(QObject *parent);
+    static bool populateModelFromMailCapFile(const QString &file,
+                                             QStandardItemModel *model,
+                                             QString *errorMessage);
+
     // Return a list for a completer on the field line edits
-    static QStringList nickNameList();
+    static QStringList nickNameList(const QStandardItemModel *model);
 
 private slots:
     void slotCurrentItemChanged(const QModelIndex &);
@@ -74,7 +76,9 @@ private:
     QPushButton *okButton() const;
 
     Ui::NickNameDialog *m_ui;
+    QStandardItemModel *m_model;
     QSortFilterProxyModel *m_filterModel;
+
 };
 
 } // namespace Internal

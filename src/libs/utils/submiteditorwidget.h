@@ -36,7 +36,7 @@
 #include <QtGui/QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
+class QTextEdit;
 class QListWidgetItem;
 class QAction;
 class QAbstractItemModel;
@@ -74,6 +74,8 @@ class QWORKBENCH_UTILS_EXPORT SubmitEditorWidget : public QWidget
     Q_PROPERTY(QString descriptionText READ descriptionText WRITE setDescriptionText DESIGNABLE true)
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
+    Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
+    Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
 public:
     explicit SubmitEditorWidget(QWidget *parent = 0);
     virtual ~SubmitEditorWidget();
@@ -91,6 +93,12 @@ public:
     int fileNameColumn() const;
     void setFileNameColumn(int c);
 
+    bool lineWrap() const;
+    void setLineWrap(bool);
+
+    int lineWrapWidth() const;
+    void setLineWrapWidth(int);
+
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
 
@@ -103,7 +111,7 @@ public:
     // Selected files for diff
     QStringList selectedFiles() const;
 
-    QPlainTextEdit *descriptionEdit() const;
+    QTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
     void insertDescriptionEditContextMenuAction(int pos, QAction *a);

@@ -44,6 +44,7 @@
 #include <QtGui/QSpacerItem>
 
 enum { debug = 0 };
+enum { defaultLineWidth = 72 };
 
 namespace Core {
 namespace Utils {
@@ -131,6 +132,7 @@ struct SubmitEditorWidgetPrivate
     typedef QPair<QString, QLineEdit*> FieldEntry;
     QList<FieldEntry> m_fieldEntries;
     QSignalMapper *m_fieldSignalMapper;
+    int m_lineWidth;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
@@ -139,7 +141,8 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_fileNameColumn(1),
     m_activatedRow(-1),
     m_fieldLayout(0),
-    m_fieldSignalMapper(0)
+    m_fieldSignalMapper(0),
+    m_lineWidth(defaultLineWidth)
 {
 }
 
@@ -149,6 +152,7 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
 {
     m_d->m_ui.setupUi(this);
     m_d->m_ui.description->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     connect(m_d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(editorCustomContextMenuRequested(QPoint)));
 
@@ -189,7 +193,7 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction,  QAction *ed
             int count = 0;
             if (const QAbstractItemModel *model = m_d->m_ui.fileView->model())
                 count = model->rowCount();
-            qDebug() << submitAction << count << "items" << m_d->m_filesChecked;
+            qDebug() << Q_FUNC_INFO << submitAction << count << "items" << m_d->m_filesChecked;
         }
         submitAction->setEnabled(m_d->m_filesChecked);
         connect(this, SIGNAL(fileCheckStateChanged(bool)), submitAction, SLOT(setEnabled(bool)));
@@ -253,6 +257,39 @@ QString SubmitEditorWidget::descriptionText() const
 void SubmitEditorWidget::setDescriptionText(const QString &text)
 {
     m_d->m_ui.description->setPlainText(text);
+}
+
+bool SubmitEditorWidget::lineWrap() const
+{
+    return m_d->m_ui.description->lineWrapMode() != QTextEdit::NoWrap;
+}
+
+void SubmitEditorWidget::setLineWrap(bool v)
+{
+    if (debug)
+        qDebug() << Q_FUNC_INFO << v;
+    if (v) {
+        m_d->m_ui.description->setLineWrapColumnOrWidth(m_d->m_lineWidth);
+        m_d->m_ui.description->setLineWrapMode(QTextEdit::FixedColumnWidth);        
+    } else {
+        m_d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
+    }
+}
+
+int SubmitEditorWidget::lineWrapWidth() const
+{
+    return m_d->m_lineWidth;
+}
+
+void SubmitEditorWidget::setLineWrapWidth(int v)
+{
+    if (debug)
+        qDebug() << Q_FUNC_INFO << v << lineWrap();
+    if (m_d->m_lineWidth == v)
+        return;
+    m_d->m_lineWidth = v;
+    if (lineWrap())
+        m_d->m_ui.description->setLineWrapColumnOrWidth(v);
 }
 
 int SubmitEditorWidget::fileNameColumn() const
@@ -332,7 +369,7 @@ QStringList SubmitEditorWidget::checkedFiles() const
     return rc;
 }
 
-QPlainTextEdit *SubmitEditorWidget::descriptionEdit() const
+QTextEdit *SubmitEditorWidget::descriptionEdit() const
 {
     return m_d->m_ui.description;
 }
