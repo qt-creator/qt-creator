@@ -142,7 +142,8 @@ GitPlugin::GitPlugin() :
     m_coreListener(0),
     m_submitEditorFactory(0),
     m_versionControl(0),
-    m_changeTmpFile(0)
+    m_changeTmpFile(0),
+    m_submitActionTriggered(false)
 {
     m_instance = this;
 }
@@ -651,6 +652,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
 void GitPlugin::submitCurrentLog()
 {
     // Close the submit editor
+    m_submitActionTriggered = true;
     QList<Core::IEditor*> editors;
     editors.push_back(m_core->editorManager()->currentEditor());
     m_core->editorManager()->closeEditors(editors);
@@ -672,11 +674,14 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
     // Paranoia!
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true;
-    // Prompt user.
+    // Prompt user. Force a prompt unless submit was actually invoked (that
+    // is, the editor was closed or shutdown).
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing git editor"),
                                  tr("Do you want to commit the change?"),
-                                 tr("The commit message check failed. Do you want to commit the change?"));
+                                 tr("The commit message check failed. Do you want to commit the change?"),
+                                 !m_submitActionTriggered);
+    m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file

@@ -190,6 +190,7 @@ private:
     QAction *m_filelogCurrentAction;
     QAction *m_filelogAction;
     QAction *m_submitCurrentLogAction;
+    bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
 
     QAction *m_undoAction;
@@ -232,7 +233,7 @@ private:
     PerforceVersionControl *m_versionControl;
     PerforceSettings m_settings;
 
-    friend class PerforceOutputWindow;
+    friend class PerforceOutputWindow; // needs openFiles()
 };
 
 } // namespace Perforce

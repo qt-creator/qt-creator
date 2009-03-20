@@ -168,6 +168,7 @@ private:
     QAction *m_submitDiffAction;
     QAction *m_submitUndoAction;
     QAction *m_submitRedoAction;
+    bool    m_submitActionTriggered;
 
     static const char * const SUBVERSION_MENU;
     static const char * const ADD;

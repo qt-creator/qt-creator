@@ -188,7 +188,8 @@ SubversionPlugin::SubversionPlugin() :
     m_submitCurrentLogAction(0),
     m_submitDiffAction(0),
     m_submitUndoAction(0),
-    m_submitRedoAction(0)
+    m_submitRedoAction(0),
+    m_submitActionTriggered(false)
 {
 }
 
@@ -463,11 +464,14 @@ bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
-    // Prompt user.
+    // Prompt user. Force a prompt unless submit was actually invoked (that
+    // is, the editor was closed or shutdown).
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Subversion Editor"),
                                  tr("Do you want to commit the change?"),
-                                 tr("The commit message check failed. Do you want to commit the change?"));
+                                 tr("The commit message check failed. Do you want to commit the change?"),
+                                 !m_submitActionTriggered);
+    m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
@@ -922,6 +926,7 @@ void SubversionPlugin::slotDescribe()
 
 void SubversionPlugin::submitCurrentLog()
 {
+    m_submitActionTriggered = true;
     Core::EditorManager::instance()->closeEditors(QList<Core::IEditor*>()
         << Core::EditorManager::instance()->currentEditor());
 }

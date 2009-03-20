@@ -115,7 +115,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     const Internal::VCSBaseSettings settings = Internal::VCSBasePlugin::instance()->settings();
     // Add additional context menu settings
-    if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameFieldListFile.isEmpty()) {
+    if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
         QAction *sep = new QAction(this);
         sep->setSeparator(true);
         m_d->m_widget->addDescriptionEditContextMenuAction(sep);
@@ -126,7 +126,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
             m_d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
-        if (!settings.nickNameFieldListFile.isEmpty()) {
+        if (!settings.nickNameMailMap.isEmpty()) {
             QAction *insertAction = new QAction(tr("Insert name..."), this);
             connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
             m_d->m_widget->addDescriptionEditContextMenuAction(insertAction);
@@ -369,17 +369,22 @@ bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
 enum { checkDialogMinimumWidth = 500 };
 
 VCSBaseSubmitEditor::PromptSubmitResult
-        VCSBaseSubmitEditor::promptSubmit(const QString &title, const QString &question, const QString &checkFailureQuestion) const
+        VCSBaseSubmitEditor::promptSubmit(const QString &title,
+                                          const QString &question,
+                                          const QString &checkFailureQuestion,
+                                          bool forcePrompt) const
 {
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
+
+    const bool prompt = forcePrompt || Internal::VCSBasePlugin::instance()->settings().promptForSubmit;
 
     QWidget *parent = Core::ICore::instance()->mainWindow();
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
     if (checkSubmitMessage(&errorMessage)) {
         // Check ok, do prompt?
-        if (Internal::VCSBasePlugin::instance()->settings().promptForSubmit) {
+        if (prompt) {
             answer = QMessageBox::question(parent, title, question,
                                   QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
                                   QMessageBox::Yes);
@@ -443,6 +448,14 @@ bool VCSBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
     const QString checkScript = submitMessageCheckScript();
     if (checkScript.isEmpty())
         return true;
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const bool rc = runSubmitMessageCheckScript(checkScript, errorMessage);
+    QApplication::restoreOverrideCursor();
+    return rc;
+}
+
+bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
+{
     // Write out message
     QString tempFilePattern = QDir::tempPath();
     if (!tempFilePattern.endsWith(QDir::separator()))

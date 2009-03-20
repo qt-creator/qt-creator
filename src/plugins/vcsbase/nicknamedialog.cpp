@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "nicknamedialog.h"
+#include "vcsbaseplugin.h"
 #include "ui_nicknamedialog.h"
 
 #include <QtCore/QDebug>
@@ -36,13 +37,19 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
 
+enum { NickNameRole = Qt::UserRole + 1 };
+
 namespace VCSBase {
 namespace Internal {
 
-struct NickEntry {
+// For code clarity, a struct representing the entries of a mail map file
+// with parse and model functions.
+struct NickNameEntry {
     void clear();
     bool parse(const QString &);
     QString nickName() const;
+    QList<QStandardItem *> toModelRow() const;
+    static QString nickNameOf(const QStandardItem *item);
 
     QString name;
     QString email;
@@ -50,7 +57,7 @@ struct NickEntry {
     QString aliasEmail;
 };
 
-void NickEntry::clear()
+void NickNameEntry::clear()
 {
     name.clear();
     email.clear();
@@ -60,7 +67,7 @@ void NickEntry::clear()
 
 // Parse "Hans Mustermann <HM@acme.de> [Alias [<alias@acme.de>]]"
 
-bool NickEntry::parse(const QString &l)
+bool NickNameEntry::parse(const QString &l)
 {
     clear();
     const QChar lessThan = QLatin1Char('<');
@@ -105,50 +112,59 @@ static inline QString formatNick(const QString &name, const QString &email)
     return rc;
 }
 
-QString NickEntry::nickName() const
+QString NickNameEntry::nickName() const
 {
     return aliasName.isEmpty() ? formatNick(name, email) : formatNick(aliasName, aliasEmail);
 }
 
-// Sort by name
-bool operator<(const NickEntry &n1,  const NickEntry &n2)
+QList<QStandardItem *> NickNameEntry::toModelRow() const
 {
-    return n1.name < n2.name;
+    const QVariant nickNameData = nickName();    
+    QStandardItem *i1 = new QStandardItem(name);
+    i1->setData(nickNameData, NickNameRole);
+    QStandardItem *i2 = new QStandardItem(email);
+    i2->setData(nickNameData, NickNameRole);
+    QStandardItem *i3 = new QStandardItem(aliasName);
+    i3->setData(nickNameData, NickNameRole);
+    QStandardItem *i4 = new QStandardItem(aliasEmail);
+    i4->setData(nickNameData, NickNameRole);
+    QList<QStandardItem *> row;
+    row << i1 << i2 << i3 << i4;
+    return row;
 }
 
-QDebug operator<<(QDebug d, const NickEntry &e)
+QString NickNameEntry::nickNameOf(const QStandardItem *item)
+{
+    return item->data(NickNameRole).toString();
+}
+
+QDebug operator<<(QDebug d, const NickNameEntry &e)
 {
     d.nospace() << "Name='" << e.name  << "' Mail='" << e.email
             << " Alias='" << e.aliasName << " AliasEmail='" << e.aliasEmail << "'\n";
     return  d;
 }
 
-// Globally cached list
-static QList<NickEntry> &nickList()
+// Globally cached model tacked onto the plugin.
+static QStandardItemModel *nickModel()
 {
-    static QList<NickEntry> rc;
-    return rc;
+    static QStandardItemModel *model = 0;
+    if (!model) {
+        model = new QStandardItemModel(VCSBasePlugin::instance());
+        QStringList headers;
+        headers << NickNameDialog::tr("Name")
+                << NickNameDialog::tr("E-mail")
+                << NickNameDialog::tr("Alias")
+                << NickNameDialog::tr("Alias e-mail");
+        model->setHorizontalHeaderLabels(headers);
+    }
+    return model;
 }
 
-// Create a model populated with the names
-static QStandardItemModel *createModel(QObject *parent)
+static inline void clearModel(QStandardItemModel *model)
 {
-    QStandardItemModel *rc = new QStandardItemModel(parent);
-    QStringList headers;
-    headers << NickNameDialog::tr("Name")
-            << NickNameDialog::tr("E-mail")
-            << NickNameDialog::tr("Alias")
-            << NickNameDialog::tr("Alias e-mail");
-    rc->setHorizontalHeaderLabels(headers);
-    foreach(const NickEntry &ne, nickList()) {
-        QList<QStandardItem *> row;
-        row.push_back(new QStandardItem(ne.name));
-        row.push_back(new QStandardItem(ne.email));
-        row.push_back(new QStandardItem(ne.aliasName));
-        row.push_back(new QStandardItem(ne.aliasEmail));
-        rc->appendRow(row);
-    }
-    return rc;
+    if (const int rowCount = model->rowCount())
+        model->removeRows(0, rowCount);
 }
 
 NickNameDialog::NickNameDialog(QWidget *parent) :
@@ -161,7 +177,7 @@ NickNameDialog::NickNameDialog(QWidget *parent) :
     okButton()->setEnabled(false);
 
     // Populate model and grow tree to accommodate it
-    m_filterModel->setSourceModel(createModel(this));
+    m_filterModel->setSourceModel(nickModel());
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_ui->filterTreeView->setModel(m_filterModel);
     const int columnCount = m_filterModel->columnCount();
@@ -205,14 +221,15 @@ QString NickNameDialog::nickName() const
     const QModelIndex index = m_ui->filterTreeView->selectionModel()->currentIndex();
     if (index.isValid()) {
         const QModelIndex sourceIndex = m_filterModel->mapToSource(index);
-        return nickList().at(sourceIndex.row()).nickName();
+        if (const QStandardItem *item = nickModel()->itemFromIndex(sourceIndex))
+            return NickNameEntry::nickNameOf(item);
     }
     return QString();
 }
 
 void NickNameDialog::clearNickNames()
 {
-    nickList().clear();
+    clearModel(nickModel());
 }
 
 bool NickNameDialog::readNickNamesFromMailCapFile(const QString &fileName, QString *errorMessage)
@@ -222,28 +239,30 @@ bool NickNameDialog::readNickNamesFromMailCapFile(const QString &fileName, QStri
          *errorMessage = tr("Cannot open '%1': %2").arg(fileName, file.errorString());
          return false;
     }
+    QStandardItemModel *model = nickModel();
+    clearModel(model);
     // Split into lines and read
-    QList<NickEntry> &nl = nickList();
-    nl.clear();
-    NickEntry entry;
+    NickNameEntry entry;
     const QStringList lines = QString::fromUtf8(file.readAll()).trimmed().split(QLatin1Char('\n'));
     const int count = lines.size();
     for (int i = 0; i < count; i++) {
         if (entry.parse(lines.at(i))) {
-            nl.push_back(entry);
+            model->appendRow(entry.toModelRow());
         } else {
             qWarning("%s: Invalid mail cap entry at line %d: '%s'\n", qPrintable(fileName), i + 1, qPrintable(lines.at(i)));
         }
     }
-    qStableSort(nl);
+    model->sort(0);
     return true;
 }
 
 QStringList NickNameDialog::nickNameList()
 {
     QStringList  rc;
-    foreach(const NickEntry &ne, nickList())
-        rc.push_back(ne.nickName());
+    const QStandardItemModel *model = nickModel();
+    const int rowCount = model->rowCount();
+    for (int r = 0; r < rowCount; r++)
+        rc.push_back(NickNameEntry::nickNameOf(model->item(r, 0)));
     return rc;
 }
 

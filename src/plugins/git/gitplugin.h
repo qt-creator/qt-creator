@@ -171,6 +171,7 @@ private:
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QTemporaryFile              *m_changeTmpFile;
+    bool                        m_submitActionTriggered;
 };
 
 } // namespace Git

@@ -48,7 +48,9 @@ namespace Internal {
  * mail cap file, consisting of 4 columns:
  * "Name Mail [AliasName [AliasMail]]".
  * The names can be used for insertion into "RevBy:" fields; aliases will
- * be preferred. */
+ * be preferred. The static functions to read/clear the mail map
+ * files access a global model which is shared by all instances of the
+ * dialog to achieve updating. */
 
 class NickNameDialog : public QDialog {
     Q_OBJECT

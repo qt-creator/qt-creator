@@ -175,13 +175,18 @@ PerforcePlugin::PerforcePlugin() :
     m_diffProjectAction(0),
     m_diffAllAction(0),
     m_resolveAction(0),
-    m_submitAction(0),
+    m_submitAction(0),    
     m_pendingAction(0),
     m_describeAction(0),
     m_annotateCurrentAction(0),
     m_annotateAction(0),
     m_filelogCurrentAction(0),
     m_filelogAction(0),
+    m_submitCurrentLogAction(0),
+    m_submitActionTriggered(false),
+    m_diffSelectedFiles(0),
+    m_undoAction(0),
+    m_redoAction(0),
     m_changeTmpFile(0),
 #ifdef USE_P4_API
     m_workbenchClientUser(0),
@@ -949,6 +954,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
 
 void PerforcePlugin::submitCurrentLog()
 {
+    m_submitActionTriggered = true;
     Core::EditorManager *em = Core::EditorManager::instance();
     em->closeEditors(QList<Core::IEditor*>() << em->currentEditor());
 }
@@ -966,11 +972,15 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
         return true;
     QFileInfo editorFile(fileIFace->fileName());
     QFileInfo changeFile(m_changeTmpFile->fileName());
-    if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {        
+    if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {
+        // Prompt the user. Force a prompt unless submit was actually invoked (that
+        // is, the editor was closed or shutdown).
          const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             perforceEditor->promptSubmit(tr("Closing p4 Editor"),
                                          tr("Do you want to submit this change list?"),
-                                         tr("The commit message check failed. Do you want to submit this change list"));
+                                         tr("The commit message check failed. Do you want to submit this change list"),
+                                         !m_submitActionTriggered);
+         m_submitActionTriggered = false;
 
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitCanceled)
             return false;
@@ -1010,10 +1020,10 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
                 m_changeTmpFile = 0;
                 return false;
             }
-            QString output = QString::fromUtf8(proc.readAll());
+            const QString output = QString::fromUtf8(proc.readAll());
             showOutput(output);
-            if (output.contains("Out of date files must be resolved or reverted"), true) {
-                QMessageBox::warning(editor->widget(), "Pending change", "Could not submit the change, because your workspace was out of date. Created a pending submit instead.");
+            if (output.contains(QLatin1String("Out of date files must be resolved or reverted)"))) {
+                QMessageBox::warning(editor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
             }
             QApplication::restoreOverrideCursor();
         }
