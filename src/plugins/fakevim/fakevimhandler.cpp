@@ -250,6 +250,8 @@ private:
     int cursorColumnInDocument() const;
     int linesInDocument() const;
     void scrollToLineInDocument(int line);
+    void scrollUp(int count);
+    void scrollDown(int count) { scrollUp(-count); }
 
     // helper functions for indenting
     bool isElectricCharacter(QChar c) const
@@ -531,7 +533,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         moveLeft();
 
     EDITOR(setTextCursor(m_tc));
-    EDITOR(ensureCursorVisible());
+    //EDITOR(ensureCursorVisible());
     return result;
 }
 
@@ -856,21 +858,21 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (key == Key_Return || key == 't') { // cursor line to top of window
             if (!m_mvcount.isEmpty())
                 setPosition(firstPositionInLine(count()));
-            scrollToLineInDocument(cursorLineInDocument());
+            scrollUp(- cursorLineOnScreen());
             if (key == Key_Return)
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else if (key == '.' || key == 'z') { // cursor line to center of window
             if (!m_mvcount.isEmpty())
                 setPosition(firstPositionInLine(count()));
-            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+            scrollUp(linesOnScreen() / 2 - cursorLineOnScreen());
             if (key == '.')
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else if (key == '-' || key == 'b') { // cursor line to bottom of window
             if (!m_mvcount.isEmpty())
                 setPosition(firstPositionInLine(count()));
-            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() - 1);
+            scrollUp(linesOnScreen() - cursorLineOnScreen());
             if (key == '-')
                 moveToFirstNonBlankOnLine();
             finishMovement();
@@ -1109,6 +1111,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'E') {
         m_moveType = MoveInclusive;
         moveToWordBoundary(true, true);
+        finishMovement();
+    } else if (key == control('e')) {
+        // FIXME: this should use the "scroll" option, and "count"
+        if (cursorLineOnScreen() == 0)
+            moveDown(1);
+        scrollDown(1);
         finishMovement();
     } else if (key == 'f') {
         m_subsubmode = FtSubSubMode;
@@ -2154,7 +2162,13 @@ void FakeVimHandler::Private::scrollToLineInDocument(int line)
 {
     // FIXME: works only for QPlainTextEdit
     QScrollBar *scrollBar = EDITOR(verticalScrollBar());
+    //qDebug() << "SCROLL: " << scrollBar->value() << line;
     scrollBar->setValue(line);
+}
+
+void FakeVimHandler::Private::scrollUp(int count)
+{
+    scrollToLineInDocument(cursorLineInDocument() - cursorLineOnScreen() - count);
 }
 
 int FakeVimHandler::Private::lastPositionInDocument() const
