@@ -84,8 +84,11 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
         if (errorMessage)
             *errorMessage = tr("The class name must not contain namespace delimiters.");
         return false;
-    }
-    if (!m_d->m_nameRegexp.exactMatch(value)) {
+    } else if (value.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("Please enter a class name.");
+        return false;
+    } else if (!m_d->m_nameRegexp.exactMatch(value)) {
         if (errorMessage)
             *errorMessage = tr("The class name contains invalid characters.");
         return false;
