@@ -806,6 +806,7 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 
 void FakeVimHandler::Private::notImplementedYet()
 {
+    qDebug() << "Not implemented in FakeVim";
     showRedMessage("Not implemented in FakeVim");
     updateMiniBuffer();
 }
@@ -1806,8 +1807,31 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             foreach (const QString &key, m_config.keys())
                 info += key + ": " + m_config.value(key) + "\n";
             emit q->extraInformationChanged(info);
+        } else if (m_config.contains(arg)) {
+            // boolean config to be switched on or non-boolean to show
+            QString oldValue = m_config.value(arg);
+            if (oldValue == ConfigOff)
+                m_config[arg] = ConfigOn;
+            else if (oldValue == ConfigOn)
+                ; // nothing to do
+            else
+                showBlackMessage(arg + '=' + oldValue);
+        } else if (arg.startsWith("no") && m_config.contains(arg.mid(2))) {
+            // boolean config to be switched off
+            QString key = arg.mid(2);
+            QString oldValue = m_config.value(key);
+            if (oldValue == ConfigOn)
+                m_config[key] = ConfigOff;
+            else if (oldValue == ConfigOff)
+                ; // nothing to do
+            else
+                showBlackMessage(key + '=' + oldValue);
+        } else if (arg.contains('=')) {
+            // non-boolean config to set
+            int p = arg.indexOf('=');
+            m_config[arg.left(p)] = arg.mid(p + 1);
         } else {
-            notImplementedYet();
+            showRedMessage(tr("E512: Unknown option: ") + arg);
         }
         enterCommandMode();
         updateMiniBuffer();
@@ -1828,7 +1852,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         updateMiniBuffer();
     } else {
-        showRedMessage("E492: Not an editor command: " + cmd0);
+        showRedMessage(tr("E492: Not an editor command: ") + cmd0);
     }
 }
 
