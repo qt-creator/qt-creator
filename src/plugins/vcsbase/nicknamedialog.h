@@ -27,41 +27,57 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASEPLUGIN_H
-#define VCSBASEPLUGIN_H
+#ifndef NICKNAMEDIALOG_H
+#define NICKNAMEDIALOG_H
 
-#include <extensionsystem/iplugin.h>
+#include <QtGui/QDialog>
 
-#include <QtCore/QObject>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class NickNameDialog;
+}
+class QSortFilterProxyModel;
+class QModelIndex;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace VCSBase {
 namespace Internal {
 
-struct VCSBaseSettings;
-class VCSBaseSettingsPage;
+/* Nick name dialog: Manages a list of users read from an extended
+ * mail cap file, consisting of 4 columns:
+ * "Name Mail [AliasName [AliasMail]]".
+ * The names can be used for insertion into "RevBy:" fields; aliases will
+ * be preferred. The static functions to read/clear the mail map
+ * files access a global model which is shared by all instances of the
+ * dialog to achieve updating. */
 
-class VCSBasePlugin : public ExtensionSystem::IPlugin
-{
+class NickNameDialog : public QDialog {
     Q_OBJECT
-
 public:
-    VCSBasePlugin();
-    ~VCSBasePlugin();
+    explicit NickNameDialog(QWidget *parent = 0);
+    virtual ~NickNameDialog();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    QString nickName() const;
 
-    void extensionsInitialized();
+    // Fill/clear the global nick name cache
+    static bool readNickNamesFromMailCapFile(const QString &file, QString *errorMessage);
+    static void clearNickNames();
+    // Return a list for a completer on the field line edits
+    static QStringList nickNameList();
 
-    static VCSBasePlugin *instance();
-
-    VCSBaseSettings settings() const;
+private slots:
+    void slotCurrentItemChanged(const QModelIndex &);
+    void slotDoubleClicked(const QModelIndex &);
 
 private:
-    static VCSBasePlugin *m_instance;
-    VCSBaseSettingsPage *m_settingsPage;
+    QPushButton *okButton() const;
+
+    Ui::NickNameDialog *m_ui;
+    QSortFilterProxyModel *m_filterModel;
 };
 
 } // namespace Internal
 } // namespace VCSBase
 
-#endif // VCSBASEPLUGIN_H
+#endif // NICKNAMEDIALOG_H

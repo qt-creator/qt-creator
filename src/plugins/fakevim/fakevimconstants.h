@@ -44,6 +44,13 @@ const char * const ConfigSmartTab    = "smarttab";
 const char * const ConfigStartOfLine = "startofline";
 const char * const ConfigTabStop     = "tabstop";
 
+const char * const ConfigBackspace   = "backspace";
+// indent  allow backspacing over autoindent
+// eol     allow backspacing over line breaks (join lines)
+// start   allow backspacing over the start of insert; CTRL-W and CTRL-U
+//         stop once at the start of insert.
+
+
 } // namespace Constants
 } // namespace FakeVim
 

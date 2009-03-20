@@ -27,62 +27,40 @@
 **
 **************************************************************************/
 
-#include "vcsbaseplugin.h"
-#include "diffhighlighter.h"
-#include "vcsbasesettingspage.h"
+#ifndef VCSBASESETTINGS_H
+#define VCSBASESETTINGS_H
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/mimedatabase.h>
+#include <QtCore/QString>
+#include <QtGui/QWidget>
 
-#include <QtCore/QtPlugin>
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace VCSBase {
 namespace Internal {
 
-VCSBasePlugin *VCSBasePlugin::m_instance = 0;
+// Common VCS settings, message check script and user nick names.
+struct VCSBaseSettings {
+    VCSBaseSettings();
 
-VCSBasePlugin::VCSBasePlugin() :
-    m_settingsPage(0)
-{
-    m_instance = this;
-}
+    bool promptForSubmit;
 
-VCSBasePlugin::~VCSBasePlugin()
-{
-    m_instance = 0;
-}
+    QString nickNameMailMap;
+    QString nickNameFieldListFile;
 
-bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    QString submitMessageCheckScript;
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))
-        return false;
+    void toSettings(QSettings *) const;
+    void fromSettings(QSettings *);
 
-    m_settingsPage = new VCSBaseSettingsPage;
-    addAutoReleasedObject(m_settingsPage);
-    return true;
-}
+    bool equals(const VCSBaseSettings &rhs) const;
+};
 
-void VCSBasePlugin::extensionsInitialized()
-{
-}
-
-VCSBasePlugin *VCSBasePlugin::instance()
-{
-    return m_instance;
-}
-
-VCSBaseSettings VCSBasePlugin::settings() const
-{
-    return m_settingsPage->settings();
-}
+inline bool operator==(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return s1.equals(s2); }
+inline bool operator!=(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return !s1.equals(s2); }
 
 } // namespace Internal
 } // namespace VCSBase
 
-Q_EXPORT_PLUGIN(VCSBase::Internal::VCSBasePlugin)
+#endif // VCSBASESETTINGS_H

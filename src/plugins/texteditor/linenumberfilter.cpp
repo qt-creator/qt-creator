@@ -62,9 +62,8 @@ void LineNumberFilter::accept(FilterEntry selection) const
     if (editor) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->ensureEditorManagerVisible();
-        editorManager->addCurrentPositionToNavigationHistory(true);
-        editor->gotoLine(selection.internalData.toInt());
         editorManager->addCurrentPositionToNavigationHistory();
+        editor->gotoLine(selection.internalData.toInt());
         editor->widget()->setFocus();
     }
 }

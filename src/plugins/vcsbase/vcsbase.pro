@@ -14,7 +14,11 @@ HEADERS += vcsbase_global.h \
     basevcseditorfactory.h \
     submiteditorfile.h \
     basevcssubmiteditorfactory.h \
-    submitfilemodel.h
+    submitfilemodel.h \
+    vcsbasesettings.h \
+    vcsbasesettingspage.h \
+    nicknamedialog.h
+
 SOURCES += vcsbaseplugin.cpp \
     baseannotationhighlighter.cpp \
     diffhighlighter.cpp \
@@ -24,5 +28,12 @@ SOURCES += vcsbaseplugin.cpp \
     basevcseditorfactory.cpp \
     submiteditorfile.cpp \
     basevcssubmiteditorfactory.cpp \
-    submitfilemodel.cpp
-RESOURCES = vcsbase.qrc
+    submitfilemodel.cpp \
+    vcsbasesettings.cpp \
+    vcsbasesettingspage.cpp \
+    nicknamedialog.cpp
+
+RESOURCES += vcsbase.qrc
+
+FORMS += vcsbasesettingspage.ui \
+    nicknamedialog.ui

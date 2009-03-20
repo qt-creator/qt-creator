@@ -27,62 +27,60 @@
 **
 **************************************************************************/
 
-#include "vcsbaseplugin.h"
-#include "diffhighlighter.h"
-#include "vcsbasesettingspage.h"
+#ifndef VCSBASESETTINGSPAGE_H
+#define VCSBASESETTINGSPAGE_H
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/mimedatabase.h>
+#include "vcsbasesettings.h"
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
 
-#include <QtCore/QtPlugin>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class VCSBaseSettingsPage;
+}
+QT_END_NAMESPACE
 
 namespace VCSBase {
 namespace Internal {
 
-VCSBasePlugin *VCSBasePlugin::m_instance = 0;
+class VCSBaseSettingsWidget : public QWidget {
+    Q_OBJECT
+public:
+    explicit VCSBaseSettingsWidget(QWidget *parent = 0);
+    virtual ~VCSBaseSettingsWidget();
 
-VCSBasePlugin::VCSBasePlugin() :
-    m_settingsPage(0)
+    VCSBaseSettings settings() const;
+    void setSettings(const VCSBaseSettings &s);
+
+private:
+    Ui::VCSBaseSettingsPage *m_ui;
+};
+
+class VCSBaseSettingsPage : public Core::IOptionsPage
 {
-    m_instance = this;
-}
+public:
+    explicit VCSBaseSettingsPage(QObject *parent = 0);
+    virtual ~VCSBaseSettingsPage();
 
-VCSBasePlugin::~VCSBasePlugin()
-{
-    m_instance = 0;
-}
+    virtual QString id() const;
+    virtual QString trName() const;
+    virtual QString category() const;
+    virtual QString trCategory() const;
 
-bool VCSBasePlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish() { }
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))
-        return false;
+    VCSBaseSettings settings() const { return m_settings; }
 
-    m_settingsPage = new VCSBaseSettingsPage;
-    addAutoReleasedObject(m_settingsPage);
-    return true;
-}
-
-void VCSBasePlugin::extensionsInitialized()
-{
-}
-
-VCSBasePlugin *VCSBasePlugin::instance()
-{
-    return m_instance;
-}
-
-VCSBaseSettings VCSBasePlugin::settings() const
-{
-    return m_settingsPage->settings();
-}
+private:
+    void updateNickNames();
+    QPointer<VCSBaseSettingsWidget> m_widget;
+    VCSBaseSettings m_settings;
+};
 
 } // namespace Internal
 } // namespace VCSBase
 
-Q_EXPORT_PLUGIN(VCSBase::Internal::VCSBasePlugin)
+#endif // VCSBASESETTINGSPAGE_H

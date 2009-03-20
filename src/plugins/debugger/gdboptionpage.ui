@@ -32,10 +32,21 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelGdbLocation">
         <property name="toolTip">
-         <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that wiull be searched in your PATH.</string>
+         <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</string>
         </property>
         <property name="text">
-         <string>Gdb Location:</string>
+         <string>Gdb location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="terminalLocation">
+        <property name="toolTip">
+         <string>This is either a full abolute path leading to the terminal
+you indent to use or the name of a terminal that will be searched in your PATH.</string>
+        </property>
+        <property name="text">
+         <string>Terminal:</string>
         </property>
        </widget>
       </item>
@@ -55,7 +66,7 @@
          <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
         </property>
         <property name="text">
-         <string>Gdb Startup Script:</string>
+         <string>Gdb startup script:</string>
         </property>
        </widget>
       </item>
@@ -64,6 +75,9 @@
       </item>
       <item row="0" column="1">
        <widget class="Core::Utils::PathChooser" name="gdbLocationChooser" native="true"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="Core::Utils::PathChooser" name="terminalChooser" native="true"/>
       </item>
      </layout>
     </widget>

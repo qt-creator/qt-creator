@@ -501,7 +501,7 @@ void BookmarkManager::documentPrevNext(bool next)
     }
 
     Core::EditorManager *em = Core::EditorManager::instance();
-    em->addCurrentPositionToNavigationHistory(true);
+    em->addCurrentPositionToNavigationHistory();
     if (next) {
         if (nextLine == -1)
             editor->gotoLine(firstLine);
@@ -513,7 +513,6 @@ void BookmarkManager::documentPrevNext(bool next)
         else
             editor->gotoLine(prevLine);
     }
-    em->addCurrentPositionToNavigationHistory();
 }
 
 void BookmarkManager::next()

@@ -190,7 +190,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_goBackAction(new QAction(EditorManager::tr("Go back"), parent)),
     m_goForwardAction(new QAction(EditorManager::tr("Go forward"), parent)),
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
-    currentNavigationHistoryPosition(-1),
+    currentNavigationHistoryPosition(0),
     m_windowPopup(0),
     m_coreListener(0)
 {
@@ -473,15 +473,11 @@ void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHisto
     setCurrentView(0);
     if (m_d->m_currentEditor == editor)
         return;
-    if (m_d->m_currentEditor)
-        updateCurrentPositionInNavigationHistory();
+    if (m_d->m_currentEditor && !ignoreNavigationHistory)
+        addCurrentPositionToNavigationHistory();
 
     m_d->m_currentEditor = editor;
     if (editor) {
-        bool addToHistory = (!ignoreNavigationHistory);
-        if (addToHistory)
-            addCurrentPositionToNavigationHistory(true);
-
         if (SplitterOrView *splitterOrView = m_d->m_splitter->findView(editor))
             splitterOrView->view()->setCurrentEditor(editor);
     }
@@ -723,8 +719,8 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
         }
     }
 
-
     emit editorsClosed(acceptedEditors);
+
     foreach (IEditor *editor, acceptedEditors) {
         delete editor;
     }
@@ -1362,7 +1358,7 @@ QList<IEditor*> EditorManager::editorHistory() const
     return m_d->m_editorHistory;
 }
 
-void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
+void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState, bool compress)
 {
     IEditor *editor = currentEditor();
     if (!editor)
@@ -1371,20 +1367,25 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
         return;
     
     QString fileName = editor->file()->fileName();
-    QByteArray state = editor->saveState();
+    QByteArray state;
+    if (saveState.isNull()) {
+        state = editor->saveState();
+    } else {
+        state = saveState;
+    }
     // cut existing
     int firstIndexToRemove;
-    if (compress && m_d->currentNavigationHistoryPosition >= 0) {
+    if (compress && m_d->currentNavigationHistoryPosition > 0) {
         EditorManagerPrivate::EditLocation *previousLocation =
-                m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition);
+                m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition-1);
         if ((previousLocation->editor && editor == previousLocation->editor)
                 || (!fileName.isEmpty() && previousLocation->fileName == fileName)) {
-            firstIndexToRemove = m_d->currentNavigationHistoryPosition;
+            firstIndexToRemove = m_d->currentNavigationHistoryPosition-1;
         } else {
-            firstIndexToRemove = m_d->currentNavigationHistoryPosition+1;
+            firstIndexToRemove = m_d->currentNavigationHistoryPosition;
         }
     } else {
-        firstIndexToRemove = m_d->currentNavigationHistoryPosition+1;
+        firstIndexToRemove = m_d->currentNavigationHistoryPosition;
     }
     if (firstIndexToRemove >= 0) {
         for (int i = m_d->m_navigationHistory.size()-1; i >= firstIndexToRemove; --i) {
@@ -1400,17 +1401,26 @@ void EditorManager::addCurrentPositionToNavigationHistory(bool compress)
     location->kind = editor->kind();
     location->state = QVariant(state);
     m_d->m_navigationHistory.append(location);
-    m_d->currentNavigationHistoryPosition = m_d->m_navigationHistory.size()-1;
+    m_d->currentNavigationHistoryPosition = m_d->m_navigationHistory.size();
     updateActions();
 }
 
 void EditorManager::updateCurrentPositionInNavigationHistory()
 {
-    if (!m_d->m_currentEditor
-        || m_d->currentNavigationHistoryPosition < 0
-        || m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition)->editor != m_d->m_currentEditor)
+    if (!m_d->m_currentEditor || !m_d->m_currentEditor->file())
         return;
-    m_d->m_navigationHistory.at(m_d->currentNavigationHistoryPosition)->state = m_d->m_currentEditor->saveState();
+
+    EditorManagerPrivate::EditLocation *location;
+    if (m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()) {
+        location = m_d->m_navigationHistory[m_d->currentNavigationHistoryPosition];
+    } else {
+        location = new EditorManagerPrivate::EditLocation;
+        m_d->m_navigationHistory.append(location);
+    }
+    location->editor = m_d->m_currentEditor;
+    location->fileName = m_d->m_currentEditor->file()->fileName();
+    location->kind = m_d->m_currentEditor->kind();
+    location->state = QVariant(m_d->m_currentEditor->saveState());
 }
 
 void EditorManager::goBackInNavigationHistory()

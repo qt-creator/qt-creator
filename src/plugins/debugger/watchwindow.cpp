@@ -54,7 +54,7 @@ using namespace Debugger::Internal;
 //
 /////////////////////////////////////////////////////////////////////
 
-enum { INameRole = Qt::UserRole, ExpressionRole, VisualRole, ExpandedRole };
+enum { INameRole = Qt::UserRole, ExpressionRole, ExpandedRole };
 
 class WatchDelegate : public QItemDelegate
 {
@@ -158,8 +158,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    //QAction *act3 = 0;
-    QAction *act4 = 0;
 
     menu.addAction(act1);
     menu.addAction(act2);
@@ -169,20 +167,16 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString exp = model()->data(mi0).toString();
     QModelIndex mi1 = idx.sibling(idx.row(), 0);
     QString value = model()->data(mi1).toString();
-    bool visual = false;
 
     menu.addSeparator();
     int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
     menu.addAction(theDebuggerAction(type)->updatedAction(exp));
 
-    visual = model()->data(mi0, VisualRole).toBool();
-    //act4 = theDebuggerAction(WatchExpressionInWindow)->action();
-    //act4->setCheckable(true);
-    //act4->setChecked(visual);
+    //QAction *act4 = theDebuggerAction(WatchExpressionInWindow);
     //menu.addAction(act4);
 
-    //act3 = new QAction(tr("Add to watch window..."), &menu); 
-    //menu.addAction(act3);
+    QAction *act3 = new QAction(tr("Insert new watch item"), &menu); 
+    menu.addAction(act3);
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDumpers));
@@ -196,10 +190,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         resizeColumnsToContents();
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == act4)
-        model()->setData(mi0, !visual, VisualRole);
-    else if (act == act4)
-        model()->setData(mi0, !visual, VisualRole);
+    else if (act == act3)
+        theDebuggerAction(WatchExpression)->trigger("<Edit>");
 }
 
 void WatchWindow::resizeColumnsToContents()

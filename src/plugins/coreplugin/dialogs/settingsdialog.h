@@ -53,8 +53,11 @@ public:
     // at least once
     bool execDialog();
 
+public slots:
+    void done(int);
+
 private slots:
-    void pageSelected(QTreeWidgetItem *cat);
+    void pageSelected();
     void accept();
     void reject();
     void apply();
@@ -62,6 +65,8 @@ private slots:
 private:
     QList<Core::IOptionsPage*> m_pages;
     bool m_applied;
+    QString m_currentCategory;
+    QString m_currentPage;
 };
 
 } // namespace Internal

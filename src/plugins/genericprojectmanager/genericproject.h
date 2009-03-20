@@ -36,7 +36,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/toolchain.h>
 #include <coreplugin/ifile.h>
 
 QT_BEGIN_NAMESPACE
@@ -95,6 +94,14 @@ public:
     QString buildParser(const QString &buildConfiguration) const;
     ProjectExplorer::ToolChain *toolChain() const;
 
+    enum RefreshOptions {
+        Files         = 0x01,
+        Configuration = 0x02,
+        Everything    = Files | Configuration
+    };
+
+    void refresh(RefreshOptions options);
+
     QStringList includePaths() const;
     void setIncludePaths(const QStringList &includePaths);
 
@@ -107,17 +114,14 @@ public:
 
 public Q_SLOTS:
     void setToolChainId(const QString &toolChainId);
-    void refresh();
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
 private:
-    void parseProject();
+    void parseProject(RefreshOptions options);
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;
-
-    QStringList readLines(const QString &absoluteFileName) const;
 
     Manager *m_manager;
     QString m_fileName;

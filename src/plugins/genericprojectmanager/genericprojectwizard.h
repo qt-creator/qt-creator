@@ -2,23 +2,31 @@
 #define GENERICPROJECTWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
-#include <utils/pathchooser.h>
-#include <QWizard>
+
+#include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
-class QListView;
-class QTreeView;
-class QDirModel;
-class QModelIndex;
 class QDir;
-class QStringList;
+class QDirModel;
 class QFileInfo;
+class QListView;
+class QModelIndex;
+class QStringList;
+class QTreeView;
 QT_END_NAMESPACE
+
+namespace Core {
+namespace Utils {
+
+class FileWizardPage;
+
+} // namespace Utils
+} // namespace Core
 
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericProjectWizardDialog: public QWizard
+class GenericProjectWizardDialog : public QWizard
 {
     Q_OBJECT
 
@@ -27,6 +35,7 @@ public:
     virtual ~GenericProjectWizardDialog();
 
     QString path() const;
+    QString projectName() const;
 
 private Q_SLOTS:
     void updateFilesView(const QModelIndex &current,
@@ -37,10 +46,9 @@ protected:
     virtual bool validateCurrentPage();
 
 private:
-    int m_firstPageId;
     int m_secondPageId;
 
-    Core::Utils::PathChooser *m_pathChooser;
+    Core::Utils::FileWizardPage *m_firstPage;
 
     QTreeView *m_dirView;
     QDirModel *m_dirModel;

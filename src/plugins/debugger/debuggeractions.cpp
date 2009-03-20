@@ -339,6 +339,7 @@ DebuggerSettings *theDebuggerSettings()
     item = new DebuggerAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
+    //item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(AssignValue, item);
@@ -421,6 +422,10 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Use custom dumpers"));
     item->setCheckable(true);
 
+    item = new DebuggerAction(instance);
+    instance->insertItem(Terminal, item);
+    item->setDefaultValue("xterm");
+    item->setSettingsKey("DebugMode", "Terminal");
 
     item = new DebuggerAction(instance);
     instance->insertItem(ListSourceFiles, item);

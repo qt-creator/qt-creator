@@ -1,5 +1,4 @@
-/**************************************************************************
-**
+/**
 ** This file is part of Qt Creator
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
@@ -51,6 +50,7 @@
 #include <Lexer.h>
 #include <Token.h>
 #include <Literals.h>
+#include <cctype>
 
 #include <QtDebug>
 #include <algorithm>

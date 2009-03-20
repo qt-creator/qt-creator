@@ -119,6 +119,7 @@ protected:
 private:
     mutable QList<QPair<QString, QString> > m_values;
     mutable bool m_valuesSet;
+    mutable ProjectExplorer::Environment m_lastEnvironment;
 };
 
 // TODO some stuff needs to be moved into here

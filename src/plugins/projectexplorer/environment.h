@@ -89,6 +89,8 @@ public:
     static QStringList parseCombinedArgString(const QString &program);
     static QString joinArgumentList(const QStringList &arguments);
 
+    bool operator!=(const Environment &other);
+    bool operator==(const Environment &other);
 private:
     QMap<QString, QString> m_values;
 };

@@ -39,10 +39,10 @@ namespace Utils {
 
 struct PathChooserPrivate;
 
-/* A Control that let's the user choose a path, consisting of a QLineEdit and
- * a "Browse" button. Has some validation logic for embedding into
- * QWizardPage. */
-
+/**
+ * A control that let's the user choose a path, consisting of a QLineEdit and
+ * a "Browse" button. Has some validation logic for embedding into QWizardPage.
+ */
 class QWORKBENCH_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_DISABLE_COPY(PathChooser)
@@ -74,12 +74,12 @@ public:
 
     QString path() const;
 
-    // Returns the suggested label title when used in a form layout
+    /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
     virtual bool validatePath(const QString &path, QString *errorMessage = 0);
 
-    // Return the home directory, which needs some fixing under Windows.
+    /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
 
 private:

@@ -204,7 +204,7 @@ void QtVersionManager::writeVersionsIntoSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     s->setValue(defaultQtVersionKey, m_defaultVersion);
-    s->beginWriteArray("QtVersions");
+    s->beginWriteArray(QtVersionsSectionName);
     for (int i = 0; i < m_versions.size(); ++i) {
         s->setArrayIndex(i);
         s->setValue("Name", m_versions.at(i)->name());
@@ -521,8 +521,8 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
                 m_ui.msvcLabel->setText("");
             } else {
                  m_ui.msvcComboBox->setVisible(true);
-                 m_ui.msvcComboBox->clear();
                  bool block = m_ui.msvcComboBox->blockSignals(true);
+                 m_ui.msvcComboBox->clear();
                  foreach(const QString &msvcenv, msvcEnvironments) {
                      m_ui.msvcComboBox->addItem(msvcenv);
                      if (msvcenv == m_versions.at(index)->msvcVersion()) {
@@ -1235,7 +1235,6 @@ void QtVersion::addToEnvironment(Environment &env)
     // add libdir, includedir and bindir
     // or add Mingw dirs
     // or do nothing on other
-
 }
 
 int QtVersion::uniqueId() const

@@ -30,10 +30,14 @@
 #ifndef GENERICPROJECTNODE_H
 #define GENERICPROJECTNODE_H
 
-#include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
+
 #include <QStringList>
 #include <QHash>
+
+namespace Core {
+class IFile;
+}
 
 namespace GenericProjectManager {
 namespace Internal {

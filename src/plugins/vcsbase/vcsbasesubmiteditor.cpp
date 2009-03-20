@@ -28,10 +28,14 @@
 **************************************************************************/
 
 #include "vcsbasesubmiteditor.h"
+#include "vcsbasesettings.h"
+#include "vcsbaseplugin.h"
+#include "nicknamedialog.h"
 #include "submiteditorfile.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
@@ -42,17 +46,30 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QTemporaryFile>
+#include <QtCore/QProcess>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
 #include <QtCore/QTextStream>
 #include <QtGui/QStyle>
 #include <QtGui/QToolBar>
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QCompleter>
+#include <QtGui/QLineEdit>
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };
 
 namespace VCSBase {
+
+static inline QString submitMessageCheckScript()
+{
+    return Internal::VCSBasePlugin::instance()->settings().submitMessageCheckScript;
+}
 
 struct VCSBaseSubmitEditorPrivate
 {
@@ -69,6 +86,8 @@ struct VCSBaseSubmitEditorPrivate
 
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
+
+    Internal::NickNameDialog *m_nickNameDialog;
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
@@ -77,7 +96,8 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q))
+    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(m_parameters->mimeType), q)),
+    m_nickNameDialog(0)
 {
     m_contexts << Core::UniqueIDManager::instance()->uniqueIdentifier(m_parameters->context);
 }
@@ -93,6 +113,29 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
+    const Internal::VCSBaseSettings settings = Internal::VCSBasePlugin::instance()->settings();
+    // Add additional context menu settings
+    if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
+        QAction *sep = new QAction(this);
+        sep->setSeparator(true);
+        m_d->m_widget->addDescriptionEditContextMenuAction(sep);
+        // Run check action
+        if (!settings.submitMessageCheckScript.isEmpty()) {
+            QAction *checkAction = new QAction(tr("Check message"), this);
+            connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
+            m_d->m_widget->addDescriptionEditContextMenuAction(checkAction);
+        }
+        // Insert nick
+        if (!settings.nickNameMailMap.isEmpty()) {
+            QAction *insertAction = new QAction(tr("Insert name..."), this);
+            connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
+            m_d->m_widget->addDescriptionEditContextMenuAction(insertAction);
+        }
+    }
+    // Do we have user fields?
+    if (!settings.nickNameFieldListFile.isEmpty())
+        createUserFields(settings.nickNameFieldListFile);
+    connect(m_d->m_widget, SIGNAL(fieldDialogRequested(int)), this, SLOT(slotSetFieldNickName(int)));
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(new Find::BaseTextFind(m_d->m_widget->descriptionEdit()));
     aggregate->add(this);
@@ -103,6 +146,26 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete m_d->m_toolWidget;
     delete m_d->m_widget;
     delete m_d;
+}
+
+void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
+{
+    QFile fieldFile(fieldConfigFile);
+    if (!fieldFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        qWarning("%s: Unable to open %s: %s", Q_FUNC_INFO, qPrintable(fieldConfigFile), qPrintable(fieldFile.errorString()));
+        return;
+    }
+    // Parse into fields
+    const QStringList fields = QString::fromUtf8(fieldFile.readAll()).trimmed().split(QLatin1Char('\n'));
+    if (fields.empty())
+        return;
+    // Create a completer on user names
+    QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(), this);
+    foreach(const QString &field, fields) {
+        const QString trimmedField = field.trimmed();
+        if (!trimmedField.isEmpty())
+            m_d->m_widget->addField(trimmedField, true)->setCompleter(completer);
+    }
 }
 
 void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
@@ -138,7 +201,6 @@ void VCSBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionM
 {
     m_d->m_widget->setFileListSelectionMode(sm);
 }
-
 
 void VCSBaseSubmitEditor::slotDescriptionChanged()
 {
@@ -301,6 +363,131 @@ QString VCSBaseSubmitEditor::fileContents() const
 bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
 {
     m_d->m_widget->setDescriptionText(contents);
+    return true;
+}
+
+enum { checkDialogMinimumWidth = 500 };
+
+VCSBaseSubmitEditor::PromptSubmitResult
+        VCSBaseSubmitEditor::promptSubmit(const QString &title,
+                                          const QString &question,
+                                          const QString &checkFailureQuestion,
+                                          bool forcePrompt) const
+{
+    QString errorMessage;
+    QMessageBox::StandardButton answer = QMessageBox::Yes;
+
+    const bool prompt = forcePrompt || Internal::VCSBasePlugin::instance()->settings().promptForSubmit;
+
+    QWidget *parent = Core::ICore::instance()->mainWindow();
+    // Pop up a message depending on whether the check succeeded and the
+    // user wants to be prompted
+    if (checkSubmitMessage(&errorMessage)) {
+        // Check ok, do prompt?
+        if (prompt) {
+            answer = QMessageBox::question(parent, title, question,
+                                  QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                                  QMessageBox::Yes);
+        }
+    } else {
+        // Check failed.
+        QMessageBox msgBox(QMessageBox::Question, title, checkFailureQuestion,
+                           QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, parent);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        msgBox.setInformativeText(errorMessage);
+        msgBox.setMinimumWidth(checkDialogMinimumWidth);
+        answer = static_cast<QMessageBox::StandardButton>(msgBox.exec());
+    }
+    switch (answer) {
+    case QMessageBox::Cancel:
+        return SubmitCanceled;
+    case QMessageBox::No:
+        return SubmitDiscarded;
+    default:
+        break;
+    }
+    return SubmitConfirmed;
+}
+
+QString VCSBaseSubmitEditor::promptForNickName()
+{
+    if (!m_d->m_nickNameDialog)
+        m_d->m_nickNameDialog = new Internal::NickNameDialog(m_d->m_widget);
+    if (m_d->m_nickNameDialog->exec() == QDialog::Accepted)
+       return m_d->m_nickNameDialog->nickName();
+    return QString();
+}
+
+void VCSBaseSubmitEditor::slotInsertNickName()
+{
+    const QString nick = promptForNickName();
+    if (!nick.isEmpty())
+        m_d->m_widget->descriptionEdit()->textCursor().insertText(nick);
+}
+
+void VCSBaseSubmitEditor::slotSetFieldNickName(int i)
+{
+    const QString nick = promptForNickName();
+    if (!nick.isEmpty())
+        m_d->m_widget->fieldLineEdit(i)->setText(nick);
+}
+
+void VCSBaseSubmitEditor::slotCheckSubmitMessage()
+{
+    QString errorMessage;
+    if (!checkSubmitMessage(&errorMessage)) {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Submit Message Check failed"),
+                           errorMessage, QMessageBox::Ok, m_d->m_widget);
+        msgBox.setMinimumWidth(checkDialogMinimumWidth);
+        msgBox.exec();
+    }
+}
+
+bool VCSBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
+{
+    const QString checkScript = submitMessageCheckScript();
+    if (checkScript.isEmpty())
+        return true;
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const bool rc = runSubmitMessageCheckScript(checkScript, errorMessage);
+    QApplication::restoreOverrideCursor();
+    return rc;
+}
+
+bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
+{
+    // Write out message
+    QString tempFilePattern = QDir::tempPath();
+    if (!tempFilePattern.endsWith(QDir::separator()))
+        tempFilePattern += QDir::separator();
+    tempFilePattern += QLatin1String("msgXXXXXX.txt");
+    QTemporaryFile messageFile(tempFilePattern);
+    messageFile.setAutoRemove(true);
+    if (!messageFile.open()) {
+        *errorMessage = tr("Unable to open '%1': %2").arg(messageFile.fileName(), messageFile.errorString());
+        return false;
+    }
+    const QString messageFileName = messageFile.fileName();
+    messageFile.write(fileContents().toUtf8());
+    messageFile.close();
+    // Run check process
+    QProcess checkProcess;
+    checkProcess.start(checkScript, QStringList(messageFileName));
+    if (!checkProcess.waitForStarted()) {
+        *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());
+        return false;
+    }
+    if (!checkProcess.waitForFinished()) {
+        *errorMessage = tr("The check script '%1' could not be run: %2").arg(checkScript, checkProcess.errorString());
+        return false;
+    }    
+    const int exitCode = checkProcess.exitCode();
+    if (exitCode != 0) {
+        *errorMessage = QString::fromLocal8Bit(checkProcess.readAllStandardError());
+        if (errorMessage->isEmpty())
+            *errorMessage = tr("The check script returned exit code %1.").arg(exitCode);
+        return false;
+    }
     return true;
 }
 

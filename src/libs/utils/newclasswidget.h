@@ -43,11 +43,12 @@ namespace Utils {
 
 struct NewClassWidgetPrivate;
 
-/* NewClassWidget: Utility widget for 'New Class' wizards. Prompts the user
+/**
+ * NewClassWidget: Utility widget for 'New Class' wizards. Prompts the user
  * to enter a class name (optionally derived from some base class) and file
  * names for header, source and form files. Has some smart logic to derive
- * the file names from the class name. */
-
+ * the file names from the class name.
+ */
 class QWORKBENCH_UTILS_EXPORT NewClassWidget : public QWidget
 {
     Q_DISABLE_COPY(NewClassWidget)
@@ -115,8 +116,10 @@ public slots:
     void setFormInputCheckable(bool v);
     void setFormInputChecked(bool v);
 
-    /* The name passed into the new class widget will be reformatted to be a
-     * valid class name. */
+    /**
+     * The name passed into the new class widget will be reformatted to be a
+     * valid class name.
+     */
     void setClassName(const QString &suggestedName);
     void setBaseClassName(const QString &);
     void setPath(const QString &path);
@@ -127,13 +130,15 @@ public slots:
     void setAllowDirectories(bool v);
     void setLowerCaseFiles(bool v);
 
-    /* Suggest a class name from the base class by stripping the leading 'Q'
+    /**
+     * Suggest a class name from the base class by stripping the leading 'Q'
      * character. This will happen automagically if the base class combo
-     * changes until the class line edited is manually edited. */
+     * changes until the class line edited is manually edited.
+     */
     void suggestClassNameFromBase();
 
 public slots:
-    // Trigger an update (after changing settings)
+    /** Trigger an update (after changing settings) */
     void triggerUpdateFileNames();
 
 private slots:

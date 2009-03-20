@@ -41,6 +41,7 @@ class QListWidgetItem;
 class QAction;
 class QAbstractItemModel;
 class QModelIndex;
+class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -104,10 +105,20 @@ public:
 
     QPlainTextEdit *descriptionEdit() const;
 
+    void addDescriptionEditContextMenuAction(QAction *a);
+    void insertDescriptionEditContextMenuAction(int pos, QAction *a);
+
+    // Fields are additional fields consisting of a Label and a Line Edit.
+    // A field dialog is wired to a button labeled "..." that pops up a chooser
+    // resulting in text being set
+    QLineEdit *addField(const QString &label, bool hasDialogButton);
+    QLineEdit *fieldLineEdit(int i) const;
+
 signals:
     void diffSelected(const QStringList &);
     void fileSelectionChanged(bool someFileSelected);
     void fileCheckStateChanged(bool someFileChecked);
+    void fieldDialogRequested(int);
 
 protected:
     virtual void changeEvent(QEvent *e);
@@ -120,6 +131,7 @@ private slots:
     void updateActions();
     void updateSubmitAction();
     void updateDiffAction();
+    void editorCustomContextMenuRequested(const QPoint &);
 
 private:
     bool hasSelection() const;

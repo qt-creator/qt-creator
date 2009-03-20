@@ -265,9 +265,8 @@ void VCSBaseEditor::slotDiffBrowse(int index)
         return;    
     const int lineNumber = d->m_diffSections.at(index);
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->addCurrentPositionToNavigationHistory(true);
-    gotoLine(lineNumber + 1, 0); // TextEdit uses 1..n convention
     editorManager->addCurrentPositionToNavigationHistory();
+    gotoLine(lineNumber + 1, 0); // TextEdit uses 1..n convention
 }
 
 // Locate a line number in the list of diff sections.

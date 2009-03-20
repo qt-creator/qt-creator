@@ -454,6 +454,7 @@ private:
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
+    void saveCurrentCursorPositionForNavigation();
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect collapseBox(const QTextBlock &block);
@@ -498,7 +499,7 @@ public:
 
     int currentLine() const;
     int currentColumn() const;
-    inline void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
+    void gotoLine(int line, int column = 0) { e->gotoLine(line, column); }
 
     inline int position(
         ITextEditor::PositionOperation posOp = ITextEditor::Current

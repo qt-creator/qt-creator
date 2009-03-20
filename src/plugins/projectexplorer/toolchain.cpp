@@ -246,13 +246,13 @@ QList<HeaderPath> MSVCToolChain::systemHeaderPaths()
 
 void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    if (!m_valuesSet) {
+    if (!m_valuesSet || env != m_lastEnvironment) {
+        m_lastEnvironment = env;
         QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7",
                        QSettings::NativeFormat);
         if (m_name.isEmpty())
             return;
         QString path = registry.value(m_name).toString();
-        ProjectExplorer::Environment oldEnv(env);
         QString desc;
         QString varsbat = path + "Common7\\Tools\\vsvars32.bat";
         if (QFileInfo(varsbat).exists()) {
@@ -265,7 +265,8 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
             tf.flush();
             tf.waitForBytesWritten(30000);
 
-            QProcess run; // TODO run in the environment we want to add to...
+            QProcess run;
+            run.setEnvironment(env.toStringList());
             QString cmdPath = env.searchInPath("cmd");
             run.start(cmdPath, QStringList()<<"/c"<<filename);
             run.waitForFinished();
@@ -281,9 +282,7 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
                     if (regexp.exactMatch(line2)) {
                         QString variable = regexp.cap(1);
                         QString value = regexp.cap(2);
-                        value.replace('%' + variable + '%', oldEnv.value(variable));
                         m_values.append(QPair<QString, QString>(variable, value));
-
                     }
                 }
                 vars.close();
@@ -293,14 +292,11 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         m_valuesSet = true;
     }
 
-    //qDebug()<<"MSVC Environment:";
     QList< QPair<QString, QString> >::const_iterator it, end;
     end = m_values.constEnd();
     for (it = m_values.constBegin(); it != end; ++it) {
         env.set((*it).first, (*it).second);
-        //qDebug()<<"variable:"<<(*it).first<<"value:"<<(*it).second;
     }
-
 }
 
 QString MSVCToolChain::makeCommand() const

@@ -30,10 +30,6 @@
 #include "filewizardpage.h"
 #include "ui_filewizardpage.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtGui/QMessageBox>
-
 namespace Core {
 namespace Utils {
 
@@ -101,6 +97,16 @@ void FileWizardPage::changeEvent(QEvent *e)
 bool FileWizardPage::isComplete() const
 {
     return m_d->m_complete;
+}
+
+void FileWizardPage::setNameLabel(const QString &label)
+{
+    m_d->m_ui.nameLabel->setText(label);
+}
+
+void FileWizardPage::setPathLabel(const QString &label)
+{
+    m_d->m_ui.pathLabel->setText(label);
 }
 
 void FileWizardPage::slotValidChanged()

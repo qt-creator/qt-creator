@@ -30,18 +30,37 @@
 #include "settingsdialog.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include "icore.h"
 
+#include <QtCore/QSettings>
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
+
+namespace {
+    struct PageData {
+        int index;
+        QString category;
+        QString id;
+    };
+}
+
+Q_DECLARE_METATYPE(::PageData);
 
 using namespace Core;
 using namespace Core::Internal;
 
-SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
-                               const QString &initialPage)
+SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
+                               const QString &pageId)
     : QDialog(parent), m_applied(false)
 {
     setupUi(this);
+    QString initialCategory = categoryId;
+    QString initialPage = pageId;
+    if (initialCategory.isEmpty() && initialPage.isEmpty()) {
+        QSettings *settings = ICore::instance()->settings();
+        initialCategory = settings->value("General/LastPreferenceCategory", QVariant(QString())).toString();
+        initialPage = settings->value("General/LastPreferencePage", QVariant(QString())).toString();
+    }
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
@@ -50,7 +69,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
     pageTree->header()->setVisible(false);
 
     connect(pageTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-        this, SLOT(pageSelected(QTreeWidgetItem *)));
+        this, SLOT(pageSelected()));
 
     QMap<QString, QTreeWidgetItem *> categories;
 
@@ -59,9 +78,14 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
 
     int index = 0;
     foreach (IOptionsPage *page, pages) {
+        PageData pageData;
+        pageData.index = index;
+        pageData.category = page->category();
+        pageData.id = page->id();
+
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText(0, page->trName());
-        item->setData(0, Qt::UserRole, index);
+        item->setData(0, Qt::UserRole, qVariantFromValue(pageData));
 
         QStringList categoriesId = page->category().split(QLatin1Char('|'));
         QStringList trCategories = page->trCategory().split(QLatin1Char('|'));
@@ -71,7 +95,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
         if (!categories.contains(currentCategory)) {
             treeitem = new QTreeWidgetItem(pageTree);
             treeitem->setText(0, trCategories.at(0));
-            treeitem->setData(0, Qt::UserRole, index);
+            treeitem->setData(0, Qt::UserRole, qVariantFromValue(pageData));
             categories.insert(currentCategory, treeitem);
         }
 
@@ -81,7 +105,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &initialCategory,
                 treeitem = new QTreeWidgetItem(categories.value(currentCategory));
                 currentCategory +=  QLatin1Char('|') + categoriesId.at(catCount);
                 treeitem->setText(0, trCategories.at(catCount));
-                treeitem->setData(0, Qt::UserRole, index);
+                treeitem->setData(0, Qt::UserRole, qVariantFromValue(pageData));
                 categories.insert(currentCategory, treeitem);
             } else {
                 currentCategory +=  QLatin1Char('|') + categoriesId.at(catCount);
@@ -114,10 +138,13 @@ SettingsDialog::~SettingsDialog()
 {
 }
 
-void SettingsDialog::pageSelected(QTreeWidgetItem *)
+void SettingsDialog::pageSelected()
 {
     QTreeWidgetItem *item = pageTree->currentItem();
-    int index = item->data(0, Qt::UserRole).toInt();
+    PageData data = item->data(0, Qt::UserRole).value<PageData>();
+    int index = data.index;
+    m_currentCategory = data.category;
+    m_currentPage = data.id;
     stackedPages->setCurrentIndex(index);
 }
 
@@ -150,4 +177,12 @@ bool SettingsDialog::execDialog()
     m_applied = false;
     exec();
     return m_applied;
+}
+
+void SettingsDialog::done(int val)
+{
+    QSettings *settings = ICore::instance()->settings();
+    settings->setValue("General/LastPreferenceCategory", m_currentCategory);
+    settings->setValue("General/LastPreferencePage", m_currentPage);
+    QDialog::done(val);
 }

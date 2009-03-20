@@ -140,6 +140,7 @@ public:
 
     BaseTextEditor *q;
     bool m_contentsChanged;
+    bool m_lastCursorChangeWasInteresting;
 
     QList<QTextEdit::ExtraSelection> m_syntaxHighlighterSelections;
     QTextEdit::ExtraSelection m_lineSelection;

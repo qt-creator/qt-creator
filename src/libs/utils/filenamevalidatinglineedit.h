@@ -35,6 +35,10 @@
 namespace Core {
 namespace Utils {
 
+/**
+ * A control that let's the user choose a file name, based on a QLineEdit. Has
+ * some validation logic for embedding into QWizardPage.
+ */
 class QWORKBENCH_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
 {
     Q_OBJECT
@@ -47,6 +51,10 @@ public:
                                  bool allowDirectories = false,
                                  QString *errorMessage = 0);
 
+    /**
+     * Sets whether entering directories is allowed. This will enable the user
+     * to enter slashes in the filename. Default is off.
+     */
     bool allowDirectories() const;
     void setAllowDirectories(bool v);
 

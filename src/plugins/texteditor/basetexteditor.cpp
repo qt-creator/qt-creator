@@ -128,12 +128,11 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                           const QString &editorKind)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->addCurrentPositionToNavigationHistory(true);
+    editorManager->addCurrentPositionToNavigationHistory();
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, Core::EditorManager::IgnoreNavigationHistory);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);
-        editorManager->addCurrentPositionToNavigationHistory();
         return texteditor;
     }
     return 0;
@@ -749,7 +748,6 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
-
     d->clearVisibleCollapsedBlock();
 
     QKeyEvent *original_e = e;
@@ -762,8 +760,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         setTextCursor(cursor);
         return;
     }
-
-    d->m_contentsChanged = false;
 
     bool ro = isReadOnly();
 
@@ -965,6 +961,7 @@ void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
 
 void BaseTextEditor::gotoLine(int line, int column)
 {
+    d->m_lastCursorChangeWasInteresting = false; // avoid adding the previous position to history
     const int blockNumber = line - 1;
     const QTextBlock &block = document()->findBlockByNumber(blockNumber);
     if (block.isValid()) {
@@ -981,6 +978,7 @@ void BaseTextEditor::gotoLine(int line, int column)
         setTextCursor(cursor);
         centerCursor();
     }
+    saveCurrentCursorPositionForNavigation();
 }
 
 int BaseTextEditor::position(ITextEditor::PositionOperation posOp, int at) const
@@ -1033,6 +1031,7 @@ QChar BaseTextEditor::characterAt(int pos) const
 
 bool BaseTextEditor::event(QEvent *e)
 {
+    d->m_contentsChanged = false;
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         e->ignore(); // we are a really nice citizen
@@ -1116,9 +1115,11 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
     stream >> hval;
     stream >> lval;
     stream >> cval;
+    d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
     gotoLine(lval, cval);
     verticalScrollBar()->setValue(vval);
     horizontalScrollBar()->setValue(hval);
+    saveCurrentCursorPositionForNavigation();
     return true;
 }
 
@@ -1250,6 +1251,7 @@ int BaseTextEditor::visibleWrapColumn() const
 BaseTextEditorPrivate::BaseTextEditorPrivate()
     :
     m_contentsChanged(false),
+    m_lastCursorChangeWasInteresting(false),
     m_document(new BaseTextDocument()),
     m_parenthesesMatchingEnabled(false),
     m_extraArea(0),
@@ -1435,6 +1437,7 @@ QRectF TextEditDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 
 bool BaseTextEditor::viewportEvent(QEvent *event)
 {
+    d->m_contentsChanged = false;
     if (event->type() == QEvent::ContextMenu) {
         const QContextMenuEvent *ce = static_cast<QContextMenuEvent*>(event);
         if (ce->reason() == QContextMenuEvent::Mouse && !textCursor().hasSelection())
@@ -2321,8 +2324,20 @@ void BaseTextEditor::slotUpdateRequest(const QRect &r, int dy)
         slotUpdateExtraAreaWidth();
 }
 
+void BaseTextEditor::saveCurrentCursorPositionForNavigation()
+{
+    d->m_lastCursorChangeWasInteresting = true;
+    d->m_tempState = saveState();
+}
+
 void BaseTextEditor::slotCursorPositionChanged()
 {
+    if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
+        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(d->m_tempState);
+        d->m_lastCursorChangeWasInteresting = false;
+    } else if (d->m_contentsChanged) {
+        saveCurrentCursorPositionForNavigation();
+    }
     QList<QTextEdit::ExtraSelection> extraSelections;
     setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
     if (d->m_parenthesesMatchingEnabled)
