@@ -380,6 +380,7 @@ public:
 
     // marks as lines
     QHash<int, int> m_marks;
+    QString m_oldNeedle;
 
     // vi style configuration
     QHash<QString, QString> m_config;
@@ -1865,51 +1866,56 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
         if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
         highlightMatches(needle);
-        return;
+    } else {
+        m_tc.setPosition(forward ? 0 : lastPositionInDocument() - 1);
+        EDITOR(setTextCursor(m_tc));
+        if (EDITOR(find(needle, flags))) {
+            m_tc = EDITOR(textCursor());
+            m_tc.setPosition(m_tc.anchor());
+            if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
+                scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
+            if (forward)
+                showRedMessage("search hit BOTTOM, continuing at TOP");
+            else
+                showRedMessage("search hit TOP, continuing at BOTTOM");
+            highlightMatches(needle);
+        } else {
+            m_tc = orig;
+            showRedMessage("E486: Pattern not found: " + needle);
+            highlightMatches(QString());
+        }
     }
-
-    m_tc.setPosition(forward ? 0 : lastPositionInDocument() - 1);
-    EDITOR(setTextCursor(m_tc));
-    if (EDITOR(find(needle, flags))) {
-        m_tc = EDITOR(textCursor());
-        m_tc.setPosition(m_tc.anchor());
-        if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
-            scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
-        if (forward)
-            showRedMessage("search hit BOTTOM, continuing at TOP");
-        else
-            showRedMessage("search hit TOP, continuing at BOTTOM");
-        highlightMatches(needle);
-        return;
-    }
-
-    m_tc = orig;
 }
 
 void FakeVimHandler::Private::highlightMatches(const QString &needle0)
 {
-    if (m_config[ConfigHlSearch] == ConfigOff)
+    if (!hasConfig(ConfigHlSearch))
         return;
-
-    QTextCursor tc = m_tc;
-    tc.movePosition(QTextCursor::Start, MoveAnchor);
-
-    QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
-    QString needle = needle0;
-    vimPatternToQtPattern(&needle, &flags);
-
+    if (needle0 == m_oldNeedle)
+        return;
+    m_oldNeedle = needle0;
     m_searchSelections.clear();
 
-    EDITOR(setTextCursor(tc));
-    while (EDITOR(find(needle, flags))) {
-        tc = EDITOR(textCursor());
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = tc;
-        sel.format = tc.blockCharFormat();
-        sel.format.setBackground(QColor(177, 177, 0));
-        m_searchSelections.append(sel);
-        tc.movePosition(Right, MoveAnchor);
+    if (!needle0.isEmpty()) {
+        QTextCursor tc = m_tc;
+        tc.movePosition(QTextCursor::Start, MoveAnchor);
+
+        QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
+        QString needle = needle0;
+        vimPatternToQtPattern(&needle, &flags);
+
+
         EDITOR(setTextCursor(tc));
+        while (EDITOR(find(needle, flags))) {
+            tc = EDITOR(textCursor());
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = tc;
+            sel.format = tc.blockCharFormat();
+            sel.format.setBackground(QColor(177, 177, 0));
+            m_searchSelections.append(sel);
+            tc.movePosition(Right, MoveAnchor);
+            EDITOR(setTextCursor(tc));
+        }
     }
     updateSelection();
 }
