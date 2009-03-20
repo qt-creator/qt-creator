@@ -90,6 +90,8 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_OBJECT
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
+    Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true);
+    Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true);
 public:
     typedef QList<int> Context;
 
@@ -120,6 +122,12 @@ public:
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
+
+    bool lineWrap() const;
+    void setLineWrap(bool);
+
+    int lineWrapWidth() const;
+    void setLineWrapWidth(int);
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);
@@ -161,6 +169,7 @@ private slots:
     void slotCheckSubmitMessage();
     void slotInsertNickName();
     void slotSetFieldNickName(int);
+    void slotUpdateEditorSettings(const VCSBase::Internal::VCSBaseSettings &);
 
 protected:
     /* These hooks allow for modifying the contents that goes to

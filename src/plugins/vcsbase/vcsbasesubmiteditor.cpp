@@ -136,6 +136,13 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     if (!settings.nickNameFieldListFile.isEmpty())
         createUserFields(settings.nickNameFieldListFile);
     connect(m_d->m_widget, SIGNAL(fieldDialogRequested(int)), this, SLOT(slotSetFieldNickName(int)));
+
+    // wrapping. etc
+    slotUpdateEditorSettings(settings);
+    connect(Internal::VCSBasePlugin::instance(),
+            SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
+            this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::VCSBaseSettings)));
+
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(new Find::BaseTextFind(m_d->m_widget->descriptionEdit()));
     aggregate->add(this);
@@ -146,6 +153,12 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete m_d->m_toolWidget;
     delete m_d->m_widget;
     delete m_d;
+}
+
+void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::VCSBaseSettings &s)
+{
+    setLineWrapWidth(s.lineWrapWidth);
+    setLineWrap(s.lineWrap);
 }
 
 void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
@@ -160,7 +173,8 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     if (fields.empty())
         return;
     // Create a completer on user names
-    QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(), this);
+    const QStandardItemModel *nickNameModel = Internal::VCSBasePlugin::instance()->nickNameModel();
+    QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(nickNameModel), this);
     foreach(const QString &field, fields) {
         const QString trimmedField = field.trimmed();
         if (!trimmedField.isEmpty())
@@ -200,6 +214,26 @@ QAbstractItemView::SelectionMode VCSBaseSubmitEditor::fileListSelectionMode() co
 void VCSBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
 {
     m_d->m_widget->setFileListSelectionMode(sm);
+}
+
+bool VCSBaseSubmitEditor::lineWrap() const
+{
+    return m_d->m_widget->lineWrap();
+}
+
+void VCSBaseSubmitEditor::setLineWrap(bool w)
+{
+    m_d->m_widget->setLineWrap(w);
+}
+
+int VCSBaseSubmitEditor::lineWrapWidth() const
+{
+    return m_d->m_widget->lineWrapWidth();
+}
+
+void VCSBaseSubmitEditor::setLineWrapWidth(int w)
+{
+    m_d->m_widget->setLineWrapWidth(w);
 }
 
 void VCSBaseSubmitEditor::slotDescriptionChanged()
@@ -412,7 +446,7 @@ VCSBaseSubmitEditor::PromptSubmitResult
 QString VCSBaseSubmitEditor::promptForNickName()
 {
     if (!m_d->m_nickNameDialog)
-        m_d->m_nickNameDialog = new Internal::NickNameDialog(m_d->m_widget);
+        m_d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSBasePlugin::instance()->nickNameModel(), m_d->m_widget);
     if (m_d->m_nickNameDialog->exec() == QDialog::Accepted)
        return m_d->m_nickNameDialog->nickName();
     return QString();
