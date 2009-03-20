@@ -824,7 +824,7 @@ void GitPlugin::updateActions()
     if (m_projectExplorer) {
         if (Node *node = m_projectExplorer->currentNode())
             if (Node *projectNode = node->projectNode()) 
-                project = '"' + QFileInfo(projectNode->path()).baseName() + '"';
+                project = '"' + QFileInfo(projectNode->path()).completeBaseName() + '"';
     }
 
     enabled = !project.isEmpty();

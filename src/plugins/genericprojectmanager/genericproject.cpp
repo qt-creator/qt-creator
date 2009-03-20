@@ -115,7 +115,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     QFileInfo fileInfo(m_fileName);
     QDir dir = fileInfo.dir();
 
-    m_projectName      = fileInfo.baseName();
+    m_projectName      = fileInfo.completeBaseName();
     m_filesFileName    = QFileInfo(dir, m_projectName + QLatin1String(".files")).absoluteFilePath();
     m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
     m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();

@@ -30,34 +30,27 @@
 #ifndef PROJECTLOADWIZARD_H
 #define PROJECTLOADWIZARD_H
 
-#include "qt4project.h"
+#include "qtversionmanager.h"
 
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;
-class QVBoxLayout;
-class QHBoxLayout;
 class QLabel;
 class QCheckBox;
-class QRadioButton;
-class QListWidget;
-class QLineEdit;
-class QToolButton;
-class QSpacerItem;
-class QFormLayout;
-class QComboBox;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
+
 class Qt4Project;
+
 namespace Internal {
 
 class ProjectLoadWizard : public QWizard
 {
     Q_OBJECT
 public:
-    ProjectLoadWizard(Qt4ProjectManager::Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
+    ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
     virtual ~ProjectLoadWizard();
     virtual int nextId() const;
     virtual void done(int result);

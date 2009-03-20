@@ -448,7 +448,7 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
         return Document::Ptr();
 
     QFileInfo headerFI(headerFileName);
-    const QString headerBaseName = headerFI.baseName();
+    const QString headerBaseName = headerFI.completeBaseName();
     const QString headerAbsolutePath = headerFI.absolutePath();
     foreach (const Document::Ptr &doc, docList) {
         const QFileInfo sourceFI(doc->fileName());
@@ -562,7 +562,7 @@ bool WorkbenchIntegration::navigateToSlot(const QString &objectName,
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
     const QFileInfo fi(currentUiFile);
-    const QString uicedName = QLatin1String("ui_") + fi.baseName() + QLatin1String(".h");
+    const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
     // take all docs, find the ones that include the ui_xx.h.
 

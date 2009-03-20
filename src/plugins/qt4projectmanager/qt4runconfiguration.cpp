@@ -51,7 +51,7 @@ using ProjectExplorer::ApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
 
-Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
+Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
     : ApplicationRunConfiguration(pro),
       m_proFilePath(proFilePath),
       m_runMode(Gui),
@@ -61,10 +61,10 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
       m_workingDirectoryLabel(0),
       m_cachedTargetInformationValid(false)
 {
-    setName(tr("Qt4RunConfiguration"));
-    if (!m_proFilePath.isEmpty()) {
-        setName(QFileInfo(m_proFilePath).baseName());
-    }
+    if (!m_proFilePath.isEmpty())
+        setName(QFileInfo(m_proFilePath).completeBaseName());
+    else
+        setName(tr("Qt4RunConfiguration"));
 
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -72,7 +72,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, QString proFilePath)
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
 {
-
 }
 
 QString Qt4RunConfiguration::type() const
@@ -217,7 +216,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     if (!m_proFilePath.isEmpty()) {
         m_cachedTargetInformationValid = false;
         if (!m_userSetName)
-            setName(QFileInfo(m_proFilePath).baseName());
+            setName(QFileInfo(m_proFilePath).completeBaseName());
     }
 }
 
@@ -460,5 +459,5 @@ QStringList Qt4RunConfigurationFactoryUser::canCreate(ProjectExplorer::Project *
 QString Qt4RunConfigurationFactoryUser::nameForType(const QString &type) const
 {
     QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
-    return QFileInfo(fileName).baseName();
+    return QFileInfo(fileName).completeBaseName();
 }

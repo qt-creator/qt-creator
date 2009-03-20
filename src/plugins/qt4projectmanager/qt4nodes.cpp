@@ -91,7 +91,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_fileWatcher(new FileWatcher(this))
 {
     Q_ASSERT(project);
-    setFolderName(QFileInfo(filePath).baseName());
+    setFolderName(QFileInfo(filePath).completeBaseName());
 
     static QIcon dirIcon;
     if (dirIcon.isNull()) {
@@ -771,7 +771,7 @@ void Qt4ProFileNode::updateUiFiles(const QString &buildDirectory)
     QStringList newFilePaths;
     foreach (FileNode *uiFile, uiFiles) {
         const QString uiHeaderFilePath
-                = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).baseName());
+                = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
         if (QFileInfo(uiHeaderFilePath).exists())
             newFilePaths << uiHeaderFilePath;
     }

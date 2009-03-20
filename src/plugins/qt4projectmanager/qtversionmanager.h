@@ -36,7 +36,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
@@ -45,7 +44,8 @@ namespace Internal {
 
 class QtDirWidget;
 
-class QtVersion {
+class QtVersion
+{
     friend class QtDirWidget; //for changing name and path
     friend class QtVersionManager;
 public:
