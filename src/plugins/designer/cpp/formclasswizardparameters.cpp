@@ -76,7 +76,7 @@ bool FormClassWizardParameters::generateCpp(QString *header, QString *source, in
     const QString guard = Core::Utils::headerGuard(headerFile);
 
     QString uiInclude = QLatin1String("ui_");
-    uiInclude += QFileInfo(uiFile).baseName();
+    uiInclude += QFileInfo(uiFile).completeBaseName();
     uiInclude += QLatin1String(".h");
 
     // 1) Header file

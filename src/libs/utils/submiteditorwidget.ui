@@ -24,7 +24,11 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPlainTextEdit" name="description"/>
+       <widget class="QTextEdit" name="description">
+        <property name="acceptRichText">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

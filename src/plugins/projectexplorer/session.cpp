@@ -1106,7 +1106,7 @@ QString SessionManager::lastSession() const
 {
     QSettings *settings = m_core->settings();
     QString fileName = settings->value("ProjectExplorer/StartupSession").toString();
-    return QFileInfo(fileName).baseName();
+    return QFileInfo(fileName).completeBaseName();
 }
 
 SessionNode *SessionManager::sessionNode() const

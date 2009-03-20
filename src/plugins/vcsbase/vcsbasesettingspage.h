@@ -59,6 +59,7 @@ private:
 
 class VCSBaseSettingsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     explicit VCSBaseSettingsPage(QObject *parent = 0);
     virtual ~VCSBaseSettingsPage();
@@ -73,6 +74,9 @@ public:
     virtual void finish() { }
 
     VCSBaseSettings settings() const { return m_settings; }
+
+signals:
+    void settingsChanged(const VCSBase::Internal::VCSBaseSettings &s);
 
 private:
     void updateNickNames();

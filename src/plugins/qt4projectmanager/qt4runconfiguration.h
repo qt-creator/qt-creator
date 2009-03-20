@@ -57,7 +57,7 @@ class Qt4RunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
     // to change the name and arguments
     friend class Qt4RunConfigurationWidget;
 public:
-    Qt4RunConfiguration(Qt4Project *pro, QString proFilePath);
+    Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath);
     virtual ~Qt4RunConfiguration();
 
     virtual QString type() const;

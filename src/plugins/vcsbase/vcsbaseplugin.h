@@ -34,6 +34,10 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+class QStandardItemModel;
+QT_END_NAMESPACE
+
 namespace VCSBase {
 namespace Internal {
 
@@ -56,9 +60,23 @@ public:
 
     VCSBaseSettings settings() const;
 
+    // Model of user nick names used for the submit
+    // editor. Stored centrally here to achieve delayed
+    // initialization and updating on settings change.
+    QStandardItemModel *nickNameModel();
+
+signals:
+    void settingsChanged(const VCSBase::Internal::VCSBaseSettings& s);
+
+private slots:
+    void slotSettingsChanged();
+
 private:
+    void populateNickNameModel();
+
     static VCSBasePlugin *m_instance;
     VCSBaseSettingsPage *m_settingsPage;
+    QStandardItemModel *m_nickNameModel;
 };
 
 } // namespace Internal

@@ -167,6 +167,7 @@ private:
     void showOutput(const QString &output, bool popup = false) const;
     void annotate(const QString &fileName);
     void filelog(const QString &fileName);
+    void cleanChangeTmpFile();
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     PerforceOutputWindow *m_perforceOutputWindow;

@@ -13,63 +13,102 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="promptForSubmitLabel">
-         <property name="text">
-          <string>Prompt for submit:</string>
-         </property>
-        </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QCheckBox" name="promptForSubmitCheckBox">
+           <property name="text">
+            <string>Prompt to submit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QCheckBox" name="lineWrapCheckBox">
+             <property name="text">
+              <string>Wrap submit message at:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="lineWrapSpinBox">
+             <property name="minimum">
+              <number>40</number>
+             </property>
+             <property name="maximum">
+              <number>200</number>
+             </property>
+             <property name="value">
+              <number>72</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="promptForSubmitCheckBox"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="submitMessageCheckScriptLabel">
-         <property name="toolTip">
-          <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
-         </property>
-         <property name="text">
-          <string>Submit message check script:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="Core::Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="nickNameMailMapLabel">
-         <property name="toolTip">
-          <string>A file listing user names and email addresses in a 4-column mailmap format:
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="submitMessageCheckScriptLabel">
+           <property name="toolTip">
+            <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
+           </property>
+           <property name="text">
+            <string>Submit message check script:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="Core::Utils::PathChooser" name="submitMessageCheckScriptChooser"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="nickNameMailMapLabel">
+           <property name="toolTip">
+            <string>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</string>
-         </property>
-         <property name="text">
-          <string>User/alias configuration file:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="Core::Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="nickNameFieldsFileLabel">
-         <property name="toolTip">
-          <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
-         </property>
-         <property name="text">
-          <string>User fields configuration file:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="Core::Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
+           </property>
+           <property name="text">
+            <string>User/alias configuration file:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="Core::Utils::PathChooser" name="nickNameMailMapChooser"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="nickNameFieldsFileLabel">
+           <property name="toolTip">
+            <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
+           </property>
+           <property name="text">
+            <string>User fields configuration file:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="Core::Utils::PathChooser" name="nickNameFieldsFileChooser"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>

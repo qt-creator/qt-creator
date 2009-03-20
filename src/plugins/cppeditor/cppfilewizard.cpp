@@ -67,7 +67,7 @@ Core::GeneratedFiles CppFileWizard::generateFilesFromPath(const QString &path,
 
 QString CppFileWizard::fileContents(FileType type, const QString &fileName) const
 {
-    const QString baseName = QFileInfo(fileName).baseName();
+    const QString baseName = QFileInfo(fileName).completeBaseName();
     QString contents;
     QTextStream str(&contents);
     switch (type) {
@@ -79,7 +79,9 @@ QString CppFileWizard::fileContents(FileType type, const QString &fileName) cons
         }
         break;
     case Source:
-        str << QLatin1String("#include \"") <<  baseName << '.' << preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE)) << QLatin1String("\"\n\n");
+        str << QLatin1String("#include \"") << baseName
+            << '.' << preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE))
+            << QLatin1String("\"\n\n");
         break;
     }
     return contents;

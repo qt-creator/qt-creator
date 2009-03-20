@@ -43,7 +43,7 @@ GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *pro
       m_project(project),
       m_projectFile(projectFile)
 {
-    setFolderName(QFileInfo(projectFile->fileName()).baseName());
+    setFolderName(QFileInfo(projectFile->fileName()).completeBaseName());
 }
 
 GenericProjectNode::~GenericProjectNode()

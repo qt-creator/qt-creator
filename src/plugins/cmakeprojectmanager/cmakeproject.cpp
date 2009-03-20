@@ -84,7 +84,7 @@ void CMakeProject::parseCMakeLists()
 {
     QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
     QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
-    m_rootNode->setFolderName(QFileInfo(cbpFile).baseName());
+    m_rootNode->setFolderName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;
     qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
