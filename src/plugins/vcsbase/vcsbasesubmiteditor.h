@@ -106,11 +106,14 @@ public:
 
     virtual ~VCSBaseSubmitEditor();
 
-    // A utility routine to be called when clsing a submit editor.
+    // A utility routine to be called when closing a submit editor.
     // Runs checks on the message and prompts according to configuration.
+    // Force prompt should be true if it is invoked by closing an editor
+    // as opposed to invoking the "Submit" button.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
     PromptSubmitResult promptSubmit(const QString &title, const QString &question,
-                                    const QString &checkFailureQuestion) const;
+                                    const QString &checkFailureQuestion,
+                                    bool forcePrompt = false) const;
 
     int fileNameColumn() const;
     void setFileNameColumn(int c);
@@ -169,6 +172,7 @@ protected:
 private:
     void createUserFields(const QString &fieldConfigFile);
     bool checkSubmitMessage(QString *errorMessage) const;
+    bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
 
     VCSBaseSubmitEditorPrivate *m_d;

@@ -141,6 +141,7 @@ enum DebuggerActionCode
     GdbScriptFile,
     GdbAutoRun,
     GdbAutoQuit,
+    Terminal,
 
     // Watchers & Locals
     WatchExpression,
