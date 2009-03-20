@@ -230,19 +230,20 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     // == Header file ==
     QTextStream headerStr(header);
     headerStr << "#ifndef " << guard
-              << "\n#define " <<  guard << '\n' << '\n';
+              << "\n#define " <<  guard << '\n';
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
     QTC_ASSERT(qtClassExpr.isValid(), /**/);
     const bool superIsQtClass = qtClassExpr.exactMatch(params.baseClass);
     if (superIsQtClass) {
-        Core::Utils::writeIncludeFileDirective(params.baseClass, true, headerStr);
         headerStr << '\n';
+        Core::Utils::writeIncludeFileDirective(params.baseClass, true, headerStr);
     }
 
-    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, 0, headerStr);
+    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, QString(), headerStr);
 
     // Class declaration
+    headerStr << '\n';
     headerStr << namespaceIndent << "class " << unqualifiedClassName;
     if (!params.baseClass.isEmpty())
         headerStr << " : public " << params.baseClass << "\n";
@@ -251,21 +252,23 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     headerStr << namespaceIndent << "{\n";
     headerStr << namespaceIndent << "public:\n"
               << namespaceIndent << indent << unqualifiedClassName << "();\n";
-    headerStr << namespaceIndent << "};\n\n";
+    headerStr << namespaceIndent << "};\n";
 
-    Core::Utils::writeClosingNameSpaces(namespaceList, 0, headerStr);
+    Core::Utils::writeClosingNameSpaces(namespaceList, QString(), headerStr);
+
+    headerStr << '\n';
     headerStr << "#endif // "<<  guard << '\n';
 
 
     // == Source file ==
     QTextStream sourceStr(source);
     Core::Utils::writeIncludeFileDirective(params.headerFile, false, sourceStr);
-    Core::Utils::writeOpeningNameSpaces(namespaceList, 0, sourceStr);
+    Core::Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
 
     // Constructor
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "()\n";
     sourceStr << namespaceIndent << "{\n" << namespaceIndent << "}\n";
 
-    Core::Utils::writeClosingNameSpaces(namespaceList, indent, sourceStr);
+    Core::Utils::writeClosingNameSpaces(namespaceList, QString(), sourceStr);
     return true;
 }
