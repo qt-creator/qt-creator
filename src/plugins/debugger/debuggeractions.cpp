@@ -422,6 +422,10 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Use custom dumpers"));
     item->setCheckable(true);
 
+    item = new DebuggerAction(instance);
+    instance->insertItem(Terminal, item);
+    item->setDefaultValue("xterm");
+    item->setSettingsKey("DebugMode", "Terminal");
 
     item = new DebuggerAction(instance);
     instance->insertItem(ListSourceFiles, item);
