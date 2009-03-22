@@ -1116,20 +1116,22 @@ void QtVersion::updateVersionInfo() const
     m_notInstalled = false;
     QFileInfo qmake(qmakeCommand());
     if (qmake.exists()) {
-        QStringList variables = QStringList()
-             << "QT_INSTALL_DATA"
-             << "QT_INSTALL_LIBS"
-             << "QT_INSTALL_HEADERS"
-             << "QT_INSTALL_DEMOS"
-             << "QT_INSTALL_EXAMPLES"
-             << "QT_INSTALL_CONFIGURATION"
-             << "QT_INSTALL_TRANSLATIONS"
-             << "QT_INSTALL_PLUGINS"
-             << "QT_INSTALL_BINS"
-             << "QT_INSTALL_DOCS"
-             << "QT_INSTALL_PREFIX";
-        QStringList args = QStringList() << QString("-query")
-                           << variables.join(" -query ").split(" ", QString::SkipEmptyParts);
+        static const char * const variables[] = {
+             "QT_INSTALL_DATA",
+             "QT_INSTALL_LIBS",
+             "QT_INSTALL_HEADERS",
+             "QT_INSTALL_DEMOS",
+             "QT_INSTALL_EXAMPLES",
+             "QT_INSTALL_CONFIGURATION",
+             "QT_INSTALL_TRANSLATIONS",
+             "QT_INSTALL_PLUGINS",
+             "QT_INSTALL_BINS",
+             "QT_INSTALL_DOCS",
+             "QT_INSTALL_PREFIX"
+        };
+        QStringList args;
+        for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
+            args << "-query" << variables[i];
         QProcess process;
         process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
         if (process.waitForFinished(2000)) {
