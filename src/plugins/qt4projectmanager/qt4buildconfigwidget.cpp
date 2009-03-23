@@ -187,6 +187,7 @@ void Qt4BuildConfigWidget::updateImportLabel()
 void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
 {
     if (m_pro->value(m_buildConfiguration, "buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
+        return;
     m_pro->setValue(m_buildConfiguration, "buildDirectory", m_ui->shadowBuildDirEdit->path());
     // if the directory already exists
     // check if we have a build in there and

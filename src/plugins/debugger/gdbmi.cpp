@@ -37,7 +37,7 @@
 namespace Debugger {
 namespace Internal {
 
-QTextStream & operator<<(QTextStream & os, const GdbMi & mi)
+QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
 {
     return os << mi.toString();
 }

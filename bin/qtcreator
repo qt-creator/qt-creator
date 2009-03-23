@@ -1,5 +1,9 @@
 #!/bin/sh
 
 bindir=$(dirname "$0")
-libdir=$(cd ${bindir}/../lib ; pwd)
+if test "$(uname -m)" = "x86_64" ; then
+    libdir=$(cd ${bindir}/../lib64 ; pwd)
+else
+    libdir=$(cd ${bindir}/../lib ; pwd)
+fi
 LD_LIBRARY_PATH="${libdir}:${LD_LIBRARY_PATH}" "${bindir}/qtcreator.bin" ${1+"$@"}

@@ -4230,6 +4230,19 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
     sendCommand("-var-assign assign " + value, WatchVarAssign);
 }
 
+QString GdbEngine::dumperLibraryName() const
+{
+    if (theDebuggerAction(UsePrebuiltDumpers))
+        return theDebuggerAction(PrebuiltDumpersLocation)->value().toString();
+#if defined(Q_OS_WIN)
+    return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
+#elif defined(Q_OS_MAC)
+    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
+#else // generic UNIX
+    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
+#endif
+}
+
 void GdbEngine::tryLoadCustomDumpers()
 {
     if (m_dataDumperState != DataDumperUninitialized)
@@ -4237,11 +4250,27 @@ void GdbEngine::tryLoadCustomDumpers()
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_dataDumperState = DataDumperUnavailable;
+    QString lib = dumperLibraryName();
 
-#if defined(Q_OS_LINUX)
-    QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
     if (QFileInfo(lib).exists()) {
+#if defined(Q_OS_WIN)
         m_dataDumperState = DataDumperLoadTried;
+        sendCommand("sharedlibrary .*"); // for LoadLibraryA
+        //sendCommand("handle SIGSEGV pass stop print");
+        //sendCommand("set unwindonsignal off");
+        sendCommand("call LoadLibraryA(\"" + lib + "\")",
+            WatchDumpCustomSetup);
+        sendCommand("sharedlibrary " + dotEscape(lib));
+#elif defined(Q_OS_MAC)
+        m_dataDumperState = DataDumperLoadTried;
+        //sendCommand("sharedlibrary libc"); // for malloc
+        //sendCommand("sharedlibrary libdl"); // for dlopen
+        QString flag = QString::number(RTLD_NOW);
+        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+            WatchDumpCustomSetup);
+        //sendCommand("sharedlibrary " + dotEscape(lib));
+        m_dataDumperState = DataDumperLoadTried;
+#else
         //sendCommand("p dlopen");
         QString flag = QString::number(RTLD_NOW);
         sendCommand("sharedlibrary libc"); // for malloc
@@ -4252,32 +4281,8 @@ void GdbEngine::tryLoadCustomDumpers()
         sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
             WatchDumpCustomSetup);
         sendCommand("sharedlibrary " + dotEscape(lib));
-    }
 #endif
-#if defined(Q_OS_MAC)
-    QString lib = q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
-    if (QFileInfo(lib).exists()) {
-        m_dataDumperState = DataDumperLoadTried;
-        //sendCommand("sharedlibrary libc"); // for malloc
-        //sendCommand("sharedlibrary libdl"); // for dlopen
-        QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
-            WatchDumpCustomSetup);
-        //sendCommand("sharedlibrary " + dotEscape(lib));
     }
-#endif
-#if defined(Q_OS_WIN)
-    QString lib = q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
-    if (QFileInfo(lib).exists()) {
-        m_dataDumperState = DataDumperLoadTried;
-        sendCommand("sharedlibrary .*"); // for LoadLibraryA
-        //sendCommand("handle SIGSEGV pass stop print");
-        //sendCommand("set unwindonsignal off");
-        sendCommand("call LoadLibraryA(\"" + lib + "\")",
-            WatchDumpCustomSetup);
-        sendCommand("sharedlibrary " + dotEscape(lib));
-    }
-#endif
 
     if (m_dataDumperState == DataDumperLoadTried) {
         // retreive list of dumpable classes
