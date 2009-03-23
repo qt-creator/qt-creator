@@ -17,7 +17,7 @@ isEmpty(TARGET) {
     error("qworkbenchplugin.pri: You must provide a TARGET")
 }
 
-# Copy the pluginspec file to the liberary directyory.
+# Copy the pluginspec file to the library directory.
 # Note: On Windows/MinGW with some sh.exe in the path,
 # QMAKE_COPY is some cp command that does not understand
 # "\". Force the standard windows copy.
@@ -54,8 +54,8 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += plugin plugin_with_soname
 
 linux-* {
-    target.path = /lib/qtcreator/plugins/$$PROVIDER
+    target.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
     pluginspec.files += $${TARGET}.pluginspec
-    pluginspec.path = /lib/qtcreator/plugins/$$PROVIDER
+    pluginspec.path = /$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
     INSTALLS += target pluginspec
 }

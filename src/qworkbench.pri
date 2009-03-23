@@ -6,6 +6,12 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
+linux-g++-64 {
+    IDE_LIBRARY_BASENAME = lib64
+} else {
+    IDE_LIBRARY_BASENAME = lib
+}
+
 equals(TEST, 1) {
     QT +=testlib
     DEFINES += WITH_TESTS
@@ -21,7 +27,7 @@ macx {
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
 } else {
     IDE_APP_TARGET   = qtcreator.bin
-    IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/lib/qtcreator
+    IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins/
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
