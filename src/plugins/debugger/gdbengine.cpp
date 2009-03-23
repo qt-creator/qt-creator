@@ -4237,7 +4237,7 @@ QString GdbEngine::dumperLibraryName() const
 #if defined(Q_OS_WIN)
     return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
 #elif defined(Q_OS_MAC)
-    retirn q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
+    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
 #else // generic UNIX
     return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
 #endif
