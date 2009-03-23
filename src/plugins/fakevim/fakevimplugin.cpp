@@ -338,7 +338,7 @@ void FakeVimPluginPrivate::removeHandler()
         handler->restoreWidget();
         handler->deleteLater();
     }
-    Core::EditorManager::instance()->hideEditorInfoBar(
+    Core::EditorManager::instance()->hideEditorStatusBar(
         QLatin1String(Constants::MINI_BUFFER));
 }
 
