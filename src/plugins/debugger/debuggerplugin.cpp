@@ -375,9 +375,13 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
 
     m_ui.dumperLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose Dumper Location"));
+    m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
+        Core::ICore::instance()->resourcePath() + "../../lib");
 
     theDebuggerAction(UsePrebuiltDumpers)
         ->connectWidget(m_ui.radioButtonUsePrebuiltDumpers);
+    theDebuggerAction(BuildDumpersOnTheFly)
+        ->connectWidget(m_ui.radioButtonBuildDumpersOnTheFly);
     theDebuggerAction(PrebuiltDumpersLocation)
         ->connectWidget(m_ui.dumperLocationChooser);
 
@@ -410,6 +414,7 @@ void DumperOptionPage::apply()
 
     theDebuggerAction(UseDumpers)->apply(s);
     theDebuggerAction(UsePrebuiltDumpers)->apply(s);
+    theDebuggerAction(BuildDumpersOnTheFly)->apply(s);
     theDebuggerAction(PrebuiltDumpersLocation)->apply(s);
     theDebuggerAction(DebugDumpers)->apply(s);
 }
@@ -1019,7 +1024,7 @@ void DebuggerPlugin::focusCurrentEditor(IMode *mode)
 
 void DebuggerPlugin::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog("Debugger", "Gdb");
+    Core::ICore::instance()->showOptionsDialog("Debugger", "General");
 }
 
 #include "debuggerplugin.moc"

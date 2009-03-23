@@ -424,6 +424,7 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new DebuggerAction(instance);
     instance->insertItem(BuildDumpersOnTheFly, item);
+    item->setDefaultValue(true);
     item->setSettingsKey("DebugMode", "BuildDumpersOnTheFly");
     item->setCheckable(true);
 

@@ -21,7 +21,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonDumpersOnTheFly">
+       <widget class="QRadioButton" name="radioButtonBuildDumpersOnTheFly">
         <property name="toolTip">
          <string>This is the slowest but safest option.</string>
         </property>
