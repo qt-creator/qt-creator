@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Utils
-QT += network
+QT += gui network
 
 DEFINES += QWORKBENCH_UTILS_LIBRARY
 
@@ -24,7 +24,8 @@ SOURCES += \
     fancylineedit.cpp \
     qtcolorbutton.cpp \
     submiteditorwidget.cpp \
-    synchronousprocess.cpp
+    synchronousprocess.cpp \
+    submitfieldwidget.cpp
 
 win32 {
     SOURCES += abstractprocess_win.cpp \
@@ -57,9 +58,12 @@ HEADERS += \
     submiteditorwidget.h \
     abstractprocess.h \
     consoleprocess.h \
-    synchronousprocess.h
+    synchronousprocess.h \
+    submitfieldwidget.h
 
 FORMS += filewizardpage.ui \
          projectintropage.ui \
          newclasswidget.ui \
          submiteditorwidget.ui
+
+RESOURCES += utils.qrc

@@ -39,6 +39,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
+#include <utils/submitfieldwidget.h>
 #include <find/basetextfind.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -135,7 +136,6 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     // Do we have user fields?
     if (!settings.nickNameFieldListFile.isEmpty())
         createUserFields(settings.nickNameFieldListFile);
-    connect(m_d->m_widget, SIGNAL(fieldDialogRequested(int)), this, SLOT(slotSetFieldNickName(int)));
 
     // wrapping. etc
     slotUpdateEditorSettings(settings);
@@ -161,6 +161,19 @@ void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::VCSBaseSettin
     setLineWrap(s.lineWrap);
 }
 
+// Return a trimmed list of non-empty field texts
+static inline QStringList fieldTexts(const QString &fileContents)
+{
+    QStringList rc;
+    const QStringList rawFields = fileContents.trimmed().split(QLatin1Char('\n'));
+    foreach(const QString &field, rawFields) {
+        const QString trimmedField = field.trimmed();
+        if (!trimmedField.isEmpty())
+            rc.push_back(trimmedField);
+    }
+    return rc;
+}
+
 void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
     QFile fieldFile(fieldConfigFile);
@@ -169,17 +182,21 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
         return;
     }
     // Parse into fields
-    const QStringList fields = QString::fromUtf8(fieldFile.readAll()).trimmed().split(QLatin1Char('\n'));
+    const QStringList fields = fieldTexts(QString::fromUtf8(fieldFile.readAll()));
     if (fields.empty())
         return;
     // Create a completer on user names
     const QStandardItemModel *nickNameModel = Internal::VCSBasePlugin::instance()->nickNameModel();
     QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(nickNameModel), this);
-    foreach(const QString &field, fields) {
-        const QString trimmedField = field.trimmed();
-        if (!trimmedField.isEmpty())
-            m_d->m_widget->addField(trimmedField, true)->setCompleter(completer);
-    }
+
+    Core::Utils::SubmitFieldWidget *fieldWidget = new Core::Utils::SubmitFieldWidget;
+    connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
+            this, SLOT(slotSetFieldNickName(int)));    
+    fieldWidget->setCompleter(completer);
+    fieldWidget->setAllowDuplicateFields(true);
+    fieldWidget->setHasBrowseButton(true);
+    fieldWidget->setFields(fields);
+    m_d->m_widget->addSubmitFieldWidget(fieldWidget);
 }
 
 void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
@@ -461,9 +478,11 @@ void VCSBaseSubmitEditor::slotInsertNickName()
 
 void VCSBaseSubmitEditor::slotSetFieldNickName(int i)
 {
-    const QString nick = promptForNickName();
-    if (!nick.isEmpty())
-        m_d->m_widget->fieldLineEdit(i)->setText(nick);
+    if (Core::Utils::SubmitFieldWidget *sfw  =m_d->m_widget->submitFieldWidgets().front()) {
+        const QString nick = promptForNickName();
+        if (!nick.isEmpty())
+            sfw->setFieldValue(i, nick);
+    }
 }
 
 void VCSBaseSubmitEditor::slotCheckSubmitMessage()

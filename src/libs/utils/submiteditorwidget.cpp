@@ -28,17 +28,15 @@
 **************************************************************************/
 
 #include "submiteditorwidget.h"
+#include "submitfieldwidget.h"
 #include "ui_submiteditorwidget.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
-#include <QtCore/QSignalMapper>
 
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFormLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QSpacerItem>
@@ -127,11 +125,8 @@ struct SubmitEditorWidgetPrivate
     int m_activatedRow;
 
     QList<AdditionalContextMenuAction> descriptionEditContextMenuActions;
-    QFormLayout *m_fieldLayout;
-    // Field entries (label, line edits)
-    typedef QPair<QString, QLineEdit*> FieldEntry;
-    QList<FieldEntry> m_fieldEntries;
-    QSignalMapper *m_fieldSignalMapper;
+    QVBoxLayout *m_fieldLayout;
+    QList<SubmitFieldWidget *> m_fieldWidgets;
     int m_lineWidth;
 };
 
@@ -141,7 +136,6 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_fileNameColumn(1),
     m_activatedRow(-1),
     m_fieldLayout(0),
-    m_fieldSignalMapper(0),
     m_lineWidth(defaultLineWidth)
 {
 }
@@ -259,15 +253,8 @@ QString SubmitEditorWidget::descriptionText() const
 {
     QString rc = trimMessageText(lineWrap() ? wrappedText(m_d->m_ui.description) : m_d->m_ui.description->toPlainText());
     // append field entries
-    foreach(const SubmitEditorWidgetPrivate::FieldEntry &fe, m_d->m_fieldEntries) {
-        const QString fieldText = fe.second->text().trimmed();
-        if (!fieldText.isEmpty()) {
-            rc += fe.first;
-            rc += QLatin1Char(' ');
-            rc += fieldText;
-            rc += QLatin1Char('\n');
-        }
-    }
+    foreach(const SubmitFieldWidget *fw, m_d->m_fieldWidgets)
+        rc += fw->fieldValues();
     return rc;
 }
 
@@ -470,6 +457,27 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
     m_d->m_ui.vboxLayout->insertWidget(0, w);
 }
 
+void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
+{
+    if (!m_d->m_fieldLayout) {
+        // VBox with horizontal, expanding spacer
+        m_d->m_fieldLayout = new QVBoxLayout;
+        QHBoxLayout *outerLayout = new QHBoxLayout;
+        outerLayout->addLayout(m_d->m_fieldLayout);
+        outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+        QBoxLayout *descrLayout = qobject_cast<QBoxLayout*>(m_d->m_ui.descriptionBox->layout());
+        Q_ASSERT(descrLayout);
+        descrLayout->addLayout(outerLayout);
+    }
+    m_d->m_fieldLayout->addWidget(f);
+    m_d->m_fieldWidgets.push_back(f);
+}
+
+QList<SubmitFieldWidget *> SubmitEditorWidget::submitFieldWidgets() const
+{
+    return m_d->m_fieldWidgets;
+}
+
 void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
 {
     m_d->descriptionEditContextMenuActions.push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
@@ -495,47 +503,6 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
     }
     menu->exec(m_d->m_ui.description->mapToGlobal(pos));
     delete menu;
-}
-
-QLineEdit *SubmitEditorWidget::addField(const QString &label, bool hasDialogButton)
-{
-    // Insert  the form layout below the editor
-    if (!m_d->m_fieldLayout) {
-        QHBoxLayout *outerLayout = new QHBoxLayout;
-        m_d->m_fieldLayout = new QFormLayout;
-        outerLayout->addLayout(m_d->m_fieldLayout);
-        outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
-        QBoxLayout *descrLayout = qobject_cast<QBoxLayout*>(m_d->m_ui.descriptionBox->layout());
-        Q_ASSERT(descrLayout);
-        descrLayout->addLayout(outerLayout);
-    }
-    if (hasDialogButton && !m_d->m_fieldSignalMapper) {
-        m_d->m_fieldSignalMapper = new QSignalMapper;
-        connect(m_d->m_fieldSignalMapper, SIGNAL(mapped(int)), this, SIGNAL(fieldDialogRequested(int)));
-    }
-    // Add a field row consisting of label and line edit
-    QLineEdit *lineEdit = new QLineEdit;
-    QHBoxLayout *fieldLayout = new QHBoxLayout;
-    fieldLayout->addWidget(lineEdit);
-    if (hasDialogButton) {
-        QToolButton *dialogButton = new QToolButton;
-        dialogButton->setText(tr("..."));
-        connect(dialogButton, SIGNAL(clicked()), m_d->m_fieldSignalMapper, SLOT(map()));
-        m_d->m_fieldSignalMapper->setMapping(dialogButton, m_d->m_fieldEntries.size());
-        fieldLayout->addWidget(dialogButton);
-    }
-    QToolButton *clearButton = new QToolButton;
-    clearButton->setText(tr("Clear"));
-    connect(clearButton, SIGNAL(clicked()), lineEdit, SLOT(clear()));    
-    fieldLayout->addWidget(clearButton);
-    m_d->m_fieldLayout->addRow(label, fieldLayout);
-    m_d->m_fieldEntries.push_back(SubmitEditorWidgetPrivate::FieldEntry(label, lineEdit));
-    return lineEdit;
-}
-
-QLineEdit *SubmitEditorWidget::fieldLineEdit(int i) const
-{
-    return m_d->m_fieldEntries.at(i).second;
 }
 
 } // namespace Utils

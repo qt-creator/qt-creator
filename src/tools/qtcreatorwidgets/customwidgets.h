@@ -41,6 +41,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/submiteditorwidget.h>
+#include <utils/submitfieldwidget.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 
@@ -139,6 +140,16 @@ class SubmitEditorWidget_CW :
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     explicit SubmitEditorWidget_CW(QObject *parent = 0);
+};
+
+class SubmitFieldWidget_CW :
+    public QObject,
+    public CustomWidget<Core::Utils::SubmitFieldWidget>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit SubmitFieldWidget_CW(QObject *parent = 0);
 };
 
 // Collection

@@ -143,6 +143,17 @@ SubmitEditorWidget_CW::SubmitEditorWidget_CW(QObject *parent) :
 {
 }
 
+SubmitFieldWidget_CW::SubmitFieldWidget_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Core::Utils::SubmitFieldWidget>
+    (QLatin1String("<utils/submitfieldwidget.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    tr("Show predefined fields of a submit message in a control based on mail address controls"))
+{
+}
+
 // -------------- WidgetCollection
 WidgetCollection::WidgetCollection(QObject *parent) :
     QObject(parent)
@@ -157,6 +168,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new FancyLineEdit_CW(this));
     m_plugins.push_back(new QtColorButton_CW(this));
     m_plugins.push_back(new SubmitEditorWidget_CW(this));
+    m_plugins.push_back(new SubmitFieldWidget_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const
