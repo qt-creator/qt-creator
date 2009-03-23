@@ -80,6 +80,8 @@ public:
     virtual QString textPattern() const;
     Q_SLOT virtual void setTextPattern(const QString &value);
 
+    QString toString() const;
+
 signals:
     void valueChanged(const QVariant &newValue);
     void boolValueChanged(bool newValue);

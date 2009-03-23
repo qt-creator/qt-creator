@@ -199,6 +199,7 @@ private:
     void handleQuerySources(const GdbResultRecord &response);
     void handleTargetCore(const GdbResultRecord &response);
     void debugMessage(const QString &msg);
+    QString dumperLibraryName() const;
 
     OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;

@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtGui/QAction>
 #include <QtGui/QAbstractButton>
@@ -39,8 +40,10 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
 
+
 namespace Debugger {
 namespace Internal {
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -119,6 +122,14 @@ void DebuggerAction::setTextPattern(const QString &value)
     m_textPattern = value;
 }
 
+QString DebuggerAction::toString() const
+{
+    return "value: " + m_value.toString()
+        + "  defaultvalue: " + m_defaultValue.toString()
+        + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey
+        + "  deferedValue: " + m_deferedValue.toString();
+}
+
 QAction *DebuggerAction::updatedAction(const QString &text0)
 {
     QString text = text0;
@@ -155,7 +166,7 @@ void DebuggerAction::writeSettings(QSettings *settings)
         return;
     settings->beginGroup(m_settingsGroup);
     settings->setValue(m_settingsKey, m_value);
-    //qDebug() << "WRITING: " << m_settingsKey << " -> " << m_value;
+    //qDebug() << "WRITING: " << m_settingsKey << " -> " << toString();
     settings->endGroup();
 }
    

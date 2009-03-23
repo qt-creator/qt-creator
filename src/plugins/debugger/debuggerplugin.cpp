@@ -378,6 +378,9 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
 
+    connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
+        m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
+
     theDebuggerAction(UsePrebuiltDumpers)
         ->connectWidget(m_ui.radioButtonUsePrebuiltDumpers);
     theDebuggerAction(BuildDumpersOnTheFly)
@@ -392,8 +395,6 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
 
     m_ui.dumperLocationChooser->
         setEnabled(theDebuggerAction(UsePrebuiltDumpers)->value().toBool());
-    connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
-        m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
 
 #ifndef QT_DEBUG
 #if 0
