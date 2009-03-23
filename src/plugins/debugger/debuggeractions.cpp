@@ -423,6 +423,20 @@ DebuggerSettings *theDebuggerSettings()
     item->setCheckable(true);
 
     item = new DebuggerAction(instance);
+    instance->insertItem(BuildDumpersOnTheFly, item);
+    item->setSettingsKey("DebugMode", "BuildDumpersOnTheFly");
+    item->setCheckable(true);
+
+    item = new DebuggerAction(instance);
+    instance->insertItem(UsePrebuiltDumpers, item);
+    item->setSettingsKey("DebugMode", "UsePrebuiltDumpers");
+    item->setCheckable(true);
+
+    item = new DebuggerAction(instance);
+    instance->insertItem(PrebuiltDumpersLocation, item);
+    item->setSettingsKey("DebugMode", "PrebuiltDumpersLocation");
+
+    item = new DebuggerAction(instance);
     instance->insertItem(Terminal, item);
     item->setDefaultValue("xterm");
     item->setSettingsKey("DebugMode", "Terminal");

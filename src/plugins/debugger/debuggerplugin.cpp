@@ -36,6 +36,7 @@
 #include "gdbengine.h"
 
 #include "ui_gdboptionpage.h"
+#include "ui_dumperoptionpage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/basemode.h>
@@ -244,8 +245,8 @@ public:
     GdbOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("Gdb"); }
-    QString trName() const { return tr("Gdb"); }
+    QString id() const { return QLatin1String("General"); }
+    QString trName() const { return tr("General"); }
     QString category() const { return QLatin1String("Debugger"); }
     QString trCategory() const { return tr("Debugger"); }
 
@@ -289,14 +290,10 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     theDebuggerAction(SelectedPluginBreakpointsPattern)
         ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
-    theDebuggerAction(UseDumpers)
-        ->connectWidget(m_ui.checkBoxUseDumpers);
     theDebuggerAction(SkipKnownFrames)
         ->connectWidget(m_ui.checkBoxSkipKnownFrames);
     theDebuggerAction(UseToolTips)
         ->connectWidget(m_ui.checkBoxUseToolTips);
-    theDebuggerAction(DebugDumpers)
-        ->connectWidget(m_ui.checkBoxDebugDumpers);
     theDebuggerAction(SelectedPluginBreakpointsPattern)
         ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
 
@@ -304,16 +301,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());
     connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
         m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
-
-#ifndef QT_DEBUG
-#if 0
-    cmd = am->registerAction(m_manager->m_dumpLogAction,
-        Constants::DUMP_LOG, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
-#endif
-#endif
 
     // FIXME
     m_ui.environmentEdit->hide();
@@ -339,11 +326,92 @@ void GdbOptionPage::apply()
     theDebuggerAction(NoPluginBreakpoints)->apply(s);
     theDebuggerAction(SelectedPluginBreakpointsPattern)->apply(s);
 
-    theDebuggerAction(UseDumpers)->apply(s);
     theDebuggerAction(SkipKnownFrames)->apply(s);
     theDebuggerAction(UseToolTips)->apply(s);
-    theDebuggerAction(DebugDumpers)->apply(s);
     theDebuggerAction(SelectedPluginBreakpointsPattern)->apply(s);
+}
+
+} // namespace Internal
+} // namespace Debugger
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// DumperOptionPage
+//
+///////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
+
+class DumperOptionPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    DumperOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
+
+    // IOptionsPage
+    QString id() const { return QLatin1String("DataDumper"); }
+    QString trName() const { return tr("Data Dumper"); }
+    QString category() const { return QLatin1String("Debugger"); }
+    QString trCategory() const { return tr("Debugger"); }
+
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() {} // automatically calls "apply"
+
+private:
+    friend class DebuggerPlugin;
+    Ui::DumperOptionPage m_ui;
+
+    DebuggerPlugin *m_plugin;
+};
+
+QWidget *DumperOptionPage::createPage(QWidget *parent)
+{
+    QWidget *w = new QWidget(parent);
+    m_ui.setupUi(w);
+
+    m_ui.dumperLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose Dumper Location"));
+
+    theDebuggerAction(UsePrebuiltDumpers)
+        ->connectWidget(m_ui.radioButtonUsePrebuiltDumpers);
+    theDebuggerAction(PrebuiltDumpersLocation)
+        ->connectWidget(m_ui.dumperLocationChooser);
+
+    theDebuggerAction(UseDumpers)
+        ->connectWidget(m_ui.checkBoxUseDumpers);
+    theDebuggerAction(DebugDumpers)
+        ->connectWidget(m_ui.checkBoxDebugDumpers);
+
+    m_ui.dumperLocationChooser->
+        setEnabled(theDebuggerAction(UsePrebuiltDumpers)->value().toBool());
+    connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
+        m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
+
+#ifndef QT_DEBUG
+#if 0
+    cmd = am->registerAction(m_manager->m_dumpLogAction,
+        Constants::DUMP_LOG, globalcontext);
+    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
+    mdebug->addAction(cmd);
+#endif
+#endif
+
+    return w;
+}
+
+void DumperOptionPage::apply()
+{
+    QSettings *s = ICore::instance()->settings();
+
+    theDebuggerAction(UseDumpers)->apply(s);
+    theDebuggerAction(UsePrebuiltDumpers)->apply(s);
+    theDebuggerAction(PrebuiltDumpersLocation)->apply(s);
+    theDebuggerAction(DebugDumpers)->apply(s);
 }
 
 } // namespace Internal
@@ -359,6 +427,7 @@ void GdbOptionPage::apply()
 DebuggerPlugin::DebuggerPlugin()
 {
     m_generalOptionPage = 0;
+    m_dumperOptionPage = 0;
     m_locationMark = 0;
     m_manager = 0;
     m_debugMode = 0;
@@ -385,6 +454,7 @@ void DebuggerPlugin::shutdown()
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
     removeObject(m_generalOptionPage);
+    removeObject(m_dumperOptionPage);
 
     // FIXME: when using the line below, BreakWindow etc gets deleted twice.
     // so better leak for now...
@@ -393,6 +463,9 @@ void DebuggerPlugin::shutdown()
 
     delete m_generalOptionPage;
     m_generalOptionPage = 0;
+
+    delete m_dumperOptionPage;
+    m_dumperOptionPage = 0;
 
     delete m_locationMark;
     m_locationMark = 0;
@@ -588,6 +661,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
    // FIXME:
     m_generalOptionPage = new GdbOptionPage(this);
     addObject(m_generalOptionPage);
+    m_dumperOptionPage = new DumperOptionPage(this);
+    addObject(m_dumperOptionPage);
 
     m_locationMark = 0;
 

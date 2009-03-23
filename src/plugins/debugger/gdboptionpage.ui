@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>385</height>
+    <width>410</width>
+    <height>435</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <widget class="QGroupBox" name="groupBoxLocations">
      <property name="title">
-      <string>Locations</string>
+      <string>Gdb interaction</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="margin">
@@ -82,7 +82,7 @@ you indent to use or the name of a terminal that will be searched in your PATH.<
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item>
     <widget class="QGroupBox" name="groupBoxPluginDebugging">
      <property name="title">
       <string>Behaviour of breakpoint setting in plugins</string>
@@ -145,48 +145,47 @@ you indent to use or the name of a terminal that will be searched in your PATH.<
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBoxUseDumpers">
-     <property name="toolTip">
-      <string>Checking this will make the debugger try to use code to format certain data (QObject, QString, std::string etc.) nicely.</string>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>User interface</string>
      </property>
-     <property name="text">
-      <string>Use custom display for Qt and Standard Library objects</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
-     <property name="toolTip">
-      <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="checkBoxListSourceFiles">
+        <property name="toolTip">
+         <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
+        </property>
+        <property name="text">
+         <string>Populate source file view automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
+        <property name="toolTip">
+         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
-     </property>
-     <property name="text">
-      <string>Skip known frames when stepping</string>
-     </property>
+        </property>
+        <property name="text">
+         <string>Skip known frames when stepping</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxUseToolTips">
+        <property name="toolTip">
+         <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
+        </property>
+        <property name="text">
+         <string>Use tooltips while debugging</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="checkBoxUseToolTips">
-     <property name="toolTip">
-      <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
-     </property>
-     <property name="text">
-      <string>Use tooltips while debugging</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QCheckBox" name="checkBoxDebugDumpers">
-     <property name="toolTip">
-      <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
-     </property>
-     <property name="text">
-      <string>Debug Custom Dumpers</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -198,16 +197,6 @@ you indent to use or the name of a terminal that will be searched in your PATH.<
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="checkBoxListSourceFiles">
-     <property name="toolTip">
-      <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
-     </property>
-     <property name="text">
-      <string>Populate source file view automatically</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

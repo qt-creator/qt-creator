@@ -148,11 +148,15 @@ enum DebuggerActionCode
     WatchExpressionInWindow,
     RemoveWatchExpression,
     WatchModelUpdate,
-    RecheckDumpers,
-    UseDumpers,
-    DebugDumpers,
     UseToolTips,
     AssignValue,
+
+    RecheckDumpers,
+    UsePrebuiltDumpers,
+    PrebuiltDumpersLocation,
+    BuildDumpersOnTheFly,
+    UseDumpers,
+    DebugDumpers,
 
     // Source List
     ListSourceFiles,
