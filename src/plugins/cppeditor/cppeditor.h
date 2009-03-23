@@ -97,6 +97,9 @@ public slots:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
     // Rertuns true if key triggers anindent.
@@ -122,9 +125,26 @@ private:
 
     void createToolBar(CPPEditorEditable *editable);
 
-    int endOfNameUnderCursor();
+    int endOfNameAtPosition(int pos);
 
-    bool openEditorAt(CPlusPlus::Symbol *symbol);
+    struct Location
+    {
+        Location(const QString &fileName = QString(),
+                 int line = 0,
+                 int column = 0)
+            : fileName(fileName)
+            , line(line)
+            , column(column)
+        {}
+
+        QString fileName;
+        int line;
+        int column;
+    };
+
+    Location findDestinationFor(const QTextCursor &);
+    static Location locationForSymbol(CPlusPlus::Symbol *symbol);
+    bool openCppEditorAt(const Location &);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
