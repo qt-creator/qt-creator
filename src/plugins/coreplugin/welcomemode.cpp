@@ -92,7 +92,9 @@ WelcomeModePrivate::WelcomeModePrivate() :
     m_projectHtmlTemplate(readFile(QLatin1String(":/core/html/recent_projects.html"))),
     m_baseUrl(QUrl(QLatin1String("qrc:/core/html/welcome.html")))
 {
+#if !defined(QT_NO_WEBKIT)
     m_webview->setContextMenuPolicy(Qt::NoContextMenu);
+#endif   
 }
 
 #if defined(QT_NO_WEBKIT)
