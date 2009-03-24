@@ -370,7 +370,7 @@ void CPPEditor::jumpToMethod(int)
     if (! symbol)
         return;
 
-    openCppEditorAt(locationForSymbol(symbol));
+    openCppEditorAt(linkToSymbol(symbol));
 }
 
 void CPPEditor::updateMethodBoxIndex()
@@ -579,49 +579,63 @@ void CPPEditor::switchDeclarationDefinition()
             declaration = symbols.first();
 
         if (declaration)
-            openCppEditorAt(locationForSymbol(declaration));
+            openCppEditorAt(linkToSymbol(declaration));
     } else if (lastSymbol->type()->isFunctionType()) {
         if (Symbol *def = findDefinition(lastSymbol))
-            openCppEditorAt(locationForSymbol(def));
+            openCppEditorAt(linkToSymbol(def));
     }
 }
 
-CPPEditor::Location CPPEditor::findDestinationFor(const QTextCursor &cursor)
+CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
 {
-    Location dest;
+    Link link;
 
     if (!m_modelManager)
-        return dest;
+        return link;
 
     const Snapshot snapshot = m_modelManager->snapshot();
     int line = 0, column = 0;
     convertPosition(cursor.position(), &line, &column);
     Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
-        return dest;
+        return link;
 
     // Handle include directives
     const unsigned lineno = cursor.blockNumber() + 1;
     foreach (const Document::Include &incl, doc->includes()) {
         if (incl.line() == lineno) {
-            dest.fileName = incl.fileName();
-            return dest;
+            link.fileName = incl.fileName();
+            link.pos = cursor.block().position();
+            link.length = cursor.block().length();
+            return link;
         }
     }
 
     // Find the last symbol up to the cursor position
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
     if (!lastSymbol)
-        return dest;
+        return link;
 
-    // Get the expression under the cursor
+    // Check whether we're at a name
     const int endOfName = endOfNameAtPosition(cursor.position());
+    if (!characterAt(endOfName - 1).isLetterOrNumber())
+        return link;
+
+    // Remember the position and length of the name
     QTextCursor tc = cursor;
+    tc.setPosition(endOfName);
+    tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+    const int nameStart = tc.position();
+    const int nameLength = tc.anchor() - tc.position();
+
+    // Drop out if we're at a number
+    if (characterAt(nameStart).isNumber())
+        return link;
+
+    // Evaluate the type of the expression under the cursor
     tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
-
-    // Evaluate the type of the expression
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(snapshot);
     QList<TypeOfExpression::Result> resolvedSymbols =
@@ -634,7 +648,10 @@ CPPEditor::Location CPPEditor::findDestinationFor(const QTextCursor &cursor)
             if (!lastSymbol->isFunction())
                 def = findDefinition(symbol);
 
-            return locationForSymbol(def ? def : symbol);
+            link = linkToSymbol(def ? def : symbol);
+            link.pos = nameStart;
+            link.length = nameLength;
+            return link;
 
         // This would jump to the type of a name
 #if 0
@@ -651,19 +668,21 @@ CPPEditor::Location CPPEditor::findDestinationFor(const QTextCursor &cursor)
         foreach (const Document::MacroUse use, doc->macroUses()) {
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
-                dest.fileName = QString::fromUtf8(macro.fileName());
-                dest.line = macro.line();
-                return dest;
+                link.fileName = QString::fromUtf8(macro.fileName());
+                link.line = macro.line();
+                link.pos = use.begin();
+                link.length = use.end() - use.begin();
+                return link;
             }
         }
     }
 
-    return dest;
+    return link;
 }
 
 void CPPEditor::jumpToDefinition()
 {
-    openCppEditorAt(findDestinationFor(textCursor()));
+    openCppEditorAt(findLinkAt(textCursor()));
 }
 
 Symbol *CPPEditor::findDefinition(Symbol *symbol)
@@ -791,12 +810,26 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
     if (e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
         const QTextCursor cursor = cursorForPosition(e->pos());
-        const Location loc = findDestinationFor(cursor);
 
-        if (!loc.fileName.isEmpty()) {
+        // Check that the mouse was actually on the text somewhere
+        bool onText = cursorRect(cursor).right() >= e->x();
+        if (!onText) {
+            QTextCursor nextPos = cursor;
+            nextPos.movePosition(QTextCursor::Right);
+            onText = cursorRect(nextPos).right() >= e->x();
+        }
+
+        const Link link = findLinkAt(cursor);
+
+        if (onText && !link.fileName.isEmpty()) {
             QTextEdit::ExtraSelection sel;
             sel.cursor = cursor;
-            sel.cursor.select(QTextCursor::WordUnderCursor);
+            if (link.pos >= 0) {
+                sel.cursor.setPosition(link.pos);
+                sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
+            } else {
+                sel.cursor.select(QTextCursor::WordUnderCursor);
+            }
             sel.format.setFontUnderline(true);
             sel.format.setForeground(Qt::blue);
             setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
@@ -821,7 +854,7 @@ void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
         && e->button() == Qt::LeftButton) {
 
         const QTextCursor cursor = cursorForPosition(e->pos());
-        if (openCppEditorAt(findDestinationFor(cursor))) {
+        if (openCppEditorAt(findLinkAt(cursor))) {
             setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
             viewport()->setCursor(Qt::IBeamCursor);
             e->accept();
@@ -1024,7 +1057,7 @@ int CPPEditor::endOfNameAtPosition(int pos)
     return pos;
 }
 
-CPPEditor::Location CPPEditor::locationForSymbol(CPlusPlus::Symbol *symbol)
+CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
     const QString fileName = QString::fromUtf8(symbol->fileName(),
                                                symbol->fileNameLength());
@@ -1037,24 +1070,24 @@ CPPEditor::Location CPPEditor::locationForSymbol(CPlusPlus::Symbol *symbol)
     if (symbol->isGenerated())
         column = 0;
 
-    return Location(fileName, line, column);
+    return Link(fileName, line, column);
 }
 
-bool CPPEditor::openCppEditorAt(const Location &loc)
+bool CPPEditor::openCppEditorAt(const Link &link)
 {
-    if (loc.fileName.isEmpty())
+    if (link.fileName.isEmpty())
         return false;
 
-    if (baseTextDocument()->fileName() == loc.fileName) {
+    if (baseTextDocument()->fileName() == link.fileName) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->addCurrentPositionToNavigationHistory();
-        gotoLine(loc.line, loc.column);
+        gotoLine(link.line, link.column);
         setFocus();
         return true;
     }
 
-    return TextEditor::BaseTextEditor::openEditorAt(loc.fileName,
-                                                    loc.line,
-                                                    loc.column,
+    return TextEditor::BaseTextEditor::openEditorAt(link.fileName,
+                                                    link.line,
+                                                    link.column,
                                                     Constants::C_CPPEDITOR);
 }

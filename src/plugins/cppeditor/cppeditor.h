@@ -128,24 +128,29 @@ private:
 
     int endOfNameAtPosition(int pos);
 
-    struct Location
+    struct Link
     {
-        Location(const QString &fileName = QString(),
-                 int line = 0,
-                 int column = 0)
-            : fileName(fileName)
+        Link(const QString &fileName = QString(),
+             int line = 0,
+             int column = 0)
+            : pos(-1)
+            , length(-1)
+            , fileName(fileName)
             , line(line)
             , column(column)
         {}
 
-        QString fileName;
-        int line;
-        int column;
+        int pos;           // Link position
+        int length;        // Link length
+
+        QString fileName;  // Target file
+        int line;          // Target line
+        int column;        // Target column
     };
 
-    Location findDestinationFor(const QTextCursor &);
-    static Location locationForSymbol(CPlusPlus::Symbol *symbol);
-    bool openCppEditorAt(const Location &);
+    Link findLinkAt(const QTextCursor &);
+    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+    bool openCppEditorAt(const Link &);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
