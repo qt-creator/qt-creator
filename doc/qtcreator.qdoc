@@ -565,7 +565,7 @@
         void loadTextFile();
     \endcode
 
-    \note The \c{Ui::Form} object is already provided.
+    \note The \c{Ui::TextFinder} object is already provided.
 
     \section2 The Source File
 
@@ -573,9 +573,7 @@
     \c{textfinder.cpp}.  We begin by filling in the functionality to load a
     text file. The code snippet below describes this:
 
-    \quotefromfile textfinder.cpp
-    \skipto TextFinder::loadTextFile
-    \printuntil }
+    \snippet example/textfinder/textfinder.cpp 0
 
     Basically, we load a text file using
     \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
@@ -593,22 +591,18 @@
     to look for the search string within the text file. The code snippet below
     further describes it:
 
-    \quotefromfile textfinder.cpp
-    \skipto on_findButton_clicked
-    \printuntil }
+    \snippet example/textfinder/textfinder.cpp 1
 
     Once we have both these functions complete, we call \c{loadTextFile()} in
     our constructor.
 
-    \quotefromfile textfinder.cpp
-    \skipto TextFinder::TextFinder 
-    \printuntil }
+    \snippet example/textfinder/textfinder.cpp 2
 
     The \c{on_findButton_clicked()} slot will be called automatically due to
     this line of code:
 
     \code
-    QMetaObject::connectSlotsByName(TextFinderClass);
+    QMetaObject::connectSlotsByName(TextFinder);
     \endcode
 
     in the uic generated \c{ui_textfinder.h} file.
@@ -1184,13 +1178,13 @@
     \code
     void TextFinder::on_findButton_clicked()
     {
-        QString searchString = ui.lineEdit->text();
+        QString searchString = ui->lineEdit->text();
 
-        QTextDocument *document = ui.textEdit->document();
-        QTextCursor cursor = ui.textEdit->textCursor();
+        QTextDocument *document = ui->textEdit->document();
+        QTextCursor cursor = ui->textEdit->textCursor();
         cursor = document->find(searchString, cursor,
             QTextDocument::FindWholeWords);
-        ui.textEdit->setTextCursor(cursor);
+        ui->textEdit->setTextCursor(cursor);
 
         bool found = cursor.isNull();
 
@@ -1203,7 +1197,7 @@
             if (ret == QMessageBox::Yes) {
                 cursor = document->find(searchString,
                     QTextDocument::FindWholeWords);
-                ui.textEdit->setTextCursor(cursor);
+                ui->textEdit->setTextCursor(cursor);
             } else
                 return;
         }
