@@ -151,6 +151,7 @@ private:
     Link findLinkAt(const QTextCursor &);
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
     bool openCppEditorAt(const Link &);
+    QTextCharFormat m_linkFormat;
 
     CppTools::CppModelManagerInterface *m_modelManager;
 

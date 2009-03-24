@@ -236,7 +236,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_methodCombo->setSizePolicy(policy);
 
-    QTreeView *methodView = new OverviewTreeView();
+    QTreeView *methodView = new OverviewTreeView;
     methodView->header()->hide();
     methodView->setItemsExpandable(false);
     m_methodCombo->setView(methodView);
@@ -833,8 +833,8 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
             } else {
                 sel.cursor.select(QTextCursor::WordUnderCursor);
             }
+            sel.format = m_linkFormat;
             sel.format.setFontUnderline(true);
-            sel.format.setForeground(Qt::blue);
             setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
             hasDestination = true;
             cursorShape = Qt::PointingHandCursor;
@@ -921,6 +921,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
+
+    m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
 }
 
 

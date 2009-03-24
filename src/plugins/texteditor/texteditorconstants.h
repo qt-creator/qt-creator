@@ -65,6 +65,7 @@ const char * const C_TEXTEDITOR_MIMETYPE_XML = "application/xml";
 // Text color and style categories
 const char * const C_TEXT                = "Text";
 
+const char * const C_LINK                = "Link";
 const char * const C_SELECTION           = "Selection";
 const char * const C_LINE_NUMBER         = "LineNumber";
 const char * const C_SEARCH_RESULT       = "SearchResult";
