@@ -872,6 +872,8 @@ void CPPEditor::keyReleaseEvent(QKeyEvent *e)
         setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
         viewport()->setCursor(Qt::IBeamCursor);
     }
+
+    TextEditor::BaseTextEditor::keyReleaseEvent(e);
 }
 
 QList<int> CPPEditorEditable::context() const
