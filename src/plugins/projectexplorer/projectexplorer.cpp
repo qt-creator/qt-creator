@@ -1273,8 +1273,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles(const QList<Project *> & projects)
 
     if (!filesToSave.isEmpty()) {
         bool cancelled;
-        Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled,
-            tr("The following dependencies are modified, do you want to save them?"));
+        Core::ICore::instance()->fileManager()->saveModifiedFiles(filesToSave, &cancelled);
         if (cancelled) {
             return false;
         }

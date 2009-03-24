@@ -346,7 +346,7 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
                 return notSaved;
             }
             filesToSave = dia.itemsToSave();
-            filesToOpen = dia.itemsToOpen();
+            filesToOpen = dia.itemsToOpenWithVCS();
         }
 
         bool yestoall = false;
