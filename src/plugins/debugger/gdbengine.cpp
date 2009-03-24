@@ -510,7 +510,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                qq->showApplicationOutput(data);
+                qq->showApplicationOutput(data.mid(9)); // cut "warning: "
             break;
         }
 
