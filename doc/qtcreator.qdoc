@@ -573,51 +573,36 @@
     \c{textfinder.cpp}.  We begin by filling in the functionality to load a
     text file. The code snippet below describes this:
 
-    \code
-    void TextFinder::loadTextFile()
-    {
-        QFile inputFile(":/input.txt");
-        inputFile.open(QIODevice::ReadOnly);
-        
-        QTextStream in(&inputFile);
-        QString line = in.readAll();
-        inputFile.close();
-        
-        ui->textEdit->setPlainText(line);
-        QTextCursor cursor = ui->textEdit->textCursor();
-    }
-    \endcode
+    \quotefromfile textfinder.cpp
+    \skipto TextFinder::loadTextFile
+    \printuntil }
 
     Basically, we load a text file using
     \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
     \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
     then display it on \c{textEdit} with
-    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+    which requires adding the following additional #includes to textfinder.cpp:
+    \code
+    #include <QtCore/QFile>
+    #include <QtCore/QTextStream>
+    \endcode
 
     For the \c{on_findButton_clicked()} slot, we extract the search string and
     use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
     to look for the search string within the text file. The code snippet below
     further describes it:
 
-    \code
-    void TextFinder::on_findButton_clicked()
-    {
-        QString searchString = ui->lineEdit->text();
-        ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
-    }
-    \endcode
+    \quotefromfile textfinder.cpp
+    \skipto on_findButton_clicked
+    \printuntil }
 
     Once we have both these functions complete, we call \c{loadTextFile()} in
     our constructor.
 
-    \code
-    TextFinder::TextFinder(QWidget *parent)
-        : QWidget(parent)
-    {
-        ui->setupUi(this);
-        loadTextFile();
-    }
-    \endcode
+    \quotefromfile textfinder.cpp
+    \skipto TextFinder::TextFinder 
+    \printuntil }
 
     The \c{on_findButton_clicked()} slot will be called automatically due to
     this line of code:
