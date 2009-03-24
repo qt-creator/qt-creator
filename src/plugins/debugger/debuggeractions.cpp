@@ -34,7 +34,9 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+
 #include <QtGui/QAction>
+#include <QtGui/QActionGroup>
 #include <QtGui/QAbstractButton>
 #include <QtGui/QRadioButton>
 #include <QtGui/QCheckBox>
@@ -253,8 +255,15 @@ void DebuggerAction::pathChooserEditingFinished()
 
 void DebuggerAction::actionTriggered(bool)
 {
-    if (this->isCheckable())
-        setValue(this->isChecked());
+    //qDebug() << "TRIGGERING" << this << actionGroup();
+    if (isCheckable())
+        setValue(isChecked());
+    if (actionGroup() && actionGroup()->isExclusive()) {
+        // FIXME: should be taken care of more directly
+        foreach (QAction *act, actionGroup()->actions())
+            if (DebuggerAction *dact = qobject_cast<DebuggerAction *>(act))
+                dact->setValue(bool(act == this));
+    }
 }
 
 void DebuggerAction::trigger(const QVariant &data)
@@ -369,16 +378,68 @@ DebuggerSettings *theDebuggerSettings()
     item->setCheckable(true);
 
     item = new DebuggerAction(instance);
-    instance->insertItem(RecheckDumpers, item);
     item->setText(QObject::tr("Recheck custom dumper availability"));
+    instance->insertItem(RecheckDumpers, item);
 
     //
     // Breakpoints
     //
     item = new DebuggerAction(instance);
-    instance->insertItem(SynchronizeBreakpoints, item);
     item->setText(QObject::tr("Syncronize breakpoints"));
+    instance->insertItem(SynchronizeBreakpoints, item);
 
+    //
+    // Registers
+    //
+
+    QActionGroup *registerFormatGroup = new QActionGroup(instance);
+    registerFormatGroup->setExclusive(true);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Hexadecimal"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatHexadecimal");
+    item->setChecked(true);
+    instance->insertItem(FormatHexadecimal, item);
+    registerFormatGroup->addAction(item);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Decimal"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatDecimal");
+    instance->insertItem(FormatDecimal, item);
+    registerFormatGroup->addAction(item);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Octal"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatOctal");
+    instance->insertItem(FormatOctal, item);
+    registerFormatGroup->addAction(item);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Binary"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatBinary");
+    instance->insertItem(FormatBinary, item);
+    registerFormatGroup->addAction(item);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Raw"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatRaw");
+    instance->insertItem(FormatRaw, item);
+    registerFormatGroup->addAction(item);
+
+    item = new DebuggerAction(instance);
+    item->setText(QObject::tr("Natural"));
+    item->setCheckable(true);
+    item->setSettingsKey("DebugMode", "FormatNatural");
+    instance->insertItem(FormatNatural, item);
+    registerFormatGroup->addAction(item);
+
+    //
+    // Misc
     //
 
     item = new DebuggerAction(instance);

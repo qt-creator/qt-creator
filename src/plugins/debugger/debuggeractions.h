@@ -176,6 +176,8 @@ enum DebuggerActionCode
     FormatDecimal,
     FormatOctal,
     FormatBinary,
+    FormatRaw,
+    FormatNatural,
 };
 
 // singleton access

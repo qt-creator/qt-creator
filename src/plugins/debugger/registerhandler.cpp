@@ -51,9 +51,7 @@ using namespace Debugger::Constants;
 
 RegisterHandler::RegisterHandler(QObject *parent)
   : QAbstractTableModel(parent)
-{
-    setProperty(PROPERTY_REGISTER_FORMAT, "x");
-}
+{}
 
 int RegisterHandler::rowCount(const QModelIndex &parent) const
 {

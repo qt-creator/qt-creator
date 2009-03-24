@@ -291,6 +291,19 @@ void GdbEngine::initializeConnections()
         this, SLOT(setDebugDumpers(bool)));
     connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
+
+    connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatDecimal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatOctal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatBinary), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatRaw), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
 }
 
 void GdbEngine::initializeVariables()
@@ -2656,7 +2669,19 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, int id)
 
 void GdbEngine::reloadRegisters()
 {
-    QString format = qq->registerHandler()->model()->property(PROPERTY_REGISTER_FORMAT).toString();
+    QString format;
+    if (theDebuggerAction(FormatHexadecimal)->isChecked())
+        format = "x";
+    else if (theDebuggerAction(FormatDecimal)->isChecked())
+        format = "d";
+    else if (theDebuggerAction(FormatOctal)->isChecked())
+        format = "o";
+    else if (theDebuggerAction(FormatBinary)->isChecked())
+        format = "t";
+    else if (theDebuggerAction(FormatRaw)->isChecked())
+        format = "r";
+    else
+        format = "N";
     sendCommand("-data-list-register-values " + format, RegisterListValues);
 }
 
