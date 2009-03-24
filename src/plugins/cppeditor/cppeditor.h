@@ -148,7 +148,7 @@ private:
         int column;        // Target column
     };
 
-    Link findLinkAt(const QTextCursor &);
+    Link findLinkAt(const QTextCursor &, bool lookupDefinition = true);
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
     bool openCppEditorAt(const Link &);
     QTextCharFormat m_linkFormat;

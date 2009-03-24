@@ -587,7 +587,8 @@ void CPPEditor::switchDeclarationDefinition()
     }
 }
 
-CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
+CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
+                                      bool lookupDefinition)
 {
     Link link;
 
@@ -648,7 +649,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
         Symbol *symbol = resolvedSymbols.first().second;
         if (symbol) {
             Symbol *def = 0;
-            if (!lastSymbol->isFunction())
+            if (lookupDefinition && !lastSymbol->isFunction())
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
@@ -822,7 +823,7 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
             onText = cursorRect(nextPos).right() >= e->x();
         }
 
-        const Link link = findLinkAt(cursor);
+        const Link link = findLinkAt(cursor, false);
 
         if (onText && !link.fileName.isEmpty()) {
             QTextEdit::ExtraSelection sel;
