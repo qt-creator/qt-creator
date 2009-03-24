@@ -47,6 +47,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
+#include <cplusplus/TokenUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -627,13 +628,15 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
     tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
     const int nameStart = tc.position();
     const int nameLength = tc.anchor() - tc.position();
+    tc.setPosition(endOfName);
 
-    // Drop out if we're at a number
-    if (characterAt(nameStart).isNumber())
+    // Drop out if we're at a number, string or comment
+    static TokenUnderCursor tokenUnderCursor;
+    const SimpleToken tk = tokenUnderCursor(tc);
+    if (tk.isLiteral() || tk.isComment())
         return link;
 
     // Evaluate the type of the expression under the cursor
-    tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
     TypeOfExpression typeOfExpression;
