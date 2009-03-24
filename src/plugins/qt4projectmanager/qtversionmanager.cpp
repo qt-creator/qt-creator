@@ -387,7 +387,7 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
     m_ui.qtPath->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui.qtPath->setPromptDialogTitle(tr("Select QTDIR"));
     m_ui.mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
-    m_ui.qtPath->setPromptDialogTitle(tr("Select MinGW Directory"));
+    m_ui.qtPath->setPromptDialogTitle(tr("Select the Qt Directory"));
 
     m_ui.addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui.delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
