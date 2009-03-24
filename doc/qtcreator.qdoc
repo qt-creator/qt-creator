@@ -559,7 +559,7 @@
         void on_findButton_clicked();
 
     private:
-        Ui::Form ui;
+        Ui::TextFinder *ui;
         void loadTextFile();
     \endcode
 
@@ -581,8 +581,8 @@
         QString line = in.readAll();
         inputFile.close();
         
-        ui.textEdit->setPlainText(line);
-        QTextCursor cursor = ui.textEdit->textCursor();
+        ui->textEdit->setPlainText(line);
+        QTextCursor cursor = ui->textEdit->textCursor();
     }
     \endcode
 
@@ -600,8 +600,8 @@
     \code
     void TextFinder::on_findButton_clicked()
     {
-        QString searchString = ui.lineEdit->text();
-        ui.textEdit->find(searchString, QTextDocument::FindWholeWords);
+        QString searchString = ui->lineEdit->text();
+        ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
     }
     \endcode
 
@@ -612,7 +612,7 @@
     TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
         : QWidget(parent, flags)
     {
-        ui.setupUi(this);
+        ui->setupUi(this);
         loadTextFile();
     }
     \endcode
