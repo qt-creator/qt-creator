@@ -832,6 +832,15 @@ void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
     TextEditor::BaseTextEditor::mouseReleaseEvent(e);
 }
 
+void CPPEditor::keyReleaseEvent(QKeyEvent *e)
+{
+    // Clear link emulation when Ctrl is released
+    if (e->key() == Qt::Key_Control) {
+        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+        viewport()->setCursor(Qt::IBeamCursor);
+    }
+}
+
 QList<int> CPPEditorEditable::context() const
 {
     return m_context;

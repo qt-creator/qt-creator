@@ -96,9 +96,10 @@ public slots:
     void deleteEndOfToken();
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
+    void contextMenuEvent(QContextMenuEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void keyReleaseEvent(QKeyEvent *);
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
