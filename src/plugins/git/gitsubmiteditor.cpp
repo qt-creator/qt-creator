@@ -35,6 +35,7 @@
 #include <vcsbase/submitfilemodel.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
 
 namespace Git {
 namespace Internal {
@@ -119,6 +120,25 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
         emit diff(unstagedFiles, stagedFiles);
+}
+
+QString GitSubmitEditor::fileContents() const
+{
+    // We need to manually purge out comment lines starting with
+    // hash '#' since git does not do that when using -F.
+    const QChar newLine = QLatin1Char('\n');
+    const QChar hash = QLatin1Char('#');
+    QString message = VCSBase::VCSBaseSubmitEditor::fileContents();
+    for (int pos = 0; pos < message.size(); ) {
+        const int newLinePos = message.indexOf(newLine, pos);
+        const int startOfNextLine = newLinePos == -1 ? message.size() : newLinePos + 1;
+        if (message.at(pos) == hash) {
+            message.remove(pos, startOfNextLine - pos);
+        } else {
+            pos = startOfNextLine;
+        }
+    }
+    return message;
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
