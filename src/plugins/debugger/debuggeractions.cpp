@@ -380,10 +380,6 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Syncronize breakpoints"));
 
     //
-    item = new DebuggerAction(instance);
-    instance->insertItem(AutoQuit, item);
-    item->setText(QObject::tr("Automatically quit debugger"));
-    item->setCheckable(true);
 
     item = new DebuggerAction(instance);
     instance->insertItem(SkipKnownFrames, item);
@@ -417,12 +413,10 @@ DebuggerSettings *theDebuggerSettings()
     item->setSettingsKey("DebugMode", "ScriptFile");
 
     item = new DebuggerAction(instance);
-    instance->insertItem(GdbAutoQuit, item);
     item->setSettingsKey("DebugMode", "AutoQuit");
-
-    item = new DebuggerAction(instance);
-    instance->insertItem(GdbAutoRun, item);
-    item->setSettingsKey("DebugMode", "AutoRun");
+    item->setText(QObject::tr("Automatically quit debugger"));
+    item->setCheckable(true);
+    instance->insertItem(AutoQuit, item);
 
     item = new DebuggerAction(instance);
     instance->insertItem(UseToolTips, item);
@@ -450,7 +444,7 @@ DebuggerSettings *theDebuggerSettings()
     item->setSettingsKey("DebugMode", "PrebuiltDumpersLocation");
 
     item = new DebuggerAction(instance);
-    instance->insertItem(Terminal, item);
+    instance->insertItem(TerminalApplication, item);
     item->setDefaultValue("xterm");
     item->setSettingsKey("DebugMode", "Terminal");
 

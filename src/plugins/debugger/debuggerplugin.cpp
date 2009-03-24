@@ -278,7 +278,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         ->connectWidget(m_ui.scriptFileChooser);
     theDebuggerAction(GdbEnvironment)
         ->connectWidget(m_ui.environmentEdit);
-    theDebuggerAction(Terminal)
+    theDebuggerAction(TerminalApplication)
         ->connectWidget(m_ui.terminalChooser);
 
     theDebuggerAction(AllPluginBreakpoints)
@@ -319,7 +319,7 @@ void GdbOptionPage::apply()
     theDebuggerAction(GdbLocation)->apply(s);
     theDebuggerAction(GdbScriptFile)->apply(s);
     theDebuggerAction(GdbEnvironment)->apply(s);
-    theDebuggerAction(Terminal)->apply(s);
+    theDebuggerAction(TerminalApplication)->apply(s);
 
     theDebuggerAction(AllPluginBreakpoints)->apply(s);
     theDebuggerAction(SelectedPluginBreakpoints)->apply(s);
