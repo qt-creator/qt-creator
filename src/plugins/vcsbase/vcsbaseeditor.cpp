@@ -335,7 +335,6 @@ void VCSBaseEditor::mouseMoveEvent(QMouseEvent *e)
             sel.cursor = cursor;
             sel.cursor.select(QTextCursor::WordUnderCursor);
             sel.format.setFontUnderline(true);
-            change = changeUnderCursor(cursor);
             sel.format.setProperty(QTextFormat::UserProperty, change);
             setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
             overrideCursor = true;

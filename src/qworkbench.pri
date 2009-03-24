@@ -6,7 +6,7 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
-linux-g++-64 {
+linux-*-64 {
     IDE_LIBRARY_BASENAME = lib64
 } else {
     IDE_LIBRARY_BASENAME = lib

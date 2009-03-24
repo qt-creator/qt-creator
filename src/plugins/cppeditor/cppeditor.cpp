@@ -370,7 +370,7 @@ void CPPEditor::jumpToMethod(int)
     if (! symbol)
         return;
 
-    openEditorAt(symbol);
+    openCppEditorAt(linkToSymbol(symbol));
 }
 
 void CPPEditor::updateMethodBoxIndex()
@@ -579,50 +579,65 @@ void CPPEditor::switchDeclarationDefinition()
             declaration = symbols.first();
 
         if (declaration)
-            openEditorAt(declaration);
+            openCppEditorAt(linkToSymbol(declaration));
     } else if (lastSymbol->type()->isFunctionType()) {
         if (Symbol *def = findDefinition(lastSymbol))
-            openEditorAt(def);
+            openCppEditorAt(linkToSymbol(def));
     }
 }
 
-void CPPEditor::jumpToDefinition()
+CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
 {
+    Link link;
+
     if (!m_modelManager)
-        return;
+        return link;
 
     const Snapshot snapshot = m_modelManager->snapshot();
-
-    // Find the last symbol up to the cursor position
     int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
+    convertPosition(cursor.position(), &line, &column);
     Document::Ptr doc = snapshot.value(file()->fileName());
     if (!doc)
-        return;
+        return link;
 
-    QTextCursor tc = textCursor();
-    unsigned lineno = tc.blockNumber() + 1;
+    // Handle include directives
+    const unsigned lineno = cursor.blockNumber() + 1;
     foreach (const Document::Include &incl, doc->includes()) {
         if (incl.line() == lineno) {
-            if (openCppEditorAt(incl.fileName(), 0, 0))
-                return; // done
-            break;
+            link.fileName = incl.fileName();
+            link.pos = cursor.block().position();
+            link.length = cursor.block().length();
+            return link;
         }
     }
 
+    // Find the last symbol up to the cursor position
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
     if (!lastSymbol)
-        return;
+        return link;
 
-    // Get the expression under the cursor
-    const int endOfName = endOfNameUnderCursor();
+    // Check whether we're at a name
+    const int endOfName = endOfNameAtPosition(cursor.position());
+    if (!characterAt(endOfName - 1).isLetterOrNumber())
+        return link;
+
+    // Remember the position and length of the name
+    QTextCursor tc = cursor;
+    tc.setPosition(endOfName);
+    tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+    const int nameStart = tc.position();
+    const int nameLength = tc.anchor() - tc.position();
+
+    // Drop out if we're at a number
+    if (characterAt(nameStart).isNumber())
+        return link;
+
+    // Evaluate the type of the expression under the cursor
     tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
-
-    // Evaluate the type of the expression
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setSnapshot(m_modelManager->snapshot());
+    typeOfExpression.setSnapshot(snapshot);
     QList<TypeOfExpression::Result> resolvedSymbols =
             typeOfExpression(expression, doc, lastSymbol);
 
@@ -633,10 +648,10 @@ void CPPEditor::jumpToDefinition()
             if (!lastSymbol->isFunction())
                 def = findDefinition(symbol);
 
-            if (def)
-                openEditorAt(def);
-            else
-                openEditorAt(symbol);
+            link = linkToSymbol(def ? def : symbol);
+            link.pos = nameStart;
+            link.length = nameLength;
+            return link;
 
         // This would jump to the type of a name
 #if 0
@@ -649,15 +664,25 @@ void CPPEditor::jumpToDefinition()
 #endif
         }
     } else {
+        // Handle macro uses
         foreach (const Document::MacroUse use, doc->macroUses()) {
             if (use.contains(endOfName - 1)) {
                 const Macro &macro = use.macro();
-                const QString fileName = QString::fromUtf8(macro.fileName());
-                if (openCppEditorAt(fileName, macro.line(), 0))
-                    return; // done
+                link.fileName = QString::fromUtf8(macro.fileName());
+                link.line = macro.line();
+                link.pos = use.begin();
+                link.length = use.end() - use.begin();
+                return link;
             }
         }
     }
+
+    return link;
+}
+
+void CPPEditor::jumpToDefinition()
+{
+    openCppEditorAt(findLinkAt(textCursor()));
 }
 
 Symbol *CPPEditor::findDefinition(Symbol *symbol)
@@ -775,6 +800,78 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
     menu->exec(e->globalPos());
     delete menu;
+}
+
+void CPPEditor::mouseMoveEvent(QMouseEvent *e)
+{
+    bool hasDestination = false;
+    Qt::CursorShape cursorShape;
+
+    if (e->modifiers() & Qt::ControlModifier) {
+        // Link emulation behaviour for 'go to definition'
+        const QTextCursor cursor = cursorForPosition(e->pos());
+
+        // Check that the mouse was actually on the text somewhere
+        bool onText = cursorRect(cursor).right() >= e->x();
+        if (!onText) {
+            QTextCursor nextPos = cursor;
+            nextPos.movePosition(QTextCursor::Right);
+            onText = cursorRect(nextPos).right() >= e->x();
+        }
+
+        const Link link = findLinkAt(cursor);
+
+        if (onText && !link.fileName.isEmpty()) {
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            if (link.pos >= 0) {
+                sel.cursor.setPosition(link.pos);
+                sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
+            } else {
+                sel.cursor.select(QTextCursor::WordUnderCursor);
+            }
+            sel.format.setFontUnderline(true);
+            sel.format.setForeground(Qt::blue);
+            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
+            hasDestination = true;
+            cursorShape = Qt::PointingHandCursor;
+        }
+    }
+
+    if (!hasDestination) {
+        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+        cursorShape = Qt::IBeamCursor;
+    }
+
+    TextEditor::BaseTextEditor::mouseMoveEvent(e);
+
+    viewport()->setCursor(cursorShape);
+}
+
+void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->modifiers() & Qt::ControlModifier && !(e->modifiers() & Qt::ShiftModifier)
+        && e->button() == Qt::LeftButton) {
+
+        const QTextCursor cursor = cursorForPosition(e->pos());
+        if (openCppEditorAt(findLinkAt(cursor))) {
+            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+            viewport()->setCursor(Qt::IBeamCursor);
+            e->accept();
+            return;
+        }
+    }
+
+    TextEditor::BaseTextEditor::mouseReleaseEvent(e);
+}
+
+void CPPEditor::keyReleaseEvent(QKeyEvent *e)
+{
+    // Clear link emulation when Ctrl is released
+    if (e->key() == Qt::Key_Control) {
+        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+        viewport()->setCursor(Qt::IBeamCursor);
+    }
 }
 
 QList<int> CPPEditorEditable::context() const
@@ -946,9 +1043,11 @@ void CPPEditor::unCommentSelection()
     cursor.endEditBlock();
 }
 
-int CPPEditor::endOfNameUnderCursor()
+int CPPEditor::endOfNameAtPosition(int pos)
 {
-    int pos = position();
+    if (pos == -1)
+        pos = position();
+
     QChar chr = characterAt(pos);
 
     // Skip to the start of a name
@@ -958,32 +1057,37 @@ int CPPEditor::endOfNameUnderCursor()
     return pos;
 }
 
-TextEditor::ITextEditor *CPPEditor::openCppEditorAt(const QString &fileName,
-                                                    int line, int column)
+CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
-    return TextEditor::BaseTextEditor::openEditorAt(fileName, line, column,
-                                                    Constants::C_CPPEDITOR);
-}
-
-bool CPPEditor::openEditorAt(Symbol *s)
-{
-    const QString fileName = QString::fromUtf8(s->fileName(), s->fileNameLength());
-    unsigned line = s->line();
-    unsigned column = s->column();
+    const QString fileName = QString::fromUtf8(symbol->fileName(),
+                                               symbol->fileNameLength());
+    unsigned line = symbol->line();
+    unsigned column = symbol->column();
 
     if (column)
         --column;
 
-    if (s->isGenerated())
+    if (symbol->isGenerated())
         column = 0;
 
-    if (baseTextDocument()->fileName() == fileName) {
+    return Link(fileName, line, column);
+}
+
+bool CPPEditor::openCppEditorAt(const Link &link)
+{
+    if (link.fileName.isEmpty())
+        return false;
+
+    if (baseTextDocument()->fileName() == link.fileName) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->addCurrentPositionToNavigationHistory();
-        gotoLine(line, column);
+        gotoLine(link.line, link.column);
         setFocus();
         return true;
     }
 
-    return openCppEditorAt(fileName, line, column);
+    return TextEditor::BaseTextEditor::openEditorAt(link.fileName,
+                                                    link.line,
+                                                    link.column,
+                                                    Constants::C_CPPEDITOR);
 }

@@ -132,8 +132,7 @@ void EditorModel::addEntry(const Entry &entry)
     if (previousIndex >= 0) {
         if (entry.editor && m_editors.at(previousIndex).editor == 0) {
             m_editors[previousIndex] = entry;
-            QModelIndex mindex = index(previousIndex, 0);
-            emit dataChanged(mindex, mindex);
+            connect(entry.editor, SIGNAL(changed()), this, SLOT(itemChanged()));
         }
         return;
     }

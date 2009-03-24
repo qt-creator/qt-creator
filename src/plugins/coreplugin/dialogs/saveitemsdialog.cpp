@@ -40,123 +40,45 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QPushButton>
 
+Q_DECLARE_METATYPE(Core::IFile*);
+
 using namespace Core;
 using namespace Core::Internal;
 
-FileItem::FileItem(QTreeWidget *tree, bool supportOpen, bool open, const QString &text)
-    : QTreeWidgetItem(tree)
-{
-    m_saveCheckBox = createCheckBox(tree, 0);
-    m_saveCheckBox->setChecked(true);
-
-    QFileInfo fi(text);
-    QString name = fi.fileName();
-    if (open)
-        name.append(tr(" [ReadOnly]"));
-
-    if (supportOpen) {
-        m_sccCheckBox = createCheckBox(tree, 1);
-        m_sccCheckBox->setEnabled(open);
-        m_sccCheckBox->setChecked(open);
-        connect(m_saveCheckBox, SIGNAL(stateChanged(int)),
-            this, SLOT(updateSCCCheckBox()));
-        setText(2, name);
-        setToolTip(2, text);
-    } else {
-        m_sccCheckBox = 0;
-        setText(2, name);
-        setToolTip(2, text);
-    }
-}
-
-QCheckBox *FileItem::createCheckBox(QTreeWidget *tree, int column)
-{
-    QWidget *w = new QWidget();
-    QHBoxLayout *l = new QHBoxLayout(w);
-    l->setMargin(0);
-    l->setSpacing(0);
-    QCheckBox *box = new QCheckBox(w);
-    l->addWidget(box);
-    l->setAlignment(box, Qt::AlignCenter);
-    w->setLayout(l);
-    tree->setItemWidget(this, column, w);
-    return box;
-}
-
-void FileItem::updateSCCCheckBox()
-{
-    if (!m_saveCheckBox->isChecked()) {
-        m_sccCheckBox->setEnabled(false);
-        m_sccCheckBox->setChecked(false);
-    } else {
-        m_sccCheckBox->setEnabled(true);
-    }
-}
-
-bool FileItem::shouldBeSaved() const
-{
-    return m_saveCheckBox->isChecked();
-}
-
-void FileItem::setShouldBeSaved(bool s)
-{
-    m_saveCheckBox->setChecked(s);
-}
-
-bool FileItem::shouldBeOpened() const
-{
-    if (m_sccCheckBox)
-        return m_sccCheckBox->isChecked();
-    return false;
-}
-
-
-
-SaveItemsDialog::SaveItemsDialog(MainWindow *mainWindow,
-                                 QMap<IFile*, QString> items)
-    : QDialog(mainWindow)
+SaveItemsDialog::SaveItemsDialog(QWidget *parent,
+                                 QList<IFile *> items)
+    : QDialog(parent)
 {
     m_ui.setupUi(this);
-    QPushButton *uncheckButton = m_ui.buttonBox->addButton(tr("Uncheck All"),
-                                                           QDialogButtonBox::ActionRole);
-    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Discard All"),
-                                                           QDialogButtonBox::DestructiveRole);
-    m_ui.buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui.buttonBox->button(QDialogButtonBox::Ok)->setFocus(Qt::TabFocusReason);
+    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Don't Save"), QDialogButtonBox::DestructiveRole);
+    m_ui.buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
+    m_ui.buttonBox->button(QDialogButtonBox::Save)->setFocus(Qt::TabFocusReason);
+    m_ui.buttonBox->button(QDialogButtonBox::Save)->setMinimumWidth(130); // bad magic number to avoid resizing of button
 
-    m_ui.treeWidget->header()->setMovable(false);
-    m_ui.treeWidget->setRootIsDecorated(false);
-    m_ui.treeWidget->setColumnCount(2);
-
-    QStringList headers;
-    headers << tr("Save") << tr("File Name");
-
-    const bool hasVersionControl = true;
-    if (hasVersionControl) {
-        m_ui.treeWidget->setColumnCount(3);
-        headers.insert(1, tr("Open with SCC"));
-    }
-    m_ui.treeWidget->setHeaderLabels(headers);
-
-    FileItem *itm;
-    QMap<IFile*, QString>::const_iterator it = items.constBegin();
-    while (it != items.constEnd()) {
-        QString directory = QFileInfo(it.key()->fileName()).absolutePath();
-        bool fileHasVersionControl = mainWindow->vcsManager()->findVersionControlForDirectory(directory) != 0;
-        itm = new FileItem(m_ui.treeWidget, fileHasVersionControl,
-            it.key()->isReadOnly(), it.value());
-        m_itemMap.insert(itm, it.key());
-        ++it;
+    foreach (IFile *file, items) {
+        QString visibleName;
+        QString directory;
+        QString fileName = file->fileName();
+        if (fileName.isEmpty()) {
+            visibleName = file->suggestedFileName();
+        } else {
+            QFileInfo info = QFileInfo(fileName);
+            directory = info.absolutePath();
+            visibleName = info.fileName();
+        }
+        QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
+                                                    << visibleName << directory);
+        item->setData(0, Qt::UserRole, qVariantFromValue(file));
     }
 
     m_ui.treeWidget->resizeColumnToContents(0);
-    if (hasVersionControl)
-        m_ui.treeWidget->resizeColumnToContents(1);
+    m_ui.treeWidget->selectAll();
+    updateSaveButton();
 
-    connect(m_ui.buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
+    connect(m_ui.buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()),
             this, SLOT(collectItemsToSave()));
-    connect(uncheckButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
     connect(discardButton, SIGNAL(clicked()), this, SLOT(discardAll()));
+    connect(m_ui.treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSaveButton()));
 }
 
 void SaveItemsDialog::setMessage(const QString &msg)
@@ -164,41 +86,38 @@ void SaveItemsDialog::setMessage(const QString &msg)
     m_ui.msgLabel->setText(msg);
 }
 
+void SaveItemsDialog::updateSaveButton()
+{
+    int count = m_ui.treeWidget->selectedItems().count();
+    QPushButton *button = m_ui.buttonBox->button(QDialogButtonBox::Save);
+    if (count == m_ui.treeWidget->topLevelItemCount()) {
+        button->setEnabled(true);
+        button->setText(tr("Save All"));
+    } else if (count == 0) {
+        button->setEnabled(false);
+        button->setText(tr("Save"));
+    } else {
+        button->setEnabled(true);
+        button->setText(tr("Save Selected"));
+    }
+}
+
 void SaveItemsDialog::collectItemsToSave()
 {
     m_itemsToSave.clear();
-    m_itemsToOpen.clear();
-    QMap<FileItem*, IFile*>::const_iterator it = m_itemMap.constBegin();
-    while (it != m_itemMap.constEnd()) {
-        if (it.key()->shouldBeSaved())
-            m_itemsToSave << it.value();
-        if (it.key()->shouldBeOpened())
-            m_itemsToOpen.insert(it.value());
-        ++it;
+    foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
+        m_itemsToSave.append(item->data(0, Qt::UserRole).value<IFile*>());
     }
     accept();
 }
 
 void SaveItemsDialog::discardAll()
 {
-    uncheckAll();
+    m_ui.treeWidget->clearSelection();
     collectItemsToSave();
 }
 
 QList<IFile*> SaveItemsDialog::itemsToSave() const
 {
     return m_itemsToSave;
-}
-
-QSet<IFile*> SaveItemsDialog::itemsToOpen() const
-{
-    return m_itemsToOpen;
-}
-
-void SaveItemsDialog::uncheckAll()
-{
-    for (int i=0; i<m_ui.treeWidget->topLevelItemCount(); ++i) {
-        FileItem *item = static_cast<FileItem*>(m_ui.treeWidget->topLevelItem(i));
-        item->setShouldBeSaved(false);
-    }
 }

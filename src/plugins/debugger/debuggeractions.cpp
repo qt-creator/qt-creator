@@ -54,6 +54,7 @@ namespace Internal {
 DebuggerAction::DebuggerAction(QObject *parent)
   : QAction(parent)
 {
+    m_widget = 0;
     connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
@@ -126,8 +127,7 @@ QString DebuggerAction::toString() const
 {
     return "value: " + m_value.toString()
         + "  defaultvalue: " + m_defaultValue.toString()
-        + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey
-        + "  deferedValue: " + m_deferedValue.toString();
+        + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey;
 }
 
 QAction *DebuggerAction::updatedAction(const QString &text0)
@@ -173,9 +173,9 @@ void DebuggerAction::writeSettings(QSettings *settings)
 void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
     using namespace Core::Utils;
-    //qDebug() << "CONNECT WIDGET " << widget << " TO " << m_settingsKey;
-    m_applyModes[widget] = applyMode;
-    m_deferedValue = m_value;
+    m_widget = widget;
+    m_applyMode = applyMode;
+    
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
         if (button->isCheckable()) {
             button->setChecked(m_value.toBool());
@@ -203,9 +203,16 @@ void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 
 void DebuggerAction::apply(QSettings *s)
 {
-    setValue(m_deferedValue);
+    using namespace Core::Utils;
+    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(m_widget))
+        setValue(button->isChecked());
+    else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
+        setValue(lineEdit->text());
+    else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
+        setValue(pathChooser->path());
+    m_widget = 0;
     if (s)
-        writeSettings(s);
+       writeSettings(s);
 }
 
 void DebuggerAction::uncheckableButtonClicked()
@@ -221,9 +228,7 @@ void DebuggerAction::checkableButtonClicked(bool)
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
     //qDebug() << "CHECKABLE BUTTON: " << sender();
-    if (m_applyModes[sender()] == DeferedApply)
-        m_deferedValue = button->isChecked();
-    else
+    if (m_applyMode == ImmediateApply)
         setValue(button->isChecked());
 }
 
@@ -232,9 +237,7 @@ void DebuggerAction::lineEditEditingFinished()
     QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
     QTC_ASSERT(lineEdit, return);
     //qDebug() << "LINEEDIT: " << sender() << lineEdit->text();
-    if (m_applyModes[sender()] == DeferedApply)
-        m_deferedValue = lineEdit->text();
-    else
+    if (m_applyMode == ImmediateApply)
         setValue(lineEdit->text());
 }
 
@@ -244,9 +247,7 @@ void DebuggerAction::pathChooserEditingFinished()
     PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
     QTC_ASSERT(pathChooser, return);
     //qDebug() << "PATHCHOOSER: " << sender() << pathChooser->path();
-    if (m_applyModes[sender()] == DeferedApply)
-        m_deferedValue = pathChooser->path();
-    else
+    if (m_applyMode == ImmediateApply)
         setValue(pathChooser->path());
 }
 
@@ -262,12 +263,12 @@ void DebuggerAction::trigger(const QVariant &data)
     QAction::trigger();
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 //
 // DebuggerSettings
 //
 //////////////////////////////////////////////////////////////////////////
-
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
     : QObject(parent)

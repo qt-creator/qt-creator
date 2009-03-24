@@ -48,49 +48,26 @@ namespace Internal {
 
 class MainWindow;
 
-class FileItem : public QObject, public QTreeWidgetItem
-{
-    Q_OBJECT
-
-public:
-    FileItem(QTreeWidget *tree, bool supportOpen,
-             bool open, const QString &text);
-    bool shouldBeSaved() const;
-    void setShouldBeSaved(bool s);
-    bool shouldBeOpened() const;
-
-private slots:
-    void updateSCCCheckBox();
-
-private:
-    QCheckBox *createCheckBox(QTreeWidget *tree, int column);
-    QCheckBox *m_saveCheckBox;
-    QCheckBox *m_sccCheckBox;
-};
-
 class SaveItemsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    SaveItemsDialog(MainWindow *mainWindow,
-        QMap<Core::IFile*, QString> items);
+    SaveItemsDialog(QWidget *parent,
+        QList<Core::IFile *> items);
 
     void setMessage(const QString &msg);
 
-    QList<Core::IFile*> itemsToSave() const;
-    QSet<Core::IFile*> itemsToOpen() const;
+    QList<Core::IFile *> itemsToSave() const;
 
 private slots:
     void collectItemsToSave();
-    void uncheckAll();
     void discardAll();
+    void updateSaveButton();
 
 private:
     Ui::SaveItemsDialog m_ui;
-    QMap<FileItem*, Core::IFile*> m_itemMap;
     QList<Core::IFile*> m_itemsToSave;
-    QSet<Core::IFile*> m_itemsToOpen;
 };
 
 } // namespace Internal

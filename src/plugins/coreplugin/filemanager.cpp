@@ -314,7 +314,8 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
         (*cancelled) = false;
 
     QList<IFile *> notSaved;
-    QMap<IFile*, QString> modifiedFiles;
+    QMap<IFile *, QString> modifiedFilesMap;
+    QList<IFile *> modifiedFiles;
 
     foreach (IFile *file, files) {
         if (file->isModified()) {
@@ -324,17 +325,16 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
 
             // There can be several FileInterfaces pointing to the same file
             // Select one that is not readonly.
-            if (!(modifiedFiles.values().contains(name)
+            if (!(modifiedFilesMap.values().contains(name)
                 && file->isReadOnly()))
-                modifiedFiles.insert(file, name);
+                modifiedFilesMap.insert(file, name);
         }
     }
-
+    modifiedFiles = modifiedFilesMap.keys();
     if (!modifiedFiles.isEmpty()) {
         QList<IFile *> filesToSave;
-        QSet<IFile *> filesToOpen;
         if (silently) {
-            filesToSave = modifiedFiles.keys();
+            filesToSave = modifiedFiles;
         } else {
             SaveItemsDialog dia(m_mainWindow, modifiedFiles);
             if (!message.isEmpty())
@@ -342,16 +342,15 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
             if (dia.exec() != QDialog::Accepted) {
                 if (cancelled)
                     (*cancelled) = true;
-                notSaved = modifiedFiles.keys();
+                notSaved = modifiedFiles;
                 return notSaved;
             }
             filesToSave = dia.itemsToSave();
-            filesToOpen = dia.itemsToOpen();
         }
 
         bool yestoall = false;
         foreach (IFile *file, filesToSave) {
-            if (file->isReadOnly() && filesToOpen.contains(file)) {
+            if (file->isReadOnly()) {
                 QString directory = QFileInfo(file->fileName()).absolutePath();
                 IVersionControl *versionControl = m_mainWindow->vcsManager()->findVersionControlForDirectory(directory);
                 if (versionControl)

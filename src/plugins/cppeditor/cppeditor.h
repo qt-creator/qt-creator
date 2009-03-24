@@ -96,7 +96,11 @@ public slots:
     void deleteEndOfToken();
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
+    void contextMenuEvent(QContextMenuEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void keyReleaseEvent(QKeyEvent *);
+
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
     // Rertuns true if key triggers anindent.
@@ -122,9 +126,31 @@ private:
 
     void createToolBar(CPPEditorEditable *editable);
 
-    int endOfNameUnderCursor();
+    int endOfNameAtPosition(int pos);
 
-    bool openEditorAt(CPlusPlus::Symbol *symbol);
+    struct Link
+    {
+        Link(const QString &fileName = QString(),
+             int line = 0,
+             int column = 0)
+            : pos(-1)
+            , length(-1)
+            , fileName(fileName)
+            , line(line)
+            , column(column)
+        {}
+
+        int pos;           // Link position
+        int length;        // Link length
+
+        QString fileName;  // Target file
+        int line;          // Target line
+        int column;        // Target column
+    };
+
+    Link findLinkAt(const QTextCursor &);
+    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+    bool openCppEditorAt(const Link &);
 
     CppTools::CppModelManagerInterface *m_modelManager;
 
