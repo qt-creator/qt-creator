@@ -609,8 +609,8 @@
     our constructor.
 
     \code
-    TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
-        : QWidget(parent, flags)
+    TextFinder::TextFinder(QWidget *parent)
+        : QWidget(parent)
     {
         ui->setupUi(this);
         loadTextFile();
