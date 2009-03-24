@@ -11,12 +11,11 @@
     Development Environment (IDE) to develop Qt projects. It is available for
     the Linux, Mac OS X and Windows platforms.
 
-    \note Please report bugs and
-    suggestions to the Qt Software task tracker at 
-    http://www.qtsoftware.com/developer/task-tracker.
-    You can also join the discussion list qt-creator@trolltech.com. To subscribe, send a
-    message with the word \e subscribe to qt-creator-request@trolltech.com.
-    For more information on Qt mailing lists, visit http://lists.trolltech.com
+    \note Please report bugs and suggestions to the Qt Software task tracker at
+    http://www.qtsoftware.com/developer/task-tracker. You can also join the
+    qt-creator@trolltech.com mailing list. To subscribe, send a message with
+    the word \e subscribe to qt-creator-request@trolltech.com. For more
+    information on Qt mailing lists, visit http://lists.trolltech.com
 
     \image qtcreator-screenshots.png
 
@@ -105,7 +104,7 @@
     description of how to use this mode.
 
     \o \gui{Projects Mode} - Lets you configure how projects can be built and
-    executed. Under the list of projects, there are tabs to configure the 
+    executed. Under the list of projects, there are tabs to configure the
     build, run, and editor settings.
 
     \o \gui{Help Mode} - Shows any documentation registered by Qt Assistant,
@@ -161,8 +160,8 @@
 
     In Qt Creator, a session is a collection of loaded projects, opened files,
     editor settings, and so on. When you run Qt Creator, you have a default
-    session. You can create a new session using the \gui{Session Manager...},
-    available in the \gui{File -> Session} menu.
+    session. You can create a new session using the \gui{Session Manager...}
+    option, available in the \gui{File -> Session} menu.
 
 
     \image qtcreator-session-manager.png
@@ -202,7 +201,7 @@
 
 
     \section1 Keyboard Navigation
-   
+
     Qt Creator caters not only to developers who are used to using the mouse,
     but also to developers who are more comfortable with the keyboard. A wide
     range of \l{keyboard-shortcuts}{keyboard} and
@@ -243,7 +242,7 @@
             \i  Block selection
             \i  To select a current block, use \key{Ctrl+U}. Pressing
                 \key{Ctrl+U} again extends the selection to the parent block.
-                To deselect, use \key{Ctrl+Shift+U}.    
+                To deselect, use \key{Ctrl+Shift+U}.
         \row
             \i  Moving lines up and down
             \i  Use \key{Ctrl+Shift+Up} and \key{Ctrl+Shift+Down}
@@ -324,14 +323,14 @@
     When you select a build configuration in the tree, a configuration page for
     general build settings will be displayed. Here you can specify which
     \l{glossary-project-qt}{Qt version} to use to build your project, whether
-    to \l{glossary-shadow-build}{shadow build} the project.
+    to \l{glossary-shadow-build}{shadow build} the project, for instance.
 
     \image qtcreator-buildenvironment.png
 
     In the \bold{Build Environment} page you can specify the environment used
     for building. By default the environment in which Qt Creator was started
     is used and modified to include the Qt version. Depending on the selected
-    Qt version, Qt Creator will automatically add the necessary environment
+    Qt version, Qt Creator will automatically set the necessary environment
     variables.
 
     \image qtcreator-buildsteps.png
@@ -402,12 +401,12 @@
 
     \table
         \row
-	    \i \inlineimage qtcreator-new-project.png
+            \i \inlineimage qtcreator-new-project.png
             \i \bold{Creating a New Project}
 
         To create a new project, select \gui{New Project} from the \gui{File} menu.
         You can create one of the following three projects:
-    
+
         \list
             \o Qt4 Console Application
             \o Qt4 Gui Application
@@ -417,7 +416,7 @@
         In this example, we select a \e{Qt4 Gui Application} and click \gui{OK}.
 
         \row
-	    \i \inlineimage qtcreator-intro-and-location.png
+            \i \inlineimage qtcreator-intro-and-location.png
             \i \bold{Setting the Project name and location}
 
         Next, we set the project's name and its path. Click on the \gui{...}
@@ -426,7 +425,7 @@
         Ideally, the path should not contain spaces or special characters.
 
         \row
-	    \i \inlineimage qtcreator-select-modules.png
+            \i \inlineimage qtcreator-select-modules.png
             \i \bold{Selecting The Necessary Qt Modules}
 
         Click on the check boxes of each Qt Module you would like to include in
@@ -436,7 +435,7 @@
         set, but you are free to add more.
 
         \row
-	    \i \inlineimage qtcreator-class-info.png
+            \i \inlineimage qtcreator-class-info.png
             \i \bold{Specifying Class Information}
 
         Specify the name of the class you would like to create. The
@@ -447,12 +446,12 @@
         QWidget, QDialog or QMainWindow,  from the drop down box.
 
         \row
-	    \i \inlineimage qtcreator-new-project-summary.png
+            \i \inlineimage qtcreator-new-project-summary.png
             \i \bold{Creating the Project}
 
         Finally, review the files that will be created for you. Click
         \gui{Done} and your project will be generated.
-    
+
     \endtable
 */
 
@@ -493,8 +492,8 @@
          \o On Mac OS X: in \gui{Preferences}, under \gui{Qt4}.
     \endlist
 
-    \note If Qt was compiled with Visual Studio, all environment variables set
-    in Visual Studio will be added to Qt Creator as well.
+    \note If you use Visual Studio to compile Qt, all environment variables set
+    in Visual Studio will be set for Qt Creator as well.
 
     \section1 Setting Up The Project
 
@@ -513,7 +512,7 @@
         \o \c{textfinder.ui}
         \o \c{textfinder.pro}
     \endlist
-    
+
     The \c{.h} and \c{.cpp} files come with the necessary boiler plate code;
     the \c{.pro} file is also complete.
 
@@ -543,7 +542,7 @@
     \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit} can then be added to
     a \l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}, along with
     the \l{http://doc.trolltech.com/qgridlayout.html}{QGridLayout}. If you are
-    new to designing forms with \QD, you can take a look at the 
+    new to designing forms with \QD, you can take a look at the
     \l{http://doc.trolltech.com/designer-manual.html}{Designer Manual}.
 
     \section2 The Header File
@@ -641,10 +640,10 @@
     \section1 Compiling and Running Your Program
 
     Now that you have all the necessary files, you can compile your program by
-    clicking on the 
+    clicking on the
     \inlineimage qtcreator-run.png
     button.
-    
+
 */
 
 
@@ -831,9 +830,9 @@
     Suppose you would like to open your project's \c{main.cpp} file, click on
     \gui Locator or use \key{Ctrl+K}, type in the file name and then press
     \key Return. The file will be opened in the editor. You can also type
-    part of a file name and use wildcard characters \c{*} and \c{?} to match
-    \e{any} number of \e{any} characters. A list of all files matching your
-    criteria will be displayed. 
+    part of a file name and use the wildcard characters \c{*} and \c{?} to
+    match \e{any} number of \e{any} characters. A list of all files matching
+    your criteria will be displayed.
 
     \gui Locator not only allows you to navigate files on disk but also other
     "locations", which are organized with \bold{Filters}. Currently there are
@@ -868,14 +867,14 @@
 
     Filters can be added to provide quick navigation around files in a
     subdirectory structure defined by you. This way, you can acccess files you
-    need, that are not directly mentioned in your project. Click on 
+    need, that are not directly mentioned in your project. Click on
     \image qtcreator-locator-magnify.png
      and choose \gui{Configure...} from the menu displayed.
 
     \image qtcreator-locator-customize.png
 
-    This then displays the \gui Preferences dialog (\gui Options on Mac Os X)
-    for navigation filters. Click \gui Add to create a new filter. In the
+    This displays the \gui Preferences dialog (\gui Options on Mac Os X) for
+    navigation filters. Click \gui Add to create a new filter. In the
     \gui{Filter Configuration} dialog below, give your filter a name, select
     your preferred directories, set file patterns with a comma separated list,
     and specify a prefix string.
@@ -947,10 +946,10 @@
     \title Debugging with Qt Creator
 
     \table
-        \row 
+        \row
             \i \note Qt Creator's debugger integration currently does not
                support debugging applications created with the Microsoft Visual
-               Studio Compiler.
+               C++ Compiler.
     \endtable
 
     Qt Creator does not have its own debugger. Instead, it provides a graphical
@@ -958,7 +957,6 @@
     step through a program line-by-line or instruction-by-instruction,
     interrupt running programs, set breakpoints, examine the contents of the
     call stack, local and global variables, etc.
-
 
     Within Qt Creator, the raw information provided by gdb is displayed in a
     clear and concise manner, simplifying the process of debugging.
@@ -994,9 +992,9 @@
     being debugged is not running.
 
     A breakpoint represents a position or sets of positions in the code that,
-    when executed, stops the program being debugged and passing the control to
-    the user. The user is then free to examine the state of the interrupted
-    program, or continue execution line-by-line or continuously.
+    when executed, interrupts the program being debugged and passing the
+    control to the user. The user is then free to examine the state of the
+    interrupted program, or continue execution line-by-line or continuously.
 
     Typically, breakpoints are associated with a source code file and line, or
     the start of a function -- both allowed in Qt Creator.
@@ -1009,7 +1007,7 @@
     \list
        \o At a particular line you want the program to stop -- click on the
           left margin or press \key F9 (\key F8 for Mac OS X).
-       \o At a function that you want the program to stop -- enter the
+       \o At a function that you want the program to interrupt -- enter the
           function's name in \gui{Set Breakpoint at Function...} under the
           \gui Debug menu.
     \endlist
@@ -1036,16 +1034,14 @@
     checks whether the compiled program is up-to-date, rebuilding it if
     necessary. The debugger then takes over and starts the program.
 
-    \note Starting a program in the debugger will take considerable amount of
+    \note Starting a program in the debugger can take considerable amount of
     time, typically in the range of several seconds to minutes if complex
-    features (like QtWebKit) are used. 
+    features (like QtWebKit) are used.
 
     Once the program starts running, it behaves as usual; performance-wise as
     well. The user can interrupt a running program by selecting
     \gui {Interrupt} from the \gui{Debug} menu. The program is automatically
     interrupted as soon as a breakpoint is hit.
-
-    \omit (and, if set, its associated conditions are met). \endomit
 
     Once the program stops, Qt Creator:
 
@@ -1071,28 +1067,29 @@
 
     \section2 Stack
 
-    When the program being debugged is stopped, Qt Creator displays the nested
-    function calls leading to the current position as a \e call stack trace.
-    This stack trace is built up from \e{call stack frames}, each representing a
-    particular function. For each function, Qt Creator will try to retrieve the
-    file name and line number of the corresponding source files. This data is
-    shown in the \gui Stack view.
+    When the program being debugged is interrupted, Qt Creator displays the
+    nested function calls leading to the current position as a \e call stack
+    trace. This stack trace is built up from \e{call stack frames}, each
+    representing a particular function. For each function, Qt Creator will try
+    to retrieve the file name and line number of the corresponding source
+    files. This data is shown in the \gui Stack view.
 
     \image qtcreator-debug-stack.png
 
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
     frames will have corresponding source locations. These frames will be
-    greyed out in the \gui Stack view.
+    grayed out in the \gui Stack view.
 
     If you click on a frame with a known source location, the text editor will
     jump to the corresponding location and update the \gui{Locals and Watchers}
-    view, making it seem like the program stopped before entering the function.
+    view, making it seem like the program was interrupted before entering the
+    function.
 
 
     \section2 Threads
 
-    If a multi-threaded program is stopped, the \gui Thread view  or the
+    If a multi-threaded program is interrupted, the \gui Thread view  or the
     combobox named \gui Thread in the debugger's status bar can be used to
     switch from one thread to another. The \gui Stack view will adjust itself
     accordingly.
@@ -1147,15 +1144,15 @@
 
     The \gui{Locals and Watchers} view can be used to change the contents of
     variables of simple data types such as \c int or \c float when the program
-    is stopped. To do so, click on the \gui Value column, modify the value
+    is interrupted. To do so, click on the \gui Value column, modify the value
     with the inplace editor, and hit \key Enter (or \key Return).
-    
+
 
     \section2 Modules
 
     By default, the \gui Modules view is hidden as it is only useful with the
     experimental delayed loaing of debug information feature. You can turn
-    this feature on by selecting \gui{Fast Debugger Start} 
+    this feature on by selecting \gui{Fast Debugger Start}
 
 
     With this feature, debug information from the Qt library itself is not
@@ -1163,7 +1160,8 @@
     for some applications. You can then use the \gui Modules view to manually
     load this information, if required.
 
-    \note In this scenario, some breakpoints may not be set by the debugger.
+    \note In this scenario, some breakpoints may not be triggered by the
+    debugger.
 
 
     \section2 Disassembler View and Registers View
@@ -1184,7 +1182,7 @@
 
     \table
         \row
-	        \i \inlineimage qtcreator-setting-breakpoint1.png
+                \i \inlineimage qtcreator-setting-breakpoint1.png
             \i \bold{Setting a Breakpoint}
 
     First, we set a breakpoint on the line where we invoke
@@ -1222,7 +1220,7 @@
 
         bool found = cursor.isNull();
 
-        if (!found && previouslyFound == true) {
+        if (!found && previouslyFound) {
             int ret = QMessageBox::question(this, tr("End of Document"),
             tr("I have reached the end of the document. Would you like "
             "me to start searching from the beginning of the document?"),
