@@ -96,12 +96,12 @@ private:
 
     QVariant m_value;
     QVariant m_defaultValue;
-    QVariant m_deferedValue; // basically a temporary copy of m_value 
     QString m_settingsKey;
     QString m_settingsGroup;
     QString m_textPattern;
     QString m_textData;
-    QHash<QObject *, ApplyMode> m_applyModes;
+    QWidget *m_widget;
+    ApplyMode m_applyMode;
 };
 
 class DebuggerSettings : public QObject

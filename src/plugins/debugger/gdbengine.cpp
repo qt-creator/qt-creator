@@ -4232,7 +4232,7 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 
 QString GdbEngine::dumperLibraryName() const
 {
-    if (theDebuggerAction(UsePrebuiltDumpers))
+    if (theDebuggerAction(UsePrebuiltDumpers)->value().toBool())
         return theDebuggerAction(PrebuiltDumpersLocation)->value().toString();
 #if defined(Q_OS_WIN)
     return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
@@ -4252,48 +4252,45 @@ void GdbEngine::tryLoadCustomDumpers()
     m_dataDumperState = DataDumperUnavailable;
     QString lib = dumperLibraryName();
 
-    if (QFileInfo(lib).exists()) {
-#if defined(Q_OS_WIN)
-        m_dataDumperState = DataDumperLoadTried;
-        sendCommand("sharedlibrary .*"); // for LoadLibraryA
-        //sendCommand("handle SIGSEGV pass stop print");
-        //sendCommand("set unwindonsignal off");
-        sendCommand("call LoadLibraryA(\"" + lib + "\")",
-            WatchDumpCustomSetup);
-        sendCommand("sharedlibrary " + dotEscape(lib));
-#elif defined(Q_OS_MAC)
-        m_dataDumperState = DataDumperLoadTried;
-        //sendCommand("sharedlibrary libc"); // for malloc
-        //sendCommand("sharedlibrary libdl"); // for dlopen
-        QString flag = QString::number(RTLD_NOW);
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
-            WatchDumpCustomSetup);
-        //sendCommand("sharedlibrary " + dotEscape(lib));
-        m_dataDumperState = DataDumperLoadTried;
-#else
-        //sendCommand("p dlopen");
-        QString flag = QString::number(RTLD_NOW);
-        sendCommand("sharedlibrary libc"); // for malloc
-        sendCommand("sharedlibrary libdl"); // for dlopen
-        sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
-            WatchDumpCustomSetup);
-        // some older systems like CentOS 4.6 prefer this:
-        sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
-            WatchDumpCustomSetup);
-        sendCommand("sharedlibrary " + dotEscape(lib));
-#endif
-    }
-
-    if (m_dataDumperState == DataDumperLoadTried) {
-        // retreive list of dumpable classes
-        sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
-        sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
-    } else {
+    if (!QFileInfo(lib).exists()) {
         debugMessage(QString("DEBUG HELPER LIBRARY IS NOT USABLE: "
             " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
             .arg(QFileInfo(lib).exists())
             .arg(QFileInfo(lib).isExecutable()));
+        return;
     }
+
+    m_dataDumperState = DataDumperLoadTried;
+#if defined(Q_OS_WIN)
+    sendCommand("sharedlibrary .*"); // for LoadLibraryA
+    //sendCommand("handle SIGSEGV pass stop print");
+    //sendCommand("set unwindonsignal off");
+    sendCommand("call LoadLibraryA(\"" + lib + "\")",
+        WatchDumpCustomSetup);
+    sendCommand("sharedlibrary " + dotEscape(lib));
+#elif defined(Q_OS_MAC)
+    //sendCommand("sharedlibrary libc"); // for malloc
+    //sendCommand("sharedlibrary libdl"); // for dlopen
+    QString flag = QString::number(RTLD_NOW);
+    sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+        WatchDumpCustomSetup);
+    //sendCommand("sharedlibrary " + dotEscape(lib));
+    m_dataDumperState = DataDumperLoadTried;
+#else
+    //sendCommand("p dlopen");
+    QString flag = QString::number(RTLD_NOW);
+    sendCommand("sharedlibrary libc"); // for malloc
+    sendCommand("sharedlibrary libdl"); // for dlopen
+    sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+        WatchDumpCustomSetup);
+    // some older systems like CentOS 4.6 prefer this:
+    sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
+        WatchDumpCustomSetup);
+    sendCommand("sharedlibrary " + dotEscape(lib));
+#endif
+    // retreive list of dumpable classes
+    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
+    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
 }
 
 void GdbEngine::recheckCustomDumperAvailability()
