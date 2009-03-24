@@ -682,7 +682,7 @@ void WatchHandler::rebuildModel()
 
     emit layoutAboutToBeChanged();
 
-    if (oldTopINames != topINames) {
+    if (0 && oldTopINames != topINames) {
         m_displaySet = initialSet();
         m_expandedINames.clear();
         emit reset();
