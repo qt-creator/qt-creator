@@ -33,16 +33,16 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QMessageBox>
 
-TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
-    : QWidget(parent, flags)
+TextFinder::TextFinder(QWidget *parent)
+    : QWidget(parent), ui(new Ui::TextFinder)
 {
-    ui.setupUi(this);
+    ui->setupUi(this);
     loadTextFile();
-    isFirstTime = true;
 }
 
 TextFinder::~TextFinder()
 {
+    delete ui;
 }
 
 void TextFinder::loadTextFile()
@@ -54,20 +54,13 @@ void TextFinder::loadTextFile()
     QString line = in.readAll();
     inputFile.close();
 
-    ui.textEdit->setPlainText(line);
-    QTextCursor cursor = ui.textEdit->textCursor();
+    ui->textEdit->setPlainText(line);
+    QTextCursor cursor = ui->textEdit->textCursor();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor, 1);
 }
 
 void TextFinder::on_findButton_clicked()
 {
-    QString searchString = ui.lineEdit->text();
-    QTextDocument *document = ui.textEdit->document();
-
-    bool found = false;
-
-    ui.textEdit->find(searchString, QTextDocument::FindWholeWords);
-    QTextCursor cursor = ui.textEdit->textCursor();
-    if (!cursor.isNull())
-        found = true;
+    QString searchString = ui->lineEdit->text();
+    ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
 }

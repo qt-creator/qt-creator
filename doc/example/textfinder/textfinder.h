@@ -34,29 +34,25 @@
 
 #include <QtGui/QWidget>
 
-class QPushButton;
-class QTextEdit;
-class QLineEdit;
+namespace Ui
+{
+    class TextFinder;
+}
 
 class TextFinder : public QWidget
 {
     Q_OBJECT
 
 public:
-    TextFinder(QWidget *parent = 0, Qt::WFlags flags = 0);
+    TextFinder(QWidget *parent = 0);
     ~TextFinder();
 
 private slots:
     void on_findButton_clicked();
 
 private:
-    Ui::Form ui;
+    Ui::TextFinder *ui;
     void loadTextFile();
-
-    QPushButton *ui_findButton;
-    QTextEdit *ui_textEdit;
-    QLineEdit *ui_lineEdit;
-    bool isFirstTime;
 };
 
 #endif // TEXTFINDER_H

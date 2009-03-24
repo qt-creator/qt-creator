@@ -608,7 +608,7 @@
     this line of code:
 
     \code
-    QMetaObject::connectSlotsByName(Form);
+    QMetaObject::connectSlotsByName(TextFinderClass);
     \endcode
 
     in the uic generated \c{ui_textfinder.h} file.
