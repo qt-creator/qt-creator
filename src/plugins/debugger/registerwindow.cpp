@@ -29,17 +29,19 @@
 
 #include "registerwindow.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 
-#include <QAction>
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QFileInfoList>
-#include <QHeaderView>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QToolButton>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFileInfoList>
+
+#include <QtGui/QAction>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QToolButton>
 
 
 using namespace Debugger::Internal;
@@ -118,6 +120,9 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     actions[Oct] = menu.addAction("Octal");
     actions[Oct]->setCheckable(true);
     actions[Oct]->setChecked(format == "o");
+
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

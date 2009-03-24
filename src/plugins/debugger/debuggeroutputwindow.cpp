@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "debuggeroutputwindow.h"
+#include "debuggeractions.h"
 
 #include <QtCore/QDebug>
 
@@ -51,7 +52,7 @@ using namespace Find;
 
 #endif // GDBDEBUGGERLEAN
 
-using Debugger::Internal::DebuggerOutputWindow;
+using namespace Debugger::Internal;
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -83,6 +84,8 @@ public:
         menu->addAction(m_clearContentsAction);
         //menu->addAction(m_saveContentsAction);
         addContextActions(menu);
+        menu->addSeparator();
+        menu->addAction(theDebuggerAction(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
     }
