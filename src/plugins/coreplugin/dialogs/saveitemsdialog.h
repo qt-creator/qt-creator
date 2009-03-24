@@ -54,12 +54,11 @@ class SaveItemsDialog : public QDialog
 
 public:
     SaveItemsDialog(QWidget *parent,
-        QMap<Core::IFile*, QString> items);
+        QList<Core::IFile *> items);
 
     void setMessage(const QString &msg);
 
-    QList<Core::IFile*> itemsToSave() const;
-    QSet<Core::IFile*> itemsToOpenWithVCS() const;
+    QList<Core::IFile *> itemsToSave() const;
 
 private slots:
     void collectItemsToSave();
@@ -69,7 +68,6 @@ private slots:
 private:
     Ui::SaveItemsDialog m_ui;
     QList<Core::IFile*> m_itemsToSave;
-    QSet<Core::IFile*> m_itemsToOpen;
 };
 
 } // namespace Internal

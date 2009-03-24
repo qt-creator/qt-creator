@@ -46,7 +46,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 SaveItemsDialog::SaveItemsDialog(QWidget *parent,
-                                 QMap<IFile*, QString> items)
+                                 QList<IFile *> items)
     : QDialog(parent)
 {
     m_ui.setupUi(this);
@@ -55,13 +55,12 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setFocus(Qt::TabFocusReason);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setMinimumWidth(130); // bad magic number to avoid resizing of button
 
-    QMap<IFile*, QString>::const_iterator it = items.constBegin();
-    while (it != items.constEnd()) {
+    foreach (IFile *file, items) {
         QString visibleName;
         QString directory;
-        QString fileName = it.key()->fileName();
+        QString fileName = file->fileName();
         if (fileName.isEmpty()) {
-            visibleName = it.key()->suggestedFileName();
+            visibleName = file->suggestedFileName();
         } else {
             QFileInfo info = QFileInfo(fileName);
             directory = info.absolutePath();
@@ -69,8 +68,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << directory);
-        item->setData(0, Qt::UserRole, qVariantFromValue(it.key()));
-        ++it;
+        item->setData(0, Qt::UserRole, qVariantFromValue(file));
     }
 
     m_ui.treeWidget->resizeColumnToContents(0);
@@ -122,9 +120,4 @@ void SaveItemsDialog::discardAll()
 QList<IFile*> SaveItemsDialog::itemsToSave() const
 {
     return m_itemsToSave;
-}
-
-QSet<IFile*> SaveItemsDialog::itemsToOpenWithVCS() const
-{
-    return m_itemsToSave.toSet();
 }

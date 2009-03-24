@@ -36,7 +36,6 @@
 #include "icore.h"
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
-#include "saveitemsdialog.h"
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
 
