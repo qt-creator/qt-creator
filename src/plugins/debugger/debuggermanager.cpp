@@ -251,18 +251,10 @@ void DebuggerManager::init()
     // Locals
     QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
     localsView->setModel(m_watchHandler->model());
-    connect(localsView, SIGNAL(requestExpandChildren(QModelIndex)),
-        this, SLOT(expandChildren(QModelIndex)));
-    connect(localsView, SIGNAL(requestCollapseChildren(QModelIndex)),
-        this, SLOT(collapseChildren(QModelIndex)));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
     watchersView->setModel(m_watchHandler->model());
-    connect(watchersView, SIGNAL(requestExpandChildren(QModelIndex)),
-        this, SLOT(expandChildren(QModelIndex)));
-    connect(watchersView, SIGNAL(requestCollapseChildren(QModelIndex)),
-        this, SLOT(collapseChildren(QModelIndex)));
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
@@ -716,18 +708,6 @@ void DebuggerManager::updateWatchModel()
 {
     QTC_ASSERT(m_engine, return);
     m_engine->updateWatchModel();
-}
-
-void DebuggerManager::expandChildren(const QModelIndex &idx)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->expandChildren(idx);
-}
-
-void DebuggerManager::collapseChildren(const QModelIndex &idx)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->collapseChildren(idx);
 }
 
 QVariant DebuggerManager::sessionValue(const QString &name)

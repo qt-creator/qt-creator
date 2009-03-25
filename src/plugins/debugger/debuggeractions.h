@@ -150,6 +150,8 @@ enum DebuggerActionCode
     WatchModelUpdate,
     UseToolTips,
     AssignValue,
+    ExpandItem,
+    CollapseItem,
 
     RecheckDumpers,
     UsePrebuiltDumpers,

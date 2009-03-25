@@ -125,19 +125,16 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
 
 void WatchWindow::expandNode(const QModelIndex &idx)
 {
-    //QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    //QString iname = model()->data(mi0, INameRole).toString();
-    //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    emit requestExpandChildren(idx);
+    QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    QVariant iname = model()->data(mi0, INameRole);
+    theDebuggerAction(ExpandItem)->trigger(iname);
 }
 
 void WatchWindow::collapseNode(const QModelIndex &idx)
 {
-    //QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    //QString iname = model()->data(mi0, INameRole).toString();
-    //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    //qDebug() << "COLLAPSE NODE " << idx;
-    emit requestCollapseChildren(idx);
+    QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    QVariant iname = model()->data(mi0, INameRole);
+    theDebuggerAction(CollapseItem)->trigger(iname);
 }
 
 void WatchWindow::keyPressEvent(QKeyEvent *ev)

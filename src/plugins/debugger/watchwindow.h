@@ -57,15 +57,10 @@ public slots:
     void setAlwaysResizeColumnsToContents(bool on = true);
     void setModel(QAbstractItemModel *model);
 
-signals:
-    void requestExpandChildren(const QModelIndex &idx);
-    void requestCollapseChildren(const QModelIndex &idx);
-
-private slots:
-    void expandNode(const QModelIndex &index);
-    void collapseNode(const QModelIndex &index);
-
 private:
+    Q_SLOT void expandNode(const QModelIndex &index);
+    Q_SLOT void collapseNode(const QModelIndex &index);
+
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void editItem(const QModelIndex &idx);

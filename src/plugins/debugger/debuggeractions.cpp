@@ -340,6 +340,9 @@ DebuggerSettings *theDebuggerSettings()
 
     DebuggerAction *item = 0;
 
+    //
+    // View
+    //
     item = new DebuggerAction(instance);
     instance->insertItem(AdjustColumnWidths, item);
     item->setText(QObject::tr("Adjust column widths to contents"));
@@ -349,6 +352,9 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Always adjust column widths to contents"));
     item->setCheckable(true);
 
+    //
+    // Locals & Watchers
+    //
     item = new DebuggerAction(instance);
     instance->insertItem(WatchExpression, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\""));
@@ -364,6 +370,14 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new DebuggerAction(instance);
     instance->insertItem(AssignValue, item);
+
+    item = new DebuggerAction(instance);
+    instance->insertItem(ExpandItem, item);
+    item->setText(QObject::tr("Expand item"));
+
+    item = new DebuggerAction(instance);
+    instance->insertItem(CollapseItem, item);
+    item->setText(QObject::tr("Collapse item"));
 
     //
     // Dumpers
