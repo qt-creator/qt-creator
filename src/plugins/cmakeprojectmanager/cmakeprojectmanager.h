@@ -32,6 +32,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/environment.h>
 #include <utils/pathchooser.h>
 #include <QtCore/QFuture>
 #include <QtCore/QStringList>
@@ -60,7 +61,11 @@ public:
 
     QProcess* createXmlFile(const QStringList &arguments, const QString &sourceDirectory, const QDir &buildDirectory);
     static QString findCbpFile(const QDir &);
+
+    static QString findDumperLibrary(const ProjectExplorer::Environment &env);
 private:
+    static QString qtVersionForQMake(const QString &qmakePath);
+    static QString findQtDir(const ProjectExplorer::Environment &env);
     int m_projectContext;
     int m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;

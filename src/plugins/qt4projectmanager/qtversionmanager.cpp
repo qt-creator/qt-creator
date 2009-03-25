@@ -917,7 +917,6 @@ QString QtVersion::dumperLibrary() const
         QFileInfo fi(directory + "libgdbmacros.dylib");
 #else // generic UNIX
         QFileInfo fi(directory + "libgdbmacros.so");
-        qDebug()<<"Trying"<<(directory + "libgdbmacros.so");
 #endif
         if (fi.exists())
             return fi.filePath();
