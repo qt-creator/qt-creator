@@ -77,6 +77,7 @@ signals:
         const QString &fileName, const QString &contents);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
+    void completionRequested();
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);
