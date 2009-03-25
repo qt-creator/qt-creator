@@ -40,6 +40,8 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QSettings>
 #include <QtGui/QFormLayout>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QApplication>
 
 using namespace CMakeProjectManager::Internal;
 
@@ -134,7 +136,83 @@ QString CMakeManager::findCbpFile(const QDir &directory)
     return QString::null;
 }
 
+// This code is duplicated from qtversionmanager
+QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
+{
+    QProcess qmake;
+    qmake.start(qmakePath, QStringList()<<"--version");
+    if (!qmake.waitForFinished())
+        return false;
+    QString output = qmake.readAllStandardOutput();
+    QRegExp regexp("(QMake version|Qmake version:)[\\s]*([\\d.]*)");
+    regexp.indexIn(output);
+    if (regexp.cap(2).startsWith("2.")) {
+        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)");
+        regexp2.indexIn(output);
+        return regexp2.cap(1);
+    }
+    return QString();
+}
 
+QString CMakeManager::findQtDir(const ProjectExplorer::Environment &env)
+{
+    QStringList possibleCommands;
+        // On windows noone has renamed qmake, right?
+#ifdef Q_OS_WIN
+    possibleCommands << "qmake.exe";
+#endif
+    // On unix some distributions renamed qmake to avoid clashes
+    possibleCommands << "qmake-qt4" << "qmake4" << "qmake";
+
+    QStringList paths = env.path();
+    foreach (const QString &path, paths) {
+        foreach (const QString &possibleCommand, possibleCommands) {
+            QFileInfo qmake(path + "/" + possibleCommand);
+            if (qmake.exists()) {
+                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
+                    QDir dir(qmake.absoluteDir());
+                    dir.cdUp();
+                    return dir.absolutePath();
+                }
+            }
+        }
+    }
+    return QString();
+}
+
+// This code is more or less duplicated in qtversionmanager
+QString CMakeManager::findDumperLibrary(const ProjectExplorer::Environment &env)
+{
+    static ProjectExplorer::Environment lastenv;
+    static QString lastpath;
+    if (lastenv == env)
+        return lastpath;
+    QString qtdir = findQtDir(env);
+    if (qtdir.isEmpty())
+        return QString();
+
+    uint hash = qHash(qtdir);
+    QStringList directories;
+    directories
+            << (qtdir + "/qtc-debugging-helper/")
+            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
+            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
+    foreach(const QString &directory, directories) {
+#if defined(Q_OS_WIN)
+        QFileInfo fi(directory + "debug/gdbmacros.dll");
+#elif defined(Q_OS_MAC)
+        QFileInfo fi(directory + "libgdbmacros.dylib");
+#else // generic UNIX
+        QFileInfo fi(directory + "libgdbmacros.so");
+#endif
+        if (fi.exists()) {
+            lastpath = fi.filePath();
+            return lastpath;
+        }
+    }
+    lastpath = QString();
+    return lastpath;
+}
 
 /////
 // CMakeRunner

@@ -125,7 +125,7 @@ QWidget *CMakeRunConfiguration::configurationWidget()
 
 QString CMakeRunConfiguration::dumperLibrary() const
 {
-    return QString();
+    return CMakeManager::findDumperLibrary(environment());
 }
 
 // Factory
