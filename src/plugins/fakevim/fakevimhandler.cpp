@@ -367,11 +367,11 @@ public:
 
     // history for '/'
     QString lastSearchString() const;
-    QStringList m_searchHistory;
+    static QStringList m_searchHistory;
     int m_searchHistoryIndex;
 
     // history for ':'
-    QStringList m_commandHistory;
+    static QStringList m_commandHistory;
     int m_commandHistoryIndex;
 
     // visual line mode
@@ -403,6 +403,9 @@ public:
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 };
+
+QStringList FakeVimHandler::Private::m_searchHistory;
+QStringList FakeVimHandler::Private::m_commandHistory;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
