@@ -147,6 +147,7 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
     m_d->m_ui.setupUi(this);
     m_d->m_ui.description->setContextMenuPolicy(Qt::CustomContextMenu);
     m_d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
+    m_d->m_ui.description->setWordWrapMode(QTextOption::WordWrap);
     connect(m_d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(editorCustomContextMenuRequested(QPoint)));
 
@@ -165,7 +166,7 @@ SubmitEditorWidget::~SubmitEditorWidget()
     delete m_d;
 }
 
-void SubmitEditorWidget::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
+void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *editorRedoAction,
                          QAction *submitAction, QAction *diffAction)
 {
     if (editorUndoAction) {

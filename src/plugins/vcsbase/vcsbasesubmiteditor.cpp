@@ -109,11 +109,11 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
                                          Core::Utils::SubmitEditorWidget *editorWidget) :
     m_d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
-    // message font according to settings
+    // Message font according to settings
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
     QFont font = editorWidget->descriptionEdit()->font();
     font.setFamily(fs.family());
-    font.setPointSize((fs.fontSize() * 4) / 5);
+    font.setPointSize(fs.fontSize());
     editorWidget->descriptionEdit()->setFont(font);
 
     m_d->m_file->setModified(false);
