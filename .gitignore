@@ -56,6 +56,7 @@ examples/tools/plugandpaint/plugins
 include/*
 include/*/*
 lib/*
+lib64/*
 plugins/*/*
 release
 tmp

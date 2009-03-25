@@ -47,6 +47,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
+#include <cplusplus/TokenUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -182,13 +183,13 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
 
 CPPEditor::CPPEditor(QWidget *parent)
     : TextEditor::BaseTextEditor(parent)
+    , m_showingLink(false)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
-//    new QShortcut(QKeySequence("Ctrl+Alt+M"), this, SLOT(foo()), 0, Qt::WidgetShortcut);
 
 #ifdef WITH_TOKEN_MOVE_POSITION
     new QShortcut(QKeySequence::MoveToPreviousWord, this, SLOT(moveToPreviousToken()),
@@ -235,7 +236,7 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_methodCombo->setSizePolicy(policy);
 
-    QTreeView *methodView = new OverviewTreeView();
+    QTreeView *methodView = new OverviewTreeView;
     methodView->header()->hide();
     methodView->setItemsExpandable(false);
     m_methodCombo->setView(methodView);
@@ -586,7 +587,8 @@ void CPPEditor::switchDeclarationDefinition()
     }
 }
 
-CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
+CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
+                                      bool lookupDefinition)
 {
     Link link;
 
@@ -627,13 +629,15 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
     tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
     const int nameStart = tc.position();
     const int nameLength = tc.anchor() - tc.position();
+    tc.setPosition(endOfName);
 
-    // Drop out if we're at a number
-    if (characterAt(nameStart).isNumber())
+    // Drop out if we're at a number, string or comment
+    static TokenUnderCursor tokenUnderCursor;
+    const SimpleToken tk = tokenUnderCursor(tc);
+    if (tk.isLiteral() || tk.isComment())
         return link;
 
     // Evaluate the type of the expression under the cursor
-    tc.setPosition(endOfName);
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
     TypeOfExpression typeOfExpression;
@@ -642,10 +646,22 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor)
             typeOfExpression(expression, doc, lastSymbol);
 
     if (!resolvedSymbols.isEmpty()) {
-        Symbol *symbol = resolvedSymbols.first().second;
-        if (symbol) {
+        TypeOfExpression::Result result = resolvedSymbols.first();
+
+        if (result.first->isForwardClassDeclarationType()) {
+            while (! resolvedSymbols.isEmpty()) {
+                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+
+                if (! r.first->isForwardClassDeclarationType()) {
+                    result = r;
+                    break;
+                }
+            }
+        }
+
+        if (Symbol *symbol = result.second) {
             Symbol *def = 0;
-            if (!lastSymbol->isFunction())
+            if (lookupDefinition && !lastSymbol->isFunction())
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
@@ -804,8 +820,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 
 void CPPEditor::mouseMoveEvent(QMouseEvent *e)
 {
-    bool hasDestination = false;
-    Qt::CursorShape cursorShape;
+    bool linkFound = false;
 
     if (e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
@@ -819,33 +834,18 @@ void CPPEditor::mouseMoveEvent(QMouseEvent *e)
             onText = cursorRect(nextPos).right() >= e->x();
         }
 
-        const Link link = findLinkAt(cursor);
+        const Link link = findLinkAt(cursor, false);
 
         if (onText && !link.fileName.isEmpty()) {
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = cursor;
-            if (link.pos >= 0) {
-                sel.cursor.setPosition(link.pos);
-                sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
-            } else {
-                sel.cursor.select(QTextCursor::WordUnderCursor);
-            }
-            sel.format.setFontUnderline(true);
-            sel.format.setForeground(Qt::blue);
-            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
-            hasDestination = true;
-            cursorShape = Qt::PointingHandCursor;
+            showLink(link);
+            linkFound = true;
         }
     }
 
-    if (!hasDestination) {
-        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-        cursorShape = Qt::IBeamCursor;
-    }
+    if (!linkFound)
+        clearLink();
 
     TextEditor::BaseTextEditor::mouseMoveEvent(e);
-
-    viewport()->setCursor(cursorShape);
 }
 
 void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
@@ -855,8 +855,7 @@ void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
 
         const QTextCursor cursor = cursorForPosition(e->pos());
         if (openCppEditorAt(findLinkAt(cursor))) {
-            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-            viewport()->setCursor(Qt::IBeamCursor);
+            clearLink();
             e->accept();
             return;
         }
@@ -865,13 +864,42 @@ void CPPEditor::mouseReleaseEvent(QMouseEvent *e)
     TextEditor::BaseTextEditor::mouseReleaseEvent(e);
 }
 
+void CPPEditor::leaveEvent(QEvent *e)
+{
+    clearLink();
+    TextEditor::BaseTextEditor::leaveEvent(e);
+}
+
 void CPPEditor::keyReleaseEvent(QKeyEvent *e)
 {
     // Clear link emulation when Ctrl is released
-    if (e->key() == Qt::Key_Control) {
-        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-        viewport()->setCursor(Qt::IBeamCursor);
-    }
+    if (e->key() == Qt::Key_Control)
+        clearLink();
+
+    TextEditor::BaseTextEditor::keyReleaseEvent(e);
+}
+
+void CPPEditor::showLink(const Link &link)
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = textCursor();
+    sel.cursor.setPosition(link.pos);
+    sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
+    sel.format = m_linkFormat;
+    sel.format.setFontUnderline(true);
+    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
+    viewport()->setCursor(Qt::PointingHandCursor);
+    m_showingLink = true;
+}
+
+void CPPEditor::clearLink()
+{
+    if (!m_showingLink)
+        return;
+
+    setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+    viewport()->setCursor(Qt::IBeamCursor);
+    m_showingLink = false;
 }
 
 QList<int> CPPEditorEditable::context() const
@@ -916,6 +944,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
     highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
+
+    m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
 }
 
 

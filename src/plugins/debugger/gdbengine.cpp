@@ -29,6 +29,7 @@
 
 #include "gdbengine.h"
 
+#include "watchutils.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
@@ -152,87 +153,11 @@ enum GdbCommandType
     WatchDumpCustomEditValue,
 };
 
-QString dotEscape(QString str)
-{
-    str.replace(' ', '.');
-    str.replace('\\', '.');
-    str.replace('/', '.');
-    return str;
-}
-
-QString currentTime()
-{
-    return QTime::currentTime().toString("hh:mm:ss.zzz");
-}
-
 static int &currentToken()
 {
     static int token = 0;
     return token;
 }
-
-static bool isSkippableFunction(const QString &funcName, const QString &fileName)
-{
-    if (fileName.endsWith("kernel/qobject.cpp"))
-        return true;
-    if (fileName.endsWith("kernel/moc_qobject.cpp"))
-        return true;
-    if (fileName.endsWith("kernel/qmetaobject.cpp"))
-        return true;
-    if (fileName.endsWith(".moc"))
-        return true;
-
-    if (funcName.endsWith("::qt_metacall"))
-        return true;
-
-    return false;
-}
-
-static bool isLeavableFunction(const QString &funcName, const QString &fileName)
-{
-    if (funcName.endsWith("QObjectPrivate::setCurrentSender"))
-        return true;
-    if (fileName.endsWith("kernel/qmetaobject.cpp")
-            && funcName.endsWith("QMetaObject::methodOffset"))
-        return true;
-    if (fileName.endsWith("kernel/qobject.h"))
-        return true;
-    if (fileName.endsWith("kernel/qobject.cpp")
-            && funcName.endsWith("QObjectConnectionListVector::at"))
-        return true;
-    if (fileName.endsWith("kernel/qobject.cpp")
-            && funcName.endsWith("~QObject"))
-        return true;
-    if (fileName.endsWith("thread/qmutex.cpp"))
-        return true;
-    if (fileName.endsWith("thread/qthread.cpp"))
-        return true;
-    if (fileName.endsWith("thread/qthread_unix.cpp"))
-        return true;
-    if (fileName.endsWith("thread/qmutex.h"))
-        return true;
-    if (fileName.contains("thread/qbasicatomic"))
-        return true;
-    if (fileName.contains("thread/qorderedmutexlocker_p"))
-        return true;
-    if (fileName.contains("arch/qatomic"))
-        return true;
-    if (fileName.endsWith("tools/qvector.h"))
-        return true;
-    if (fileName.endsWith("tools/qlist.h"))
-        return true;
-    if (fileName.endsWith("tools/qhash.h"))
-        return true;
-    if (fileName.endsWith("tools/qmap.h"))
-        return true;
-    if (fileName.endsWith("tools/qstring.h"))
-        return true;
-    if (fileName.endsWith("global/qglobal.h"))
-        return true;
-
-    return false;
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -291,6 +216,19 @@ void GdbEngine::initializeConnections()
         this, SLOT(setDebugDumpers(bool)));
     connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
+
+    connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatDecimal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatOctal), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatBinary), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatRaw), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
+    connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
+        this, SLOT(reloadRegisters()));
 }
 
 void GdbEngine::initializeVariables()
@@ -349,12 +287,6 @@ void GdbEngine::gdbProcError(QProcess::ProcessError error)
     QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     // act as if it was closed by the core
     q->exitDebugger();
-}
-
-static inline bool isNameChar(char c)
-{
-    // could be 'stopped' or 'shlibs-added'
-    return (c >= 'a' && c <= 'z') || c == '-';
 }
 
 #if 0
@@ -497,7 +429,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                qq->showApplicationOutput(data);
+                qq->showApplicationOutput(data.mid(9)); // cut "warning: "
             break;
         }
 
@@ -1561,7 +1493,6 @@ int GdbEngine::currentFrame() const
 {
     return qq->stackHandler()->currentIndex();
 }
-
 
 bool GdbEngine::startDebugger()
 {
@@ -2656,7 +2587,19 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, int id)
 
 void GdbEngine::reloadRegisters()
 {
-    QString format = qq->registerHandler()->model()->property(PROPERTY_REGISTER_FORMAT).toString();
+    QString format;
+    if (theDebuggerAction(FormatHexadecimal)->isChecked())
+        format = "x";
+    else if (theDebuggerAction(FormatDecimal)->isChecked())
+        format = "d";
+    else if (theDebuggerAction(FormatOctal)->isChecked())
+        format = "o";
+    else if (theDebuggerAction(FormatBinary)->isChecked())
+        format = "t";
+    else if (theDebuggerAction(FormatRaw)->isChecked())
+        format = "r";
+    else
+        format = "N";
     sendCommand("-data-list-register-values " + format, RegisterListValues);
 }
 
@@ -2717,43 +2660,6 @@ static WatchData m_toolTip;
 static QString m_toolTipExpression;
 static QPoint m_toolTipPos;
 static QMap<QString, WatchData> m_toolTipCache;
-
-static bool hasLetterOrNumber(const QString &exp)
-{
-    for (int i = exp.size(); --i >= 0; )
-        if (exp[i].isLetterOrNumber() || exp[i] == '_')
-            return true;
-    return false;
-}
-
-static bool hasSideEffects(const QString &exp)
-{
-    // FIXME: complete?
-    return exp.contains("-=")
-        || exp.contains("+=")
-        || exp.contains("/=")
-        || exp.contains("*=")
-        || exp.contains("&=")
-        || exp.contains("|=")
-        || exp.contains("^=")
-        || exp.contains("--")
-        || exp.contains("++");
-}
-
-static bool isKeyWord(const QString &exp)
-{
-    // FIXME: incomplete
-    return exp == QLatin1String("class")
-        || exp == QLatin1String("const")
-        || exp == QLatin1String("do")
-        || exp == QLatin1String("if")
-        || exp == QLatin1String("return")
-        || exp == QLatin1String("struct")
-        || exp == QLatin1String("template")
-        || exp == QLatin1String("void")
-        || exp == QLatin1String("volatile")
-        || exp == QLatin1String("while");
-}
 
 void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 {
@@ -2861,85 +2767,6 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
-static bool isPointerType(const QString &type)
-{
-    return type.endsWith("*") || type.endsWith("* const");
-}
-
-static bool isAccessSpecifier(const QString &str)
-{
-    static const QStringList items =
-        QStringList() << "private" << "protected" << "public";
-    return items.contains(str);
-}
-
-static bool startsWithDigit(const QString &str)
-{
-    return !str.isEmpty() && str[0] >= '0' && str[0] <= '9';
-}
-
-QString stripPointerType(QString type)
-{
-    if (type.endsWith("*"))
-        type.chop(1);
-    if (type.endsWith("* const"))
-        type.chop(7);
-    if (type.endsWith(' '))
-        type.chop(1);
-    return type;
-}
-
-static QString gdbQuoteTypes(const QString &type)
-{
-    // gdb does not understand sizeof(Core::IFile*).
-    // "sizeof('Core::IFile*')" is also not acceptable,
-    // it needs to be "sizeof('Core::IFile'*)"
-    //
-    // We never will have a perfect solution here (even if we had a full blown
-    // C++ parser as we do not have information on what is a type and what is
-    // a variable name. So "a<b>::c" could either be two comparisons of values
-    // 'a', 'b' and '::c', or a nested type 'c' in a template 'a<b>'. We
-    // assume here it is the latter.
-    //return type;
-
-    // (*('myns::QPointer<myns::QObject>*'*)0x684060)" is not acceptable
-    // (*('myns::QPointer<myns::QObject>'**)0x684060)" is acceptable
-    if (isPointerType(type))
-        return gdbQuoteTypes(stripPointerType(type)) + "*";
-
-    QString accu;
-    QString result;
-    int templateLevel = 0;
-    for (int i = 0; i != type.size(); ++i) {
-        QChar c = type.at(i);
-        if (c.isLetterOrNumber() || c == '_' || c == ':' || c == ' ') {
-            accu += c;
-        } else if (c == '<') {
-            ++templateLevel;
-            accu += c;
-        } else if (c == '<') {
-            --templateLevel;
-            accu += c;
-        } else if (templateLevel > 0) {
-            accu += c;
-        } else {
-            if (accu.contains(':') || accu.contains('<'))
-                result += '\'' + accu + '\'';
-            else
-                result += accu;
-            accu.clear();
-            result += c;
-        }
-    }
-    if (accu.contains(':') || accu.contains('<'))
-        result += '\'' + accu + '\'';
-    else
-        result += accu;
-    //qDebug() << "GDB_QUOTING" << type << " TO " << result;
-
-    return result;
-}
-
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
@@ -3021,68 +2848,6 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid())
         data.saddr = mi.data();
-}
-
-static bool extractTemplate(const QString &type, QString *tmplate, QString *inner)
-{
-    // Input "Template<Inner1,Inner2,...>::Foo" will return "Template::Foo" in
-    // 'tmplate' and "Inner1@Inner2@..." etc in 'inner'. Result indicates
-    // whether parsing was successful
-    int level = 0;
-    bool skipSpace = false;
-    for (int i = 0; i != type.size(); ++i) {
-        QChar c = type[i];
-        if (c == ' ' && skipSpace) {
-            skipSpace = false;
-        } else if (c == '<') {
-            *(level == 0 ? tmplate : inner) += c;
-            ++level;
-        } else if (c == '>') {
-            --level;
-            *(level == 0 ? tmplate : inner) += c;
-        } else if (c == ',') {
-            *inner += (level == 1) ? '@' : ',';
-            skipSpace = true;
-        } else {
-            *(level == 0 ? tmplate : inner) += c;
-        }
-    }
-    *tmplate = tmplate->trimmed();
-    *tmplate = tmplate->remove("<>");
-    *inner = inner->trimmed();
-    //qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
-    return !inner->isEmpty();
-}
-
-static QString extractTypeFromPTypeOutput(const QString &str)
-{
-    int pos0 = str.indexOf('=');
-    int pos1 = str.indexOf('{');
-    int pos2 = str.lastIndexOf('}');
-    QString res = str;
-    if (pos0 != -1 && pos1 != -1 && pos2 != -1)
-        res = str.mid(pos0 + 2, pos1 - 1 - pos0)
-            + " ... " + str.right(str.size() - pos2);
-    return res.simplified();
-}
-
-static bool isIntOrFloatType(const QString &type)
-{
-    static const QStringList types = QStringList()
-        << "char" << "int" << "short" << "float" << "double" << "long"
-        << "bool" << "signed char" << "unsigned" << "unsigned char"
-        << "unsigned int" << "unsigned long" << "long long"
-        << "unsigned long long";
-    return types.contains(type);
-}
-
-static QString sizeofTypeExpression(const QString &type)
-{
-    if (type.endsWith('*'))
-        return "sizeof(void*)";
-    if (type.endsWith('>'))
-        return "sizeof(" + type + ")";
-    return "sizeof(" + gdbQuoteTypes(type) + ")";
 }
 
 void GdbEngine::setUseDumpers(bool on)
@@ -4304,4 +4069,3 @@ IDebuggerEngine *createGdbEngine(DebuggerManager *parent)
 {
     return new GdbEngine(parent);
 }
-

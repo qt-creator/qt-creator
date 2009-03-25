@@ -154,6 +154,9 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
     }
 
+    const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
+    const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
+
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
         Name *name = 0;
@@ -172,6 +175,10 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
+            if (isQ_SIGNAL)
+                fun->setMethodKey(Function::SignalMethod);
+            else if (isQ_SLOT)
+                fun->setMethodKey(Function::SlotMethod);
             fun->setVisibility(semantic()->currentVisibility());
         } else if (semantic()->currentMethodKey() != Function::NormalMethod) {
             translationUnit()->warning(ast->firstToken(),
@@ -258,6 +265,14 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());
     fun->setMethodKey(semantic()->currentMethodKey());
+
+    const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
+    const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
+
+    if (isQ_SIGNAL)
+        fun->setMethodKey(Function::SignalMethod);
+    else if (isQ_SLOT)
+        fun->setMethodKey(Function::SlotMethod);
 
     checkFunctionArguments(fun);
 

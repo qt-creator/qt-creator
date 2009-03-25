@@ -156,9 +156,6 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
     connect(m_d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(diffActivated(QModelIndex)));
 
-    // Text
-    m_d->m_ui.description->setFont(QFont(QLatin1String("Courier")));
-
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(m_d->m_ui.description);
 }

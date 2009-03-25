@@ -370,9 +370,12 @@ WatchHandler::WatchHandler()
 
     connect(theDebuggerAction(WatchExpression),
         SIGNAL(triggered()), this, SLOT(watchExpression()));
-
     connect(theDebuggerAction(RemoveWatchExpression),
         SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
+    connect(theDebuggerAction(ExpandItem),
+        SIGNAL(triggered()), this, SLOT(expandChildren()));
+    connect(theDebuggerAction(CollapseItem),
+        SIGNAL(triggered()), this, SLOT(collapseChildren()));
 }
 
 static QString niceType(QString type)
@@ -748,7 +751,8 @@ void WatchHandler::rebuildModel()
 
     m_inChange = true;
     //qDebug() << "WATCHHANDLER: RESET ABOUT TO EMIT";
-    emit reset();
+    //emit reset();
+    emit layoutChanged();
     //qDebug() << "WATCHHANDLER: RESET EMITTED";
     m_inChange = false;
 
@@ -785,15 +789,19 @@ void WatchHandler::cleanup()
     emit reset();
 }
 
-void WatchHandler::collapseChildren(const QModelIndex &idx)
+void WatchHandler::collapseChildren()
+{
+    if (QAction *act = qobject_cast<QAction *>(sender()))
+        collapseChildren(act->data().toString());
+}
+
+void WatchHandler::collapseChildren(const QString &iname)
 {
     if (m_inChange || m_completeSet.isEmpty()) {
-        qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << idx;
+        qDebug() << "WATCHHANDLER: COLLAPSE IGNORED" << iname;
         return;
     }
-    QTC_ASSERT(checkIndex(idx.internalId()), return);
-    QString iname0 = m_displaySet.at(idx.internalId()).iname;
-    MODEL_DEBUG("COLLAPSE NODE" << iname0);
+    MODEL_DEBUG("COLLAPSE NODE" << iname);
 #if 0
     QString iname1 = iname0 + '.';
     for (int i = m_completeSet.size(); --i >= 0; ) {
@@ -806,19 +814,32 @@ void WatchHandler::collapseChildren(const QModelIndex &idx)
         }
     }
 #endif
-    m_expandedINames.remove(iname0);
+    m_expandedINames.remove(iname);
     //MODEL_DEBUG(toString());
     //rebuildModel();
 }
 
-void WatchHandler::expandChildren(const QModelIndex &idx)
+void WatchHandler::expandChildren()
+{
+    if (QAction *act = qobject_cast<QAction *>(sender()))
+        expandChildren(act->data().toString());
+}
+
+void WatchHandler::expandChildren(const QString &iname)
 {
     if (m_inChange || m_completeSet.isEmpty()) {
-        //qDebug() << "WATCHHANDLER: EXPAND IGNORED" << idx;
+        //qDebug() << "WATCHHANDLER: EXPAND IGNORED" << iname;
         return;
     }
-    int index = idx.internalId();
-    if (index == 0)
+    int index = -1;
+    for (int i = 0; i != m_displaySet.size(); ++i) {
+        if (m_displaySet.at(i).iname == iname) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1)
         return;
     QTC_ASSERT(index >= 0, qDebug() << toString() << index; return);
     QTC_ASSERT(index < m_completeSet.size(), qDebug() << toString() << index; return);
@@ -832,8 +853,7 @@ void WatchHandler::expandChildren(const QModelIndex &idx)
         // "expand()" signals folr the root item from time to time.
         // Try to handle that gracfully.
         //MODEL_DEBUG(toString());
-        qDebug() << "FIXME: expandChildren, no data " << display.iname << "found"
-            << idx;
+        qDebug() << "FIXME: expandChildren, no data " << display.iname << "found";
         //rebuildModel();
         return;
     }

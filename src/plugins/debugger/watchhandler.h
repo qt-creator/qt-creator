@@ -165,8 +165,10 @@ public:
     Q_SLOT void removeWatchExpression(const QString &exp);
     void reinitializeWatchers();
 
-    void collapseChildren(const QModelIndex &idx);
-    void expandChildren(const QModelIndex &idx);
+    Q_SLOT void collapseChildren();
+    Q_SLOT void expandChildren();
+    Q_SLOT void collapseChildren(const QString &iname);
+    Q_SLOT void expandChildren(const QString &iname);
 
     void rebuildModel(); // unconditionally version of above
     void showEditValue(const WatchData &data);

@@ -1255,6 +1255,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_document(new BaseTextDocument()),
     m_parenthesesMatchingEnabled(false),
     m_extraArea(0),
+    m_mouseOnCollapsedMarker(false),
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
@@ -2421,22 +2422,30 @@ void BaseTextEditorPrivate::clearVisibleCollapsedBlock()
 void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
 {
     d->m_lastEventWasBlockSelectionEvent = (e->modifiers() & Qt::AltModifier);
-    if (e->buttons() == 0) {
-        QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
-        int blockNumber = collapsedBlock.next().blockNumber();
+    if (e->buttons() == Qt::NoButton) {
+        const QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
+        const int blockNumber = collapsedBlock.next().blockNumber();
         if (blockNumber < 0) {
             d->clearVisibleCollapsedBlock();
         } else if (blockNumber != d->visibleCollapsedBlockNumber) {
             d->suggestedVisibleCollapsedBlockNumber = blockNumber;
             d->collapsedBlockTimer.start(40, this);
         }
-        viewport()->setCursor(collapsedBlock.isValid() ? Qt::PointingHandCursor : Qt::IBeamCursor);
+
+        // Update the mouse cursor
+        if (collapsedBlock.isValid() && !d->m_mouseOnCollapsedMarker) {
+            d->m_mouseOnCollapsedMarker = true;
+            viewport()->setCursor(Qt::PointingHandCursor);
+        } else if (!collapsedBlock.isValid() && d->m_mouseOnCollapsedMarker) {
+            d->m_mouseOnCollapsedMarker = false;
+            viewport()->setCursor(Qt::IBeamCursor);
+        }
     } else {
         QPlainTextEdit::mouseMoveEvent(e);
     }
     if (d->m_lastEventWasBlockSelectionEvent && d->m_inBlockSelectionMode) {
         if (textCursor().atBlockEnd()) {
-            d->m_blockSelectionExtraX = qMax(0, e->pos().x() - cursorRect().center().x()) / fontMetrics().width(QLatin1Char('x'));
+            d->m_blockSelectionExtraX = qMax(0, e->pos().x() - cursorRect().center().x()) / fontMetrics().averageCharWidth();
         } else {
             d->m_blockSelectionExtraX = 0;
         }

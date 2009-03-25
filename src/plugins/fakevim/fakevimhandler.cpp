@@ -1512,6 +1512,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             if (leftText.simplified().isEmpty())
                 indentRegion(text.at(0));
         }
+        
+        if (text.at(0) == '.' || text.at(0) == '>')
+            emit q->completionRequested();
     } else {
         return EventUnhandled;
     }

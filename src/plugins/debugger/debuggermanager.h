@@ -231,8 +231,6 @@ public slots:
 
     void addToWatchWindow();
     void updateWatchModel();
-    void expandChildren(const QModelIndex &idx);
-    void collapseChildren(const QModelIndex &idx);
     
     void sessionLoaded();
     void aboutToSaveSession();

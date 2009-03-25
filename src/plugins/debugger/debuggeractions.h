@@ -134,16 +134,14 @@ enum DebuggerActionCode
     SettingsDialog,
     AdjustColumnWidths,
     AlwaysAdjustColumnWidths,
-
+    AutoQuit,
+    TerminalApplication,
     LockView,
 
     // Gdb
     GdbLocation,
     GdbEnvironment,
     GdbScriptFile,
-    GdbAutoRun,
-    GdbAutoQuit,
-    Terminal,
 
     // Watchers & Locals
     WatchExpression,
@@ -152,6 +150,8 @@ enum DebuggerActionCode
     WatchModelUpdate,
     UseToolTips,
     AssignValue,
+    ExpandItem,
+    CollapseItem,
 
     RecheckDumpers,
     UsePrebuiltDumpers,
@@ -173,7 +173,13 @@ enum DebuggerActionCode
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
 
-    AutoQuit,
+    // Registers
+    FormatHexadecimal,
+    FormatDecimal,
+    FormatOctal,
+    FormatBinary,
+    FormatRaw,
+    FormatNatural,
 };
 
 // singleton access

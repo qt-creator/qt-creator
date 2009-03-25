@@ -54,6 +54,8 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
 
+    virtual QString fileContents() const;
+
 signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
 

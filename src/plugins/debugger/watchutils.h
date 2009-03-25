@@ -27,54 +27,44 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_WATCHWINDOW_H
-#define DEBUGGER_WATCHWINDOW_H
+#ifndef WATCHUTILS_H
+#define WATCHUTILS_H
 
-#include <QtGui/QTreeView>
+#include <QtCore/QString>
+
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-/////////////////////////////////////////////////////////////////////
-//
-// WatchWindow
-//
-/////////////////////////////////////////////////////////////////////
+QString dotEscape(QString str);
+QString currentTime();
+bool isSkippableFunction(const QString &funcName, const QString &fileName);
+bool isLeavableFunction(const QString &funcName, const QString &fileName);
 
-class WatchWindow : public QTreeView
+inline bool isNameChar(char c)
 {
-    Q_OBJECT
+    // could be 'stopped' or 'shlibs-added'
+    return (c >= 'a' && c <= 'z') || c == '-';
+}
 
-public:
-    enum Type { LocalsType, TooltipType, WatchersType };
-
-    WatchWindow(Type type, QWidget *parent = 0);
-    void setType(Type type) { m_type = type; }
-    Type type() const { return m_type; }
-    
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on = true);
-    void setModel(QAbstractItemModel *model);
-
-private:
-    Q_SLOT void expandNode(const QModelIndex &index);
-    Q_SLOT void collapseNode(const QModelIndex &index);
-    Q_SLOT void resetHelper();
-
-    void keyPressEvent(QKeyEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void editItem(const QModelIndex &idx);
-    void reset(); /* reimpl */
-
-    void resetHelper(const QModelIndex &idx);
-
-    bool m_alwaysResizeColumnsToContents;
-    Type m_type;
-};
+bool hasLetterOrNumber(const QString &exp);
+bool hasSideEffects(const QString &exp);
+bool isKeyWord(const QString &exp);
+bool isPointerType(const QString &type);
+bool isAccessSpecifier(const QString &str);
+bool startsWithDigit(const QString &str);
+QString stripPointerType(QString type);
+QString gdbQuoteTypes(const QString &type);
+bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
+QString extractTypeFromPTypeOutput(const QString &str);
+bool isIntOrFloatType(const QString &type);
+QString sizeofTypeExpression(const QString &type);
 
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_WATCHWINDOW_H
+#endif // WATCHUTILS_H

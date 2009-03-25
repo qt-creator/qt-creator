@@ -265,7 +265,7 @@ private:
     //
     // Register specific stuff
     // 
-    void reloadRegisters();
+    Q_SLOT void reloadRegisters();
     void handleRegisterListNames(const GdbResultRecord &record);
     void handleRegisterListValues(const GdbResultRecord &record);
 

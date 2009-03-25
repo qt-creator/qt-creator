@@ -2381,10 +2381,12 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
 bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
                                     bool acceptStructDeclarator)
 {
+    unsigned qt_invokable_token = 0;
+    if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
+        qt_invokable_token = consumeToken();
+
     // parse a simple declaration, a function definition,
     // or a contructor declaration.
-    cursor();
-
     bool has_type_specifier = false;
     bool has_complex_type_specifier = false;
     unsigned startOfNamedTypeSpecifier = 0;
@@ -2498,6 +2500,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
             }
         }
         SimpleDeclarationAST *ast = new (_pool) SimpleDeclarationAST;
+        ast->qt_invokable_token = qt_invokable_token;
         ast->decl_specifier_seq = decl_specifier_seq;
         ast->declarators = declarator_list;
         match(T_SEMICOLON, &ast->semicolon_token);
@@ -2510,6 +2513,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 
         if (LA() == T_LBRACE) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
+            ast->qt_invokable_token = qt_invokable_token;
             ast->decl_specifier_seq = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
@@ -2518,6 +2522,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
             return true; // recognized a function definition.
         } else if (LA() == T_TRY) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
+            ast->qt_invokable_token = qt_invokable_token;
             ast->decl_specifier_seq = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;

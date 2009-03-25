@@ -396,6 +396,7 @@ protected:
 class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
 {
 public:
+    unsigned qt_invokable_token;
     SpecifierAST *decl_specifier_seq;
     DeclaratorListAST *declarators;
     unsigned semicolon_token;
@@ -1071,6 +1072,7 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
 {
 public:
+    unsigned qt_invokable_token;
     SpecifierAST *decl_specifier_seq;
     DeclaratorAST *declarator;
     CtorInitializerAST *ctor_initializer;

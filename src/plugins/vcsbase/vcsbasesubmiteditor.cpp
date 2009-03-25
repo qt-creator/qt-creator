@@ -41,6 +41,8 @@
 #include <utils/submiteditorwidget.h>
 #include <utils/submitfieldwidget.h>
 #include <find/basetextfind.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -107,6 +109,13 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
                                          Core::Utils::SubmitEditorWidget *editorWidget) :
     m_d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
+    // message font according to settings
+    const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
+    QFont font = editorWidget->descriptionEdit()->font();
+    font.setFamily(fs.family());
+    font.setPointSize((fs.fontSize() * 4) / 5);
+    editorWidget->descriptionEdit()->setFont(font);
+
     m_d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
     connect(m_d->m_file, SIGNAL(saveMe(QString)), this, SLOT(save(QString)));

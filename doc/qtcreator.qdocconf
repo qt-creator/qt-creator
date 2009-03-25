@@ -8,6 +8,7 @@ sourcedirs =
 sourcedirs = $SRCDIR
 imagedirs = $SRCDIR
 outputdir = $OUTDIR
+exampledirs = $SRCDIR
 
 extraimages.HTML        = qt-logo \
                           trolltech-logo

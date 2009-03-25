@@ -104,6 +104,7 @@ private:
     bool startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage);
     void startWatchTimer();
     void killWatchTimer();
+    void processTerminated(unsigned long exitCode);
 
     CdbDebugEnginePrivate *m_d;
 

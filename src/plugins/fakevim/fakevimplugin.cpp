@@ -116,6 +116,7 @@ private slots:
     void installHandlerOnCurrentEditor();
     void installHandler(Core::IEditor *editor);
     void removeHandler();
+    void triggerCompletions();
 
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
@@ -208,6 +209,8 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
     connect(handler, SIGNAL(indentRegion(int*,int,int,QChar)),
         this, SLOT(indentRegion(int*,int,int,QChar)));
+    connect(handler, SIGNAL(completionRequested()),
+        this, SLOT(triggerCompletions()));
 
     handler->setupWidget();
     handler->setExtraData(editor);
@@ -233,6 +236,15 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 void FakeVimPluginPrivate::installHandlerOnCurrentEditor()
 {
     installHandler(EditorManager::instance()->currentEditor());
+}
+
+void FakeVimPluginPrivate::triggerCompletions()
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+        bt->triggerCompletions();
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,
