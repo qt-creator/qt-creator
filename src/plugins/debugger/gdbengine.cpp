@@ -3127,13 +3127,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         qDebug() << "IT'S A POINTER";
         #endif
 #if 1
-        WatchData data1;
-        data1.iname = data.iname + ".*";
-        data1.name = "*" + data.name;
-        data1.exp = "(*(" + data.exp + "))";
-        data1.type = stripPointerType(data.type);
-        data1.setValueNeeded();
-        insertData(data1);
+        insertData(data.pointerChildPlaceHolder());
         data.setChildrenUnneeded();
         insertData(data);
 #else

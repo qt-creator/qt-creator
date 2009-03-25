@@ -98,9 +98,11 @@ public:
     void setChildCount(int n) { childCount = n; setChildCountUnneeded();
         if (n == 0) setChildrenUnneeded(); }
 
+    WatchData pointerChildPlaceHolder() const;
+
     QString toString() const;
     bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
-    bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); };
+    bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); }
     bool isValid() const { return !iname.isEmpty(); }
 
 public:
