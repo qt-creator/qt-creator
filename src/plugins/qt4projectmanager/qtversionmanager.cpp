@@ -491,7 +491,7 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
 void QtDirWidget::buildDebuggingHelper()
 {
     // Find the qt version for this button..
-    int index = indexForWidget(qobject_cast<QWidget *>(sender());
+    int index = indexForWidget(qobject_cast<QWidget *>(sender()));
     if (index == -1)
         return;
 
@@ -499,7 +499,8 @@ void QtDirWidget::buildDebuggingHelper()
     QTreeWidgetItem *item = m_ui.qtdirList->topLevelItem(index);
     item->setData(2, Qt::UserRole, result);
 
-    DebuggingHelperWidget *dhw = qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(item, 2));
+    DebuggingHelperWidget *dhw =
+        qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(item, 2));
     if (dhw) {
         if (m_versions.at(index)->hasDebuggingHelper())
             dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Ok | DebuggingHelperWidget::ShowLog));
@@ -508,10 +509,10 @@ void QtDirWidget::buildDebuggingHelper()
     }
 }
 
-int QtDirWidget::indexFor(QWidget *debuggingHelperWidget) const
+int QtDirWidget::indexForWidget(QWidget *widget) const
 {
     int index = -1;
-    for(int i=0; i < m_ui.qtdirList->topLevelItemCount(); ++i) {
+    for (int i = 0; i < m_ui.qtdirList->topLevelItemCount(); ++i) {
         if (m_ui.qtdirList->itemWidget(m_ui.qtdirList->topLevelItem(i), 2) == widget) {
             index = i;
             break;
@@ -522,12 +523,12 @@ int QtDirWidget::indexFor(QWidget *debuggingHelperWidget) const
 
 void QtDirWidget::showDebuggingBuildLog()
 {
-    int index = indexForWidget(qobject_cast<QWidget *>(sender());
+    int index = indexForWidget(qobject_cast<QWidget *>(sender()));
     if (index == -1)
         return;
 
     QDialog dlg;
-    ::Ui::ShowBuildLog ui;
+    Ui_ShowBuildLog ui;
     ui.setupUi(&dlg);
     ui.log->setPlainText(m_ui.qtdirList->topLevelItem(index)->data(2, Qt::UserRole).toString());
     dlg.exec();

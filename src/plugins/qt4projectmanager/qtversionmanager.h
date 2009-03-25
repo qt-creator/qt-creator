@@ -136,10 +136,11 @@ public:
     QList<QtVersion *> versions() const;
     int defaultVersion() const;
     void finish();
+
 private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
-    int indexFor(QWidget *debuggingHelperWidget) const;
+    int indexForWidget(QWidget *debuggingHelperWidget) const;
     Ui::QtVersionManager m_ui;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
