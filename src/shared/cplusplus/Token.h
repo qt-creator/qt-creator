@@ -232,6 +232,8 @@ enum Kind {
     // Qt keywords
     T_SIGNAL = T_FIRST_QT_KEYWORD,
     T_SLOT,
+    T_Q_SIGNAL,
+    T_Q_SLOT,
     T_SIGNALS,
     T_SLOTS,
 
