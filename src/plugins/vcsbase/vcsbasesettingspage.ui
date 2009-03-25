@@ -38,6 +38,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="lineWrapSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimum">
               <number>40</number>
              </property>
@@ -79,7 +82,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="Core::Utils::PathChooser" name="submitMessageCheckScriptChooser"/>
+          <widget class="Core::Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="nickNameMailMapLabel">
@@ -93,7 +96,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="Core::Utils::PathChooser" name="nickNameMailMapChooser"/>
+          <widget class="Core::Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="nickNameFieldsFileLabel">
@@ -106,7 +109,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="Core::Utils::PathChooser" name="nickNameFieldsFileChooser"/>
+          <widget class="Core::Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
          </item>
         </layout>
        </item>
@@ -151,5 +154,22 @@ name &lt;email&gt; alias &lt;email&gt;</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineWrapCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineWrapSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
