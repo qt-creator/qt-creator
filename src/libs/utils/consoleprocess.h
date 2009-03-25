@@ -41,8 +41,10 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+QT_BEGIN_NAMESPACE
 class QWinEventNotifier;
 class QTemporaryFile;
+QT_END_NAMESPACE
 #endif
 
 namespace Core {
