@@ -47,6 +47,7 @@
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
+#include <texteditor/completionsupport.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/interactionsettings.h>
@@ -244,7 +245,9 @@ void FakeVimPluginPrivate::triggerCompletions()
     if (!handler)
         return;
     if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
-        bt->triggerCompletions();
+        TextEditor::Internal::CompletionSupport::instance()->
+            autoComplete(bt->editableInterface(), false);
+   //     bt->triggerCompletions();
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,

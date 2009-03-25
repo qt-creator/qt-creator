@@ -358,6 +358,7 @@ public:
 
     // extra data for '.'
     QString m_dotCommand;
+    bool m_inReplay; // true if we are executing a '.'
 
     // extra data for ';'
     QString m_semicolonCount;
@@ -424,8 +425,9 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_anchor = 0;
     m_savedYankPosition = 0;
     m_cursorWidth = EDITOR(cursorWidth());
+    m_inReplay = false;
 
-#if 1
+#if 0
     // Plain
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigHlSearch]    = ConfigOn;
@@ -1012,9 +1014,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         qDebug() << "REPEATING" << m_dotCommand;
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
+        m_inReplay = true;
         for (int i = count(); --i >= 0; )
             foreach (QChar c, savedCommand)
                 handleKey(c.unicode(), c.unicode(), QString(c));
+        m_inReplay = false;
         enterCommandMode();
         m_dotCommand = savedCommand;
     } else if (key == '<' && m_visualMode == NoVisualMode) {
@@ -1512,8 +1516,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             if (leftText.simplified().isEmpty())
                 indentRegion(text.at(0));
         }
-        
-        if (text.at(0) == '.' || text.at(0) == '>')
+       
+        if (!m_inReplay) 
             emit q->completionRequested();
     } else {
         return EventUnhandled;

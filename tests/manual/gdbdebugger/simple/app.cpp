@@ -710,6 +710,7 @@ void testQString()
     str += " World ";
     str += " World ";
     str += " World ";
+    str.append(s);
 }
 
 void testQString3()
