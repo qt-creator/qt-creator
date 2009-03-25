@@ -88,6 +88,25 @@ using namespace Debugger::Constants;
 static const QString tooltipIName = "tooltip";
 
 
+static const char *stateName(int s)
+{
+    switch (s) {
+    case DebuggerProcessNotReady:
+        return "DebuggerProcessNotReady";
+    case DebuggerProcessStartingUp:
+        return "DebuggerProcessStartingUp";
+    case DebuggerInferiorRunningRequested:
+        return "DebuggerInferiorRunningRequested";
+    case DebuggerInferiorRunning:
+        return "DebuggerInferiorRunning";
+    case DebuggerInferiorStopRequested:
+        return "DebuggerInferiorStopRequested";
+    case DebuggerInferiorStopped:
+        return "DebuggerInferiorStopped";
+    }
+    return "<unknown>";
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // BreakByFunctionDialog
@@ -1133,13 +1152,16 @@ static bool isAllowedTransition(int from, int to)
 void DebuggerManager::setStatus(int status)
 {
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << m_status << "to" << status;
+        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << stateName(m_status) << "to" << stateName(status);
 
     if (status == m_status)
         return;
 
-    if (!isAllowedTransition(m_status, status))
-        qDebug() << "UNEXPECTED TRANSITION:  " << m_status << status;
+    if (!isAllowedTransition(m_status, status)) {
+        const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
+                            arg(QLatin1String(Q_FUNC_INFO), QLatin1String(stateName(m_status)), QLatin1String(stateName(status)));
+        qWarning("%s", qPrintable(msg));
+    }
 
     m_status = status;
 

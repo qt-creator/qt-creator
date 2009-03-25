@@ -1,5 +1,8 @@
+# Detect presence of "Debugging Tools For Windows"
+# in case VS compilers are used.      
+
 win32 {
-# ---- Detect Debugging Tools For Windows
+contains(QMAKE_CXX, cl) {
 
 CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
 
@@ -26,6 +29,7 @@ SOURCES += \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp
 } else {
-   error("Debugging Tools for Windows could not be found in $$CDB_PATH")
+   message("Debugging Tools for Windows could not be found in $$CDB_PATH")
+}
 }
 }

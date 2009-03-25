@@ -26,6 +26,7 @@ HEADERS += \
     debuggerrunner.h \
     disassemblerhandler.h \
     disassemblerwindow.h \
+    watchutils.h \
     gdbengine.h \
     gdbmi.h \
     idebuggerengine.h \
@@ -56,6 +57,7 @@ SOURCES += \
     debuggerrunner.cpp \
     disassemblerhandler.cpp \
     disassemblerwindow.cpp \
+    watchutils.cpp \
     gdbengine.cpp \
     gdbmi.cpp \
     moduleshandler.cpp \

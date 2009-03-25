@@ -192,9 +192,7 @@ STDMETHODIMP CdbDebugEventCallback::ExitProcess(
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << ExitCode;
-
-    m_pEngine->m_d->setDebuggeeHandles(0, 0);
-    m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorExited();
+    m_pEngine->processTerminated(ExitCode);
     return S_OK;
 }
 

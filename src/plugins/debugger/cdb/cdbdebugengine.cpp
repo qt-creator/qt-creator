@@ -360,6 +360,16 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
     return true;
 }
 
+void CdbDebugEngine::processTerminated(unsigned long exitCode)
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << exitCode;
+
+    m_d->setDebuggeeHandles(0, 0);
+    m_d->m_debuggerManagerAccess->notifyInferiorExited();
+    m_d->m_debuggerManager->exitDebugger();
+}
+
 void CdbDebugEngine::exitDebugger()
 {
     if (debugCDB)
@@ -380,7 +390,9 @@ void CdbDebugEngine::exitDebugger()
             break;
         case StartExternal:
         case StartInternal:            
+            // Terminate and waitr for stop events.
             hr = m_d->m_pDebugClient->TerminateCurrentProcess();
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             if (debugCDB)
                 qDebug() << Q_FUNC_INFO << "terminated" << msgDebugEngineComResult(hr);
 
@@ -469,7 +481,7 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
                 value = QLatin1String("<unknown>");
             }
             WatchData wd;
-            wd.iname = QLatin1String("local");
+            wd.iname = QLatin1String("local.") + name;
             wd.name = name;
             wd.value = value;
             wd.type  = type;
@@ -592,6 +604,7 @@ void CdbDebugEngine::continueInferior()
     m_d->m_debuggerManager->resetLocation();
 
     ULONG executionStatus;
+    m_d->m_debuggerManagerAccess->notifyInferiorRunningRequested();
     HRESULT hr = m_d->m_pDebugControl->GetExecutionStatus(&executionStatus);
     if (SUCCEEDED(hr) && executionStatus != DEBUG_STATUS_GO) {
         hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_GO);
@@ -654,8 +667,10 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
 
-    if (m_d->m_debuggerManager->status() != DebuggerInferiorStopped)
+    if (m_d->m_debuggerManager->status() != DebuggerInferiorStopped) {
+        qWarning("WARNING %s: invoked while debuggee is running\n", Q_FUNC_INFO);
         return;
+    }
 
     QString errorMessage;
     bool success = false;
@@ -793,7 +808,7 @@ void CdbDebugEngine::timerEvent(QTimerEvent* te)
     const HRESULT hr = m_d->m_pDebugControl->WaitForEvent(0, 1);
     if (debugCDB)
         if (debugCDB > 1 || hr != S_FALSE)
-            qDebug() << Q_FUNC_INFO << "WaitForEvent" << msgDebugEngineComResult(hr);
+            qDebug() << Q_FUNC_INFO << "WaitForEvent" << m_d->m_debuggerManager->status() <<   msgDebugEngineComResult(hr);
 
     switch (hr) {
         case S_OK:
@@ -974,9 +989,10 @@ void CdbDebugEnginePrivate::updateStackTrace()
     }
 }
 
-void CdbDebugEnginePrivate::handleDebugOutput(const char* szOutputString)
+void CdbDebugEnginePrivate::handleDebugOutput(const char *szOutputString)
 {
-    qDebug() << Q_FUNC_INFO << szOutputString;
+    if (debugCDB && strstr(szOutputString, "ModLoad:") == 0)
+        qDebug() << Q_FUNC_INFO << szOutputString;
     m_debuggerManagerAccess->showApplicationOutput(QString::fromLocal8Bit(szOutputString));
 }
 
