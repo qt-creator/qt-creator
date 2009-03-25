@@ -313,7 +313,7 @@ OutputWindow::OutputWindow(QWidget *parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    //setMaximumBlockCount(10000);
+    setMaximumBlockCount(100000);
     setWindowTitle(tr("Application Output Window"));
     setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
