@@ -34,6 +34,7 @@
 #include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "watchutils.h"
 
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
@@ -406,6 +407,49 @@ void CdbDebugEngine::exitDebugger()
     killWatchTimer();
 }
 
+// Retrieve a symbol
+static WatchData symbolToWatchData(ULONG index, const QString &namePrefix,
+                                   IDebugSymbolGroup2 *pDbgSymGroup)
+{
+    // retrieve symbol names and value strings
+    ULONG nameLength;
+    static WCHAR nameBuffer[MAX_PATH + 1];
+    // Name
+    pDbgSymGroup->GetSymbolNameWide(index, nameBuffer, MAX_PATH, &nameLength);
+    nameBuffer[nameLength] = 0;
+    const QString name = QString::fromUtf16(nameBuffer);
+    // Type name
+    pDbgSymGroup->GetSymbolTypeNameWide(index, nameBuffer, MAX_PATH, &nameLength);
+    nameBuffer[nameLength] = 0;
+    const QString type = QString::fromUtf16(nameBuffer);
+    // Value
+    QString value;
+    const HRESULT hr = pDbgSymGroup->GetSymbolValueTextWide(index, nameBuffer, MAX_PATH, &nameLength);
+    if (SUCCEEDED(hr)) {
+        nameBuffer[nameLength] = 0;
+        value = QString::fromUtf16(nameBuffer);
+    } else {
+        value = QLatin1String("<unknown>");
+    }
+    WatchData wd;
+    wd.iname =namePrefix + name;
+    wd.name = name;
+    wd.value = value;
+    wd.type = type;
+    if (isPointerType(type)) {
+        wd.setTypeUnneeded();
+        wd.setValueUnneeded();
+    } else {
+        wd.setAllUnneeded();
+    }
+    if (debugCDB) {
+        qDebug() << Q_FUNC_INFO << index << "state=0x" << QString::number(wd.state, 16)
+                << wd.name << " type=" << wd.type << " (" << type << ')'
+                << " value " << wd.value << " (" << value << ')';
+    }
+    return wd;
+}
+
 bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
                                          WatchHandler *wh,
                                          QString *errorMessage)
@@ -459,36 +503,17 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
             break;
         }
         wh->cleanup();
-        // retrieve symbol names and value strings
-        ULONG nameLength;
-        WCHAR nameBuffer[MAX_PATH + 1];
+        // retrieve symbol names and value strings.
+        // Add a dummy place holder in case children are needed
+        const QString localPrefix = QLatin1String("local.");
         for (ULONG s = 0 ; s < symbolCount ; s++ ) {
-            // Name
-            pDbgSymGroup->GetSymbolNameWide(s, nameBuffer, MAX_PATH, &nameLength);
-            nameBuffer[nameLength] = 0;
-            const QString name = QString::fromUtf16(nameBuffer);
-            // Type name
-            pDbgSymGroup->GetSymbolTypeNameWide(s, nameBuffer, MAX_PATH, &nameLength);
-            nameBuffer[nameLength] = 0;
-            const QString type = QString::fromUtf16(nameBuffer);
-            // Value
-            QString value;
-            hr = pDbgSymGroup->GetSymbolValueTextWide(s, nameBuffer, MAX_PATH, &nameLength);
-            if (SUCCEEDED(hr)) {
-                nameBuffer[nameLength] = 0;
-                value = QString::fromUtf16(nameBuffer);
-            } else {
-                value = QLatin1String("<unknown>");
+            WatchData wd = symbolToWatchData(s, localPrefix, pDbgSymGroup);
+            if (wd.isSomethingNeeded()) {
+                wh->insertData(wd.pointerChildPlaceHolder());
+                wd.setAllUnneeded();
+                wd.setChildCount(1);
             }
-            WatchData wd;
-            wd.iname = QLatin1String("local.") + name;
-            wd.name = name;
-            wd.value = value;
-            wd.type  = type;
-            wd.setAllUnneeded();
             wh->insertData(wd);
-            if (debugCDB)
-                qDebug() << ' '  << s << '/'<< symbolCount << name << type << value;
         }
         wh->rebuildModel();
         success = true;

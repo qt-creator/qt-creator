@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "watchhandler.h"
+#include "watchutils.h"
 #include "debuggeractions.h"
 
 #if USE_MODEL_TEST
@@ -38,12 +39,14 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
+#include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QToolTip>
 #include <QtGui/QTextEdit>
+
 
 #include <ctype.h>
 
@@ -63,44 +66,21 @@ using namespace Debugger::Internal;
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
-static bool isIntOrFloatType(const QString &type)
-{
-    static const QStringList types = QStringList()
-        << "char" << "int" << "short" << "float" << "double" << "long"
-        << "bool" << "signed char" << "unsigned" << "unsigned char"
-        << "unsigned int" << "unsigned long" << "long long";
-    return types.contains(type);
-}
-
-static bool isPointerType(const QString &type)
-{
-    return type.endsWith("*") || type.endsWith("* const");
-}
-
-static QString htmlQuote(const QString &str0)
-{
-    QString str = str0;
-    str.replace('&', "&amp;");
-    str.replace('<', "&lt;");
-    str.replace('>', "&gt;");
-    return str;
-}
-
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData
 //
 ////////////////////////////////////////////////////////////////////
 
-WatchData::WatchData()
+WatchData::WatchData() :
+    childCount(-1),
+    valuedisabled(false),
+    state(InitialState),
+    parentIndex(-1),
+    row(-1),
+    level(-1),
+    changed(false)
 {
-    valuedisabled = false;
-    state = InitialState;
-    childCount = -1;
-    parentIndex = -1;
-    row = -1;
-    level = -1;
-    changed = false;
 }
 
 void WatchData::setError(const QString &msg)
@@ -170,21 +150,21 @@ void WatchData::setType(const QString &str)
     type = str.trimmed();
     bool changed = true;
     while (changed) {
-        if (type.endsWith("const"))
+        if (type.endsWith(QLatin1String("const")))
             type.chop(5);
-        else if (type.endsWith(" "))
+        else if (type.endsWith(QLatin1Char(' ')))
             type.chop(1);
-        else if (type.endsWith("&"))
+        else if (type.endsWith(QLatin1Char('&')))
             type.chop(1);
-        else if (type.startsWith("const "))
+        else if (type.startsWith(QLatin1String("const ")))
             type = type.mid(6);
-        else if (type.startsWith("volatile "))
+        else if (type.startsWith(QLatin1String("volatile ")))
             type = type.mid(9);
-        else if (type.startsWith("class "))
+        else if (type.startsWith(QLatin1String("class ")))
             type = type.mid(6);
-        else if (type.startsWith("struct "))
+        else if (type.startsWith(QLatin1String("struct ")))
             type = type.mid(6);
-        else if (type.startsWith(" "))
+        else if (type.startsWith(QLatin1Char(' ')))
             type = type.mid(1);
         else
             changed = false;
@@ -199,58 +179,67 @@ void WatchData::setAddress(const QString & str)
     addr = str;
 }
 
+WatchData WatchData::pointerChildPlaceHolder() const
+{
+    WatchData data1;
+    data1.iname = iname + QLatin1String(".*");
+    data1.name = QLatin1Char('*') + name;
+    data1.exp = QLatin1String("(*(") + exp + QLatin1String("))");
+    data1.type = stripPointerType(type);
+    data1.setValueNeeded();
+    return data1;
+}
+
 QString WatchData::toString() const
 {
-    QString res = "{";
-
-    res += "level=\"" + QString::number(level) + "\",";
-    res += "parent=\"" + QString::number(parentIndex) + "\",";
-    res += "row=\"" + QString::number(row) + "\",";
-    res += "child=\"";
-    foreach (int index, childIndex)
-        res += QString::number(index) + ",";
-    if (res.endsWith(','))
-        res[res.size() - 1] = '"';
-    else
-        res += '"';
-    res += ",";
-    
+    const char *doubleQuoteComma = "\",";
+    QString res;
+    QTextStream str(&res);
+    str  <<"{state=\"0x" << QString::number(state, 16) << doubleQuoteComma
+         << "level=\"" << level << doubleQuoteComma
+         << "parent=\"" << parentIndex << doubleQuoteComma
+         << "row=\"" << row << doubleQuoteComma
+         << "child=\"";
+    const int childCount = childIndex.size();
+    for (int i = 0; i < childCount; i++) {
+        if (i)
+            str << ',';
+        str << childIndex.at(i);
+    }
+    str << doubleQuoteComma;
 
     if (!iname.isEmpty())
-        res += "iname=\"" + iname + "\",";
+        str << "iname=\"" << iname << doubleQuoteComma;
     if (!exp.isEmpty())
-        res += "exp=\"" + exp + "\",";
+        str << "exp=\"" << exp << doubleQuoteComma;
 
     if (!variable.isEmpty())
-        res += "variable=\"" + variable + "\",";
+        str << "variable=\"" << variable << doubleQuoteComma;
 
     if (isValueNeeded())
-        res += "value=<needed>,";
+        str << "value=<needed>,";
     if (isValueKnown() && !value.isEmpty())
-        res += "value=\"" + value + "\",";
+        str << "value=\"" << value << doubleQuoteComma;
 
     if (!editvalue.isEmpty())
-        res += "editvalue=\"" + editvalue + "\",";
+        str << "editvalue=\"" << editvalue << doubleQuoteComma;
 
     if (isTypeNeeded())
-        res += "type=<needed>,";
+        str << "type=<needed>,";
     if (isTypeKnown() && !type.isEmpty())
-        res += "type=\"" + type + "\",";
+        str << "type=\"" << type << doubleQuoteComma;
 
     if (isChildCountNeeded())
-        res += "numchild=<needed>,";
+        str << "numchild=<needed>,";
     if (isChildCountKnown() && childCount == -1)
-        res += "numchild=\"" + QString::number(childCount) + "\",";
+        str << "numchild=\"" << childCount << doubleQuoteComma;
 
     if (isChildrenNeeded())
-        res += "children=<needed>,";
-
-    if (res.endsWith(','))
-        res[res.size() - 1] = '}';
-    else
-        res += '}';
-
-    return res;
+        str << "children=<needed>,";
+    str.flush();
+    if (res.endsWith(QLatin1Char(',')))
+        res.truncate(res.size() - 1);
+    return res + QLatin1Char('}');
 }
 
 static bool iNameSorter(const WatchData &d1, const WatchData &d2)
@@ -273,7 +262,7 @@ static bool iNameSorter(const WatchData &d1, const WatchData &d2)
 
 static QString parentName(const QString &iname)
 {
-    int pos = iname.lastIndexOf(".");
+    int pos = iname.lastIndexOf(QLatin1Char('.'));
     if (pos == -1)
         return QString();
     return iname.left(pos);
@@ -306,7 +295,6 @@ static WatchData take(const QString &iname, QList<WatchData> *list)
     return WatchData();
 }
 
-
 static QList<WatchData> initialSet()
 {
     QList<WatchData> result;
@@ -315,7 +303,7 @@ static QList<WatchData> initialSet()
     root.state = 0;
     root.level = 0;
     root.row = 0;
-    root.name = "Root";
+    root.name = QLatin1String("Root");
     root.parentIndex = -1;
     root.childIndex.append(1);
     root.childIndex.append(2);
@@ -323,8 +311,8 @@ static QList<WatchData> initialSet()
     result.append(root);
 
     WatchData local;
-    local.iname = "local";
-    local.name = "Locals";
+    local.iname = QLatin1String("local");
+    local.name = QLatin1String("Locals");
     local.state = 0;
     local.level = 1;
     local.row = 0;
@@ -332,8 +320,8 @@ static QList<WatchData> initialSet()
     result.append(local);
 
     WatchData tooltip;
-    tooltip.iname = "tooltip";
-    tooltip.name = "Tooltip";
+    tooltip.iname = QLatin1String("tooltip");
+    tooltip.name = QLatin1String("Tooltip");
     tooltip.state = 0;
     tooltip.level = 1;
     tooltip.row = 1;
@@ -341,8 +329,8 @@ static QList<WatchData> initialSet()
     result.append(tooltip);
 
     WatchData watch;
-    watch.iname = "watch";
-    watch.name = "Watchers";
+    watch.iname = QLatin1String("watch");
+    watch.name = QLatin1String("Watchers");
     watch.state = 0;
     watch.level = 1;
     watch.row = 2;
@@ -380,55 +368,55 @@ WatchHandler::WatchHandler()
 
 static QString niceType(QString type)
 {
-    if (type.contains("std::")) {
+    if (type.contains(QLatin1String("std::"))) {
         // std::string
-        type.replace("std::basic_string<char, std::char_traits<char>, "
-                     "std::allocator<char> >", "std::string");
+        type.replace(QLatin1String("std::basic_string<char, std::char_traits<char>, "
+                                   "std::allocator<char> >"), QLatin1String("std::string"));
 
         // std::wstring
-        type.replace("std::basic_string<wchar_t, std::char_traits<wchar_t>, "
-                     "std::allocator<wchar_t> >", "std::wstring");
+        type.replace(QLatin1String("std::basic_string<wchar_t, std::char_traits<wchar_t>, "
+                                   "std::allocator<wchar_t> >"), QLatin1String("std::wstring"));
 
         // std::vector
-        static QRegExp re1("std::vector<(.*), std::allocator<(.*)>\\s*>");
+        static QRegExp re1(QLatin1String("std::vector<(.*), std::allocator<(.*)>\\s*>"));
         re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re1.indexIn(type) == -1 || re1.cap(1) != re1.cap(2)) 
                 break;
-            type.replace(re1.cap(0), "std::vector<" + re1.cap(1) + ">");
+            type.replace(re1.cap(0), QLatin1String("std::vector<") + re1.cap(1) + QLatin1Char('>'));
         }
 
         // std::list
-        static QRegExp re2("std::list<(.*), std::allocator<(.*)>\\s*>");
+        static QRegExp re2(QLatin1String("std::list<(.*), std::allocator<(.*)>\\s*>"));
         re2.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re2.indexIn(type) == -1 || re2.cap(1) != re2.cap(2)) 
                 break;
-            type.replace(re2.cap(0), "std::list<" + re2.cap(1) + ">");
+            type.replace(re2.cap(0), QLatin1String("std::list<") + re2.cap(1) + QLatin1Char('>'));
         }
 
         // std::map
-        static QRegExp re3("std::map<(.*), (.*), std::less<(.*)\\s*>, "
-            "std::allocator<std::pair<const (.*), (.*)\\s*> > >");
+        static QRegExp re3(QLatin1String("std::map<(.*), (.*), std::less<(.*)\\s*>, "
+                                         "std::allocator<std::pair<const (.*), (.*)\\s*> > >"));
         re3.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re3.indexIn(type) == -1 || re3.cap(1) != re3.cap(3)
                 || re3.cap(1) != re3.cap(4) || re3.cap(2) != re3.cap(5)) 
                 break;
-            type.replace(re3.cap(0), "std::map<" + re3.cap(1) + ", " + re3.cap(2) + ">");
+            type.replace(re3.cap(0), QLatin1String("std::map<") + re3.cap(1) + QLatin1String(", ") + re3.cap(2) + QLatin1Char('>'));
         }
 
         // std::set
-        static QRegExp re4("std::set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>");
+        static QRegExp re4(QLatin1String("std::set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>"));
         re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re4.indexIn(type) == -1 || re4.cap(1) != re4.cap(2)
                 || re4.cap(1) != re4.cap(3)) 
                 break;
-            type.replace(re4.cap(0), "std::set<" + re4.cap(1) + ">");
+            type.replace(re4.cap(0), QLatin1String("std::set<") + re4.cap(1) + QLatin1Char('>'));
         }
 
-        type.replace(" >", ">");
+        type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
     }
     return type;
 }
@@ -456,31 +444,31 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
         case Qt::ToolTipRole: {
             QString val = data.value;
             if (val.size() > 1000)
-                val = val.left(1000) + " ... <cut off>";
+                val = val.left(1000) + QLatin1String(" ... <cut off>");
 
-            QString tt = "<table>";
-            //tt += "<tr><td>internal name</td><td> : </td><td>";
-            //tt += htmlQuote(iname) + "</td></tr>";
-            tt += "<tr><td>expression</td><td> : </td><td>";
-            tt += htmlQuote(data.exp) + "</td></tr>";
-            tt += "<tr><td>type</td><td> : </td><td>";
-            tt += htmlQuote(data.type) + "</td></tr>";
+            QString tt = QLatin1String("<table>");
+            //tt += QLatin1String("<tr><td>internal name</td><td> : </td><td>");
+            //tt += Qt::escape(iname) + QLatin1String("</td></tr>");
+            tt += QLatin1String("<tr><td>expression</td><td> : </td><td>");
+            tt += Qt::escape(data.exp) + QLatin1String("</td></tr>");
+            tt += QLatin1String("<tr><td>type</td><td> : </td><td>");
+            tt += Qt::escape(data.type) + QLatin1String("</td></tr>");
             //if (!valuetooltip.isEmpty())
             //    tt += valuetooltip;
             //else
-                tt += "<tr><td>value</td><td> : </td><td>"; 
-                tt += htmlQuote(data.value) + "</td></tr>";
-            tt += "<tr><td>object addr</td><td> : </td><td>";
-            tt += htmlQuote(data.addr) + "</td></tr>";
-            tt += "<tr><td>stored addr</td><td> : </td><td>";
-            tt += htmlQuote(data.saddr) + "</td></tr>";
-            tt += "<tr><td>iname</td><td> : </td><td>";
-            tt += htmlQuote(data.iname) + "</td></tr>";
-            tt += "</table>";
-            tt.replace("@value@", htmlQuote(data.value));
+                tt += QLatin1String("<tr><td>value</td><td> : </td><td>"); 
+                tt += Qt::escape(data.value) + QLatin1String("</td></tr>");
+            tt += QLatin1String("<tr><td>object addr</td><td> : </td><td>");
+            tt += Qt::escape(data.addr) + QLatin1String("</td></tr>");
+            tt += QLatin1String("<tr><td>stored addr</td><td> : </td><td>");
+            tt += Qt::escape(data.saddr) + QLatin1String("</td></tr>");
+            tt += QLatin1String("<tr><td>iname</td><td> : </td><td>");
+            tt += Qt::escape(data.iname) + QLatin1String("</td></tr>");
+            tt += QLatin1String("</table>");
+            tt.replace(QLatin1String("@value@"), Qt::escape(data.value));
 
             if (tt.size() > 10000)
-                tt = tt.left(10000) + " ... <cut off>";
+                tt = tt.left(10000) + QLatin1String(" ... <cut off>");
             return tt;
         }
 
@@ -555,9 +543,9 @@ QVariant WatchHandler::headerData(int section, Qt::Orientation orientation,
         return QVariant();
     if (role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("Name")  + "     ";
-            case 1: return tr("Value") + "     ";
-            case 2: return tr("Type")  + "     ";
+            case 0: return tr("Name")  + QLatin1String("     ");
+            case 1: return tr("Value") + QLatin1String("     ");
+            case 2: return tr("Type")  + QLatin1String("     ");
         }
     }
     return QVariant(); 
@@ -566,30 +554,21 @@ QVariant WatchHandler::headerData(int section, Qt::Orientation orientation,
 QString WatchHandler::toString() const
 {
     QString res;
-    res += "\nIncomplete:\n";
-    for (int i = 0, n = m_incompleteSet.size(); i != n; ++i) {
-        res += QString("%1: ").arg(i);
-        res += m_incompleteSet.at(i).toString();
-        res += '\n';
-    }
-    res += "\nComplete:\n";
-    for (int i = 0, n = m_completeSet.size(); i != n; ++i) {
-        res += QString("%1: ").arg(i);
-        res += m_completeSet.at(i).toString();
-        res += '\n';
-    }
-    res += "\nDisplay:\n";
-    for (int i = 0, n = m_displaySet.size(); i != n; ++i) {
-        res += QString("%1: ").arg(i);
-        res += m_displaySet.at(i).toString();
-        res += '\n';
-    }
+    QTextStream str(&res);
+    str << "\nIncomplete:\n";
+    for (int i = 0, n = m_incompleteSet.size(); i != n; ++i)
+        str << i << ' ' << m_incompleteSet.at(i).toString() << '\n';
+    str << "\nComplete:\n";
+    for (int i = 0, n = m_completeSet.size(); i != n; ++i)
+        str << i << ' ' << m_completeSet.at(i).toString() << '\n';
+    str << "\nDisplay:\n";
+    for (int i = 0, n = m_displaySet.size(); i != n; ++i)
+        str << i << ' ' << m_displaySet.at(i).toString() << '\n';
+
 #if 0
-    res += "\nOld:\n";
-    for (int i = 0, n = m_oldSet.size(); i != n; ++i) {
-        res += m_oldSet.at(i).toString();
-        res += '\n';
-    }
+    str << "\nOld:\n";
+    for (int i = 0, n = m_oldSet.size(); i != n; ++i)
+        str << m_oldSet.at(i).toString() <<  '\n';
 #endif
     return res;
 }
@@ -705,7 +684,7 @@ void WatchHandler::rebuildModel()
             WatchData dummy;
             dummy.state = 0;
             dummy.row = 0;
-            dummy.iname = data.iname + ".dummy";
+            dummy.iname = data.iname + QLatin1String(".dummy");
             //dummy.name = data.iname + ".dummy";
             //dummy.name  = "<loading>";
             dummy.level = data.level + 1;
@@ -720,9 +699,9 @@ void WatchHandler::rebuildModel()
     // Possibly append dummy items to prevent empty views
     bool ok = true;
     QTC_ASSERT(m_displaySet.size() >= 2, ok = false);
-    QTC_ASSERT(m_displaySet.at(1).iname == "local", ok = false);
-    QTC_ASSERT(m_displaySet.at(2).iname == "tooltip", ok = false);
-    QTC_ASSERT(m_displaySet.at(3).iname == "watch", ok = false);
+    QTC_ASSERT(m_displaySet.at(1).iname == QLatin1String("local"), ok = false);
+    QTC_ASSERT(m_displaySet.at(2).iname == QLatin1String("tooltip"), ok = false);
+    QTC_ASSERT(m_displaySet.at(3).iname == QLatin1String("watch"), ok = false);
     if (ok) {
         for (int i = 1; i <= 3; ++i) {
             WatchData &data = m_displaySet[i];
@@ -731,14 +710,14 @@ void WatchHandler::rebuildModel()
                 dummy.state = 0;
                 dummy.row = 0;
                 if (i == 1) {
-                    dummy.iname = "local.dummy";
-                    dummy.name  = "<No Locals>";
+                    dummy.iname = QLatin1String("local.dummy");
+                    dummy.name  = QLatin1String("<No Locals>");
                 } else if (i == 2) {
-                    dummy.iname = "tooltip.dummy";
-                    dummy.name  = "<No Tooltip>";
+                    dummy.iname = QLatin1String("tooltip.dummy");
+                    dummy.name  = QLatin1String("<No Tooltip>");
                 } else {
-                    dummy.iname = "watch.dummy";
-                    dummy.name  = "<No Watchers>";
+                    dummy.iname = QLatin1String("watch.dummy");
+                    dummy.name  = QLatin1String("<No Watchers>");
                 }
                 dummy.level = 2;
                 dummy.parentIndex = i;
@@ -903,7 +882,7 @@ void WatchHandler::watchExpression(const QString &exp)
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    data.iname = "watch." + exp;
+    data.iname = QLatin1String("watch.") + exp;
     insertData(data);
     m_watchers.append(exp);
     saveWatchers();
@@ -935,7 +914,7 @@ void WatchHandler::showEditValue(const WatchData &data)
     QWidget *w = m_editWindows.value(data.iname);
     qDebug() << "SHOW_EDIT_VALUE " << data.toString() << data.type
             << data.iname << w;
-    if (data.type == "QImage") {
+    if (data.type == QLatin1String("QImage")) {
         if (!w) {
             w = new QLabel;
             m_editWindows[data.iname] = w;
@@ -947,7 +926,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         QImage im = v.value<QImage>();
         if (QLabel *l = qobject_cast<QLabel *>(w))
             l->setPixmap(QPixmap::fromImage(im));
-    } else if (data.type == "QPixmap") {
+    } else if (data.type == QLatin1String("QPixmap")) {
         if (!w) {
             w = new QLabel;
             m_editWindows[data.iname] = w;
@@ -959,7 +938,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         QPixmap im = v.value<QPixmap>();
         if (QLabel *l = qobject_cast<QLabel *>(w))
             l->setPixmap(im);
-    } else if (data.type == "QString") {
+    } else if (data.type == QLatin1String("QString")) {
         if (!w) {
             w = new QTextEdit;
             m_editWindows[data.iname] = w;
@@ -993,7 +972,7 @@ void WatchHandler::removeWatchExpression(const QString &exp)
     m_watchers.removeOne(exp);
     for (int i = m_completeSet.size(); --i >= 0;) {
         const WatchData & data = m_completeSet.at(i);
-        if (data.iname.startsWith("watch.") && data.exp == exp) {
+        if (data.iname.startsWith(QLatin1String("watch.")) && data.exp == exp) {
             m_completeSet.takeAt(i);
             break;
         }
@@ -1022,7 +1001,7 @@ void WatchHandler::reinitializeWatchersHelper()
         data.variable.clear();
         data.setAllNeeded();
         data.valuedisabled = false;
-        data.iname = "watch." + QString::number(i);
+        data.iname = QLatin1String("watch.") + QString::number(i);
         data.name = exp;
         data.exp = exp;
         insertData(data);
@@ -1064,7 +1043,7 @@ void WatchHandler::fetchMore(const QModelIndex &parent)
     m_inFetchMore = true;
 
     WatchData data = takeData(iname);
-    MODEL_DEBUG("FETCH MORE: " << parent << ":" << iname << data.name);
+    MODEL_DEBUG("FETCH MORE: " << parent << ':' << iname << data.name);
 
     if (!data.isValid()) {
         MODEL_DEBUG("FIXME: FETCH MORE, no data " << iname << "found");
