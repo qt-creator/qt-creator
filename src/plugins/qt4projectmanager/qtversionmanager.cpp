@@ -85,19 +85,22 @@ DebuggingHelperWidget::DebuggingHelperWidget()
 
 void DebuggingHelperWidget::setState(State s)
 {
-    bool validQt = true;
-    if (s & InvalidQt)
-        validQt = false;
-    m_statusLabel->setVisible(validQt);
-    m_showLog->setVisible(validQt);
-    m_rebuild->setVisible(validQt);
-    if (!validQt)
+    if (s & InvalidQt) {
+        m_statusLabel->setVisible(false);
+        m_showLog->setVisible(false);
+        m_rebuild->setVisible(false);
         return;
-    if (s & Error)
-        m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
-    else
-        m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
-    m_showLog->setVisible(s & ShowLog);
+    } else {
+        m_statusLabel->setVisible(true);
+        m_statusLabel->setText("");
+        m_showLog->setVisible(true);
+        m_rebuild->setVisible(true);
+        if (s & Error)
+            m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
+        else
+            m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
+        m_showLog->setVisible(s & ShowLog);
+    }
 }
 
 
@@ -496,12 +499,13 @@ void QtDirWidget::buildDebuggingHelper()
         return;
 
     QString result = m_versions.at(index)->buildDebuggingHelperLibrary();
+
     QTreeWidgetItem *item = m_ui.qtdirList->topLevelItem(index);
     item->setData(2, Qt::UserRole, result);
-
     DebuggingHelperWidget *dhw =
         qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(item, 2));
     if (dhw) {
+
         if (m_versions.at(index)->hasDebuggingHelper())
             dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Ok | DebuggingHelperWidget::ShowLog));
         else
@@ -904,15 +908,16 @@ QString QtVersion::dumperLibrary() const
     QStringList directories;
     directories
             << (path() + "/qtc-debugging-helper/")
-            << (QApplication::applicationDirPath() + "../qtc-debugging-helper/" + QString::number(hash))
-            << (QDesktopServices::StandardLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash));
+            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
+            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
     foreach(const QString &directory, directories) {
 #if defined(Q_OS_WIN)
-        QFileInfo fi(directory + "/debug/gdbmacros.dll");
+        QFileInfo fi(directory + "debug/gdbmacros.dll");
 #elif defined(Q_OS_MAC)
-        QFileInfo fi(directory + "/libgdbmacros.dylib");
+        QFileInfo fi(directory + "libgdbmacros.dylib");
 #else // generic UNIX
-        QFileInfo fi(directory + "/libgdbmacros.so");
+        QFileInfo fi(directory + "libgdbmacros.so");
+        qDebug()<<"Trying"<<(directory + "libgdbmacros.so");
 #endif
         if (fi.exists())
             return fi.filePath();
@@ -1416,8 +1421,8 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QStringList directories;
     directories
             << path() + "/qtc-debugging-helper/"
-            << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)
-            << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash);
+            << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash) +"/"
+            << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash) +"/";
 
     QStringList files;
     files << "gdbmacros.cpp" << "gdbmacros.pro"
