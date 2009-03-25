@@ -46,6 +46,7 @@
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 
 #ifdef CPP_ENABLED
 #    include <QtGui/QAction>
@@ -100,7 +101,19 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     m_factory = new FormEditorFactory;
     addObject(m_factory);
 
-    FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+    if (qgetenv("KDE_SESSION_VERSION") == QByteArray("4")) {
+        // KDE 4, possibly dangerous...
+        // KDE 4.2.0 had a nasty bug, which resulted in the File/Open Dialog crashing
+        // so check for that an fully load the plugins
+        QProcess proc;
+        proc.start("kde4-config", QStringList() << "--version");
+        proc.waitForFinished();
+        QString output = proc.readAll();
+        if (output.contains("KDE: 4.2.0"))
+            FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
+    } else {
+        FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+    }
 
     error->clear();
     return true;
