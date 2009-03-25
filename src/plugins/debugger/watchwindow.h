@@ -60,6 +60,7 @@ public slots:
 private:
     Q_SLOT void expandNode(const QModelIndex &index);
     Q_SLOT void collapseNode(const QModelIndex &index);
+    Q_SLOT void resetHelper();
 
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);

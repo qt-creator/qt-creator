@@ -751,7 +751,8 @@ void WatchHandler::rebuildModel()
 
     m_inChange = true;
     //qDebug() << "WATCHHANDLER: RESET ABOUT TO EMIT";
-    emit reset();
+    //emit reset();
+    emit layoutChanged();
     //qDebug() << "WATCHHANDLER: RESET EMITTED";
     m_inChange = false;
 
