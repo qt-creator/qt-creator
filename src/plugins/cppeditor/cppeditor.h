@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -161,6 +162,7 @@ private:
     QList<int> m_contexts;
     QComboBox *m_methodCombo;
     CPlusPlus::OverviewModel *m_overviewModel;
+    QSortFilterProxyModel *m_proxyModel;
 };
 
 } // namespace Internal

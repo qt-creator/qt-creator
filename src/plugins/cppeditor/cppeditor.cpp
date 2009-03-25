@@ -75,6 +75,7 @@
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
+#include <QtGui/QSortFilterProxyModel>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -239,11 +240,17 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     QTreeView *methodView = new OverviewTreeView;
     methodView->header()->hide();
     methodView->setItemsExpandable(false);
+    methodView->setSortingEnabled(true);
+    methodView->sortByColumn(0, Qt::AscendingOrder);
     m_methodCombo->setView(methodView);
     m_methodCombo->setMaxVisibleItems(20);
 
     m_overviewModel = new OverviewModel(this);
-    m_methodCombo->setModel(m_overviewModel);
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setSourceModel(m_overviewModel);
+    m_proxyModel->setDynamicSortFilter(true);
+    m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_methodCombo->setModel(m_proxyModel);
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
@@ -366,7 +373,7 @@ void CPPEditor::updateFileName()
 
 void CPPEditor::jumpToMethod(int)
 {
-    QModelIndex index = m_methodCombo->view()->currentIndex();
+    QModelIndex index = m_proxyModel->mapToSource(m_methodCombo->view()->currentIndex());
     Symbol *symbol = m_overviewModel->symbolFromIndex(index);
     if (! symbol)
         return;
@@ -394,7 +401,7 @@ void CPPEditor::updateMethodBoxIndex()
 
     if (lastIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
-        m_methodCombo->setCurrentIndex(lastIndex.row());
+        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(lastIndex).row());
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
