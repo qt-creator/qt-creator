@@ -70,6 +70,7 @@ public:
     virtual QString workingDirectory() const;
     virtual QStringList commandLineArguments() const;
     virtual ProjectExplorer::Environment environment() const;
+    virtual QString dumperLibrary() const;
 
     QString proFilePath() const;
 

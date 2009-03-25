@@ -132,8 +132,6 @@ void DebuggerRunControl::start()
         project->buildDirectory(project->activeBuildConfiguration());
     m_manager->m_useTerminal = rc->runMode() == ApplicationRunConfiguration::Console;
 
-    //<daniel> andre: + "\qtc-gdbmacros\"
-
     //emit addToOutputWindow(this, tr("Debugging %1").arg(m_executable));
     if (m_manager->startNewDebugger(StartInternal))
         emit started();

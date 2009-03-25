@@ -123,6 +123,11 @@ QWidget *CMakeRunConfiguration::configurationWidget()
     return new QWidget();
 }
 
+QString CMakeRunConfiguration::dumperLibrary() const
+{
+    return QString();
+}
+
 // Factory
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {

@@ -30,6 +30,7 @@
 #include "qtversionmanager.h"
 
 #include "qt4projectmanagerconstants.h"
+#include "ui_showbuildlog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -48,6 +49,12 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
 
 using namespace Qt4ProjectManager::Internal;
 
@@ -56,6 +63,43 @@ using ProjectExplorer::Environment;
 static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
+
+DebuggingHelperWidget::DebuggingHelperWidget()
+{
+    setLayout(new QHBoxLayout());
+    m_statusLabel = new QLabel(this);
+
+    layout()->addWidget(m_statusLabel);
+
+    m_showLog = new QPushButton(this);
+    m_showLog->setText("Show Log");
+    layout()->addWidget(m_showLog);
+
+    m_rebuild = new QPushButton(this);
+    m_rebuild->setText("Rebuild");
+    layout()->addWidget(m_rebuild);
+
+    connect(m_showLog, SIGNAL(clicked()), this, SIGNAL(showLogClicked()));
+    connect(m_rebuild, SIGNAL(clicked()), this, SIGNAL(rebuildClicked()));
+}
+
+void DebuggingHelperWidget::setState(State s)
+{
+    bool validQt = true;
+    if (s & InvalidQt)
+        validQt = false;
+    m_statusLabel->setVisible(validQt);
+    m_showLog->setVisible(validQt);
+    m_rebuild->setVisible(validQt);
+    if (!validQt)
+        return;
+    if (s & Error)
+        m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
+    else
+        m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
+    m_showLog->setVisible(s & ShowLog);
+}
+
 
 QtVersionManager::QtVersionManager()
     : m_emptyVersion(new QtVersion)
@@ -370,7 +414,6 @@ QtVersion *QtVersionManager::currentQtVersion() const
 }
 
 //-----------------------------------------------------
-
 QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion)
     : QWidget(parent)
     , m_defaultVersion(defaultVersion)
@@ -398,6 +441,17 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
         item->setText(0, version->name());
         item->setText(1, version->path());
         item->setData(0, Qt::UserRole, version->uniqueId());
+
+        DebuggingHelperWidget *dhw = new DebuggingHelperWidget();
+        m_ui.qtdirList->setItemWidget(item, 2, dhw);
+        if (version->hasDebuggingHelper())
+            dhw->setState(DebuggingHelperWidget::Ok);
+        else
+            dhw->setState(DebuggingHelperWidget::Error);
+
+        connect(dhw, SIGNAL(rebuildClicked()), this, SLOT(buildDebuggingHelper()));
+        connect(dhw, SIGNAL(showLogClicked()), this, SLOT(showDebuggingBuildLog()));
+
         m_ui.defaultCombo->addItem(version->name());
         if (i == m_defaultVersion)
             m_ui.defaultCombo->setCurrentIndex(i);
@@ -434,6 +488,51 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
     updateState();
 }
 
+void QtDirWidget::buildDebuggingHelper()
+{
+    // Find the qt version for this button..
+    int index = indexForWidget(qobject_cast<QWidget *>(sender());
+    if (index == -1)
+        return;
+
+    QString result = m_versions.at(index)->buildDebuggingHelperLibrary();
+    QTreeWidgetItem *item = m_ui.qtdirList->topLevelItem(index);
+    item->setData(2, Qt::UserRole, result);
+
+    DebuggingHelperWidget *dhw = qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(item, 2));
+    if (dhw) {
+        if (m_versions.at(index)->hasDebuggingHelper())
+            dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Ok | DebuggingHelperWidget::ShowLog));
+        else
+            dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Error | DebuggingHelperWidget::ShowLog));
+    }
+}
+
+int QtDirWidget::indexFor(QWidget *debuggingHelperWidget) const
+{
+    int index = -1;
+    for(int i=0; i < m_ui.qtdirList->topLevelItemCount(); ++i) {
+        if (m_ui.qtdirList->itemWidget(m_ui.qtdirList->topLevelItem(i), 2) == widget) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+void QtDirWidget::showDebuggingBuildLog()
+{
+    int index = indexForWidget(qobject_cast<QWidget *>(sender());
+    if (index == -1)
+        return;
+
+    QDialog dlg;
+    ::Ui::ShowBuildLog ui;
+    ui.setupUi(&dlg);
+    ui.log->setPlainText(m_ui.qtdirList->topLevelItem(index)->data(2, Qt::UserRole).toString());
+    dlg.exec();
+}
+
 QtDirWidget::~QtDirWidget()
 {
     qDeleteAll(m_versions);
@@ -448,6 +547,16 @@ void QtDirWidget::addQtDir()
     item->setText(0, newVersion->name());
     item->setText(1, newVersion->path());
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
+
+    DebuggingHelperWidget *dhw = new DebuggingHelperWidget();
+    m_ui.qtdirList->setItemWidget(item, 2, dhw);
+    if (newVersion->hasDebuggingHelper())
+        dhw->setState(DebuggingHelperWidget::Ok);
+    else
+        dhw->setState(DebuggingHelperWidget::Error);
+    connect(dhw, SIGNAL(rebuildClicked()), this, SLOT(buildDebuggingHelper()));
+    connect(dhw, SIGNAL(showLogClicked()), this, SLOT(showDebuggingBuildLog()));
+    m_ui.qtdirList->setItemWidget(item, 2, dhw);
 
     m_ui.qtdirList->setCurrentItem(item);
 
@@ -506,19 +615,14 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->toolchainType();
         if (t == ProjectExplorer::ToolChain::MinGW) {
             m_ui.msvcComboBox->setVisible(false);
-            m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(true);
             m_ui.mingwPath->setPath(m_versions.at(index)->mingwDirectory());
         } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
             m_ui.msvcComboBox->setVisible(false);
-            m_ui.msvcLabel->setVisible(true);
             makeMingwVisible(false);
             QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
             if (msvcEnvironments.count() == 0) {
-                m_ui.msvcLabel->setText(tr("No Visual Studio Installation found"));
             } else if (msvcEnvironments.count() == 1) {
-                //TODO m_ui.msvcLabel->setText( msvcEnvironments.at(0).description());
-                m_ui.msvcLabel->setText("");
             } else {
                  m_ui.msvcComboBox->setVisible(true);
                  bool block = m_ui.msvcComboBox->blockSignals(true);
@@ -527,14 +631,12 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
                      m_ui.msvcComboBox->addItem(msvcenv);
                      if (msvcenv == m_versions.at(index)->msvcVersion()) {
                          m_ui.msvcComboBox->setCurrentIndex(m_ui.msvcComboBox->count() - 1);
-                         m_ui.msvcLabel->setText(""); //TODO
                      }
                  }
                  m_ui.msvcComboBox->blockSignals(block);
             }
         } else if (t == ProjectExplorer::ToolChain::INVALID) {
             m_ui.msvcComboBox->setVisible(false);
-            m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(false);
             if (!m_versions.at(index)->isInstalled())
                 m_ui.errorLabel->setText(tr("The Qt Version is not installed. Run make install")
@@ -543,7 +645,6 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
                 m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(m_versions.at(index)->path()));
         } else { //ProjectExplorer::ToolChain::GCC
             m_ui.msvcComboBox->setVisible(false);
-            m_ui.msvcLabel->setVisible(false);
             makeMingwVisible(false);
             m_ui.errorLabel->setText("Found Qt version "
                                      + m_versions.at(index)->qtVersionString()
@@ -552,7 +653,6 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         }
     } else {
         m_ui.msvcComboBox->setVisible(false);
-        m_ui.msvcLabel->setVisible(false);
         makeMingwVisible(false);
     }
 }
@@ -665,10 +765,24 @@ void QtDirWidget::updateCurrentQtPath()
     QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
     Q_ASSERT(currentItem);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
+    if (m_versions[currentItemIndex]->path() == m_ui.qtPath->path())
+        return;
     m_versions[currentItemIndex]->setPath(m_ui.qtPath->path());
     currentItem->setText(1, m_versions[currentItemIndex]->path());
 
     showEnvironmentPage(currentItem);
+
+    DebuggingHelperWidget *dhw = qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(currentItem, 2));
+    if (m_versions[currentItemIndex]->isValid()) {
+        DebuggingHelperWidget::State s = DebuggingHelperWidget::Ok;
+        if (!m_versions[currentItemIndex]->hasDebuggingHelper())
+            s = DebuggingHelperWidget::State(s | DebuggingHelperWidget::Error);
+        if (!currentItem->data(2, Qt::UserRole).toString().isEmpty())
+            s = DebuggingHelperWidget::State(s | DebuggingHelperWidget::ShowLog);
+        dhw->setState(s);
+    } else {
+        dhw->setState(DebuggingHelperWidget::InvalidQt);
+    }
 }
 
 void QtDirWidget::updateCurrentMingwDirectory()
@@ -686,16 +800,6 @@ void QtDirWidget::msvcVersionChanged()
     Q_ASSERT(currentItem);
     int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
-
-    //get descriptionx
-    //TODO
-//    QList<MSVCEnvironment> msvcEnvironments = MSVCEnvironment::availableVersions();
-//    foreach(const MSVCEnvironment &msvcEnv, msvcEnvironments) {
-//        if (msvcEnv.name() == msvcVersion) {
-//            m_ui.msvcLabel->setText(msvcEnv.description());
-//            break;
-//        }
-//    }
 }
 
 QList<QtVersion *> QtDirWidget::versions() const
@@ -713,7 +817,12 @@ int QtDirWidget::defaultVersion() const
 ///
 
 QtVersion::QtVersion(const QString &name, const QString &path, int id, bool isSystemVersion)
-    : m_name(name), m_isSystemVersion(isSystemVersion), m_notInstalled(false), m_defaultConfigIsDebug(true), m_defaultConfigIsDebugAndRelease(true)
+    : m_name(name),
+    m_isSystemVersion(isSystemVersion),
+    m_notInstalled(false),
+    m_defaultConfigIsDebug(true),
+    m_defaultConfigIsDebugAndRelease(true),
+    m_hasDebuggingHelper(false)
 {
     setPath(path);
     if (id == -1)
@@ -726,7 +835,8 @@ QtVersion::QtVersion(const QString &name, const QString &path)
     : m_name(name),
     m_versionInfoUpToDate(false),
     m_mkspecUpToDate(false),
-    m_isSystemVersion(false)
+    m_isSystemVersion(false),
+    m_hasDebuggingHelper(false)
 {
     setPath(path);
     m_id = getUniqueId();
@@ -783,6 +893,30 @@ void QtVersion::setPath(const QString &path)
     m_versionInfoUpToDate = false;
     m_mkspecUpToDate = false;
     m_qmakeCommand = QString::null;
+// TODO do i need to optimize this?
+    m_hasDebuggingHelper = !dumperLibrary().isEmpty();
+}
+
+QString QtVersion::dumperLibrary() const
+{
+    uint hash = qHash(path());
+    QStringList directories;
+    directories
+            << (path() + "/qtc-debugging-helper/")
+            << (QApplication::applicationDirPath() + "../qtc-debugging-helper/" + QString::number(hash))
+            << (QDesktopServices::StandardLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash));
+    foreach(const QString &directory, directories) {
+#if defined(Q_OS_WIN)
+        QFileInfo fi(directory + "/debug/gdbmacros.dll");
+#elif defined(Q_OS_MAC)
+        QFileInfo fi(directory + "/libgdbmacros.dylib");
+#else // generic UNIX
+        QFileInfo fi(directory + "/libgdbmacros.so");
+#endif
+        if (fi.exists())
+            return fi.filePath();
+    }
+    return QString();
 }
 
 void QtVersion::updateSourcePath()
@@ -1262,4 +1396,95 @@ QtVersion::QmakeBuildConfig QtVersion::defaultBuildConfig() const
     if (m_defaultConfigIsDebug)
         result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
     return result;
+}
+
+bool QtVersion::hasDebuggingHelper() const
+{
+    return m_hasDebuggingHelper;
+}
+
+QString QtVersion::buildDebuggingHelperLibrary()
+{
+// Locations to try:
+//    $QTDIR/qtc-debugging-helper
+//    $APPLICATION-DIR/qtc-debugging-helper/$hash
+//    $USERDIR/qtc-debugging-helper/$hash
+
+    QString output;
+    uint hash = qHash(path());
+    QStringList directories;
+    directories
+            << path() + "/qtc-debugging-helper/"
+            << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)
+            << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash);
+
+    QStringList files;
+    files << "gdbmacros.cpp" << "gdbmacros.pro"
+          << "LICENSE.LGPL" << "LGPL_EXCEPTION.TXT";
+
+    foreach(const QString &directory, directories) {
+        QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
+        bool success = true;
+        QDir().mkpath(directory);
+        foreach (const QString &file, files) {
+            QString source = dumperPath + file;
+            QString dest = directory + file;
+            QFileInfo destInfo(dest);
+            if (destInfo.exists()) {
+                if (destInfo.lastModified() >= QFileInfo(source).lastModified())
+                    continue;
+                success &= QFile::remove(dest);
+            }
+            success &= QFile::copy(source, dest);
+        }
+        if (!success)
+            continue;
+
+        output += QString("Building debugging helper library in %1\n").arg(directory);
+        output += "\n";
+        output += "Runinng qmake...\n";
+
+        QProcess qmake;
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        addToEnvironment(env);
+
+        qmake.setEnvironment(env.toStringList());
+        qmake.setWorkingDirectory(directory);
+        qmake.setProcessChannelMode(QProcess::MergedChannels);
+
+        qmake.start(qmakeCommand(), QStringList()<<"-spec"<<"default"<<"gdbmacros.pro");
+        qmake.waitForFinished();
+
+        output += qmake.readAll();
+
+        // TODO this is butt ugly
+        // only qt4projects have a toolchain() method. (Reason mostly, that in order to create
+        // the toolchain, we need to have the path to gcc
+        // which might depend on environment settings of the project
+        // so we hardcode the toolchainType to make conversation here
+        // and think about how to fix that later
+
+        QString make;
+        ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
+        if (t == ProjectExplorer::ToolChain::MinGW)
+            make = "mingw32-make.exe";
+        else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)
+            make = "nmake.exe";
+        else if (t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC)
+            make = "make";
+
+        QString makeFullPath = env.searchInPath(make);
+        output += "\n";
+        if (!makeFullPath.isEmpty()) {
+            output += QString("Running %1...\n").arg(makeFullPath);
+            qmake.start(makeFullPath, QStringList());
+            qmake.waitForFinished();
+            output += qmake.readAll();
+        } else {
+            output += QString("%1 not found in PATH\n").arg(make);
+        }
+        break;
+    }
+    m_hasDebuggingHelper = !dumperLibrary().isEmpty();
+    return output;
 }

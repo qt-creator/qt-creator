@@ -370,6 +370,14 @@ void Qt4RunConfiguration::invalidateCachedTargetInformation()
     emit effectiveTargetInformationChanged();
 }
 
+QString Qt4RunConfiguration::dumperLibrary() const
+{
+    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
+    QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
+    return version->dumperLibrary();
+}
+
+
 ///
 /// Qt4RunConfigurationFactory
 /// This class is used to restore run settings (saved in .user files)

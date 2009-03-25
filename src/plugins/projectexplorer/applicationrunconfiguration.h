@@ -54,6 +54,7 @@ public:
     virtual QString workingDirectory() const = 0;
     virtual QStringList commandLineArguments() const = 0;
     virtual Environment environment() const = 0;
+    virtual QString dumperLibrary() const = 0;
 
     virtual void save(PersistentSettingsWriter &writer) const;
     virtual void restore(const PersistentSettingsReader &reader);
