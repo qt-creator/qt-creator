@@ -1417,10 +1417,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordInsertText(str);
         recordEndGroup();
     } else if (key == Key_PageDown || key == control('f')) {
-        moveDown(count() * (linesOnScreen() - 2));
+        moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
+        scrollToLineInDocument(cursorLineInDocument());
+        moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_PageUp || key == control('b')) {
-        moveUp(count() * (linesOnScreen() - 2));
+        moveUp(count() * (linesOnScreen() - 2) + cursorLineOnScreen());
+        scrollToLineInDocument(cursorLineInDocument() + linesOnScreen() - 2);
+        moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_Delete) {
         setAnchor();
