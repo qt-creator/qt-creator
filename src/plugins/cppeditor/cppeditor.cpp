@@ -646,8 +646,20 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             typeOfExpression(expression, doc, lastSymbol);
 
     if (!resolvedSymbols.isEmpty()) {
-        Symbol *symbol = resolvedSymbols.first().second;
-        if (symbol) {
+        TypeOfExpression::Result result = resolvedSymbols.first();
+
+        if (result.first->isForwardClassDeclarationType()) {
+            while (! resolvedSymbols.isEmpty()) {
+                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+
+                if (! r.first->isForwardClassDeclarationType()) {
+                    result = r;
+                    break;
+                }
+            }
+        }
+
+        if (Symbol *symbol = result.second) {
             Symbol *def = 0;
             if (lookupDefinition && !lastSymbol->isFunction())
                 def = findDefinition(symbol);
