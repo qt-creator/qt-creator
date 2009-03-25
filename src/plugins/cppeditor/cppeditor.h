@@ -99,6 +99,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
 
     TextEditor::BaseTextEditorEditable *createEditableInterface();
@@ -147,6 +148,10 @@ private:
         int line;          // Target line
         int column;        // Target column
     };
+
+    void showLink(const Link &);
+    void clearLink();
+    bool m_showingLink;
 
     Link findLinkAt(const QTextCursor &, bool lookupDefinition = true);
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
