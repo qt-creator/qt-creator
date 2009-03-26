@@ -38,6 +38,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/filewatcher.h>
 #include <coreplugin/ifile.h>
 #include <utils/pathchooser.h>
 
@@ -101,12 +102,20 @@ public:
     QStringList targets() const;
     QString buildParser(const QString &buildConfiguration) const;
 
+protected:
+    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
+    virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+
+private slots:
+    void fileChanged(const QString &fileName);
+
 private:
     void parseCMakeLists();
+    void updateToolChain(const QString &compiler);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
+    void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
-
 
     CMakeManager *m_manager;
     QString m_fileName;
@@ -118,11 +127,8 @@ private:
     QStringList m_files;
     QList<CMakeTarget> m_targets;
     ProjectExplorer::ToolChain *m_toolChain;
-
-protected:
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
-
+    ProjectExplorer::FileWatcher *m_watcher;
+    bool m_insideFileChanged;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

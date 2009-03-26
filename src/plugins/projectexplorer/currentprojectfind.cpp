@@ -64,7 +64,7 @@ bool CurrentProjectFind::isEnabled() const
 
 QKeySequence CurrentProjectFind::defaultShortcut() const
 {
-    return QKeySequence("Ctrl+Alt+F");
+    return QKeySequence();
 }
 
 QStringList CurrentProjectFind::files()

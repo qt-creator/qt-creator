@@ -65,7 +65,7 @@ bool AllProjectsFind::isEnabled() const
 
 QKeySequence AllProjectsFind::defaultShortcut() const
 {
-    return QKeySequence("Ctrl+Shift+F");
+    return QKeySequence();
 }
 
 QStringList AllProjectsFind::files()

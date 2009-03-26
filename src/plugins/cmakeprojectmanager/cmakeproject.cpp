@@ -67,9 +67,13 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_rootNode(new CMakeProjectNode(m_fileName)),
-      m_toolChain(0)
+      m_toolChain(0),
+      m_insideFileChanged(false)
 {
     m_file = new CMakeFile(this, fileName);
+    m_watcher = new ProjectExplorer::FileWatcher(this);
+    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
+    m_watcher->addFile(fileName);
 }
 
 CMakeProject::~CMakeProject()
@@ -78,53 +82,94 @@ CMakeProject::~CMakeProject()
     delete m_toolChain;
 }
 
-// TODO also call this method if the CMakeLists.txt file changed, which is also called if the CMakeList.txt is updated
-// TODO make this function work even if it is reparsing
+void CMakeProject::fileChanged(const QString &fileName)
+{
+    if (m_insideFileChanged== true)
+        return;
+    m_insideFileChanged = true;
+    if (fileName == m_fileName) {
+        // Oh we have changed...
+
+        // Pop up a dialog asking the user to rerun cmake
+        QFileInfo sourceFileInfo(m_fileName);
+        QStringList needToCreate;
+        QStringList needToUpdate;
+        foreach(const QString &buildConfiguration, buildConfigurations()) {
+            QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
+            QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory));
+            QFileInfo cbpFileFi(cbpFile);
+            if (!cbpFileFi.exists())
+                needToCreate << buildDirectory;
+            else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+                needToUpdate << buildDirectory;
+        }
+        if (!needToCreate.isEmpty() || !needToUpdate.isEmpty()) {
+            CMakeOpenProjectWizard copw(m_manager, sourceFileInfo.absolutePath(), needToCreate, needToUpdate);
+            copw.exec();
+        }
+        // reparse
+        parseCMakeLists();
+    }
+    m_insideFileChanged = false;
+}
+
+void CMakeProject::updateToolChain(const QString &compiler)
+{
+    //qDebug()<<"CodeBlocks Compilername"<<compiler
+    ProjectExplorer::ToolChain *newToolChain = 0;
+    if (compiler == "gcc") {
+        newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
+    } else if (compiler == "msvc8") {
+        // TODO hmm
+        //newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain("//TODO");
+        Q_ASSERT(false);
+    } else {
+        // TODO hmm?
+        qDebug()<<"Not implemented yet!!! Qt Creator doesn't know which toolchain to use for"<<compiler;
+    }
+
+    if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
+        delete newToolChain;
+        newToolChain = 0;
+    } else {
+        delete m_toolChain;
+        m_toolChain = newToolChain;
+    }
+}
+
 void CMakeProject::parseCMakeLists()
 {
+    // Find cbp file
     QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
     QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
+
+    // setFolderName
     m_rootNode->setFolderName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;
-    qDebug()<<"Parsing file "<<cbpFile;
-    if (cbpparser.parseCbpFile(cbpFile)) {
-        qDebug()<<"CodeBlocks Compilername"<<cbpparser.compilerName();
-        ProjectExplorer::ToolChain *newToolChain = 0;
-        if (cbpparser.compilerName() == "gcc") {
-            newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
-        } else if (cbpparser.compilerName() == "msvc8") {
-            // TODO hmm
-            //newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain("//TODO");
-            Q_ASSERT(false);
-        } else {
-            // TODO hmm?
-            qDebug()<<"Not implemented yet!!! Qt Creator doesn't know which toolchain to use for"<<cbpparser.compilerName();
-        }
-
-        if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
-            delete newToolChain;
-            newToolChain = 0;
-        } else {
-            delete m_toolChain;
-            m_toolChain = newToolChain;
-        }
+    // Parsing
+    //qDebug()<<"Parsing file "<<cbpFile;
+    if (cbpparser.parseCbpFile(cbpFile)) {        
+        // ToolChain
+        updateToolChain(cbpparser.compilerName());
 
         m_projectName = cbpparser.projectName();
         m_rootNode->setFolderName(cbpparser.projectName());
-        qDebug()<<"Building Tree";
 
-        // TODO do a intelligent updating of the tree
+        //qDebug()<<"Building Tree";
+
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
         // Manually add the CMakeLists.txt file
         fileList.append(new ProjectExplorer::FileNode(sourceDirectory + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
 
-        buildTree(m_rootNode, fileList);
         m_files.clear();
         foreach (ProjectExplorer::FileNode *fn, fileList)
             m_files.append(fn->path());
         m_files.sort();
 
-        qDebug()<<"Adding Targets";
+        buildTree(m_rootNode, fileList);
+
+
+        //qDebug()<<"Adding Targets";
         m_targets = cbpparser.targets();
 //        qDebug()<<"Printing targets";
 //        foreach(CMakeTarget ct, m_targets) {
@@ -134,7 +179,7 @@ void CMakeProject::parseCMakeLists()
 //            qDebug()<<"";
 //        }
 
-        qDebug()<<"Updating CodeModel";
+        //qDebug()<<"Updating CodeModel";
 
         QStringList allIncludePaths;
         QStringList allFrameworkPaths;
@@ -158,7 +203,7 @@ void CMakeProject::parseCMakeLists()
         }
 
         // Create run configurations for m_targets
-        qDebug()<<"Create run configurations of m_targets";
+        //qDebug()<<"Create run configurations of m_targets";
         QMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
         foreach(QSharedPointer<ProjectExplorer::RunConfiguration> cmakeRunConfiguration, runConfigurations()) {
             if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.dynamicCast<CMakeRunConfiguration>()) {
@@ -177,16 +222,16 @@ void CMakeProject::parseCMakeLists()
             if (it != existingRunConfigurations.end()) {
                 // Already exists, so override the settings...
                 QSharedPointer<CMakeRunConfiguration> rc = it.value();
-                qDebug()<<"Updating Run Configuration with title"<<ct.title;
-                qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
-                qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
+                //qDebug()<<"Updating Run Configuration with title"<<ct.title;
+                //qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
+                //qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
                 rc->setExecutable(ct.executable);
                 rc->setWorkingDirectory(ct.workingDirectory);
                 existingRunConfigurations.erase(it);
             } else {
                 // Does not exist yet
-                qDebug()<<"Adding new run configuration with title"<<ct.title;
-                qDebug()<<"  Executable:"<<ct.executable<<"WD:"<<ct.workingDirectory;
+                //qDebug()<<"Adding new run configuration with title"<<ct.title;
+                //qDebug()<<"  Executable:"<<ct.executable<<"WD:"<<ct.workingDirectory;
                 QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
                 addRunConfiguration(rc);
                 // The first one gets the honour of beeing the active one
@@ -200,11 +245,11 @@ void CMakeProject::parseCMakeLists()
                 existingRunConfigurations.constBegin();
         for( ; it != existingRunConfigurations.constEnd(); ++it) {
             QSharedPointer<CMakeRunConfiguration> rc = it.value();
-            qDebug()<<"Removing old RunConfiguration with title:"<<rc->title();
-            qDebug()<<"  Executable:"<<rc->executable()<<rc->workingDirectory();
+            //qDebug()<<"Removing old RunConfiguration with title:"<<rc->title();
+            //qDebug()<<"  Executable:"<<rc->executable()<<rc->workingDirectory();
             removeRunConfiguration(rc);
         }
-        qDebug()<<"\n";
+        //qDebug()<<"\n";
     } else {
         // TODO report error
         qDebug()<<"Parsing failed";
@@ -239,17 +284,79 @@ QStringList CMakeProject::targets() const
     return results;
 }
 
-void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list)
+void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
 {
-    //m_rootNode->addFileNodes(fileList, m_rootNode);
-    qSort(list.begin(), list.end(), ProjectExplorer::ProjectNode::sortNodesByPath);
-    foreach (ProjectExplorer::FileNode *fn, list) {
+    foreach(ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
+        gatherFileNodes(folder, list);
+    foreach(ProjectExplorer::FileNode *file, parent->fileNodes())
+        list.append(file);
+}
+
+void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> newList)
+{
+    // Gather old list
+    QList<ProjectExplorer::FileNode *> oldList;
+    gatherFileNodes(rootNode, oldList);
+    qSort(oldList.begin(), oldList.end(), ProjectExplorer::ProjectNode::sortNodesByPath);
+    qSort(newList.begin(), newList.end(), ProjectExplorer::ProjectNode::sortNodesByPath);
+
+    // generate added and deleted list
+    QList<ProjectExplorer::FileNode *>::const_iterator oldIt  = oldList.constBegin();
+    QList<ProjectExplorer::FileNode *>::const_iterator oldEnd = oldList.constEnd();
+    QList<ProjectExplorer::FileNode *>::const_iterator newIt  = newList.constBegin();
+    QList<ProjectExplorer::FileNode *>::const_iterator newEnd = newList.constEnd();
+
+    QList<ProjectExplorer::FileNode *> added;
+    QList<ProjectExplorer::FileNode *> deleted;
+
+
+    while(oldIt != oldEnd && newIt != newEnd) {
+        if ( (*oldIt)->path() == (*newIt)->path()) {
+            delete *newIt;
+            ++oldIt;
+            ++newIt;
+        } else if ((*oldIt)->path() < (*newIt)->path()) {
+            deleted.append(*oldIt);
+            ++oldIt;
+        } else {
+            added.append(*newIt);
+            ++newIt;
+        }
+    }
+
+    while (oldIt != oldEnd) {
+        deleted.append(*oldIt);
+        ++oldIt;
+    }
+
+    while (newIt != newEnd) {
+        added.append(*newIt);
+        ++newIt;
+    }
+
+    // add added nodes
+    foreach (ProjectExplorer::FileNode *fn, added) {
+//        qDebug()<<"added"<<fn->path();
         // Get relative path to rootNode
         QString parentDir = QFileInfo(fn->path()).absolutePath();
         ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
         rootNode->addFileNodes(QList<ProjectExplorer::FileNode *>()<< fn, folder);
     }
-    //m_rootNode->addFileNodes(list, rootNode);
+
+    // remove old file nodes and check wheter folder nodes can be removed
+    foreach (ProjectExplorer::FileNode *fn, deleted) {
+        ProjectExplorer::FolderNode *parent = fn->parentFolderNode();
+//        qDebug()<<"removed"<<fn->path();
+        rootNode->removeFileNodes(QList<ProjectExplorer::FileNode *>() << fn, parent);
+        // Check for empty parent
+        while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
+            ProjectExplorer::FolderNode *grandparent = parent->parentFolderNode();
+            rootNode->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent, grandparent);
+            parent = grandparent;
+            if (parent == rootNode)
+                break;
+        }
+    }
 }
 
 ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *rootNode, QString directory)
@@ -347,13 +454,11 @@ ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
 QStringList CMakeProject::files(FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
-    // TODO
     return m_files;
 }
 
 void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
 {
-    // TODO
     Project::saveSettingsImpl(writer);
 }
 

@@ -97,6 +97,7 @@ private:
     QStringListModel *m_replaceCompletionModel;
     QStringList m_findCompletions;
     QStringList m_replaceCompletions;
+    QAction *m_openFindDialog;
 };
 
 } // namespace Internal

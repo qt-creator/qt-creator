@@ -105,6 +105,14 @@ void FindPlugin::filterChanged()
     QTC_ASSERT(changedFilter, return);
     QTC_ASSERT(action, return);
     action->setEnabled(changedFilter->isEnabled());
+    bool haveEnabledFilters = false;
+    foreach (IFindFilter *filter, m_filterActions.keys()) {
+        if (filter->isEnabled()) {
+            haveEnabledFilters = true;
+            break;
+        }
+    }
+    m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
 void FindPlugin::openFindFilter()
@@ -112,8 +120,6 @@ void FindPlugin::openFindFilter()
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
     IFindFilter *filter = action->data().value<IFindFilter *>();
-    QTC_ASSERT(filter, return);
-    QTC_ASSERT(filter->isEnabled(), return);
     QString currentFindString = (m_currentDocumentFind->isEnabled() ? m_currentDocumentFind->currentFindString() : "");
     if (!currentFindString.isEmpty())
         m_findDialog->setFindText(currentFindString);
@@ -127,6 +133,7 @@ void FindPlugin::setupMenu()
     Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
     mfind->menu()->setTitle(tr("&Find/Replace"));
+    mfind->appendGroup(Constants::G_FIND_CURRENTDOCUMENT);
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
@@ -141,6 +148,12 @@ void FindPlugin::setupMenu()
     separator->setSeparator(true);
     cmd = am->registerAction(separator, QLatin1String("Find.Sep.Actions"), globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+
+    m_openFindDialog = new QAction(tr("Find Dialog"), this);
+    cmd = am->registerAction(m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
+    mfind->addAction(cmd, Constants::G_FIND_FILTERS);
+    connect(m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
 }
 
 void FindPlugin::setupFilterMenuItems()
@@ -153,9 +166,13 @@ void FindPlugin::setupFilterMenuItems()
 
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     m_filterActions.clear();
+    bool haveEnabledFilters = false;
     foreach (IFindFilter *filter, findInterfaces) {
-        QAction *action = new QAction(filter->name(), this);
-        action->setEnabled(filter->isEnabled());
+        QAction *action = new QAction(QString("    %1").arg(filter->name()), this);
+        bool isEnabled = filter->isEnabled();
+        if (isEnabled)
+            haveEnabledFilters = true;
+        action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
         cmd = am->registerAction(action, QLatin1String("FindFilter.")+filter->name(), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
@@ -165,6 +182,8 @@ void FindPlugin::setupFilterMenuItems()
         connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));
     }
     m_findDialog->setFindFilters(findInterfaces);
+    m_openFindDialog->setEnabled(haveEnabledFilters);
+
 }
 
 QTextDocument::FindFlags FindPlugin::findFlags() const

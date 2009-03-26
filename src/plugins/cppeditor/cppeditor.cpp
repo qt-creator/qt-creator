@@ -605,7 +605,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     // Handle include directives
     const unsigned lineno = cursor.blockNumber() + 1;
     foreach (const Document::Include &incl, doc->includes()) {
-        if (incl.line() == lineno) {
+        if (incl.line() == lineno && incl.resolved()) {
             link.fileName = incl.fileName();
             link.pos = cursor.block().position();
             link.length = cursor.block().length();

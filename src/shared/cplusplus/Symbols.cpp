@@ -217,6 +217,12 @@ FullySpecifiedType Function::returnType() const
 void Function::setReturnType(FullySpecifiedType returnType)
 { _returnType = returnType; }
 
+bool Function::hasReturnType() const
+{
+    const FullySpecifiedType ty = returnType();
+    return ty.isValid() || ty.isSigned() || ty.isUnsigned();
+}
+
 unsigned Function::argumentCount() const
 {
     if (! _arguments)
@@ -230,6 +236,12 @@ Symbol *Function::argumentAt(unsigned index) const
 
 Scope *Function::arguments() const
 { return _arguments; }
+
+bool Function::hasArguments() const
+{
+    return ! (argumentCount() == 0 ||
+              (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
+}
 
 bool Function::isVariadic() const
 { return _isVariadic; }

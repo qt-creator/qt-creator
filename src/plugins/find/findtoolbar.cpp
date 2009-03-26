@@ -149,7 +149,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_findInDocumentAction = new QAction(tr("Current Document"), this);
     cmd = am->registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence::Find);
-    mfind->addAction(cmd, Constants::G_FIND_FILTERS);
+    mfind->addAction(cmd, Constants::G_FIND_CURRENTDOCUMENT);
     connect(m_findInDocumentAction, SIGNAL(triggered()), this, SLOT(openFind()));
 
     if (QApplication::clipboard()->supportsFindBuffer()) {
