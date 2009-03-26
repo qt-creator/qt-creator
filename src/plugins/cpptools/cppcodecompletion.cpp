@@ -437,7 +437,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     } else if (wantFunctionCall        && ch == QLatin1Char('(')) {
         k = T_LPAREN;
         --start;
-    } else if (ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
+    } else if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
         k = T_COLON_COLON;
         start -= 2;
     } else if (ch2 == QLatin1Char('-') && ch == QLatin1Char('>')) {
