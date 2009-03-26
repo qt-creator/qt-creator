@@ -23,6 +23,7 @@ SOURCES += \
     linecolumnlabel.cpp \
     fancylineedit.cpp \
     qtcolorbutton.cpp \
+    savedaction.cpp \
     submiteditorwidget.cpp \
     synchronousprocess.cpp \
     submitfieldwidget.cpp
@@ -55,6 +56,7 @@ HEADERS += \
     linecolumnlabel.h \
     fancylineedit.h \
     qtcolorbutton.h \
+    savedaction.h \
     submiteditorwidget.h \
     abstractprocess.h \
     consoleprocess.h \
