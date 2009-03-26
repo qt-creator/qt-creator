@@ -75,6 +75,7 @@ public:
     Q_SLOT virtual void writeSettings(QSettings *settings);
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
+    virtual void disconnectWidget();
     Q_SLOT virtual void apply(QSettings *settings);
 
     virtual QString textPattern() const;
@@ -101,6 +102,21 @@ private:
     QWidget *m_widget;
     ApplyMode m_applyMode;
 };
+
+class DebuggerSettingsGroup
+{
+public:
+    DebuggerSettingsGroup() {}
+    ~DebuggerSettingsGroup() {}
+
+    void insert(DebuggerAction *action, QWidget *widget);
+    void apply(QSettings *settings);
+    void finish();
+
+private:
+    QList<DebuggerAction *> m_list;
+};
+
 
 class DebuggerSettings : public QObject
 {

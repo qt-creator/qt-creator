@@ -172,6 +172,8 @@ void DebuggerAction::writeSettings(QSettings *settings)
 void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
     using namespace Core::Utils;
+    QTC_ASSERT(!m_widget,
+        qDebug() << "ALREADY CONNECTED: " << widget << m_widget << toString(); return);
     m_widget = widget;
     m_applyMode = applyMode;
     
@@ -200,6 +202,12 @@ void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     }
 }
 
+void DebuggerAction::disconnectWidget()
+{
+    QTC_ASSERT(m_widget,
+        qDebug() << "ALREADY DISCONNECTED: " << m_widget << toString(); return);
+    m_widget = 0;
+}
 void DebuggerAction::apply(QSettings *s)
 {
     using namespace Core::Utils;
@@ -209,7 +217,6 @@ void DebuggerAction::apply(QSettings *s)
         setValue(lineEdit->text());
     else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
-    m_widget = 0;
     if (s)
        writeSettings(s);
 }
@@ -267,6 +274,31 @@ void DebuggerAction::trigger(const QVariant &data)
 {
     setData(data);
     QAction::trigger();
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// DebuggerSettingsGroup
+//
+//////////////////////////////////////////////////////////////////////////
+
+void DebuggerSettingsGroup::insert(DebuggerAction *action, QWidget *widget)
+{
+    m_list.append(action);
+    action->connectWidget(widget);
+}
+
+void DebuggerSettingsGroup::apply(QSettings *settings)
+{
+    foreach (DebuggerAction *action, m_list)
+        action->apply(settings);
+}
+
+void DebuggerSettingsGroup::finish()
+{
+    foreach (DebuggerAction *action, m_list)
+        action->disconnectWidget();
 }
 
 
