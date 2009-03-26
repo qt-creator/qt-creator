@@ -127,6 +127,7 @@ public:
 
     Internal::EditorModel *openedEditorsModel() const;
     void activateEditor(const QModelIndex &index, Internal::EditorView *view = 0);
+    void closeEditor(const QModelIndex &index);
 
 
     QList<IEditor*> editorsForFiles(QList<IFile*> files) const;
@@ -150,8 +151,6 @@ public:
 
     Internal::OpenEditorsWindow *windowPopup() const;
     void showWindowPopup() const;
-
-//    Internal::EditorSplitter *editorSplitter() const;
 
     void showEditorInfoBar(const QString &kind,
                            const QString &infoText,

@@ -313,7 +313,7 @@ OutputWindow::OutputWindow(QWidget *parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
-    //setMaximumBlockCount(10000);
+    setMaximumBlockCount(100000);
     setWindowTitle(tr("Application Output Window"));
     setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
@@ -335,7 +335,14 @@ void OutputWindow::appendOutput(const QString &out)
 void OutputWindow::appendOutputInline(const QString &out)
 {
     moveCursor(QTextCursor::End);
-    insertPlainText(out);
+    int newline = out.indexOf(QLatin1Char('\n'));
+    if (newline < 0) {
+        insertPlainText(out);
+        return;
+    }
+    insertPlainText(out.left(newline));
+    if (newline < out.length())
+        appendPlainText(out.mid(newline+1));
 }
 
 void OutputWindow::insertLine()

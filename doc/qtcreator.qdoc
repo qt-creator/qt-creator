@@ -776,6 +776,40 @@
                 \image qtcreator-vcs-gitbranch.png
     \endtable
 
+    \section2 Common options
+
+    The \gui{Version Control/Common} settings page features common settings for 
+    version control systems, such as commit message line wrapping and checking options.
+ 
+    \gui{Submit message checking script} is a script or program that can be used to
+    perform checks on the submit message before submitting. It is passed the 
+    submit message as first parameter. On error, it should output a message on standard error and  
+    return an exit code different from 0.
+
+    \gui{User/alias configuration file} takes a file in a mailmap format that lists
+    user names and aliases:
+
+    \code
+    Jon Doe <Jon.Doe@company.com>
+    Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
+    \endcode
+
+    The second line specifies that the alias \e{hm} and the corresponding email address should
+    be used for \e{Hans Mustermann}. If the file is present, the submit editor will feature
+    a context menu option \gui{Insert name...} that will pop up a dialog letting the user
+    choose a name to be inserted.
+
+    \gui{User field configuration file} is a simple text file consisting of lines specifying submit message fields that take user names, for example:
+
+    \code
+    Reviewed-by:
+    Signed-off-by:
+    \endcode
+
+    The fields will appear below the submit message. They provide completion on the 
+    aliases/public user names specified in the \e{User/alias configuration file} and an additional 
+    button that opens the aforementioned user name dialog.
+
 */
 
 

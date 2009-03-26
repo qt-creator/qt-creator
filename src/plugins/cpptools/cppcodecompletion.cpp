@@ -77,7 +77,9 @@ class FunctionArgumentWidget : public QLabel
 
 public:
     FunctionArgumentWidget();
-    void showFunctionHint(QList<Function *> functionSymbols, const LookupContext &context);
+    void showFunctionHint(QList<Function *> functionSymbols,
+                          const LookupContext &context,
+                          int startPosition);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -96,6 +98,7 @@ private:
 
     int m_startpos;
     int m_currentarg;
+    int m_current;
 
     TextEditor::ITextEditor *m_editor;
 
@@ -103,7 +106,6 @@ private:
     QFrame *m_popupFrame;
     QList<Function *> m_items;
     LookupContext m_context;
-    int m_current;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -193,6 +195,7 @@ protected:
 using namespace CppTools::Internal;
 
 FunctionArgumentWidget::FunctionArgumentWidget():
+    m_startpos(-1),
     m_current(0)
 {
     QObject *editorObject = Core::EditorManager::instance()->currentEditor();
@@ -243,18 +246,24 @@ FunctionArgumentWidget::FunctionArgumentWidget():
 
     setTextFormat(Qt::RichText);
     setMargin(1);
+
+    qApp->installEventFilter(this);
 }
 
 void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
-                                              const LookupContext &context)
+                                              const LookupContext &context,
+                                              int startPosition)
 {
     Q_ASSERT(!functionSymbols.isEmpty());
+
+    if (m_startpos == startPosition)
+        return;
 
     m_popupFrame->hide();
 
     m_items = functionSymbols;
     m_context = context;
-    m_startpos = m_editor->position();
+    m_startpos = startPosition;
     m_current = 0;
 
     // update the text
@@ -263,12 +272,10 @@ void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
 
     m_pager->setVisible(functionSymbols.size() > 1);
 
-    QPoint pos = m_editor->cursorRect().topLeft();
+    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
     pos.setY(pos.y() - m_popupFrame->sizeHint().height() - 1);
     m_popupFrame->move(pos);
     m_popupFrame->show();
-
-    qApp->installEventFilter(this);
 }
 
 void FunctionArgumentWidget::nextPage()
@@ -337,7 +344,6 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
             if (obj != m_editor->widget())
                 break;
         }
-        qDebug() << e;
         close();
         break;
     case QEvent::MouseButtonPress:
@@ -346,7 +352,6 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::Wheel: {
             QWidget *widget = qobject_cast<QWidget *>(obj);
             if (! (widget == this || m_popupFrame->isAncestorOf(widget))) {
-                qDebug() << e << widget;
                 close();
             }
         }
@@ -434,10 +439,13 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     if        (ch2 != QLatin1Char('.') && ch == QLatin1Char('.')) {
         k = T_DOT;
         --start;
+    } else if (ch == QLatin1Char(',')) {
+        k = T_COMMA;
+        --start;
     } else if (wantFunctionCall        && ch == QLatin1Char('(')) {
         k = T_LPAREN;
         --start;
-    } else if (ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
+    } else if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':') && ch == QLatin1Char(':')) {
         k = T_COLON_COLON;
         start -= 2;
     } else if (ch2 == QLatin1Char('-') && ch == QLatin1Char('>')) {
@@ -468,7 +476,6 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         k = T_EOF_SYMBOL;
         start = pos;
     }
-
     else if (tk.is(T_COMMENT) || tk.isLiteral()) {
         k = T_EOF_SYMBOL;
         start = pos;
@@ -520,10 +527,6 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     edit->convertPosition(editor->position(), &line, &column);
     // qDebug() << "line:" << line << "column:" << column;
 
-    ExpressionUnderCursor expressionUnderCursor;
-    QString expression;
-
-
     if (m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
             TextEditor::CompletionItem item(this);
@@ -535,11 +538,23 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return m_startPosition;
     }
 
+    ExpressionUnderCursor expressionUnderCursor;
+    QTextCursor tc(edit->document());
+
+    if (m_completionOperator == T_COMMA) {
+        tc.setPosition(endOfExpression);
+        const int start = expressionUnderCursor.startOfFunctionCall(tc);
+        if (start != -1) {
+            endOfExpression = start;
+            m_startPosition = start + 1;
+            m_completionOperator = T_LPAREN;
+        }
+    }
+
+    QString expression;
+    tc.setPosition(endOfExpression);
 
     if (m_completionOperator) {
-        QTextCursor tc(edit->document());
-        tc.setPosition(endOfExpression);
-
         expression = expressionUnderCursor(tc);
 
         if (m_completionOperator == T_LPAREN) {
@@ -553,12 +568,12 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_completionOperator = T_EOF_SYMBOL;
+                m_startPosition = editor->position();
             }
         }
     }
 
-    //if (! expression.isEmpty())
-        //qDebug() << "***** expression:" << expression;
+    //qDebug() << "***** expression:" << expression;
 
     const Snapshot snapshot = m_manager->snapshot();
 
@@ -702,7 +717,9 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
         if (!m_functionArgumentWidget)
             m_functionArgumentWidget = new FunctionArgumentWidget;
 
-        m_functionArgumentWidget->showFunctionHint(functions, typeOfExpression.lookupContext());
+        m_functionArgumentWidget->showFunctionHint(functions,
+                                                   typeOfExpression.lookupContext(),
+                                                   m_startPosition);
     }
 
     return false;
@@ -1150,20 +1167,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (item.m_data.isValid())
         symbol = item.m_data.value<Symbol *>();
 
-    // qDebug() << "*** complete symbol:" << symbol->fileName() << symbol->line();
-
-    if (m_completionOperator == T_LPAREN) {
-        if (symbol) {
-            Function *function = symbol->type()->asFunctionType();
-            QTC_ASSERT(function, return);
-
-            // Recreate if necessary
-            if (!m_functionArgumentWidget)
-                m_functionArgumentWidget = new FunctionArgumentWidget;
-
-            m_functionArgumentWidget->showFunctionHint(QList<Function*>() << function, typeOfExpression.lookupContext());
-        }
-    } else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
+    if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         QString toInsert = item.m_text;
         toInsert += QLatin1Char(')');
         // Insert the remainder of the name
