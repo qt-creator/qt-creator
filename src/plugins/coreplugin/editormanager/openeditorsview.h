@@ -45,6 +45,20 @@
 namespace Core {
 namespace Internal {
 
+class OpenEditorsDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    OpenEditorsDelegate(QObject *parent = 0);
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+
+    mutable QModelIndex pressedIndex;
+};
+
+
 class OpenEditorsWidget : public QWidget
 {
     Q_OBJECT
@@ -54,12 +68,14 @@ public:
     ~OpenEditorsWidget();
 
 private slots:
-    void selectEditor(const QModelIndex &);
+    void handleClicked(const QModelIndex &);
+    void handlePressed(const QModelIndex &);
     void updateCurrentItem(Core::IEditor*);
 
 private:
     Ui::OpenEditorsView m_ui;
     QWidget *m_widget;
+    OpenEditorsDelegate *m_delegate;
 };
 
 class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
@@ -74,17 +90,6 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-class OpenEditorsDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    OpenEditorsDelegate(QObject *parent = 0);
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-};
 
 
 #endif // OPENEDITORSVIEW_H

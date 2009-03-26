@@ -64,7 +64,12 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 {
 
     if (option.state & QStyle::State_MouseOver) {
-        painter->fillRect(option.rect, option.palette.alternateBase());
+        if ((QApplication::mouseButtons() & Qt::LeftButton) == 0)
+            pressedIndex = QModelIndex();
+        QBrush brush = option.palette.alternateBase();
+        if (index == pressedIndex)
+            brush = option.palette.dark();
+        painter->fillRect(option.rect, brush);
     }
 
     QStyledItemDelegate::paint(painter, option, index);
@@ -78,7 +83,7 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                        option.rect.height(),
                        option.rect.height());
 
-        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
+        icon.paint(painter, iconRect, Qt::Alignment(Qt::AlignRight | Qt::AlignVCenter));
     }
 
 }
@@ -91,7 +96,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     setFocusProxy(m_ui.editorList);
     m_ui.editorList->setFocusPolicy(Qt::NoFocus);
     m_ui.editorList->viewport()->setAttribute(Qt::WA_Hover);
-    m_ui.editorList->setItemDelegate(new OpenEditorsDelegate(this));
+    m_ui.editorList->setItemDelegate((m_delegate = new OpenEditorsDelegate(this)));
     m_ui.editorList->header()->hide();
     m_ui.editorList->setIndentation(0);
     m_ui.editorList->setTextElideMode(Qt::ElideMiddle);
@@ -108,7 +113,9 @@ OpenEditorsWidget::OpenEditorsWidget()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentItem(Core::IEditor*)));
     connect(m_ui.editorList, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(selectEditor(QModelIndex)));
+            this, SLOT(handleClicked(QModelIndex)));
+    connect(m_ui.editorList, SIGNAL(pressed(QModelIndex)),
+            this, SLOT(handlePressed(QModelIndex)));
 }
 
 OpenEditorsWidget::~OpenEditorsWidget()
@@ -128,7 +135,17 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
     m_ui.editorList->scrollTo(m_ui.editorList->currentIndex());
 }
 
-void OpenEditorsWidget::selectEditor(const QModelIndex &index)
+void OpenEditorsWidget::handlePressed(const QModelIndex &index)
+{
+    if (index.column() == 0) {
+        m_ui.editorList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        EditorManager::instance()->activateEditor(index);
+    } else if (index.column() == 1) {
+        m_delegate->pressedIndex = index;
+    }
+}
+
+void OpenEditorsWidget::handleClicked(const QModelIndex &index)
 {
     if (index.column() == 1) { // the funky close button
         EditorManager::instance()->closeEditor(index);
@@ -138,9 +155,6 @@ void OpenEditorsWidget::selectEditor(const QModelIndex &index)
         QWidget *vp = m_ui.editorList->viewport();
         QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, 0, 0);
         QCoreApplication::sendEvent(vp, &e);
-    } else {
-        m_ui.editorList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        EditorManager::instance()->activateEditor(index);
     }
 }
 

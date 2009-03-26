@@ -247,7 +247,7 @@ QModelIndex EditorModel::index(int row, int column, const QModelIndex &parent) c
 
 QVariant EditorModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
     Entry e = m_editors.at(index.row());
     switch (role) {
