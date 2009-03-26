@@ -43,29 +43,29 @@
 #include <QtGui/QLineEdit>
 
 
-namespace Debugger {
-namespace Internal {
+using namespace Debugger::Internal;
+using namespace Core::Utils;
 
 
 //////////////////////////////////////////////////////////////////////////
 //
-// DebuggerAction
+// SavedAction
 //
 //////////////////////////////////////////////////////////////////////////
 
-DebuggerAction::DebuggerAction(QObject *parent)
+SavedAction::SavedAction(QObject *parent)
   : QAction(parent)
 {
     m_widget = 0;
     connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
-QVariant DebuggerAction::value() const
+QVariant SavedAction::value() const
 {
     return m_value;
 }
 
-void DebuggerAction::setValue(const QVariant &value, bool doemit)
+void SavedAction::setValue(const QVariant &value, bool doemit)
 {
     if (value == m_value)
         return;
@@ -76,60 +76,60 @@ void DebuggerAction::setValue(const QVariant &value, bool doemit)
         emit valueChanged(m_value);
 }
 
-QVariant DebuggerAction::defaultValue() const
+QVariant SavedAction::defaultValue() const
 {
     return m_defaultValue;
 }
 
-void DebuggerAction::setDefaultValue(const QVariant &value)
+void SavedAction::setDefaultValue(const QVariant &value)
 {
     m_defaultValue = value;
 }
 
-QString DebuggerAction::settingsKey() const
+QString SavedAction::settingsKey() const
 {
     return m_settingsKey;
 }
 
-void DebuggerAction::setSettingsKey(const QString &key)
+void SavedAction::setSettingsKey(const QString &key)
 {
     m_settingsKey = key;
 }
 
-void DebuggerAction::setSettingsKey(const QString &group, const QString &key)
+void SavedAction::setSettingsKey(const QString &group, const QString &key)
 {
     m_settingsKey = key;
     m_settingsGroup = group;
 }
 
-QString DebuggerAction::settingsGroup() const
+QString SavedAction::settingsGroup() const
 {
     return m_settingsGroup;
 }
 
-void DebuggerAction::setSettingsGroup(const QString &group)
+void SavedAction::setSettingsGroup(const QString &group)
 {
     m_settingsGroup = group;
 }
 
-QString DebuggerAction::textPattern() const
+QString SavedAction::textPattern() const
 {
     return m_textPattern;
 }
 
-void DebuggerAction::setTextPattern(const QString &value)
+void SavedAction::setTextPattern(const QString &value)
 {
     m_textPattern = value;
 }
 
-QString DebuggerAction::toString() const
+QString SavedAction::toString() const
 {
     return "value: " + m_value.toString()
         + "  defaultvalue: " + m_defaultValue.toString()
         + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey;
 }
 
-QAction *DebuggerAction::updatedAction(const QString &text0)
+QAction *SavedAction::updatedAction(const QString &text0)
 {
     QString text = text0;
     bool enabled = true;
@@ -149,7 +149,7 @@ QAction *DebuggerAction::updatedAction(const QString &text0)
     return this;
 }
 
-void DebuggerAction::readSettings(QSettings *settings)
+void SavedAction::readSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
@@ -159,7 +159,7 @@ void DebuggerAction::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void DebuggerAction::writeSettings(QSettings *settings)
+void SavedAction::writeSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
@@ -169,9 +169,8 @@ void DebuggerAction::writeSettings(QSettings *settings)
     settings->endGroup();
 }
    
-void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
+void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
-    using namespace Core::Utils;
     QTC_ASSERT(!m_widget,
         qDebug() << "ALREADY CONNECTED: " << widget << m_widget << toString(); return);
     m_widget = widget;
@@ -198,19 +197,18 @@ void DebuggerAction::connectWidget(QWidget *widget, ApplyMode applyMode)
         connect(pathChooser, SIGNAL(browsingFinished()),
             this, SLOT(pathChooserEditingFinished()));
     } else {
-        qDebug() << "CANNOT CONNECT WIDGET " << widget;
+        qDebug() << "Cannot connect widget " << widget << toString();
     }
 }
 
-void DebuggerAction::disconnectWidget()
+void SavedAction::disconnectWidget()
 {
     QTC_ASSERT(m_widget,
-        qDebug() << "ALREADY DISCONNECTED: " << m_widget << toString(); return);
+        qDebug() << "Widget already disconnected: " << m_widget << toString(); return);
     m_widget = 0;
 }
-void DebuggerAction::apply(QSettings *s)
+void SavedAction::apply(QSettings *s)
 {
-    using namespace Core::Utils;
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(m_widget))
         setValue(button->isChecked());
     else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
@@ -221,7 +219,7 @@ void DebuggerAction::apply(QSettings *s)
        writeSettings(s);
 }
 
-void DebuggerAction::uncheckableButtonClicked()
+void SavedAction::uncheckableButtonClicked()
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
@@ -229,7 +227,7 @@ void DebuggerAction::uncheckableButtonClicked()
     QAction::trigger();
 }
 
-void DebuggerAction::checkableButtonClicked(bool)
+void SavedAction::checkableButtonClicked(bool)
 {
     QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
     QTC_ASSERT(button, return);
@@ -238,39 +236,35 @@ void DebuggerAction::checkableButtonClicked(bool)
         setValue(button->isChecked());
 }
 
-void DebuggerAction::lineEditEditingFinished()
+void SavedAction::lineEditEditingFinished()
 {
     QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
     QTC_ASSERT(lineEdit, return);
-    //qDebug() << "LINEEDIT: " << sender() << lineEdit->text();
     if (m_applyMode == ImmediateApply)
         setValue(lineEdit->text());
 }
 
-void DebuggerAction::pathChooserEditingFinished()
+void SavedAction::pathChooserEditingFinished()
 {
-    using namespace Core::Utils;
     PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
     QTC_ASSERT(pathChooser, return);
-    //qDebug() << "PATHCHOOSER: " << sender() << pathChooser->path();
     if (m_applyMode == ImmediateApply)
         setValue(pathChooser->path());
 }
 
-void DebuggerAction::actionTriggered(bool)
+void SavedAction::actionTriggered(bool)
 {
-    //qDebug() << "TRIGGERING" << this << actionGroup();
     if (isCheckable())
         setValue(isChecked());
     if (actionGroup() && actionGroup()->isExclusive()) {
         // FIXME: should be taken care of more directly
         foreach (QAction *act, actionGroup()->actions())
-            if (DebuggerAction *dact = qobject_cast<DebuggerAction *>(act))
+            if (SavedAction *dact = qobject_cast<SavedAction *>(act))
                 dact->setValue(bool(act == this));
     }
 }
 
-void DebuggerAction::trigger(const QVariant &data)
+void SavedAction::trigger(const QVariant &data)
 {
     setData(data);
     QAction::trigger();
@@ -279,25 +273,25 @@ void DebuggerAction::trigger(const QVariant &data)
 
 //////////////////////////////////////////////////////////////////////////
 //
-// DebuggerSettingsGroup
+// SavedActionSet
 //
 //////////////////////////////////////////////////////////////////////////
 
-void DebuggerSettingsGroup::insert(DebuggerAction *action, QWidget *widget)
+void SavedActionSet::insert(SavedAction *action, QWidget *widget)
 {
     m_list.append(action);
     action->connectWidget(widget);
 }
 
-void DebuggerSettingsGroup::apply(QSettings *settings)
+void SavedActionSet::apply(QSettings *settings)
 {
-    foreach (DebuggerAction *action, m_list)
+    foreach (SavedAction *action, m_list)
         action->apply(settings);
 }
 
-void DebuggerSettingsGroup::finish()
+void SavedActionSet::finish()
 {
-    foreach (DebuggerAction *action, m_list)
+    foreach (SavedAction *action, m_list)
         action->disconnectWidget();
 }
 
@@ -308,6 +302,9 @@ void DebuggerSettingsGroup::finish()
 //
 //////////////////////////////////////////////////////////////////////////
 
+namespace Debugger {
+namespace Internal {
+
 DebuggerSettings::DebuggerSettings(QObject *parent)
     : QObject(parent)
 {}
@@ -317,24 +314,24 @@ DebuggerSettings::~DebuggerSettings()
     qDeleteAll(m_items);
 }
     
-void DebuggerSettings::insertItem(int code, DebuggerAction *item)
+void DebuggerSettings::insertItem(int code, SavedAction *item)
 {
     m_items[code] = item;
 }
 
 void DebuggerSettings::readSettings(QSettings *settings)
 {
-    foreach (DebuggerAction *item, m_items)
+    foreach (SavedAction *item, m_items)
         item->readSettings(settings);
 }
 
 void DebuggerSettings::writeSettings(QSettings *settings)
 {
-    foreach (DebuggerAction *item, m_items)
+    foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
 }
    
-DebuggerAction *DebuggerSettings::item(int code)
+SavedAction *DebuggerSettings::item(int code)
 {
     QTC_ASSERT(m_items.value(code, 0), return 0);
     return m_items.value(code, 0);
@@ -345,7 +342,7 @@ QString DebuggerSettings::dump()
     QString out;
     QTextStream ts(&out);
     ts  << "Debugger settings: ";
-    foreach (DebuggerAction *item, m_items)
+    foreach (SavedAction *item, m_items)
         ts << "\n" << item->value().toString();
     return out;
 }
@@ -367,16 +364,16 @@ DebuggerSettings *theDebuggerSettings()
 
     instance = new DebuggerSettings;
 
-    DebuggerAction *item = 0;
+    SavedAction *item = 0;
 
     //
     // View
     //
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(AdjustColumnWidths, item);
     item->setText(QObject::tr("Adjust column widths to contents"));
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(AlwaysAdjustColumnWidths, item);
     item->setText(QObject::tr("Always adjust column widths to contents"));
     item->setCheckable(true);
@@ -384,50 +381,50 @@ DebuggerSettings *theDebuggerSettings()
     //
     // Locals & Watchers
     //
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(WatchExpression, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\""));
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(RemoveWatchExpression, item);
     item->setTextPattern(QObject::tr("Remove watch expression \"%1\""));
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
     //item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(AssignValue, item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(ExpandItem, item);
     item->setText(QObject::tr("Expand item"));
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(CollapseItem, item);
     item->setText(QObject::tr("Collapse item"));
 
     //
     // Dumpers
     //
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(SettingsDialog, item);
     item->setText(QObject::tr("Debugger properties..."));
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(DebugDumpers, item);
     item->setText(QObject::tr("Debug custom dumpers"));
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Recheck custom dumper availability"));
     instance->insertItem(RecheckDumpers, item);
 
     //
     // Breakpoints
     //
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Syncronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
@@ -438,7 +435,7 @@ DebuggerSettings *theDebuggerSettings()
     QActionGroup *registerFormatGroup = new QActionGroup(instance);
     registerFormatGroup->setExclusive(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Hexadecimal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatHexadecimal");
@@ -446,35 +443,35 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(FormatHexadecimal, item);
     registerFormatGroup->addAction(item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Decimal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatDecimal");
     instance->insertItem(FormatDecimal, item);
     registerFormatGroup->addAction(item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Octal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatOctal");
     instance->insertItem(FormatOctal, item);
     registerFormatGroup->addAction(item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Binary"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatBinary");
     instance->insertItem(FormatBinary, item);
     registerFormatGroup->addAction(item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Raw"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatRaw");
     instance->insertItem(FormatRaw, item);
     registerFormatGroup->addAction(item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Natural"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatNatural");
@@ -485,17 +482,17 @@ DebuggerSettings *theDebuggerSettings()
     // Misc
     //
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setText(QObject::tr("Skip known frames"));
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setText(QObject::tr("Use tooltips when debugging"));
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setText(QObject::tr("List source files"));
     item->setCheckable(true);
@@ -504,91 +501,91 @@ DebuggerSettings *theDebuggerSettings()
     //
     // Settings
     //
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(GdbLocation, item);
     item->setSettingsKey("DebugMode", "Location");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(GdbEnvironment, item);
     item->setSettingsKey("DebugMode", "Environment");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(GdbScriptFile, item);
     item->setSettingsKey("DebugMode", "ScriptFile");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "AutoQuit");
     item->setText(QObject::tr("Automatically quit debugger"));
     item->setCheckable(true);
     instance->insertItem(AutoQuit, item);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setSettingsKey("DebugMode", "UseToolTips");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(UseDumpers, item);
     item->setSettingsKey("DebugMode", "UseCustomDumpers");
     item->setText(QObject::tr("Use custom dumpers"));
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(BuildDumpersOnTheFly, item);
     item->setDefaultValue(true);
     item->setSettingsKey("DebugMode", "BuildDumpersOnTheFly");
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(UseQtDumpers, item);
     item->setSettingsKey("DebugMode", "UseQtDumpers");
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(UsePrebuiltDumpers, item);
     item->setSettingsKey("DebugMode", "UsePrebuiltDumpers");
     item->setCheckable(true);
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(PrebuiltDumpersLocation, item);
     item->setSettingsKey("DebugMode", "PrebuiltDumpersLocation");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(TerminalApplication, item);
     item->setDefaultValue("xterm");
     item->setSettingsKey("DebugMode", "Terminal");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setSettingsKey("DebugMode", "SkipKnownFrames");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(DebugDumpers, item);
     item->setSettingsKey("DebugMode", "DebugDumpers");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(AllPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(SelectedPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpoints");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(NoPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "NoPluginBreakpoints");
 
-    item = new DebuggerAction(instance);
+    item = new SavedAction(instance);
     instance->insertItem(SelectedPluginBreakpointsPattern, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpointsPattern");
 
     return instance;
 }
 
-DebuggerAction *theDebuggerAction(int code)
+SavedAction *theDebuggerAction(int code)
 {
     return theDebuggerSettings()->item(code);
 }

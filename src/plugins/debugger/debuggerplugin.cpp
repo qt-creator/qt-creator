@@ -259,7 +259,7 @@ private:
     Ui::GdbOptionPage m_ui;
 
     DebuggerPlugin *m_plugin;
-    DebuggerSettingsGroup m_group;
+    Core::Utils::SavedActionSet m_group;
 };
 
 QWidget *GdbOptionPage::createPage(QWidget *parent)
@@ -273,6 +273,7 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.terminalChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     m_ui.terminalChooser->setPromptDialogTitle(tr("Choose Location of Terminal Application"));
 
+    m_group.clear();
     m_group.insert(theDebuggerAction(GdbLocation), 
         m_ui.gdbLocationChooser);
     m_group.insert(theDebuggerAction(GdbScriptFile), 
@@ -291,6 +292,8 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(SelectedPluginBreakpointsPattern), 
         m_ui.lineEditSelectedPluginBreakpointsPattern);
 
+    m_group.insert(theDebuggerAction(ListSourceFiles), 
+        m_ui.checkBoxListSourceFiles);
     m_group.insert(theDebuggerAction(SkipKnownFrames), 
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTips), 
@@ -346,7 +349,7 @@ private:
     Ui::DumperOptionPage m_ui;
 
     DebuggerPlugin *m_plugin;
-    DebuggerSettingsGroup m_group;
+    Core::Utils::SavedActionSet m_group;
 };
 
 QWidget *DumperOptionPage::createPage(QWidget *parent)
@@ -362,6 +365,7 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
         m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
 
+    m_group.clear();
     m_group.insert(theDebuggerAction(UseQtDumpers),
         m_ui.radioButtonUseQtDumpers);
     m_group.insert(theDebuggerAction(UsePrebuiltDumpers),
