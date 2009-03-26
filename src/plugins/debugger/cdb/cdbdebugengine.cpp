@@ -29,6 +29,8 @@
 
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
+#include "cdbsymbolgroupcontext.h"
+#include "cdbstacktracecontext.h"
 
 #include "debuggermanager.h"
 #include "breakhandler.h"
@@ -55,7 +57,12 @@
 static const char *dbgEngineDllC = "dbgeng";
 static const char *debugCreateFuncC = "DebugCreate";
 
-static QString msgDebugEngineComResult(HRESULT hr)
+static const char *localSymbolRootC = "local";
+
+namespace Debugger {
+namespace Internal {
+
+QString msgDebugEngineComResult(HRESULT hr)
 {
     switch (hr) {
         case S_OK:
@@ -87,13 +94,12 @@ static QString msgStackIndexOutOfRange(int idx, int size)
     return QString::fromLatin1("Frame index %1 out of range (%2).").arg(idx).arg(size);
 }
 
-static QString msgComFailed(const char *func, HRESULT hr)
+QString msgComFailed(const char *func, HRESULT hr)
 {
     return QString::fromLatin1("%1 failed: %2").arg(QLatin1String(func), msgDebugEngineComResult(hr));
 }
 
-namespace Debugger {
-namespace Internal {
+static const char *msgNoStackTraceC = "Internal error: no stack trace present.";
 
 DebuggerEngineLibrary::DebuggerEngineLibrary() :
     m_debugCreate(0)
@@ -138,6 +144,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_engine(engine),
     m_debuggerManager(parent),
     m_debuggerManagerAccess(parent->engineInterface()),
+    m_currentStackTrace(0),
     m_mode(AttachCore)
 {   
 }
@@ -205,6 +212,7 @@ IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent)
 
 CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
 {
+    cleanStackTrace();
     if (m_pDebugClient)
         m_pDebugClient->Release();
     if (m_pDebugControl)
@@ -215,6 +223,17 @@ CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
         m_pDebugSymbols->Release();
     if (m_pDebugRegisters)
         m_pDebugRegisters->Release();
+}
+
+void CdbDebugEnginePrivate::cleanStackTrace()
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO;
+
+    if (m_currentStackTrace) {
+        delete m_currentStackTrace;
+        m_currentStackTrace = 0;
+    }
 }
 
 CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
@@ -366,6 +385,7 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << exitCode;
 
+    m_d->cleanStackTrace();
     m_d->setDebuggeeHandles(0, 0);
     m_d->m_debuggerManagerAccess->notifyInferiorExited();
     m_d->m_debuggerManager->exitDebugger();
@@ -377,6 +397,7 @@ void CdbDebugEngine::exitDebugger()
         qDebug() << Q_FUNC_INFO;
 
     if (m_d->m_hDebuggeeProcess) {
+        m_d->cleanStackTrace();
         // Terminate or detach if we are running
         HRESULT hr;
         switch (m_d->m_mode) {
@@ -407,47 +428,22 @@ void CdbDebugEngine::exitDebugger()
     killWatchTimer();
 }
 
-// Retrieve a symbol
-static WatchData symbolToWatchData(ULONG index, const QString &namePrefix,
-                                   IDebugSymbolGroup2 *pDbgSymGroup)
+class ModelBuildIterator {
+public:
+    explicit ModelBuildIterator(WatchHandler *wh) : m_wh(wh) {}
+
+    ModelBuildIterator & operator*() { return *this; }
+    ModelBuildIterator &operator=(const WatchData &wd);
+    ModelBuildIterator &operator++() { return *this; }
+
+private:
+    WatchHandler *m_wh;
+};
+
+ModelBuildIterator &ModelBuildIterator::operator=(const WatchData &wd)
 {
-    // retrieve symbol names and value strings
-    ULONG nameLength;
-    static WCHAR nameBuffer[MAX_PATH + 1];
-    // Name
-    pDbgSymGroup->GetSymbolNameWide(index, nameBuffer, MAX_PATH, &nameLength);
-    nameBuffer[nameLength] = 0;
-    const QString name = QString::fromUtf16(nameBuffer);
-    // Type name
-    pDbgSymGroup->GetSymbolTypeNameWide(index, nameBuffer, MAX_PATH, &nameLength);
-    nameBuffer[nameLength] = 0;
-    const QString type = QString::fromUtf16(nameBuffer);
-    // Value
-    QString value;
-    const HRESULT hr = pDbgSymGroup->GetSymbolValueTextWide(index, nameBuffer, MAX_PATH, &nameLength);
-    if (SUCCEEDED(hr)) {
-        nameBuffer[nameLength] = 0;
-        value = QString::fromUtf16(nameBuffer);
-    } else {
-        value = QLatin1String("<unknown>");
-    }
-    WatchData wd;
-    wd.iname =namePrefix + name;
-    wd.name = name;
-    wd.value = value;
-    wd.type = type;
-    if (isPointerType(type)) {
-        wd.setTypeUnneeded();
-        wd.setValueUnneeded();
-    } else {
-        wd.setAllUnneeded();
-    }
-    if (debugCDB) {
-        qDebug() << Q_FUNC_INFO << index << "state=0x" << QString::number(wd.state, 16)
-                << wd.name << " type=" << wd.type << " (" << type << ')'
-                << " value " << wd.value << " (" << value << ')';
-    }
-    return wd;
+    m_wh->insertData(wd);
+    return *this;
 }
 
 bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
@@ -456,82 +452,36 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
-
-    CdbStackTrace cdbStackTrace;
-    if (!getCdbStrackTrace(&cdbStackTrace, errorMessage))
-        return false;
-
-    if ((unsigned)frameIndex >= cdbStackTrace.frameCount) {
-        *errorMessage = msgStackIndexOutOfRange(frameIndex, cdbStackTrace.frameCount);
-        return false;
-    }
-
-    IDebugSymbolGroup2 *pDbgSymGroup = 0;
-    DEBUG_SYMBOL_PARAMETERS *symParams = 0;
     bool success = false;
-
+    wh->cleanup();
     do {
-        HRESULT hr = m_pDebugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &pDbgSymGroup);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
+        if (!m_currentStackTrace) {
+            *errorMessage = QLatin1String(msgNoStackTraceC);
             break;
         }
 
-        hr = m_pDebugSymbols->SetScope(0, cdbStackTrace.frames + frameIndex, NULL, 0);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("SetScope", hr);
+        CdbSymbolGroupContext *sgc = m_currentStackTrace->symbolGroupContextAt(frameIndex, errorMessage);
+        if (!sgc) {
             break;
         }
-        // refresh with current frame
-        hr = m_pDebugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, pDbgSymGroup, &pDbgSymGroup);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
-            break;
-        }
-
-        ULONG symbolCount;
-        hr = pDbgSymGroup->GetNumberSymbols(&symbolCount);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetNumberSymbols", hr);
-            break;
-        }
-
-        symParams = new DEBUG_SYMBOL_PARAMETERS[symbolCount];
-        hr = pDbgSymGroup->GetSymbolParameters(0, symbolCount, symParams);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetSymbolParameters", hr);
-            break;
-        }
-        wh->cleanup();
-        // retrieve symbol names and value strings.
-        // Add a dummy place holder in case children are needed
-        const QString localPrefix = QLatin1String("local.");
-        for (ULONG s = 0 ; s < symbolCount ; s++ ) {
-            WatchData wd = symbolToWatchData(s, localPrefix, pDbgSymGroup);
-            if (wd.isSomethingNeeded()) {
-                wh->insertData(wd.pointerChildPlaceHolder());
-                wd.setAllUnneeded();
-                wd.setChildCount(1);
-            }
-            wh->insertData(wd);
-        }
-        wh->rebuildModel();
+        ModelBuildIterator it(wh);
+        sgc->getSymbols(sgc->prefix(), it);
         success = true;
     } while (false);
+    wh->rebuildModel();
 
-    delete [] symParams;
-    if (pDbgSymGroup)
-        pDbgSymGroup->Release();
     return success;
 }
-
 
 void CdbDebugEngine::updateWatchModel()
 {
     WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
     const QList<WatchData> incomplete = watchHandler->takeCurrentIncompletes();
+
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << incomplete.size();
+    foreach (const WatchData& wd, incomplete)
+        qDebug() << Q_FUNC_INFO << wd.toString();
 }
 
 void CdbDebugEngine::stepExec()
@@ -540,8 +490,9 @@ void CdbDebugEngine::stepExec()
         qDebug() << Q_FUNC_INFO;
 
     //m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
-    HRESULT hr;
-    hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
+    m_d->cleanStackTrace();
+    const HRESULT hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
+    Q_UNUSED(hr)
     m_d->m_bIgnoreNextDebugEvent = true;
     startWatchTimer();
 }
@@ -594,6 +545,7 @@ void CdbDebugEngine::nextExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
+    m_d->cleanStackTrace();
     const HRESULT hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -612,6 +564,7 @@ void CdbDebugEngine::nextIExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
+    m_d->cleanStackTrace();
     const HRESULT hr = m_d->m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -625,6 +578,7 @@ void CdbDebugEngine::continueInferior()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
+    m_d->cleanStackTrace();
     killWatchTimer();
     m_d->m_debuggerManager->resetLocation();
 
@@ -714,7 +668,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
         }
 
         const StackFrame &frame = stackHandler->currentFrame();
-        if (frame.file.isEmpty() || !QFileInfo(frame.file).isReadable()) {
+        if (!frame.isUsable()) {
             errorMessage = QString::fromLatin1("%1: file %2 unusable.").
                            arg(QLatin1String(Q_FUNC_INFO), frame.file);
             break;
@@ -933,78 +887,29 @@ void CdbDebugEnginePrivate::updateThreadList()
     th->setThreads(threads);
 }
 
-// Get CDB stack trace
-bool CdbDebugEnginePrivate::getCdbStrackTrace(CdbStackTrace *st, QString *errorMessage)
-{
-    HRESULT hr = m_pDebugSystemObjects->SetCurrentThreadId(m_currentThreadId);
-    if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("%1: SetCurrentThreadId %2 failed: %3").
-                        arg(QString::fromLatin1(Q_FUNC_INFO)).
-                        arg(m_currentThreadId).
-                        arg(msgDebugEngineComResult(hr));
-        return false;
-    }
-    hr = m_pDebugControl->GetStackTrace(0, 0, 0, st->frames, CdbStackTrace::maxFrames, &(st->frameCount));
-    if (FAILED(hr)) {
-        *errorMessage = *errorMessage = msgComFailed("GetStackTrace", hr);
-        return false;
-    }
-    return true;
-}
-
-bool CdbDebugEnginePrivate::getStackTrace(QList<StackFrame> *stackFrames,
-                                          int *current, QString *errorMessage)
-{
-    stackFrames->clear();
-    *current = -1;
-    // Get the CDB trace and convert into debugger plugin structures
-    CdbStackTrace cdbStackTrace;
-    if (!getCdbStrackTrace(&cdbStackTrace, errorMessage))
-        return false;
-
-    WCHAR wszBuf[MAX_PATH];
-    for (ULONG i=0; i < cdbStackTrace.frameCount; ++i) {
-        StackFrame frame;
-        frame.line = 0;
-        frame.level = i;
-        frame.address = QString::fromLatin1("0x%1").arg(cdbStackTrace.frames[i].InstructionOffset, 0, 16);
-
-        m_pDebugSymbols->GetNameByOffsetWide(cdbStackTrace.frames[i].InstructionOffset, wszBuf, MAX_PATH, 0, 0);
-        frame.function = QString::fromUtf16(wszBuf);
-
-        ULONG ulLine;
-        ULONG ulFileNameSize;
-        ULONG64 ul64Displacement;
-        const HRESULT hr = m_pDebugSymbols->GetLineByOffsetWide(cdbStackTrace.frames[i].InstructionOffset, &ulLine, wszBuf, MAX_PATH, &ulFileNameSize, &ul64Displacement);
-        if (SUCCEEDED(hr)) {
-            frame.line = ulLine;
-            frame.file = QString::fromUtf16(wszBuf, ulFileNameSize);
-        }
-        stackFrames->append(frame);
-    }
-
-    // find the first usable frame and select it
-    const int count = stackFrames->count();
-    for (int i=0; i < count; ++i) {
-        const StackFrame &frame = stackFrames->at(i);
-        const bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-        if (usable) {
-            *current = i;
-            break;
-        }
-    }
-    return true;
-}
-
 void CdbDebugEnginePrivate::updateStackTrace()
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
-    QList<StackFrame> stackFrames;
-    int current;
+    // Create a new context
+    cleanStackTrace();
     QString errorMessage;
-    if (getStackTrace(&stackFrames, &current, &errorMessage))
-        qWarning("%s", qPrintable(errorMessage));
+    m_currentStackTrace =
+            CdbStackTraceContext::create(m_pDebugControl, m_pDebugSystemObjects,
+                                         m_pDebugSymbols, m_currentThreadId, &errorMessage);
+    if (!m_currentStackTrace) {
+        qWarning("%s: failed to create trace context: %s", Q_FUNC_INFO, qPrintable(errorMessage));
+        return;
+    }
+    const QList<StackFrame> stackFrames = m_currentStackTrace->frames();
+    // find the first usable frame and select it
+    int current = -1;
+    const int count = stackFrames.count();
+    for (int i=0; i < count; ++i)
+        if (stackFrames.at(i).isUsable()) {
+            current = i;
+            break;
+        }
 
     m_debuggerManagerAccess->stackHandler()->setFrames(stackFrames);
     if (current >= 0) {

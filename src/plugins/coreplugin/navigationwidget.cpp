@@ -238,16 +238,27 @@ void NavigationWidget::saveSettings(QSettings *settings)
 
 void NavigationWidget::restoreSettings(QSettings *settings)
 {
-    if (settings->contains("Navigation/Views")) {
-        QStringList views = settings->value("Navigation/Views").toStringList();
-        for (int i=0; i<views.count()-1; ++i) {
-            insertSubItem(0);
+    int version = settings->value("Navigation/Version", 1).toInt();
+    QStringList views = settings->value("Navigation/Views").toStringList();
+
+    bool restoreSplitterState = true;
+    if (version == 1) {
+        if (views.isEmpty())
+            views += "Projects";
+        if (!views.contains("Open Documents")) {
+            views += "Open Documents";
+            restoreSplitterState = false;
         }
-        for (int i=0; i<views.count(); ++i) {
-            const QString &view = views.at(i);
-            NavigationSubWidget *nsw = m_subWidgets.at(i);
-            nsw->setFactory(view);
-        }
+        settings->setValue("Navigation/Version", 2);
+    }
+
+    for (int i=0; i<views.count()-1; ++i) {
+        insertSubItem(0);
+    }
+    for (int i=0; i<views.count(); ++i) {
+        const QString &view = views.at(i);
+        NavigationSubWidget *nsw = m_subWidgets.at(i);
+        nsw->setFactory(view);
     }
 
     if (settings->contains("Navigation/Visible")) {
@@ -256,8 +267,15 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         setShown(true);
     }
 
-    if (settings->contains("Navigation/VerticalPosition"))
+    if (restoreSplitterState && settings->contains("Navigation/VerticalPosition")) {
         restoreState(settings->value("Navigation/VerticalPosition").toByteArray());
+    } else {
+        QList<int> sizes;
+        sizes += 256;
+        for (int i = views.size()-1; i; --i)
+            sizes.prepend(512);
+        setSizes(sizes);
+    }
 
     if (settings->contains("Navigation/Width")) {
         m_width = settings->value("Navigation/Width").toInt();

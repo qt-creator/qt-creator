@@ -210,10 +210,10 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(theDebuggerAction(UseDumpers), SIGNAL(boolValueChanged(bool)),
-        this, SLOT(setUseDumpers(bool)));
-    connect(theDebuggerAction(DebugDumpers), SIGNAL(boolValueChanged(bool)),
-        this, SLOT(setDebugDumpers(bool)));
+    connect(theDebuggerAction(UseDumpers), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setUseDumpers(QVariant)));
+    connect(theDebuggerAction(DebugDumpers), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setDebugDumpers(QVariant)));
     connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
         this, SLOT(recheckCustomDumperAvailability()));
 
@@ -1834,9 +1834,9 @@ void GdbEngine::setTokenBarrier()
     m_oldestAcceptableToken = currentToken();
 }
 
-void GdbEngine::setDebugDumpers(bool on)
+void GdbEngine::setDebugDumpers(const QVariant &on)
 {
-    if (on) {
+    if (on.toBool()) {
         debugMessage("SWITCHING ON DUMPER DEBUGGING");
         sendCommand("set unwindonsignal off");
         q->breakByFunction("qDumpObjectData440");
@@ -2447,8 +2447,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     for (int i = 0; i != stack.childCount(); ++i) {
         //qDebug() << "HANDLING FRAME: " << stack.childAt(i).toString();
         const GdbMi frameMi = stack.childAt(i);
-        StackFrame frame;
-        frame.level = i;
+        StackFrame frame(i);
         QStringList files;
         files.append(frameMi.findChild("fullname").data());
         files.append(frameMi.findChild("file").data());
@@ -2488,8 +2487,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     if (0 && topFrame != -1) {
         // updates of locals already triggered early
         const StackFrame &frame = qq->stackHandler()->currentFrame();
-        bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-        if (usable)
+        if (frame.isUsable())
             q->gotoLocation(frame.file, frame.line, true);
         else
             qDebug() << "FULL NAME NOT USABLE 0: " << frame.file;
@@ -2500,8 +2498,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     if (topFrame != -1) {
         // updates of locals already triggered early
         const StackFrame &frame = qq->stackHandler()->currentFrame();
-        bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-        if (usable)
+        if (frame.isUsable())
             q->gotoLocation(frame.file, frame.line, true);
         else
             qDebug() << "FULL NAME NOT USABLE 0: " << frame.file << topFrame;
@@ -2551,8 +2548,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
     const StackFrame &frame = stackHandler->currentFrame();
 
-    bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-    if (usable)
+    if (frame.isUsable())
         q->gotoLocation(frame.file, frame.line, true);
     else
         qDebug() << "FULL NAME NOT USABLE: " << frame.file;
@@ -2853,10 +2849,9 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
         data.saddr = mi.data();
 }
 
-void GdbEngine::setUseDumpers(bool on)
+void GdbEngine::setUseDumpers(const QVariant &on)
 {
     qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
-    Q_UNUSED(on);
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
     //m_expandedINames.clear();
     setTokenBarrier();

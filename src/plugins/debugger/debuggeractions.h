@@ -42,17 +42,17 @@ class QSettings;
 QT_END_NAMESPACE
 
 
-namespace Debugger {
-namespace Internal {
+namespace Core {
+namespace Utils {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class DebuggerAction : public QAction
+class SavedAction : public QAction
 {
     Q_OBJECT
 
 public:
-    DebuggerAction(QObject *parent = 0);
+    SavedAction(QObject *parent = 0);
 
     virtual QVariant value() const;
     Q_SLOT virtual void setValue(const QVariant &value, bool doemit = true);
@@ -75,6 +75,7 @@ public:
     Q_SLOT virtual void writeSettings(QSettings *settings);
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
+    virtual void disconnectWidget();
     Q_SLOT virtual void apply(QSettings *settings);
 
     virtual QString textPattern() const;
@@ -84,8 +85,6 @@ public:
 
 signals:
     void valueChanged(const QVariant &newValue);
-    void boolValueChanged(bool newValue);
-    void stringValueChanged(const QString &newValue);
 
 private:
     Q_SLOT void uncheckableButtonClicked();
@@ -104,6 +103,28 @@ private:
     ApplyMode m_applyMode;
 };
 
+class SavedActionSet
+{
+public:
+    SavedActionSet() {}
+    ~SavedActionSet() {}
+
+    void insert(SavedAction *action, QWidget *widget);
+    void apply(QSettings *settings);
+    void finish();
+    void clear() { m_list.clear(); }
+
+private:
+    QList<SavedAction *> m_list;
+};
+
+} // namespace Utils
+} // namespace Core
+
+
+namespace Debugger {
+namespace Internal {
+
 class DebuggerSettings : public QObject
 {
     Q_OBJECT
@@ -112,8 +133,8 @@ public:
     DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
     
-    void insertItem(int code, DebuggerAction *item);
-    DebuggerAction *item(int code);
+    void insertItem(int code, Core::Utils::SavedAction *item);
+    Core::Utils::SavedAction *item(int code);
 
     QString dump();
 
@@ -122,7 +143,7 @@ public slots:
     void writeSettings(QSettings *settings);
 
 private:
-    QHash<int, DebuggerAction *> m_items; 
+    QHash<int, Core::Utils::SavedAction *> m_items; 
 };
 
 
@@ -185,7 +206,7 @@ enum DebuggerActionCode
 
 // singleton access
 DebuggerSettings *theDebuggerSettings();
-DebuggerAction *theDebuggerAction(int code);
+Core::Utils::SavedAction *theDebuggerAction(int code);
 
 // convienience
 bool theDebuggerBoolSetting(int code);

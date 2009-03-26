@@ -89,8 +89,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     : QWidget(parent),
     m_qt4RunConfiguration(qt4RunConfiguration),
     m_ignoreChange(false),
-    m_isShown(false),
-    m_usingDyldImageSuffix(0)
+    m_usingDyldImageSuffix(0),
+    m_isShown(false)
 {
     QFormLayout *toplayout = new QFormLayout(this);
     toplayout->setMargin(0);

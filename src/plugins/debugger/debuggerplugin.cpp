@@ -251,14 +251,15 @@ public:
     QString trCategory() const { return tr("Debugger"); }
 
     QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() {} // automatically calls "apply"
+    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void finish() { m_group.finish(); }
 
 private:
     friend class DebuggerPlugin;
     Ui::GdbOptionPage m_ui;
 
     DebuggerPlugin *m_plugin;
+    Core::Utils::SavedActionSet m_group;
 };
 
 QWidget *GdbOptionPage::createPage(QWidget *parent)
@@ -272,30 +273,31 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.terminalChooser->setExpectedKind(Core::Utils::PathChooser::Command);
     m_ui.terminalChooser->setPromptDialogTitle(tr("Choose Location of Terminal Application"));
 
-    theDebuggerAction(GdbLocation)
-        ->connectWidget(m_ui.gdbLocationChooser);
-    theDebuggerAction(GdbScriptFile)
-        ->connectWidget(m_ui.scriptFileChooser);
-    theDebuggerAction(GdbEnvironment)
-        ->connectWidget(m_ui.environmentEdit);
-    theDebuggerAction(TerminalApplication)
-        ->connectWidget(m_ui.terminalChooser);
+    m_group.clear();
+    m_group.insert(theDebuggerAction(GdbLocation), 
+        m_ui.gdbLocationChooser);
+    m_group.insert(theDebuggerAction(GdbScriptFile), 
+        m_ui.scriptFileChooser);
+    m_group.insert(theDebuggerAction(GdbEnvironment), 
+        m_ui.environmentEdit);
+    m_group.insert(theDebuggerAction(TerminalApplication), 
+        m_ui.terminalChooser);
 
-    theDebuggerAction(AllPluginBreakpoints)
-        ->connectWidget(m_ui.radioButtonAllPluginBreakpoints);
-    theDebuggerAction(SelectedPluginBreakpoints)
-        ->connectWidget(m_ui.radioButtonSelectedPluginBreakpoints);
-    theDebuggerAction(NoPluginBreakpoints)
-        ->connectWidget(m_ui.radioButtonNoPluginBreakpoints);
-    theDebuggerAction(SelectedPluginBreakpointsPattern)
-        ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
+    m_group.insert(theDebuggerAction(AllPluginBreakpoints), 
+        m_ui.radioButtonAllPluginBreakpoints);
+    m_group.insert(theDebuggerAction(SelectedPluginBreakpoints), 
+        m_ui.radioButtonSelectedPluginBreakpoints);
+    m_group.insert(theDebuggerAction(NoPluginBreakpoints), 
+        m_ui.radioButtonNoPluginBreakpoints);
+    m_group.insert(theDebuggerAction(SelectedPluginBreakpointsPattern), 
+        m_ui.lineEditSelectedPluginBreakpointsPattern);
 
-    theDebuggerAction(SkipKnownFrames)
-        ->connectWidget(m_ui.checkBoxSkipKnownFrames);
-    theDebuggerAction(UseToolTips)
-        ->connectWidget(m_ui.checkBoxUseToolTips);
-    theDebuggerAction(SelectedPluginBreakpointsPattern)
-        ->connectWidget(m_ui.lineEditSelectedPluginBreakpointsPattern);
+    m_group.insert(theDebuggerAction(ListSourceFiles), 
+        m_ui.checkBoxListSourceFiles);
+    m_group.insert(theDebuggerAction(SkipKnownFrames), 
+        m_ui.checkBoxSkipKnownFrames);
+    m_group.insert(theDebuggerAction(UseToolTips), 
+        m_ui.checkBoxUseToolTips);
 
     m_ui.lineEditSelectedPluginBreakpointsPattern->
         setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());
@@ -310,25 +312,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
 
     return w;
-}
-
-void GdbOptionPage::apply()
-{
-    QSettings *s = ICore::instance()->settings();
-
-    theDebuggerAction(GdbLocation)->apply(s);
-    theDebuggerAction(GdbScriptFile)->apply(s);
-    theDebuggerAction(GdbEnvironment)->apply(s);
-    theDebuggerAction(TerminalApplication)->apply(s);
-
-    theDebuggerAction(AllPluginBreakpoints)->apply(s);
-    theDebuggerAction(SelectedPluginBreakpoints)->apply(s);
-    theDebuggerAction(NoPluginBreakpoints)->apply(s);
-    theDebuggerAction(SelectedPluginBreakpointsPattern)->apply(s);
-
-    theDebuggerAction(SkipKnownFrames)->apply(s);
-    theDebuggerAction(UseToolTips)->apply(s);
-    theDebuggerAction(SelectedPluginBreakpointsPattern)->apply(s);
 }
 
 } // namespace Internal
@@ -358,14 +341,15 @@ public:
     QString trCategory() const { return tr("Debugger"); }
 
     QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() {} // automatically calls "apply"
+    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void finish() { m_group.finish(); }
 
 private:
     friend class DebuggerPlugin;
     Ui::DumperOptionPage m_ui;
 
     DebuggerPlugin *m_plugin;
+    Core::Utils::SavedActionSet m_group;
 };
 
 QWidget *DumperOptionPage::createPage(QWidget *parent)
@@ -381,19 +365,20 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
         m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
 
-    theDebuggerAction(UseQtDumpers)
-        ->connectWidget(m_ui.radioButtonUseQtDumpers);
-    theDebuggerAction(UsePrebuiltDumpers)
-        ->connectWidget(m_ui.radioButtonUsePrebuiltDumpers);
-    theDebuggerAction(BuildDumpersOnTheFly)
-        ->connectWidget(m_ui.radioButtonBuildDumpersOnTheFly);
-    theDebuggerAction(PrebuiltDumpersLocation)
-        ->connectWidget(m_ui.dumperLocationChooser);
+    m_group.clear();
+    m_group.insert(theDebuggerAction(UseQtDumpers),
+        m_ui.radioButtonUseQtDumpers);
+    m_group.insert(theDebuggerAction(UsePrebuiltDumpers),
+        m_ui.radioButtonUsePrebuiltDumpers);
+    m_group.insert(theDebuggerAction(BuildDumpersOnTheFly),
+        m_ui.radioButtonBuildDumpersOnTheFly);
+    m_group.insert(theDebuggerAction(PrebuiltDumpersLocation),
+        m_ui.dumperLocationChooser);
 
-    theDebuggerAction(UseDumpers)
-        ->connectWidget(m_ui.checkBoxUseDumpers);
-    theDebuggerAction(DebugDumpers)
-        ->connectWidget(m_ui.checkBoxDebugDumpers);
+    m_group.insert(theDebuggerAction(UseDumpers),
+        m_ui.checkBoxUseDumpers);
+    m_group.insert(theDebuggerAction(DebugDumpers),
+        m_ui.checkBoxDebugDumpers);
 
     m_ui.dumperLocationChooser->
         setEnabled(theDebuggerAction(UsePrebuiltDumpers)->value().toBool());
@@ -409,18 +394,6 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
 #endif
 
     return w;
-}
-
-void DumperOptionPage::apply()
-{
-    QSettings *s = ICore::instance()->settings();
-
-    theDebuggerAction(UseDumpers)->apply(s);
-    theDebuggerAction(UseQtDumpers)->apply(s);
-    theDebuggerAction(UsePrebuiltDumpers)->apply(s);
-    theDebuggerAction(BuildDumpersOnTheFly)->apply(s);
-    theDebuggerAction(PrebuiltDumpersLocation)->apply(s);
-    theDebuggerAction(DebugDumpers)->apply(s);
 }
 
 } // namespace Internal
