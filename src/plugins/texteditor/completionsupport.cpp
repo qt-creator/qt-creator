@@ -186,6 +186,8 @@ QList<CompletionItem> CompletionSupport::getCompletions() const
         if (item.m_text != lastKey) {
             uniquelist.append(item);
             lastKey = item.m_text;
+        } else {
+            uniquelist.last().m_duplicateCount++;
         }
     }
 

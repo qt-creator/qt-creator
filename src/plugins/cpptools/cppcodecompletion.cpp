@@ -1224,8 +1224,9 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (function->argumentCount() == 0 || (function->argumentCount() == 1 &&
-                                                           function->argumentAt(0)->type()->isVoidType())) {
+                    if (item.m_duplicateCount == 0 && (function->argumentCount() == 0 ||
+                                                       (function->argumentCount() == 1 &&
+                                                        function->argumentAt(0)->type()->isVoidType()))) {
                         extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
