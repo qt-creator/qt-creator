@@ -50,8 +50,14 @@ public:
     ~ExpressionUnderCursor();
 
     QString operator()(const QTextCursor &cursor);
+    int startOfFunctionCall(const QTextCursor &cursor);
 
 private:
+    void init(const QTextCursor &cursor,
+              QList<SimpleToken> *tokens,
+              QString *text,
+              int *startPosition = 0);
+
     int startOfMatchingBrace(const QList<SimpleToken> &tk, int index);
     int startOfExpression(const QList<SimpleToken> &tk, int index);
     int previousBlockState(const QTextBlock &block);

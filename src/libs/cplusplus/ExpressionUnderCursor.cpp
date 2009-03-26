@@ -190,7 +190,10 @@ int ExpressionUnderCursor::previousBlockState(const QTextBlock &block)
     return 0;
 }
 
-QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
+void ExpressionUnderCursor::init(const QTextCursor &cursor,
+                                 QList<SimpleToken> *tokens,
+                                 QString *text,
+                                 int *startPosition)
 {
     enum { MAX_BLOCK_COUNT = 5 };
 
@@ -203,8 +206,6 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
         initialBlock = initialBlock.previous();
     }
 
-    QString text;
-
     QTextBlock it = initialBlock;
     for (; it.isValid(); it = it.next()) {
         QString textBlock = it.text();
@@ -212,18 +213,29 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
         if (it == block)
             textBlock = textBlock.left(cursor.position() - cursor.block().position());
 
-        text += textBlock;
+        text->append(textBlock);
 
         if (it == block)
             break;
 
-        text += QLatin1Char('\n');
+        text->append(QLatin1Char('\n'));
     }
 
     SimpleLexer tokenize;
     tokenize.setSkipComments(true);
-    QList<SimpleToken> tokens = tokenize(text, previousBlockState(initialBlock));
-    tokens.prepend(SimpleToken()); // sentinel
+    tokens->append(tokenize(*text, previousBlockState(initialBlock)));
+    tokens->prepend(SimpleToken()); // sentinel
+
+    if (startPosition)
+        *startPosition = initialBlock.position();
+}
+
+QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
+{
+    QList<SimpleToken> tokens;
+    QString text;
+
+    init(cursor, &tokens, &text);
 
     _jumpedComma = false;
 
@@ -236,3 +248,28 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
                                              - tokens.at(i).position());
 }
 
+int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
+{
+    QList<SimpleToken> tokens;
+    QString text;
+    int startPosition;
+
+    init(cursor, &tokens, &text, &startPosition);
+
+    int index = tokens.size();
+
+    forever {
+        const SimpleToken &tk = tokens.at(index - 1);
+
+        if (tk.is(T_EOF_SYMBOL))
+            break;
+        else if (tk.is(T_LPAREN))
+            return startPosition + tk.position();
+        else if (tk.is(T_RPAREN))
+            index = startOfMatchingBrace(tokens, index);
+        else
+            --index;
+    }
+
+    return -1;
+}
