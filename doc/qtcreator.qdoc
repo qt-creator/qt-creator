@@ -531,9 +531,11 @@
     \image qtcreator-textfinder-ui.png
 
     Design the form above using a \l{http://doc.trolltech.com/qlabel.html}
-    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit},
-    \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton} and a
-    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. We recommend that
+    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit} 
+    (named lineEdit), \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton}
+    (named findButton), and a
+    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit} (named textEdit).
+    We recommend that
     you use a QGridLayout to lay out the
     \l{http://doc.trolltech.com/qlabel.html}{QLabel},
     \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit} and
@@ -559,11 +561,11 @@
         void on_findButton_clicked();
 
     private:
-        Ui::Form ui;
+        Ui::TextFinder *ui;
         void loadTextFile();
     \endcode
 
-    \note The \c{Ui::Form} object is already provided.
+    \note The \c{Ui::TextFinder} object is already provided.
 
     \section2 The Source File
 
@@ -571,57 +573,36 @@
     \c{textfinder.cpp}.  We begin by filling in the functionality to load a
     text file. The code snippet below describes this:
 
-    \code
-    void TextFinder::loadTextFile()
-    {
-        QFile inputFile(":/input.txt");
-        inputFile.open(QIODevice::ReadOnly);
-        
-        QTextStream in(&inputFile);
-        QString line = in.readAll();
-        inputFile.close();
-        
-        ui.textEdit->setPlainText(line);
-        QTextCursor cursor = ui.textEdit->textCursor();
-    }
-    \endcode
+    \snippet example/textfinder/textfinder.cpp 0
 
     Basically, we load a text file using
     \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
     \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
     then display it on \c{textEdit} with
-    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+    which requires adding the following additional #includes to textfinder.cpp:
+    \code
+    #include <QtCore/QFile>
+    #include <QtCore/QTextStream>
+    \endcode
 
     For the \c{on_findButton_clicked()} slot, we extract the search string and
     use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
     to look for the search string within the text file. The code snippet below
     further describes it:
 
-    \code
-    void TextFinder::on_findButton_clicked()
-    {
-        QString searchString = ui.lineEdit->text();
-        ui.textEdit->find(searchString, QTextDocument::FindWholeWords);
-    }
-    \endcode
+    \snippet example/textfinder/textfinder.cpp 1
 
     Once we have both these functions complete, we call \c{loadTextFile()} in
     our constructor.
 
-    \code
-    TextFinder::TextFinder(QWidget *parent, Qt::WFlags flags)
-        : QWidget(parent, flags)
-    {
-        ui.setupUi(this);
-        loadTextFile();
-    }
-    \endcode
+    \snippet example/textfinder/textfinder.cpp 2
 
     The \c{on_findButton_clicked()} slot will be called automatically due to
     this line of code:
 
     \code
-    QMetaObject::connectSlotsByName(Form);
+    QMetaObject::connectSlotsByName(TextFinder);
     \endcode
 
     in the uic generated \c{ui_textfinder.h} file.
@@ -794,6 +775,40 @@
 
                 \image qtcreator-vcs-gitbranch.png
     \endtable
+
+    \section2 Common options
+
+    The \gui{Version Control/Common} settings page features common settings for 
+    version control systems, such as commit message line wrapping and checking options.
+ 
+    \gui{Submit message checking script} is a script or program that can be used to
+    perform checks on the submit message before submitting. It is passed the 
+    submit message as first parameter. On error, it should output a message on standard error and  
+    return an exit code different from 0.
+
+    \gui{User/alias configuration file} takes a file in a mailmap format that lists
+    user names and aliases:
+
+    \code
+    Jon Doe <Jon.Doe@company.com>
+    Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
+    \endcode
+
+    The second line specifies that the alias \e{hm} and the corresponding email address should
+    be used for \e{Hans Mustermann}. If the file is present, the submit editor will feature
+    a context menu option \gui{Insert name...} that will pop up a dialog letting the user
+    choose a name to be inserted.
+
+    \gui{User field configuration file} is a simple text file consisting of lines specifying submit message fields that take user names, for example:
+
+    \code
+    Reviewed-by:
+    Signed-off-by:
+    \endcode
+
+    The fields will appear below the submit message. They provide completion on the 
+    aliases/public user names specified in the \e{User/alias configuration file} and an additional 
+    button that opens the aforementioned user name dialog.
 
 */
 
@@ -1197,13 +1212,13 @@
     \code
     void TextFinder::on_findButton_clicked()
     {
-        QString searchString = ui.lineEdit->text();
+        QString searchString = ui->lineEdit->text();
 
-        QTextDocument *document = ui.textEdit->document();
-        QTextCursor cursor = ui.textEdit->textCursor();
+        QTextDocument *document = ui->textEdit->document();
+        QTextCursor cursor = ui->textEdit->textCursor();
         cursor = document->find(searchString, cursor,
             QTextDocument::FindWholeWords);
-        ui.textEdit->setTextCursor(cursor);
+        ui->textEdit->setTextCursor(cursor);
 
         bool found = cursor.isNull();
 
@@ -1216,7 +1231,7 @@
             if (ret == QMessageBox::Yes) {
                 cursor = document->find(searchString,
                     QTextDocument::FindWholeWords);
-                ui.textEdit->setTextCursor(cursor);
+                ui->textEdit->setTextCursor(cursor);
             } else
                 return;
         }

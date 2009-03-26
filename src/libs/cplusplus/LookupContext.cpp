@@ -223,9 +223,14 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                         continue;
 
                     if (q->nameCount() > 1) {
-                        Name *classOrNamespaceName =
-                                control()->qualifiedNameId(q->names(),
-                                                           q->nameCount() - 1);
+                        Name *classOrNamespaceName = 0;
+
+                        if (q->nameCount() == 1)
+                            classOrNamespaceName = q->nameAt(0);
+                        else
+                            classOrNamespaceName = control()->qualifiedNameId(q->names(),
+                                                                              q->nameCount() - 1);
+
 
                         const QList<Symbol *> resolvedClassOrNamespace =
                                 resolveClassOrNamespace(classOrNamespaceName, visibleScopes);

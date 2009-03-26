@@ -532,6 +532,19 @@ static inline int classify6(const char *s, bool q) {
       }
     }
   }
+  else if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'S') {
+        if (s[3] == 'L') {
+          if (s[4] == 'O') {
+            if (s[5] == 'T') {
+              return T_Q_SLOT;
+            }
+          }
+        }
+      }
+    }
+  }
   return T_IDENTIFIER;
 }
 
@@ -842,6 +855,23 @@ static inline int classify8(const char *s, bool) {
               if (s[6] == 'l') {
                 if (s[7] == 'e') {
                   return T_VOLATILE;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'S') {
+        if (s[3] == 'I') {
+          if (s[4] == 'G') {
+            if (s[5] == 'N') {
+              if (s[6] == 'A') {
+                if (s[7] == 'L') {
+                  return T_Q_SIGNAL;
                 }
               }
             }

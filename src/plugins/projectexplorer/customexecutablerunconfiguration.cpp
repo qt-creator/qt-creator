@@ -308,6 +308,13 @@ void CustomExecutableRunConfiguration::setUserName(const QString &name)
     emit changed();
 }
 
+QString CustomExecutableRunConfiguration::dumperLibrary() const
+{
+    return QString();
+}
+
+
+
 // Factory
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory()

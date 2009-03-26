@@ -125,19 +125,16 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
 
 void WatchWindow::expandNode(const QModelIndex &idx)
 {
-    //QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    //QString iname = model()->data(mi0, INameRole).toString();
-    //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    emit requestExpandChildren(idx);
+    QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    QVariant iname = model()->data(mi0, INameRole);
+    theDebuggerAction(ExpandItem)->trigger(iname);
 }
 
 void WatchWindow::collapseNode(const QModelIndex &idx)
 {
-    //QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    //QString iname = model()->data(mi0, INameRole).toString();
-    //QString name = model()->data(mi0, Qt::DisplayRole).toString();
-    //qDebug() << "COLLAPSE NODE " << idx;
-    emit requestCollapseChildren(idx);
+    QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    QVariant iname = model()->data(mi0, INameRole);
+    theDebuggerAction(CollapseItem)->trigger(iname);
 }
 
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
@@ -218,16 +215,13 @@ void WatchWindow::editItem(const QModelIndex &idx)
 
 void WatchWindow::reset()
 {
+    QTreeView::reset(); 
     int row = 0;
     if (m_type == TooltipType)
         row = 1;
     else if (m_type == WatchersType)
         row = 2;
-    //qDebug() << "WATCHWINDOW::RESET" << row;
-    QTreeView::reset(); 
     setRootIndex(model()->index(row, 0, model()->index(0, 0)));
-    //setRootIndex(model()->index(0, 0));
-    resetHelper(model()->index(0, 0));
 }
 
 void WatchWindow::setModel(QAbstractItemModel *model)
@@ -239,16 +233,27 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     header()->setResizeMode(QHeaderView::ResizeToContents);
     if (m_type != LocalsType)
         header()->hide();
+
+    connect(model, SIGNAL(layoutChanged()), this, SLOT(resetHelper()));
+}
+
+void WatchWindow::resetHelper()
+{
+    resetHelper(model()->index(0, 0));
 }
 
 void WatchWindow::resetHelper(const QModelIndex &idx)
 {
     if (model()->data(idx, ExpandedRole).toBool()) {
+        //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
         expand(idx);
         for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
             QModelIndex idx1 = model()->index(i, 0, idx);
             resetHelper(idx1);
         }
+    } else {
+        //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
+        collapse(idx);
     }
 }
 

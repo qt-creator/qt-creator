@@ -28,18 +28,19 @@
 **************************************************************************/
 
 #include "sourcefileswindow.h"
+#include "debuggeractions.h"
 
-#include <QDebug>
-#include <QAction>
-#include <QComboBox>
-#include <QFileInfo>
-#include <QDebug>
-#include <QHeaderView>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QTreeView>
-#include <QSortFilterProxyModel>
-#include <QVBoxLayout>
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+
+#include <QtGui/QAction>
+#include <QtGui/QComboBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QTreeView>
+#include <QtGui/QVBoxLayout>
 
 using Debugger::Internal::SourceFilesWindow;
 using Debugger::Internal::SourceFilesModel;
@@ -205,6 +206,8 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     
     menu.addAction(act1);
     menu.addAction(act2);
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

@@ -65,6 +65,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     // Special categories
     const QPalette p = QApplication::palette();
+    formatDescriptions.push_back(FormatDescription(QLatin1String(C_LINK), tr("Link"), Qt::blue));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_SELECTION), tr("Selection"), p.color(QPalette::HighlightedText)));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_LINE_NUMBER), tr("Line Number")));
     formatDescriptions.push_back(FormatDescription(QLatin1String(C_SEARCH_RESULT), tr("Search Result")));

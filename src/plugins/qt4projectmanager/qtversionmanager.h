@@ -38,6 +38,7 @@
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
+#include <QtGui/QPushButton>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -79,6 +80,10 @@ public:
     QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
     void addToEnvironment(ProjectExplorer::Environment &env);
+    bool hasDebuggingHelper() const;
+    // Builds a debugging library
+    // returns the output of the commands
+    QString buildDebuggingHelperLibrary();
 
     int uniqueId() const;
 
@@ -90,6 +95,7 @@ public:
     };
 
     QmakeBuildConfig defaultBuildConfig() const;
+    QString dumperLibrary() const;
 private:
     static int getUniqueId();
     void setName(const QString &name);
@@ -117,6 +123,7 @@ private:
     // This is updated on first call to qmakeCommand
     // That function is called from updateVersionInfo()
     mutable QString m_qtVersionString;
+    bool m_hasDebuggingHelper;
 };
 
 
@@ -129,9 +136,11 @@ public:
     QList<QtVersion *> versions() const;
     int defaultVersion() const;
     void finish();
+
 private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
+    int indexForWidget(QWidget *debuggingHelperWidget) const;
     Ui::QtVersionManager m_ui;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
@@ -151,6 +160,8 @@ private slots:
     void updateCurrentQtPath();
     void updateCurrentMingwDirectory();
     void msvcVersionChanged();
+    void buildDebuggingHelper();
+    void showDebuggingBuildLog();
 };
 
 class QtVersionManager : public Core::IOptionsPage
@@ -210,6 +221,27 @@ private:
     QList<QtVersion *> m_versions;
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;
+};
+
+class DebuggingHelperWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    DebuggingHelperWidget();
+    enum State {
+        Ok = 0,
+        Error = 1,
+        ShowLog = 2,
+        InvalidQt = 4
+    };
+    void setState(State s);
+signals:
+    void rebuildClicked();
+    void showLogClicked();
+private:
+    QLabel *m_statusLabel;
+    QPushButton *m_showLog;
+    QPushButton *m_rebuild;
 };
 
 } // namespace Internal

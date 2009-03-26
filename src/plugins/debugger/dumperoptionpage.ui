@@ -21,6 +21,13 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonUseQtDumpers">
+        <property name="text">
+         <string>Use Qt dumpers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QRadioButton" name="radioButtonBuildDumpersOnTheFly">
         <property name="toolTip">
          <string>This is the slowest but safest option.</string>
@@ -30,14 +37,14 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QRadioButton" name="radioButtonUsePrebuiltDumpers">
         <property name="text">
          <string>Load pre-built data dumpers</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <spacer name="horizontalSpacer">

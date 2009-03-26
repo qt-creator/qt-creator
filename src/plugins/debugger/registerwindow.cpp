@@ -29,17 +29,19 @@
 
 #include "registerwindow.h"
 
+#include "debuggeractions.h"
 #include "debuggerconstants.h"
 
-#include <QAction>
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QFileInfoList>
-#include <QHeaderView>
-#include <QMenu>
-#include <QResizeEvent>
-#include <QToolButton>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFileInfoList>
+
+#include <QtGui/QAction>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QToolButton>
 
 
 using namespace Debugger::Internal;
@@ -72,14 +74,12 @@ void RegisterWindow::resizeEvent(QResizeEvent *ev)
 
 void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    enum { Hex, Bin, Dec, Raw, Oct, Nat,
-         Adjust, AlwaysAdjust, Reload, AlwaysReload, Count };
+    enum { Adjust, AlwaysAdjust, Reload, AlwaysReload, Count };
 
     QMenu menu;
     QAction *actions[Count];
-    //QTreeWidgetItem *item = itemAt(ev->pos());
-    QString format = model()->property(PROPERTY_REGISTER_FORMAT).toString();
-    qDebug() << "FORMAT: " << format;
+    //QString format = model()->property(PROPERTY_REGISTER_FORMAT).toString();
+    //qDebug() << "FORMAT: " << format;
 
     actions[Adjust] = menu.addAction("Adjust column widths to contents");
 
@@ -94,30 +94,15 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     actions[AlwaysReload]->setChecked(m_alwaysReloadContents);
 
     menu.addSeparator();
+    menu.addAction(theDebuggerAction(FormatHexadecimal));
+    menu.addAction(theDebuggerAction(FormatDecimal));
+    menu.addAction(theDebuggerAction(FormatOctal));
+    menu.addAction(theDebuggerAction(FormatBinary));
+    menu.addAction(theDebuggerAction(FormatRaw));
+    menu.addAction(theDebuggerAction(FormatNatural));
 
-    actions[Hex] = menu.addAction("Hexadecimal");
-    actions[Hex]->setCheckable(true);
-    actions[Hex]->setChecked(format == "h");
-
-    actions[Bin] = menu.addAction("Binary");
-    actions[Bin]->setCheckable(true);
-    actions[Bin]->setChecked(format == "t");
-
-    actions[Dec] = menu.addAction("Decimal");
-    actions[Dec]->setCheckable(true);
-    actions[Dec]->setChecked(format == "d");
-
-    actions[Raw] = menu.addAction("Raw");
-    actions[Raw]->setCheckable(true);
-    actions[Raw]->setChecked(format == "r");
-
-    actions[Nat] = menu.addAction("Natural");
-    actions[Nat]->setCheckable(true);
-    actions[Nat]->setChecked(format == "N");
-
-    actions[Oct] = menu.addAction("Octal");
-    actions[Oct]->setCheckable(true);
-    actions[Oct]->setChecked(format == "o");
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -129,17 +114,6 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         reloadContents();
     else if (act == actions[AlwaysReload])
         setAlwaysReloadContents(!m_alwaysReloadContents);
-    else if (act == actions[Hex])
-        model()->setProperty(PROPERTY_REGISTER_FORMAT, "h");
-    else if (act == actions[Oct])
-        model()->setProperty(PROPERTY_REGISTER_FORMAT, "o");
-    else if (act == actions[Bin])
-        model()->setProperty(PROPERTY_REGISTER_FORMAT, "t");
-    else if (act == actions[Dec])
-        model()->setProperty(PROPERTY_REGISTER_FORMAT, "d");
-    else if (act == actions[Nat])
-        model()->setProperty(PROPERTY_REGISTER_FORMAT, "N");
-    
 }
 
 void RegisterWindow::resizeColumnsToContents()

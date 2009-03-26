@@ -41,7 +41,6 @@
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
 #include "profilereader.h"
-#include "gdbmacrosbuildstep.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -125,7 +124,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new QMakeBuildStepFactory);
     addAutoReleasedObject(new MakeBuildStepFactory);
-    addAutoReleasedObject(new GdbMacrosBuildStepFactory);
 
     m_qtVersionManager = new QtVersionManager;
     addObject(m_qtVersionManager);

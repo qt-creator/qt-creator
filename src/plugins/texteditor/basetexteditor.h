@@ -27,7 +27,6 @@
 **
 **************************************************************************/
 
-
 #ifndef BASETEXTEDITOR_H
 #define BASETEXTEDITOR_H
 
@@ -42,7 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QTextCharFormat;
 class QToolBar;
 QT_END_NAMESPACE
 

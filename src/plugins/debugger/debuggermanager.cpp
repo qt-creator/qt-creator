@@ -88,6 +88,25 @@ using namespace Debugger::Constants;
 static const QString tooltipIName = "tooltip";
 
 
+static const char *stateName(int s)
+{
+    switch (s) {
+    case DebuggerProcessNotReady:
+        return "DebuggerProcessNotReady";
+    case DebuggerProcessStartingUp:
+        return "DebuggerProcessStartingUp";
+    case DebuggerInferiorRunningRequested:
+        return "DebuggerInferiorRunningRequested";
+    case DebuggerInferiorRunning:
+        return "DebuggerInferiorRunning";
+    case DebuggerInferiorStopRequested:
+        return "DebuggerInferiorStopRequested";
+    case DebuggerInferiorStopped:
+        return "DebuggerInferiorStopped";
+    }
+    return "<unknown>";
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // BreakByFunctionDialog
@@ -251,18 +270,10 @@ void DebuggerManager::init()
     // Locals
     QTreeView *localsView = qobject_cast<QTreeView *>(m_localsWindow);
     localsView->setModel(m_watchHandler->model());
-    connect(localsView, SIGNAL(requestExpandChildren(QModelIndex)),
-        this, SLOT(expandChildren(QModelIndex)));
-    connect(localsView, SIGNAL(requestCollapseChildren(QModelIndex)),
-        this, SLOT(collapseChildren(QModelIndex)));
 
     // Watchers 
     QTreeView *watchersView = qobject_cast<QTreeView *>(m_watchersWindow);
     watchersView->setModel(m_watchHandler->model());
-    connect(watchersView, SIGNAL(requestExpandChildren(QModelIndex)),
-        this, SLOT(expandChildren(QModelIndex)));
-    connect(watchersView, SIGNAL(requestCollapseChildren(QModelIndex)),
-        this, SLOT(collapseChildren(QModelIndex)));
     connect(m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
         this, SIGNAL(sessionValueRequested(QString,QVariant*)));
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
@@ -718,18 +729,6 @@ void DebuggerManager::updateWatchModel()
     m_engine->updateWatchModel();
 }
 
-void DebuggerManager::expandChildren(const QModelIndex &idx)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->expandChildren(idx);
-}
-
-void DebuggerManager::collapseChildren(const QModelIndex &idx)
-{
-    QTC_ASSERT(m_watchHandler, return);
-    m_watchHandler->collapseChildren(idx);
-}
-
 QVariant DebuggerManager::sessionValue(const QString &name)
 {
     // this is answered by the plugin
@@ -1153,13 +1152,16 @@ static bool isAllowedTransition(int from, int to)
 void DebuggerManager::setStatus(int status)
 {
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << m_status << "to" << status;
+        qDebug() << Q_FUNC_INFO << "STATUS CHANGE: from" << stateName(m_status) << "to" << stateName(status);
 
     if (status == m_status)
         return;
 
-    if (!isAllowedTransition(m_status, status))
-        qDebug() << "UNEXPECTED TRANSITION:  " << m_status << status;
+    if (!isAllowedTransition(m_status, status)) {
+        const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
+                            arg(QLatin1String(Q_FUNC_INFO), QLatin1String(stateName(m_status)), QLatin1String(stateName(status)));
+        qWarning("%s", qPrintable(msg));
+    }
 
     m_status = status;
 

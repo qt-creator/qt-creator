@@ -86,6 +86,7 @@ public:
     virtual void restore(const PersistentSettingsReader &reader);
 
     virtual QWidget *configurationWidget();
+    virtual QString dumperLibrary() const;
 
 signals:
     void changed();

@@ -71,7 +71,6 @@ const char * const GC_COMPILER      = "Qt4.Compiler";
 // qmakestep
 const char * const QMAKESTEP  = "trolltech.qt4projectmanager.qmake";
 const char * const MAKESTEP   = "trolltech.qt4projectmanager.make";
-const char * const GDBMACROSBUILDSTEP = "trolltech.qt4projectmanager.gdbmaros";
 const char * const QT4RUNSTEP = "trolltech.qt4projectmanager.qt4runstep";
 const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelperrunstep";
 

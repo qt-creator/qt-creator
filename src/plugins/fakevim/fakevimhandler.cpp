@@ -358,6 +358,7 @@ public:
 
     // extra data for '.'
     QString m_dotCommand;
+    bool m_inReplay; // true if we are executing a '.'
 
     // extra data for ';'
     QString m_semicolonCount;
@@ -366,11 +367,11 @@ public:
 
     // history for '/'
     QString lastSearchString() const;
-    QStringList m_searchHistory;
+    static QStringList m_searchHistory;
     int m_searchHistoryIndex;
 
     // history for ':'
-    QStringList m_commandHistory;
+    static QStringList m_commandHistory;
     int m_commandHistoryIndex;
 
     // visual line mode
@@ -403,6 +404,9 @@ public:
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 };
 
+QStringList FakeVimHandler::Private::m_searchHistory;
+QStringList FakeVimHandler::Private::m_commandHistory;
+
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
     q = parent;
@@ -424,8 +428,9 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_anchor = 0;
     m_savedYankPosition = 0;
     m_cursorWidth = EDITOR(cursorWidth());
+    m_inReplay = false;
 
-#if 1
+#if 0
     // Plain
     m_config[ConfigStartOfLine] = ConfigOn;
     m_config[ConfigHlSearch]    = ConfigOn;
@@ -1012,9 +1017,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         qDebug() << "REPEATING" << m_dotCommand;
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
+        m_inReplay = true;
         for (int i = count(); --i >= 0; )
             foreach (QChar c, savedCommand)
                 handleKey(c.unicode(), c.unicode(), QString(c));
+        m_inReplay = false;
         enterCommandMode();
         m_dotCommand = savedCommand;
     } else if (key == '<' && m_visualMode == NoVisualMode) {
@@ -1413,10 +1420,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         recordInsertText(str);
         recordEndGroup();
     } else if (key == Key_PageDown || key == control('f')) {
-        moveDown(count() * (linesOnScreen() - 2));
+        moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
+        scrollToLineInDocument(cursorLineInDocument());
+        moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_PageUp || key == control('b')) {
-        moveUp(count() * (linesOnScreen() - 2));
+        moveUp(count() * (linesOnScreen() - 2) + cursorLineOnScreen());
+        scrollToLineInDocument(cursorLineInDocument() + linesOnScreen() - 2);
+        moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_Delete) {
         setAnchor();
@@ -1512,6 +1523,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             if (leftText.simplified().isEmpty())
                 indentRegion(text.at(0));
         }
+       
+        if (!m_inReplay) 
+            emit q->completionRequested();
     } else {
         return EventUnhandled;
     }

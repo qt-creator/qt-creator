@@ -51,8 +51,6 @@ const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 const char * const C_GDBDEBUGGER        = "Gdb Debugger";
 const char * const GDBRUNNING           = "Gdb.Running";
 
-const char * const PROPERTY_REGISTER_FORMAT = "Debugger.Property.RegisterFormat";
-
 namespace Internal {
     enum { debug = 0 };
 }

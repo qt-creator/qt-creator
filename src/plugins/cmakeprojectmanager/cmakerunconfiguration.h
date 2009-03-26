@@ -41,6 +41,7 @@ class CMakeProject;
 
 class CMakeRunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
+    Q_OBJECT
 public:
     CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title);
     virtual ~CMakeRunConfiguration();
@@ -59,11 +60,16 @@ public:
 
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
+    virtual QString dumperLibrary() const;
+
+private slots:
+    void setArguments(const QString &newText);
 private:
     RunMode m_runMode;
     QString m_target;
     QString m_workingDirectory;
     QString m_title;
+    QString m_arguments;
 };
 
 /* The run configuration factory is used for restoring run configurations from

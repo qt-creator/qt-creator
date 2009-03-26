@@ -34,6 +34,8 @@
 
 #include <projectexplorer/environment.h>
 #include <utils/qtcassert.h>
+#include <QtGui/QFormLayout>
+#include <QtGui/QLineEdit>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -74,8 +76,7 @@ QString CMakeRunConfiguration::workingDirectory() const
 
 QStringList CMakeRunConfiguration::commandLineArguments() const
 {
-    // TODO
-    return QStringList();
+    return ProjectExplorer::Environment::parseCombinedArgString(m_arguments);
 }
 
 ProjectExplorer::Environment CMakeRunConfiguration::environment() const
@@ -106,6 +107,7 @@ void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writ
     writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
     writer.saveValue("CMakeRunConfiguration.UseTerminal", m_runMode == Console);
     writer.saveValue("CMakeRunConfiguation.Title", m_title);
+    writer.saveValue("CMakeRunConfiguration.Arguments", m_arguments);
 }
 
 void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -115,12 +117,30 @@ void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsRea
     m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
     m_runMode = reader.restoreValue("CMakeRunConfiguration.UseTerminal").toBool() ? Console : Gui;
     m_title = reader.restoreValue("CMakeRunConfiguation.Title").toString();
+    m_arguments = reader.restoreValue("CMakeRunConfiguration.Arguments").toString();
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
 {
-    //TODO
-    return new QWidget();
+    QWidget *widget = new QWidget();
+    QFormLayout *fl = new QFormLayout();
+    widget->setLayout(fl);
+    QLineEdit *argumentsLineEdit = new QLineEdit(widget);
+    argumentsLineEdit->setText(m_arguments);
+    connect(argumentsLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(setArguments(QString)));
+    fl->addRow(tr("Arguments:"), argumentsLineEdit);
+    return widget;
+}
+
+void CMakeRunConfiguration::setArguments(const QString &newText)
+{
+    m_arguments = newText;
+}
+
+QString CMakeRunConfiguration::dumperLibrary() const
+{
+    return CMakeManager::findDumperLibrary(environment());
 }
 
 // Factory

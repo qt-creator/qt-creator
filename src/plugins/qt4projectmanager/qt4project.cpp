@@ -42,7 +42,6 @@
 #include "qt4buildenvironmentwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
-#include "gdbmacrosbuildstep.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -656,10 +655,6 @@ void Qt4Project::addDefaultBuild()
         //TODO have a better check wheter there is already a configuration?
         QMakeStep *qmakeStep = 0;
         MakeStep *makeStep = 0;
-        GdbMacrosBuildStep *gdbmacrostep;
-
-        gdbmacrostep = new GdbMacrosBuildStep(this);
-        insertBuildStep(0, gdbmacrostep);
 
         qmakeStep = new QMakeStep(this);
         qmakeStep->setValue("mkspec", "");
@@ -667,10 +662,6 @@ void Qt4Project::addDefaultBuild()
 
         makeStep = new MakeStep(this);
         insertBuildStep(2, makeStep);
-
-        GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
-        gdbmacrosCleanStep->setValue("clean", true);
-        insertCleanStep(0, gdbmacrosCleanStep);
 
         MakeStep* cleanStep = new MakeStep(this);
         cleanStep->setValue("clean", true);
@@ -680,25 +671,6 @@ void Qt4Project::addDefaultBuild()
         wizard.execDialog();
     } else {
         // Restoring configuration
-        // Do we already have a gdbmacrobuildstep?
-        // If not add it and disable linking of debugging helper
-
-        // Check for old link debugging helper setting in each buildConfiguration
-        // We add a gdbmacrosbuildstep if at least one has it
-        // TODO remove migration code from pre beta
-        foreach(const QString &bc, buildConfigurations()) {
-            QVariant v = value(bc, "addQDumper");
-            if (v.isValid() && v.toBool()) {
-                GdbMacrosBuildStep *gdbmacrostep = new GdbMacrosBuildStep(this);
-                insertBuildStep(0, gdbmacrostep);
-
-                GdbMacrosBuildStep *gdbmacrosCleanStep = new GdbMacrosBuildStep(this);
-                gdbmacrosCleanStep->setValue("clean", true);
-                insertCleanStep(0, gdbmacrosCleanStep );
-                break;
-            }
-        }
-
         foreach(const QString &bc, buildConfigurations()) {
             setValue(bc, "addQDumper", QVariant());
         }

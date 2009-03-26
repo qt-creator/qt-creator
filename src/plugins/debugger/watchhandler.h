@@ -98,9 +98,11 @@ public:
     void setChildCount(int n) { childCount = n; setChildCountUnneeded();
         if (n == 0) setChildrenUnneeded(); }
 
+    WatchData pointerChildPlaceHolder() const;
+
     QString toString() const;
     bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
-    bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); };
+    bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); }
     bool isValid() const { return !iname.isEmpty(); }
 
 public:
@@ -165,8 +167,10 @@ public:
     Q_SLOT void removeWatchExpression(const QString &exp);
     void reinitializeWatchers();
 
-    void collapseChildren(const QModelIndex &idx);
-    void expandChildren(const QModelIndex &idx);
+    Q_SLOT void collapseChildren();
+    Q_SLOT void expandChildren();
+    Q_SLOT void collapseChildren(const QString &iname);
+    Q_SLOT void expandChildren(const QString &iname);
 
     void rebuildModel(); // unconditionally version of above
     void showEditValue(const WatchData &data);

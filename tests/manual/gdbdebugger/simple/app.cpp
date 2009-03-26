@@ -783,7 +783,18 @@ void testQVariant1()
 
 void testQVariant2()
 {
+    int i = 1;
     QVariant var;
+    var.setValue(1);
+    var.setValue(2);
+    var.setValue(3);
+    var.setValue(QString("Hello"));
+    var.setValue(QString("World"));
+    var.setValue(QString("Hello"));
+    var.setValue(QStringList() << "World");
+    var.setValue(QStringList() << "World" << "Hello");
+    var.setValue(QStringList() << "Hello" << "Hello");
+    var.setValue(QStringList() << "World" << "Hello" << "Hello");
 #if 0
     QVariant var3;
     QHostAddress ha("127.0.0.1");
@@ -793,7 +804,6 @@ void testQVariant2()
     var3 = var;
     var3 = var;
     QHostAddress ha1 = var.value<QHostAddress>();
-#endif
     typedef QMap<uint, QStringList> MyType;
     MyType my;
     my[1] = (QStringList() << "Hello");
@@ -804,6 +814,7 @@ void testQVariant2()
     var.setValue(my);
     var.setValue(my);
     var.setValue(my);
+#endif
 }
 
 void testQVariant3()

@@ -59,7 +59,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
       m_configWidget(0),
       m_executableLabel(0),
       m_workingDirectoryLabel(0),
-      m_cachedTargetInformationValid(false)
+      m_cachedTargetInformationValid(false),
+      m_isUsingDyldImageSuffix(false)
 {
     if (!m_proFilePath.isEmpty())
         setName(QFileInfo(m_proFilePath).completeBaseName());
@@ -85,7 +86,11 @@ QString Qt4RunConfiguration::type() const
 /////
 
 Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4RunConfiguration, QWidget *parent)
-    : QWidget(parent), m_qt4RunConfiguration(qt4RunConfiguration), m_ignoreChange(false), m_isShown(false)
+    : QWidget(parent),
+    m_qt4RunConfiguration(qt4RunConfiguration),
+    m_ignoreChange(false),
+    m_isShown(false),
+    m_usingDyldImageSuffix(0)
 {
     QFormLayout *toplayout = new QFormLayout(this);
     toplayout->setMargin(0);
@@ -110,12 +115,18 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::ApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 
+#ifdef Q_OS_MAC
+    m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"));
+    m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
+    toplayout->addRow(QString(), m_usingDyldImageSuffix);
+    connect(m_usingDyldImageSuffix, SIGNAL(toggled(bool)),
+            this, SLOT(usingDyldImageSuffixToggled(bool)));
+#endif
+
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(setCommandLineArguments(QString)));
-
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(nameEdited(QString)));
-
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
@@ -125,6 +136,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(nameChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode)));
+    connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
+            this, SLOT(usingDyldImageSuffixChanged(bool)));
 
     connect(qt4RunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
             this, SLOT(effectiveTargetInformationChanged()), Qt::QueuedConnection);
@@ -152,6 +165,13 @@ void Qt4RunConfigurationWidget::termToggled(bool on)
     m_ignoreChange = false;
 }
 
+void Qt4RunConfigurationWidget::usingDyldImageSuffixToggled(bool state)
+{
+    m_ignoreChange = true;
+    m_qt4RunConfiguration->setUsingDyldImageSuffix(state);
+    m_ignoreChange = false;
+}
+
 void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 {
     if (!m_ignoreChange)
@@ -168,6 +188,12 @@ void Qt4RunConfigurationWidget::runModeChanged(ApplicationRunConfiguration::RunM
 {
     if (!m_ignoreChange)
         m_useTerminalCheck->setChecked(runMode == ApplicationRunConfiguration::Console);
+}
+
+void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
+{
+    if (!m_ignoreChange && m_usingDyldImageSuffix)
+        m_usingDyldImageSuffix->setChecked(state);
 }
 
 void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
@@ -203,6 +229,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("ProFile", m_proFilePath);
     writer.saveValue("UserSetName", m_userSetName);
     writer.saveValue("UseTerminal", m_runMode == Console);
+    writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
     ApplicationRunConfiguration::save(writer);
 }
 
@@ -213,6 +240,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     m_proFilePath = reader.restoreValue("ProFile").toString();
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
+    m_isUsingDyldImageSuffix = reader.restoreValue("UseDyldImageSuffix").toBool();
     if (!m_proFilePath.isEmpty()) {
         m_cachedTargetInformationValid = false;
         if (!m_userSetName)
@@ -231,6 +259,17 @@ ApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
     return m_runMode;
 }
 
+bool Qt4RunConfiguration::isUsingDyldImageSuffix() const
+{
+    return m_isUsingDyldImageSuffix;
+}
+
+void Qt4RunConfiguration::setUsingDyldImageSuffix(bool state)
+{
+    m_isUsingDyldImageSuffix = state;
+    emit usingDyldImageSuffixChanged(state);
+}
+
 QString Qt4RunConfiguration::workingDirectory() const
 {
     const_cast<Qt4RunConfiguration *>(this)->updateTarget();
@@ -246,7 +285,12 @@ ProjectExplorer::Environment Qt4RunConfiguration::environment() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     Q_ASSERT(pro);
-    return pro->environment(pro->activeBuildConfiguration());
+    QString config = pro->activeBuildConfiguration();
+    ProjectExplorer::Environment env = pro->environment(pro->activeBuildConfiguration());
+    if (m_isUsingDyldImageSuffix) {
+        env.set("DYLD_IMAGE_SUFFIX", "_debug");
+    }
+    return env;
 }
 
 void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString)
@@ -369,6 +413,14 @@ void Qt4RunConfiguration::invalidateCachedTargetInformation()
     m_cachedTargetInformationValid = false;
     emit effectiveTargetInformationChanged();
 }
+
+QString Qt4RunConfiguration::dumperLibrary() const
+{
+    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
+    QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
+    return version->dumperLibrary();
+}
+
 
 ///
 /// Qt4RunConfigurationFactory

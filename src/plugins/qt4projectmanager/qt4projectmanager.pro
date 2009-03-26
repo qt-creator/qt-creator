@@ -35,8 +35,7 @@ HEADERS = qt4projectmanagerplugin.h \
     qt4buildconfigwidget.h \
     qt4buildenvironmentwidget.h \
     projectloadwizard.h \
-    directorywatcher.h \
-    gdbmacrosbuildstep.h
+    directorywatcher.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qtversionmanager.cpp \
@@ -67,8 +66,7 @@ SOURCES = qt4projectmanagerplugin.cpp \
     qt4buildconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp \
-    directorywatcher.cpp \
-    gdbmacrosbuildstep.cpp
+    directorywatcher.cpp
 FORMS = qtversionmanager.ui \
     envvariablespage.ui \
     enveditdialog.ui \
@@ -77,7 +75,8 @@ FORMS = qtversionmanager.ui \
     qmakestep.ui \
     qt4buildconfigwidget.ui \
     embeddedpropertiespage.ui \
-    qt4buildenvironmentwidget.ui
+    qt4buildenvironmentwidget.ui \
+    showbuildlog.ui
 RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)

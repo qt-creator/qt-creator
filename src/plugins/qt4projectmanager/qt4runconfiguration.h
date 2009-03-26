@@ -70,7 +70,10 @@ public:
     virtual QString workingDirectory() const;
     virtual QStringList commandLineArguments() const;
     virtual ProjectExplorer::Environment environment() const;
+    virtual QString dumperLibrary() const;
 
+    bool isUsingDyldImageSuffix() const;
+    void setUsingDyldImageSuffix(bool state);
     QString proFilePath() const;
 
     // TODO detectQtShadowBuild() ? how did this work ?
@@ -87,6 +90,7 @@ signals:
     void nameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
+    void usingDyldImageSuffixChanged(bool);
 
     // note those signals might not emited for every change
     void effectiveTargetInformationChanged();
@@ -112,6 +116,7 @@ private:
     QLabel *m_executableLabel;
     QLabel *m_workingDirectoryLabel;
     bool m_cachedTargetInformationValid;
+    bool m_isUsingDyldImageSuffix;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -131,6 +136,8 @@ private slots:
     void runModeChanged(ProjectExplorer::ApplicationRunConfiguration::RunMode runMode);
     void effectiveTargetInformationChanged();
     void termToggled(bool);
+    void usingDyldImageSuffixToggled(bool);
+    void usingDyldImageSuffixChanged(bool);
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
@@ -139,6 +146,7 @@ private:
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
+    QCheckBox *m_usingDyldImageSuffix;
     bool m_isShown;
 };
 
