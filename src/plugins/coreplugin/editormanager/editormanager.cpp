@@ -744,6 +744,15 @@ IEditor *EditorManager::pickUnusedEditor() const
 }
 
 
+void EditorManager::closeEditor(const QModelIndex &index)
+{
+    IEditor *editor = index.data(Qt::UserRole).value<Core::IEditor*>();
+    if (editor)
+        closeEditor(editor);
+    else
+        m_d->m_editorModel->removeEditor(index);
+}
+
 void EditorManager::activateEditor(const QModelIndex &index, Internal::EditorView *view)
 {
     IEditor *editor = index.data(Qt::UserRole).value<IEditor*>();

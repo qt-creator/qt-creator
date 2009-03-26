@@ -53,26 +53,62 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 using namespace Core;
 using namespace Core::Internal;
 
+
+OpenEditorsDelegate::OpenEditorsDelegate(QObject *parent)
+ : QStyledItemDelegate(parent)
+{
+}
+
+void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+           const QModelIndex &index) const
+{
+
+    if (option.state & QStyle::State_MouseOver) {
+        painter->fillRect(option.rect, option.palette.alternateBase());
+    }
+
+    QStyledItemDelegate::paint(painter, option, index);
+
+    if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
+        QIcon icon((option.state & QStyle::State_Selected) ? ":/core/images/closebutton.png"
+               : ":/core/images/darkclosebutton.png");
+
+        QRect iconRect(option.rect.right() - option.rect.height(),
+                       option.rect.top(),
+                       option.rect.height(),
+                       option.rect.height());
+
+        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
+    }
+
+}
+
 OpenEditorsWidget::OpenEditorsWidget()
 {
     m_ui.setupUi(this);
     setWindowTitle(tr("Open Documents"));
     setWindowIcon(QIcon(Constants::ICON_DIR));
     setFocusProxy(m_ui.editorList);
+    m_ui.editorList->setFocusPolicy(Qt::NoFocus);
+    m_ui.editorList->viewport()->setAttribute(Qt::WA_Hover);
+    m_ui.editorList->setItemDelegate(new OpenEditorsDelegate(this));
     m_ui.editorList->header()->hide();
     m_ui.editorList->setIndentation(0);
-    m_ui.editorList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_ui.editorList->setTextElideMode(Qt::ElideMiddle);
-    m_ui.editorList->installEventFilter(this);
     m_ui.editorList->setFrameStyle(QFrame::NoFrame);
     m_ui.editorList->setAttribute(Qt::WA_MacShowFocusRect, false);
     EditorManager *em = EditorManager::instance();
     m_ui.editorList->setModel(em->openedEditorsModel());
+    m_ui.editorList->setSelectionMode(QAbstractItemView::NoSelection);
+    m_ui.editorList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_ui.editorList->header()->setStretchLastSection(false);
+    m_ui.editorList->header()->setResizeMode(0, QHeaderView::Stretch);
+    m_ui.editorList->header()->setResizeMode(1, QHeaderView::Fixed);
+    m_ui.editorList->header()->resizeSection(1, 16);
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentItem(Core::IEditor*)));
     connect(m_ui.editorList, SIGNAL(clicked(QModelIndex)),
             this, SLOT(selectEditor(QModelIndex)));
-    //updateEditorList();
 }
 
 OpenEditorsWidget::~OpenEditorsWidget()
@@ -86,96 +122,28 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
         return;
     }
     EditorManager *em = EditorManager::instance();
-    m_ui.editorList->clearSelection(); //we are in extended selectionmode
     m_ui.editorList->setCurrentIndex(em->openedEditorsModel()->indexOf(editor));
+    m_ui.editorList->selectionModel()->select(m_ui.editorList->currentIndex(),
+                                              QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     m_ui.editorList->scrollTo(m_ui.editorList->currentIndex());
 }
 
 void OpenEditorsWidget::selectEditor(const QModelIndex &index)
 {
-    EditorManager::instance()->activateEditor(index);
-}
+    if (index.column() == 1) { // the funky close button
+        EditorManager::instance()->closeEditor(index);
 
-
-void OpenEditorsWidget::selectEditor()
-{
-    selectEditor(m_ui.editorList->currentIndex());
-}
-
-void OpenEditorsWidget::closeEditors()
-{
-    /* ### TODO
-    QList<IFile *> selectedFiles;
-    QList<IEditor *> selectedEditors;
-    foreach (QTreeWidgetItem *item, m_ui.editorList->selectedItems()) {
-        selectedEditors.append(item->data(0, Qt::UserRole).value<IEditor *>());
-        selectedFiles.append(item->data(0, Qt::UserRole).value<IEditor *>()->file());
+        // work around a bug in itemviews where the delegate wouldn't get the QStyle::State_MouseOver
+        QPoint cursorPos = QCursor::pos();
+        QWidget *vp = m_ui.editorList->viewport();
+        QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, 0, 0);
+        QCoreApplication::sendEvent(vp, &e);
+    } else {
+        m_ui.editorList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        EditorManager::instance()->activateEditor(index);
     }
-    ICore *core = ICore::instance();
-    bool cancelled = false;
-    core->fileManager()->saveModifiedFiles(selectedFiles, &cancelled);
-    if (cancelled)
-        return;
-    core->editorManager()->closeEditors(selectedEditors);
-    updateEditorList();
-    */
 }
 
-void OpenEditorsWidget::closeAllEditors()
-{
-    m_ui.editorList->selectAll();
-    closeEditors();
-}
-
-
-bool OpenEditorsWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj == m_ui.editorList) {
-        if (event->type() == QEvent::KeyPress) {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            switch (keyEvent->key()) {
-                case Qt::Key_Return:
-                    selectEditor(m_ui.editorList->currentIndex());
-                    return true;
-                case Qt::Key_Delete: //fall through
-                case Qt::Key_Backspace:
-                    if (keyEvent->modifiers() == Qt::NoModifier) {
-                        closeEditors();
-                        return true;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        if (event->type() == QEvent::ContextMenu) {
-            QContextMenuEvent *contextMenuEvent = static_cast<QContextMenuEvent *>(event);
-            QMenu menu;
-            menu.addAction(tr("&Select"), this, SLOT(selectEditor()));
-//todo      menu.addAction(tr("&Close"), this, SLOT(closeEditors()));
-//todo      menu.addAction(tr("Close &All"), this, SLOT(closeAllEditors()));
-            if (m_ui.editorList->selectionModel()->selectedIndexes().isEmpty())
-                menu.setEnabled(false);
-            menu.exec(contextMenuEvent->globalPos());
-            return true;
-        }
-    } else if (obj == m_widget) {
-        if (event->type() == QEvent::FocusIn) {
-            QFocusEvent *e = static_cast<QFocusEvent *>(event);
-            if (e->reason() != Qt::MouseFocusReason) {
-                // we should not set the focus in a event filter for a focus event,
-                // so do it when the focus event is processed
-                QTimer::singleShot(0, this, SLOT(putFocusToEditorList()));
-            }
-        }
-    }
-    return false;
-}
-
-void OpenEditorsWidget::putFocusToEditorList()
-{
-    m_ui.editorList->setFocus();
-}
 
 NavigationView OpenEditorsViewFactory::createWidget()
 {

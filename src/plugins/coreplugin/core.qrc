@@ -72,5 +72,6 @@
         <file>images/unknownfile.png</file>
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
+        <file>images/darkclosebutton.png</file>
     </qresource>
 </RCC>

@@ -76,7 +76,7 @@ QByteArray EditorModel::Entry::kind() const
 int EditorModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 1;
+    return 2;
 }
 
 int EditorModel::rowCount(const QModelIndex &parent) const
@@ -180,6 +180,19 @@ void EditorModel::removeEditor(IEditor *editor)
     disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
+void EditorModel::removeEditor(const QModelIndex &index)
+{
+    int idx = index.row();
+    if (idx < 0)
+        return;
+    IEditor *editor= m_editors.at(idx).editor;
+    beginRemoveRows(QModelIndex(), idx, idx);
+    m_editors.removeAt(idx);
+    endRemoveRows();
+    if (editor)
+        disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+}
+
 void EditorModel::removeAllRestoredEditors()
 {
     for (int i = m_editors.count()-1; i >= 0; --i) {
@@ -227,7 +240,7 @@ void EditorModel::emitDataChanged(IEditor *editor)
 QModelIndex EditorModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    if (column != 0 || row < 0 || row >= m_editors.count())
+    if (column < 0 || column > 1 || row < 0 || row >= m_editors.count())
         return QModelIndex();
     return createIndex(row, column);
 }

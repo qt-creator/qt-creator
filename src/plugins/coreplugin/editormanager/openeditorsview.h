@@ -40,6 +40,7 @@
 #include <QtGui/QKeySequence>
 #include <QtGui/QAbstractButton>
 #include <QtGui/QTreeWidgetItem>
+#include <QtGui/QStyledItemDelegate>
 
 namespace Core {
 namespace Internal {
@@ -52,15 +53,9 @@ public:
     OpenEditorsWidget();
     ~OpenEditorsWidget();
 
-    bool eventFilter(QObject *obj, QEvent *event);
-
 private slots:
     void selectEditor(const QModelIndex &);
-    void selectEditor();
-    void closeEditors();
-    void closeAllEditors();
     void updateCurrentItem(Core::IEditor*);
-    void putFocusToEditorList();
 
 private:
     Ui::OpenEditorsView m_ui;
@@ -79,5 +74,17 @@ public:
 
 } // namespace Internal
 } // namespace Core
+
+class OpenEditorsDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    OpenEditorsDelegate(QObject *parent = 0);
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+};
+
 
 #endif // OPENEDITORSVIEW_H
