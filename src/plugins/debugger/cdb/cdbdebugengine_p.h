@@ -42,6 +42,8 @@ namespace Internal {
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class WatchHandler;
+class CdbSymbolGroupContext;
+class CdbStackTraceContext;
 
 // Thin wrapper around the 'DBEng' debugger engine shared library
 // which is loaded at runtime.
@@ -61,16 +63,6 @@ private:
     DebugCreateFunction m_debugCreate;
 };
 
-
-// Helper struct for stack traces
-struct CdbStackTrace {
-    CdbStackTrace() : frameCount(0) {}
-    enum { maxFrames = 100 };
-
-    ULONG frameCount;
-    DEBUG_STACK_FRAME frames[maxFrames];
-};
-
 struct CdbDebugEnginePrivate
 {    
     explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
@@ -84,10 +76,9 @@ struct CdbDebugEnginePrivate
     void updateThreadList();
     void updateStackTrace();
     bool updateLocals(int frameIndex, WatchHandler *wh, QString *errorMessage);
-    bool getCdbStrackTrace(CdbStackTrace *st, QString *errorMessage);
-    bool getStackTrace(QList<StackFrame> *stackFrames, int *current, QString *errorMessage);
     void handleDebugOutput(const char* szOutputString);
     void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
+    void cleanStackTrace();
 
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
@@ -106,9 +97,15 @@ struct CdbDebugEnginePrivate
     CdbDebugEngine* m_engine;
     DebuggerManager *m_debuggerManager;
     IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
+    CdbStackTraceContext *m_currentStackTrace;
+
     DebuggerStartMode m_mode;
     Core::Utils::ConsoleProcess m_consoleStubProc;
 };
+
+// Message
+QString msgDebugEngineComResult(HRESULT hr);
+QString msgComFailed(const char *func, HRESULT hr);
 
 enum { debugCDB = 0 };
 

@@ -2447,8 +2447,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     for (int i = 0; i != stack.childCount(); ++i) {
         //qDebug() << "HANDLING FRAME: " << stack.childAt(i).toString();
         const GdbMi frameMi = stack.childAt(i);
-        StackFrame frame;
-        frame.level = i;
+        StackFrame frame(i);
         QStringList files;
         files.append(frameMi.findChild("fullname").data());
         files.append(frameMi.findChild("file").data());
@@ -2488,8 +2487,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     if (0 && topFrame != -1) {
         // updates of locals already triggered early
         const StackFrame &frame = qq->stackHandler()->currentFrame();
-        bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-        if (usable)
+        if (frame.isUsable())
             q->gotoLocation(frame.file, frame.line, true);
         else
             qDebug() << "FULL NAME NOT USABLE 0: " << frame.file;
@@ -2500,8 +2498,7 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
     if (topFrame != -1) {
         // updates of locals already triggered early
         const StackFrame &frame = qq->stackHandler()->currentFrame();
-        bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-        if (usable)
+        if (frame.isUsable())
             q->gotoLocation(frame.file, frame.line, true);
         else
             qDebug() << "FULL NAME NOT USABLE 0: " << frame.file << topFrame;
@@ -2551,8 +2548,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
     const StackFrame &frame = stackHandler->currentFrame();
 
-    bool usable = !frame.file.isEmpty() && QFileInfo(frame.file).isReadable();
-    if (usable)
+    if (frame.isUsable())
         q->gotoLocation(frame.file, frame.line, true);
     else
         qDebug() << "FULL NAME NOT USABLE: " << frame.file;

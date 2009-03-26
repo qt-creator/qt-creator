@@ -46,6 +46,9 @@ namespace Internal {
 
 struct StackFrame
 {
+    StackFrame(int level = 0);    
+    bool isUsable() const;
+
     int level;
     QString function;
     QString file;  // we try to put an absolute file name in there

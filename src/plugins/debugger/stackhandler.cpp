@@ -37,6 +37,16 @@
 
 using namespace Debugger::Internal;
 
+StackFrame::StackFrame(int l) :
+    level(l),
+    line(0)
+{
+}
+
+bool StackFrame::isUsable() const
+{
+    return !file.isEmpty() && QFileInfo(file).isReadable();
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
