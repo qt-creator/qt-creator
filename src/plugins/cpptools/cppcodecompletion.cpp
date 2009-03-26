@@ -61,6 +61,7 @@
 #include <QtCore/QFile>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
@@ -271,9 +272,6 @@ void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
     m_currentarg = -1;
     updateArgumentHighlight();
 
-    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
-    pos.setY(pos.y() - m_popupFrame->sizeHint().height() - 1);
-    m_popupFrame->move(pos);
     m_popupFrame->show();
 }
 
@@ -382,6 +380,22 @@ void FunctionArgumentWidget::updateHintText()
     m_numberLabel->setText(tr("%1 of %2").arg(m_current + 1).arg(m_items.size()));
 
     m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());
+
+    const QDesktopWidget *desktop = QApplication::desktop();
+#ifdef Q_OS_MAC
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_popupFrame));
+#else
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_popupFrame));
+#endif
+
+    const QSize sz = m_popupFrame->sizeHint();
+    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
+    pos.setY(pos.y() - sz.height() - 1);
+
+    if (pos.x() + sz.width() > screen.right())
+        pos.setX(screen.right() - sz.width());
+
+    m_popupFrame->move(pos);
 }
 
 CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
