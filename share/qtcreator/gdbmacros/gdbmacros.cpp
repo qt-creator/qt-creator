@@ -2013,7 +2013,7 @@ static void qDumpQVariantHelper(const void *data, QString *value,
         *numchild = 0;
         break;
     case QVariant::StringList:
-        *exp = QString(QLatin1String("((QVariant*)%1)->d.data.c"))
+        *exp = QString(QLatin1String("(('"NS"QVariant'*)%1)->d.data.c"))
                     .arg((quintptr)data);
         *numchild = v.toStringList().size();
         break;
@@ -2057,7 +2057,7 @@ static void qDumpQVariant(QDumper &d)
         ba += ") ";
         ba += qPrintable(value);
         P(d, "value", ba);
-        P(d, "valueencoded", "1");
+        P(d, "valueencoded", "4");
     }
     P(d, "type", NS"QVariant");
     P(d, "numchild", (isInvalid ? "0" : "1"));
@@ -2069,7 +2069,7 @@ static void qDumpQVariant(QDumper &d)
             P(d, "exp", qPrintable(exp));
         if (!value.isEmpty()) {
             P(d, "value", value);
-            P(d, "valueencoded", "1");
+            P(d, "valueencoded", "4");
         }
         P(d, "type", v.typeName());
         P(d, "numchild", numchild);

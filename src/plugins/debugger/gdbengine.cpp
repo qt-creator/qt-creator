@@ -2790,6 +2790,9 @@ static void setWatchDataValue(WatchData &data, const GdbMi &mi,
                 ba = QString::fromUcs4((uint *)ba.data(), ba.size() / 4).toUtf8();
                 ba = '"' + ba + '"';
                 break;
+            case 4: //  base64 encoded 8 bit data 
+                ba = QByteArray::fromBase64(mi.data());
+                break;
         }
        data.setValue(ba);
     } else {

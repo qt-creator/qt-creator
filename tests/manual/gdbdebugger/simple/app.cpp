@@ -783,10 +783,18 @@ void testQVariant1()
 
 void testQVariant2()
 {
+    int i = 1;
     QVariant var;
+    var.setValue(1);
+    var.setValue(2);
+    var.setValue(3);
+    var.setValue(QString("Hello"));
+    var.setValue(QString("World"));
+    var.setValue(QString("Hello"));
     var.setValue(QStringList() << "World");
-    var.setValue(QStringList() << "Hello");
-    var.setValue(QStringList() << "World");
+    var.setValue(QStringList() << "World" << "Hello");
+    var.setValue(QStringList() << "Hello" << "Hello");
+    var.setValue(QStringList() << "World" << "Hello" << "Hello");
 #if 0
     QVariant var3;
     QHostAddress ha("127.0.0.1");
