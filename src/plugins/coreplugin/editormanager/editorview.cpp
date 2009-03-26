@@ -402,14 +402,6 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         m_statusWidgetButton->setText(tr("Placeholder"));
         hbox->addWidget(m_statusWidgetButton);
 
-        QToolButton *closeButton = new QToolButton;
-        closeButton->setAutoRaise(true);
-        closeButton->setIcon(QIcon(":/core/images/clear.png"));
-        closeButton->setToolTip(tr("Close"));
-        connect(closeButton, SIGNAL(clicked()), m_statusWidget, SLOT(hide()));
-
-        hbox->addWidget(closeButton);
-
         m_statusWidget->setVisible(false);
         tl->addWidget(m_statusWidget);
     }
@@ -442,16 +434,16 @@ void EditorView::hideEditorInfoBar(const QString &kind)
 }
 
 void EditorView::showEditorStatusBar(const QString &kind,
-                                           const QString &infoText,
-                                           const QString &buttonText,
-                                           QObject *object, const char *member)
+                                     const QString &infoText,
+                                     const QString &buttonText,
+                                     QObject *object, const char *member)
 {
     m_statusWidgetKind = kind;
     m_statusWidgetLabel->setText(infoText);
     m_statusWidgetButton->setText(buttonText);
     m_statusWidgetButton->disconnect();
     if (object && member)
-        connect(m_infoWidgetButton, SIGNAL(clicked()), object, member);
+        connect(m_statusWidgetButton, SIGNAL(clicked()), object, member);
     m_statusWidget->setVisible(true);
     //m_editorForInfoWidget = currentEditor();
 }
