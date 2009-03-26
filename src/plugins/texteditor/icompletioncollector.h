@@ -46,6 +46,7 @@ struct CompletionItem
 {
     CompletionItem(ICompletionCollector *collector = 0)
         : m_relevance(0),
+          m_duplicateCount(0),
           m_collector(collector)
     { }
 
@@ -60,6 +61,7 @@ struct CompletionItem
     QIcon m_icon;
     QVariant m_data;
     int m_relevance;
+    int m_duplicateCount;
     ICompletionCollector *m_collector;
 };
 

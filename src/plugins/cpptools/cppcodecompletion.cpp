@@ -61,6 +61,7 @@
 #include <QtCore/QFile>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
@@ -89,8 +90,7 @@ private slots:
     void previousPage();
 
 private:
-    void update();
-    void close();
+    void updateArgumentHighlight();
     void updateHintText();
 
     Function *currentFunction() const
@@ -103,6 +103,7 @@ private:
     TextEditor::ITextEditor *m_editor;
 
     QWidget *m_pager;
+    QLabel *m_numberLabel;
     QFrame *m_popupFrame;
     QList<Function *> m_items;
     LookupContext m_context;
@@ -225,11 +226,12 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     QHBoxLayout *hbox = new QHBoxLayout(m_pager);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
     hbox->addWidget(leftArrow);
+    m_numberLabel = new QLabel;
+    hbox->addWidget(m_numberLabel);
     hbox->addWidget(rightArrow);
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_pager);
@@ -259,7 +261,7 @@ void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
     if (m_startpos == startPosition)
         return;
 
-    m_popupFrame->hide();
+    m_pager->setVisible(functionSymbols.size() > 1);
 
     m_items = functionSymbols;
     m_context = context;
@@ -268,13 +270,8 @@ void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
 
     // update the text
     m_currentarg = -1;
-    update();
+    updateArgumentHighlight();
 
-    m_pager->setVisible(functionSymbols.size() > 1);
-
-    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
-    pos.setY(pos.y() - m_popupFrame->sizeHint().height() - 1);
-    m_popupFrame->move(pos);
     m_popupFrame->show();
 }
 
@@ -294,11 +291,11 @@ void FunctionArgumentWidget::previousPage()
     updateHintText();
 }
 
-void FunctionArgumentWidget::update()
+void FunctionArgumentWidget::updateArgumentHighlight()
 {
     int curpos = m_editor->position();
     if (curpos < m_startpos) {
-        close();
+        m_popupFrame->close();
         return;
     }
 
@@ -323,28 +320,37 @@ void FunctionArgumentWidget::update()
     }
 
     if (parcount < 0)
-        close();
+        m_popupFrame->close();
 }
 
 bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
-    case QEvent::KeyRelease:
-        {
-            if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
-                close();
-                return false;
+    case QEvent::KeyPress:
+        if (m_items.size() > 1) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            if (ke->key() == Qt::Key_Up) {
+                previousPage();
+                return true;
+            } else if (ke->key() == Qt::Key_Down) {
+                nextPage();
+                return true;
             }
-            update();
-            break;
+            return false;
         }
+        break;
+    case QEvent::KeyRelease:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+            m_popupFrame->close();
+            return false;
+        }
+        updateArgumentHighlight();
+        break;
     case QEvent::WindowDeactivate:
     case QEvent::FocusOut:
-        {
-            if (obj != m_editor->widget())
-                break;
-        }
-        close();
+        if (obj != m_editor->widget())
+            break;
+        m_popupFrame->close();
         break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
@@ -352,7 +358,7 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::Wheel: {
             QWidget *widget = qobject_cast<QWidget *>(obj);
             if (! (widget == this || m_popupFrame->isAncestorOf(widget))) {
-                close();
+                m_popupFrame->close();
             }
         }
         break;
@@ -362,11 +368,6 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
     return false;
 }
 
-void FunctionArgumentWidget::close()
-{
-    m_popupFrame->close();
-}
-
 void FunctionArgumentWidget::updateHintText()
 {
     Overview overview;
@@ -374,7 +375,27 @@ void FunctionArgumentWidget::updateHintText()
     overview.setShowArgumentNames(true);
     overview.setMarkArgument(m_currentarg + 1);
     Function *f = currentFunction();
+
     setText(overview(f->type(), f->name()));
+    m_numberLabel->setText(tr("%1 of %2").arg(m_current + 1).arg(m_items.size()));
+
+    m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());
+
+    const QDesktopWidget *desktop = QApplication::desktop();
+#ifdef Q_OS_MAC
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_popupFrame));
+#else
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_popupFrame));
+#endif
+
+    const QSize sz = m_popupFrame->sizeHint();
+    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
+    pos.setY(pos.y() - sz.height() - 1);
+
+    if (pos.x() + sz.width() > screen.right())
+        pos.setX(screen.right() - sz.width());
+
+    m_popupFrame->move(pos);
 }
 
 CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
@@ -507,7 +528,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
-    m_startPosition = findStartOfName();
+    const int startOfName = findStartOfName();
+    m_startPosition = startOfName;
     m_completionOperator = T_EOF_SYMBOL;
 
     int endOfOperator = m_startPosition;
@@ -568,7 +590,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_completionOperator = T_EOF_SYMBOL;
-                m_startPosition = editor->position();
+                m_startPosition = startOfName;
             }
         }
     }
@@ -1202,8 +1224,9 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (function->argumentCount() == 0 || (function->argumentCount() == 1 &&
-                                                           function->argumentAt(0)->type()->isVoidType())) {
+                    if (item.m_duplicateCount == 0 && (function->argumentCount() == 0 ||
+                                                       (function->argumentCount() == 1 &&
+                                                        function->argumentAt(0)->type()->isVoidType()))) {
                         extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
