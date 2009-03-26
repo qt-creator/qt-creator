@@ -2013,7 +2013,7 @@ static void qDumpQVariantHelper(const void *data, QString *value,
         *numchild = 0;
         break;
     case QVariant::StringList:
-        *exp = QString(QLatin1String("(('"NS"QVariant'*)%1)->d.data.c"))
+        *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
                     .arg((quintptr)data);
         *numchild = v.toStringList().size();
         break;
