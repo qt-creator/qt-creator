@@ -331,6 +331,7 @@ public:
     QString m_workingDir;
     QString m_buildDir;
     QStringList m_processArgs;
+    QString m_dumperLib;
     int m_attachedPID;
     bool m_useTerminal;
 

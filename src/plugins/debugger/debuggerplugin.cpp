@@ -381,6 +381,8 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
         m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
 
+    theDebuggerAction(UseQtDumpers)
+        ->connectWidget(m_ui.radioButtonUseQtDumpers);
     theDebuggerAction(UsePrebuiltDumpers)
         ->connectWidget(m_ui.radioButtonUsePrebuiltDumpers);
     theDebuggerAction(BuildDumpersOnTheFly)
@@ -414,6 +416,7 @@ void DumperOptionPage::apply()
     QSettings *s = ICore::instance()->settings();
 
     theDebuggerAction(UseDumpers)->apply(s);
+    theDebuggerAction(UseQtDumpers)->apply(s);
     theDebuggerAction(UsePrebuiltDumpers)->apply(s);
     theDebuggerAction(BuildDumpersOnTheFly)->apply(s);
     theDebuggerAction(PrebuiltDumpersLocation)->apply(s);

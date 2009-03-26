@@ -3993,6 +3993,8 @@ QString GdbEngine::dumperLibraryName() const
 {
     if (theDebuggerAction(UsePrebuiltDumpers)->value().toBool())
         return theDebuggerAction(PrebuiltDumpersLocation)->value().toString();
+    if (theDebuggerAction(UseQtDumpers)->value().toBool())
+        return q->m_dumperLib;
 #if defined(Q_OS_WIN)
     return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
 #elif defined(Q_OS_MAC)
@@ -4010,6 +4012,7 @@ void GdbEngine::tryLoadCustomDumpers()
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_dataDumperState = DataDumperUnavailable;
     QString lib = dumperLibraryName();
+    //qDebug() << "DUMPERLIB: " << lib;
 
     if (!QFileInfo(lib).exists()) {
         debugMessage(QString("DEBUG HELPER LIBRARY IS NOT USABLE: "

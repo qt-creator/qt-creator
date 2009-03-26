@@ -38,7 +38,7 @@ namespace Internal {
 
 QString dotEscape(QString str)
 {
-    const QChar dot = QLatin1Char(',');
+    const QChar dot = QLatin1Char('.');
     str.replace(QLatin1Char(' '), dot);
     str.replace(QLatin1Char('\\'), dot);
     str.replace(QLatin1Char('/'), dot);

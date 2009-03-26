@@ -155,6 +155,7 @@ enum DebuggerActionCode
 
     RecheckDumpers,
     UsePrebuiltDumpers,
+    UseQtDumpers,
     PrebuiltDumpersLocation,
     BuildDumpersOnTheFly,
     UseDumpers,

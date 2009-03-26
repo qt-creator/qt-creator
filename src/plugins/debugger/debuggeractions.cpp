@@ -510,6 +510,11 @@ DebuggerSettings *theDebuggerSettings()
     item->setCheckable(true);
 
     item = new DebuggerAction(instance);
+    instance->insertItem(UseQtDumpers, item);
+    item->setSettingsKey("DebugMode", "UseQtDumpers");
+    item->setCheckable(true);
+
+    item = new DebuggerAction(instance);
     instance->insertItem(UsePrebuiltDumpers, item);
     item->setSettingsKey("DebugMode", "UsePrebuiltDumpers");
     item->setCheckable(true);
