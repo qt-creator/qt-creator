@@ -288,9 +288,15 @@ public:
     FullySpecifiedType returnType() const;
     void setReturnType(FullySpecifiedType returnType);
 
+    /** Convenience function that returns whether the function returns something (including void). */
+    bool hasReturnType() const;
+
     unsigned argumentCount() const;
     Symbol *argumentAt(unsigned index) const;
     Scope *arguments() const;
+
+    /** Convenience function that returns whether the function receives any arguments. */
+    bool hasArguments() const;
 
     bool isVariadic() const;
     void setVariadic(bool isVariadic);

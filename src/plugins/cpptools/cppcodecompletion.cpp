@@ -1209,10 +1209,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
-                const bool hasReturnType = function->returnType().isValid()  ||
-                                           function->returnType().isSigned() ||
-                                           function->returnType().isUnsigned();
-                if (! hasReturnType && (function->identity() && !function->identity()->isDestructorNameId())) {
+                if (! function->hasReturnType() && (function->identity() && !function->identity()->isDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
                 } else if (function->templateParameterCount() != 0) {
@@ -1224,9 +1221,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     extraChars += QLatin1Char('(');
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (item.m_duplicateCount == 0 && (function->argumentCount() == 0 ||
-                                                       (function->argumentCount() == 1 &&
-                                                        function->argumentAt(0)->type()->isVoidType()))) {
+                    if (item.m_duplicateCount == 0 && ! function->hasArguments()) {
                         extraChars += QLatin1Char(')');
 
                         // If the function doesn't return anything, automatically place the semicolon,
