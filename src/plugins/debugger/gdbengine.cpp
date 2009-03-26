@@ -3332,7 +3332,7 @@ void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
                 );
     } else {
         m_dataDumperState = DataDumperAvailable;
-        q->showStatusMessage(tr("%1 custom dumpers found")
+        q->showStatusMessage(tr("%1 custom dumpers found.")
             .arg(m_availableSimpleDumpers.size()));
     }
     //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDumpers;
