@@ -67,16 +67,13 @@ QVariant DebuggerAction::value() const
 
 void DebuggerAction::setValue(const QVariant &value, bool doemit)
 {
-    if (value != m_value) {
-        m_value = value;
-        if (this->isCheckable())
-            this->setChecked(m_value.toBool());
-        if (doemit) {
-            emit valueChanged(m_value);
-            emit boolValueChanged(m_value.toBool());
-            emit stringValueChanged(m_value.toString());
-        }
-    }
+    if (value == m_value)
+        return;
+    m_value = value;
+    if (this->isCheckable())
+        this->setChecked(m_value.toBool());
+    if (doemit)
+        emit valueChanged(m_value);
 }
 
 QVariant DebuggerAction::defaultValue() const

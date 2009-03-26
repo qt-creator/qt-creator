@@ -84,8 +84,6 @@ public:
 
 signals:
     void valueChanged(const QVariant &newValue);
-    void boolValueChanged(bool newValue);
-    void stringValueChanged(const QString &newValue);
 
 private:
     Q_SLOT void uncheckableButtonClicked();
