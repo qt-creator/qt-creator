@@ -34,6 +34,7 @@
 #include "Macro.h"
 
 #include <QByteArray>
+#include <QFileInfo>
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
@@ -199,6 +200,9 @@ public:
 
         unsigned line() const
         { return _line; }
+
+        bool resolved() const
+        { return QFileInfo(_fileName).isAbsolute(); }
     };
 
     class MacroUse: public Block {
