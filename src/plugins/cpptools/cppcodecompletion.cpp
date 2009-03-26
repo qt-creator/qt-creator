@@ -514,7 +514,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
-    m_startPosition = findStartOfName();
+    const int startOfName = findStartOfName();
+    m_startPosition = startOfName;
     m_completionOperator = T_EOF_SYMBOL;
 
     int endOfOperator = m_startPosition;
@@ -575,7 +576,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_completionOperator = T_EOF_SYMBOL;
-                m_startPosition = editor->position();
+                m_startPosition = startOfName;
             }
         }
     }
