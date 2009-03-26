@@ -34,8 +34,7 @@ HEADERS = qt4projectmanagerplugin.h \
     speinfo.h \
     qt4buildconfigwidget.h \
     qt4buildenvironmentwidget.h \
-    projectloadwizard.h \
-    directorywatcher.h
+    projectloadwizard.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qtversionmanager.cpp \
@@ -65,8 +64,7 @@ SOURCES = qt4projectmanagerplugin.cpp \
     speinfo.cpp \
     qt4buildconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
-    projectloadwizard.cpp \
-    directorywatcher.cpp
+    projectloadwizard.cpp
 FORMS = qtversionmanager.ui \
     envvariablespage.ui \
     enveditdialog.ui \

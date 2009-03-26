@@ -29,7 +29,6 @@
 
 #include "proeditormodel.h"
 
-#include "directorywatcher.h"
 #include "profilereader.h"
 #include "prowriter.h"
 #include "qt4nodes.h"
@@ -37,6 +36,7 @@
 #include "qt4projectmanager.h"
 
 #include <projectexplorer/nodesvisitor.h>
+#include <projectexplorer/filewatcher.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
@@ -88,7 +88,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_qt4ProFileNode(qt4ProFileNode),
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
           m_projectDir(QFileInfo(filePath).absolutePath()),
-          m_fileWatcher(new FileWatcher(this))
+          m_fileWatcher(new ProjectExplorer::FileWatcher(this))
 {
     Q_ASSERT(project);
     setFolderName(QFileInfo(filePath).completeBaseName());

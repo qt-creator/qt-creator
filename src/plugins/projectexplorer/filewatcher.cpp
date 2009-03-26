@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "directorywatcher.h"
+#include "filewatcher.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -37,8 +37,7 @@
 
 enum { debugWatcher = 0 };
 
-namespace Qt4ProjectManager {
-namespace Internal {
+using namespace ProjectExplorer;
 
 int FileWatcher::m_objectCount = 0;
 QHash<QString,int> FileWatcher::m_fileCount;
@@ -92,6 +91,3 @@ void FileWatcher::removeFile(const QString &file)
     if (m_fileCount[file] == 0)
       m_watcher->removePath(file);
 }
-
-} // namespace Internal
-} // namespace Qt4ProjectManager

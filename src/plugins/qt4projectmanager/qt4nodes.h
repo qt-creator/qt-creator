@@ -48,6 +48,10 @@ namespace Core {
 class ICore;
 }
 
+namespace ProjectExplorer {
+class FileWatcher;
+}
+
 namespace Qt4ProjectManager {
 
 // Import base classes into namespace
@@ -71,10 +75,7 @@ class Qt4Project;
 namespace Internal {
 
 using ProjectExplorer::FileType;
-
 class ProFileReader;
-class DirectoryWatcher;
-class FileWatcher;
 
 //  Type of projects
 enum Qt4ProjectType {
@@ -158,7 +159,7 @@ private:
 
     // TODO we might be better off using an IFile* and the FileManager for
     // watching changes to the .pro and .pri files on disk
-    FileWatcher *m_fileWatcher;
+    ProjectExplorer::FileWatcher *m_fileWatcher;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;

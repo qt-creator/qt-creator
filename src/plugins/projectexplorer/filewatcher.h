@@ -27,8 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef DIRECTORYWATCHER_H
-#define DIRECTORYWATCHER_H
+#ifndef FILEWATCHER_H
+#define FILEWATCHER_H
+
+#include "projectexplorer_export.h"
 
 #include <QtCore/QDateTime>
 #include <QtCore/QHash>
@@ -40,10 +42,9 @@ class QTimer;
 class QFileSystemWatcher;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
-class FileWatcher : public QObject
+class PROJECTEXPLORER_EXPORT FileWatcher : public QObject
 {
     Q_DISABLE_COPY(FileWatcher)
     Q_OBJECT
@@ -68,7 +69,6 @@ private:
     QStringList m_files;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
-#endif // DIRECTORYWATCHER_H
+#endif // FILEWATCHER_H
