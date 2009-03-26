@@ -215,6 +215,7 @@ void CMakeProject::parseCMakeLists()
 
 QString CMakeProject::buildParser(const QString &buildConfiguration) const
 {
+    Q_UNUSED(buildConfiguration);
     // TODO this is actually slightly wrong, but do i care?
     // this should call toolchain(buildConfiguration)
     if (!m_toolChain)
