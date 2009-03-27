@@ -244,10 +244,14 @@ private:
     friend class Core::Internal::EditorView;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(EditorManager::OpenEditorFlags);
+} // namespace Core
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags);
+
 
 //===================EditorClosingCoreListener======================
 
+namespace Core {
 namespace Internal {
 
 class EditorClosingCoreListener : public ICoreListener

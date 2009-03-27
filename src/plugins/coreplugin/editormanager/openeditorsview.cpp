@@ -83,7 +83,7 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                        option.rect.height(),
                        option.rect.height());
 
-        icon.paint(painter, iconRect, Qt::Alignment(Qt::AlignRight | Qt::AlignVCenter));
+        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
     }
 
 }
