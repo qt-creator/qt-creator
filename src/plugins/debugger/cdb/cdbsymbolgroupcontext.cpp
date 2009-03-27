@@ -30,6 +30,37 @@
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
 #include "watchhandler.h"
+#include "watchutils.h"
+#include <QtCore/QTextStream>
+
+static inline void debugSymbolFlags(unsigned long f, QTextStream &str)
+{
+    if (f & DEBUG_SYMBOL_EXPANDED)
+        str << "DEBUG_SYMBOL_EXPANDED";
+    if (f & DEBUG_SYMBOL_READ_ONLY)
+        str << "|DEBUG_SYMBOL_READ_ONLY";
+    if (f & DEBUG_SYMBOL_IS_ARRAY)
+        str << "|DEBUG_SYMBOL_IS_ARRAY";
+    if (f & DEBUG_SYMBOL_IS_FLOAT)
+        str << "|DEBUG_SYMBOL_IS_FLOAT";
+    if (f & DEBUG_SYMBOL_IS_ARGUMENT)
+        str << "|DEBUG_SYMBOL_IS_ARGUMENT";
+    if (f & DEBUG_SYMBOL_IS_LOCAL)
+        str << "|DEBUG_SYMBOL_IS_LOCAL";
+}
+
+ QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS& p)
+{
+    str << " Type=" << p.TypeId << " parent=";
+    if (p.ParentSymbol == DEBUG_ANY_ID) {
+        str << "<ROOT>";
+    } else {
+       str << p.ParentSymbol;
+    }
+    str << " Subs=" << p.SubElements << " flags=" << p.Flags << '/';
+    debugSymbolFlags(p.Flags, str);
+    return str;
+}
 
 // A helper function to extract a string value from a member function of
 // IDebugSymbolGroup2 taking the symbol index and a character buffer.
@@ -68,84 +99,182 @@ CdbSymbolGroupContext::~CdbSymbolGroupContext()
     m_symbolGroup->Release();
 }
 
-CdbSymbolGroupContext::Range
-    CdbSymbolGroupContext::getSymbolRange(const QString &prefix)
+CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
+                                                     IDebugSymbolGroup2 *symbolGroup,
+                                                     QString *errorMessage)
+{
+    CdbSymbolGroupContext *rc= new CdbSymbolGroupContext(prefix, symbolGroup);
+    if (!rc->init(errorMessage)) {
+        delete rc;
+        return 0;
+    }
+    return rc;
+}
+
+bool CdbSymbolGroupContext::init(QString *errorMessage)
+{
+    // retrieve the root symbols
+    ULONG count;
+    HRESULT hr = m_symbolGroup->GetNumberSymbols(&count);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetNumberSymbols", hr);
+        return false;
+    }
+
+    m_symbolParameters.reserve(3u * count);
+    m_symbolParameters.resize(count);
+
+    hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetSymbolParameters", hr);
+        return false;
+    }
+    populateINameIndexMap(m_prefix, 0, count);
+    return true;
+}
+
+void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigned long start, unsigned long count)
+{
+    const QString symbolPrefix = prefix + m_nameDelimiter;
+    const unsigned long end = start + count;
+    for (unsigned long i = start; i < end; i++)
+        if (isSymbolDisplayable(m_symbolParameters.at(i))) {
+        const QString name = symbolPrefix + getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
+        m_inameIndexMap.insert(name, i);        
+    }
+}
+
+QString CdbSymbolGroupContext::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    const int count = m_symbolParameters.size();
+    for (int i = 0; i < count; i++) {
+        str << i << ' ';
+        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(i);
+        if (p.ParentSymbol != DEBUG_ANY_ID)
+            str << "    ";
+        str << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
+        if (p.Flags & DEBUG_SYMBOL_IS_LOCAL)
+            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, i);
+        str << p << '\n';
+    }
+    return rc;
+}
+
+bool CdbSymbolGroupContext::isSymbolDisplayable(const DEBUG_SYMBOL_PARAMETERS &p)
+{
+    return p.Flags & (DEBUG_SYMBOL_IS_LOCAL|DEBUG_SYMBOL_IS_ARGUMENT);
+}
+
+static inline bool isSymbolExpanded(const DEBUG_SYMBOL_PARAMETERS &p) { return p.Flags & DEBUG_SYMBOL_EXPANDED; }
+
+bool CdbSymbolGroupContext::isExpanded(unsigned long index) const
+{
+    return isSymbolExpanded(m_symbolParameters.at(index));
+}
+
+/* Retrieve children and get the position. */
+bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
+                                                    unsigned long *start,
+                                                    unsigned long *parentId,
+                                                    QString *errorMessage)
 {
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << prefix;
-    const ChildRangeMap::const_iterator it = m_childRanges.constFind(prefix);
-    if (it != m_childRanges.constEnd())
-        return it.value();
-    const Range r = prefix == m_prefix ? allocateRootSymbols() : allocateChildSymbols(prefix);
-    m_childRanges.insert(prefix, r);
-    return r;
+        qDebug() << Q_FUNC_INFO << '\n'<< prefix;
+
+    *start = *parentId = 0;
+    // Root item?
+    if (prefix == m_prefix) {
+        *start = 0;
+        *parentId = DEBUG_ANY_ID;
+        if (debugCDB)
+            qDebug() << '<' << prefix << "at" << *start << '\n' << toString();
+        return true;
+    }
+    // Get parent index, make sure it is expanded
+    NameIndexMap::const_iterator nit = m_inameIndexMap.constFind(prefix);
+    if (nit == m_inameIndexMap.constEnd()) {
+        *errorMessage = QString::fromLatin1("'%1' not found.").arg(prefix);
+        return false;
+    }
+    *parentId = nit.value();
+    *start = nit.value() + 1;
+    if (!expandSymbol(prefix, *parentId, errorMessage))
+        return false;
+    if (debugCDB)
+        qDebug() << '<' << prefix << "at" << *start << '\n' << toString();
+    return true;
 }
 
-CdbSymbolGroupContext::Range
-    CdbSymbolGroupContext::allocateChildSymbols(const QString &prefix)
+// Expand a symbol using the symbol group interface.
+bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage)
 {
-    unsigned long startPos = 0;
-    unsigned long count = 0;
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << prefix << index;
 
-    bool success = false;
-    QString errorMessage;
-    do {
-        const int parentIndex = m_symbolINames.indexOf(prefix);
-        if (parentIndex == -1) {
-            errorMessage = QString::fromLatin1("Prefix not found '%1'").arg(prefix);
-            break;
-        }
+    if (isExpanded(index))
+        return true;
 
-        success = true;
-    } while (false);
-    if (!success) {
-        qWarning("%s\n", qPrintable(errorMessage));
+    HRESULT hr = m_symbolGroup->ExpandSymbol(index, TRUE);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Unable to expand '%1' %2: %3").
+                        arg(prefix).arg(index).arg(msgComFailed("ExpandSymbol", hr));
+        return false;
     }
-    return Range(startPos, count);
-}
-
-CdbSymbolGroupContext::Range
-    CdbSymbolGroupContext::allocateRootSymbols()
-{
-    unsigned long startPos = 0;
-    unsigned long count = 0;
-    bool success = false;
-
-    QString errorMessage;
-    do {
-        HRESULT hr = m_symbolGroup->GetNumberSymbols(&count);
-        if (FAILED(hr)) {
-            errorMessage = msgComFailed("GetNumberSymbols", hr);
-            break;
-        }
-
-        m_symbolParameters.reserve(3u * count);
-        m_symbolParameters.resize(count);
-
-        hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
-        if (FAILED(hr)) {
-            errorMessage = msgComFailed("GetSymbolParameters", hr);
-            break;
-        }
-        const QString symbolPrefix = m_prefix + m_nameDelimiter;
-        for (unsigned long i = 0; i < count; i++)
-            m_symbolINames.push_back(symbolPrefix + getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i));
-
-        success = true;
-    } while (false);
-    if (!success) {
-        clear();
-        count = 0;
-        qWarning("%s\n", qPrintable(errorMessage));
+    // Hopefully, this will never fail, else data structure will be foobar.
+    const ULONG oldSize = m_symbolParameters.size();
+    ULONG newSize;
+    hr = m_symbolGroup->GetNumberSymbols(&newSize);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetNumberSymbols", hr);
+        return false;
     }
-    return Range(startPos, count);
+
+    // Retrieve the new parameter structs which will be inserted
+    // after the parents, offsetting consecutive indexes.
+    m_symbolParameters.resize(newSize);
+
+    hr = m_symbolGroup->GetSymbolParameters(0, newSize, symbolParameters());
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetSymbolParameters", hr);
+        return false;
+    }
+    // The new symbols are inserted after the parent symbol.
+    // We need to correct the following values in the name->index map
+    const unsigned long newSymbolCount = newSize - oldSize;
+    const NameIndexMap::iterator nend = m_inameIndexMap.end();
+    for (NameIndexMap::iterator it = m_inameIndexMap.begin(); it != nend; ++it)
+        if (it.value() > index)
+            it.value() += newSymbolCount;
+    // insert the new symbols
+    populateINameIndexMap(prefix, index + 1, newSymbolCount);
+    return true;
 }
 
 void CdbSymbolGroupContext::clear()
 {
     m_symbolParameters.clear();
-    m_childRanges.clear();
-    m_symbolINames.clear();
+    m_inameIndexMap.clear();
+}
+
+int CdbSymbolGroupContext::getDisplayableChildCount(unsigned long index) const
+{
+    if (!isExpanded(index))
+        return 0;
+    int rc = 0;
+    // Skip over expanded children, count displayable ones
+    const unsigned long childCount = m_symbolParameters.at(index).SubElements;
+    unsigned long seenChildren = 0;
+    for (unsigned long c = index + 1; seenChildren < childCount; c++) {
+        const DEBUG_SYMBOL_PARAMETERS &params = m_symbolParameters.at(c);
+        if (params.ParentSymbol == index) {
+            seenChildren++;
+            if (isSymbolDisplayable(params))
+                rc++;
+        }
+    }
+    return rc;
 }
 
 WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
@@ -154,23 +283,131 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
         qDebug() << Q_FUNC_INFO << index;
 
     WatchData wd;
-    wd.iname = m_symbolINames.at(index);
+    wd.iname = m_inameIndexMap.key(index);
     const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter);
     wd.name = lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1);
-    wd.type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
-    wd.value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
+    wd.setType(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index));
+    wd.setValue(getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index).toUtf8());
+    wd.setChildrenNeeded(); // compensate side effects of above setters
+    wd.setChildCountNeeded();
+    // Figure out children. The SubElement is only a guess unless the symbol,
+    // is expanded, so, we leave this as a guess for later updates.
     const DEBUG_SYMBOL_PARAMETERS &params = m_symbolParameters.at(index);
     if (params.SubElements) {
-        wd.setTypeUnneeded();
-        wd.setValueUnneeded();
-        wd.setChildCount(1);
+        if (isSymbolExpanded(params))
+            wd.setChildCount(getDisplayableChildCount(index));
+        wd.setChildrenUnneeded();
     } else {
-        wd.setAllUnneeded();
+        wd.setChildCount(0);
     }
-    if (debugCDB) {
-        qDebug() << Q_FUNC_INFO << wd.toString();
-    }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << wd.toString();
     return wd;
+}
+
+class WatchDataBackInserter {
+public:
+    explicit WatchDataBackInserter(QList<WatchData> &wh) : m_wh(wh) {}
+
+    WatchDataBackInserter & operator*() { return *this; }
+    WatchDataBackInserter &operator=(const WatchData &wd) {
+        m_wh.push_back(wd);
+        return *this;
+    }
+    WatchDataBackInserter &operator++() { return *this; }
+
+private:
+    QList<WatchData> &m_wh;
+};
+
+static bool insertChildrenRecursion(const QString &iname,
+                                    CdbSymbolGroupContext *sg,
+                                    WatchHandler *watchHandler,
+                                    int level,
+                                    QString *errorMessage,
+                                    int *childCount = 0);
+
+// Insert a symbol and its children recursively if
+// they are known.
+static bool insertSymbolRecursion(const WatchData wd,
+                                  CdbSymbolGroupContext *sg,
+                                  WatchHandler *watchHandler,
+                                  int level,
+                                  QString *errorMessage
+                                  )
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << wd.iname << level;
+
+    watchHandler->insertData(wd);
+    if (wd.childCount && wd.isChildCountKnown())
+        return insertChildrenRecursion(wd.iname, sg, watchHandler, level + 1, errorMessage);
+    return true;
+}
+
+// Insert the children of prefix.
+static bool insertChildrenRecursion(const QString &iname,
+                                    CdbSymbolGroupContext *sg,
+                                    WatchHandler *watchHandler,
+                                    int level,
+                                    QString *errorMessage,
+                                    int *childCount)
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << iname << level;
+
+    QList<WatchData> watchList;
+    if (!sg->getChildSymbols(iname, WatchDataBackInserter(watchList), errorMessage))
+        return false;
+    if (childCount)
+        *childCount = watchList.size();
+    foreach(const WatchData &wd, watchList)
+        if (!insertSymbolRecursion(wd, sg, watchHandler, level + 1, errorMessage))
+            return false;
+    return true;
+}
+
+bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
+                                                   WatchHandler *watchHandler,
+                                                   QString *errorMessage)
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO;
+
+    // Insert root items and known children.
+    QList<WatchData> watchList;
+    if (!sg->getChildSymbols(sg->prefix(), WatchDataBackInserter(watchList), errorMessage))
+        return false;
+
+    foreach(const WatchData &wd, watchList)
+        if (!insertSymbolRecursion(wd, sg, watchHandler, 0, errorMessage))
+            return false;
+    return true;
+}
+
+bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
+                                          WatchHandler *watchHandler,
+                                          QString *errorMessage)
+{
+    const QList<WatchData> incomplete = watchHandler->takeCurrentIncompletes();
+    if (debugCDB) {
+        QDebug nsp = qDebug().nospace();
+        nsp << Q_FUNC_INFO << '\n' <<  incomplete.size();
+        foreach(const WatchData& wd, incomplete)
+            nsp << ' ' << wd.iname;
+        nsp << '\n';
+    }
+    // At this point, it should be nodes with unknown children.
+    int childCount;
+    foreach(WatchData wd, incomplete) {
+        if (insertChildrenRecursion(wd.iname, sg, watchHandler, 0, errorMessage, &childCount)) {
+            wd.setChildCount(childCount);
+            watchHandler->insertData(wd);
+        } else {
+            return false;
+        }
+    }
+    return true;
 }
 
 }

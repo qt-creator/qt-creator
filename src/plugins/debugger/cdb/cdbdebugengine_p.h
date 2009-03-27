@@ -79,6 +79,7 @@ struct CdbDebugEnginePrivate
     void handleDebugOutput(const char* szOutputString);
     void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
     void cleanStackTrace();
+    CdbSymbolGroupContext *getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const;
 
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
@@ -98,6 +99,7 @@ struct CdbDebugEnginePrivate
     DebuggerManager *m_debuggerManager;
     IDebuggerManagerAccessForEngines *m_debuggerManagerAccess;
     CdbStackTraceContext *m_currentStackTrace;
+    bool m_firstActivatedFrame;
 
     DebuggerStartMode m_mode;
     Core::Utils::ConsoleProcess m_consoleStubProc;
