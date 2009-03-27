@@ -131,7 +131,7 @@ private:
     void loadAllSymbols();
 
     Q_SLOT void setDebugDumpers(const QVariant &on);
-    Q_SLOT void setUseDumpers(const QVariant &on);
+    Q_SLOT void setDisplayRawData(const QVariant &on);
 
     //
     // Own stuff

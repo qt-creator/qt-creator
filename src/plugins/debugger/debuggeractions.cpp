@@ -64,6 +64,7 @@ DebuggerSettings::~DebuggerSettings()
     
 void DebuggerSettings::insertItem(int code, SavedAction *item)
 {
+    QTC_ASSERT(!m_items.contains(code), return);
     m_items[code] = item;
 }
 
@@ -240,11 +241,6 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Use tooltips when debugging"));
     item->setCheckable(true);
 
-    item = new SavedAction(instance);
-    instance->insertItem(ListSourceFiles, item);
-    item->setText(QObject::tr("List source files"));
-    item->setCheckable(true);
-
 
     //
     // Settings
@@ -272,30 +268,30 @@ DebuggerSettings *theDebuggerSettings()
     item->setSettingsKey("DebugMode", "UseToolTips");
 
     item = new SavedAction(instance);
-    instance->insertItem(UseDumpers, item);
-    item->setSettingsKey("DebugMode", "UseCustomDumpers");
-    item->setText(QObject::tr("Use custom dumpers"));
+    instance->insertItem(DisplayRawData, item);
+    item->setSettingsKey("DebugMode", "DisplayRawData");
+    item->setText(QObject::tr("Display raw data"));
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(BuildDumpersOnTheFly, item);
+    instance->insertItem(UseDefaultDumperLocation, item);
     item->setDefaultValue(true);
-    item->setSettingsKey("DebugMode", "BuildDumpersOnTheFly");
+    item->setSettingsKey("DebugMode", "UseDefaultDumperLocation");
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(UseQtDumpers, item);
-    item->setSettingsKey("DebugMode", "UseQtDumpers");
+    instance->insertItem(UseCustomDumperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDumperLocation");
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(UsePrebuiltDumpers, item);
-    item->setSettingsKey("DebugMode", "UsePrebuiltDumpers");
+    instance->insertItem(DisplayRawData, item);
+    item->setSettingsKey("DebugMode", "DisplayRawData");
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(PrebuiltDumpersLocation, item);
-    item->setSettingsKey("DebugMode", "PrebuiltDumpersLocation");
+    instance->insertItem(CustomDumperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDumperLocation");
 
     item = new SavedAction(instance);
     instance->insertItem(TerminalApplication, item);
@@ -305,6 +301,8 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(ListSourceFiles, item);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
+    item->setText(QObject::tr("List source files"));
+    item->setCheckable(true);
 
     item = new SavedAction(instance);
     instance->insertItem(SkipKnownFrames, item);

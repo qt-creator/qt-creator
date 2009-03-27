@@ -20,27 +20,20 @@
       <string>Location of data dumper helper library</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonUseQtDumpers">
-        <property name="text">
-         <string>Use Qt dumpers</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButtonBuildDumpersOnTheFly">
+       <widget class="QRadioButton" name="radioButtonUseDefaultDumperLocation">
         <property name="toolTip">
-         <string>This is the slowest but safest option.</string>
+         <string>This will load a dumper library</string>
         </property>
         <property name="text">
-         <string>Build and load data dumpers on-the-fly</string>
+         <string>Use dumpers from default location</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButtonUsePrebuiltDumpers">
+       <widget class="QRadioButton" name="radioButtonUseCustomDumperLocation">
         <property name="text">
-         <string>Load pre-built data dumpers</string>
+         <string>Use dumpers from custom location</string>
         </property>
        </widget>
       </item>
@@ -74,6 +67,16 @@
         </item>
        </layout>
       </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonDisplayRawData">
+        <property name="toolTip">
+         <string>This will disable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
+        </property>
+        <property name="text">
+         <string>Do not use data dumpers</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -97,13 +100,6 @@
      </property>
      <property name="text">
       <string>Debug custom dumpers</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBoxUseDumpers">
-     <property name="text">
-      <string>Use data dumpers</string>
      </property>
     </widget>
    </item>

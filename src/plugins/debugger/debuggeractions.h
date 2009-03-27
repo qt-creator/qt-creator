@@ -87,11 +87,10 @@ enum DebuggerActionCode
     CollapseItem,
 
     RecheckDumpers,
-    UsePrebuiltDumpers,
-    UseQtDumpers,
-    PrebuiltDumpersLocation,
-    BuildDumpersOnTheFly,
-    UseDumpers,
+    DisplayRawData,
+    UseCustomDumperLocation,
+    UseDefaultDumperLocation,
+    CustomDumperLocation,
     DebugDumpers,
 
     // Source List

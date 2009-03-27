@@ -362,26 +362,24 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
 
-    connect(m_ui.radioButtonUsePrebuiltDumpers, SIGNAL(toggled(bool)),
+    connect(m_ui.radioButtonUseCustomDumperLocation, SIGNAL(toggled(bool)),
         m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
 
     m_group.clear();
-    m_group.insert(theDebuggerAction(UseQtDumpers),
-        m_ui.radioButtonUseQtDumpers);
-    m_group.insert(theDebuggerAction(UsePrebuiltDumpers),
-        m_ui.radioButtonUsePrebuiltDumpers);
-    m_group.insert(theDebuggerAction(BuildDumpersOnTheFly),
-        m_ui.radioButtonBuildDumpersOnTheFly);
-    m_group.insert(theDebuggerAction(PrebuiltDumpersLocation),
+    m_group.insert(theDebuggerAction(DisplayRawData),
+        m_ui.radioButtonDisplayRawData);
+    m_group.insert(theDebuggerAction(UseCustomDumperLocation),
+        m_ui.radioButtonUseCustomDumperLocation);
+    m_group.insert(theDebuggerAction(UseDefaultDumperLocation),
+        m_ui.radioButtonUseDefaultDumperLocation);
+    m_group.insert(theDebuggerAction(CustomDumperLocation),
         m_ui.dumperLocationChooser);
 
-    m_group.insert(theDebuggerAction(UseDumpers),
-        m_ui.checkBoxUseDumpers);
     m_group.insert(theDebuggerAction(DebugDumpers),
         m_ui.checkBoxDebugDumpers);
 
     m_ui.dumperLocationChooser->
-        setEnabled(theDebuggerAction(UsePrebuiltDumpers)->value().toBool());
+        setEnabled(theDebuggerAction(UseCustomDumperLocation)->value().toBool());
 
 #ifndef QT_DEBUG
 #if 0

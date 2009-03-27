@@ -210,8 +210,8 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(theDebuggerAction(UseDumpers), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setUseDumpers(QVariant)));
+    connect(theDebuggerAction(DisplayRawData), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setDisplayRawData(QVariant)));
     connect(theDebuggerAction(DebugDumpers), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setDebugDumpers(QVariant)));
     connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
@@ -1077,7 +1077,7 @@ void GdbEngine::handleAqcuiredInferior()
     #if defined(Q_OS_MAC)
     sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
     #endif
-    if (theDebuggerBoolSetting(UseDumpers))
+    if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
     tryLoadCustomDumpers();
 
@@ -2849,7 +2849,7 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
         data.saddr = mi.data();
 }
 
-void GdbEngine::setUseDumpers(const QVariant &on)
+void GdbEngine::setDisplayRawData(const QVariant &on)
 {
     qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
@@ -2860,7 +2860,7 @@ void GdbEngine::setUseDumpers(const QVariant &on)
 
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
-    if (!theDebuggerBoolSetting(UseDumpers))
+    if (theDebuggerBoolSetting(DisplayRawData))
         return false;
 
     if (q->startMode() == AttachCore) {
@@ -3989,17 +3989,12 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 
 QString GdbEngine::dumperLibraryName() const
 {
-    if (theDebuggerAction(UsePrebuiltDumpers)->value().toBool())
-        return theDebuggerAction(PrebuiltDumpersLocation)->value().toString();
-    if (theDebuggerAction(UseQtDumpers)->value().toBool())
+    if (theDebuggerAction(UseCustomDumperLocation)->value().toBool())
+        return theDebuggerAction(CustomDumperLocation)->value().toString();
+    if (theDebuggerAction(UseDefaultDumperLocation)->value().toBool())
         return q->m_dumperLib;
-#if defined(Q_OS_WIN)
-    return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
-#elif defined(Q_OS_MAC)
-    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
-#else // generic UNIX
-    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
-#endif
+    QTC_ASSERT(false, /**/);
+    return QString();
 }
 
 void GdbEngine::tryLoadCustomDumpers()
