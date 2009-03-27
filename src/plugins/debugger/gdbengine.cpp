@@ -210,8 +210,8 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(theDebuggerAction(DisplayRawData), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setDisplayRawData(QVariant)));
+    connect(theDebuggerAction(UseDumpers), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setUseDumpers(QVariant)));
     connect(theDebuggerAction(DebugDumpers), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setDebugDumpers(QVariant)));
     connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
@@ -2849,7 +2849,7 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
         data.saddr = mi.data();
 }
 
-void GdbEngine::setDisplayRawData(const QVariant &on)
+void GdbEngine::setUseDumpers(const QVariant &on)
 {
     qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
@@ -2860,7 +2860,7 @@ void GdbEngine::setDisplayRawData(const QVariant &on)
 
 bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
 {
-    if (theDebuggerBoolSetting(DisplayRawData))
+    if (!theDebuggerBoolSetting(UseDumpers))
         return false;
 
     if (q->startMode() == AttachCore) {
@@ -3991,10 +3991,7 @@ QString GdbEngine::dumperLibraryName() const
 {
     if (theDebuggerAction(UseCustomDumperLocation)->value().toBool())
         return theDebuggerAction(CustomDumperLocation)->value().toString();
-    if (theDebuggerAction(UseDefaultDumperLocation)->value().toBool())
-        return q->m_dumperLib;
-    QTC_ASSERT(false, /**/);
-    return QString();
+    return q->m_dumperLib;
 }
 
 void GdbEngine::tryLoadCustomDumpers()

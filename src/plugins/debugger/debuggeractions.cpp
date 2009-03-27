@@ -64,7 +64,7 @@ DebuggerSettings::~DebuggerSettings()
     
 void DebuggerSettings::insertItem(int code, SavedAction *item)
 {
-    QTC_ASSERT(!m_items.contains(code), return);
+    QTC_ASSERT(!m_items.contains(code), qDebug() << code << item->toString(); return);
     m_items[code] = item;
 }
 
@@ -115,6 +115,10 @@ DebuggerSettings *theDebuggerSettings()
 
     SavedAction *item = 0;
 
+    item = new SavedAction(instance);
+    instance->insertItem(SettingsDialog, item);
+    item->setText(QObject::tr("Debugger properties..."));
+
     //
     // View
     //
@@ -141,7 +145,6 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
     item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
-    //item->setCheckable(true);
 
     item = new SavedAction(instance);
     instance->insertItem(AssignValue, item);
@@ -158,13 +161,28 @@ DebuggerSettings *theDebuggerSettings()
     // Dumpers
     //
     item = new SavedAction(instance);
-    instance->insertItem(SettingsDialog, item);
-    item->setText(QObject::tr("Debugger properties..."));
+    instance->insertItem(UseDumpers, item);
+    item->setDefaultValue(true);
+    item->setSettingsKey("DebugMode", "UseDumpers");
+    item->setText(QObject::tr("Use data dumpers"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+
+    item = new SavedAction(instance);
+    instance->insertItem(UseCustomDumperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDumperLocation");
+    item->setCheckable(true);
+
+    item = new SavedAction(instance);
+    instance->insertItem(CustomDumperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDumperLocation");
 
     item = new SavedAction(instance);
     instance->insertItem(DebugDumpers, item);
-    item->setText(QObject::tr("Debug custom dumpers"));
+    item->setSettingsKey("DebugMode", "DebugDumpers");
+    item->setText(QObject::tr("Debug data dumpers"));
     item->setCheckable(true);
+
 
     item = new SavedAction(instance);
     item->setText(QObject::tr("Recheck custom dumper availability"));
@@ -227,20 +245,6 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(FormatNatural, item);
     registerFormatGroup->addAction(item);
 
-    //
-    // Misc
-    //
-
-    item = new SavedAction(instance);
-    instance->insertItem(SkipKnownFrames, item);
-    item->setText(QObject::tr("Skip known frames"));
-    item->setCheckable(true);
-
-    item = new SavedAction(instance);
-    instance->insertItem(UseToolTips, item);
-    item->setText(QObject::tr("Use tooltips when debugging"));
-    item->setCheckable(true);
-
 
     //
     // Settings
@@ -266,32 +270,8 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(UseToolTips, item);
     item->setSettingsKey("DebugMode", "UseToolTips");
-
-    item = new SavedAction(instance);
-    instance->insertItem(DisplayRawData, item);
-    item->setSettingsKey("DebugMode", "DisplayRawData");
-    item->setText(QObject::tr("Display raw data"));
+    item->setText(QObject::tr("Use tooltips when debugging"));
     item->setCheckable(true);
-
-    item = new SavedAction(instance);
-    instance->insertItem(UseDefaultDumperLocation, item);
-    item->setDefaultValue(true);
-    item->setSettingsKey("DebugMode", "UseDefaultDumperLocation");
-    item->setCheckable(true);
-
-    item = new SavedAction(instance);
-    instance->insertItem(UseCustomDumperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDumperLocation");
-    item->setCheckable(true);
-
-    item = new SavedAction(instance);
-    instance->insertItem(DisplayRawData, item);
-    item->setSettingsKey("DebugMode", "DisplayRawData");
-    item->setCheckable(true);
-
-    item = new SavedAction(instance);
-    instance->insertItem(CustomDumperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDumperLocation");
 
     item = new SavedAction(instance);
     instance->insertItem(TerminalApplication, item);
@@ -307,10 +287,8 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(SkipKnownFrames, item);
     item->setSettingsKey("DebugMode", "SkipKnownFrames");
-
-    item = new SavedAction(instance);
-    instance->insertItem(DebugDumpers, item);
-    item->setSettingsKey("DebugMode", "DebugDumpers");
+    item->setText(QObject::tr("Skip known frames"));
+    item->setCheckable(true);
 
     item = new SavedAction(instance);
     instance->insertItem(AllPluginBreakpoints, item);

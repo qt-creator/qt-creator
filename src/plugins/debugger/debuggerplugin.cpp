@@ -345,6 +345,8 @@ public:
     void finish() { m_group.finish(); }
 
 private:
+    Q_SLOT void updateState();
+
     friend class DebuggerPlugin;
     Ui::DumperOptionPage m_ui;
 
@@ -362,16 +364,16 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
 
-    connect(m_ui.radioButtonUseCustomDumperLocation, SIGNAL(toggled(bool)),
-        m_ui.dumperLocationChooser, SLOT(setEnabled(bool)));
+    connect(m_ui.checkBoxUseDumpers, SIGNAL(toggled(bool)),
+        this, SLOT(updateState()));
+    connect(m_ui.checkBoxUseCustomDumperLocation, SIGNAL(toggled(bool)),
+        this, SLOT(updateState()));
 
     m_group.clear();
-    m_group.insert(theDebuggerAction(DisplayRawData),
-        m_ui.radioButtonDisplayRawData);
+    m_group.insert(theDebuggerAction(UseDumpers),
+        m_ui.checkBoxUseDumpers);
     m_group.insert(theDebuggerAction(UseCustomDumperLocation),
-        m_ui.radioButtonUseCustomDumperLocation);
-    m_group.insert(theDebuggerAction(UseDefaultDumperLocation),
-        m_ui.radioButtonUseDefaultDumperLocation);
+        m_ui.checkBoxUseCustomDumperLocation);
     m_group.insert(theDebuggerAction(CustomDumperLocation),
         m_ui.dumperLocationChooser);
 
@@ -392,6 +394,15 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
 #endif
 
     return w;
+}
+
+void DumperOptionPage::updateState()
+{
+    m_ui.checkBoxUseCustomDumperLocation->setEnabled(
+        m_ui.checkBoxUseDumpers->isChecked());
+    m_ui.dumperLocationChooser->setEnabled(
+        m_ui.checkBoxUseDumpers->isChecked()
+            && m_ui.checkBoxUseCustomDumperLocation->isChecked());
 }
 
 } // namespace Internal

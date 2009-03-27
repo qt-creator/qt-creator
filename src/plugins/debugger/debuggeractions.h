@@ -87,9 +87,8 @@ enum DebuggerActionCode
     CollapseItem,
 
     RecheckDumpers,
-    DisplayRawData,
+    UseDumpers,
     UseCustomDumperLocation,
-    UseDefaultDumperLocation,
     CustomDumperLocation,
     DebugDumpers,
 

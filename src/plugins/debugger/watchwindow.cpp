@@ -177,7 +177,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(RecheckDumpers));
-    menu.addAction(theDebuggerAction(DisplayRawData));
+    menu.addAction(theDebuggerAction(UseDumpers));
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
