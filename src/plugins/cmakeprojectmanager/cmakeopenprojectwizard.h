@@ -115,6 +115,7 @@ class CMakeRunPage : public QWizardPage
 public:
     CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard);
     CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &buildDirectory, bool update);
+    virtual void initializePage();
     virtual void cleanupPage();
     virtual bool isComplete() const;
 private slots:
@@ -130,7 +131,9 @@ private:
     QLineEdit *m_argumentsLineEdit;
     QLabel *m_descriptionLabel;
     bool m_complete;
+    bool m_update;
     QString m_buildDirectory;
+    QString m_presetBuildDirectory;
 };
 
 }
