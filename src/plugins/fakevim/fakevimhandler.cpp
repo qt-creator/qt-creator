@@ -570,7 +570,7 @@ void FakeVimHandler::Private::setupWidget()
         updateSelection();
     }
 
-    showBlackMessage("vi emulation mode.");
+    showBlackMessage("vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.");
     updateMiniBuffer();
 }
 
