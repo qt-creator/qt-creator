@@ -116,10 +116,11 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
 #ifdef Q_OS_WIN
     QString generator = "-GCodeBlocks - MinGW Makefiles";
 #else // Q_OS_WIN
-   QString generator = "-GCodeBlocks - Unix Makefiles";
+    QString generator = "-GCodeBlocks - Unix Makefiles";
 #endif // Q_OS_WIN
-    qDebug()<<cmakeExecutable()<<sourceDirectory << arguments<<generator;
-    cmake->start(cmakeExecutable(), QStringList() << sourceDirectory << arguments << generator);
+    QString srcdir = buildDirectory.exists("CMakeCache.txt") ? QString(".") : sourceDirectory;
+    qDebug()<<cmakeExecutable()<<srcdir<<arguments<<generator;
+    cmake->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
     return cmake;
 }
 
