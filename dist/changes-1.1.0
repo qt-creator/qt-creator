@@ -1,0 +1,59 @@
+The QtCreator 1.1 release contains bug fixes and new features.
+
+A more detailed list of changes follows below. If you want to know
+the exact and complete list of changes, you can check out the QtCreator
+sources from the public git repository and check the logs, e.g.
+git clone git://labs.trolltech.com/qt-creator
+git log --pretty=oneline origin/1.0.0..origin/master
+
+The release introduces source and binary incompatible changes to the plugin API,
+so if you created your own custom plugins these need to be adapted.
+
+General
+   * Completely reworked editor split mechanism.
+
+Editing
+   * Completion for constructors in variable initialization.
+   * Some support for Obj-C++ //TODO: what does that mean more concrete?
+   * Some support for doxygen style comments //TODO: what does that mean more concrete?
+   * More intelligent adding of braces.
+   * Improved function argument completion.
+   * More checkpoints in editor history.
+   * Ctrl-click for jumping to a symbol definition.
+   * Context help for form editor widgets.
+   * Goto slot from form editor now works with multiple inheritance.
+   * Add signal/slot editor to form editor.
+   * Improved open documents view (sorted, single-click, close buttons).
+   * Copying text from the context help browser and output windows didn't work.
+
+Building, Running and Debugging
+   * Experimental support for generic Makefile based projects.
+   * Improved .pro file parsing, handling scopes and $$system directive.
+   * Support subdir.file in .pro files.
+   * Experimental cdb debugger.
+   * Option to start application in external terminal.
+   * Possibility to attach debugger to core files.
+   * Debugger understands std::set now.
+
+Platform Specific
+
+Mac
+   * Don't override systems Hide action.
+   * Option to set DYLD_IMAGE_SUFFIX=_debug when running applications.
+   * Open in Finder action in project tree.
+
+Linux
+   * Don't crash because of incompatible libQt3Support.
+
+
+Lots of improvements to
+   * FakeVim mode
+   * CMake support
+   * C++ parsing and inline error indicators
+   * Everything :-)
+
+Additional credits go to:
+   * Martin Aumueller <aumuell@reserv.at> (FakeVim improvements)
+   * Kris Wong (different patches)
+
+//TODO: this refers to commit c6419ff008bbf1afd2dfa4ed18a09de039cccef6
