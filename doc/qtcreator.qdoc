@@ -468,7 +468,7 @@
         \row
         \o \note This tutorial assumes that the user has experience writing
            basic Qt applications, designing user interfaces with Qt Designer
-           and and using the Qt Resource System.
+           and using the Qt Resource System.
     \endtable
 
 
