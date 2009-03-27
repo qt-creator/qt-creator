@@ -83,9 +83,14 @@ public:
     void setFileNotFound(const QModelIndex &index, bool b);
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type };
+
+    QIcon iconFor(ProjectExplorer::BuildParserInterface::PatternType type);
 private:
     QList<TaskItem> m_items;
     int m_maxSizeOfFileName;
+    QIcon m_errorIcon;
+    QIcon m_warningIcon;
+    QIcon m_unspecifiedIcon;
 };
 
 ////
@@ -126,6 +131,10 @@ void TaskView::keyPressEvent(QKeyEvent *e)
 TaskModel::TaskModel()
 {
     m_maxSizeOfFileName = 0;
+    m_errorIcon = QIcon(":/projectexplorer/images/compile_error.png");
+    m_warningIcon = QIcon(":/projectexplorer/images/compile_warning.png");
+    m_unspecifiedIcon = QIcon(":/projectexplorer/images/compile_unspecified.png");
+
 }
 
 void TaskModel::addTask(ProjectExplorer::BuildParserInterface::PatternType type, const QString &description, const QString &file, int line)
@@ -199,16 +208,17 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return m_items.at(index.row()).fileNotFound;
     else if (role == TaskModel::Type)
         return (int)m_items.at(index.row()).type;
-    else if (role == Qt::DecorationRole) {
-         if (m_items.at(index.row()).type == ProjectExplorer::BuildParserInterface::Error) {
-           return QIcon(":/projectexplorer/images/compile_error.png");
-       } else if (m_items.at(index.row()).type == ProjectExplorer::BuildParserInterface::Warning) {
-           return QIcon(":/projectexplorer/images/compile_warning.png");
-       } else {
-           return QIcon(":/projectexplorer/images/compile_unspecified.png");
-       }
-    }
     return QVariant();
+}
+
+QIcon TaskModel::iconFor(ProjectExplorer::BuildParserInterface::PatternType type)
+{
+    if (type == ProjectExplorer::BuildParserInterface::Error)
+        return m_errorIcon;
+    else if (type == ProjectExplorer::BuildParserInterface::Warning)
+        return m_warningIcon;
+    else
+        return m_unspecifiedIcon;
 }
 
 int TaskModel::sizeOfFile()
@@ -426,8 +436,10 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     QStyleOptionViewItemV4 opt = option;
     initStyleOption(&opt, index);
 
-
     QFontMetrics fm(option.font);
+    int fontHeight = fm.height();
+    int fontLeading = fm.leading();
+
     QSize s;
     s.setWidth(option.rect.width());
     const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
@@ -436,7 +448,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     if (view->selectionModel()->currentIndex() == index) {
         QString description = index.data(TaskModel::Description).toString();
         // Layout the description
-        int leading = fm.leading();
+        int leading = fontLeading;
         int height = 0;
         QTextLayout tl(description);
         tl.beginLayout();
@@ -451,9 +463,9 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         }
         tl.endLayout();
 
-        s.setHeight(height + leading + fm.height() + 3);
+        s.setHeight(height + leading + fontHeight + 3);
     } else {
-        s.setHeight(fm.height() + 3);
+        s.setHeight(fontHeight + 3);
     }
     return s;
 }
@@ -500,12 +512,13 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->setPen(textColor);
 
-    QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+    TaskModel *model = static_cast<TaskModel *>(view->model());
+    ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::PatternType(index.data(TaskModel::Type).toInt());
+    QIcon icon = model->iconFor(type);
     painter->drawPixmap(2, opt.rect.top() + 2, icon.pixmap(16, 16));
 
-    TaskModel *model = static_cast<TaskModel *>(view->model());
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
-    if (!selected) {
+    if (!selected) {        
         // in small mode we lay out differently
         QString bottom = index.data(TaskModel::Description).toString();
         painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), bottom);
