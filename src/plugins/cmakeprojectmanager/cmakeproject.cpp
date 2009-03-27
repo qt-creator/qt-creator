@@ -190,6 +190,9 @@ void CMakeProject::parseCMakeLists()
             else
                 allIncludePaths.append(headerPath.path());
         }
+        // This explicitly adds -I. to the include paths
+        allIncludePaths.append(sourceDirectory);
+
         allIncludePaths.append(cbpparser.includeFiles());
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
