@@ -309,6 +309,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     m_defaultToolBar(new QToolBar(this)),
     m_infoWidget(new QFrame(this)),
     m_editorForInfoWidget(0),
+    m_statusHLine(new QFrame(this)),
     m_statusWidget(new QFrame(this))
 {
     QVBoxLayout *tl = new QVBoxLayout(this);
@@ -397,10 +398,12 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
     tl->addWidget(m_container);
 
     {
+        m_statusHLine->setFrameStyle(QFrame::HLine);
+
         m_statusWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
         m_statusWidget->setLineWidth(1);
-        m_statusWidget->setForegroundRole(QPalette::ToolTipText);
-        m_statusWidget->setBackgroundRole(QPalette::ToolTipBase);
+        //m_statusWidget->setForegroundRole(QPalette::ToolTipText);
+        //m_statusWidget->setBackgroundRole(QPalette::ToolTipBase);
         m_statusWidget->setAutoFillBackground(true);
 
 
@@ -416,6 +419,7 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         hbox->addWidget(m_statusWidgetButton);
 
         m_statusWidget->setVisible(false);
+        tl->addWidget(m_statusHLine);
         tl->addWidget(m_statusWidget);
     }
 
@@ -458,13 +462,16 @@ void EditorView::showEditorStatusBar(const QString &kind,
     if (object && member)
         connect(m_statusWidgetButton, SIGNAL(clicked()), object, member);
     m_statusWidget->setVisible(true);
+    m_statusHLine->setVisible(true);
     //m_editorForInfoWidget = currentEditor();
 }
 
 void EditorView::hideEditorStatusBar(const QString &kind)
 {
-    if (kind == m_statusWidgetKind)
+    if (kind == m_statusWidgetKind) {
         m_statusWidget->setVisible(false);
+        m_statusHLine->setVisible(false);
+    }
 }
 
 void EditorView::addEditor(IEditor *editor)
