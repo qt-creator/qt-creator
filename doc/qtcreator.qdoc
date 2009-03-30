@@ -1287,10 +1287,9 @@
 
     \bold{Display Low Level Data}
 
-    If the special debugging of Qt objects fails due to data
-    corruption within the debugged objects, you can switch the
-    special debugging off in the \gui{Debug} menu. This will make
-    the low-level structures visible again.
+    If special debugging of Qt objects fails due to data corruption within the
+    debugged objects, you can switch the special debugging off in the
+    \gui{Debug} menu. This will make the low-level structures visible again.
 */
 
 
@@ -1301,6 +1300,22 @@
     \nextpage creator-glossary.html
 
     \title Keyboard Shortcuts
+
+    \raw HTML
+    <center>
+    <video src="http://www.youtube.com/watch?v=6WGCxLIjRNg">
+    <object width="480" height="295"><param name="movie"
+        value="http://www.youtube.com/v/HHsi5B_Opec&hl=en&fs=1"></param>
+        <param name="allowFullScreen" value="true"></param>
+        <param name="allowscriptaccess" value="always"></param>
+        <embed src="http://www.youtube.com/v/HHsi5B_Opec&hl=en&fs=1"
+            type="application/x-shockwave-flash" allowscriptaccess="always"
+            allowfullscreen="true" width="480" height="295"></embed>
+    </object>
+    </video>
+    </center>
+    \endraw
+
 
     Qt Creator provides various keyboard shortcuts to aid in the development
     process. These shortcuts are listed in the table below:
