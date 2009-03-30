@@ -159,7 +159,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxAutoIndent);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
-        this, SLOT(copyTextEditorSetting()));
+        this, SLOT(copyTextEditorSettings()));
     connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
         this, SLOT(setQtStyle()));
     connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
@@ -187,6 +187,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.lineEditShiftWidth->setText("4");
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.lineEditBackspace->setText("indent,eol,start");
 }
 
 void FakeVimOptionPage::setPlainStyle()
@@ -196,6 +197,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.lineEditShiftWidth->setText("8");
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
+    m_ui.lineEditBackspace->setText(QString());
 }
 
 } // namespace Internal
@@ -242,6 +244,7 @@ private slots:
 private:
     FakeVimPlugin *q;
     QAction *m_installHandlerAction; 
+    FakeVimOptionPage *m_fakeVimOptionsPage;
 };
 
 } // namespace Internal
@@ -251,6 +254,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {       
     q = plugin;
     m_installHandlerAction = 0;
+    m_fakeVimOptionsPage = 0;
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -259,6 +263,10 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 
 void FakeVimPluginPrivate::shutdown()
 {
+    q->removeObject(m_fakeVimOptionsPage);
+    delete m_fakeVimOptionsPage;
+    m_fakeVimOptionsPage = 0;
+    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
 }
 
 bool FakeVimPluginPrivate::initialize()
@@ -271,6 +279,10 @@ bool FakeVimPluginPrivate::initialize()
 
     m_installHandlerAction = new QAction(this);
     m_installHandlerAction->setText(tr("Set vi-Style Keyboard Action Handler"));
+
+    m_fakeVimOptionsPage = new FakeVimOptionPage;
+    q->addObject(m_fakeVimOptionsPage);
+    theFakeVimSettings()->readSettings(Core::ICore::instance()->settings());
     
     Core::Command *cmd = 0;
     cmd = actionManager->registerAction(m_installHandlerAction,
@@ -328,13 +340,7 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
 
     handler->setupWidget();
     handler->setExtraData(editor);
-
-    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(widget)) {
-        using namespace TextEditor;
-        using namespace FakeVim::Constants;
-        handler->setCurrentFileName(editor->file()->fileName());
-        TabSettings settings = bt->tabSettings();
-    }
+    handler->setCurrentFileName(editor->file()->fileName());
 }
 
 void FakeVimPluginPrivate::installHandlerOnCurrentEditor()

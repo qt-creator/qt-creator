@@ -121,8 +121,10 @@ void FakeVimSettings::insertItem(int code, SavedAction *item,
 
 void FakeVimSettings::readSettings(QSettings *settings)
 {
-    foreach (SavedAction *item, m_items)
+    foreach (SavedAction *item, m_items) {
+        qDebug() << "ITRM: " << item->toString();
         item->readSettings(settings);
+    }
 }
 
 void FakeVimSettings::writeSettings(QSettings *settings)
@@ -133,7 +135,7 @@ void FakeVimSettings::writeSettings(QSettings *settings)
    
 SavedAction *FakeVimSettings::item(int code)
 {
-    QTC_ASSERT(m_items.value(code, 0), return 0);
+    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
     return m_items.value(code, 0);
 }
 
@@ -147,43 +149,54 @@ FakeVimSettings *theFakeVimSettings()
 
     SavedAction *item = 0;
 
-    bool plain = false;
+    item = new SavedAction(instance);
+    item->setText(QObject::tr("Use vim-style editing"));
+    item->setSettingsKey("FakeVim", "UseFakeVim");
+    instance->insertItem(ConfigUseFakeVim, item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("FakeVim properties..."));
-    instance->insertItem(SettingsDialog, item);
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(plain ? false : true);
+    item->setDefaultValue(false);
+    item->setSettingsKey("FakeVim", "StartOfLine");
     instance->insertItem(ConfigStartOfLine, item, "startofline", "sol");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? 8 : 4);
+    item->setDefaultValue(8);
+    item->setSettingsKey("FakeVim", "TabStop");
     instance->insertItem(ConfigTabStop, item, "tabstop", "ts");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? false : true);
+    item->setDefaultValue(false);
+    item->setSettingsKey("FakeVim", "SmartTab");
     instance->insertItem(ConfigSmartTab, item, "smarttab", "sta");
 
     item = new SavedAction(instance);
     item->setDefaultValue(true);
+    item->setSettingsKey("FakeVim", "HlSearch");
     instance->insertItem(ConfigHlSearch, item, "hlsearch", "hls");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? 8 : 4);
+    item->setDefaultValue(8);
+    item->setSettingsKey("FakeVim", "ShiftWidth");
     instance->insertItem(ConfigShiftWidth, item, "shiftwidth", "sw");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? false : true);
+    item->setDefaultValue(false);
+    item->setSettingsKey("FakeVim", "ExpandTab");
     instance->insertItem(ConfigExpandTab, item, "expandtab", "et");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? true : false);
+    item->setDefaultValue(false);
+    item->setSettingsKey("FakeVim", "AutoIndent");
     instance->insertItem(ConfigAutoIndent, item, "autoindent", "ai");
 
     item = new SavedAction(instance);
-    item->setDefaultValue(plain ? "" : "indent,eol,start");
+    item->setDefaultValue("indent,eol,start");
+    item->setSettingsKey("FakeVim", "Backspace");
     instance->insertItem(ConfigBackspace, item, "backspace", "bs");
+
+    item = new SavedAction(instance);
+    item->setText(QObject::tr("FakeVim properties..."));
+    instance->insertItem(SettingsDialog, item);
 
     return instance;
 }
