@@ -87,124 +87,8 @@
 
 using namespace Core::Utils;
 
-///////////////////////////////////////////////////////////////////////
-//
-// FakeVimSettings
-//
-///////////////////////////////////////////////////////////////////////
-
 namespace FakeVim {
 namespace Internal {
-
-FakeVimSettings::FakeVimSettings(QObject *parent)
-    : QObject(parent)
-{}
-
-FakeVimSettings::~FakeVimSettings()
-{
-    qDeleteAll(m_items);
-}
-    
-void FakeVimSettings::insertItem(int code, SavedAction *item,
-    const QString &longName, const QString &shortName)
-{
-    QTC_ASSERT(!m_items.contains(code), qDebug() << code << item->toString(); return);
-    m_items[code] = item;
-    if (!longName.isEmpty()) {
-        m_nameToCode[longName] = code;
-        m_codeToName[code] = longName;
-    }
-    if (!shortName.isEmpty()) {
-        m_nameToCode[shortName] = code;
-    }
-}
-
-void FakeVimSettings::readSettings(QSettings *settings)
-{
-    foreach (SavedAction *item, m_items)
-        item->readSettings(settings);
-}
-
-void FakeVimSettings::writeSettings(QSettings *settings)
-{
-    foreach (SavedAction *item, m_items)
-        item->writeSettings(settings);
-}
-   
-SavedAction *FakeVimSettings::item(int code)
-{
-    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
-    return m_items.value(code, 0);
-}
-
-FakeVimSettings *theFakeVimSettings()
-{
-    static FakeVimSettings *instance = 0;
-    if (instance)
-        return instance;
-
-    instance = new FakeVimSettings;
-
-    SavedAction *item = 0;
-
-    item = new SavedAction(instance);
-    item->setText(QObject::tr("Use vim-style editing"));
-    item->setSettingsKey("FakeVim", "UseFakeVim");
-    instance->insertItem(ConfigUseFakeVim, item);
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "StartOfLine");
-    instance->insertItem(ConfigStartOfLine, item, "startofline", "sol");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(8);
-    item->setSettingsKey("FakeVim", "TabStop");
-    instance->insertItem(ConfigTabStop, item, "tabstop", "ts");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "SmartTab");
-    instance->insertItem(ConfigSmartTab, item, "smarttab", "sta");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(true);
-    item->setSettingsKey("FakeVim", "HlSearch");
-    instance->insertItem(ConfigHlSearch, item, "hlsearch", "hls");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(8);
-    item->setSettingsKey("FakeVim", "ShiftWidth");
-    instance->insertItem(ConfigShiftWidth, item, "shiftwidth", "sw");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "ExpandTab");
-    instance->insertItem(ConfigExpandTab, item, "expandtab", "et");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setSettingsKey("FakeVim", "AutoIndent");
-    instance->insertItem(ConfigAutoIndent, item, "autoindent", "ai");
-
-    item = new SavedAction(instance);
-    item->setDefaultValue("indent,eol,start");
-    item->setSettingsKey("FakeVim", "Backspace");
-    instance->insertItem(ConfigBackspace, item, "backspace", "bs");
-
-    item = new SavedAction(instance);
-    item->setText(QObject::tr("FakeVim properties..."));
-    instance->insertItem(SettingsDialog, item);
-
-    return instance;
-}
-
-SavedAction *theFakeVimSetting(int code)
-{
-    return theFakeVimSettings()->item(code);
-}
-
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1911,10 +1795,6 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     } else if (reSet.indexIn(cmd) != -1) { // :set
         QString arg = reSet.cap(2);
         if (arg.isEmpty()) {
-            //QString info;
-            //foreach (const QString &key, m_config.keys())
-            //    info += key + ": " + m_config.value(key) + "\n";
-            //emit q->extraInformationChanged(info);
             theFakeVimSetting(SettingsDialog)->trigger(QVariant());
 /*
         } else if (theFakeVimSettings()->.contains(arg)) {

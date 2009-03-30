@@ -30,67 +30,13 @@
 #ifndef FAKEVIM_HANDLER_H
 #define FAKEVIM_HANDLER_H
 
-#include <utils/savedaction.h>
+#include "fakevimactions.h"
 
 #include <QtCore/QObject>
 #include <QtGui/QTextEdit>
 
-QT_BEGIN_NAMESPACE
-class QString;
-class QEvent;
-QT_END_NAMESPACE
-
 namespace FakeVim {
 namespace Internal {
-
-enum FakeVimSettingsCode
-{
-    ConfigUseFakeVim,
-    ConfigStartOfLine,
-    ConfigHlSearch,
-    ConfigTabStop,
-    ConfigSmartTab,
-    ConfigShiftWidth,
-    ConfigExpandTab,
-    ConfigAutoIndent,
-
-    // indent  allow backspacing over autoindent
-    // eol     allow backspacing over line breaks (join lines)
-    // start   allow backspacing over the start of insert; CTRL-W and CTRL-U
-    //         stop once at the start of insert.
-    ConfigBackspace,
-
-    // other actions
-    SettingsDialog,
-};
-
-class FakeVimSettings : public QObject
-{
-    Q_OBJECT
-
-public:
-    FakeVimSettings(QObject *parent = 0);
-    ~FakeVimSettings();
-    
-    void insertItem(int code, Core::Utils::SavedAction *item,
-        const QString &longname = QString(),
-        const QString &shortname = QString());
-
-    Core::Utils::SavedAction *item(int code);
-    Core::Utils::SavedAction *item(const QString &name);
-
-public slots:
-    void readSettings(QSettings *settings);
-    void writeSettings(QSettings *settings);
-
-public:
-    QHash<int, Core::Utils::SavedAction *> m_items; 
-    QHash<QString, int> m_nameToCode; 
-    QHash<int, QString> m_codeToName; 
-};
-
-FakeVimSettings *theFakeVimSettings();
-Core::Utils::SavedAction *theFakeVimSetting(int code);
 
 class FakeVimHandler : public QObject
 {
