@@ -48,17 +48,15 @@ public:
 
     QWidget *widget();
 
-    void setExtraData(QObject *data);
-    QObject *extraData() const;
-
 public slots:
     void setCurrentFileName(const QString &fileName);
 
     // This executes an "ex" style command taking context
     // information from widget;
     void handleCommand(const QString &cmd);
-    void setConfigValue(int code, const QVariant &value);
     void quit();
+
+    void installEventFilter();
 
     // Convenience
     void setupWidget();

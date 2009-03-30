@@ -114,13 +114,15 @@ FakeVimSettings *theFakeVimSettings()
     SavedAction *item = 0;
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Use vim-style editing"));
+    item->setText(QObject::tr("Toggle vim-style editing"));
     item->setSettingsKey("FakeVim", "UseFakeVim");
+    item->setCheckable(true);
     instance->insertItem(ConfigUseFakeVim, item);
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
     item->setSettingsKey("FakeVim", "StartOfLine");
+    item->setCheckable(true);
     instance->insertItem(ConfigStartOfLine, item, "startofline", "sol");
 
     item = new SavedAction(instance);
@@ -136,6 +138,7 @@ FakeVimSettings *theFakeVimSettings()
     item = new SavedAction(instance);
     item->setDefaultValue(true);
     item->setSettingsKey("FakeVim", "HlSearch");
+    item->setCheckable(true);
     instance->insertItem(ConfigHlSearch, item, "hlsearch", "hls");
 
     item = new SavedAction(instance);
@@ -146,11 +149,13 @@ FakeVimSettings *theFakeVimSettings()
     item = new SavedAction(instance);
     item->setDefaultValue(false);
     item->setSettingsKey("FakeVim", "ExpandTab");
+    item->setCheckable(true);
     instance->insertItem(ConfigExpandTab, item, "expandtab", "et");
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
     item->setSettingsKey("FakeVim", "AutoIndent");
+    item->setCheckable(true);
     instance->insertItem(ConfigAutoIndent, item, "autoindent", "ai");
 
     item = new SavedAction(instance);

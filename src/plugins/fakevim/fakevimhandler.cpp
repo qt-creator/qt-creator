@@ -211,6 +211,7 @@ public:
     bool wantsOverride(QKeyEvent *ev);
     void handleExCommand(const QString &cmd);
 
+    void installEventFilter();
     void setupWidget();
     void restoreWidget();
 
@@ -393,7 +394,6 @@ public:
     int m_savedYankPosition;
     int m_desiredColumn;
 
-    QPointer<QObject> m_extraData;
     int m_cursorWidth;
 
     void recordJump();
@@ -521,10 +521,14 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     return result;
 }
 
+void FakeVimHandler::Private::installEventFilter()
+{
+    EDITOR(installEventFilter(q));
+}
+
 void FakeVimHandler::Private::setupWidget()
 {
     enterCommandMode();
-    EDITOR(installEventFilter(q));
     //EDITOR(setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
     if (m_textedit) {
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
@@ -548,7 +552,7 @@ void FakeVimHandler::Private::setupWidget()
         updateSelection();
     }
 
-    showBlackMessage("vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.");
+    //showBlackMessage("vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.");
     updateMiniBuffer();
 }
 
@@ -556,8 +560,10 @@ void FakeVimHandler::Private::restoreWidget()
 {
     //showBlackMessage(QString());
     //updateMiniBuffer();
-    EDITOR(removeEventFilter(q));
+    //EDITOR(removeEventFilter(q));
     EDITOR(setReadOnly(m_wasReadOnly));
+    EDITOR(setCursorWidth(m_cursorWidth));
+    EDITOR(setOverwriteMode(false));
     
     if (m_visualMode == VisualLineMode) {
         m_tc = EDITOR(textCursor());
@@ -2453,13 +2459,13 @@ void FakeVimHandler::Private::quit()
     q->quitRequested();
 }
 
-
 void FakeVimHandler::Private::recordJump()
 {
     m_jumpListUndo.append(position());
     m_jumpListRedo.clear();
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2478,7 +2484,9 @@ FakeVimHandler::~FakeVimHandler()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    if (ev->type() == QEvent::KeyPress && ob == d->editor()) {
+    bool active = theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+
+    if (active && ev->type() == QEvent::KeyPress && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         KEY_DEBUG("KEYPRESS" << kev->key());
         EventResult res = d->handleEvent(kev);
@@ -2489,7 +2497,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return res == EventHandled;
     }
 
-    if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
+    if (active && ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         if (d->wantsOverride(kev)) {
             KEY_DEBUG("OVERRIDING SHORTCUT" << kev->key());
@@ -2501,6 +2509,11 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     }
 
     return QObject::eventFilter(ob, ev);
+}
+
+void FakeVimHandler::installEventFilter()
+{
+    d->installEventFilter();
 }
 
 void FakeVimHandler::setupWidget()
@@ -2518,11 +2531,6 @@ void FakeVimHandler::handleCommand(const QString &cmd)
     d->handleExCommand(cmd);
 }
 
-void FakeVimHandler::setConfigValue(int code, const QVariant &value)
-{
-    theFakeVimSetting(code)->setValue(value);
-}
-
 void FakeVimHandler::quit()
 {
     d->quit();
@@ -2536,16 +2544,6 @@ void FakeVimHandler::setCurrentFileName(const QString &fileName)
 QWidget *FakeVimHandler::widget()
 {
     return d->editor();
-}
-
-void FakeVimHandler::setExtraData(QObject *data)
-{
-    d->m_extraData = data;
-}
-
-QObject *FakeVimHandler::extraData() const
-{
-    return d->m_extraData;
 }
 
 } // namespace Internal

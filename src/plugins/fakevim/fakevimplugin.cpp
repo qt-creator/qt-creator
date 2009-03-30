@@ -52,7 +52,6 @@
 #include <texteditor/completionsupport.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/interactionsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textblockiterator.h>
@@ -229,9 +228,8 @@ private slots:
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
 
-    void installHandlerOnCurrentEditor();
-    void installHandler(Core::IEditor *editor);
-    void removeHandler();
+    void setUseFakeVim(const QVariant &value);
+    void quit();
     void triggerCompletions();
     void showSettingsDialog();
 
@@ -244,8 +242,8 @@ private slots:
 
 private:
     FakeVimPlugin *q;
-    QAction *m_installHandlerAction; 
     FakeVimOptionPage *m_fakeVimOptionsPage;
+    QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
 };
 
 } // namespace Internal
@@ -254,7 +252,6 @@ private:
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {       
     q = plugin;
-    m_installHandlerAction = 0;
     m_fakeVimOptionsPage = 0;
 }
 
@@ -278,24 +275,18 @@ bool FakeVimPluginPrivate::initialize()
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
 
-    m_installHandlerAction = new QAction(this);
-    m_installHandlerAction->setText(tr("Set vi-Style Keyboard Action Handler"));
-
     m_fakeVimOptionsPage = new FakeVimOptionPage;
     q->addObject(m_fakeVimOptionsPage);
     theFakeVimSettings()->readSettings(Core::ICore::instance()->settings());
     
     Core::Command *cmd = 0;
-    cmd = actionManager->registerAction(m_installHandlerAction,
+    cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
     ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
-
-    connect(m_installHandlerAction, SIGNAL(triggered()),
-        this, SLOT(installHandlerOnCurrentEditor()));
 
     // EditorManager
     QObject *editorManager = Core::ICore::instance()->editorManager();
@@ -306,6 +297,8 @@ bool FakeVimPluginPrivate::initialize()
 
     connect(theFakeVimSetting(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
+    connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setUseFakeVim(QVariant)));
 
     return true;
 }
@@ -315,7 +308,7 @@ void FakeVimPluginPrivate::showSettingsDialog()
     Core::ICore::instance()->showOptionsDialog("FakeVim", "General");
 }
 
-void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
+void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
     if (!editor)
         return;
@@ -328,14 +321,18 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
     if (!qobject_cast<QTextEdit *>(widget) && !qobject_cast<QPlainTextEdit *>(widget))
         return;
     
+    //qDebug() << "OPENING: " << editor << editor->widget()
+    //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
+
     FakeVimHandler *handler = new FakeVimHandler(widget, widget);
+    m_editorToHandler[editor] = handler;
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(showExtraInformation(QString)));
     connect(handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
     connect(handler, SIGNAL(quitRequested()),
-        this, SLOT(removeHandler()), Qt::QueuedConnection);
+        this, SLOT(quit()), Qt::QueuedConnection);
     connect(handler, SIGNAL(writeFileRequested(bool*,QString,QString)),
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
@@ -347,14 +344,34 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
     connect(handler, SIGNAL(completionRequested()),
         this, SLOT(triggerCompletions()));
 
-    handler->setupWidget();
-    handler->setExtraData(editor);
     handler->setCurrentFileName(editor->file()->fileName());
+    handler->installEventFilter();
 }
 
-void FakeVimPluginPrivate::installHandlerOnCurrentEditor()
+void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 {
-    installHandler(EditorManager::instance()->currentEditor());
+    //qDebug() << "CLOSING: " << editor << editor->widget();
+    m_editorToHandler.remove(editor);
+}
+
+void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
+{
+    bool on = value.toBool();
+    if (on) {
+        Core::EditorManager::instance()->showEditorStatusBar( 
+            QLatin1String(Constants::MINI_BUFFER), 
+            "vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.",
+            tr("Quit FakeVim"), this, SLOT(quit()));
+        foreach (Core::IEditor *editor, m_editorToHandler.keys())
+            m_editorToHandler[editor]->setupWidget();
+        //qDebug() << "SETTING" << m_editorToHandler.keys();
+    } else {
+        Core::EditorManager::instance()->hideEditorStatusBar(
+            QLatin1String(Constants::MINI_BUFFER));
+        foreach (Core::IEditor *editor, m_editorToHandler.keys())
+            m_editorToHandler[editor]->restoreWidget();
+        //qDebug() << "REMOVING" << m_editorToHandler.keys();
+    }
 }
 
 void FakeVimPluginPrivate::triggerCompletions()
@@ -377,7 +394,7 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
     if (!handler)
         return;
 
-    Core::IEditor *editor = qobject_cast<Core::IEditor *>(handler->extraData());
+    Core::IEditor *editor = m_editorToHandler.key(handler);
     if (editor && editor->file()->fileName() == fileName) {
         // Handle that as a special case for nicer interaction with core
         Core::IFile *file = editor->file();
@@ -467,42 +484,21 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     } while (cur != end);
 }
 
-void FakeVimPluginPrivate::removeHandler()
+void FakeVimPluginPrivate::quit()
 {
-    if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender())) {
-        handler->restoreWidget();
-        handler->deleteLater();
-    }
-    Core::EditorManager::instance()->hideEditorStatusBar(
-        QLatin1String(Constants::MINI_BUFFER));
-}
-
-void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
-{
-    //qDebug() << "OPENING: " << editor << editor->widget();
-    QSettings *s = ICore::instance()->settings();
-    bool automatic = s->value("textInteractionSettings/UseVim").toBool();
-    if (automatic)
-       installHandler(editor);
-}
-
-void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
-{
-    //qDebug() << "CLOSING: " << editor << editor->widget();
-    Q_UNUSED(editor);
+    //if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender())) {
+    //    handler->restoreWidget();
+    //    handler->deleteLater();
+    //}
+    setUseFakeVim(false);
 }
 
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
-    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
-    if (handler) {
-        //qDebug() << "SHOW COMMAND BUFFER" << contents;
-        Core::EditorManager::instance()->showEditorStatusBar( 
-            QLatin1String(Constants::MINI_BUFFER), contents,
-            tr("Quit FakeVim"), handler, SLOT(quit()));
-    } else {
-        qDebug() << "\nNO HANDLER\n";
-    }
+    //qDebug() << "SHOW COMMAND BUFFER" << contents;
+    Core::EditorManager::instance()->showEditorStatusBar( 
+        QLatin1String(Constants::MINI_BUFFER), contents,
+        tr("Quit FakeVim"), this, SLOT(quit()));
 }
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)
