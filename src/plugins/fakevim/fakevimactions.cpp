@@ -98,6 +98,11 @@ SavedAction *FakeVimSettings::item(int code)
     return m_items.value(code, 0);
 }
 
+SavedAction *FakeVimSettings::item(const QString &name)
+{
+    return m_items.value(m_nameToCode.value(name, -1), 0);
+}
+
 FakeVimSettings *theFakeVimSettings()
 {
     static FakeVimSettings *instance = 0;

@@ -1794,33 +1794,33 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         updateMiniBuffer();
     } else if (reSet.indexIn(cmd) != -1) { // :set
         QString arg = reSet.cap(2);
+        SavedAction *act = theFakeVimSettings()->item(arg);
         if (arg.isEmpty()) {
             theFakeVimSetting(SettingsDialog)->trigger(QVariant());
-/*
-        } else if (theFakeVimSettings()->.contains(arg)) {
-            // boolean config to be switched on or non-boolean to show
-            QString oldValue = m_config.value(arg);
+        } else if (act && act->value().type() == QVariant::Bool) {
+            // boolean config to be switched on
+            bool oldValue = act->value().toBool();
             if (oldValue == false)
-                m_config[arg] = true;
+                act->setValue(true);
             else if (oldValue == true)
-                ; // nothing to do
-            else
-                showBlackMessage(arg + '=' + oldValue);
-        } else if (arg.startsWith("no") && m_config.contains(arg.mid(2))) {
+                {} // nothing to do
+        } else if (act) {
+            // non-boolean to show
+            showBlackMessage(arg + '=' + act->value().toString());
+        } else if (arg.startsWith("no")
+                && (act = theFakeVimSettings()->item(arg.mid(2)))) {
             // boolean config to be switched off
-            QString key = arg.mid(2);
-            QString oldValue = m_config.value(key);
+            bool oldValue = act->value().toBool();
             if (oldValue == true)
-                m_config[key] = false;
+                act->setValue(false);
             else if (oldValue == false)
-                ; // nothing to do
-            else
-                showBlackMessage(key + '=' + oldValue);
+                {} // nothing to do
         } else if (arg.contains('=')) {
             // non-boolean config to set
             int p = arg.indexOf('=');
-            m_config[arg.left(p)] = arg.mid(p + 1);
-*/
+            act = theFakeVimSettings()->item(arg.left(p));
+            if (act)
+                act->setValue(arg.mid(p + 1));
         } else {
             showRedMessage(tr("E512: Unknown option: ") + arg);
         }
