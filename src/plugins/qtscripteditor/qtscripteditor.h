@@ -68,11 +68,8 @@ public:
     typedef QList<int> Context;
 
     ScriptEditor(const Context &context,
-                 TextEditor::TextEditorActionHandler *ah,
                  QWidget *parent = 0);
     ~ScriptEditor();
-
-    ScriptEditor *duplicate(QWidget *parent);
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -90,7 +87,6 @@ private:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
     const Context m_context;
-    TextEditor::TextEditorActionHandler *m_ah;
 
     QTimer *m_updateDocumentTimer;
 };

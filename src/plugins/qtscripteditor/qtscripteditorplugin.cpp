@@ -45,6 +45,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
@@ -58,7 +59,8 @@ QtScriptEditorPlugin *QtScriptEditorPlugin::m_instance = 0;
 
 QtScriptEditorPlugin::QtScriptEditorPlugin() :
     m_wizard(0),
-    m_editor(0)
+    m_editor(0),
+    m_actionHandler(0)
 {
     m_instance = this;
 }
@@ -67,6 +69,7 @@ QtScriptEditorPlugin::~QtScriptEditorPlugin()
 {
     removeObject(m_editor);
     removeObject(m_wizard);
+    delete m_actionHandler;
     m_instance = 0;
 }
 
@@ -97,17 +100,26 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
                                               wizardParameters, this);
     addObject(m_wizard);
 
+    m_actionHandler = new TextEditor::TextEditorActionHandler(QtScriptEditor::Constants::C_QTSCRIPTEDITOR,
+          TextEditor::TextEditorActionHandler::Format
+        | TextEditor::TextEditorActionHandler::UnCommentSelection
+        | TextEditor::TextEditorActionHandler::UnCollapseAll);
+
     error_message->clear();
+
     return true;
 }
 
 void QtScriptEditorPlugin::extensionsInitialized()
 {
+    m_actionHandler->initializeActions();
 }
 
 void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEditor *editor)
 {
     QTC_ASSERT(m_instance, /**/);
+
+    m_actionHandler->setupActions(editor);
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 }

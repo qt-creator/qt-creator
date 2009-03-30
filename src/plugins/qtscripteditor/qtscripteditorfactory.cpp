@@ -72,8 +72,8 @@ Core::IFile *QtScriptEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QtScriptEditorFactory::createEditor(QWidget *parent)
 {
-    ScriptEditor *rc = new ScriptEditor(m_context, m_actionHandler, parent);
-    QtScriptEditorPlugin::initializeEditor(rc);
+    ScriptEditor *rc = new ScriptEditor(m_context, parent);
+    QtScriptEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }
 

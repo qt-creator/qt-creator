@@ -47,6 +47,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textblockiterator.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QtGui/QMenu>
 #include <QtCore/QTimer>
@@ -64,11 +65,9 @@ ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int
 }
 
 ScriptEditor::ScriptEditor(const Context &context,
-                           TextEditor::TextEditorActionHandler *ah,
                            QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
-    m_context(context),
-    m_ah(ah)
+    m_context(context)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -93,15 +92,10 @@ ScriptEditor::~ScriptEditor()
 
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
-    return qobject_cast<ScriptEditor*>(editor())->duplicate(parent)->editableInterface();
-}
-
-ScriptEditor *ScriptEditor::duplicate(QWidget *parent)
-{
-    ScriptEditor *editor = new ScriptEditor(m_context, m_ah, parent);
-    editor->duplicateFrom(this);
-    QtScriptEditorPlugin::initializeEditor(editor);
-    return editor;
+    ScriptEditor *newEditor = new ScriptEditor(m_context, parent);
+    newEditor->duplicateFrom(editor());
+    QtScriptEditorPlugin::instance()->initializeEditor(newEditor);
+    return newEditor->editableInterface();
 }
 
 const char *ScriptEditorEditable::kind() const
