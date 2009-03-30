@@ -121,10 +121,8 @@ void FakeVimSettings::insertItem(int code, SavedAction *item,
 
 void FakeVimSettings::readSettings(QSettings *settings)
 {
-    foreach (SavedAction *item, m_items) {
-        qDebug() << "ITRM: " << item->toString();
+    foreach (SavedAction *item, m_items)
         item->readSettings(settings);
-    }
 }
 
 void FakeVimSettings::writeSettings(QSettings *settings)

@@ -233,6 +233,7 @@ private slots:
     void installHandler(Core::IEditor *editor);
     void removeHandler();
     void triggerCompletions();
+    void showSettingsDialog();
 
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
@@ -303,7 +304,15 @@ bool FakeVimPluginPrivate::initialize()
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 
+    connect(theFakeVimSetting(SettingsDialog), SIGNAL(triggered()),
+        this, SLOT(showSettingsDialog()));
+
     return true;
+}
+
+void FakeVimPluginPrivate::showSettingsDialog()
+{
+    Core::ICore::instance()->showOptionsDialog("FakeVim", "General");
 }
 
 void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
