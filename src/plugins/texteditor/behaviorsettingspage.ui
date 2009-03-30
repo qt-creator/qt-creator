@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>428</width>
-    <height>384</height>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,25 +107,6 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBoxInteractionSettings">
-     <property name="title">
-      <string>Interaction</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="useVim">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="text">
-         <string>Use &quot;vi&quot; style editing</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

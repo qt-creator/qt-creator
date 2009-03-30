@@ -32,7 +32,6 @@
 
 #include "displaysettings.h"
 #include "tabsettings.h"
-#include "interactionsettings.h"
 #include "itexteditable.h"
 
 #include <QtGui/QPlainTextEdit>
@@ -380,7 +379,6 @@ public:
 
     const TabSettings &tabSettings() const;
     const DisplaySettings &displaySettings() const;
-    const InteractionSettings &interactionSettings() const;
 
     void markBlocksAsChanged(QList<int> blockNumbers);
 

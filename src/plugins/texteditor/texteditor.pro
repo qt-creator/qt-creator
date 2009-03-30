@@ -14,7 +14,6 @@ SOURCES += texteditorplugin.cpp \
     completionsupport.cpp \
     completionwidget.cpp \
     fontsettingspage.cpp \
-    interactionsettings.cpp \
     tabsettings.cpp \
     storagesettings.cpp \
     displaysettings.cpp \
@@ -40,7 +39,6 @@ HEADERS += texteditorplugin.h \
     texteditoractionhandler.h \
     fontsettingspage.h \
     icompletioncollector.h \
-    interactionsettings.h \
     texteditorconstants.h \
     tabsettings.h \
     storagesettings.h \
