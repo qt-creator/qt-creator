@@ -29,8 +29,6 @@
 
 #include "fakevimhandler.h"
 
-#include "fakevimconstants.h"
-
 // Please do not add any direct dependencies to other Qt Creator code  here. 
 // Instead emit signals and let the FakeVimPlugin channel the information to
 // Qt Creator. The idea is to keep this file here in a "clean" state that
@@ -50,6 +48,7 @@
 // spans between m_anchor (== anchor()) and  m_tc.position() (== position())
 // The value of m_tc.anchor() is not used.
 
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -86,8 +85,114 @@
 #   define UNDO_DEBUG(s)
 #endif
 
-using namespace FakeVim::Internal;
-using namespace FakeVim::Constants;
+using namespace Core::Utils;
+
+///////////////////////////////////////////////////////////////////////
+//
+// FakeVimSettings
+//
+///////////////////////////////////////////////////////////////////////
+
+namespace FakeVim {
+namespace Internal {
+
+FakeVimSettings::FakeVimSettings(QObject *parent)
+    : QObject(parent)
+{}
+
+FakeVimSettings::~FakeVimSettings()
+{
+    qDeleteAll(m_items);
+}
+    
+void FakeVimSettings::insertItem(int code, SavedAction *item,
+    const QString &longName, const QString &shortName)
+{
+    QTC_ASSERT(!m_items.contains(code), qDebug() << code << item->toString(); return);
+    m_items[code] = item;
+    if (!longName.isEmpty()) {
+        m_nameToCode[longName] = code;
+        m_codeToName[code] = longName;
+    }
+    if (!shortName.isEmpty()) {
+        m_nameToCode[shortName] = code;
+    }
+}
+
+void FakeVimSettings::readSettings(QSettings *settings)
+{
+    foreach (SavedAction *item, m_items)
+        item->readSettings(settings);
+}
+
+void FakeVimSettings::writeSettings(QSettings *settings)
+{
+    foreach (SavedAction *item, m_items)
+        item->writeSettings(settings);
+}
+   
+SavedAction *FakeVimSettings::item(int code)
+{
+    QTC_ASSERT(m_items.value(code, 0), return 0);
+    return m_items.value(code, 0);
+}
+
+FakeVimSettings *theFakeVimSettings()
+{
+    static FakeVimSettings *instance = 0;
+    if (instance)
+        return instance;
+
+    instance = new FakeVimSettings;
+
+    SavedAction *item = 0;
+
+    bool plain = false;
+
+    item = new SavedAction(instance);
+    item->setText(QObject::tr("FakeVim properties..."));
+    instance->insertItem(SettingsDialog, item);
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? false : true);
+    instance->insertItem(ConfigStartOfLine, item, "startofline", "sol");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? 8 : 4);
+    instance->insertItem(ConfigTabStop, item, "tabstop", "ts");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? false : true);
+    instance->insertItem(ConfigSmartTab, item, "smarttab", "sta");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(true);
+    instance->insertItem(ConfigHlSearch, item, "hlsearch", "hls");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? 8 : 4);
+    instance->insertItem(ConfigShiftWidth, item, "shiftwidth", "sw");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? false : true);
+    instance->insertItem(ConfigExpandTab, item, "expandtab", "et");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? true : false);
+    instance->insertItem(ConfigAutoIndent, item, "autoindent", "ai");
+
+    item = new SavedAction(instance);
+    item->setDefaultValue(plain ? "" : "indent,eol,start");
+    instance->insertItem(ConfigBackspace, item, "backspace", "bs");
+
+    return instance;
+}
+
+SavedAction *theFakeVimSetting(int code)
+{
+    return theFakeVimSettings()->item(code);
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -384,11 +489,10 @@ public:
     QString m_oldNeedle;
 
     // vi style configuration
-    QHash<QString, QString> m_config;
-    bool hasConfig(const char *name) const
-        { return m_config[name] == ConfigOn; }
-    bool hasConfig(const char *name, const char *value) const
-        { return m_config[name].contains(value); } // FIXME
+    QVariant config(int code) const { return theFakeVimSetting(code)->value(); }
+    bool hasConfig(int code) const { return config(code).toBool(); }
+    bool hasConfig(int code, const char *value) const // FIXME
+        { return config(code).toString().contains(value); }
 
     // for restoring cursor position
     int m_savedYankPosition;
@@ -430,27 +534,6 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_cursorWidth = EDITOR(cursorWidth());
     m_inReplay = false;
 
-#if 0
-    // Plain
-    m_config[ConfigStartOfLine] = ConfigOn;
-    m_config[ConfigHlSearch]    = ConfigOn;
-    m_config[ConfigTabStop]     = "8";
-    m_config[ConfigSmartTab]    = ConfigOff;
-    m_config[ConfigShiftWidth]  = "8";
-    m_config[ConfigExpandTab]   = ConfigOff;
-    m_config[ConfigAutoIndent]  = ConfigOff;
-    m_config[ConfigBackspace]   = "";
-#else
-    // Qt Local
-    m_config[ConfigStartOfLine] = ConfigOn;
-    m_config[ConfigHlSearch]    = ConfigOn;
-    m_config[ConfigTabStop]     = "4";
-    m_config[ConfigSmartTab]    = ConfigOff;
-    m_config[ConfigShiftWidth]  = "4";
-    m_config[ConfigExpandTab]   = ConfigOn;
-    m_config[ConfigAutoIndent]  = ConfigOff;
-    m_config[ConfigBackspace]   = "indent,eol,start";
-#endif
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -1503,7 +1586,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
-        QString str = QString(m_config[ConfigTabStop].toInt(), ' ');
+        QString str = QString(theFakeVimSetting(ConfigTabStop)->value().toInt(), ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
     } else if (key >= control('a') && key <= control('z')) {
@@ -1817,16 +1900,18 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     } else if (reSet.indexIn(cmd) != -1) { // :set
         QString arg = reSet.cap(2);
         if (arg.isEmpty()) {
-            QString info;
-            foreach (const QString &key, m_config.keys())
-                info += key + ": " + m_config.value(key) + "\n";
-            emit q->extraInformationChanged(info);
-        } else if (m_config.contains(arg)) {
+            //QString info;
+            //foreach (const QString &key, m_config.keys())
+            //    info += key + ": " + m_config.value(key) + "\n";
+            //emit q->extraInformationChanged(info);
+            theFakeVimSetting(SettingsDialog)->trigger(QVariant());
+/*
+        } else if (theFakeVimSettings()->.contains(arg)) {
             // boolean config to be switched on or non-boolean to show
             QString oldValue = m_config.value(arg);
-            if (oldValue == ConfigOff)
-                m_config[arg] = ConfigOn;
-            else if (oldValue == ConfigOn)
+            if (oldValue == false)
+                m_config[arg] = true;
+            else if (oldValue == true)
                 ; // nothing to do
             else
                 showBlackMessage(arg + '=' + oldValue);
@@ -1834,9 +1919,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             // boolean config to be switched off
             QString key = arg.mid(2);
             QString oldValue = m_config.value(key);
-            if (oldValue == ConfigOn)
-                m_config[key] = ConfigOff;
-            else if (oldValue == ConfigOff)
+            if (oldValue == true)
+                m_config[key] = false;
+            else if (oldValue == false)
                 ; // nothing to do
             else
                 showBlackMessage(key + '=' + oldValue);
@@ -1844,6 +1929,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             // non-boolean config to set
             int p = arg.indexOf('=');
             m_config[arg.left(p)] = arg.mid(p + 1);
+*/
         } else {
             showRedMessage(tr("E512: Unknown option: ") + arg);
         }
@@ -1998,7 +2084,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
-    int len = m_config[ConfigShiftWidth].toInt() * repeat;
+    int len = config(ConfigShiftWidth).toInt() * repeat;
     QString indent(len, ' ');
     int firstPos = firstPositionInLine(beginLine);
 
@@ -2023,8 +2109,8 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
-    int shift = m_config[ConfigShiftWidth].toInt() * repeat;
-    int tab = m_config[ConfigTabStop].toInt();
+    int shift = config(ConfigShiftWidth).toInt() * repeat;
+    int tab = config(ConfigTabStop).toInt();
     int firstPos = firstPositionInLine(beginLine);
 
     recordBeginGroup();
@@ -2541,9 +2627,9 @@ void FakeVimHandler::handleCommand(const QString &cmd)
     d->handleExCommand(cmd);
 }
 
-void FakeVimHandler::setConfigValue(const QString &key, const QString &value)
+void FakeVimHandler::setConfigValue(int code, const QVariant &value)
 {
-    d->m_config[key] = value;
+    theFakeVimSetting(code)->setValue(value);
 }
 
 void FakeVimHandler::quit()
@@ -2571,3 +2657,5 @@ QObject *FakeVimHandler::extraData() const
     return d->m_extraData;
 }
 
+} // namespace Internal
+} // namespace FakeVim

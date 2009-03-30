@@ -18,6 +18,8 @@ SOURCES += \
     fakevimplugin.cpp
 
 HEADERS += \
-    fakevimconstants.h \
     fakevimhandler.h \
     fakevimplugin.h
+
+FORMS += \
+    fakevimoptions.ui

@@ -29,8 +29,9 @@
 
 #include "fakevimplugin.h"
 
-#include "fakevimconstants.h"
 #include "fakevimhandler.h"
+#include "ui_fakevimoptions.h"
+
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -38,6 +39,7 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -56,6 +58,7 @@
 #include <texteditor/textblockiterator.h>
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <indenter.h>
 
@@ -86,6 +89,116 @@ const char * const MINI_BUFFER            = "TextEditor.FakeVimMiniBuffer";
 const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 
 } // namespace Constants
+} // namespace FakeVim
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// FakeVimOptionPage
+//
+///////////////////////////////////////////////////////////////////////
+
+namespace FakeVim {
+namespace Internal {
+
+class FakeVimOptionPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    FakeVimOptionPage() {}
+
+    // IOptionsPage
+    QString id() const { return QLatin1String("General"); }
+    QString trName() const { return tr("General"); }
+    QString category() const { return QLatin1String("FakeVim"); }
+    QString trCategory() const { return tr("FakeVim"); }
+
+    QWidget *createPage(QWidget *parent);
+    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void finish() { m_group.finish(); }
+
+private slots:
+    void copyTextEditorSettings();
+    void setQtStyle();
+    void setPlainStyle();
+
+private:
+    friend class DebuggerPlugin;
+    Ui::FakeVimOptionPage m_ui;
+
+    Core::Utils::SavedActionSet m_group;
+};
+
+QWidget *FakeVimOptionPage::createPage(QWidget *parent)
+{
+    QWidget *w = new QWidget(parent);
+    m_ui.setupUi(w);
+
+    m_group.clear();
+    m_group.insert(theFakeVimSetting(ConfigUseFakeVim), 
+        m_ui.checkBoxUseFakeVim);
+
+    m_group.insert(theFakeVimSetting(ConfigExpandTab), 
+        m_ui.checkBoxExpandTab);
+    m_group.insert(theFakeVimSetting(ConfigHlSearch), 
+        m_ui.checkBoxHlSearch);
+    m_group.insert(theFakeVimSetting(ConfigShiftWidth), 
+        m_ui.lineEditShiftWidth);
+
+    m_group.insert(theFakeVimSetting(ConfigSmartTab), 
+        m_ui.checkBoxSmartTab);
+    m_group.insert(theFakeVimSetting(ConfigStartOfLine), 
+        m_ui.checkBoxStartOfLine);
+    m_group.insert(theFakeVimSetting(ConfigTabStop), 
+        m_ui.lineEditTabStop);
+    m_group.insert(theFakeVimSetting(ConfigBackspace), 
+        m_ui.lineEditBackspace);
+
+    m_group.insert(theFakeVimSetting(ConfigAutoIndent), 
+        m_ui.checkBoxAutoIndent);
+
+    connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
+        this, SLOT(copyTextEditorSetting()));
+    connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
+        this, SLOT(setQtStyle()));
+    connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
+        this, SLOT(setPlainStyle()));
+
+    return w;
+}
+
+void FakeVimOptionPage::copyTextEditorSettings()
+{
+    TextEditor::TabSettings ts = 
+        TextEditor::TextEditorSettings::instance()->tabSettings();
+    
+    m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
+    m_ui.lineEditTabStop->setText(QString::number(ts.m_tabSize));
+    m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
+    m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
+    m_ui.checkBoxAutoIndent->setChecked(ts.m_autoIndent);
+}
+
+void FakeVimOptionPage::setQtStyle()
+{
+    m_ui.checkBoxExpandTab->setChecked(true);
+    m_ui.lineEditTabStop->setText("4");
+    m_ui.lineEditShiftWidth->setText("4");
+    m_ui.checkBoxSmartTab->setChecked(true);
+    m_ui.checkBoxAutoIndent->setChecked(true);
+}
+
+void FakeVimOptionPage::setPlainStyle()
+{
+    m_ui.checkBoxExpandTab->setChecked(false);
+    m_ui.lineEditTabStop->setText("8");
+    m_ui.lineEditShiftWidth->setText("8");
+    m_ui.checkBoxSmartTab->setChecked(false);
+    m_ui.checkBoxAutoIndent->setChecked(false);
+}
+
+} // namespace Internal
 } // namespace FakeVim
 
 
@@ -221,16 +334,6 @@ void FakeVimPluginPrivate::installHandler(Core::IEditor *editor)
         using namespace FakeVim::Constants;
         handler->setCurrentFileName(editor->file()->fileName());
         TabSettings settings = bt->tabSettings();
-        handler->setConfigValue(ConfigTabStop,
-            QString::number(settings.m_tabSize));
-        handler->setConfigValue(ConfigShiftWidth,
-            QString::number(settings.m_indentSize));
-        handler->setConfigValue(ConfigExpandTab,
-            settings.m_spacesForTabs ? ConfigOn : ConfigOff);
-        handler->setConfigValue(ConfigSmartTab,
-            settings.m_smartBackspace ? ConfigOn : ConfigOff); 
-        handler->setConfigValue(ConfigAutoIndent,
-            settings.m_autoIndent ? ConfigOn : ConfigOff); 
     }
 }
 
@@ -317,10 +420,12 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     if (!bt)
         return;
 
+    TextEditor::TabSettings tabSettings = 
+        TextEditor::TextEditorSettings::instance()->tabSettings();
     typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
     Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(bt->tabSettings().m_indentSize);
-    indenter.setTabSize(bt->tabSettings().m_tabSize);
+    indenter.setIndentSize(tabSettings.m_indentSize);
+    indenter.setTabSize(tabSettings.m_tabSize);
 
     const QTextDocument *doc = bt->document();
     QTextBlock begin = doc->findBlockByNumber(beginLine);
@@ -340,7 +445,7 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
             const TextEditor::TextBlockIterator next(cur.next());
             *amount = indenter.indentForBottomLine(current, docStart, next, typedChar);
             if (cur != end)
-                bt->tabSettings().indentLine(cur, *amount);
+                tabSettings.indentLine(cur, *amount);
         }
         if (cur != end)
            cur = cur.next();

@@ -242,7 +242,7 @@ class GdbOptionPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    GdbOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
+    GdbOptionPage() {}
 
     // IOptionsPage
     QString id() const { return QLatin1String("General"); }
@@ -258,7 +258,6 @@ private:
     friend class DebuggerPlugin;
     Ui::GdbOptionPage m_ui;
 
-    DebuggerPlugin *m_plugin;
     Core::Utils::SavedActionSet m_group;
 };
 
@@ -332,7 +331,7 @@ class DumperOptionPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    DumperOptionPage(DebuggerPlugin *plugin) : m_plugin(plugin) {}
+    DumperOptionPage() {}
 
     // IOptionsPage
     QString id() const { return QLatin1String("DataDumper"); }
@@ -350,7 +349,6 @@ private:
     friend class DebuggerPlugin;
     Ui::DumperOptionPage m_ui;
 
-    DebuggerPlugin *m_plugin;
     Core::Utils::SavedActionSet m_group;
 };
 
@@ -650,9 +648,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
 
    // FIXME:
-    m_generalOptionPage = new GdbOptionPage(this);
+    m_generalOptionPage = new GdbOptionPage;
     addObject(m_generalOptionPage);
-    m_dumperOptionPage = new DumperOptionPage(this);
+    m_dumperOptionPage = new DumperOptionPage;
     addObject(m_dumperOptionPage);
 
     m_locationMark = 0;
