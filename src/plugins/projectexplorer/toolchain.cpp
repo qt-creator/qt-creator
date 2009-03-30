@@ -361,10 +361,19 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
     //TODO fix this code
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
+
+    QList<HeaderPath> headerPaths;
+
 #ifdef QTCREATOR_WITH_MSVC_INCLUDES
-    return env.value("INCLUDE").split(QLatin1Char(';'));
+    const QStringList includes = env.value("INCLUDE").split(QLatin1Char(';'));
+
+    foreach (const QString &path, includes) {
+        const HeaderPath headerPath(path, HeaderPath::GlobalHeaderPath);
+        headerPaths.append(headerPath);
+    }
 #endif
-    return QList<HeaderPath>();
+
+    return headerPaths;
 }
 
 void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
