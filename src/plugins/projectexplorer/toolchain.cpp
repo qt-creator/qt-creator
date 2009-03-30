@@ -364,14 +364,12 @@ QList<HeaderPath> WinCEToolChain::systemHeaderPaths()
 
     QList<HeaderPath> headerPaths;
 
-#ifdef QTCREATOR_WITH_MSVC_INCLUDES
     const QStringList includes = env.value("INCLUDE").split(QLatin1Char(';'));
 
     foreach (const QString &path, includes) {
         const HeaderPath headerPath(path, HeaderPath::GlobalHeaderPath);
         headerPaths.append(headerPath);
     }
-#endif
 
     return headerPaths;
 }
