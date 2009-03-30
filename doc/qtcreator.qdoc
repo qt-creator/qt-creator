@@ -1303,7 +1303,6 @@
 
     \raw HTML
     <center>
-    <video src="http://www.youtube.com/watch?v=6WGCxLIjRNg">
     <object width="480" height="295"><param name="movie"
         value="http://www.youtube.com/v/HHsi5B_Opec&hl=en&fs=1"></param>
         <param name="allowFullScreen" value="true"></param>
@@ -1312,7 +1311,6 @@
             type="application/x-shockwave-flash" allowscriptaccess="always"
             allowfullscreen="true" width="480" height="295"></embed>
     </object>
-    </video>
     </center>
     \endraw
 
