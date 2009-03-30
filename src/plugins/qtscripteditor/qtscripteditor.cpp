@@ -32,6 +32,13 @@
 #include "qtscripthighlighter.h"
 #include "qtscripteditorplugin.h"
 
+#include "parser/javascriptengine_p.h"
+#include "parser/javascriptparser_p.h"
+#include "parser/javascriptlexer_p.h"
+#include "parser/javascriptnodepool_p.h"
+#include "parser/javascriptastvisitor_p.h"
+#include "parser/javascriptast_p.h"
+
 #include <indenter.h>
 
 #include <coreplugin/icore.h>
@@ -42,6 +49,11 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtGui/QMenu>
+#include <QtCore/QTimer>
+
+enum {
+    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
+};
 
 namespace QtScriptEditor {
 namespace Internal {
@@ -63,6 +75,14 @@ ScriptEditor::ScriptEditor(const Context &context,
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
     setMimeType(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
+
+    m_updateDocumentTimer = new QTimer(this);
+    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer->setSingleShot(true);
+
+    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
+
+    connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
     baseTextDocument()->setSyntaxHighlighter(new QtScriptHighlighter);
 }
@@ -92,6 +112,55 @@ const char *ScriptEditorEditable::kind() const
 ScriptEditor::Context ScriptEditorEditable::context() const
 {
     return m_context;
+}
+
+void ScriptEditor::updateDocument()
+{
+    m_updateDocumentTimer->start(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+}
+
+void ScriptEditor::updateDocumentNow()
+{
+    // ### move in the parser thread.
+
+    m_updateDocumentTimer->stop();
+
+    const QString fileName = file()->fileName();
+    const QString code = toPlainText();
+
+    JavaScriptParser parser;
+    JavaScriptEnginePrivate driver;
+
+    JavaScript::NodePool nodePool(fileName, &driver);
+    driver.setNodePool(&nodePool);
+
+    JavaScript::Lexer lexer(&driver);
+    lexer.setCode(code, /*line = */ 1);
+    driver.setLexer(&lexer);
+
+    QList<QTextEdit::ExtraSelection> selections;
+
+    if (parser.parse(&driver)) {
+        // do something here
+    } else {
+        QTextEdit::ExtraSelection sel;
+        sel.format.setUnderlineColor(Qt::red);
+        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+
+        const int line = parser.errorLineNumber();
+
+        QTextCursor c(document()->findBlockByNumber(line - 1));
+        sel.cursor = c;
+
+        if (parser.errorColumnNumber() > 1)
+            sel.cursor.setPosition(c.position() + parser.errorColumnNumber() - 1);
+
+        sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+        selections.append(sel);
+    }
+
+    setExtraSelections(CodeWarningsSelection, selections);
 }
 
 void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)

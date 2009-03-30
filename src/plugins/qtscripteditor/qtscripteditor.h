@@ -31,6 +31,7 @@
 #define QTSCRIPTDITORW_H
 
 #include <texteditor/basetexteditor.h>
+#include <QTimer>
 
 namespace Core {
     class ICore;
@@ -76,6 +77,10 @@ public:
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
+private slots:
+    void updateDocument();
+    void updateDocumentNow();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
     TextEditor::BaseTextEditorEditable *createEditableInterface() { return new ScriptEditorEditable(this, m_context); }
@@ -86,6 +91,8 @@ private:
 
     const Context m_context;
     TextEditor::TextEditorActionHandler *m_ah;
+
+    QTimer *m_updateDocumentTimer;
 };
 
 } // namespace Internal
