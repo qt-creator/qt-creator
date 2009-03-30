@@ -49,15 +49,80 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtGui/QMenu>
 #include <QtCore/QTimer>
+#include <QtCore/QtDebug>
+
+#include <QtGui/QMenu>
+#include <QtGui/QComboBox>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
 };
 
+using namespace JavaScript::AST;
+
+
 namespace QtScriptEditor {
 namespace Internal {
+
+class FindDeclarations: protected Visitor
+{
+    QList<Declaration> declarations;
+
+public:
+    QList<Declaration> accept(JavaScript::AST::Node *node)
+    {
+        JavaScript::AST::Node::acceptChild(node, this);
+        return declarations;
+    }
+
+protected:
+    using Visitor::visit;
+
+    virtual bool visit(FunctionExpression *)
+    {
+        return false;
+    }
+
+    virtual bool visit(FunctionDeclaration *ast)
+    {
+        QString text = ast->name->asString();
+
+        text += QLatin1Char('(');
+        for (FormalParameterList *it = ast->formals; it; it = it->next) {
+            text += it->name->asString();
+
+            if (it->next)
+                text += QLatin1String(", ");
+        }
+
+        text += QLatin1Char(')');
+
+        Declaration d;
+        d.text = text;
+        d.startLine= ast->startLine;
+        d.startColumn = ast->startColumn;
+        d.endLine = ast->endLine;
+        d.endColumn = ast->endColumn;
+
+        declarations.append(d);
+
+        return false;
+    }
+
+    virtual bool visit(VariableDeclaration *ast)
+    {
+        Declaration d;
+        d.text = ast->name->asString();
+        d.startLine= ast->startLine;
+        d.startColumn = ast->startColumn;
+        d.endLine = ast->endLine;
+        d.endColumn = ast->endColumn;
+
+        declarations.append(d);
+        return false;
+    }
+};
 
 ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int>& context)
     : BaseTextEditorEditable(editor), m_context(context)
@@ -67,7 +132,8 @@ ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int
 ScriptEditor::ScriptEditor(const Context &context,
                            QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
-    m_context(context)
+    m_context(context),
+    m_methodCombo(0)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -135,7 +201,20 @@ void ScriptEditor::updateDocumentNow()
     QList<QTextEdit::ExtraSelection> selections;
 
     if (parser.parse(&driver)) {
-        // do something here
+
+        FindDeclarations decls;
+        m_declarations = decls.accept(driver.ast());
+
+        QStringList items;
+        items.append(tr("<Select Symbol>"));
+
+        foreach (Declaration decl, m_declarations)
+            items.append(decl.text);
+
+        m_methodCombo->clear();
+        m_methodCombo->addItems(items);
+        updateMethodBoxIndex();
+
     } else {
         QTextEdit::ExtraSelection sel;
         sel.format.setUnderlineColor(Qt::red);
@@ -155,6 +234,46 @@ void ScriptEditor::updateDocumentNow()
     }
 
     setExtraSelections(CodeWarningsSelection, selections);
+}
+
+void ScriptEditor::jumpToMethod(int index)
+{
+    if (index) {
+        Declaration d = m_declarations.at(index - 1);
+        gotoLine(d.startLine, d.startColumn - 1);
+        setFocus();
+    }
+}
+
+void ScriptEditor::updateMethodBoxIndex()
+{
+    int line = 0, column = 0;
+    convertPosition(position(), &line, &column);
+
+    int currentSymbolIndex = 0;
+
+    for (int index = 0; index < m_declarations.size(); ++index) {
+        const Declaration &d = m_declarations.at(index);
+
+        // qDebug() << line << column << d.startLine << d.startColumn << d.endLine << d.endColumn;
+
+        if (line >= d.startLine || (line == d.startLine && column > d.startColumn)) {
+            if (line < d.endLine || (line == d.endLine && column < d.endColumn)) {
+                currentSymbolIndex = index + 1;
+                break;
+            }
+        }
+    }
+
+    m_methodCombo->setCurrentIndex(currentSymbolIndex);
+}
+
+void ScriptEditor::updateMethodBoxToolTip()
+{
+}
+
+void ScriptEditor::updateFileName()
+{
 }
 
 void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
@@ -208,6 +327,36 @@ void ScriptEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typed
     const TextEditor::TextBlockIterator begin(doc->begin());
     const TextEditor::TextBlockIterator end(block.next());
     indentScriptBlock(tabSettings(), block, begin, end, typedChar);
+}
+
+TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()
+{
+    ScriptEditorEditable *editable = new ScriptEditorEditable(this, m_context);
+    createToolBar(editable);
+    return editable;
+}
+
+void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
+{
+    m_methodCombo = new QComboBox;
+    m_methodCombo->setMinimumContentsLength(22);
+    //m_methodCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+    // Make the combo box prefer to expand
+    QSizePolicy policy = m_methodCombo->sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_methodCombo->setSizePolicy(policy);
+
+    connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
+    connect(m_methodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMethodBoxToolTip()));
+
+    connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
+
+    QToolBar *toolBar = editable->toolBar();
+
+    QList<QAction*> actions = toolBar->actions();
+    toolBar->insertWidget(actions.first(), m_methodCombo);
 }
 
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)

@@ -31,7 +31,11 @@
 #define QTSCRIPTDITORW_H
 
 #include <texteditor/basetexteditor.h>
-#include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QTimer;
+QT_END_NAMESPACE
 
 namespace Core {
     class ICore;
@@ -40,7 +44,7 @@ namespace Core {
 namespace QtScriptEditor {
 namespace Internal {
 
-class  QtScriptHighlighter;
+class QtScriptHighlighter;
 
 class ScriptEditor;
 
@@ -53,12 +57,27 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     const char *kind() const;
-    QToolBar *toolBar() { return 0; }
 
 private:
     QList<int> m_context;
 };
 
+
+struct Declaration
+{
+    QString text;
+    int startLine;
+    int startColumn;
+    int endLine;
+    int endColumn;
+
+    Declaration()
+        : startLine(0),
+          startColumn(0),
+          endLine(0),
+          endColumn(0)
+    { }
+};
 
 class ScriptEditor : public TextEditor::BaseTextEditor
 {
@@ -77,10 +96,15 @@ public slots:
 private slots:
     void updateDocument();
     void updateDocumentNow();
+    void jumpToMethod(int index);
+    void updateMethodBoxIndex();
+    void updateMethodBoxToolTip();
+    void updateFileName();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
-    TextEditor::BaseTextEditorEditable *createEditableInterface() { return new ScriptEditorEditable(this, m_context); }
+    TextEditor::BaseTextEditorEditable *createEditableInterface();
+    void createToolBar(ScriptEditorEditable *editable);
 
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
@@ -89,6 +113,8 @@ private:
     const Context m_context;
 
     QTimer *m_updateDocumentTimer;
+    QComboBox *m_methodCombo;
+    QList<Declaration> m_declarations;
 };
 
 } // namespace Internal
