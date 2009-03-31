@@ -80,11 +80,12 @@ static bool compareLexigraphically(const QuickOpen::FilterEntry &a,
 QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
-    QList<QuickOpen::FilterEntry> entries;
+    QList<QuickOpen::FilterEntry> goodEntries;
+    QList<QuickOpen::FilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
-        return entries;
+        return goodEntries;
     bool hasWildcard = (entry.contains('*') || entry.contains('?'));
 
     QMutableMapIterator<QString, Info> it(m_searchList);
@@ -106,15 +107,21 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
                 QVariant id = qVariantFromValue(info);
                 QuickOpen::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
                 filterEntry.extraInfo = info.symbolType;
-                entries.append(filterEntry);
+                if (info.symbolName.startsWith(entry))
+                    betterEntries.append(filterEntry);
+                else
+                    goodEntries.append(filterEntry);
             }
         }
     }
 
-    if (entries.size() < 1000)
-        qSort(entries.begin(), entries.end(), compareLexigraphically);
+    if (goodEntries.size() < 1000)
+        qSort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
+    if (betterEntries.size() < 1000)
+        qSort(betterEntries.begin(), betterEntries.end(), compareLexigraphically);
 
-    return entries;
+    betterEntries += goodEntries;
+    return betterEntries;
 }
 
 void CppQuickOpenFilter::accept(QuickOpen::FilterEntry selection) const
