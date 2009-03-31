@@ -300,8 +300,8 @@
 
     \table
         \row
-            \i \note Qt Creator currently supports \c qmake only. \c Makefile
-               and \c CMake support is currently unavailable.
+            \i \note This page describes Qt Creator's support for qmake.
+            For CMake suppoort see the CMake page. ###TODO add link
     \endtable
 
     To modify the build settings of your project, switch to the \gui{Projects}
@@ -1530,7 +1530,6 @@
     \endlist
 */
 
-
 /*!
     \contentspage index.html
     \previouspage creator-known-issues.html
@@ -1548,4 +1547,58 @@
         Roberto Raggi <roberto.raggi@gmail.com>\br
         QtCreator/src/shared/cplusplus
     \endlist
+*/
+
+/*!
+  \contentspage index.html
+  \page creator-cmake-overview.html
+
+  \title CMake Support
+
+  With version 1.1 Qt Creator now also supports CMake project files.
+
+  \note The CMake project support is neither complete nor bug free.
+
+  \section1 Opening CMake projects
+  To open a CMake project use File/Open and select the toplevel
+  CMakeLists.txt file from your CMake project. Qt Creator will
+  guide you with a wizard through the open step. If the CMake project
+  does not have a in source build Qt Creator let's you specify the
+  directory in which the project is build. If you need to pass command
+  line arguments to CMake for your project, you can also do that.
+  For already build projects, you normally don't need to pass any
+  command line arguments, since CMake caches that information.
+
+  ###TODO one, two pictures ? \image qtcreator-import-wizard.png
+
+  \section1 Building CMake Projects
+  Qt Creator builds CMake Projects by running make or mingw32-make,
+  depending on your platform. The build errors and warnings are parsed
+  and displayed in the Build Issues output pane.
+
+  By default Qt Creator builds the "all" target. You can change which
+  targets get build in the Project/Build Settings.
+
+  ### \image qtcreator-build-settings.png
+
+  Currently only one build configuration is supported and the
+  build directory can't be changed after the initial import. This
+  limitation will be fixed for the next version.
+
+  \section1 Running CMake Projects
+  Qt Creator automatically adds Run Configurations for all the
+  targets specified in the CMake project file.
+
+
+  \section1 Know Issues
+  \list
+      \o No syntax highlighting for CMake project files.
+      \o Project files which are included from CMakeLists.txt aren't
+         shown in the navigation tree.
+      \o Using the visual studio compiler with CMake is not yet
+         supported.
+      \o Qt Creator doesn't support creating new CMake projects.
+      \o More than one build directory is not supported.
+      \o Changing the build directory after the initial import
+         is currently disabled.
 */
