@@ -4,6 +4,8 @@
 #include <qnumeric.h>
 #include <QHash>
 
+QT_BEGIN_NAMESPACE
+
 namespace JavaScript {
 
 int Ecma::RegExp::flagFromChar(const QChar &ch)
@@ -109,3 +111,4 @@ qjsreal integerFromString(const QString &str, int radix)
 
 } // end of namespace JavaScript
 
+QT_END_NAMESPACE

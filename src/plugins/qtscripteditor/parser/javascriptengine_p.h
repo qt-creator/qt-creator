@@ -5,6 +5,8 @@
 #include <QString>
 #include <QSet>
 
+QT_BEGIN_NAMESPACE
+
 namespace JavaScript {
 
 class Node;
@@ -75,7 +77,7 @@ public:
     : _lexer(0), _nodePool(0), _ast(0)
   { }
 
-  JavaScriptNameIdImpl *JavaScriptEnginePrivate::intern(const QChar *u, int s)
+  JavaScriptNameIdImpl *intern(const QChar *u, int s)
   { return const_cast<JavaScriptNameIdImpl *>(&*_literals.insert(JavaScriptNameIdImpl(u, s))); }
 
   JavaScript::Lexer *lexer() const
@@ -101,5 +103,6 @@ public:
   }
 };
 
+QT_END_NAMESPACE
 
 #endif // JAVASCRIPTENGINE_P_H

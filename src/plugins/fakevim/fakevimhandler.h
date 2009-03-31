@@ -54,7 +54,6 @@ public slots:
     // This executes an "ex" style command taking context
     // information from widget;
     void handleCommand(const QString &cmd);
-    void quit();
 
     void installEventFilter();
 
@@ -66,7 +65,7 @@ signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
-    void quitRequested();
+    void quitRequested(bool force);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
     void writeFileRequested(bool *handled,
         const QString &fileName, const QString &contents);
