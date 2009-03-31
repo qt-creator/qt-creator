@@ -247,13 +247,13 @@ StringLiteral *Symbol::fileId() const
     return fileId;
 }
 
-void Symbol::getPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+void Symbol::getPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
 { translationUnit()->getPosition(_sourceOffset, line, column, fileId); }
 
-void Symbol::getStartPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+void Symbol::getStartPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
 { translationUnit()->getPosition(_startOffset, line, column, fileId); }
 
-void Symbol::getEndPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+void Symbol::getEndPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
 { translationUnit()->getPosition(_endOffset, line, column, fileId); }
 
 const char *Symbol::fileName() const
