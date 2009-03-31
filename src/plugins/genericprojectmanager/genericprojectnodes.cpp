@@ -63,7 +63,7 @@ void GenericProjectNode::refresh()
     removeFileNodes(fileNodes(), this);
     removeFolderNodes(subFolderNodes(), this);
 
-    ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
+    //ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
 
     FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
                                               ProjectFileType,
