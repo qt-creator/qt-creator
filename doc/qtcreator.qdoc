@@ -1147,6 +1147,8 @@
     is interrupted. To do so, click on the \gui Value column, modify the value
     with the inplace editor, and hit \key Enter (or \key Return).
 
+    \note The set of watched items is saved within your session.
+
 
     \section2 Modules
 
