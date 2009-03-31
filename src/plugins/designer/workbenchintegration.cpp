@@ -399,17 +399,17 @@ static void addDeclaration(const QString &docFileName, const Class *cl, const QS
         if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
             if (const Function *fun = decl->type()->asFunctionType())  {
                 // we are only interested in declarations of methods.
-                // fun->column() returns always 0, what can cause trouble in case in one
-                // line if there is: "private slots: void foo();"
                 if (fun->isSlot() && fun->isPrivate()) {
-                    const int line = fun->line(); // [1..n]
+                    const int line = fun->line(); // this is the beginning of function name: "void ^foo(...)"
                     const int column = fun->column();
                     if (ITextEditable *editable = editableAt(docFileName, line, column)) {
-                        // Figure out indentation (symbol - len("void ")) and insert after
-                        editable->gotoLine(line + 1, 1);
+                        unsigned dl, dc; // this position is the beginning of return value: "^void foo(...)"
+                        decl->getStartPosition(&dl, &dc);
+                        dc--; // if the first character in line is 'v' comming from "void" getStartPosition returns 1, not 0, so we always decrement it.
+                        editable->gotoLine(dl, dc);
                         editable->position(ITextEditor::StartOfLine);
-                        const QString indentation = QString(qMax(0, column - 6), QLatin1Char(' '));
-                        editable->insert(indentation + declaration);
+                        const QString indentation = QString(dc, QLatin1Char(' '));
+                        editable->insert(declaration + indentation);
                     }
                     return;
                 }
