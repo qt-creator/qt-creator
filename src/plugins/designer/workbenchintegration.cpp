@@ -541,7 +541,7 @@ void WorkbenchIntegration::slotNavigateToSlot(const QString &objectName, const Q
 static inline QString uiClassName(QString formObjectName)
 {
     const int indexOfScope = formObjectName.lastIndexOf(QLatin1String("::"));
-    const int uiNameSpaceInsertionPos = indexOfScope >= 0 ? indexOfScope : 0;
+    const int uiNameSpaceInsertionPos = indexOfScope >= 0 ? indexOfScope + 2 : 0;
     formObjectName.insert(uiNameSpaceInsertionPos, QLatin1String("Ui::"));
     return formObjectName;
 }
