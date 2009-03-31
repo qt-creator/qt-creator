@@ -1695,6 +1695,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         showBlackMessage(QString());
         enterCommandMode();
     } else if (cmd == "q!" || cmd == "q") { // :q
+        showBlackMessage(QString());
         quit();
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         selectRange(beginLine, endLine);
@@ -1799,6 +1800,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         updateMiniBuffer();
     } else if (reSet.indexIn(cmd) != -1) { // :set
+        showBlackMessage(QString());
         QString arg = reSet.cap(2);
         SavedAction *act = theFakeVimSettings()->item(arg);
         if (arg.isEmpty()) {
