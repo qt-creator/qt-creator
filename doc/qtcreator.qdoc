@@ -1110,7 +1110,7 @@
 
     \table
         \row
-            \i \bold{Note:}
+            \i  \bold{Note:}
 
             \i  Gdb, and therefore Qt Creator's debugger works for optimized
                 builds on Linux and Mac OS X. However, optimization may lead
@@ -1120,7 +1120,7 @@
 
             \i  The debug information provided by gcc does not include enough
                 information about the time when a variable is initialized.
-                Qt Creator therefore can not tell whether the contents of a
+                Therefore, Qt Creator can not tell whether the contents of a
                 local variable contains "real data", or "initial noise". If a
                 QObject appears uninitialized, its value will be reported as
                 "out of scope". However, not all uninitialized objects can be
@@ -1184,7 +1184,7 @@
 
     \table
         \row
-                \i \inlineimage qtcreator-setting-breakpoint1.png
+            \i \inlineimage qtcreator-setting-breakpoint1.png
             \i \bold{Setting a Breakpoint}
 
     First, we set a breakpoint on the line where we invoke
@@ -1244,6 +1244,68 @@
     through the code using the following buttons:
 
     \image qtcreator-debugging-buttons.png
+*/
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-cmake-overview.html
+    \nextpage creator-tips.html
+
+    \title CMake Support
+
+    Since Qt Creator 1.1, support for CMake project files is available.
+    
+    \section1 Opening CMake Projects
+
+    To open a CMake project select \gui Open from the \gui File menu and select
+    the \c{CMakeLists.txt} file from your CMake project. A wizard will guide
+    you with the rest of the process. If the CMake project does not have an
+    in-place build, Qt Creator lets you specify the directory in which the
+    project is built (shadow build).
+
+    The screenshot below shows how you can specify command line arguments to
+    CMake for your project.
+
+     ###TODO one, two pictures ? \image qtcreator-import-wizard.png
+    
+    Normally, there is no need to pass any command line arguments for projects
+    that are already built, as CMake caches that information.
+
+
+    \section1 Building CMake Projects
+
+    Qt Creator builds CMake Projects by running \c make or \c mingw32-make,
+    depending on your platform. The build errors and warnings are parsed and
+    displayed in the \gui{Build Issues} output pane.
+
+    By default Qt Creator builds the "all" target. You can change which
+    targets get build in the Project/Build Settings.
+
+    ### \image qtcreator-build-settings.png
+
+    Currently only one build configuration is supported and the
+    build directory can't be changed after the initial import. This
+    limitation will be fixed for the next version.
+
+    \section1 Running CMake Projects
+    Qt Creator automatically adds Run Configurations for all the
+    targets specified in the CMake project file.
+
+
+    \section1 Know Issues
+    \list
+      \o No syntax highlighting for CMake project files.
+      \o Project files which are included from CMakeLists.txt aren't
+         shown in the navigation tree.
+      \o Using the visual studio compiler with CMake is not yet
+         supported.
+      \o Qt Creator doesn't support creating new CMake projects.
+      \o More than one build directory is not supported.
+      \o Changing the build directory after the initial import
+         is currently disabled.
 */
 
 
@@ -1532,6 +1594,7 @@
     \endlist
 */
 
+
 /*!
     \contentspage index.html
     \previouspage creator-known-issues.html
@@ -1551,56 +1614,3 @@
     \endlist
 */
 
-/*!
-  \contentspage index.html
-  \page creator-cmake-overview.html
-
-  \title CMake Support
-
-  With version 1.1 Qt Creator now also supports CMake project files.
-
-  \note The CMake project support is neither complete nor bug free.
-
-  \section1 Opening CMake projects
-  To open a CMake project use File/Open and select the toplevel
-  CMakeLists.txt file from your CMake project. Qt Creator will
-  guide you with a wizard through the open step. If the CMake project
-  does not have a in source build Qt Creator let's you specify the
-  directory in which the project is build. If you need to pass command
-  line arguments to CMake for your project, you can also do that.
-  For already build projects, you normally don't need to pass any
-  command line arguments, since CMake caches that information.
-
-  ###TODO one, two pictures ? \image qtcreator-import-wizard.png
-
-  \section1 Building CMake Projects
-  Qt Creator builds CMake Projects by running make or mingw32-make,
-  depending on your platform. The build errors and warnings are parsed
-  and displayed in the Build Issues output pane.
-
-  By default Qt Creator builds the "all" target. You can change which
-  targets get build in the Project/Build Settings.
-
-  ### \image qtcreator-build-settings.png
-
-  Currently only one build configuration is supported and the
-  build directory can't be changed after the initial import. This
-  limitation will be fixed for the next version.
-
-  \section1 Running CMake Projects
-  Qt Creator automatically adds Run Configurations for all the
-  targets specified in the CMake project file.
-
-
-  \section1 Know Issues
-  \list
-      \o No syntax highlighting for CMake project files.
-      \o Project files which are included from CMakeLists.txt aren't
-         shown in the navigation tree.
-      \o Using the visual studio compiler with CMake is not yet
-         supported.
-      \o Qt Creator doesn't support creating new CMake projects.
-      \o More than one build directory is not supported.
-      \o Changing the build directory after the initial import
-         is currently disabled.
-*/
