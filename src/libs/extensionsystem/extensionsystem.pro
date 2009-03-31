@@ -5,6 +5,10 @@ DEFINES += EXTENSIONSYSTEM_LIBRARY
 include(../../qworkbenchlibrary.pri)
 include(extensionsystem_dependencies.pri)
 
+unix:!macx {
+  LIBS += -ldl
+}
+
 DEFINES += IDE_TEST_DIR=\\\"$$IDE_SOURCE_TREE\\\"
 
 HEADERS += pluginerrorview.h \
