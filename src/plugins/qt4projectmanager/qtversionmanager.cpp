@@ -447,10 +447,14 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
 
         DebuggingHelperWidget *dhw = new DebuggingHelperWidget();
         m_ui.qtdirList->setItemWidget(item, 2, dhw);
-        if (version->hasDebuggingHelper())
-            dhw->setState(DebuggingHelperWidget::Ok);
-        else
-            dhw->setState(DebuggingHelperWidget::Error);
+        if (version->isValid()) {
+            if (version->hasDebuggingHelper())
+                dhw->setState(DebuggingHelperWidget::Ok);
+            else
+                dhw->setState(DebuggingHelperWidget::Error);
+        } else {
+            dhw->setState(DebuggingHelperWidget::InvalidQt);
+        }
 
         connect(dhw, SIGNAL(rebuildClicked()), this, SLOT(buildDebuggingHelper()));
         connect(dhw, SIGNAL(showLogClicked()), this, SLOT(showDebuggingBuildLog()));
