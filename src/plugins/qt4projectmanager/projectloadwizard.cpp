@@ -131,6 +131,7 @@ void ProjectLoadWizard::done(int result)
 
     QString directory = QFileInfo(m_project->file()->fileName()).absolutePath();
     if (m_importVersion && importCheckbox->isChecked()) {
+        // Importing
         if (m_temporaryVersion)
             m_project->qt4ProjectManager()->versionManager()->addVersion(m_importVersion);
         // Import the existing stuff
@@ -150,11 +151,21 @@ void ProjectLoadWizard::done(int result)
             addBuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration);
         }
     } else {
+        // Not importing
         if (m_temporaryVersion)
             delete m_importVersion;
         // Create default   
-        addBuildConfiguration("Debug", 0, QtVersion::QmakeBuildConfig(QtVersion::BuildAll | QtVersion::DebugBuild));
-        addBuildConfiguration("Release", 0, QtVersion::BuildAll);
+        bool buildAll = false;
+        QtVersion *defaultVersion = m_project->qt4ProjectManager()->versionManager()->version(0);
+        if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
+            buildAll = true;
+        if (buildAll) {
+            addBuildConfiguration("Debug", 0, QtVersion::QmakeBuildConfig(QtVersion::BuildAll | QtVersion::DebugBuild));
+            addBuildConfiguration("Release", 0, QtVersion::BuildAll);
+        } else {
+            addBuildConfiguration("Debug", 0, QtVersion::DebugBuild);
+            addBuildConfiguration("Release", 0, 0);
+        }
     }
 
     if (!m_project->buildConfigurations().isEmpty())
