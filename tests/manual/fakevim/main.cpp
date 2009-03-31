@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
         &proxy, SLOT(changeStatusMessage(QString)));
-    QObject::connect(&handler, SIGNAL(quitRequested()),
+    QObject::connect(&handler, SIGNAL(quitRequested(bool)),
         &app, SLOT(quit()));
     QObject::connect(&handler,
         SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
@@ -118,6 +118,8 @@ int main(int argc, char *argv[])
     QObject::connect(&handler, SIGNAL(statusDataChanged(QString)),
         &proxy, SLOT(changeStatusData(QString)));
 
+    theFakeVimSetting(ConfigUseFakeVim)->setValue(true);
+    handler.installEventFilter();
     handler.setupWidget();
     if (args.size() >= 1)
         handler.handleCommand("r " + args.at(0));
