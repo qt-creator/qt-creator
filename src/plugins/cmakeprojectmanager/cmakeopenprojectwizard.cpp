@@ -248,6 +248,7 @@ void CMakeRunPage::initWidgets()
     fl->addWidget(m_runCMake);
 
     m_output = new QPlainTextEdit(this);
+    m_output->setReadOnly(true);
     fl->addRow(m_output);
 }
 
