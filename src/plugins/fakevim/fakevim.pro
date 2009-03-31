@@ -14,10 +14,14 @@ include(../../shared/indenter/indenter.pri)
 QT += gui
 
 SOURCES += \
+    fakevimactions.cpp \
     fakevimhandler.cpp \
     fakevimplugin.cpp
 
 HEADERS += \
-    fakevimconstants.h \
+    fakevimactions.h \
     fakevimhandler.h \
     fakevimplugin.h
+
+FORMS += \
+    fakevimoptions.ui

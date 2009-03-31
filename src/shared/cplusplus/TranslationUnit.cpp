@@ -278,6 +278,12 @@ bool TranslationUnit::parse(ParseMode mode)
         _ast = node;
     } break;
 
+    case ParseDeclarator: {
+        DeclaratorAST *node = 0;
+        parsed = parser.parseDeclarator(node);
+        _ast = node;
+    } break;
+
     case ParseStatement: {
         StatementAST *node = 0;
         parsed = parser.parseStatement(node);

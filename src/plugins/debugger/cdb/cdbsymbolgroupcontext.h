@@ -44,65 +44,85 @@ namespace Debugger {
     namespace Internal {
 
 class WatchData;
+class WatchHandler;
 
 /* A thin wrapper around the IDebugSymbolGroup2 interface which represents
- * a flat list of symbols using an index (for example, belonging to a stack frame).
- * It uses the hierarchical naming convention of WatchHandler as:
+ * a flat list of symbols using an index (for example, belonging to a stack
+ * frame). It uses the hierarchical naming convention of WatchHandler as in:
  * "local" (invisible root)
  * "local.string" (local class variable)
- * "local.string.data" (class member).
- * IDebugSymbolGroup2 can "expand" expandable symbols, appending to the flat list.
- */
+ * "local.string.data" (class member)
+ * and maintains a mapping iname -> index.
+ * IDebugSymbolGroup2 can "expand" expandable symbols, inserting them into the
+ * flat list after their parent. */
 
 class CdbSymbolGroupContext
 {
     Q_DISABLE_COPY(CdbSymbolGroupContext);
-
-    // Start position and length of range in m_symbolParameters
-    typedef QPair<unsigned long, unsigned long> Range;
+     explicit CdbSymbolGroupContext(const QString &prefix,
+                                    IDebugSymbolGroup2 *symbolGroup);
 
 public:
-    explicit CdbSymbolGroupContext(const QString &prefix,
-                                   IDebugSymbolGroup2 *symbolGroup);
     ~CdbSymbolGroupContext();
+    static CdbSymbolGroupContext *create(const QString &prefix,
+                                         IDebugSymbolGroup2 *symbolGroup,
+                                         QString *errorMessage);
 
     QString prefix() const { return m_prefix; }
 
+    static bool populateModelInitially(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
+    static bool completeModel(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
+
     // Retrieve child symbols of prefix as a sequence of WatchData.
     template <class OutputIterator>
-            void getSymbols(const QString &prefix, OutputIterator it);
+            bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage);
 
 private:
+    typedef QMap<QString, unsigned long>  NameIndexMap;
+
+    static inline bool isSymbolDisplayable(const DEBUG_SYMBOL_PARAMETERS &p);
+
+    bool init(QString *errorMessage);
     void clear();
-    Range getSymbolRange(const QString &prefix);
-    Range allocateChildSymbols(const QString &prefix);
-    Range allocateRootSymbols();
+    QString toString() const;
+    bool getChildSymbolsPosition(const QString &prefix,
+                                 unsigned long *startPos,
+                                 unsigned long *parentId,
+                                 QString *errorMessage);
+    bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
+    void populateINameIndexMap(const QString &prefix, unsigned long start, unsigned long count);
     WatchData symbolAt(unsigned long index) const;
+    bool isExpanded(unsigned long index) const;
+    int getDisplayableChildCount(unsigned long index) const;
 
     inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }
     inline const DEBUG_SYMBOL_PARAMETERS *symbolParameters() const { return &(*m_symbolParameters.constBegin()); }
 
     const QString m_prefix;
     const QChar m_nameDelimiter;
+
     IDebugSymbolGroup2 *m_symbolGroup;
-
-    QStringList m_symbolINames;
+    NameIndexMap m_inameIndexMap;
     QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
-
-    typedef QMap<QString, Range> ChildRangeMap;
-
-    ChildRangeMap m_childRanges;
 };
 
 template <class OutputIterator>
-void CdbSymbolGroupContext::getSymbols(const QString &prefix, OutputIterator it)
+bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage)
 {
-    const Range  r = getSymbolRange(prefix);
-    const unsigned long end = r.first + r.second;
-    for (unsigned long i = r.first; i < end; i++) {
-        *it = symbolAt(i);
-        ++it;
+    unsigned long start;
+    unsigned long parentId;
+    if (!getChildSymbolsPosition(prefix, &start, &parentId, errorMessage))
+        return false;    
+    // Skip over expanded children
+    const unsigned long end = m_symbolParameters.size();
+    for (unsigned long s = start; s < end; ++s) {
+        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(s);
+        if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
+            *it = symbolAt(s);
+            ++it;
+        }
     }
+    return true;
 }
 
 }

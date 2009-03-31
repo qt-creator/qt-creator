@@ -166,6 +166,7 @@ private:
     QToolButton *m_infoWidgetButton;
     IEditor *m_editorForInfoWidget;
     QString m_statusWidgetKind;
+    QFrame *m_statusHLine;
     QFrame *m_statusWidget;
     QLabel *m_statusWidgetLabel;
     QToolButton *m_statusWidgetButton;

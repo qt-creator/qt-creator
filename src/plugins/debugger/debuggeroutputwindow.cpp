@@ -60,11 +60,11 @@ using namespace Debugger::Internal;
 //
 /////////////////////////////////////////////////////////////////////
 
-class DebuggerPane : public QTextEdit
+class DebuggerPane : public QPlainTextEdit
 {
 public:
     DebuggerPane(QWidget *parent)
-        : QTextEdit(parent)
+        : QPlainTextEdit(parent)
     {
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText("Clear contents");
@@ -133,7 +133,7 @@ private:
         else if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_R)
             emit clearContentsRequested();
         else
-            QTextEdit::keyPressEvent(ev);
+            QPlainTextEdit::keyPressEvent(ev);
     }
 
     void mouseDoubleClickEvent(QMouseEvent *ev) 
@@ -163,13 +163,13 @@ private:
     void focusInEvent(QFocusEvent *ev)  
     {
         emit statusMessageRequested("Type Ctrl-<Return> to execute a line.", -1);
-        QTextEdit::focusInEvent(ev);
+        QPlainTextEdit::focusInEvent(ev);
     }
 
     void focusOutEvent(QFocusEvent *ev)  
     {
         emit statusMessageRequested(QString(), -1);
-        QTextEdit::focusOutEvent(ev);
+        QPlainTextEdit::focusOutEvent(ev);
     }
 
     QAction *m_commandExecutionAction;
@@ -274,7 +274,7 @@ void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &outp
         const int n = 3000;
         if (line.size() > n)
             line = line.left(n) + " [...] <cut off>";
-        m_combinedText->append(prefix + line);
+        m_combinedText->appendPlainText(prefix + line);
     }
     QTextCursor cursor = m_combinedText->textCursor();
     cursor.movePosition(QTextCursor::End);
@@ -285,7 +285,7 @@ void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &outp
 void DebuggerOutputWindow::showInput(const QString &prefix, const QString &input)
 {
     Q_UNUSED(prefix);
-    m_inputText->append(input);
+    m_inputText->appendPlainText(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);
     m_inputText->setTextCursor(cursor);

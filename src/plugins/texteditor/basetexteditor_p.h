@@ -162,7 +162,6 @@ public:
 
     QWidget *m_extraArea;
     DisplaySettings m_displaySettings;
-    InteractionSettings m_interactionSettings;
 
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;

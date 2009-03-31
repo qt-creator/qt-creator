@@ -27,62 +27,65 @@
 **
 **************************************************************************/
 
-#ifndef FAKEVIM_HANDLER_H
-#define FAKEVIM_HANDLER_H
+#ifndef FAKEVIM_ACTIONS_H
+#define FAKEVIM_ACTIONS_H
 
-#include "fakevimactions.h"
+#include <utils/savedaction.h>
 
+#include <QtCore/QHash>
 #include <QtCore/QObject>
-#include <QtGui/QTextEdit>
+#include <QtCore/QString>
 
 namespace FakeVim {
 namespace Internal {
 
-class FakeVimHandler : public QObject
+enum FakeVimSettingsCode
 {
-    Q_OBJECT
+    ConfigUseFakeVim,
+    ConfigStartOfLine,
+    ConfigHlSearch,
+    ConfigTabStop,
+    ConfigSmartTab,
+    ConfigShiftWidth,
+    ConfigExpandTab,
+    ConfigAutoIndent,
+
+    // indent  allow backspacing over autoindent
+    // eol     allow backspacing over line breaks (join lines)
+    // start   allow backspacing over the start of insert; CTRL-W and CTRL-U
+    //         stop once at the start of insert.
+    ConfigBackspace,
+
+    // other actions
+    SettingsDialog,
+};
+
+class FakeVimSettings : public QObject
+{
+public:
+    FakeVimSettings();
+    ~FakeVimSettings();
+    
+    void insertItem(int code, Core::Utils::SavedAction *item,
+        const QString &longname = QString(),
+        const QString &shortname = QString());
+
+    Core::Utils::SavedAction *item(int code);
+    Core::Utils::SavedAction *item(const QString &name);
+
+    void readSettings(QSettings *settings);
+    void writeSettings(QSettings *settings);
 
 public:
-    FakeVimHandler(QWidget *widget, QObject *parent = 0);
-    ~FakeVimHandler();
-
-    QWidget *widget();
-
-public slots:
-    void setCurrentFileName(const QString &fileName);
-
-    // This executes an "ex" style command taking context
-    // information from widget;
-    void handleCommand(const QString &cmd);
-    void quit();
-
-    void installEventFilter();
-
-    // Convenience
-    void setupWidget();
-    void restoreWidget();
-
-signals:
-    void commandBufferChanged(const QString &msg);
-    void statusDataChanged(const QString &msg);
-    void extraInformationChanged(const QString &msg);
-    void quitRequested();
-    void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
-    void writeFileRequested(bool *handled,
-        const QString &fileName, const QString &contents);
-    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
-    void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
-    void completionRequested();
-
-private:
-    bool eventFilter(QObject *ob, QEvent *ev);
-
-    class Private;
-    friend class Private;
-    Private *d;
+    QHash<int, Core::Utils::SavedAction *> m_items; 
+    QHash<QString, int> m_nameToCode; 
+    QHash<int, QString> m_codeToName; 
 };
+
+FakeVimSettings *theFakeVimSettings();
+Core::Utils::SavedAction *theFakeVimSetting(int code);
 
 } // namespace Internal
 } // namespace FakeVim
 
-#endif // FAKEVIM_H
+#endif // FAKEVIM_ACTTIONS_H

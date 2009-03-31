@@ -13,14 +13,12 @@ macx {
     RUNINTERMINAL.files = $$PWD/qtcreator/runInTerminal.command
     QMAKE_BUNDLE_DATA += SNIPPETS TEMPLATES DESIGNER SCHEMES GDBDEBUGGER RUNINTERMINAL
     QMAKE_INFO_PLIST = $$PWD/qtcreator/Info.plist
-}
-
-win32|linux-* {
+} else {
     # make sure the resources are in place
     !exists($$OUT_PWD/app.pro) {
+        # we are shadow build
         unix:SEPARATOR = ;
         win32:SEPARATOR = &
-        # we are shadow build
         COPYSRC = snippets \
                    templates \
                    designer \
@@ -32,7 +30,6 @@ win32|linux-* {
         for(tmp,COPYSRC) {
           REALSRC = $$PWD/qtcreator/$$tmp
           REALDEST = $$COPYDEST/$$tmp
-          win32:tmp ~= s|/+|\|
           win32:REALSRC ~= s|/+|\|
           win32:REALDEST ~= s|/+|\|
           QMAKE_POST_LINK += $${QMAKE_COPY_DIR} $${REALSRC} $${REALDEST} $$SEPARATOR

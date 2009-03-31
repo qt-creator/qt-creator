@@ -145,6 +145,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_debuggerManager(parent),
     m_debuggerManagerAccess(parent->engineInterface()),
     m_currentStackTrace(0),
+    m_firstActivatedFrame(true),
     m_mode(AttachCore)
 {   
 }
@@ -428,22 +429,15 @@ void CdbDebugEngine::exitDebugger()
     killWatchTimer();
 }
 
-class ModelBuildIterator {
-public:
-    explicit ModelBuildIterator(WatchHandler *wh) : m_wh(wh) {}
-
-    ModelBuildIterator & operator*() { return *this; }
-    ModelBuildIterator &operator=(const WatchData &wd);
-    ModelBuildIterator &operator++() { return *this; }
-
-private:
-    WatchHandler *m_wh;
-};
-
-ModelBuildIterator &ModelBuildIterator::operator=(const WatchData &wd)
+CdbSymbolGroupContext *CdbDebugEnginePrivate::getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const
 {
-    m_wh->insertData(wd);
-    return *this;
+    if (!m_currentStackTrace) {
+        *errorMessage = QLatin1String(msgNoStackTraceC);
+        return 0;
+    }
+    if (CdbSymbolGroupContext *sg = m_currentStackTrace->symbolGroupContextAt(frameIndex, errorMessage))
+        return sg;
+    return 0;
 }
 
 bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
@@ -452,36 +446,29 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameIndex;
-    bool success = false;
     wh->cleanup();
-    do {
-        if (!m_currentStackTrace) {
-            *errorMessage = QLatin1String(msgNoStackTraceC);
-            break;
-        }
 
-        CdbSymbolGroupContext *sgc = m_currentStackTrace->symbolGroupContextAt(frameIndex, errorMessage);
-        if (!sgc) {
-            break;
-        }
-        ModelBuildIterator it(wh);
-        sgc->getSymbols(sgc->prefix(), it);
-        success = true;
-    } while (false);
+    bool success = false;
+    if (CdbSymbolGroupContext *sgc = getStackFrameSymbolGroupContext(frameIndex, errorMessage))
+        success = CdbSymbolGroupContext::populateModelInitially(sgc, wh, errorMessage);
+
     wh->rebuildModel();
-
     return success;
 }
 
 void CdbDebugEngine::updateWatchModel()
 {
-    WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
-    const QList<WatchData> incomplete = watchHandler->takeCurrentIncompletes();
-
+    const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << incomplete.size();
-    foreach (const WatchData& wd, incomplete)
-        qDebug() << Q_FUNC_INFO << wd.toString();
+        qDebug() << Q_FUNC_INFO << "fi=" << frameIndex;
+
+    bool success = false;
+    QString errorMessage;    
+    if (CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->symbolGroupContextAt(frameIndex, &errorMessage))
+        success = CdbSymbolGroupContext::completeModel(sg, m_d->m_debuggerManagerAccess->watchHandler(), &errorMessage);
+
+    if (!success)
+        qWarning("%s : %s", Q_FUNC_INFO, qPrintable(errorMessage));
 }
 
 void CdbDebugEngine::stepExec()
@@ -655,17 +642,18 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     bool success = false;
     do {
         StackHandler *stackHandler = m_d->m_debuggerManagerAccess->stackHandler();
+        WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
         const int oldIndex = stackHandler->currentIndex();
         if (frameIndex >= stackHandler->stackSize()) {
             errorMessage = msgStackIndexOutOfRange(frameIndex, stackHandler->stackSize());
             break;
         }
 
-        if (oldIndex != frameIndex) {
+        if (oldIndex != frameIndex)
             stackHandler->setCurrentIndex(frameIndex);
-            if (!m_d->updateLocals(frameIndex, m_d->m_debuggerManagerAccess->watchHandler(), &errorMessage))
+        if (oldIndex != frameIndex || m_d->m_firstActivatedFrame)
+            if (!m_d->updateLocals(frameIndex, watchHandler, &errorMessage))
                 break;
-        }
 
         const StackFrame &frame = stackHandler->currentFrame();
         if (!frame.isUsable()) {
@@ -678,6 +666,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     } while (false);
     if (!success)
         qWarning("%s", qPrintable(errorMessage));
+    m_d->m_firstActivatedFrame = false;
 }
 
 void CdbDebugEngine::selectThread(int index)
@@ -917,6 +906,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
         m_debuggerManager->gotoLocation(stackFrames.at(current).file,
                                         stackFrames.at(current).line, true);
     }
+    m_firstActivatedFrame = true;
 }
 
 void CdbDebugEnginePrivate::handleDebugOutput(const char *szOutputString)

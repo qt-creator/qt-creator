@@ -52,6 +52,16 @@ using namespace Core::Utils;
 //
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+    \class Core::Utils::SavedAction
+    
+    \brief The SavedAction class is a helper class for actions with persistent
+    state.
+
+    \ingroup utils
+
+*/
+
 SavedAction::SavedAction(QObject *parent)
   : QAction(parent)
 {
@@ -59,11 +69,24 @@ SavedAction::SavedAction(QObject *parent)
     connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
+
+/*!
+    Returns the current value of the object.
+
+    \sa setValue()
+*/
 QVariant SavedAction::value() const
 {
     return m_value;
 }
 
+
+/*!
+    Sets the current value of the object. If the value changed and
+    \a doemit is true, the \c valueChanged() signal will be emitted.
+
+    \sa value()
+*/
 void SavedAction::setValue(const QVariant &value, bool doemit)
 {
     if (value == m_value)
@@ -75,37 +98,80 @@ void SavedAction::setValue(const QVariant &value, bool doemit)
         emit valueChanged(m_value);
 }
 
+
+/*!
+    Returns the default value to be used when the item does not exist yet
+    in the settings.
+
+    \sa setDefaultValue()
+*/
 QVariant SavedAction::defaultValue() const
 {
     return m_defaultValue;
 }
 
+
+/*!
+    Sets the default value to be used when the item does not exist yet
+    in the settings.
+
+    \sa defaultValue()
+*/
 void SavedAction::setDefaultValue(const QVariant &value)
 {
     m_defaultValue = value;
 }
 
+
+/*!
+    Returns the key to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
 QString SavedAction::settingsKey() const
 {
     return m_settingsKey;
 }
 
+
+/*!
+    Sets the key to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
 void SavedAction::setSettingsKey(const QString &key)
 {
     m_settingsKey = key;
 }
 
+
+/*!
+    Sets the key and group to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
 void SavedAction::setSettingsKey(const QString &group, const QString &key)
 {
     m_settingsKey = key;
     m_settingsGroup = group;
 }
 
+
+/*!
+    Sets the key to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
 QString SavedAction::settingsGroup() const
 {
     return m_settingsGroup;
 }
 
+/*!
+    Sets the group to be used when accessing the settings.
+
+    \sa settingsGroup()
+*/
 void SavedAction::setSettingsGroup(const QString &group)
 {
     m_settingsGroup = group;
@@ -128,6 +194,22 @@ QString SavedAction::toString() const
         + "  settingskey: " + m_settingsGroup + '/' + m_settingsKey;
 }
 
+/*!
+    \fn QAction *SavedAction::updatedAction(const QString &text)
+
+    Adjust the \c text() of the underlying action.
+
+    This can be used to update the item shortly before e.g. a menu is shown.
+
+    If the item's \c textPattern() is empty the \a text will be used
+    verbatim.
+
+    Otherwise, the behaviour depends on \a text: if it is non-empty,
+    \c QString(textPattern()).arg(text), otherwise, \c textPattern()
+    with the "%1" placeholder removed will be used.
+
+    \sa textPattern(), setTextPattern()
+*/
 QAction *SavedAction::updatedAction(const QString &text0)
 {
     QString text = text0;
@@ -148,6 +230,12 @@ QAction *SavedAction::updatedAction(const QString &text0)
     return this;
 }
 
+/*
+    Uses \c settingsGroup() and \c settingsKey() to restore the 
+    item from \a settings,
+
+    \sa settingsKey(), settingsGroup(), writeSettings()
+*/
 void SavedAction::readSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
@@ -158,6 +246,12 @@ void SavedAction::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
+/*
+    Uses \c settingsGroup() and \c settingsKey() to write the 
+    item to \a settings,
+
+    \sa settingsKey(), settingsGroup(), readSettings()
+*/
 void SavedAction::writeSettings(QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
@@ -168,6 +262,17 @@ void SavedAction::writeSettings(QSettings *settings)
     settings->endGroup();
 }
    
+/*
+    A \c SavedAction can be connected to a widget, typically a
+    checkbox, radiobutton, or a lineedit in some configuration dialog.
+
+    The widget will retrieve its contents from the SavedAction's 
+    value, and - depending on the \a ApplyMode - either write
+    changes back immediately, or when \s SavedAction::apply()
+    is called explicitly.
+
+    \sa apply(), disconnectWidget()
+*/
 void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 {
     QTC_ASSERT(!m_widget,
@@ -200,6 +305,11 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     }
 }
 
+/*
+    Disconnects the \c SavedAction from a widget.
+
+    \sa apply(), connectWidget()
+*/
 void SavedAction::disconnectWidget()
 {
     QTC_ASSERT(m_widget,

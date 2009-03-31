@@ -1077,7 +1077,7 @@ void GdbEngine::handleAqcuiredInferior()
     #if defined(Q_OS_MAC)
     sendCommand("info pid", GdbInfoProc, QVariant(), NeedsStop);
     #endif
-    if (theDebuggerBoolSetting(UseDumpers))
+    if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
     tryLoadCustomDumpers();
 
@@ -3989,17 +3989,9 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 
 QString GdbEngine::dumperLibraryName() const
 {
-    if (theDebuggerAction(UsePrebuiltDumpers)->value().toBool())
-        return theDebuggerAction(PrebuiltDumpersLocation)->value().toString();
-    if (theDebuggerAction(UseQtDumpers)->value().toBool())
-        return q->m_dumperLib;
-#if defined(Q_OS_WIN)
-    return q->m_buildDir + "/qtc-gdbmacros/debug/gdbmacros.dll";
-#elif defined(Q_OS_MAC)
-    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.dylib";
-#else // generic UNIX
-    return q->m_buildDir + "/qtc-gdbmacros/libgdbmacros.so";
-#endif
+    if (theDebuggerAction(UseCustomDumperLocation)->value().toBool())
+        return theDebuggerAction(CustomDumperLocation)->value().toString();
+    return q->m_dumperLib;
 }
 
 void GdbEngine::tryLoadCustomDumpers()

@@ -618,24 +618,27 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     if (!lastSymbol)
         return link;
 
-    // Check whether we're at a name
-    const int endOfName = endOfNameAtPosition(cursor.position());
-    if (!characterAt(endOfName - 1).isLetterOrNumber())
-        return link;
-
-    // Remember the position and length of the name
     QTextCursor tc = cursor;
-    tc.setPosition(endOfName);
-    tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
-    const int nameStart = tc.position();
-    const int nameLength = tc.anchor() - tc.position();
-    tc.setPosition(endOfName);
 
-    // Drop out if we're at a number, string or comment
     static TokenUnderCursor tokenUnderCursor;
-    const SimpleToken tk = tokenUnderCursor(tc);
-    if (tk.isLiteral() || tk.isComment())
+
+    QTextBlock block;
+    const SimpleToken tk = tokenUnderCursor(tc, &block);
+
+    if (tk.isLiteral() || tk.isComment()) {
+        // Drop out if we're at a number, string or comment
         return link;
+    }
+
+    if (tk.isNot(T_IDENTIFIER))
+        return link;
+
+    const int nameStart = tk.position();
+    const int nameLength = tk.length();
+    const int endOfName = nameStart + nameLength;
+
+    const QString name = block.text().mid(nameStart, nameLength);
+    tc.setPosition(block.position() + endOfName);
 
     // Evaluate the type of the expression under the cursor
     ExpressionUnderCursor expressionUnderCursor;

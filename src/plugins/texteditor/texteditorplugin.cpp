@@ -38,7 +38,6 @@
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
 #include "storagesettings.h"
-#include "interactionsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>

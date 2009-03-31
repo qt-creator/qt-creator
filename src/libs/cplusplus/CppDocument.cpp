@@ -288,6 +288,10 @@ bool Document::parse(ParseMode mode)
         m = TranslationUnit::ParseExpression;
         break;
 
+    case ParseDeclarator:
+        m = TranslationUnit::ParseDeclarator;
+        break;
+
     case ParseStatement:
         m = TranslationUnit::ParseStatement;
         break;

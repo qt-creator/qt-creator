@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "behaviorsettingspage.h"
-#include "interactionsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "ui_behaviorsettingspage.h"
@@ -47,7 +46,6 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
     Ui::BehaviorSettingsPage m_page;
     TabSettings m_tabSettings;
     StorageSettings m_storageSettings;
-    InteractionSettings m_interactionSettings;
 };
 
 BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
@@ -57,7 +55,6 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
     if (const QSettings *s = Core::ICore::instance()->settings()) {
         m_tabSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
-        m_interactionSettings.fromSettings(m_parameters.settingsPrefix, s);
     }
 }
 
@@ -105,9 +102,8 @@ void BehaviorSettingsPage::apply()
 {
     TabSettings newTabSettings;
     StorageSettings newStorageSettings;
-    InteractionSettings newInteractionSettings;
 
-    settingsFromUI(newTabSettings, newStorageSettings, newInteractionSettings);
+    settingsFromUI(newTabSettings, newStorageSettings);
 
     Core::ICore *core = Core::ICore::instance();
     QSettings *s = core->settings();
@@ -127,17 +123,10 @@ void BehaviorSettingsPage::apply()
 
         emit storageSettingsChanged(newStorageSettings);
     }
-
-    if (newInteractionSettings != m_d->m_interactionSettings) {
-        m_d->m_interactionSettings = newInteractionSettings;
-        if (s)
-            m_d->m_interactionSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
-    }
 }
 
 void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
-                                         StorageSettings &storageSettings,
-                                         InteractionSettings &interactionSettings) const
+                                         StorageSettings &storageSettings) const
 {
     tabSettings.m_spacesForTabs = m_d->m_page.insertSpaces->isChecked();
     tabSettings.m_autoIndent = m_d->m_page.autoIndent->isChecked();
@@ -149,8 +138,6 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
     storageSettings.m_inEntireDocument = m_d->m_page.inEntireDocument->isChecked();
     storageSettings.m_cleanIndentation = m_d->m_page.cleanIndentation->isChecked();
     storageSettings.m_addFinalNewLine = m_d->m_page.addFinalNewLine->isChecked();
-
-    interactionSettings.m_useVim = m_d->m_page.useVim->isChecked();
 }
 
 void BehaviorSettingsPage::settingsToUI()
@@ -167,9 +154,6 @@ void BehaviorSettingsPage::settingsToUI()
     m_d->m_page.inEntireDocument->setChecked(storageSettings.m_inEntireDocument);
     m_d->m_page.cleanIndentation->setChecked(storageSettings.m_cleanIndentation);
     m_d->m_page.addFinalNewLine->setChecked(storageSettings.m_addFinalNewLine);
-
-    const InteractionSettings &interactionSettings = m_d->m_interactionSettings;
-    m_d->m_page.useVim->setChecked(interactionSettings.m_useVim);
 }
 
 TabSettings BehaviorSettingsPage::tabSettings() const
@@ -180,9 +164,4 @@ TabSettings BehaviorSettingsPage::tabSettings() const
 StorageSettings BehaviorSettingsPage::storageSettings() const
 {
     return m_d->m_storageSettings;
-}
-
-InteractionSettings BehaviorSettingsPage::interactionSettings() const
-{
-    return m_d->m_interactionSettings;
 }

@@ -6,78 +6,95 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>426</height>
+    <width>403</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBoxDataDumpers">
-     <property name="title">
-      <string>Location of data dumper helper library</string>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="checkBoxUseDumpers">
+     <property name="toolTip">
+      <string>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonUseQtDumpers">
-        <property name="text">
-         <string>Use Qt dumpers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButtonBuildDumpersOnTheFly">
-        <property name="toolTip">
-         <string>This is the slowest but safest option.</string>
-        </property>
-        <property name="text">
-         <string>Build and load data dumpers on-the-fly</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButtonUsePrebuiltDumpers">
-        <property name="text">
-         <string>Load pre-built data dumpers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>10</width>
-            <height>10</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelDumperLocation">
-          <property name="text">
-           <string>Location: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Core::Utils::PathChooser" name="dumperLocationChooser" native="true"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <property name="text">
+      <string>Use data dumpers</string>
+     </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxUseCustomDumperLocation">
+       <property name="toolTip">
+        <string>This will load a dumper library</string>
+       </property>
+       <property name="text">
+        <string>Use dumpers from custom location</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelDumperLocation">
+       <property name="text">
+        <string>Location: </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Core::Utils::PathChooser" name="dumperLocationChooser" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxDebugDumpers">
+     <property name="toolTip">
+      <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
+     </property>
+     <property name="text">
+      <string>Debug custom dumpers</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -90,24 +107,14 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBoxDebugDumpers">
-     <property name="toolTip">
-      <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
-     </property>
-     <property name="text">
-      <string>Debug custom dumpers</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBoxUseDumpers">
-     <property name="text">
-      <string>Use data dumpers</string>
-     </property>
-    </widget>
-   </item>
   </layout>
+  <zorder>checkBoxDebugDumpers</zorder>
+  <zorder>checkBoxUseDumpers</zorder>
+  <zorder>checkBoxUseDefaultDumperLocation</zorder>
+  <zorder>horizontalSpacer</zorder>
+  <zorder>labelDumperLocation</zorder>
+  <zorder>horizontalSpacer_2</zorder>
+  <zorder>labelDumperLocation</zorder>
  </widget>
  <customwidgets>
   <customwidget>

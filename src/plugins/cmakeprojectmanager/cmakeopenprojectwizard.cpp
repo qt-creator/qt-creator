@@ -214,8 +214,7 @@ void ShadowBuildPage::buildDirectoryChanged()
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
-      m_complete(false),
-      m_buildDirectory(m_cmakeWizard->buildDirectory())
+      m_complete(false)
 {
     initWidgets();
 }
@@ -224,21 +223,10 @@ CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &b
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
       m_complete(false),
-      m_buildDirectory(buildDirectory)
+      m_update(update),
+      m_presetBuildDirectory(buildDirectory)
 {
     initWidgets();
-    // TODO tell the user more?
-    if (update)
-        m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
-                                       "Creator needs to update this file by running cmake. "
-                                       "If you want to add additional command line arguments, "
-                                       "add them in the below.").arg(m_buildDirectory));
-    else
-        m_descriptionLabel->setText(tr("The directory %1, specified in a buildconfiguration, "
-                                       "does not contain a cbp file. Qt Creator needs to "
-                                       "recreate this file, by running cmake. "
-                                       "Some projects require command line arguments to "
-                                       "the initial cmake call.").arg(m_buildDirectory));
 }
 
 void CMakeRunPage::initWidgets()
@@ -247,8 +235,6 @@ void CMakeRunPage::initWidgets()
     setLayout(fl);
     m_descriptionLabel = new QLabel(this);
     m_descriptionLabel->setWordWrap(true);
-    m_descriptionLabel->setText(tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file, by running cmake. "
-                   "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
 
     fl->addRow(m_descriptionLabel);
 
@@ -263,6 +249,30 @@ void CMakeRunPage::initWidgets()
 
     m_output = new QPlainTextEdit(this);
     fl->addRow(m_output);
+}
+
+void CMakeRunPage::initializePage()
+{
+    if (m_presetBuildDirectory.isEmpty()) {
+        m_buildDirectory = m_cmakeWizard->buildDirectory();
+        m_descriptionLabel->setText(
+                tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file, by running cmake. "
+                   "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
+    } else {
+        m_buildDirectory = m_presetBuildDirectory;
+        // TODO tell the user more?
+        if (m_update)
+            m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
+                                           "Creator needs to update this file by running cmake. "
+                                           "If you want to add additional command line arguments, "
+                                           "add them in the below.").arg(m_buildDirectory));
+        else
+            m_descriptionLabel->setText(tr("The directory %1, specified in a buildconfiguration, "
+                                           "does not contain a cbp file. Qt Creator needs to "
+                                           "recreate this file, by running cmake. "
+                                           "Some projects require command line arguments to "
+                                           "the initial cmake call.").arg(m_buildDirectory));
+    }
 }
 
 void CMakeRunPage::runCMake()

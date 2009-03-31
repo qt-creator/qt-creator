@@ -48,7 +48,7 @@ public:
     TokenUnderCursor();
     ~TokenUnderCursor();
 
-    SimpleToken operator()(const QTextCursor &cursor) const;
+    SimpleToken operator()(const QTextCursor &cursor, QTextBlock *block = 0) const;
 
 private:
     int previousBlockState(const QTextBlock &block) const;

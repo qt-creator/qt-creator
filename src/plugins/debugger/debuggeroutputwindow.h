@@ -32,7 +32,7 @@
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QSplitter>
-#include <QtGui/QTextEdit>
+#include <QtGui/QPlainTextEdit>
 #include <QtGui/QWidget>
 
 namespace Debugger {
@@ -71,8 +71,8 @@ private slots:
     void onReturnPressed();
 
 private:
-    QTextEdit *m_combinedText;  // combined input/output
-    QTextEdit *m_inputText;     // scriptable input alone
+    QPlainTextEdit *m_combinedText;  // combined input/output
+    QPlainTextEdit *m_inputText;     // scriptable input alone
     QLineEdit *m_commandEdit;
 };
 

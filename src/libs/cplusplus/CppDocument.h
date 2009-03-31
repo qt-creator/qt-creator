@@ -92,6 +92,7 @@ public:
         ParseTranlationUnit,
         ParseDeclaration,
         ParseExpression,
+        ParseDeclarator,
         ParseStatement
     };
 

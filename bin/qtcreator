@@ -6,4 +6,4 @@ if test "$(uname -m)" = "x86_64" ; then
 else
     libdir=$(cd ${bindir}/../lib ; pwd)
 fi
-LD_LIBRARY_PATH="${libdir}:${LD_LIBRARY_PATH}" "${bindir}/qtcreator.bin" ${1+"$@"}
+LD_LIBRARY_PATH="${libdir}/qtcreator:${LD_LIBRARY_PATH}" exec "${bindir}/qtcreator.bin" ${1+"$@"}

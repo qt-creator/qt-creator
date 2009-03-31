@@ -127,7 +127,9 @@ CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupContextAt(int index, QSt
     IDebugSymbolGroup2 *sg  = createSymbolGroup(index, errorMessage);
     if (!sg)
         return 0;
-    CdbSymbolGroupContext *sc = new CdbSymbolGroupContext(QLatin1String("local"), sg);
+    CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
+    if (!sc)
+        return 0;                                \
     m_symbolContexts[index] = sc;
     return sc;
 }
