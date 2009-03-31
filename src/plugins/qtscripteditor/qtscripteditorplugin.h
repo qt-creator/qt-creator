@@ -34,6 +34,7 @@
 
 namespace TextEditor {
 class TextFileWizard;
+class TextEditorActionHandler;
 } // namespace TextEditor
 
 namespace QtScriptEditor {
@@ -54,7 +55,10 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
-    static void initializeEditor(ScriptEditor *editor);
+    static QtScriptEditorPlugin *instance()
+    { return m_instance; }
+
+    void initializeEditor(ScriptEditor *editor);
 
 private:
     void registerActions();
@@ -67,6 +71,7 @@ private:
 
     TextEditor::TextFileWizard *m_wizard;
     QtScriptEditorFactory *m_editor;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

@@ -229,7 +229,7 @@ private slots:
     void editorAboutToClose(Core::IEditor *);
 
     void setUseFakeVim(const QVariant &value);
-    void quit();
+    void quitFakeVim();
     void triggerCompletions();
     void showSettingsDialog();
 
@@ -237,6 +237,7 @@ private slots:
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
+    void quitFile(bool forced);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
 
@@ -331,8 +332,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(showExtraInformation(QString)));
     connect(handler, SIGNAL(commandBufferChanged(QString)),
         this, SLOT(showCommandBuffer(QString)));
-    connect(handler, SIGNAL(quitRequested()),
-        this, SLOT(quit()), Qt::QueuedConnection);
+    connect(handler, SIGNAL(quitRequested(bool)),
+        this, SLOT(quitFile(bool)), Qt::QueuedConnection);
     connect(handler, SIGNAL(writeFileRequested(bool*,QString,QString)),
         this, SLOT(writeFile(bool*,QString,QString)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
@@ -346,6 +347,10 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();
+    
+    // pop up the bar
+    if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool())
+       showCommandBuffer("");
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
@@ -356,21 +361,20 @@ void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
 
 void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
+    //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
     if (on) {
         Core::EditorManager::instance()->showEditorStatusBar( 
             QLatin1String(Constants::MINI_BUFFER), 
             "vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.",
-            tr("Quit FakeVim"), this, SLOT(quit()));
+            tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->setupWidget();
-        //qDebug() << "SETTING" << m_editorToHandler.keys();
     } else {
         Core::EditorManager::instance()->hideEditorStatusBar(
             QLatin1String(Constants::MINI_BUFFER));
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->restoreWidget();
-        //qDebug() << "REMOVING" << m_editorToHandler.keys();
     }
 }
 
@@ -383,6 +387,16 @@ void FakeVimPluginPrivate::triggerCompletions()
         TextEditor::Internal::CompletionSupport::instance()->
             autoComplete(bt->editableInterface(), false);
    //     bt->triggerCompletions();
+}
+
+void FakeVimPluginPrivate::quitFile(bool forced)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    QList<Core::IEditor *> editors;
+    editors.append(m_editorToHandler.key(handler));
+    Core::EditorManager::instance()->closeEditors(editors, !forced);
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,
@@ -484,12 +498,8 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     } while (cur != end);
 }
 
-void FakeVimPluginPrivate::quit()
+void FakeVimPluginPrivate::quitFakeVim()
 {
-    //if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender())) {
-    //    handler->restoreWidget();
-    //    handler->deleteLater();
-    //}
     setUseFakeVim(false);
 }
 
@@ -498,7 +508,7 @@ void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
     Core::EditorManager::instance()->showEditorStatusBar( 
         QLatin1String(Constants::MINI_BUFFER), contents,
-        tr("Quit FakeVim"), this, SLOT(quit()));
+        tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
 }
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)

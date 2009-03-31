@@ -109,6 +109,16 @@ public:
     /// Returns this Symbol's file name length.
     unsigned fileNameLength() const;
 
+    unsigned startOffset() const;
+    void setStartOffset(unsigned offset);
+
+    unsigned endOffset() const;
+    void setEndOffset(unsigned offset);
+
+    void getPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
+    void getStartPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
+    void getEndPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
+
     /// Returns this Symbol's name.
     Name *name() const;
 
@@ -250,6 +260,8 @@ private:
     Control *_control;
     unsigned _sourceLocation;
     unsigned _sourceOffset;
+    unsigned _startOffset;
+    unsigned _endOffset;
     Name *_name;
     unsigned _hashCode;
     int _storage;

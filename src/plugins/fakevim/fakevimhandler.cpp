@@ -296,7 +296,6 @@ private:
     void notImplementedYet();
     void updateMiniBuffer();
     void updateSelection();
-    void quit();
     QWidget *editor() const;
     QChar characterAtCursor() const
         { return m_tc.document()->characterAt(m_tc.position()); }
@@ -479,7 +478,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         KEY_DEBUG("PASSING PLAIN KEY..." << ev->key() << ev->text());
         //if (key == ',') { // use ',,' to leave, too.
         //    qDebug() << "FINISHED...";
-        //    quit();
         //    return EventHandled;
         //}
         m_passing = false;
@@ -1695,7 +1693,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         showBlackMessage(QString());
         enterCommandMode();
     } else if (cmd == "q!" || cmd == "q") { // :q
-        quit();
+        showBlackMessage(QString());
+        q->quitRequested(cmd == "q!");
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         selectRange(beginLine, endLine);
         QString reg = reDelete.cap(2);
@@ -1799,6 +1798,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         updateMiniBuffer();
     } else if (reSet.indexIn(cmd) != -1) { // :set
+        showBlackMessage(QString());
         QString arg = reSet.cap(2);
         SavedAction *act = theFakeVimSettings()->item(arg);
         if (arg.isEmpty()) {
@@ -2452,13 +2452,6 @@ void FakeVimHandler::Private::enterExMode()
     m_mode = ExMode;
 }
 
-void FakeVimHandler::Private::quit()
-{
-    EDITOR(setCursorWidth(m_cursorWidth));
-    EDITOR(setOverwriteMode(false));
-    q->quitRequested();
-}
-
 void FakeVimHandler::Private::recordJump()
 {
     m_jumpListUndo.append(position());
@@ -2529,11 +2522,6 @@ void FakeVimHandler::restoreWidget()
 void FakeVimHandler::handleCommand(const QString &cmd)
 {
     d->handleExCommand(cmd);
-}
-
-void FakeVimHandler::quit()
-{
-    d->quit();
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

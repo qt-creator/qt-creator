@@ -416,10 +416,6 @@ void QScriptHighlighter::highlightBlock(const QString &text)
         || state == StateCCommentStart2
        ) {
         state = StateCComment;
-    } else if (state == StateString) {
-        state = StateString;
-    } else if (state == StateString2) {
-        state =  StateString2;
     } else {
         state = StateStandard;
     }
