@@ -84,7 +84,8 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
             configarguments << "CONFIG+=release";
         if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
             configarguments << "CONFIG+=debug";
-        arguments << configarguments;
+        if (!configarguments.isEmpty())
+            arguments << "-after" << configarguments;
     } else {
         arguments << "CONFIG+=debug_and_release";
     }
