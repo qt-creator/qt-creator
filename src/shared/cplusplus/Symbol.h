@@ -115,9 +115,9 @@ public:
     unsigned endOffset() const;
     void setEndOffset(unsigned offset);
 
-    void getPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
-    void getStartPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
-    void getEndPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0);
+    void getPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+    void getStartPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+    void getEndPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
 
     /// Returns this Symbol's name.
     Name *name() const;
