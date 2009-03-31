@@ -303,6 +303,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
+    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
+    klass->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
@@ -369,6 +371,8 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
 
     Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
+    e->setStartOffset(tokenAt(ast->firstToken()).offset);
+    e->setEndOffset(tokenAt(ast->lastToken()).offset);
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);

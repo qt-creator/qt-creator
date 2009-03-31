@@ -158,6 +158,8 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *
     : _control(translationUnit->control()),
       _sourceLocation(sourceLocation),
       _sourceOffset(0),
+      _startOffset(0),
+      _endOffset(0),
       _name(0),
       _hashCode(0),
       _storage(Symbol::NoStorage),
@@ -245,11 +247,32 @@ StringLiteral *Symbol::fileId() const
     return fileId;
 }
 
+void Symbol::getPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+{ translationUnit()->getPosition(_sourceOffset, line, column, fileId); }
+
+void Symbol::getStartPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+{ translationUnit()->getPosition(_startOffset, line, column, fileId); }
+
+void Symbol::getEndPosition(unsigned *line, unsigned *column, StringLiteral **fileId)
+{ translationUnit()->getPosition(_endOffset, line, column, fileId); }
+
 const char *Symbol::fileName() const
 { return fileId()->chars(); }
 
 unsigned Symbol::fileNameLength() const
 { return fileId()->size(); }
+
+unsigned Symbol::startOffset() const
+{ return _startOffset; }
+
+void Symbol::setStartOffset(unsigned offset)
+{ _startOffset = offset; }
+
+unsigned Symbol::endOffset() const
+{ return _endOffset; }
+
+void Symbol::setEndOffset(unsigned offset)
+{ _endOffset = offset; }
 
 Name *Symbol::identity() const
 {

@@ -55,6 +55,7 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Control.h"
+#include "Literals.h"
 #include <cassert>
 
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -186,6 +187,9 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
 
         Declaration *symbol = control()->newDeclaration(location, name);
+        symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+        symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
         symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
@@ -259,6 +263,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     }
 
     Function *fun = funTy->asFunctionType();
+    fun->setStartOffset(tokenAt(ast->firstToken()).offset);
+    fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
         fun->setSourceLocation(ast->declarator->firstToken());
     fun->setName(name);
@@ -335,6 +341,8 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
         sourceLocation = ast->identifier_token;
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
+    ns->setStartOffset(tokenAt(ast->firstToken()).offset);
+    ns->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
