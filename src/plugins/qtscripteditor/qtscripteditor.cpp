@@ -252,17 +252,14 @@ void ScriptEditor::updateMethodBoxIndex()
 
     int currentSymbolIndex = 0;
 
-    for (int index = 0; index < m_declarations.size(); ++index) {
-        const Declaration &d = m_declarations.at(index);
+    int index = 0;
+    while (index < m_declarations.size()) {
+        const Declaration &d = m_declarations.at(index++);
 
-        // qDebug() << line << column << d.startLine << d.startColumn << d.endLine << d.endColumn;
-
-        if (line >= d.startLine || (line == d.startLine && column > d.startColumn)) {
-            if (line < d.endLine || (line == d.endLine && column < d.endColumn)) {
-                currentSymbolIndex = index + 1;
-                break;
-            }
-        }
+        if (line < d.startLine)
+            break;
+        else
+            currentSymbolIndex = index;
     }
 
     m_methodCombo->setCurrentIndex(currentSymbolIndex);
