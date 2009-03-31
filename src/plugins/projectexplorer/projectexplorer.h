@@ -133,10 +133,13 @@ signals:
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);
     void buildQueueFinished(bool success);
+    void buildProjectOnly();
     void buildProject();
     void buildSession();
+    void rebuildProjectOnly();
     void rebuildProject();
     void rebuildSession();
+    void cleanProjectOnly();
     void cleanProject();
     void cleanSession();
     void cancelBuild();
@@ -224,10 +227,13 @@ private:
 #endif
     QAction *m_unloadAction;
     QAction *m_clearSession;
+    QAction *m_buildPrjOnlyAction;
     QAction *m_buildAction;
     QAction *m_buildSessionAction;
+    QAction *m_rebuildPrjOnlyAction;
     QAction *m_rebuildAction;
     QAction *m_rebuildSessionAction;
+    QAction *m_cleanPrjOnlyAction;
     QAction *m_cleanAction;
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
@@ -244,6 +250,7 @@ private:
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
 
+    QMenu *m_buildPrjOnlyMenu;
     QMenu *m_buildConfigurationMenu;
     QActionGroup *m_buildConfigurationActionGroup;
     QMenu *m_runConfigurationMenu;
