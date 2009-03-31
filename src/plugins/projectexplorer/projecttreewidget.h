@@ -40,6 +40,8 @@ namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 class Project;
 class Node;
+class FolderNode;
+class FileNode;
 
 namespace Internal {
 
@@ -72,6 +74,9 @@ private slots:
     void handleProjectAdded(ProjectExplorer::Project *project);
     void startupProjectChanged(ProjectExplorer::Project *project);
     void initView();
+
+    void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &);
+    void filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &);
 
 private:
     ProjectExplorerPlugin *m_explorer;

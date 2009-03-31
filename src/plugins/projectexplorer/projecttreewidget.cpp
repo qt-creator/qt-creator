@@ -119,6 +119,13 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_autoSync(false)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
+    NodesWatcher *watcher = new NodesWatcher(this);
+    m_explorer->session()->sessionNode()->registerWatcher(watcher);
+
+    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)),
+            this, SLOT(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)));
+    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)),
+            this, SLOT(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)));
 
     m_view = new ProjectTreeView;
     m_view->setModel(m_model);
@@ -163,6 +170,29 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 
     setAutoSynchronization(true);
+}
+
+void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
+{
+    Node *n = m_explorer->currentNode();
+    while(n) {
+        if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
+            if (list.contains(fn)) {
+                m_explorer->setCurrentNode(n->projectNode());
+                break;
+            }
+        }
+        n = n->parentFolderNode();
+    }
+}
+
+void ProjectTreeWidget::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
+{
+    if (FileNode *fileNode = qobject_cast<FileNode *>(m_explorer->currentNode())) {
+        if (list.contains(fileNode)) {
+            m_explorer->setCurrentNode(fileNode->projectNode());
+        }
+    }
 }
 
 QToolButton *ProjectTreeWidget::toggleSync()
