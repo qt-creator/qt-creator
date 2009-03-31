@@ -42,3 +42,5 @@ macx {
     QMAKE_EXTRA_TARGETS += html_docs qch_docs docs
 }
 
+OTHER_FILES = qtcreator.qdoc \
+              qtcreator.qdocconf
