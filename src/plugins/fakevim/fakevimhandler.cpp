@@ -1271,6 +1271,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
+        if (atEndOfLine())
+            moveLeft();
         setAnchor();
         moveRight(qMin(count(), rightDist()));
         m_registers[m_register] = removeSelectedText();
@@ -1632,7 +1634,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     QString cmd = cmd0;
     if (cmd.startsWith("%"))
         cmd = "1,$" + cmd.mid(1);
- 
+
     int beginLine = -1;
     int endLine = -1;
 
