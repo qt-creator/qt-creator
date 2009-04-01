@@ -55,6 +55,8 @@
        \o   \l{Qt Creator and Version Control Systems}
        \o   \l{Navigating Quickly Around Your Code with Locator}
        \o   \l{Debugging with Qt Creator}
+       \o   \l{CMake Support in Qt Creator}
+       \o   \l{Support for Generic Projects in Qt Creator}
        \o   \l{Tips and Tricks}
        \o   \l{Keyboard Shortcuts}
        \o   \l{Glossary}
@@ -123,6 +125,7 @@
     \gui{Build Issues}, \gui{Search Results}, \gui{Application Output}, and
     \gui{Compile Output}. These panes are available in all modes.
 
+
     \section2 Build Issues
 
     The {Build Issues} pane provides a list of issues, e.g., error messages or
@@ -130,6 +133,7 @@
     compiler and collects them in an organized way.
 
     \image qtcreator-build-issues.png
+
 
     \section2 Search Results
 
@@ -140,12 +144,14 @@
 
     \image qtcreator-search-pane.png
 
+
     \section2 Application Output
 
     The \gui{Application Output} pane displays the status of the program when
     it is executed and debug output, e.g., output from qDebug().
 
     \image qtcreator-application-output.png
+
 
     \section2 Compile
 
@@ -300,8 +306,9 @@
 
     \table
         \row
-            \i \note This page describes Qt Creator's support for qmake.
-            For CMake suppoort see the CMake page. ###TODO add link
+            \i  \note This page describes Qt Creator's support for \c qmake.
+                For information on CMake support, see
+                \l{CMake Support in Qt Creator}.
     \endtable
 
     To modify the build settings of your project, switch to the \gui{Projects}
@@ -358,6 +365,7 @@
     the checkboxes to check which of the other projects is a dependency.
 
 */
+
 
 /*!
     \contentspage index.html
@@ -453,6 +461,7 @@
         \gui{Done} and your project will be generated.
 
     \endtable
+
 */
 
 
@@ -946,7 +955,7 @@
     \contentspage index.html
     \previouspage creator-navigation.html
     \page creator-debugging.html
-    \nextpage creator-tips.html
+    \nextpage creator-cmake-support.html
 
     \title Debugging with Qt Creator
 
@@ -1256,33 +1265,33 @@
 
     \contentspage index.html
     \previouspage creator-debugging.html
-    \page creator-cmake-overview.html
+    \page creator-cmake-support.html
     \nextpage creator-tips.html
 
-    \title CMake Support
+    \title CMake Support in Qt Creator
 
-    Since Qt Creator 1.1, support for CMake project files is available.
-    
+    Since Qt Creator 1.1, support for \c CMake project files is available.
+
     \section1 Opening CMake Projects
 
-    To open a CMake project select \gui Open from the \gui File menu and select
-    the \c{CMakeLists.txt} file from your CMake project. A wizard will guide
-    you with the rest of the process. If the CMake project does not have an
-    in-place build, Qt Creator lets you specify the directory in which the
-    project is built (shadow build).
+    To open a \c CMake project select \gui Open from the \gui File menu and
+    select the \c{CMakeLists.txt} file from your \c CMake project. A wizard
+    will guide you with the rest of the process. If the \c CMake project does
+    not have an in-place build, Qt Creator lets you specify the directory in
+    which the project is built (shadow build).
 
     The screenshot below shows how you can specify command line arguments to
-    CMake for your project.
+    \c CMake for your project.
 
      ###TODO one, two pictures ? \image qtcreator-import-wizard.png
-    
+
     Normally, there is no need to pass any command line arguments for projects
-    that are already built, as CMake caches that information.
+    that are already built, as \c CMake caches that information.
 
 
     \section1 Building CMake Projects
 
-    Qt Creator builds CMake Projects by running \c make or \c mingw32-make,
+    Qt Creator builds \c CMake Projects by running \c make or \c mingw32-make,
     depending on your platform. The build errors and warnings are parsed and
     displayed in the \gui{Build Issues} output pane.
 
@@ -1297,10 +1306,31 @@
 
     \section1 Running CMake Projects
     Qt Creator automatically adds Run Configurations for all the
-    targets specified in the CMake project file.
+    targets specified in the \c CMake project file.
 
     Known issues for the current version can be found \l{Known Issues}{here}.
 */
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cmake-support.html
+    \page creator-generic-projects.html
+    \nextpage creator-tips.html
+
+    \title Support for Generic Projects in Qt Creator
+
+    Since Qt Creator 1.1, generic projects are supported, in addition to
+    \c qmake projects. In other words, you can import existing projects that
+    do not use \c qmake or \c CMake and  Qt Creator will simply ignore your
+    build system.
+
+    This feature lets you use Qt Creator as a code editor. You can build your
+    project by modifying the \c make command in the \gui{Project Settings}
+    page.
+
+*/
+
 
 
 /*!
@@ -1587,19 +1617,19 @@
            black icons and possible crashes. This was fixed in an updated
            version released 05 March 2009.
 
-        \o There is no syntax highlighting for CMake project files.
+        \o There is no syntax highlighting for \c CMake project files.
 
         \o Project files included from \c{CMakeLists.txt} are not shown in the
            navigation tree.
 
-        \o Using the Visual Studio Compiler with CMake is unsupported.
+        \o Using the Visual Studio Compiler with \c CMake is unsupported.
 
-        \o Creating new CMake projects with Qt Creator is unsupported.
+        \o Creating new \c CMake projects with Qt Creator is unsupported.
 
-        \o Having more than one build directory for CMake is not supported.
+        \o Having more than one build directory for \c CMake is not supported.
 
-        \o Changing the build directory for CMake after the initial import is
-           disabled.
+        \o Changing the build directory for \c CMake after the initial import
+           is disabled.
     \endlist
 */
 
