@@ -1453,7 +1453,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
 
         output += QString("Building debugging helper library in %1\n").arg(directory);
         output += "\n";
-        output += "Runinng qmake...\n";
+        output += QString("Runinng %1 ...\n").arg(qmakeCommand());
 
         QProcess qmake;
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
@@ -1487,7 +1487,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
         QString makeFullPath = env.searchInPath(make);
         output += "\n";
         if (!makeFullPath.isEmpty()) {
-            output += QString("Running %1...\n").arg(makeFullPath);
+            output += QString("Running %1 ...\n").arg(makeFullPath);
             qmake.start(makeFullPath, QStringList());
             qmake.waitForFinished();
             output += qmake.readAll();
