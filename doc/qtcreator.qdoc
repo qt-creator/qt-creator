@@ -1299,18 +1299,7 @@
     Qt Creator automatically adds Run Configurations for all the
     targets specified in the CMake project file.
 
-
-    \section1 Know Issues
-    \list
-      \o No syntax highlighting for CMake project files.
-      \o Project files which are included from CMakeLists.txt aren't
-         shown in the navigation tree.
-      \o Using the visual studio compiler with CMake is not yet
-         supported.
-      \o Qt Creator doesn't support creating new CMake projects.
-      \o More than one build directory is not supported.
-      \o Changing the build directory after the initial import
-         is currently disabled.
+    Known issues for the current version can be found \l{Known Issues}{here}.
 */
 
 
@@ -1571,7 +1560,8 @@
         \o Loading KDE4 designer plugins breaks the style in KDE < 4.2.1
            due to a bug in KDE.
 
-        \o Scopes in .pro files are ignored, and environment variables not expanded.
+        \o Scopes in \c{.pro} files are ignored, and environment variables not
+           expanded.
 
         \o Code completion for generated UI header files is updated only
            after a build.
@@ -1596,6 +1586,20 @@
         \o Running Qt Creator on Windows with 16 bit color depth results in
            black icons and possible crashes. This was fixed in an updated
            version released 05 March 2009.
+
+        \o There is no syntax highlighting for CMake project files.
+
+        \o Project files included from \c{CMakeLists.txt} are not shown in the
+           navigation tree.
+
+        \o Using the Visual Studio Compiler with CMake is unsupported.
+
+        \o Creating new CMake projects with Qt Creator is unsupported.
+
+        \o Having more than one build directory for CMake is not supported.
+
+        \o Changing the build directory for CMake after the initial import is
+           disabled.
     \endlist
 */
 
