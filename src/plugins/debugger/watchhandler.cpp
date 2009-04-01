@@ -202,6 +202,8 @@ QString WatchData::toString() const
          str << "parent=\"" << parentIndex << doubleQuoteComma;
     if (row != -1)
          str << "row=\"" << row << doubleQuoteComma;
+    if (childCount)
+         str << "childCount=\"" << childCount << doubleQuoteComma;
     if (const int childCount = childIndex.size()) {
         str << "child=\"";
         for (int i = 0; i < childCount; i++) {
