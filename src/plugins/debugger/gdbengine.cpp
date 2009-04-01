@@ -398,6 +398,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer has "{id="28902"}" 
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}" 
+            } else if (asyncClass == "thread-group-exited") {
+                // Archer has "{id="28902"}" 
+            } else if (asyncClass == "thread-exited") {
+                //"{id="1",group-id="28902"}" 
             #ifdef Q_OS_MAC
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs
