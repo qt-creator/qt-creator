@@ -777,37 +777,42 @@
 
     \section2 Common options
 
-    The \gui{Version Control/Common} settings page features common settings for 
-    version control systems, such as commit message line wrapping and checking options.
- 
-    \gui{Submit message checking script} is a script or program that can be used to
-    perform checks on the submit message before submitting. It is passed the 
-    submit message as first parameter. On error, it should output a message on standard error and  
-    return an exit code different from 0.
+    The \gui{Version Control/Common} settings page features common settings for
+    version control systems, such as commit message line wrapping and checking
+    options.
 
-    \gui{User/alias configuration file} takes a file in a mailmap format that lists
-    user names and aliases:
+    \gui{Submit message checking script} is a script or program that can be
+    used to perform checks on the submit message before submitting. The submit
+    message is passed in as the script's first parameter. If there is an error,
+    the script should output a message on standard error and return a non-zero
+    exit code.
+
+    \gui{User/alias configuration file} takes a file in mailmap format that
+    lists user names and aliases. For example:
 
     \code
     Jon Doe <Jon.Doe@company.com>
     Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
     \endcode
 
-    The second line specifies that the alias \e{hm} and the corresponding email address should
-    be used for \e{Hans Mustermann}. If the file is present, the submit editor will feature
-    a context menu option \gui{Insert name...} that will pop up a dialog letting the user
-    choose a name to be inserted.
+    Notice that the second line specifies the alias \e{hm} and the
+    corresponding email address for \e{Hans Mustermann}. If the user/alias
+    configuration file is present, the submit editor will display a context
+    menu with \gui{Insert name...} that will pop up a dialog letting the user
+    select a name.
 
-    \gui{User field configuration file} is a simple text file consisting of lines specifying submit message fields that take user names, for example:
+    \gui{User field configuration file} is a simple text file consisting of
+    lines specifying submit message fields that take user names, for example:
 
     \code
     Reviewed-by:
     Signed-off-by:
     \endcode
 
-    The fields will appear below the submit message. They provide completion on the 
-    aliases/public user names specified in the \e{User/alias configuration file} and an additional 
-    button that opens the aforementioned user name dialog.
+    These fields will appear below the submit message. They provide completion
+    for the aliases/public user names specified in the
+    \e{User/alias configuration file} as well as a button that opens the
+    aforementioned user name dialog.
 
 */
 
@@ -1294,18 +1299,7 @@
     Qt Creator automatically adds Run Configurations for all the
     targets specified in the CMake project file.
 
-
-    \section1 Know Issues
-    \list
-      \o No syntax highlighting for CMake project files.
-      \o Project files which are included from CMakeLists.txt aren't
-         shown in the navigation tree.
-      \o Using the visual studio compiler with CMake is not yet
-         supported.
-      \o Qt Creator doesn't support creating new CMake projects.
-      \o More than one build directory is not supported.
-      \o Changing the build directory after the initial import
-         is currently disabled.
+    Known issues for the current version can be found \l{Known Issues}{here}.
 */
 
 
@@ -1566,7 +1560,8 @@
         \o Loading KDE4 designer plugins breaks the style in KDE < 4.2.1
            due to a bug in KDE.
 
-        \o Scopes in .pro files are ignored, and environment variables not expanded.
+        \o Scopes in \c{.pro} files are ignored, and environment variables not
+           expanded.
 
         \o Code completion for generated UI header files is updated only
            after a build.
@@ -1591,6 +1586,20 @@
         \o Running Qt Creator on Windows with 16 bit color depth results in
            black icons and possible crashes. This was fixed in an updated
            version released 05 March 2009.
+
+        \o There is no syntax highlighting for CMake project files.
+
+        \o Project files included from \c{CMakeLists.txt} are not shown in the
+           navigation tree.
+
+        \o Using the Visual Studio Compiler with CMake is unsupported.
+
+        \o Creating new CMake projects with Qt Creator is unsupported.
+
+        \o Having more than one build directory for CMake is not supported.
+
+        \o Changing the build directory for CMake after the initial import is
+           disabled.
     \endlist
 */
 
