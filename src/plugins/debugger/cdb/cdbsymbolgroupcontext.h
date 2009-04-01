@@ -77,6 +77,15 @@ public:
     template <class OutputIterator>
             bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage);
 
+    bool expandTopLevel(QString *errorMessage);
+
+    enum SymbolState { LeafSymbol, ExpandedSymbol, CollapsedSymbol };
+    SymbolState symbolState(unsigned long index) const;
+    SymbolState symbolState(const QString &prefix) const;
+
+    inline bool isExpanded(unsigned long index) const   { return symbolState(index) == ExpandedSymbol; }
+    inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
+
 private:
     typedef QMap<QString, unsigned long>  NameIndexMap;
 
@@ -90,9 +99,9 @@ private:
                                  unsigned long *parentId,
                                  QString *errorMessage);
     bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
-    void populateINameIndexMap(const QString &prefix, unsigned long start, unsigned long count);
+    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);
     WatchData symbolAt(unsigned long index) const;
-    bool isExpanded(unsigned long index) const;
+    QString symbolINameAt(unsigned long index) const;
     int getDisplayableChildCount(unsigned long index) const;
 
     inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }

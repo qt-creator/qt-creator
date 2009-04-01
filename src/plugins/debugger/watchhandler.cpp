@@ -195,18 +195,22 @@ QString WatchData::toString() const
     const char *doubleQuoteComma = "\",";
     QString res;
     QTextStream str(&res);
-    str  <<"{state=\"0x" << QString::number(state, 16) << doubleQuoteComma
-         << "level=\"" << level << doubleQuoteComma
-         << "parent=\"" << parentIndex << doubleQuoteComma
-         << "row=\"" << row << doubleQuoteComma
-         << "child=\"";
-    const int childCount = childIndex.size();
-    for (int i = 0; i < childCount; i++) {
-        if (i)
-            str << ',';
-        str << childIndex.at(i);
+    str  <<"{state=\"0x" << QString::number(state, 16) << doubleQuoteComma;
+    if (level != -1)
+         str << "level=\"" << level << doubleQuoteComma;
+    if (parentIndex != -1)
+         str << "parent=\"" << parentIndex << doubleQuoteComma;
+    if (row != -1)
+         str << "row=\"" << row << doubleQuoteComma;
+    if (const int childCount = childIndex.size()) {
+        str << "child=\"";
+        for (int i = 0; i < childCount; i++) {
+            if (i)
+                str << ',';
+            str << childIndex.at(i);
+        }
+        str << doubleQuoteComma;
     }
-    str << doubleQuoteComma;
 
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
