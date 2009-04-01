@@ -29,7 +29,7 @@
 
 #include "fakevimhandler.h"
 
-// Please do not add any direct dependencies to other Qt Creator code  here. 
+// Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
@@ -185,11 +185,11 @@ QDebug &operator<<(QDebug &ts, const EditOperation &op)
 
 QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
-    foreach (QTextEdit::ExtraSelection sel, sels) 
-        ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position(); 
+    foreach (QTextEdit::ExtraSelection sel, sels)
+        ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position();
     return ts;
 }
-        
+
 int lineCount(const QString &text)
 {
     //return text.count(QChar(ParagraphSeparator));
@@ -316,7 +316,7 @@ public:
     int m_subsubdata;
     QString m_input;
     QTextCursor m_tc;
-    int m_anchor; 
+    int m_anchor;
     QHash<int, QString> m_registers;
     int m_register;
     QString m_mvcount;
@@ -525,7 +525,7 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
-    //EDITOR(setReadOnly(true)); 
+    //EDITOR(setReadOnly(true));
 
     QTextCursor tc = EDITOR(textCursor());
     if (tc.hasSelection()) {
@@ -553,7 +553,7 @@ void FakeVimHandler::Private::restoreWidget()
     EDITOR(setReadOnly(m_wasReadOnly));
     EDITOR(setCursorWidth(m_cursorWidth));
     EDITOR(setOverwriteMode(false));
-    
+
     if (m_visualMode == VisualLineMode) {
         m_tc = EDITOR(textCursor());
         int beginLine = lineForPosition(m_marks['<']);
@@ -1036,7 +1036,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'c' && m_visualMode == NoVisualMode) {
         setAnchor();
         m_submode = ChangeSubMode;
-    } else if (key == 'c' && m_visualMode == VisualCharMode) { 
+    } else if (key == 'c' && m_visualMode == VisualCharMode) {
         leaveVisualMode();
         m_submode = ChangeSubMode;
         finishMovement();
@@ -1053,7 +1053,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount = m_mvcount;
         m_mvcount.clear();
         m_submode = DeleteSubMode;
-    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualCharMode) { 
+    } else if ((key == 'd' || key == 'x') && m_visualMode == VisualCharMode) {
         leaveVisualMode();
         m_submode = DeleteSubMode;
         finishMovement();
@@ -1262,7 +1262,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ReplaceSubMode;
         m_dotCommand = "r";
     } else if (key == 'R') {
-        // FIXME: right now we repeat the insertion count() times, 
+        // FIXME: right now we repeat the insertion count() times,
         // but not the deletion
         m_lastInsertion.clear();
         m_mode = InsertMode;
@@ -1471,8 +1471,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             if (leftText.simplified().isEmpty())
                 indentRegion(text.at(0));
         }
-       
-        if (!m_inReplay) 
+
+        if (!m_inReplay)
             emit q->completionRequested();
     } else {
         return EventUnhandled;
@@ -1568,7 +1568,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         return linesInDocument();
     if (c == '\'' && !cmd.isEmpty()) {
         int mark = m_marks.value(cmd.at(0).unicode());
-        if (!mark) { 
+        if (!mark) {
             showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
             cmd = cmd.mid(1);
             return -1;
@@ -1632,7 +1632,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     QString cmd = cmd0;
     if (cmd.startsWith("%"))
         cmd = "1,$" + cmd.mid(1);
-    
+ 
     int beginLine = -1;
     int endLine = -1;
 
@@ -1664,7 +1664,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     } else if (reDelete.indexIn(cmd) != -1) { // :d
         selectRange(beginLine, endLine);
         QString reg = reDelete.cap(2);
-        QString text = removeSelectedText(); 
+        QString text = removeSelectedText();
         if (!reg.isEmpty())
             m_registers[reg.at(0).unicode()] = text;
     } else if (reWrite.indexIn(cmd) != -1) { // :w
@@ -1687,7 +1687,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             file1.close();
             QTextCursor tc = m_tc;
             selectRange(beginLine, endLine);
-            QString contents = selectedText(); 
+            QString contents = selectedText();
             m_tc = tc;
             qDebug() << "LINES: " << beginLine << endLine;
             bool handled = false;
