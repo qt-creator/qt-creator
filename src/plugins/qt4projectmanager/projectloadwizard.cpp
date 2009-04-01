@@ -164,7 +164,7 @@ void ProjectLoadWizard::done(int result)
             addBuildConfiguration("Release", 0, QtVersion::BuildAll);
         } else {
             addBuildConfiguration("Debug", 0, QtVersion::DebugBuild);
-            addBuildConfiguration("Release", 0, 0);
+            addBuildConfiguration("Release", 0, QtVersion::QmakeBuildConfig(0));
         }
     }
 
