@@ -119,6 +119,9 @@ int main(int argc, char *argv[])
         &proxy, SLOT(changeStatusData(QString)));
 
     theFakeVimSetting(ConfigUseFakeVim)->setValue(true);
+    theFakeVimSetting(ConfigShiftWidth)->setValue(8);
+    theFakeVimSetting(ConfigTabStop)->setValue(8);
+
     handler.installEventFilter();
     handler.setupWidget();
     if (args.size() >= 1)
