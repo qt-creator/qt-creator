@@ -85,7 +85,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
         if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
             configarguments << "CONFIG+=debug";
         if (!configarguments.isEmpty())
-            arguments << "-after" << configarguments;
+            arguments << configarguments;
     } else {
         arguments << "CONFIG+=debug_and_release";
     }
