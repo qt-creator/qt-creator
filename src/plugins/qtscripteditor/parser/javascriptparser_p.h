@@ -59,14 +59,15 @@
 // Changes will be lost.
 //
 
-#ifndef JAVAJAVASCRIPTPARSER_P_H
-#define JAVAJAVASCRIPTPARSER_P_H
+#ifndef JAVASCRIPTPARSER_P_H
+#define JAVASCRIPTPARSER_P_H
 
 #include "javascriptgrammar_p.h"
 
-#ifndef QT_NO_JAVASCRIPT
+
 
 #include "javascriptastfwd_p.h"
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -112,18 +113,48 @@ public:
       int endColumn;
     };
 
+    struct DiagnosticMessage {
+        enum Kind { Warning, Error };
+
+        DiagnosticMessage()
+            : kind(Error), line(0), column(0) {}
+
+        DiagnosticMessage(Kind kind, int line, int column, const QString &message)
+            : kind(kind), line(line), column(column), message(message) {}
+
+        Kind kind;
+        int line;
+        int column;
+        QString message;
+    };
+
 public:
     JavaScriptParser();
     ~JavaScriptParser();
 
     bool parse(JavaScriptEnginePrivate *driver);
 
+    QList<DiagnosticMessage> diagnosticMessages() const
+    { return diagnostic_messages; }
+
+    inline DiagnosticMessage diagnosticMessage() const
+    {
+        foreach (const DiagnosticMessage &d, diagnostic_messages) {
+            if (! d.kind == DiagnosticMessage::Warning)
+                return d;
+        }
+
+        return DiagnosticMessage();
+    }
+
     inline QString errorMessage() const
-    { return error_message; }
+    { return diagnosticMessage().message; }
+
     inline int errorLineNumber() const
-    { return error_lineno; }
+    { return diagnosticMessage().line; }
+
     inline int errorColumnNumber() const
-    { return error_column; }
+    { return diagnosticMessage().column; }
 
 protected:
     inline void reallocateStack();
@@ -140,9 +171,24 @@ protected:
     Value *sym_stack;
     int *state_stack;
     Location *location_stack;
-    QString error_message;
-    int error_lineno;
-    int error_column;
+
+    // error recovery
+    enum { TOKEN_BUFFER_SIZE = 3 };
+
+    struct SavedToken {
+       int token;
+       double dval;
+       Location loc;
+    };
+
+    double yylval;
+    Location yylloc;
+
+    SavedToken token_buffer[TOKEN_BUFFER_SIZE];
+    SavedToken *first_token;
+    SavedToken *last_token;
+
+    QList<DiagnosticMessage> diagnostic_messages;
 };
 
 inline void JavaScriptParser::reallocateStack()
@@ -158,18 +204,18 @@ inline void JavaScriptParser::reallocateStack()
 }
 
 
-#line 472 "./javascript.g"
+#line 510 "./javascript.g"
 
-#define Q_JAVASCRIPT_REGEXPLITERAL_RULE1 7
+#define J_SCRIPT_REGEXPLITERAL_RULE1 7
 
-#line 490 "./javascript.g"
+#line 527 "./javascript.g"
 
-#define Q_JAVASCRIPT_REGEXPLITERAL_RULE2 8
+#define J_SCRIPT_REGEXPLITERAL_RULE2 8
 
-#line 2117 "./javascript.g"
+#line 2190 "./javascript.g"
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_JAVASCRIPT
 
-#endif // JAVAJAVASCRIPTPARSER_P_H
+
+#endif // JAVASCRIPTPARSER_P_H

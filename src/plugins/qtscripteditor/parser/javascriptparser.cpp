@@ -45,7 +45,7 @@
 
 #include <QtCore/QtDebug>
 
-#ifndef QT_NO_JAVASCRIPT
+
 
 #include <string.h>
 
@@ -59,7 +59,7 @@
 #include "javascriptast_p.h"
 #include "javascriptnodepool_p.h"
 
-#define Q_JAVASCRIPT_UPDATE_POSITION(node, startloc, endloc) do { \
+#define J_SCRIPT_UPDATE_POSITION(node, startloc, endloc) do { \
     node->startLine = startloc.startLine; \
     node->startColumn = startloc.startColumn; \
     node->endLine = endloc.endLine; \
@@ -67,7 +67,7 @@
 } while (0)
 
 
-#line 310 "./javascript.g"
+#line 356 "./javascript.g"
 
 
 #include "javascriptparser_p.h"
@@ -93,8 +93,8 @@ JavaScriptParser::JavaScriptParser():
     sym_stack(0),
     state_stack(0),
     location_stack(0),
-    error_lineno(0),
-    error_column(0)
+    first_token(0),
+    last_token(0)
 {
 }
 
@@ -119,1463 +119,1490 @@ static inline JavaScriptParser::Location location(JavaScript::Lexer *lexer)
 
 bool JavaScriptParser::parse(JavaScriptEnginePrivate *driver)
 {
-  const int INITIAL_STATE = 0;
-  JavaScript::Lexer *lexer = driver->lexer();
+    JavaScript::Lexer *lexer = driver->lexer();
+    bool hadErrors = false;
+    int yytoken = -1;
+    int action = 0;
 
-  int yytoken = -1;
-  int saved_yytoken = -1;
+    first_token = last_token = 0;
 
-  reallocateStack();
+    tos = -1;
 
-  tos = 0;
-  state_stack[++tos] = INITIAL_STATE;
-
-  while (true)
-    {
-      const int state = state_stack [tos];
-      if (yytoken == -1 && - TERMINAL_COUNT != action_index [state])
-        {
-          if (saved_yytoken == -1)
-            {
-              yytoken = lexer->lex();
-              location_stack [tos] = location(lexer);
-            }
-          else
-            {
-              yytoken = saved_yytoken;
-              saved_yytoken = -1;
-            }
-        }
-
-      int act = t_action (state, yytoken);
-
-      if (act == ACCEPT_STATE)
-        return true;
-
-      else if (act > 0)
-        {
-          if (++tos == stack_size)
+    do {
+        if (++tos == stack_size)
             reallocateStack();
 
-          sym_stack [tos].dval = lexer->dval ();
-          state_stack [tos] = act;
-          location_stack [tos] = location(lexer);
-          yytoken = -1;
+        state_stack[tos] = action;
+
+    _Lcheck_token:
+        if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
+            if (first_token == last_token) {
+                yytoken = lexer->lex();
+                yylval = lexer->dval();
+                yylloc = location(lexer);
+            } else {
+                yytoken = first_token->token;
+                yylval = first_token->dval;
+                yylloc = first_token->loc;
+                ++first_token;
+            }
         }
 
-      else if (act < 0)
-        {
-          int r = - act - 1;
-
-          tos -= rhs [r];
-          act = state_stack [tos++];
+        action = t_action(action, yytoken);
+        if (action > 0) {
+            if (action != ACCEPT_STATE) {
+                yytoken = -1;
+                sym(1).dval = yylval;
+                loc(1) = yylloc;
+            } else {
+              --tos;
+              return ! hadErrors;
+            }
+        } else if (action < 0) {
+          const int r = -action - 1;
+          tos -= rhs[r];
 
           switch (r) {
 
-#line 416 "./javascript.g"
+#line 454 "./javascript.g"
 
 case 0: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ThisExpression> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 424 "./javascript.g"
+#line 462 "./javascript.g"
 
 case 1: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IdentifierExpression> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 432 "./javascript.g"
+#line 470 "./javascript.g"
 
 case 2: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NullExpression> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 440 "./javascript.g"
+#line 478 "./javascript.g"
 
 case 3: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TrueLiteral> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 448 "./javascript.g"
+#line 486 "./javascript.g"
 
 case 4: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FalseLiteral> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 456 "./javascript.g"
+#line 494 "./javascript.g"
 
 case 5: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NumericLiteral> (driver->nodePool(), sym(1).dval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 464 "./javascript.g"
+#line 502 "./javascript.g"
 
 case 6: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StringLiteral> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 475 "./javascript.g"
+#line 513 "./javascript.g"
 
 case 7: {
   bool rx = lexer->scanRegExp(JavaScript::Lexer::NoPrefix);
   if (!rx) {
-      error_message = lexer->errorMessage();
-      error_lineno = lexer->startLineNo();
-      error_column = lexer->startColumnNo();
+    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, lexer->startLineNo(),
+        lexer->startColumnNo(), lexer->errorMessage()));
       return false;
   }
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 493 "./javascript.g"
+#line 530 "./javascript.g"
 
 case 8: {
   bool rx = lexer->scanRegExp(JavaScript::Lexer::EqualPrefix);
   if (!rx) {
-      error_message = lexer->errorMessage();
-      error_lineno = lexer->startLineNo();
-      error_column = lexer->startColumnNo();
+    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, lexer->startLineNo(),
+        lexer->startColumnNo(), lexer->errorMessage()));
       return false;
   }
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 508 "./javascript.g"
+#line 544 "./javascript.g"
 
 case 9: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).Elision);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 516 "./javascript.g"
+#line 552 "./javascript.g"
 
 case 10: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish ());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 524 "./javascript.g"
+#line 560 "./javascript.g"
 
 case 11: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish (), sym(4).Elision);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 540 "./javascript.g"
+#line 576 "./javascript.g"
 
 case 12: {
   if (sym(2).Node)
     sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ObjectLiteral> (driver->nodePool(), sym(2).PropertyNameAndValueList->finish ());
   else
     sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ObjectLiteral> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 551 "./javascript.g"
+#line 587 "./javascript.g"
 
 case 13: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ObjectLiteral> (driver->nodePool(), sym(2).PropertyNameAndValueList->finish ());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 559 "./javascript.g"
+#line 595 "./javascript.g"
 
 case 14: {
   sym(1) = sym(2);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 567 "./javascript.g"
+#line 603 "./javascript.g"
 
 case 15: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ElementList> (driver->nodePool(), sym(1).Elision, sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 575 "./javascript.g"
+#line 611 "./javascript.g"
 
 case 16: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ElementList> (driver->nodePool(), sym(1).ElementList, sym(3).Elision, sym(4).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 583 "./javascript.g"
+#line 619 "./javascript.g"
 
 case 17: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Elision> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 591 "./javascript.g"
+#line 627 "./javascript.g"
 
 case 18: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Elision> (driver->nodePool(), sym(1).Elision);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 599 "./javascript.g"
+#line 635 "./javascript.g"
 
 case 19: {
   sym(1).Node = 0;
 } break;
 
-#line 606 "./javascript.g"
+#line 642 "./javascript.g"
 
 case 20: {
   sym(1).Elision = sym(1).Elision->finish ();
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 614 "./javascript.g"
+#line 650 "./javascript.g"
 
 case 21: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PropertyNameAndValueList> (driver->nodePool(), sym(1).PropertyName, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 622 "./javascript.g"
+#line 658 "./javascript.g"
 
 case 22: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PropertyNameAndValueList> (driver->nodePool(), sym(1).PropertyNameAndValueList, sym(3).PropertyName, sym(5).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
-
-#line 630 "./javascript.g"
-
-case 23: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
-} break;
-
-#line 638 "./javascript.g"
-
-case 24: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StringLiteralPropertyName> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
-} break;
-
-#line 646 "./javascript.g"
-
-case 25: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NumericLiteralPropertyName> (driver->nodePool(), sym(1).dval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
-} break;
-
-#line 654 "./javascript.g"
-
-case 26: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
-} break;
-
-#line 662 "./javascript.g"
-
-case 27:
 
 #line 666 "./javascript.g"
 
-case 28:
-
-#line 670 "./javascript.g"
-
-case 29:
+case 23: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+} break;
 
 #line 674 "./javascript.g"
 
-case 30:
-
-#line 678 "./javascript.g"
-
-case 31:
+case 24: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StringLiteralPropertyName> (driver->nodePool(), sym(1).sval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+} break;
 
 #line 682 "./javascript.g"
 
-case 32:
-
-#line 686 "./javascript.g"
-
-case 33:
+case 25: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NumericLiteralPropertyName> (driver->nodePool(), sym(1).dval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+} break;
 
 #line 690 "./javascript.g"
 
-case 34:
-
-#line 694 "./javascript.g"
-
-case 35:
+case 26: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+} break;
 
 #line 698 "./javascript.g"
 
-case 36:
+case 27:
 
 #line 702 "./javascript.g"
 
-case 37:
+case 28:
 
 #line 706 "./javascript.g"
 
-case 38:
+case 29:
 
 #line 710 "./javascript.g"
 
-case 39:
+case 30:
 
 #line 714 "./javascript.g"
 
-case 40:
+case 31:
 
 #line 718 "./javascript.g"
 
-case 41:
+case 32:
 
 #line 722 "./javascript.g"
 
-case 42:
+case 33:
 
 #line 726 "./javascript.g"
 
-case 43:
+case 34:
 
 #line 730 "./javascript.g"
 
-case 44:
+case 35:
 
 #line 734 "./javascript.g"
 
-case 45:
+case 36:
 
 #line 738 "./javascript.g"
 
-case 46:
+case 37:
 
 #line 742 "./javascript.g"
 
-case 47:
+case 38:
 
 #line 746 "./javascript.g"
 
-case 48:
+case 39:
 
 #line 750 "./javascript.g"
 
-case 49:
+case 40:
 
 #line 754 "./javascript.g"
 
-case 50:
+case 41:
 
 #line 758 "./javascript.g"
 
-case 51:
+case 42:
 
 #line 762 "./javascript.g"
 
-case 52:
+case 43:
 
 #line 766 "./javascript.g"
 
-case 53:
+case 44:
 
 #line 770 "./javascript.g"
 
-case 54:
+case 45:
 
 #line 774 "./javascript.g"
 
-case 55:
+case 46:
 
 #line 778 "./javascript.g"
 
-case 56:
+case 47:
 
 #line 782 "./javascript.g"
+
+case 48:
+
+#line 786 "./javascript.g"
+
+case 49:
+
+#line 790 "./javascript.g"
+
+case 50:
+
+#line 794 "./javascript.g"
+
+case 51:
+
+#line 798 "./javascript.g"
+
+case 52:
+
+#line 802 "./javascript.g"
+
+case 53:
+
+#line 806 "./javascript.g"
+
+case 54:
+
+#line 810 "./javascript.g"
+
+case 55:
+
+#line 814 "./javascript.g"
+
+case 56:
+
+#line 818 "./javascript.g"
 
 case 57:
 {
   sym(1).sval = driver->intern(lexer->characterBuffer(), lexer->characterCount());
 } break;
 
-#line 796 "./javascript.g"
+#line 832 "./javascript.g"
 
 case 62: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 804 "./javascript.g"
+#line 840 "./javascript.g"
 
 case 63: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 812 "./javascript.g"
+#line 848 "./javascript.g"
 
 case 64: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NewMemberExpression> (driver->nodePool(), sym(2).Expression, sym(3).ArgumentList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 822 "./javascript.g"
+#line 858 "./javascript.g"
 
 case 66: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NewExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 830 "./javascript.g"
+#line 866 "./javascript.g"
 
 case 67: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(2).ArgumentList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 838 "./javascript.g"
+#line 874 "./javascript.g"
 
 case 68: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(2).ArgumentList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 846 "./javascript.g"
+#line 882 "./javascript.g"
 
 case 69: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 854 "./javascript.g"
+#line 890 "./javascript.g"
 
 case 70: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 862 "./javascript.g"
+#line 898 "./javascript.g"
 
 case 71: {
   sym(1).Node = 0;
 } break;
 
-#line 869 "./javascript.g"
+#line 905 "./javascript.g"
 
 case 72: {
   sym(1).Node = sym(2).ArgumentList->finish ();
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 877 "./javascript.g"
+#line 913 "./javascript.g"
 
 case 73: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArgumentList> (driver->nodePool(), sym(1).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 885 "./javascript.g"
+#line 921 "./javascript.g"
 
 case 74: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ArgumentList> (driver->nodePool(), sym(1).ArgumentList, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 897 "./javascript.g"
+#line 933 "./javascript.g"
 
 case 78: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PostIncrementExpression> (driver->nodePool(), sym(1).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 905 "./javascript.g"
+#line 941 "./javascript.g"
 
 case 79: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PostDecrementExpression> (driver->nodePool(), sym(1).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 915 "./javascript.g"
+#line 951 "./javascript.g"
 
 case 81: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::DeleteExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 923 "./javascript.g"
+#line 959 "./javascript.g"
 
 case 82: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VoidExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 931 "./javascript.g"
+#line 967 "./javascript.g"
 
 case 83: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TypeOfExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 939 "./javascript.g"
+#line 975 "./javascript.g"
 
 case 84: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PreIncrementExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 947 "./javascript.g"
+#line 983 "./javascript.g"
 
 case 85: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::PreDecrementExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 955 "./javascript.g"
+#line 991 "./javascript.g"
 
 case 86: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::UnaryPlusExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 963 "./javascript.g"
+#line 999 "./javascript.g"
 
 case 87: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::UnaryMinusExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 971 "./javascript.g"
+#line 1007 "./javascript.g"
 
 case 88: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TildeExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
-} break;
-
-#line 979 "./javascript.g"
-
-case 89: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NotExpression> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
-} break;
-
-#line 989 "./javascript.g"
-
-case 91: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mul, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 997 "./javascript.g"
-
-case 92: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Div, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1005 "./javascript.g"
-
-case 93: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mod, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 #line 1015 "./javascript.g"
 
-case 95: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Add, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 89: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::NotExpression> (driver->nodePool(), sym(2).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1023 "./javascript.g"
+#line 1025 "./javascript.g"
 
-case 96: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Sub, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 91: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mul, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 #line 1033 "./javascript.g"
 
-case 98: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::LShift, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 92: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Div, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 #line 1041 "./javascript.g"
 
-case 99: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::RShift, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 93: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mod, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1049 "./javascript.g"
+#line 1051 "./javascript.g"
 
-case 100: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::URShift, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 95: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Add, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 #line 1059 "./javascript.g"
 
-case 102: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Lt, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 96: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Sub, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1067 "./javascript.g"
+#line 1069 "./javascript.g"
+
+case 98: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::LShift, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1077 "./javascript.g"
+
+case 99: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::RShift, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1085 "./javascript.g"
+
+case 100: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::URShift, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1095 "./javascript.g"
+
+case 102: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Lt, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1103 "./javascript.g"
 
 case 103: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Gt, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1075 "./javascript.g"
+#line 1111 "./javascript.g"
 
 case 104: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Le, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1083 "./javascript.g"
+#line 1119 "./javascript.g"
 
 case 105: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Ge, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1091 "./javascript.g"
+#line 1127 "./javascript.g"
 
 case 106: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::InstanceOf, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1099 "./javascript.g"
+#line 1135 "./javascript.g"
 
 case 107: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::In, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1109 "./javascript.g"
+#line 1145 "./javascript.g"
 
 case 109: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Lt, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1117 "./javascript.g"
+#line 1153 "./javascript.g"
 
 case 110: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Gt, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1125 "./javascript.g"
+#line 1161 "./javascript.g"
 
 case 111: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Le, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1133 "./javascript.g"
+#line 1169 "./javascript.g"
 
 case 112: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Ge, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1141 "./javascript.g"
+#line 1177 "./javascript.g"
 
 case 113: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::InstanceOf, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1151 "./javascript.g"
+#line 1187 "./javascript.g"
 
 case 115: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Equal, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1159 "./javascript.g"
+#line 1195 "./javascript.g"
 
 case 116: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::NotEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1167 "./javascript.g"
+#line 1203 "./javascript.g"
 
 case 117: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1175 "./javascript.g"
+#line 1211 "./javascript.g"
 
 case 118: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictNotEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1185 "./javascript.g"
+#line 1221 "./javascript.g"
 
 case 120: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Equal, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1193 "./javascript.g"
-
-case 121: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::NotEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1201 "./javascript.g"
-
-case 122: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1209 "./javascript.g"
-
-case 123: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictNotEqual, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1219 "./javascript.g"
-
-case 125: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 #line 1229 "./javascript.g"
 
-case 127: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 121: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::NotEqual, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1239 "./javascript.g"
+#line 1237 "./javascript.g"
+
+case 122: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictEqual, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1245 "./javascript.g"
+
+case 123: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictNotEqual, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1255 "./javascript.g"
+
+case 125: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1265 "./javascript.g"
+
+case 127: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1275 "./javascript.g"
 
 case 129: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitXor, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1249 "./javascript.g"
+#line 1285 "./javascript.g"
 
 case 131: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitXor, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1259 "./javascript.g"
+#line 1295 "./javascript.g"
 
 case 133: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitOr, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1269 "./javascript.g"
+#line 1305 "./javascript.g"
 
 case 135: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitOr, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1279 "./javascript.g"
+#line 1315 "./javascript.g"
 
 case 137: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::And, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1289 "./javascript.g"
+#line 1325 "./javascript.g"
 
 case 139: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::And, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1299 "./javascript.g"
+#line 1335 "./javascript.g"
 
 case 141: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Or, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1309 "./javascript.g"
+#line 1345 "./javascript.g"
 
 case 143: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Or, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1319 "./javascript.g"
+#line 1355 "./javascript.g"
 
 case 145: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression, sym(5).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1329 "./javascript.g"
+#line 1365 "./javascript.g"
 
 case 147: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression, sym(5).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1339 "./javascript.g"
+#line 1375 "./javascript.g"
 
 case 149: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, sym(2).ival, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1349 "./javascript.g"
+#line 1385 "./javascript.g"
 
 case 151: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, sym(2).ival, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1357 "./javascript.g"
+#line 1393 "./javascript.g"
 
 case 152: {
   sym(1).ival = QSOperator::Assign;
 } break;
 
-#line 1364 "./javascript.g"
+#line 1400 "./javascript.g"
 
 case 153: {
   sym(1).ival = QSOperator::InplaceMul;
 } break;
 
-#line 1371 "./javascript.g"
+#line 1407 "./javascript.g"
 
 case 154: {
   sym(1).ival = QSOperator::InplaceDiv;
 } break;
 
-#line 1378 "./javascript.g"
+#line 1414 "./javascript.g"
 
 case 155: {
   sym(1).ival = QSOperator::InplaceMod;
 } break;
 
-#line 1385 "./javascript.g"
+#line 1421 "./javascript.g"
 
 case 156: {
   sym(1).ival = QSOperator::InplaceAdd;
 } break;
 
-#line 1392 "./javascript.g"
+#line 1428 "./javascript.g"
 
 case 157: {
   sym(1).ival = QSOperator::InplaceSub;
 } break;
 
-#line 1399 "./javascript.g"
+#line 1435 "./javascript.g"
 
 case 158: {
   sym(1).ival = QSOperator::InplaceLeftShift;
 } break;
 
-#line 1406 "./javascript.g"
+#line 1442 "./javascript.g"
 
 case 159: {
   sym(1).ival = QSOperator::InplaceRightShift;
 } break;
 
-#line 1413 "./javascript.g"
+#line 1449 "./javascript.g"
 
 case 160: {
   sym(1).ival = QSOperator::InplaceURightShift;
 } break;
 
-#line 1420 "./javascript.g"
+#line 1456 "./javascript.g"
 
 case 161: {
   sym(1).ival = QSOperator::InplaceAnd;
 } break;
 
-#line 1427 "./javascript.g"
+#line 1463 "./javascript.g"
 
 case 162: {
   sym(1).ival = QSOperator::InplaceXor;
 } break;
 
-#line 1434 "./javascript.g"
+#line 1470 "./javascript.g"
 
 case 163: {
   sym(1).ival = QSOperator::InplaceOr;
 } break;
 
-#line 1443 "./javascript.g"
+#line 1479 "./javascript.g"
 
 case 165: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1451 "./javascript.g"
+#line 1487 "./javascript.g"
 
 case 166: {
   sym(1).Node = 0;
 } break;
 
-#line 1462 "./javascript.g"
+#line 1498 "./javascript.g"
 
 case 169: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1470 "./javascript.g"
+#line 1506 "./javascript.g"
 
 case 170: {
   sym(1).Node = 0;
 } break;
 
-#line 1496 "./javascript.g"
+#line 1532 "./javascript.g"
 
 case 187: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Block> (driver->nodePool(), sym(2).StatementList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1504 "./javascript.g"
+#line 1540 "./javascript.g"
 
 case 188: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StatementList> (driver->nodePool(), sym(1).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1512 "./javascript.g"
+#line 1548 "./javascript.g"
 
 case 189: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StatementList> (driver->nodePool(), sym(1).StatementList, sym(2).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1520 "./javascript.g"
+#line 1556 "./javascript.g"
 
 case 190: {
   sym(1).Node = 0;
 } break;
 
-#line 1527 "./javascript.g"
+#line 1563 "./javascript.g"
 
 case 191: {
   sym(1).Node = sym(1).StatementList->finish ();
 } break;
 
-#line 1535 "./javascript.g"
+#line 1571 "./javascript.g"
 
 case 193: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableStatement> (driver->nodePool(), sym(2).VariableDeclarationList->finish (/*readOnly=*/sym(1).ival == T_CONST));
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1543 "./javascript.g"
+#line 1579 "./javascript.g"
 
 case 194: {
   sym(1).ival = T_CONST;
 } break;
 
-#line 1550 "./javascript.g"
+#line 1586 "./javascript.g"
 
 case 195: {
   sym(1).ival = T_VAR;
 } break;
 
-#line 1557 "./javascript.g"
+#line 1593 "./javascript.g"
 
 case 196: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1565 "./javascript.g"
+#line 1601 "./javascript.g"
 
 case 197: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1573 "./javascript.g"
+#line 1609 "./javascript.g"
 
 case 198: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1581 "./javascript.g"
+#line 1617 "./javascript.g"
 
 case 199: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1589 "./javascript.g"
+#line 1625 "./javascript.g"
 
 case 200: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1597 "./javascript.g"
+#line 1633 "./javascript.g"
 
 case 201: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1605 "./javascript.g"
+#line 1641 "./javascript.g"
 
 case 202: {
   sym(1) = sym(2);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1613 "./javascript.g"
+#line 1649 "./javascript.g"
 
 case 203: {
   sym(1).Node = 0;
 } break;
 
-#line 1622 "./javascript.g"
+#line 1658 "./javascript.g"
 
 case 205: {
   sym(1) = sym(2);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1630 "./javascript.g"
+#line 1666 "./javascript.g"
 
 case 206: {
   sym(1).Node = 0;
 } break;
 
-#line 1639 "./javascript.g"
+#line 1675 "./javascript.g"
 
 case 208: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::EmptyStatement> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1648 "./javascript.g"
+#line 1684 "./javascript.g"
 
 case 210: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ExpressionStatement> (driver->nodePool(), sym(1).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1656 "./javascript.g"
+#line 1692 "./javascript.g"
 
 case 211: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement, sym(7).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
-#line 1664 "./javascript.g"
+#line 1700 "./javascript.g"
 
 case 212: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1674 "./javascript.g"
+#line 1710 "./javascript.g"
 
 case 214: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::DoWhileStatement> (driver->nodePool(), sym(2).Statement, sym(5).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
-#line 1682 "./javascript.g"
+#line 1718 "./javascript.g"
 
 case 215: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::WhileStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1690 "./javascript.g"
+#line 1726 "./javascript.g"
 
 case 216: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ForStatement> (driver->nodePool(), sym(3).Expression, sym(5).Expression, sym(7).Expression, sym(9).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(9));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(9));
 } break;
 
-#line 1698 "./javascript.g"
+#line 1734 "./javascript.g"
 
 case 217: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::LocalForStatement> (driver->nodePool(), sym(4).VariableDeclarationList->finish (/*readOnly=*/false), sym(6).Expression, sym(8).Expression, sym(10).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(10));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(10));
 } break;
 
-#line 1706 "./javascript.g"
+#line 1742 "./javascript.g"
 
 case 218: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ForEachStatement> (driver->nodePool(), sym(3).Expression, sym(5).Expression, sym(7).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
-} break;
-
-#line 1714 "./javascript.g"
-
-case 219: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::LocalForEachStatement> (driver->nodePool(), sym(4).VariableDeclaration, sym(6).Expression, sym(8).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
-} break;
-
-#line 1723 "./javascript.g"
-
-case 221: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ContinueStatement> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
-} break;
-
-#line 1732 "./javascript.g"
-
-case 223: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ContinueStatement> (driver->nodePool(), sym(2).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
-} break;
-
-#line 1741 "./javascript.g"
-
-case 225: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BreakStatement> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
 #line 1750 "./javascript.g"
 
-case 227: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BreakStatement> (driver->nodePool(), sym(2).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 219: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::LocalForEachStatement> (driver->nodePool(), sym(4).VariableDeclaration, sym(6).Expression, sym(8).Statement);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
 #line 1759 "./javascript.g"
 
-case 229: {
-  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ReturnStatement> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+case 221: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ContinueStatement> (driver->nodePool());
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1767 "./javascript.g"
+#line 1768 "./javascript.g"
+
+case 223: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ContinueStatement> (driver->nodePool(), sym(2).sval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1777 "./javascript.g"
+
+case 225: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BreakStatement> (driver->nodePool());
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+} break;
+
+#line 1786 "./javascript.g"
+
+case 227: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::BreakStatement> (driver->nodePool(), sym(2).sval);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1795 "./javascript.g"
+
+case 229: {
+  sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ReturnStatement> (driver->nodePool(), sym(2).Expression);
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+} break;
+
+#line 1803 "./javascript.g"
 
 case 230: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::WithStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1775 "./javascript.g"
+#line 1811 "./javascript.g"
 
 case 231: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::SwitchStatement> (driver->nodePool(), sym(3).Expression, sym(5).CaseBlock);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1783 "./javascript.g"
+#line 1819 "./javascript.g"
 
 case 232: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1791 "./javascript.g"
+#line 1827 "./javascript.g"
 
 case 233: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses, sym(3).DefaultClause, sym(4).CaseClauses);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1799 "./javascript.g"
+#line 1835 "./javascript.g"
 
 case 234: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CaseClauses> (driver->nodePool(), sym(1).CaseClause);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1807 "./javascript.g"
+#line 1843 "./javascript.g"
 
 case 235: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CaseClauses> (driver->nodePool(), sym(1).CaseClauses, sym(2).CaseClause);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1815 "./javascript.g"
+#line 1851 "./javascript.g"
 
 case 236: {
   sym(1).Node = 0;
 } break;
 
-#line 1822 "./javascript.g"
+#line 1858 "./javascript.g"
 
 case 237: {
   sym(1).Node = sym(1).CaseClauses->finish ();
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1830 "./javascript.g"
+#line 1866 "./javascript.g"
 
 case 238: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::CaseClause> (driver->nodePool(), sym(2).Expression, sym(4).StatementList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 1838 "./javascript.g"
+#line 1874 "./javascript.g"
 
 case 239: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::DefaultClause> (driver->nodePool(), sym(3).StatementList);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1846 "./javascript.g"
+#line 1882 "./javascript.g"
 
 case 240: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::LabelledStatement> (driver->nodePool(), sym(1).sval, sym(3).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1855 "./javascript.g"
+#line 1891 "./javascript.g"
 
 case 242: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::ThrowStatement> (driver->nodePool(), sym(2).Expression);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1863 "./javascript.g"
+#line 1899 "./javascript.g"
 
 case 243: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1871 "./javascript.g"
+#line 1907 "./javascript.g"
 
 case 244: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Finally);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1879 "./javascript.g"
+#line 1915 "./javascript.g"
 
 case 245: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch, sym(4).Finally);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
-#line 1887 "./javascript.g"
+#line 1923 "./javascript.g"
 
 case 246: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Catch> (driver->nodePool(), sym(3).sval, sym(5).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
-#line 1895 "./javascript.g"
+#line 1931 "./javascript.g"
 
 case 247: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Finally> (driver->nodePool(), sym(2).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 1904 "./javascript.g"
+#line 1940 "./javascript.g"
 
 case 249: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::DebuggerStatement> (driver->nodePool());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1912 "./javascript.g"
+#line 1948 "./javascript.g"
 
 case 250: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FunctionDeclaration> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
-#line 1920 "./javascript.g"
+#line 1956 "./javascript.g"
 
 case 251: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FunctionExpression> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
-#line 1928 "./javascript.g"
+#line 1964 "./javascript.g"
 
 case 252: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FormalParameterList> (driver->nodePool(), sym(1).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1936 "./javascript.g"
+#line 1972 "./javascript.g"
 
 case 253: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FormalParameterList> (driver->nodePool(), sym(1).FormalParameterList, sym(3).sval);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
-#line 1944 "./javascript.g"
+#line 1980 "./javascript.g"
 
 case 254: {
   sym(1).Node = 0;
 } break;
 
-#line 1951 "./javascript.g"
+#line 1987 "./javascript.g"
 
 case 255: {
   sym(1).Node = sym(1).FormalParameterList->finish ();
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1959 "./javascript.g"
+#line 1995 "./javascript.g"
 
 case 256: {
   sym(1).Node = 0;
 } break;
 
-#line 1968 "./javascript.g"
+#line 2004 "./javascript.g"
 
 case 258: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FunctionBody> (driver->nodePool(), sym(1).SourceElements->finish ());
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1976 "./javascript.g"
+#line 2012 "./javascript.g"
 
 case 259: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::Program> (driver->nodePool(), sym(1).SourceElements->finish ());
   driver->changeAbstractSyntaxTree(sym(1).Node);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1985 "./javascript.g"
+#line 2021 "./javascript.g"
 
 case 260: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::SourceElements> (driver->nodePool(), sym(1).SourceElement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 1993 "./javascript.g"
+#line 2029 "./javascript.g"
 
 case 261: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::SourceElements> (driver->nodePool(), sym(1).SourceElements, sym(2).SourceElement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
-#line 2001 "./javascript.g"
+#line 2037 "./javascript.g"
 
 case 262: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::StatementSourceElement> (driver->nodePool(), sym(1).Statement);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 2009 "./javascript.g"
+#line 2045 "./javascript.g"
 
 case 263: {
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::FunctionSourceElement> (driver->nodePool(), sym(1).FunctionDeclaration);
-  Q_JAVASCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
+  J_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
-#line 2017 "./javascript.g"
+#line 2053 "./javascript.g"
 
 case 264: {
   sym(1).sval = 0;
 } break;
 
-#line 2026 "./javascript.g"
+#line 2062 "./javascript.g"
 
 case 266: {
   sym(1).Node = 0;
 } break;
 
-#line 2034 "./javascript.g"
+#line 2070 "./javascript.g"
 
-          } // switch
+            } // switch
+            action = nt_action(state_stack[tos], lhs[r] - TERMINAL_COUNT);
+        } // if
+    } while (action != 0);
 
-          state_stack [tos] = nt_action (act, lhs [r] - TERMINAL_COUNT);
+    if (first_token == last_token) {
+        const int errorState = state_stack[tos];
 
-          if (rhs[r] > 1) {
-              location_stack[tos - 1].endLine = location_stack[tos + rhs[r] - 2].endLine;
-              location_stack[tos - 1].endColumn = location_stack[tos + rhs[r] - 2].endColumn;
-              location_stack[tos] = location_stack[tos + rhs[r] - 1];
-          }
+        // automatic insertion of `;'
+        if (t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
+            SavedToken &tk = token_buffer[0];
+            tk.token = yytoken;
+            tk.dval = yylval;
+            tk.loc = yylloc;
+
+#if 0
+            const QString msg = QString::fromUtf8("Missing `;'");
+
+            diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning,
+                yylloc.startLine, yylloc.startColumn, msg));
+#endif
+
+            first_token = &token_buffer[0];
+            last_token = &token_buffer[1];
+
+            yytoken = T_AUTOMATIC_SEMICOLON;
+            yylval = 0;
+
+            action = errorState;
+
+            goto _Lcheck_token;
         }
 
-      else
-        {
-          if (saved_yytoken == -1 && automatic (driver, yytoken) && t_action (state, T_AUTOMATIC_SEMICOLON) > 0)
-            {
-              saved_yytoken = yytoken;
-              yytoken = T_SEMICOLON;
-              continue;
-            }
+        hadErrors = true;
 
-          else if ((state == INITIAL_STATE) && (yytoken == 0)) {
-              // accept empty input
-              yytoken = T_SEMICOLON;
-              continue;
-          }
+        static int tokens[] = {
+            T_PLUS,
+            T_EQ,
 
-          int ers = state;
-          int shifts = 0;
-          int reduces = 0;
-          int expected_tokens [3];
-          for (int tk = 0; tk < TERMINAL_COUNT; ++tk)
-            {
-              int k = t_action (ers, tk);
+            T_COMMA,
+            T_COLON,
+            T_SEMICOLON,
 
-              if (! k)
-                continue;
-              else if (k < 0)
-                ++reduces;
-              else if (spell [tk])
-                {
-                  if (shifts < 3)
-                    expected_tokens [shifts] = tk;
-                  ++shifts;
-                }
-            }
+            T_RPAREN, T_RBRACKET, T_RBRACE,
 
-          error_message.clear ();
-          if (shifts && shifts < 3)
-            {
-              bool first = true;
+            T_NUMERIC_LITERAL,
+            T_IDENTIFIER,
 
-              for (int s = 0; s < shifts; ++s)
-                {
-                  if (first)
-                    error_message += QLatin1String ("Expected ");
-                  else
-                    error_message += QLatin1String (", ");
+            T_LPAREN, T_LBRACKET, T_LBRACE,
 
-                  first = false;
-                  error_message += QLatin1String("`");
-                  error_message += QLatin1String (spell [expected_tokens [s]]);
-                  error_message += QLatin1String("'");
-                }
-            }
+            EOF_SYMBOL
+        };
 
-          if (error_message.isEmpty())
-              error_message = lexer->errorMessage();
+        token_buffer[0].token = yytoken;
+        token_buffer[0].dval = yylval;
+        token_buffer[0].loc = yylloc;
 
-          error_lineno = lexer->startLineNo();
-          error_column = lexer->startColumnNo();
+        token_buffer[1].token = yytoken = lexer->lex();
+        token_buffer[1].dval  = yylval  = lexer->dval();
+        token_buffer[1].loc   = yylloc  = location(lexer);
 
-          return false;
+        if (t_action(errorState, yytoken)) {
+            const QString msg = QString::fromUtf8("Removed token: `%1'").arg(spell[token_buffer[0].token]);
+
+            diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+            action = errorState;
+            goto _Lcheck_token;
         }
+
+        for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
+            int a = t_action(errorState, *tk);
+            if (a > 0 && t_action(a, yytoken)) {
+                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[*tk]);
+
+                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                    token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+                yytoken = *tk;
+                yylval = 0;
+                yylloc = token_buffer[0].loc;
+
+                first_token = &token_buffer[0];
+                last_token = &token_buffer[2];
+
+                action = errorState;
+                goto _Lcheck_token;
+            }
+        }
+
+        for (int tk = 1; tk < TERMINAL_COUNT; ++tk) {
+            int a = t_action(errorState, tk);
+            if (a > 0 && t_action(a, yytoken)) {
+                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[tk]);
+                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                    token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+                yytoken = tk;
+                yylval = 0;
+                yylloc = token_buffer[0].loc;
+
+                action = errorState;
+                goto _Lcheck_token;
+            }
+        }
+
+        const QString msg = QString::fromUtf8("Unexpected token: `%1'").arg(token_buffer[0].token);
+        diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+            token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
     }
 
     return false;
@@ -1583,4 +1610,4 @@ case 266: {
 
 QT_END_NAMESPACE
 
-#endif // QT_NO_JAVASCRIPT
+

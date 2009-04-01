@@ -90,6 +90,8 @@ public:
                  QWidget *parent = 0);
     ~ScriptEditor();
 
+    QList<Declaration> declarations() const;
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 

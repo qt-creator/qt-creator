@@ -156,6 +156,9 @@ ScriptEditor::~ScriptEditor()
 {
 }
 
+QList<Declaration> ScriptEditor::declarations() const
+{ return m_declarations; }
+
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
     ScriptEditor *newEditor = new ScriptEditor(m_context, parent);
@@ -198,35 +201,48 @@ void ScriptEditor::updateDocumentNow()
     lexer.setCode(code, /*line = */ 1);
     driver.setLexer(&lexer);
 
+    parser.parse(&driver);
+
+    FindDeclarations decls;
+    m_declarations = decls.accept(driver.ast());
+
+    QStringList items;
+    items.append(tr("<Select Symbol>"));
+
+    foreach (Declaration decl, m_declarations)
+        items.append(decl.text);
+
+    m_methodCombo->clear();
+    m_methodCombo->addItems(items);
+    updateMethodBoxIndex();
+
     QList<QTextEdit::ExtraSelection> selections;
 
-    if (parser.parse(&driver)) {
+    QTextCharFormat errorFormat;
+    errorFormat.setUnderlineColor(Qt::red);
+    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 
-        FindDeclarations decls;
-        m_declarations = decls.accept(driver.ast());
+    QTextCharFormat warningFormat;
+    warningFormat.setUnderlineColor(Qt::yellow);
+    warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 
-        QStringList items;
-        items.append(tr("<Select Symbol>"));
+    QTextEdit::ExtraSelection sel;
 
-        foreach (Declaration decl, m_declarations)
-            items.append(decl.text);
-
-        m_methodCombo->clear();
-        m_methodCombo->addItems(items);
-        updateMethodBoxIndex();
-
-    } else {
-        QTextEdit::ExtraSelection sel;
-        sel.format.setUnderlineColor(Qt::red);
-        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-
-        const int line = parser.errorLineNumber();
+    foreach (const JavaScriptParser::DiagnosticMessage &d, parser.diagnosticMessages()) {
+        const int line = d.line;
 
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;
 
         if (parser.errorColumnNumber() > 1)
-            sel.cursor.setPosition(c.position() + parser.errorColumnNumber() - 1);
+            sel.cursor.setPosition(c.position() + d.column - 1);
+
+        if (d.kind == JavaScriptParser::DiagnosticMessage::Warning) {
+            sel.format = warningFormat;
+            sel.cursor.movePosition(QTextCursor::StartOfWord);
+        } else {
+            sel.format = errorFormat;
+        }
 
         sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 

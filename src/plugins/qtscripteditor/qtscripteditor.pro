@@ -20,4 +20,5 @@ qtscripteditorfactory.cpp \
 qtscripteditorplugin.cpp \
 qtscripthighlighter.cpp \
 qtscripteditoractionhandler.cpp
+
 RESOURCES += qtscripteditor.qrc
