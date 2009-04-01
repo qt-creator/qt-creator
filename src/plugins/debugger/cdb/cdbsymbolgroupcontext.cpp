@@ -171,7 +171,7 @@ void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigne
     }
 }
 
-QString CdbSymbolGroupContext::toString() const
+QString CdbSymbolGroupContext::toString(bool verbose) const
 {
     QString rc;
     QTextStream str(&rc);
@@ -186,10 +186,12 @@ QString CdbSymbolGroupContext::toString() const
             str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, i);
         str << p << '\n';
     }
-    str << "NameIndexMap\n";
-    NameIndexMap::const_iterator ncend = m_inameIndexMap.constEnd();
-    for (NameIndexMap::const_iterator it = m_inameIndexMap.constBegin() ; it != ncend; ++it)
-        str << it.key() << ' ' << it.value() << '\n';
+    if (verbose) {
+        str << "NameIndexMap\n";
+        NameIndexMap::const_iterator ncend = m_inameIndexMap.constEnd();
+        for (NameIndexMap::const_iterator it = m_inameIndexMap.constBegin() ; it != ncend; ++it)
+            str << it.key() << ' ' << it.value() << '\n';
+    }
     return rc;
 }
 
@@ -301,7 +303,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
             it.value() += newSymbolCount;
     // insert the new symbols
     populateINameIndexMap(prefix, index, index + 1, newSymbolCount);
-    if (debugCDB)
+    if (debugCDB > 1)
         qDebug() << '<' << Q_FUNC_INFO << '\n' << prefix << index << '\n' << toString();
     return true;
 }
@@ -397,17 +399,16 @@ private:
 static bool insertChildrenRecursion(const QString &iname,
                                     CdbSymbolGroupContext *sg,
                                     WatchHandler *watchHandler,
-                                    int visibleLevel,
+                                    bool forceRecursion,
                                     int level,
                                     QString *errorMessage,
                                     int *childCount = 0);
 
-// Insert a symbol and its children recursively if
-// they are known.
+// Insert a symbol (and its first level children depending on forceRecursion)
 static bool insertSymbolRecursion(WatchData wd,
                                   CdbSymbolGroupContext *sg,
                                   WatchHandler *watchHandler,
-                                  int visibleLevel,
+                                  bool forceRecursion,
                                   int level,
                                   QString *errorMessage)
 {    
@@ -415,27 +416,22 @@ static bool insertSymbolRecursion(WatchData wd,
         *errorMessage = QString::fromLatin1("Max recursion level %1 reached for '%2', bailing out.").arg(level).arg(wd.iname);
         return false;
     }
-
-    // Find out whether to recurse (either children are already
-    // available in the context or the parent item is visible
-    // in the view (which means its children must be complete)
-    // or the view item is expanded).
-    bool recurse = false;
-    if (wd.childCount || wd.isChildrenNeeded()) {
-        const bool contextExpanded = sg->isExpanded(wd.iname);
-        const bool viewExpanded = watchHandler->isExpandedIName(wd.iname);        
-        if (viewExpanded)
-            visibleLevel = level;
-        recurse = contextExpanded || (level - visibleLevel < 2);
-    }
+    // Find out whether to recurse (has children or at least knows it has children)
+    const bool recurse = forceRecursion && (wd.childCount > 0 || wd.isChildrenNeeded());
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << wd.iname << "level=" << level << "visibleLevel=" << visibleLevel << "recurse=" << recurse;
+        qDebug() << Q_FUNC_INFO << '\n' << wd.iname << "level=" << level <<  "recurse=" << recurse;
     bool rc = true;
     if (recurse) { // Determine number of children and indicate in model
         int childCount;
-        rc = insertChildrenRecursion(wd.iname, sg, watchHandler, visibleLevel, level, errorMessage, &childCount);
+        rc = insertChildrenRecursion(wd.iname, sg, watchHandler, false, level, errorMessage, &childCount);
         if (rc) {
             wd.setChildCount(childCount);
+            wd.setChildrenUnneeded();
+        }
+    } else {
+        // No further recursion at this level, pretend entry is complete
+        if (wd.isChildrenNeeded()) {
+            wd.setChildCount(1);
             wd.setChildrenUnneeded();
         }
     }
@@ -449,7 +445,7 @@ static bool insertSymbolRecursion(WatchData wd,
 static bool insertChildrenRecursion(const QString &iname,
                                     CdbSymbolGroupContext *sg,
                                     WatchHandler *watchHandler,
-                                    int visibleLevel,
+                                    bool forceRecursion,
                                     int level,
                                     QString *errorMessage,
                                     int *childCountPtr)
@@ -458,7 +454,7 @@ static bool insertChildrenRecursion(const QString &iname,
         qDebug() << Q_FUNC_INFO << '\n' << iname << level;
 
     QList<WatchData> watchList;
-    // Implicitly enforces expansion
+    // This implicitly enforces expansion
     if (!sg->getChildSymbols(iname, WatchDataBackInserter(watchList), errorMessage))
         return false;
 
@@ -469,7 +465,7 @@ static bool insertChildrenRecursion(const QString &iname,
     for (int c = 0; c < childCount; c++) {
         const WatchData &wd = watchList.at(c);
         if (wd.isValid()) { // We sometimes get empty names for deeply nested data
-            if (!insertSymbolRecursion(wd, sg, watchHandler, visibleLevel, level + 1, errorMessage))
+            if (!insertSymbolRecursion(wd, sg, watchHandler, forceRecursion, level + 1, errorMessage))
                 return false;
             succeededChildCount++;
         }  else {
@@ -493,26 +489,15 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
     if (!sg->expandTopLevel(errorMessage))
         return false;
 
-    // Insert root items and known children.
+    // Insert root items and known children of level 1
     QList<WatchData> watchList;
     if (!sg->getChildSymbols(sg->prefix(), WatchDataBackInserter(watchList), errorMessage))
         return false;
 
     foreach(const WatchData &wd, watchList)
-        if (!insertSymbolRecursion(wd, sg, watchHandler, 0, 0, errorMessage))
+        if (!insertSymbolRecursion(wd, sg, watchHandler, true, 0, errorMessage))
             return false;
     return true;
-}
-
-static inline QString parentIName(QString iname)
-{
-    const int lastDotPos = iname.lastIndexOf(QLatin1Char('.'));
-    if (lastDotPos == -1) {
-        iname.clear();
-    } else {
-        iname.truncate(lastDotPos);
-    }
-    return iname;
 }
 
 bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
@@ -522,21 +507,21 @@ bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
     const QList<WatchData> incomplete = watchHandler->takeCurrentIncompletes();
     if (debugCDB)
         qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incomplete.size() << '\n';
-    // At this point, it should be nodes with unknown children.
-    // Complete and re-insert provided their grand parent is expanded
-    // (rule being that children are displayed only if they are complete, that is,
-    // their children are known).
-    foreach(WatchData wd, incomplete) {
-        const bool grandParentExpanded = watchHandler->isExpandedIName(parentIName(parentIName(wd.iname)));
+    // The view reinserts any node being expanded with flag 'ChildrenNeeded'.
+    // Expand next level in context unless this is already the case.
+    foreach(WatchData wd, incomplete) {        
+        const bool contextExpanded = sg->isExpanded(wd.iname);
         if (debugCDB)
-            qDebug() << "  " << wd.iname << "grandParentExpanded=" << grandParentExpanded;
-        if (grandParentExpanded) {
-            if (!insertSymbolRecursion(wd, sg, watchHandler, 0, 1, errorMessage))
+            qDebug() << "  " << wd.iname << "CE=" << contextExpanded;
+        if (contextExpanded) { // You know that already.
+            wd.setChildrenUnneeded();
+            watchHandler->insertData(wd);
+        } else {
+            if (!insertSymbolRecursion(wd, sg, watchHandler, true, 0, errorMessage))
                 return false;
         }
     }
-    if (debugCDB)
-        qDebug() << "###<" << Q_FUNC_INFO;
+    watchHandler->rebuildModel();
     return true;
 }
 

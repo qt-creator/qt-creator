@@ -93,7 +93,7 @@ private:
 
     bool init(QString *errorMessage);
     void clear();
-    QString toString() const;
+    QString toString(bool verbose = false) const;
     bool getChildSymbolsPosition(const QString &prefix,
                                  unsigned long *startPos,
                                  unsigned long *parentId,
