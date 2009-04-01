@@ -54,7 +54,6 @@ class RegisterHandler : public QAbstractTableModel
 public:
     RegisterHandler(QObject *parent = 0);
 
-    void sessionClosed();
     QAbstractItemModel *model() { return this; }
 
     bool isEmpty() const; // nothing known so far?

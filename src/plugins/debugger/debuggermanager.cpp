@@ -1053,6 +1053,15 @@ void DebuggerManager::sessionLoaded()
     loadSessionData();
 }
 
+void DebuggerManager::sessionUnloaded()
+{
+    cleanupViews();
+    if (m_engine)
+        m_engine->shutdown();
+    setStatus(DebuggerProcessNotReady);
+    setBusyCursor(false);
+}
+
 void DebuggerManager::aboutToSaveSession()
 {
     saveSessionData();

@@ -389,6 +389,19 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 handleAsyncOutput(record);
             } else if (asyncClass == "running") {
                 // Archer has 'thread-id="all"' here
+            } else if (asyncClass == "library-loaded") {
+                // Archer has 'id="/usr/lib/libdrm.so.2",
+                // target-name="/usr/lib/libdrm.so.2",
+                // host-name="/usr/lib/libdrm.so.2",
+                // symbols-loaded="0"
+            } else if (asyncClass == "thread-group-created") {
+                // Archer has "{id="28902"}" 
+            } else if (asyncClass == "thread-created") {
+                //"{id="1",group-id="28902"}" 
+            } else if (asyncClass == "thread-group-exited") {
+                // Archer has "{id="28902"}" 
+            } else if (asyncClass == "thread-exited") {
+                //"{id="1",group-id="28902"}" 
             #ifdef Q_OS_MAC
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs

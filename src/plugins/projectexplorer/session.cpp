@@ -996,16 +996,16 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
 void SessionManager::setValue(const QString &name, const QVariant &value)
 {
-    m_file->m_values.insert(name, value);
+    if (m_file)
+        m_file->m_values.insert(name, value);
 }
 
 QVariant SessionManager::value(const QString &name)
 {
-    QMap<QString, QVariant>::const_iterator it = m_file->m_values.find(name);
-    if (it != m_file->m_values.constEnd())
-        return *it;
-    else
+    if (!m_file)
         return QVariant();
+    QMap<QString, QVariant>::const_iterator it = m_file->m_values.find(name);
+    return (it == m_file->m_values.constEnd()) ? QVariant() : *it;
 }
 
 QString SessionManager::activeSession() const

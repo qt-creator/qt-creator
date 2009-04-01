@@ -233,6 +233,7 @@ public slots:
     void updateWatchModel();
     
     void sessionLoaded();
+    void sessionUnloaded();
     void aboutToSaveSession();
 
     void assignValueInDebugger();

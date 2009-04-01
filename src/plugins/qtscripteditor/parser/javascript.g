@@ -214,6 +214,7 @@
 
 
 #include "javascriptastfwd_p.h"
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -259,18 +260,48 @@ public:
       int endColumn;
     };
 
+    struct DiagnosticMessage {
+        enum Kind { Warning, Error };
+
+        DiagnosticMessage()
+            : kind(Error), line(0), column(0) {}
+
+        DiagnosticMessage(Kind kind, int line, int column, const QString &message)
+            : kind(kind), line(line), column(column), message(message) {}
+
+        Kind kind;
+        int line;
+        int column;
+        QString message;
+    };
+
 public:
     JavaScriptParser();
     ~JavaScriptParser();
 
     bool parse(JavaScriptEnginePrivate *driver);
 
+    QList<DiagnosticMessage> diagnosticMessages() const
+    { return diagnostic_messages; }
+
+    inline DiagnosticMessage diagnosticMessage() const
+    {
+        foreach (const DiagnosticMessage &d, diagnostic_messages) {
+            if (! d.kind == DiagnosticMessage::Warning)
+                return d;
+        }
+
+        return DiagnosticMessage();
+    }
+
     inline QString errorMessage() const
-    { return error_message; }
+    { return diagnosticMessage().message; }
+
     inline int errorLineNumber() const
-    { return error_lineno; }
+    { return diagnosticMessage().line; }
+
     inline int errorColumnNumber() const
-    { return error_column; }
+    { return diagnosticMessage().column; }
 
 protected:
     inline void reallocateStack();
@@ -287,9 +318,24 @@ protected:
     Value *sym_stack;
     int *state_stack;
     Location *location_stack;
-    QString error_message;
-    int error_lineno;
-    int error_column;
+
+    // error recovery
+    enum { TOKEN_BUFFER_SIZE = 3 };
+
+    struct SavedToken {
+       int token;
+       double dval;
+       Location loc;
+    };
+
+    double yylval;
+    Location yylloc;
+
+    SavedToken token_buffer[TOKEN_BUFFER_SIZE];
+    SavedToken *first_token;
+    SavedToken *last_token;
+
+    QList<DiagnosticMessage> diagnostic_messages;
 };
 
 inline void JavaScriptParser::reallocateStack()
@@ -332,8 +378,8 @@ JavaScriptParser::JavaScriptParser():
     sym_stack(0),
     state_stack(0),
     location_stack(0),
-    error_lineno(0),
-    error_column(0)
+    first_token(0),
+    last_token(0)
 {
 }
 
@@ -358,56 +404,48 @@ static inline JavaScriptParser::Location location(JavaScript::Lexer *lexer)
 
 bool JavaScriptParser::parse(JavaScriptEnginePrivate *driver)
 {
-  const int INITIAL_STATE = 0;
-  JavaScript::Lexer *lexer = driver->lexer();
+    JavaScript::Lexer *lexer = driver->lexer();
+    bool hadErrors = false;
+    int yytoken = -1;
+    int action = 0;
 
-  int yytoken = -1;
-  int saved_yytoken = -1;
+    first_token = last_token = 0;
 
-  reallocateStack();
+    tos = -1;
 
-  tos = 0;
-  state_stack[++tos] = INITIAL_STATE;
-
-  while (true)
-    {
-      const int state = state_stack [tos];
-      if (yytoken == -1 && - TERMINAL_COUNT != action_index [state])
-        {
-          if (saved_yytoken == -1)
-            {
-              yytoken = lexer->lex();
-              location_stack [tos] = location(lexer);
-            }
-          else
-            {
-              yytoken = saved_yytoken;
-              saved_yytoken = -1;
-            }
-        }
-
-      int act = t_action (state, yytoken);
-
-      if (act == ACCEPT_STATE)
-        return true;
-
-      else if (act > 0)
-        {
-          if (++tos == stack_size)
+    do {
+        if (++tos == stack_size)
             reallocateStack();
 
-          sym_stack [tos].dval = lexer->dval ();
-          state_stack [tos] = act;
-          location_stack [tos] = location(lexer);
-          yytoken = -1;
+        state_stack[tos] = action;
+
+    _Lcheck_token:
+        if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
+            if (first_token == last_token) {
+                yytoken = lexer->lex();
+                yylval = lexer->dval();
+                yylloc = location(lexer);
+            } else {
+                yytoken = first_token->token;
+                yylval = first_token->dval;
+                yylloc = first_token->loc;
+                ++first_token;
+            }
         }
 
-      else if (act < 0)
-        {
-          int r = - act - 1;
-
-          tos -= rhs [r];
-          act = state_stack [tos++];
+        action = t_action(action, yytoken);
+        if (action > 0) {
+            if (action != ACCEPT_STATE) {
+                yytoken = -1;
+                sym(1).dval = yylval;
+                loc(1) = yylloc;
+            } else {
+              --tos;
+              return ! hadErrors;
+            }
+        } else if (action < 0) {
+          const int r = -action - 1;
+          tos -= rhs[r];
 
           switch (r) {
 ./
@@ -476,9 +514,8 @@ PrimaryExpression: T_DIVIDE_ ;
 case $rule_number: {
   bool rx = lexer->scanRegExp(JavaScript::Lexer::NoPrefix);
   if (!rx) {
-      error_message = lexer->errorMessage();
-      error_lineno = lexer->startLineNo();
-      error_column = lexer->startColumnNo();
+    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, lexer->startLineNo(),
+        lexer->startColumnNo(), lexer->errorMessage()));
       return false;
   }
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
@@ -494,9 +531,8 @@ PrimaryExpression: T_DIVIDE_EQ ;
 case $rule_number: {
   bool rx = lexer->scanRegExp(JavaScript::Lexer::EqualPrefix);
   if (!rx) {
-      error_message = lexer->errorMessage();
-      error_lineno = lexer->startLineNo();
-      error_column = lexer->startColumnNo();
+    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, lexer->startLineNo(),
+        lexer->startColumnNo(), lexer->errorMessage()));
       return false;
   }
   sym(1).Node = JavaScript::makeAstNode<JavaScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
@@ -2032,79 +2068,116 @@ case $rule_number: {
 PropertyNameAndValueListOpt: PropertyNameAndValueList ;
 
 /.
-          } // switch
+            } // switch
+            action = nt_action(state_stack[tos], lhs[r] - TERMINAL_COUNT);
+        } // if
+    } while (action != 0);
 
-          state_stack [tos] = nt_action (act, lhs [r] - TERMINAL_COUNT);
+    if (first_token == last_token) {
+        const int errorState = state_stack[tos];
 
-          if (rhs[r] > 1) {
-              location_stack[tos - 1].endLine = location_stack[tos + rhs[r] - 2].endLine;
-              location_stack[tos - 1].endColumn = location_stack[tos + rhs[r] - 2].endColumn;
-              location_stack[tos] = location_stack[tos + rhs[r] - 1];
-          }
+        // automatic insertion of `;'
+        if (t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
+            SavedToken &tk = token_buffer[0];
+            tk.token = yytoken;
+            tk.dval = yylval;
+            tk.loc = yylloc;
+
+#if 0
+            const QString msg = QString::fromUtf8("Missing `;'");
+
+            diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning,
+                yylloc.startLine, yylloc.startColumn, msg));
+#endif
+
+            first_token = &token_buffer[0];
+            last_token = &token_buffer[1];
+
+            yytoken = T_AUTOMATIC_SEMICOLON;
+            yylval = 0;
+
+            action = errorState;
+
+            goto _Lcheck_token;
         }
 
-      else
-        {
-          if (saved_yytoken == -1 && automatic (driver, yytoken) && t_action (state, T_AUTOMATIC_SEMICOLON) > 0)
-            {
-              saved_yytoken = yytoken;
-              yytoken = T_SEMICOLON;
-              continue;
-            }
+        hadErrors = true;
 
-          else if ((state == INITIAL_STATE) && (yytoken == 0)) {
-              // accept empty input
-              yytoken = T_SEMICOLON;
-              continue;
-          }
+        static int tokens[] = {
+            T_PLUS,
+            T_EQ,
 
-          int ers = state;
-          int shifts = 0;
-          int reduces = 0;
-          int expected_tokens [3];
-          for (int tk = 0; tk < TERMINAL_COUNT; ++tk)
-            {
-              int k = t_action (ers, tk);
+            T_COMMA,
+            T_COLON,
+            T_SEMICOLON,
 
-              if (! k)
-                continue;
-              else if (k < 0)
-                ++reduces;
-              else if (spell [tk])
-                {
-                  if (shifts < 3)
-                    expected_tokens [shifts] = tk;
-                  ++shifts;
-                }
-            }
+            T_RPAREN, T_RBRACKET, T_RBRACE,
 
-          error_message.clear ();
-          if (shifts && shifts < 3)
-            {
-              bool first = true;
+            T_NUMERIC_LITERAL,
+            T_IDENTIFIER,
 
-              for (int s = 0; s < shifts; ++s)
-                {
-                  if (first)
-                    error_message += QLatin1String ("Expected ");
-                  else
-                    error_message += QLatin1String (", ");
+            T_LPAREN, T_LBRACKET, T_LBRACE,
 
-                  first = false;
-                  error_message += QLatin1String("`");
-                  error_message += QLatin1String (spell [expected_tokens [s]]);
-                  error_message += QLatin1String("'");
-                }
-            }
+            EOF_SYMBOL
+        };
 
-          if (error_message.isEmpty())
-              error_message = lexer->errorMessage();
+        token_buffer[0].token = yytoken;
+        token_buffer[0].dval = yylval;
+        token_buffer[0].loc = yylloc;
 
-          error_lineno = lexer->startLineNo();
-          error_column = lexer->startColumnNo();
+        token_buffer[1].token = yytoken = lexer->lex();
+        token_buffer[1].dval  = yylval  = lexer->dval();
+        token_buffer[1].loc   = yylloc  = location(lexer);
 
-          return false;
+        if (t_action(errorState, yytoken)) {
+            const QString msg = QString::fromUtf8("Removed token: `%1'").arg(spell[token_buffer[0].token]);
+
+            diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+            action = errorState;
+            goto _Lcheck_token;
         }
+
+        for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
+            int a = t_action(errorState, *tk);
+            if (a > 0 && t_action(a, yytoken)) {
+                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[*tk]);
+
+                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                    token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+                yytoken = *tk;
+                yylval = 0;
+                yylloc = token_buffer[0].loc;
+
+                first_token = &token_buffer[0];
+                last_token = &token_buffer[2];
+
+                action = errorState;
+                goto _Lcheck_token;
+            }
+        }
+
+        for (int tk = 1; tk < TERMINAL_COUNT; ++tk) {
+            int a = t_action(errorState, tk);
+            if (a > 0 && t_action(a, yytoken)) {
+                const QString msg = QString::fromUtf8("Inserted token: `%1'").arg(spell[tk]);
+                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+                    token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
+
+                yytoken = tk;
+                yylval = 0;
+                yylloc = token_buffer[0].loc;
+
+                action = errorState;
+                goto _Lcheck_token;
+            }
+        }
+
+        const QString msg = QString::fromUtf8("Unexpected token: `%1'").arg(token_buffer[0].token);
+        diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
+            token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
     }
 
     return false;

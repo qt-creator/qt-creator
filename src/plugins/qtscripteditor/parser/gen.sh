@@ -13,6 +13,11 @@ rm -f javascriptlexer_p.h
 rm -f javascriptmemorypool_p.h
 rm -f javascriptnodepool_p.h
 
+rm -f javascriptgrammar_p.h
+rm -f javascriptgrammar.cpp
+rm -f javascriptparser_p.h
+rm -f javascriptparser.cpp
+
 sed -f $me/cmd.sed $QTDIR/src/script/qscript.g > javascript.g
 
 sed -f $me/cmd.sed $QTDIR/src/script/qscriptast.cpp > javascriptast.cpp
@@ -25,7 +30,7 @@ sed -f $me/cmd.sed $QTDIR/src/script/qscriptlexer.cpp > javascriptlexer.cpp
 sed -f $me/cmd.sed $QTDIR/src/script/qscriptmemorypool_p.h > javascriptmemorypool_p.h
 sed -f $me/cmd.sed $QTDIR/src/script/qscriptnodepool_p.h > javascriptnodepool_p.h
 
-qlalr $me/javascript.g
+qlalr --troll --no-lines --no-debug $me/javascript.g
 
 chmod ugo-w javascript.g
 chmod ugo-w javascriptast.cpp

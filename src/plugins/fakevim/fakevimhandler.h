@@ -73,10 +73,11 @@ signals:
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
     void completionRequested();
 
+public:
+    class Private;
+
 private:
     bool eventFilter(QObject *ob, QEvent *ev);
-
-    class Private;
     friend class Private;
     Private *d;
 };
