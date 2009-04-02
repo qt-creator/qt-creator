@@ -269,6 +269,12 @@ public:
         DiagnosticMessage(Kind kind, int line, int column, const QString &message)
             : kind(kind), line(line), column(column), message(message) {}
 
+        bool isWarning() const
+        { return kind == Warning; }
+
+        bool isError() const
+        { return kind == Error; }
+
         Kind kind;
         int line;
         int column;
@@ -2083,17 +2089,15 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             tk.dval = yylval;
             tk.loc = yylloc;
 
-#if 0
             const QString msg = QString::fromUtf8("Missing `;'");
 
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning,
                 yylloc.startLine, yylloc.startColumn, msg));
-#endif
 
             first_token = &token_buffer[0];
             last_token = &token_buffer[1];
 
-            yytoken = T_AUTOMATIC_SEMICOLON;
+            yytoken = T_SEMICOLON;
             yylval = 0;
 
             action = errorState;
@@ -2102,24 +2106,6 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         }
 
         hadErrors = true;
-
-        static int tokens[] = {
-            T_PLUS,
-            T_EQ,
-
-            T_COMMA,
-            T_COLON,
-            T_SEMICOLON,
-
-            T_RPAREN, T_RBRACKET, T_RBRACE,
-
-            T_NUMERIC_LITERAL,
-            T_IDENTIFIER,
-
-            T_LPAREN, T_LBRACKET, T_LBRACE,
-
-            EOF_SYMBOL
-        };
 
         token_buffer[0].token = yytoken;
         token_buffer[0].dval = yylval;
@@ -2138,6 +2124,24 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             action = errorState;
             goto _Lcheck_token;
         }
+
+        static int tokens[] = {
+            T_PLUS,
+            T_EQ,
+
+            T_COMMA,
+            T_COLON,
+            T_SEMICOLON,
+
+            T_RPAREN, T_RBRACKET, T_RBRACE,
+
+            T_NUMERIC_LITERAL,
+            T_IDENTIFIER,
+
+            T_LPAREN, T_LBRACKET, T_LBRACE,
+
+            EOF_SYMBOL
+        };
 
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);

@@ -120,6 +120,12 @@ public:
         DiagnosticMessage(Kind kind, int line, int column, const QString &message)
             : kind(kind), line(line), column(column), message(message) {}
 
+        bool isWarning() const
+        { return kind == Warning; }
+
+        bool isError() const
+        { return kind == Error; }
+
         Kind kind;
         int line;
         int column;

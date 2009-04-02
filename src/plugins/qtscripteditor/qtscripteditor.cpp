@@ -86,11 +86,15 @@ protected:
 
     virtual bool visit(FunctionDeclaration *ast)
     {
+        if (! ast->name)
+            return false;
+
         QString text = ast->name->asString();
 
         text += QLatin1Char('(');
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
-            text += it->name->asString();
+            if (it->name)
+                text += it->name->asString();
 
             if (it->next)
                 text += QLatin1String(", ");
@@ -100,7 +104,7 @@ protected:
 
         Declaration d;
         d.text = text;
-        d.startLine= ast->startLine;
+        d.startLine = ast->startLine;
         d.startColumn = ast->startColumn;
         d.endLine = ast->endLine;
         d.endColumn = ast->endColumn;
@@ -112,6 +116,9 @@ protected:
 
     virtual bool visit(VariableDeclaration *ast)
     {
+        if (! ast->name)
+            return false;
+
         Declaration d;
         d.text = ast->name->asString();
         d.startLine= ast->startLine;
@@ -201,20 +208,23 @@ void ScriptEditor::updateDocumentNow()
     lexer.setCode(code, /*line = */ 1);
     driver.setLexer(&lexer);
 
-    parser.parse(&driver);
+    if (parser.parse(&driver)) {
+        JavaScript::AST::Visitor v;
+        driver.ast()->accept(&v);
 
-    FindDeclarations decls;
-    m_declarations = decls.accept(driver.ast());
+        FindDeclarations decls;
+        m_declarations = decls.accept(driver.ast());
 
-    QStringList items;
-    items.append(tr("<Select Symbol>"));
+        QStringList items;
+        items.append(tr("<Select Symbol>"));
 
-    foreach (Declaration decl, m_declarations)
-        items.append(decl.text);
+        foreach (Declaration decl, m_declarations)
+            items.append(decl.text);
 
-    m_methodCombo->clear();
-    m_methodCombo->addItems(items);
-    updateMethodBoxIndex();
+        m_methodCombo->clear();
+        m_methodCombo->addItems(items);
+        updateMethodBoxIndex();
+    }
 
     QList<QTextEdit::ExtraSelection> selections;
 
@@ -229,21 +239,20 @@ void ScriptEditor::updateDocumentNow()
     QTextEdit::ExtraSelection sel;
 
     foreach (const JavaScriptParser::DiagnosticMessage &d, parser.diagnosticMessages()) {
-        const int line = d.line;
+        if (d.isWarning())
+            continue;
+
+        int line = d.line;
+        int column = d.column;
+
+        if (column == 0)
+            column = 1;
+
+        sel.format = errorFormat;
 
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;
-
-        if (parser.errorColumnNumber() > 1)
-            sel.cursor.setPosition(c.position() + d.column - 1);
-
-        if (d.kind == JavaScriptParser::DiagnosticMessage::Warning) {
-            sel.format = warningFormat;
-            sel.cursor.movePosition(QTextCursor::StartOfWord);
-        } else {
-            sel.format = errorFormat;
-        }
-
+        sel.cursor.setPosition(c.position() + column - 1);
         sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 
         selections.append(sel);
@@ -328,7 +337,8 @@ static void indentScriptBlock(const TextEditor::TabSettings &ts,
 {
     typedef typename SharedTools::Indenter<Iterator> Indenter ;
     Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(ts.m_tabSize);
+    indenter.setTabSize(ts.m_tabSize);
+    indenter.setIndentSize(ts.m_indentSize);
     const TextEditor::TextBlockIterator current(block);
     const int indent = indenter.indentForBottomLine(current, programBegin,
                                                     programEnd, typedChar);
