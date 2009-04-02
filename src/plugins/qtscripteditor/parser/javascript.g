@@ -2179,7 +2179,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             }
         }
 
-        const QString msg = QString::fromUtf8("Unexpected token: `%1'").arg(token_buffer[0].token);
+        const QString msg = QString::fromUtf8("Unexpected token: `%1'").arg(spell[token_buffer[0].token]);
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
             token_buffer[0].loc.startLine, token_buffer[0].loc.startColumn, msg));
     }

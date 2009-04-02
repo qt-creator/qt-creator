@@ -77,6 +77,9 @@ public:
     : _lexer(0), _nodePool(0), _ast(0)
   { }
 
+  QSet<JavaScriptNameIdImpl> literals() const
+  { return _literals; }
+
   JavaScriptNameIdImpl *intern(const QChar *u, int s)
   { return const_cast<JavaScriptNameIdImpl *>(&*_literals.insert(JavaScriptNameIdImpl(u, s))); }
 

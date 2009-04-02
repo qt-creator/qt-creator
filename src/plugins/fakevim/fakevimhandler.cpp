@@ -1247,6 +1247,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                 m_tc.insertText(text);
                 moveUp(n);
             }
+            moveToFirstNonBlankOnLine();
         } else {
             m_desiredColumn = 0;
             for (int i = count(); --i >= 0; ) {

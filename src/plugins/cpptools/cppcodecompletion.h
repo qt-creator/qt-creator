@@ -58,6 +58,7 @@ class CppCodeCompletion : public TextEditor::ICompletionCollector
 public:
     explicit CppCodeCompletion(CppModelManager *manager);
 
+    bool isValid(TextEditor::ITextEditable *editor);
     bool triggersCompletion(TextEditor::ITextEditable *editor);
     int startCompletion(TextEditor::ITextEditable *editor);
     void completions(QList<TextEditor::CompletionItem> *completions);

@@ -13,12 +13,14 @@ HEADERS += qtscripteditor.h \
 qtscripteditorfactory.h \
 qtscripteditorplugin.h \
 qtscripthighlighter.h \
-qtscripteditoractionhandler.h
+qtscripteditoractionhandler.h \
+qtscriptcodecompletion.h
 
 SOURCES += qtscripteditor.cpp \
 qtscripteditorfactory.cpp \
 qtscripteditorplugin.cpp \
 qtscripthighlighter.cpp \
-qtscripteditoractionhandler.cpp
+qtscripteditoractionhandler.cpp \
+qtscriptcodecompletion.cpp
 
 RESOURCES += qtscripteditor.qrc

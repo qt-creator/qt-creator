@@ -602,8 +602,7 @@ QDumper &QDumper::operator<<(const QByteArray &ba)
 
 QDumper &QDumper::operator<<(const QString &str)
 {
-    QByteArray ba = str.toUtf8();
-    putBase64Encoded(ba.constData(), ba.size());
+    putBase64Encoded((const char *)str.constData(), 2 * str.size());
     return *this;
 }
 
@@ -649,7 +648,7 @@ void QDumper::putEllipsis()
     P(dumper, "value", value); \
     P(dumper, "type", NS"QString"); \
     P(dumper, "numchild", "0"); \
-    P(dumper, "valueencoded", "1"); \
+    P(dumper, "valueencoded", "2"); \
     dumper.endHash();
 
 // simple integer property
@@ -680,7 +679,7 @@ void QDumper::putEllipsis()
     P(dumper, "name", name); \
     P(dumper, "value", QString(QLatin1String("'%1' (%2, 0x%3)")) \
         .arg(value).arg(value.unicode()).arg(value.unicode(), 0, 16)); \
-    P(dumper, "valueencoded", "1"); \
+    P(dumper, "valueencoded", "2"); \
     P(dumper, "type", NS"QChar"); \
     P(dumper, "numchild", "0"); \
     dumper.endHash();
@@ -755,7 +754,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
                     const QObject *ob = reinterpret_cast<const QObject *>(addr);
                     P(d, "addr", ob);
                     P(d, "value", ob->objectName());
-                    P(d, "valueencoded", "1");
+                    P(d, "valueencoded", "2");
                     P(d, "type", NS"QObject");
                     P(d, "displayedtype", ob->metaObject()->className());
                 } else {
@@ -767,7 +766,7 @@ static void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr
         case 'S':
             if (isEqual(type, "QString")) {
                 d.addCommaIfNeeded();
-                d << field << "encoded=\"1\",";
+                d << field << "encoded=\"2\",";
                 P(d, field, *(QString*)addr);
             }
             return;
@@ -857,7 +856,7 @@ static void qDumpQDateTime(QDumper &d)
         P(d, "value", "(null)");
     } else {
         P(d, "value", date.toString());
-        P(d, "valueencoded", "1");
+        P(d, "valueencoded", "2");
     }
     P(d, "type", NS"QDateTime");
     P(d, "numchild", "3");
@@ -901,7 +900,7 @@ static void qDumpQDir(QDumper &d)
 {
     const QDir &dir = *reinterpret_cast<const QDir *>(d.data);
     P(d, "value", dir.path());
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QDir");
     P(d, "numchild", "3");
     if (d.dumpChildren) {
@@ -917,7 +916,7 @@ static void qDumpQFile(QDumper &d)
 {
     const QFile &file = *reinterpret_cast<const QFile *>(d.data);
     P(d, "value", file.fileName());
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QFile");
     P(d, "numchild", "2");
     if (d.dumpChildren) {
@@ -933,7 +932,7 @@ static void qDumpQFileInfo(QDumper &d)
 {
     const QFileInfo &info = *reinterpret_cast<const QFileInfo *>(d.data);
     P(d, "value", info.filePath());
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QFileInfo");
     P(d, "numchild", "3");
     if (d.dumpChildren) {
@@ -980,7 +979,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginHash();
         P(d, "name", "created");
         P(d, "value", info.created().toString());
-        P(d, "valueencoded", "1");
+        P(d, "valueencoded", "2");
         P(d, "exp", "(("NSX"QFileInfo"NSY"*)" << d.data << ")->created()");
         P(d, "type", NS"QDateTime");
         P(d, "numchild", "1");
@@ -989,7 +988,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginHash();
         P(d, "name", "lastModified");
         P(d, "value", info.lastModified().toString());
-        P(d, "valueencoded", "1");
+        P(d, "valueencoded", "2");
         P(d, "exp", "(("NSX"QFileInfo"NSY"*)" << d.data << ")->lastModified()");
         P(d, "type", NS"QDateTime");
         P(d, "numchild", "1");
@@ -998,7 +997,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginHash();
         P(d, "name", "lastRead");
         P(d, "value", info.lastRead().toString());
-        P(d, "valueencoded", "1");
+        P(d, "valueencoded", "2");
         P(d, "exp", "(("NSX"QFileInfo"NSY"*)" << d.data << ")->lastRead()");
         P(d, "type", NS"QDateTime");
         P(d, "numchild", "1");
@@ -1296,7 +1295,7 @@ static void qDumpQLocale(QDumper &d)
 {
     const QLocale &locale = *reinterpret_cast<const QLocale *>(d.data);
     P(d, "value", locale.name());
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QLocale");
     P(d, "numchild", "8");
     if (d.dumpChildren) {
@@ -1508,7 +1507,7 @@ static void qDumpQObject(QDumper &d)
     const QMetaObject *mo = ob->metaObject();
     unsigned childrenOffset = d.extraInt[0];
     P(d, "value", ob->objectName());
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QObject");
     P(d, "displayedtype", mo->className());
     P(d, "numchild", 4);
@@ -1627,7 +1626,7 @@ static void qDumpQObjectPropertyList(QDumper &d)
                         << ")->" << prop.name() << "()");
             if (isEqual(prop.typeName(), "QString")) {
                 P(d, "value", prop.read(ob).toString());
-                P(d, "valueencoded", "1");
+                P(d, "valueencoded", "2");
                 P(d, "type", NS"QString");
                 P(d, "numchild", "0");
             } else if (isEqual(prop.typeName(), "bool")) {
@@ -1941,7 +1940,7 @@ static void qDumpQString(QDumper &d)
     }
 
     P(d, "value", str);
-    P(d, "valueencoded", "1");
+    P(d, "valueencoded", "2");
     P(d, "type", NS"QString");
     //P(d, "editvalue", str);  // handled generically below
     P(d, "numchild", "0");
@@ -1973,7 +1972,7 @@ static void qDumpQStringList(QDumper &d)
             d.beginHash();
             P(d, "name", i);
             P(d, "value", list[i]);
-            P(d, "valueencoded", "1");
+            P(d, "valueencoded", "2");
             d.endHash();
         }
         if (n < list.size())

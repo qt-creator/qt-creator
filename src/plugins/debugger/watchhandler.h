@@ -66,7 +66,7 @@ public:
             | ChildCountNeeded
     };
 
-    void setValue(const QByteArray &);
+    void setValue(const QString &);
     void setType(const QString &);
     void setValueToolTip(const QString &);
     void setError(const QString &);

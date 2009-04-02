@@ -147,7 +147,7 @@ void WinGuiProcess::run()
             switch (ret) {
             case WAIT_OBJECT_0 + 0:
                 if (*processId == m_pid->dwProcessId)
-                    emit receivedDebugOutput(QString::fromAscii(message));
+                    emit receivedDebugOutput(QString::fromLocal8Bit(message));
                 SetEvent(bufferReadyEvent);
                 break;
             case WAIT_OBJECT_0 + 1:

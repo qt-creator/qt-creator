@@ -65,6 +65,7 @@
 #include <unistd.h>
 #include <dlfcn.h>
 #endif
+#include <ctype.h>
 
 using namespace Debugger;
 using namespace Debugger::Internal;
@@ -2776,36 +2777,55 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
+static QString quoteUnprintableLatin1(const QByteArray &ba)
+{
+    QString res;
+    char buf[10];
+    for (int i = 0, n = ba.size(); i != n; ++i) {
+        unsigned char c = ba.at(i);
+        if (isprint(c)) {
+            res += c;
+        } else {
+            qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
+            res += buf;
+        }
+    }
+    return res;
+}
+
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
     if (mi.isValid()) {
         QByteArray ba;
+        QString str;
         switch (encoding) {
             case 0: // unencoded 8 bit data
                 ba = mi.data();
+                str = quoteUnprintableLatin1(ba);
                 break;
-            case 1: //  base64 encoded 8 bit data
+            case 1: //  base64 encoded 8 bit data, used for QByteArray
                 ba = QByteArray::fromBase64(mi.data());
-                ba = '"' + ba + '"';
+                str = '"' + quoteUnprintableLatin1(ba) + '"';
                 break;
-            case 2: //  base64 encoded 16 bit data
+            case 2: //  base64 encoded 16 bit data, used for QString
                 ba = QByteArray::fromBase64(mi.data());
-                ba = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2).toUtf8();
-                ba = '"' + ba + '"';
+                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
+                str = '"' + str + '"';
                 break;
             case 3: //  base64 encoded 32 bit data
                 ba = QByteArray::fromBase64(mi.data());
-                ba = QString::fromUcs4((uint *)ba.data(), ba.size() / 4).toUtf8();
-                ba = '"' + ba + '"';
+                str = QString::fromUcs4((uint *)ba.data(), ba.size() / 4);
+                str = '"' + str + '"';
                 break;
-            case 4: //  base64 encoded 8 bit data 
+            case 4: //  base64 encoded 16 bit data, without quotes (see 2)
                 ba = QByteArray::fromBase64(mi.data());
+                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
                 break;
         }
-       data.setValue(ba);
+        data.setValue(str);
     } else {
-       data.setValueNeeded();
+        data.setValueNeeded();
     }
 }
 
@@ -3411,7 +3431,7 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
                 data.setChildrenNeeded();
             setWatchDataChildCount(data, record.data.findChild("numchild"));
             //if (data.isValueNeeded() && data.childCount > 0)
-            //    data.setValue(QByteArray());
+            //    data.setValue(QString());
             insertData(data);
         }
     } else if (record.resultClass == GdbResultError) {
@@ -3607,13 +3627,13 @@ void GdbEngine::handleDumpCustomValue3(const GdbResultRecord &record,
         QString str;
         for (int i = 0; i < list.size(); ++i)
              str.append(list.at(i).toInt());
-        data.setValue('"' + str.toUtf8() + '"');
+        data.setValue('"' + str + '"');
         data.setChildCount(0);
         data.setAllUnneeded();
         insertData(data);
     } else if (data.type == "QStringList" || data.type.endsWith("::QStringList")) {
         int l = list.size();
-        data.setValue(QString("<%1 items>").arg(l).toLatin1());
+        data.setValue(tr("<%1 items>").arg(l));
         data.setChildCount(list.size());
         data.setAllUnneeded();
         insertData(data);

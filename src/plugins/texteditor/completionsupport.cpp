@@ -58,10 +58,11 @@ CompletionSupport::CompletionSupport()
       m_completionList(0),
       m_startPosition(0),
       m_checkCompletionTrigger(false),
-      m_editor(0)
+      m_editor(0),
+      m_completionCollector(0)
 {
-    m_completionCollector = ExtensionSystem::PluginManager::instance()
-        ->getObject<ICompletionCollector>();
+    m_completionCollectors = ExtensionSystem::PluginManager::instance()
+        ->getObjects<ICompletionCollector>();
 }
 
 void CompletionSupport::performCompletion(const CompletionItem &item)
@@ -90,6 +91,15 @@ void CompletionSupport::cleanupCompletions()
 
 void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
 {
+    m_completionCollector = 0;
+
+    foreach (ICompletionCollector *collector, m_completionCollectors) {
+        if (collector->isValid(editor)) {
+            m_completionCollector = collector;
+            break;
+        }
+    }
+
     if (!m_completionCollector)
         return;
 

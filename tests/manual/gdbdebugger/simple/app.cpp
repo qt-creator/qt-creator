@@ -416,7 +416,8 @@ void testQObject(int &argc, char *argv[])
     obs.append(&app);
     ob1.setObjectName("A Subobject");
 */
-    QLabel l("XXXXXXXXXXXXXXXXX");
+    QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
+    QLabel l(str);
     l.show();
     app.exec();
 }
@@ -998,6 +999,7 @@ int main(int argc, char *argv[])
     testIO();
     testHidden();
     testArray();
+    testQByteArray();
 
     testStdDeque();
     testStdList();
@@ -1012,7 +1014,6 @@ int main(int argc, char *argv[])
     testQLinkedList();
     testNamespace();
     //return 0;
-    testQByteArray();
     testQHash();
     testQImage();
     testQMap();
