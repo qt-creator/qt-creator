@@ -25,6 +25,7 @@ Editing
    * Add signal/slot editor to form editor.
    * Improved open documents view (sorted, single-click, close buttons).
    * Copying text from the context help browser and output windows didn't work.
+   * Fixed "Go to slot..." functionality in the integrated QDesigner
 
 Building, Running and Debugging
    * Experimental support for generic Makefile based projects.
