@@ -41,6 +41,7 @@ namespace QtScriptEditor {
 namespace Internal {
 
 class QtScriptEditorFactory;
+class QtScriptCodeCompletion;
 class ScriptEditor;
 
 class QtScriptEditorPlugin : public ExtensionSystem::IPlugin
@@ -72,6 +73,7 @@ private:
     TextEditor::TextFileWizard *m_wizard;
     QtScriptEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
+    QtScriptCodeCompletion *m_completion;
 };
 
 } // namespace Internal

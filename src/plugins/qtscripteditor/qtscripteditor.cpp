@@ -166,6 +166,9 @@ ScriptEditor::~ScriptEditor()
 QList<Declaration> ScriptEditor::declarations() const
 { return m_declarations; }
 
+QStringList ScriptEditor::words() const
+{ return m_words; }
+
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
     ScriptEditor *newEditor = new ScriptEditor(m_context, parent);
@@ -214,6 +217,10 @@ void ScriptEditor::updateDocumentNow()
 
         FindDeclarations decls;
         m_declarations = decls.accept(driver.ast());
+
+        m_words.clear();
+        foreach (const JavaScriptNameIdImpl &id, driver.literals())
+            m_words.append(id.asString());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));

@@ -91,6 +91,7 @@ public:
     ~ScriptEditor();
 
     QList<Declaration> declarations() const;
+    QStringList words() const;
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -117,6 +118,7 @@ private:
     QTimer *m_updateDocumentTimer;
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations;
+    QStringList m_words;
 };
 
 } // namespace Internal

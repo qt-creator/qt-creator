@@ -33,6 +33,7 @@
 #include "qtscripteditor.h"
 #include "qtscripteditorconstants.h"
 #include "qtscripteditorfactory.h"
+#include "qtscriptcodecompletion.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -46,10 +47,12 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/completionsupport.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 #include <QtGui/QAction>
 
 using namespace QtScriptEditor::Internal;
@@ -60,7 +63,8 @@ QtScriptEditorPlugin *QtScriptEditorPlugin::m_instance = 0;
 QtScriptEditorPlugin::QtScriptEditorPlugin() :
     m_wizard(0),
     m_editor(0),
-    m_actionHandler(0)
+    m_actionHandler(0),
+    m_completion(0)
 {
     m_instance = this;
 }
@@ -105,6 +109,18 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
+    m_completion = new QtScriptCodeCompletion();
+    addAutoReleasedObject(m_completion);
+
+    // Restore settings
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String("CppTools")); // ### FIXME:
+    settings->beginGroup(QLatin1String("Completion"));
+    const bool caseSensitive = settings->value(QLatin1String("CaseSensitive"), true).toBool();
+    m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    settings->endGroup();
+    settings->endGroup();
+    
     error_message->clear();
 
     return true;
@@ -122,6 +138,10 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
     m_actionHandler->setupActions(editor);
 
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+
+    // auto completion
+    connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
 }
 
 void QtScriptEditorPlugin::registerActions()
