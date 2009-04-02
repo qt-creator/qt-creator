@@ -91,25 +91,9 @@ void WatchData::setError(const QString &msg)
     valuedisabled = true;
 }
 
-static QByteArray quoteUnprintable(const QByteArray &ba)
+void WatchData::setValue(const QString &value0)
 {
-    QByteArray res;
-    char buf[10];
-    for (int i = 0, n = ba.size(); i != n; ++i) {
-        unsigned char c = ba.at(i);
-        if (isprint(c)) {
-            res += c;
-        } else {
-            qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
-            res += buf;
-        }
-    }
-    return res;
-}
-
-void WatchData::setValue(const QByteArray &value0)
-{
-    value = quoteUnprintable(value0);
+    value = value0;
     if (value == "{...}") {
         value.clear();
         childCount = 1; // at least one...
