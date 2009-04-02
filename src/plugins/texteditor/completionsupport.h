@@ -69,6 +69,7 @@ private:
     int m_startPosition;
     bool m_checkCompletionTrigger;          // Whether to check for completion trigger after cleanup
     ITextEditable *m_editor;
+    QList<ICompletionCollector *> m_completionCollectors;
     ICompletionCollector *m_completionCollector;
 };
 

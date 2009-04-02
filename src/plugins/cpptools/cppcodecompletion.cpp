@@ -508,6 +508,9 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     return start;
 }
 
+bool CppCodeCompletion::isValid(TextEditor::ITextEditable *editor)
+{ return m_manager->isCppEditor(editor); }
+
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     if (! m_manager->isCppEditor(editor)) // ### remove me
