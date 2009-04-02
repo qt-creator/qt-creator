@@ -6,7 +6,7 @@ description = "Qt Creator Manual"
 headerdirs = 
 sourcedirs =
 sourcedirs = $SRCDIR
-imagedirs = $SRCDIR
+imagedirs = $SRCDIR/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR
 
