@@ -754,7 +754,7 @@ void Qt4ProFileNode::updateUiFiles(const QString &buildDirectory)
     const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
     // Find the UiDir, there can only ever be one
-    QString uiDir = buildDirectory;
+    QString uiDir = buildDir();
     QStringList tmp = m_varValues[UiDirVar];
     if (tmp.size() != 0)
         uiDir = tmp.first();
