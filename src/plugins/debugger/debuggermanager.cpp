@@ -1055,6 +1055,7 @@ void DebuggerManager::sessionLoaded()
 
 void DebuggerManager::sessionUnloaded()
 {
+    return;
     cleanupViews();
     if (m_engine)
         m_engine->shutdown();
