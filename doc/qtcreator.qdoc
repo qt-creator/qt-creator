@@ -564,15 +564,7 @@
     \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}. This is done with
     the following code:
 
-    \code
-    private slots:
-        void on_findButton_clicked();
-
-    private:
-        Ui::TextFinder *ui;
-        void loadTextFile();
-    \endcode
-
+    \snippet examples/textfinder/textfinder.h 0
     \note The \c{Ui::TextFinder} object is already provided.
 
     \section2 The Source File
@@ -581,7 +573,7 @@
     \c{textfinder.cpp}.  We begin by filling in the functionality to load a
     text file. The code snippet below describes this:
 
-    \snippet example/textfinder/textfinder.cpp 0
+    \snippet examples/textfinder/textfinder.cpp 0
 
     Basically, we load a text file using
     \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
@@ -589,22 +581,20 @@
     then display it on \c{textEdit} with
     \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
     which requires adding the following additional #includes to textfinder.cpp:
-    \code
-    #include <QtCore/QFile>
-    #include <QtCore/QTextStream>
-    \endcode
+
+    \snippet examples/textfinder/textfinder.cpp 1
 
     For the \c{on_findButton_clicked()} slot, we extract the search string and
     use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
     to look for the search string within the text file. The code snippet below
     further describes it:
 
-    \snippet example/textfinder/textfinder.cpp 1
+    \snippet examples/textfinder/textfinder.cpp 2
 
     Once we have both these functions complete, we call \c{loadTextFile()} in
     our constructor.
 
-    \snippet example/textfinder/textfinder.cpp 2
+    \snippet examples/textfinder/textfinder.cpp 3
 
     The \c{on_findButton_clicked()} slot will be called automatically due to
     this line of code:

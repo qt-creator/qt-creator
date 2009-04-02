@@ -29,18 +29,20 @@
 
 #include "textfinder.h"
 
+//! [1]
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
+//! [1]
 #include <QtGui/QMessageBox>
 
-//! [2]
+//! [3]
 TextFinder::TextFinder(QWidget *parent)
     : QWidget(parent), ui(new Ui::TextFinder)
 {
     ui->setupUi(this);
     loadTextFile();
 }
-//! [2]
+//! [3]
 
 TextFinder::~TextFinder()
 {
@@ -63,10 +65,10 @@ void TextFinder::loadTextFile()
 }
 //! [0]
 
-//! [1]
+//! [2]
 void TextFinder::on_findButton_clicked()
 {
     QString searchString = ui->lineEdit->text();
     ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
 }
-//! [1]
+//! [2]
