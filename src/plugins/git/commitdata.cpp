@@ -63,9 +63,9 @@ QString GitSubmitEditorPanelData::authorString() const
     QString rc;
     rc += QLatin1Char('"');
     rc += author;
-    rc += QLatin1String(" <");
+    rc += QLatin1String("\" <");
     rc += email;
-    rc += QLatin1String(">\"");
+    rc += QLatin1Char('>');
     return rc;
 }
 
