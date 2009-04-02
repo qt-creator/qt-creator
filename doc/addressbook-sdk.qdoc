@@ -1,0 +1,179 @@
+/****************************************************************************
+**
+** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Contact: Qt Software Information (qt-info@nokia.com)
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the either Technology Preview License Agreement or the
+** Beta Release License Agreement.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain
+** additional rights. These rights are described in the Nokia Qt LGPL
+** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
+** package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page tutorials-addressbook-sdk.html
+
+    \startpage {index.html}{Qt Reference Documentation}
+    \nextpage \l{Designing the User Interface}{Chapter 1}
+
+    \title Address Book Tutorial
+    \ingroup howto
+    \ingroup tutorials
+    \brief An introduction to GUI programming with Qt and Qt Creator,
+    describing in detail how to put together a simple yet fully-
+    functioning application.
+
+    This tutorial gives an introduction to GUI programming using the Qt SDK.
+
+    ### Screenshot
+
+    In the process, we will learn about some basic technologies provided by
+    Qt, such as:
+
+    \list
+        \o  Widgets and layout managers
+        \o  Container classes
+        \o  Signals and slots
+        \o  Input and output devices
+    \endlist
+
+    If you are completely new to Qt, please read \l{How to Learn Qt} if you
+    have not already done so.
+
+    The tutorial's source code is located in Qt's
+    \c{examples/tutorials/addressbook} directory.
+
+    Tutorial chapters:
+
+    \list 1
+        \o \l{Designing the User Interface}
+        \o \l{Adding Addresses}
+        \o \l{Navigating between Entries}
+        \o \l{Editing and Removing Addresses}
+        \o \l{Adding a Find Function}
+        \o \l{Loading and Saving}
+        \o \l{Additional Features}
+    \endlist
+
+    Although this little application does not look much like a fully-fledged
+    modern GUI application, it uses many of the basic techniques that are used
+    in more complex applications. After you have worked through it, we
+    recommend checking out the \l{mainwindows/application}{Application}
+    example, which presents a small GUI application, with menus, toolbars, a
+    status bar, and so on.
+*/
+
+
+/*!
+    \page tutorials-addressbook-sdk-part1.html
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{Adding Addresses}{Chapter 2}
+    \title Address Book 1 - Designing the User Interface
+
+    The first part of this tutorial covers the design of the basic graphical
+    user interface (GUI) we use for the Address Book application.
+
+    The first step to creating a GUI program is to design the user interface.
+    In this chapter, our goal is to set up the labels and input fields needed
+    to implement a basic address book application. The figure below is a
+    screenshot of our expected output.
+
+    \image addressbook-tutorial-part1-screenshot.png
+
+    We begin by launching Qt Creator and use it to generate a new project. To
+    do this, select \gui New from the \gui File menu. In the
+    \gui{New File or Project} dialog. Follow the step by step guide on how to
+    create a \gui Project with Qt Creator, refer to the document
+    \l{Creating a Project in Qt Creator}{here}. Ensure that you select QWidget
+    as your subclass and name it \c AddressBook.
+
+    There are five files generated in this \gui{Project}:
+
+    \list
+        \o  \c{addressbook.pro} - the project file,
+        \o  \c{addressbook.h} - the definition file for the \c AddressBook
+            class,
+        \o  \c{addressbook.cpp} - the implementation file for the
+            \c AddressBook class,
+        \o  \c{main.cpp} - the file containing a \c main() function, with an
+            instance of \c AddressBook, and
+        \o  \c{addressbook.ui} - the user interface file created with \QD.
+    \endlist
+
+    Now we have all the files we need, let's move on to designing the user
+    interface.
+
+    \section1 Placing the Widgets on the Form
+
+    In the \gui{Project Sidebar}, double-click on the \c{addressbook.ui} file.
+    The \QD plugin will be launched, allowing you to design your program's user
+    interface.
+
+    We require two \l{QLabel}s to label the input fields as well as a
+    QLineEdit and a QTextEdit as the input fields. So, drag those widgets from
+    the \gui{Widget Box} to your form. In the \gui{Property Editor}, set their
+    \gui{objectName} property to \c nameLabel and \c addressLabel for the
+    \l{QLabel}s, \c nameLine for the QLineEdit and finally, \c addressText for
+    the QTextEdit.
+
+    Next, we have to position the widgets properly, according to the screenshot
+    earlier. We use a QGridLayout to position our labels and input fields in a
+    structured manner. QGridLayout divides the available space into a grid and
+    places widgets in the cells we specify with row and column numbers. The
+    diagram below shows the layout cells and the position of our widgets.
+
+    \image addressbook-tutorial-part1-labeled-screenshot.png
+
+
+    \section1 Qt Programming - Subclassing
+
+    When writing Qt programs, we usually subclass Qt objects to add
+    functionality. This is one of the essential concepts behind creating custom
+    widgets or collections of standard widgets. Subclassing to extend or change
+    the behavior of a widget has the following advantages:
+
+    \list
+        \o  We can write implementations of virtual or pure virtual functions
+            to obtain exactly what we need, falling back on the base class's
+            implementation when necessary.
+        \o  It allows us to encapsulate parts of the user interface within a
+            class, so that the other parts of the application do not need to
+            know about the individual widgets in the user interface.
+        \o  The subclass can be used to create multiple custom widgets in the
+            same application or library, and the code for the subclass can be
+            reused in other projects.
+    \endlist
+
+
+
+
+*/
