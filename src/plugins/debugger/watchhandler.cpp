@@ -47,8 +47,8 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QTextEdit>
 
-
 #include <ctype.h>
+
 
 // creates debug output regarding pending watch data results
 #define DEBUG_PENDING 1

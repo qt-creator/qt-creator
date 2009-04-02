@@ -65,6 +65,7 @@
 #include <unistd.h>
 #include <dlfcn.h>
 #endif
+#include <ctype.h>
 
 using namespace Debugger;
 using namespace Debugger::Internal;
