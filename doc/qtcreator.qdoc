@@ -43,6 +43,21 @@
     \endlist
     \endtable
 
+    \raw HTML
+    <center>
+    <object width="425" height="344">
+    <param name="movie"
+    value="http://www.youtube.com/v/U7yje3D1UM4&hl=en&fs=1"></param>
+    <param name="allowFullScreen" value="true"></param>
+    <param name="allowscriptaccess" value="always"></param>
+    <embed src="http://www.youtube.com/v/U7yje3D1UM4&hl=en&fs=1"
+    type="application/x-shockwave-flash" allowscriptaccess="always"
+    allowfullscreen="true" width="425" height="344">
+    </embed>
+    </object>
+    </center>
+    \endraw
+
     To learn more about the Qt Creator, click on one of the links below:
 
     \list
@@ -565,6 +580,7 @@
     the following code:
 
     \snippet examples/textfinder/textfinder.h 0
+
     \note The \c{Ui::TextFinder} object is already provided.
 
     \section2 The Source File
