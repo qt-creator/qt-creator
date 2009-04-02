@@ -138,8 +138,9 @@ void EditorModel::addEntry(const Entry &entry)
     }
 
     int index;
+    QString displayName = entry.displayName();
     for (index = 0; index < m_editors.count(); ++index) {
-        if (fileName < m_editors.at(index).fileName())
+        if (displayName < m_editors.at(index).displayName())
             break;
     }
 
