@@ -86,12 +86,12 @@ void ProFileReader::releaseParsedProFile(ProFile *)
 
 QList<ProFile*> ProFileReader::includeFiles() const
 {
-    QString qmakeMkSpecDir = propertyValue("QMAKE_MKSPECS");
+    QString qmakeMkSpecDir = QFileInfo(propertyValue("QMAKE_MKSPECS")).absoluteFilePath();
     QList<ProFile *> list;
     QMap<QString, ProFile *>::const_iterator it, end;
     end = m_includeFiles.constEnd();
     for (it = m_includeFiles.constBegin(); it != end; ++it) {
-        if (!(it.key().startsWith(qmakeMkSpecDir)))
+        if (!QFileInfo((it.key())).absoluteFilePath().startsWith(qmakeMkSpecDir))
             list.append(it.value());
     }
     return list;
