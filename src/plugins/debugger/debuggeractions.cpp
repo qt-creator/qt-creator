@@ -250,16 +250,16 @@ DebuggerSettings *theDebuggerSettings()
     // Settings
     //
     item = new SavedAction(instance);
-    instance->insertItem(GdbLocation, item);
     item->setSettingsKey("DebugMode", "Location");
+    instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(GdbEnvironment, item);
     item->setSettingsKey("DebugMode", "Environment");
+    instance->insertItem(GdbEnvironment, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(GdbScriptFile, item);
     item->setSettingsKey("DebugMode", "ScriptFile");
+    instance->insertItem(GdbScriptFile, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "AutoQuit");
@@ -268,43 +268,48 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(AutoQuit, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(UseToolTips, item);
     item->setSettingsKey("DebugMode", "UseToolTips");
     item->setText(QObject::tr("Use tooltips when debugging"));
     item->setCheckable(true);
+    instance->insertItem(UseToolTips, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(TerminalApplication, item);
     item->setDefaultValue("xterm");
     item->setSettingsKey("DebugMode", "Terminal");
+    instance->insertItem(TerminalApplication, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(ListSourceFiles, item);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
     item->setText(QObject::tr("List source files"));
     item->setCheckable(true);
+    instance->insertItem(ListSourceFiles, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(SkipKnownFrames, item);
     item->setSettingsKey("DebugMode", "SkipKnownFrames");
     item->setText(QObject::tr("Skip known frames"));
     item->setCheckable(true);
+    instance->insertItem(SkipKnownFrames, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(AllPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
+    instance->insertItem(AllPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(SelectedPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpoints");
+    instance->insertItem(SelectedPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(NoPluginBreakpoints, item);
     item->setSettingsKey("DebugMode", "NoPluginBreakpoints");
+    instance->insertItem(NoPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(SelectedPluginBreakpointsPattern, item);
     item->setSettingsKey("DebugMode", "SelectedPluginBreakpointsPattern");
+    instance->insertItem(SelectedPluginBreakpointsPattern, item);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey("DebugMode", "MaximalStackDepth");
+    item->setDefaultValue(20);
+    instance->insertItem(MaximalStackDepth, item);
 
     return instance;
 }

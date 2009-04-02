@@ -93,6 +93,8 @@ private:
     Q_SLOT void lineEditEditingFinished();
     Q_SLOT void pathChooserEditingFinished();
     Q_SLOT void actionTriggered(bool);
+    Q_SLOT void spinBoxValueChanged(int);
+    Q_SLOT void spinBoxValueChanged(QString);
 
     QVariant m_value;
     QVariant m_defaultValue;

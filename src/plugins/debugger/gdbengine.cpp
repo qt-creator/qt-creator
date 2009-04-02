@@ -886,7 +886,7 @@ void GdbEngine::handleTargetCore(const GdbResultRecord &record)
     qq->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
 
-    sendSynchronizedCommand("-stack-list-frames", StackListFrames);
+    reloadStack();
     if (supportsThreads())
         sendSynchronizedCommand("-thread-list-ids", StackListThreads, 0);
 
@@ -1303,6 +1303,13 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 #endif
 }
 
+void GdbEngine::reloadStack()
+{
+    QString cmd = "-stack-list-frames";
+    if (int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt())
+        cmd += " 0 " + QString::number(stackDepth);
+    sendSynchronizedCommand(cmd, StackListFrames);
+}
 
 void GdbEngine::handleAsyncOutput2(const GdbMi &data)
 {
@@ -1315,7 +1322,7 @@ void GdbEngine::handleAsyncOutput2(const GdbMi &data)
     updateLocals(); // Quick shot
 
     int currentId = data.findChild("thread-id").data().toInt();
-    sendSynchronizedCommand("-stack-list-frames", StackListFrames);
+    reloadStack();
     if (supportsThreads())
         sendSynchronizedCommand("-thread-list-ids", StackListThreads, currentId);
 
@@ -1739,7 +1746,7 @@ void GdbEngine::handleAttach()
     qq->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
 
-    sendSynchronizedCommand("-stack-list-frames", StackListFrames);
+    reloadStack();
     if (supportsThreads())
         sendSynchronizedCommand("-thread-list-ids", StackListThreads, 0);
 
@@ -2441,7 +2448,7 @@ void GdbEngine::handleStackSelectThread(const GdbResultRecord &record, int)
     Q_UNUSED(record);
     //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
     q->showStatusMessage(tr("Retrieving data for stack view..."), 3000);
-    sendCommand("-stack-list-frames", StackListFrames);
+    reloadStack();
 }
 
 
@@ -2458,7 +2465,8 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
 
     int topFrame = -1;
 
-    for (int i = 0; i != stack.childCount(); ++i) {
+    int n = stack.childCount();
+    for (int i = 0; i != n; ++i) {
         //qDebug() << "HANDLING FRAME: " << stack.childAt(i).toString();
         const GdbMi frameMi = stack.childAt(i);
         StackFrame frame(i);
@@ -2493,6 +2501,16 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
         const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
         if (isValid && topFrame == -1)
             topFrame = i;
+    }
+
+    if (n >= theDebuggerAction(MaximalStackDepth)->value().toInt()) {
+        StackFrame frame(n);
+        frame.file = "...";
+        frame.function = "...";
+        frame.from = "...";
+        frame.line = 0;
+        frame.address = "...";
+        stackFrames.append(frame);
     }
 
     qq->stackHandler()->setFrames(stackFrames);

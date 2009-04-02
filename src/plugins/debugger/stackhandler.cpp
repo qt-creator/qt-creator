@@ -37,11 +37,9 @@
 
 using namespace Debugger::Internal;
 
-StackFrame::StackFrame(int l) :
-    level(l),
-    line(0)
-{
-}
+StackFrame::StackFrame(int l)
+  : level(l), line(0)
+{}
 
 bool StackFrame::isUsable() const
 {
@@ -182,6 +180,7 @@ bool StackHandler::isDebuggingDumpers() const
             return true;
     return false;
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 //

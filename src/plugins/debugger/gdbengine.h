@@ -280,6 +280,7 @@ private:
     void handleStackListFrames(const GdbResultRecord &record);
     void handleStackSelectThread(const GdbResultRecord &record, int cookie);
     void handleStackListThreads(const GdbResultRecord &record, int cookie);
+    void reloadStack();
 
 
     //

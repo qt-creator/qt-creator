@@ -29,7 +29,7 @@
 
 #include "stackwindow.h"
 
-#include "stackhandler.h"
+#include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
 
@@ -102,6 +102,8 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

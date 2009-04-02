@@ -35,12 +35,13 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
+#include <QtGui/QAbstractButton>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QRadioButton>
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
+#include <QtGui/QRadioButton>
+#include <QtGui/QSpinBox>
 
 
 using namespace Core::Utils;
@@ -289,6 +290,13 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
             connect(button, SIGNAL(clicked()),
                 this, SLOT(uncheckableButtonClicked()));
         }
+    } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
+        spinBox->setValue(m_value.toInt());
+        //qDebug() << "SETTING VALUE" << spinBox->value(); 
+        connect(spinBox, SIGNAL(valueChanged(int)),
+            this, SLOT(spinBoxValueChanged(int)));
+        connect(spinBox, SIGNAL(valueChanged(QString)),
+            this, SLOT(spinBoxValueChanged(QString)));
     } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
         //qDebug() << "SETTING TEXT" << lineEdit->text(); 
@@ -322,6 +330,8 @@ void SavedAction::apply(QSettings *s)
         setValue(button->isChecked());
     else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
         setValue(lineEdit->text());
+    else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(m_widget))
+        setValue(spinBox->value());
     else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
     if (s)
@@ -351,6 +361,22 @@ void SavedAction::lineEditEditingFinished()
     QTC_ASSERT(lineEdit, return);
     if (m_applyMode == ImmediateApply)
         setValue(lineEdit->text());
+}
+
+void SavedAction::spinBoxValueChanged(int value)
+{
+    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
+    QTC_ASSERT(spinBox, return);
+    if (m_applyMode == ImmediateApply)
+        setValue(value);
+}
+
+void SavedAction::spinBoxValueChanged(QString value)
+{
+    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
+    QTC_ASSERT(spinBox, return);
+    if (m_applyMode == ImmediateApply)
+        setValue(value);
 }
 
 void SavedAction::pathChooserEditingFinished()

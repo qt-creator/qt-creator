@@ -76,6 +76,9 @@ enum DebuggerActionCode
     GdbEnvironment,
     GdbScriptFile,
 
+    // Stack
+    MaximalStackDepth,
+
     // Watchers & Locals
     WatchExpression,
     WatchExpressionInWindow,

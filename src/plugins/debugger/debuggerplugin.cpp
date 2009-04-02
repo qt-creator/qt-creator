@@ -297,6 +297,8 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTips), 
         m_ui.checkBoxUseToolTips);
+    m_group.insert(theDebuggerAction(MaximalStackDepth), 
+        m_ui.spinBoxMaximalStackDepth);
 
     m_ui.lineEditSelectedPluginBreakpointsPattern->
         setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());
