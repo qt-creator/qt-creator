@@ -40,7 +40,7 @@
 namespace Perforce {
 namespace Internal {
 
-struct PerforceSettings;
+class PerforceSettings;
 
 class SettingsPageWidget : public QWidget {
     Q_OBJECT
