@@ -314,6 +314,10 @@ DebuggerSettings *theDebuggerSettings()
     item->setDefaultValue(20);
     instance->insertItem(MaximalStackDepth, item);
 
+    item = new SavedAction(instance);
+    item->setText(QObject::tr("Execute line"));
+    instance->insertItem(ExecuteCommand, item);
+
     return instance;
 }
 

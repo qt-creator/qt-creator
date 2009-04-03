@@ -75,6 +75,7 @@ enum DebuggerActionCode
     GdbLocation,
     GdbEnvironment,
     GdbScriptFile,
+    ExecuteCommand,
 
     // Stack
     MaximalStackDepth,
