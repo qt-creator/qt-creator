@@ -45,6 +45,7 @@ public:
 
     virtual ~IFindFilter() {}
 
+    virtual QString id() const = 0;
     virtual QString name() const = 0;
     virtual bool isEnabled() const = 0;
     virtual QKeySequence defaultShortcut() const = 0;
