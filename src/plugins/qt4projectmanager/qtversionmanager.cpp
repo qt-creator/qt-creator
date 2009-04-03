@@ -64,44 +64,6 @@ static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
 
-DebuggingHelperWidget::DebuggingHelperWidget()
-{
-    setLayout(new QHBoxLayout());
-    m_statusLabel = new QLabel(this);
-
-    layout()->addWidget(m_statusLabel);
-
-    m_showLog = new QPushButton(this);
-    m_showLog->setText("Show Log");
-    layout()->addWidget(m_showLog);
-
-    m_rebuild = new QPushButton(this);
-    m_rebuild->setText("Rebuild");
-    layout()->addWidget(m_rebuild);
-
-    connect(m_showLog, SIGNAL(clicked()), this, SIGNAL(showLogClicked()));
-    connect(m_rebuild, SIGNAL(clicked()), this, SIGNAL(rebuildClicked()));
-}
-
-void DebuggingHelperWidget::setState(State s)
-{
-    if (s & InvalidQt) {
-        m_statusLabel->setVisible(false);
-        m_showLog->setVisible(false);
-        m_rebuild->setVisible(false);
-        return;
-    } else {
-        m_statusLabel->setVisible(true);
-        m_statusLabel->setText("");
-        m_showLog->setVisible(true);
-        m_rebuild->setVisible(true);
-        if (s & Error)
-            m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
-        else
-            m_statusLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
-        m_showLog->setVisible(s & ShowLog);
-    }
-}
 
 
 QtVersionManager::QtVersionManager()
@@ -445,19 +407,14 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
         item->setText(1, version->path());
         item->setData(0, Qt::UserRole, version->uniqueId());
 
-        DebuggingHelperWidget *dhw = new DebuggingHelperWidget();
-        m_ui.qtdirList->setItemWidget(item, 2, dhw);
         if (version->isValid()) {
             if (version->hasDebuggingHelper())
-                dhw->setState(DebuggingHelperWidget::Ok);
+                item->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
             else
-                dhw->setState(DebuggingHelperWidget::Error);
+                item->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
         } else {
-            dhw->setState(DebuggingHelperWidget::InvalidQt);
+            item->setData(2, Qt::DecorationRole, QIcon());
         }
-
-        connect(dhw, SIGNAL(rebuildClicked()), this, SLOT(buildDebuggingHelper()));
-        connect(dhw, SIGNAL(showLogClicked()), this, SLOT(showDebuggingBuildLog()));
 
         m_ui.defaultCombo->addItem(version->name());
         if (i == m_defaultVersion)
@@ -491,6 +448,11 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
     connect(m_ui.msvcComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(msvcVersionChanged()));
 
+    connect(m_ui.rebuildButton, SIGNAL(clicked()),
+            this, SLOT(buildDebuggingHelper()));
+    connect(m_ui.showLogButton, SIGNAL(clicked()),
+            this, SLOT(showDebuggingBuildLog()));
+
     showEnvironmentPage(0);
     updateState();
 }
@@ -498,47 +460,37 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
 void QtDirWidget::buildDebuggingHelper()
 {
     // Find the qt version for this button..
-    int index = indexForWidget(qobject_cast<QWidget *>(sender()));
-    if (index == -1)
+    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
+    if (!currentItem)
         return;
 
-    QString result = m_versions.at(index)->buildDebuggingHelperLibrary();
+    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
+    QtVersion *version = m_versions[currentItemIndex];
 
-    QTreeWidgetItem *item = m_ui.qtdirList->topLevelItem(index);
-    item->setData(2, Qt::UserRole, result);
-    DebuggingHelperWidget *dhw =
-        qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(item, 2));
-    if (dhw) {
+    QString result = m_versions.at(currentItemIndex)->buildDebuggingHelperLibrary();
+    currentItem->setData(2, Qt::UserRole, result);
 
-        if (m_versions.at(index)->hasDebuggingHelper())
-            dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Ok | DebuggingHelperWidget::ShowLog));
-        else
-            dhw->setState(DebuggingHelperWidget::State(DebuggingHelperWidget::Error | DebuggingHelperWidget::ShowLog));
+    if (version->hasDebuggingHelper()) {
+        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
+        currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
+    } else {        
+        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
+        currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
     }
-}
-
-int QtDirWidget::indexForWidget(QWidget *widget) const
-{
-    int index = -1;
-    for (int i = 0; i < m_ui.qtdirList->topLevelItemCount(); ++i) {
-        if (m_ui.qtdirList->itemWidget(m_ui.qtdirList->topLevelItem(i), 2) == widget) {
-            index = i;
-            break;
-        }
-    }
-    return index;
+    m_ui.showLogButton->setEnabled(true);
 }
 
 void QtDirWidget::showDebuggingBuildLog()
 {
-    int index = indexForWidget(qobject_cast<QWidget *>(sender()));
-    if (index == -1)
+    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
+    if (!currentItem)
         return;
 
+    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
     QDialog dlg;
     Ui_ShowBuildLog ui;
     ui.setupUi(&dlg);
-    ui.log->setPlainText(m_ui.qtdirList->topLevelItem(index)->data(2, Qt::UserRole).toString());
+    ui.log->setPlainText(m_ui.qtdirList->topLevelItem(currentItemIndex)->data(2, Qt::UserRole).toString());
     dlg.exec();
 }
 
@@ -556,16 +508,7 @@ void QtDirWidget::addQtDir()
     item->setText(0, newVersion->name());
     item->setText(1, newVersion->path());
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
-
-    DebuggingHelperWidget *dhw = new DebuggingHelperWidget();
-    m_ui.qtdirList->setItemWidget(item, 2, dhw);
-    if (newVersion->hasDebuggingHelper())
-        dhw->setState(DebuggingHelperWidget::Ok);
-    else
-        dhw->setState(DebuggingHelperWidget::Error);
-    connect(dhw, SIGNAL(rebuildClicked()), this, SLOT(buildDebuggingHelper()));
-    connect(dhw, SIGNAL(showLogClicked()), this, SLOT(showDebuggingBuildLog()));
-    m_ui.qtdirList->setItemWidget(item, 2, dhw);
+    item->setData(2, Qt::DecorationRole, QIcon());
 
     m_ui.qtdirList->setCurrentItem(item);
 
@@ -579,8 +522,6 @@ void QtDirWidget::addQtDir()
 void QtDirWidget::removeQtDir()
 {
     QTreeWidgetItem *item = m_ui.qtdirList->currentItem();
-
-
     int index = m_ui.qtdirList->indexOfTopLevelItem(item);
     if (index < 0)
         return;
@@ -607,8 +548,24 @@ void QtDirWidget::updateState()
     m_ui.nameEdit->setEnabled(enabled && !isSystemVersion);
     m_ui.qtPath->setEnabled(enabled && !isSystemVersion);
     m_ui.mingwPath->setEnabled(enabled);
-}
 
+    bool hasLog = enabled && !m_ui.qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
+    m_ui.showLogButton->setEnabled(hasLog);
+
+    QtVersion *version = 0;
+    if (enabled)
+        version = m_versions.at(m_ui.qtdirList->indexOfTopLevelItem(m_ui.qtdirList->currentItem()));
+    if (version) {
+        m_ui.rebuildButton->setEnabled(version->isValid());
+        if (version->hasDebuggingHelper())
+            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
+        else
+            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
+    } else {
+        m_ui.rebuildButton->setEnabled(false);
+        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap());
+    }
+}
 void QtDirWidget::makeMingwVisible(bool visible)
 {
     m_ui.mingwLabel->setVisible(visible);
@@ -781,16 +738,20 @@ void QtDirWidget::updateCurrentQtPath()
 
     showEnvironmentPage(currentItem);
 
-    DebuggingHelperWidget *dhw = qobject_cast<DebuggingHelperWidget *>(m_ui.qtdirList->itemWidget(currentItem, 2));
     if (m_versions[currentItemIndex]->isValid()) {
-        DebuggingHelperWidget::State s = DebuggingHelperWidget::Ok;
-        if (!m_versions[currentItemIndex]->hasDebuggingHelper())
-            s = DebuggingHelperWidget::State(s | DebuggingHelperWidget::Error);
-        if (!currentItem->data(2, Qt::UserRole).toString().isEmpty())
-            s = DebuggingHelperWidget::State(s | DebuggingHelperWidget::ShowLog);
-        dhw->setState(s);
+        bool hasLog = !currentItem->data(2, Qt::UserRole).toString().isEmpty();
+        bool hasHelper = m_versions[currentItemIndex]->hasDebuggingHelper();
+        if (hasHelper) {
+            currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
+            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
+        } else {
+            currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
+            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
+        }
+        m_ui.showLogButton->setEnabled(hasLog);
     } else {
-        dhw->setState(DebuggingHelperWidget::InvalidQt);
+        currentItem->setData(2, Qt::DecorationRole, QIcon());
+        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap());
     }
 }
 

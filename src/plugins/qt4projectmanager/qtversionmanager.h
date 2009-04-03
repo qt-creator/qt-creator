@@ -223,27 +223,6 @@ private:
     int m_idcount;
 };
 
-class DebuggingHelperWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    DebuggingHelperWidget();
-    enum State {
-        Ok = 0,
-        Error = 1,
-        ShowLog = 2,
-        InvalidQt = 4
-    };
-    void setState(State s);
-signals:
-    void rebuildClicked();
-    void showLogClicked();
-private:
-    QLabel *m_statusLabel;
-    QPushButton *m_showLog;
-    QPushButton *m_rebuild;
-};
-
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
