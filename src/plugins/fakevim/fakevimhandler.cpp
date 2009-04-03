@@ -260,7 +260,6 @@ public:
     // helper functions for indenting
     bool isElectricCharacter(QChar c) const
         { return c == '{' || c == '}' || c == '#'; }
-    int indentDist() const;
     void indentRegion(QChar lastTyped = QChar());
     void shiftRegionLeft(int repeat = 1);
     void shiftRegionRight(int repeat = 1);
@@ -386,6 +385,12 @@ public:
 
     int m_cursorWidth;
 
+    // auto-indent
+    void insertAutomaticIndentation(bool goingDown);
+    bool removeAutomaticIndentation(); // true if something removed
+    // number of autoindented characters
+    int m_justAutoIndented;
+
     void recordJump();
     void recordNewUndo();
     QList<int> m_jumpListUndo;
@@ -419,7 +424,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_savedYankPosition = 0;
     m_cursorWidth = EDITOR(cursorWidth());
     m_inReplay = false;
-
+    m_justAutoIndented = 0;
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -492,7 +497,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         key += 32;
     }
 
-    m_undoCursorPosition[EDITOR(document())->revision()] = m_tc.position();
+    m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
     if (m_mode == InsertMode)
         m_tc.joinPreviousEditBlock();
     else
@@ -1218,16 +1223,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_dotCommand = QString("%1o").arg(count());
         enterInsertMode();
         moveToFirstNonBlankOnLine();
-        int numSpaces = leftDist();
         if (key == 'O')
             moveUp();
         moveToEndOfLine();
         m_tc.insertText("\n");
-        moveToStartOfLine();
-        if (0 && hasConfig(ConfigAutoIndent))
-            m_tc.insertText(QString(indentDist(), ' '));
-        else
-            m_tc.insertText(QString(numSpaces, ' '));
+        insertAutomaticIndentation(key == 'o');
     } else if (key == control('o')) {
         if (!m_jumpListUndo.isEmpty()) {
             m_jumpListRedo.append(position());
@@ -1423,10 +1423,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         moveLeft(count());
         m_lastInsertion.clear();
     } else if (key == Key_Down) {
+        removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveDown(count());
         m_lastInsertion.clear();
     } else if (key == Key_Up) {
+        removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveUp(count());
         m_lastInsertion.clear();
@@ -1437,20 +1439,22 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
-        if (0 && hasConfig(ConfigAutoIndent))
-            indentRegion('\n');
+        insertAutomaticIndentation(true);
     } else if (key == Key_Backspace || key == control('h')) {
-        if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
-            m_tc.deletePreviousChar();
-            m_lastInsertion = m_lastInsertion.left(m_lastInsertion.size() - 1);
-        }
+        if (!removeAutomaticIndentation()) 
+            if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
+                m_tc.deletePreviousChar();
+                m_lastInsertion.chop(1);
+            }
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
         m_lastInsertion.clear();
     } else if (key == Key_PageDown || key == control('f')) {
+        removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
     } else if (key == Key_PageUp || key == control('b')) {
+        removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
@@ -1914,14 +1918,6 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
     }
 }
 
-int FakeVimHandler::Private::indentDist() const
-{
-    int amount = 0;
-    int line = cursorLineInDocument();
-    emit q->indentRegion(&amount, line, line, QChar(' '));
-    return amount;
-}
-
 void FakeVimHandler::Private::indentRegion(QChar typedChar)
 {
     //int savedPos = anchor();
@@ -2153,7 +2149,7 @@ void FakeVimHandler::Private::scrollUp(int count)
 
 int FakeVimHandler::Private::lastPositionInDocument() const
 {
-    QTextBlock block = m_tc.block().document()->lastBlock();
+    QTextBlock block = m_tc.document()->lastBlock();
     return block.position() + block.length();
 }
 
@@ -2171,12 +2167,12 @@ QString FakeVimHandler::Private::selectedText() const
 
 int FakeVimHandler::Private::firstPositionInLine(int line) const
 {
-    return m_tc.block().document()->findBlockByNumber(line - 1).position();
+    return m_tc.document()->findBlockByNumber(line - 1).position();
 }
 
 int FakeVimHandler::Private::lastPositionInLine(int line) const
 {
-    QTextBlock block = m_tc.block().document()->findBlockByNumber(line - 1);
+    QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
     return block.position() + block.length() - 1;
 }
 
@@ -2213,14 +2209,14 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
-    int current = EDITOR(document())->revision();
+    int current = m_tc.document()->revision();
     m_tc.endEditBlock();
     m_needMoreUndo = false;
     EDITOR(undo());
     if (m_needMoreUndo)
         EDITOR(undo());
     m_tc.beginEditBlock();
-    int rev = EDITOR(document())->revision();
+    int rev = m_tc.document()->revision();
     if (current == rev)
         showBlackMessage(tr("Already at oldest change"));
     else
@@ -2231,14 +2227,14 @@ void FakeVimHandler::Private::undo()
 
 void FakeVimHandler::Private::redo()
 {
-    int current = EDITOR(document())->revision();
+    int current = m_tc.document()->revision();
     m_tc.endEditBlock();
     m_needMoreUndo = false;
     EDITOR(redo());
     if (m_needMoreUndo)
         EDITOR(redo());
     m_tc.beginEditBlock();
-    int rev = EDITOR(document())->revision();
+    int rev = m_tc.document()->revision();
     if (rev == current)
         showBlackMessage(tr("Already at newest change"));
     else
@@ -2302,6 +2298,32 @@ void FakeVimHandler::Private::recordNewUndo()
     m_tc.endEditBlock();
     m_tc.document()->appendUndoItem(new UndoBreaker(this));
     m_tc.beginEditBlock();
+}
+
+void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
+{
+    if (!hasConfig(ConfigAutoIndent))
+        return;
+    QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
+    QString text = block.text();
+    int pos = 0, n = text.size();
+    while (pos < n && text.at(pos).isSpace())
+        ++pos;
+    text.truncate(pos);
+    // FIXME: handle 'smartindent' and 'cindent'
+    m_tc.insertText(text);
+    m_justAutoIndented = text.size();
+}
+
+bool FakeVimHandler::Private::removeAutomaticIndentation()
+{
+    if (!hasConfig(ConfigAutoIndent) || m_justAutoIndented == 0)
+        return false;
+    m_tc.movePosition(StartOfLine, KeepAnchor);
+    m_tc.removeSelectedText();
+    m_lastInsertion.chop(m_justAutoIndented);
+    m_justAutoIndented = 0;
+    return true;
 }
 
 

@@ -135,6 +135,14 @@ void testQByteArray()
     QByteArray ba = "Hello";
     ba += '"';
     ba += "World";
+
+    const char *str1 = "\356";
+    const char *str2 = "\xee";
+    const char *str3 = "\\ee";
+    QByteArray buf1( str1 );
+    QByteArray buf2( str2 );
+    QByteArray buf3( str3 );
+
     ba += char(0);
     ba += 1;
     ba += 2;
