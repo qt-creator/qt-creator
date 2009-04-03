@@ -211,7 +211,8 @@ private slots:
     void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();
-    void unsplit();
+    void deleteWindow();
+    void deleteOtherWindows();
     void gotoOtherWindow();
 
 private:

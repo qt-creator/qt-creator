@@ -123,7 +123,8 @@ const char * const ZOOM_WINDOW           = "QtCreator.ZoomWindow";
 
 const char * const SPLIT                 = "QtCreator.Split";
 const char * const SPLIT_SIDE_BY_SIDE    = "QtCreator.SplitSideBySide";
-const char * const UNSPLIT               = "QtCreator.Unsplit";
+const char * const DELETE_WINDOW         = "QtCreator.DeleteWindow";
+const char * const DELETE_OTHER_WINDOWS  = "QtCreator.DeleteOtherWindows";
 const char * const GOTO_OTHER_WINDOW     = "QtCreator.GotoOtherWindow";
 const char * const SAVEASDEFAULT         = "QtCreator.SaveAsDefaultLayout";
 const char * const RESTOREDEFAULT        = "QtCreator.RestoreDefaultLayout";

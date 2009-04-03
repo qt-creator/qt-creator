@@ -181,6 +181,7 @@ class SplitterOrView  : public QWidget
 public:
     SplitterOrView(Internal::EditorModel *model = 0); // creates a splitter with an empty view
     SplitterOrView(Core::IEditor *editor);
+    ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
     void unsplit();
@@ -210,14 +211,15 @@ public:
     QSize sizeHint() const { return minimumSizeHint(); }
     QSize minimumSizeHint() const;
 
+    void unsplitAll();
+
 protected:
     void focusInEvent(QFocusEvent *);
     void paintEvent(QPaintEvent *);
 
 
 private:
-    void close();
-    void closeSplitterEditors();
+    void unsplitAll_helper();
     SplitterOrView *findNextView_helper(SplitterOrView *view, bool *found);
     bool m_isRoot;
     QStackedLayout *m_layout;

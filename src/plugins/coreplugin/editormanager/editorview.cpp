@@ -520,6 +520,7 @@ void EditorView::removeEditor(IEditor *editor)
 
     m_container->removeWidget(editor->widget());
     m_widgetEditorMap.remove(editor->widget());
+    qDebug() << "EditorView::removeEditor" << editor << "  set 0 parent on widget" << editor->widget();
     editor->widget()->setParent(0);
     disconnect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
     QToolBar *toolBar = editor->toolBar();
@@ -656,6 +657,18 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor)
     m_layout->addWidget(m_view);
     setFocusPolicy(Qt::ClickFocus);
 }
+
+SplitterOrView::~SplitterOrView()
+{
+    delete m_layout;
+    m_layout = 0;
+    delete m_view;
+    m_view = 0;
+    delete m_splitter;
+    m_splitter = 0;
+}
+
+
 
 void SplitterOrView::focusInEvent(QFocusEvent *)
 {
@@ -861,24 +874,24 @@ void SplitterOrView::split(Qt::Orientation orientation)
         em->activateEditor(e);
 }
 
-void SplitterOrView::close()
+void SplitterOrView::unsplitAll()
 {
-    Q_ASSERT(!m_isRoot);
-    if (m_view) {
-        CoreImpl::instance()->editorManager()->emptyView(m_view);
-        delete m_view;
-        m_view = 0;
-    }
-    closeSplitterEditors();
+    m_splitter->hide();
+    m_layout->removeWidget(m_splitter); // workaround Qt bug
+    unsplitAll_helper();
+    delete m_splitter;
+    m_splitter = 0;
 }
 
-void SplitterOrView::closeSplitterEditors()
+void SplitterOrView::unsplitAll_helper()
 {
-    if (!m_splitter)
-        return;
-    for (int i = 0; i < m_splitter->count(); ++i) {
-        if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
-            splitterOrView->close();
+    if (!m_isRoot && m_view)
+        CoreImpl::instance()->editorManager()->emptyView(m_view);
+    if (m_splitter) {
+        for (int i = 0; i < m_splitter->count(); ++i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
+                splitterOrView->unsplitAll_helper();
+            }
         }
     }
 }

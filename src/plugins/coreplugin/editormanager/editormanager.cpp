@@ -154,7 +154,8 @@ struct EditorManagerPrivate {
     QAction *m_openInExternalEditorAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
-    QAction *m_unsplitAction;
+    QAction *m_deleteWindowAction;
+    QAction *m_deleteOtherWindowsAction;
     QAction *m_gotoOtherWindowAction;
 
     QList<IEditor *> m_editorHistory;
@@ -331,21 +332,27 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     m_d->m_splitAction = new QAction(tr("Split"), this);
     cmd = am->registerAction(m_d->m_splitAction, Constants::SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
 
     m_d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
     cmd = am->registerAction(m_d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
-    m_d->m_unsplitAction = new QAction(tr("Unsplit"), this);
-    cmd = am->registerAction(m_d->m_unsplitAction, Constants::UNSPLIT, editManagerContext);
+    m_d->m_deleteWindowAction = new QAction(tr("Delete Window"), this);
+    cmd = am->registerAction(m_d->m_deleteWindowAction, Constants::DELETE_WINDOW, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_d->m_unsplitAction, SIGNAL(triggered()), this, SLOT(unsplit()));
+    connect(m_d->m_deleteWindowAction, SIGNAL(triggered()), this, SLOT(deleteWindow()));
+
+    m_d->m_deleteOtherWindowsAction = new QAction(tr("Delete Other Windows"), this);
+    cmd = am->registerAction(m_d->m_deleteOtherWindowsAction, Constants::DELETE_OTHER_WINDOWS, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_d->m_deleteOtherWindowsAction, SIGNAL(triggered()), this, SLOT(deleteOtherWindows()));
 
     m_d->m_gotoOtherWindowAction = new QAction(tr("Goto other window"), this);
     cmd = am->registerAction(m_d->m_gotoOtherWindowAction, Constants::GOTO_OTHER_WINDOW, editManagerContext);
@@ -1344,7 +1351,8 @@ void EditorManager::updateActions()
     m_d->m_goForwardAction->setEnabled(m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()-1);
 
     bool hasSplitter = m_d->m_splitter->isSplitter();
-    m_d->m_unsplitAction->setEnabled(hasSplitter);
+    m_d->m_deleteWindowAction->setEnabled(hasSplitter);
+    m_d->m_deleteOtherWindowsAction->setEnabled(hasSplitter);
     m_d->m_gotoOtherWindowAction->setEnabled(hasSplitter);
 
     m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
@@ -1788,7 +1796,7 @@ void EditorManager::splitSideBySide()
     split(Qt::Horizontal);
 }
 
-void EditorManager::unsplit()
+void EditorManager::deleteWindow()
 {
     SplitterOrView *viewToClose = m_d->m_currentView;
     if (!viewToClose && m_d->m_currentEditor)
@@ -1799,6 +1807,17 @@ void EditorManager::unsplit()
 
     closeView(viewToClose->view());
     updateActions();
+}
+
+void EditorManager::deleteOtherWindows()
+{
+    IEditor *editor = m_d->m_currentEditor;
+    if (editor && m_d->m_editorModel->isDuplicate(editor))
+        editor = m_d->m_editorModel->originalForDuplicate(editor);
+    m_d->m_splitter->unsplitAll();
+    if (!editor)
+        editor = pickUnusedEditor();
+    activateEditor(editor);
 }
 
 void EditorManager::gotoOtherWindow()
