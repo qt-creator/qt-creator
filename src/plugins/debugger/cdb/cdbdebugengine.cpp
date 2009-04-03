@@ -620,6 +620,29 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << expr << value;
+    const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
+    QString errorMessage;    
+    bool success = false;
+    do {
+        QString newValue;
+        CdbSymbolGroupContext *sg = m_d->getStackFrameSymbolGroupContext(frameIndex, &errorMessage);
+        if (!sg)
+            break;
+        if (!sg->assignValue(expr, value, &newValue, &errorMessage))
+            break;        
+        // Update view
+        WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
+        if (WatchData *fwd = watchHandler->findData(expr)) {
+            fwd->setValue(newValue);
+            watchHandler->insertData(*fwd);
+            watchHandler->rebuildModel();
+        }
+        success = true;
+    } while (false);
+    if (!success) {
+        const QString msg = tr("Unable to assign the value '%1' to '%2': %3").arg(value, expr, errorMessage);
+        qWarning("%s\n", qPrintable(msg));
+    }
 }
 
 void CdbDebugEngine::executeDebuggerCommand(const QString &command)
@@ -901,12 +924,13 @@ void CdbDebugEnginePrivate::updateStackTrace()
         }
 
     m_debuggerManagerAccess->stackHandler()->setFrames(stackFrames);
+    m_firstActivatedFrame = true;
     if (current >= 0) {
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
         m_debuggerManager->gotoLocation(stackFrames.at(current).file,
                                         stackFrames.at(current).line, true);
-    }
-    m_firstActivatedFrame = true;
+        m_engine->activateFrame(current);
+    }    
 }
 
 void CdbDebugEnginePrivate::handleDebugOutput(const char *szOutputString)

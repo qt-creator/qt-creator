@@ -65,10 +65,13 @@ class CdbSymbolGroupContext
 public:
     ~CdbSymbolGroupContext();
     static CdbSymbolGroupContext *create(const QString &prefix,
-                                         IDebugSymbolGroup2 *symbolGroup,
+                                         IDebugSymbolGroup2 *symbolGroup,                                         
                                          QString *errorMessage);
 
     QString prefix() const { return m_prefix; }
+
+    bool assignValue(const QString &iname, const QString &value,
+                     QString *newValue /* = 0 */, QString *errorMessage);
 
     static bool populateModelInitially(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
     static bool completeModel(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
@@ -76,8 +79,6 @@ public:
     // Retrieve child symbols of prefix as a sequence of WatchData.
     template <class OutputIterator>
             bool getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage);
-
-    bool expandTopLevel(QString *errorMessage);
 
     enum SymbolState { LeafSymbol, ExpandedSymbol, CollapsedSymbol };
     SymbolState symbolState(unsigned long index) const;
