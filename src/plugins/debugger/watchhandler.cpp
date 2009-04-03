@@ -520,9 +520,11 @@ Qt::ItemFlags WatchHandler::flags(const QModelIndex &idx) const
     const WatchData &data = m_displaySet.at(node);
 
     if (data.isWatcher() && idx.column() == 0)
-        return editable; // watcher names are
-    if (idx.column() == 1) 
-        return editable; // values are editable
+        return editable; // watcher names are editable
+    if (data.isWatcher() && idx.column() == 2)
+        return editable; // watcher types are
+    if (idx.column() == 1)
+        return editable; // locals and watcher values are editable
     return  notEditable;
 }
 

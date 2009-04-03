@@ -167,7 +167,7 @@ protected:
     { return sym_stack [tos + index - 1]; }
 
     inline Location &loc(int index)
-    { return location_stack [tos + index - 2]; }
+    { return location_stack [tos + index - 1]; }
 
 protected:
     int tos;
@@ -187,6 +187,7 @@ protected:
 
     double yylval;
     Location yylloc;
+    Location yyprevlloc;
 
     SavedToken token_buffer[TOKEN_BUFFER_SIZE];
     SavedToken *first_token;

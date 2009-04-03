@@ -65,10 +65,6 @@ public slots:
 signals:
     void showPage();
     void statusMessageRequested(const QString &msg, int);
-    void commandExecutionRequested(const QString &cmd);
-
-private slots:
-    void onReturnPressed();
 
 private:
     QPlainTextEdit *m_combinedText;  // combined input/output

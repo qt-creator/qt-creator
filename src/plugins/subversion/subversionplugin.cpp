@@ -152,8 +152,8 @@ StatusList parseStatusOutput(const QString &output)
         if (line.size() > 8) {
             const QChar state = line.at(0);
             if (state == QLatin1Char('A') || state == QLatin1Char('D') || state == QLatin1Char('M')) {
-                const QString fileName = line.mid(7);
-                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName));
+                const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
+                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName.trimmed()));
             }
 
         }

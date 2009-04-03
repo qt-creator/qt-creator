@@ -87,6 +87,9 @@ public:
         if (index.column() == 1) {
             // the value column
             theDebuggerAction(AssignValue)->trigger(exp + '=' + value);
+        } else if (index.column() == 2) {
+            // the type column
+            theDebuggerAction(AssignType)->trigger(exp + '=' + value);
         } else if (index.column() == 0) {
             // the watcher name column
             theDebuggerAction(RemoveWatchExpression)->trigger(exp);
@@ -139,11 +142,16 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
 
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
 {
-    if (ev->key() == Qt::Key_Delete) {
+    if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
-        theDebuggerAction(RemoveWatchExpression)->setValue(exp);
+        theDebuggerAction(RemoveWatchExpression)->trigger(exp);
+    } else if (ev->key() == Qt::Key_Return && m_type == LocalsType) {
+        QModelIndex idx = currentIndex();
+        QModelIndex idx1 = idx.sibling(idx.row(), 0);
+        QString exp = model()->data(idx1).toString();
+        theDebuggerAction(WatchExpression)->trigger(exp);
     }
     QTreeView::keyPressEvent(ev);
 }

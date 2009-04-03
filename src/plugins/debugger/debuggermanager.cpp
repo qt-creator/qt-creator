@@ -358,9 +358,6 @@ void DebuggerManager::init()
     m_watchAction->setText(tr("Add to Watch Window"));
 
     // For usuage hints oin focus{In,Out}
-    //connect(m_outputWindow, SIGNAL(statusMessageRequested(QString,int)),
-    //    this, SLOT(showStatusMessage(QString,int)));
-
     connect(m_continueAction, SIGNAL(triggered()),
         this, SLOT(continueExec()));
 
@@ -401,8 +398,8 @@ void DebuggerManager::init()
     connect(m_statusTimer, SIGNAL(timeout()),
         this, SLOT(clearStatusMessage()));
 
-    connect(m_outputWindow, SIGNAL(commandExecutionRequested(QString)),
-        this, SLOT(executeDebuggerCommand(QString)));
+    connect(theDebuggerAction(ExecuteCommand), SIGNAL(triggered()),
+        this, SLOT(executeDebuggerCommand()));
 
 
     m_breakDock = createDockForWidget(m_breakWindow);
@@ -971,6 +968,7 @@ void DebuggerManager::assignValueInDebugger()
             assignValueInDebugger(str.left(i), str.mid(i + 1));
     }
 }
+
 void DebuggerManager::assignValueInDebugger(const QString &expr, const QString &value)
 {
     QTC_ASSERT(m_engine, return);
@@ -1034,6 +1032,12 @@ void DebuggerManager::nextIExec()
     QTC_ASSERT(m_engine, return);
     resetLocation();
     m_engine->nextIExec();
+}
+
+void DebuggerManager::executeDebuggerCommand()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender()))
+        executeDebuggerCommand(action->data().toString());
 }
 
 void DebuggerManager::executeDebuggerCommand(const QString &command)

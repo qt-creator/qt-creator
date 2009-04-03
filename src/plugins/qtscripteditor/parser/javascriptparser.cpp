@@ -132,6 +132,8 @@ bool JavaScriptParser::parse(JavaScriptEnginePrivate *driver)
 
     _Lcheck_token:
         if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
+		yyprevlloc = yylloc;
+
             if (first_token == last_token) {
                 yytoken = lexer->lex();
                 yylval = lexer->dval();
@@ -1097,7 +1099,7 @@ case 266: {
             const QString msg = QString::fromUtf8("Missing `;'");
 
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning,
-                yylloc.startLine, yylloc.startColumn, msg));
+                yyprevlloc.startLine, yyprevlloc.startColumn, msg));
 
             first_token = &token_buffer[0];
             last_token = &token_buffer[1];

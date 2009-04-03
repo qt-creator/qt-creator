@@ -246,16 +246,16 @@ void ScriptEditor::updateDocumentNow()
     QTextEdit::ExtraSelection sel;
 
     foreach (const JavaScriptParser::DiagnosticMessage &d, parser.diagnosticMessages()) {
-        if (d.isWarning())
-            continue;
-
         int line = d.line;
         int column = d.column;
 
         if (column == 0)
             column = 1;
 
-        sel.format = errorFormat;
+        if (d.isWarning())
+            sel.format = warningFormat;
+        else
+            sel.format = errorFormat;
 
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;

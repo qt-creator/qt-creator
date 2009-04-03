@@ -40,14 +40,15 @@ using namespace Find::Internal;
 FindToolWindow::FindToolWindow(FindPlugin *plugin)
     : QDialog(Core::ICore::instance()->mainWindow()),
     m_plugin(plugin),
-    m_findCompleter(new QCompleter(this))
+    m_findCompleter(new QCompleter(this)),
+    m_currentFilter(0)
 {
     m_ui.setupUi(this);
     connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
-    connect(m_ui.filterList, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentFilter(int)));
+    connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
     connect(this, SIGNAL(accepted()), this, SLOT(search()));
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
@@ -74,6 +75,8 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
         m_configWidgets.append(filter->createConfigWidget());
     }
     m_ui.filterList->addItems(names);
+    if (m_filters.size() > 0)
+        setCurrentFilter(0);
 }
 
 void FindToolWindow::setFindText(const QString &text)
@@ -83,9 +86,11 @@ void FindToolWindow::setFindText(const QString &text)
 
 void FindToolWindow::open(IFindFilter *filter)
 {
+    if (!filter)
+        filter = m_currentFilter;
     int index = m_filters.indexOf(filter);
     if (index >= 0) {
-        m_ui.filterList->setCurrentIndex(index);
+        setCurrentFilter(index);
     }
     m_ui.matchCase->setChecked(m_plugin->findFlags() & QTextDocument::FindCaseSensitively);
     m_ui.wholeWords->setChecked(m_plugin->findFlags() & QTextDocument::FindWholeWords);
@@ -96,6 +101,7 @@ void FindToolWindow::open(IFindFilter *filter)
 
 void FindToolWindow::setCurrentFilter(int index)
 {
+    m_ui.filterList->setCurrentIndex(index);
     for (int i = 0; i < m_configWidgets.size(); ++i) {
         QWidget *configWidget = m_configWidgets.at(i);
         if (!configWidget)
@@ -112,6 +118,7 @@ void FindToolWindow::setCurrentFilter(int index)
             configWidget->setParent(0);
         }
     }
+    m_currentFilter = m_filters.at(index);
 }
 
 void FindToolWindow::search()
@@ -129,6 +136,7 @@ void FindToolWindow::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
+    settings->setValue("CurrentFilter", m_currentFilter->id());
     foreach (IFindFilter *filter, m_filters)
         filter->writeSettings(settings);
     settings->endGroup();
@@ -138,7 +146,13 @@ void FindToolWindow::readSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
-    foreach (IFindFilter *filter, m_filters)
+    const QString currentFilter = settings->value("CurrentFilter").toString();
+    for (int i = 0; i < m_filters.size(); ++i) {
+        IFindFilter *filter = m_filters.at(i);
         filter->readSettings(settings);
+        if (filter->id() == currentFilter) {
+            setCurrentFilter(i);
+        }
+    }
     settings->endGroup();
 }

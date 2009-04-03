@@ -2328,13 +2328,13 @@ void BaseTextEditor::slotUpdateRequest(const QRect &r, int dy)
 void BaseTextEditor::saveCurrentCursorPositionForNavigation()
 {
     d->m_lastCursorChangeWasInteresting = true;
-    d->m_tempState = saveState();
+    d->m_tempNavigationState = saveState();
 }
 
 void BaseTextEditor::slotCursorPositionChanged()
 {
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
-        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(d->m_tempState);
+        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(d->m_tempNavigationState);
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();

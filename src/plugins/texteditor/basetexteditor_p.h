@@ -147,6 +147,7 @@ public:
 
     QRefCountPointer<BaseTextDocument> m_document;
     QByteArray m_tempState;
+    QByteArray m_tempNavigationState;
 
     QString m_displayName;
     bool m_parenthesesMatchingEnabled;

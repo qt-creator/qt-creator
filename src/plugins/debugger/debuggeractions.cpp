@@ -150,6 +150,9 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(AssignValue, item);
 
     item = new SavedAction(instance);
+    instance->insertItem(AssignType, item);
+
+    item = new SavedAction(instance);
     instance->insertItem(ExpandItem, item);
     item->setText(QObject::tr("Expand item"));
 
@@ -310,6 +313,10 @@ DebuggerSettings *theDebuggerSettings()
     item->setSettingsKey("DebugMode", "MaximalStackDepth");
     item->setDefaultValue(20);
     instance->insertItem(MaximalStackDepth, item);
+
+    item = new SavedAction(instance);
+    item->setText(QObject::tr("Execute line"));
+    instance->insertItem(ExecuteCommand, item);
 
     return instance;
 }

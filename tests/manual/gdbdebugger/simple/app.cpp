@@ -116,6 +116,12 @@ private:
 
 void testArray()
 {
+    char c[20];
+    c[0] = 'a';
+    c[1] = 'b';
+    c[2] = 'c';
+    c[3] = 'd';
+
     QString x[20];
     x[0] = "a";
     x[1] = "b";
@@ -135,6 +141,14 @@ void testQByteArray()
     QByteArray ba = "Hello";
     ba += '"';
     ba += "World";
+
+    const char *str1 = "\356";
+    const char *str2 = "\xee";
+    const char *str3 = "\\ee";
+    QByteArray buf1( str1 );
+    QByteArray buf2( str2 );
+    QByteArray buf3( str3 );
+
     ba += char(0);
     ba += 1;
     ba += 2;
@@ -398,6 +412,10 @@ void testQObject(int &argc, char *argv[])
     QApplication app(argc, argv);
     QAction act("xxx", &app);
     QString t = act.text();
+    t += "y";
+    t += "y";
+    t += "y";
+    t += "y";
     t += "y";
 
 /*
