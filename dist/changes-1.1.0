@@ -25,16 +25,39 @@ Editing
    * Add signal/slot editor to form editor.
    * Improved open documents view (sorted, single-click, close buttons).
    * Copying text from the context help browser and output windows didn't work.
-   * Fixed "Go to slot..." functionality in the integrated QDesigner
 
-Building, Running and Debugging
+Building and Running
    * Experimental support for generic Makefile based projects.
    * Improved .pro file parsing, handling scopes and $$system directive.
    * Support subdir.file in .pro files.
-   * Experimental cdb debugger.
    * Option to start application in external terminal.
+
+Debugging
    * Possibility to attach debugger to core files.
-   * Debugger understands std::set now.
+   * Changed approach to dumper loading: Build once per used Qt version,
+     no dumper buildstep anymore.
+   * New dumper for std::set. Improved QString, QVariant, std::wstring
+   * Make strategy to load shared objects configurable (auto-solib-add).
+   * Maximum stack depth configurable.
+   * Improved interaction in the Locals&Watchers view.
+   * Experimental cdb debugger.
+
+Wizards
+   * It is now possible to choose file suffixes in the options dialog.
+   * Code of language change event is now generated correctly (added call
+     to base class).
+
+Designer
+   * Added signal/slot editor.
+   * Fixed "Goto slot" (formatting/multiple inheritance).
+
+Version control plugins
+   * Fixed handling of colored git output.
+   * Made svn 1.6 work.
+   * Added syntax highlighting to the git submit editor.
+   * Made  git submit editor remove comment lines.
+   * Added configuration options for submit editors (user fields, word
+     wrapping).
 
 Platform Specific
 

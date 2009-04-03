@@ -316,7 +316,7 @@ protected:
     { return sym_stack [tos + index - 1]; }
 
     inline Location &loc(int index)
-    { return location_stack [tos + index - 2]; }
+    { return location_stack [tos + index - 1]; }
 
 protected:
     int tos;
@@ -336,6 +336,7 @@ protected:
 
     double yylval;
     Location yylloc;
+    Location yyprevlloc;
 
     SavedToken token_buffer[TOKEN_BUFFER_SIZE];
     SavedToken *first_token;
@@ -427,6 +428,8 @@ bool JavaScriptParser::parse(JavaScriptEnginePrivate *driver)
 
     _Lcheck_token:
         if (yytoken == -1 && -TERMINAL_COUNT != action_index[action]) {
+		yyprevlloc = yylloc;
+
             if (first_token == last_token) {
                 yytoken = lexer->lex();
                 yylval = lexer->dval();
@@ -2092,7 +2095,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             const QString msg = QString::fromUtf8("Missing `;'");
 
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning,
-                yylloc.startLine, yylloc.startColumn, msg));
+                yyprevlloc.startLine, yyprevlloc.startColumn, msg));
 
             first_token = &token_buffer[0];
             last_token = &token_buffer[1];

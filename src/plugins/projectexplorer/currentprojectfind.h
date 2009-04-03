@@ -48,6 +48,7 @@ class CurrentProjectFind : public TextEditor::BaseFileFind
 public:
     CurrentProjectFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 
+    QString id() const;
     QString name() const;
 
     bool isEnabled() const;

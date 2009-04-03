@@ -231,6 +231,7 @@ private slots:
     void setUseFakeVim(const QVariant &value);
     void quitFakeVim();
     void triggerCompletions();
+    void windowCommand(int key);
     void showSettingsDialog();
 
     void showCommandBuffer(const QString &contents);
@@ -309,6 +310,46 @@ void FakeVimPluginPrivate::showSettingsDialog()
     Core::ICore::instance()->showOptionsDialog("FakeVim", "General");
 }
 
+void FakeVimPluginPrivate::windowCommand(int key)
+{
+    #define control(n) (256 + n)
+    QString code;
+    switch (key) {
+        case 'c': case 'C': case control('c'):
+            code = Core::Constants::CLOSE;
+            break;
+        case 'n': case 'N': case control('n'):
+            code = Core::Constants::GOTONEXT;
+            break;
+        case 'o': case 'O': case control('o'):
+            code = Core::Constants::REMOVE_ALL_SPLITS;
+            code = Core::Constants::REMOVE_CURRENT_SPLIT;
+            break;
+        case 'p': case 'P': case control('p'):
+            code = Core::Constants::GOTOPREV;
+            break;
+        case 's': case 'S': case control('s'):
+            code = Core::Constants::SPLIT;
+            break;
+        case 'w': case 'W': case control('w'):
+            code = Core::Constants::GOTO_OTHER_SPLIT;
+            break;
+    }
+    #undef control
+    qDebug() << "RUNNING WINDOW COMMAND: " << key << code;
+    if (code.isEmpty()) {
+        qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
+        return;
+    }
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    QTC_ASSERT(am, return);
+    Core::Command *cmd = am->command(code);
+    QTC_ASSERT(cmd, return);
+    QAction *action = cmd->action();
+    QTC_ASSERT(action, return);
+    action->trigger();
+}
+
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
     if (!editor)
@@ -344,6 +385,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(indentRegion(int*,int,int,QChar)));
     connect(handler, SIGNAL(completionRequested()),
         this, SLOT(triggerCompletions()));
+    connect(handler, SIGNAL(windowCommandRequested(int)),
+        this, SLOT(windowCommand(int)));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();

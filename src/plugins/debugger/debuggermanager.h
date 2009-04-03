@@ -238,6 +238,8 @@ public slots:
 
     void assignValueInDebugger();
     void assignValueInDebugger(const QString &expr, const QString &value);
+
+    void executeDebuggerCommand();
     void executeDebuggerCommand(const QString &command);
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever

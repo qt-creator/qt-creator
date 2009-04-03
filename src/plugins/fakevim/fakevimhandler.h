@@ -72,6 +72,7 @@ signals:
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
     void completionRequested();
+    void windowCommandRequested(int key);
 
 public:
     class Private;

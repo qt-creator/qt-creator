@@ -84,6 +84,8 @@ public:
         menu->addAction(m_clearContentsAction);
         //menu->addAction(m_saveContentsAction);
         addContextActions(menu);
+        theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
+        menu->addAction(theDebuggerAction(ExecuteCommand));
         menu->addSeparator();
         menu->addAction(theDebuggerAction(SettingsDialog));
         menu->exec(ev->globalPos());
@@ -101,35 +103,20 @@ class InputPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    InputPane(QWidget *parent) : DebuggerPane(parent)
-    {
-        m_commandExecutionAction = new QAction(this);
-        m_commandExecutionAction->setText("Execute line");
-        m_commandExecutionAction->setEnabled(true);
-        //m_commandExecutionAction->setShortcut
-       //     (Qt::ControlModifier + Qt::Key_Return);
-
-        connect(m_commandExecutionAction, SIGNAL(triggered(bool)),
-            this, SLOT(executeCommand()));
-    }
+    InputPane(QWidget *parent)
+        : DebuggerPane(parent)
+    {}
 
 signals:
-    void commandExecutionRequested(const QString &);
     void clearContentsRequested();
     void statusMessageRequested(const QString &, int);
     void commandSelected(int);
-
-private slots:
-    void executeCommand()
-    {
-        emit commandExecutionRequested(textCursor().block().text());
-    }
 
 private:
     void keyPressEvent(QKeyEvent *ev)
     {
         if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
-            emit commandExecutionRequested(textCursor().block().text());
+            theDebuggerAction(ExecuteCommand)->trigger(textCursor().block().text());
         else if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_R)
             emit clearContentsRequested();
         else
@@ -157,7 +144,7 @@ private:
 
     void addContextActions(QMenu *menu)
     {
-       menu->addAction(m_commandExecutionAction);
+       menu->addAction(theDebuggerAction(ExecuteCommand));
     }
     
     void focusInEvent(QFocusEvent *ev)  
@@ -171,8 +158,6 @@ private:
         emit statusMessageRequested(QString(), -1);
         QPlainTextEdit::focusOutEvent(ev);
     }
-
-    QAction *m_commandExecutionAction;
 };
 
 
@@ -252,18 +237,11 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
     aggregate->add(new BaseTextFind(m_inputText));
 #endif
 
-    connect(m_inputText, SIGNAL(commandExecutionRequested(QString)),
-       this, SIGNAL(commandExecutionRequested(QString)));
     connect(m_inputText, SIGNAL(statusMessageRequested(QString,int)),
        this, SIGNAL(statusMessageRequested(QString,int)));
     connect(m_inputText, SIGNAL(commandSelected(int)),
        m_combinedText, SLOT(gotoResult(int)));
 };
-
-void DebuggerOutputWindow::onReturnPressed()
-{
-    emit commandExecutionRequested(m_commandEdit->text());
-}
 
 void DebuggerOutputWindow::showOutput(const QString &prefix, const QString &output)
 {

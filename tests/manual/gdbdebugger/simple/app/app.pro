@@ -8,4 +8,4 @@ DESTDIR = ..
 SOURCES += ../app.cpp
 QT += network
 
-mesage("this says <foo & bar>")
+message("this says <foo & bar>")

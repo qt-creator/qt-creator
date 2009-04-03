@@ -154,8 +154,9 @@ struct EditorManagerPrivate {
     QAction *m_openInExternalEditorAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
-    QAction *m_unsplitAction;
-    QAction *m_gotoOtherWindowAction;
+    QAction *m_removeCurrentSplitAction;
+    QAction *m_removeAllSplitsAction;
+    QAction *m_gotoOtherSplitAction;
 
     QList<IEditor *> m_editorHistory;
     QList<EditLocation *> m_navigationHistory;
@@ -331,27 +332,33 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     m_d->m_splitAction = new QAction(tr("Split"), this);
     cmd = am->registerAction(m_d->m_splitAction, Constants::SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
 
     m_d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
     cmd = am->registerAction(m_d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
-    m_d->m_unsplitAction = new QAction(tr("Unsplit"), this);
-    cmd = am->registerAction(m_d->m_unsplitAction, Constants::UNSPLIT, editManagerContext);
+    m_d->m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
+    cmd = am->registerAction(m_d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_d->m_unsplitAction, SIGNAL(triggered()), this, SLOT(unsplit()));
+    connect(m_d->m_removeCurrentSplitAction, SIGNAL(triggered()), this, SLOT(removeCurrentSplit()));
 
-    m_d->m_gotoOtherWindowAction = new QAction(tr("Goto other window"), this);
-    cmd = am->registerAction(m_d->m_gotoOtherWindowAction, Constants::GOTO_OTHER_WINDOW, editManagerContext);
+    m_d->m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
+    cmd = am->registerAction(m_d->m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
+
+    m_d->m_gotoOtherSplitAction = new QAction(tr("Goto Other Split"), this);
+    cmd = am->registerAction(m_d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_d->m_gotoOtherWindowAction, SIGNAL(triggered()), this, SLOT(gotoOtherWindow()));
+    connect(m_d->m_gotoOtherSplitAction, SIGNAL(triggered()), this, SLOT(gotoOtherSplit()));
 
 
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
@@ -1344,8 +1351,9 @@ void EditorManager::updateActions()
     m_d->m_goForwardAction->setEnabled(m_d->currentNavigationHistoryPosition < m_d->m_navigationHistory.size()-1);
 
     bool hasSplitter = m_d->m_splitter->isSplitter();
-    m_d->m_unsplitAction->setEnabled(hasSplitter);
-    m_d->m_gotoOtherWindowAction->setEnabled(hasSplitter);
+    m_d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
+    m_d->m_removeAllSplitsAction->setEnabled(hasSplitter);
+    m_d->m_gotoOtherSplitAction->setEnabled(hasSplitter);
 
     m_d->m_openInExternalEditorAction->setEnabled(curEditor != 0);
 }
@@ -1788,7 +1796,7 @@ void EditorManager::splitSideBySide()
     split(Qt::Horizontal);
 }
 
-void EditorManager::unsplit()
+void EditorManager::removeCurrentSplit()
 {
     SplitterOrView *viewToClose = m_d->m_currentView;
     if (!viewToClose && m_d->m_currentEditor)
@@ -1801,7 +1809,18 @@ void EditorManager::unsplit()
     updateActions();
 }
 
-void EditorManager::gotoOtherWindow()
+void EditorManager::removeAllSplits()
+{
+    IEditor *editor = m_d->m_currentEditor;
+    if (editor && m_d->m_editorModel->isDuplicate(editor))
+        editor = m_d->m_editorModel->originalForDuplicate(editor);
+    m_d->m_splitter->unsplitAll();
+    if (!editor)
+        editor = pickUnusedEditor();
+    activateEditor(editor);
+}
+
+void EditorManager::gotoOtherSplit()
 {
     if (m_d->m_splitter->isSplitter()) {
         SplitterOrView *currentView = m_d->m_currentView;

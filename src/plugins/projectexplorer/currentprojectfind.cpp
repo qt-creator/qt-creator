@@ -52,6 +52,11 @@ CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin, SearchResu
             this, SIGNAL(changed()));
 }
 
+QString CurrentProjectFind::id() const
+{
+    return "Current Project";
+}
+
 QString CurrentProjectFind::name() const
 {
     return tr("Current Project");

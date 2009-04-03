@@ -50,6 +50,7 @@ class AllProjectsFind : public TextEditor::BaseFileFind
 public:
     AllProjectsFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 
+    QString id() const;
     QString name() const;
 
     bool isEnabled() const;

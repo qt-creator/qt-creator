@@ -75,6 +75,7 @@ enum DebuggerActionCode
     GdbLocation,
     GdbEnvironment,
     GdbScriptFile,
+    ExecuteCommand,
 
     // Stack
     MaximalStackDepth,
@@ -86,6 +87,7 @@ enum DebuggerActionCode
     WatchModelUpdate,
     UseToolTips,
     AssignValue,
+    AssignType,
     ExpandItem,
     CollapseItem,
 

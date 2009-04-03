@@ -45,6 +45,11 @@ FindInFiles::FindInFiles(SearchResultWindow *resultWindow)
 {
 }
 
+QString FindInFiles::id() const
+{
+    return "Files on Disk";
+}
+
 QString FindInFiles::name() const
 {
     return tr("Files on Disk");

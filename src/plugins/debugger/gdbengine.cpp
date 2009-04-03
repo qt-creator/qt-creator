@@ -857,7 +857,6 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    //createGdbProcessIfNeeded();
     if (m_gdbProc.state() == QProcess::NotRunning) {
         debugMessage("NO GDB PROCESS RUNNING, PLAIN CMD IGNORED: " + command);
         return;
@@ -867,7 +866,6 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     cmd.command = command;
     cmd.type = -1;
 
-    emit gdbInputAvailable(QString(), cmd.command);
     m_gdbProc.write(cmd.command.toLatin1() + "\r\n");
 }
 
