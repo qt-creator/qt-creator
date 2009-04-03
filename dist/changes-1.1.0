@@ -25,7 +25,6 @@ Editing
    * Add signal/slot editor to form editor.
    * Improved open documents view (sorted, single-click, close buttons).
    * Copying text from the context help browser and output windows didn't work.
-   * Fixed "Go to slot..." functionality in the integrated QDesigner
 
 Building, Running and Debugging
    * Experimental support for generic Makefile based projects.
@@ -35,6 +34,23 @@ Building, Running and Debugging
    * Option to start application in external terminal.
    * Possibility to attach debugger to core files.
    * Debugger understands std::set now.
+
+Wizards
+   * It is now possible to choose file suffixes in the options dialog.
+   * Code of language change event is now generated correctly (added call
+     to base class).
+
+Designer
+   * Added signal/slot editor.
+   * Fixed "Goto slot" (formatting/multiple inheritance).
+
+Version control plugins
+   * Fixed handling of colored git output.
+   * Made svn 1.6 work.
+   * Added syntax highlighting to the git submit editor.
+   * Made  git submit editor remove comment lines.
+   * Added configuration options for submit editors (user fields, word
+     wrapping).
 
 Platform Specific
 

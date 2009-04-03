@@ -272,7 +272,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     } else {
         QList<int> sizes;
         sizes += 256;
-        for (int i = views.size()-1; i; --i)
+        for (int i = views.size()-1; i > 0; --i)
             sizes.prepend(512);
         setSizes(sizes);
     }

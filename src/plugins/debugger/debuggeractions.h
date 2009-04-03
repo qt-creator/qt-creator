@@ -86,6 +86,7 @@ enum DebuggerActionCode
     WatchModelUpdate,
     UseToolTips,
     AssignValue,
+    AssignType,
     ExpandItem,
     CollapseItem,
 
