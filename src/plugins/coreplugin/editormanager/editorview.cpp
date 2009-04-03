@@ -520,7 +520,6 @@ void EditorView::removeEditor(IEditor *editor)
 
     m_container->removeWidget(editor->widget());
     m_widgetEditorMap.remove(editor->widget());
-    qDebug() << "EditorView::removeEditor" << editor << "  set 0 parent on widget" << editor->widget();
     editor->widget()->setParent(0);
     disconnect(editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
     QToolBar *toolBar = editor->toolBar();

@@ -211,9 +211,9 @@ private slots:
     void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();
-    void deleteWindow();
-    void deleteOtherWindows();
-    void gotoOtherWindow();
+    void removeCurrentSplit();
+    void removeAllSplits();
+    void gotoOtherSplit();
 
 private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
