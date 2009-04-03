@@ -150,6 +150,9 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(AssignValue, item);
 
     item = new SavedAction(instance);
+    instance->insertItem(AssignType, item);
+
+    item = new SavedAction(instance);
     instance->insertItem(ExpandItem, item);
     item->setText(QObject::tr("Expand item"));
 

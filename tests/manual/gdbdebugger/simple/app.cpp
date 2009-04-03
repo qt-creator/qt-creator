@@ -116,6 +116,12 @@ private:
 
 void testArray()
 {
+    char c[20];
+    c[0] = 'a';
+    c[1] = 'b';
+    c[2] = 'c';
+    c[3] = 'd';
+
     QString x[20];
     x[0] = "a";
     x[1] = "b";
@@ -406,6 +412,10 @@ void testQObject(int &argc, char *argv[])
     QApplication app(argc, argv);
     QAction act("xxx", &app);
     QString t = act.text();
+    t += "y";
+    t += "y";
+    t += "y";
+    t += "y";
     t += "y";
 
 /*
