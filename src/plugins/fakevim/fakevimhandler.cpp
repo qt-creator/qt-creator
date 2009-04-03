@@ -125,15 +125,16 @@ enum Mode
 enum SubMode
 {
     NoSubMode,
-    RegisterSubMode,   // used for "
     ChangeSubMode,     // used for c
     DeleteSubMode,     // used for d
     FilterSubMode,     // used for !
+    IndentSubMode,     // used for =
+    RegisterSubMode,   // used for "
     ReplaceSubMode,    // used for R and r
-    YankSubMode,       // used for y
     ShiftLeftSubMode,  // used for <
     ShiftRightSubMode, // used for >
-    IndentSubMode,     // used for =
+    WindowSubMode,     // used for Ctrl-w
+    YankSubMode,       // used for y
     ZSubMode,
 };
 
@@ -809,7 +810,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 {
     EventResult handled = EventHandled;
 
-    if (m_submode == RegisterSubMode) {
+    if (m_submode == WindowSubMode) {
+        emit q->windowCommandRequested(key);
+        m_submode = NoSubMode;
+    } else if (m_submode == RegisterSubMode) {
         m_register = key;
         m_submode = NoSubMode;
     } else if (m_submode == ChangeSubMode && key == 'c') {
@@ -1326,6 +1330,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_moveType = MoveExclusive;
         }
         finishMovement("W");
+    } else if (key == control('w')) {
+        m_submode = WindowSubMode;
     } else if (key == 'x' && m_visualMode == NoVisualMode) { // = "dl"
         m_moveType = MoveExclusive;
         if (atEndOfLine())
