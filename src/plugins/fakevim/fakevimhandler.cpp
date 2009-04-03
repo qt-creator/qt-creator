@@ -265,7 +265,8 @@ public:
     void shiftRegionRight(int repeat = 1);
 
     void moveToFirstNonBlankOnLine();
-    void moveToDesiredColumn();
+    void moveToTargetColumn();
+    void setTargetColumn() { m_targetColumn = leftDist(); }
     void moveToNextWord(bool simple);
     void moveToMatchingParanthesis();
     void moveToWordBoundary(bool simple, bool forward);
@@ -315,6 +316,7 @@ public:
     int m_subsubdata;
     QString m_input;
     QTextCursor m_tc;
+    QTextCursor m_oldTc; // copy from last event to check for external changes
     int m_anchor;
     QHash<int, QString> m_registers;
     int m_register;
@@ -381,7 +383,7 @@ public:
 
     // for restoring cursor position
     int m_savedYankPosition;
-    int m_desiredColumn;
+    int m_targetColumn;
 
     int m_cursorWidth;
 
@@ -390,6 +392,7 @@ public:
     bool removeAutomaticIndentation(); // true if something removed
     // number of autoindented characters
     int m_justAutoIndented;
+    void handleStartOfLine();
 
     void recordJump();
     void recordNewUndo();
@@ -418,7 +421,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     m_register = '"';
     m_gflag = false;
     m_visualMode = NoVisualMode;
-    m_desiredColumn = 0;
+    m_targetColumn = 0;
     m_moveType = MoveInclusive;
     m_anchor = 0;
     m_savedYankPosition = 0;
@@ -485,8 +488,12 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     // Fake "End of line"
     m_tc = EDITOR(textCursor());
-    m_tc.setVisualNavigation(true);
 
+    if (m_tc.position() != m_oldTc.position())
+        setTargetColumn();
+
+    m_tc.setVisualNavigation(true);
+    
     if (m_fakeEnd)
         moveRight();
 
@@ -511,6 +518,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_fakeEnd)
         moveLeft();
 
+    m_oldTc = m_tc;
     EDITOR(setTextCursor(m_tc));
     return result;
 }
@@ -654,6 +662,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         updateMiniBuffer();
     }
 
+    moveToTargetColumn();
+
     m_moveType = MoveInclusive;
     m_mvcount.clear();
     m_opcount.clear();
@@ -663,7 +673,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 
     updateSelection();
     updateMiniBuffer();
-    m_desiredColumn = leftDist();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -984,7 +993,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_moveType = MoveExclusive;
         finishMovement("$");
         if (submode == NoSubMode)
-            m_desiredColumn = -1;
+            m_targetColumn = -1;
     } else if (key == ',') {
         // FIXME: use some other mechanism
         //m_passing = true;
@@ -1079,7 +1088,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         int sline = cursorLineOnScreen();
         // FIXME: this should use the "scroll" option, and "count"
         moveDown(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         scrollToLineInDocument(cursorLineInDocument() - sline);
         finishMovement();
     } else if (key == 'e') {
@@ -1108,8 +1117,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (m_gflag) {
             m_gflag = false;
             m_tc.setPosition(firstPositionInLine(1), KeepAnchor);
-            if (hasConfig(ConfigStartOfLine))
-                moveToFirstNonBlankOnLine();
+            handleStartOfLine();
             finishMovement();
         } else {
             m_gflag = true;
@@ -1117,8 +1125,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'G') {
         int n = m_mvcount.isEmpty() ? linesInDocument() : count();
         m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
-        if (hasConfig(ConfigStartOfLine))
-            moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == 'h' || key == Key_Left
             || key == Key_Backspace || key == control('h')) {
@@ -1126,11 +1133,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (m_fakeEnd && m_tc.block().length() > 1)
             ++n;
         moveLeft(n);
+        setTargetColumn();
         finishMovement("h");
     } else if (key == 'H') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, 0)));
         moveDown(qMax(count() - 1, 0));
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == 'i') {
         m_dotCommand = "i"; //QString("%1i").arg(count());
@@ -1152,12 +1160,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             setPosition(m_jumpListRedo.takeLast());
         }
     } else if (key == 'j' || key == Key_Down) {
-        //qDebug() << "DESIRED COLUMN" << m_desiredColumn;
-        int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode
                 || m_submode == RegisterSubMode) {
             moveDown(count());
-            moveToDesiredColumn();
         } else {
             m_moveType = MoveLineWise;
             moveToStartOfLine();
@@ -1165,7 +1170,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveDown(count() + 1);
         }
         finishMovement("j");
-        m_desiredColumn = savedColumn;
     } else if (key == 'J') {
         if (m_submode == NoSubMode) {
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
@@ -1182,11 +1186,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                 moveLeft();
         }
     } else if (key == 'k' || key == Key_Up) {
-        int savedColumn = m_desiredColumn;
         if (m_submode == NoSubMode || m_submode == ZSubMode
                 || m_submode == RegisterSubMode) {
             moveUp(count());
-            moveToDesiredColumn();
         } else {
             m_moveType = MoveLineWise;
             moveToStartOfLine();
@@ -1195,15 +1197,15 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveUp(count() + 1);
         }
         finishMovement("k");
-        m_desiredColumn = savedColumn;
     } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_moveType = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
+        setTargetColumn();
         finishMovement("l");
     } else if (key == 'L') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()))));
         moveUp(qMax(count(), 1));
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == control('l')) {
         // screen redraw. should not be needed
@@ -1211,7 +1213,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = MarkSubSubMode;
     } else if (key == 'M') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == 'n') {
         search(lastSearchString(), m_lastSearchForward);
@@ -1240,7 +1242,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         //qDebug() << "LINES: " << n << text << m_register;
         if (n > 0) {
             moveToStartOfLine();
-            m_desiredColumn = 0;
+            m_targetColumn = 0;
             for (int i = count(); --i >= 0; ) {
                 if (key == 'p')
                     moveDown();
@@ -1249,7 +1251,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             }
             moveToFirstNonBlankOnLine();
         } else {
-            m_desiredColumn = 0;
+            m_targetColumn = 0;
             for (int i = count(); --i >= 0; ) {
                 if (key == 'p')
                     moveRight();
@@ -1295,7 +1297,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         int sline = cursorLineOnScreen();
         // FIXME: this should use the "scroll" option, and "count"
         moveUp(linesOnScreen() / 2);
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         scrollToLineInDocument(cursorLineInDocument() - sline);
         finishMovement();
     } else if (key == 'v') {
@@ -1375,12 +1377,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument());
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == Key_PageUp || key == control('b')) {
         moveUp(count() * (linesOnScreen() - 2) + cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument() + linesOnScreen() - 2);
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         finishMovement();
     } else if (key == Key_Delete) {
         setAnchor();
@@ -1415,6 +1417,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             data += m_lastInsertion;
         }
         moveLeft(qMin(1, leftDist()));
+        setTargetColumn();
         m_dotCommand += m_lastInsertion;
         m_dotCommand += QChar(27);
         recordNewUndo();
@@ -1989,12 +1992,12 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     m_dotCommand = QString("%1<<").arg(endLine - beginLine + 1);
 }
 
-void FakeVimHandler::Private::moveToDesiredColumn()
+void FakeVimHandler::Private::moveToTargetColumn()
 {
-   if (m_desiredColumn == -1 || m_tc.block().length() <= m_desiredColumn)
-       m_tc.movePosition(EndOfLine, KeepAnchor);
-   else
-       m_tc.setPosition(m_tc.block().position() + m_desiredColumn, KeepAnchor);
+    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn)
+        m_tc.movePosition(EndOfLine, KeepAnchor);
+    else
+        m_tc.setPosition(m_tc.block().position() + m_targetColumn, KeepAnchor);
 }
 
 static int charClass(QChar c, bool simple)
@@ -2324,6 +2327,12 @@ bool FakeVimHandler::Private::removeAutomaticIndentation()
     m_lastInsertion.chop(m_justAutoIndented);
     m_justAutoIndented = 0;
     return true;
+}
+
+void FakeVimHandler::Private::handleStartOfLine()
+{
+    if (hasConfig(ConfigStartOfLine))
+        moveToFirstNonBlankOnLine();
 }
 
 
