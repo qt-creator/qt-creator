@@ -115,18 +115,18 @@ void GdbMi::parseValue(const char *&from, const char *to)
 {
     //qDebug() << "parseValue: " << QByteArray::fromUtf16(from, to - from);
     switch (*from) {
-    case '{':
-        parseTuple(from, to);
-        break;
-    case '[':
-        parseList(from, to);
-        break;
-    case '"':
-        m_type = Const;
-        m_data = parseCString(from, to);
-        break;
-    default:
-        break;
+        case '{':
+            parseTuple(from, to);
+            break;
+        case '[':
+            parseList(from, to);
+            break;
+        case '"':
+            m_type = Const;
+            m_data = parseCString(from, to);
+            break;
+        default:
+            break;
     }
 }
 
@@ -215,48 +215,46 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
 {
     QByteArray result;
     switch (m_type) {
-    case Invalid:
-        if (multiline) {
-            result += ind(indent) + "Invalid\n";
-        } else {
-        result += "Invalid";
-        }
-        break;
-    case Const:
-        if (!m_name.isEmpty())
-            result += m_name + "=";
-        if (multiline) {
-        result += "\"" + m_data + "\"";
-        } else {
-            result += "\"" + m_data + "\"";
-        }
-        break;
-    case Tuple:
-        if (!m_name.isEmpty())
-            result += m_name + "=";
-        if (multiline) {
-            result += "{\n";
-            dumpChildren(&result, multiline, indent + 1);
-            result += '\n' + ind(indent) + "}";
-        } else {
-            result += "{";
-            dumpChildren(&result, multiline, indent + 1);
-            result += "}";
-        }
-        break;
-    case List:
-        if (!m_name.isEmpty())
-            result += m_name + "=";
-        if (multiline) {
-            result += "[\n";
-            dumpChildren(&result, multiline, indent + 1);
-            result += '\n' + ind(indent) + "]";
-        } else {
-            result += "[";
-            dumpChildren(&result, multiline, indent + 1);
-            result += "]";
-        }
-        break;
+        case Invalid:
+            if (multiline)
+                result += ind(indent) + "Invalid\n";
+            else
+                result += "Invalid";
+            break;
+        case Const:
+            if (!m_name.isEmpty())
+                result += m_name + "=";
+            if (multiline)
+                result += "\"" + m_data + "\"";
+            else
+                result += "\"" + m_data + "\"";
+            break;
+        case Tuple:
+            if (!m_name.isEmpty())
+                result += m_name + "=";
+            if (multiline) {
+                result += "{\n";
+                dumpChildren(&result, multiline, indent + 1);
+                result += '\n' + ind(indent) + "}";
+            } else {
+                result += "{";
+                dumpChildren(&result, multiline, indent + 1);
+                result += "}";
+            }
+            break;
+        case List:
+            if (!m_name.isEmpty())
+                result += m_name + "=";
+            if (multiline) {
+                result += "[\n";
+                dumpChildren(&result, multiline, indent + 1);
+                result += '\n' + ind(indent) + "]";
+            } else {
+                result += "[";
+                dumpChildren(&result, multiline, indent + 1);
+                result += "]";
+            }
+            break;
     }
     return result;
 }
