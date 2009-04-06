@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "handler.h"
+#include "fakevimhandler.h"
 
 #include <QtTest/QtTest>
 #include <QtCore/QSet>
