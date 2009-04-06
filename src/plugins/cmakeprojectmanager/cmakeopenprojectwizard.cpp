@@ -239,13 +239,19 @@ void CMakeRunPage::initWidgets()
     fl->addRow(m_descriptionLabel);
 
     m_argumentsLineEdit = new QLineEdit(this);
-    fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
-
+    //fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
     m_runCMake = new QPushButton(this);
-    m_runCMake->setText("Run CMake");
+    m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
-    fl->addWidget(m_runCMake);
+    //fl->addWidget(m_runCMake);
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_argumentsLineEdit);
+    hbox->addWidget(m_runCMake);
+
+    fl->addRow(tr("Arguments"), hbox);
+
 
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
