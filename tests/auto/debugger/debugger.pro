@@ -1,5 +1,5 @@
 
-QT += testlib
+QT = core testlib
 
 DEBUGGERDIR = ../../../src/plugins/debugger
 UTILSDIR = ../../../src/libs

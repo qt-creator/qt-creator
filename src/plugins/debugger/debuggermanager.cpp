@@ -1172,7 +1172,7 @@ void DebuggerManager::setStatus(int status)
     if (status == m_status)
         return;
 
-    if (!isAllowedTransition(m_status, status)) {
+    if (0 && !isAllowedTransition(m_status, status)) {
         const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
                             arg(QLatin1String(Q_FUNC_INFO), QLatin1String(stateName(m_status)), QLatin1String(stateName(status)));
         qWarning("%s", qPrintable(msg));
@@ -1448,5 +1448,28 @@ void DebuggerManager::reloadRegisters()
     m_engine->reloadRegisters();
 }
 
+
+//////////////////////////////////////////////////////////////////////
+//
+// Testing
+//
+//////////////////////////////////////////////////////////////////////
+
+void DebuggerManager::runTest(const QString &fileName)
+{
+    m_executable = fileName;
+    m_processArgs = QStringList() << "--run-debuggee";
+    m_workingDir = QString();
+    qDebug() << "TESTING: " << fileName;
+    //QFile file(fileName);
+    //file.open(QIODevice::ReadOnly);
+    //QTextStream ts(&file);
+    //foreach (QString line, ts.readAll().split('\n')) {
+    //    qDebug() << "TESTING: " << line;
+    //    if (line.startsWith("Executable="))
+    //}
+    
+    startNewDebugger(StartInternal);
+}
 
 #include "debuggermanager.moc"

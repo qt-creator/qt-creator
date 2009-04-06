@@ -2,7 +2,10 @@
 #include "gdbmi.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QProcess>
+#include <QtCore/QFileInfo>
 #include <QtTest/QtTest>
+//#include <QtTest/qtest_gui.h>
 
 using namespace Debugger;
 using namespace Debugger::Internal;
@@ -34,7 +37,6 @@ static const char test5[] =
     "args=[{name=\"argc\",value=\"1\"},{name=\"argv\",value=\"0x7fff1ac78f28\"}],"
     "file=\"test1.cpp\",fullname=\"/home/apoenitz/work/test1/test1.cpp\","
     "line=\"209\"}]";
-
 
 static const char test8[] =
     "[data={locals={{name=\"a\"},{name=\"w\"}}}]";
@@ -77,9 +79,48 @@ private slots:
     void mi10() { testMi(test10); }
     void mi11() { testMi(test11); }
     void mi12() { testMi(test12); }
+    void runQtc();
 };
 
-QTEST_MAIN(tst_Debugger)
+void tst_Debugger::runQtc()
+{
+    QString test = QFileInfo(qApp->arguments().at(0)).absoluteFilePath();
+    //QString qtc = QFileInfo(test + "../../bin/qtcreator.bin").absoluteFilePath();
+    QString qtc = QFileInfo(test).absolutePath() + "/../../../bin/qtcreator.bin";
+    qtc = QFileInfo(qtc).absoluteFilePath();
+    QProcess proc;
+    QStringList env = QProcess::systemEnvironment();
+    env.append("QTC_DEBUGGER_TEST=" + test);
+    proc.setEnvironment(env);
+    qDebug() << "APP: " << test << qtc;
+    foreach (QString item, env)
+        qDebug() << item;
+    proc.start(qtc);
+    proc.waitForStarted();
+    QCOMPARE(proc.state(), QProcess::Running);
+    proc.waitForFinished();
+    QCOMPARE(proc.state(), QProcess::NotRunning);
+}
+
+void runDebuggee()
+{
+    qDebug() << "RUNNING DEBUGGEE";
+}
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    QStringList args = app.arguments();
+
+
+    if (args.size() == 2 && args.at(1) == "--run-debuggee") {
+        runDebuggee();
+        return 0;
+    }
+
+    tst_Debugger test;
+    return QTest::qExec(&test, argc, argv);
+}
 
 #include "main.moc"
 

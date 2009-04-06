@@ -341,6 +341,7 @@ public:
 private:
     void init();
     void setDebuggerType(DebuggerType type);
+    void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);
     Q_SLOT void createNewDock(QWidget *widget);
 
