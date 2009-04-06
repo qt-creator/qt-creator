@@ -625,11 +625,6 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     QTextBlock block;
     const SimpleToken tk = tokenUnderCursor(tc, &block);
 
-    if (tk.isLiteral() || tk.isComment()) {
-        // Drop out if we're at a number, string or comment
-        return link;
-    }
-
     if (tk.isNot(T_IDENTIFIER))
         return link;
 
@@ -668,7 +663,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
-            link.pos = nameStart;
+            link.pos = block.position() + nameStart;
             link.length = nameLength;
             return link;
 
