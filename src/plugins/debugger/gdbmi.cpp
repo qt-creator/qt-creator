@@ -239,9 +239,9 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
             dumpChildren(&result, multiline, indent + 1);
             result += '\n' + ind(indent) + "}";
         } else {
-        result += "{";
+            result += "{";
             dumpChildren(&result, multiline, indent + 1);
-        result += "}";
+            result += "}";
         }
         break;
     case List:
@@ -250,11 +250,11 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
         if (multiline) {
             result += "[\n";
             dumpChildren(&result, multiline, indent + 1);
-            result += "]";
+            result += '\n' + ind(indent) + "]";
         } else {
             result += "[";
             dumpChildren(&result, multiline, indent + 1);
-            result += '\n' + ind(indent) + "]";
+            result += "]";
         }
         break;
     }
@@ -318,153 +318,6 @@ QByteArray GdbResultRecord::toString() const
     result += '\n';
     return result;
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//
-// GdbStreamOutput
-//
-//////////////////////////////////////////////////////////////////////////////////
-
-#if 0
-
-static const char test1[] =
-    "1^done,stack=[frame={level=\"0\",addr=\"0x00000000004061ca\","
-    "func=\"main\",file=\"test1.cpp\","
-    "fullname=\"/home/apoenitz/work/test1/test1.cpp\",line=\"209\"}]\n"
-    "(gdb)\n";
-
-static const char test2[] =
-    "2^done,stack=[frame={level=\"0\",addr=\"0x00002ac058675840\","
-    "func=\"QApplication\",file=\"/home/apoenitz/dev/qt/src/gui/kernel/qapplication.cpp\","
-    "fullname=\"/home/apoenitz/dev/qt/src/gui/kernel/qapplication.cpp\",line=\"592\"},"
-    "frame={level=\"1\",addr=\"0x00000000004061e0\",func=\"main\",file=\"test1.cpp\","
-    "fullname=\"/home/apoenitz/work/test1/test1.cpp\",line=\"209\"}]\n"
-    "(gdb)\n";
-
-static const char test3[] =
-    "3^done,stack=[frame={level=\"0\",addr=\"0x00000000004061ca\","
-    "func=\"main\",file=\"test1.cpp\","
-    "fullname=\"/home/apoenitz/work/test1/test1.cpp\",line=\"209\"}]\n"
-    "(gdb)\n";
-
-static const char test4[] =
-    "&\"source /home/apoenitz/dev/ide/main/bin/gdb/qt4macros\\n\"\n"
-    "4^done\n"
-    "(gdb)\n";
-
-
-static const char test5[] =
-    "1*stopped,reason=\"breakpoint-hit\",bkptno=\"1\",thread-id=\"1\","
-    "frame={addr=\"0x0000000000405738\",func=\"main\","
-    "args=[{name=\"argc\",value=\"1\"},{name=\"argv\",value=\"0x7fff1ac78f28\"}],"
-    "file=\"test1.cpp\",fullname=\"/home/apoenitz/work/test1/test1.cpp\","
-    "line=\"209\"}\n"
-    "(gdb)\n";
-
-static const char test6[] =
-    "{u = {u = 2048, v = 16788279, w = -689265400}, a = 1, b = -689265424, c = 11063, s = {static null = {<No data fields>}, static shared_null = {ref = {value = 2}, alloc = 0, size = 0, data = 0x6098da, clean = 0, simpletext = 0, righttoleft = 0, asciiCache = 0, capacity = 0, reserved = 0, array = {0}}, static shared_empty = {ref = {value = 1}, alloc = 0, size = 0, data = 0x2b37d84f8fba, clean = 0, simpletext = 0, righttoleft = 0, asciiCache = 0, capacity = 0, reserved = 0, array = {0}}, d = 0x6098c0, static codecForCStrings = 0x0}}";
-
-static const char test8[] =
-    "8^done,data={locals={{name=\"a\"},{name=\"w\"}}}\n"
-    "(gdb)\n";
-
-static const char test9[] =
-    "9^done,data={locals=[name=\"baz\",name=\"urgs\",name=\"purgs\"]}\n"
-    "(gdb)\n";
-
-
-static const char test10[] =
-    "16^done,name=\"urgs\",numchild=\"1\",type=\"Urgs\"\n"
-    "(gdb)\n"
-    "17^done,name=\"purgs\",numchild=\"1\",type=\"Urgs *\"\n"
-    "(gdb)\n"
-    "18^done,name=\"bar\",numchild=\"0\",type=\"int\"\n"
-    "(gdb)\n"
-    "19^done,name=\"z\",numchild=\"0\",type=\"int\"\n"
-    "(gdb)\n";
-
-static const char test11[] =
-    "[{name=\"size\",value=\"1\",type=\"size_t\",readonly=\"true\"},"
-     "{name=\"0\",value=\"one\",type=\"QByteArray\"}]";
-
-static const char test12[] =
-    "{iname=\"local.hallo\",value=\"\\\"\\\"\",type=\"QByteArray\",numchild=\"0\"}";
-
-static struct Tester {
-
-    Tester() {
-        //test(test10);
-        test2(test12);
-        //test(test4);
-        //apple();
-        exit(0);
-    }
-
-    void test(const char* input)
-    {
-        //qDebug("\n<<<<\n%s\n====\n%s\n>>>>\n", input,
-           //qPrintable(GdbResponse(input).toString()));
-    }
-
-    void test2(const char* input)
-    {
-        GdbMi mi(input);
-        qDebug("\n<<<<\n%s\n====\n%s\n>>>>\n", input,
-            qPrintable(mi.toString()));
-    }
-
-    void apple()
-    {
-        QByteArray input(test9);
-/*
-        qDebug() << "input: " << input;
-        input = input.replace("{{","[");
-        input = input.replace("},{",",");
-        input = input.replace("}}","]");
-        qDebug() << "input: " << input;
-        GdbResponse response(input);
-        qDebug() << "read: " << response.toString();
-        GdbMi list = response.results[0].data.findChild("data").findChild("locals");
-        QByteArrayList locals;
-        foreach (const GdbMi &item, list.children())
-            locals.append(item.string());
-        qDebug() << "Locals (new): " << locals;
-*/
-    }
-    void parse(const QByteArray &str)
-    {
-        QByteArray result;
-        result += "\n ";
-        int indent = 0;
-        int from = 0;
-        int to = str.size();
-        if (str.size() && str[0] == '{' /*'}'*/) {
-            ++from;
-            --to;
-        }
-        for (int i = from; i < to; ++i) {
-            if (str[i] == '{')
-                result += "{\n" + QByteArray(2*++indent + 1, ' ');
-            else if (str[i] == '}') {
-                if (!result.isEmpty() && result[result.size() - 1] != '\n')
-                    result += "\n";
-                result += QByteArray(2*--indent + 1, ' ') + "}\n";
-            }
-            else if (str[i] == ',') {
-                if (true || !result.isEmpty() && result[result.size() - 1] != '\n')
-                    result += "\n";
-                result += QByteArray(2*indent, ' ');
-            }
-            else
-                result += str[i];
-        }
-        qDebug() << "result:\n" << result;
-    }
-
-} dummy;
-
-#endif
 
 } // namespace Internal
 } // namespace Debugger
