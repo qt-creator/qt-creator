@@ -211,6 +211,12 @@ void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
     }
 }
 
+static QByteArray escaped(QByteArray ba)
+{
+    ba.replace("\"", "\\\"");
+    return ba;
+}
+
 QByteArray GdbMi::toString(bool multiline, int indent) const
 {
     QByteArray result;
@@ -221,13 +227,10 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
             else
                 result += "Invalid";
             break;
-        case Const:
+        case Const: 
             if (!m_name.isEmpty())
                 result += m_name + "=";
-            if (multiline)
-                result += "\"" + m_data + "\"";
-            else
-                result += "\"" + m_data + "\"";
+            result += "\"" + escaped(m_data) + "\"";
             break;
         case Tuple:
             if (!m_name.isEmpty())
