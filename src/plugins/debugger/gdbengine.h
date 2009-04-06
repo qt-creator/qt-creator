@@ -277,10 +277,11 @@ private:
     //
     // Stack specific stuff
     // 
-    void handleStackListFrames(const GdbResultRecord &record);
+    void handleStackListFrames(const GdbResultRecord &record, bool isFull);
     void handleStackSelectThread(const GdbResultRecord &record, int cookie);
     void handleStackListThreads(const GdbResultRecord &record, int cookie);
-    void reloadStack();
+    Q_SLOT void reloadStack();
+    Q_SLOT void reloadFullStack();
 
 
     //

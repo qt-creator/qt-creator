@@ -57,12 +57,13 @@ StackHandler::StackHandler(QObject *parent)
 {
     m_emptyIcon = QIcon(":/gdbdebugger/images/empty.svg");
     m_positionIcon = QIcon(":/gdbdebugger/images/location.svg");
+    m_canExpand = false;
 }
 
 int StackHandler::rowCount(const QModelIndex &parent) const
 {
     // Since the stack is not a tree, row count is 0 for any valid parent
-    return parent.isValid() ? 0 : m_stackFrames.size();
+    return parent.isValid() ? 0 : (m_stackFrames.size() + m_canExpand);
 }
 
 int StackHandler::columnCount(const QModelIndex &parent) const
@@ -72,8 +73,14 @@ int StackHandler::columnCount(const QModelIndex &parent) const
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_stackFrames.size())
+    if (!index.isValid() || index.row() >= m_stackFrames.size() + m_canExpand)
         return QVariant();
+
+    if (index.row() == m_stackFrames.size()) {
+        if (role == Qt::DisplayRole && index.column() == 0) 
+            return "<...>";
+        return QVariant();
+    }
 
     const StackFrame &frame = m_stackFrames.at(index.row());
 
@@ -123,10 +130,12 @@ QVariant StackHandler::headerData(int section, Qt::Orientation orientation, int 
 
 Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 {
-    if (index.row() >= m_stackFrames.size())
+    if (index.row() >= m_stackFrames.size() + m_canExpand)
         return 0;
+    if (index.row() == m_stackFrames.size())
+        return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
-    const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
+    const bool isValid = (!frame.file.isEmpty() && !frame.function.isEmpty());
     return isValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 
@@ -160,8 +169,9 @@ void StackHandler::removeAll()
     reset();
 }
 
-void StackHandler::setFrames(const QList<StackFrame> &frames)
+void StackHandler::setFrames(const QList<StackFrame> &frames, bool canExpand)
 {
+    m_canExpand = canExpand;
     m_stackFrames = frames;
     if (m_currentIndex >= m_stackFrames.size())
         m_currentIndex = m_stackFrames.size() - 1;

@@ -64,7 +64,7 @@ class StackHandler : public QAbstractTableModel
 public:
     StackHandler(QObject *parent = 0);
 
-    void setFrames(const QList<StackFrame> &frames);
+    void setFrames(const QList<StackFrame> &frames, bool canExpand = false);
     QList<StackFrame> frames() const;
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
@@ -88,6 +88,7 @@ private:
     int m_currentIndex;
     QIcon m_positionIcon;
     QIcon m_emptyIcon;
+    bool m_canExpand;
 };
 
 

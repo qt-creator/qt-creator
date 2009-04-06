@@ -230,6 +230,9 @@ void GdbEngine::initializeConnections()
         this, SLOT(reloadRegisters()));
     connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
         this, SLOT(reloadRegisters()));
+
+    connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
 }
 
 void GdbEngine::initializeVariables()
@@ -803,7 +806,7 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             break;
 
         case StackListFrames:
-            handleStackListFrames(record);
+            handleStackListFrames(record, cookie.toBool());
             break;
         case StackListThreads:
             handleStackListThreads(record, cookie.toInt());
@@ -1301,12 +1304,18 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 #endif
 }
 
+void GdbEngine::reloadFullStack()
+{
+    QString cmd = "-stack-list-frames";
+    sendSynchronizedCommand(cmd, StackListFrames, true);
+}
+
 void GdbEngine::reloadStack()
 {
     QString cmd = "-stack-list-frames";
     if (int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt())
         cmd += " 0 " + QString::number(stackDepth);
-    sendSynchronizedCommand(cmd, StackListFrames);
+    sendSynchronizedCommand(cmd, StackListFrames, false);
 }
 
 void GdbEngine::handleAsyncOutput2(const GdbMi &data)
@@ -2450,7 +2459,7 @@ void GdbEngine::handleStackSelectThread(const GdbResultRecord &record, int)
 }
 
 
-void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
+void GdbEngine::handleStackListFrames(const GdbResultRecord &record, bool isFull)
 {
     QList<StackFrame> stackFrames;
 
@@ -2501,30 +2510,11 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
             topFrame = i;
     }
 
-    if (n >= theDebuggerAction(MaximalStackDepth)->value().toInt()) {
-        StackFrame frame(n);
-        frame.file = "...";
-        frame.function = "...";
-        frame.from = "...";
-        frame.line = 0;
-        frame.address = "...";
-        stackFrames.append(frame);
-    }
+    bool canExpand = !isFull 
+        && (n >= theDebuggerAction(MaximalStackDepth)->value().toInt());
+    theDebuggerAction(ExpandStack)->setEnabled(canExpand);
+    qq->stackHandler()->setFrames(stackFrames, canExpand);
 
-    qq->stackHandler()->setFrames(stackFrames);
-
-#if 0
-    if (0 && topFrame != -1) {
-        // updates of locals already triggered early
-        const StackFrame &frame = qq->stackHandler()->currentFrame();
-        if (frame.isUsable())
-            q->gotoLocation(frame.file, frame.line, true);
-        else
-            qDebug() << "FULL NAME NOT USABLE 0: " << frame.file;
-    } else {
-        activateFrame(topFrame);
-    }
-#else
     if (topFrame != -1) {
         // updates of locals already triggered early
         const StackFrame &frame = qq->stackHandler()->currentFrame();
@@ -2533,7 +2523,6 @@ void GdbEngine::handleStackListFrames(const GdbResultRecord &record)
         else
             qDebug() << "FULL NAME NOT USABLE 0: " << frame.file << topFrame;
     }
-#endif
 }
 
 void GdbEngine::selectThread(int index)
@@ -2562,6 +2551,10 @@ void GdbEngine::activateFrame(int frameIndex)
     //qDebug() << "ACTIVATE FRAME: " << frameIndex << oldIndex
     //    << stackHandler->currentIndex();
 
+    if (frameIndex == stackHandler->stackSize()) {
+        reloadFullStack();
+        return;
+    }
     QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {

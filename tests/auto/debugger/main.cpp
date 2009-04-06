@@ -85,7 +85,6 @@ private slots:
 void tst_Debugger::runQtc()
 {
     QString test = QFileInfo(qApp->arguments().at(0)).absoluteFilePath();
-    //QString qtc = QFileInfo(test + "../../bin/qtcreator.bin").absoluteFilePath();
     QString qtc = QFileInfo(test).absolutePath() + "/../../../bin/qtcreator.bin";
     qtc = QFileInfo(qtc).absoluteFilePath();
     QProcess proc;
