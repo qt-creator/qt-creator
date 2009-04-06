@@ -101,6 +101,7 @@ public:
     MakeStep *makeStep() const;
     QStringList targets() const;
     QString buildParser(const QString &buildConfiguration) const;
+    CMakeTarget targetForTitle(const QString &title);
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
