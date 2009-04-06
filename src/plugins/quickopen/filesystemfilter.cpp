@@ -74,14 +74,14 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     foreach (const QString &dir, dirs) {
         if (dir != "." && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
-            FilterEntry entry(this, dir, directory + "/" + dir);
+            FilterEntry entry(this, dir, dirInfo.filePath(dir));
             entry.resolveFileIcon = true;
             value.append(entry);
         }
     }
     foreach (const QString &file, files) {
         if (name.isEmpty() || file.startsWith(name, Qt::CaseInsensitive)) {
-            const QString fullPath = directory + "/" + file;
+            const QString fullPath = dirInfo.filePath(file);
             FilterEntry entry(this, file, fullPath);
             entry.resolveFileIcon = true;
             value.append(entry);
