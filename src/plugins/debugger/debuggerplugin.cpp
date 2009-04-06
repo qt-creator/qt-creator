@@ -796,6 +796,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
 void DebuggerPlugin::extensionsInitialized()
 {
+    // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */

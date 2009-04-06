@@ -1078,7 +1078,8 @@ struct QMetaTypeId<QHostAddress>
     {
         static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
         if (!metatype_id)
-             metatype_id = qRegisterMetaType<QHostAddress>("myns::QHostAddress");
+             metatype_id = qRegisterMetaType<QHostAddress>
+                ("myns::QHostAddress");
         return metatype_id;                                    \
     }                                                           \
 };
@@ -1091,7 +1092,8 @@ struct QMetaTypeId< QMap<uint, QStringList> >
     {
         static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
         if (!metatype_id)
-             metatype_id = qRegisterMetaType< QMap<uint, QStringList> >("myns::QMap<uint, myns::QStringList>");
+             metatype_id = qRegisterMetaType< QMap<uint, QStringList> >
+                ("myns::QMap<uint, myns::QStringList>");
         return metatype_id;                                    \
     }                                                           \
 };
