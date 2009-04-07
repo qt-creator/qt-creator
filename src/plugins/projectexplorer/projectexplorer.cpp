@@ -602,15 +602,33 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
 
+    QStringList oldRecentProjects;
     if (QSettings *s = core->settings())
-        m_recentProjects = s->value("ProjectExplorer/RecentProjects/Files", QStringList()).toStringList();
-    for (QStringList::iterator it = m_recentProjects.begin(); it != m_recentProjects.end(); ) {
+        oldRecentProjects = s->value("ProjectExplorer/RecentProjects/Files", QStringList()).toStringList();
+    for (QStringList::iterator it = oldRecentProjects.begin(); it != oldRecentProjects.end(); ) {
         if (QFileInfo(*it).isFile()) {
             ++it;
         } else {
-            it = m_recentProjects.erase(it);
+            it = oldRecentProjects.erase(it);
         }
     }
+
+    foreach(const QString &s, oldRecentProjects) {
+        m_recentProjects.append(qMakePair(s, QFileInfo(s).fileName()));
+    }
+
+    // TODO restore recentProjects
+    if (QSettings *s = core->settings()) {
+        const QStringList fileNames = s->value("ProjectExplorer/RecentProjects/FileNames").toStringList();
+        const QStringList displayNames = s->value("ProjectExplorer/RecentProjects/DisplayNames").toStringList();
+        if (fileNames.size() == displayNames.size()) {
+            for (int i = 0; i < fileNames.size(); ++i) {
+                m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
+            }
+        }
+    }
+
+
 
     connect(m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));
@@ -726,7 +744,7 @@ void ProjectExplorerPlugin::unloadProject()
     if (!success)
         return;
 
-    addToRecentProjects(fi->fileName());
+    addToRecentProjects(fi->fileName(), m_currentProject->name());
     m_session->removeProject(m_currentProject);
     updateActions();
 }
@@ -822,7 +840,19 @@ void ProjectExplorerPlugin::savePersistentSettings()
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
         s->setValue("ProjectExplorer/StartupSession", m_session->file()->fileName());
-        s->setValue("ProjectExplorer/RecentProjects/Files", m_recentProjects);
+        s->remove("ProjectExplorer/RecentProjects/Files");
+
+        QStringList fileNames;
+        QStringList displayNames;
+        QList<QPair<QString, QString> >::const_iterator it, end;
+        end = m_recentProjects.constEnd();
+        for (it = m_recentProjects.constBegin(); it != end; ++it) {
+            fileNames << (*it).first;
+            displayNames << (*it).second;
+        }
+
+        s->setValue("ProjectExplorer/RecentProjects/FileNames", fileNames);
+        s->setValue("ProjectExplorer/RecentProjects/DisplayNames", displayNames);
     }
 }
 
@@ -831,14 +861,15 @@ bool ProjectExplorerPlugin::openProject(const QString &fileName)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::openProject";
 
-    if (openProjects(QStringList() << fileName)) {
-        addToRecentProjects(fileName);
+    QList<Project *> list = openProjects(QStringList() << fileName);
+    if (!list.isEmpty()) {
+        addToRecentProjects(fileName, list.first()->name());
         return true;
     }
     return false;
 }
 
-bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
+QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
@@ -866,7 +897,7 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
         if (debug)
             qDebug() << "ProjectExplorerPlugin - Could not open any projects!";
         QApplication::restoreOverrideCursor();
-        return false;
+        return QList<Project *>();
     }
 
     foreach (Project *pro, openedPro) {
@@ -886,7 +917,7 @@ bool ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
     Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
     QApplication::restoreOverrideCursor();
 
-    return true;
+    return openedPro;
 }
 
 Project *ProjectExplorerPlugin::currentProject() const
@@ -1477,7 +1508,7 @@ void ProjectExplorerPlugin::cancelBuild()
         m_buildManager->cancel();
 }
 
-void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName)
+void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const QString &displayName)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::addToRecentProjects(" << fileName << ")";
@@ -1485,10 +1516,17 @@ void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName)
     if (fileName.isEmpty())
         return;
     QString prettyFileName(QDir::toNativeSeparators(fileName));
-    m_recentProjects.removeAll(prettyFileName);
+
+    QList<QPair<QString, QString> >::iterator it;
+    for(it = m_recentProjects.begin(); it != m_recentProjects.end();)
+        if ((*it).first == prettyFileName)
+            it = m_recentProjects.erase(it);
+        else
+            ++it;
+
     if (m_recentProjects.count() > m_maxRecentProjects)
         m_recentProjects.removeLast();
-    m_recentProjects.prepend(prettyFileName);
+    m_recentProjects.prepend(qMakePair(prettyFileName, displayName));
     QFileInfo fi(prettyFileName);
     m_lastOpenDirectory = fi.absolutePath();
 }
@@ -1506,11 +1544,15 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
     menu->setEnabled(!m_recentProjects.isEmpty());
 
     //projects (ignore sessions, they used to be in this list)
-    foreach (const QString &s, m_recentProjects) {
-        if (s.endsWith(".qws"))
+
+    QList<QPair<QString, QString> >::const_iterator it, end;
+    end = m_recentProjects.constEnd();
+    for (it = m_recentProjects.constBegin(); it != end; ++it) {
+        const QPair<QString, QString> &s = *it;
+        if (s.first.endsWith(".qws"))
             continue;
-        QAction *action = menu->addAction(s);
-        action->setData(s);
+        QAction *action = menu->addAction(s.second);
+        action->setData(s.first);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
     }
 }
