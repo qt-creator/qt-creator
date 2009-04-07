@@ -39,6 +39,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
+#include <QtCore/QSharedPointer>
 
 #include <QtGui/QApplication>
 #include <QtGui/QAction>
@@ -491,6 +492,11 @@ void testQSet()
     //hash.insert(ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
+}
+
+
+void testQSharedPointer()
+{
 }
 
 void stringRefTest(const QString &refstring)
