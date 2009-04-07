@@ -38,7 +38,6 @@ Debugging
    * Make strategy to load shared objects configurable (auto-solib-add).
    * Maximum stack depth configurable.
    * Improved interaction in the Locals&Watchers view.
-   * Experimental cdb debugger.
 
 Wizards
    * It is now possible to choose file suffixes in the options dialog.
