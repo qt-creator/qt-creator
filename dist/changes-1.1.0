@@ -13,7 +13,8 @@ General
    * Completely reworked editor split mechanism.
 
 Editing
-   * Some support for doxygen style comments //TODO: what does that mean more concrete?
+   * Added support for JavaScript.
+   * Added syntax highlighting and code completion for qdoc and doxygen tags.
    * Improved function argument hint.
    * More checkpoints in editor history.
    * Ctrl-click for jumping to a symbol definition.
