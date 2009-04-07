@@ -377,17 +377,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             GdbMi record;
             while (from != to) {
                 GdbMi data;
-                if (*from == ',') {
-                    ++from; // skip ','
-                    data.parseResultOrValue(from, to);
-                    if (data.isValid()) {
-                        //qDebug() << "parsed response: " << data.toString();
-                        record.m_children += data;
-                        record.m_type = GdbMi::Tuple;
-                    }
-                } else {
+                if (*from != ',') {
                     // happens on archer where we get 
                     // 23^running <NL> *running,thread-id="all" <NL> (gdb) 
+                    record.m_type = GdbMi::Tuple;
+                    break;
+                }
+                ++from; // skip ','
+                data.parseResultOrValue(from, to);
+                if (data.isValid()) {
+                    //qDebug() << "parsed response: " << data.toString();
+                    record.m_children += data;
                     record.m_type = GdbMi::Tuple;
                 }
             }
