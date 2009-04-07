@@ -99,10 +99,14 @@ bool MakeStep::init(const QString &buildConfiguration)
     setCommand(buildConfiguration, "make"); // TODO give full path here?
 #endif // Q_OS_WIN
 
-    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
-    arguments << additionalArguments(buildConfiguration);
-    setArguments(buildConfiguration, arguments); // TODO
-    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    if (value("clean").isValid() && value("clean").toBool())  {
+       setArguments(buildConfiguration, QStringList() << "clean");
+   } else {
+        QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
+        arguments << additionalArguments(buildConfiguration);
+        setArguments(buildConfiguration, arguments); // TODO
+        setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    }
     return AbstractProcessStep::init(buildConfiguration);
 }
 

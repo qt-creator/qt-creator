@@ -506,6 +506,10 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (!copw.buildDirectory().isEmpty())
             setValue("all", "buildDirectory", copw.buildDirectory());
         //TODO save arguments somewhere copw.arguments()
+
+        MakeStep *cleanMakeStep = new MakeStep(this);
+        insertCleanStep(0, cleanMakeStep);
+        cleanMakeStep->setValue("clean", true);
     } else {
         // We have a user file, but we could still be missing the cbp file
         // TODO check that we have a cbp file and if not, open up a dialog ?
