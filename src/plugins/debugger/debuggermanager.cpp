@@ -1460,7 +1460,8 @@ void DebuggerManager::runTest(const QString &fileName)
     m_executable = fileName;
     m_processArgs = QStringList() << "--run-debuggee";
     m_workingDir = QString();
-    startNewDebugger(StartInternal);
+    if (!startNewDebugger(StartInternal))
+        emit debuggingFinished();
 }
 
 #include "debuggermanager.moc"

@@ -376,16 +376,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
             GdbMi record;
             while (from != to) {
-                if (*from != ',') {
-                    qDebug() << "MALFORMED ASYNC OUTPUT" << from;
-                    return;
-                }
-                ++from; // skip ','
                 GdbMi data;
-                data.parseResultOrValue(from, to);
-                if (data.isValid()) {
-                    //qDebug() << "parsed response: " << data.toString();
-                    record.m_children += data;
+                if (*from == ',') {
+                    ++from; // skip ','
+                    data.parseResultOrValue(from, to);
+                    if (data.isValid()) {
+                        //qDebug() << "parsed response: " << data.toString();
+                        record.m_children += data;
+                        record.m_type = GdbMi::Tuple;
+                    }
+                } else {
+                    // happens on archer where we get 
+                    // 23^running <NL> *running,thread-id="all" <NL> (gdb) 
                     record.m_type = GdbMi::Tuple;
                 }
             }
@@ -410,6 +412,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer has "{id="28902"}" 
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}" 
+            } else if (asyncClass == "thread-selected") {
+                //"{id="2"}" 
             #ifdef Q_OS_MAC
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs
@@ -480,14 +484,16 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
             from = inner;
             if (from != to) {
-                if (*from != ',') {
-                    qDebug() << "MALFORMED RESULT OUTPUT" << from;
-                    return;
+                if (*from == ',') {
+                    ++from;
+                    record.data.parseTuple_helper(from, to);
+                    record.data.m_type = GdbMi::Tuple;
+                    record.data.m_name = "data";
+                } else {
+                    // Archer has this
+                    record.data.m_type = GdbMi::Tuple;
+                    record.data.m_name = "data";
                 }
-                ++from;
-                record.data.parseTuple_helper(from, to);
-                record.data.m_type = GdbMi::Tuple;
-                record.data.m_name = "data";
             }
 
             //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;

@@ -86,17 +86,28 @@ public slots:
     void readStandardError();
 
 private:
-    QProcess m_proc; // the Qt Creaor process
+    QProcess m_proc; // the Qt Creator process
 };
+
+static QByteArray stripped(QByteArray ba)
+{
+    for (int i = ba.size(); --i >= 0; ) {
+        if (ba.at(i) == '\n' || ba.at(i) == ' ')
+            ba.chop(1);
+        else
+            break;
+    }
+    return ba;
+}
 
 void tst_Debugger::readStandardOutput()
 {
-    qDebug() << "qtcreator-out: " << m_proc.readAllStandardOutput();
+    qDebug() << "qtcreator-out: " << stripped(m_proc.readAllStandardOutput());
 }
 
 void tst_Debugger::readStandardError()
 {
-    qDebug() << "qtcreator-err: " << m_proc.readAllStandardError();
+    qDebug() << "qtcreator-err: " << stripped(m_proc.readAllStandardError());
 }
 
 void tst_Debugger::runQtc()
@@ -107,9 +118,6 @@ void tst_Debugger::runQtc()
     QStringList env = QProcess::systemEnvironment();
     env.append("QTC_DEBUGGER_TEST=" + test);
     m_proc.setEnvironment(env);
-    //qDebug() << "APP: " << test << qtc;
-    //foreach (QString item, env)
-    //    qDebug() << item;
     connect(&m_proc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readStandardOutput()));
     connect(&m_proc, SIGNAL(readyReadStandardError()),
