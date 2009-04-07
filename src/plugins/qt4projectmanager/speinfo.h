@@ -52,12 +52,12 @@ public:
     SPEInfoItem(const QString &id, InfoKind kind);
     virtual ~SPEInfoItem() {}
 
-    QString id(void) const;
-    InfoKind infoKind(void) const;
-    virtual QString name(void) const;
-    virtual QString description(void) const;
+    QString id() const;
+    InfoKind infoKind() const;
+    virtual QString name() const;
+    virtual QString description() const;
     QVariant data(const QString &key) const;
-    const SPEInfoItem *parentItem(void) const;
+    const SPEInfoItem *parentItem() const;
     void setParentItem(const SPEInfoItem *parentItem);
 
     bool isAncestorOf(const SPEInfoItem *ancestor) const;
@@ -92,8 +92,8 @@ public:
 
 private:
     static void addListToHash(const QList<SPEInfoItem*> &list);
-    static void initializeLists(void);
-    static void deleteLists(void);
+    static void initializeLists();
+    static void deleteLists();
 
     static QList<SPEInfoItem*> m_configurationList;
     static QList<SPEInfoItem*> m_platformList;

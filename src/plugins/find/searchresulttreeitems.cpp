@@ -31,7 +31,7 @@
 
 using namespace Find::Internal;
 
-SearchResultTreeItem::SearchResultTreeItem(SearchResultTreeItem::itemType type, const SearchResultTreeItem *parent)
+SearchResultTreeItem::SearchResultTreeItem(SearchResultTreeItem::ItemType type, const SearchResultTreeItem *parent)
   : m_type(type), m_parent(parent)
 {
 }
@@ -41,33 +41,33 @@ SearchResultTreeItem::~SearchResultTreeItem()
     clearChildren();
 }
 
-void SearchResultTreeItem::clearChildren(void)
+void SearchResultTreeItem::clearChildren()
 {
     qDeleteAll(m_children);
     m_children.clear();
 }
 
-SearchResultTreeItem::itemType SearchResultTreeItem::getItemType(void) const
+SearchResultTreeItem::ItemType SearchResultTreeItem::itemType() const
 {
     return m_type;
 }
 
-int SearchResultTreeItem::getChildrenCount(void) const
+int SearchResultTreeItem::childrenCount() const
 {
     return m_children.count();
 }
 
-int SearchResultTreeItem::getRowOfItem(void) const
+int SearchResultTreeItem::rowOfItem() const
 {
-    return (m_parent?m_parent->m_children.indexOf(const_cast<SearchResultTreeItem*>(this)):0);
+    return (m_parent ? m_parent->m_children.indexOf(const_cast<SearchResultTreeItem*>(this)):0);
 }
 
-const SearchResultTreeItem* SearchResultTreeItem::getChild(int index) const
+const SearchResultTreeItem* SearchResultTreeItem::childAt(int index) const
 {
     return m_children.at(index);
 }
 
-const SearchResultTreeItem *SearchResultTreeItem::getParent(void) const
+const SearchResultTreeItem *SearchResultTreeItem::parent() const
 {
     return m_parent;
 }
@@ -78,8 +78,10 @@ void SearchResultTreeItem::appendChild(SearchResultTreeItem *child)
 }
 
 SearchResultTextRow::SearchResultTextRow(int index, int lineNumber,
-    const QString &rowText, int searchTermStart, int searchTermLength, const SearchResultTreeItem *parent)
-:   SearchResultTreeItem(resultRow, parent),
+                                         const QString &rowText,
+                                         int searchTermStart, int searchTermLength,
+                                         const SearchResultTreeItem *parent):
+    SearchResultTreeItem(ResultRow, parent),
     m_index(index),
     m_lineNumber(lineNumber),
     m_rowText(rowText),
@@ -113,12 +115,13 @@ int SearchResultTextRow::searchTermLength() const
     return m_searchTermLength;
 }
 
-SearchResultFile::SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent)
-  : SearchResultTreeItem(resultFile, parent), m_fileName(fileName)
+SearchResultFile::SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent):
+    SearchResultTreeItem(ResultFile, parent),
+    m_fileName(fileName)
 {
 }
 
-QString SearchResultFile::getFileName(void) const
+QString SearchResultFile::fileName() const
 {
     return m_fileName;
 }
@@ -126,6 +129,7 @@ QString SearchResultFile::getFileName(void) const
 void SearchResultFile::appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
         int searchTermLength)
 {
-    SearchResultTreeItem *child = new SearchResultTextRow(index, lineNumber, rowText, searchTermStart, searchTermLength, this);
+    SearchResultTreeItem *child = new SearchResultTextRow(index, lineNumber, rowText,
+                                                          searchTermStart, searchTermLength, this);
     appendChild(child);
 }

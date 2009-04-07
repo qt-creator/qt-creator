@@ -107,7 +107,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
     return m_widget;
 }
 
-QList<QWidget*> SearchResultWindow::toolBarWidgets(void) const
+QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
     return QList<QWidget*>() << m_expandCollapseToolButton;
 }
@@ -120,7 +120,7 @@ void SearchResultWindow::clearContents()
     m_items.clear();
 }
 
-void SearchResultWindow::showNoMatchesFound(void)
+void SearchResultWindow::showNoMatchesFound()
 {
     m_widget->setCurrentWidget(m_noMatchesFoundDisplay);
 }
@@ -169,7 +169,7 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
         m_searchResultTreeView->collapseAll();
 }
 
-void SearchResultWindow::readSettings(void)
+void SearchResultWindow::readSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
@@ -179,7 +179,7 @@ void SearchResultWindow::readSettings(void)
     }
 }
 
-void SearchResultWindow::writeSettings(void)
+void SearchResultWindow::writeSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {

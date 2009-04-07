@@ -56,21 +56,21 @@ class InfoItemConfigurationCross : public SPEInfoItem
 {
 public:
     InfoItemConfigurationCross(): SPEInfoItem("", Configuration) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Debug and Release"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Debug and Release"); }
 };
 
 class InfoItemConfigurationDebug : public SPEInfoItem
 {
 public:
     InfoItemConfigurationDebug(): SPEInfoItem("debug", Configuration) {}
-    QString name(void) const {return QCoreApplication::translate("SimpleProEditor", "Debug specific");}
+    QString name() const {return QCoreApplication::translate("SimpleProEditor", "Debug specific");}
 };
 
 class InfoItemConfigurationRelease : public SPEInfoItem
 {
 public:
     InfoItemConfigurationRelease(): SPEInfoItem("release", Configuration) {}
-    QString name(void) const {return QCoreApplication::translate("SimpleProEditor", "Release specific");}
+    QString name() const {return QCoreApplication::translate("SimpleProEditor", "Release specific");}
 };
 
 
@@ -79,28 +79,28 @@ class InfoItemPlatformCross : public SPEInfoItem
 {
 public:
     InfoItemPlatformCross(): SPEInfoItem("", Platform) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "All platforms"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "All platforms"); }
 };
 
 class InfoItemPlatformWindows : public SPEInfoItem
 {
 public:
     InfoItemPlatformWindows(): SPEInfoItem("win32", Platform) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "MS Windows specific"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "MS Windows specific"); }
 };
 
 class InfoItemPlatformUnix : public SPEInfoItem
 {
 public:
     InfoItemPlatformUnix(): SPEInfoItem("unix", Platform) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Linux/Unix specific"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Linux/Unix specific"); }
 };
 
 class InfoItemPlatformOSX : public SPEInfoItem
 {
 public:
     InfoItemPlatformOSX(): SPEInfoItem("macx", Platform) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Mac OSX specific"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Mac OSX specific"); }
 };
 
 
@@ -113,8 +113,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/target.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Target Options");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Target Options");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Type and name of the target.");
@@ -129,8 +129,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/defines.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Preprocessor Definitions");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Preprocessor Definitions");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Setting of the preprocessor definitions.");
@@ -146,8 +146,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/includes.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Include path"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Include path"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Setting of the pathes where the header files are located.");
@@ -162,8 +162,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/libs.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Libraries");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Libraries");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Defining the libraries to link the target against and the pathes where these are located.");
@@ -179,8 +179,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/sources.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Source Files");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Source Files");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "");
@@ -196,8 +196,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/headers.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Header Files");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Header Files");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "");
@@ -213,8 +213,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/forms.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Forms");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Forms");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "");
@@ -229,8 +229,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/qtmodules.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Qt Modules");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Qt Modules");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Setting up which of the Qt modules will be used in the target application.");
@@ -246,8 +246,8 @@ public:
         m_data.insert(keyImageFileName, ":/variableimages/images/resources.png");
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Resource files");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Resource files");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "");
@@ -258,8 +258,8 @@ class InfoItemVariableTarget : public SPEInfoItem
 {
 public:
     InfoItemVariableTarget(): SPEInfoItem("TARGET", Variable) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Target name");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Target name");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "The name of the resulting target.");
@@ -270,8 +270,8 @@ class InfoItemVariableConfig : public SPEInfoItem
 {
 public:
     InfoItemVariableConfig(): SPEInfoItem("CONFIG", Variable) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Configuration");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Configuration");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Configuration.");
@@ -282,8 +282,8 @@ class InfoItemVariableDestdir : public SPEInfoItem
 {
 public:
     InfoItemVariableDestdir(): SPEInfoItem("DESTDIR", Variable) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Destination directory");}
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Destination directory");}
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Where the resulting target will be created.");
@@ -300,8 +300,8 @@ public:
         m_data.insert(keyIncludedByDefault, true);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtCore Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtCore Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Core non-GUI classes used by other modules");
@@ -316,8 +316,8 @@ public:
         m_data.insert(keyIncludedByDefault, true);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtGui Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtGui Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Graphical user interface components");
@@ -332,8 +332,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtNetwork Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtNetwork Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for network programming");
@@ -348,8 +348,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtOpenGL Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtOpenGL Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "OpenGL support classes");
@@ -364,8 +364,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtSql Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtSql Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for database integration using SQL");
@@ -380,8 +380,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtScript Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtScript Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for evaluating Qt Scripts");
@@ -396,8 +396,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtSvg Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtSvg Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for displaying the contents of SVG files");
@@ -412,8 +412,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtWebKit Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtWebKit Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for displaying and editing Web content");
@@ -428,8 +428,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtXml Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtXml Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for handling XML");
@@ -444,8 +444,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtXmlPatterns Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtXmlPatterns Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "An XQuery/XPath engine for XML and custom data models");
@@ -460,8 +460,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Phonon Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Phonon Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Multimedia framework classes");
@@ -476,8 +476,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Qt3Support Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Qt3Support Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes that ease porting from Qt 3 to Qt 4");
@@ -492,8 +492,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtTest Module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtTest Module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Tool classes for unit testing");
@@ -508,8 +508,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "QtDBus module"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "QtDBus module"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Classes for Inter-Process Communication using the D-Bus");
@@ -526,8 +526,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Application"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Application"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Create a standalone application");
@@ -542,8 +542,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Dynamic Library"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Dynamic Library"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Create a dynamic library for usage in other applications");
@@ -558,8 +558,8 @@ public:
         m_data.insert(keyIncludedByDefault, false);
     }
 
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Static Library"); }
-    QString description(void) const
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Static Library"); }
+    QString description() const
     {
         return QCoreApplication::translate("SimpleProEditor",
             "Create a static library for usage in other applications");
@@ -571,35 +571,35 @@ class InfoItemOperatorsAdd : public SPEInfoItem
 {
 public:
     InfoItemOperatorsAdd(): SPEInfoItem("+=", Operator) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Add Operator"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Add Operator"); }
 };
 
 class InfoItemOperatorsRemove : public SPEInfoItem
 {
 public:
     InfoItemOperatorsRemove(): SPEInfoItem("-=", Operator) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Remove Operator"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Remove Operator"); }
 };
 
 class InfoItemOperatorsReplace : public SPEInfoItem
 {
 public:
     InfoItemOperatorsReplace(): SPEInfoItem("~=", Operator) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Replace Operator"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Replace Operator"); }
 };
 
 class InfoItemOperatorsSet : public SPEInfoItem
 {
 public:
     InfoItemOperatorsSet(): SPEInfoItem("=", Operator) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Set Operator"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Set Operator"); }
 };
 
 class InfoItemOperatorsUniqueAdd : public SPEInfoItem
 {
 public:
     InfoItemOperatorsUniqueAdd(): SPEInfoItem("*=", Operator) {}
-    QString name(void) const { return QCoreApplication::translate("SimpleProEditor", "Unique Add Operator"); }
+    QString name() const { return QCoreApplication::translate("SimpleProEditor", "Unique Add Operator"); }
 };
 
 
@@ -625,7 +625,7 @@ QVariant SPEInfoItem::data(const QString &key) const
     return m_data.value(key);
 }
 
-const SPEInfoItem *SPEInfoItem::parentItem(void) const
+const SPEInfoItem *SPEInfoItem::parentItem() const
 {
     return m_parentItem;
 }
@@ -651,7 +651,7 @@ QString SPEInfoItem::id() const
     return m_id;
 }
 
-SPEInfoItem::InfoKind SPEInfoItem::infoKind(void) const
+SPEInfoItem::InfoKind SPEInfoItem::infoKind() const
 {
     return m_infoKind;
 }
@@ -686,7 +686,7 @@ void SPEInfo::addListToHash(const QList<SPEInfoItem*> &list)
         m_itemHash.insert(qMakePair(item->infoKind(), item->id()), item);
 }
 
-void SPEInfo::initializeLists(void)
+void SPEInfo::initializeLists()
 {
     InfoItemConfigurationCross *infoItemConfigurationCross = new InfoItemConfigurationCross;
     InfoItemConfigurationDebug *infoItemConfigurationDebug = new InfoItemConfigurationDebug;
@@ -762,7 +762,7 @@ void SPEInfo::initializeLists(void)
     m_listsInitialized = true;
 }
 
-void SPEInfo::deleteLists(void)
+void SPEInfo::deleteLists()
 {
     m_itemHash.clear();
 

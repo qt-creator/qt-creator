@@ -42,35 +42,35 @@ class SearchResultTreeItem;
 class SearchResultTreeItem
 {
 public:
-    enum itemType
+    enum ItemType
     {
-        root,
-        resultRow,
-        resultFile
+        Root,
+        ResultRow,
+        ResultFile
     };
 
-    SearchResultTreeItem(itemType type = root, const SearchResultTreeItem *parent = NULL);
+    SearchResultTreeItem(ItemType type = Root, const SearchResultTreeItem *parent = NULL);
     virtual ~SearchResultTreeItem();
 
-    itemType getItemType() const;
-    const SearchResultTreeItem *getParent() const;
-    const SearchResultTreeItem *getChild(int index) const;
+    ItemType itemType() const;
+    const SearchResultTreeItem *parent() const;
+    const SearchResultTreeItem *childAt(int index) const;
     void appendChild(SearchResultTreeItem *child);
-    int getChildrenCount() const;
-    int getRowOfItem() const;
+    int childrenCount() const;
+    int rowOfItem() const;
     void clearChildren();
 
 private:
-    itemType m_type;
+    ItemType m_type;
     const SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
 };
 
-class SearchResultTextRow: public SearchResultTreeItem
+class SearchResultTextRow : public SearchResultTreeItem
 {
 public:
     SearchResultTextRow(int index, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength, const SearchResultTreeItem *parent);
+                        int searchTermLength, const SearchResultTreeItem *parent);
     int index() const;
     QString rowText() const;
     int lineNumber() const;
@@ -85,13 +85,13 @@ private:
     int m_searchTermLength;
 };
 
-class SearchResultFile: public SearchResultTreeItem
+class SearchResultFile : public SearchResultTreeItem
 {
 public:
     SearchResultFile(const QString &fileName, const SearchResultTreeItem *parent);
-    QString getFileName() const;
+    QString fileName() const;
     void appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength);
+                          int searchTermLength);
 
 private:
     QString m_fileName;
