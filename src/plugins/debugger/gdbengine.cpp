@@ -2812,40 +2812,35 @@ static QString quoteUnprintableLatin1(const QByteArray &ba)
     return res;
 }
 
+static QString decodeData(QByteArray ba, int encoding)
+{
+    switch (encoding) {
+        case 0: // unencoded 8 bit data
+            return quoteUnprintableLatin1(ba);
+        case 1: //  base64 encoded 8 bit data, used for QByteArray
+            ba = QByteArray::fromBase64(ba);
+            return '"' + quoteUnprintableLatin1(ba) + '"';
+        case 2: //  base64 encoded 16 bit data, used for QString
+            ba = QByteArray::fromBase64(ba);
+            return '"' + QString::fromUtf16((ushort *)ba.data(), ba.size() / 2) + '"';
+        case 3: //  base64 encoded 32 bit data
+            ba = QByteArray::fromBase64(ba);
+            return '"' + QString::fromUcs4((uint *)ba.data(), ba.size() / 4) + '"';
+            break;
+        case 4: //  base64 encoded 16 bit data, without quotes (see 2)
+            ba = QByteArray::fromBase64(ba);
+            return QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
+    }
+    return "<Encoding error>";
+}
+
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
-    if (mi.isValid()) {
-        QByteArray ba;
-        QString str;
-        switch (encoding) {
-            case 0: // unencoded 8 bit data
-                ba = mi.data();
-                str = quoteUnprintableLatin1(ba);
-                break;
-            case 1: //  base64 encoded 8 bit data, used for QByteArray
-                ba = QByteArray::fromBase64(mi.data());
-                str = '"' + quoteUnprintableLatin1(ba) + '"';
-                break;
-            case 2: //  base64 encoded 16 bit data, used for QString
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
-                str = '"' + str + '"';
-                break;
-            case 3: //  base64 encoded 32 bit data
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUcs4((uint *)ba.data(), ba.size() / 4);
-                str = '"' + str + '"';
-                break;
-            case 4: //  base64 encoded 16 bit data, without quotes (see 2)
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
-                break;
-        }
-        data.setValue(str);
-    } else {
+    if (mi.isValid())
+        data.setValue(decodeData(mi.data(), encoding));
+    else
         data.setValueNeeded();
-    }
 }
 
 static void setWatchDataEditValue(WatchData &data, const GdbMi &mi)
@@ -3599,17 +3594,16 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
         data1.iname = data.iname + "." + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = '[' + data1.name + ']';
-        QString key = item.findChild("key").data();
+        QByteArray key = item.findChild("key").data();
         if (!key.isEmpty()) {
-            if (item.findChild("keyencoded").data()[0] == '1') {
-                key = '"' + QByteArray::fromBase64(key.toUtf8()) + '"';
-                if (key.size() > 13) {
-                    key = key.left(12);
-                    key += "...";
-                }
+            int encoding = item.findChild("keyencoded").data().toInt();
+            QString skey = decodeData(key, encoding);
+            if (skey.size() > 13) {
+                skey = skey.left(12);
+                skey += "...";
             }
-            //data1.name += " (" + key + ")";
-            data1.name = key;
+            //data1.name += " (" + skey + ")";
+            data1.name = skey;
         }
         setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));
