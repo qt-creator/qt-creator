@@ -105,6 +105,10 @@ private:
     void startWatchTimer();
     void killWatchTimer();
     void processTerminated(unsigned long exitCode);
+    bool executeDebuggerCommand(const QString &command, QString *errorMessage);
+    bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
+    void evaluateWatcher(WatchData *wd);
+    void filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *wh);
 
     CdbDebugEnginePrivate *m_d;
 

@@ -206,6 +206,12 @@ QWidget *OutputPaneManager::buttonsWidget()
     return m_buttonsWidget;
 }
 
+// Return shortcut as Ctrl+<number>
+static inline int paneShortCut(int modifier, int number)
+{
+    return modifier | (Qt::Key_0 + number);
+}
+
 void OutputPaneManager::init()
 {
     ActionManager *am = Core::ICore::instance()->actionManager();
@@ -254,9 +260,9 @@ void OutputPaneManager::init()
         Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
         if (outPane->priorityInStatusBar() != -1) {
 #ifdef Q_OS_MAC
-            cmd->setDefaultKeySequence(QKeySequence("Ctrl+" + QString::number(shortcutNumber)));
+            cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::CTRL, shortcutNumber)));
 #else
-            cmd->setDefaultKeySequence(QKeySequence("Alt+" + QString::number(shortcutNumber)));
+            cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::ALT, shortcutNumber)));
 #endif
         }
         mpanes->addAction(cmd);

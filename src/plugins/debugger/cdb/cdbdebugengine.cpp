@@ -31,6 +31,7 @@
 #include "cdbdebugengine_p.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbstacktracecontext.h"
+#include "cdbbreakpoint.h"
 
 #include "debuggermanager.h"
 #include "breakhandler.h"
@@ -61,6 +62,8 @@ static const char *localSymbolRootC = "local";
 
 namespace Debugger {
 namespace Internal {
+
+typedef QList<WatchData> WatchList;
 
 QString msgDebugEngineComResult(HRESULT hr)
 {
@@ -125,6 +128,34 @@ bool DebuggerEngineLibrary::init(QString *errorMessage)
     }
     m_debugCreate = static_cast<DebugCreateFunction>(createFunc);
     return true;
+}
+
+// A class that sets an expression syntax on the debug control while in scope.
+// Can be nested as it checks for the old value.
+class SyntaxSetter {
+    Q_DISABLE_COPY(SyntaxSetter)
+public:
+    explicit inline SyntaxSetter(IDebugControl4 *ctl, ULONG desiredSyntax);
+    inline  ~SyntaxSetter();
+private:
+    const ULONG m_desiredSyntax;
+    IDebugControl4 *m_ctl;
+    ULONG m_oldSyntax;
+};
+
+SyntaxSetter::SyntaxSetter(IDebugControl4 *ctl, ULONG desiredSyntax) :
+    m_desiredSyntax(desiredSyntax),
+    m_ctl(ctl)
+{
+    m_ctl->GetExpressionSyntax(&m_oldSyntax);
+    if (m_oldSyntax != m_desiredSyntax)
+        m_ctl->SetExpressionSyntax(m_desiredSyntax);
+}
+
+SyntaxSetter::~SyntaxSetter()
+{
+    if (m_oldSyntax != m_desiredSyntax)
+        m_ctl->SetExpressionSyntax(m_oldSyntax);
 }
 
 // --- CdbDebugEnginePrivate
@@ -440,13 +471,36 @@ CdbSymbolGroupContext *CdbDebugEnginePrivate::getStackFrameSymbolGroupContext(in
     return 0;
 }
 
+static inline QString formatWatchList(const WatchList &wl)
+{
+    const int count = wl.size();
+    QString rc;
+    for (int i = 0; i < count; i++) {
+        if (i)
+            rc += QLatin1String(", ");
+        rc += wl.at(i).iname;
+        rc += QLatin1String(" (");
+        rc += wl.at(i).exp;
+        rc += QLatin1Char(')');
+    }
+    return rc;
+}
+
 bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
                                          WatchHandler *wh,
                                          QString *errorMessage)
 {
+    wh->reinitializeWatchers();
+
+    QList<WatchData> incompletes = wh->takeCurrentIncompletes();
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << frameIndex;
-    wh->cleanup();
+        qDebug() << Q_FUNC_INFO << "\n    " << frameIndex << formatWatchList(incompletes);
+
+    m_engine->filterEvaluateWatchers(&incompletes, wh);
+    if (!incompletes.empty()) {        
+        const QString msg = QLatin1String("Warning: Locals left in incomplete list: ") + formatWatchList(incompletes);
+        qWarning("%s\n", qPrintable(msg));
+    }
 
     bool success = false;
     if (CdbSymbolGroupContext *sgc = getStackFrameSymbolGroupContext(frameIndex, errorMessage))
@@ -456,17 +510,88 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
     return success;
 }
 
+void CdbDebugEngine::evaluateWatcher(WatchData *wd)
+{
+    if (debugCDB > 1)
+        qDebug() << Q_FUNC_INFO << wd->exp;
+    QString errorMessage;
+    QString value;
+    QString type;
+    if (evaluateExpression(wd->exp, &value, &type, &errorMessage)) {
+        wd->setValue(value);
+        wd->setType(type);
+    } else {
+        wd->setValue(errorMessage);
+        wd->setTypeUnneeded();
+    }
+    wd->setChildCount(0);
+}
+
+void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *wh)
+{
+    typedef QList<WatchData> WatchList;
+    if (wd->empty())
+        return;
+
+    // Filter out actual watchers. Ignore the "<Edit>" top level place holders
+    SyntaxSetter syntaxSetter(m_d->m_pDebugControl, DEBUG_EXPR_CPLUSPLUS);
+    const QString watcherPrefix = QLatin1String("watch.");
+    const QChar lessThan = QLatin1Char('<');
+    const QChar greaterThan = QLatin1Char('>');
+    bool placeHolderSeen = false;
+    for (WatchList::iterator it = wd->begin(); it != wd->end(); ) {
+        if (it->iname.startsWith(watcherPrefix)) {
+            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);            
+            if (isPlaceHolder) {
+                if (!placeHolderSeen) { // Max one place holder
+                    it->setChildCount(0);
+                    it->setAllUnneeded();
+                    wh->insertData(*it);
+                    placeHolderSeen = true;
+                }
+            } else {
+                evaluateWatcher(&(*it));
+                wh->insertData(*it);
+            }            
+            it = wd->erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 void CdbDebugEngine::updateWatchModel()
 {
+    // Stack trace exists and evaluation funcs can only be called
+    // when running
+    if (m_d->isDebuggeeRunning()) {
+        qWarning("updateWatchModel() called while debuggee is running.");
+        return;
+    }
+
     const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
+
+    WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
+    WatchList incomplete = watchHandler->takeCurrentIncompletes();
+    if (incomplete.empty())
+        return;
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << "fi=" << frameIndex;
+        qDebug() << Q_FUNC_INFO << "\n    fi=" << frameIndex << formatWatchList(incomplete);
 
     bool success = false;
-    QString errorMessage;    
-    if (CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->symbolGroupContextAt(frameIndex, &errorMessage))
-        success = CdbSymbolGroupContext::completeModel(sg, m_d->m_debuggerManagerAccess->watchHandler(), &errorMessage);
-
+    QString errorMessage;
+    do {
+        // Filter out actual watchers
+        filterEvaluateWatchers(&incomplete, watchHandler);
+        // Do locals. We might get called while running when someone enters watchers
+        if (!incomplete.empty()) {
+            CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->symbolGroupContextAt(frameIndex, &errorMessage);
+            if (!sg || !CdbSymbolGroupContext::completeModel(sg, incomplete, watchHandler, &errorMessage))
+                break;
+        }
+        watchHandler->rebuildModel();
+        success = true;
+    } while (false);
     if (!success)
         qWarning("%s : %s", Q_FUNC_INFO, qPrintable(errorMessage));
 }
@@ -476,7 +601,6 @@ void CdbDebugEngine::stepExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
-    //m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     m_d->cleanStackTrace();
     const HRESULT hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
     Q_UNUSED(hr)
@@ -647,8 +771,50 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
 
 void CdbDebugEngine::executeDebuggerCommand(const QString &command)
 {
+    QString errorMessage;
+    if (!executeDebuggerCommand(command, &errorMessage))
+        qWarning("%s\n", qPrintable(errorMessage));
+}
+
+bool CdbDebugEngine::executeDebuggerCommand(const QString &command, QString *errorMessage)
+{
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << command;
+    const HRESULT hr = m_d->m_pDebugControl->ExecuteWide(DEBUG_OUTCTL_THIS_CLIENT, command.utf16(), 0);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Unable to execute '%1': %2").
+                        arg(command, msgDebugEngineComResult(hr));
+        return false;
+    }
+    return true;
+}
+
+bool CdbDebugEngine::evaluateExpression(const QString &expression,
+                                        QString *value,
+                                        QString *type,
+                                        QString *errorMessage)
+{
+    if (debugCDB > 1)
+        qDebug() << Q_FUNC_INFO << expression;
+    DEBUG_VALUE debugValue;
+    memset(&debugValue, 0, sizeof(DEBUG_VALUE));
+    // Original syntax must be restored, else setting breakpoints will fail.
+    SyntaxSetter syntaxSetter(m_d->m_pDebugControl, DEBUG_EXPR_CPLUSPLUS);
+    ULONG errorPosition = 0;
+    const HRESULT hr = m_d->m_pDebugControl->EvaluateWide(expression.utf16(),
+                                                          DEBUG_VALUE_INVALID, &debugValue,
+                                                          &errorPosition);    if (FAILED(hr)) {
+        if (HRESULT_CODE(hr) == 517) {
+            *errorMessage = QString::fromLatin1("Unable to evaluate '%1': Expression out of scope.").
+                            arg(expression);
+        } else {
+            *errorMessage = QString::fromLatin1("Unable to evaluate '%1': Error at %2: %3").
+                            arg(expression).arg(errorPosition).arg(msgDebugEngineComResult(hr));
+        }
+        return false;
+    }
+    *value = CdbSymbolGroupContext::debugValueToString(debugValue, m_d->m_pDebugControl, type);
+    return true;
 }
 
 void CdbDebugEngine::activateFrame(int frameIndex)
@@ -706,17 +872,6 @@ void CdbDebugEngine::selectThread(int index)
     m_d->updateStackTrace();
 }
 
-static inline QString breakPointExpression(const QString &fileName, const QString &lineNumber)
-{
-    QString str;
-    str += QLatin1Char('`');
-    str += QDir::toNativeSeparators(fileName);
-    str += QLatin1Char(':');
-    str += lineNumber;
-    str += QLatin1Char('`');
-    return str;
-}
-
 void CdbDebugEngine::attemptBreakpointSynchronization()
 {
     if (debugCDB)
@@ -727,36 +882,11 @@ void CdbDebugEngine::attemptBreakpointSynchronization()
         return;
     }
 
-    BreakHandler *handler = m_d->m_debuggerManagerAccess->breakHandler();
-    for (int i=0; i < handler->size(); ++i) {
-        BreakpointData* breakpoint = handler->at(i);
-        if (breakpoint->pending) {
-            const QString expr = breakPointExpression(breakpoint->fileName,  breakpoint->lineNumber);
-            IDebugBreakpoint2* pBP = 0;
-            HRESULT hr = m_d->m_pDebugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
-            if (FAILED(hr) || !pBP) {
-                qWarning("m_pDebugControl->AddBreakpoint2 %s failed.", qPrintable(expr));
-                continue;
-            }
-
-            hr = pBP->SetOffsetExpressionWide(expr.utf16());
-            if (FAILED(hr)) {
-                qWarning("SetOffsetExpressionWide %s failed", qPrintable(expr));
-                continue;
-            }
-
-            bool ok;
-            ULONG ul;
-            ul = breakpoint->ignoreCount.toULong(&ok);
-            if (ok) pBP->SetPassCount(ul);
-
-            //TODO: handle breakpoint->condition
-
-            pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
-            //pBP->AddFlags(DEBUG_BREAKPOINT_GO_ONLY);
-            breakpoint->pending = false;
-        }
-    }
+    QString errorMessage;
+    if (!CDBBreakPoint::synchronizeBreakPoints(m_d->m_pDebugControl,
+                                               m_d->m_debuggerManagerAccess->breakHandler(),
+                                               &errorMessage))
+        qWarning("%s\n", qPrintable(errorMessage));
 }
 
 void CdbDebugEngine::loadSessionData()
@@ -927,8 +1057,6 @@ void CdbDebugEnginePrivate::updateStackTrace()
     m_firstActivatedFrame = true;
     if (current >= 0) {
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
-        m_debuggerManager->gotoLocation(stackFrames.at(current).file,
-                                        stackFrames.at(current).line, true);
         m_engine->activateFrame(current);
     }    
 }

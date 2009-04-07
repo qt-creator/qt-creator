@@ -33,6 +33,8 @@
 #include "watchutils.h"
 #include <QtCore/QTextStream>
 
+enum { debug = 0 };
+
 static inline QString msgSymbolNotFound(const QString &s)
 {
     return QString::fromLatin1("The symbol '%1' could not be found.").arg(s);
@@ -146,7 +148,7 @@ bool CdbSymbolGroupContext::init(QString *errorMessage)
         return false;
     }
     populateINameIndexMap(m_prefix, DEBUG_ANY_ID, 0, count);
-    if (debugCDB)
+    if (debug)
         qDebug() << Q_FUNC_INFO << '\n'<< toString();
     return true;
 }
@@ -157,7 +159,7 @@ void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigne
     // Make the entries for iname->index mapping. We might encounter
     // already expanded subitems when doing it for top-level, recurse in that case.
     const QString symbolPrefix = prefix + m_nameDelimiter;
-    if (debugCDB)
+    if (debug)
         qDebug() << Q_FUNC_INFO << '\n'<< symbolPrefix << start << count;
     const unsigned long end = m_symbolParameters.size();
     unsigned long seenChildren = 0;
@@ -230,7 +232,7 @@ bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
                                                     unsigned long *parentId,
                                                     QString *errorMessage)
 {
-    if (debugCDB)
+    if (debug)
         qDebug() << Q_FUNC_INFO << '\n'<< prefix;
 
     *start = *parentId = 0;
@@ -238,7 +240,7 @@ bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
     if (prefix == m_prefix) {
         *start = 0;
         *parentId = DEBUG_ANY_ID;
-        if (debugCDB)
+        if (debug)
             qDebug() << '<' << prefix << "at" << *start;
         return true;
     }
@@ -252,7 +254,7 @@ bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
     *start = nit.value() + 1;
     if (!expandSymbol(prefix, *parentId, errorMessage))
         return false;
-    if (debugCDB)
+    if (debug)
         qDebug() << '<' << prefix << "at" << *start;
     return true;
 }
@@ -260,7 +262,7 @@ bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
 // Expand a symbol using the symbol group interface.
 bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage)
 {
-    if (debugCDB)
+    if (debug)
         qDebug() << '>' << Q_FUNC_INFO << '\n' << prefix << index;
 
     switch (symbolState(index)) {
@@ -306,7 +308,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
             it.value() += newSymbolCount;
     // insert the new symbols
     populateINameIndexMap(prefix, index, index + 1, newSymbolCount);
-    if (debugCDB > 1)
+    if (debug > 1)
         qDebug() << '<' << Q_FUNC_INFO << '\n' << prefix << index << '\n' << toString();
     return true;
 }
@@ -372,7 +374,7 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     } else {
         wd.setChildCount(0);
     }
-    if (debugCDB > 1)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO << index << '\n' << wd.toString();
     return wd;
 }
@@ -397,6 +399,78 @@ bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &val
     if (newValue)
         *newValue = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
     return true;
+}
+
+// format an array of integers as "0x323, 0x2322, ..."
+template <class Integer>
+static QString hexFormatArrayHelper(const Integer *array, int size)
+{
+    QString rc;
+    const QString hexPrefix = QLatin1String("0x");
+    const QString separator= QLatin1String(", ");
+    for (int i = 0; i < size; i++) {
+        if (i)
+            rc += separator;
+        rc += hexPrefix;
+        rc += QString::number(array[i], 16);
+    }
+    return rc;
+}
+
+QString CdbSymbolGroupContext::hexFormatArray(const unsigned short *array, int size)
+{
+    return hexFormatArrayHelper(array, size);
+}
+
+QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type)
+{
+    switch (dv.Type) {
+    case DEBUG_VALUE_INT8:
+        *type = QLatin1String("char");
+        return QString::number(dv.I8);
+    case DEBUG_VALUE_INT16:
+        *type = QLatin1String("short");
+        return QString::number(static_cast<short>(dv.I16));
+    case DEBUG_VALUE_INT32:
+        *type = QLatin1String("long");
+        return QString::number(static_cast<long>(dv.I32));
+    case DEBUG_VALUE_INT64:
+        *type = QLatin1String("long long");
+        return QString::number(static_cast<long long>(dv.I64));
+    case DEBUG_VALUE_FLOAT32:
+        *type = QLatin1String("float");
+        return QString::number(dv.F32);
+    case DEBUG_VALUE_FLOAT64:
+        *type = QLatin1String("double");
+        return QString::number(dv.F64);
+    case DEBUG_VALUE_FLOAT80:
+    case DEBUG_VALUE_FLOAT128: { // Convert to double
+            DEBUG_VALUE doubleValue;
+            double d = 0.0;
+            if (SUCCEEDED(ctl->CoerceValue(const_cast<DEBUG_VALUE*>(&dv), DEBUG_VALUE_FLOAT64, &doubleValue)))
+                d = dv.F64;
+            *type = dv.Type == DEBUG_VALUE_FLOAT80 ? QLatin1String("80bit-float") : QLatin1String("128bit-float");
+            return QString::number(d);
+        }
+    case DEBUG_VALUE_VECTOR64: {
+        *type = QLatin1String("64bit-vector");
+        QString rc = QLatin1String("bytes: ");
+        rc += hexFormatArrayHelper(dv.VI8, 8);
+        rc += QLatin1String(" long: ");
+        rc += hexFormatArrayHelper(dv.VI32, 2);
+        return rc;
+    }
+    case DEBUG_VALUE_VECTOR128: {
+        *type = QLatin1String("128bit-vector");
+        QString rc = QLatin1String("bytes: ");
+        rc += hexFormatArrayHelper(dv.VI8, 16);
+        rc += QLatin1String(" long long: ");
+        rc += hexFormatArrayHelper(dv.VI64, 2);
+        return rc;
+    }    
+    }
+    *type = QString::fromLatin1("Unknown type #%1:").arg(dv.Type);
+    return hexFormatArrayHelper(dv.RawBytes, 24);
 }
 
 // - Watch model functions
@@ -436,7 +510,7 @@ static bool insertSymbolRecursion(WatchData wd,
     // (Sometimes, some root children are already expanded after creating the context).
     const bool hasChildren = wd.childCount > 0 || wd.isChildrenNeeded();
     const bool recurse = hasChildren && (level < maxRecursionLevel || sg->isExpanded(wd.iname));
-    if (debugCDB)
+    if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << wd.iname << "level=" << level <<  "recurse=" << recurse;
     bool rc = true;
     if (recurse) { // Determine number of children and indicate in model
@@ -453,7 +527,7 @@ static bool insertSymbolRecursion(WatchData wd,
             wd.setChildrenUnneeded();
         }
     }
-    if (debugCDB)
+    if (debug)
         qDebug() << " INSERTING: at " << level << wd.toString();
     watchHandler->insertData(wd);
     return rc;
@@ -468,7 +542,7 @@ static bool insertChildrenRecursion(const QString &iname,
                                     QString *errorMessage,
                                     int *childCountPtr)
 {
-    if (debugCDB > 1)
+    if (debug > 1)
         qDebug() << Q_FUNC_INFO << '\n' << iname << level;
 
     QList<WatchData> watchList;
@@ -516,17 +590,17 @@ bool CdbSymbolGroupContext::populateModelInitially(CdbSymbolGroupContext *sg,
 }
 
 bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
+                                          const QList<WatchData> &incompleteLocals,
                                           WatchHandler *watchHandler,
                                           QString *errorMessage)
 {
-    const QList<WatchData> incomplete = watchHandler->takeCurrentIncompletes();
     if (debugCDB)
-        qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incomplete.size() << '\n';
+        qDebug().nospace() << "###>" << Q_FUNC_INFO << ' ' << incompleteLocals.size() << '\n';
     // The view reinserts any node being expanded with flag 'ChildrenNeeded'.
     // Recurse down one level in context unless this is already the case.
-    foreach(WatchData wd, incomplete) {        
+    foreach(WatchData wd, incompleteLocals) {
         const bool contextExpanded = sg->isExpanded(wd.iname);
-        if (debugCDB)
+        if (debug)
             qDebug() << "  " << wd.iname << "CE=" << contextExpanded;
         if (contextExpanded) { // You know that already.
             wd.setChildrenUnneeded();
@@ -536,7 +610,6 @@ bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
                 return false;
         }
     }
-    watchHandler->rebuildModel();
     return true;
 }
 

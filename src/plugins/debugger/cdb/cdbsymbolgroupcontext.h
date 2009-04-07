@@ -74,7 +74,11 @@ public:
                      QString *newValue /* = 0 */, QString *errorMessage);
 
     static bool populateModelInitially(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
-    static bool completeModel(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
+
+    static bool completeModel(CdbSymbolGroupContext *sg,
+                              const QList<WatchData> &incompleteLocals,
+                              WatchHandler *wh,
+                              QString *errorMessage);
 
     // Retrieve child symbols of prefix as a sequence of WatchData.
     template <class OutputIterator>
@@ -86,6 +90,12 @@ public:
 
     inline bool isExpanded(unsigned long index) const   { return symbolState(index) == ExpandedSymbol; }
     inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
+
+    // Helper to convert a DEBUG_VALUE structure to a string representation
+    static QString debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type);
+
+    // format an array of unsigned longs as "0x323, 0x2322, ..."
+    static QString hexFormatArray(const unsigned short *array, int size);
 
 private:
     typedef QMap<QString, unsigned long>  NameIndexMap;

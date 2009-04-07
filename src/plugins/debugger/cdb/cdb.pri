@@ -24,14 +24,17 @@ HEADERS += \
     $$PWD/cdbdebugeventcallback.h \
     $$PWD/cdbdebugoutput.h \
     $$PWD/cdbsymbolgroupcontext.h \
-    $$PWD/cdbstacktracecontext.h
+    $$PWD/cdbstacktracecontext.h \
+    $$PWD/cdbbreakpoint.h
 
 SOURCES += \
     $$PWD/cdbdebugengine.cpp \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp \
     $$PWD/cdbsymbolgroupcontext.cpp \
-    $$PWD/cdbstacktracecontext.cpp
+    $$PWD/cdbstacktracecontext.cpp \
+    $$PWD/cdbbreakpoint.cpp
+
 } else {
    message("Debugging Tools for Windows could not be found in $$CDB_PATH")
 }

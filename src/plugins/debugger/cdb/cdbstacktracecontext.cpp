@@ -28,8 +28,11 @@
 **************************************************************************/
 
 #include "cdbstacktracecontext.h"
+#include "cdbbreakpoint.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
+
+#include <QtCore/QDir>
 
 namespace Debugger {
 namespace Internal {
@@ -98,12 +101,13 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
         frame.function = QString::fromUtf16(wszBuf);
 
         ULONG ulLine;
-        ULONG ulFileNameSize;
         ULONG64 ul64Displacement;
-        const HRESULT hr = m_pDebugSymbols->GetLineByOffsetWide(instructionOffset, &ulLine, wszBuf, MAX_PATH, &ulFileNameSize, &ul64Displacement);
+        const HRESULT hr = m_pDebugSymbols->GetLineByOffsetWide(instructionOffset, &ulLine, wszBuf, MAX_PATH, 0, &ul64Displacement);
         if (SUCCEEDED(hr)) {
             frame.line = ulLine;
-            frame.file = QString::fromUtf16(wszBuf, ulFileNameSize);
+            // Vitally important  to use canonical file that matches editormanager,
+            // else the marker will not show.
+            frame.file = CDBBreakPoint::canonicalSourceFile(QString::fromUtf16(wszBuf));
         }
         m_frames.push_back(frame);
     }
@@ -114,7 +118,7 @@ CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupContextAt(int index, QSt
 {
     // Create a symbol group on demand
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << index << m_symbolContexts.at(index);
+        qDebug() << Q_FUNC_INFO << index;
 
     if (index < 0 || index >= m_symbolContexts.size()) {
         *errorMessage = QString::fromLatin1("%1: Index %2 out of range %3.").
