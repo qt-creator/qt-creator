@@ -508,14 +508,11 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     return start;
 }
 
-bool CppCodeCompletion::isValid(TextEditor::ITextEditable *editor)
+bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 { return m_manager->isCppEditor(editor); }
 
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
-    if (! m_manager->isCppEditor(editor)) // ### remove me
-        return false;
-
     const int pos = editor->position();
     if (startOfOperator(editor, pos, /*token =*/ 0,
                         /*want function call=*/ true) != pos)
