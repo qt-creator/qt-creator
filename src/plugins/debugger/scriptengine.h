@@ -110,6 +110,7 @@ private:
     bool supportsThreads() const { return true; }
     void maybeBreakNow(bool byFunction);
     void updateWatchModel();
+    void updateLocals();
     void updateSubItem(const WatchData &data0);
 
 private:

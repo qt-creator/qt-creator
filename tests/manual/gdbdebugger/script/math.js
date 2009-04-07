@@ -29,7 +29,8 @@
 
 function cube(a)
 {
-    return a * a * a;
+    var x = a * a * a;
+    return x;
 }
 
 var a = cube(3);

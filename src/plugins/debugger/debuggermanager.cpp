@@ -278,7 +278,7 @@ void DebuggerManager::init()
     connect(m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
         this, SIGNAL(setSessionValueRequested(QString,QVariant)));
     connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
-        this, SLOT(assignValueInDebugger()));
+        this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
 
     // Tooltip
     QTreeView *tooltipView = qobject_cast<QTreeView *>(m_tooltipWindow);

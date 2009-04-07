@@ -149,6 +149,7 @@ public:
     //  QAbstractItemModel
     //
     QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QModelIndex index(int, int, const QModelIndex &idx) const;
     QModelIndex parent(const QModelIndex &idx) const;
     int rowCount(const QModelIndex &idx) const;
