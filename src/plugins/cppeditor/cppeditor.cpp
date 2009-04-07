@@ -632,10 +632,10 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     const int nameStart = tk.position();
     const int nameLength = tk.length();
-    const int endOfName = nameStart + nameLength;
+    const int endOfName = block.position() + nameStart + nameLength;
 
     const QString name = block.text().mid(nameStart, nameLength);
-    tc.setPosition(block.position() + endOfName);
+    tc.setPosition(endOfName);
 
     // Evaluate the type of the expression under the cursor
     ExpressionUnderCursor expressionUnderCursor;
