@@ -182,7 +182,7 @@ XmlFileUpToDatePage::XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard)
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Qt Creator has found a recent cbp file, which Qt Creator parses to gather information about the project. "
-                   "You can change the command line arguments used to create this file, in the project mode. "
+                   "You can change the command line arguments used to create this file in the project mode. "
                    "Click finish to load the project"));
     layout()->addWidget(label);
 }
