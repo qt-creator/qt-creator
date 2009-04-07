@@ -85,7 +85,7 @@ public:
     static ProjectExplorerPlugin *instance();
 
     bool openProject(const QString &fileName);
-    bool openProjects(const QStringList &fileNames);
+    QList<Project *> openProjects(const QStringList &fileNames);
 
     SessionManager *session() const;
 
@@ -192,7 +192,7 @@ private:
     IRunConfigurationRunner *findRunner(QSharedPointer<RunConfiguration> config, const QString &mode);
 
     void updateActions();
-    void addToRecentProjects(const QString &fileName);
+    void addToRecentProjects(const QString &fileName, const QString &displayName);
     void updateWelcomePage(Core::Internal::WelcomeMode *welcomeMode);
     Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;
 
@@ -251,7 +251,7 @@ private:
     QStringList m_profileMimeTypes;
     Internal::OutputPane *m_outputPane;
 
-    QStringList m_recentProjects;
+    QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 7;
 
     QString m_lastOpenDirectory;

@@ -97,6 +97,7 @@ private slots:
     void addToOutputWindow(const QString &string);
 
     void nextBuildQueue();
+    void progressChanged();
     void emitCancelMessage();
     void showBuildResults();
 

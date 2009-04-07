@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>823</width>
-    <height>929</height>
+    <width>811</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>10</width>
             <height>40</height>
            </size>
           </property>
@@ -136,6 +136,38 @@
       </item>
       <item row="3" column="1" colspan="2">
        <widget class="Core::Utils::PathChooser" name="mingwPath" native="true"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Debugging Helper:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="debuggingHelperStateLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="showLogButton">
+          <property name="text">
+           <string>Show &amp;Log</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="rebuildButton">
+          <property name="text">
+           <string>&amp;Rebuild</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

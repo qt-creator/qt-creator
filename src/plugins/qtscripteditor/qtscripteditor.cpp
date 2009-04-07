@@ -240,7 +240,7 @@ void ScriptEditor::updateDocumentNow()
     errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 
     QTextCharFormat warningFormat;
-    warningFormat.setUnderlineColor(Qt::yellow);
+    warningFormat.setUnderlineColor(Qt::darkYellow);
     warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 
     QTextEdit::ExtraSelection sel;

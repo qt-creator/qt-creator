@@ -51,6 +51,7 @@ class FindInFiles : public BaseFileFind
 public:
     explicit FindInFiles(Find::SearchResultWindow *resultWindow);
 
+    QString id() const;
     QString name() const;
     QKeySequence defaultShortcut() const;
     void findAll(const QString &txt, QTextDocument::FindFlags findFlags);

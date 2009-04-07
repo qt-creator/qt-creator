@@ -1,6 +1,6 @@
 #!/bin/sh
 
-bindir=$(dirname "$0")
+bindir=$(dirname $(readlink -nf $0))
 if test "$(uname -m)" = "x86_64" ; then
     libdir=$(cd ${bindir}/../lib64 ; pwd)
 else

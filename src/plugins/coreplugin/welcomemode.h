@@ -33,6 +33,7 @@
 #include <coreplugin/imode.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -59,7 +60,7 @@ public:
         QString previousSession;
         QString activeSession;
         QStringList sessionList;
-        QStringList projectList;
+        QList<QPair<QString, QString> > projectList; // pair of filename, displayname
     };
 
     void updateWelcomePage(const WelcomePageData &welcomePageData);

@@ -186,10 +186,10 @@ public slots:
     void scheduleUpdate();
     void update();
 private slots:
-    void updateUiFiles(const QString& buildConfiguration);
     void buildStateChanged(ProjectExplorer::Project*);
 
 private:
+    void updateUiFiles();
     Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;

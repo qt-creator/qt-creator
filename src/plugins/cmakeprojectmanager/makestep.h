@@ -73,6 +73,8 @@ private:
     CMakeProject *m_pro;
     ProjectExplorer::BuildParserInterface *m_buildParser;
     QSet<QString> m_openDirectories;
+    QRegExp m_percentProgress;
+    QFutureInterface<bool> *m_futureInterface;
 };
 
 class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

@@ -98,6 +98,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
 
+    menu.addAction(theDebuggerAction(ExpandStack));
     menu.addAction(act0);
     menu.addSeparator();
     menu.addAction(act1);

@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
+#include <coreplugin/ifile.h>
 #include <projectexplorer/buildstep.h>
 #include <utils/qtcassert.h>
 
@@ -225,8 +226,9 @@ QWidget *Qt4RunConfiguration::configurationWidget()
 
 void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
 {
+    QDir projectDir(QFileInfo(project()->file()->fileName()).absoluteDir());
     writer.saveValue("CommandLineArguments", m_commandLineArguments);
-    writer.saveValue("ProFile", m_proFilePath);
+    writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
     writer.saveValue("UserSetName", m_userSetName);
     writer.saveValue("UseTerminal", m_runMode == Console);
     writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
@@ -234,10 +236,11 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
 }
 
 void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
-{
+{    
     ApplicationRunConfiguration::restore(reader);
+    QDir projectDir(QFileInfo(project()->file()->fileName()).absoluteDir());
     m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
-    m_proFilePath = reader.restoreValue("ProFile").toString();
+    m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
     m_userSetName = reader.restoreValue("UserSetName").toBool();
     m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
     m_isUsingDyldImageSuffix = reader.restoreValue("UseDyldImageSuffix").toBool();

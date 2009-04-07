@@ -13,11 +13,9 @@ General
    * Completely reworked editor split mechanism.
 
 Editing
-   * Completion for constructors in variable initialization.
-   * Some support for Obj-C++ //TODO: what does that mean more concrete?
-   * Some support for doxygen style comments //TODO: what does that mean more concrete?
-   * More intelligent adding of braces.
-   * Improved function argument completion.
+   * Added support for JavaScript.
+   * Added syntax highlighting and code completion for qdoc and doxygen tags.
+   * Improved function argument hint.
    * More checkpoints in editor history.
    * Ctrl-click for jumping to a symbol definition.
    * Context help for form editor widgets.
@@ -26,19 +24,26 @@ Editing
    * Improved open documents view (sorted, single-click, close buttons).
    * Copying text from the context help browser and output windows didn't work.
 
-Building, Running and Debugging
+Building and Running
    * Experimental support for generic Makefile based projects.
    * Improved .pro file parsing, handling scopes and $$system directive.
    * Support subdir.file in .pro files.
-   * Experimental cdb debugger.
    * Option to start application in external terminal.
+
+Debugging
    * Possibility to attach debugger to core files.
-   * Debugger understands std::set now.
+   * Changed approach to dumper loading: Build once per used Qt version,
+     no dumper buildstep anymore.
+   * New dumper for std::set. Improved QString, QVariant, std::wstring
+   * Make strategy to load shared objects configurable (auto-solib-add).
+   * Maximum stack depth configurable.
+   * Improved interaction in the Locals&Watchers view.
 
 Wizards
    * It is now possible to choose file suffixes in the options dialog.
    * Code of language change event is now generated correctly (added call
      to base class).
+   * Generated header guards now adapt to file extension.
 
 Designer
    * Added signal/slot editor.

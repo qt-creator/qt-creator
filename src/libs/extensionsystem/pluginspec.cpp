@@ -42,7 +42,8 @@
 #include <QtDebug>
 
 #ifdef Q_OS_LINUX
-#   define USE_UNPATCHED_QPLUGINLOADER 0
+// Using the patched version breaks on Fedora 10, KDE4.2.2/Qt4.5.
+#   define USE_UNPATCHED_QPLUGINLOADER 1
 #else
 #   define USE_UNPATCHED_QPLUGINLOADER 1
 #endif

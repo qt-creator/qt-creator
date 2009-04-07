@@ -51,6 +51,11 @@ AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin, SearchResultWind
     connect(m_plugin, SIGNAL(fileListChanged()), this, SIGNAL(changed()));
 }
 
+QString AllProjectsFind::id() const
+{
+    return "All Projects";
+}
+
 QString AllProjectsFind::name() const
 {
     return tr("All Projects");

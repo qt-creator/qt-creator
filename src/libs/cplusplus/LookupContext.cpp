@@ -223,14 +223,13 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                         continue;
 
                     if (q->nameCount() > 1) {
-                        Name *classOrNamespaceName = 0;
+                        Name *classOrNamespaceName = control()->qualifiedNameId(q->names(),
+                                                                                q->nameCount() - 1);
 
-                        if (q->nameCount() == 1)
-                            classOrNamespaceName = q->nameAt(0);
-                        else
-                            classOrNamespaceName = control()->qualifiedNameId(q->names(),
-                                                                              q->nameCount() - 1);
-
+                        if (Identifier *classOrNamespaceNameId = identifier(classOrNamespaceName)) {
+                            if (classOrNamespaceNameId->isEqualTo(id))
+                                continue;
+                        }
 
                         const QList<Symbol *> resolvedClassOrNamespace =
                                 resolveClassOrNamespace(classOrNamespaceName, visibleScopes);
@@ -455,7 +454,7 @@ void LookupContext::expandFunction(Scope *scope,
         expandedScopes->append(function->arguments());
     if (QualifiedNameId *q = function->name()->asQualifiedNameId()) {
         Name *nestedNameSpec = 0;
-        if (q->nameCount() == 1 && q->isGlobal())
+        if (q->nameCount() == 1)
             nestedNameSpec = q->nameAt(0);
         else
             nestedNameSpec = control()->qualifiedNameId(q->names(), q->nameCount() - 1,

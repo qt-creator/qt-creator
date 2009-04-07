@@ -63,6 +63,13 @@ using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
+//#define DEBUG_SCRIPT 1
+#if DEBUG_SCRIPT
+#   define SDEBUG(s) qDebug() << s
+#else
+#   define SDEBUG(s)
+#endif
+# define XSDEBUG(s) qDebug() << s
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -100,24 +107,29 @@ ScriptAgent::ScriptAgent(ScriptEngine *debugger, QScriptEngine *script)
 
 void ScriptAgent::contextPop()
 {
-    qDebug() << "ScriptAgent::contextPop: ";
+    SDEBUG("ScriptAgent::contextPop: ");
 }
 
 void ScriptAgent::contextPush()
 {
-    qDebug() << "ScriptAgent::contextPush: ";
+    SDEBUG("ScriptAgent::contextPush: ");
 }
 
 void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception)
 {
-    qDebug() << "ScriptAgent::exceptionCatch: " << scriptId << &exception;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(exception);
+    SDEBUG("ScriptAgent::exceptionCatch: " << scriptId << &exception);
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     bool hasHandler)
 {
-    qDebug() << "ScriptAgent::exceptionThrow: " << scriptId << &exception
-        << hasHandler;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(exception);
+    Q_UNUSED(hasHandler);
+    SDEBUG("ScriptAgent::exceptionThrow: " << scriptId << &exception
+        << hasHandler);
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
@@ -128,12 +140,14 @@ void ScriptAgent::functionEntry(qint64 scriptId)
 
 void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
 {
-    qDebug() << "ScriptAgent::functionExit: " << scriptId << &returnValue;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(returnValue);
+    SDEBUG("ScriptAgent::functionExit: " << scriptId << &returnValue);
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
-    //qDebug() << "ScriptAgent::position: " << lineNumber;
+    SDEBUG("ScriptAgent::position: " << lineNumber);
     Q_UNUSED(scriptId);
     Q_UNUSED(lineNumber);
     Q_UNUSED(columnNumber);
@@ -147,14 +161,14 @@ void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     Q_UNUSED(program);
     Q_UNUSED(fileName);
     Q_UNUSED(baseLineNumber);
-    //qDebug() << "ScriptAgent::scriptLoad: " << program << fileName
-    //    << baseLineNumber;
+    SDEBUG("ScriptAgent::scriptLoad: " << program << fileName
+      << baseLineNumber);
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
 {
     Q_UNUSED(scriptId);
-    //qDebug() << "ScriptAgent::scriptUnload: " << scriptId;
+    SDEBUG("ScriptAgent::scriptUnload: " << scriptId);
 }
 
 
@@ -181,7 +195,7 @@ ScriptEngine::~ScriptEngine()
 void ScriptEngine::executeDebuggerCommand(const QString &command)
 {
     Q_UNUSED(command);
-    qDebug() << "FIXME:  ScriptEngine::executeDebuggerCommand()";
+    XSDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 
 void ScriptEngine::shutdown()
@@ -191,7 +205,7 @@ void ScriptEngine::shutdown()
 
 void ScriptEngine::exitDebugger()
 {
-    //qDebug() << " ScriptEngine::exitDebugger()";
+    SDEBUG("ScriptEngine::exitDebugger()");
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
@@ -212,19 +226,69 @@ bool ScriptEngine::startDebugger()
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
+    qq->notifyInferiorRunningRequested();
+    QTimer::singleShot(0, this, SLOT(runInferior()));
     return true;
 }
 
 void ScriptEngine::continueInferior()
 {
-    //qDebug() << "ScriptEngine::continueInferior()";
+    SDEBUG("ScriptEngine::continueInferior()");
     m_stopped = false;
     m_stopOnNextLine = false;
 }
 
 void ScriptEngine::runInferior()
 {
-    //qDebug() << "ScriptEngine::runInferior()";
+    //QDir dir(QApplication::applicationDirPath());
+    //if (dir.dirName() == QLatin1String("debug") || dir.dirName() == QLatin1String("release"))
+    //    dir.cdUp();
+    //dir.cdUp();
+    //dir.cdUp();
+    QDir dir("/home/apoenitz/dev/qtscriptgenerator");
+    if (!dir.cd("plugins")) {
+        fprintf(stderr, "plugins folder does not exist -- did you build the bindings?\n");
+        return;
+    }
+    QStringList paths = qApp->libraryPaths();
+    paths <<  dir.absolutePath();
+    qApp->setLibraryPaths(paths);
+
+    SDEBUG("ScriptEngine::runInferior()");
+    QStringList extensions;
+    extensions << "qt.core"
+               << "qt.gui"
+               << "qt.xml"
+               << "qt.svg"
+               << "qt.network"
+               << "qt.sql"
+               << "qt.opengl"
+               << "qt.webkit"
+               << "qt.xmlpatterns"
+               << "qt.uitools";
+    QStringList failExtensions;
+    foreach (const QString &ext, extensions) {
+        QScriptValue ret = m_scriptEngine->importExtension(ext);
+        if (ret.isError())
+            failExtensions.append(ext);
+    }
+    if (!failExtensions.isEmpty()) {
+        if (failExtensions.size() == extensions.size()) {
+            qWarning("Failed to import Qt bindings!\n"
+                     "Plugins directory searched: %s/script\n"
+                     "Make sure that the bindings have been built, "
+                     "and that this executable and the plugins are "
+                     "using compatible Qt libraries.", qPrintable(dir.absolutePath()));
+        } else {
+            qWarning("Failed to import some Qt bindings: %s\n"
+                     "Plugins directory searched: %s/script\n"
+                     "Make sure that the bindings have been built, "
+                     "and that this executable and the plugins are "
+                     "using compatible Qt libraries.",
+                     qPrintable(failExtensions.join(", ")), qPrintable(dir.absolutePath()));
+        }
+    }
+
     QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
 }
 
@@ -232,40 +296,40 @@ void ScriptEngine::interruptInferior()
 {
     m_stopped = false;
     m_stopOnNextLine = true;
-    qDebug() << "FIXME:  ScriptEngine::interruptInferior()";
+    XSDEBUG("ScriptEngine::interruptInferior()");
 }
 
 void ScriptEngine::stepExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepExec()";
+    //SDEBUG("ScriptEngine::stepExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepIExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepIExec()";
+    //SDEBUG("ScriptEngine::stepIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepOutExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepOutExec()";
+    //SDEBUG("ScriptEngine::stepOutExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::nextExec()";
+    //SDEBUG("ScriptEngine::nextExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextIExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::nextIExec()";
+    //SDEBUG("ScriptEngine::nextIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
@@ -274,20 +338,20 @@ void ScriptEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName);
     Q_UNUSED(lineNumber);
-    qDebug() << "FIXME:  ScriptEngine::runToLineExec()";
+    SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
 }
 
 void ScriptEngine::runToFunctionExec(const QString &functionName)
 {
     Q_UNUSED(functionName);
-    qDebug() << "FIXME:  ScriptEngine::runToFunctionExec()";
+    XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
 void ScriptEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName);
     Q_UNUSED(lineNumber);
-    qDebug() << "FIXME:  ScriptEngine::jumpToLineExec()";
+    XSDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
 }
 
 void ScriptEngine::activateFrame(int index)
@@ -381,7 +445,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
     Q_UNUSED(exp0);
 
     if (q->status() != DebuggerInferiorStopped) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED";
+        //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
 
@@ -453,8 +517,9 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 void ScriptEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
-    Q_UNUSED(expression);
-    Q_UNUSED(value);
+    XSDEBUG("ASSIGNING: " << expression + '=' + value);
+    m_scriptEngine->evaluate(expression + '=' + value);
+    updateLocals();
 }
 
 void ScriptEngine::maybeBreakNow(bool byFunction)
@@ -493,7 +558,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
             return;
 
         // we just run into a breakpoint
-        //qDebug() << "RESOLVING BREAKPOINT AT " << fileName << lineNumber;
+        //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
         BreakpointData *data = handler->at(index);
         data->bpLineNumber = QString::number(lineNumber);
         data->bpFileName = fileName;
@@ -506,9 +571,14 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
 
     qq->notifyInferiorStopped();
     q->gotoLocation(fileName, lineNumber, true);
+    updateLocals();
+}
 
+void ScriptEngine::updateLocals()
+{
+    QScriptContext *context = m_scriptEngine->currentContext();
     qq->watchHandler()->reinitializeWatchers();
-    //qDebug() << "UPDATE LOCALS";
+    //SDEBUG("UPDATE LOCALS");
 
     //
     // Build stack
@@ -545,10 +615,10 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
     while (m_stopped) {
-        //qDebug() << "LOOPING";
+        //SDEBUG("LOOPING");
         QApplication::processEvents();
     }
-    //qDebug() << "RUNNING AGAIN";
+    //SDEBUG("RUNNING AGAIN");
 }
 
 void ScriptEngine::updateWatchModel()
@@ -567,7 +637,7 @@ void ScriptEngine::updateWatchModel()
 void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
-    //qDebug() << "\nUPDATE SUBITEM: " << data.toString();
+    //SDEBUG("\nUPDATE SUBITEM: " << data.toString());
     QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {
@@ -632,6 +702,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             it.next();
             WatchData data1;
             data1.iname = data.iname + "." + it.name();
+            data1.exp = it.name();
             data1.name = it.name();
             data1.scriptValue = it.value();
             if (qq->watchHandler()->isExpandedIName(data1.iname))
@@ -641,7 +712,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             qq->watchHandler()->insertData(data1);
             ++numChild;
         }
-        //qDebug() << "  ... CHILDREN: " << numChild;
+        //SDEBUG("  ... CHILDREN: " << numChild);
         data.setChildCount(numChild);
         data.setChildrenUnneeded();
         qq->watchHandler()->insertData(data);
@@ -656,7 +727,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             ++numChild;
         }
         data.setChildCount(numChild);
-        //qDebug() << "  ... CHILDCOUNT: " << numChild;
+        //SDEBUG("  ... CHILDCOUNT: " << numChild);
         qq->watchHandler()->insertData(data);
         return;
     }

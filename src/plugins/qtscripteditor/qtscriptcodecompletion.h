@@ -21,7 +21,7 @@ public:
     Qt::CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
 
-    virtual bool isValid(TextEditor::ITextEditable *editor);
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);

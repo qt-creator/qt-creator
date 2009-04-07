@@ -72,12 +72,12 @@ struct GdbCookie
     QVariant cookie;
 };
 
-enum DataDumperState
+enum DebuggingHelperState
 {
-    DataDumperUninitialized,
-    DataDumperLoadTried,
-    DataDumperAvailable,
-    DataDumperUnavailable,
+    DebuggingHelperUninitialized,
+    DebuggingHelperLoadTried,
+    DebuggingHelperAvailable,
+    DebuggingHelperUnavailable,
 };
 
 
@@ -130,8 +130,8 @@ private:
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
 
-    Q_SLOT void setDebugDumpers(const QVariant &on);
-    Q_SLOT void setUseDumpers(const QVariant &on);
+    Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
+    Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
     //
     // Own stuff
@@ -277,10 +277,11 @@ private:
     //
     // Stack specific stuff
     // 
-    void handleStackListFrames(const GdbResultRecord &record);
+    void handleStackListFrames(const GdbResultRecord &record, bool isFull);
     void handleStackSelectThread(const GdbResultRecord &record, int cookie);
     void handleStackListThreads(const GdbResultRecord &record, int cookie);
-    void reloadStack();
+    Q_SLOT void reloadStack();
+    Q_SLOT void reloadFullStack();
 
 
     //
@@ -305,11 +306,11 @@ private:
     void handleTypeContents(const QString &output);
     void maybeHandleInferiorPidChanged(const QString &pid);
 
-    void tryLoadCustomDumpers();
-    Q_SLOT void recheckCustomDumperAvailability();
-    void runCustomDumper(const WatchData &data, bool dumpChildren);
-    void runDirectDumper(const WatchData &data, bool dumpChildren);
-    bool isCustomValueDumperAvailable(const QString &type) const;
+    void tryLoadDebuggingHelpers();
+    Q_SLOT void recheckDebuggingHelperAvailability();
+    void runDebuggingHelper(const WatchData &data, bool dumpChildren);
+    void runDirectDebuggingHelper(const WatchData &data, bool dumpChildren);
+    bool hasDebuggingHelperForType(const QString &type) const;
 
     void handleVarListChildren(const GdbResultRecord &record,
         const WatchData &cookie);
@@ -320,15 +321,15 @@ private:
         const WatchData &cookie);
     void handleToolTip(const GdbResultRecord &record,
         const QString &cookie);
-    void handleQueryDataDumper(const GdbResultRecord &record);
-    void handleDumpCustomValue1(const GdbResultRecord &record,
+    void handleQueryDebuggingHelper(const GdbResultRecord &record);
+    void handleDebuggingHelperValue1(const GdbResultRecord &record,
         const WatchData &cookie);
-    void handleDumpCustomValue2(const GdbResultRecord &record,
+    void handleDebuggingHelperValue2(const GdbResultRecord &record,
         const WatchData &cookie);
-    void handleDumpCustomValue3(const GdbResultRecord &record,
+    void handleDebuggingHelperValue3(const GdbResultRecord &record,
         const WatchData &cookie);
-    void handleDumpCustomEditValue(const GdbResultRecord &record);
-    void handleDumpCustomSetup(const GdbResultRecord &record);
+    void handleDebuggingHelperEditValue(const GdbResultRecord &record);
+    void handleDebuggingHelperSetup(const GdbResultRecord &record);
     void handleStackListLocals(const GdbResultRecord &record);
     void handleStackListArguments(const GdbResultRecord &record);
     void handleVarListChildrenHelper(const GdbMi &child,
@@ -339,11 +340,11 @@ private:
     QString m_editedData;
     int m_pendingRequests;
 
-    QStringList m_availableSimpleDumpers;
+    QStringList m_availableSimpleDebuggingHelpers;
     QString m_namespace; // namespace used in "namespaced Qt";
     int m_qtVersion; // Qt version used in the debugged program
     
-    DataDumperState m_dataDumperState; // state of qt creator dumpers
+    DebuggingHelperState m_debuggingHelperState;
     QList<GdbMi> m_currentFunctionArgs;
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;

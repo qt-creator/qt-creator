@@ -493,6 +493,14 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
     return QVariant();
 }
 
+bool WatchHandler::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    Q_UNUSED(role);
+    Q_UNUSED(value);
+    emit dataChanged(index, index);
+    return true;
+}
+
 Qt::ItemFlags WatchHandler::flags(const QModelIndex &idx) const
 {
     using namespace Qt;
@@ -871,10 +879,11 @@ void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
     //MODEL_DEBUG("WATCH: " << exp);
+    static int counter = 0;
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    data.iname = QLatin1String("watch.") + exp;
+    data.iname = QLatin1String("watch.") + QString::number(counter++);
     insertData(data);
     m_watchers.append(exp);
     saveWatchers();
@@ -993,7 +1002,6 @@ void WatchHandler::reinitializeWatchersHelper()
         data.variable.clear();
         data.setAllNeeded();
         data.valuedisabled = false;
-        data.iname = QLatin1String("watch.") + QString::number(i);
         data.name = exp;
         data.exp = exp;
         insertData(data);

@@ -419,11 +419,11 @@ EditorView::EditorView(EditorModel *model, QWidget *parent) :
         m_statusWidgetButton->setText(tr("Placeholder"));
         hbox->addWidget(m_statusWidgetButton);
 
+        m_statusHLine->setVisible(false);
         m_statusWidget->setVisible(false);
         tl->addWidget(m_statusHLine);
         tl->addWidget(m_statusWidget);
     }
-
 }
 
 EditorView::~EditorView()

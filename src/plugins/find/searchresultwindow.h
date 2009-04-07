@@ -84,7 +84,7 @@ public slots:
 private slots:
     void handleExpandCollapseToolButton(bool checked);
     void handleJumpToSearchResult(int index, const QString &fileName, int lineNumber,
-        int searchTermStart, int searchTermLength);
+                                  int searchTermStart, int searchTermLength);
 
 private:
     void readSettings();

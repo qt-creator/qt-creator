@@ -67,6 +67,7 @@ private:
     QList<IFindFilter *> m_filters;
     QCompleter *m_findCompleter;
     QList<QWidget *> m_configWidgets;
+    IFindFilter *m_currentFilter;
 };
 
 } // namespace Internal
