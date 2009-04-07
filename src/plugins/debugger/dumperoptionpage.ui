@@ -20,7 +20,7 @@
       <string>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
      </property>
      <property name="text">
-      <string>Use data dumpers</string>
+      <string>Use debugging helper</string>
      </property>
     </widget>
    </item>
@@ -48,7 +48,7 @@
         <string>This will load a dumper library</string>
        </property>
        <property name="text">
-        <string>Use dumpers from custom location</string>
+        <string>Use debugging helper from custom location</string>
        </property>
       </widget>
      </item>
@@ -90,7 +90,7 @@
       <string notr="true">This is an internal tool to make debugging the debugging helper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
      </property>
      <property name="text">
-      <string>Debug custom dumpers</string>
+      <string>Debug debugging helper</string>
      </property>
     </widget>
    </item>
@@ -110,11 +110,6 @@
   </layout>
   <zorder>checkBoxDebugDebuggingHelpers</zorder>
   <zorder>checkBoxUseDebuggingHelpers</zorder>
-  <zorder>checkBoxUseDefaultDebuggingHelperLocation</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>labelDebuggingHelperLocation</zorder>
-  <zorder>horizontalSpacer_2</zorder>
-  <zorder>labelDebuggingHelperLocation</zorder>
  </widget>
  <customwidgets>
   <customwidget>

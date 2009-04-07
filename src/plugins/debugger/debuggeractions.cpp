@@ -166,8 +166,8 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
-    item->setSettingsKey("DebugMode", "UseDebuggingHelpers");
-    item->setText(QObject::tr("Use data dumpers"));
+    item->setSettingsKey("DebugMode", "UseDebuggingHelper");
+    item->setText(QObject::tr("Use Debugging Helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
 
@@ -183,12 +183,12 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(DebugDebuggingHelpers, item);
     item->setSettingsKey("DebugMode", "DebugDebuggingHelpers");
-    item->setText(QObject::tr("Debug data dumpers"));
+    item->setText(QObject::tr("Debug debugging helper"));
     item->setCheckable(true);
 
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Recheck custom dumper availability"));
+    item->setText(QObject::tr("Recheck debugging helper availability"));
     instance->insertItem(RecheckDebuggingHelpers, item);
 
     //
