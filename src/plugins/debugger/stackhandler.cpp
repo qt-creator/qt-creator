@@ -183,7 +183,7 @@ QList<StackFrame> StackHandler::frames() const
     return m_stackFrames;
 }
 
-bool StackHandler::isDebuggingDumpers() const
+bool StackHandler::isDebuggingDebuggingHelpers() const
 {
     for (int i = m_stackFrames.size(); --i >= 0; )
         if (m_stackFrames.at(i).function.startsWith("qDumpObjectData"))

@@ -30,6 +30,8 @@
 function cube(a)
 {
     var x = a * a * a;
+    x = x + 1;
+    x = x - 1;
     return x;
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DumperOptionPage</class>
- <widget class="QWidget" name="DumperOptionPage">
+ <class>DebuggingHelperOptionPage</class>
+ <widget class="QWidget" name="DebuggingHelperOptionPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="checkBoxUseDumpers">
+    <widget class="QCheckBox" name="checkBoxUseDebuggingHelpers">
      <property name="toolTip">
       <string>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</string>
      </property>
@@ -43,7 +43,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBoxUseCustomDumperLocation">
+      <widget class="QCheckBox" name="checkBoxUseCustomDebuggingHelperLocation">
        <property name="toolTip">
         <string>This will load a dumper library</string>
        </property>
@@ -73,7 +73,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="labelDumperLocation">
+      <widget class="QLabel" name="labelDebuggingHelperLocation">
        <property name="text">
         <string>Location: </string>
        </property>
@@ -85,9 +85,9 @@
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxDebugDumpers">
+    <widget class="QCheckBox" name="checkBoxDebugDebuggingHelpers">
      <property name="toolTip">
-      <string notr="true">This is an internal tool to make debugging the Custom Data Dumper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
+      <string notr="true">This is an internal tool to make debugging the debugging helper code easier. Using this action is in general not needed unless you want do debug Qt Creator itself.</string>
      </property>
      <property name="text">
       <string>Debug custom dumpers</string>
@@ -108,13 +108,13 @@
     </spacer>
    </item>
   </layout>
-  <zorder>checkBoxDebugDumpers</zorder>
-  <zorder>checkBoxUseDumpers</zorder>
-  <zorder>checkBoxUseDefaultDumperLocation</zorder>
+  <zorder>checkBoxDebugDebuggingHelpers</zorder>
+  <zorder>checkBoxUseDebuggingHelpers</zorder>
+  <zorder>checkBoxUseDefaultDebuggingHelperLocation</zorder>
   <zorder>horizontalSpacer</zorder>
-  <zorder>labelDumperLocation</zorder>
+  <zorder>labelDebuggingHelperLocation</zorder>
   <zorder>horizontalSpacer_2</zorder>
-  <zorder>labelDumperLocation</zorder>
+  <zorder>labelDebuggingHelperLocation</zorder>
  </widget>
  <customwidgets>
   <customwidget>

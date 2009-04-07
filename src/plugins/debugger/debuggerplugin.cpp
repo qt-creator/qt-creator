@@ -321,23 +321,23 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DumperOptionPage
+// DebuggingHelperOptionPage
 //
 ///////////////////////////////////////////////////////////////////////
 
 namespace Debugger {
 namespace Internal {
 
-class DumperOptionPage : public Core::IOptionsPage
+class DebuggingHelperOptionPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    DumperOptionPage() {}
+    DebuggingHelperOptionPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("DataDumper"); }
-    QString trName() const { return tr("Data Dumper"); }
+    QString id() const { return QLatin1String("DebuggingHelper"); }
+    QString trName() const { return tr("Debugging Helper"); }
     QString category() const { return QLatin1String("Debugger"); }
     QString trCategory() const { return tr("Debugger"); }
 
@@ -349,39 +349,39 @@ private:
     Q_SLOT void updateState();
 
     friend class DebuggerPlugin;
-    Ui::DumperOptionPage m_ui;
+    Ui::DebuggingHelperOptionPage m_ui;
 
     Core::Utils::SavedActionSet m_group;
 };
 
-QWidget *DumperOptionPage::createPage(QWidget *parent)
+QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
 
     m_ui.dumperLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose Dumper Location"));
+    m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose DebuggingHelper Location"));
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
 
-    connect(m_ui.checkBoxUseDumpers, SIGNAL(toggled(bool)),
+    connect(m_ui.checkBoxUseDebuggingHelpers, SIGNAL(toggled(bool)),
         this, SLOT(updateState()));
-    connect(m_ui.checkBoxUseCustomDumperLocation, SIGNAL(toggled(bool)),
+    connect(m_ui.checkBoxUseCustomDebuggingHelperLocation, SIGNAL(toggled(bool)),
         this, SLOT(updateState()));
 
     m_group.clear();
-    m_group.insert(theDebuggerAction(UseDumpers),
-        m_ui.checkBoxUseDumpers);
-    m_group.insert(theDebuggerAction(UseCustomDumperLocation),
-        m_ui.checkBoxUseCustomDumperLocation);
-    m_group.insert(theDebuggerAction(CustomDumperLocation),
+    m_group.insert(theDebuggerAction(UseDebuggingHelpers),
+        m_ui.checkBoxUseDebuggingHelpers);
+    m_group.insert(theDebuggerAction(UseCustomDebuggingHelperLocation),
+        m_ui.checkBoxUseCustomDebuggingHelperLocation);
+    m_group.insert(theDebuggerAction(CustomDebuggingHelperLocation),
         m_ui.dumperLocationChooser);
 
-    m_group.insert(theDebuggerAction(DebugDumpers),
-        m_ui.checkBoxDebugDumpers);
+    m_group.insert(theDebuggerAction(DebugDebuggingHelpers),
+        m_ui.checkBoxDebugDebuggingHelpers);
 
     m_ui.dumperLocationChooser->
-        setEnabled(theDebuggerAction(UseCustomDumperLocation)->value().toBool());
+        setEnabled(theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool());
 
 #ifndef QT_DEBUG
 #if 0
@@ -396,13 +396,13 @@ QWidget *DumperOptionPage::createPage(QWidget *parent)
     return w;
 }
 
-void DumperOptionPage::updateState()
+void DebuggingHelperOptionPage::updateState()
 {
-    m_ui.checkBoxUseCustomDumperLocation->setEnabled(
-        m_ui.checkBoxUseDumpers->isChecked());
+    m_ui.checkBoxUseCustomDebuggingHelperLocation->setEnabled(
+        m_ui.checkBoxUseDebuggingHelpers->isChecked());
     m_ui.dumperLocationChooser->setEnabled(
-        m_ui.checkBoxUseDumpers->isChecked()
-            && m_ui.checkBoxUseCustomDumperLocation->isChecked());
+        m_ui.checkBoxUseDebuggingHelpers->isChecked()
+            && m_ui.checkBoxUseCustomDebuggingHelperLocation->isChecked());
 }
 
 } // namespace Internal
@@ -652,7 +652,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
    // FIXME:
     m_generalOptionPage = new GdbOptionPage;
     addObject(m_generalOptionPage);
-    m_dumperOptionPage = new DumperOptionPage;
+    m_dumperOptionPage = new DebuggingHelperOptionPage;
     addObject(m_dumperOptionPage);
 
     m_locationMark = 0;

@@ -240,7 +240,55 @@ void ScriptEngine::continueInferior()
 
 void ScriptEngine::runInferior()
 {
+    //QDir dir(QApplication::applicationDirPath());
+    //if (dir.dirName() == QLatin1String("debug") || dir.dirName() == QLatin1String("release"))
+    //    dir.cdUp();
+    //dir.cdUp();
+    //dir.cdUp();
+    QDir dir("/home/apoenitz/dev/qtscriptgenerator");
+    if (!dir.cd("plugins")) {
+        fprintf(stderr, "plugins folder does not exist -- did you build the bindings?\n");
+        return;
+    }
+    QStringList paths = qApp->libraryPaths();
+    paths <<  dir.absolutePath();
+    qApp->setLibraryPaths(paths);
+
     SDEBUG("ScriptEngine::runInferior()");
+    QStringList extensions;
+    extensions << "qt.core"
+               << "qt.gui"
+               << "qt.xml"
+               << "qt.svg"
+               << "qt.network"
+               << "qt.sql"
+               << "qt.opengl"
+               << "qt.webkit"
+               << "qt.xmlpatterns"
+               << "qt.uitools";
+    QStringList failExtensions;
+    foreach (const QString &ext, extensions) {
+        QScriptValue ret = m_scriptEngine->importExtension(ext);
+        if (ret.isError())
+            failExtensions.append(ext);
+    }
+    if (!failExtensions.isEmpty()) {
+        if (failExtensions.size() == extensions.size()) {
+            qWarning("Failed to import Qt bindings!\n"
+                     "Plugins directory searched: %s/script\n"
+                     "Make sure that the bindings have been built, "
+                     "and that this executable and the plugins are "
+                     "using compatible Qt libraries.", qPrintable(dir.absolutePath()));
+        } else {
+            qWarning("Failed to import some Qt bindings: %s\n"
+                     "Plugins directory searched: %s/script\n"
+                     "Make sure that the bindings have been built, "
+                     "and that this executable and the plugins are "
+                     "using compatible Qt libraries.",
+                     qPrintable(failExtensions.join(", ")), qPrintable(dir.absolutePath()));
+        }
+    }
+
     QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
 }
 
