@@ -1336,13 +1336,16 @@ void EditorManager::updateActions()
     m_d->m_revertToSavedAction->setEnabled(curEditor != 0
         && !curEditor->file()->fileName().isEmpty() && curEditor->file()->isModified());
 
-    m_d->m_saveAsAction->setText(tr("Save %1 As...").arg(fName));
-    m_d->m_saveAction->setText(tr("&Save %1").arg(fName));
-    m_d->m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(fName));
+    QString quotedName;
+    if (!fName.isEmpty())
+        quotedName = '"' + fName + '"';
+    m_d->m_saveAsAction->setText(tr("Save %1 As...").arg(quotedName));
+    m_d->m_saveAction->setText(tr("&Save %1").arg(quotedName));
+    m_d->m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
 
 
     m_d->m_closeCurrentEditorAction->setEnabled(curEditor != 0);
-    m_d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(fName));
+    m_d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
     m_d->m_closeAllEditorsAction->setEnabled(openedCount > 0);
 
     m_d->m_gotoNextDocHistoryAction->setEnabled(m_d->m_editorHistory.count() > 0);

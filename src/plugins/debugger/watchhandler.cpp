@@ -871,10 +871,11 @@ void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
     //MODEL_DEBUG("WATCH: " << exp);
+    static int counter = 0;
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    data.iname = QLatin1String("watch.") + exp;
+    data.iname = QLatin1String("watch.") + QString::number(counter++);
     insertData(data);
     m_watchers.append(exp);
     saveWatchers();
@@ -993,7 +994,6 @@ void WatchHandler::reinitializeWatchersHelper()
         data.variable.clear();
         data.setAllNeeded();
         data.valuedisabled = false;
-        data.iname = QLatin1String("watch.") + QString::number(i);
         data.name = exp;
         data.exp = exp;
         insertData(data);

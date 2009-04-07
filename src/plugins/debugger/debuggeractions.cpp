@@ -315,6 +315,10 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(MaximalStackDepth, item);
 
     item = new SavedAction(instance);
+    item->setText(QObject::tr("Reload full stack"));
+    instance->insertItem(ExpandStack, item);
+
+    item = new SavedAction(instance);
     item->setText(QObject::tr("Execute line"));
     instance->insertItem(ExecuteCommand, item);
 

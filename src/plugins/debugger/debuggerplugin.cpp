@@ -796,6 +796,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
 void DebuggerPlugin::extensionsInitialized()
 {
+    // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
+    QByteArray env = qgetenv("QTC_DEBUGGER_TEST");
+    //qDebug() << "EXTENSIONS INITIALIZED:" << env;
+    if (!env.isEmpty())
+        m_manager->runTest(QString::fromLocal8Bit(env));
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */

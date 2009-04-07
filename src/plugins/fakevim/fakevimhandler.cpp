@@ -213,6 +213,7 @@ public:
 
     EventResult handleEvent(QKeyEvent *ev);
     bool wantsOverride(QKeyEvent *ev);
+    void handleCommand(const QString &cmd); // sets m_tc + handleExCommand
     void handleExCommand(const QString &cmd);
 
     void installEventFilter();
@@ -350,6 +351,7 @@ public:
     bool m_needMoreUndo;
 
     // extra data for '.'
+    void replay(const QString &text);
     QString m_dotCommand;
     bool m_inReplay; // true if we are executing a '.'
 
@@ -1007,11 +1009,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         qDebug() << "REPEATING" << m_dotCommand;
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
-        m_inReplay = true;
-        for (int i = count(); --i >= 0; )
-            foreach (QChar c, savedCommand)
-                handleKey(c.unicode(), c.unicode(), QString(c));
-        m_inReplay = false;
+        replay(savedCommand);
         enterCommandMode();
         m_dotCommand = savedCommand;
     } else if (key == '<' && m_visualMode == NoVisualMode) {
@@ -1643,6 +1641,13 @@ void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
        setPosition(firstPositionInLine(endLine + 1));
 }
 
+void FakeVimHandler::Private::handleCommand(const QString &cmd)
+{
+    m_tc = EDITOR(textCursor());
+    handleExCommand(cmd);
+    EDITOR(setTextCursor(m_tc));
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
@@ -1665,10 +1670,11 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
     //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0 << m_marks;
 
-    static QRegExp reWrite("^w!?( (.*))?$");
     static QRegExp reDelete("^d( (.*))?$");
-    static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reHistory("^his(tory)?( (.*))?$");
+    static QRegExp reNormal("^norm(al)?( (.*))?$");
+    static QRegExp reSet("^set?( (.*))?$");
+    static QRegExp reWrite("^w!?( (.*))?$");
 
     if (cmd.isEmpty()) {
         setPosition(firstPositionInLine(beginLine));
@@ -1769,6 +1775,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         redo();
         enterCommandMode();
         updateMiniBuffer();
+    } else if (reNormal.indexIn(cmd) != -1) { // :normal
+        enterCommandMode();
+        replay(reNormal.cap(3));
     } else if (reSet.indexIn(cmd) != -1) { // :set
         showBlackMessage(QString());
         QString arg = reSet.cap(2);
@@ -2341,6 +2350,15 @@ void FakeVimHandler::Private::handleStartOfLine()
         moveToFirstNonBlankOnLine();
 }
 
+void FakeVimHandler::Private::replay(const QString &command)
+{
+    //qDebug() << "REPLAY: " << command;
+    m_inReplay = true;
+    for (int i = count(); --i >= 0; )
+        foreach (QChar c, command)
+            handleKey(c.unicode(), c.unicode(), QString(c));
+    m_inReplay = false;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2403,7 +2421,7 @@ void FakeVimHandler::restoreWidget()
 
 void FakeVimHandler::handleCommand(const QString &cmd)
 {
-    d->handleExCommand(cmd);
+    d->handleCommand(cmd);
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)
