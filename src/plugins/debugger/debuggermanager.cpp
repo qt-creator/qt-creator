@@ -148,8 +148,7 @@ extern IDebuggerEngine *createWinEngine(DebuggerManager *)
 #endif
 extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 
-DebuggerManager::DebuggerManager() :
-    m_attachCoreAction(0)
+DebuggerManager::DebuggerManager()
 {
     init();
 }
@@ -294,11 +293,9 @@ void DebuggerManager::init()
     m_attachExternalAction = new QAction(this);
     m_attachExternalAction->setText(tr("Attach to Running External Application..."));
 
-#ifndef Q_OS_WIN
     m_attachCoreAction = new QAction(this);
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
-#endif
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
@@ -1172,7 +1169,7 @@ void DebuggerManager::setStatus(int status)
     if (status == m_status)
         return;
 
-    if (!isAllowedTransition(m_status, status)) {
+    if (0 && !isAllowedTransition(m_status, status)) {
         const QString msg = QString::fromLatin1("%1: UNEXPECTED TRANSITION: %2 -> %3").
                             arg(QLatin1String(Q_FUNC_INFO), QLatin1String(stateName(m_status)), QLatin1String(stateName(status)));
         qWarning("%s", qPrintable(msg));
@@ -1193,8 +1190,11 @@ void DebuggerManager::setStatus(int status)
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
-    if (m_attachCoreAction)
-        m_attachCoreAction->setEnabled(!started && !starting);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(!started && !starting);
+#endif
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1372,7 +1372,7 @@ void DebuggerManager::disassemblerDockToggled(bool on)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Sourec files specific stuff
+// Source files specific stuff
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -1448,5 +1448,20 @@ void DebuggerManager::reloadRegisters()
     m_engine->reloadRegisters();
 }
 
+
+//////////////////////////////////////////////////////////////////////
+//
+// Testing
+//
+//////////////////////////////////////////////////////////////////////
+
+void DebuggerManager::runTest(const QString &fileName)
+{
+    m_executable = fileName;
+    m_processArgs = QStringList() << "--run-debuggee";
+    m_workingDir = QString();
+    if (!startNewDebugger(StartInternal))
+        emit debuggingFinished();
+}
 
 #include "debuggermanager.moc"

@@ -82,7 +82,7 @@ private:
     void exitDebugger();
 
     void continueInferior();
-    void runInferior();
+    Q_SLOT void runInferior();
     void interruptInferior();
 
     void runToLineExec(const QString &fileName, int lineNumber);

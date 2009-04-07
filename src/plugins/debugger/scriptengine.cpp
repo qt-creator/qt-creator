@@ -63,6 +63,12 @@ using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace Debugger::Constants;
 
+//#define DEBUG_SCRIPT 1
+#if DEBUG_SCRIPT
+#   define SDEBUG(s) qDebug() << s
+#else
+#   define SDEBUG(s)
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -100,24 +106,29 @@ ScriptAgent::ScriptAgent(ScriptEngine *debugger, QScriptEngine *script)
 
 void ScriptAgent::contextPop()
 {
-    qDebug() << "ScriptAgent::contextPop: ";
+    SDEBUG("ScriptAgent::contextPop: ");
 }
 
 void ScriptAgent::contextPush()
 {
-    qDebug() << "ScriptAgent::contextPush: ";
+    SDEBUG("ScriptAgent::contextPush: ");
 }
 
 void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception)
 {
-    qDebug() << "ScriptAgent::exceptionCatch: " << scriptId << &exception;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(exception);
+    SDEBUG("ScriptAgent::exceptionCatch: " << scriptId << &exception);
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     bool hasHandler)
 {
-    qDebug() << "ScriptAgent::exceptionThrow: " << scriptId << &exception
-        << hasHandler;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(exception);
+    Q_UNUSED(hasHandler);
+    SDEBUG("ScriptAgent::exceptionThrow: " << scriptId << &exception
+        << hasHandler);
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
@@ -128,12 +139,14 @@ void ScriptAgent::functionEntry(qint64 scriptId)
 
 void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
 {
-    qDebug() << "ScriptAgent::functionExit: " << scriptId << &returnValue;
+    Q_UNUSED(scriptId);
+    Q_UNUSED(returnValue);
+    SDEBUG("ScriptAgent::functionExit: " << scriptId << &returnValue);
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
 {
-    //qDebug() << "ScriptAgent::position: " << lineNumber;
+    SDEBUG("ScriptAgent::position: " << lineNumber);
     Q_UNUSED(scriptId);
     Q_UNUSED(lineNumber);
     Q_UNUSED(columnNumber);
@@ -147,14 +160,14 @@ void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     Q_UNUSED(program);
     Q_UNUSED(fileName);
     Q_UNUSED(baseLineNumber);
-    //qDebug() << "ScriptAgent::scriptLoad: " << program << fileName
-    //    << baseLineNumber;
+    SDEBUG("ScriptAgent::scriptLoad: " << program << fileName
+      << baseLineNumber);
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
 {
     Q_UNUSED(scriptId);
-    //qDebug() << "ScriptAgent::scriptUnload: " << scriptId;
+    SDEBUG("ScriptAgent::scriptUnload: " << scriptId);
 }
 
 
@@ -181,7 +194,7 @@ ScriptEngine::~ScriptEngine()
 void ScriptEngine::executeDebuggerCommand(const QString &command)
 {
     Q_UNUSED(command);
-    qDebug() << "FIXME:  ScriptEngine::executeDebuggerCommand()";
+    SDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 
 void ScriptEngine::shutdown()
@@ -191,7 +204,7 @@ void ScriptEngine::shutdown()
 
 void ScriptEngine::exitDebugger()
 {
-    //qDebug() << " ScriptEngine::exitDebugger()";
+    SDEBUG("ScriptEngine::exitDebugger()");
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
@@ -212,19 +225,21 @@ bool ScriptEngine::startDebugger()
     m_scriptContents = stream.readAll();
     scriptFile.close();
     attemptBreakpointSynchronization();
+    qq->notifyInferiorRunningRequested();
+    QTimer::singleShot(0, this, SLOT(runInferior()));
     return true;
 }
 
 void ScriptEngine::continueInferior()
 {
-    //qDebug() << "ScriptEngine::continueInferior()";
+    SDEBUG("ScriptEngine::continueInferior()");
     m_stopped = false;
     m_stopOnNextLine = false;
 }
 
 void ScriptEngine::runInferior()
 {
-    //qDebug() << "ScriptEngine::runInferior()";
+    SDEBUG("ScriptEngine::runInferior()");
     QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
 }
 
@@ -232,40 +247,40 @@ void ScriptEngine::interruptInferior()
 {
     m_stopped = false;
     m_stopOnNextLine = true;
-    qDebug() << "FIXME:  ScriptEngine::interruptInferior()";
+    SDEBUG("FIXME:  ScriptEngine::interruptInferior()");
 }
 
 void ScriptEngine::stepExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepExec()";
+    //SDEBUG("FIXME:  ScriptEngine::stepExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepIExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepIExec()";
+    //SDEBUG("FIXME:  ScriptEngine::stepIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepOutExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::stepOutExec()";
+    //SDEBUG("FIXME:  ScriptEngine::stepOutExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::nextExec()";
+    //SDEBUG("FIXME:  ScriptEngine::nextExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextIExec()
 {
-    //qDebug() << "FIXME:  ScriptEngine::nextIExec()";
+    //SDEBUG("FIXME:  ScriptEngine::nextIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
@@ -274,20 +289,20 @@ void ScriptEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName);
     Q_UNUSED(lineNumber);
-    qDebug() << "FIXME:  ScriptEngine::runToLineExec()";
+    SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
 }
 
 void ScriptEngine::runToFunctionExec(const QString &functionName)
 {
     Q_UNUSED(functionName);
-    qDebug() << "FIXME:  ScriptEngine::runToFunctionExec()";
+    SDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
 void ScriptEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName);
     Q_UNUSED(lineNumber);
-    qDebug() << "FIXME:  ScriptEngine::jumpToLineExec()";
+    SDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
 }
 
 void ScriptEngine::activateFrame(int index)
@@ -381,7 +396,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
     Q_UNUSED(exp0);
 
     if (q->status() != DebuggerInferiorStopped) {
-        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED";
+        //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return;
     }
 
@@ -493,7 +508,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
             return;
 
         // we just run into a breakpoint
-        //qDebug() << "RESOLVING BREAKPOINT AT " << fileName << lineNumber;
+        //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
         BreakpointData *data = handler->at(index);
         data->bpLineNumber = QString::number(lineNumber);
         data->bpFileName = fileName;
@@ -508,7 +523,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
     q->gotoLocation(fileName, lineNumber, true);
 
     qq->watchHandler()->reinitializeWatchers();
-    //qDebug() << "UPDATE LOCALS";
+    //SDEBUG("UPDATE LOCALS");
 
     //
     // Build stack
@@ -545,10 +560,10 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
     while (m_stopped) {
-        //qDebug() << "LOOPING";
+        //SDEBUG("LOOPING");
         QApplication::processEvents();
     }
-    //qDebug() << "RUNNING AGAIN";
+    //SDEBUG("RUNNING AGAIN");
 }
 
 void ScriptEngine::updateWatchModel()
@@ -567,7 +582,7 @@ void ScriptEngine::updateWatchModel()
 void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
-    //qDebug() << "\nUPDATE SUBITEM: " << data.toString();
+    //SDEBUG("\nUPDATE SUBITEM: " << data.toString());
     QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {
@@ -641,7 +656,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             qq->watchHandler()->insertData(data1);
             ++numChild;
         }
-        //qDebug() << "  ... CHILDREN: " << numChild;
+        //SDEBUG("  ... CHILDREN: " << numChild);
         data.setChildCount(numChild);
         data.setChildrenUnneeded();
         qq->watchHandler()->insertData(data);
@@ -656,7 +671,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             ++numChild;
         }
         data.setChildCount(numChild);
-        //qDebug() << "  ... CHILDCOUNT: " << numChild;
+        //SDEBUG("  ... CHILDCOUNT: " << numChild);
         qq->watchHandler()->insertData(data);
         return;
     }

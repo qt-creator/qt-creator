@@ -602,22 +602,6 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     if (!doc)
         return link;
 
-    // Handle include directives
-    const unsigned lineno = cursor.blockNumber() + 1;
-    foreach (const Document::Include &incl, doc->includes()) {
-        if (incl.line() == lineno && incl.resolved()) {
-            link.fileName = incl.fileName();
-            link.pos = cursor.block().position();
-            link.length = cursor.block().length();
-            return link;
-        }
-    }
-
-    // Find the last symbol up to the cursor position
-    Symbol *lastSymbol = doc->findSymbolAt(line, column);
-    if (!lastSymbol)
-        return link;
-
     QTextCursor tc = cursor;
 
     static TokenUnderCursor tokenUnderCursor;
@@ -625,12 +609,25 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     QTextBlock block;
     const SimpleToken tk = tokenUnderCursor(tc, &block);
 
-    if (tk.isLiteral() || tk.isComment()) {
-        // Drop out if we're at a number, string or comment
-        return link;
+    // Handle include directives
+    if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
+        const unsigned lineno = cursor.blockNumber() + 1;
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (incl.line() == lineno && incl.resolved()) {
+                link.fileName = incl.fileName();
+                link.pos = cursor.block().position() + tk.position() + 1;
+                link.length = tk.length() - 2;
+                return link;
+            }
+        }
     }
 
     if (tk.isNot(T_IDENTIFIER))
+        return link;
+
+    // Find the last symbol up to the cursor position
+    Symbol *lastSymbol = doc->findSymbolAt(line, column);
+    if (!lastSymbol)
         return link;
 
     const int nameStart = tk.position();
@@ -668,7 +665,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
-            link.pos = nameStart;
+            link.pos = block.position() + nameStart;
             link.length = nameLength;
             return link;
 
