@@ -69,6 +69,7 @@ using namespace Debugger::Constants;
 #else
 #   define SDEBUG(s)
 #endif
+# define XSDEBUG(s) qDebug() << s
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -194,7 +195,7 @@ ScriptEngine::~ScriptEngine()
 void ScriptEngine::executeDebuggerCommand(const QString &command)
 {
     Q_UNUSED(command);
-    SDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
+    XSDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 
 void ScriptEngine::shutdown()
@@ -247,40 +248,40 @@ void ScriptEngine::interruptInferior()
 {
     m_stopped = false;
     m_stopOnNextLine = true;
-    SDEBUG("FIXME:  ScriptEngine::interruptInferior()");
+    XSDEBUG("ScriptEngine::interruptInferior()");
 }
 
 void ScriptEngine::stepExec()
 {
-    //SDEBUG("FIXME:  ScriptEngine::stepExec()");
+    //SDEBUG("ScriptEngine::stepExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepIExec()
 {
-    //SDEBUG("FIXME:  ScriptEngine::stepIExec()");
+    //SDEBUG("ScriptEngine::stepIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::stepOutExec()
 {
-    //SDEBUG("FIXME:  ScriptEngine::stepOutExec()");
+    //SDEBUG("ScriptEngine::stepOutExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextExec()
 {
-    //SDEBUG("FIXME:  ScriptEngine::nextExec()");
+    //SDEBUG("ScriptEngine::nextExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
 void ScriptEngine::nextIExec()
 {
-    //SDEBUG("FIXME:  ScriptEngine::nextIExec()");
+    //SDEBUG("ScriptEngine::nextIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
@@ -295,14 +296,14 @@ void ScriptEngine::runToLineExec(const QString &fileName, int lineNumber)
 void ScriptEngine::runToFunctionExec(const QString &functionName)
 {
     Q_UNUSED(functionName);
-    SDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
+    XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
 void ScriptEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName);
     Q_UNUSED(lineNumber);
-    SDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
+    XSDEBUG("FIXME:  ScriptEngine::jumpToLineExec()");
 }
 
 void ScriptEngine::activateFrame(int index)
@@ -468,8 +469,9 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 void ScriptEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
-    Q_UNUSED(expression);
-    Q_UNUSED(value);
+    XSDEBUG("ASSIGNING: " << expression + '=' + value);
+    m_scriptEngine->evaluate(expression + '=' + value);
+    updateLocals();
 }
 
 void ScriptEngine::maybeBreakNow(bool byFunction)
@@ -521,7 +523,12 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
 
     qq->notifyInferiorStopped();
     q->gotoLocation(fileName, lineNumber, true);
+    updateLocals();
+}
 
+void ScriptEngine::updateLocals()
+{
+    QScriptContext *context = m_scriptEngine->currentContext();
     qq->watchHandler()->reinitializeWatchers();
     //SDEBUG("UPDATE LOCALS");
 
@@ -647,6 +654,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             it.next();
             WatchData data1;
             data1.iname = data.iname + "." + it.name();
+            data1.exp = it.name();
             data1.name = it.name();
             data1.scriptValue = it.value();
             if (qq->watchHandler()->isExpandedIName(data1.iname))

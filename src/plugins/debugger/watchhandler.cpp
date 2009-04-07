@@ -493,6 +493,14 @@ QVariant WatchHandler::data(const QModelIndex &idx, int role) const
     return QVariant();
 }
 
+bool WatchHandler::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    Q_UNUSED(role);
+    Q_UNUSED(value);
+    emit dataChanged(index, index);
+    return true;
+}
+
 Qt::ItemFlags WatchHandler::flags(const QModelIndex &idx) const
 {
     using namespace Qt;
