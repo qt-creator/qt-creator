@@ -13,7 +13,6 @@ General
    * Completely reworked editor split mechanism.
 
 Editing
-   * Some support for Obj-C++ //TODO: what does that mean more concrete?
    * Some support for doxygen style comments //TODO: what does that mean more concrete?
    * Improved function argument hint.
    * More checkpoints in editor history.
