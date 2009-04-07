@@ -80,25 +80,45 @@ private slots:
     void mi11() { testMi(test11); }
     void mi12() { testMi(test12); }
     void runQtc();
+
+public slots:
+    void readStandardOutput();
+    void readStandardError();
+
+private:
+    QProcess m_proc; // the Qt Creaor process
 };
+
+void tst_Debugger::readStandardOutput()
+{
+    qDebug() << "qtcreator-out: " << m_proc.readAllStandardOutput();
+}
+
+void tst_Debugger::readStandardError()
+{
+    qDebug() << "qtcreator-err: " << m_proc.readAllStandardError();
+}
 
 void tst_Debugger::runQtc()
 {
     QString test = QFileInfo(qApp->arguments().at(0)).absoluteFilePath();
     QString qtc = QFileInfo(test).absolutePath() + "/../../../bin/qtcreator.bin";
     qtc = QFileInfo(qtc).absoluteFilePath();
-    QProcess proc;
     QStringList env = QProcess::systemEnvironment();
     env.append("QTC_DEBUGGER_TEST=" + test);
-    proc.setEnvironment(env);
-    qDebug() << "APP: " << test << qtc;
-    foreach (QString item, env)
-        qDebug() << item;
-    proc.start(qtc);
-    proc.waitForStarted();
-    QCOMPARE(proc.state(), QProcess::Running);
-    proc.waitForFinished();
-    QCOMPARE(proc.state(), QProcess::NotRunning);
+    m_proc.setEnvironment(env);
+    //qDebug() << "APP: " << test << qtc;
+    //foreach (QString item, env)
+    //    qDebug() << item;
+    connect(&m_proc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(readStandardOutput()));
+    connect(&m_proc, SIGNAL(readyReadStandardError()),
+        this, SLOT(readStandardError()));
+    m_proc.start(qtc);
+    m_proc.waitForStarted();
+    QCOMPARE(m_proc.state(), QProcess::Running);
+    m_proc.waitForFinished();
+    QCOMPARE(m_proc.state(), QProcess::NotRunning);
 }
 
 void runDebuggee()

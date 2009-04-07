@@ -148,8 +148,7 @@ extern IDebuggerEngine *createWinEngine(DebuggerManager *)
 #endif
 extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 
-DebuggerManager::DebuggerManager() :
-    m_attachCoreAction(0)
+DebuggerManager::DebuggerManager()
 {
     init();
 }
@@ -294,11 +293,9 @@ void DebuggerManager::init()
     m_attachExternalAction = new QAction(this);
     m_attachExternalAction->setText(tr("Attach to Running External Application..."));
 
-#ifndef Q_OS_WIN
     m_attachCoreAction = new QAction(this);
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
-#endif
 
     m_continueAction = new QAction(this);
     m_continueAction->setText(tr("Continue"));
@@ -1193,8 +1190,11 @@ void DebuggerManager::setStatus(int status)
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
-    if (m_attachCoreAction)
-        m_attachCoreAction->setEnabled(!started && !starting);
+#ifdef Q_OS_WIN
+    m_attachCoreAction->setEnabled(false);
+#else
+    m_attachCoreAction->setEnabled(!started && !starting);
+#endif
     m_watchAction->setEnabled(ready);
     m_breakAction->setEnabled(true);
 
@@ -1460,15 +1460,6 @@ void DebuggerManager::runTest(const QString &fileName)
     m_executable = fileName;
     m_processArgs = QStringList() << "--run-debuggee";
     m_workingDir = QString();
-    qDebug() << "TESTING: " << fileName;
-    //QFile file(fileName);
-    //file.open(QIODevice::ReadOnly);
-    //QTextStream ts(&file);
-    //foreach (QString line, ts.readAll().split('\n')) {
-    //    qDebug() << "TESTING: " << line;
-    //    if (line.startsWith("Executable="))
-    //}
-    
     startNewDebugger(StartInternal);
 }
 

@@ -398,6 +398,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2",
                 // symbols-loaded="0"
+            } else if (asyncClass == "library-unloaded") {
+                // Archer has 'id="/usr/lib/libdrm.so.2",
+                // target-name="/usr/lib/libdrm.so.2",
+                // host-name="/usr/lib/libdrm.so.2"
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}" 
             } else if (asyncClass == "thread-created") {
