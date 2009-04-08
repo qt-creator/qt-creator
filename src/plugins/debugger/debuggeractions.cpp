@@ -161,35 +161,35 @@ DebuggerSettings *theDebuggerSettings()
     item->setText(QObject::tr("Collapse item"));
 
     //
-    // Dumpers
+    // DebuggingHelper
     //
     item = new SavedAction(instance);
-    instance->insertItem(UseDumpers, item);
+    instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
-    item->setSettingsKey("DebugMode", "UseDumpers");
-    item->setText(QObject::tr("Use data dumpers"));
+    item->setSettingsKey("DebugMode", "UseDebuggingHelper");
+    item->setText(QObject::tr("Use Debugging Helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(UseCustomDumperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDumperLocation");
+    instance->insertItem(UseCustomDebuggingHelperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDebuggingHelperLocation");
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(CustomDumperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDumperLocation");
+    instance->insertItem(CustomDebuggingHelperLocation, item);
+    item->setSettingsKey("DebugMode", "CustomDebuggingHelperLocation");
 
     item = new SavedAction(instance);
-    instance->insertItem(DebugDumpers, item);
-    item->setSettingsKey("DebugMode", "DebugDumpers");
-    item->setText(QObject::tr("Debug data dumpers"));
+    instance->insertItem(DebugDebuggingHelpers, item);
+    item->setSettingsKey("DebugMode", "DebugDebuggingHelpers");
+    item->setText(QObject::tr("Debug debugging helper"));
     item->setCheckable(true);
 
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Recheck custom dumper availability"));
-    instance->insertItem(RecheckDumpers, item);
+    item->setText(QObject::tr("Recheck debugging helper availability"));
+    instance->insertItem(RecheckDebuggingHelpers, item);
 
     //
     // Breakpoints

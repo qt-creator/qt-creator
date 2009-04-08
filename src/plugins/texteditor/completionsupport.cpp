@@ -94,7 +94,7 @@ void CompletionSupport::autoComplete(ITextEditable *editor, bool forced)
     m_completionCollector = 0;
 
     foreach (ICompletionCollector *collector, m_completionCollectors) {
-        if (collector->isValid(editor)) {
+        if (collector->supportsEditor(editor)) {
             m_completionCollector = collector;
             break;
         }

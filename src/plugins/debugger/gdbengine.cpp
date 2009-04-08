@@ -115,7 +115,7 @@ enum GdbCommandType
     GdbInfoShared,
     GdbInfoProc,
     GdbInfoThreads,
-    GdbQueryDataDumper,
+    GdbQueryDebuggingHelper,
     GdbTemporaryContinue,
     GdbTargetCore,
 
@@ -147,11 +147,11 @@ enum GdbCommandType
     WatchVarCreate,
     WatchEvaluateExpression,
     WatchToolTip,
-    WatchDumpCustomSetup,
-    WatchDumpCustomValue1,           // waiting for gdb ack
-    WatchDumpCustomValue2,           // waiting for actual data
-    WatchDumpCustomValue3,           // macro based
-    WatchDumpCustomEditValue,
+    WatchDebuggingHelperSetup,
+    WatchDebuggingHelperValue1,           // waiting for gdb ack
+    WatchDebuggingHelperValue2,           // waiting for actual data
+    WatchDebuggingHelperValue3,           // macro based
+    WatchDebuggingHelperEditValue,
 };
 
 static int &currentToken()
@@ -211,12 +211,12 @@ void GdbEngine::initializeConnections()
         q, SLOT(showApplicationOutput(QString)),
         Qt::QueuedConnection);
 
-    connect(theDebuggerAction(UseDumpers), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setUseDumpers(QVariant)));
-    connect(theDebuggerAction(DebugDumpers), SIGNAL(valueChanged(QVariant)),
-        this, SLOT(setDebugDumpers(QVariant)));
-    connect(theDebuggerAction(RecheckDumpers), SIGNAL(triggered()),
-        this, SLOT(recheckCustomDumperAvailability()));
+    connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setUseDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setDebugDebuggingHelpers(QVariant)));
+    connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
+        this, SLOT(recheckDebuggingHelperAvailability()));
 
     connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
         this, SLOT(reloadRegisters()));
@@ -237,7 +237,7 @@ void GdbEngine::initializeConnections()
 
 void GdbEngine::initializeVariables()
 {
-    m_dataDumperState = DataDumperUninitialized;
+    m_debuggingHelperState = DebuggingHelperUninitialized;
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
 
@@ -377,17 +377,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             GdbMi record;
             while (from != to) {
                 GdbMi data;
-                if (*from == ',') {
-                    ++from; // skip ','
-                    data.parseResultOrValue(from, to);
-                    if (data.isValid()) {
-                        //qDebug() << "parsed response: " << data.toString();
-                        record.m_children += data;
-                        record.m_type = GdbMi::Tuple;
-                    }
-                } else {
+                if (*from != ',') {
                     // happens on archer where we get 
                     // 23^running <NL> *running,thread-id="all" <NL> (gdb) 
+                    record.m_type = GdbMi::Tuple;
+                    break;
+                }
+                ++from; // skip ','
+                data.parseResultOrValue(from, to);
+                if (data.isValid()) {
+                    //qDebug() << "parsed response: " << data.toString();
+                    record.m_children += data;
                     record.m_type = GdbMi::Tuple;
                 }
             }
@@ -766,8 +766,8 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbInfoShared:
             handleInfoShared(record);
             break;
-        case GdbQueryDataDumper:
-            handleQueryDataDumper(record);
+        case GdbQueryDebuggingHelper:
+            handleQueryDebuggingHelper(record);
             break;
         case GdbTemporaryContinue:
             continueInferior();
@@ -846,19 +846,19 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case WatchToolTip:
             handleToolTip(record, cookie.toString());
             break;
-        case WatchDumpCustomValue1:
-            handleDumpCustomValue1(record, cookie.value<WatchData>());
+        case WatchDebuggingHelperValue1:
+            handleDebuggingHelperValue1(record, cookie.value<WatchData>());
             break;
-        case WatchDumpCustomValue2:
-            handleDumpCustomValue2(record, cookie.value<WatchData>());
-            break;
-
-        case WatchDumpCustomValue3:
-            handleDumpCustomValue3(record, cookie.value<WatchData>());
+        case WatchDebuggingHelperValue2:
+            handleDebuggingHelperValue2(record, cookie.value<WatchData>());
             break;
 
-        case WatchDumpCustomSetup:
-            handleDumpCustomSetup(record);
+        case WatchDebuggingHelperValue3:
+            handleDebuggingHelperValue3(record, cookie.value<WatchData>());
+            break;
+
+        case WatchDebuggingHelperSetup:
+            handleDebuggingHelperSetup(record);
             break;
 
         default:
@@ -913,7 +913,7 @@ void GdbEngine::handleTargetCore(const GdbResultRecord &record)
     //
     qq->reloadRegisters();
 
-    // Gdb-Macro based Dumpers
+    // Gdb-Macro based DebuggingHelpers
     sendCommand(
         "define qdumpqstring\n"
         "set $i = 0\n"
@@ -1104,10 +1104,10 @@ void GdbEngine::handleAqcuiredInferior()
     #endif
     if (theDebuggerBoolSetting(ListSourceFiles))
         reloadSourceFiles();
-    tryLoadCustomDumpers();
+    tryLoadDebuggingHelpers();
 
     #ifndef Q_OS_MAC
-    // intentionally after tryLoadCustomDumpers(),
+    // intentionally after tryLoadDebuggingHelpers(),
     // otherwise we'd interupt solib loading.
     if (theDebuggerBoolSetting(AllPluginBreakpoints)) {
         sendCommand("set auto-solib-add on");
@@ -1216,7 +1216,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         return;
     }
 
-    //tryLoadCustomDumpers();
+    //tryLoadDebuggingHelpers();
 
     // jump over well-known frames
     static int stepCounter = 0;
@@ -1523,7 +1523,7 @@ void GdbEngine::exitDebugger()
 
     m_outputCollector.shutdown();
     initializeVariables();
-    //q->settings()->m_debugDumpers = false;
+    //q->settings()->m_debugDebuggingHelpers = false;
 }
 
 
@@ -1631,7 +1631,7 @@ bool GdbEngine::startDebugger()
     //  otherwise program doesn't know.
     //  Pass and Stop may be combined.
     // We need "print" as otherwise we would get no feedback whatsoever
-    // Custom Dumper crashs which happen regularily for when accessing
+    // Custom DebuggingHelper crashs which happen regularily for when accessing
     // uninitialized variables.
     sendCommand("handle SIGSEGV nopass stop print");
 
@@ -1755,7 +1755,7 @@ void GdbEngine::handleAttach()
     handleAqcuiredInferior();
 
     q->resetLocation();
-    recheckCustomDumperAvailability();
+    recheckDebuggingHelperAvailability();
 
     //
     // Stack
@@ -1872,7 +1872,7 @@ void GdbEngine::setTokenBarrier()
     m_oldestAcceptableToken = currentToken();
 }
 
-void GdbEngine::setDebugDumpers(const QVariant &on)
+void GdbEngine::setDebugDebuggingHelpers(const QVariant &on)
 {
     if (on.toBool()) {
         debugMessage("SWITCHING ON DUMPER DEBUGGING");
@@ -2698,7 +2698,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
     }
 
-    if (theDebuggerBoolSetting(DebugDumpers)) {
+    if (theDebuggerBoolSetting(DebugDebuggingHelpers)) {
         // minimize interference
         return;
     }
@@ -2812,40 +2812,35 @@ static QString quoteUnprintableLatin1(const QByteArray &ba)
     return res;
 }
 
+static QString decodeData(QByteArray ba, int encoding)
+{
+    switch (encoding) {
+        case 0: // unencoded 8 bit data
+            return quoteUnprintableLatin1(ba);
+        case 1: //  base64 encoded 8 bit data, used for QByteArray
+            ba = QByteArray::fromBase64(ba);
+            return '"' + quoteUnprintableLatin1(ba) + '"';
+        case 2: //  base64 encoded 16 bit data, used for QString
+            ba = QByteArray::fromBase64(ba);
+            return '"' + QString::fromUtf16((ushort *)ba.data(), ba.size() / 2) + '"';
+        case 3: //  base64 encoded 32 bit data
+            ba = QByteArray::fromBase64(ba);
+            return '"' + QString::fromUcs4((uint *)ba.data(), ba.size() / 4) + '"';
+            break;
+        case 4: //  base64 encoded 16 bit data, without quotes (see 2)
+            ba = QByteArray::fromBase64(ba);
+            return QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
+    }
+    return "<Encoding error>";
+}
+
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
-    if (mi.isValid()) {
-        QByteArray ba;
-        QString str;
-        switch (encoding) {
-            case 0: // unencoded 8 bit data
-                ba = mi.data();
-                str = quoteUnprintableLatin1(ba);
-                break;
-            case 1: //  base64 encoded 8 bit data, used for QByteArray
-                ba = QByteArray::fromBase64(mi.data());
-                str = '"' + quoteUnprintableLatin1(ba) + '"';
-                break;
-            case 2: //  base64 encoded 16 bit data, used for QString
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
-                str = '"' + str + '"';
-                break;
-            case 3: //  base64 encoded 32 bit data
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUcs4((uint *)ba.data(), ba.size() / 4);
-                str = '"' + str + '"';
-                break;
-            case 4: //  base64 encoded 16 bit data, without quotes (see 2)
-                ba = QByteArray::fromBase64(mi.data());
-                str = QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
-                break;
-        }
-        data.setValue(str);
-    } else {
+    if (mi.isValid())
+        data.setValue(decodeData(mi.data(), encoding));
+    else
         data.setValueNeeded();
-    }
 }
 
 static void setWatchDataEditValue(WatchData &data, const GdbMi &mi)
@@ -2901,7 +2896,7 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
         data.saddr = mi.data();
 }
 
-void GdbEngine::setUseDumpers(const QVariant &on)
+void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
 {
     qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
     // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
@@ -2910,9 +2905,9 @@ void GdbEngine::setUseDumpers(const QVariant &on)
     updateLocals();
 }
 
-bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
+bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
 {
-    if (!theDebuggerBoolSetting(UseDumpers))
+    if (!theDebuggerBoolSetting(UseDebuggingHelpers))
         return false;
 
     if (q->startMode() == AttachCore) {
@@ -2921,15 +2916,15 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
             || type == "QStringList" || type.endsWith("::QStringList");
     }
 
-    if (theDebuggerBoolSetting(DebugDumpers)
-            && qq->stackHandler()->isDebuggingDumpers())
+    if (theDebuggerBoolSetting(DebugDebuggingHelpers)
+            && qq->stackHandler()->isDebuggingDebuggingHelpers())
         return false;
 
-    if (m_dataDumperState != DataDumperAvailable)
+    if (m_debuggingHelperState != DebuggingHelperAvailable)
         return false;
 
     // simple types
-    if (m_availableSimpleDumpers.contains(type))
+    if (m_availableSimpleDebuggingHelpers.contains(type))
         return true;
 
     // templates
@@ -2937,10 +2932,10 @@ bool GdbEngine::isCustomValueDumperAvailable(const QString &type) const
     QString inner;
     if (!extractTemplate(type, &tmplate, &inner))
         return false;
-    return m_availableSimpleDumpers.contains(tmplate);
+    return m_availableSimpleDebuggingHelpers.contains(tmplate);
 }
 
-void GdbEngine::runDirectDumper(const WatchData &data, bool dumpChildren)
+void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildren)
 {
     Q_UNUSED(dumpChildren);
     QString type = data.type;
@@ -2953,17 +2948,17 @@ void GdbEngine::runDirectDumper(const WatchData &data, bool dumpChildren)
 
     QVariant var;
     var.setValue(data);
-    sendSynchronizedCommand(cmd, WatchDumpCustomValue3, var);
+    sendSynchronizedCommand(cmd, WatchDebuggingHelperValue3, var);
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
             .arg(m_pendingRequests + 1), 10000);
 }
 
-void GdbEngine::runCustomDumper(const WatchData &data0, bool dumpChildren)
+void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 {
     if (q->startMode() == AttachCore) {
-        runDirectDumper(data0, dumpChildren);
+        runDirectDebuggingHelper(data0, dumpChildren);
         return;
     }
     WatchData data = data0;
@@ -3112,14 +3107,14 @@ void GdbEngine::runCustomDumper(const WatchData &data0, bool dumpChildren)
 
     QVariant var;
     var.setValue(data);
-    sendSynchronizedCommand(cmd, WatchDumpCustomValue1, var);
+    sendSynchronizedCommand(cmd, WatchDebuggingHelperValue1, var);
 
     q->showStatusMessage(
         tr("Retrieving data for watch view (%1 requests pending)...")
             .arg(m_pendingRequests + 1), 10000);
 
     // retrieve response
-    sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDumpCustomValue2, var);
+    sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDebuggingHelperValue2, var);
 }
 
 void GdbEngine::createGdbVariable(const WatchData &data)
@@ -3171,7 +3166,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
 
     // a common case that can be easily solved
     if (data.isChildrenNeeded() && isPointerType(data.type)
-        && !isCustomValueDumperAvailable(data.type)) {
+        && !hasDebuggingHelperForType(data.type)) {
         // We sometimes know what kind of children pointers have
         #if DEBUG_SUBITEM
         qDebug() << "IT'S A POINTER";
@@ -3189,11 +3184,11 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isValueNeeded() && isCustomValueDumperAvailable(data.type)) {
+    if (data.isValueNeeded() && hasDebuggingHelperForType(data.type)) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE";
         #endif
-        runCustomDumper(data, qq->watchHandler()->isExpandedIName(data.iname));
+        runDebuggingHelper(data, qq->watchHandler()->isExpandedIName(data.iname));
         return;
     }
 
@@ -3229,11 +3224,11 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isChildrenNeeded() && isCustomValueDumperAvailable(data.type)) {
+    if (data.isChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
         #endif
-        runCustomDumper(data, true);
+        runDebuggingHelper(data, true);
         return;
     }
 
@@ -3254,11 +3249,11 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
-    if (data.isChildCountNeeded() && isCustomValueDumperAvailable(data.type)) {
+    if (data.isChildCountNeeded() && hasDebuggingHelperForType(data.type)) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
         #endif
-        runCustomDumper(data, qq->watchHandler()->isExpandedIName(data.iname));
+        runDebuggingHelper(data, qq->watchHandler()->isExpandedIName(data.iname));
         return;
     }
 
@@ -3339,7 +3334,7 @@ void GdbEngine::updateWatchModel2()
     }
 }
 
-void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
+void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
 {
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("consolestreamoutput");
@@ -3367,11 +3362,11 @@ void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
 
     //qDebug() << "CONTENTS: " << contents.toString();
     //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
-    m_availableSimpleDumpers.clear();
+    m_availableSimpleDebuggingHelpers.clear();
     foreach (const GdbMi &item, simple.children())
-        m_availableSimpleDumpers.append(item.data());
-    if (m_availableSimpleDumpers.isEmpty()) {
-        m_dataDumperState = DataDumperUnavailable;
+        m_availableSimpleDebuggingHelpers.append(item.data());
+    if (m_availableSimpleDebuggingHelpers.isEmpty()) {
+        m_debuggingHelperState = DebuggingHelperUnavailable;
         QMessageBox::warning(q->mainWindow(),
             tr("Cannot find special data dumpers"),
             tr("The debugged binary does not contain information needed for "
@@ -3381,11 +3376,11 @@ void GdbEngine::handleQueryDataDumper(const GdbResultRecord &record)
                     "into your project directly.")
                 );
     } else {
-        m_dataDumperState = DataDumperAvailable;
+        m_debuggingHelperState = DebuggingHelperAvailable;
         q->showStatusMessage(tr("%1 custom dumpers found.")
-            .arg(m_availableSimpleDumpers.size()));
+            .arg(m_availableSimpleDebuggingHelpers.size()));
     }
-    //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDumpers;
+    //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDebuggingHelpers;
 }
 
 void GdbEngine::sendWatchParameters(const QByteArray &params0)
@@ -3436,7 +3431,7 @@ void GdbEngine::handleVarCreate(const GdbResultRecord &record,
     if (record.resultClass == GdbResultDone) {
         data.variable = data.iname;
         setWatchDataType(data, record.data.findChild("type"));
-        if (isCustomValueDumperAvailable(data.type)) {
+        if (hasDebuggingHelperForType(data.type)) {
             // we do not trust gdb if we have a custom dumper
             if (record.data.findChild("children").isValid())
                 data.setChildrenUnneeded();
@@ -3484,7 +3479,7 @@ void GdbEngine::handleEvaluateExpression(const GdbResultRecord &record,
     //updateWatchModel2();
 }
 
-void GdbEngine::handleDumpCustomSetup(const GdbResultRecord &record)
+void GdbEngine::handleDebuggingHelperSetup(const GdbResultRecord &record)
 {
     //qDebug() << "CUSTOM SETUP RESULT: " << record.toString();
     if (record.resultClass == GdbResultDone) {
@@ -3495,7 +3490,7 @@ void GdbEngine::handleDumpCustomSetup(const GdbResultRecord &record)
     }
 }
 
-void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
+void GdbEngine::handleDebuggingHelperValue1(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
@@ -3510,7 +3505,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
         //qDebug() << "CUSTOM DUMPER ERROR MESSAGE: " << msg;
 #ifdef QT_DEBUG
         // Make debugging of dumpers easier
-        if (theDebuggerBoolSetting(DebugDumpers)
+        if (theDebuggerBoolSetting(DebugDebuggingHelpers)
                 && msg.startsWith("The program being debugged stopped while")
                 && msg.contains("qDumpObjectData440")) {
             // Fake full stop
@@ -3527,7 +3522,7 @@ void GdbEngine::handleDumpCustomValue1(const GdbResultRecord &record,
     }
 }
 
-void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
+void GdbEngine::handleDebuggingHelperValue2(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
@@ -3599,17 +3594,16 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
         data1.iname = data.iname + "." + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = '[' + data1.name + ']';
-        QString key = item.findChild("key").data();
+        QByteArray key = item.findChild("key").data();
         if (!key.isEmpty()) {
-            if (item.findChild("keyencoded").data()[0] == '1') {
-                key = '"' + QByteArray::fromBase64(key.toUtf8()) + '"';
-                if (key.size() > 13) {
-                    key = key.left(12);
-                    key += "...";
-                }
+            int encoding = item.findChild("keyencoded").data().toInt();
+            QString skey = decodeData(key, encoding);
+            if (skey.size() > 13) {
+                skey = skey.left(12);
+                skey += "...";
             }
-            //data1.name += " (" + key + ")";
-            data1.name = key;
+            //data1.name += " (" + skey + ")";
+            data1.name = skey;
         }
         setWatchDataType(data1, item.findChild("type"));
         setWatchDataExpression(data1, item.findChild("exp"));
@@ -3627,7 +3621,7 @@ void GdbEngine::handleDumpCustomValue2(const GdbResultRecord &record,
     }
 }
 
-void GdbEngine::handleDumpCustomValue3(const GdbResultRecord &record,
+void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
     const WatchData &data0)
 {
     WatchData data = data0;
@@ -3668,7 +3662,7 @@ void GdbEngine::handleDumpCustomValue3(const GdbResultRecord &record,
             QString cmd = "qdumpqstring (" + data1.exp + ")";
             QVariant var;
             var.setValue(data1);
-            sendSynchronizedCommand(cmd, WatchDumpCustomValue3, var);
+            sendSynchronizedCommand(cmd, WatchDebuggingHelperValue3, var);
         }
     } else {
         data.setValue("<unavailable>");
@@ -3932,7 +3926,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
             data.exp = parent.exp + '.' + exp;
         }
 
-        if (isCustomValueDumperAvailable(data.type)) {
+        if (hasDebuggingHelperForType(data.type)) {
             // we do not trust gdb if we have a custom dumper
             data.setValueNeeded();
             data.setChildCountNeeded();
@@ -3990,8 +3984,8 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
         if (what == "create") {
             setWatchDataType(m_toolTip, record.data.findChild("type"));
             setWatchDataChildCount(m_toolTip, record.data.findChild("numchild"));
-            if (isCustomValueDumperAvailable(m_toolTip.type))
-                runCustomDumper(m_toolTip, false);
+            if (hasDebuggingHelperForType(m_toolTip.type))
+                runDebuggingHelper(m_toolTip, false);
             else
                 q->showStatusMessage(tr("Retrieving data for tooltip..."), 10000);
                 sendCommand("-data-evaluate-expression " + m_toolTip.exp,
@@ -4041,18 +4035,18 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 
 QString GdbEngine::dumperLibraryName() const
 {
-    if (theDebuggerAction(UseCustomDumperLocation)->value().toBool())
-        return theDebuggerAction(CustomDumperLocation)->value().toString();
+    if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
+        return theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
     return q->m_dumperLib;
 }
 
-void GdbEngine::tryLoadCustomDumpers()
+void GdbEngine::tryLoadDebuggingHelpers()
 {
-    if (m_dataDumperState != DataDumperUninitialized)
+    if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
-    m_dataDumperState = DataDumperUnavailable;
+    m_debuggingHelperState = DebuggingHelperUnavailable;
     QString lib = dumperLibraryName();
     //qDebug() << "DUMPERLIB: " << lib;
 
@@ -4064,44 +4058,44 @@ void GdbEngine::tryLoadCustomDumpers()
         return;
     }
 
-    m_dataDumperState = DataDumperLoadTried;
+    m_debuggingHelperState = DebuggingHelperLoadTried;
 #if defined(Q_OS_WIN)
     sendCommand("sharedlibrary .*"); // for LoadLibraryA
     //sendCommand("handle SIGSEGV pass stop print");
     //sendCommand("set unwindonsignal off");
     sendCommand("call LoadLibraryA(\"" + lib + "\")",
-        WatchDumpCustomSetup);
+        WatchDebuggingHelperSetup);
     sendCommand("sharedlibrary " + dotEscape(lib));
 #elif defined(Q_OS_MAC)
     //sendCommand("sharedlibrary libc"); // for malloc
     //sendCommand("sharedlibrary libdl"); // for dlopen
     QString flag = QString::number(RTLD_NOW);
     sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
-        WatchDumpCustomSetup);
+        WatchDebuggingHelperSetup);
     //sendCommand("sharedlibrary " + dotEscape(lib));
-    m_dataDumperState = DataDumperLoadTried;
+    m_debuggingHelperState = DebuggingHelperLoadTried;
 #else
     //sendCommand("p dlopen");
     QString flag = QString::number(RTLD_NOW);
     sendCommand("sharedlibrary libc"); // for malloc
     sendCommand("sharedlibrary libdl"); // for dlopen
     sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
-        WatchDumpCustomSetup);
+        WatchDebuggingHelperSetup);
     // some older systems like CentOS 4.6 prefer this:
     sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
-        WatchDumpCustomSetup);
+        WatchDebuggingHelperSetup);
     sendCommand("sharedlibrary " + dotEscape(lib));
 #endif
     // retreive list of dumpable classes
     sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
+    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
-void GdbEngine::recheckCustomDumperAvailability()
+void GdbEngine::recheckDebuggingHelperAvailability()
 {
     // retreive list of dumpable classes
     sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDataDumper);
+    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent)

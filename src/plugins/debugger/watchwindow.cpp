@@ -64,6 +64,7 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &) const
     {
+        qDebug() << "CREATE EDITOR";
         return new QLineEdit(parent);
     }
 
@@ -77,13 +78,15 @@ public:
             lineEdit->setText(index.model()->data(index, ExpressionRole).toString());
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *,
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
         const QModelIndex &index) const
     {
+        //qDebug() << "SET MODEL DATA";
         QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
         QString value = lineEdit->text();
-        QString exp = index.model()->data(index, ExpressionRole).toString();
+        QString exp = model->data(index, ExpressionRole).toString();
+        model->setData(index, value, Qt::EditRole);
         if (index.column() == 1) {
             // the value column
             theDebuggerAction(AssignValue)->trigger(exp + '=' + value);
@@ -147,7 +150,9 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
         theDebuggerAction(RemoveWatchExpression)->trigger(exp);
-    } else if (ev->key() == Qt::Key_Return && m_type == LocalsType) {
+    } else if (ev->key() == Qt::Key_Return
+            && ev->modifiers() == Qt::ControlModifier
+            && m_type == LocalsType) {
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
@@ -184,8 +189,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act3);
 
     menu.addSeparator();
-    menu.addAction(theDebuggerAction(RecheckDumpers));
-    menu.addAction(theDebuggerAction(UseDumpers));
+    menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
+    menu.addAction(theDebuggerAction(UseDebuggingHelpers));
     menu.addSeparator();
     menu.addAction(theDebuggerAction(SettingsDialog));
 
@@ -264,4 +269,3 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
         collapse(idx);
     }
 }
-

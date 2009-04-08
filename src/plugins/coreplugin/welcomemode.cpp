@@ -233,10 +233,13 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
         {
             QString projects;
             QTextStream str(&projects);
-            foreach (const QString &s, welcomePageData.projectList) {
-                const QFileInfo fi(s);
-                str << "<li><p><a href=\"gh-project:" << s << "\" title=\""
-                    << fi.absolutePath() << "\">" << fi.fileName() << "</a></p></li>\n";
+
+            QList<QPair<QString, QString> >::const_iterator it, end;
+            end = welcomePageData.projectList.constEnd();
+            for( it = welcomePageData.projectList.constBegin(); it != end; ++it) {
+                const QFileInfo fi((*it).first);
+                str << "<li><p><a href=\"gh-project:" << (*it).first << "\" title=\""
+                    << fi.absolutePath() << "\">" << (*it).second << "</a></p></li>\n";
             }
             projectHtml.replace(QLatin1String("<!-- RECENT PROJECTS LIST -->"), projects);
         }

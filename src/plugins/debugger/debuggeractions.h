@@ -92,11 +92,11 @@ enum DebuggerActionCode
     ExpandItem,
     CollapseItem,
 
-    RecheckDumpers,
-    UseDumpers,
-    UseCustomDumperLocation,
-    CustomDumperLocation,
-    DebugDumpers,
+    RecheckDebuggingHelpers,
+    UseDebuggingHelpers,
+    UseCustomDebuggingHelperLocation,
+    CustomDebuggingHelperLocation,
+    DebugDebuggingHelpers,
 
     // Source List
     ListSourceFiles,

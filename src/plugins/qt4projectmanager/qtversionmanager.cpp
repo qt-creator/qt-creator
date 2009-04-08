@@ -1424,7 +1424,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
         qmake.setWorkingDirectory(directory);
         qmake.setProcessChannelMode(QProcess::MergedChannels);
 
-        qmake.start(qmakeCommand(), QStringList()<<"-spec"<<"default"<<"gdbmacros.pro");
+        qmake.start(qmakeCommand(), QStringList()<<"-spec"<< mkspec() <<"gdbmacros.pro");
         qmake.waitForFinished();
 
         output += qmake.readAll();

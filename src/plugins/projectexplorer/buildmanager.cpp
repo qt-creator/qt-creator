@@ -65,6 +65,11 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     connect(&m_watcher, SIGNAL(finished()),
             this, SLOT(nextBuildQueue()));
 
+    connect(&m_watcher, SIGNAL(progressValueChanged(int)),
+            this, SLOT(progressChanged()));
+    connect(&m_watcher, SIGNAL(progressRangeChanged(int, int)),
+            this, SLOT(progressChanged()));
+
     m_outputWindow = new CompileOutputWindow(this);
     pm->addObject(m_outputWindow);
 
@@ -115,7 +120,7 @@ void BuildManager::cancel()
                    this, SLOT(addToOutputWindow(QString)));
         decrementActiveBuildSteps(m_currentBuildStep->project());
 
-        m_progressFutureInterface->setProgressValueAndText(m_progress, "Build canceled"); //TODO NBS fix in qtconcurrent
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, "Build canceled"); //TODO NBS fix in qtconcurrent
         clearBuildQueue();
     }
     return;
@@ -184,7 +189,7 @@ void BuildManager::startBuildQueue()
         connect(progress, SIGNAL(clicked()), this, SLOT(showBuildResults()));
         progress->setWidget(new BuildProgress(m_taskWindow));
         m_progress = 0;
-        m_progressFutureInterface->setProgressRange(0, m_maxProgress);
+        m_progressFutureInterface->setProgressRange(0, m_maxProgress * 100);
 
         m_running = true;
         m_canceling = false;
@@ -194,9 +199,9 @@ void BuildManager::startBuildQueue()
         nextStep();
     } else {
         // Already running
-        m_progressFutureInterface->setProgressRange(0, m_maxProgress);
+        m_progressFutureInterface->setProgressRange(0, m_maxProgress * 100);
         const QString &progressText = tr("Finished %1 of %2 build steps").arg(m_progress).arg(m_maxProgress);
-        m_progressFutureInterface->setProgressValueAndText(m_progress, progressText);
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, progressText);
     }
 }
 
@@ -231,7 +236,7 @@ void BuildManager::nextBuildQueue()
 
     ++m_progress;
     const QString &progressText = tr("Finished %1 of %2 build steps").arg(m_progress).arg(m_maxProgress);
-    m_progressFutureInterface->setProgressValueAndText(m_progress, progressText);
+    m_progressFutureInterface->setProgressValueAndText(m_progress*100, progressText);
 
     bool result = m_watcher.result();
     if (!result) {
@@ -239,7 +244,7 @@ void BuildManager::nextBuildQueue()
         addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(m_currentBuildStep->project()->name()));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         // NBS TODO fix in qtconcurrent
-        m_progressFutureInterface->setProgressValueAndText(m_progress, tr("Error while building project %1").arg(m_currentBuildStep->project()->name()));
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Error while building project %1").arg(m_currentBuildStep->project()->name()));
     }
 
     decrementActiveBuildSteps(m_currentBuildStep->project());
@@ -247,6 +252,17 @@ void BuildManager::nextBuildQueue()
         nextStep();
     else
         clearBuildQueue();
+}
+
+void BuildManager::progressChanged()
+{
+    if (!m_progressFutureInterface)
+        return;
+    int range = m_watcher.progressMaximum() - m_watcher.progressMinimum();
+    if (range != 0) {
+        int percent = (m_watcher.progressValue() - m_watcher.progressMinimum()) * 100 / range;
+        m_progressFutureInterface->setProgressValue(m_progress * 100 + percent);
+    }
 }
 
 void BuildManager::nextStep()
@@ -279,8 +295,9 @@ void BuildManager::nextStep()
         m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, m_currentBuildStep));
     } else {
         m_running = false;
-        m_previousBuildStepProject = 0;
+        m_previousBuildStepProject = 0;        
         m_progressFutureInterface->reportFinished();
+        m_progressWatcher.setFuture(QFuture<void>());
         delete m_progressFutureInterface;
         m_progressFutureInterface = 0;
         m_maxProgress = 0;

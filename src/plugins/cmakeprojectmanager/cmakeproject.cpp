@@ -207,30 +207,30 @@ void CMakeProject::parseCMakeLists()
 
         // Create run configurations for m_targets
         //qDebug()<<"Create run configurations of m_targets";
-        QMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
+        QMultiMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
         foreach(QSharedPointer<ProjectExplorer::RunConfiguration> cmakeRunConfiguration, runConfigurations()) {
             if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.dynamicCast<CMakeRunConfiguration>()) {
                 existingRunConfigurations.insert(rc->title(), rc);
             }
         }
 
-        bool setActive = false;
+        bool setActive = existingRunConfigurations.isEmpty();
         foreach(const CMakeTarget &ct, m_targets) {
             if (ct.executable.isEmpty())
                 continue;
             if (ct.title.endsWith("/fast"))
                 continue;
-            QMap<QString, QSharedPointer<CMakeRunConfiguration> >::iterator it =
-                    existingRunConfigurations.find(ct.title);
-            if (it != existingRunConfigurations.end()) {
+            QList<QSharedPointer<CMakeRunConfiguration> > list = existingRunConfigurations.values(ct.title);
+            if (!list.isEmpty()) {
                 // Already exists, so override the settings...
-                QSharedPointer<CMakeRunConfiguration> rc = it.value();
-                //qDebug()<<"Updating Run Configuration with title"<<ct.title;
-                //qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
-                //qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
-                rc->setExecutable(ct.executable);
-                rc->setWorkingDirectory(ct.workingDirectory);
-                existingRunConfigurations.erase(it);
+                foreach (QSharedPointer<CMakeRunConfiguration> rc, list) {
+                    //qDebug()<<"Updating Run Configuration with title"<<ct.title;
+                    //qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
+                    //qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
+                    rc->setExecutable(ct.executable);
+                    rc->setWorkingDirectory(ct.workingDirectory);
+                }
+                existingRunConfigurations.remove(ct.title);
             } else {
                 // Does not exist yet
                 //qDebug()<<"Adding new run configuration with title"<<ct.title;
@@ -238,13 +238,13 @@ void CMakeProject::parseCMakeLists()
                 QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
                 addRunConfiguration(rc);
                 // The first one gets the honour of beeing the active one
-                if (!setActive) {
+                if (setActive) {
                     setActiveRunConfiguration(rc);
-                    setActive = true;
+                    setActive = false;
                 }
             }
         }
-        QMap<QString, QSharedPointer<CMakeRunConfiguration> >::const_iterator it =
+        QMultiMap<QString, QSharedPointer<CMakeRunConfiguration> >::const_iterator it =
                 existingRunConfigurations.constBegin();
         for( ; it != existingRunConfigurations.constEnd(); ++it) {
             QSharedPointer<CMakeRunConfiguration> rc = it.value();
@@ -282,8 +282,13 @@ QString CMakeProject::buildParser(const QString &buildConfiguration) const
 QStringList CMakeProject::targets() const
 {
     QStringList results;
-    foreach (const CMakeTarget &ct, m_targets)
+    foreach (const CMakeTarget &ct, m_targets) {
+        if (ct.executable.isEmpty())
+            continue;
+        if (ct.title.endsWith("/fast"))
+            continue;
         results << ct.title;
+    }
     return results;
 }
 
@@ -501,6 +506,10 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (!copw.buildDirectory().isEmpty())
             setValue("all", "buildDirectory", copw.buildDirectory());
         //TODO save arguments somewhere copw.arguments()
+
+        MakeStep *cleanMakeStep = new MakeStep(this);
+        insertCleanStep(0, cleanMakeStep);
+        cleanMakeStep->setValue("clean", true);
     } else {
         // We have a user file, but we could still be missing the cbp file
         // TODO check that we have a cbp file and if not, open up a dialog ?
@@ -524,6 +533,14 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
     }
 
     parseCMakeLists(); // Gets the directory from the active buildconfiguration
+}
+
+CMakeTarget CMakeProject::targetForTitle(const QString &title)
+{
+    foreach(const CMakeTarget &ct, m_targets)
+        if (ct.title == title)
+            return ct;
+    return CMakeTarget();
 }
 
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)

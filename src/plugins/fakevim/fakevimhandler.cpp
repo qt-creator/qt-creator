@@ -605,7 +605,7 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 {
-    //qDebug() << "ANCHOR: " << m_anchor;
+    //qDebug() << "ANCHOR: " << position() << anchor();
     if (m_submode == FilterSubMode) {
         int beginLine = lineForPosition(anchor());
         int endLine = lineForPosition(position());
@@ -921,6 +921,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
             moveToStartOfLine();
+            setTargetColumn();
             finishMovement();
         } else {
             m_mvcount.append(QChar(key));
@@ -971,9 +972,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '\'') {
         m_subsubmode = TickSubSubMode;
     } else if (key == '|') {
-        setAnchor();
         moveToStartOfLine();
         moveRight(qMin(count(), rightDist()) - 1);
+        setTargetColumn();
         finishMovement();
     } else if (key == '!' && m_visualMode == NoVisualMode) {
         m_submode = FilterSubMode;
@@ -992,14 +993,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == Key_Home) {
         moveToStartOfLine();
+        setTargetColumn();
         finishMovement();
     } else if (key == '$' || key == Key_End) {
         int submode = m_submode;
         moveToEndOfLine();
         m_moveType = MoveExclusive;
-        finishMovement("$");
+        setTargetColumn();
         if (submode == NoSubMode)
             m_targetColumn = -1;
+        finishMovement("$");
     } else if (key == ',') {
         // FIXME: use some other mechanism
         //m_passing = true;

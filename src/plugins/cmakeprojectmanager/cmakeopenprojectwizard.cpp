@@ -169,8 +169,8 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Qt Creator has detected an in source build. "
-                   "This prevents out of souce builds, Qt Creator won't allow you to change the build directory. "
-                   "If you want a out of source build, clean your source directory and open the project again"));
+                   "This prevents shadow builds, Qt Creator won't allow you to change the build directory. "
+                   "If you want a shadow build, clean your source directory and open the project again."));
     layout()->addWidget(label);
 }
 
@@ -181,8 +181,8 @@ XmlFileUpToDatePage::XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard)
     setLayout(new QVBoxLayout);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(tr("Qt Creator has found a recent cbp file, which Qt Creator parses to gather information about the project. "
-                   "You can change the command line arguments used to create this file, in the project mode. "
+    label->setText(tr("Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. "
+                   "You can change the command line arguments used to create this file in the project mode. "
                    "Click finish to load the project"));
     layout()->addWidget(label);
 }
@@ -239,13 +239,19 @@ void CMakeRunPage::initWidgets()
     fl->addRow(m_descriptionLabel);
 
     m_argumentsLineEdit = new QLineEdit(this);
-    fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
-
+    //fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
     m_runCMake = new QPushButton(this);
-    m_runCMake->setText("Run CMake");
+    m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
-    fl->addWidget(m_runCMake);
+    //fl->addWidget(m_runCMake);
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_argumentsLineEdit);
+    hbox->addWidget(m_runCMake);
+
+    fl->addRow(tr("Arguments"), hbox);
+
 
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
@@ -257,22 +263,23 @@ void CMakeRunPage::initializePage()
     if (m_presetBuildDirectory.isEmpty()) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(
-                tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file, by running cmake. "
+                tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
                    "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
     } else {
         m_buildDirectory = m_presetBuildDirectory;
-        // TODO tell the user more?
         if (m_update)
             m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
                                            "Creator needs to update this file by running cmake. "
                                            "If you want to add additional command line arguments, "
-                                           "add them in the below.").arg(m_buildDirectory));
+                                           "add them in the below. Note, that cmake remembers command "
+                                           "line arguments from the former runs.").arg(m_buildDirectory));
         else
-            m_descriptionLabel->setText(tr("The directory %1, specified in a buildconfiguration, "
+            m_descriptionLabel->setText(tr("The directory %1 specified in a buildconfiguration, "
                                            "does not contain a cbp file. Qt Creator needs to "
                                            "recreate this file, by running cmake. "
                                            "Some projects require command line arguments to "
-                                           "the initial cmake call.").arg(m_buildDirectory));
+                                           "the initial cmake call. Note, that cmake remembers command "
+                                           "line arguments from the former runs.").arg(m_buildDirectory));
     }
 }
 

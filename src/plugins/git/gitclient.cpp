@@ -544,9 +544,11 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     process.setEnvironment(environment.toStringList());
 
     process.start(m_binaryPath, arguments);
+
     if (!process.waitForFinished()) {
         if (errorText)
             *errorText = "Error: Git timed out";
+        process.kill();
         return false;
     }
 

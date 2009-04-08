@@ -1,6 +1,6 @@
 
 TEMPLATE = lib
-TARGET = Dumper
+TARGET = DebuggingHelper
 CONFIG += shared
 DESTDIR  = ../../../bin
 include(../../qworkbenchlibrary.pri)

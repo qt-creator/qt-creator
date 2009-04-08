@@ -50,6 +50,7 @@ using namespace CMakeProjectManager::Internal;
 MakeStep::MakeStep(CMakeProject *pro)
     : AbstractProcessStep(pro), m_pro(pro), m_buildParser(0)
 {
+    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
 }
 
 MakeStep::~MakeStep()
@@ -98,16 +99,23 @@ bool MakeStep::init(const QString &buildConfiguration)
     setCommand(buildConfiguration, "make"); // TODO give full path here?
 #endif // Q_OS_WIN
 
-    QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
-    arguments << additionalArguments(buildConfiguration);
-    setArguments(buildConfiguration, arguments); // TODO
-    setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    if (value("clean").isValid() && value("clean").toBool())  {
+       setArguments(buildConfiguration, QStringList() << "clean");
+   } else {
+        QStringList arguments = value(buildConfiguration, "buildTargets").toStringList();
+        arguments << additionalArguments(buildConfiguration);
+        setArguments(buildConfiguration, arguments); // TODO
+        setEnvironment(buildConfiguration, m_pro->environment(buildConfiguration));
+    }
     return AbstractProcessStep::init(buildConfiguration);
 }
 
 void MakeStep::run(QFutureInterface<bool> &fi)
 {
+    m_futureInterface = &fi;
+    m_futureInterface->setProgressRange(0, 100);
     AbstractProcessStep::run(fi);
+    m_futureInterface = 0;
 }
 
 QString MakeStep::name()
@@ -134,6 +142,12 @@ void MakeStep::stdOut(const QString &line)
 {
     if (m_buildParser)
         m_buildParser->stdOutput(line);
+    if (m_percentProgress.indexIn(line) != -1) {
+        bool ok = false;
+        int percent = m_percentProgress.cap(1).toInt(&ok);;
+        if (ok)
+            m_futureInterface->setProgressValue(percent);
+    }
     AbstractProcessStep::stdOut(line);
 }
 

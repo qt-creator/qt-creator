@@ -64,6 +64,7 @@ class UniqueIDManager;
 class VariableManager;
 class VCSManager;
 class ViewManagerInterface;
+class IMode;
 
 namespace Internal {
 
@@ -153,6 +154,7 @@ private slots:
     void updateFocusWidget(QWidget *old, QWidget *now);
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
+    void modeChanged(Core::IMode *mode);
 
 private:
     void updateContextObject(IContext *context);

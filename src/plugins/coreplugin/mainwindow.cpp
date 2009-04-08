@@ -63,6 +63,7 @@
 #include "editormanager/ieditorfactory.h"
 #include "baseview.h"
 #include "basefilewizard.h"
+#include "ioutputpane.h"
 
 #include <coreplugin/findplaceholder.h>
 #include <utils/pathchooser.h>
@@ -302,6 +303,9 @@ bool MainWindow::init(QString *errorMessage)
     outputModeWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_outputMode));
     outputModeWidget->setFocusProxy(oph);
 
+    connect(m_modeManager, SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)), Qt::QueuedConnection);
+
     m_outputMode->setContext(m_globalContext);
     pm->addObject(m_outputMode);
     pm->addObject(m_generalSettings);
@@ -315,6 +319,16 @@ bool MainWindow::init(QString *errorMessage)
     m_outputView->setDefaultPosition(Core::IView::Second);
     pm->addObject(m_outputView);
     return true;
+}
+
+void MainWindow::modeChanged(Core::IMode *mode)
+{
+    if (mode == m_outputMode) {        
+        int idx = OutputPaneManager::instance()->m_widgetComboBox->itemData(OutputPaneManager::instance()->m_widgetComboBox->currentIndex()).toInt();
+        IOutputPane *out = OutputPaneManager::instance()->m_pageMap.value(idx);
+        if (out && out->canFocus())
+            out->setFocus();
+    }
 }
 
 void MainWindow::extensionsInitialized()

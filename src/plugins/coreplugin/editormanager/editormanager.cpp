@@ -1814,7 +1814,10 @@ void EditorManager::removeCurrentSplit()
 
 void EditorManager::removeAllSplits()
 {
+    if (!m_d->m_splitter->isSplitter())
+        return;
     IEditor *editor = m_d->m_currentEditor;
+    m_d->m_currentEditor = 0; // trigger update below
     if (editor && m_d->m_editorModel->isDuplicate(editor))
         editor = m_d->m_editorModel->originalForDuplicate(editor);
     m_d->m_splitter->unsplitAll();

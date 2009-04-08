@@ -80,7 +80,7 @@ public:
     /*
      * Returns true if this completion collector can be used with the given editor.
      */
-    virtual bool isValid(ITextEditable *editor) = 0;
+    virtual bool supportsEditor(ITextEditable *editor) = 0;
 
     /* This method should return whether the cursor is at a position which could
      * trigger an autocomplete. It will be called each time a character is typed in

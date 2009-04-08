@@ -168,8 +168,11 @@ QStringList CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *pr
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     if (!pro)
         return QStringList();
-    // TODO gather all targets and return them here
-    return QStringList();
+    QStringList allTargets = pro->targets();
+    for (int i=0; i<allTargets.size(); ++i) {
+        allTargets[i] = Constants::CMAKERUNCONFIGURATION + allTargets[i];
+    }
+    return allTargets;
 }
 
 // used to translate the types to names to display to the user
@@ -193,9 +196,9 @@ QSharedPointer<ProjectExplorer::RunConfiguration> CMakeRunConfigurationFactory::
         return rc;
     } else {
         // Adding new
-        // TODO extract target from type
-        QString file = type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
-        QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, file, QString::null, QString::null));
+        const QString title = type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
+        const CMakeTarget &ct = pro->targetForTitle(title);
+        QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, ct.executable, ct.workingDirectory, ct.title));
         return rc;
     }
 }

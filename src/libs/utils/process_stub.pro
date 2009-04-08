@@ -24,3 +24,5 @@ unix {
     LIBS += -lshell32
 }
 
+target.path  = /bin
+INSTALLS    += target

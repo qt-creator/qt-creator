@@ -57,7 +57,7 @@ namespace Internal {
 class DebuggerManager;
 class DebugMode;
 class GdbOptionPage;
-class DumperOptionPage;
+class DebuggingHelperOptionPage;
 class LocationMark;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -102,14 +102,14 @@ private:
 
     friend class DebuggerManager;
     friend class GdbOptionPage;
-    friend class DumperOptionPage;
+    friend class DebuggingHelperOptionPage;
     friend class DebugMode; // FIXME: Just a hack now so that it can access the views
 
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
 
     GdbOptionPage *m_generalOptionPage;
-    DumperOptionPage *m_dumperOptionPage;
+    DebuggingHelperOptionPage *m_dumperOptionPage;
 
     QString m_previousMode;
     LocationMark *m_locationMark;

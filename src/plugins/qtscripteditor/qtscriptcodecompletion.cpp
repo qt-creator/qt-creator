@@ -22,7 +22,7 @@ Qt::CaseSensitivity QtScriptCodeCompletion::caseSensitivity() const
 void QtScriptCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 { m_caseSensitivity = caseSensitivity; }
 
-bool QtScriptCodeCompletion::isValid(TextEditor::ITextEditable *editor)
+bool QtScriptCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
     if (qobject_cast<ScriptEditor *>(editor->widget()))
         return true;

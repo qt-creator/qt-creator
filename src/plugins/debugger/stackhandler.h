@@ -74,7 +74,7 @@ public:
     // Called from StackHandler after a new stack list has been received
     void removeAll();
     QAbstractItemModel *stackModel() { return this; }
-    bool isDebuggingDumpers() const;
+    bool isDebuggingDebuggingHelpers() const;
 
 private:
     // QAbstractTableModel
