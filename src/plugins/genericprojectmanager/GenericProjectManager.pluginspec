@@ -1,4 +1,4 @@
-<plugin name="GenericProjectManager" version="1.0.90" compatVersion="1.0.90">
+<plugin name="GenericProjectManager" version="1.1.80" compatVersion="1.1.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,10 +19,10 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Generic support</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.0.90"/>
-        <dependency name="ProjectExplorer" version="1.0.90"/>
-        <dependency name="CppTools" version="1.0.90"/>
-        <dependency name="CppEditor" version="1.0.90"/>
-        <dependency name="Help" version="1.0.90"/>
+        <dependency name="TextEditor" version="1.1.80"/>
+        <dependency name="ProjectExplorer" version="1.1.80"/>
+        <dependency name="CppTools" version="1.1.80"/>
+        <dependency name="CppEditor" version="1.1.80"/>
+        <dependency name="Help" version="1.1.80"/>
     </dependencyList>
 </plugin>
