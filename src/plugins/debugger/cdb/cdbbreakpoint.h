@@ -69,6 +69,7 @@ struct CDBBreakPoint {
     bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);
     bool parseExpression(const QString &expr);
     // Retrieve all breakpoints from the engine
+    static bool getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage = 0);
     static bool getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
     // Synchronize (halted) engine with BreakHandler.
     static bool synchronizeBreakPoints(IDebugControl4* ctl, BreakHandler *bh, QString *errorMessage);

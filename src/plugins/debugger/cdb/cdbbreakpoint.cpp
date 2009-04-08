@@ -99,10 +99,16 @@ void CDBBreakPoint::clearExpressionData()
 
 QDebug operator<<(QDebug dbg, const CDBBreakPoint &bp)
 {
-    dbg.nospace() << "fileName='" << bp.fileName << "' condition='"
-                  << bp.condition << "' ignoreCount=" << bp.ignoreCount
-                  << " lineNumber=" << bp.lineNumber
-                  << " funcName='" << bp.funcName << '\'';
+    QDebug nsp = dbg.nospace();
+    if (!bp.fileName.isEmpty()) {
+        nsp << "fileName='" << bp.fileName << ':' << bp.lineNumber << '\'';
+    } else {
+        nsp << "funcName='" << bp.funcName << '\'';
+    }
+    if (!bp.condition.isEmpty())
+        nsp << " condition='" << bp.condition << '\'';
+    if (bp.ignoreCount)
+        nsp << " ignoreCount=" << bp.ignoreCount;
     return dbg;
 }
 
@@ -238,21 +244,28 @@ bool CDBBreakPoint::parseExpression(const QString &expr)
     return true;
 }
 
+bool CDBBreakPoint::getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage /* = 0*/)
+{
+    const HRESULT hr = debugControl->GetNumberBreakpoints(count);
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = QString::fromLatin1("Cannot determine breakpoint count: %1").
+                            arg(msgComFailed("GetNumberBreakpoints", hr));
+        return false;
+    }
+    return true;
+}
+
 bool CDBBreakPoint::getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage)
 {
     ULONG count = 0;
     bps->clear();
-    // get number
-    HRESULT hr = debugControl->GetNumberBreakpoints(&count);
-    if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Cannot retrieve breakpoints: %1").
-                        arg(msgComFailed("GetNumberBreakpoints", hr));
+    if (!getBreakPointCount(debugControl, &count, errorMessage))
         return false;
-    }
     // retrieve one by one and parse
     for (ULONG b= 0; b < count; b++) {
         IDebugBreakpoint2 *ibp = 0;
-        hr = debugControl->GetBreakpointByIndex2(b, &ibp);
+        const HRESULT hr = debugControl->GetBreakpointByIndex2(b, &ibp);
         if (FAILED(hr)) {
             *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint %1: %2").
                             arg(b).arg(msgComFailed("GetBreakpointByIndex2", hr));
@@ -271,66 +284,68 @@ bool CDBBreakPoint::synchronizeBreakPoints(IDebugControl4* debugControl,
                                            BreakHandler *handler,
                                            QString *errorMessage)
 {    
-    typedef QMap<CDBBreakPoint, bool> BreakPointPendingMap;
-    BreakPointPendingMap breakPointPendingMap;
-    // convert BreakHandler's bps into a map of BreakPoint->Pending
+    typedef QMap<CDBBreakPoint, int> BreakPointIndexMap;
+    BreakPointIndexMap breakPointIndexMap;
+    // convert BreakHandler's bps into a map of BreakPoint->BreakHandler->Index
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
     const int handlerCount = handler->size();
-    for (int i=0; i < handlerCount; ++i) {
-        BreakpointData* breakpoint = handler->at(i);
-        const bool pending = breakpoint->pending;
-        breakPointPendingMap.insert(CDBBreakPoint(*breakpoint), pending);
-        if (pending)
-            breakpoint->pending = false;
-    }
-    ULONG engineCount;
+    for (int i=0; i < handlerCount; ++i)
+        breakPointIndexMap.insert(CDBBreakPoint(*handler->at(i)), i);
     // get number of engine breakpoints
-    HRESULT hr = debugControl->GetNumberBreakpoints(&engineCount);
-    if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Cannot retrieve number of breakpoints: %1").
-                        arg(msgComFailed("GetNumberBreakpoints", hr));
+    ULONG engineCount;
+    if (!getBreakPointCount(debugControl, &engineCount, errorMessage))
         return false;
-    }
+
     // Starting from end, check if engine breakpoints are still in handler.
     // If not->remove
     if (engineCount) {
         for (ULONG eb = engineCount - 1u; ; eb--) {
-            // get engine breakpoint
+            // get engine breakpoint.
             IDebugBreakpoint2 *ibp = 0;
-            hr = debugControl->GetBreakpointByIndex2(eb, &ibp);
+            HRESULT hr = debugControl->GetBreakpointByIndex2(eb, &ibp);
             if (FAILED(hr)) {
                 *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint %1: %2").
                                 arg(eb).arg(msgComFailed("GetBreakpointByIndex2", hr));
                 return false;
             }
-            CDBBreakPoint engineBreakPoint;
-            if (!engineBreakPoint.retrieve(ibp, errorMessage))
-                return false;
-            // Still in handler?
-            if (!breakPointPendingMap.contains(engineBreakPoint)) {
-                if (debugCDB)
-                    qDebug() << "    Removing" << engineBreakPoint;
-                hr = debugControl->RemoveBreakpoint2(ibp);
-                if (FAILED(hr)) {
-                    *errorMessage = QString::fromLatin1("Cannot remove breakpoint %1: %2").
-                                    arg(engineBreakPoint.expression(), msgComFailed("RemoveBreakpoint2", hr));
+            // Ignore one shot break points set by "Step out"
+            ULONG flags = 0;
+            hr = ibp->GetFlags(&flags);
+            if (!(flags & DEBUG_BREAKPOINT_ONE_SHOT)) {
+                CDBBreakPoint engineBreakPoint;
+                if (!engineBreakPoint.retrieve(ibp, errorMessage))
                     return false;
-                }
-            } // not in handler
+                // Still in handler?
+                if (!breakPointIndexMap.contains(engineBreakPoint)) {
+                    if (debugCDB)
+                        qDebug() << "    Removing" << engineBreakPoint;
+                    hr = debugControl->RemoveBreakpoint2(ibp);
+                    if (FAILED(hr)) {
+                        *errorMessage = QString::fromLatin1("Cannot remove breakpoint %1: %2").
+                                        arg(engineBreakPoint.expression(), msgComFailed("RemoveBreakpoint2", hr));
+                        return false;
+                    }
+                } // not in handler
+            } // one shot
             if (!eb)
                 break;
         }
     }
     // Add pending breakpoints
-    const BreakPointPendingMap::const_iterator pcend = breakPointPendingMap.constEnd();
-    for (BreakPointPendingMap::const_iterator it = breakPointPendingMap.constBegin(); it != pcend; ++it) {
-        if (it.value()) {
+    const BreakPointIndexMap::const_iterator pcend = breakPointIndexMap.constEnd();
+    for (BreakPointIndexMap::const_iterator it = breakPointIndexMap.constBegin(); it != pcend; ++it) {
+        const int index = it.value();
+        if (handler->at(index)->pending) {
             if (debugCDB)
                 qDebug() << "    Adding " << it.key();
-            if (!it.key().add(debugControl, errorMessage))
-                return false;
+            if (it.key().add(debugControl, errorMessage)) {
+                handler->at(index)->pending = false;
+            } else {
+                const QString msg = QString::fromLatin1("Failed to add breakpoint '%1': %2").arg(it.key().expression(), *errorMessage);
+                qWarning("%s\n", qPrintable(msg));
+            }
         }
     }
     if (debugCDB > 1) {

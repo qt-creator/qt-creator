@@ -31,6 +31,7 @@
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
 #include "debuggermanager.h"
+#include "breakhandler.h"
 
 #include <QtCore/QDebug>
 
@@ -180,8 +181,9 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
         m_pEngine->m_d->m_currentThreadId = currentThreadId;
     else
         m_pEngine->m_d->m_currentThreadId = 0;
-
-    m_pEngine->attemptBreakpointSynchronization();
+    // Set initial breakpoints
+    if (m_pEngine->m_d->m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
+        m_pEngine->attemptBreakpointSynchronization();
     return S_OK;
 }
 

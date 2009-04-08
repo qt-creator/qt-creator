@@ -65,6 +65,12 @@ private:
 
 struct CdbDebugEnginePrivate
 {    
+    enum HandleBreakEventMode { // Special modes for break event handler.
+        BreakEventHandle,
+        BreakEventIgnoreOnce,
+        BreakEventSyncBreakPoints,
+    };
+
     explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
     bool init(QString *errorMessage);
     ~CdbDebugEnginePrivate();
@@ -79,12 +85,20 @@ struct CdbDebugEnginePrivate
     void handleDebugOutput(const char* szOutputString);
     void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
     void cleanStackTrace();
+    void clearForRun();
     CdbSymbolGroupContext *getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const;
+
+    bool interruptInterferiorProcess(QString *errorMessage);
+
+    bool continueInferiorProcess(QString *errorMessage);
+    bool continueInferior(QString *errorMessage);
+
+    bool attemptBreakpointSynchronization(QString *errorMessage);
 
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
     int                     m_currentThreadId;
-    bool                    m_bIgnoreNextDebugEvent;
+    HandleBreakEventMode    m_breakEventMode;
 
     int                     m_watchTimer;
     IDebugClient5*          m_pDebugClient;

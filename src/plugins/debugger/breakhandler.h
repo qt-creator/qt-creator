@@ -120,6 +120,7 @@ public:
 
     BreakpointData *at(int index) const { return index < size() ? m_bp.at(index) : 0; }
     int size() const { return m_bp.size(); }
+    bool hasPendingBreakpoints() const;
     void append(BreakpointData *data) { m_bp.append(data); }
     void removeAt(int index); // also deletes the marker
     void clear(); // also deletes all the marker

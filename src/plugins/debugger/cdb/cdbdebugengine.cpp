@@ -65,6 +65,8 @@ namespace Internal {
 
 typedef QList<WatchData> WatchList;
 
+// ----- Message helpers
+
 QString msgDebugEngineComResult(HRESULT hr)
 {
     switch (hr) {
@@ -104,6 +106,28 @@ QString msgComFailed(const char *func, HRESULT hr)
 
 static const char *msgNoStackTraceC = "Internal error: no stack trace present.";
 
+// ----- Engine helpers
+
+static inline ULONG getInterruptTimeOutSecs(IDebugControl4 *ctl)
+{
+    ULONG rc = 0;
+    ctl->GetInterruptTimeout(&rc);
+    return rc;
+}
+
+static inline bool getExecutionStatus(IDebugControl4 *ctl,
+                                      ULONG *executionStatus,
+                                      QString *errorMessage)
+{
+    const HRESULT hr = ctl->GetExecutionStatus(executionStatus);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("GetExecutionStatus", hr);
+        return false;
+    }
+    return true;
+}
+
+// --------- DebuggerEngineLibrary
 DebuggerEngineLibrary::DebuggerEngineLibrary() :
     m_debugCreate(0)
 {
@@ -163,7 +187,7 @@ SyntaxSetter::~SyntaxSetter()
 CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEngine* engine) :
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
-    m_bIgnoreNextDebugEvent(false),
+    m_breakEventMode(BreakEventHandle),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
     m_debugOutputCallBack(engine),    
@@ -224,7 +248,8 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         *errorMessage = QString::fromLatin1("Creation of IDebugRegisters2 failed: %1").arg(msgDebugEngineComResult(hr));
         return false;    
     }
-
+    if (debugCDB)
+        qDebug() << QString::fromLatin1("CDB Initialization succeeded, interrupt time out %1s.").arg(getInterruptTimeOutSecs(m_pDebugControl));
     return true;
 }
 
@@ -257,11 +282,18 @@ CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
         m_pDebugRegisters->Release();
 }
 
-void CdbDebugEnginePrivate::cleanStackTrace()
+void CdbDebugEnginePrivate::clearForRun()
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
+    m_breakEventMode = BreakEventHandle;
+    m_firstActivatedFrame = false;
+    cleanStackTrace();
+}
+
+void CdbDebugEnginePrivate::cleanStackTrace()
+{    
     if (m_currentStackTrace) {
         delete m_currentStackTrace;
         m_currentStackTrace = 0;
@@ -317,7 +349,7 @@ bool CdbDebugEngine::startDebugger()
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
-    m_d->m_bIgnoreNextDebugEvent = false;
+    m_d->clearForRun();
     const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
     switch (mode) {
     case AttachExternal:
@@ -417,7 +449,7 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << exitCode;
 
-    m_d->cleanStackTrace();
+    m_d->clearForRun();
     m_d->setDebuggeeHandles(0, 0);
     m_d->m_debuggerManagerAccess->notifyInferiorExited();
     m_d->m_debuggerManager->exitDebugger();
@@ -429,23 +461,40 @@ void CdbDebugEngine::exitDebugger()
         qDebug() << Q_FUNC_INFO;
 
     if (m_d->m_hDebuggeeProcess) {
-        m_d->cleanStackTrace();
+        QString errorMessage;
+        m_d->clearForRun();
+        bool wasRunning = false;
         // Terminate or detach if we are running
         HRESULT hr;
         switch (m_d->m_mode) {
         case AttachExternal:            
-            if (m_d->isDebuggeeRunning()) { // Process must be stopped in order to detach
-                DebugBreakProcess(m_d->m_hDebuggeeProcess);
+            wasRunning = m_d->isDebuggeeRunning();
+            if (wasRunning) { // Process must be stopped in order to detach
+                m_d->interruptInterferiorProcess(&errorMessage);
                 QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             }
             hr = m_d->m_pDebugClient->DetachCurrentProcess();
+            if (FAILED(hr))
+                errorMessage += msgComFailed("DetachCurrentProcess", hr);
             if (debugCDB)
                 qDebug() << Q_FUNC_INFO << "detached" << msgDebugEngineComResult(hr);
             break;
         case StartExternal:
         case StartInternal:            
-            // Terminate and waitr for stop events.
+            wasRunning = m_d->isDebuggeeRunning();
+            if (wasRunning) { // Process must be stopped in order to terminate
+                m_d->interruptInterferiorProcess(&errorMessage);
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+            }
+            // Terminate and wait for stop events.
             hr = m_d->m_pDebugClient->TerminateCurrentProcess();
+            if (FAILED(hr))
+                errorMessage += msgComFailed("TerminateCurrentProcess", hr);
+            if (!wasRunning) {
+                hr = m_d->m_pDebugClient->TerminateProcesses();
+                if (FAILED(hr))
+                    errorMessage += msgComFailed("TerminateProcesses", hr);
+            }
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
             if (debugCDB)
                 qDebug() << Q_FUNC_INFO << "terminated" << msgDebugEngineComResult(hr);
@@ -455,8 +504,9 @@ void CdbDebugEngine::exitDebugger()
             break;
         }
         m_d->setDebuggeeHandles(0, 0);
+        if (!errorMessage.isEmpty())
+            qWarning("exitDebugger: %s\n", qPrintable(errorMessage));
     }
-
     killWatchTimer();
 }
 
@@ -601,10 +651,11 @@ void CdbDebugEngine::stepExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
-    m_d->cleanStackTrace();
+    m_d->clearForRun();
     const HRESULT hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
     Q_UNUSED(hr)
-    m_d->m_bIgnoreNextDebugEvent = true;
+
+    m_d->m_breakEventMode = CdbDebugEnginePrivate::BreakEventIgnoreOnce;
     startWatchTimer();
 }
 
@@ -621,34 +672,33 @@ void CdbDebugEngine::stepOutExec()
         return;
     }
 
+    // Set a temporary breakpoint and continue
     const StackFrame& frame = stackframes.at(idx);
-    bool ok;
-    ULONG64 address = frame.address.toULongLong(&ok, 16);
-    if (!ok) {
-        qWarning("stepOutExec: cannot obtain address from stack frame");
-        return;
-    }
+    bool success = false;
+    QString errorMessage;
+    do {
+        const ULONG64 address = frame.address.toULongLong(&success, 16);
+        if (!success) {
+            errorMessage = QLatin1String("Cannot obtain address from stack frame");
+            break;
+        }
 
-    IDebugBreakpoint2* pBP;
-    HRESULT hr = m_d->m_pDebugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
-    if (FAILED(hr) || !pBP) {
-        qWarning("stepOutExec: cannot create temporary breakpoint");
-        return;
-    }
+        IDebugBreakpoint2* pBP;
+        HRESULT hr = m_d->m_pDebugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
+        if (FAILED(hr) || !pBP) {
+            errorMessage = QString::fromLatin1("Cannot create temporary breakpoint: %1").arg(msgDebugEngineComResult(hr));
+            break;
+        }
 
-    pBP->SetOffset(address);
-
-    //QString str = '`' + frame.file + ':' + frame.line + '`';
-    //hr = pBP->SetOffsetExpressionWide(str.utf16());
-    //if (FAILED(hr)) {
-    //    qWarning("SetOffsetExpressionWide failed");
-    //    return;
-    //}
-
-    pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
-    pBP->AddFlags(DEBUG_BREAKPOINT_ONE_SHOT);
-    //hr = m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_GO);
-    continueInferior();
+        pBP->SetOffset(address);
+        pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
+        pBP->AddFlags(DEBUG_BREAKPOINT_ONE_SHOT);
+        if (!m_d->continueInferior(&errorMessage))
+            break;
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("stepOutExec: %s\n", qPrintable(errorMessage));
 }
 
 void CdbDebugEngine::nextExec()
@@ -656,7 +706,7 @@ void CdbDebugEngine::nextExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
-    m_d->cleanStackTrace();
+    m_d->clearForRun();
     const HRESULT hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -675,7 +725,7 @@ void CdbDebugEngine::nextIExec()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
-    m_d->cleanStackTrace();
+    m_d->clearForRun();
     const HRESULT hr = m_d->m_pDebugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
     if (SUCCEEDED(hr)) {
         startWatchTimer();
@@ -686,39 +736,86 @@ void CdbDebugEngine::nextIExec()
 
 void CdbDebugEngine::continueInferior()
 {
+    QString errorMessage;
+    if  (!m_d->continueInferior(&errorMessage))
+        qWarning("continueInferior: %s\n", qPrintable(errorMessage));
+}
+
+// Continue process without notifications
+bool CdbDebugEnginePrivate::continueInferiorProcess(QString *errorMessage)
+{
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
-
-    m_d->cleanStackTrace();
-    killWatchTimer();
-    m_d->m_debuggerManager->resetLocation();
-
-    ULONG executionStatus;
-    m_d->m_debuggerManagerAccess->notifyInferiorRunningRequested();
-    HRESULT hr = m_d->m_pDebugControl->GetExecutionStatus(&executionStatus);
-    if (SUCCEEDED(hr) && executionStatus != DEBUG_STATUS_GO) {
-        hr = m_d->m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_GO);
-        if (SUCCEEDED(hr)) {
-            startWatchTimer();
-            m_d->m_debuggerManagerAccess->notifyInferiorRunning();
-        } else {
-            qWarning("%s failed: %s", Q_FUNC_INFO, qPrintable(msgDebugEngineComResult(hr)));
-        }
+    const HRESULT hr = m_pDebugControl->SetExecutionStatus(DEBUG_STATUS_GO);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("SetExecutionStatus", hr);
+        return false;
     }
+    return  true;
+}
+
+// Continue process with notifications
+bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
+{   
+    ULONG executionStatus;
+    if (!getExecutionStatus(m_pDebugControl, &executionStatus, errorMessage))
+        return false;
+
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << "\n    ex=" << executionStatus;
+
+    if (executionStatus == DEBUG_STATUS_GO) {
+        qWarning("continueInferior() called while debuggee is running.");
+        return true;
+    }
+
+    clearForRun();
+    m_engine->killWatchTimer();
+    m_debuggerManager->resetLocation();
+    m_debuggerManagerAccess->notifyInferiorRunningRequested();
+
+    if (!continueInferiorProcess(errorMessage))
+        return false;
+
+    m_engine->startWatchTimer();
+    m_debuggerManagerAccess->notifyInferiorRunning();
+    return true;
+}
+
+bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
+{
+    // Interrupt the interferior process without notifications
+    if (debugCDB) {
+        ULONG executionStatus;
+        getExecutionStatus(m_pDebugControl, &executionStatus, errorMessage);
+        qDebug() << Q_FUNC_INFO << "\n    ex=" << executionStatus;
+    }
+
+    if (!DebugBreakProcess(m_hDebuggeeProcess)) {
+        *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Core::Utils::winErrorMessage(GetLastError()));
+        return false;
+    }
+#if 0    
+    const HRESULT hr = m_pDebugControl->SetInterrupt(DEBUG_INTERRUPT_ACTIVE|DEBUG_INTERRUPT_EXIT);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Unable to interrupt debuggee after %1s: %2").
+                        arg(getInterruptTimeOutSecs(m_pDebugControl)).arg(msgComFailed("SetInterrupt", hr));
+        return false;
+    }
+#endif
+    return true;
 }
 
 void CdbDebugEngine::interruptInferior()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << m_d->m_hDebuggeeProcess;
-
-    //TODO: better use IDebugControl::SetInterrupt?
-    if (!m_d->m_hDebuggeeProcess)
+    if (!m_d->m_hDebuggeeProcess || !m_d->isDebuggeeRunning())
         return;
-    if (DebugBreakProcess(m_d->m_hDebuggeeProcess)) {
+
+    QString errorMessage;
+    if (m_d->interruptInterferiorProcess(&errorMessage)) {
         m_d->m_debuggerManagerAccess->notifyInferiorStopped();
     } else {
-        qWarning("DebugBreakProcess failed: %s", Core::Utils::winErrorMessage(GetLastError()));
+        qWarning("interruptInferior: %s\n", qPrintable(errorMessage));
     }
 }
 
@@ -840,16 +937,21 @@ void CdbDebugEngine::activateFrame(int frameIndex)
 
         if (oldIndex != frameIndex)
             stackHandler->setCurrentIndex(frameIndex);
-        if (oldIndex != frameIndex || m_d->m_firstActivatedFrame)
-            if (!m_d->updateLocals(frameIndex, watchHandler, &errorMessage))
-                break;
 
         const StackFrame &frame = stackHandler->currentFrame();
         if (!frame.isUsable()) {
+            // Clean out model
+            watchHandler->reinitializeWatchers();
+            watchHandler->rebuildModel();
             errorMessage = QString::fromLatin1("%1: file %2 unusable.").
                            arg(QLatin1String(Q_FUNC_INFO), frame.file);
             break;
         }
+
+        if (oldIndex != frameIndex || m_d->m_firstActivatedFrame)
+            if (!m_d->updateLocals(frameIndex, watchHandler, &errorMessage))
+                break;
+
         m_d->m_debuggerManager->gotoLocation(frame.file, frame.line, true);
         success =true;
     } while (false);
@@ -874,19 +976,42 @@ void CdbDebugEngine::selectThread(int index)
 
 void CdbDebugEngine::attemptBreakpointSynchronization()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
+    QString errorMessage;
+    if (!m_d->attemptBreakpointSynchronization(&errorMessage))
+        qWarning("attemptBreakpointSynchronization: %s\n", qPrintable(errorMessage));
+}
 
-    if (!m_d->m_hDebuggeeProcess) {
-        qWarning("attemptBreakpointSynchronization() called while debugger is not running");
-        return;
+bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessage)
+{
+    if (!m_hDebuggeeProcess) {
+        *errorMessage = QLatin1String("attemptBreakpointSynchronization() called while debugger is not running");
+        return false;
+    }
+    // This is called from
+    // 1) CreateProcessEvent with the halted engine
+    // 2) from the break handler, potentially while the debuggee is running
+    // If the debuggee is running (for which the execution status is
+    // no reliable indicator), we temporarily halt and have ourselves
+    // called again from the debug event handler.
+
+    ULONG dummy;
+    const bool wasRunning = !CDBBreakPoint::getBreakPointCount(m_pDebugControl, &dummy);
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << "\n  Running=" << wasRunning;
+
+    if (wasRunning) {
+        const HandleBreakEventMode oldMode = m_breakEventMode;
+        m_breakEventMode = BreakEventSyncBreakPoints;
+        if (!interruptInterferiorProcess(errorMessage)) {
+            m_breakEventMode = oldMode;
+            return false;
+        }
+        return true;
     }
 
-    QString errorMessage;
-    if (!CDBBreakPoint::synchronizeBreakPoints(m_d->m_pDebugControl,
-                                               m_d->m_debuggerManagerAccess->breakHandler(),
-                                               &errorMessage))
-        qWarning("%s\n", qPrintable(errorMessage));
+    return CDBBreakPoint::synchronizeBreakPoints(m_pDebugControl,
+                                                 m_debuggerManagerAccess->breakHandler(),
+                                                 errorMessage);
 }
 
 void CdbDebugEngine::loadSessionData()
@@ -976,25 +1101,30 @@ void CdbDebugEnginePrivate::handleDebugEvent()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
 
-    if (m_bIgnoreNextDebugEvent) {
-        m_engine->startWatchTimer();
-        m_bIgnoreNextDebugEvent = false;
-    } else {
+    // restore mode and do special handling
+    const HandleBreakEventMode mode = m_breakEventMode;
+    m_breakEventMode = BreakEventHandle;
+
+    switch (mode) {
+    case BreakEventHandle:
         m_debuggerManagerAccess->notifyInferiorStopped();
         updateThreadList();
         updateStackTrace();
+        break;
+    case BreakEventIgnoreOnce:
+        m_engine->startWatchTimer();
+        break;
+    case BreakEventSyncBreakPoints: {
+            // Temp stop to sync breakpoints
+            QString errorMessage;
+            attemptBreakpointSynchronization(&errorMessage);
+            m_engine->startWatchTimer();
+            continueInferiorProcess(&errorMessage);
+            if (!errorMessage.isEmpty())
+                qWarning("handleDebugEvent: %s\n", qPrintable(errorMessage));
     }
-
-    //ULONG executionStatus;
-    //HRESULT hr = m_pDebugControl->GetExecutionStatus(&executionStatus);
-    //if (SUCCEEDED(hr) && executionStatus == DEBUG_STATUS_STEP_INTO) {
-    //    // check if stack trace is valid
-    //    StackHandler* sh = qq->stackHandler();
-    //    QList<StackFrame> frames = sh->frames();
-    //    if (frames.size() > 0 && frames.first().file.isEmpty()) {
-    //        stepExec();
-    //    }
-    //}
+        break;
+    }
 }
 
 void CdbDebugEnginePrivate::setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread)
@@ -1034,7 +1164,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
     // Create a new context
-    cleanStackTrace();
+    clearForRun();
     QString errorMessage;
     m_currentStackTrace =
             CdbStackTraceContext::create(m_pDebugControl, m_pDebugSystemObjects,

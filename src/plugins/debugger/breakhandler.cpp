@@ -243,6 +243,14 @@ int BreakHandler::rowCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : size();
 }
 
+bool BreakHandler::hasPendingBreakpoints() const
+{
+    for (int i = size() - 1; i >= 0; i--)
+        if (at(i)->pending)
+            return true;
+    return false;
+}
+
 void BreakHandler::removeAt(int index)
 {
     BreakpointData *data = at(index);
