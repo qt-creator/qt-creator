@@ -509,7 +509,7 @@ bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMe
     Core::EditorManager *em = Core::EditorManager::instance();
     for (Core::GeneratedFiles::const_iterator it = l.constBegin(); it != cend; ++it) {
         if (!em->openEditor(it->path(), it->editorKind())) {
-            *errorMessage = tr("Failed to open an editor for %1").arg(it->path());
+            *errorMessage = tr("Failed to open an editor for '%1'.").arg(it->path());
             return false;
         }
     }

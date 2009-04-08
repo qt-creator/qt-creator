@@ -397,20 +397,20 @@ bool NewClassWidget::isValid(QString *error) const
 
     if (!m_d->m_ui.headerFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid header file name: %1").arg(m_d->m_ui.headerFileLineEdit->errorMessage());
+            *error = tr("Invalid header file name: '%1'").arg(m_d->m_ui.headerFileLineEdit->errorMessage());
         return false;
     }
 
     if (!m_d->m_ui.sourceFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid source file name: %1").arg(m_d->m_ui.sourceFileLineEdit->errorMessage());
+            *error = tr("Invalid source file name: '%1'").arg(m_d->m_ui.sourceFileLineEdit->errorMessage());
         return false;
     }
 
     if (isFormInputVisible()) {
         if (!m_d->m_ui.formFileLineEdit->isValid()) {
             if (error)
-                *error = tr("Invalid form file name: %1").arg(m_d->m_ui.formFileLineEdit->errorMessage());
+                *error = tr("Invalid form file name: '%1'").arg(m_d->m_ui.formFileLineEdit->errorMessage());
             return false;
         }
     }

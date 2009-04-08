@@ -41,16 +41,16 @@ MainWindow::MainWindow() :
     m_qrcEditor(new  SharedTools::QrcEditor())
 {
     m_qrcEditor->setResourceDragEnabled(true);
-    setWindowTitle(tr("Test resource editor"));
-    QMenu* fMenu = menuBar()->addMenu(tr("File"));
+    setWindowTitle(QLatin1String("Test resource editor"));
+    QMenu* fMenu = menuBar()->addMenu(QLatin1String("File"));
 
-    QAction* oa = fMenu->addAction(tr("Open..."));
+    QAction* oa = fMenu->addAction(QLatin1String("Open..."));
     connect(oa, SIGNAL(triggered()), this, SLOT(slotOpen()));
 
-    QAction* sa = fMenu->addAction(tr("Save"));
+    QAction* sa = fMenu->addAction(QLatin1String("Save"));
     connect(sa, SIGNAL(triggered()), this, SLOT(slotSave()));
 
-    QAction* xa = fMenu->addAction(tr("Exit!"));
+    QAction* xa = fMenu->addAction(QLatin1String("Exit!"));
     connect(xa, SIGNAL(triggered()), this, SLOT(close()));
 
 
@@ -63,16 +63,16 @@ MainWindow::MainWindow() :
 
 void MainWindow::slotOpen()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Choose resource file"),
+    const QString fileName = QFileDialog::getOpenFileName(this, QLatin1String("Choose resource file"),
                                                           QString(),
-                                                          tr("Resource files (*.qrc)"));
+                                                          QLatin1String("Resource files (*.qrc)"));
     if (fileName.isEmpty())
         return;
 
     if (m_qrcEditor->load(fileName))
-        statusBar()->showMessage(tr("%1 opened").arg(fileName));
+        statusBar()->showMessage(QString::fromLatin1("%1 opened").arg(fileName));
     else
-        statusBar()->showMessage(tr("Unable to open %1!").arg(fileName));
+        statusBar()->showMessage(QString::fromLatin1("Unable to open %1!").arg(fileName));
 }
 
 void MainWindow::slotSave()
@@ -81,18 +81,18 @@ void MainWindow::slotSave()
     QString fileName = oldFileName;
 
     if (fileName.isEmpty()) {
-        fileName = QFileDialog::getSaveFileName(this, tr("Save resource file"),
+        fileName = QFileDialog::getSaveFileName(this, QLatin1String("Save resource file"),
                                                 QString(),
-                                                tr("Resource files (*.qrc)"));
+                                                QLatin1String("Resource files (*.qrc)"));
         if (fileName.isEmpty())
             return;
     }
 
     m_qrcEditor->setFileName(fileName);
     if (m_qrcEditor->save())
-        statusBar()->showMessage(tr("%1 written").arg(fileName));
+        statusBar()->showMessage(QString::fromLatin1("%1 written").arg(fileName));
     else {
-        statusBar()->showMessage(tr("Unable to write %1!").arg(fileName));
+        statusBar()->showMessage(QString::fromLatin1("Unable to write %1!").arg(fileName));
         m_qrcEditor->setFileName(oldFileName);
     }
 }

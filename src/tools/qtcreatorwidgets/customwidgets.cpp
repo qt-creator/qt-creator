@@ -41,7 +41,7 @@ NewClassCustomWidget::NewClassCustomWidget(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Widget to enter classes and source files"))
+        QLatin1String("Widget to enter classes and source files"))
 {
 }
 
@@ -52,7 +52,7 @@ ClassNameValidatingLineEdit_CW::ClassNameValidatingLineEdit_CW(QObject *parent) 
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Line Edit that validates a class name"))
+        QLatin1String("Line Edit that validates a class name"))
 {
 }
 
@@ -63,7 +63,7 @@ FileNameValidatingLineEdit_CW::FileNameValidatingLineEdit_CW(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Line Edit that validates a file name"))
+        QLatin1String("Line Edit that validates a file name"))
 {
 }
 
@@ -74,7 +74,7 @@ ProjectNameValidatingLineEdit_CW::ProjectNameValidatingLineEdit_CW(QObject *pare
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Line Edit that validates a project name"))
+        QLatin1String("Line Edit that validates a project name"))
 {
 }
 
@@ -85,7 +85,7 @@ LineColumnLabel_CW::LineColumnLabel_CW(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Label suited for displaying line numbers with a fixed with depending on the font size"),
+        QLatin1String("Label suited for displaying line numbers with a fixed with depending on the font size"),
         QSize(100, 20))
 {
 }
@@ -97,7 +97,7 @@ PathChooser_CW::PathChooser_CW(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("Input widget for paths with a browse button"))
+        QLatin1String("Input widget for paths with a browse button"))
 {
 }
 
@@ -108,7 +108,7 @@ FancyLineEdit_CW::FancyLineEdit_CW(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("A Line edit with a clickable menu pixmap"))
+        QLatin1String("A Line edit with a clickable menu pixmap"))
 {
 }
 
@@ -119,7 +119,7 @@ QtColorButton_CW::QtColorButton_CW(QObject *parent) :
         false,
         QLatin1String(groupC),
         QIcon(),
-        tr("A color button that spawns a QColorDialog on click"))
+        QLatin1String("A color button that spawns a QColorDialog on click"))
 {
 }
 
@@ -139,7 +139,7 @@ SubmitEditorWidget_CW::SubmitEditorWidget_CW(QObject *parent) :
     false,
     QLatin1String(groupC),
     QIcon(),
-    tr("Submit editor showing message and file list"))
+    QLatin1String("Submit editor showing message and file list"))
 {
 }
 
@@ -150,7 +150,7 @@ SubmitFieldWidget_CW::SubmitFieldWidget_CW(QObject *parent) :
     false,
     QLatin1String(groupC),
     QIcon(),
-    tr("Show predefined fields of a submit message in a control based on mail address controls"))
+    QLatin1String("Show predefined fields of a submit message in a control based on mail address controls"))
 {
 }
 

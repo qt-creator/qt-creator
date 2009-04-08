@@ -43,6 +43,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 #include <QtCore/QProcess>
+#include <QtCore/QCoreApplication>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
@@ -86,7 +87,7 @@ public:
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             if (index.row() == stringList().size())
-                return tr("<new>");
+                return QCoreApplication::translate("GenericProject", "<new>");
         }
 
         return QStringListModel::data(index, role);

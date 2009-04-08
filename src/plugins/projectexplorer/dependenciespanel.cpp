@@ -39,6 +39,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtCore/QCoreApplication>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -115,8 +116,8 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                 emit dataChanged(index, index);
                 return true;
             } else {
-                QMessageBox::warning(0, tr("Unable to add dependency"),
-                                     tr("This would create a circular dependency."));
+                QMessageBox::warning(0, QCoreApplication::translate("DependenciesModel", "Unable to add dependency"),
+                                     QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {
             if (m_session->hasDependency(m_project, p)) {
