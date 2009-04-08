@@ -3003,12 +3003,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     } else if (outertype == m_namespace + "QObjectSlot"
             || outertype == m_namespace + "QObjectSignal") {
         // we need the number out of something like
-        // iname="local.ob.slots.[2]deleteLater()"
-        int lastOpened = data.iname.lastIndexOf('[');
-        int lastClosed = data.iname.lastIndexOf(']');
-        QString slotNumber = "-1";
-        if (lastOpened != -1 && lastClosed != -1)
-            slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
+        // iname="local.ob.slots.2" // ".deleteLater()"?
+        int pos = data.iname.lastIndexOf('.');
+        QString slotNumber = data.iname.mid(pos + 1);
+        QTC_ASSERT(slotNumber.toInt() != -1, /**/);
         extraArgs[0] = slotNumber;
     } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
         QString nodetype;
