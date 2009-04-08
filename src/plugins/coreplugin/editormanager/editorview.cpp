@@ -835,6 +835,24 @@ QSize SplitterOrView::minimumSizeHint() const
     return QSize(64, 64);
 }
 
+QSplitter *SplitterOrView::takeSplitter()
+{
+    QSplitter *oldSplitter = m_splitter;
+    if (m_splitter)
+        m_layout->removeWidget(m_splitter);
+    m_splitter = 0;
+    return oldSplitter;
+}
+
+EditorView *SplitterOrView::takeView()
+{
+    EditorView *oldView = m_view;
+    if (m_view)
+        m_layout->removeWidget(m_view);
+    m_view = 0;
+    return oldView;
+}
+
 void SplitterOrView::split(Qt::Orientation orientation)
 {
     Q_ASSERT(m_view && m_splitter == 0);
@@ -903,13 +921,12 @@ void SplitterOrView::unsplit()
     Q_ASSERT(m_splitter->count() == 1);
     EditorManager *em = CoreImpl::instance()->editorManager();
     SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
-
     QSplitter *oldSplitter = m_splitter;
     m_splitter = 0;
 
     if (childSplitterOrView->isSplitter()) {
         Q_ASSERT(childSplitterOrView->view() == 0);
-        m_splitter = childSplitterOrView->splitter();
+        m_splitter = childSplitterOrView->takeSplitter();
         m_layout->addWidget(m_splitter);
         m_layout->setCurrentWidget(m_splitter);
     } else {
@@ -923,8 +940,7 @@ void SplitterOrView::unsplit()
             }
             em->emptyView(childView);
         } else {
-            m_view = childView;
-            childSplitterOrView->m_layout->removeWidget(m_view);
+            m_view = childSplitterOrView->takeView();
             m_layout->addWidget(m_view);
         }
         m_layout->setCurrentWidget(m_view);

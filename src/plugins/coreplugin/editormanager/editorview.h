@@ -197,6 +197,8 @@ public:
     inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
     inline EditorView *view() const { return m_view; }
     inline QSplitter *splitter() const { return m_splitter; }
+    QSplitter *takeSplitter();
+    EditorView *takeView();
 
 
     SplitterOrView *findView(Core::IEditor *editor);
