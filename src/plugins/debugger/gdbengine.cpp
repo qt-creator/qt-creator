@@ -233,6 +233,8 @@ void GdbEngine::initializeConnections()
 
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
+    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
 }
 
 void GdbEngine::initializeVariables()
