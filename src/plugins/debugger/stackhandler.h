@@ -86,8 +86,8 @@ private:
 
     QList<StackFrame> m_stackFrames;
     int m_currentIndex;
-    QIcon m_positionIcon;
-    QIcon m_emptyIcon;
+    const QVariant m_positionIcon;
+    const QVariant m_emptyIcon;
     bool m_canExpand;
 };
 
