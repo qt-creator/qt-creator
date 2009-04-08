@@ -199,9 +199,8 @@ ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
     enableContextMenu(true);
 }
 
-ResourceView::~ResourceView(void)
+ResourceView::~ResourceView()
 {
-
 }
 
 void ResourceView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
@@ -477,7 +476,7 @@ void ResourceView::onEditAlias()
     changeAlias(index);
 }
 
-bool ResourceView::load(QString fileName)
+bool ResourceView::load(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     m_qrcModel->setFileName(fi.absoluteFilePath());
@@ -488,7 +487,7 @@ bool ResourceView::load(QString fileName)
     return m_qrcModel->reload();
 }
 
-bool ResourceView::save(void)
+bool ResourceView::save()
 {
     return m_qrcModel->save();
 }

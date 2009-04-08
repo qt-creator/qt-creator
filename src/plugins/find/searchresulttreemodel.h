@@ -31,6 +31,7 @@
 #define SEARCHRESULTTREEMODEL_H
 
 #include <QtCore/QAbstractItemModel>
+#include <QtGui/QFont>
 
 namespace Find {
 namespace Internal {
@@ -47,8 +48,9 @@ public:
     SearchResultTreeModel(QObject *parent = 0);
     ~SearchResultTreeModel();
 
-    QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const;
+    void setTextEditorFont(const QFont &font);
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -57,25 +59,26 @@ public:
 
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
-        int searchTermStart, int searchTermLength);
+                            int searchTermStart, int searchTermLength);
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 public slots:
     void clear();
-    void appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength);
-    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength);
+    void appendResultLine(int index, int lineNumber, const QString &rowText,
+                          int searchTermStart, int searchTermLength);
+    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
+                          int searchTermStart, int searchTermLength);
 
 private:
     void appendResultFile(const QString &fileName);
     QVariant data(const SearchResultTextRow *row, int role) const;
     QVariant data(const SearchResultFile *file, int role) const;
-    void initializeData(void);
-    void disposeData(void);
+    void initializeData();
+    void disposeData();
 
     SearchResultTreeItem *m_rootItem;
     SearchResultFile *m_lastAppendedResultFile;
+    QFont m_textEditorFont;
 };
 
 } // namespace Internal

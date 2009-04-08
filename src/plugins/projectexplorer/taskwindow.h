@@ -56,7 +56,7 @@ public:
     ~TaskWindow();
 
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets(void) const;
+    QList<QWidget*> toolBarWidgets() const;
 
     QString name() const { return tr("Build Issues"); }
     int priorityInStatusBar() const;

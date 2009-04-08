@@ -34,7 +34,7 @@ namespace Find {
 namespace Internal {
 namespace ItemDataRoles {
 
-enum roles
+enum Roles
 {
     TypeRole = Qt::UserRole,
     FileNameRole,
@@ -49,6 +49,6 @@ enum roles
 
 } // namespace Internal
 } // namespace Find
-} // namespace itemDataRoles
+} // namespace ItemDataRoles
 
 #endif // SEARCHRESULTTREEITEMROLES_H

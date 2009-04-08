@@ -37,7 +37,8 @@
 using namespace Find::Internal;
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
-  : QTreeView(parent), m_autoExpandResults(false)
+    : QTreeView(parent)
+    , m_autoExpandResults(false)
 {
     m_model = new SearchResultTreeModel(this);
     setModel(m_model);
@@ -46,7 +47,7 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setIndentation(14);
     header()->hide();
 
-    connect (this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitJumpToSearchResult(QModelIndex)));
 }
 
 void SearchResultTreeView::setAutoExpandResults(bool expand)
@@ -54,13 +55,18 @@ void SearchResultTreeView::setAutoExpandResults(bool expand)
     m_autoExpandResults = expand;
 }
 
-void SearchResultTreeView::clear(void)
+void SearchResultTreeView::setTextEditorFont(const QFont &font)
+{
+    m_model->setTextEditorFont(font);
+}
+
+void SearchResultTreeView::clear()
 {
     m_model->clear();
 }
 
 void SearchResultTreeView::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-    int searchTermStart, int searchTermLength)
+                                            int searchTermStart, int searchTermLength)
 {
     int rowsBefore = m_model->rowCount();
     m_model->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);

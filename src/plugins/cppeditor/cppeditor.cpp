@@ -1073,20 +1073,6 @@ void CPPEditor::unCommentSelection()
     cursor.endEditBlock();
 }
 
-int CPPEditor::endOfNameAtPosition(int pos)
-{
-    if (pos == -1)
-        pos = position();
-
-    QChar chr = characterAt(pos);
-
-    // Skip to the start of a name
-    while (chr.isLetterOrNumber() || chr == QLatin1Char('_'))
-        chr = characterAt(++pos);
-
-    return pos;
-}
-
 CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
     const QString fileName = QString::fromUtf8(symbol->fileName(),
