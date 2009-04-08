@@ -1,4 +1,4 @@
-<plugin name="CMakeProjectManager" version="1.0.80" compatVersion="1.0.80">
+<plugin name="CMakeProjectManager" version="1.0.90" compatVersion="1.0.90">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,10 +19,10 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>CMake support</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.0.80"/>
-        <dependency name="ProjectExplorer" version="1.0.80"/>
-        <dependency name="CppTools" version="1.0.80"/>
-        <dependency name="CppEditor" version="1.0.80"/>
-        <dependency name="Help" version="1.0.80"/>
+        <dependency name="TextEditor" version="1.0.90"/>
+        <dependency name="ProjectExplorer" version="1.0.90"/>
+        <dependency name="CppTools" version="1.0.90"/>
+        <dependency name="CppEditor" version="1.0.90"/>
+        <dependency name="Help" version="1.0.90"/>
     </dependencyList>
 </plugin>
