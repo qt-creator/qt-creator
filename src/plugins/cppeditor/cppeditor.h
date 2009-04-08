@@ -127,8 +127,6 @@ private:
 
     void createToolBar(CPPEditorEditable *editable);
 
-    int endOfNameAtPosition(int pos);
-
     struct Link
     {
         Link(const QString &fileName = QString(),

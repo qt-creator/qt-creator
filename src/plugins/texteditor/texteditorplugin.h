@@ -32,6 +32,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace Find {
+class SearchResultWindow;
+}
+
 namespace TextEditor {
 
 class FontSettings;
@@ -65,6 +69,7 @@ public:
 
 private slots:
     void invokeCompletion();
+    void updateSearchResultsFont(const TextEditor::FontSettings &);
 
 private:
     static TextEditorPlugin *m_instance;
@@ -72,6 +77,7 @@ private:
     TextFileWizard *m_wizard;
     PlainTextEditorFactory *m_editorFactory;
     LineNumberFilter *m_lineNumberFilter;
+    Find::SearchResultWindow *m_searchResultWindow;
 };
 
 } // namespace Internal

@@ -171,9 +171,16 @@ QString CMakeManager::findQtDir(const ProjectExplorer::Environment &env)
             QFileInfo qmake(path + "/" + possibleCommand);
             if (qmake.exists()) {
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
-                    QDir dir(qmake.absoluteDir());
-                    dir.cdUp();
-                    return dir.absolutePath();
+                    QProcess proc;
+                    proc.start(qmake.absoluteFilePath(), QStringList() << "-query" << "QT_INSTALL_DATA");
+                    if (proc.waitForFinished()) {
+                        return proc.readAll().trimmed();
+                    } else {
+                        proc.kill();
+                        QDir dir(qmake.absoluteDir());
+                        dir.cdUp();
+                        return dir.absolutePath();
+                    }
                 }
             }
         }

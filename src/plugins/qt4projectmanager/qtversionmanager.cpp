@@ -870,9 +870,12 @@ void QtVersion::setPath(const QString &path)
 QString QtVersion::dumperLibrary() const
 {
     uint hash = qHash(path());
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        qtInstallData = path();
     QStringList directories;
     directories
-            << (path() + "/qtc-debugging-helper/")
+            << (qtInstallData + "/qtc-debugging-helper/")
             << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
     foreach(const QString &directory, directories) {
@@ -1390,9 +1393,12 @@ QString QtVersion::buildDebuggingHelperLibrary()
 
     QString output;
     uint hash = qHash(path());
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        qtInstallData = path();
     QStringList directories;
     directories
-            << path() + "/qtc-debugging-helper/"
+            << qtInstallData + "/qtc-debugging-helper/"
             << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash) +"/"
             << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash) +"/";
 
