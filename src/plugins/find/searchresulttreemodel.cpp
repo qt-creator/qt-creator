@@ -37,14 +37,21 @@
 using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
-  : QAbstractItemModel(parent), m_lastAppendedResultFile(0)
+    : QAbstractItemModel(parent)
+    , m_lastAppendedResultFile(0)
 {
     m_rootItem = new SearchResultTreeItem();
+    m_textEditorFont = QFont("Courier");
 }
 
 SearchResultTreeModel::~SearchResultTreeModel()
 {
     delete m_rootItem;
+}
+
+void SearchResultTreeModel::setTextEditorFont(const QFont &font)
+{
+    m_textEditorFont = font;
 }
 
 QModelIndex SearchResultTreeModel::index(int row, int column,
@@ -135,7 +142,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
         result = row->rowText().trimmed();
         break;
     case Qt::FontRole:
-        result = QFont("courier");
+        result = m_textEditorFont;
         break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
@@ -179,13 +186,6 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
     case Qt::BackgroundRole:
         result = QColor(qRgb(245, 245, 245));
         break;
-    case Qt::FontRole:
-        {
-            QFont font;
-            font.setPointSize(font.pointSize() + 1);
-            result = font;
-            break;
-        }
     case Qt::DisplayRole:
         result = file->fileName() + " (" + QString::number(file->childrenCount()) + ")";
         break;
@@ -241,7 +241,7 @@ void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QS
 }
 
 void SearchResultTreeModel::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-    int searchTermStart, int searchTermLength)
+                                             int searchTermStart, int searchTermLength)
 {
     if (!m_lastAppendedResultFile || (m_lastAppendedResultFile->fileName() != fileName))
         appendResultFile(fileName);

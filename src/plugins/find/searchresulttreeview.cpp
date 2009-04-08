@@ -37,7 +37,8 @@
 using namespace Find::Internal;
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
-  : QTreeView(parent), m_autoExpandResults(false)
+    : QTreeView(parent)
+    , m_autoExpandResults(false)
 {
     m_model = new SearchResultTreeModel(this);
     setModel(m_model);
@@ -52,6 +53,11 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
 void SearchResultTreeView::setAutoExpandResults(bool expand)
 {
     m_autoExpandResults = expand;
+}
+
+void SearchResultTreeView::setTextEditorFont(const QFont &font)
+{
+    m_model->setTextEditorFont(font);
 }
 
 void SearchResultTreeView::clear()

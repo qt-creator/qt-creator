@@ -82,22 +82,6 @@ SearchResultWindow::~SearchResultWindow()
     m_items.clear();
 }
 
-bool SearchResultWindow::hasFocus()
-{
-    return m_searchResultTreeView->hasFocus();
-}
-
-bool SearchResultWindow::canFocus()
-{
-    return !m_items.isEmpty();
-}
-
-void SearchResultWindow::setFocus()
-{
-    if (!m_items.isEmpty())
-        m_searchResultTreeView->setFocus();
-}
-
 void SearchResultWindow::visibilityChanged(bool /*visible*/)
 {
 }
@@ -133,6 +117,27 @@ bool SearchResultWindow::isEmpty() const
 int SearchResultWindow::numberOfResults() const
 {
     return m_searchResultTreeView->model()->rowCount();
+}
+
+bool SearchResultWindow::hasFocus()
+{
+    return m_searchResultTreeView->hasFocus();
+}
+
+bool SearchResultWindow::canFocus()
+{
+    return !m_items.isEmpty();
+}
+
+void SearchResultWindow::setFocus()
+{
+    if (!m_items.isEmpty())
+        m_searchResultTreeView->setFocus();
+}
+
+void SearchResultWindow::setTextEditorFont(const QFont &font)
+{
+    m_searchResultTreeView->setTextEditorFont(font);
 }
 
 void SearchResultWindow::handleJumpToSearchResult(int index, const QString &fileName, int lineNumber,

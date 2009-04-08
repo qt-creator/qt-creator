@@ -44,7 +44,9 @@ class SearchResultTreeView : public QTreeView
 
 public:
     SearchResultTreeView(QWidget *parent = 0);
+
     void setAutoExpandResults(bool expand);
+    void setTextEditorFont(const QFont &font);
 
 signals:
     void jumpToSearchResult(int index, const QString &fileName, int lineNumber,

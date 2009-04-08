@@ -31,6 +31,7 @@
 #define SEARCHRESULTTREEMODEL_H
 
 #include <QtCore/QAbstractItemModel>
+#include <QtGui/QFont>
 
 namespace Find {
 namespace Internal {
@@ -47,6 +48,8 @@ public:
     SearchResultTreeModel(QObject *parent = 0);
     ~SearchResultTreeModel();
 
+    void setTextEditorFont(const QFont &font);
+
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -61,10 +64,10 @@ signals:
 
 public slots:
     void clear();
-    void appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength);
-    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength);
+    void appendResultLine(int index, int lineNumber, const QString &rowText,
+                          int searchTermStart, int searchTermLength);
+    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
+                          int searchTermStart, int searchTermLength);
 
 private:
     void appendResultFile(const QString &fileName);
@@ -75,6 +78,7 @@ private:
 
     SearchResultTreeItem *m_rootItem;
     SearchResultFile *m_lastAppendedResultFile;
+    QFont m_textEditorFont;
 };
 
 } // namespace Internal

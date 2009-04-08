@@ -75,11 +75,13 @@ public:
     bool canFocus();
     void setFocus();
 
+    void setTextEditorFont(const QFont &font);
+
 public slots:
     void clearContents();
     void showNoMatchesFound();
     ResultWindowItem *addResult(const QString &fileName, int lineNumber, const QString &lineText,
-        int searchTermStart, int searchTermLength);
+                                int searchTermStart, int searchTermLength);
 
 private slots:
     void handleExpandCollapseToolButton(bool checked);
