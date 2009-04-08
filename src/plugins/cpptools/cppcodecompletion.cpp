@@ -99,6 +99,7 @@ private:
     int m_startpos;
     int m_currentarg;
     int m_current;
+    bool m_escapePressed;
 
     TextEditor::ITextEditor *m_editor;
 
@@ -197,7 +198,8 @@ using namespace CppTools::Internal;
 
 FunctionArgumentWidget::FunctionArgumentWidget():
     m_startpos(-1),
-    m_current(0)
+    m_current(0),
+    m_escapePressed(false)
 {
     QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
@@ -267,6 +269,7 @@ void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
     m_context = context;
     m_startpos = startPosition;
     m_current = 0;
+    m_escapePressed = false;
 
     // update the text
     m_currentarg = -1;
@@ -326,7 +329,15 @@ void FunctionArgumentWidget::updateArgumentHighlight()
 bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
+    case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+            m_escapePressed = true;
+        }
+        break;
     case QEvent::KeyPress:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+            m_escapePressed = true;
+        }
         if (m_items.size() > 1) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Up) {
@@ -340,7 +351,7 @@ bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
         }
         break;
     case QEvent::KeyRelease:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_escapePressed) {
             m_popupFrame->close();
             return false;
         }
