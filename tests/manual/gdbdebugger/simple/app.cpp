@@ -419,7 +419,7 @@ void testQObject(int &argc, char *argv[])
     t += "y";
     t += "y";
 
-/*
+#if 1
     QObject ob(&app);
     ob.setObjectName("An Object");
     QObject ob1;
@@ -434,7 +434,7 @@ void testQObject(int &argc, char *argv[])
     obs.append(0);
     obs.append(&app);
     ob1.setObjectName("A Subobject");
-*/
+#endif
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
     l.show();
