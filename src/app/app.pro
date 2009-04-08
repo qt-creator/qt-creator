@@ -44,6 +44,7 @@ unix:!macx {
     }
 
     target.files += $$OUT_PWD/$$DESTDIR/$$IDE_APP_WRAPPER
+    target.files += $$OUT_PWD/$$DESTDIR/$$IDE_APP_TARGET
     target.path  = /bin
     INSTALLS    += target
 
