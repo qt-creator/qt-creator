@@ -47,6 +47,7 @@
 #include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -60,6 +61,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolTip>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QPushButton>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <unistd.h>
@@ -4040,6 +4043,29 @@ QString GdbEngine::dumperLibraryName() const
     return q->m_dumperLib;
 }
 
+void GdbEngine::showDebuggingHelperWarning()
+{
+    QMessageBox dialog(q->mainWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"), QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(tr("Turn helper usage off"), QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(tr("Continue anyway"), QMessageBox::AcceptRole);
+    dialog.setDefaultButton(justContinue);
+    dialog.setWindowTitle(tr("Debugging helper missing"));
+    dialog.setText(tr("The debugger did not find the debugging helper library."));
+    dialog.setInformativeText(tr("The debugging helper is used to nicely format the values of Qt "
+                                 "data types and some STL data types. "
+                                 "It must be compiled for each Qt version, "
+                                 "you can do this in the Qt preferences page by selecting "
+                                 "a Qt installation and clicking on 'Rebuild' for the debugging "
+                                 "helper."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog("Qt4", "Qt Versions");
+    } else if (dialog.clickedButton() == helperOff) {
+        theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
+    }
+}
+
 void GdbEngine::tryLoadDebuggingHelpers()
 {
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
@@ -4055,6 +4081,8 @@ void GdbEngine::tryLoadDebuggingHelpers()
             " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
             .arg(QFileInfo(lib).exists())
             .arg(QFileInfo(lib).isExecutable()));
+        if (theDebuggerBoolSetting(UseDebuggingHelpers))
+            showDebuggingHelperWarning();
         return;
     }
 

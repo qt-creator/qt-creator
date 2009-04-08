@@ -136,6 +136,7 @@ private:
     //
     // Own stuff
     //
+    void showDebuggingHelperWarning();
     int currentFrame() const;
     QString currentWorkingDirectory() const { return m_pwd; }
 
