@@ -232,7 +232,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return "???";
         }
     } else if (role == Qt::ToolTipRole) {
-        return "Thread: " + QString::number(m_threads.at(index.row()).id);
+        return tr("Thread: %1").arg(m_threads.at(index.row()).id);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
@@ -244,11 +244,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static const char * const headers[] = {
-            QT_TR_NOOP("Thread ID"),
-        };
         if (section < 1)
-            return tr(headers[section]);
+            return tr("Thread ID");
     }
     return QVariant();
 }

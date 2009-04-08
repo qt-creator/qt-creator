@@ -498,8 +498,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
 
+    // FIXME: make this a global action
     m_breakpointMarginAction = new QAction(this);
-    m_breakpointMarginAction->setText("Toggle Breakpoint");
+    m_breakpointMarginAction->setText(tr("Toggle Breakpoint"));
     //m_breakpointMarginAction->setIcon(QIcon(":/gdbdebugger/images/breakpoint.svg"));
     connect(m_breakpointMarginAction, SIGNAL(triggered()),
         this, SLOT(breakpointMarginActionTriggered()));
@@ -976,7 +977,7 @@ void DebuggerPlugin::writeSettings() const
     QTC_ASSERT(m_manager->mainWindow(), return);
 
     QSettings *s = settings();
-    theDebuggerSettings()->writeSettings(s);
+    DebuggerSettings::instance()->writeSettings(s);
     s->beginGroup(QLatin1String("DebugMode"));
     s->setValue("State", m_manager->mainWindow()->saveState());
     s->setValue("Locked", m_toggleLockedAction->isChecked());
@@ -986,7 +987,7 @@ void DebuggerPlugin::writeSettings() const
 void DebuggerPlugin::readSettings()
 {
     QSettings *s = settings();
-    theDebuggerSettings()->readSettings(s);
+    DebuggerSettings::instance()->readSettings(s);
 
     QString defaultCommand("gdb");
 #if defined(Q_OS_WIN32)

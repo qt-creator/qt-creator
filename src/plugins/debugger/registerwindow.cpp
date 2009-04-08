@@ -81,15 +81,15 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     //QString format = model()->property(PROPERTY_REGISTER_FORMAT).toString();
     //qDebug() << "FORMAT: " << format;
 
-    actions[Adjust] = menu.addAction("Adjust column widths to contents");
+    actions[Adjust] = menu.addAction(tr("Adjust column widths to contents"));
 
-    actions[AlwaysAdjust] = menu.addAction("Always adjust column widths to contents");
+    actions[AlwaysAdjust] = menu.addAction(tr("Always adjust column widths to contents"));
     actions[AlwaysAdjust]->setCheckable(true);
     actions[AlwaysAdjust]->setChecked(m_alwaysResizeColumnsToContents);
 
-    actions[Reload] = menu.addAction("Reload register listing");
+    actions[Reload] = menu.addAction(tr("Reload register listing"));
 
-    actions[AlwaysReload] = menu.addAction("Always reload register listing");
+    actions[AlwaysReload] = menu.addAction(tr("Always reload register listing"));
     actions[AlwaysReload]->setCheckable(true);
     actions[AlwaysReload]->setChecked(m_alwaysReloadContents);
 

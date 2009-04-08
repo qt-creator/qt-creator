@@ -1534,7 +1534,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
-    debugMessage(theDebuggerSettings()->dump());
+    debugMessage(DebuggerSettings::instance()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
@@ -2727,7 +2727,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
     if (!hasLetterOrNumber(exp)) {
         QToolTip::showText(m_toolTipPos,
-            "'" + exp + "' contains no identifier");
+            tr("'%1' contains no identifier").arg(exp));
         return;
     }
 
@@ -2750,8 +2750,8 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
-            "Cowardly refusing to evaluate expression '" + exp
-                + "' with potential side effects");
+            tr("Cowardly refusing to evaluate expression '%1' "
+               "with potential side effects").arg(exp));
         return;
     }
 
@@ -2763,7 +2763,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
             qDebug() << "THIS IN ROW " << i;
             if (m_currentLocals.childAt(i).type.startsWith(exp)) {
                 QToolTip::showText(m_toolTipPos,
-                    exp + ": type of current 'this'");
+                    tr("%1: type of current 'this'").arg(exp));
                 qDebug() << " TOOLTIP CRASH SUPPRESSED";
                 return;
             }
@@ -3329,7 +3329,7 @@ void GdbEngine::updateWatchModel2()
                     "(" + data->type + ") " + data->exp + " = " + data->value);
         } else {
             QToolTip::showText(m_toolTipPos,
-                "Cannot evaluate expression: " + m_toolTipExpression);
+                tr("Cannot evaluate expression: %1").arg(m_toolTipExpression));
         }
     }
 }

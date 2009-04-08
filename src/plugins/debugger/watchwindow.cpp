@@ -164,8 +164,8 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *act1 = new QAction("Adjust column widths to contents", &menu);
-    QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
+    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
 
@@ -201,7 +201,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == act2)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == act3)
-        theDebuggerAction(WatchExpression)->trigger("<Edit>");
+        theDebuggerAction(WatchExpression)->trigger(tr("<Edit>"));
 }
 
 void WatchWindow::resizeColumnsToContents()

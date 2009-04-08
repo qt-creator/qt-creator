@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "disassemblerwindow.h"
+#include "debuggeractions.h"
 
 #include <QAction>
 #include <QDebug>
@@ -68,24 +69,23 @@ void DisassemblerWindow::resizeEvent(QResizeEvent *ev)
 void DisassemblerWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    //QTreeWidgetItem *item = itemAt(ev->pos());
-    QAction *act1 = new QAction("Adjust column widths to contents", &menu);
-    QAction *act2 = new QAction("Always adjust column widths to contents", &menu);
+
+    QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
+    // FIXME: make this a SavedAction
     act2->setChecked(m_alwaysResizeColumnsToContents);
-    QAction *act3 = new QAction("Reload disassembler listing", &menu);
-    QAction *act4 = new QAction("Always reload disassembler listing", &menu);
+    QAction *act3 = new QAction(tr("Reload disassembler listing"), &menu);
+    QAction *act4 = new QAction(tr("Always reload disassembler listing"), &menu);
     act4->setCheckable(true);
     act4->setChecked(m_alwaysReloadContents);
-    //if (item) {
-    //    menu.addAction(act0);
-    //    menu.addSeparator();
-    //}
     menu.addAction(act3);
     //menu.addAction(act4);
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
+    menu.addSeparator();
+    menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

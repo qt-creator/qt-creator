@@ -75,10 +75,8 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0:
-            return reg.name;
-        case 1:
-            return reg.value;
+            case 0: return reg.name;
+            case 1: return reg.value;
         }
     }
     if (role == Qt::TextColorRole && reg.changed && index.column() == 1)
@@ -90,12 +88,10 @@ QVariant RegisterHandler::headerData(int section, Qt::Orientation orientation,
     int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static const char * const headers[] = {
-            QT_TR_NOOP("Name"),
-            QT_TR_NOOP("Value"),
+        switch (section) {
+            case 0: return tr("Name");
+            case 1: return tr("Value");
         };
-        if (section < 2)
-            return tr(headers[section]);
     }
     return QVariant();
 }
