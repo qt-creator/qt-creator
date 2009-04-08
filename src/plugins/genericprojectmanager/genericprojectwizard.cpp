@@ -121,11 +121,11 @@ private:
 GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     : QWizard(parent)
 {
-    setWindowTitle(tr("Import Existing Project"));
+    setWindowTitle(tr("Import of Makefile-based Project"));
 
     // first page
     m_firstPage = new FileWizardPage;
-    m_firstPage->setTitle(tr("Import Project"));
+    m_firstPage->setTitle(tr("Generic Project"));
     m_firstPage->setNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
@@ -243,8 +243,8 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(":/wizards/images/console.png"));
-    parameters.setName(tr("Existing Project"));
-    parameters.setDescription(tr("Import Existing Project"));
+    parameters.setName(tr("Import of Makefile-based Project"));
+    parameters.setDescription(tr("Creates a generic project, supporting any build system."));
     parameters.setCategory(QLatin1String("Projects"));
     parameters.setTrCategory(tr("Projects"));
     return parameters;
