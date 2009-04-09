@@ -32,11 +32,16 @@
 #include "cdbsymbolgroupcontext.h"
 #include "cdbstacktracecontext.h"
 #include "cdbbreakpoint.h"
+#include "cdbmodules.h"
+#include "cdbassembler.h"
 
+#include "debuggeractions.h"
 #include "debuggermanager.h"
 #include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "registerhandler.h"
+#include "moduleshandler.h"
 #include "watchutils.h"
 
 #include <utils/qtcassert.h>
@@ -308,6 +313,10 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(QString,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerOutput(QString,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(QString,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerInput(QString,QString)));
 }
 
 CdbDebugEngine::~CdbDebugEngine()
@@ -344,8 +353,16 @@ void CdbDebugEngine::setToolTipExpression(const QPoint & /*pos*/, const QString 
 {
 }
 
+void CdbDebugEnginePrivate::clearDisplay()
+{
+    m_debuggerManagerAccess->threadsHandler()->removeAll();
+    m_debuggerManagerAccess->modulesHandler()->removeAll();
+    m_debuggerManagerAccess->registerHandler()->removeAll();
+}
+
 bool CdbDebugEngine::startDebugger()
 {    
+    m_d->clearDisplay();
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
@@ -1042,8 +1059,35 @@ void CdbDebugEngine::loadAllSymbols()
         qDebug() << Q_FUNC_INFO;
 }
 
+static inline int registerFormatBase()
+{
+    switch(checkedRegisterFormatAction()) {
+    case FormatHexadecimal:
+        return 16;
+    case FormatDecimal:
+        return 10;
+    case FormatOctal:
+        return 8;
+    case FormatBinary:
+        return 2;
+        break;
+    case FormatRaw:
+    case FormatNatural:
+        break;
+    }
+    return 10;
+}
+
 void CdbDebugEngine::reloadRegisters()
 {
+    const int intBase = registerFormatBase();
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << intBase;
+    QList<Register> registers;
+    QString errorMessage;
+    if (!getRegisters(m_d->m_pDebugControl, m_d->m_pDebugRegisters, &registers, &errorMessage, intBase))
+        qWarning("reloadRegisters() failed: %s\n", qPrintable(errorMessage));
+    m_d->m_debuggerManagerAccess->registerHandler()->setRegisters(registers);
 }
 
 void CdbDebugEngine::timerEvent(QTimerEvent* te)
@@ -1142,21 +1186,34 @@ void CdbDebugEnginePrivate::updateThreadList()
 
     ThreadsHandler* th = m_debuggerManagerAccess->threadsHandler();
     QList<ThreadData> threads;
+    bool success = false;
+    QString errorMessage;
+    do {
+        ULONG numberOfThreads;
+        HRESULT hr= m_pDebugSystemObjects->GetNumberThreads(&numberOfThreads);
+        if (FAILED(hr)) {
+            errorMessage= msgComFailed("GetNumberThreads", hr);
+            break;
+        }
+        const ULONG maxThreadIds = 256;
+        ULONG threadIds[maxThreadIds];
+        ULONG biggestThreadId = qMin(maxThreadIds, numberOfThreads - 1);
+        hr = m_pDebugSystemObjects->GetThreadIdsByIndex(0, biggestThreadId, threadIds, 0);
+        if (FAILED(hr)) {
+            errorMessage= msgComFailed("GetThreadIdsByIndex", hr);
+            break;
+        }
+        for (ULONG threadId = 0; threadId <= biggestThreadId; ++threadId) {
+            ThreadData thread;
+            thread.id = threadId;
+            threads.append(thread);
+        }
 
-    HRESULT hr;
-    ULONG numberOfThreads;
-    hr = m_pDebugSystemObjects->GetNumberThreads(&numberOfThreads);
-    const ULONG maxThreadIds = 256;
-    ULONG threadIds[maxThreadIds];
-    ULONG biggestThreadId = qMin(maxThreadIds, numberOfThreads - 1);
-    hr = m_pDebugSystemObjects->GetThreadIdsByIndex(0, biggestThreadId, threadIds, 0);
-    for (ULONG threadId = 0; threadId <= biggestThreadId; ++threadId) {
-        ThreadData thread;
-        thread.id = threadId;
-        threads.append(thread);
-    }
-
-    th->setThreads(threads);
+        th->setThreads(threads);
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("updateThreadList() failed: %s\n", qPrintable(errorMessage));
 }
 
 void CdbDebugEnginePrivate::updateStackTrace()
@@ -1166,6 +1223,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     // Create a new context
     clearForRun();
     QString errorMessage;
+    m_engine->reloadRegisters();
     m_currentStackTrace =
             CdbStackTraceContext::create(m_pDebugControl, m_pDebugSystemObjects,
                                          m_pDebugSymbols, m_currentThreadId, &errorMessage);
@@ -1191,11 +1249,14 @@ void CdbDebugEnginePrivate::updateStackTrace()
     }    
 }
 
-void CdbDebugEnginePrivate::handleDebugOutput(const char *szOutputString)
+
+void CdbDebugEnginePrivate::updateModules()
 {
-    if (debugCDB && strstr(szOutputString, "ModLoad:") == 0)
-        qDebug() << Q_FUNC_INFO << szOutputString;
-    m_debuggerManagerAccess->showApplicationOutput(QString::fromLocal8Bit(szOutputString));
+    QList<Module> modules;
+    QString errorMessage;
+    if (!getModuleList(m_pDebugSymbols, &modules, &errorMessage))
+        qWarning("updateModules() failed: %s\n", qPrintable(errorMessage));
+    m_debuggerManagerAccess->modulesHandler()->setModules(modules);
 }
 
 void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)

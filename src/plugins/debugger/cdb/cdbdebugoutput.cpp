@@ -76,14 +76,49 @@ STDMETHODIMP_(ULONG) CdbDebugOutput::Release(THIS)
     return 0;
 }
 
+// Return a prefix for debugger messages
+static QString prefix(ULONG mask)
+{
+    if (mask & (DEBUG_OUTPUT_DEBUGGEE|DEBUG_OUTPUT_DEBUGGEE_PROMPT|DEBUG_OUTPUT_DEBUGGEE_PROMPT)) {
+        static const QString p = QLatin1String("target:");
+        return p;
+    }
+    if (mask & (DEBUG_OUTPUT_PROMPT_REGISTERS)) {
+        static const QString p = QLatin1String("registers:");
+        return p;
+    }
+    if (mask & (DEBUG_OUTPUT_EXTENSION_WARNING|DEBUG_OUTPUT_WARNING)) {
+        static const QString p = QLatin1String("warning:");
+        return p;
+    }
+    if (mask & (DEBUG_OUTPUT_ERROR)) {
+        static const QString p = QLatin1String("error:");
+        return p;
+    }
+    if (mask & DEBUG_OUTPUT_SYMBOLS) {
+        static const QString p = QLatin1String("symbols:");
+        return p;
+    }
+    static const QString commonPrefix = QLatin1String("cdb:");
+    return commonPrefix;
+}
+
 STDMETHODIMP CdbDebugOutput::Output(
     THIS_
     IN ULONG mask,
     IN PCSTR text
     )
 {
-    UNREFERENCED_PARAMETER(mask);
-    m_pEngine->m_d->handleDebugOutput(text);
+    const QString msg = QString::fromLocal8Bit(text);
+
+    if (debugCDB > 1)
+        qDebug() << Q_FUNC_INFO << "\n    " << msg;
+
+    if (mask & (DEBUG_OUTPUT_PROMPT|DEBUG_OUTPUT_DEBUGGEE_PROMPT)) {
+        emit debuggerInputPrompt(prefix(mask), msg);
+    } else {
+        emit debuggerOutput(prefix(mask), msg);
+    }
     return S_OK;
 }
 

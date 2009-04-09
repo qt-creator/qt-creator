@@ -76,8 +76,9 @@ STDMETHODIMP_(ULONG) CdbDebugEventCallback::Release(THIS)
 
 STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 {
-    *mask = DEBUG_EVENT_CREATE_PROCESS | DEBUG_EVENT_EXIT_PROCESS
-            //| DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
+    *mask = DEBUG_EVENT_CREATE_PROCESS  | DEBUG_EVENT_EXIT_PROCESS
+            | DEBUG_EVENT_LOAD_MODULE   | DEBUG_EVENT_UNLOAD_MODULE
+            | DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
             | DEBUG_EVENT_BREAKPOINT
             | DEBUG_EVENT_EXCEPTION
             ;
@@ -125,13 +126,9 @@ STDMETHODIMP CdbDebugEventCallback::CreateThread(
     Q_UNUSED(Handle)
     Q_UNUSED(DataOffset)
     Q_UNUSED(StartOffset)
-
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
-    //Debugger::ThreadInfo ti;
-    //ti.handle = Handle;
-    //ti.dataOffset = DataOffset;
-    //ti.startOffset = StartOffset;
+    m_pEngine->m_d->updateThreadList();
     return S_OK;
 }
 
@@ -142,7 +139,8 @@ STDMETHODIMP CdbDebugEventCallback::ExitThread(
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << ExitCode;
-
+    // @TODO: It seems the terminated thread is still in the list...
+    m_pEngine->m_d->updateThreadList();
     return S_OK;
 }
 
@@ -211,14 +209,14 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
 {
     Q_UNUSED(ImageFileHandle)
     Q_UNUSED(BaseOffset)
-    Q_UNUSED(ModuleSize)
     Q_UNUSED(ModuleName)
+    Q_UNUSED(ModuleSize)
     Q_UNUSED(ImageName)
     Q_UNUSED(CheckSum)
     Q_UNUSED(TimeDateStamp)
-    if (debugCDB)
+    if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ModuleName;
-
+    m_pEngine->m_d->updateModules();
     return S_OK;
 }
 
@@ -230,9 +228,9 @@ STDMETHODIMP CdbDebugEventCallback::UnloadModule(
 {
     Q_UNUSED(ImageBaseName)
     Q_UNUSED(BaseOffset)
-    if (debugCDB)
+    if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ImageBaseName;
-
+    m_pEngine->m_d->updateModules();
     return S_OK;
 }
 

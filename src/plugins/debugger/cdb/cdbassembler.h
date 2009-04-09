@@ -27,54 +27,28 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_CDBOUTPUT_H
-#define DEBUGGER_CDBOUTPUT_H
+#ifndef CDBASSEMBLER_H
+#define CDBASSEMBLER_H
+
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <windows.h>
 #include <inc/dbgeng.h>
 
-#include <QtCore/QObject>
-
 namespace Debugger {
 namespace Internal {
 
-class CdbDebugEngine;
+// Utilities related to assembler code.
+class Register;
 
-class CdbDebugOutput : public QObject, public IDebugOutputCallbacks
-{
-    Q_OBJECT
-public:
-    explicit CdbDebugOutput(CdbDebugEngine* engine);
+bool getRegisters(IDebugControl4 *ctl,
+                  IDebugRegisters2 *ireg,
+                  QList<Register> *registers,
+                  QString *errorMessage,
+                  int base = 10 /* 16 for hex, etc */);
+}
+}
 
-    // IUnknown.
-    STDMETHOD(QueryInterface)(
-        THIS_
-        IN REFIID InterfaceId,
-        OUT PVOID* Interface
-        );
-    STDMETHOD_(ULONG, AddRef)(
-        THIS
-        );
-    STDMETHOD_(ULONG, Release)(
-        THIS
-        );
 
-    // IDebugOutputCallbacks.
-    STDMETHOD(Output)(
-        THIS_
-        IN ULONG mask,
-        IN PCSTR text
-        );
-
-signals:
-    void debuggerOutput(const QString &prefix, const QString &message);
-    void debuggerInputPrompt(const QString &prefix, const QString &message);
-
-private:
-    CdbDebugEngine* m_pEngine;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // DEBUGGER_CDBOUTPUT_H
+#endif // CDBASSEMBLER_H

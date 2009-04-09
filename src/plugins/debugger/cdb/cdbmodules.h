@@ -27,54 +27,23 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_CDBOUTPUT_H
-#define DEBUGGER_CDBOUTPUT_H
+#ifndef CDBMODULES_H
+#define CDBMODULES_H
+
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <windows.h>
 #include <inc/dbgeng.h>
 
-#include <QtCore/QObject>
-
 namespace Debugger {
 namespace Internal {
 
-class CdbDebugEngine;
+class Module;
 
-class CdbDebugOutput : public QObject, public IDebugOutputCallbacks
-{
-    Q_OBJECT
-public:
-    explicit CdbDebugOutput(CdbDebugEngine* engine);
+bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage);
 
-    // IUnknown.
-    STDMETHOD(QueryInterface)(
-        THIS_
-        IN REFIID InterfaceId,
-        OUT PVOID* Interface
-        );
-    STDMETHOD_(ULONG, AddRef)(
-        THIS
-        );
-    STDMETHOD_(ULONG, Release)(
-        THIS
-        );
+}
+}
 
-    // IDebugOutputCallbacks.
-    STDMETHOD(Output)(
-        THIS_
-        IN ULONG mask,
-        IN PCSTR text
-        );
-
-signals:
-    void debuggerOutput(const QString &prefix, const QString &message);
-    void debuggerInputPrompt(const QString &prefix, const QString &message);
-
-private:
-    CdbDebugEngine* m_pEngine;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // DEBUGGER_CDBOUTPUT_H
+#endif // CDBMODULES_H

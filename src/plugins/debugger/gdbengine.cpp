@@ -221,19 +221,6 @@ void GdbEngine::initializeConnections()
     connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
         this, SLOT(recheckDebuggingHelperAvailability()));
 
-    connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatDecimal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatOctal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatBinary), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatRaw), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
@@ -2619,22 +2606,28 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, int id)
 //
 //////////////////////////////////////////////////////////////////////
 
+static inline char registerFormatChar()
+{
+    switch(checkedRegisterFormatAction()) {
+    case FormatHexadecimal:
+        return 'x';
+    case FormatDecimal:
+        return 'd';
+    case FormatOctal:
+        return 'o';
+    case FormatBinary:
+        return 't';
+    case FormatRaw:
+        return 'r';
+    default:
+        break;
+    }
+    return 'N';
+}
+
 void GdbEngine::reloadRegisters()
 {
-    QString format;
-    if (theDebuggerAction(FormatHexadecimal)->isChecked())
-        format = "x";
-    else if (theDebuggerAction(FormatDecimal)->isChecked())
-        format = "d";
-    else if (theDebuggerAction(FormatOctal)->isChecked())
-        format = "o";
-    else if (theDebuggerAction(FormatBinary)->isChecked())
-        format = "t";
-    else if (theDebuggerAction(FormatRaw)->isChecked())
-        format = "r";
-    else
-        format = "N";
-    sendCommand("-data-list-register-values " + format, RegisterListValues);
+    sendCommand(QLatin1String("-data-list-register-values ") + QLatin1Char(registerFormatChar()), RegisterListValues);
 }
 
 void GdbEngine::handleRegisterListNames(const GdbResultRecord &record)
