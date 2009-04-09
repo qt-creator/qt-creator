@@ -50,6 +50,7 @@
 
 #include <utils/qtcassert.h>
 
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -2049,6 +2050,14 @@ void FakeVimHandler::Private::moveToTargetColumn()
     }
 }
 
+/* if simple is given:
+ *  class 0: spaces
+ *  class 1: non-spaces
+ * else
+ *  class 0: spaces
+ *  class 1: non-space-or-letter-or-number
+ *  class 2: letter-or-number
+ */
 static int charClass(QChar c, bool simple)
 {
     if (simple)
@@ -2066,6 +2075,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
     int lastClass = -1;
     while (true) {
         QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
+        qDebug() << "EXAMINING: " << c << " AT " << position();
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
@@ -2076,6 +2086,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
             break;
         forward ? moveRight() : moveLeft();
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::handleFfTt(int key)
@@ -2111,6 +2122,7 @@ void FakeVimHandler::Private::handleFfTt(int key)
             break;
         }
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToNextWord(bool simple)
@@ -2131,6 +2143,7 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
         if (m_tc.position() == n)
             break;
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToMatchingParanthesis()
@@ -2144,6 +2157,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
             m_tc.movePosition(Left, KeepAnchor, 1);
     }
+    setTargetColumn();
 }
 
 int FakeVimHandler::Private::cursorLineOnScreen() const

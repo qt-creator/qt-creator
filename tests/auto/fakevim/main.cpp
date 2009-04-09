@@ -55,10 +55,13 @@ public slots:
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
     
 private slots:
-    void commandI();
     void commandDollar();
     void commandDown();
+    void commandLeft();
+    void commandRight();
+    void commandI();
     void commandUp();
+    void commandW();
 
 private:
     void setup();    
@@ -203,6 +206,10 @@ bool tst_FakeVim::checkHelper(bool ex, QString cmd, QString expected,
     do { if (!checkHelper(false, cmd, expected, __FILE__, __LINE__)) \
             return; } while (0)
 
+#define move(cmd, expected) \
+    do { if (!checkHelper(false, cmd, insertCursor(expected), __FILE__, __LINE__)) \
+            return; } while (0)
+
 // Runs an ex command and checks the result.
 // Cursor position is marked by a '@' in the expected contents.
 #define checkEx(cmd, expected) \
@@ -235,7 +242,7 @@ void tst_FakeVim::commandI()
     check("ixxx" + escape, "xx@x" + lines);
     check("u", "@" + lines);
 
-    return;
+return;
 
     // combine insertions
     check("ia" + escape, "@a" + lines);
@@ -251,26 +258,56 @@ void tst_FakeVim::commandI()
 void tst_FakeVim::commandDollar()
 {
     setup();
-    check("j$", insertCursor("<QtCore>@"));
-    check("j$", insertCursor("<QtGui>@"));
-    check("2j", insertCursor(")@"));
+    move("j$", "<QtCore>@");
+    move("j$", "<QtGui>@");
+    move("2j", ")@");
 }
 
 void tst_FakeVim::commandDown()
 {
     setup();
-    check("j", insertCursor("@#include <QtCore"));
-    check("3j", insertCursor("@int main"));
-    check("4j", insertCursor("@    return app.exec()"));
+    move("j",  "@#include <QtCore");
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
 }
 
 void tst_FakeVim::commandUp()
 {
     setup();
-    check("j", insertCursor("@#include <QtCore"));
-    check("3j", insertCursor("@int main"));
-    check("4j", insertCursor("@    return app.exec()"));
+    move("j", "@#include <QtCore");
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
 }
+
+void tst_FakeVim::commandRight()
+{
+    setup();
+    move("4j", "@int main");
+    move("l", "i@nt main");
+    move("3l", "int @main");
+    move("50l", "argv[])@");
+}
+
+void tst_FakeVim::commandLeft()
+{
+    setup();
+    move("4j",  "@int main");
+    move("h",   "@int main"); // no move over left border
+    move("$",   "argv[])@");
+    move("h",   "argv[]@)");
+    move("3h",  "arg@v[])");
+    move("50h", "@int main");
+}
+
+void tst_FakeVim::commandW()
+{
+    setup();
+    move("w", "@#include <QtCore");
+    move("w", "#@include <QtCore");
+    move("w", "#include @<QtCore");
+    move("3w", "@#include <QtGui");
+}
+
 
 /*
 #include <QtCore>
