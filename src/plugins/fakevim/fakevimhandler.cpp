@@ -611,12 +611,12 @@ void FakeVimHandler::Private::moveDown(int n)
     // does not work for "hidden" documents like in the autotests
     m_tc.movePosition(Down, MoveAnchor, n);
 #else
-    const QTextBlock &block = m_tc.block();
-    const int col = m_tc.position() - block.position();
-    const int line = block.blockNumber();
-    const int pos = m_tc.document()->findBlockByNumber(line + n).position();
-    setPosition(pos + qMin(block.length(), col));
-    setPosition(pos);
+    const int col = m_tc.position() - m_tc.block().position();
+    const int line = m_tc.block().blockNumber();
+    const QTextBlock &block = m_tc.document()->findBlockByNumber(line + n);
+    const int pos = block.position();
+    setPosition(pos + qMin(block.length() - 1, col));
+    moveToTargetColumn();
 #endif
 }
 
@@ -1675,7 +1675,6 @@ void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
 {
     m_tc = EDITOR(textCursor());
-    init();
     handleExCommand(cmd);
     EDITOR(setTextCursor(m_tc));
 }
@@ -2042,10 +2041,12 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 
 void FakeVimHandler::Private::moveToTargetColumn()
 {
-    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn)
-        m_tc.movePosition(EndOfLine, KeepAnchor);
-    else
+    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn) {
+        const QTextBlock &block = m_tc.block();
+        m_tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    } else {
         m_tc.setPosition(m_tc.block().position() + m_targetColumn, KeepAnchor);
+    }
 }
 
 static int charClass(QChar c, bool simple)
