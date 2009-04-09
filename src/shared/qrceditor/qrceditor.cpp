@@ -177,6 +177,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
     const QString dotdotSlash = QLatin1String("../");
     int i = 0;
     int count = files.count();
+    int initialCount = files.count();
 
     // Find first troublesome file
     for (; i < count; i++) {
@@ -213,10 +214,14 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             message.setWindowTitle(tr("Invalid file"));
             message.setIcon(QMessageBox::Warning);
             QPushButton * const copyButton = message.addButton(tr("Copy"), QMessageBox::ActionRole);
-            QPushButton * const skipButton = message.addButton(tr("Don't add"), QMessageBox::DestructiveRole);
+            QPushButton * skipButton = NULL;
+            if (initialCount > 1)
+            {
+                skipButton = message.addButton(tr("Skip"), QMessageBox::DestructiveRole);
+                message.setEscapeButton(skipButton);
+            }
             QPushButton * const abortButton = message.addButton(tr("Abort"), QMessageBox::RejectRole);
             message.setDefaultButton(copyButton);
-            message.setEscapeButton(skipButton);
             message.setText(tr("The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.")
                             .arg(QDir::toNativeSeparators(file)));
             message.exec();
@@ -226,7 +231,12 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
                 i--; // Compensate i++
             } else if (message.clickedButton() == copyButton) {
                 const QFileInfo fi(file);
-                const QFileInfo suggestion(dir, fi.fileName());
+                QFileInfo suggestion;
+                QDir tmpTarget(dir.path() + QString(QDir::separator()) + QString("Resources"));;
+                if (tmpTarget.exists())
+                    suggestion.setFile(tmpTarget, fi.fileName());
+                else
+                    suggestion.setFile(dir, fi.fileName());
                 const QString copyName = QFileDialog::getSaveFileName(this, tr("Choose copy location"),
                                                                 suggestion.absoluteFilePath());
                 if (!copyName.isEmpty()) {
