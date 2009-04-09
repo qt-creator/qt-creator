@@ -47,6 +47,8 @@
 
 using namespace TextEditor;
 
+extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+
 #if defined (Q_OS_WIN)
 # define NATIVE_LINE_TERMINATOR CRLFLineTerminator
 #else
@@ -140,8 +142,21 @@ bool BaseTextDocument::isReadOnly() const
         return true;
     if (m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;
+
     const QFileInfo fi(m_fileName);
-    return !fi.isWritable();
+
+#ifdef Q_OS_WIN32
+    // be careful when getting info from files on network drives
+    int old_ntfs_permission_lookup = qt_ntfs_permission_lookup;
+    qt_ntfs_permission_lookup = 1;
+#endif
+
+    const int ro = !fi.isWritable();
+
+#ifdef Q_OS_WIN32
+    qt_ntfs_permission_lookup = old_ntfs_permission_lookup;
+#endif
+    return ro;
 }
 
 bool BaseTextDocument::isModified() const
@@ -163,13 +178,9 @@ bool BaseTextDocument::open(const QString &fileName)
         if (!fi.isReadable())
             return false;
 
-        if (!fi.isWritable()) {
-            if (!file.open(QIODevice::ReadOnly))
-                return false;
-        } else {
-            if (!file.open(QIODevice::ReadWrite))
-                return false;
-        }
+        if (!file.open(QIODevice::ReadWrite) && !file.open(QIODevice::ReadOnly))
+            return false;
+
         title = fi.fileName();
 
         QByteArray buf = file.readAll();
