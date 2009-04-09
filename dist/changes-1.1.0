@@ -18,9 +18,6 @@ Editing
    * Improved function argument hint.
    * More checkpoints in editor history.
    * Ctrl-click for jumping to a symbol definition.
-   * Context help for form editor widgets.
-   * Goto slot from form editor now works with multiple inheritance.
-   * Add signal/slot editor to form editor.
    * Improved open documents view (sorted, single-click, close buttons).
    * Copying text from the context help browser and output windows didn't work.
 
@@ -36,7 +33,7 @@ Debugging
      no dumper buildstep anymore.
    * New dumper for std::set. Improved QString, QVariant, std::wstring
    * Make strategy to load shared objects configurable (auto-solib-add).
-   * Maximum stack depth configurable.
+   * Increase number of shown stack frames on request instead of loading them all.
    * Improved interaction in the Locals&Watchers view.
 
 Wizards
@@ -48,6 +45,7 @@ Wizards
 Designer
    * Added signal/slot editor.
    * Fixed "Goto slot" (formatting/multiple inheritance).
+   * Context help for form editor widgets.
 
 Version control plugins
    * Fixed handling of colored git output.
