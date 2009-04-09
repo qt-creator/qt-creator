@@ -3955,9 +3955,23 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
         foreach (const GdbMi &child, children.children())
             handleVarListChildrenHelper(child, data);
 
-        if (!isAccessSpecifier(data.variable.split('.').takeLast())) {
+        if (children.children().isEmpty()) {
+            // happens e.g. if no debug information is present or
+            // if the class really has no children
+            WatchData data1;
+            data1.iname = data.iname + ".child";
+            data1.value = tr("<no information>");
+            data1.childCount = 0;
+            data1.setAllUnneeded();
+            insertData(data1);
+            data.setAllUnneeded();
+            insertData(data);
+        } else if (!isAccessSpecifier(data.variable.split('.').takeLast())) {
             data.setChildrenUnneeded();
             insertData(data);
+        } else {
+            // this skips the spurious "public", "private" etc levels
+            // gdb produces
         }
     } else if (record.resultClass == GdbResultError) {
         data.setError(record.data.findChild("msg").data());
