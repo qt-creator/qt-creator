@@ -43,9 +43,12 @@
 #include <windows.h>
 QT_BEGIN_NAMESPACE
 class QWinEventNotifier;
-class QTemporaryFile;
 QT_END_NAMESPACE
 #endif
+
+QT_BEGIN_NAMESPACE
+class QTemporaryFile;
+QT_END_NAMESPACE
 
 namespace Core {
 namespace Utils {
@@ -102,12 +105,12 @@ private:
     QProcess::ExitStatus m_appStatus;
     QLocalServer m_stubServer;
     QLocalSocket *m_stubSocket;
+    QTemporaryFile *m_tempFile;
 #ifdef Q_OS_WIN
     PROCESS_INFORMATION *m_pid;
     HANDLE m_hInferior;
     QWinEventNotifier *inferiorFinishedNotifier;
     QWinEventNotifier *processFinishedNotifier;
-    QTemporaryFile *m_tempFile;
 #else
     QProcess m_process;
     QByteArray m_stubServerDir;

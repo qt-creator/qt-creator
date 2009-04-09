@@ -72,6 +72,22 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         return false;
     }
 
+    if (!environment().isEmpty()) {
+        m_tempFile = new QTemporaryFile();
+        if (!m_tempFile->open()) {
+            stubServerShutdown();
+            emit processError(tr("Cannot create temp file: %1").arg(m_tempFile->errorString()));
+            delete m_tempFile;
+            m_tempFile = 0;
+            return false;
+        }
+        foreach (const QString &var, environment()) {
+            m_tempFile->write(var.toLocal8Bit());
+            m_tempFile->write("", 1);
+        }
+        m_tempFile->flush();
+    }
+
     QStringList xtermArgs;
     xtermArgs << "-e"
 #ifdef Q_OS_MAC
@@ -82,13 +98,16 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
               << (m_debug ? "debug" : "exec")
               << m_stubServer.fullServerName()
               << tr("Press <RETURN> to close this window...")
-              << workingDirectory() << environment() << ""
+              << workingDirectory()
+              << (m_tempFile ? m_tempFile->fileName() : 0)
               << program << args;
 
     m_process.start(QLatin1String("xterm"), xtermArgs);
     if (!m_process.waitForStarted()) {
         stubServerShutdown();
         emit processError(tr("Cannot start console emulator xterm."));
+        delete m_tempFile;
+        m_tempFile = 0;
         return false;
     }
     m_executable = program;
@@ -173,6 +192,10 @@ void ConsoleProcess::readStubOutput()
             emit processError(tr("Cannot execute %1: %2")
                               .arg(m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
+            // Will not need it any more
+            delete m_tempFile;
+            m_tempFile = 0;
+
             m_appPid = out.mid(4).toInt();
             emit processStarted();
         } else if (out.startsWith("exit ")) {
@@ -199,6 +222,8 @@ void ConsoleProcess::stubExited()
     if (m_stubSocket && m_stubSocket->state() == QLocalSocket::ConnectedState)
         m_stubSocket->waitForDisconnected();
     stubServerShutdown();
+    delete m_tempFile;
+    m_tempFile = 0;
     if (m_appPid) {
         m_appStatus = QProcess::CrashExit;
         m_appCode = -1;
