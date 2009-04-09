@@ -503,11 +503,13 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
 void GitClient::executeGit(const QString &workingDirectory,
                            const QStringList &arguments,
                            VCSBase::VCSBaseEditor* editor,
-                           bool outputToWindow)
+                           bool outputToWindow,
+                           GitCommand::TerminationReportMode tm)
 {
     m_plugin->outputWindow()->append(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow);
     command->addJob(arguments, m_settings.timeout);
+    command->setTerminationReportMode(tm);
     command->execute();
 }
 
@@ -926,12 +928,12 @@ void GitClient::revert(const QStringList &files)
 
 void GitClient::pull(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("pull")), 0, true);
+    executeGit(workingDirectory, QStringList(QLatin1String("pull")), 0, true, GitCommand::ReportStderr);
 }
 
 void GitClient::push(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("push")), 0, true);
+    executeGit(workingDirectory, QStringList(QLatin1String("push")), 0, true, GitCommand::ReportStderr);
 }
 
 QString GitClient::msgNoChangedFiles()

@@ -38,6 +38,8 @@
 #include <QtCore/QProcess>
 #include <QtCore/QFuture>
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 namespace Git {
 namespace Internal {
@@ -51,6 +53,18 @@ static inline QStringList environmentToList(const ProjectExplorer::Environment &
     return ProjectExplorer::Environment::systemEnvironment().toStringList();
 }
 
+static QString msgTermination(int exitCode, const QString &binaryPath, const QStringList &args)
+{
+    QString cmd = QFileInfo(binaryPath).baseName();
+    if (!args.empty()) {
+        cmd += QLatin1Char(' ');
+        cmd += args.front();
+    }
+    return exitCode ?
+            QCoreApplication::translate("GitCommand", "\n'%1' failed (exit code %2).\n").arg(cmd).arg(exitCode) :
+            QCoreApplication::translate("GitCommand", "\n'%1' completed (exit code %2).\n").arg(cmd).arg(exitCode);
+}
+
 GitCommand::Job::Job(const QStringList &a, int t) :
     arguments(a),
     timeout(t)
@@ -62,8 +76,19 @@ GitCommand::GitCommand(const QString &binaryPath,
                         ProjectExplorer::Environment &environment)  :
     m_binaryPath(binaryPath),
     m_workingDirectory(workingDirectory),
-    m_environment(environmentToList(environment))
+    m_environment(environmentToList(environment)),
+    m_reportTerminationMode(NoReport)
 {
+}
+
+GitCommand::TerminationReportMode GitCommand::reportTerminationMode() const
+{
+    return m_reportTerminationMode;
+}
+
+void GitCommand::setTerminationReportMode(TerminationReportMode m)
+{
+    m_reportTerminationMode = m;
 }
 
 void GitCommand::addJob(const QStringList &arguments, int timeout)
@@ -116,6 +141,16 @@ void GitCommand::run()
 
         output += process.readAllStandardOutput();
         error += QString::fromLocal8Bit(process.readAllStandardError());
+        switch (m_reportTerminationMode) {
+        case NoReport:            
+            break;
+        case ReportStdout:
+            output += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments).toUtf8();
+            break;
+        case ReportStderr:
+            error += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments);
+            break;
+        }
     }
 
     // Special hack: Always produce output for diff

@@ -42,6 +42,11 @@ class GitCommand : public QObject
     Q_DISABLE_COPY(GitCommand)
     Q_OBJECT
 public:
+    // Where to report command termination with exit code if desired
+    enum TerminationReportMode { NoReport,
+                                 ReportStdout,  // This assumes UTF8
+                                 ReportStderr };
+
     explicit GitCommand(const QString &binaryPath,
                         const QString &workingDirectory,
                         ProjectExplorer::Environment &environment);
@@ -53,6 +58,10 @@ public:
     // Clean output from carriage return and ANSI color codes.
     // Workaround until all relevant commands support "--no-color".
     static void removeColorCodes(QByteArray *data);
+
+    // Report command termination with exit code
+    TerminationReportMode reportTerminationMode() const;
+    void setTerminationReportMode(TerminationReportMode m);
 
 private:
     void run();
@@ -74,6 +83,7 @@ private:
     const QStringList m_environment;
 
     QList<Job> m_jobs;
+    TerminationReportMode m_reportTerminationMode;
 };
 
 } // namespace Internal

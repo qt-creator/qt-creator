@@ -31,6 +31,7 @@
 #define GITCLIENT_H
 
 #include "gitsettings.h"
+#include "gitcommand.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -159,7 +160,8 @@ private:
     void executeGit(const QString &workingDirectory,
                     const QStringList &arguments,
                     VCSBase::VCSBaseEditor* editor = 0,
-                    bool outputToWindow = false);
+                    bool outputToWindow = false,
+                    GitCommand::TerminationReportMode tm = GitCommand::NoReport);
 
     bool synchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,
