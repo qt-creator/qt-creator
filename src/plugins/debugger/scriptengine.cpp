@@ -489,8 +489,8 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
-            "Cowardly refusing to evaluate expression '" + exp
-                + "' with potential side effects");
+            tr("Cowardly refusing to evaluate expression '%1' "
+               "with potential side effects").arg(exp));
         return;
     }
 

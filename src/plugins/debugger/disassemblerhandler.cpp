@@ -121,13 +121,11 @@ QVariant DisassemblerModel::headerData(int section, Qt::Orientation orientation,
     int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static const char * const headers[] = {
-            QT_TR_NOOP("Address"),
-            QT_TR_NOOP("Symbol"),
-            QT_TR_NOOP("Mnemonic"),
+        switch (section) {
+            case 1: return DisassemblerHandler::tr("Address");
+            case 2: return DisassemblerHandler::tr("Symbol");
+            case 3: return DisassemblerHandler::tr("Mnemonic");
         };
-        if (section < 3)
-            return tr(headers[section]);
     }
     return QVariant();
 }

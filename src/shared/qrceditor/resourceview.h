@@ -84,10 +84,10 @@ public:
     };
 
     ResourceView(QUndoStack *history, QWidget *parent = 0);
-    ~ResourceView(void);
+    ~ResourceView();
 
-    bool load(QString fileName);
-    bool save(void);
+    bool load(const QString &fileName);
+    bool save();
     QString fileName() const;
     void setFileName(const QString &fileName);
 
@@ -114,9 +114,9 @@ public:
     bool defaultAddFileEnabled() const;
 
     void findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const;
-    EntryBackup * removeEntry(const QModelIndex &index);
+    EntryBackup *removeEntry(const QModelIndex &index);
     void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
-            int &firstFile, int &lastFile);
+                  int &firstFile, int &lastFile);
     void removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex);
     QStringList fileNamesToAdd();
     QModelIndex addPrefix();
@@ -158,8 +158,8 @@ public:
     void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
 
 private:
-    void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property, const QString &before,
-            const QString &after);
+    void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
+                        const QString &before, const QString &after);
 
     QPoint m_releasePos;
 

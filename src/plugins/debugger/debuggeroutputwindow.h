@@ -46,7 +46,7 @@ public:
     DebuggerOutputWindow(QWidget *parent = 0);
 
     QWidget *outputWidget(QWidget *) { return this; }
-    QList<QWidget*> toolBarWidgets(void) const { return QList<QWidget *>(); }
+    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
 
     QString name() const { return windowTitle(); }
     void visibilityChanged(bool /*visible*/) {}

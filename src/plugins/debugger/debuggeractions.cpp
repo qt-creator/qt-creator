@@ -96,16 +96,7 @@ QString DebuggerSettings::dump()
     return out;
 }
 
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-// Debugger specific actions and settings
-//
-//////////////////////////////////////////////////////////////////////////
-
-
-DebuggerSettings *theDebuggerSettings()
+DebuggerSettings *DebuggerSettings::instance()
 {
     static DebuggerSettings *instance = 0;
     if (instance)
@@ -117,18 +108,18 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new SavedAction(instance);
     instance->insertItem(SettingsDialog, item);
-    item->setText(QObject::tr("Debugger properties..."));
+    item->setText(tr("Debugger properties..."));
 
     //
     // View
     //
     item = new SavedAction(instance);
     instance->insertItem(AdjustColumnWidths, item);
-    item->setText(QObject::tr("Adjust column widths to contents"));
+    item->setText(tr("Adjust column widths to contents"));
 
     item = new SavedAction(instance);
     instance->insertItem(AlwaysAdjustColumnWidths, item);
-    item->setText(QObject::tr("Always adjust column widths to contents"));
+    item->setText(tr("Always adjust column widths to contents"));
     item->setCheckable(true);
 
     //
@@ -136,15 +127,15 @@ DebuggerSettings *theDebuggerSettings()
     //
     item = new SavedAction(instance);
     instance->insertItem(WatchExpression, item);
-    item->setTextPattern(QObject::tr("Watch expression \"%1\""));
+    item->setTextPattern(tr("Watch expression \"%1\""));
 
     item = new SavedAction(instance);
     instance->insertItem(RemoveWatchExpression, item);
-    item->setTextPattern(QObject::tr("Remove watch expression \"%1\""));
+    item->setTextPattern(tr("Remove watch expression \"%1\""));
 
     item = new SavedAction(instance);
     instance->insertItem(WatchExpressionInWindow, item);
-    item->setTextPattern(QObject::tr("Watch expression \"%1\" in separate window"));
+    item->setTextPattern(tr("Watch expression \"%1\" in separate window"));
 
     item = new SavedAction(instance);
     instance->insertItem(AssignValue, item);
@@ -154,11 +145,11 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new SavedAction(instance);
     instance->insertItem(ExpandItem, item);
-    item->setText(QObject::tr("Expand item"));
+    item->setText(tr("Expand item"));
 
     item = new SavedAction(instance);
     instance->insertItem(CollapseItem, item);
-    item->setText(QObject::tr("Collapse item"));
+    item->setText(tr("Collapse item"));
 
     //
     // DebuggingHelper
@@ -167,7 +158,7 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
     item->setSettingsKey("DebugMode", "UseDebuggingHelper");
-    item->setText(QObject::tr("Use Debugging Helper"));
+    item->setText(tr("Use Debugging Helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
 
@@ -183,19 +174,19 @@ DebuggerSettings *theDebuggerSettings()
     item = new SavedAction(instance);
     instance->insertItem(DebugDebuggingHelpers, item);
     item->setSettingsKey("DebugMode", "DebugDebuggingHelpers");
-    item->setText(QObject::tr("Debug debugging helper"));
+    item->setText(tr("Debug debugging helper"));
     item->setCheckable(true);
 
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Recheck debugging helper availability"));
+    item->setText(tr("Recheck debugging helper availability"));
     instance->insertItem(RecheckDebuggingHelpers, item);
 
     //
     // Breakpoints
     //
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Syncronize breakpoints"));
+    item->setText(tr("Syncronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
     //
@@ -206,7 +197,7 @@ DebuggerSettings *theDebuggerSettings()
     registerFormatGroup->setExclusive(true);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Hexadecimal"));
+    item->setText(tr("Hexadecimal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatHexadecimal");
     item->setChecked(true);
@@ -214,35 +205,35 @@ DebuggerSettings *theDebuggerSettings()
     registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Decimal"));
+    item->setText(tr("Decimal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatDecimal");
     instance->insertItem(FormatDecimal, item);
     registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Octal"));
+    item->setText(tr("Octal"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatOctal");
     instance->insertItem(FormatOctal, item);
     registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Binary"));
+    item->setText(tr("Binary"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatBinary");
     instance->insertItem(FormatBinary, item);
     registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Raw"));
+    item->setText(tr("Raw"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatRaw");
     instance->insertItem(FormatRaw, item);
     registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Natural"));
+    item->setText(tr("Natural"));
     item->setCheckable(true);
     item->setSettingsKey("DebugMode", "FormatNatural");
     instance->insertItem(FormatNatural, item);
@@ -266,13 +257,13 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "AutoQuit");
-    item->setText(QObject::tr("Automatically quit debugger"));
+    item->setText(tr("Automatically quit debugger"));
     item->setCheckable(true);
     instance->insertItem(AutoQuit, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "UseToolTips");
-    item->setText(QObject::tr("Use tooltips when debugging"));
+    item->setText(tr("Use tooltips when debugging"));
     item->setCheckable(true);
     instance->insertItem(UseToolTips, item);
 
@@ -283,13 +274,13 @@ DebuggerSettings *theDebuggerSettings()
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
-    item->setText(QObject::tr("List source files"));
+    item->setText(tr("List source files"));
     item->setCheckable(true);
     instance->insertItem(ListSourceFiles, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "SkipKnownFrames");
-    item->setText(QObject::tr("Skip known frames"));
+    item->setText(tr("Skip known frames"));
     item->setCheckable(true);
     instance->insertItem(SkipKnownFrames, item);
 
@@ -315,29 +306,35 @@ DebuggerSettings *theDebuggerSettings()
     instance->insertItem(MaximalStackDepth, item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Reload full stack"));
+    item->setText(tr("Reload full stack"));
     instance->insertItem(ExpandStack, item);
 
     item = new SavedAction(instance);
-    item->setText(QObject::tr("Execute line"));
+    item->setText(tr("Execute line"));
     instance->insertItem(ExecuteCommand, item);
 
     return instance;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//
+// DebuggerActions
+//
+//////////////////////////////////////////////////////////////////////////
+
 SavedAction *theDebuggerAction(int code)
 {
-    return theDebuggerSettings()->item(code);
+    return DebuggerSettings::instance()->item(code);
 }
 
 bool theDebuggerBoolSetting(int code)
 {
-    return theDebuggerSettings()->item(code)->value().toBool();
+    return DebuggerSettings::instance()->item(code)->value().toBool();
 }
 
 QString theDebuggerStringSetting(int code)
 {
-    return theDebuggerSettings()->item(code)->value().toString();
+    return DebuggerSettings::instance()->item(code)->value().toString();
 }
 
 } // namespace Internal

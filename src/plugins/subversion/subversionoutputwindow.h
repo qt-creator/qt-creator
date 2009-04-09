@@ -50,7 +50,7 @@ public:
     ~SubversionOutputWindow();
 
     QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets(void) const {
+    QList<QWidget*> toolBarWidgets() const {
         return QList<QWidget *>();
     }
 

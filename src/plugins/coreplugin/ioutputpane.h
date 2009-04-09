@@ -47,7 +47,7 @@ public:
     virtual ~IOutputPane() {}
 
     virtual QWidget *outputWidget(QWidget *parent) = 0;
-    virtual QList<QWidget*> toolBarWidgets(void) const = 0;
+    virtual QList<QWidget*> toolBarWidgets() const = 0;
     virtual QString name() const = 0;
 
     // -1 don't show in statusBar

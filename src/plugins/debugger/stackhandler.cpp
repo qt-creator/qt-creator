@@ -53,10 +53,11 @@ bool StackFrame::isUsable() const
 ////////////////////////////////////////////////////////////////////////
 
 StackHandler::StackHandler(QObject *parent)
-  : QAbstractTableModel(parent), m_currentIndex(0)
+  : QAbstractTableModel(parent),
+    m_positionIcon(QIcon(":/gdbdebugger/images/location.svg")),
+    m_emptyIcon(QIcon(":/gdbdebugger/images/empty.svg"))
 {
-    m_emptyIcon = QIcon(":/gdbdebugger/images/empty.svg");
-    m_positionIcon = QIcon(":/gdbdebugger/images/location.svg");
+    m_currentIndex = 0;
     m_canExpand = false;
 }
 
@@ -78,7 +79,11 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 
     if (index.row() == m_stackFrames.size()) {
         if (role == Qt::DisplayRole && index.column() == 0) 
-            return "<...>";
+            return tr("...");
+        if (role == Qt::DisplayRole && index.column() == 1) 
+            return tr("<More>");
+        if (role == Qt::DecorationRole && index.column() == 0)
+            return m_emptyIcon;
         return QVariant();
     }
 
@@ -115,15 +120,13 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 QVariant StackHandler::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static const char * const headers[] = {
-            QT_TR_NOOP("Level"),
-            QT_TR_NOOP("Function"),
-            QT_TR_NOOP("File"),
-            QT_TR_NOOP("Line"),
-            QT_TR_NOOP("Address")
+        switch (section) {
+            case 0: return tr("Level");
+            case 1: return tr("Function");
+            case 2: return tr("File");
+            case 3: return tr("Line");
+            case 4: return tr("Address");
         };
-        if (section < 5)
-            return tr(headers[section]);
     }
     return QVariant();
 }
@@ -229,7 +232,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return "???";
         }
     } else if (role == Qt::ToolTipRole) {
-        return "Thread: " + QString::number(m_threads.at(index.row()).id);
+        return tr("Thread: %1").arg(m_threads.at(index.row()).id);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
@@ -241,11 +244,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static const char * const headers[] = {
-            QT_TR_NOOP("Thread ID"),
-        };
         if (section < 1)
-            return tr(headers[section]);
+            return tr("Thread ID");
     }
     return QVariant();
 }

@@ -2,13 +2,11 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::RemoveFileDialog</class>
  <widget class="QDialog" name="ProjectExplorer::Internal::RemoveFileDialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>237</width>
-    <height>171</height>
-   </rect>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Remove File</string>
@@ -16,13 +14,25 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="fileToDeleteLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
-      <string>File to delete:</string>
+      <string>File to remove:</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="fileNameLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="font">
       <font>
        <family>Courier New</family>
@@ -65,6 +75,12 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -75,27 +91,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../libs/cplusplus/cplusplus.qrc"/>
-  <include location="../../libs/extensionsystem/pluginview.qrc"/>
-  <include location="../bookmarks/bookmarks.qrc"/>
-  <include location="../coreplugin/core.qrc"/>
-  <include location="../coreplugin/fancyactionbar.qrc"/>
-  <include location="../cppeditor/cppeditor.qrc"/>
-  <include location="../cpptools/cpptools.qrc"/>
-  <include location="../designer/designer.qrc"/>
-  <include location="../find/find.qrc"/>
-  <include location="../gdbdebugger/gdbdebugger.qrc"/>
-  <include location="../help/help.qrc"/>
-  <include location="../perforce/perforce.qrc"/>
-  <include location="projectexplorer.qrc"/>
-  <include location="../../../shared/proparser/proparser.qrc"/>
-  <include location="../qt4projectmanager/qt4projectmanager.qrc"/>
-  <include location="../qt4projectmanager/wizards/wizards.qrc"/>
-  <include location="../quickopen/quickopen.qrc"/>
-  <include location="../resourceeditor/resourceeditor.qrc"/>
-  <include location="../texteditor/texteditor.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

@@ -293,7 +293,7 @@ static QList<WatchData> initialSet()
     root.state = 0;
     root.level = 0;
     root.row = 0;
-    root.name = QLatin1String("Root");
+    root.name = WatchHandler::tr("Root");
     root.parentIndex = -1;
     root.childIndex.append(1);
     root.childIndex.append(2);
@@ -302,7 +302,7 @@ static QList<WatchData> initialSet()
 
     WatchData local;
     local.iname = QLatin1String("local");
-    local.name = QLatin1String("Locals");
+    local.name = WatchHandler::tr("Locals");
     local.state = 0;
     local.level = 1;
     local.row = 0;
@@ -311,7 +311,7 @@ static QList<WatchData> initialSet()
 
     WatchData tooltip;
     tooltip.iname = QLatin1String("tooltip");
-    tooltip.name = QLatin1String("Tooltip");
+    tooltip.name = WatchHandler::tr("Tooltip");
     tooltip.state = 0;
     tooltip.level = 1;
     tooltip.row = 1;
@@ -320,7 +320,7 @@ static QList<WatchData> initialSet()
 
     WatchData watch;
     watch.iname = QLatin1String("watch");
-    watch.name = QLatin1String("Watchers");
+    watch.name = WatchHandler::tr("Watchers");
     watch.state = 0;
     watch.level = 1;
     watch.row = 2;
@@ -711,13 +711,13 @@ void WatchHandler::rebuildModel()
                 dummy.row = 0;
                 if (i == 1) {
                     dummy.iname = QLatin1String("local.dummy");
-                    dummy.name  = QLatin1String("<No Locals>");
+                    dummy.name  = tr("<No Locals>");
                 } else if (i == 2) {
                     dummy.iname = QLatin1String("tooltip.dummy");
-                    dummy.name  = QLatin1String("<No Tooltip>");
+                    dummy.name  = tr("<No Tooltip>");
                 } else {
                     dummy.iname = QLatin1String("watch.dummy");
-                    dummy.name  = QLatin1String("<No Watchers>");
+                    dummy.name  = tr("<No Watchers>");
                 }
                 dummy.level = 2;
                 dummy.parentIndex = i;

@@ -265,9 +265,14 @@ int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor)
             break;
         else if (tk.is(T_LPAREN))
             return startPosition + tk.position();
-        else if (tk.is(T_RPAREN))
-            index = startOfMatchingBrace(tokens, index);
-        else
+        else if (tk.is(T_RPAREN)) {
+            int matchingBrace = startOfMatchingBrace(tokens, index);
+
+            if (matchingBrace == index) // If no matching brace found
+                return -1;
+
+            index = matchingBrace;
+        } else
             --index;
     }
 

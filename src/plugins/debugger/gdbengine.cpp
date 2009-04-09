@@ -47,6 +47,7 @@
 #include "debuggerdialogs.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -60,6 +61,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolTip>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QPushButton>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <unistd.h>
@@ -232,6 +235,8 @@ void GdbEngine::initializeConnections()
         this, SLOT(reloadRegisters()));
 
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
+    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
 }
 
@@ -1534,7 +1539,7 @@ int GdbEngine::currentFrame() const
 
 bool GdbEngine::startDebugger()
 {
-    debugMessage(theDebuggerSettings()->dump());
+    debugMessage(DebuggerSettings::instance()->dump());
     QStringList gdbArgs;
 
     if (m_gdbProc.state() != QProcess::NotRunning) {
@@ -2727,7 +2732,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
     if (!hasLetterOrNumber(exp)) {
         QToolTip::showText(m_toolTipPos,
-            "'" + exp + "' contains no identifier");
+            tr("'%1' contains no identifier").arg(exp));
         return;
     }
 
@@ -2750,8 +2755,8 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
-            "Cowardly refusing to evaluate expression '" + exp
-                + "' with potential side effects");
+            tr("Cowardly refusing to evaluate expression '%1' "
+               "with potential side effects").arg(exp));
         return;
     }
 
@@ -2763,7 +2768,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
             qDebug() << "THIS IN ROW " << i;
             if (m_currentLocals.childAt(i).type.startsWith(exp)) {
                 QToolTip::showText(m_toolTipPos,
-                    exp + ": type of current 'this'");
+                    tr("%1: type of current 'this'").arg(exp));
                 qDebug() << " TOOLTIP CRASH SUPPRESSED";
                 return;
             }
@@ -3001,12 +3006,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     } else if (outertype == m_namespace + "QObjectSlot"
             || outertype == m_namespace + "QObjectSignal") {
         // we need the number out of something like
-        // iname="local.ob.slots.[2]deleteLater()"
-        int lastOpened = data.iname.lastIndexOf('[');
-        int lastClosed = data.iname.lastIndexOf(']');
-        QString slotNumber = "-1";
-        if (lastOpened != -1 && lastClosed != -1)
-            slotNumber = data.iname.mid(lastOpened + 1, lastClosed - lastOpened - 1);
+        // iname="local.ob.slots.2" // ".deleteLater()"?
+        int pos = data.iname.lastIndexOf('.');
+        QString slotNumber = data.iname.mid(pos + 1);
+        QTC_ASSERT(slotNumber.toInt() != -1, /**/);
         extraArgs[0] = slotNumber;
     } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
         QString nodetype;
@@ -3329,7 +3332,7 @@ void GdbEngine::updateWatchModel2()
                     "(" + data->type + ") " + data->exp + " = " + data->value);
         } else {
             QToolTip::showText(m_toolTipPos,
-                "Cannot evaluate expression: " + m_toolTipExpression);
+                tr("Cannot evaluate expression: %1").arg(m_toolTipExpression));
         }
     }
 }
@@ -3952,9 +3955,23 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
         foreach (const GdbMi &child, children.children())
             handleVarListChildrenHelper(child, data);
 
-        if (!isAccessSpecifier(data.variable.split('.').takeLast())) {
+        if (children.children().isEmpty()) {
+            // happens e.g. if no debug information is present or
+            // if the class really has no children
+            WatchData data1;
+            data1.iname = data.iname + ".child";
+            data1.value = tr("<no information>");
+            data1.childCount = 0;
+            data1.setAllUnneeded();
+            insertData(data1);
+            data.setAllUnneeded();
+            insertData(data);
+        } else if (!isAccessSpecifier(data.variable.split('.').takeLast())) {
             data.setChildrenUnneeded();
             insertData(data);
+        } else {
+            // this skips the spurious "public", "private" etc levels
+            // gdb produces
         }
     } else if (record.resultClass == GdbResultError) {
         data.setError(record.data.findChild("msg").data());
@@ -4040,6 +4057,29 @@ QString GdbEngine::dumperLibraryName() const
     return q->m_dumperLib;
 }
 
+void GdbEngine::showDebuggingHelperWarning()
+{
+    QMessageBox dialog(q->mainWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"), QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(tr("Turn helper usage off"), QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(tr("Continue anyway"), QMessageBox::AcceptRole);
+    dialog.setDefaultButton(justContinue);
+    dialog.setWindowTitle(tr("Debugging helper missing"));
+    dialog.setText(tr("The debugger did not find the debugging helper library."));
+    dialog.setInformativeText(tr("The debugging helper is used to nicely format the values of Qt "
+                                 "data types and some STL data types. "
+                                 "It must be compiled for each Qt version, "
+                                 "you can do this in the Qt preferences page by selecting "
+                                 "a Qt installation and clicking on 'Rebuild' for the debugging "
+                                 "helper."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog("Qt4", "Qt Versions");
+    } else if (dialog.clickedButton() == helperOff) {
+        theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
+    }
+}
+
 void GdbEngine::tryLoadDebuggingHelpers()
 {
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
@@ -4055,6 +4095,8 @@ void GdbEngine::tryLoadDebuggingHelpers()
             " %1  EXISTS: %2, EXECUTABLE: %3").arg(lib)
             .arg(QFileInfo(lib).exists())
             .arg(QFileInfo(lib).isExecutable()));
+        if (theDebuggerBoolSetting(UseDebuggingHelpers))
+            showDebuggingHelperWarning();
         return;
     }
 

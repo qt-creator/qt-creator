@@ -37,9 +37,11 @@
 using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
-  : QAbstractItemModel(parent), m_lastAppendedResultFile(0)
+    : QAbstractItemModel(parent)
+    , m_lastAppendedResultFile(0)
 {
     m_rootItem = new SearchResultTreeItem();
+    m_textEditorFont = QFont("Courier");
 }
 
 SearchResultTreeModel::~SearchResultTreeModel()
@@ -47,8 +49,13 @@ SearchResultTreeModel::~SearchResultTreeModel()
     delete m_rootItem;
 }
 
+void SearchResultTreeModel::setTextEditorFont(const QFont &font)
+{
+    m_textEditorFont = font;
+}
+
 QModelIndex SearchResultTreeModel::index(int row, int column,
-                          const QModelIndex &parent) const
+                                         const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -60,7 +67,7 @@ QModelIndex SearchResultTreeModel::index(int row, int column,
     else
         parentItem = static_cast<const SearchResultTreeItem*>(parent.internalPointer());
 
-    const SearchResultTreeItem *childItem = parentItem->getChild(row);
+    const SearchResultTreeItem *childItem = parentItem->childAt(row);
     if (childItem)
         return createIndex(row, column, (void *)childItem);
     else
@@ -73,12 +80,12 @@ QModelIndex SearchResultTreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
 
     const SearchResultTreeItem *childItem = static_cast<const SearchResultTreeItem*>(index.internalPointer());
-    const SearchResultTreeItem *parentItem = childItem->getParent();
+    const SearchResultTreeItem *parentItem = childItem->parent();
 
     if (parentItem == m_rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->getRowOfItem(), 0, (void *)parentItem);
+    return createIndex(parentItem->rowOfItem(), 0, (void *)parentItem);
 }
 
 int SearchResultTreeModel::rowCount(const QModelIndex &parent) const
@@ -93,7 +100,7 @@ int SearchResultTreeModel::rowCount(const QModelIndex &parent) const
     else
         parentItem = static_cast<const SearchResultTreeItem*>(parent.internalPointer());
 
-    return parentItem->getChildrenCount();
+    return parentItem->childrenCount();
 }
 
 int SearchResultTreeModel::columnCount(const QModelIndex &parent) const
@@ -111,12 +118,12 @@ QVariant SearchResultTreeModel::data(const QModelIndex &index, int role) const
 
     QVariant result;
 
-    if (item->getItemType() == SearchResultTreeItem::resultRow)
+    if (item->itemType() == SearchResultTreeItem::ResultRow)
     {
         const SearchResultTextRow *row = static_cast<const SearchResultTextRow *>(item);
         result = data(row, role);
     }
-    else if (item->getItemType() == SearchResultTreeItem::resultFile)
+    else if (item->itemType() == SearchResultTreeItem::ResultFile)
     {
         const SearchResultFile *file = static_cast<const SearchResultFile *>(item);
         result = data(file, role);
@@ -135,7 +142,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
         result = row->rowText().trimmed();
         break;
     case Qt::FontRole:
-        result = QFont("courier");
+        result = m_textEditorFont;
         break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
@@ -158,8 +165,8 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
         break;
     case ItemDataRoles::FileNameRole:
         {
-            const SearchResultFile *file = dynamic_cast<const SearchResultFile *>(row->getParent());
-            result = file->getFileName();
+            const SearchResultFile *file = dynamic_cast<const SearchResultFile *>(row->parent());
+            result = file->fileName();
             break;
         }
     default:
@@ -179,22 +186,15 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
     case Qt::BackgroundRole:
         result = QColor(qRgb(245, 245, 245));
         break;
-    case Qt::FontRole:
-        {
-            QFont font;
-            font.setPointSize(font.pointSize() + 1);
-            result = font;
-            break;
-        }
     case Qt::DisplayRole:
-        result = file->getFileName() + " (" + QString::number(file->getChildrenCount()) + ")";
+        result = file->fileName() + " (" + QString::number(file->childrenCount()) + ")";
         break;
     case ItemDataRoles::FileNameRole:
     case Qt::ToolTipRole:
-        result = file->getFileName();
+        result = file->fileName();
         break;
     case ItemDataRoles::ResultLinesCountRole:
-        result = file->getChildrenCount();
+        result = file->childrenCount();
         break;
     case ItemDataRoles::TypeRole:
         result = "file";
@@ -220,20 +220,20 @@ void SearchResultTreeModel::appendResultFile(const QString &fileName)
 {
     m_lastAppendedResultFile = new SearchResultFile(fileName, m_rootItem);
 
-    beginInsertRows(QModelIndex(), m_rootItem->getChildrenCount(), m_rootItem->getChildrenCount());
+    beginInsertRows(QModelIndex(), m_rootItem->childrenCount(), m_rootItem->childrenCount());
     m_rootItem->appendChild(m_lastAppendedResultFile);
     endInsertRows();
 }
 
-void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-    int searchTermLength)
+void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QString &rowText,
+                                             int searchTermStart, int searchTermLength)
 {
     if (!m_lastAppendedResultFile)
         return;
 
-    QModelIndex lastFile(createIndex(m_lastAppendedResultFile->getRowOfItem(), 0, m_lastAppendedResultFile));
+    QModelIndex lastFile(createIndex(m_lastAppendedResultFile->rowOfItem(), 0, m_lastAppendedResultFile));
 
-    beginInsertRows(lastFile, m_lastAppendedResultFile->getChildrenCount(), m_lastAppendedResultFile->getChildrenCount());
+    beginInsertRows(lastFile, m_lastAppendedResultFile->childrenCount(), m_lastAppendedResultFile->childrenCount());
     m_lastAppendedResultFile->appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
     endInsertRows();
 
@@ -241,15 +241,15 @@ void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QS
 }
 
 void SearchResultTreeModel::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-    int searchTermStart, int searchTermLength)
+                                             int searchTermStart, int searchTermLength)
 {
-    if (!m_lastAppendedResultFile || (m_lastAppendedResultFile->getFileName() != fileName))
+    if (!m_lastAppendedResultFile || (m_lastAppendedResultFile->fileName() != fileName))
         appendResultFile(fileName);
 
     appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
 }
 
-void SearchResultTreeModel::clear(void)
+void SearchResultTreeModel::clear()
 {
     m_lastAppendedResultFile = NULL;
     m_rootItem->clearChildren();

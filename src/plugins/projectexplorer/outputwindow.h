@@ -61,7 +61,7 @@ public:
     ~OutputPane();
 
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets(void) const;
+    QList<QWidget*> toolBarWidgets() const;
     QString name() const;
     int priorityInStatusBar() const;
     void clearContents();

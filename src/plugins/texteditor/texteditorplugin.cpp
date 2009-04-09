@@ -48,6 +48,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <find/searchresultwindow.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
@@ -63,7 +64,8 @@ TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
     m_wizard(0),
     m_editorFactory(0),
-    m_lineNumberFilter(0)
+    m_lineNumberFilter(0),
+    m_searchResultWindow(0)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -137,6 +139,13 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 void TextEditorPlugin::extensionsInitialized()
 {
     m_editorFactory->actionHandler()->initializeActions();
+
+    m_searchResultWindow = ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>();
+
+    connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));
+
+    updateSearchResultsFont(m_settings->fontSettings());
 }
 
 void TextEditorPlugin::initializeEditor(PlainTextEditor *editor)
@@ -155,5 +164,10 @@ void TextEditorPlugin::invokeCompletion()
         editor->triggerCompletions();
 }
 
+void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
+{
+    if (m_searchResultWindow)
+        m_searchResultWindow->setTextEditorFont(QFont(settings.family(), settings.fontSize()));
+}
 
 Q_EXPORT_PLUGIN(TextEditorPlugin)

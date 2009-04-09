@@ -48,7 +48,7 @@ public:
     ~MessageOutputWindow();
 
     QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets(void) const { return QList<QWidget *>(); }
+    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
 
     QString name() const;
     int priorityInStatusBar() const;

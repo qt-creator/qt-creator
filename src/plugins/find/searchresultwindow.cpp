@@ -82,6 +82,43 @@ SearchResultWindow::~SearchResultWindow()
     m_items.clear();
 }
 
+void SearchResultWindow::visibilityChanged(bool /*visible*/)
+{
+}
+
+QWidget *SearchResultWindow::outputWidget(QWidget *)
+{
+    return m_widget;
+}
+
+QList<QWidget*> SearchResultWindow::toolBarWidgets() const
+{
+    return QList<QWidget*>() << m_expandCollapseToolButton;
+}
+
+void SearchResultWindow::clearContents()
+{
+    m_widget->setCurrentWidget(m_searchResultTreeView);
+    m_searchResultTreeView->clear();
+    qDeleteAll(m_items);
+    m_items.clear();
+}
+
+void SearchResultWindow::showNoMatchesFound()
+{
+    m_widget->setCurrentWidget(m_noMatchesFoundDisplay);
+}
+
+bool SearchResultWindow::isEmpty() const
+{
+    return (m_searchResultTreeView->model()->rowCount() < 1);
+}
+
+int SearchResultWindow::numberOfResults() const
+{
+    return m_searchResultTreeView->model()->rowCount();
+}
+
 bool SearchResultWindow::hasFocus()
 {
     return m_searchResultTreeView->hasFocus();
@@ -98,41 +135,9 @@ void SearchResultWindow::setFocus()
         m_searchResultTreeView->setFocus();
 }
 
-void SearchResultWindow::visibilityChanged(bool /*visible*/)
+void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
-}
-
-QWidget *SearchResultWindow::outputWidget(QWidget *)
-{
-    return m_widget;
-}
-
-QList<QWidget*> SearchResultWindow::toolBarWidgets(void) const
-{
-    return QList<QWidget*>() << m_expandCollapseToolButton;
-}
-
-void SearchResultWindow::clearContents()
-{
-    m_widget->setCurrentWidget(m_searchResultTreeView);
-    m_searchResultTreeView->clear();
-    qDeleteAll(m_items);
-    m_items.clear();
-}
-
-void SearchResultWindow::showNoMatchesFound(void)
-{
-    m_widget->setCurrentWidget(m_noMatchesFoundDisplay);
-}
-
-bool SearchResultWindow::isEmpty() const
-{
-    return (m_searchResultTreeView->model()->rowCount() < 1);
-}
-
-int SearchResultWindow::numberOfResults() const
-{
-    return m_searchResultTreeView->model()->rowCount();
+    m_searchResultTreeView->setTextEditorFont(font);
 }
 
 void SearchResultWindow::handleJumpToSearchResult(int index, const QString &fileName, int lineNumber,
@@ -169,7 +174,7 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
         m_searchResultTreeView->collapseAll();
 }
 
-void SearchResultWindow::readSettings(void)
+void SearchResultWindow::readSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
@@ -179,7 +184,7 @@ void SearchResultWindow::readSettings(void)
     }
 }
 
-void SearchResultWindow::writeSettings(void)
+void SearchResultWindow::writeSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {

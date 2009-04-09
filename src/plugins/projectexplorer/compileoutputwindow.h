@@ -47,7 +47,7 @@ class CompileOutputWindow : public Core::IOutputPane
 public:
     CompileOutputWindow(BuildManager *bm);
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets(void) const { return QList<QWidget *>(); }
+    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
     QString name() const { return tr("Compile Output"); }
     int priorityInStatusBar() const;
     void clearContents();

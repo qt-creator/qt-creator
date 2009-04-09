@@ -226,7 +226,7 @@ QWidget *Qt4RunConfiguration::configurationWidget()
 
 void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
 {
-    QDir projectDir(QFileInfo(project()->file()->fileName()).absoluteDir());
+    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     writer.saveValue("CommandLineArguments", m_commandLineArguments);
     writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
     writer.saveValue("UserSetName", m_userSetName);
@@ -238,7 +238,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
 void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
 {    
     ApplicationRunConfiguration::restore(reader);
-    QDir projectDir(QFileInfo(project()->file()->fileName()).absoluteDir());
+    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
     m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
     m_userSetName = reader.restoreValue("UserSetName").toBool();

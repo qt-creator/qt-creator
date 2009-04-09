@@ -50,6 +50,8 @@ public:
 
     QString dump();
 
+    static DebuggerSettings *instance();
+
 public slots:
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);
@@ -121,7 +123,6 @@ enum DebuggerActionCode
 };
 
 // singleton access
-DebuggerSettings *theDebuggerSettings();
 Core::Utils::SavedAction *theDebuggerAction(int code);
 
 // convienience

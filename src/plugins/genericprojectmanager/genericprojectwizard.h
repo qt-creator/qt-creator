@@ -64,6 +64,8 @@ public:
     virtual ~GenericProjectWizardDialog();
 
     QString path() const;
+    void setPath(const QString &path);
+
     QString projectName() const;
 
 private Q_SLOTS:

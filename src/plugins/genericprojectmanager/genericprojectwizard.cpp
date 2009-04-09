@@ -50,7 +50,7 @@ using namespace Core::Utils;
 
 namespace {
 
-class DirModel: public QDirModel
+class DirModel : public QDirModel
 {
 public:
     DirModel(QObject *parent)
@@ -121,11 +121,11 @@ private:
 GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     : QWizard(parent)
 {
-    setWindowTitle(tr("Import Existing Project"));
+    setWindowTitle(tr("Import of Makefile-based Project"));
 
     // first page
     m_firstPage = new FileWizardPage;
-    m_firstPage->setTitle(tr("Import Project"));
+    m_firstPage->setTitle(tr("Generic Project"));
     m_firstPage->setNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
@@ -178,6 +178,11 @@ QString GenericProjectWizardDialog::path() const
     return m_firstPage->path();
 }
 
+void GenericProjectWizardDialog::setPath(const QString &path)
+{
+    m_firstPage->setPath(path);
+}
+
 QString GenericProjectWizardDialog::projectName() const
 {
     return m_firstPage->name();
@@ -201,6 +206,7 @@ void GenericProjectWizardDialog::updateFilesView(const QModelIndex &current,
 
 void GenericProjectWizardDialog::initializePage(int id)
 {
+    Q_UNUSED(id)
 #if 0
     if (id == m_secondPageId) {
         using namespace Core::Utils;
@@ -237,8 +243,8 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(":/wizards/images/console.png"));
-    parameters.setName(tr("Existing Project"));
-    parameters.setDescription(tr("Import Existing Project"));
+    parameters.setName(tr("Import of Makefile-based Project"));
+    parameters.setDescription(tr("Creates a generic project, supporting any build system."));
     parameters.setCategory(QLatin1String("Projects"));
     parameters.setTrCategory(tr("Projects"));
     return parameters;
@@ -250,6 +256,8 @@ QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
 {
     GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
     setupWizard(wizard);
+
+    wizard->setPath(defaultPath);
 
     foreach (QWizardPage *p, extensionPages)
         wizard->addPage(p);
@@ -302,6 +310,8 @@ bool GenericProjectWizard::isValidDir(const QFileInfo &fileInfo) const
 Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
                                                          QString *errorMessage) const
 {
+    Q_UNUSED(errorMessage)
+
     const GenericProjectWizardDialog *wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);

@@ -870,9 +870,12 @@ void QtVersion::setPath(const QString &path)
 QString QtVersion::dumperLibrary() const
 {
     uint hash = qHash(path());
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        qtInstallData = path();
     QStringList directories;
     directories
-            << (path() + "/qtc-debugging-helper/")
+            << (qtInstallData + "/qtc-debugging-helper/")
             << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
     foreach(const QString &directory, directories) {
@@ -1375,6 +1378,12 @@ bool QtVersion::hasDebuggingHelper() const
     return m_hasDebuggingHelper;
 }
 
+
+// TODO buildDebuggingHelperLibrary needs to be accessible outside of the
+// qt4versionmanager
+// That probably means moving qt4version management into either the projectexplorer
+// (The Projectexplorer plugin probably needs some splitting up, most of the stuff
+// could be in a plugin shared by qt4projectmanager, cmakemanager and debugger.)
 QString QtVersion::buildDebuggingHelperLibrary()
 {
 // Locations to try:
@@ -1384,9 +1393,12 @@ QString QtVersion::buildDebuggingHelperLibrary()
 
     QString output;
     uint hash = qHash(path());
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        qtInstallData = path();
     QStringList directories;
     directories
-            << path() + "/qtc-debugging-helper/"
+            << qtInstallData + "/qtc-debugging-helper/"
             << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash) +"/"
             << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash) +"/";
 
@@ -1420,6 +1432,21 @@ QString QtVersion::buildDebuggingHelperLibrary()
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
 
+        // TODO this is a hack to get, to be removed and rewritten for 1.2
+        //
+        // For MSVC and MINGW, we need a toolchain to get the right environment        
+        ProjectExplorer::ToolChain *toolChain = 0;
+        ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
+        if (t == ProjectExplorer::ToolChain::MinGW)
+            toolChain = ProjectExplorer::ToolChain::createMinGWToolChain("g++", mingwDirectory());
+        else if(t == ProjectExplorer::ToolChain::MSVC)
+            toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion());
+        if (toolChain) {
+            toolChain->addToEnvironment(env);
+            delete toolChain;
+            toolChain = 0;
+        }
+
         qmake.setEnvironment(env.toStringList());
         qmake.setWorkingDirectory(directory);
         qmake.setProcessChannelMode(QProcess::MergedChannels);
@@ -1437,7 +1464,6 @@ QString QtVersion::buildDebuggingHelperLibrary()
         // and think about how to fix that later
 
         QString make;
-        ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
         if (t == ProjectExplorer::ToolChain::MinGW)
             make = "mingw32-make.exe";
         else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)

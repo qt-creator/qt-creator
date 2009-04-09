@@ -72,7 +72,7 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
 }
 
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option,
-    const QModelIndex &index) const
+                                                 const QModelIndex &index) const
 {
     static const int lineNumberAreaHorizontalPadding = 4;
     const bool isSelected = option.state & QStyle::State_Selected;
@@ -90,10 +90,10 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     else if (!(option.state & QStyle::State_Enabled))
         cg = QPalette::Disabled;
 
-    painter->fillRect(lineNumberAreaRect, QBrush(isSelected?
-        option.palette.brush(cg, QPalette::Highlight):QBrush(qRgb(230, 230, 230))));
-    painter->setPen(isSelected?
-        option.palette.color(cg, QPalette::HighlightedText):Qt::darkGray);
+    painter->fillRect(lineNumberAreaRect, QBrush(isSelected ?
+        option.palette.brush(cg, QPalette::Highlight) : QBrush(qRgb(230, 230, 230))));
+    painter->setPen(isSelected ?
+        option.palette.color(cg, QPalette::HighlightedText) : Qt::darkGray);
     painter->drawText(lineNumberAreaRect.adjusted(0, 0, -lineNumberAreaHorizontalPadding, 0),
         Qt::AlignRight, QString::number(lineNumber));
 
@@ -101,7 +101,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
 }
 
 void SearchResultTreeItemDelegate::drawMarker(QPainter *painter, const QModelIndex &index, const QString text,
-    const QRect &rect) const
+                                              const QRect &rect) const
 {
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
