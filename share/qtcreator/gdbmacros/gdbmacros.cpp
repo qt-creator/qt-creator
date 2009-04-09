@@ -2396,6 +2396,10 @@ static void handleProtocolVersion2and3(QDumper & d)
     const char *type = stripNamespace(d.outertype);
     // type[0] is usally 'Q', so don't use it
     switch (type[1]) {
+        case 'a':
+            if (isEqual(type, "map"))
+                qDumpStdMap(d);
+            break;
         case 'B':
             if (isEqual(type, "QByteArray"))
                 qDumpQByteArray(d);
@@ -2405,6 +2409,12 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQDateTime(d);
             else if (isEqual(type, "QDir"))
                 qDumpQDir(d);
+            break;
+        case 'e':
+            if (isEqual(type, "vector"))
+                qDumpStdVector(d);
+            else if (isEqual(type, "set"))
+                qDumpStdSet(d);
             break;
         case 'F':
             if (isEqual(type, "QFile"))
@@ -2417,6 +2427,10 @@ static void handleProtocolVersion2and3(QDumper & d)
                 qDumpQHash(d);
             else if (isEqual(type, "QHashNode"))
                 qDumpQHashNode(d);
+            break;
+        case 'i':
+            if (isEqual(type, "list"))
+                qDumpStdList(d);
             break;
         case 'I':
             if (isEqual(type, "QImage"))
@@ -2545,18 +2559,18 @@ void qDumpObjectData440(
             "\""NS"QMap\","
             "\""NS"QMapNode\","
             "\""NS"QModelIndex\","
-            #if QT_VERSION >= 0x040500
+#if QT_VERSION >= 0x040500
             "\""NS"QMultiMap\","
-            #endif
+#endif
             "\""NS"QObject\","
             "\""NS"QObjectMethodList\","   // hack to get nested properties display
             "\""NS"QObjectPropertyList\","
-            #if PRIVATE_OBJECT_ALLOWED
+#if PRIVATE_OBJECT_ALLOWED
             "\""NS"QObjectSignal\","
             "\""NS"QObjectSignalList\","
             "\""NS"QObjectSlot\","
             "\""NS"QObjectSlotList\","
-            #endif // PRIVATE_OBJECT_ALLOWED
+#endif // PRIVATE_OBJECT_ALLOWED
             // << "\""NS"QRegion\","
             "\""NS"QSet\","
             "\""NS"QString\","
@@ -2565,8 +2579,15 @@ void qDumpObjectData440(
             "\""NS"QVariant\","
             "\""NS"QVector\","
             "\""NS"QWidget\","
+#ifdef Q_OS_WIN            
+            "\"basic_string\","
+            "\"list\","
+            "\"map\","
+            "\"set\","
             "\"string\","
+            "\"vector\","
             "\"wstring\","
+#endif
             "\"std::basic_string\","
             "\"std::list\","
             "\"std::map\","
