@@ -49,6 +49,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -73,6 +74,7 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Core::Utils;
 
 enum { debugEditorManager=0 };
 
@@ -429,15 +431,14 @@ void EditorManager::init()
 
 QString EditorManager::defaultExternalEditor() const
 {
-#ifdef Q_OS_MAC
-    return m_d->m_core->resourcePath()
-            +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
-#elif defined(Q_OS_UNIX)
-    return QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
-#elif defined (Q_OS_WIN)
-    return QLatin1String("notepad %f");
+#ifdef Q_OS_UNIX
+    return ConsoleProcess::defaultTerminalEmulator() + QLatin1String(
+# ifdef Q_OS_MAC
+            " -async"
+# endif
+            " -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
 #else
-    return QString();
+    return QLatin1String("notepad %f");
 #endif
 }
 

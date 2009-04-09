@@ -30,6 +30,8 @@
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
 
+#include <coreplugin/icore.h>
+
 #include <QtCore/QTimer>
 
 using namespace ProjectExplorer::Internal;
@@ -52,6 +54,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(bringToForeground()));
 
     m_consoleProcess = new ConsoleProcess(this);
+    m_consoleProcess->setSettings(Core::ICore::instance()->settings());
     connect(m_consoleProcess, SIGNAL(processError(const QString&)),
             this, SIGNAL(applicationError(const QString&)));
     connect(m_consoleProcess, SIGNAL(processStopped()),

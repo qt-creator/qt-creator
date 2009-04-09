@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 #endif
 
 QT_BEGIN_NAMESPACE
+class QSettings;
 class QTemporaryFile;
 QT_END_NAMESPACE
 
@@ -71,6 +72,13 @@ public:
     qint64 applicationPID() const { return m_appPid; }
     int exitCode() const { return m_appCode; } // This will be the signal number if exitStatus == CrashExit
     QProcess::ExitStatus exitStatus() const { return m_appStatus; }
+
+#ifdef Q_OS_UNIX
+    void setSettings(QSettings *settings) { m_settings = settings; }
+    static QString defaultTerminalEmulator();
+    static QString terminalEmulator(const QSettings *settings);
+    static void setTerminalEmulator(QSettings *settings, const QString &term);
+#endif
 
 signals:
     void processError(const QString &error);
@@ -114,6 +122,7 @@ private:
 #else
     QProcess m_process;
     QByteArray m_stubServerDir;
+    QSettings *m_settings;
 #endif
 
 };

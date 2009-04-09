@@ -268,11 +268,6 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UseToolTips, item);
 
     item = new SavedAction(instance);
-    item->setDefaultValue("xterm");
-    item->setSettingsKey("DebugMode", "Terminal");
-    instance->insertItem(TerminalApplication, item);
-
-    item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "ListSourceFiles");
     item->setText(tr("List source files"));
     item->setCheckable(true);
