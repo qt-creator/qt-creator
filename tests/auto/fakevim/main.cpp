@@ -30,6 +30,8 @@
 #include "fakevimhandler.h"
 
 #include <QtCore/QSet>
+
+#include <QtGui/QTextEdit>
 #include <QtGui/QPlainTextEdit>
 
 #include <QtTest/QtTest>
@@ -66,6 +68,7 @@ private:
         const char* file, int line);
     QString insertCursor(const QString &needle0);
 
+    //QTextEdit m_editor;
     QPlainTextEdit m_editor;
     FakeVimHandler m_handler;
     QList<QTextEdit::ExtraSelection> m_selection;

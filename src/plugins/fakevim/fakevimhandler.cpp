@@ -607,22 +607,28 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
 
 void FakeVimHandler::Private::moveDown(int n)
 {
-    // m_tc.movePosition(Down, MoveAnchor, n); does not work for "hidden"
-    // documents like in the autotests
+#if 0
+    // does not work for "hidden" documents like in the autotests
+    m_tc.movePosition(Down, MoveAnchor, n);
+#else
     const QTextBlock &block = m_tc.block();
     const int col = m_tc.position() - block.position();
     const int line = block.blockNumber();
     const int pos = m_tc.document()->findBlockByNumber(line + n).position();
     setPosition(pos + qMin(block.length(), col));
     setPosition(pos);
+#endif
 }
 
 void FakeVimHandler::Private::moveToEndOfLine()
 {
-    // m_tc.movePosition(EndOfLine, MoveAnchor) does not work for "hidden"
-    // documents like in the autotests
+#if 0
+    // does not work for "hidden" documents like in the autotests
+    m_tc.movePosition(EndOfLine, MoveAnchor);
+#else
     const QTextBlock &block = m_tc.block();
     setPosition(block.position() + block.length() - 1);
+#endif
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
