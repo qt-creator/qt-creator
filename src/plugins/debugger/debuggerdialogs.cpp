@@ -131,7 +131,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
 
     m_ui->coreFileName->setExpectedKind(Core::Utils::PathChooser::File);
-    m_ui->coreFileName->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
