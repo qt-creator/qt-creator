@@ -1701,6 +1701,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reWrite("^w!?( (.*))?$");
+    static QRegExp reSubstitute("^s(.)(.*)\\1(.*)\\1([gi]*)");
 
     if (cmd.isEmpty()) {
         setPosition(firstPositionInLine(beginLine));
@@ -1805,6 +1806,47 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         //qDebug() << "REPLAY: " << reNormal.cap(3);
         replay(reNormal.cap(3), 1);
+    } else if (reSubstitute.indexIn(cmd) != -1) { // :substitute
+        QString needle = reSubstitute.cap(2);
+        const QString replacement = reSubstitute.cap(3);
+        QString flags = reSubstitute.cap(4);
+        const bool startOfLineOnly = needle.startsWith('^');
+        if (startOfLineOnly)
+           needle.remove(0, 1);
+        needle.replace('$', '\n');
+        needle.replace("\\\n", "\\$");
+        QRegExp pattern(needle);
+        if (flags.contains('i'))
+            pattern.setCaseSensitivity(Qt::CaseInsensitive);
+        const bool global = flags.contains('g');
+        m_tc.beginEditBlock();
+        for (int line = beginLine; line <= endLine; ++line) {
+            const int start = firstPositionInLine(line);
+            const int end = lastPositionInLine(line);
+            for (int position = start; position <= end && position >= start; ) {
+                position = pattern.indexIn(m_tc.document()->toPlainText(), position);
+                if (startOfLineOnly && position != start)
+                    break;
+                if (position != -1) {
+                    m_tc.setPosition(position);
+                    m_tc.movePosition(QTextCursor::NextCharacter,
+                        QTextCursor::KeepAnchor, pattern.matchedLength());
+                    QString text = m_tc.selectedText();
+                    if (text.endsWith(ParagraphSeparator)) {
+                        text = replacement + "\n";
+                    } else {
+                        text.replace(ParagraphSeparator, "\n");
+                        text.replace(pattern, replacement);
+                    }
+                    m_tc.removeSelectedText();
+                    m_tc.insertText(text);
+                }
+                if (!global)
+                    break;
+            }
+        }
+        m_tc.endEditBlock();
+        enterCommandMode();
     } else if (reSet.indexIn(cmd) != -1) { // :set
         showBlackMessage(QString());
         QString arg = reSet.cap(2);
