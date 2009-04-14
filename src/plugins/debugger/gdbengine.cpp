@@ -1870,8 +1870,21 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 
 void GdbEngine::setTokenBarrier()
 {
-    foreach (const GdbCookie &ck, m_cookieForToken)
-        QTC_ASSERT(ck.synchronized || ck.type == GdbInvalidCommand, return);
+    foreach (const GdbCookie &cookie, m_cookieForToken) {
+        QTC_ASSERT(
+            cookie.synchronized
+                || cookie.type == GdbInvalidCommand
+                // FIXME: use something like "command classes" for these cases:
+                || cookie.type == GdbInfoProc
+                || cookie.type == GdbStubAttached
+                || cookie.type == ModulesList
+                || cookie.type == WatchDebuggingHelperSetup
+                || cookie.type == GdbQueryDebuggingHelper,
+            qDebug() << "CMD: " << cookie.command << "TYPE: " << cookie.type
+                << "SYNC: " << cookie.synchronized;
+            return
+        );
+    }
     PENDING_DEBUG("\n--- token barrier ---\n");
     emit gdbInputAvailable(QString(), "--- token barrier ---");
     m_oldestAcceptableToken = currentToken();
