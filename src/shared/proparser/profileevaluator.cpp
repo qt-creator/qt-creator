@@ -2024,7 +2024,13 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
 {
     QFileInfo fi(fileName);
     if (fi.exists()) {
-        ProFile *pro = new ProFile(fi.absoluteFilePath());
+        QString fn = QDir::cleanPath(fi.absoluteFilePath());
+        foreach (const ProFile *pf, d->m_profileStack)
+            if (pf->fileName() == fn) {
+                errorMessage(d->format("circular inclusion of %1").arg(fn));
+                return 0;
+            }
+        ProFile *pro = new ProFile(fn);
         if (d->read(pro))
             return pro;
         delete pro;
