@@ -1153,9 +1153,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 + data.findChild("signal-name").toString();
         }
         q->showStatusMessage(msg);
-        // FIXME: shouldn't this use a statis change?
-        debugMessage("CALLING PARENT EXITDEBUGGER");
-        q->exitDebugger();
+        sendCommand("-gdb-exit");
         return;
     }
 
