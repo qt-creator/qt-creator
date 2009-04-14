@@ -245,6 +245,7 @@ DebuggerSettings *DebuggerSettings::instance()
     //
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "Location");
+    item->setDefaultValue("gdb");
     instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);
@@ -281,6 +282,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
+    item->setDefaultValue(true);
     instance->insertItem(AllPluginBreakpoints, item);
 
     item = new SavedAction(instance);
