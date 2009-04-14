@@ -2149,6 +2149,8 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, int index)
         //    + data->lineNumber + "\"";
         QString where = "\"" + data->fileName + "\":"
             + data->lineNumber;
+        // Should not happen with -break-insert -f. gdb older than 6.8?
+        QTC_ASSERT(false, /**/);
         sendCommand("break " + where, BreakInsert1, index);
 #endif
 #ifdef Q_OS_MAC
