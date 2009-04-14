@@ -462,7 +462,7 @@ void EditorManager::removeEditor(IEditor *editor)
 
 }
 
-void EditorManager::handleContextChange(IContext *context)
+void EditorManager::handleContextChange(Core::IContext *context)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
