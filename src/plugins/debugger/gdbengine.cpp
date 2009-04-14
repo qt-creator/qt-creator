@@ -1943,7 +1943,10 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             if (pos > 0) {
                 data->bpLineNumber = child.data().mid(pos + 1);
                 data->markerLineNumber = child.data().mid(pos + 1).toInt();
-                files.prepend(child.data().left(pos));
+                QString file = child.data().left(pos);
+                if (file.startsWith('"') && file.endsWith('"'))
+                    file = file.mid(1, file.size() - 2);
+                files.prepend(file);
             } else {
                 files.prepend(child.data());
             }
@@ -1991,7 +1994,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     // set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface
 #ifdef Q_OS_LINUX
-    QString cmd = "-break-insert ";
+    QString cmd = "-break-insert -f ";
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
