@@ -42,6 +42,7 @@
 #include "watchhandler.h"
 #include "registerhandler.h"
 #include "moduleshandler.h"
+#include "disassemblerhandler.h"
 #include "watchutils.h"
 
 #include <utils/qtcassert.h>
@@ -56,6 +57,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QApplication>
 
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
@@ -195,7 +197,6 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_breakEventMode(BreakEventHandle),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
-    m_debugOutputCallBack(engine),    
     m_pDebugClient(0),
     m_pDebugControl(0),
     m_pDebugSystemObjects(0),
@@ -225,7 +226,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         return false;
     }
 
-    m_pDebugClient->SetOutputCallbacks(&m_debugOutputCallBack);
+    m_pDebugClient->SetOutputCallbacksWide(&m_debugOutputCallBack);
     m_pDebugClient->SetEventCallbacks(&m_debugEventCallBack);
 
     hr = lib.debugCreate( __uuidof(IDebugControl4), reinterpret_cast<void**>(&m_pDebugControl));
@@ -317,6 +318,10 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
             m_d->m_debuggerManager, SLOT(showDebuggerOutput(QString,QString)));
     connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(QString,QString)),
             m_d->m_debuggerManager, SLOT(showDebuggerInput(QString,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeOutput(QString)),
+            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeInputPrompt(QString)),
+            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
 }
 
 CdbDebugEngine::~CdbDebugEngine()
@@ -1040,7 +1045,31 @@ void CdbDebugEngine::saveSessionData()
 }
 
 void CdbDebugEngine::reloadDisassembler()
-{
+{    
+    enum { ContextLines = 40 };
+    // Do we have a top stack frame?
+    const ULONG64 offset = m_d->m_currentStackTrace ? m_d->m_currentStackTrace->instructionOffset() : ULONG64(0);
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << offset;
+
+    DisassemblerHandler *dh = m_d->m_debuggerManagerAccess->disassemblerHandler();
+    if (offset) {
+        QList<DisassemblerLine> lines;
+        QString errorMessage;
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        const bool drc = dissassemble(m_d->m_pDebugClient, m_d->m_pDebugControl, offset,
+                         ContextLines, ContextLines, &lines, &errorMessage);
+        QApplication::restoreOverrideCursor();
+        if (drc) {
+            dh->setLines(lines);
+            if (lines.size() > ContextLines)
+                dh->setCurrentLine(ContextLines);
+        } else {
+            qWarning("reloadDisassembler: %s\n", qPrintable(errorMessage));
+        }
+    } else {
+        dh->setLines(QList<DisassemblerLine>());
+    }
 }
 
 void CdbDebugEngine::reloadModules()

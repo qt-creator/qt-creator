@@ -66,6 +66,9 @@ public:
     QList<StackFrame> frames() const { return m_frames; }
     inline int frameCount() const { return m_frames.size(); }
 
+    // Top-Level instruction offset for disassembler
+    ULONG64 instructionOffset() const { return m_instructionOffset; }
+
     CdbSymbolGroupContext *symbolGroupContextAt(int index, QString *errorMessage);
 
 private:
@@ -78,6 +81,7 @@ private:
     DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
     QVector <CdbSymbolGroupContext*> m_symbolContexts;
     QList<StackFrame> m_frames;
+    ULONG64 m_instructionOffset;
 };
 
 }

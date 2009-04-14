@@ -27,7 +27,6 @@
 **
 **************************************************************************/
 
-
 #include "cdbdebugoutput.h"
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
@@ -38,12 +37,11 @@
 namespace Debugger {
 namespace Internal {
 
-CdbDebugOutput::CdbDebugOutput(CdbDebugEngine* engine)  :
-    m_pEngine(engine)
+CdbDebugOutputBase::CdbDebugOutputBase()
 {
 }
 
-STDMETHODIMP CdbDebugOutput::QueryInterface(
+STDMETHODIMP CdbDebugOutputBase::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
     OUT PVOID* Interface
@@ -52,9 +50,9 @@ STDMETHODIMP CdbDebugOutput::QueryInterface(
     *Interface = NULL;
 
     if (IsEqualIID(InterfaceId, __uuidof(IUnknown)) ||
-        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacks)))
+        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacksWide)))
     {
-        *Interface = (IDebugOutputCallbacks *)this;
+        *Interface = (IDebugOutputCallbacksWide*)this;
         AddRef();
         return S_OK;
     } else {
@@ -62,27 +60,43 @@ STDMETHODIMP CdbDebugOutput::QueryInterface(
     }
 }
 
-STDMETHODIMP_(ULONG) CdbDebugOutput::AddRef(THIS)
+STDMETHODIMP_(ULONG) CdbDebugOutputBase::AddRef(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 1;
 }
 
-STDMETHODIMP_(ULONG) CdbDebugOutput::Release(THIS)
+STDMETHODIMP_(ULONG) CdbDebugOutputBase::Release(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 0;
 }
 
+STDMETHODIMP CdbDebugOutputBase::Output(
+    THIS_
+    IN ULONG mask,
+    IN PCWSTR text
+    )
+{
+    output(mask, QString::fromUtf16(text));
+    return S_OK;
+}
+
+IDebugOutputCallbacksWide *CdbDebugOutputBase::getOutputCallback(IDebugClient5 *client)
+{
+    IDebugOutputCallbacksWide *rc;
+     if (FAILED(client->GetOutputCallbacksWide(&rc)))
+         return 0;
+     return rc;
+}
+
+// ------------------------- CdbDebugOutput
+
 // Return a prefix for debugger messages
 static QString prefix(ULONG mask)
 {
-    if (mask & (DEBUG_OUTPUT_DEBUGGEE|DEBUG_OUTPUT_DEBUGGEE_PROMPT|DEBUG_OUTPUT_DEBUGGEE_PROMPT)) {
-        static const QString p = QLatin1String("target:");
-        return p;
-    }
     if (mask & (DEBUG_OUTPUT_PROMPT_REGISTERS)) {
         static const QString p = QLatin1String("registers:");
         return p;
@@ -103,23 +117,42 @@ static QString prefix(ULONG mask)
     return commonPrefix;
 }
 
-STDMETHODIMP CdbDebugOutput::Output(
-    THIS_
-    IN ULONG mask,
-    IN PCSTR text
-    )
-{
-    const QString msg = QString::fromLocal8Bit(text);
+enum OutputKind { DebuggerOutput, DebuggerPromptOutput, DebuggeeOutput, DebuggeePromptOutput };
 
+static inline OutputKind outputKind(ULONG mask)
+{
+    if (mask & DEBUG_OUTPUT_DEBUGGEE)
+        return DebuggeeOutput;
+    if (mask & DEBUG_OUTPUT_DEBUGGEE_PROMPT)
+        return DebuggeePromptOutput;
+    if (mask & DEBUG_OUTPUT_PROMPT)
+        return DebuggerPromptOutput;
+    return DebuggerOutput;
+}
+
+CdbDebugOutput::CdbDebugOutput()
+{
+}
+
+void CdbDebugOutput::output(ULONG mask, const QString &msg)
+{
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
 
-    if (mask & (DEBUG_OUTPUT_PROMPT|DEBUG_OUTPUT_DEBUGGEE_PROMPT)) {
+    switch (outputKind(mask)) {
+    case DebuggerOutput:
+        debuggerOutput(prefix(mask), msg);
+        break;
+    case DebuggerPromptOutput:
         emit debuggerInputPrompt(prefix(mask), msg);
-    } else {
-        emit debuggerOutput(prefix(mask), msg);
+        break;
+    case DebuggeeOutput:
+        emit debuggeeOutput(msg);
+        break;
+    case DebuggeePromptOutput:
+        emit debuggeeInputPrompt(msg);
+        break;
     }
-    return S_OK;
 }
 
 } // namespace Internal

@@ -40,7 +40,8 @@ namespace Internal {
 CdbStackTraceContext::CdbStackTraceContext(IDebugSystemObjects4* pDebugSystemObjects,
                                            IDebugSymbols3* pDebugSymbols) :
         m_pDebugSystemObjects(pDebugSystemObjects),
-        m_pDebugSymbols(pDebugSymbols)
+        m_pDebugSymbols(pDebugSymbols),
+        m_instructionOffset(0)
 {
 }
 
@@ -95,6 +96,8 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     for (ULONG i=0; i < frameCount; ++i) {
         StackFrame frame(i);
         const ULONG64 instructionOffset = m_cdbFrames[i].InstructionOffset;
+        if (i == 0)
+            m_instructionOffset = instructionOffset;
         frame.address = QString::fromLatin1("0x%1").arg(instructionOffset, 0, 16);
 
         m_pDebugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);

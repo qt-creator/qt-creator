@@ -38,14 +38,12 @@
 namespace Debugger {
 namespace Internal {
 
-class CdbDebugEngine;
+// CdbDebugOutputBase is a base class for output handlers
+// that takes care of the Active X magic and conversion to QString.
 
-class CdbDebugOutput : public QObject, public IDebugOutputCallbacks
+class CdbDebugOutputBase : public IDebugOutputCallbacksWide
 {
-    Q_OBJECT
 public:
-    explicit CdbDebugOutput(CdbDebugEngine* engine);
-
     // IUnknown.
     STDMETHOD(QueryInterface)(
         THIS_
@@ -63,15 +61,48 @@ public:
     STDMETHOD(Output)(
         THIS_
         IN ULONG mask,
-        IN PCSTR text
+        IN PCWSTR text
         );
+
+    // Helpers to retrieve the output callbacks IF
+    static IDebugOutputCallbacksWide *getOutputCallback(IDebugClient5 *client);
+
+protected:
+    CdbDebugOutputBase();
+    virtual void output(ULONG mask, const QString &message) = 0;
+};
+
+// Standard CDB output handler
+class CdbDebugOutput : public QObject, public CdbDebugOutputBase
+{
+    Q_OBJECT
+public:
+    CdbDebugOutput();
+
+protected:
+    virtual void output(ULONG mask, const QString &message);
 
 signals:
     void debuggerOutput(const QString &prefix, const QString &message);
     void debuggerInputPrompt(const QString &prefix, const QString &message);
+    void debuggeeOutput(const QString &message);
+    void debuggeeInputPrompt(const QString &message);
+};
+
+// An output handler that adds lines to a string (to be
+// used for cases in which linebreaks occur in-between calls
+// to output).
+class StringOutputHandler : public CdbDebugOutputBase
+{
+public:
+    StringOutputHandler() {}
+    QString result() const { return m_result; }
+
+protected:
+    virtual void output(ULONG, const QString &message) { m_result += message; }
 
 private:
-    CdbDebugEngine* m_pEngine;
+    QString m_result;
 };
 
 } // namespace Internal

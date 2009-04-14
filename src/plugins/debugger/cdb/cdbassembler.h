@@ -39,6 +39,8 @@
 namespace Debugger {
 namespace Internal {
 
+class DisassemblerLine;
+
 // Utilities related to assembler code.
 class Register;
 
@@ -47,6 +49,14 @@ bool getRegisters(IDebugControl4 *ctl,
                   QList<Register> *registers,
                   QString *errorMessage,
                   int base = 10 /* 16 for hex, etc */);
+
+bool dissassemble(IDebugClient5 *client,
+                  IDebugControl4 *ctl,
+                  ULONG64 offset,
+                  unsigned long beforeLines,
+                  unsigned long afterLines,
+                  QList<DisassemblerLine> *lines,
+                  QString *errorMessage);
 }
 }
 

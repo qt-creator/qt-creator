@@ -84,16 +84,17 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QModelIndex index = indexAt(ev->pos());
+    const QModelIndex index = indexAt(ev->pos());
+    const bool indexIsValid = index.isValid();
     QAction *act0 = new QAction(tr("Delete breakpoint"), &menu);
-    act0->setEnabled(index.isValid());
+    act0->setEnabled(indexIsValid);
     QAction *act1 = new QAction(tr("Adjust column widths to contents"), &menu);
     QAction *act2 = new QAction(tr("Always adjust column widths to contents"), &menu);
     act2->setCheckable(true);
     act2->setChecked(m_alwaysResizeColumnsToContents);
     QAction *act3 = new QAction(tr("Edit condition..."), &menu);
-    act0->setEnabled(index.isValid());
-    QAction *act4 = new QAction(tr("Syncronize breakpoints"), &menu);
+    act3->setEnabled(indexIsValid);    
+    QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
 
     menu.addAction(act0);
     menu.addAction(act3);

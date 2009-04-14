@@ -213,6 +213,8 @@ void DebuggerManager::init()
     QAbstractItemView *disassemblerView =
         qobject_cast<QAbstractItemView *>(m_disassemblerWindow);
     disassemblerView->setModel(m_disassemblerHandler->model());
+    connect(m_disassemblerWindow, SIGNAL(reloadDisassemblerRequested()),
+            this, SLOT(reloadDisassembler()));
 
     // Breakpoints
     m_breakHandler = new BreakHandler;

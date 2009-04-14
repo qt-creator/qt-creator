@@ -41,6 +41,8 @@ namespace Internal {
 class DisassemblerLine
 {
 public:
+    void clear();
+
     QString address;
     QString symbol;
     QString addressDisplay;

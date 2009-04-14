@@ -39,6 +39,14 @@
 using namespace Debugger;
 using namespace Debugger::Internal;
 
+void DisassemblerLine::clear()
+{
+    address.clear();
+    symbol.clear();
+    addressDisplay.clear();
+    symbolDisplay.clear();
+    mnemonic.clear();
+}
 
 //////////////////////////////////////////////////////////////////
 //
