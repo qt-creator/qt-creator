@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <qglobal.h>
 
+
 extern "C" Q_DECL_EXPORT int pluginTest()
 {
     int s = 0;
