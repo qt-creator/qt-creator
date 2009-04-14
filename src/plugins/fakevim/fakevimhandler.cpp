@@ -96,15 +96,16 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-#define StartOfLine    QTextCursor::StartOfLine
-#define EndOfLine      QTextCursor::EndOfLine
-#define MoveAnchor     QTextCursor::MoveAnchor
-#define KeepAnchor     QTextCursor::KeepAnchor
-#define Up             QTextCursor::Up
-#define Down           QTextCursor::Down
-#define Right          QTextCursor::Right
-#define Left           QTextCursor::Left
-#define EndOfDocument  QTextCursor::End
+#define StartOfLine     QTextCursor::StartOfLine
+#define EndOfLine       QTextCursor::EndOfLine
+#define MoveAnchor      QTextCursor::MoveAnchor
+#define KeepAnchor      QTextCursor::KeepAnchor
+#define Up              QTextCursor::Up
+#define Down            QTextCursor::Down
+#define Right           QTextCursor::Right
+#define Left            QTextCursor::Left
+#define EndOfDocument   QTextCursor::End
+#define StartOfDocument QTextCursor::Start
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
@@ -274,8 +275,6 @@ public:
     void moveToWordBoundary(bool simple, bool forward);
 
     // to reduce line noise
-    typedef QTextCursor::MoveOperation MoveOperation;
-    typedef QTextCursor::MoveMode MoveMode;
     void moveToEndOfDocument() { m_tc.movePosition(EndOfDocument, MoveAnchor); }
     void moveToStartOfLine() { m_tc.movePosition(StartOfLine, MoveAnchor); }
     void moveToEndOfLine();
@@ -1969,7 +1968,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
 
     if (!needle0.isEmpty()) {
         QTextCursor tc = m_tc;
-        tc.movePosition(QTextCursor::Start, MoveAnchor);
+        tc.movePosition(StartOfDocument, MoveAnchor);
 
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         QString needle = needle0;
