@@ -1173,9 +1173,8 @@ bool EditorManager::saveFile(IEditor *editor)
             return true;
     }
 
-    if (file->isReadOnly() || fileName.isEmpty()) {
+    if (file->isReadOnly() || fileName.isEmpty())
         return saveFileAs(editor);
-    }
 
     m_d->m_core->fileManager()->blockFileChange(file);
     const bool success = file->save(fileName);

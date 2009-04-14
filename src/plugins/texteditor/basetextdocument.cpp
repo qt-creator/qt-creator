@@ -146,15 +146,14 @@ bool BaseTextDocument::isReadOnly() const
     const QFileInfo fi(m_fileName);
 
 #ifdef Q_OS_WIN32
-    // be careful when getting info from files on network drives
-    int old_ntfs_permission_lookup = qt_ntfs_permission_lookup;
-    qt_ntfs_permission_lookup = 1;
+    // Check for permissions on NTFS file systems
+    qt_ntfs_permission_lookup++;
 #endif
 
-    const int ro = !fi.isWritable();
+    const bool ro = !fi.isWritable();
 
 #ifdef Q_OS_WIN32
-    qt_ntfs_permission_lookup = old_ntfs_permission_lookup;
+    qt_ntfs_permission_lookup--;
 #endif
     return ro;
 }
@@ -173,9 +172,6 @@ bool BaseTextDocument::open(const QString &fileName)
 
         QFile file(fileName);
         if (!file.exists())
-            return false;
-
-        if (!fi.isReadable())
             return false;
 
         if (!file.open(QIODevice::ReadWrite) && !file.open(QIODevice::ReadOnly))
