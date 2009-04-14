@@ -357,6 +357,9 @@ void ProFileEvaluator::Private::insertVariable(const QString &line, int *i)
 {
     ProVariable::VariableOperator opkind;
 
+    if (m_proitem.isEmpty()) // Line starting with '=', like a conflict marker
+        return;
+
     switch (m_proitem.at(m_proitem.length() - 1).unicode()) {
         case '+':
             m_proitem.chop(1);
