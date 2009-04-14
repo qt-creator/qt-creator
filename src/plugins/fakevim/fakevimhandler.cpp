@@ -1830,7 +1830,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 if (position != -1) {
                     m_tc.setPosition(position);
                     m_tc.movePosition(QTextCursor::NextCharacter,
-                        QTextCursor::KeepAnchor, pattern.matchedLength());
+                        KeepAnchor, pattern.matchedLength());
                     QString text = m_tc.selectedText();
                     if (text.endsWith(ParagraphSeparator)) {
                         text = replacement + "\n";
@@ -2372,11 +2372,13 @@ void FakeVimHandler::Private::recordJump()
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
 
-struct UndoBreaker : public QAbstractUndoItem
+class UndoBreaker : public QAbstractUndoItem
 {
+public:
     UndoBreaker(FakeVimHandler::Private *doc) : m_doc(doc) {}
     void undo() { m_doc->m_needMoreUndo = true; }
     void redo() { m_doc->m_needMoreUndo = true; }
+private:   
     FakeVimHandler::Private *m_doc;
 };
 
