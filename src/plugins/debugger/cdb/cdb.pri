@@ -6,6 +6,10 @@ contains(QMAKE_CXX, cl) {
 
 CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
 
+!exists ($$CDB_PATH) {
+  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
+}
+
 exists ($$CDB_PATH) {
 message("Experimental: Adding support for $$CDB_PATH")
 
