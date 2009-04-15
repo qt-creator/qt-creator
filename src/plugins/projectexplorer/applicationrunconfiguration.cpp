@@ -34,6 +34,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDir>
 #include <QtGui/QLabel>
 #include <QtGui/QTextDocument>
 #include <QDebug>
@@ -137,7 +138,7 @@ void ApplicationRunControl::start()
                                 m_executable, rc->commandLineArguments());
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1...").arg(m_executable));
+    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
 }
 
 void ApplicationRunControl::stop()
@@ -163,7 +164,7 @@ void ApplicationRunControl::slotAddToOutputWindow(const QString &line)
 
 void ApplicationRunControl::processExited(int exitCode)
 {
-    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(m_executable).arg(exitCode));
+    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
     emit finished();
 }
 
