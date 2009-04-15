@@ -66,6 +66,8 @@ using namespace Debugger::Internal;
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
+static int watcherCounter = 0;
+
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData
@@ -922,17 +924,21 @@ void WatchHandler::watchExpression()
         watchExpression(action->data().toString());
 }
 
+QString WatchHandler::watcherName(const QString &exp)
+{
+    return QLatin1String("watch.") + QString::number(m_watchers[exp]);
+}
+
 void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
     //MODEL_DEBUG("WATCH: " << exp);
-    static int counter = 0;
+    m_watchers[exp] = watcherCounter++;
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    data.iname = QLatin1String("watch.") + QString::number(counter++);
+    data.iname = watcherName(exp);
     insertData(data);
-    m_watchers.append(exp);
     saveWatchers();
     emit watchModelUpdateRequested();
 }
@@ -1017,7 +1023,7 @@ void WatchHandler::removeWatchExpression()
 void WatchHandler::removeWatchExpression(const QString &exp)
 {
     MODEL_DEBUG("REMOVE WATCH: " << exp);
-    m_watchers.removeOne(exp);
+    m_watchers.remove(exp);
     for (int i = m_completeSet.size(); --i >= 0;) {
         const WatchData & data = m_completeSet.at(i);
         if (data.iname.startsWith(QLatin1String("watch.")) && data.exp == exp) {
@@ -1041,8 +1047,9 @@ void WatchHandler::reinitializeWatchersHelper()
 {
     // copy over all watchers and mark all watchers as incomplete
     int i = 0;
-    foreach (const QString &exp, m_watchers) {
+    foreach (const QString &exp, m_watchers.keys()) {
         WatchData data;
+        data.iname = watcherName(exp);
         data.level = -1;
         data.row = -1;
         data.parentIndex = -1;
@@ -1252,15 +1259,16 @@ void WatchHandler::loadWatchers()
 {
     QVariant value;
     sessionValueRequested("Watchers", &value);
-    m_watchers = value.toStringList();
+    foreach (const QString &exp, value.toStringList())
+        m_watchers[exp] = watcherCounter++;
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
     reinitializeWatchersHelper();
 }
 
 void WatchHandler::saveWatchers()
 {
-    //qDebug() << "SAVE WATCHERS: " << m_watchers;
-    setSessionValueRequested("Watchers", m_watchers);
+    //qDebug() << "SAVE WATCHERS: " << m_watchers.keys();
+    setSessionValueRequested("Watchers", QVariant(m_watchers.keys()));
 }
 
 void WatchHandler::saveSessionData()
