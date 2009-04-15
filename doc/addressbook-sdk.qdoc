@@ -75,13 +75,13 @@
     Tutorial chapters:
 
     \list 1
-        \o \l{Designing the User Interface}
-        \o \l{Adding Addresses}
-        \o \l{Navigating between Entries}
-        \o \l{Editing and Removing Addresses}
-        \o \l{Adding a Find Function}
-        \o \l{Loading and Saving}
-        \o \l{Additional Features}
+        \o \l{examples/addressbook-sdk/part1}{Designing the User Interface}
+        \o \l{examples/addressbook-sdk/part2}{Adding Addresses}
+        \o \l{examples/addressbook-sdk/part3}{Navigating between Entries}
+        \o \l{examples/addressbook-sdk/part4}{Editing and Removing Addresses}
+        \o \l{examples/addressbook-sdk/part5}{Adding a Find Function}
+        \o \l{examples/addressbook-sdk/part6}{Loading and Saving}
+        \o \l{examples/addressbook-sdk/part7}{Additional Features}
     \endlist
 
     Although this little application does not look much like a fully-fledged
@@ -96,7 +96,8 @@
 /*!
     \page tutorials-addressbook-sdk-part1.html
     \contentspage {Address Book Tutorial}{Contents}
-    \nextpage \l{Adding Addresses}{Chapter 2}
+    \nextpage \l{examples/addressbook-sdk/part2}{Chapter 2}
+    \example examples/addressbook-sdk/part1
     \title Address Book 1 - Designing the User Interface
 
     The first part of this tutorial covers the design of the basic graphical
@@ -172,6 +173,48 @@
             same application or library, and the code for the subclass can be
             reused in other projects.
     \endlist
+
+    Since Qt does not provided a specific address book widget, we subclass a
+    standard Qt widget class and add features to it. The \c AddressBook class
+    we create in this tutorial can be reused in situations where a basic
+    address book is needed.
+
+
+    \section1 Defining the AddressBook Class
+
+    The \l{examples/addressbook-sdk/part1/addressbook.h}{\c addressbook.h} file
+    is used to define the \c AddressBook class.
+
+    We start by looking at what is already provided for us by Qt Creator. The
+    \c AddressBook class has been defined as a QWidget subclass with a
+    constructor and destructor.The Q_OBJECT macro is used to indicate that the
+    class uses internationalization and Qt's signals and slots features, even
+    if we do not use all of htese features at this stage.
+
+    \snippet examples/addressbook-sdk/part1/addressbook.h class definition
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
