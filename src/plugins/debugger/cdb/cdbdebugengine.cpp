@@ -1089,6 +1089,25 @@ void CdbDebugEngine::loadAllSymbols()
         qDebug() << Q_FUNC_INFO;
 }
 
+QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
+{
+    QList<Symbol> rc;
+    QString errorMessage;
+    bool success = false;
+    do {
+        if (m_d->isDebuggeeRunning()) {
+            errorMessage = tr("Cannot retrieve symbols while the debuggee is running.");
+            break;
+        }
+        if (!getModuleSymbols(m_d->m_pDebugSymbols, moduleName, &rc, &errorMessage))
+            break;
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("%s\n", qPrintable(errorMessage));
+    return rc;
+}
+
 static inline int registerFormatBase()
 {
     switch(checkedRegisterFormatAction()) {
