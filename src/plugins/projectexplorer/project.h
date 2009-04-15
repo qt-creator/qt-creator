@@ -140,6 +140,8 @@ signals:
     void fileListChanged();
     void activeBuildConfigurationChanged();
     void activeRunConfigurationChanged();
+    void removedRunConfiguration(const QString &name);
+    void addedRunConfiguration(const QString &name);
     // This signal is jut there for updating the tree list in the buildsettings wizard
     void buildConfigurationDisplayNameChanged(const QString &buildConfiguraiton);
 

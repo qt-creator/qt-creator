@@ -77,9 +77,9 @@ private slots:
     void addRunConfiguration();
     void removeRunConfiguration();
     void nameChanged();
-
-private:
     void initRunConfigurationComboBox();
+    void activeRunConfigurationChanged();
+private:
     Project *m_project;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;

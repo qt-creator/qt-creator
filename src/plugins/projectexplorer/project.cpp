@@ -453,6 +453,7 @@ void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfigurat
         return;
     }
     m_runConfigurations.push_back(runConfiguration);
+    emit addedRunConfiguration(runConfiguration->name());
 }
 
 void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
@@ -460,14 +461,19 @@ void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfigu
     if(!m_runConfigurations.contains(runConfiguration)) {
         qWarning()<<"Not removing runConfiguration"<<runConfiguration->name()<<"becasue it doesn't exist";
         return;
-    }
-    m_runConfigurations.removeOne(runConfiguration);
+    }   
+
     if (m_activeRunConfiguration == runConfiguration) {
-        if (m_runConfigurations.isEmpty())
+        if (m_runConfigurations.size() <= 1)
             setActiveRunConfiguration(QSharedPointer<RunConfiguration>(0));
+        else if (m_runConfigurations.at(0) == m_activeRunConfiguration)
+            setActiveRunConfiguration(m_runConfigurations.at(1));
         else
             setActiveRunConfiguration(m_runConfigurations.at(0));
     }
+
+    m_runConfigurations.removeOne(runConfiguration);
+    emit removedRunConfiguration(runConfiguration->name());    
 }
 
 QSharedPointer<RunConfiguration> Project::activeRunConfiguration() const
