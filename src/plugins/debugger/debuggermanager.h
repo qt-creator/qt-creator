@@ -178,7 +178,7 @@ class DebuggerManager : public QObject,
     Q_OBJECT
 
 public:
-    DebuggerManager();
+    DebuggerManager(const QStringList &arguments);
     ~DebuggerManager();
 
     IDebuggerManagerAccessForEngines *engineInterface();
@@ -341,7 +341,7 @@ public:
     bool m_useTerminal;
 
 private:
-    void init();
+    void init(const QStringList &arguments);
     void setDebuggerType(DebuggerType type);
     void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);
