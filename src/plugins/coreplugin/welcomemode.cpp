@@ -42,6 +42,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
@@ -239,7 +240,7 @@ void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
             for( it = welcomePageData.projectList.constBegin(); it != end; ++it) {
                 const QFileInfo fi((*it).first);
                 str << "<li><p><a href=\"gh-project:" << (*it).first << "\" title=\""
-                    << fi.absolutePath() << "\">" << (*it).second << "</a></p></li>\n";
+                    << QDir::toNativeSeparators(fi.absolutePath()) << "\">" << (*it).second << "</a></p></li>\n";
             }
             projectHtml.replace(QLatin1String("<!-- RECENT PROJECTS LIST -->"), projects);
         }
