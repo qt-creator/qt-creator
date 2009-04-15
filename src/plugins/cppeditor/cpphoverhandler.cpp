@@ -294,7 +294,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (m_toolTip.isEmpty()) {
         foreach (const Document::Include &incl, doc->includes()) {
             if (incl.line() == lineNumber) {
-                m_toolTip = incl.fileName();
+                m_toolTip = QDir::toNativeSeparators(incl.fileName());
                 break;
             }
         }
