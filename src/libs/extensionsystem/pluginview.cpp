@@ -33,6 +33,7 @@
 #include "pluginspec.h"
 #include "ui_pluginview.h"
 
+#include <QtCore/QDir>
 #include <QtGui/QHeaderView>
 #include <QtGui/QTreeWidgetItem>
 #include <QtDebug>
@@ -124,8 +125,8 @@ void PluginView::updateList()
             << spec->name()
             << QString("%1 (%2)").arg(spec->version()).arg(spec->compatVersion())
             << spec->vendor()
-            << spec->filePath());
-        item->setToolTip(4, spec->filePath());
+            << QDir::toNativeSeparators(spec->filePath()));
+        item->setToolTip(4, QDir::toNativeSeparators(spec->filePath()));
         item->setIcon(0, spec->hasError() ? errorIcon : okIcon);
         item->setData(0, Qt::UserRole, qVariantFromValue(spec));
         items.append(item);
