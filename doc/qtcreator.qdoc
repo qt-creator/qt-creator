@@ -964,6 +964,8 @@
     \nextpage creator-cmake-support.html
 
     \title Debugging with Qt Creator
+
+
     \section1 Introduction
 
     Qt Creator does not have its own debugger. Instead, it provides a graphical
@@ -975,17 +977,17 @@
             \o Compiler
             \o Debugger Engine
         \row
-             \o Linux, Unixes, Mac OS
-             \o gcc
-             \o GNU Symbolic Debugger (gdb)
+            \o Linux, Unixes, Mac OS
+            \o gcc
+            \o GNU Symbolic Debugger (gdb)
         \row
-             \o Windows/MinGW
-             \o gcc
-             \o GNU Symbolic Debugger (gdb)
+            \o Windows/MinGW
+            \o gcc
+            \o GNU Symbolic Debugger (gdb)
         \row
-             \o Windows
-             \o Microsoft Visual C++ Compiler
-             \o Debugging Tools for Windows / Microsoft Console Debugger (CDB)
+            \o Windows
+            \o Microsoft Visual C++ Compiler
+            \o Debugging Tools for Windows/Microsoft Console Debugger (CDB)
     \endtable
 
     The frontend allows you to
@@ -1002,6 +1004,28 @@
     internal layout of several Qt classes such as QString, the QTL containers,
     and most importantly QObject (and classes derived from it). Therefore, it
     is able to present Qt's data clearly.
+
+
+    \section1 Debugger Engine Installation Notes
+
+    \table
+        \header
+            \o Debugger Engine
+            \o Notes
+        \row
+            \o Debugging Tools for Windows
+            \o Using this engine requires you to install the
+               \e{Debugging Tools for Windows} 32-bit package (Version 6.10),
+               which is freely available for download from the
+               \l{http://msdn.microsoft.com/en-us/default.aspx}
+               {Microsoft Developer Network} or directly from
+               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}
+               {Microsoft}. The pre-built \e{Qt SDK for Windows} will make use
+               of the library if it is present on the system. When building Qt
+               Creator using the Microsoft Visual C++ Compiler, the
+               \c{"%ProgramFiles%\Debugging Tools for Windows"} path will be
+               checked to ensure that all required header files are there.
+    \endtable
 
 
     \section1 Interacting with the Debugger
@@ -1280,28 +1304,6 @@
 
     \image qtcreator-debugging-buttons.png
 
-    \section1 Debugger Engine Installation Notes
-
-    \table
-        \header
-            \o Debugger Engine
-            \o Notes
-        \row
-             \o Debugging Tools for Windows
-             \o Using this engine requires installing the \e{Debugging Tools for Windows}
-                32-bit package (Version 6.10), which is freely available for download from the
-                \l{http://msdn.microsoft.com/en-us/default.aspx}{Microsoft Developer Network} or
-                directly from \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}{Microsoft}.
-                The pre-built \e{Qt SDK for Windows} will make use of the library if it is present
-                on the system.
-                When building \e{Qt Creator} using the \e{Microsoft Visual C++ Compiler},
-                the location \c{"%ProgramFiles%\Debugging Tools for Windows"} will be checked
-                for the required include files.
-
-                \note As of version 1.2, the command line option \c{-enable-cdb} has to be passed
-                to Qt Creator to enable support for this engine.
-
-    \endtable
 */
 
 
