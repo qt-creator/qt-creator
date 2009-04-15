@@ -470,7 +470,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    m_manager = new DebuggerManager;
+    m_manager = new DebuggerManager(arguments);
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);

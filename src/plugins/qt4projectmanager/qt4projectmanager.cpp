@@ -140,14 +140,14 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
     if (canonicalFilePath.isEmpty()) {
-        messageManager->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(canonicalFilePath));
+        messageManager->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(QDir::toNativeSeparators(canonicalFilePath)));
         messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
         return 0;
     }
 
     foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
         if (canonicalFilePath == pi->file()->fileName()) {
-            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(canonicalFilePath));
+            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath)));
             messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
             return 0;
         }

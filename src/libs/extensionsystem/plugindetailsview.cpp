@@ -30,6 +30,8 @@
 #include "plugindetailsview.h"
 #include "ui_plugindetailsview.h"
 
+#include <QtCore/QDir>
+
 /*!
     \class ExtensionSystem::PluginDetailsView
     \brief Widget that displays the contents of a PluginSpec.
@@ -74,7 +76,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     m_ui->compatVersion->setText(spec->compatVersion());
     m_ui->vendor->setText(spec->vendor());
     m_ui->url->setText(spec->url());
-    m_ui->location->setText(spec->filePath());
+    m_ui->location->setText(QDir::toNativeSeparators(spec->filePath()));
     m_ui->description->setText(spec->description());
     m_ui->copyright->setText(spec->copyright());
     m_ui->license->setText(spec->license());

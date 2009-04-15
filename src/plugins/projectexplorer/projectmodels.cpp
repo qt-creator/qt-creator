@@ -718,7 +718,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::ToolTipRole: {
-            result = node->path();
+            result = QDir::toNativeSeparators(node->path());
             break;
         }
         case Qt::DecorationRole: {

@@ -559,7 +559,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
                 static_cast<int>(0.7 * textColor.blue()  + 0.3 * backgroundColor.blue()));
         painter->setPen(mix);
 
-        QString directory = index.data(TaskModel::File).toString();
+        const QString directory = QDir::toNativeSeparators(index.data(TaskModel::File).toString());
         int secondBaseLine = 2 + fm.ascent() + opt.rect.top() + height + leading; //opt.rect.top() + fm.ascent() + fm.height() + 6;
         if (index.data(TaskModel::FileNotFound).toBool()) {
             QString fileNotFound = tr("File not found: %1").arg(directory);
