@@ -453,7 +453,7 @@ void FileManager::changedFile(const QString &file)
     foreach (IFile *fileinterface, managedFiles(file))
         m_changedFiles << fileinterface;
     if (wasempty && !m_changedFiles.isEmpty()) {
-        QTimer::singleShot (200, this, SLOT(checkForReload()));
+        QTimer::singleShot(200, this, SLOT(checkForReload()));
     }
 }
 

@@ -171,10 +171,7 @@ bool BaseTextDocument::open(const QString &fileName)
         m_fileName = fi.absoluteFilePath();
 
         QFile file(fileName);
-        if (!file.exists())
-            return false;
-
-        if (!file.open(QIODevice::ReadWrite) && !file.open(QIODevice::ReadOnly))
+        if (!file.open(QIODevice::ReadOnly))
             return false;
 
         title = fi.fileName();
