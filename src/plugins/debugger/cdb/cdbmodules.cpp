@@ -159,5 +159,5 @@ bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

@@ -84,7 +84,7 @@ private:
     ULONG64 m_instructionOffset;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
 
 #endif // CDBSTACKTRACECONTEXT_H

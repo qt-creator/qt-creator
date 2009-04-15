@@ -59,7 +59,7 @@ ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol, QString
 bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
                       QList<Symbol> *symbols, QString *errorMessage);
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
 
 #endif // CDBMODULES_H

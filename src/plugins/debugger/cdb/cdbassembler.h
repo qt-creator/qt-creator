@@ -57,8 +57,8 @@ bool dissassemble(IDebugClient5 *client,
                   unsigned long afterLines,
                   QList<DisassemblerLine> *lines,
                   QString *errorMessage);
-}
-}
 
+} // namespace Internal
+} // namespace Debugger
 
 #endif // CDBASSEMBLER_H

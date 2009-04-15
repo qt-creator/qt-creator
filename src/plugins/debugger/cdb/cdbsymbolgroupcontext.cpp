@@ -58,13 +58,13 @@ static inline void debugSymbolFlags(unsigned long f, QTextStream &str)
         str << "|DEBUG_SYMBOL_IS_LOCAL";
 }
 
- QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS& p)
+QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS &p)
 {
     str << " Type=" << p.TypeId << " parent=";
     if (isTopLevelSymbol(p)) {
         str << "<ROOT>";
     } else {
-       str << p.ParentSymbol;
+        str << p.ParentSymbol;
     }
     str << " Subs=" << p.SubElements << " flags=" << p.Flags << '/';
     debugSymbolFlags(p.Flags, str);
@@ -639,5 +639,5 @@ bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

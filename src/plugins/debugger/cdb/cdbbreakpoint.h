@@ -49,7 +49,8 @@ class BreakpointData;
 /* CDB Break point data structure with utilities to
  * apply to engine and to retrieve them from the engine and comparison. */
 
-struct CDBBreakPoint {
+struct CDBBreakPoint
+{
     CDBBreakPoint();
     CDBBreakPoint(const BreakpointData &bpd);
 
@@ -94,7 +95,7 @@ inline bool operator!=(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
 inline bool operator<(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
     { return b1.compare(b2) <  0; }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
 
 #endif // CDBBREAKPOINTS_H

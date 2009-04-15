@@ -385,5 +385,5 @@ bool CDBBreakPoint::synchronizeBreakPoints(IDebugControl4* debugControl,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

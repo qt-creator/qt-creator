@@ -230,5 +230,5 @@ bool dissassemble(IDebugClient5 *client,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

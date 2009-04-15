@@ -41,7 +41,7 @@
 #include <QtCore/QMap>
 
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
 
 class WatchData;
 class WatchHandler;
@@ -145,6 +145,7 @@ bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterato
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
+
 #endif // CDBSYMBOLGROUPCONTEXT_H

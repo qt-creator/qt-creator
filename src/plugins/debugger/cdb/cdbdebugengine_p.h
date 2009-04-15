@@ -48,7 +48,8 @@ class CdbStackTraceContext;
 // Thin wrapper around the 'DBEng' debugger engine shared library
 // which is loaded at runtime.
 
-class DebuggerEngineLibrary {
+class DebuggerEngineLibrary
+{
 public:
     DebuggerEngineLibrary();
     bool init(QString *errorMessage);

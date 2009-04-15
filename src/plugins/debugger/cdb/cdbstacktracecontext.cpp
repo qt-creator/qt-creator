@@ -166,5 +166,5 @@ IDebugSymbolGroup2 *CdbStackTraceContext::createSymbolGroup(int index, QString *
     return sg;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
