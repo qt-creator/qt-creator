@@ -72,7 +72,8 @@ struct CDBBreakPoint {
     static bool getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage = 0);
     static bool getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
     // Synchronize (halted) engine with BreakHandler.
-    static bool synchronizeBreakPoints(IDebugControl4* ctl, BreakHandler *bh, QString *errorMessage);
+    static bool synchronizeBreakPoints(IDebugControl4* ctl, IDebugSymbols3 *syms,
+                                       BreakHandler *bh, QString *errorMessage);
 
     // Return a 'canonical' file (using '/' and capitalized drive letter)
     static QString canonicalSourceFile(const QString &f);

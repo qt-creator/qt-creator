@@ -42,6 +42,17 @@ namespace Internal {
 class Module;
 
 bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage);
+// Search symbols matching a pattern
+bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
+                   QStringList *matches, QString *errorMessage);
+
+// ResolveSymbol: For symbols that are missing the module specifier,
+// find the module and expand: "main" -> "project!main".
+
+enum ResolveSymbolResult { ResolveSymbolOk, ResolveSymbolAmbiguous,
+                           ResolveSymbolNotFound, ResolveSymbolError };
+
+ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol, QString *errorMessage);
 
 }
 }

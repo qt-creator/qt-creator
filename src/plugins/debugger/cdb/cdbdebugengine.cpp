@@ -208,7 +208,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
     m_mode(AttachCore)
-{   
+{
 }
 
 bool CdbDebugEnginePrivate::init(QString *errorMessage)
@@ -252,7 +252,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_pDebugRegisters));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Creation of IDebugRegisters2 failed: %1").arg(msgDebugEngineComResult(hr));
-        return false;    
+        return false;
     }
     if (debugCDB)
         qDebug() << QString::fromLatin1("CDB Initialization succeeded, interrupt time out %1s.").arg(getInterruptTimeOutSecs(m_pDebugControl));
@@ -299,7 +299,7 @@ void CdbDebugEnginePrivate::clearForRun()
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
-{    
+{
     if (m_currentStackTrace) {
         delete m_currentStackTrace;
         m_currentStackTrace = 0;
@@ -366,7 +366,7 @@ void CdbDebugEnginePrivate::clearDisplay()
 }
 
 bool CdbDebugEngine::startDebugger()
-{    
+{
     m_d->clearDisplay();
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
@@ -489,7 +489,7 @@ void CdbDebugEngine::exitDebugger()
         // Terminate or detach if we are running
         HRESULT hr;
         switch (m_d->m_mode) {
-        case AttachExternal:            
+        case AttachExternal:
             wasRunning = m_d->isDebuggeeRunning();
             if (wasRunning) { // Process must be stopped in order to detach
                 m_d->interruptInterferiorProcess(&errorMessage);
@@ -502,7 +502,7 @@ void CdbDebugEngine::exitDebugger()
                 qDebug() << Q_FUNC_INFO << "detached" << msgDebugEngineComResult(hr);
             break;
         case StartExternal:
-        case StartInternal:            
+        case StartInternal:
             wasRunning = m_d->isDebuggeeRunning();
             if (wasRunning) { // Process must be stopped in order to terminate
                 m_d->interruptInterferiorProcess(&errorMessage);
@@ -569,7 +569,7 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
         qDebug() << Q_FUNC_INFO << "\n    " << frameIndex << formatWatchList(incompletes);
 
     m_engine->filterEvaluateWatchers(&incompletes, wh);
-    if (!incompletes.empty()) {        
+    if (!incompletes.empty()) {
         const QString msg = QLatin1String("Warning: Locals left in incomplete list: ") + formatWatchList(incompletes);
         qWarning("%s\n", qPrintable(msg));
     }
@@ -613,7 +613,7 @@ void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *
     bool placeHolderSeen = false;
     for (WatchList::iterator it = wd->begin(); it != wd->end(); ) {
         if (it->iname.startsWith(watcherPrefix)) {
-            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);            
+            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);
             if (isPlaceHolder) {
                 if (!placeHolderSeen) { // Max one place holder
                     it->setChildCount(0);
@@ -624,7 +624,7 @@ void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *
             } else {
                 evaluateWatcher(&(*it));
                 wh->insertData(*it);
-            }            
+            }
             it = wd->erase(it);
         } else {
             ++it;
@@ -778,7 +778,7 @@ bool CdbDebugEnginePrivate::continueInferiorProcess(QString *errorMessage)
 
 // Continue process with notifications
 bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
-{   
+{
     ULONG executionStatus;
     if (!getExecutionStatus(m_pDebugControl, &executionStatus, errorMessage))
         return false;
@@ -817,7 +817,7 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
         *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Core::Utils::winErrorMessage(GetLastError()));
         return false;
     }
-#if 0    
+#if 0
     const HRESULT hr = m_pDebugControl->SetInterrupt(DEBUG_INTERRUPT_ACTIVE|DEBUG_INTERRUPT_EXIT);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to interrupt debuggee after %1s: %2").
@@ -864,7 +864,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << expr << value;
     const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
-    QString errorMessage;    
+    QString errorMessage;
     bool success = false;
     do {
         QString newValue;
@@ -872,7 +872,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
         if (!sg)
             break;
         if (!sg->assignValue(expr, value, &newValue, &errorMessage))
-            break;        
+            break;
         // Update view
         WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
         if (WatchData *fwd = watchHandler->findData(expr)) {
@@ -1032,6 +1032,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     }
 
     return CDBBreakPoint::synchronizeBreakPoints(m_pDebugControl,
+                                                 m_pDebugSymbols,
                                                  m_debuggerManagerAccess->breakHandler(),
                                                  errorMessage);
 }
@@ -1045,7 +1046,7 @@ void CdbDebugEngine::saveSessionData()
 }
 
 void CdbDebugEngine::reloadDisassembler()
-{    
+{
     enum { ContextLines = 40 };
     // Do we have a top stack frame?
     const ULONG64 offset = m_d->m_currentStackTrace ? m_d->m_currentStackTrace->instructionOffset() : ULONG64(0);
@@ -1140,7 +1141,7 @@ void CdbDebugEngine::timerEvent(QTimerEvent* te)
             break;
         case E_UNEXPECTED: // Occurs on ExitProcess.
             killWatchTimer();
-            break;        
+            break;
     }
 }
 
@@ -1260,6 +1261,10 @@ void CdbDebugEnginePrivate::updateStackTrace()
         qWarning("%s: failed to create trace context: %s", Q_FUNC_INFO, qPrintable(errorMessage));
         return;
     }
+    // Disassembling slows things down a bit. Assembler is still available via menu.
+#if 0
+    m_engine->reloadDisassembler(); // requires stack trace
+#endif
     const QList<StackFrame> stackFrames = m_currentStackTrace->frames();
     // find the first usable frame and select it
     int current = -1;
@@ -1275,7 +1280,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     if (current >= 0) {
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
         m_engine->activateFrame(current);
-    }    
+    }
 }
 
 

@@ -77,5 +77,61 @@ bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorM
     return true;
 }
 
+// Search symbols matching a pattern
+bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
+                   QStringList *matches, QString *errorMessage)
+{
+    matches->clear();    
+    ULONG64 handle;
+    // E_NOINTERFACE means "no match"
+    HRESULT hr = syms->StartSymbolMatchWide(pattern.utf16(), &handle);
+    if (hr == E_NOINTERFACE) {
+        syms->EndSymbolMatch(handle);
+        return true;
+    }
+    if (FAILED(hr)) {
+        *errorMessage= msgComFailed("StartSymbolMatchWide", hr);
+        return false;
+    }
+    WCHAR wszBuf[MAX_PATH];
+    while (true) {
+        hr = syms->GetNextSymbolMatchWide(handle, wszBuf, MAX_PATH - 1, 0, 0);
+        if (hr == E_NOINTERFACE)
+            break;
+        if (hr == S_OK)
+            matches->push_back(QString::fromUtf16(wszBuf));
+    }
+    syms->EndSymbolMatch(handle);
+    if (matches->empty())
+        *errorMessage = QString::fromLatin1("No symbol matches '%1'.").arg(pattern);
+    return true;
+}
+
+// Add missing the module specifier: "main" -> "project!main"
+
+ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol,
+                                  QString *errorMessage)
+{
+    // Is it an incomplete symbol?
+    if (symbol->contains(QLatin1Char('!')))
+        return ResolveSymbolOk;
+    // 'main' is a #define for gdb, but not for VS
+    if (*symbol == QLatin1String("qMain"))
+        *symbol = QLatin1String("main");
+    // resolve
+    QStringList matches;
+    if (!searchSymbols(syms, *symbol, &matches, errorMessage))
+        return ResolveSymbolError;
+    if (matches.empty())
+        return ResolveSymbolNotFound;
+    *symbol = matches.front();
+    if (matches.size() > 1) {
+        *errorMessage = QString::fromLatin1("Ambiguous symbol '%1': %2").
+                        arg(*symbol, matches.join(QString(QLatin1Char(' '))));
+        return ResolveSymbolAmbiguous;
+    }
+    return ResolveSymbolOk;
+}
+
 }
 }
