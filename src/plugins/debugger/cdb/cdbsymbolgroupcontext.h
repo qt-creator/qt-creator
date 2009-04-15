@@ -41,7 +41,7 @@
 #include <QtCore/QMap>
 
 namespace Debugger {
-    namespace Internal {
+namespace Internal {
 
 class WatchData;
 class WatchHandler;
@@ -92,7 +92,7 @@ public:
     inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
 
     // Helper to convert a DEBUG_VALUE structure to a string representation
-    static QString debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type);
+    static QString debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type = 0, int integerBase = 10);
 
     // format an array of unsigned longs as "0x323, 0x2322, ..."
     static QString hexFormatArray(const unsigned short *array, int size);
@@ -145,6 +145,7 @@ bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterato
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
+
 #endif // CDBSYMBOLGROUPCONTEXT_H

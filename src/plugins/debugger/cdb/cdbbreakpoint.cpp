@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdbbreakpoint.h"
+#include "cdbmodules.h"
 #include "breakhandler.h"
 #include "cdbdebugengine_p.h"
 
@@ -279,20 +280,48 @@ bool CDBBreakPoint::getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakP
     return true;
 }
 
+
 // Synchronize (halted) engine breakpoints with those of the BreakHandler.
 bool CDBBreakPoint::synchronizeBreakPoints(IDebugControl4* debugControl,
+                                           IDebugSymbols3 *syms,
                                            BreakHandler *handler,
                                            QString *errorMessage)
 {    
     typedef QMap<CDBBreakPoint, int> BreakPointIndexMap;
-    BreakPointIndexMap breakPointIndexMap;
-    // convert BreakHandler's bps into a map of BreakPoint->BreakHandler->Index
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
+    BreakPointIndexMap breakPointIndexMap;
+    // convert BreakHandler's bps into a map of BreakPoint->BreakHandler->Index
+    // Ignore invalid functions (that could not be found) as they make
+    // the debugger hang.
     const int handlerCount = handler->size();
-    for (int i=0; i < handlerCount; ++i)
-        breakPointIndexMap.insert(CDBBreakPoint(*handler->at(i)), i);
+    const QChar moduleDelimiter = QLatin1Char('!');
+    for (int i=0; i < handlerCount; ++i) {
+        BreakpointData *bd = handler->at(i);
+        // Function breakpoints: Are the module names specified?
+        bool breakPointOk = false;
+        if (bd->funcName.isEmpty()) {
+            breakPointOk = true;
+        } else {
+            switch (resolveSymbol(syms, &bd->funcName, errorMessage)) {
+            case ResolveSymbolOk:
+                breakPointOk = true;
+                break;
+            case ResolveSymbolAmbiguous:
+                qWarning("Warning: %s\n", qPrintable(*errorMessage));
+                breakPointOk = true;
+                break;
+            case ResolveSymbolNotFound:
+            case ResolveSymbolError:
+                qWarning("Warning: %s\n", qPrintable(*errorMessage));
+                break;
+            };
+        } // function breakpoint
+        if (breakPointOk)
+            breakPointIndexMap.insert(CDBBreakPoint(*bd), i);
+    }
+    errorMessage->clear();
     // get number of engine breakpoints
     ULONG engineCount;
     if (!getBreakPointCount(debugControl, &engineCount, errorMessage))
@@ -356,5 +385,5 @@ bool CDBBreakPoint::synchronizeBreakPoints(IDebugControl4* debugControl,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

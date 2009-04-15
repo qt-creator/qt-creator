@@ -221,19 +221,6 @@ void GdbEngine::initializeConnections()
     connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
         this, SLOT(recheckDebuggingHelperAvailability()));
 
-    connect(theDebuggerAction(FormatHexadecimal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatDecimal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatOctal), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatBinary), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatRaw), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-    connect(theDebuggerAction(FormatNatural), SIGNAL(triggered()),
-        this, SLOT(reloadRegisters()));
-
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
@@ -2402,6 +2389,40 @@ void GdbEngine::loadAllSymbols()
     reloadModules();
 }
 
+QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
+{
+    QList<Symbol> rc;
+    bool success = false;
+    QString errorMessage;
+    do {
+        const QString nmBinary = QLatin1String("nm");
+        QProcess proc;
+        proc.start(nmBinary, QStringList() << QLatin1String("-D") << moduleName);
+        if (!proc.waitForFinished()) {
+            errorMessage = tr("Unable to run '%1': %2").arg(nmBinary, proc.errorString());
+            break;
+        }
+        const QString contents = QString::fromLocal8Bit(proc.readAllStandardOutput());
+        const QRegExp re(QLatin1String("([0-9a-f]+)?\\s+([^\\s]+)\\s+([^\\s]+)"));
+        Q_ASSERT(re.isValid());
+        foreach (const QString &line, contents.split(QLatin1Char('\n'))) {
+            if (re.indexIn(line) != -1) {
+                Symbol symbol;
+                symbol.address = re.cap(1);
+                symbol.state = re.cap(2);
+                symbol.name = re.cap(3);
+                rc.push_back(symbol);
+            } else {
+                qWarning("moduleSymbols: unhandled: %s", qPrintable(line));
+            }
+        }
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("moduleSymbols: %s\n", qPrintable(errorMessage));
+    return rc;
+}
+
 void GdbEngine::reloadModules()
 {
     sendCommand("info shared", ModulesList, QVariant());
@@ -2619,22 +2640,28 @@ void GdbEngine::handleStackListThreads(const GdbResultRecord &record, int id)
 //
 //////////////////////////////////////////////////////////////////////
 
+static inline char registerFormatChar()
+{
+    switch(checkedRegisterFormatAction()) {
+    case FormatHexadecimal:
+        return 'x';
+    case FormatDecimal:
+        return 'd';
+    case FormatOctal:
+        return 'o';
+    case FormatBinary:
+        return 't';
+    case FormatRaw:
+        return 'r';
+    default:
+        break;
+    }
+    return 'N';
+}
+
 void GdbEngine::reloadRegisters()
 {
-    QString format;
-    if (theDebuggerAction(FormatHexadecimal)->isChecked())
-        format = "x";
-    else if (theDebuggerAction(FormatDecimal)->isChecked())
-        format = "d";
-    else if (theDebuggerAction(FormatOctal)->isChecked())
-        format = "o";
-    else if (theDebuggerAction(FormatBinary)->isChecked())
-        format = "t";
-    else if (theDebuggerAction(FormatRaw)->isChecked())
-        format = "r";
-    else
-        format = "N";
-    sendCommand("-data-list-register-values " + format, RegisterListValues);
+    sendCommand(QLatin1String("-data-list-register-values ") + QLatin1Char(registerFormatChar()), RegisterListValues);
 }
 
 void GdbEngine::handleRegisterListNames(const GdbResultRecord &record)

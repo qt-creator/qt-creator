@@ -35,12 +35,14 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerManager;
+
 class ModulesWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit ModulesWindow(QWidget *parent = 0);
+    explicit ModulesWindow(DebuggerManager *debuggerManager, QWidget *parent = 0);
 
 signals:
     void reloadModulesRequested();
@@ -62,6 +64,7 @@ private:
     void setModel(QAbstractItemModel *model);
 
     bool m_alwaysResizeColumnsToContents;
+    DebuggerManager *m_debuggerManager;
 };
 
 } // namespace Internal

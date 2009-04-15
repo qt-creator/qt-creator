@@ -129,6 +129,7 @@ private:
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
+    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
 
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);

@@ -29,6 +29,7 @@
 
 #include "moduleswindow.h"
 #include "moduleshandler.h" // for model roles
+#include "debuggermanager.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -40,7 +41,7 @@
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeWidget>
-
+#include <QtGui/QApplication>
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -48,10 +49,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-using Debugger::Internal::ModulesWindow;
+namespace Debugger {
+namespace Internal {
 
-ModulesWindow::ModulesWindow(QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+ModulesWindow::ModulesWindow(DebuggerManager *debuggerManager,
+                             QWidget *parent)  :
+    QTreeView(parent),
+    m_alwaysResizeColumnsToContents(false),
+    m_debuggerManager(debuggerManager)
 {
     setWindowTitle(tr("Modules"));
     setSortingEnabled(true);
@@ -88,9 +93,12 @@ void ModulesWindow::resizeEvent(QResizeEvent *event)
 
 void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QString name;
     QModelIndex index = indexAt(ev->pos());
-    index = index.sibling(index.row(), 0);
-    QString name = model()->data(index).toString();
+    if (index.isValid())
+        index = index.sibling(index.row(), 0);
+    if (index.isValid())
+        name = model()->data(index).toString();
 
     QMenu menu;
     QAction *act0 = new QAction(tr("Update module list"), &menu);
@@ -116,9 +124,6 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     act5->setDisabled(name.isEmpty());
     act6->setDisabled(name.isEmpty());
     act7->setDisabled(name.isEmpty());
-    #ifndef Q_OS_LINUX
-    act7->setDisabled(true);
-    #endif
 
     menu.addAction(act0);
     menu.addAction(act4);
@@ -178,28 +183,26 @@ void ModulesWindow::showSymbols(const QString &name)
 {
     if (name.isEmpty())
         return;
-    QProcess proc;
-    proc.start("nm", QStringList() << "-D" << name);
-    proc.waitForFinished();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const QList<Symbol> symbols = m_debuggerManager->moduleSymbols(name);
+    QApplication::restoreOverrideCursor();
+    if (symbols.empty())
+        return;
     QTreeWidget *w = new QTreeWidget;
     w->setColumnCount(3);
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
-    //w->header()->hide();
     w->setHeaderLabels(QStringList() << tr("Address") << tr("Code") << tr("Symbol"));
     w->setWindowTitle(tr("Symbols in \"%1\"").arg(name));
-    QString contents = QString::fromLocal8Bit(proc.readAllStandardOutput());
-    QRegExp re("([0-9a-f]+)?\\s+([^\\s]+)\\s+([^\\s]+)");
-    foreach (QString line, contents.split('\n')) {
-        if (re.indexIn(line) != -1) {
-            QTreeWidgetItem *it = new QTreeWidgetItem;
-            it->setData(0, Qt::DisplayRole, re.cap(1));
-            it->setData(1, Qt::DisplayRole, re.cap(2));
-            it->setData(2, Qt::DisplayRole, re.cap(3));
-            w->addTopLevelItem(it);
-        } else {
-            qDebug() << "UNHANDLED LINE" << line;
-        }
+    foreach (const Symbol &s, symbols) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.address);
+        it->setData(1, Qt::DisplayRole, s.state);
+        it->setData(2, Qt::DisplayRole, s.name);
+        w->addTopLevelItem(it);
     }
     emit newDockRequested(w);
+}
+
+}
 }

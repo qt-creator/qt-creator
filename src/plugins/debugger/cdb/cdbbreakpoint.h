@@ -49,7 +49,8 @@ class BreakpointData;
 /* CDB Break point data structure with utilities to
  * apply to engine and to retrieve them from the engine and comparison. */
 
-struct CDBBreakPoint {
+struct CDBBreakPoint
+{
     CDBBreakPoint();
     CDBBreakPoint(const BreakpointData &bpd);
 
@@ -72,7 +73,8 @@ struct CDBBreakPoint {
     static bool getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage = 0);
     static bool getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
     // Synchronize (halted) engine with BreakHandler.
-    static bool synchronizeBreakPoints(IDebugControl4* ctl, BreakHandler *bh, QString *errorMessage);
+    static bool synchronizeBreakPoints(IDebugControl4* ctl, IDebugSymbols3 *syms,
+                                       BreakHandler *bh, QString *errorMessage);
 
     // Return a 'canonical' file (using '/' and capitalized drive letter)
     static QString canonicalSourceFile(const QString &f);
@@ -93,7 +95,7 @@ inline bool operator!=(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
 inline bool operator<(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
     { return b1.compare(b2) <  0; }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger
 
 #endif // CDBBREAKPOINTS_H

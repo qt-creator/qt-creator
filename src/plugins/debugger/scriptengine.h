@@ -102,6 +102,7 @@ private:
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
+    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
     void reloadDisassembler();
     void reloadModules();
     void reloadRegisters() {}

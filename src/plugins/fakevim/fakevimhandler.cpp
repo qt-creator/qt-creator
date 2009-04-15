@@ -96,15 +96,16 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-#define StartOfLine    QTextCursor::StartOfLine
-#define EndOfLine      QTextCursor::EndOfLine
-#define MoveAnchor     QTextCursor::MoveAnchor
-#define KeepAnchor     QTextCursor::KeepAnchor
-#define Up             QTextCursor::Up
-#define Down           QTextCursor::Down
-#define Right          QTextCursor::Right
-#define Left           QTextCursor::Left
-#define EndOfDocument  QTextCursor::End
+#define StartOfLine     QTextCursor::StartOfLine
+#define EndOfLine       QTextCursor::EndOfLine
+#define MoveAnchor      QTextCursor::MoveAnchor
+#define KeepAnchor      QTextCursor::KeepAnchor
+#define Up              QTextCursor::Up
+#define Down            QTextCursor::Down
+#define Right           QTextCursor::Right
+#define Left            QTextCursor::Left
+#define EndOfDocument   QTextCursor::End
+#define StartOfDocument QTextCursor::Start
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
@@ -274,8 +275,6 @@ public:
     void moveToWordBoundary(bool simple, bool forward);
 
     // to reduce line noise
-    typedef QTextCursor::MoveOperation MoveOperation;
-    typedef QTextCursor::MoveMode MoveMode;
     void moveToEndOfDocument() { m_tc.movePosition(EndOfDocument, MoveAnchor); }
     void moveToStartOfLine() { m_tc.movePosition(StartOfLine, MoveAnchor); }
     void moveToEndOfLine();
@@ -1701,6 +1700,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reWrite("^w!?( (.*))?$");
+    static QRegExp reSubstitute("^s(.)(.*)\\1(.*)\\1([gi]*)");
 
     if (cmd.isEmpty()) {
         setPosition(firstPositionInLine(beginLine));
@@ -1805,6 +1805,47 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         enterCommandMode();
         //qDebug() << "REPLAY: " << reNormal.cap(3);
         replay(reNormal.cap(3), 1);
+    } else if (reSubstitute.indexIn(cmd) != -1) { // :substitute
+        QString needle = reSubstitute.cap(2);
+        const QString replacement = reSubstitute.cap(3);
+        QString flags = reSubstitute.cap(4);
+        const bool startOfLineOnly = needle.startsWith('^');
+        if (startOfLineOnly)
+           needle.remove(0, 1);
+        needle.replace('$', '\n');
+        needle.replace("\\\n", "\\$");
+        QRegExp pattern(needle);
+        if (flags.contains('i'))
+            pattern.setCaseSensitivity(Qt::CaseInsensitive);
+        const bool global = flags.contains('g');
+        m_tc.beginEditBlock();
+        for (int line = beginLine; line <= endLine; ++line) {
+            const int start = firstPositionInLine(line);
+            const int end = lastPositionInLine(line);
+            for (int position = start; position <= end && position >= start; ) {
+                position = pattern.indexIn(m_tc.document()->toPlainText(), position);
+                if (startOfLineOnly && position != start)
+                    break;
+                if (position != -1) {
+                    m_tc.setPosition(position);
+                    m_tc.movePosition(QTextCursor::NextCharacter,
+                        KeepAnchor, pattern.matchedLength());
+                    QString text = m_tc.selectedText();
+                    if (text.endsWith(ParagraphSeparator)) {
+                        text = replacement + "\n";
+                    } else {
+                        text.replace(ParagraphSeparator, "\n");
+                        text.replace(pattern, replacement);
+                    }
+                    m_tc.removeSelectedText();
+                    m_tc.insertText(text);
+                }
+                if (!global)
+                    break;
+            }
+        }
+        m_tc.endEditBlock();
+        enterCommandMode();
     } else if (reSet.indexIn(cmd) != -1) { // :set
         showBlackMessage(QString());
         QString arg = reSet.cap(2);
@@ -1927,7 +1968,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
 
     if (!needle0.isEmpty()) {
         QTextCursor tc = m_tc;
-        tc.movePosition(QTextCursor::Start, MoveAnchor);
+        tc.movePosition(StartOfDocument, MoveAnchor);
 
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         QString needle = needle0;
@@ -2330,11 +2371,13 @@ void FakeVimHandler::Private::recordJump()
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
 }
 
-struct UndoBreaker : public QAbstractUndoItem
+class UndoBreaker : public QAbstractUndoItem
 {
+public:
     UndoBreaker(FakeVimHandler::Private *doc) : m_doc(doc) {}
     void undo() { m_doc->m_needMoreUndo = true; }
     void redo() { m_doc->m_needMoreUndo = true; }
+private:   
     FakeVimHandler::Private *m_doc;
 };
 

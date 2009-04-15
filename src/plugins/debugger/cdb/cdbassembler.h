@@ -27,51 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef DISASSEMBLERHANDLER_H
-#define DISASSEMBLERHANDLER_H
+#ifndef CDBASSEMBLER_H
+#define CDBASSEMBLER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
-#include <QtGui/QIcon>
+#include <windows.h>
+#include <inc/dbgeng.h>
 
 namespace Debugger {
 namespace Internal {
 
-class DisassemblerLine
-{
-public:
-    void clear();
+class DisassemblerLine;
 
-    QString address;
-    QString symbol;
-    QString addressDisplay;
-    QString symbolDisplay;
-    QString mnemonic;
-};
+// Utilities related to assembler code.
+class Register;
 
-class DisassemblerModel;
+bool getRegisters(IDebugControl4 *ctl,
+                  IDebugRegisters2 *ireg,
+                  QList<Register> *registers,
+                  QString *errorMessage,
+                  int base = 10 /* 16 for hex, etc */);
 
-class DisassemblerHandler : public QObject
-{
-    Q_OBJECT
-
-public:
-    DisassemblerHandler();
-    QAbstractItemModel *model() const;
-
-public slots:
-    void removeAll();
-
-    void setLines(const QList<DisassemblerLine> &lines);
-    QList<DisassemblerLine> lines() const;
-    void setCurrentLine(int line);
-
-private:
-    DisassemblerModel *m_model;
-};
+bool dissassemble(IDebugClient5 *client,
+                  IDebugControl4 *ctl,
+                  ULONG64 offset,
+                  unsigned long beforeLines,
+                  unsigned long afterLines,
+                  QList<DisassemblerLine> *lines,
+                  QString *errorMessage);
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DISASSEMBLERHANDLER_H
+#endif // CDBASSEMBLER_H

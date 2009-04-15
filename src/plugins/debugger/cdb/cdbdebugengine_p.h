@@ -48,7 +48,8 @@ class CdbStackTraceContext;
 // Thin wrapper around the 'DBEng' debugger engine shared library
 // which is loaded at runtime.
 
-class DebuggerEngineLibrary {
+class DebuggerEngineLibrary
+{
 public:
     DebuggerEngineLibrary();
     bool init(QString *errorMessage);
@@ -79,14 +80,16 @@ struct CdbDebugEnginePrivate
 
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
     void handleDebugEvent();
-    void updateThreadList();
+    void updateThreadList();    
     void updateStackTrace();
     bool updateLocals(int frameIndex, WatchHandler *wh, QString *errorMessage);
-    void handleDebugOutput(const char* szOutputString);
+    void updateModules();
+
     void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
     void cleanStackTrace();
     void clearForRun();
     CdbSymbolGroupContext *getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const;
+    void clearDisplay();
 
     bool interruptInterferiorProcess(QString *errorMessage);
 

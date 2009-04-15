@@ -58,13 +58,13 @@ static inline void debugSymbolFlags(unsigned long f, QTextStream &str)
         str << "|DEBUG_SYMBOL_IS_LOCAL";
 }
 
- QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS& p)
+QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS &p)
 {
     str << " Type=" << p.TypeId << " parent=";
     if (isTopLevelSymbol(p)) {
         str << "<ROOT>";
     } else {
-       str << p.ParentSymbol;
+        str << p.ParentSymbol;
     }
     str << " Subs=" << p.SubElements << " flags=" << p.Flags << '/';
     debugSymbolFlags(p.Flags, str);
@@ -403,45 +403,67 @@ bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &val
 
 // format an array of integers as "0x323, 0x2322, ..."
 template <class Integer>
-static QString hexFormatArrayHelper(const Integer *array, int size)
+static QString formatArrayHelper(const Integer *array, int size, int base = 10)
 {
     QString rc;
     const QString hexPrefix = QLatin1String("0x");
     const QString separator= QLatin1String(", ");
+    const bool hex = base == 16;
     for (int i = 0; i < size; i++) {
         if (i)
             rc += separator;
-        rc += hexPrefix;
-        rc += QString::number(array[i], 16);
+        if (hex)
+            rc += hexPrefix;
+        rc += QString::number(array[i], base);
     }
     return rc;
 }
 
 QString CdbSymbolGroupContext::hexFormatArray(const unsigned short *array, int size)
 {
-    return hexFormatArrayHelper(array, size);
+    return formatArrayHelper(array, size, 16);
 }
 
-QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type)
+// Helper to format an integer with
+// a hex prefix in case base = 16
+template <class Integer>
+        inline QString formatInteger(Integer value, int base)
+{
+    QString rc;
+    if (base == 16)
+        rc = QLatin1String("0x");
+    rc += QString::number(value, base);
+    return rc;
+}
+
+QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl,
+                                                  QString *qType,
+                                                  int integerBase)
 {
     switch (dv.Type) {
     case DEBUG_VALUE_INT8:
-        *type = QLatin1String("char");
-        return QString::number(dv.I8);
+        if (qType)
+            *qType = QLatin1String("char");
+        return formatInteger(dv.I8, integerBase);
     case DEBUG_VALUE_INT16:
-        *type = QLatin1String("short");
-        return QString::number(static_cast<short>(dv.I16));
+        if (qType)
+            *qType = QLatin1String("short");
+        return formatInteger(static_cast<short>(dv.I16), integerBase);
     case DEBUG_VALUE_INT32:
-        *type = QLatin1String("long");
-        return QString::number(static_cast<long>(dv.I32));
+        if (qType)
+            *qType = QLatin1String("long");
+        return formatInteger(static_cast<long>(dv.I32), integerBase);
     case DEBUG_VALUE_INT64:
-        *type = QLatin1String("long long");
-        return QString::number(static_cast<long long>(dv.I64));
+        if (qType)
+            *qType = QLatin1String("long long");
+        return formatInteger(static_cast<long long>(dv.I64), integerBase);
     case DEBUG_VALUE_FLOAT32:
-        *type = QLatin1String("float");
+        if (qType)
+            *qType = QLatin1String("float");
         return QString::number(dv.F32);
     case DEBUG_VALUE_FLOAT64:
-        *type = QLatin1String("double");
+        if (qType)
+            *qType = QLatin1String("double");
         return QString::number(dv.F64);
     case DEBUG_VALUE_FLOAT80:
     case DEBUG_VALUE_FLOAT128: { // Convert to double
@@ -449,28 +471,32 @@ QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, IDebugC
             double d = 0.0;
             if (SUCCEEDED(ctl->CoerceValue(const_cast<DEBUG_VALUE*>(&dv), DEBUG_VALUE_FLOAT64, &doubleValue)))
                 d = dv.F64;
-            *type = dv.Type == DEBUG_VALUE_FLOAT80 ? QLatin1String("80bit-float") : QLatin1String("128bit-float");
+            if (qType)
+                *qType = QLatin1String(dv.Type == DEBUG_VALUE_FLOAT80 ? "80bit-float" : "128bit-float");
             return QString::number(d);
         }
     case DEBUG_VALUE_VECTOR64: {
-        *type = QLatin1String("64bit-vector");
-        QString rc = QLatin1String("bytes: ");
-        rc += hexFormatArrayHelper(dv.VI8, 8);
-        rc += QLatin1String(" long: ");
-        rc += hexFormatArrayHelper(dv.VI32, 2);
-        return rc;
-    }
+            if (qType)
+                *qType = QLatin1String("64bit-vector");
+            QString rc = QLatin1String("bytes: ");
+            rc += formatArrayHelper(dv.VI8, 8, integerBase);
+            rc += QLatin1String(" long: ");
+            rc += formatArrayHelper(dv.VI32, 2, integerBase);
+            return rc;
+        }
     case DEBUG_VALUE_VECTOR128: {
-        *type = QLatin1String("128bit-vector");
-        QString rc = QLatin1String("bytes: ");
-        rc += hexFormatArrayHelper(dv.VI8, 16);
-        rc += QLatin1String(" long long: ");
-        rc += hexFormatArrayHelper(dv.VI64, 2);
-        return rc;
-    }    
+            if (qType)
+                *qType = QLatin1String("128bit-vector");
+            QString rc = QLatin1String("bytes: ");
+            rc += formatArrayHelper(dv.VI8, 16, integerBase);
+            rc += QLatin1String(" long long: ");
+            rc += formatArrayHelper(dv.VI64, 2, integerBase);
+            return rc;
+        }
     }
-    *type = QString::fromLatin1("Unknown type #%1:").arg(dv.Type);
-    return hexFormatArrayHelper(dv.RawBytes, 24);
+    if (qType)
+        *qType = QString::fromLatin1("Unknown type #%1:").arg(dv.Type);
+    return formatArrayHelper(dv.RawBytes, 24, integerBase);
 }
 
 // - Watch model functions
@@ -613,5 +639,5 @@ bool CdbSymbolGroupContext::completeModel(CdbSymbolGroupContext *sg,
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

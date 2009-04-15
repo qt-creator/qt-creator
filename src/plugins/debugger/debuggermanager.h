@@ -65,7 +65,7 @@ class WatchHandler;
 class SourceFilesWindow;
 class WatchData;
 class BreakpointData;
-
+class Symbol;
 
 // Note: the Debugger process itself is referred to as 'Debugger',
 // whereas the debugged process is referred to as 'Inferior' or 'Debuggee'.
@@ -308,6 +308,8 @@ public:
     QAbstractItemModel *threadsModel();
     int status() const { return m_status; }
     DebuggerStartMode startMode() const { return m_startMode; }
+
+    QList<Symbol> moduleSymbols(const QString &moduleName);
 
 signals:
     void debuggingFinished();

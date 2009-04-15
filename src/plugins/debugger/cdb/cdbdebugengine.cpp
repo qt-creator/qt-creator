@@ -32,11 +32,17 @@
 #include "cdbsymbolgroupcontext.h"
 #include "cdbstacktracecontext.h"
 #include "cdbbreakpoint.h"
+#include "cdbmodules.h"
+#include "cdbassembler.h"
 
+#include "debuggeractions.h"
 #include "debuggermanager.h"
 #include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "registerhandler.h"
+#include "moduleshandler.h"
+#include "disassemblerhandler.h"
 #include "watchutils.h"
 
 #include <utils/qtcassert.h>
@@ -51,6 +57,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QApplication>
 
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
@@ -190,7 +197,6 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_breakEventMode(BreakEventHandle),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
-    m_debugOutputCallBack(engine),    
     m_pDebugClient(0),
     m_pDebugControl(0),
     m_pDebugSystemObjects(0),
@@ -202,7 +208,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEn
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
     m_mode(AttachCore)
-{   
+{
 }
 
 bool CdbDebugEnginePrivate::init(QString *errorMessage)
@@ -220,7 +226,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         return false;
     }
 
-    m_pDebugClient->SetOutputCallbacks(&m_debugOutputCallBack);
+    m_pDebugClient->SetOutputCallbacksWide(&m_debugOutputCallBack);
     m_pDebugClient->SetEventCallbacks(&m_debugEventCallBack);
 
     hr = lib.debugCreate( __uuidof(IDebugControl4), reinterpret_cast<void**>(&m_pDebugControl));
@@ -246,7 +252,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     hr = lib.debugCreate( __uuidof(IDebugRegisters2), reinterpret_cast<void**>(&m_pDebugRegisters));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Creation of IDebugRegisters2 failed: %1").arg(msgDebugEngineComResult(hr));
-        return false;    
+        return false;
     }
     if (debugCDB)
         qDebug() << QString::fromLatin1("CDB Initialization succeeded, interrupt time out %1s.").arg(getInterruptTimeOutSecs(m_pDebugControl));
@@ -293,7 +299,7 @@ void CdbDebugEnginePrivate::clearForRun()
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
-{    
+{
     if (m_currentStackTrace) {
         delete m_currentStackTrace;
         m_currentStackTrace = 0;
@@ -308,6 +314,14 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()), this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()), this, SLOT(slotConsoleStubTerminated()));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerOutput(QString,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerOutput(QString,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggerInputPrompt(QString,QString)),
+            m_d->m_debuggerManager, SLOT(showDebuggerInput(QString,QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeOutput(QString)),
+            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
+    connect(&m_d->m_debugOutputCallBack, SIGNAL(debuggeeInputPrompt(QString)),
+            m_d->m_debuggerManager, SLOT(showApplicationOutput(QString)));
 }
 
 CdbDebugEngine::~CdbDebugEngine()
@@ -344,8 +358,16 @@ void CdbDebugEngine::setToolTipExpression(const QPoint & /*pos*/, const QString 
 {
 }
 
+void CdbDebugEnginePrivate::clearDisplay()
+{
+    m_debuggerManagerAccess->threadsHandler()->removeAll();
+    m_debuggerManagerAccess->modulesHandler()->removeAll();
+    m_debuggerManagerAccess->registerHandler()->removeAll();
+}
+
 bool CdbDebugEngine::startDebugger()
-{    
+{
+    m_d->clearDisplay();
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
@@ -467,7 +489,7 @@ void CdbDebugEngine::exitDebugger()
         // Terminate or detach if we are running
         HRESULT hr;
         switch (m_d->m_mode) {
-        case AttachExternal:            
+        case AttachExternal:
             wasRunning = m_d->isDebuggeeRunning();
             if (wasRunning) { // Process must be stopped in order to detach
                 m_d->interruptInterferiorProcess(&errorMessage);
@@ -480,7 +502,7 @@ void CdbDebugEngine::exitDebugger()
                 qDebug() << Q_FUNC_INFO << "detached" << msgDebugEngineComResult(hr);
             break;
         case StartExternal:
-        case StartInternal:            
+        case StartInternal:
             wasRunning = m_d->isDebuggeeRunning();
             if (wasRunning) { // Process must be stopped in order to terminate
                 m_d->interruptInterferiorProcess(&errorMessage);
@@ -547,7 +569,7 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
         qDebug() << Q_FUNC_INFO << "\n    " << frameIndex << formatWatchList(incompletes);
 
     m_engine->filterEvaluateWatchers(&incompletes, wh);
-    if (!incompletes.empty()) {        
+    if (!incompletes.empty()) {
         const QString msg = QLatin1String("Warning: Locals left in incomplete list: ") + formatWatchList(incompletes);
         qWarning("%s\n", qPrintable(msg));
     }
@@ -591,7 +613,7 @@ void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *
     bool placeHolderSeen = false;
     for (WatchList::iterator it = wd->begin(); it != wd->end(); ) {
         if (it->iname.startsWith(watcherPrefix)) {
-            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);            
+            const bool isPlaceHolder = it->exp.startsWith(lessThan) && it->exp.endsWith(greaterThan);
             if (isPlaceHolder) {
                 if (!placeHolderSeen) { // Max one place holder
                     it->setChildCount(0);
@@ -602,7 +624,7 @@ void CdbDebugEngine::filterEvaluateWatchers(QList<WatchData> *wd, WatchHandler *
             } else {
                 evaluateWatcher(&(*it));
                 wh->insertData(*it);
-            }            
+            }
             it = wd->erase(it);
         } else {
             ++it;
@@ -756,7 +778,7 @@ bool CdbDebugEnginePrivate::continueInferiorProcess(QString *errorMessage)
 
 // Continue process with notifications
 bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
-{   
+{
     ULONG executionStatus;
     if (!getExecutionStatus(m_pDebugControl, &executionStatus, errorMessage))
         return false;
@@ -795,7 +817,7 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
         *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Core::Utils::winErrorMessage(GetLastError()));
         return false;
     }
-#if 0    
+#if 0
     const HRESULT hr = m_pDebugControl->SetInterrupt(DEBUG_INTERRUPT_ACTIVE|DEBUG_INTERRUPT_EXIT);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to interrupt debuggee after %1s: %2").
@@ -842,7 +864,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << expr << value;
     const int frameIndex = m_d->m_debuggerManagerAccess->stackHandler()->currentIndex();
-    QString errorMessage;    
+    QString errorMessage;
     bool success = false;
     do {
         QString newValue;
@@ -850,7 +872,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
         if (!sg)
             break;
         if (!sg->assignValue(expr, value, &newValue, &errorMessage))
-            break;        
+            break;
         // Update view
         WatchHandler *watchHandler = m_d->m_debuggerManagerAccess->watchHandler();
         if (WatchData *fwd = watchHandler->findData(expr)) {
@@ -1010,6 +1032,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     }
 
     return CDBBreakPoint::synchronizeBreakPoints(m_pDebugControl,
+                                                 m_pDebugSymbols,
                                                  m_debuggerManagerAccess->breakHandler(),
                                                  errorMessage);
 }
@@ -1024,6 +1047,30 @@ void CdbDebugEngine::saveSessionData()
 
 void CdbDebugEngine::reloadDisassembler()
 {
+    enum { ContextLines = 40 };
+    // Do we have a top stack frame?
+    const ULONG64 offset = m_d->m_currentStackTrace ? m_d->m_currentStackTrace->instructionOffset() : ULONG64(0);
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << offset;
+
+    DisassemblerHandler *dh = m_d->m_debuggerManagerAccess->disassemblerHandler();
+    if (offset) {
+        QList<DisassemblerLine> lines;
+        QString errorMessage;
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        const bool drc = dissassemble(m_d->m_pDebugClient, m_d->m_pDebugControl, offset,
+                         ContextLines, ContextLines, &lines, &errorMessage);
+        QApplication::restoreOverrideCursor();
+        if (drc) {
+            dh->setLines(lines);
+            if (lines.size() > ContextLines)
+                dh->setCurrentLine(ContextLines);
+        } else {
+            qWarning("reloadDisassembler: %s\n", qPrintable(errorMessage));
+        }
+    } else {
+        dh->setLines(QList<DisassemblerLine>());
+    }
 }
 
 void CdbDebugEngine::reloadModules()
@@ -1042,8 +1089,54 @@ void CdbDebugEngine::loadAllSymbols()
         qDebug() << Q_FUNC_INFO;
 }
 
+QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
+{
+    QList<Symbol> rc;
+    QString errorMessage;
+    bool success = false;
+    do {
+        if (m_d->isDebuggeeRunning()) {
+            errorMessage = tr("Cannot retrieve symbols while the debuggee is running.");
+            break;
+        }
+        if (!getModuleSymbols(m_d->m_pDebugSymbols, moduleName, &rc, &errorMessage))
+            break;
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("%s\n", qPrintable(errorMessage));
+    return rc;
+}
+
+static inline int registerFormatBase()
+{
+    switch(checkedRegisterFormatAction()) {
+    case FormatHexadecimal:
+        return 16;
+    case FormatDecimal:
+        return 10;
+    case FormatOctal:
+        return 8;
+    case FormatBinary:
+        return 2;
+        break;
+    case FormatRaw:
+    case FormatNatural:
+        break;
+    }
+    return 10;
+}
+
 void CdbDebugEngine::reloadRegisters()
 {
+    const int intBase = registerFormatBase();
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << intBase;
+    QList<Register> registers;
+    QString errorMessage;
+    if (!getRegisters(m_d->m_pDebugControl, m_d->m_pDebugRegisters, &registers, &errorMessage, intBase))
+        qWarning("reloadRegisters() failed: %s\n", qPrintable(errorMessage));
+    m_d->m_debuggerManagerAccess->registerHandler()->setRegisters(registers);
 }
 
 void CdbDebugEngine::timerEvent(QTimerEvent* te)
@@ -1067,7 +1160,7 @@ void CdbDebugEngine::timerEvent(QTimerEvent* te)
             break;
         case E_UNEXPECTED: // Occurs on ExitProcess.
             killWatchTimer();
-            break;        
+            break;
     }
 }
 
@@ -1142,21 +1235,34 @@ void CdbDebugEnginePrivate::updateThreadList()
 
     ThreadsHandler* th = m_debuggerManagerAccess->threadsHandler();
     QList<ThreadData> threads;
+    bool success = false;
+    QString errorMessage;
+    do {
+        ULONG numberOfThreads;
+        HRESULT hr= m_pDebugSystemObjects->GetNumberThreads(&numberOfThreads);
+        if (FAILED(hr)) {
+            errorMessage= msgComFailed("GetNumberThreads", hr);
+            break;
+        }
+        const ULONG maxThreadIds = 256;
+        ULONG threadIds[maxThreadIds];
+        ULONG biggestThreadId = qMin(maxThreadIds, numberOfThreads - 1);
+        hr = m_pDebugSystemObjects->GetThreadIdsByIndex(0, biggestThreadId, threadIds, 0);
+        if (FAILED(hr)) {
+            errorMessage= msgComFailed("GetThreadIdsByIndex", hr);
+            break;
+        }
+        for (ULONG threadId = 0; threadId <= biggestThreadId; ++threadId) {
+            ThreadData thread;
+            thread.id = threadId;
+            threads.append(thread);
+        }
 
-    HRESULT hr;
-    ULONG numberOfThreads;
-    hr = m_pDebugSystemObjects->GetNumberThreads(&numberOfThreads);
-    const ULONG maxThreadIds = 256;
-    ULONG threadIds[maxThreadIds];
-    ULONG biggestThreadId = qMin(maxThreadIds, numberOfThreads - 1);
-    hr = m_pDebugSystemObjects->GetThreadIdsByIndex(0, biggestThreadId, threadIds, 0);
-    for (ULONG threadId = 0; threadId <= biggestThreadId; ++threadId) {
-        ThreadData thread;
-        thread.id = threadId;
-        threads.append(thread);
-    }
-
-    th->setThreads(threads);
+        th->setThreads(threads);
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("updateThreadList() failed: %s\n", qPrintable(errorMessage));
 }
 
 void CdbDebugEnginePrivate::updateStackTrace()
@@ -1166,6 +1272,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     // Create a new context
     clearForRun();
     QString errorMessage;
+    m_engine->reloadRegisters();
     m_currentStackTrace =
             CdbStackTraceContext::create(m_pDebugControl, m_pDebugSystemObjects,
                                          m_pDebugSymbols, m_currentThreadId, &errorMessage);
@@ -1173,6 +1280,10 @@ void CdbDebugEnginePrivate::updateStackTrace()
         qWarning("%s: failed to create trace context: %s", Q_FUNC_INFO, qPrintable(errorMessage));
         return;
     }
+    // Disassembling slows things down a bit. Assembler is still available via menu.
+#if 0
+    m_engine->reloadDisassembler(); // requires stack trace
+#endif
     const QList<StackFrame> stackFrames = m_currentStackTrace->frames();
     // find the first usable frame and select it
     int current = -1;
@@ -1188,14 +1299,17 @@ void CdbDebugEnginePrivate::updateStackTrace()
     if (current >= 0) {
         m_debuggerManagerAccess->stackHandler()->setCurrentIndex(current);
         m_engine->activateFrame(current);
-    }    
+    }
 }
 
-void CdbDebugEnginePrivate::handleDebugOutput(const char *szOutputString)
+
+void CdbDebugEnginePrivate::updateModules()
 {
-    if (debugCDB && strstr(szOutputString, "ModLoad:") == 0)
-        qDebug() << Q_FUNC_INFO << szOutputString;
-    m_debuggerManagerAccess->showApplicationOutput(QString::fromLocal8Bit(szOutputString));
+    QList<Module> modules;
+    QString errorMessage;
+    if (!getModuleList(m_pDebugSymbols, &modules, &errorMessage))
+        qWarning("updateModules() failed: %s\n", qPrintable(errorMessage));
+    m_debuggerManagerAccess->modulesHandler()->setModules(modules);
 }
 
 void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT pBP)

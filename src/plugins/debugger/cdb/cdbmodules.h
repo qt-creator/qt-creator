@@ -27,51 +27,39 @@
 **
 **************************************************************************/
 
-#ifndef DISASSEMBLERHANDLER_H
-#define DISASSEMBLERHANDLER_H
+#ifndef CDBMODULES_H
+#define CDBMODULES_H
 
-#include <QtCore/QObject>
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
-#include <QtGui/QIcon>
+#include <windows.h>
+#include <inc/dbgeng.h>
 
 namespace Debugger {
 namespace Internal {
 
-class DisassemblerLine
-{
-public:
-    void clear();
+class Module;
+class Symbol;
 
-    QString address;
-    QString symbol;
-    QString addressDisplay;
-    QString symbolDisplay;
-    QString mnemonic;
-};
+bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage);
+// Search symbols matching a pattern
+bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
+                   QStringList *matches, QString *errorMessage);
 
-class DisassemblerModel;
+// ResolveSymbol: For symbols that are missing the module specifier,
+// find the module and expand: "main" -> "project!main".
 
-class DisassemblerHandler : public QObject
-{
-    Q_OBJECT
+enum ResolveSymbolResult { ResolveSymbolOk, ResolveSymbolAmbiguous,
+                           ResolveSymbolNotFound, ResolveSymbolError };
 
-public:
-    DisassemblerHandler();
-    QAbstractItemModel *model() const;
+ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol, QString *errorMessage);
 
-public slots:
-    void removeAll();
-
-    void setLines(const QList<DisassemblerLine> &lines);
-    QList<DisassemblerLine> lines() const;
-    void setCurrentLine(int line);
-
-private:
-    DisassemblerModel *m_model;
-};
+// List symbols of a module
+bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
+                      QList<Symbol> *symbols, QString *errorMessage);
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DISASSEMBLERHANDLER_H
+#endif // CDBMODULES_H

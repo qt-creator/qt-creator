@@ -34,6 +34,9 @@
 
 #include <utils/savedaction.h>
 
+QT_BEGIN_NAMESPACE
+class QActionGroup;
+QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
@@ -46,18 +49,22 @@ public:
     ~DebuggerSettings();
     
     void insertItem(int code, Core::Utils::SavedAction *item);
-    Core::Utils::SavedAction *item(int code);
+    Core::Utils::SavedAction *item(int code) const;
 
-    QString dump();
+    QString dump() const;
 
     static DebuggerSettings *instance();
 
+    // Return one of FormatHexadecimal, FormatDecimal,...
+    int checkedRegisterFormatAction() const;
+
 public slots:
     void readSettings(QSettings *settings);
-    void writeSettings(QSettings *settings);
+    void writeSettings(QSettings *settings) const;
 
 private:
     QHash<int, Core::Utils::SavedAction *> m_items; 
+    QActionGroup *m_registerFormatGroup;
 };
 
 
@@ -125,7 +132,10 @@ enum DebuggerActionCode
 // singleton access
 Core::Utils::SavedAction *theDebuggerAction(int code);
 
-// convienience
+// Return one of FormatHexadecimal, FormatDecimal,...
+int checkedRegisterFormatAction();
+
+// convenience
 bool theDebuggerBoolSetting(int code);
 QString theDebuggerStringSetting(int code);
 

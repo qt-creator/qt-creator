@@ -54,7 +54,7 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_registerFormatGroup(0)
 {}
 
 DebuggerSettings::~DebuggerSettings()
@@ -74,25 +74,25 @@ void DebuggerSettings::readSettings(QSettings *settings)
         item->readSettings(settings);
 }
 
-void DebuggerSettings::writeSettings(QSettings *settings)
+void DebuggerSettings::writeSettings(QSettings *settings) const
 {
     foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
 }
    
-SavedAction *DebuggerSettings::item(int code)
+SavedAction *DebuggerSettings::item(int code) const
 {
     QTC_ASSERT(m_items.value(code, 0), return 0);
     return m_items.value(code, 0);
 }
 
-QString DebuggerSettings::dump()
+QString DebuggerSettings::dump() const
 {
     QString out;
     QTextStream ts(&out);
     ts  << "Debugger settings: ";
     foreach (SavedAction *item, m_items)
-        ts << "\n" << item->value().toString();
+        ts << '\n' << item->value().toString();
     return out;
 }
 
@@ -153,27 +153,27 @@ DebuggerSettings *DebuggerSettings::instance()
 
     //
     // DebuggingHelper
-    //
+    const QString debugModeGroup = QLatin1String("DebugMode");
     item = new SavedAction(instance);
     instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
-    item->setSettingsKey("DebugMode", "UseDebuggingHelper");
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseDebuggingHelper"));
     item->setText(tr("Use Debugging Helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
 
     item = new SavedAction(instance);
     instance->insertItem(UseCustomDebuggingHelperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDebuggingHelperLocation");
+    item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
     item->setCheckable(true);
 
     item = new SavedAction(instance);
     instance->insertItem(CustomDebuggingHelperLocation, item);
-    item->setSettingsKey("DebugMode", "CustomDebuggingHelperLocation");
+    item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
 
     item = new SavedAction(instance);
     instance->insertItem(DebugDebuggingHelpers, item);
-    item->setSettingsKey("DebugMode", "DebugDebuggingHelpers");
+    item->setSettingsKey(debugModeGroup, QLatin1String("DebugDebuggingHelpers"));
     item->setText(tr("Debug debugging helper"));
     item->setCheckable(true);
 
@@ -193,115 +193,120 @@ DebuggerSettings *DebuggerSettings::instance()
     // Registers
     //
 
-    QActionGroup *registerFormatGroup = new QActionGroup(instance);
-    registerFormatGroup->setExclusive(true);
+    instance->m_registerFormatGroup = new QActionGroup(instance);
+    instance->m_registerFormatGroup->setExclusive(true);
 
     item = new SavedAction(instance);
     item->setText(tr("Hexadecimal"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatHexadecimal");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatHexadecimal"));
     item->setChecked(true);
+    item->setData(FormatHexadecimal);
     instance->insertItem(FormatHexadecimal, item);
-    registerFormatGroup->addAction(item);
+    instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
     item->setText(tr("Decimal"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatDecimal");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatDecimal"));
+    item->setData(FormatDecimal);
     instance->insertItem(FormatDecimal, item);
-    registerFormatGroup->addAction(item);
+    instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
     item->setText(tr("Octal"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatOctal");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatOctal"));
+    item->setData(FormatOctal);
     instance->insertItem(FormatOctal, item);
-    registerFormatGroup->addAction(item);
+    instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
     item->setText(tr("Binary"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatBinary");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatBinary"));
+    item->setData(FormatBinary);
     instance->insertItem(FormatBinary, item);
-    registerFormatGroup->addAction(item);
+    instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
     item->setText(tr("Raw"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatRaw");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatRaw"));
     instance->insertItem(FormatRaw, item);
-    registerFormatGroup->addAction(item);
+    item->setData(FormatRaw);
+    instance->m_registerFormatGroup->addAction(item);
 
     item = new SavedAction(instance);
     item->setText(tr("Natural"));
     item->setCheckable(true);
-    item->setSettingsKey("DebugMode", "FormatNatural");
+    item->setSettingsKey(debugModeGroup, QLatin1String("FormatNatural"));
+    item->setData(FormatNatural);
     instance->insertItem(FormatNatural, item);
-    registerFormatGroup->addAction(item);
-
+    instance->m_registerFormatGroup->addAction(item);
 
     //
     // Settings
     //
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "Location");
+    item->setSettingsKey(debugModeGroup, QLatin1String("Location"));
     instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "Environment");
+    item->setSettingsKey(debugModeGroup, QLatin1String("Environment"));
     instance->insertItem(GdbEnvironment, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "ScriptFile");
+    item->setSettingsKey(debugModeGroup, QLatin1String("ScriptFile"));
     instance->insertItem(GdbScriptFile, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "AutoQuit");
+    item->setSettingsKey(debugModeGroup, QLatin1String("AutoQuit"));
     item->setText(tr("Automatically quit debugger"));
     item->setCheckable(true);
     instance->insertItem(AutoQuit, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "UseToolTips");
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
     item->setText(tr("Use tooltips when debugging"));
     item->setCheckable(true);
     instance->insertItem(UseToolTips, item);
 
     item = new SavedAction(instance);
-    item->setDefaultValue("xterm");
-    item->setSettingsKey("DebugMode", "Terminal");
+    item->setDefaultValue(QLatin1String("xterm"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("Terminal"));
     instance->insertItem(TerminalApplication, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "ListSourceFiles");
+    item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
     item->setText(tr("List source files"));
     item->setCheckable(true);
     instance->insertItem(ListSourceFiles, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "SkipKnownFrames");
+    item->setSettingsKey(debugModeGroup, QLatin1String("SkipKnownFrames"));
     item->setText(tr("Skip known frames"));
     item->setCheckable(true);
     instance->insertItem(SkipKnownFrames, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "AllPluginBreakpoints");
+    item->setSettingsKey(debugModeGroup, QLatin1String("AllPluginBreakpoints"));
     instance->insertItem(AllPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "SelectedPluginBreakpoints");
+    item->setSettingsKey(debugModeGroup, QLatin1String("SelectedPluginBreakpoints"));
     instance->insertItem(SelectedPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "NoPluginBreakpoints");
+    item->setSettingsKey(debugModeGroup, QLatin1String("NoPluginBreakpoints"));
     instance->insertItem(NoPluginBreakpoints, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "SelectedPluginBreakpointsPattern");
+    item->setSettingsKey(debugModeGroup, QLatin1String("SelectedPluginBreakpointsPattern"));
     instance->insertItem(SelectedPluginBreakpointsPattern, item);
 
     item = new SavedAction(instance);
-    item->setSettingsKey("DebugMode", "MaximalStackDepth");
+    item->setSettingsKey(debugModeGroup, QLatin1String("MaximalStackDepth"));
     item->setDefaultValue(20);
     instance->insertItem(MaximalStackDepth, item);
 
@@ -316,6 +321,11 @@ DebuggerSettings *DebuggerSettings::instance()
     return instance;
 }
 
+int DebuggerSettings::checkedRegisterFormatAction() const
+{
+    return m_registerFormatGroup->checkedAction()->data().toInt();
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 // DebuggerActions
@@ -325,6 +335,11 @@ DebuggerSettings *DebuggerSettings::instance()
 SavedAction *theDebuggerAction(int code)
 {
     return DebuggerSettings::instance()->item(code);
+}
+
+int checkedRegisterFormatAction()
+{
+    return DebuggerSettings::instance()->checkedRegisterFormatAction();
 }
 
 bool theDebuggerBoolSetting(int code)

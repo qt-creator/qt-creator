@@ -31,6 +31,7 @@
 #define DEBUGGER_IDEBUGGERENGINE_H
 
 #include <QtCore/QObject>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -39,6 +40,8 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
+
+class Symbol;
 
 class IDebuggerEngine : public QObject
 {
@@ -79,6 +82,7 @@ public:
     virtual void reloadModules() = 0;
     virtual void loadSymbols(const QString &moduleName) = 0;
     virtual void loadAllSymbols() = 0;
+    virtual QList<Symbol> moduleSymbols(const QString &moduleName) = 0;
 
     virtual void reloadRegisters() = 0;
 
