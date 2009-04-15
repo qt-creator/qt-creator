@@ -31,6 +31,8 @@
 #include "moduleshandler.h"
 #include "cdbdebugengine_p.h"
 
+#include <QtCore/QFileInfo>
+
 namespace Debugger {
 namespace Internal {
 
@@ -82,11 +84,13 @@ bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage)
 {
     matches->clear();    
-    ULONG64 handle;
-    // E_NOINTERFACE means "no match"
+    ULONG64 handle = 0;
+    // E_NOINTERFACE means "no match". Apparently, it does not always
+    // set handle.
     HRESULT hr = syms->StartSymbolMatchWide(pattern.utf16(), &handle);
     if (hr == E_NOINTERFACE) {
-        syms->EndSymbolMatch(handle);
+        if (handle)
+            syms->EndSymbolMatch(handle);
         return true;
     }
     if (FAILED(hr)) {
@@ -131,6 +135,28 @@ ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol,
         return ResolveSymbolAmbiguous;
     }
     return ResolveSymbolOk;
+}
+
+// List symbols of a module
+bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
+                      QList<Symbol> *symbols, QString *errorMessage)
+{
+    // Search all symbols and retrieve addresses
+    symbols->clear();
+    QStringList matches;
+    const QString pattern = QFileInfo(moduleName).baseName() + QLatin1String("!*");
+    if (!searchSymbols(syms, pattern, &matches, errorMessage))
+        return false;
+    const QString hexPrefix = QLatin1String("0x");
+    foreach (const QString &name, matches) {
+        Symbol symbol;
+        symbol.name = name;
+        ULONG64 offset = 0;
+        if (SUCCEEDED(syms->GetOffsetByNameWide(name.utf16(), &offset)))
+            symbol.address = hexPrefix + QString::number(offset, 16);
+        symbols->push_back(symbol);
+    }
+    return true;
 }
 
 }

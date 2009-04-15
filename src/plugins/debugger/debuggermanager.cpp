@@ -175,7 +175,7 @@ void DebuggerManager::init()
     m_statusLabel = new QLabel;
     m_breakWindow = new BreakWindow;
     m_disassemblerWindow = new DisassemblerWindow;
-    m_modulesWindow = new ModulesWindow;
+    m_modulesWindow = new ModulesWindow(this);
     m_outputWindow = new DebuggerOutputWindow;
     m_registerWindow = new RegisterWindow;
     m_stackWindow = new StackWindow;
@@ -996,6 +996,12 @@ void DebuggerManager::loadSymbols(const QString &module)
 {
     QTC_ASSERT(m_engine, return);
     m_engine->loadSymbols(module);
+}
+
+QList<Symbol> DebuggerManager::moduleSymbols(const QString &moduleName)
+{
+    QTC_ASSERT(m_engine, return QList<Symbol>());
+    return m_engine->moduleSymbols(moduleName);
 }
 
 void DebuggerManager::stepExec()

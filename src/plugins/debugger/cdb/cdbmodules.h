@@ -40,6 +40,7 @@ namespace Debugger {
 namespace Internal {
 
 class Module;
+class Symbol;
 
 bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage);
 // Search symbols matching a pattern
@@ -53,6 +54,10 @@ enum ResolveSymbolResult { ResolveSymbolOk, ResolveSymbolAmbiguous,
                            ResolveSymbolNotFound, ResolveSymbolError };
 
 ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol, QString *errorMessage);
+
+// List symbols of a module
+bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
+                      QList<Symbol> *symbols, QString *errorMessage);
 
 }
 }

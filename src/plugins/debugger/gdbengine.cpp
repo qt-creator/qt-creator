@@ -2389,6 +2389,40 @@ void GdbEngine::loadAllSymbols()
     reloadModules();
 }
 
+QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
+{
+    QList<Symbol> rc;
+    bool success = false;
+    QString errorMessage;
+    do {
+        const QString nmBinary = QLatin1String("nm");
+        QProcess proc;
+        proc.start(nmBinary, QStringList() << QLatin1String("-D") << moduleName);
+        if (!proc.waitForFinished()) {
+            errorMessage = tr("Unable to run '%1': %2").arg(nmBinary, proc.errorString());
+            break;
+        }
+        const QString contents = QString::fromLocal8Bit(proc.readAllStandardOutput());
+        const QRegExp re(QLatin1String("([0-9a-f]+)?\\s+([^\\s]+)\\s+([^\\s]+)"));
+        Q_ASSERT(re.isValid());
+        foreach (const QString &line, contents.split(QLatin1Char('\n'))) {
+            if (re.indexIn(line) != -1) {
+                Symbol symbol;
+                symbol.address = re.cap(1);
+                symbol.state = re.cap(2);
+                symbol.name = re.cap(3);
+                rc.push_back(symbol);
+            } else {
+                qWarning("moduleSymbols: unhandled: %s", qPrintable(line));
+            }
+        }
+        success = true;
+    } while (false);
+    if (!success)
+        qWarning("moduleSymbols: %s\n", qPrintable(errorMessage));
+    return rc;
+}
+
 void GdbEngine::reloadModules()
 {
     sendCommand("info shared", ModulesList, QVariant());

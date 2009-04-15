@@ -38,6 +38,7 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "moduleshandler.h"
 
 #include <utils/qtcassert.h>
 
@@ -405,6 +406,10 @@ void ScriptEngine::reloadModules()
 {
 }
 
+QList<Symbol> ScriptEngine::moduleSymbols(const QString & /*moduleName*/)
+{
+    return QList<Symbol>();
+}
 
 
 //////////////////////////////////////////////////////////////////////
