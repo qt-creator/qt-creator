@@ -639,11 +639,11 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
             evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
 
-            QStringList tmp = m_valuemap.value("CONFIG");
+            QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
             tmp.append(m_addUserConfigCmdArgs);
             foreach(const QString &remove, m_removeUserConfigCmdArgs)
                 tmp.removeAll(remove);
-            m_valuemap.insert("CONFIG", tmp);
+            m_valuemap.insert(QLatin1String("CONFIG"), tmp);
             m_cumulative = cumulative;
         }
 
