@@ -200,8 +200,8 @@ void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
     if (m_isShown) {
-        m_executableLabel->setText(m_qt4RunConfiguration->executable());
-        m_workingDirectoryLabel->setText(m_qt4RunConfiguration->workingDirectory());
+        m_executableLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
+        m_workingDirectoryLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->workingDirectory()));
     }
 }
 
