@@ -163,6 +163,20 @@ static int &currentToken()
     return token;
 }
 
+static bool isSkippable(int type)
+{
+    return type == RegisterListValues
+        && type == StackListThreads
+        && type == StackListFrames
+        && type == StackListLocals
+        && type == StackListArguments
+        && type == WatchVarAssign
+        && type == WatchVarListChildren
+        && type == WatchVarCreate
+        && type == WatchEvaluateExpression
+        && type == WatchToolTip;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine
@@ -680,7 +694,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     GdbCookie cmd = m_cookieForToken.take(token);
 
-    if (record.token < m_oldestAcceptableToken) {
+    if (record.token < m_oldestAcceptableToken && isSkippable(cmd.type)) {
         //qDebug() << "### SKIPPING OLD RESULT " << record.toString();
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
