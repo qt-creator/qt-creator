@@ -404,7 +404,7 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defau
         const QtVersion * const version = m_versions.at(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.qtdirList);
         item->setText(0, version->name());
-        item->setText(1, version->path());
+        item->setText(1, QDir::toNativeSeparators(version->path()));
         item->setData(0, Qt::UserRole, version->uniqueId());
 
         if (version->isValid()) {
@@ -506,7 +506,7 @@ void QtDirWidget::addQtDir()
 
     QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.qtdirList);
     item->setText(0, newVersion->name());
-    item->setText(1, newVersion->path());
+    item->setText(1, QDir::toNativeSeparators(newVersion->path()));
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
     item->setData(2, Qt::DecorationRole, QIcon());
 
@@ -606,9 +606,9 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMingwVisible(false);
             if (!m_versions.at(index)->isInstalled())
                 m_ui.errorLabel->setText(tr("The Qt Version is not installed. Run make install")
-                                           .arg(m_versions.at(index)->path()));
+                                           .arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
             else
-                m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(m_versions.at(index)->path()));
+                m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
         } else { //ProjectExplorer::ToolChain::GCC
             m_ui.msvcComboBox->setVisible(false);
             makeMingwVisible(false);
@@ -734,7 +734,7 @@ void QtDirWidget::updateCurrentQtPath()
     if (m_versions[currentItemIndex]->path() == m_ui.qtPath->path())
         return;
     m_versions[currentItemIndex]->setPath(m_ui.qtPath->path());
-    currentItem->setText(1, m_versions[currentItemIndex]->path());
+    currentItem->setText(1, QDir::toNativeSeparators(m_versions[currentItemIndex]->path()));
 
     showEnvironmentPage(currentItem);
 
