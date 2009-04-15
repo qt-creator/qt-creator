@@ -1297,7 +1297,10 @@
                 When building \e{Qt Creator} using the \e{Microsoft Visual C++ Compiler},
                 the location \c{"%ProgramFiles%\Debugging Tools for Windows"} will be checked
                 for the required include files.
-                \
+
+                \note As of version 1.2, the command line option \c{-enable-cdb} has to be passed
+                to Qt Creator to enable support for this engine.
+
     \endtable
 */
 

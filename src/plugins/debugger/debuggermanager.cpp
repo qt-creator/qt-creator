@@ -148,9 +148,9 @@ extern IDebuggerEngine *createWinEngine(DebuggerManager *)
 #endif
 extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 
-DebuggerManager::DebuggerManager()
+DebuggerManager::DebuggerManager(const QStringList &arguments)
 {
-    init();
+    init(arguments);
 }
 
 DebuggerManager::~DebuggerManager()
@@ -160,7 +160,7 @@ DebuggerManager::~DebuggerManager()
     delete scriptEngine;
 }
 
-void DebuggerManager::init()
+void DebuggerManager::init(const QStringList &arguments)
 {
     m_status = -1;
     m_busy = false;
@@ -427,7 +427,8 @@ void DebuggerManager::init()
 
     setStatus(DebuggerProcessNotReady);
     gdbEngine = createGdbEngine(this);
-    winEngine = createWinEngine(this);
+    if (arguments.contains(QLatin1String("-enable-cdb")))
+        winEngine = createWinEngine(this);
     scriptEngine = createScriptEngine(this);
     setDebuggerType(GdbDebugger);
     if (Debugger::Constants::Internal::debug)
