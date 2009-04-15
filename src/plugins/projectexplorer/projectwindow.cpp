@@ -189,7 +189,7 @@ void ProjectWindow::updateTreeWidgetStatupProjectChanged(ProjectExplorer::Projec
     int count = m_treeWidget->topLevelItemCount();
     for (int i = 0; i < count; ++i) {
         QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (Project *project = findProject(item->text(2))) {
+        if (Project *project = findProject(item->data(2, Qt::UserRole).toString())) {
             bool checked = (startupProject == project);
             if (item->checkState(1) != (checked ? Qt::Checked : Qt::Unchecked))
                 item->setCheckState(1, checked ? Qt::Checked : Qt::Unchecked);
@@ -207,7 +207,8 @@ void ProjectWindow::updateTreeWidgetProjectAdded(ProjectExplorer::Project *proje
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, projectAdded->name());
     item->setIcon(0, Core::FileIconProvider::instance()->icon(fileInfo));
-    item->setText(2, fileInfo.filePath());
+    item->setData(2, Qt::UserRole, fileInfo.filePath());
+    item->setText(2, QDir::toNativeSeparators(fileInfo.filePath()));
 
     if (projectAdded->isApplication()) {
         bool checked = (m_session->startupProject() == projectAdded);
@@ -221,7 +222,7 @@ void ProjectWindow::updateTreeWidgetAboutToRemoveProject(ProjectExplorer::Projec
     int count = m_treeWidget->topLevelItemCount();
     for (int i = 0; i < count; ++i) {
         QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (item->text(2) == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
+        if (item->data(2, Qt::UserRole).toString() == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
             if (m_treeWidget->currentItem() == item) {
                     m_treeWidget->setCurrentItem(0);
             }
@@ -234,7 +235,7 @@ void ProjectWindow::updateTreeWidgetProjectRemoved(ProjectExplorer::Project *pro
     int count = m_treeWidget->topLevelItemCount();
     for (int i = 0; i < count; ++i) {
         QTreeWidgetItem *item = m_treeWidget->topLevelItem(i);
-        if (item->text(2) == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
+        if (item->data(2, Qt::UserRole).toString() == QFileInfo(projectRemoved->file()->fileName()).filePath()) {
             QTreeWidgetItem *it = m_treeWidget->takeTopLevelItem(i);
             delete it;
             break;
@@ -255,7 +256,7 @@ Project *ProjectWindow::findProject(const QString &path) const
 void ProjectWindow::handleCurrentItemChanged(QTreeWidgetItem *current)
 {
     if (current) {
-        QString path = current->text(2);
+        QString path = current->data(2, Qt::UserRole).toString();
         if (Project *project = findProject(path)) {
             m_projectExplorer->setCurrentFile(project, path);
             showProperties(project, QModelIndex());
@@ -273,7 +274,7 @@ void ProjectWindow::handleItem(QTreeWidgetItem *item, int column)
     if (!item || column != 1) // startup project
         return;
 
-    const QString path = item->text(2);
+    const QString path = item->data(2, Qt::UserRole).toString();
     Project *project = findProject(path);
     if (project && project->isApplication()) {
         if (!(item->checkState(1) == Qt::Checked)) { // is now unchecked
