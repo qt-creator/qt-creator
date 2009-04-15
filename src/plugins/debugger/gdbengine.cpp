@@ -4151,10 +4151,10 @@ void GdbEngine::tryLoadDebuggingHelpers()
     QString flag = QString::number(RTLD_NOW);
     sendCommand("sharedlibrary libc"); // for malloc
     sendCommand("sharedlibrary libdl"); // for dlopen
-    sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+    sendCommand("call (void*)dlopen(\"" + lib + "\", " + flag + ")",
         WatchDebuggingHelperSetup);
     // some older systems like CentOS 4.6 prefer this:
-    sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
+    sendCommand("call (void*)__dlopen(\"" + lib + "\", " + flag + ")",
         WatchDebuggingHelperSetup);
     sendCommand("sharedlibrary " + dotEscape(lib));
 #endif
