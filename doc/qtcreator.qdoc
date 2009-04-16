@@ -347,15 +347,6 @@
     \bold{Build Settings} page. Qt Creator will run the make command using the
     correct Qt version.
 
-    \note The \bold{Gdb Macros Build} step builds a small library along with your
-    project that is used for the custom display of Qt and STL objects in the
-    integrated debugger. The library is created and built in a "qtc-gdbmacros"
-    subfolder of your project's main directory, and loaded dynamically into your
-    application if you run it in the debugger. If the
-    debugging helper seems to break your build or your application, you can
-    remove the build step. You will still be able to debug applications, but the
-    contents of Qt and STL data types will not be displayed properly.
-
     \section1 Dependencies
 
     If you have multiple projects loaded in your session, you can configure
@@ -1178,6 +1169,18 @@
     function; the \gui Registers view displays the current state of the CPU's
     registers. Both views are useful for low-level commands such as
     \gui{Step Single Instruction} and \gui{Step Over Single Instruction}.
+
+    \section1 Debugging Helper Library
+
+    While debugging Qt Creator dynamically loads a helper library into
+    your program. This helper library enables Qt Creator to pretty print
+    Qt and STL types. The Qt SDK package already contains a prebuilt
+    debugging helper library. To create a debugging helper library
+    select the \{Options} from the \gui{Tools} menu, and go to the
+    \gui{Qt/Qt Versions} pane. As the internal layout of qt can
+    change between versions, the debugging helper library is build
+    per Qt Version.
+
 
     \section1 A Walkthrough for the Debugger Frontend
 
