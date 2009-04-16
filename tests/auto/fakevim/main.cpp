@@ -55,13 +55,17 @@ public slots:
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
     
 private slots:
-    void commandDollar();
-    void commandDown();
-    void commandLeft();
-    void commandRight();
-    void commandI();
-    void commandUp();
-    void commandW();
+    // command mode
+    void command_cc();
+    void command_dd();
+    void command_dollar();
+    void command_down();
+    void command_e();
+    void command_i();
+    void command_left();
+    void command_right();
+    void command_up();
+    void command_w();
 
 private:
     void setup();    
@@ -73,6 +77,9 @@ private:
         const char* file, int line);
     QString insertCursor(const QString &needle0);
 
+    QString lmid(int i, int n = -1) const
+        { return QStringList(l.mid(i, n)).join("\n"); }
+
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
     FakeVimHandler *m_handler;
@@ -82,6 +89,8 @@ private:
     QString m_statusData;
     QString m_infoMessage;
 
+    // the individual lines
+    static const QStringList l; // identifier intentionally kept short
     static const QString lines;
     static const QString escape;
 };
@@ -100,7 +109,10 @@ const QString tst_FakeVim::lines =
     "    return app.exec();\n"
     "}\n";
 
+const QStringList tst_FakeVim::l = tst_FakeVim::lines.split('\n');
+
 const QString tst_FakeVim::escape = QChar(27);
+
 
 tst_FakeVim::tst_FakeVim(bool usePlainTextEdit)
 {
@@ -170,16 +182,16 @@ bool tst_FakeVim::checkContentsHelper(QString want, const char* file, int line)
     QStringList wantlist = want.split('\n');
     QStringList gotlist = got.split('\n');
     if (!QTest::qCompare(gotlist.size(), wantlist.size(), "", "", file, line)) {
-        qDebug() << "WANT: " << want;
-        qDebug() << "GOT: " << got;
+        qDebug() << "0 WANT: " << want;
+        qDebug() << "0 GOT: " << got;
         return false;
     }
     for (int i = 0; i < wantlist.size() && i < gotlist.size(); ++i) {
         QString g = QString("line %1: %2").arg(i + 1).arg(gotlist.at(i));
         QString w = QString("line %1: %2").arg(i + 1).arg(wantlist.at(i));
         if (!QTest::qCompare(g, w, "", "", file, line)) {
-            qDebug() << "WANT: " << want;
-            qDebug() << "GOT: " << got;
+            qDebug() << "1 WANT: " << want;
+            qDebug() << "1 GOT: " << got;
             return false;
         }
     }
@@ -222,11 +234,77 @@ QString tst_FakeVim::insertCursor(const QString &needle0)
     needle.remove('@');
     QString lines0 = lines;
     int pos = lines0.indexOf(needle);
+    if (pos == -1)
+        qDebug() << "Cannot find: \n----\n" + needle + "\n----\n";
     lines0.replace(pos, needle.size(), needle0);
     return lines0;
 }
 
-void tst_FakeVim::commandI()
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Command mode
+//
+//////////////////////////////////////////////////////////////////////////
+
+void tst_FakeVim::command_cc()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    check("ccabc" + escape,  l[0] + "\nab@c\n" + lmid(2));
+    check("ccabc" + escape,  l[0] + "\nab@c\n" + lmid(2));
+    check(".",               l[0] + "\nab@c\n" + lmid(2));
+    check("j",               l[0] + "\nabc\n#i@nclude <QtGui>\n" + lmid(3));
+    check("3ccxyz" + escape, l[0] + "\nabc\nxy@z\n" + lmid(5));
+}
+
+void tst_FakeVim::command_dd()
+{
+    setup();
+    move("j",    "@" + l[1]);
+    check("dd",  l[0] + "\n@" + lmid(2));
+    check(".",   l[0] + "\n@" + lmid(3));
+    check("3dd", l[0] + "\n@" + lmid(6));
+}
+
+void tst_FakeVim::command_dollar()
+{
+    setup();
+    move("j$", "<QtCore>@");
+    move("j$", "<QtGui>@");
+    move("2j", ")@");
+}
+
+void tst_FakeVim::command_down()
+{
+    setup();
+    move("j",  "@" + l[1]);
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
+}
+
+void tst_FakeVim::command_e()
+{
+    setup();
+    move("e",  "@#include <QtCore");
+    move("e",  "#includ@e <QtCore");
+    move("e",  "#include @<QtCore");
+    move("3e", "@#include <QtGui");
+    move("e",  "#includ@e <QtGui");
+    move("e",  "#include @<QtGui");
+    move("e",  "#include <QtGu@i");
+    move("4e", "int main@(int argc, char *argv[])");
+    move("e",  "int main(in@t argc, char *argv[])");
+    move("e",  "int main(int arg@c, char *argv[])");
+    move("e",  "int main(int argc@, char *argv[])");
+    move("e",  "int main(int argc, cha@r *argv[])");
+    move("e",  "int main(int argc, char @*argv[])");
+    move("e",  "int main(int argc, char *arg@v[])");
+    move("e",  "int main(int argc, char *argv[]@)");
+    move("e",  "@{");
+}
+
+void tst_FakeVim::command_i()
 {
     setup();
 
@@ -255,40 +333,7 @@ return;
     check("u", "@" + lines);
 }
 
-void tst_FakeVim::commandDollar()
-{
-    setup();
-    move("j$", "<QtCore>@");
-    move("j$", "<QtGui>@");
-    move("2j", ")@");
-}
-
-void tst_FakeVim::commandDown()
-{
-    setup();
-    move("j",  "@#include <QtCore");
-    move("3j", "@int main");
-    move("4j", "@    return app.exec()");
-}
-
-void tst_FakeVim::commandUp()
-{
-    setup();
-    move("j", "@#include <QtCore");
-    move("3j", "@int main");
-    move("4j", "@    return app.exec()");
-}
-
-void tst_FakeVim::commandRight()
-{
-    setup();
-    move("4j", "@int main");
-    move("l", "i@nt main");
-    move("3l", "int @main");
-    move("50l", "argv[])@");
-}
-
-void tst_FakeVim::commandLeft()
+void tst_FakeVim::command_left()
 {
     setup();
     move("4j",  "@int main");
@@ -299,15 +344,43 @@ void tst_FakeVim::commandLeft()
     move("50h", "@int main");
 }
 
-void tst_FakeVim::commandW()
+void tst_FakeVim::command_right()
 {
     setup();
-    move("w", "@#include <QtCore");
-    move("w", "#@include <QtCore");
-    move("w", "#include @<QtCore");
-    move("3w", "@#include <QtGui");
+    move("4j", "@int main");
+    move("l", "i@nt main");
+    move("3l", "int @main");
+    move("50l", "argv[])@");
 }
 
+void tst_FakeVim::command_up()
+{
+    setup();
+    move("j", "@#include <QtCore");
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
+}
+
+void tst_FakeVim::command_w()
+{
+    setup();
+    move("w",   "@#include <QtCore");
+    move("w",   "#@include <QtCore");
+    move("w",   "#include @<QtCore");
+    move("3w",  "@#include <QtGui");
+    move("w",   "#@include <QtGui");
+    move("w",   "#include @<QtGui");
+    move("w",   "#include <@QtGui");
+    move("4w",  "int main@(int argc, char *argv[])");
+    move("w",   "int main(@int argc, char *argv[])");
+    move("w",   "int main(int @argc, char *argv[])");
+    move("w",   "int main(int argc@, char *argv[])");
+    move("w",   "int main(int argc, @char *argv[])");
+    move("w",   "int main(int argc, char @*argv[])");
+    move("w",   "int main(int argc, char *@argv[])");
+    move("w",   "int main(int argc, char *argv@[])");
+    move("w",   "@{");
+}
 
 /*
 #include <QtCore>
@@ -320,6 +393,14 @@ int main(int argc, char *argv[])
     return app.exec();
 }
 */
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Main
+//
+//////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[]) \
 {
