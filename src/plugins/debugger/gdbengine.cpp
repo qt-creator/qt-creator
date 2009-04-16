@@ -2210,6 +2210,11 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     // within namespaces.
     // Sometimes the path is relative too.
 
+    // 2    breakpoint     keep y   <MULTIPLE> 0x0040168e
+    // 2.1    y     0x0040168e in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
+    // 2.2    y     0x00401792 in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
+
+
     QRegExp re("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)");
     re.setMinimal(true);
 
