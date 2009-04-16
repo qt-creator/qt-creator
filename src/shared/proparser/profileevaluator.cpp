@@ -346,6 +346,7 @@ bool ProFileEvaluator::Private::parseLine(const QString &line0)
     m_contNextLine = escaped;
     if (escaped) {
         m_proitem.chop(1);
+        updateItem();
         return true;
     } else {
         if (!m_syntaxError) {
