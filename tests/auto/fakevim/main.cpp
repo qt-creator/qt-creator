@@ -30,6 +30,8 @@
 #include "fakevimhandler.h"
 
 #include <QtCore/QSet>
+
+#include <QtGui/QTextEdit>
 #include <QtGui/QPlainTextEdit>
 
 #include <QtTest/QtTest>
@@ -37,13 +39,15 @@
 using namespace FakeVim;
 using namespace FakeVim::Internal;
 
+#define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
 class tst_FakeVim : public QObject
 {
     Q_OBJECT
 
 public:
-    tst_FakeVim();
+    tst_FakeVim(bool);
+    ~tst_FakeVim();
 
 public slots:
     void changeStatusData(const QString &info) { m_statusData = info; }
@@ -51,14 +55,17 @@ public slots:
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
     
 private slots:
-    void commandI();
     void commandDollar();
     void commandDown();
+    void commandLeft();
+    void commandRight();
+    void commandI();
     void commandUp();
+    void commandW();
 
 private:
     void setup();    
-    void send(const QString &command); // send a normal command
+    void send(const QString &command) { sendEx("normal " + command); }
     void sendEx(const QString &command); // send an ex command
 
     bool checkContentsHelper(QString expected, const char* file, int line);
@@ -66,8 +73,9 @@ private:
         const char* file, int line);
     QString insertCursor(const QString &needle0);
 
-    QPlainTextEdit m_editor;
-    FakeVimHandler m_handler;
+    QTextEdit *m_textedit;
+    QPlainTextEdit *m_plaintextedit;
+    FakeVimHandler *m_handler;
     QList<QTextEdit::ExtraSelection> m_selection;
 
     QString m_statusMessage;
@@ -79,6 +87,8 @@ private:
 };
 
 const QString tst_FakeVim::lines = 
+  /* 0         1         2         3        4 */
+  /* 0123456789012345678901234567890123457890 */
     "\n"
     "#include <QtCore>\n"
     "#include <QtGui>\n"
@@ -92,46 +102,70 @@ const QString tst_FakeVim::lines =
 
 const QString tst_FakeVim::escape = QChar(27);
 
-tst_FakeVim::tst_FakeVim()
-    : m_handler(&m_editor, this)
+tst_FakeVim::tst_FakeVim(bool usePlainTextEdit)
 {
-    QObject::connect(&m_handler, SIGNAL(commandBufferChanged(QString)),
-        this, SLOT(changeStatusMessage(QString)));
-    QObject::connect(&m_handler, SIGNAL(extraInformationChanged(QString)),
-        this, SLOT(changeExtraInformation(QString)));
-    QObject::connect(&m_handler, SIGNAL(statusDataChanged(QString)),
-        this, SLOT(changeStatusData(QString)));
+    if (usePlainTextEdit) {
+        m_textedit = 0;
+        m_plaintextedit = new QPlainTextEdit;
+    } else {
+        m_textedit = new QTextEdit;
+        m_plaintextedit = 0;
+    }
+    m_handler = 0;
+}
+
+tst_FakeVim::~tst_FakeVim()
+{
+    delete m_handler;
+    delete m_textedit;
+    delete m_plaintextedit;
 }
 
 void tst_FakeVim::setup()
 {
+    delete m_handler;
+    m_handler = 0;
     m_statusMessage.clear();
     m_statusData.clear();
     m_infoMessage.clear();
-    m_editor.setPlainText(lines);
-    QTextCursor tc = m_editor.textCursor();
-    tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    m_editor.setTextCursor(tc);
-    m_editor.setPlainText(lines);
-    //m_editor.show();
-    //qApp->exec();
-    QCOMPARE(m_editor.toPlainText(), lines);
-}
+    if (m_textedit) {
+        m_textedit->setPlainText(lines);
+        QTextCursor tc = m_textedit->textCursor();
+        tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+        m_textedit->setTextCursor(tc);
+        m_textedit->setPlainText(lines);
+        m_handler = new FakeVimHandler(m_textedit);
+    } else {
+        m_plaintextedit->setPlainText(lines);
+        QTextCursor tc = m_plaintextedit->textCursor();
+        tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+        m_plaintextedit->setTextCursor(tc);
+        m_plaintextedit->setPlainText(lines);
+        m_handler = new FakeVimHandler(m_plaintextedit);
+    }
 
-void tst_FakeVim::send(const QString &command)
-{
-    m_handler.handleCommand("normal " + command);
+    QObject::connect(m_handler, SIGNAL(commandBufferChanged(QString)),
+        this, SLOT(changeStatusMessage(QString)));
+    QObject::connect(m_handler, SIGNAL(extraInformationChanged(QString)),
+        this, SLOT(changeExtraInformation(QString)));
+    QObject::connect(m_handler, SIGNAL(statusDataChanged(QString)),
+        this, SLOT(changeStatusData(QString)));
+
+    QCOMPARE(EDITOR(toPlainText()), lines);
 }
 
 void tst_FakeVim::sendEx(const QString &command)
 {
-    m_handler.handleCommand(command);
+    if (m_handler)
+        m_handler->handleCommand(command);
+    else
+        qDebug() << "NO HANDLER YET";
 }
 
 bool tst_FakeVim::checkContentsHelper(QString want, const char* file, int line)
 {
-    QString got = m_editor.toPlainText();
-    int pos = m_editor.textCursor().position();
+    QString got = EDITOR(toPlainText());
+    int pos = EDITOR(textCursor().position());
     got = got.left(pos) + "@" + got.mid(pos);
     QStringList wantlist = want.split('\n');
     QStringList gotlist = got.split('\n');
@@ -172,6 +206,10 @@ bool tst_FakeVim::checkHelper(bool ex, QString cmd, QString expected,
     do { if (!checkHelper(false, cmd, expected, __FILE__, __LINE__)) \
             return; } while (0)
 
+#define move(cmd, expected) \
+    do { if (!checkHelper(false, cmd, insertCursor(expected), __FILE__, __LINE__)) \
+            return; } while (0)
+
 // Runs an ex command and checks the result.
 // Cursor position is marked by a '@' in the expected contents.
 #define checkEx(cmd, expected) \
@@ -183,14 +221,13 @@ QString tst_FakeVim::insertCursor(const QString &needle0)
     QString needle = needle0;
     needle.remove('@');
     QString lines0 = lines;
-    lines0.replace(needle, needle0);
-    //qDebug() << "LINES: " << lines0;
+    int pos = lines0.indexOf(needle);
+    lines0.replace(pos, needle.size(), needle0);
     return lines0;
 }
 
 void tst_FakeVim::commandI()
 {
-    return;
     setup();
 
     // empty insertion at start of document
@@ -204,6 +241,8 @@ void tst_FakeVim::commandI()
     // small insertion at start of document
     check("ixxx" + escape, "xx@x" + lines);
     check("u", "@" + lines);
+
+return;
 
     // combine insertions
     check("ia" + escape, "@a" + lines);
@@ -219,28 +258,86 @@ void tst_FakeVim::commandI()
 void tst_FakeVim::commandDollar()
 {
     setup();
-    check("j$", insertCursor("<QtCore>@"));
-    //check("j", insertCursor("<QtGui>@"));
+    move("j$", "<QtCore>@");
+    move("j$", "<QtGui>@");
+    move("2j", ")@");
 }
 
 void tst_FakeVim::commandDown()
 {
     setup();
-    check("j", insertCursor("@#include <QtCore"));
-    check("3j", insertCursor("@int main"));
-    check("4j", insertCursor("@    return app.exec()"));
+    move("j",  "@#include <QtCore");
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
 }
 
 void tst_FakeVim::commandUp()
 {
     setup();
-    check("j", insertCursor("@#include <QtCore"));
-    check("3j", insertCursor("@int main"));
-    check("4j", insertCursor("@    return app.exec()"));
+    move("j", "@#include <QtCore");
+    move("3j", "@int main");
+    move("4j", "@    return app.exec()");
+}
+
+void tst_FakeVim::commandRight()
+{
+    setup();
+    move("4j", "@int main");
+    move("l", "i@nt main");
+    move("3l", "int @main");
+    move("50l", "argv[])@");
+}
+
+void tst_FakeVim::commandLeft()
+{
+    setup();
+    move("4j",  "@int main");
+    move("h",   "@int main"); // no move over left border
+    move("$",   "argv[])@");
+    move("h",   "argv[]@)");
+    move("3h",  "arg@v[])");
+    move("50h", "@int main");
+}
+
+void tst_FakeVim::commandW()
+{
+    setup();
+    move("w", "@#include <QtCore");
+    move("w", "#@include <QtCore");
+    move("w", "#include @<QtCore");
+    move("3w", "@#include <QtGui");
 }
 
 
+/*
+#include <QtCore>
+#include <QtGui>
 
-QTEST_MAIN(tst_FakeVim)
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    return app.exec();
+}
+*/
+
+int main(int argc, char *argv[]) \
+{
+    int res = 0;
+    QApplication app(argc, argv); \
+
+    // Test with QPlainTextEdit.
+    tst_FakeVim plaintextedit(true);
+    res += QTest::qExec(&plaintextedit, argc, argv);
+
+#if 0
+    // Test with QTextEdit, too.
+    tst_FakeVim textedit(false);
+    res += QTest::qExec(&textedit, argc, argv);
+#endif
+
+    return res;
+}
+
 
 #include "main.moc"

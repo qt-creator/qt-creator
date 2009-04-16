@@ -77,7 +77,6 @@ enum DebuggerActionCode
     AdjustColumnWidths,
     AlwaysAdjustColumnWidths,
     AutoQuit,
-    TerminalApplication,
     LockView,
 
     // Gdb

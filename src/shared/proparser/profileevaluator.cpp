@@ -151,6 +151,8 @@ public:
     QString m_pendingComment;
     bool m_syntaxError;
     bool m_contNextLine;
+    bool m_inQuote;
+    int m_parens;
 
     /////////////// Evaluating pro file contents
 
@@ -251,6 +253,8 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     // Parser state
     m_block = 0;
     m_commentItem = 0;
+    m_inQuote = false;
+    m_parens = 0;
     m_contNextLine = false;
     m_syntaxError = false;
     m_lineNo = 1;
@@ -274,71 +278,83 @@ bool ProFileEvaluator::Private::parseLine(const QString &line0)
     if (m_blockstack.isEmpty())
         return false;
 
-    ushort quote = 0;
-    int parens = 0;
-    bool contNextLine = false;
+    int parens = m_parens;
+    bool inQuote = m_inQuote;
+    bool escaped = false;
     QString line = line0.simplified();
 
     for (int i = 0; !m_syntaxError && i < line.length(); ++i) {
         ushort c = line.at(i).unicode();
-        if (quote && c == quote)
-            quote = 0;
-        else if (c == '(')
-            ++parens;
-        else if (c == ')')
-            --parens;
-        else if (c == '"' && (i == 0 || line.at(i - 1).unicode() != '\\'))
-            quote = c;
-        else if (!parens && !quote) {
-            if (c == '#') {
-                insertComment(line.mid(i + 1));
-                contNextLine = m_contNextLine;
-                break;
-            }
-            if (c == '\\' && i >= line.count() - 1) {
-                updateItem();
-                contNextLine = true;
+        if (c == '#') { // Yep - no escaping possible
+            insertComment(line.mid(i + 1));
+            escaped = m_contNextLine;
+            break;
+        }
+        if (!escaped) {
+            if (c == '\\') {
+                escaped = true;
+                m_proitem += c;
+                continue;
+            } else if (c == '"') {
+                inQuote = !inQuote;
+                m_proitem += c;
                 continue;
             }
-            if (m_block && (m_block->blockKind() & ProBlock::VariableKind)) {
-                if (c == ' ')
-                    updateItem();
-                else
-                    m_proitem += c;
-                continue;
-            }
-            if (c == ':') {
-                enterScope(false);
-                continue;
-            }
-            if (c == '{') {
-                enterScope(true);
-                continue;
-            }
-            if (c == '}') {
-                leaveScope();
-                continue;
-            }
-            if (c == '=') {
-                insertVariable(line, &i);
-                continue;
-            }
-            if (c == '|' || c == '!') {
-                insertOperator(c);
-                continue;
+        } else {
+            escaped = false;
+        }
+        if (!inQuote) {
+            if (c == '(') {
+                ++parens;
+            } else if (c == ')') {
+                --parens;
+            } else if (!parens) {
+                if (m_block && (m_block->blockKind() & ProBlock::VariableKind)) {
+                    if (c == ' ')
+                        updateItem();
+                    else
+                        m_proitem += c;
+                    continue;
+                }
+                if (c == ':') {
+                    enterScope(false);
+                    continue;
+                }
+                if (c == '{') {
+                    enterScope(true);
+                    continue;
+                }
+                if (c == '}') {
+                    leaveScope();
+                    continue;
+                }
+                if (c == '=') {
+                    insertVariable(line, &i);
+                    continue;
+                }
+                if (c == '|' || c == '!') {
+                    insertOperator(c);
+                    continue;
+                }
             }
         }
 
         m_proitem += c;
     }
-    m_contNextLine = contNextLine;
-
-    if (!m_syntaxError) {
-        updateItem();
-        if (!m_contNextLine)
-            finalizeBlock();
+    m_inQuote = inQuote;
+    m_parens = parens;
+    m_contNextLine = escaped;
+    if (escaped) {
+        m_proitem.chop(1);
+        return true;
+    } else {
+        if (!m_syntaxError) {
+            updateItem();
+            if (!m_contNextLine)
+                finalizeBlock();
+        }
+        return !m_syntaxError;
     }
-    return !m_syntaxError;
 }
 
 void ProFileEvaluator::Private::finalizeBlock()
@@ -356,6 +372,9 @@ void ProFileEvaluator::Private::finalizeBlock()
 void ProFileEvaluator::Private::insertVariable(const QString &line, int *i)
 {
     ProVariable::VariableOperator opkind;
+
+    if (m_proitem.isEmpty()) // Line starting with '=', like a conflict marker
+        return;
 
     switch (m_proitem.at(m_proitem.length() - 1).unicode()) {
         case '+':
@@ -636,11 +655,11 @@ bool ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
             evaluateFile(mkspecDirectory + QLatin1String("/default/qmake.conf"), &ok);
             evaluateFile(mkspecDirectory + QLatin1String("/features/default_pre.prf"), &ok);
 
-            QStringList tmp = m_valuemap.value("CONFIG");
+            QStringList tmp = m_valuemap.value(QLatin1String("CONFIG"));
             tmp.append(m_addUserConfigCmdArgs);
             foreach(const QString &remove, m_removeUserConfigCmdArgs)
                 tmp.removeAll(remove);
-            m_valuemap.insert("CONFIG", tmp);
+            m_valuemap.insert(QLatin1String("CONFIG"), tmp);
             m_cumulative = cumulative;
         }
 
@@ -2021,7 +2040,13 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
 {
     QFileInfo fi(fileName);
     if (fi.exists()) {
-        ProFile *pro = new ProFile(fi.absoluteFilePath());
+        QString fn = QDir::cleanPath(fi.absoluteFilePath());
+        foreach (const ProFile *pf, d->m_profileStack)
+            if (pf->fileName() == fn) {
+                errorMessage(d->format("circular inclusion of %1").arg(fn));
+                return 0;
+            }
+        ProFile *pro = new ProFile(fn);
         if (d->read(pro))
             return pro;
         delete pro;

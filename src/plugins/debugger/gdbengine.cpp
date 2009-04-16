@@ -163,6 +163,20 @@ static int &currentToken()
     return token;
 }
 
+static bool isSkippable(int type)
+{
+    return type == RegisterListValues
+        && type == StackListThreads
+        && type == StackListFrames
+        && type == StackListLocals
+        && type == StackListArguments
+        && type == WatchVarAssign
+        && type == WatchVarListChildren
+        && type == WatchVarCreate
+        && type == WatchEvaluateExpression
+        && type == WatchToolTip;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine
@@ -667,7 +681,7 @@ void GdbEngine::handleResultRecord(const GdbResultRecord &record)
 
     GdbCookie cmd = m_cookieForToken.take(token);
 
-    if (record.token < m_oldestAcceptableToken) {
+    if (record.token < m_oldestAcceptableToken && isSkippable(cmd.type)) {
         //qDebug() << "### SKIPPING OLD RESULT " << record.toString();
         //QMessageBox::information(m_mainWindow, tr("Skipped"), "xxx");
         return;
@@ -1140,9 +1154,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 + data.findChild("signal-name").toString();
         }
         q->showStatusMessage(msg);
-        // FIXME: shouldn't this use a statis change?
-        debugMessage("CALLING PARENT EXITDEBUGGER");
-        q->exitDebugger();
+        sendCommand("-gdb-exit");
         return;
     }
 
@@ -1857,8 +1869,21 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 
 void GdbEngine::setTokenBarrier()
 {
-    foreach (const GdbCookie &ck, m_cookieForToken)
-        QTC_ASSERT(ck.synchronized || ck.type == GdbInvalidCommand, return);
+    foreach (const GdbCookie &cookie, m_cookieForToken) {
+        QTC_ASSERT(
+            cookie.synchronized
+                || cookie.type == GdbInvalidCommand
+                // FIXME: use something like "command classes" for these cases:
+                || cookie.type == GdbInfoProc
+                || cookie.type == GdbStubAttached
+                || cookie.type == ModulesList
+                || cookie.type == WatchDebuggingHelperSetup
+                || cookie.type == GdbQueryDebuggingHelper,
+            qDebug() << "CMD: " << cookie.command << "TYPE: " << cookie.type
+                << "SYNC: " << cookie.synchronized;
+            return
+        );
+    }
     PENDING_DEBUG("\n--- token barrier ---\n");
     emit gdbInputAvailable(QString(), "--- token barrier ---");
     m_oldestAcceptableToken = currentToken();
@@ -1930,7 +1955,10 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             if (pos > 0) {
                 data->bpLineNumber = child.data().mid(pos + 1);
                 data->markerLineNumber = child.data().mid(pos + 1).toInt();
-                files.prepend(child.data().left(pos));
+                QString file = child.data().left(pos);
+                if (file.startsWith('"') && file.endsWith('"'))
+                    file = file.mid(1, file.size() - 2);
+                files.prepend(file);
             } else {
                 files.prepend(child.data());
             }
@@ -1978,7 +2006,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     // set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface
 #ifdef Q_OS_LINUX
-    QString cmd = "-break-insert ";
+    QString cmd = "-break-insert -f ";
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + " ";
     cmd += where;
@@ -2133,6 +2161,8 @@ void GdbEngine::handleBreakInsert(const GdbResultRecord &record, int index)
         //    + data->lineNumber + "\"";
         QString where = "\"" + data->fileName + "\":"
             + data->lineNumber;
+        // Should not happen with -break-insert -f. gdb older than 6.8?
+        QTC_ASSERT(false, /**/);
         sendCommand("break " + where, BreakInsert1, index);
 #endif
 #ifdef Q_OS_MAC
@@ -3054,7 +3084,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     } else if (outertype == m_namespace + "QMapNode") {
         extraArgs[2] = sizeofTypeExpression(data.type);
         extraArgs[3] = "(size_t)&(('" + data.type + "'*)0)->value";
-    } else if (outertype == "std::vector") {
+    } else if (outertype == "std::vector" || outertype == "vector") {
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
         if (inners.at(0) == "bool") {
             outertype = "std::vector::bool";
@@ -3062,18 +3092,18 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
             //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
-    } else if (outertype == "std::deque") {
+    } else if (outertype == "std::deque" || outertype == "deque") {
         // remove 'std::allocator<...>':
         extraArgs[1] = "0";
-    } else if (outertype == "std::stack") {
+    } else if (outertype == "std::stack" || outertype == "stack") {
         // remove 'std::allocator<...>':
         extraArgs[1] = "0";
-    } else if (outertype == "std::set") {
+    } else if (outertype == "std::set" || outertype == "set") {
         // remove 'std::less<...>':
         extraArgs[1] = "0";
         // remove 'std::allocator<...>':
         extraArgs[2] = "0";
-    } else if (outertype == "std::map") {
+    } else if (outertype == "std::map" || outertype == "map") {
         // We don't want the comparator and the allocator confuse gdb.
         // But we need the offset of the second item in the value pair.
         // We read the type of the pair from the allocator argument because
@@ -3084,7 +3114,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
         pairType = pairType.mid(15, pairType.size() - 15 - 2);
         extraArgs[2] = "(size_t)&(('" + pairType + "'*)0)->second";
         extraArgs[3] = "0";
-    } else if (outertype == "std::basic_string") {
+    } else if (outertype == "std::basic_string" || outertype == "basic_string") {
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
         if (inners.at(0) == "char") {
             outertype = "std::string";
@@ -4148,10 +4178,10 @@ void GdbEngine::tryLoadDebuggingHelpers()
     QString flag = QString::number(RTLD_NOW);
     sendCommand("sharedlibrary libc"); // for malloc
     sendCommand("sharedlibrary libdl"); // for dlopen
-    sendCommand("call (void)dlopen(\"" + lib + "\", " + flag + ")",
+    sendCommand("call (void*)dlopen(\"" + lib + "\", " + flag + ")",
         WatchDebuggingHelperSetup);
     // some older systems like CentOS 4.6 prefer this:
-    sendCommand("call (void)__dlopen(\"" + lib + "\", " + flag + ")",
+    sendCommand("call (void*)__dlopen(\"" + lib + "\", " + flag + ")",
         WatchDebuggingHelperSetup);
     sendCommand("sharedlibrary " + dotEscape(lib));
 #endif

@@ -49,6 +49,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -73,6 +74,7 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Core::Utils;
 
 enum { debugEditorManager=0 };
 
@@ -429,15 +431,14 @@ void EditorManager::init()
 
 QString EditorManager::defaultExternalEditor() const
 {
-#ifdef Q_OS_MAC
-    return m_d->m_core->resourcePath()
-            +QLatin1String("/runInTerminal.command vi %f %l %c %W %H %x %y");
-#elif defined(Q_OS_UNIX)
-    return QLatin1String("xterm -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
-#elif defined (Q_OS_WIN)
-    return QLatin1String("notepad %f");
+#ifdef Q_OS_UNIX
+    return ConsoleProcess::defaultTerminalEmulator() + QLatin1String(
+# ifdef Q_OS_MAC
+            " -async"
+# endif
+            " -geom %Wx%H+%x+%y -e vi %f +%l +\"normal %c|\"");
 #else
-    return QString();
+    return QLatin1String("notepad %f");
 #endif
 }
 
@@ -462,7 +463,7 @@ void EditorManager::removeEditor(IEditor *editor)
 
 }
 
-void EditorManager::handleContextChange(IContext *context)
+void EditorManager::handleContextChange(Core::IContext *context)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
@@ -1172,9 +1173,8 @@ bool EditorManager::saveFile(IEditor *editor)
             return true;
     }
 
-    if (file->isReadOnly() || fileName.isEmpty()) {
+    if (file->isReadOnly() || fileName.isEmpty())
         return saveFileAs(editor);
-    }
 
     m_d->m_core->fileManager()->blockFileChange(file);
     const bool success = file->save(fileName);

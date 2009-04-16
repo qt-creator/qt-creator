@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
 
     if (args.size() == 2 && args.at(1) == "--run-debuggee") {
         runDebuggee();
+        app.exec();
         return 0;
     }
 

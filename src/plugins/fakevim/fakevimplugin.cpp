@@ -543,7 +543,7 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
 
 void FakeVimPluginPrivate::quitFakeVim()
 {
-    setUseFakeVim(false);
+    theFakeVimSetting(ConfigUseFakeVim)->setValue(false);
 }
 
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)

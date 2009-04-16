@@ -30,6 +30,8 @@
 #include "consoleprocess.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QSettings>
 #include <QtCore/QTemporaryFile>
 
 #include <QtNetwork/QLocalSocket>
@@ -48,6 +50,7 @@ ConsoleProcess::ConsoleProcess(QObject *parent)
     m_debug = false;
     m_appPid = 0;
     m_stubSocket = 0;
+    m_settings = 0;
 
     connect(&m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 
@@ -72,8 +75,24 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         return false;
     }
 
-    QStringList xtermArgs;
-    xtermArgs << "-e"
+    if (!environment().isEmpty()) {
+        m_tempFile = new QTemporaryFile();
+        if (!m_tempFile->open()) {
+            stubServerShutdown();
+            emit processError(tr("Cannot create temp file: %1").arg(m_tempFile->errorString()));
+            delete m_tempFile;
+            m_tempFile = 0;
+            return false;
+        }
+        foreach (const QString &var, environment()) {
+            m_tempFile->write(var.toLocal8Bit());
+            m_tempFile->write("", 1);
+        }
+        m_tempFile->flush();
+    }
+
+    QStringList xtermArgs = terminalEmulator(m_settings).split(QLatin1Char(' ')); // FIXME: quoting
+    xtermArgs
 #ifdef Q_OS_MAC
               << (QCoreApplication::applicationDirPath() + "/../Resources/qtcreator_process_stub")
 #else
@@ -82,13 +101,17 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
               << (m_debug ? "debug" : "exec")
               << m_stubServer.fullServerName()
               << tr("Press <RETURN> to close this window...")
-              << workingDirectory() << environment() << ""
+              << workingDirectory()
+              << (m_tempFile ? m_tempFile->fileName() : 0)
               << program << args;
 
-    m_process.start(QLatin1String("xterm"), xtermArgs);
+    QString xterm = xtermArgs.takeFirst();
+    m_process.start(xterm, xtermArgs);
     if (!m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processError(tr("Cannot start console emulator xterm."));
+        emit processError(tr("Cannot start terminal emulator %1.").arg(xterm));
+        delete m_tempFile;
+        m_tempFile = 0;
         return false;
     }
     m_executable = program;
@@ -173,6 +196,10 @@ void ConsoleProcess::readStubOutput()
             emit processError(tr("Cannot execute %1: %2")
                               .arg(m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
+            // Will not need it any more
+            delete m_tempFile;
+            m_tempFile = 0;
+
             m_appPid = out.mid(4).toInt();
             emit processStarted();
         } else if (out.startsWith("exit ")) {
@@ -199,6 +226,8 @@ void ConsoleProcess::stubExited()
     if (m_stubSocket && m_stubSocket->state() == QLocalSocket::ConnectedState)
         m_stubSocket->waitForDisconnected();
     stubServerShutdown();
+    delete m_tempFile;
+    m_tempFile = 0;
     if (m_appPid) {
         m_appStatus = QProcess::CrashExit;
         m_appCode = -1;
@@ -206,4 +235,28 @@ void ConsoleProcess::stubExited()
         emit processStopped(); // Maybe it actually did not, but keep state consistent
     }
     emit wrapperStopped();
+}
+
+QString ConsoleProcess::defaultTerminalEmulator()
+{
+// FIXME: enable this once runInTerminal works nicely
+#if 0 //def Q_OS_MAC
+    return QDir::cleanPath(QCoreApplication::applicationDirPath()
+                           + QLatin1String("/../Resources/runInTerminal.command"));
+#else
+    return QLatin1String("xterm");
+#endif
+}
+
+QString ConsoleProcess::terminalEmulator(const QSettings *settings)
+{
+    QString dflt = defaultTerminalEmulator() + QLatin1String(" -e");
+    if (!settings)
+        return dflt;
+    return settings->value(QLatin1String("General/TerminalEmulator"), dflt).toString();
+}
+
+void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
+{
+    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
 }

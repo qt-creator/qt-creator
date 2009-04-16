@@ -31,11 +31,14 @@
 
 #include "stylehelper.h"
 #include "utils/qtcolorbutton.h"
+#include <utils/consoleprocess.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <QtGui/QMessageBox>
 
 #include "ui_generalsettings.h"
 
+using namespace Core::Utils;
 using namespace Core::Internal;
 
 GeneralSettings::GeneralSettings():
@@ -71,6 +74,13 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     m_page->colorButton->setColor(StyleHelper::baseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
+#ifdef Q_OS_UNIX
+    m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(Core::ICore::instance()->settings()));
+#else
+    m_page->terminalLabel->hide();
+    m_page->terminalEdit->hide();
+    m_page->resetTerminalButton->hide();
+#endif
 
     connect(m_page->resetButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
@@ -78,6 +88,10 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetExternalEditor()));
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
+#ifdef Q_OS_UNIX
+    connect(m_page->resetTerminalButton, SIGNAL(clicked()),
+            this, SLOT(resetTerminal()));
+#endif
 
     return w;
 }
@@ -87,6 +101,10 @@ void GeneralSettings::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
+#ifdef Q_OS_UNIX
+	ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
+                                        m_page->terminalEdit->text());
+#endif
 }
 
 void GeneralSettings::finish()
@@ -103,6 +121,13 @@ void GeneralSettings::resetExternalEditor()
 {
     m_page->externalEditorEdit->setText(EditorManager::instance()->defaultExternalEditor());
 }
+
+#ifdef Q_OS_UNIX
+void GeneralSettings::resetTerminal()
+{
+    m_page->terminalEdit->setText(ConsoleProcess::defaultTerminalEmulator() + QLatin1String(" -e"));
+}
+#endif
 
 void GeneralSettings::showHelpForExternalEditor()
 {

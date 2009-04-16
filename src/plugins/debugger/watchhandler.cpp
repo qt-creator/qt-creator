@@ -66,6 +66,8 @@ using namespace Debugger::Internal;
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
+static int watcherCounter = 0;
+
 ////////////////////////////////////////////////////////////////////
 //
 // WatchData
@@ -356,54 +358,101 @@ WatchHandler::WatchHandler()
         SIGNAL(triggered()), this, SLOT(collapseChildren()));
 }
 
+static QString chopConst(QString type)
+{
+   while (1) {
+        if (type.startsWith("const"))
+            type = type.mid(5);
+        else if (type.startsWith(' '))
+            type = type.mid(1);
+        else if (type.endsWith("const"))
+            type.chop(5);
+        else if (type.endsWith(' '))
+            type.chop(1);
+        else
+            break;
+    }
+    return type;
+}
+
 static QString niceType(QString type)
 {
     if (type.contains(QLatin1String("std::"))) {
         // std::string
-        type.replace(QLatin1String("std::basic_string<char, std::char_traits<char>, "
-                                   "std::allocator<char> >"), QLatin1String("std::string"));
+        type.replace(QLatin1String("basic_string<char, std::char_traits<char>, "
+                                   "std::allocator<char> >"), QLatin1String("string"));
 
         // std::wstring
-        type.replace(QLatin1String("std::basic_string<wchar_t, std::char_traits<wchar_t>, "
-                                   "std::allocator<wchar_t> >"), QLatin1String("std::wstring"));
+        type.replace(QLatin1String("basic_string<wchar_t, std::char_traits<wchar_t>, "
+                                   "std::allocator<wchar_t> >"), QLatin1String("wstring"));
 
         // std::vector
-        static QRegExp re1(QLatin1String("std::vector<(.*), std::allocator<(.*)>\\s*>"));
+        static QRegExp re1(QLatin1String("vector<(.*), std::allocator<(.*)>\\s*>"));
         re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re1.indexIn(type) == -1 || re1.cap(1) != re1.cap(2)) 
                 break;
-            type.replace(re1.cap(0), QLatin1String("std::vector<") + re1.cap(1) + QLatin1Char('>'));
+            type.replace(re1.cap(0), QLatin1String("vector<") + re1.cap(1) + QLatin1Char('>'));
+        }
+
+        // std::deque
+        static QRegExp re5(QLatin1String("deque<(.*), std::allocator<(.*)>\\s*>"));
+        re5.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re5.indexIn(type) == -1 || re5.cap(1) != re5.cap(2)) 
+                break;
+            type.replace(re5.cap(0), QLatin1String("deque<") + re5.cap(1) + QLatin1Char('>'));
+        }
+
+        // std::stack
+        static QRegExp re6(QLatin1String("stack<(.*), std::deque<(.*), std::allocator<(.*)>\\s*> >"));
+        re6.setMinimal(true);
+        for (int i = 0; i != 10; ++i) {
+            if (re6.indexIn(type) == -1 || re6.cap(1) != re6.cap(2)
+                    || re6.cap(1) != re6.cap(2)) 
+                break;
+            type.replace(re6.cap(0), QLatin1String("stack<") + re6.cap(1) + QLatin1Char('>'));
         }
 
         // std::list
-        static QRegExp re2(QLatin1String("std::list<(.*), std::allocator<(.*)>\\s*>"));
+        static QRegExp re2(QLatin1String("list<(.*), std::allocator<(.*)>\\s*>"));
         re2.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re2.indexIn(type) == -1 || re2.cap(1) != re2.cap(2)) 
                 break;
-            type.replace(re2.cap(0), QLatin1String("std::list<") + re2.cap(1) + QLatin1Char('>'));
+            type.replace(re2.cap(0), QLatin1String("list<") + re2.cap(1) + QLatin1Char('>'));
         }
 
         // std::map
-        static QRegExp re3(QLatin1String("std::map<(.*), (.*), std::less<(.*)\\s*>, "
-                                         "std::allocator<std::pair<const (.*), (.*)\\s*> > >"));
-        re3.setMinimal(true);
-        for (int i = 0; i != 10; ++i) {
-            if (re3.indexIn(type) == -1 || re3.cap(1) != re3.cap(3)
-                || re3.cap(1) != re3.cap(4) || re3.cap(2) != re3.cap(5)) 
-                break;
-            type.replace(re3.cap(0), QLatin1String("std::map<") + re3.cap(1) + QLatin1String(", ") + re3.cap(2) + QLatin1Char('>'));
+        {
+            static QRegExp re(QLatin1String("map<(.*), (.*), std::less<(.*)>, "
+                "std::allocator<std::pair<(.*), (.*)> > >"));
+            re.setMinimal(true);
+            for (int i = 0; i != 10; ++i) {
+                if (re.indexIn(type) == -1)
+                    break;
+                QString key = chopConst(re.cap(1));
+                QString value = chopConst(re.cap(2));
+                QString key1 = chopConst(re.cap(3));
+                QString key2 = chopConst(re.cap(4));
+                QString value2 = chopConst(re.cap(5));
+                if (value != value2 || key != key1 || key != key2) {
+                    qDebug() << key << key1 << key2 << value << value2
+                        << (key == key1) << (key == key2) << (value == value2);
+                    break;
+                }
+                type.replace(re.cap(0), QString("map<%1, %2>").arg(key).arg(value));
+            }
         }
 
         // std::set
-        static QRegExp re4(QLatin1String("std::set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>"));
+        static QRegExp re4(QLatin1String("set<(.*), std::less<(.*)>, std::allocator<(.*)>\\s*>"));
         re1.setMinimal(true);
         for (int i = 0; i != 10; ++i) {
             if (re4.indexIn(type) == -1 || re4.cap(1) != re4.cap(2)
                 || re4.cap(1) != re4.cap(3)) 
                 break;
-            type.replace(re4.cap(0), QLatin1String("std::set<") + re4.cap(1) + QLatin1Char('>'));
+            type.replace(re4.cap(0), QLatin1String("set<") + re4.cap(1) + QLatin1Char('>'));
         }
 
         type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
@@ -875,17 +924,21 @@ void WatchHandler::watchExpression()
         watchExpression(action->data().toString());
 }
 
+QString WatchHandler::watcherName(const QString &exp)
+{
+    return QLatin1String("watch.") + QString::number(m_watchers[exp]);
+}
+
 void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
     //MODEL_DEBUG("WATCH: " << exp);
-    static int counter = 0;
+    m_watchers[exp] = watcherCounter++;
     WatchData data;
     data.exp = exp;
     data.name = exp;
-    data.iname = QLatin1String("watch.") + QString::number(counter++);
+    data.iname = watcherName(exp);
     insertData(data);
-    m_watchers.append(exp);
     saveWatchers();
     emit watchModelUpdateRequested();
 }
@@ -970,7 +1023,7 @@ void WatchHandler::removeWatchExpression()
 void WatchHandler::removeWatchExpression(const QString &exp)
 {
     MODEL_DEBUG("REMOVE WATCH: " << exp);
-    m_watchers.removeOne(exp);
+    m_watchers.remove(exp);
     for (int i = m_completeSet.size(); --i >= 0;) {
         const WatchData & data = m_completeSet.at(i);
         if (data.iname.startsWith(QLatin1String("watch.")) && data.exp == exp) {
@@ -994,8 +1047,9 @@ void WatchHandler::reinitializeWatchersHelper()
 {
     // copy over all watchers and mark all watchers as incomplete
     int i = 0;
-    foreach (const QString &exp, m_watchers) {
+    foreach (const QString &exp, m_watchers.keys()) {
         WatchData data;
+        data.iname = watcherName(exp);
         data.level = -1;
         data.row = -1;
         data.parentIndex = -1;
@@ -1205,15 +1259,16 @@ void WatchHandler::loadWatchers()
 {
     QVariant value;
     sessionValueRequested("Watchers", &value);
-    m_watchers = value.toStringList();
+    foreach (const QString &exp, value.toStringList())
+        m_watchers[exp] = watcherCounter++;
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
     reinitializeWatchersHelper();
 }
 
 void WatchHandler::saveWatchers()
 {
-    //qDebug() << "SAVE WATCHERS: " << m_watchers;
-    setSessionValueRequested("Watchers", m_watchers);
+    //qDebug() << "SAVE WATCHERS: " << m_watchers.keys();
+    setSessionValueRequested("Watchers", QVariant(m_watchers.keys()));
 }
 
 void WatchHandler::saveSessionData()

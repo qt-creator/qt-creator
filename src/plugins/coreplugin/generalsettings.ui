@@ -97,6 +97,34 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="terminalLabel">
+          <property name="text">
+           <string>Terminal:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="terminalEdit"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="resetTerminalButton">
+          <property name="toolTip">
+           <string>Reset to default</string>
+          </property>
+          <property name="text">
+           <string>R</string>
+          </property>
+          <property name="icon">
+           <iconset resource="core.qrc">
+            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QLabel" name="label">

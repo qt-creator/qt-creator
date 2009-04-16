@@ -250,6 +250,7 @@ DebuggerSettings *DebuggerSettings::instance()
     //
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("Location"));
+    item->setDefaultValue("gdb");
     instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);
@@ -273,11 +274,6 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UseToolTips, item);
 
     item = new SavedAction(instance);
-    item->setDefaultValue(QLatin1String("xterm"));
-    item->setSettingsKey(debugModeGroup, QLatin1String("Terminal"));
-    instance->insertItem(TerminalApplication, item);
-
-    item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
     item->setText(tr("List source files"));
     item->setCheckable(true);
@@ -291,6 +287,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("AllPluginBreakpoints"));
+    item->setDefaultValue(true);
     instance->insertItem(AllPluginBreakpoints, item);
 
     item = new SavedAction(instance);

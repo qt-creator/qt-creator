@@ -213,9 +213,8 @@ HelpViewer::HelpViewer(QHelpEngine *engine, CentralWidget *parent)
     : QWebView(parent), helpEngine(engine), parentWidget(parent)
 {    
     setPage(new HelpPage(parent, helpEngine, this));
-    // Enable JavaScript and Plugins for embedded videos
-    settings()->setAttribute(QWebSettings::PluginsEnabled, true);
-    settings()->setAttribute(QWebSettings::JavaEnabled, true);
+    settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    settings()->setAttribute(QWebSettings::JavaEnabled, false);
 
     page()->setNetworkAccessManager(new HelpNetworkAccessManager(engine, this));
 

@@ -73,18 +73,19 @@ enum {
     ArgSocket,
     ArgMsg,
     ArgDir,
-    ArgEnv
+    ArgEnv,
+    ArgExe
 };
 
-/* syntax: $0 {"run"|"debug"} <pid-socket> <continuation-msg> <workdir> <env...> "" <exe> <args...> */
+/* syntax: $0 {"run"|"debug"} <pid-socket> <continuation-msg> <workdir> <env-file> <exe> <args...> */
 /* exit codes: 0 = ok, 1 = invocation error, 3 = internal error */
 int main(int argc, char *argv[])
 {
-    int envIdx = ArgEnv;
     int errNo;
     int chldPid;
     int chldStatus;
     int chldPipe[2];
+    char **env = 0;
     struct sockaddr_un sau;
 
     if (argc < ArgEnv) {
@@ -109,6 +110,35 @@ int main(int argc, char *argv[])
         /* Only expected error: no such file or direcotry */
         sendMsg("err:chdir %d\n", errno);
         return 1;
+    }
+
+    if (*argv[ArgEnv]) {
+        FILE *envFd;
+        char *envdata, *edp;
+        long size;
+        int count;
+        if (!(envFd = fopen(argv[ArgEnv], "r"))) {
+            fprintf(stderr, "Cannot read creator env file %s: %s\n",
+                    argv[ArgEnv], strerror(errno));
+            doExit(1);
+        }
+        fseek(envFd, 0, SEEK_END);
+        size = ftell(envFd);
+        rewind(envFd);
+        envdata = malloc(size);
+        if (fread(envdata, 1, size, envFd) != (size_t)size) {
+            perror("Failed to read env file");
+            doExit(1);
+        }
+        fclose(envFd);
+        for (count = 0, edp = envdata; edp < envdata + size; ++count)
+            edp += strlen(edp) + 1;
+        env = malloc((count + 1) * sizeof(char *));
+        for (count = 0, edp = envdata; edp < envdata + size; ++count) {
+            env[count] = edp;
+            edp += strlen(edp) + 1;
+        }
+        env[count] = 0;
     }
 
     /* Create execution result notification pipe. */
@@ -142,14 +172,10 @@ int main(int argc, char *argv[])
             ptrace(PT_TRACE_ME, 0, 0, 0);
 #endif
 
-            for (envIdx = ArgEnv; *argv[envIdx]; ++envIdx) ;
-            if (envIdx != ArgEnv) {
-                argv[envIdx] = 0;
-                environ = argv + ArgEnv;
-            }
-            ++envIdx;
+            if (env)
+                environ = env;
 
-            execvp(argv[envIdx], argv + envIdx);
+            execvp(argv[ArgExe], argv + ArgExe);
             /* Only expected error: no such file or direcotry, i.e. executable not found */
             errNo = errno;
             write(chldPipe[1], &errNo, sizeof(errNo)); /* Only realistic error case is SIGPIPE */

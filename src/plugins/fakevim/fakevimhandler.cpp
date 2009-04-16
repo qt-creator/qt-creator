@@ -50,6 +50,7 @@
 
 #include <utils/qtcassert.h>
 
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QObject>
@@ -606,22 +607,28 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
 
 void FakeVimHandler::Private::moveDown(int n)
 {
-    // m_tc.movePosition(Down, MoveAnchor, n); does not work for "hidden"
-    // documents like in the autotests
-    const QTextBlock &block = m_tc.block();
-    const int col = m_tc.position() - block.position();
-    const int line = block.blockNumber();
-    const int pos = m_tc.document()->findBlockByNumber(line + n).position();
-    setPosition(pos + qMin(block.length(), col));
-    setPosition(pos);
+#if 0
+    // does not work for "hidden" documents like in the autotests
+    m_tc.movePosition(Down, MoveAnchor, n);
+#else
+    const int col = m_tc.position() - m_tc.block().position();
+    const int line = m_tc.block().blockNumber();
+    const QTextBlock &block = m_tc.document()->findBlockByNumber(line + n);
+    const int pos = block.position();
+    setPosition(pos + qMin(block.length() - 1, col));
+    moveToTargetColumn();
+#endif
 }
 
 void FakeVimHandler::Private::moveToEndOfLine()
 {
-    // m_tc.movePosition(EndOfLine, MoveAnchor) does not work for "hidden"
-    // documents like in the autotests
+#if 0
+    // does not work for "hidden" documents like in the autotests
+    m_tc.movePosition(EndOfLine, MoveAnchor);
+#else
     const QTextBlock &block = m_tc.block();
     setPosition(block.position() + block.length() - 1);
+#endif
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
@@ -1668,7 +1675,6 @@ void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
 {
     m_tc = EDITOR(textCursor());
-    init();
     handleExCommand(cmd);
     EDITOR(setTextCursor(m_tc));
 }
@@ -2077,12 +2083,22 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 
 void FakeVimHandler::Private::moveToTargetColumn()
 {
-    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn)
-        m_tc.movePosition(EndOfLine, KeepAnchor);
-    else
+    if (m_targetColumn == -1 || m_tc.block().length() <= m_targetColumn) {
+        const QTextBlock &block = m_tc.block();
+        m_tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    } else {
         m_tc.setPosition(m_tc.block().position() + m_targetColumn, KeepAnchor);
+    }
 }
 
+/* if simple is given:
+ *  class 0: spaces
+ *  class 1: non-spaces
+ * else
+ *  class 0: spaces
+ *  class 1: non-space-or-letter-or-number
+ *  class 2: letter-or-number
+ */
 static int charClass(QChar c, bool simple)
 {
     if (simple)
@@ -2100,6 +2116,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
     int lastClass = -1;
     while (true) {
         QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
+        qDebug() << "EXAMINING: " << c << " AT " << position();
         int thisClass = charClass(c, simple);
         if (thisClass != lastClass && lastClass != 0)
             --repeat;
@@ -2110,6 +2127,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
             break;
         forward ? moveRight() : moveLeft();
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::handleFfTt(int key)
@@ -2145,6 +2163,7 @@ void FakeVimHandler::Private::handleFfTt(int key)
             break;
         }
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToNextWord(bool simple)
@@ -2165,6 +2184,7 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
         if (m_tc.position() == n)
             break;
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToMatchingParanthesis()
@@ -2178,6 +2198,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
        if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == RegisterSubMode)
             m_tc.movePosition(Left, KeepAnchor, 1);
     }
+    setTargetColumn();
 }
 
 int FakeVimHandler::Private::cursorLineOnScreen() const

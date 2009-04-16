@@ -43,21 +43,6 @@
     \endlist
     \endtable
 
-    \raw HTML
-    <center>
-    <object width="425" height="344">
-    <param name="movie"
-    value="http://www.youtube.com/v/U7yje3D1UM4&hl=en&fs=1"></param>
-    <param name="allowFullScreen" value="true"></param>
-    <param name="allowscriptaccess" value="always"></param>
-    <embed src="http://www.youtube.com/v/U7yje3D1UM4&hl=en&fs=1"
-    type="application/x-shockwave-flash" allowscriptaccess="always"
-    allowfullscreen="true" width="425" height="344">
-    </embed>
-    </object>
-    </center>
-    \endraw
-
     To learn more about the Qt Creator, click on one of the links below:
 
     \list
@@ -1437,23 +1422,6 @@
     \nextpage creator-glossary.html
 
     \title Keyboard Shortcuts
-
-    \raw HTML
-    <center>
-    <object width="480" height="295">
-    <param name="movie"
-    value="http://www.youtube.com/v/6WGCxLIjRNg&hl=en&fs=1">
-    </param>
-    <param name="allowFullScreen" value="true"></param>
-    <param name="allowscriptaccess" value="always"></param>
-    <embed src="http://www.youtube.com/v/6WGCxLIjRNg&hl=en&fs=1"
-    type="application/x-shockwave-flash" allowscriptaccess="always"
-    allowfullscreen="true" width="480" height="295">
-    </embed>
-    </object>
-    </center>
-    \endraw
-
 
     Qt Creator provides various keyboard shortcuts to aid in the development
     process. These shortcuts are listed in the table below:

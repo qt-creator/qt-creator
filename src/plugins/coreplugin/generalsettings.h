@@ -59,6 +59,9 @@ private slots:
     void resetInterfaceColor();
     void resetExternalEditor();
     void showHelpForExternalEditor();
+#ifdef Q_OS_UNIX
+    void resetTerminal();
+#endif
 
 private:
     Ui_GeneralSettings *m_page;

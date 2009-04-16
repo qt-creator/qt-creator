@@ -269,8 +269,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
     m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
     m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
-    m_ui.terminalChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    m_ui.terminalChooser->setPromptDialogTitle(tr("Choose Location of Terminal Application"));
 
     m_group.clear();
     m_group.insert(theDebuggerAction(GdbLocation), 
@@ -279,8 +277,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         m_ui.scriptFileChooser);
     m_group.insert(theDebuggerAction(GdbEnvironment), 
         m_ui.environmentEdit);
-    m_group.insert(theDebuggerAction(TerminalApplication), 
-        m_ui.terminalChooser);
 
     m_group.insert(theDebuggerAction(AllPluginBreakpoints), 
         m_ui.radioButtonAllPluginBreakpoints);

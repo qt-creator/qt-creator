@@ -216,7 +216,8 @@ private:
     QList<WatchData> m_completeSet;
     QList<WatchData> m_oldSet;
     QList<WatchData> m_displaySet;
-    QStringList m_watchers;
+    QHash<QString, int> m_watchers;
+    QString watcherName(const QString &exp);
 
     void setDisplayedIName(const QString &iname, bool on);
     QSet<QString> m_expandedINames;  // those expanded in the treeview
