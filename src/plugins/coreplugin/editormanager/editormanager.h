@@ -208,6 +208,8 @@ private slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
     void makeCurrentEditorWritable();
+
+public slots:
     void split(Qt::Orientation orientation);
     void split();
     void splitSideBySide();

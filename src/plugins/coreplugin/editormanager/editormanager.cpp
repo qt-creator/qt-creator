@@ -1538,6 +1538,7 @@ QByteArray EditorManager::saveState() const
 bool EditorManager::restoreState(const QByteArray &state)
 {
     closeAllEditors(true);
+    removeAllSplits();
     QDataStream stream(state);
 
     QByteArray version;
