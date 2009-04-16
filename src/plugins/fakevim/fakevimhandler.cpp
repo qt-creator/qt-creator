@@ -620,8 +620,9 @@ void FakeVimHandler::Private::moveDown(int n)
     m_tc.movePosition(Down, MoveAnchor, n);
 #else
     const int col = m_tc.position() - m_tc.block().position();
-    const int line = m_tc.block().blockNumber();
-    const QTextBlock &block = m_tc.document()->findBlockByNumber(line + n);
+    const int lastLine = m_tc.document()->lastBlock().blockNumber();
+    const int targetLine = qMax(0, qMin(lastLine, m_tc.block().blockNumber() + n));
+    const QTextBlock &block = m_tc.document()->findBlockByNumber(targetLine);
     const int pos = block.position();
     setPosition(pos + qMin(block.length() - 1, col));
     moveToTargetColumn();

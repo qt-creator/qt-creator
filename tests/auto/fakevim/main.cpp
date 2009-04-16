@@ -302,6 +302,7 @@ void tst_FakeVim::command_e()
     move("e",  "int main(int argc, char *arg@v[])");
     move("e",  "int main(int argc, char *argv[]@)");
     move("e",  "@{");
+    move("10k","@\n"); // home.
 }
 
 void tst_FakeVim::command_i()
