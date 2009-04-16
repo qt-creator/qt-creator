@@ -2214,7 +2214,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     // 2.1    y     0x0040168e in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
     // 2.2    y     0x00401792 in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
 
-
+    // tested in ../../../tests/auto/debugger/
     QRegExp re("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)");
     re.setMinimal(true);
 
@@ -2223,6 +2223,10 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->bpFuncName = re.cap(2).trimmed();
         data->bpLineNumber = re.cap(4);
         QString full = fullName(re.cap(3));
+        if (full.isEmpty()) {
+            qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
+            full = re.cap(3); // FIXME: wrong, but prevents recursion
+        }
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
         data->bpFileName = full;
