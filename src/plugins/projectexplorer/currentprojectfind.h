@@ -45,6 +45,8 @@ namespace Internal {
 
 class CurrentProjectFind : public TextEditor::BaseFileFind
 {
+    Q_OBJECT
+
 public:
     CurrentProjectFind(ProjectExplorerPlugin *plugin, Find::SearchResultWindow *resultWindow);
 

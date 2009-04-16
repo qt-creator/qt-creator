@@ -43,6 +43,8 @@ class CppCodeCompletion;
 
 class CompletionSettingsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
+
 public:
     CompletionSettingsPage(CppCodeCompletion *completion);
     ~CompletionSettingsPage();

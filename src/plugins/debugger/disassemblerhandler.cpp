@@ -57,6 +57,8 @@ void DisassemblerLine::clear()
 /*! A model to represent the stack in a QTreeView. */
 class Debugger::Internal::DisassemblerModel : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     DisassemblerModel(QObject *parent);
 
@@ -188,3 +190,5 @@ void DisassemblerHandler::setCurrentLine(int line)
 {
     m_model->setCurrentLine(line);
 }
+
+#include "disassemblerhandler.moc"

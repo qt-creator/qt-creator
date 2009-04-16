@@ -95,6 +95,7 @@ private:
 
 class ProjectTreeWidgetFactory : public Core::INavigationWidgetFactory
 {
+    Q_OBJECT
 public:
     ProjectTreeWidgetFactory();
     virtual ~ProjectTreeWidgetFactory();

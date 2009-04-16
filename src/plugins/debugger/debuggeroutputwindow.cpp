@@ -62,6 +62,8 @@ using namespace Debugger::Internal;
 
 class DebuggerPane : public QPlainTextEdit
 {
+    Q_OBJECT
+
 public:
     DebuggerPane(QWidget *parent)
         : QPlainTextEdit(parent)

@@ -53,6 +53,8 @@ using Debugger::Internal::SourceFilesModel;
 
 class Debugger::Internal::SourceFilesModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     SourceFilesModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
 
@@ -229,3 +231,4 @@ void SourceFilesWindow::removeAll()
     header()->setResizeMode(0, QHeaderView::ResizeToContents);
 }
     
+#include "sourcefileswindow.moc"

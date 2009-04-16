@@ -77,6 +77,7 @@ private:
 
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
+    Q_OBJECT
 public:
     FolderNavigationWidgetFactory();
     virtual ~FolderNavigationWidgetFactory();

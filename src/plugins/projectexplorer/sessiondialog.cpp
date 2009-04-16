@@ -76,6 +76,7 @@ void SessionValidator::fixup(QString &input) const
 
 class NewSessionInputDialog : public QDialog
 {
+    Q_OBJECT
 public:
     NewSessionInputDialog(QStringList sessions);
     QString value();
@@ -188,3 +189,5 @@ void SessionDialog::remove()
 
 } // namespace Internal
 } // namespace ProjectExplorer
+
+#include "sessiondialog.moc"

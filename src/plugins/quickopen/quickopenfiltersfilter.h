@@ -46,6 +46,8 @@ class QuickOpenToolWindow;
  */
 class QuickOpenFiltersFilter : public IQuickOpenFilter
 {
+    Q_OBJECT
+
 public:
     QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
                            QuickOpenToolWindow *toolWindow);

@@ -61,6 +61,8 @@ struct StackFrame
 /*! A model to represent the stack in a QTreeView. */
 class StackHandler : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     StackHandler(QObject *parent = 0);
 
@@ -106,6 +108,8 @@ struct ThreadData
 /*! A model to represent the running threads in a QTreeView or ComboBox */
 class ThreadsHandler : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     ThreadsHandler(QObject *parent = 0);
 

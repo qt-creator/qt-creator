@@ -53,6 +53,8 @@ using namespace Debugger::Internal;
 
 class Debugger::Internal::ModulesModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     ModulesModel(ModulesHandler *parent)
       : QAbstractItemModel(parent)
@@ -167,3 +169,5 @@ QList<Module> ModulesHandler::modules() const
 {
     return m_model->m_modules;
 }
+
+#include "moduleshandler.moc"
