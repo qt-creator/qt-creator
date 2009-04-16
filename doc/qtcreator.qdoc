@@ -1571,8 +1571,11 @@
         \o Loading KDE4 designer plugins breaks the style in KDE < 4.2.1
            due to a bug in KDE.
 
-        \o Scopes in \c{.pro} files are ignored, and environment variables not
-           expanded.
+        \o The DEFINES and INCLUDES set in \c{.pro} files are not dealt with
+           on a file-specific level. Because of this, handling of DEFINES has
+           been disabled completely. Also the \c{.qmake.cache} is not being
+           parsed. In general, the \c{.pro} file parser is incomplete and
+           problems are still to be expected.
 
         \o Code completion for generated UI header files is updated only
            after a build.
