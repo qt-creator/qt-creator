@@ -96,7 +96,7 @@ public:
         } else if (index.column() == 0) {
             // the watcher name column
             theDebuggerAction(RemoveWatchExpression)->trigger(exp);
-            theDebuggerAction(WatchExpression)->trigger(lineEdit->text());
+            theDebuggerAction(WatchExpression)->trigger(value);
         }
     }
 
@@ -175,8 +175,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex idx = indexAt(ev->pos());
     QModelIndex mi0 = idx.sibling(idx.row(), 0);
     QString exp = model()->data(mi0).toString();
-    QModelIndex mi1 = idx.sibling(idx.row(), 0);
-    QString value = model()->data(mi1).toString();
 
     menu.addSeparator();
     int type = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;

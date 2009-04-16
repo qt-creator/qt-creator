@@ -199,6 +199,7 @@ private:
     void handleQueryPwd(const GdbResultRecord &response);
     void handleQuerySources(const GdbResultRecord &response);
     void handleTargetCore(const GdbResultRecord &response);
+    void handleExit(const GdbResultRecord &response);
     void debugMessage(const QString &msg);
     QString dumperLibraryName() const;
 

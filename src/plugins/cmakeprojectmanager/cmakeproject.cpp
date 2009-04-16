@@ -512,7 +512,6 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         cleanMakeStep->setValue("clean", true);
     } else {
         // We have a user file, but we could still be missing the cbp file
-        // TODO check that we have a cbp file and if not, open up a dialog ?
         // or simply run createXml with the saved settings
         QFileInfo sourceFileInfo(m_fileName);
         QStringList needToCreate;
