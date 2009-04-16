@@ -351,10 +351,10 @@ bool ProFileEvaluator::Private::parseLine(const QString &line0)
     } else {
         if (!m_syntaxError) {
             updateItem();
-            if (!m_contNextLine)
-                finalizeBlock();
+            finalizeBlock();
+            return true;
         }
-        return !m_syntaxError;
+        return false;
     }
 }
 
