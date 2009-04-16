@@ -1070,11 +1070,14 @@ static const char *settingsGroup = "MainWindow";
 static const char *geometryKey = "Geometry";
 static const char *colorKey = "Color";
 static const char *maxKey = "Maximized";
+static const char *fullScreenKey = "FullScreen";
 
 void MainWindow::readSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
+
     StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
+
     const QVariant geom = m_settings->value(QLatin1String(geometryKey));
     if (geom.isValid()) {
         setGeometry(geom.toRect());
@@ -1083,8 +1086,10 @@ void MainWindow::readSettings()
     }
     if (m_settings->value(QLatin1String(maxKey), false).toBool())
         setWindowState(Qt::WindowMaximized);
+    setFullScreen(m_settings->value(QLatin1String(fullScreenKey), false).toBool());
 
     m_settings->endGroup();
+
     m_editorManager->readSettings(m_settings);
     m_navigationWidget->restoreSettings(m_settings);
     m_rightPaneWidget->readSettings(m_settings);
@@ -1093,14 +1098,18 @@ void MainWindow::readSettings()
 void MainWindow::writeSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
-    m_settings->setValue(colorKey, StyleHelper::baseColor());
-    const QString maxSettingsKey = QLatin1String(maxKey);
-    if (windowState() & Qt::WindowMaximized) {
-        m_settings->setValue(maxSettingsKey, true);
+
+    m_settings->setValue(QLatin1String(colorKey), StyleHelper::baseColor());
+
+    if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
+        m_settings->setValue(QLatin1String(maxKey), (bool) (windowState() & Qt::WindowMaximized));
+        m_settings->setValue(QLatin1String(fullScreenKey), (bool) (windowState() & Qt::WindowFullScreen));
     } else {
-        m_settings->setValue(maxSettingsKey, false);
+        m_settings->setValue(QLatin1String(maxKey), false);
+        m_settings->setValue(QLatin1String(fullScreenKey), false);
         m_settings->setValue(QLatin1String(geometryKey), geometry());
     }
+
     m_settings->endGroup();
 
     m_fileManager->saveRecentFiles();
@@ -1209,7 +1218,7 @@ QPrinter *MainWindow::printer() const
 {
     if (!m_printer)
         m_printer = new QPrinter(QPrinter::HighResolution);
-    return  m_printer;
+    return m_printer;
 }
 
 void MainWindow::setFullScreen(bool on)
