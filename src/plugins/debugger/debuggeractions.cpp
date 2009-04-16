@@ -158,7 +158,7 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UseDebuggingHelpers, item);
     item->setDefaultValue(true);
     item->setSettingsKey("DebugMode", "UseDebuggingHelper");
-    item->setText(tr("Use Debugging Helper"));
+    item->setText(tr("Use debugging helper"));
     item->setCheckable(true);
     item->setDefaultValue(true);
 
