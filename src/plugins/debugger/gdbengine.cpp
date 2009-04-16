@@ -103,6 +103,7 @@ enum GdbCommandType
     GdbQuerySources,
     GdbAsyncOutput2,
     GdbStart,
+    GdbExit,
     GdbAttached,
     GdbStubAttached,
     GdbExecRun,
@@ -755,6 +756,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbInfoThreads:
             handleInfoThreads(record);
             break;
+        case GdbExit:
+            handleExit(record);
+            break;
 
         case GdbShowVersion:
             handleShowVersion(record);
@@ -1167,7 +1171,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 + data.findChild("signal-name").toString();
         }
         q->showStatusMessage(msg);
-        sendCommand("-gdb-exit");
+        sendCommand("-gdb-exit", GdbExit);
         return;
     }
 
@@ -1525,7 +1529,7 @@ void GdbEngine::exitDebugger()
             sendCommand("detach");
         else
             sendCommand("kill");
-        sendCommand("-gdb-exit");
+        sendCommand("-gdb-exit", GdbExit);
         // 20s can easily happen when loading webkit debug information
         m_gdbProc.waitForFinished(20000);
         if (m_gdbProc.state() != QProcess::Running) {
@@ -1795,6 +1799,12 @@ void GdbEngine::handleAttach()
     // Registers
     //
     qq->reloadRegisters();
+}
+
+void GdbEngine::handleExit(const GdbResultRecord &response)
+{
+    Q_UNUSED(response);
+    q->showStatusMessage(tr("Debugger exited."));
 }
 
 void GdbEngine::stepExec()
@@ -3409,14 +3419,15 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
         m_availableSimpleDebuggingHelpers.append(item.data());
     if (m_availableSimpleDebuggingHelpers.isEmpty()) {
         m_debuggingHelperState = DebuggingHelperUnavailable;
-        QMessageBox::warning(q->mainWindow(),
-            tr("Cannot find special data dumpers"),
-            tr("The debugged binary does not contain information needed for "
-                    "nice display of Qt data types.\n\n"
-                    "You might want to try including the file\n\n"
-                    ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
-                    "into your project directly.")
-                );
+        q->showStatusMessage(tr("Debugging helpers not found."));
+        //QMessageBox::warning(q->mainWindow(),
+        //    tr("Cannot find special data dumpers"),
+        //    tr("The debugged binary does not contain information needed for "
+        //            "nice display of Qt data types.\n\n"
+        //            "You might want to try including the file\n\n"
+        //            ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
+        //            "into your project directly.")
+        //        );
     } else {
         m_debuggingHelperState = DebuggingHelperAvailable;
         q->showStatusMessage(tr("%1 custom dumpers found.")
