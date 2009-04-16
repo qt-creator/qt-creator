@@ -932,7 +932,6 @@ QString WatchHandler::watcherName(const QString &exp)
 void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
-    //MODEL_DEBUG("WATCH: " << exp);
     m_watchers[exp] = watcherCounter++;
     WatchData data;
     data.exp = exp;

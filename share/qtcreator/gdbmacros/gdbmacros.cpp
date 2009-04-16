@@ -202,11 +202,12 @@ QT_END_NAMESPACE
 #endif // PRIVATE_OBJECT_ALLOWED
 
 
-// this can be mangled typenames of nested templates, each char-by-char
-// comma-separated integer list
-static char qDumpInBuffer[10000];
-static char qDumpOutBuffer[100000];
-//static char qDumpSize[20];
+// This can be mangled typenames of nested templates, each char-by-char
+// comma-separated integer list...
+Q_DECL_EXPORT char qDumpInBuffer[10000];
+
+// The output buffer.
+Q_DECL_EXPORT char qDumpOutBuffer[100000];
 
 namespace {
 
@@ -2524,7 +2525,7 @@ static void handleProtocolVersion2and3(QDumper & d)
 
 
 extern "C" Q_DECL_EXPORT
-void qDumpObjectData440(
+void *qDumpObjectData440(
     int protocolVersion,
     int token,
     void *data,
@@ -2629,4 +2630,5 @@ void qDumpObjectData440(
     else {
         qDebug() << "Unsupported protocol version" << protocolVersion;
     }
+    return qDumpOutBuffer;
 }

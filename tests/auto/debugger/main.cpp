@@ -79,6 +79,9 @@ private slots:
     void mi10() { testMi(test10); }
     void mi11() { testMi(test11); }
     void mi12() { testMi(test12); }
+
+    void infoBreak();
+
     void runQtc();
 
 public slots:
@@ -98,6 +101,41 @@ static QByteArray stripped(QByteArray ba)
             break;
     }
     return ba;
+}
+
+
+void tst_Debugger::infoBreak()
+{
+    // This tests the regular expression used in GdbEngine::extractDataFromInfoBreak 
+    // to discover breakpoints in constructors.
+
+    // Copied from gdbengine.cpp:
+
+    QRegExp re("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)");
+    re.setMinimal(true);
+
+    QCOMPARE(re.indexIn(
+        "2       breakpoint     keep y   <MULTIPLE> 0x0040168e\n"
+        "2.1                         y     0x0040168e "
+            "in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7\n"
+        "2.2                         y     0x00401792 "
+            "in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7\n"), 33);
+    QCOMPARE(re.cap(1), QString("0x0040168e"));
+    QCOMPARE(re.cap(2).trimmed(), QString("MainWindow::MainWindow(QWidget*)"));
+    QCOMPARE(re.cap(3), QString("mainwindow.cpp"));
+    QCOMPARE(re.cap(4), QString("7"));
+
+
+    QCOMPARE(re.indexIn(
+        "Num     Type           Disp Enb Address            What"
+        "4       breakpoint     keep y   <MULTIPLE>         0x00000000004066ad"
+        "4.1                         y     0x00000000004066ad in CTorTester"
+        " at /main/tests/manual/gdbdebugger/simple/app.cpp:124"), 88);
+
+    QCOMPARE(re.cap(1), QString("0x00000000004066ad"));
+    QCOMPARE(re.cap(2).trimmed(), QString("CTorTester"));
+    QCOMPARE(re.cap(3), QString("/main/tests/manual/gdbdebugger/simple/app.cpp"));
+    QCOMPARE(re.cap(4), QString("124"));
 }
 
 void tst_Debugger::readStandardOutput()

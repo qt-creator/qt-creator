@@ -47,7 +47,11 @@
 
 using namespace TextEditor;
 
+#if defined (Q_OS_WIN)
+QT_BEGIN_NAMESPACE
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+QT_END_NAMESPACE
+#endif
 
 #if defined (Q_OS_WIN)
 # define NATIVE_LINE_TERMINATOR CRLFLineTerminator
@@ -145,14 +149,14 @@ bool BaseTextDocument::isReadOnly() const
 
     const QFileInfo fi(m_fileName);
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
     // Check for permissions on NTFS file systems
     qt_ntfs_permission_lookup++;
 #endif
 
     const bool ro = !fi.isWritable();
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
     qt_ntfs_permission_lookup--;
 #endif
     return ro;
@@ -171,10 +175,7 @@ bool BaseTextDocument::open(const QString &fileName)
         m_fileName = fi.absoluteFilePath();
 
         QFile file(fileName);
-        if (!file.exists())
-            return false;
-
-        if (!file.open(QIODevice::ReadWrite) && !file.open(QIODevice::ReadOnly))
+        if (!file.open(QIODevice::ReadOnly))
             return false;
 
         title = fi.fileName();
