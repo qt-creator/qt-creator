@@ -528,7 +528,7 @@ void SubversionPlugin::svnDiff(const QStringList &files, QString diffname)
             return;
         }
     }
-    const QString title = tr("svn diff %1").arg(diffname);
+    const QString title = QString::fromLatin1("svn diff %1").arg(diffname);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
     if (files.count() == 1)
         editor->setProperty("originalFileName", files.front());
@@ -604,7 +604,7 @@ void SubversionPlugin::revertCurrentFile()
 
     if (diffResponse.stdOut.isEmpty())
         return;
-    if (QMessageBox::warning(0, tr("svn revert"), tr("The file has been changed. Do you want to revert it?"),
+    if (QMessageBox::warning(0, QLatin1String("svn revert"), tr("The file has been changed. Do you want to revert it?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
@@ -696,7 +696,7 @@ void SubversionPlugin::startCommitAll()
     default: {
         const QString msg = tr("The commit list spans several respositories (%1). Please commit them one by one.").
             arg(files.join(QString(QLatin1Char(' '))));
-        QMessageBox::warning(0, tr("svn commit"), msg, QMessageBox::Ok);
+        QMessageBox::warning(0, QLatin1String("svn commit"), msg, QMessageBox::Ok);
     }
         break;
     }
@@ -790,7 +790,7 @@ void SubversionPlugin::filelog(const QString &file)
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor);
     } else {
-        const QString title = tr("svn log %1").arg(QFileInfo(file).fileName());
+        const QString title = QString::fromLatin1("svn log %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, file, codec);
         newEditor->setProperty("logFileName", file);
     }
@@ -833,7 +833,7 @@ void SubversionPlugin::annotate(const QString &file)
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor);
     } else {
-        const QString title = tr("svn annotate %1").arg(QFileInfo(file).fileName());
+        const QString title = QString::fromLatin1("svn annotate %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, file, codec);
         newEditor->setProperty("annotateFileName", file);
     }
@@ -901,7 +901,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
         editor->createNew(description);
         Core::EditorManager::instance()->activateEditor(editor);
     } else {
-        const QString title = tr("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
+        const QString title = QString::fromLatin1("svn describe %1#%2").arg(QFileInfo(source).fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VCSBase::DiffOutput, source, codec);
         newEditor->setProperty("describeChange", id);
     }
