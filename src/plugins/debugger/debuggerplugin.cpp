@@ -246,8 +246,8 @@ public:
     CommonOptionsPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("Common"); }
-    QString trName() const { return tr("Common"); }
+    QString id() const { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
+    QString trName() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
     QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
     QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
 
@@ -988,7 +988,8 @@ void DebuggerPlugin::focusCurrentEditor(IMode *mode)
 
 void DebuggerPlugin::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog("Debugger", "General");
+    Core::ICore::instance()->showOptionsDialog(QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
+                                               QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
 }
 
 #include "debuggerplugin.moc"

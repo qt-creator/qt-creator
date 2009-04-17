@@ -53,6 +53,7 @@ const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 const char * const C_GDBDEBUGGER        = "Gdb Debugger";
 const char * const GDBRUNNING           = "Gdb.Running";
 
+const char * const DEBUGGER_COMMON_SETTINGS_PAGE = QT_TRANSLATE_NOOP("Debugger", "Common");
 const char * const DEBUGGER_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Debugger", "Debugger");
 
 namespace Internal {
