@@ -1273,10 +1273,12 @@
     not have an in-place build, Qt Creator lets you specify the directory in
     which the project is built (shadow build).
 
+    \image qtcreator-cmake-import-wizard1.png
+
     The screenshot below shows how you can specify command line arguments to
     \c CMake for your project.
 
-     ###TODO one, two pictures ? \image qtcreator-import-wizard.png
+    \image qtcreator-cmake-import-wizard2.png
 
     Normally, there is no need to pass any command line arguments for projects
     that are already built, as \c CMake caches that information.
@@ -1291,7 +1293,7 @@
     By default Qt Creator builds the "all" target. You can change which
     targets get build in the Project/Build Settings.
 
-    ### \image qtcreator-build-settings.png
+    \image qtcreator-cmake-build-settings.png
 
     Currently only one build configuration is supported and the
     build directory can't be changed after the initial import. This
