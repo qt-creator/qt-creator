@@ -34,6 +34,8 @@
 #include "cdbbreakpoint.h"
 #include "cdbmodules.h"
 #include "cdbassembler.h"
+#include "cdboptionspage.h"
+#include "cdboptions.h"
 
 #include "debuggeractions.h"
 #include "debuggermanager.h"
@@ -45,6 +47,7 @@
 #include "disassemblerhandler.h"
 #include "watchutils.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 #include <utils/consoleprocess.h>
@@ -140,10 +143,15 @@ DebuggerEngineLibrary::DebuggerEngineLibrary() :
 {
 }
 
-bool DebuggerEngineLibrary::init(QString *errorMessage)
+bool DebuggerEngineLibrary::init(const QString &path, QString *errorMessage)
 {
-    // Load
-    QLibrary lib(QLatin1String(dbgEngineDllC), 0);
+    // Load from path
+    QString dllPath = path;
+    if (!dllPath.isEmpty())
+        dllPath += QDir::separator();
+    dllPath += QLatin1String(dbgEngineDllC);
+
+    QLibrary lib(dllPath, 0);
 
     if (!lib.isLoaded() && !lib.load()) {
         *errorMessage = CdbDebugEngine::tr("Unable to load the debugger engine library '%1': %2").
@@ -191,7 +199,10 @@ SyntaxSetter::~SyntaxSetter()
 
 // --- CdbDebugEnginePrivate
 
-CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent, CdbDebugEngine* engine) :
+CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent,
+                                             const QSharedPointer<CdbOptions> &options,
+                                             CdbDebugEngine* engine) :
+    m_options(options),
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
@@ -215,7 +226,7 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
 {
     // Load the DLL
     DebuggerEngineLibrary lib;
-    if (!lib.init(errorMessage))
+    if (!lib.init(m_options->path, errorMessage))
         return false;
 
     // Initialize the COM interfaces
@@ -259,18 +270,15 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     return true;
 }
 
-IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent)
+IDebuggerEngine *CdbDebugEngine::create(DebuggerManager *parent,
+                                        const QSharedPointer<CdbOptions> &options,
+                                        QString *errorMessage)
 {
-    QString errorMessage;
-    IDebuggerEngine *rc = 0;
-    CdbDebugEngine *e = new CdbDebugEngine(parent);
-    if (e->m_d->init(&errorMessage)) {
-        rc = e;
-    } else {
-        delete e;
-        qWarning("%s", qPrintable(errorMessage));
-    }
-    return rc;
+    CdbDebugEngine *rc = new CdbDebugEngine(parent, options);
+    if (rc->m_d->init(errorMessage))
+        return rc;
+    delete rc;
+    return 0;
 }
 
 CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
@@ -306,9 +314,9 @@ void CdbDebugEnginePrivate::cleanStackTrace()
     }
 }
 
-CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent) :
+CdbDebugEngine::CdbDebugEngine(DebuggerManager *parent, const QSharedPointer<CdbOptions> &options) :
     IDebuggerEngine(parent),
-    m_d(new CdbDebugEnginePrivate(parent, this))
+    m_d(new CdbDebugEnginePrivate(parent, options, this))
 {
     // m_d->m_consoleStubProc.setDebug(true);
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)), this, SLOT(slotConsoleStubError(QString)));
@@ -1327,8 +1335,24 @@ void CdbDebugEngine::reloadSourceFiles()
 } // namespace Debugger
 
 // Accessed by DebuggerManager
-Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::DebuggerManager *parent)
+Debugger::Internal::IDebuggerEngine *createWinEngine(Debugger::Internal::DebuggerManager *parent,
+                                                     bool cmdLineDisabled,
+                                                     QList<Core::IOptionsPage*> *opts)
 {
-    return Debugger::Internal::CdbDebugEngine::create(parent);
+    // Create options page
+    QSharedPointer<Debugger::Internal::CdbOptions> options(new Debugger::Internal::CdbOptions);
+    options->fromSettings(Core::ICore::instance()->settings());
+    Debugger::Internal::CdbOptionsPage *optionsPage = new Debugger::Internal::CdbOptionsPage(options);
+    opts->push_back(optionsPage);
+    if (cmdLineDisabled || !options->enabled)
+        return 0;
+    // Create engine
+    QString errorMessage;
+    Debugger::Internal::IDebuggerEngine *engine =
+            Debugger::Internal::CdbDebugEngine::create(parent, options, &errorMessage);
+    if (!engine) {
+        optionsPage->setFailureMessage(errorMessage);
+        qWarning("%s", qPrintable(errorMessage));
+    }
+    return engine;
 }
-

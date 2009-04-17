@@ -25,6 +25,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <dependency name="Find" version="1.1.80"/>
     </dependencyList>
     <argumentList>
-        <argument name="-enable-cdb"/>
+        <argument name="-disable-cdb">Disable CDB debugger engine</argument>
     </argumentList>
 </plugin>

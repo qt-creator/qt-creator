@@ -82,6 +82,8 @@ public:
     /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
 
+    void addButton(const QString &text, QObject *receiver, const char *slotFunc);
+
 private:
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);

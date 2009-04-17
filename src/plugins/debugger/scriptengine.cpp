@@ -740,7 +740,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createScriptEngine(DebuggerManager *parent)
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *)
 {
     return new ScriptEngine(parent);
 }

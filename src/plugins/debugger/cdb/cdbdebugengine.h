@@ -33,6 +33,8 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h"
 
+#include <QtCore/QSharedPointer>
+
 namespace Debugger {
 namespace Internal {
 
@@ -40,18 +42,22 @@ class DebuggerManager;
 class CdbDebugEventCallback;
 class CdbDebugOutput;
 struct CdbDebugEnginePrivate;
+struct CdbOptions;
 
 class CdbDebugEngine : public IDebuggerEngine
 {
     Q_DISABLE_COPY(CdbDebugEngine)
     Q_OBJECT
-    explicit CdbDebugEngine(DebuggerManager *parent);
+    explicit CdbDebugEngine(DebuggerManager *parent,
+                            const QSharedPointer<CdbOptions> &options);
 
 public:
     ~CdbDebugEngine();
 
     // Factory function that returns 0 if the debug engine library cannot be found.
-    static IDebuggerEngine *create(DebuggerManager *parent);
+    static IDebuggerEngine *create(DebuggerManager *parent,
+                                   const QSharedPointer<CdbOptions> &options,
+                                   QString *errorMessage);
 
     virtual void shutdown();
     virtual void setToolTipExpression(const QPoint &pos, const QString &exp);

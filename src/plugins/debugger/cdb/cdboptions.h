@@ -27,39 +27,42 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERCONSTANTS_H
-#define DEBUGGERCONSTANTS_H
+#ifndef CDBSETTINGS_H
+#define CDBSETTINGS_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QString>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Debugger {
-namespace Constants {
-
-// modes and their priorities
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
-const int          P_MODE_DEBUG         = 85;
-
-// common actions
-const char * const INTERRUPT            = "Debugger.Interrupt";
-const char * const RESET                = "Debugger.Reset";
-const char * const STEP                 = "Debugger.StepLine";
-const char * const STEPOUT              = "Debugger.StepOut";
-const char * const NEXT                 = "Debugger.NextLine";
-const char * const STEPI                = "Debugger.StepInstruction";
-const char * const NEXTI                = "Debugger.NextInstruction";
-
-const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
-
-const char * const C_GDBDEBUGGER        = "Gdb Debugger";
-const char * const GDBRUNNING           = "Gdb.Running";
-
-const char * const DEBUGGER_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Debugger", "Debugger");
-
 namespace Internal {
-    enum { debug = 0 };
-}
-} // namespace Constants
+
+struct CdbOptions
+{
+public:
+    CdbOptions();
+    void clear();
+
+    void fromSettings(const QSettings *s);
+    void toSettings(QSettings *s) const;
+
+    bool equals(const CdbOptions &s) const;
+
+    // Locate the debugging tools
+    static bool autoDetectPath(QString *path);
+
+    bool enabled;
+    QString path;
+};
+
+inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
+{ return s1.equals(s2); }
+inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
+{ return !s1.equals(s2); }
+
+} // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGERCONSTANTS_H
-
+#endif // CDBSETTINGS_H

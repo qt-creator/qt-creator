@@ -35,7 +35,7 @@
 #include "debuggerrunner.h"
 #include "gdbengine.h"
 
-#include "ui_gdboptionpage.h"
+#include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -75,6 +75,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
 #include <QtCore/QtPlugin>
+#include <QtCore/QCoreApplication>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QDockWidget>
@@ -230,62 +231,40 @@ QIcon LocationMark::icon() const
 
 ///////////////////////////////////////////////////////////////////////
 //
-// GdbOptionPage
+// CommonOptionsPage
 //
 ///////////////////////////////////////////////////////////////////////
 
 namespace Debugger {
 namespace Internal {
 
-class GdbOptionPage : public Core::IOptionsPage
+class CommonOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GdbOptionPage() {}
+    CommonOptionsPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("General"); }
-    QString trName() const { return tr("General"); }
-    QString category() const { return QLatin1String("Debugger"); }
-    QString trCategory() const { return tr("Debugger"); }
+    QString id() const { return QLatin1String("Common"); }
+    QString trName() const { return tr("Common"); }
+    QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
+    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }
     void finish() { m_group.finish(); }
 
 private:
-    friend class DebuggerPlugin;
-    Ui::GdbOptionPage m_ui;
-
+    Ui::CommonOptionsPage m_ui;
     Core::Utils::SavedActionSet m_group;
 };
 
-QWidget *GdbOptionPage::createPage(QWidget *parent)
+QWidget *CommonOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
-    m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
-    m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
-
     m_group.clear();
-    m_group.insert(theDebuggerAction(GdbLocation), 
-        m_ui.gdbLocationChooser);
-    m_group.insert(theDebuggerAction(GdbScriptFile), 
-        m_ui.scriptFileChooser);
-    m_group.insert(theDebuggerAction(GdbEnvironment), 
-        m_ui.environmentEdit);
-
-    m_group.insert(theDebuggerAction(AllPluginBreakpoints), 
-        m_ui.radioButtonAllPluginBreakpoints);
-    m_group.insert(theDebuggerAction(SelectedPluginBreakpoints), 
-        m_ui.radioButtonSelectedPluginBreakpoints);
-    m_group.insert(theDebuggerAction(NoPluginBreakpoints), 
-        m_ui.radioButtonNoPluginBreakpoints);
-    m_group.insert(theDebuggerAction(SelectedPluginBreakpointsPattern), 
-        m_ui.lineEditSelectedPluginBreakpointsPattern);
 
     m_group.insert(theDebuggerAction(ListSourceFiles), 
         m_ui.checkBoxListSourceFiles);
@@ -295,18 +274,6 @@ QWidget *GdbOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxUseToolTips);
     m_group.insert(theDebuggerAction(MaximalStackDepth), 
         m_ui.spinBoxMaximalStackDepth);
-
-    m_ui.lineEditSelectedPluginBreakpointsPattern->
-        setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());
-    connect(m_ui.radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
-        m_ui.lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
-
-    // FIXME
-    m_ui.environmentEdit->hide();
-    m_ui.labelEnvironment->hide();
-
-    //m_dumpLogAction = new QAction(this);
-    //m_dumpLogAction->setText(tr("Dump Log File for Debugging Purposes"));
 
     return w;
 }
@@ -334,8 +301,8 @@ public:
     // IOptionsPage
     QString id() const { return QLatin1String("DebuggingHelper"); }
     QString trName() const { return tr("Debugging Helper"); }
-    QString category() const { return QLatin1String("Debugger"); }
-    QString trCategory() const { return tr("Debugger"); }
+    QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
+    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }
@@ -404,20 +371,21 @@ void DebuggingHelperOptionPage::updateState()
 } // namespace Internal
 } // namespace Debugger
 
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPlugin
 //
 ///////////////////////////////////////////////////////////////////////
 
-DebuggerPlugin::DebuggerPlugin()
-{
-    m_generalOptionPage = 0;
-    m_dumperOptionPage = 0;
-    m_locationMark = 0;
-    m_manager = 0;
-    m_debugMode = 0;
+DebuggerPlugin::DebuggerPlugin() :
+    m_manager(0),
+    m_debugMode(0),
+    m_locationMark(0),
+    m_gdbRunningContext(0),
+    m_breakpointMarginAction(0),
+    m_toggleLockedAction(0),
+    m_breakpointMarginActionLineNumber(0)
+{    
 }
 
 DebuggerPlugin::~DebuggerPlugin()
@@ -440,19 +408,11 @@ void DebuggerPlugin::shutdown()
 
     //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
-    removeObject(m_generalOptionPage);
-    removeObject(m_dumperOptionPage);
 
     // FIXME: when using the line below, BreakWindow etc gets deleted twice.
     // so better leak for now...
     delete m_debugMode;
     m_debugMode = 0;
-
-    delete m_generalOptionPage;
-    m_generalOptionPage = 0;
-
-    delete m_dumperOptionPage;
-    m_dumperOptionPage = 0;
 
     delete m_locationMark;
     m_locationMark = 0;
@@ -466,7 +426,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    m_manager = new DebuggerManager(arguments);
+    m_manager = new DebuggerManager;
+    const QList<Core::IOptionsPage *> engineOptionPages = m_manager->initializeEngines(arguments);
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -660,10 +621,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         m_manager, SLOT(reloadRegisters()));
 
    // FIXME:
-    m_generalOptionPage = new GdbOptionPage;
-    addObject(m_generalOptionPage);
-    m_dumperOptionPage = new DebuggingHelperOptionPage;
-    addObject(m_dumperOptionPage);
+    addAutoReleasedObject(new CommonOptionsPage);
+    addAutoReleasedObject(new DebuggingHelperOptionPage);    
+    foreach (Core::IOptionsPage* op, engineOptionPages)
+        addAutoReleasedObject(op);
 
     m_locationMark = 0;
 

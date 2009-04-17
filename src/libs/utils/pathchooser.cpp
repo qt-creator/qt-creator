@@ -44,14 +44,16 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QPushButton>
 
+#ifdef Q_OS_MAC
+/*static*/ const char * const Core::Utils::PathChooser::browseButtonLabel =
+                   QT_TRANSLATE_NOOP("Core::Utils::PathChooser", "Choose...");
+#else
+/*static*/ const char * const Core::Utils::PathChooser::browseButtonLabel =
+                   QT_TRANSLATE_NOOP("Core::Utils::PathChooser", "Browse...");
+#endif
+
 namespace Core {
 namespace Utils {
-
-#ifdef Q_OS_MAC
-/*static*/ const char * const PathChooser::browseButtonLabel = "Choose...";
-#else
-/*static*/ const char * const PathChooser::browseButtonLabel = "Browse...";
-#endif
 
 // ------------------ PathValidatingLineEdit
 class PathValidatingLineEdit : public BaseValidatingLineEdit
@@ -83,6 +85,7 @@ struct PathChooserPrivate
 {
     PathChooserPrivate(PathChooser *chooser);
 
+    QHBoxLayout *m_hLayout;
     PathValidatingLineEdit *m_lineEdit;
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
@@ -90,6 +93,7 @@ struct PathChooserPrivate
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
+    m_hLayout(new QHBoxLayout),
     m_lineEdit(new PathValidatingLineEdit(chooser)),
     m_acceptingKind(PathChooser::Directory)
 {
@@ -99,8 +103,8 @@ PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
     m_d(new PathChooserPrivate(this))
 {
-    QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
     connect(m_d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
     connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
@@ -108,25 +112,30 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(m_d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
 
     m_d->m_lineEdit->setMinimumWidth(200);
-    hLayout->addWidget(m_d->m_lineEdit);
-    hLayout->setSizeConstraint(QLayout::SetMinimumSize);
+    m_d->m_hLayout->addWidget(m_d->m_lineEdit);
+    m_d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-#ifdef Q_OS_MAC
-    QPushButton *browseButton = new QPushButton;
-#else
-    QToolButton *browseButton = new QToolButton;
-#endif
-    browseButton->setText(tr(browseButtonLabel));
-    connect(browseButton, SIGNAL(clicked()), this, SLOT(slotBrowse()));
+    addButton(tr(browseButtonLabel), this, SLOT(slotBrowse()));
 
-    hLayout->addWidget(browseButton);
-    setLayout(hLayout);
+    setLayout(m_d->m_hLayout);
     setFocusProxy(m_d->m_lineEdit);
 }
 
 PathChooser::~PathChooser()
 {
     delete m_d;
+}
+
+void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
+{
+#ifdef Q_OS_MAC
+    QPushButton *button = new QPushButton;
+#else
+    QToolButton *button = new QToolButton;
+#endif
+    button->setText(text);
+    connect(button, SIGNAL(clicked()), receiver, slotFunc);
+    m_d->m_hLayout->addWidget(button);
 }
 
 QString PathChooser::path() const

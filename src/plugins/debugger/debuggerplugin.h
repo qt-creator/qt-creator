@@ -56,8 +56,6 @@ namespace Internal {
 
 class DebuggerManager;
 class DebugMode;
-class GdbOptionPage;
-class DebuggingHelperOptionPage;
 class LocationMark;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
@@ -107,9 +105,6 @@ private:
 
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
-
-    GdbOptionPage *m_generalOptionPage;
-    DebuggingHelperOptionPage *m_dumperOptionPage;
 
     QString m_previousMode;
     LocationMark *m_locationMark;

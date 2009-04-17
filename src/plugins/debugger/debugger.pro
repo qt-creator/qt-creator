@@ -43,7 +43,8 @@ HEADERS += \
     sourcefileswindow.h \
     threadswindow.h \
     watchhandler.h \
-    watchwindow.h
+    watchwindow.h \
+    gdboptionspage.h
 
 SOURCES += \
     breakhandler.cpp \
@@ -72,7 +73,8 @@ SOURCES += \
     sourcefileswindow.cpp \
     threadswindow.cpp \
     watchhandler.cpp \
-    watchwindow.cpp
+    watchwindow.cpp \
+    gdboptionspage.cpp
 
 FORMS += attachexternaldialog.ui \
     attachremotedialog.ui \
@@ -80,7 +82,8 @@ FORMS += attachexternaldialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
     dumperoptionpage.ui \
-    gdboptionpage.ui \
+    gdboptionspage.ui \
+    commonoptionspage.ui \
     startexternaldialog.ui \
 
 RESOURCES += debugger.qrc

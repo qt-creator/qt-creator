@@ -32,9 +32,12 @@
 
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugoutput.h"
+#include "cdboptions.h"
 #include "stackhandler.h"
 #include "debuggermanager.h"
+
 #include <utils/consoleprocess.h>
+#include <QtCore/QSharedPointer>
 
 namespace Debugger {
 namespace Internal {
@@ -52,7 +55,7 @@ class DebuggerEngineLibrary
 {
 public:
     DebuggerEngineLibrary();
-    bool init(QString *errorMessage);
+    bool init(const QString &path, QString *errorMessage);
 
     inline HRESULT debugCreate(REFIID interfaceId, PVOID *interfaceHandle) const
         { return m_debugCreate(interfaceId, interfaceHandle); }
@@ -72,7 +75,9 @@ struct CdbDebugEnginePrivate
         BreakEventSyncBreakPoints,
     };
 
-    explicit CdbDebugEnginePrivate(DebuggerManager *parent,  CdbDebugEngine* engine);
+    explicit CdbDebugEnginePrivate(DebuggerManager *parent,
+                                   const QSharedPointer<CdbOptions> &options,
+                                   CdbDebugEngine* engine);
     bool init(QString *errorMessage);
     ~CdbDebugEnginePrivate();
 
@@ -98,6 +103,7 @@ struct CdbDebugEnginePrivate
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
 
+    const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
     int                     m_currentThreadId;

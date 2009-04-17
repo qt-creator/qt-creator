@@ -10,6 +10,10 @@ CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
   CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
 }
 
+!exists ($$CDB_PATH) {
+  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x64)/sdk"
+}
+
 exists ($$CDB_PATH) {
 message("Experimental: Adding support for $$CDB_PATH")
 
@@ -31,7 +35,9 @@ HEADERS += \
     $$PWD/cdbstacktracecontext.h \
     $$PWD/cdbbreakpoint.h \
     $$PWD/cdbmodules.h \
-    $$PWD/cdbassembler.h
+    $$PWD/cdbassembler.h \
+    $$PWD/cdboptions.h \
+    $$PWD/cdboptionspage.h
 
 SOURCES += \
     $$PWD/cdbdebugengine.cpp \
@@ -41,7 +47,11 @@ SOURCES += \
     $$PWD/cdbstacktracecontext.cpp \
     $$PWD/cdbbreakpoint.cpp \
     $$PWD/cdbmodules.cpp \
-    $$PWD/cdbassembler.cpp
+    $$PWD/cdbassembler.cpp \
+    $$PWD/cdboptions.cpp \
+    $$PWD/cdboptionspage.cpp
+
+FORMS += $$PWD/cdboptionspagewidget.ui
 
 } else {
    message("Debugging Tools for Windows could not be found in $$CDB_PATH")

@@ -48,6 +48,10 @@ class QTimer;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Core {
+    class IOptionsPage;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -178,7 +182,9 @@ class DebuggerManager : public QObject,
     Q_OBJECT
 
 public:
-    DebuggerManager(const QStringList &arguments);
+    DebuggerManager();
+    QList<Core::IOptionsPage*> initializeEngines(const QStringList &arguments);
+
     ~DebuggerManager();
 
     IDebuggerManagerAccessForEngines *engineInterface();
@@ -341,7 +347,7 @@ public:
     bool m_useTerminal;
 
 private:
-    void init(const QStringList &arguments);
+    void init();
     void setDebuggerType(DebuggerType type);
     void runTest(const QString &fileName);
     QDockWidget *createDockForWidget(QWidget *widget);

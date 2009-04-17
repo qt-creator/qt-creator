@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "gdbengine.h"
+#include "gdboptionspage.h"
 
 #include "watchutils.h"
 #include "debuggeractions.h"
@@ -4197,7 +4198,8 @@ void GdbEngine::recheckDebuggingHelperAvailability()
     sendCommand("p (char*)qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
-IDebuggerEngine *createGdbEngine(DebuggerManager *parent)
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *opts)
 {
+    opts->push_back(new GdbOptionsPage);
     return new GdbEngine(parent);
 }

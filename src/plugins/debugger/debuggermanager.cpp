@@ -139,18 +139,21 @@ static IDebuggerEngine *gdbEngine = 0;
 static IDebuggerEngine *winEngine = 0;
 static IDebuggerEngine *scriptEngine = 0;
 
-extern IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
-extern IDebuggerEngine *createWinEngine(DebuggerManager *)
+// The creation functions take a list of options pages they can add to.
+// This allows for having a "enabled" toggle on the page indepently
+// of the engine.
+extern IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+extern IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
 ;
 #else
 { return 0; }
 #endif
-extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
+extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
-DebuggerManager::DebuggerManager(const QStringList &arguments)
+DebuggerManager::DebuggerManager()
 {
-    init(arguments);
+    init();
 }
 
 DebuggerManager::~DebuggerManager()
@@ -160,7 +163,7 @@ DebuggerManager::~DebuggerManager()
     delete scriptEngine;
 }
 
-void DebuggerManager::init(const QStringList &arguments)
+void DebuggerManager::init()
 {
     m_status = -1;
     m_busy = false;
@@ -426,13 +429,19 @@ void DebuggerManager::init(const QStringList &arguments)
     m_threadsDock = createDockForWidget(m_threadsWindow);
 
     setStatus(DebuggerProcessNotReady);
-    gdbEngine = createGdbEngine(this);
-    if (arguments.contains(QLatin1String("-enable-cdb")))
-        winEngine = createWinEngine(this);
-    scriptEngine = createScriptEngine(this);
+}
+
+QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(const QStringList &arguments)
+{
+    QList<Core::IOptionsPage*> rc;
+    gdbEngine = createGdbEngine(this, &rc);
+    const bool cdbDisabled = arguments.contains(QLatin1String("-disable-cdb"));
+    winEngine = createWinEngine(this, cdbDisabled, &rc);
+    scriptEngine = createScriptEngine(this, &rc);
     setDebuggerType(GdbDebugger);
     if (Debugger::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine;
+        qDebug() << Q_FUNC_INFO << gdbEngine << winEngine << scriptEngine << rc.size();
+    return rc;
 }
 
 void DebuggerManager::setDebuggerType(DebuggerType type)
