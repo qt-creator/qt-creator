@@ -46,7 +46,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
 {
     static QString location = QString();
     location = QFileDialog::getExistingDirectory(this,
-                                      QLatin1String("Select Git repository"),
+                                      tr("Select Git repository"),
                                       location);
     if (location.isEmpty())
         return;
@@ -63,7 +63,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
     } while (repository.cdUp());
 
     // Did not find a repo
-    QMessageBox::critical(this, QLatin1String("Error"),
-                          QLatin1String("Selected directory is not a Git repository"));
+    QMessageBox::critical(this, tr("Error"),
+                          tr("Selected directory is not a Git repository"));
 
 }

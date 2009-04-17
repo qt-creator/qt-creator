@@ -183,7 +183,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     resize(605, 490);
     // Import Page
     importPage = new QWizardPage(this);
-    importPage->setTitle("Import existing settings");
+    importPage->setTitle(tr("Import existing settings"));
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 
@@ -201,13 +201,13 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
 
 
     importCheckbox = new QCheckBox(importPage);
-    importCheckbox->setText("Import existing build settings.");
+    importCheckbox->setText(tr("Import existing build settings."));
     importCheckbox->setChecked(true);
     importLayout->addWidget(importCheckbox);
     import2Label = new QLabel(importPage);
     import2Label->setTextFormat(Qt::RichText);
     if (m_temporaryVersion)
-        import2Label->setText(QString("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of qt versions.")
+        import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of qt versions.")
                               .arg(m_importVersion->path()));
     importLayout->addWidget(import2Label);
     addPage(importPage);

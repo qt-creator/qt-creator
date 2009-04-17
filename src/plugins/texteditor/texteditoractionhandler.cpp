@@ -337,7 +337,7 @@ void TextEditorActionHandler::gotoAction()
     QuickOpen::QuickOpenManager *quickopen = QuickOpen::QuickOpenManager::instance();
     QTC_ASSERT(quickopen, return);
     QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
-    quickopen->show(shortcut + " <line number>", 2, 13);
+    quickopen->show(shortcut + tr(" <line number>"), 2, 13);
 }
 
 void TextEditorActionHandler::printAction()

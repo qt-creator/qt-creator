@@ -612,10 +612,9 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
         } else { //ProjectExplorer::ToolChain::GCC
             m_ui.msvcComboBox->setVisible(false);
             makeMingwVisible(false);
-            m_ui.errorLabel->setText("Found Qt version "
-                                     + m_versions.at(index)->qtVersionString()
-                                     + " using mkspec "
-                                     + m_versions.at(index)->mkspec());
+            m_ui.errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
+                                     .arg(m_versions.at(index)->qtVersionString(),
+                                          m_versions.at(index)->mkspec()));
         }
     } else {
         m_ui.msvcComboBox->setVisible(false);
@@ -1475,7 +1474,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
             break;
         }
 
-        output += QString("\nRuninng %1 ...\n").arg(qmakeCommand());
+        output += QString("\nRunning %1 ...\n").arg(qmakeCommand());
 
         proc.start(qmakeCommand(), QStringList()<<"-spec"<< mkspec() <<"gdbmacros.pro");
         proc.waitForFinished();

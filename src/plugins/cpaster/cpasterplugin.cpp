@@ -208,7 +208,7 @@ void CodepasterPlugin::fetch()
     Ui_PasteSelectDialog ui;
     ui.setupUi(&dialog);
 
-    ui.listWidget->addItems(QStringList() << "Waiting for items");
+    ui.listWidget->addItems(QStringList() << tr("Waiting for items"));
     ui.listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui.listWidget->setFrameStyle(QFrame::NoFrame);
     m_fetcher->list(ui.listWidget);
@@ -245,15 +245,15 @@ void CustomFetcher::customRequestFinished(int, bool error)
 {
     m_customError = error;
     if (m_customError || hadError()) {
-        QMessageBox::warning(0, QLatin1String("CodePaster Error")
-                             , QLatin1String("Could not fetch code")
+        QMessageBox::warning(0, tr("CodePaster Error")
+                             , tr("Could not fetch code")
                              , QMessageBox::Ok);
         return;
     }
 
     QByteArray data = body();
     if (!m_listWidget) {
-        QString title = QString::fromLatin1("Code Paster: %1").arg(m_id);
+        QString title = QString::fromLatin1("CodePaster: %1").arg(m_id);
         EditorManager::instance()->newFile(Core::Constants::K_DEFAULT_TEXT_EDITOR, &title, data);
     } else {
         m_listWidget->clear();
@@ -295,7 +295,7 @@ void CustomPoster::customRequestFinished(int, bool error)
             QApplication::clipboard()->setText(pastedUrl());
         ICore::instance()->messageManager()->printToOutputPane(pastedUrl(), m_output);
     } else
-        QMessageBox::warning(0, "Code Paster Error", "Some error occured while posting", QMessageBox::Ok);
+        QMessageBox::warning(0, tr("CodePaster Error"), tr("Some error occured while posting"), QMessageBox::Ok);
 #if 0 // Figure out how to access
     Core::Internal::MessageOutputWindow* messageWindow =
             ExtensionSystem::PluginManager::instance()->getObject<Core::Internal::MessageOutputWindow>();

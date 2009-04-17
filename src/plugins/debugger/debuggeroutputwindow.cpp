@@ -67,14 +67,14 @@ public:
         : QPlainTextEdit(parent)
     {
         m_clearContentsAction = new QAction(this);
-        m_clearContentsAction->setText("Clear contents");
+        m_clearContentsAction->setText(tr("Clear contents"));
         m_clearContentsAction->setEnabled(true);
         m_clearContentsAction->setShortcut(Qt::ControlModifier + Qt::Key_R);
         connect(m_clearContentsAction, SIGNAL(triggered(bool)),
             parent, SLOT(clearContents()));
 
         m_saveContentsAction = new QAction(this);
-        m_saveContentsAction->setText("Save contents");
+        m_saveContentsAction->setText(tr("Save contents"));
         m_saveContentsAction->setEnabled(true);
     }
 
@@ -149,7 +149,7 @@ private:
     
     void focusInEvent(QFocusEvent *ev)  
     {
-        emit statusMessageRequested("Type Ctrl-<Return> to execute a line.", -1);
+        emit statusMessageRequested(tr("Type Ctrl-<Return> to execute a line."), -1);
         QPlainTextEdit::focusInEvent(ev);
     }
 

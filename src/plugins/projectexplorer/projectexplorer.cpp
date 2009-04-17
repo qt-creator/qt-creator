@@ -262,13 +262,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build menu
     Core::ActionContainer *mbuild =
         am->createMenu(Constants::M_BUILDPROJECT);
-    mbuild->menu()->setTitle("&Build");
+    mbuild->menu()->setTitle(tr("&Build"));
     menubar->addMenu(mbuild, Core::Constants::G_VIEW);
 
     // debug menu
     Core::ActionContainer *mdebug =
         am->createMenu(Constants::M_DEBUG);
-    mdebug->menu()->setTitle("&Debug");
+    mdebug->menu()->setTitle(tr("&Debug"));
     menubar->addMenu(mdebug, Core::Constants::G_VIEW);
 
 
@@ -428,7 +428,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // recent projects menu
     Core::ActionContainer *mrecent =
         am->createMenu(Constants::M_RECENTPROJECTS);
-    mrecent->menu()->setTitle("Recent Projects");
+    mrecent->menu()->setTitle(tr("Recent Projects"));
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
     connect(mfile->menu(), SIGNAL(aboutToShow()),
         this, SLOT(updateRecentProjectMenu()));

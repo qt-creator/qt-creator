@@ -115,7 +115,8 @@ void ProjectWizardPage::setFilesDisplay(const QStringList &files)
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
-        str << "<html>Files to be added:<pre>";
+        str << "<qt>" << tr("Files to be added:");
+        str << "<pre>";
         const QStringList::const_iterator cend = files.constEnd();
         for (QStringList::const_iterator it = files.constBegin(); it != cend; ++it)
             str << *it << '\n';

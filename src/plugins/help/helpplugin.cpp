@@ -604,8 +604,8 @@ void HelpPlugin::activateContext()
 
         if (viewer) {
             viewer->setSource(QUrl());
-            viewer->setHtml("<html><head><title>No Documentation</title></head><body><br/><br/><center>No"
-                " documentation available.</center></body></html>");
+            viewer->setHtml(tr("<html><head><title>No Documentation</title></head><body><br/><br/><center>No"
+                " documentation available.</center></body></html>"));
             //activateIndex();
         }
     }

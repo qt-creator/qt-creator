@@ -473,13 +473,12 @@ void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos,
-            "'" + exp + "' contains no identifier");
+        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier").arg(exp));
         return;
     }
 
     if (exp.startsWith('"') && exp.endsWith('"'))  {
-        QToolTip::showText(m_toolTipPos, "String literal " + exp);
+        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
         return;
     }
 

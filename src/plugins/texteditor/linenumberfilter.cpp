@@ -52,7 +52,7 @@ QList<FilterEntry> LineNumberFilter::matchesFor(const QString &entry)
     QList<FilterEntry> value;
     int line = entry.toInt(&ok);
     if (line > 0 && currentTextEditor())
-        value.append(FilterEntry(this, QString("Line %1").arg(line), QVariant(line)));
+        value.append(FilterEntry(this, tr("Line %1").arg(line), QVariant(line)));
     return value;
 }
 

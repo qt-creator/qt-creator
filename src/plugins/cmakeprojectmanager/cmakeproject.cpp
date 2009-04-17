@@ -610,7 +610,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
     // and then cmake builds in that directory instead of shadow building
     // We need our own generator for that to work
     connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
-    fl->addRow("Build directory:", m_pathChooser);
+    fl->addRow(tr("Build directory:"), m_pathChooser);
 }
 
 QString CMakeBuildSettingsWidget::displayName() const

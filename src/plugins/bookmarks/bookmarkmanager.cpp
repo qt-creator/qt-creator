@@ -226,8 +226,8 @@ BookmarkView::~BookmarkView()
 void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu;
-    QAction *remove = menu.addAction("&Remove Bookmark");
-    QAction *removeAll = menu.addAction("Remove all Bookmarks");
+    QAction *remove = menu.addAction(tr("&Remove Bookmark"));
+    QAction *removeAll = menu.addAction(tr("Remove all Bookmarks"));
     m_contextMenuIndex = indexAt(event->pos());
     if (!m_contextMenuIndex.isValid())
         remove->setEnabled(false);

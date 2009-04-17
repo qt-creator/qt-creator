@@ -67,19 +67,19 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->setMargin(0);
 
     m_userName = new QLineEdit(this);
-    layout->addRow("Name:", m_userName);
+    layout->addRow(tr("Name:"), m_userName);
 
     m_executableChooser = new Core::Utils::PathChooser(this);
     m_executableChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    layout->addRow("Executable:", m_executableChooser);
+    layout->addRow(tr("Executable:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
     m_commandLineArgumentsLineEdit->setMinimumWidth(200); // this shouldn't be fixed here...
-    layout->addRow("Arguments:", m_commandLineArgumentsLineEdit);
+    layout->addRow(tr("Arguments:"), m_commandLineArgumentsLineEdit);
 
     m_workingDirectory = new CustomDirectoryPathChooser(this);
     m_workingDirectory->setExpectedKind(Core::Utils::PathChooser::Directory);
-    layout->addRow("Working Directory:", m_workingDirectory);
+    layout->addRow(tr("Working Directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
@@ -153,7 +153,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
       m_userSetName(false)
 {
     m_workingDirectory = "$BUILDDIR";
-    setName("Custom Executable");
+    setName(tr("Custom Executable"));
 }
 
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
@@ -190,7 +190,7 @@ QString CustomExecutableRunConfiguration::executable() const
         QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->configurationWidget();
         QDialog dialog;
         dialog.setLayout(new QVBoxLayout());
-        dialog.layout()->addWidget(new QLabel("Could not find the executable, please specify one."));
+        dialog.layout()->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
         dialog.layout()->addWidget(confWidget);
         QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(dbb, SIGNAL(accepted()), &dialog, SLOT(accept()));
@@ -338,7 +338,7 @@ QSharedPointer<RunConfiguration> CustomExecutableRunConfigurationFactory::create
 {
     if (type == "ProjectExplorer.CustomExecutableRunConfiguration") {
         QSharedPointer<RunConfiguration> rc(new CustomExecutableRunConfiguration(project));
-        rc->setName("Custom Executable");
+        rc->setName(tr("Custom Executable"));
         return rc;
     } else {
         return QSharedPointer<RunConfiguration>(0);
@@ -354,7 +354,7 @@ QStringList CustomExecutableRunConfigurationFactory::canCreate(Project *pro) con
 QString CustomExecutableRunConfigurationFactory::nameForType(const QString &type) const
 {
     if (type == "ProjectExplorer.CustomExecutableRunConfiguration")
-        return "Custom Executable";
+        return tr("Custom Executable");
     else
-        return QString::null;
+        return QString();
 }

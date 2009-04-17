@@ -2817,7 +2817,7 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
         return;
 
     if (exp.startsWith('"') && exp.endsWith('"'))  {
-        QToolTip::showText(m_toolTipPos, "String literal " + exp);
+        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
         return;
     }
 
@@ -3713,7 +3713,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
     //qDebug() << "RECEIVED" << record.toString() << " FOR " << data0.toString()
     //    <<  " STREAM: " << out;
     if (list.isEmpty()) {
-        data.setValue("<unavailable>");
+        data.setValue(tr("<unavailable>"));
         data.setAllUnneeded();
         insertData(data);
     } else if (data.type == "QString" || data.type.endsWith("::QString")) {
@@ -3746,7 +3746,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             sendSynchronizedCommand(cmd, WatchDebuggingHelperValue3, var);
         }
     } else {
-        data.setValue("<unavailable>");
+        data.setValue(tr("<unavailable>"));
         data.setAllUnneeded();
         insertData(data);
     }
@@ -3840,7 +3840,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             seen[name] = n + 1;
             WatchData data;
             data.iname = "local." + name + QString::number(n + 1);
-            data.name = name + QString(" <shadowed %1>").arg(n);
+            data.name = tr("%1 <shadowed %2>").arg(name, n);
             //data.setValue("<shadowed>");
             setWatchDataValue(data, item.findChild("value"));
             data.setType("<shadowed>");
@@ -3999,7 +3999,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         } else if (exp.isEmpty()) {
             // Happens with anonymous unions
             data.exp = parent.exp;
-            data.name = "<n/a>";
+            data.name = tr("<n/a>");
             data.iname = parent.iname + ".@";
             data.type = "<anonymous union>";
         } else {
@@ -4054,7 +4054,7 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
     } else if (record.resultClass == GdbResultError) {
         data.setError(record.data.findChild("msg").data());
     } else {
-        data.setError("Unknown error: " + record.toString());
+        data.setError(tr("Unknown error: ") + record.toString());
     }
 }
 

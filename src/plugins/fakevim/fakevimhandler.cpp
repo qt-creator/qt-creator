@@ -848,7 +848,7 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 void FakeVimHandler::Private::notImplementedYet()
 {
     qDebug() << "Not implemented in FakeVim";
-    showRedMessage("Not implemented in FakeVim");
+    showRedMessage(tr("Not implemented in FakeVim"));
     updateMiniBuffer();
 }
 
@@ -1976,13 +1976,13 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
             if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
                 scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
             if (forward)
-                showRedMessage("search hit BOTTOM, continuing at TOP");
+                showRedMessage(tr("search hit BOTTOM, continuing at TOP"));
             else
-                showRedMessage("search hit TOP, continuing at BOTTOM");
+                showRedMessage(tr("search hit TOP, continuing at BOTTOM"));
             highlightMatches(needle);
         } else {
             m_tc = orig;
-            showRedMessage("E486: Pattern not found: " + needle);
+            showRedMessage(tr("E486: Pattern not found: ") + needle);
             highlightMatches(QString());
         }
     }

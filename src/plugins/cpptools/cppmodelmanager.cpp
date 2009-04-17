@@ -68,6 +68,7 @@
 #include <Lexer.h>
 #include <Token.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTime>
@@ -470,10 +471,8 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         m_currentDoc->addIncludeFile(fileName, line);
 
         if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
-            QString msg;
-
-            msg += fileName;
-            msg += QLatin1String(": No such file or directory");
+            QString msg = QCoreApplication::translate(
+                    "CppPreprocessor", "%1: No such file or directory").arg(fileName);
 
             Document::DiagnosticMessage d(Document::DiagnosticMessage::Warning,
                                           m_currentDoc->fileName(),

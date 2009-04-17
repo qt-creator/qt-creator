@@ -89,6 +89,7 @@ static inline QString msgParseFilesFailed()
 static QString formatCommand(const QString &binary, const QStringList &args)
 {
     const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
+    //: <timestamp> Executing: <executable> <arguments>
     return GitClient::tr("%1 Executing: %2 %3\n").arg(timeStamp, binary, args.join(QString(QLatin1Char(' '))));
 }
 

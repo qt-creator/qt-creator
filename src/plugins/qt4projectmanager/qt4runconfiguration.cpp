@@ -355,7 +355,7 @@ void Qt4RunConfiguration::updateTarget()
 
     if (!reader->readProFile(m_proFilePath)) {
         delete reader;
-        Core::ICore::instance()->messageManager()->printToOutputPane(QString("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
+        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
         return;
     }
 

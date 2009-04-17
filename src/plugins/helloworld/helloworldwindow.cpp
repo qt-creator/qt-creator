@@ -38,6 +38,6 @@ HelloWorldWindow::HelloWorldWindow(QWidget *parent)
    : QWidget(parent)
 {
     QBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QTextEdit("Focus me to activate my context!"));
+    layout->addWidget(new QTextEdit(tr("Focus me to activate my context!")));
     setWindowTitle(tr("Hello, world!"));
 }

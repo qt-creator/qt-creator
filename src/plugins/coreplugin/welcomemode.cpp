@@ -100,12 +100,13 @@ WelcomeModePrivate::WelcomeModePrivate() :
 
 #if defined(QT_NO_WEBKIT)
 
-const char *LABEL = "<center><table><tr><td><img src=\":/core/html/images/product_logo.png\"/></td><td width=300>"
+const char LABEL[] = Q_TRANSLATE_NOOP("Core::Internal::WelcomeMode",
+                    "<center><table><tr><td><img src=\":/core/html/images/product_logo.png\"/></td><td width=300>"
                     "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
                     "developers to create graphically appealing applications for desktop, "
                     "embedded, and mobile devices. "
-                    "<p><font color=\"red\">(This startup page lacks features due to disabled webkit support)</font>"
-                    "</td></tr></table>";
+                    "<p><font color=\"red\">(This startup page lacks features due to disabled WebKit support)</font>"
+                    "</td></tr></table>");
 
 #endif
 // ---  WelcomePageData
@@ -157,7 +158,7 @@ WelcomeMode::WelcomeMode() :
 #else
     m_d->m_label->setWordWrap(true);
     m_d->m_label->setAlignment(Qt::AlignCenter);
-    m_d->m_label->setText(LABEL);
+    m_d->m_label->setText(tr(LABEL));
     l->addWidget(m_d->m_label);
 #endif
 }

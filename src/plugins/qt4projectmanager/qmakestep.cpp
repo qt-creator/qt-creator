@@ -116,8 +116,8 @@ bool QMakeStep::init(const QString &name)
 
     Environment environment = m_pro->environment(name);
     if (!environment.value("QMAKESPEC").isEmpty() && environment.value("QMAKESPEC") != qtVersion->mkspec())
-        emit addToOutputWindow(tr("QMAKESPEC set to ") + environment.value("QMAKESPEC") +
-                               tr(" overrides mkspec of selected qt ")+qtVersion->mkspec());
+        emit addToOutputWindow(tr("QMAKESPEC from environment (%1) overrides mkspec of selected Qt (%2).")
+                               .arg(environment.value("QMAKESPEC"), qtVersion->mkspec()));
 
     QString program = qtVersion->qmakeCommand();
 

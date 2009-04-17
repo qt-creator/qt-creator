@@ -86,7 +86,7 @@ View::View(QWidget *parent)
     delete m_ui.uiPatchView;
     m_ui.uiPatchView = new ColumnIndicatorTextEdit(m_ui.groupBox);
     m_ui.vboxLayout1->addWidget(m_ui.uiPatchView);
-    m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText("Paste");
+    m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
     connect(m_ui.uiPatchList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(contentChanged()));
 }
 
@@ -97,7 +97,7 @@ View::~View()
 QString View::getUser()
 {
     const QString username = m_ui.uiUsername->text();
-    if (username.isEmpty() || username == "<Username>")
+    if (username.isEmpty() || username == tr("<Username>"))
         return "Anonymous";
     return username;
 }
@@ -105,7 +105,7 @@ QString View::getUser()
 QString View::getDescription()
 {
     const QString description = m_ui.uiDescription->text();
-    if (description == "<Description>")
+    if (description == tr("<Description>"))
         return QString();
     return description;
 }
@@ -113,7 +113,7 @@ QString View::getDescription()
 QString View::getComment()
 {
     const QString comment = m_ui.uiComment->toPlainText();
-    if (comment == "<Comment>")
+    if (comment == tr("<Comment>"))
         return QString();
     return comment;
 }
@@ -138,17 +138,17 @@ int View::show(const QString &user, const QString &description, const QString &c
                const FileDataList &parts)
 {
     if (user.isEmpty())
-        m_ui.uiUsername->setText("<Username>");
+        m_ui.uiUsername->setText(tr("<Username>"));
     else
         m_ui.uiUsername->setText(user);
 
     if (description.isEmpty())
-        m_ui.uiDescription->setText("<Description>");
+        m_ui.uiDescription->setText(tr("<Description>"));
     else
         m_ui.uiDescription->setText(description);
 
     if (comment.isEmpty())
-        m_ui.uiComment->setPlainText("<Comment>");
+        m_ui.uiComment->setPlainText(tr("<Comment>"));
     else
         m_ui.uiComment->setPlainText(comment);
 

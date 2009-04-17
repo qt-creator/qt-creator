@@ -103,12 +103,15 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
             return frame.address;
         }
     } else if (role == Qt::ToolTipRole) {
-        return  "<table><tr><td>Address:</td><td>" + frame.address + "</td></tr>"
-            + "<tr><td>Function: </td><td>" + frame.function + "</td></tr>"
-            + "<tr><td>File: </td><td>" + frame.file + "</td></tr>"
-            + "<tr><td>Line: </td><td>" + QString::number(frame.line) + "</td></tr>"
-            + "<tr><td>From: </td><td>" + frame.from + "</td></tr></table>"
-            + "<tr><td>To: </td><td>" + frame.to + "</td></tr></table>";
+        //: Tooltip for variable
+        return  tr("<table><tr><td>Address:</td><td>%1</td></tr>"
+                   "<tr><td>Function: </td><td>%2</td></tr>"
+                   "<tr><td>File: </td><td>%3</td></tr>"
+                   "<tr><td>Line: </td><td>%4</td></tr>"
+                   "<tr><td>From: </td><td>%5</td></tr></table>"
+                   "<tr><td>To: </td><td>%6</td></tr></table>")
+                .arg(frame.address, frame.function,
+                     frame.file, QString::number(frame.line), frame.from, frame.to);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;

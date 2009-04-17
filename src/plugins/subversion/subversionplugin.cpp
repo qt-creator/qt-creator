@@ -972,6 +972,7 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
 
     // Hide passwords, etc in the log window
     const QString timeStamp = QTime::currentTime().toString(QLatin1String("HH:mm"));
+    //: <timestamp> Executing: <executable> <arguments>
     const QString outputText = tr("%1 Executing: %2 %3\n").arg(timeStamp, executable, SubversionSettings::formatArguments(allArgs));
     showOutput(outputText, false);
 

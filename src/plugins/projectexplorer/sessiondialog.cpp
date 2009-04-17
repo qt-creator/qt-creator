@@ -85,9 +85,9 @@ private:
 
 NewSessionInputDialog::NewSessionInputDialog(QStringList sessions)
 {
-    setWindowTitle("New session name");
+    setWindowTitle(tr("New session name"));
     QVBoxLayout *hlayout = new QVBoxLayout(this);
-    QLabel *label = new QLabel("Enter the name of the new session:", this);
+    QLabel *label = new QLabel(tr("Enter the name of the new session:"), this);
     hlayout->addWidget(label);
     m_newSessionLineEdit = new QLineEdit(this);
     m_newSessionLineEdit->setValidator(new SessionValidator(this, sessions));

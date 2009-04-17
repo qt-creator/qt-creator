@@ -256,12 +256,12 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     setLayout(fl);
 
     m_additionalArguments = new QLineEdit(this);
-    fl->addRow("Additional arguments:", m_additionalArguments);
+    fl->addRow(tr("Additional arguments:"), m_additionalArguments);
 
     connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
 
     m_targetsList = new QListWidget;
-    fl->addRow("Targets:", m_targetsList);
+    fl->addRow(tr("Targets:"), m_targetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = m_makeStep->project();

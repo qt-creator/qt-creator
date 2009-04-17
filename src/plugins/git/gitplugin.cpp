@@ -376,7 +376,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
 
     m_stashAction = new QAction(tr("Stash"), this);
-    m_stashAction->setToolTip("Saves the current state of your work.");
+    m_stashAction->setToolTip(tr("Saves the current state of your work."));
     command = actionManager->registerAction(m_stashAction, "Git.Stash", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stashAction, SIGNAL(triggered()), this, SLOT(stash()));
@@ -389,7 +389,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(command);
 
     m_stashPopAction = new QAction(tr("Stash Pop"), this);
-    m_stashAction->setToolTip("Restores changes saved to the stash list using \"Stash\".");
+    m_stashAction->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
     command = actionManager->registerAction(m_stashPopAction, "Git.StashPop", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stashPopAction, SIGNAL(triggered()), this, SLOT(stashPop()));
@@ -785,7 +785,7 @@ void GitPlugin::updateActions()
     const QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
     // First check for file commands and if the current file is inside
     // a Git-repository
-    const QString file = fileName.isEmpty() ? "File" : "File \"" + fileName + '"';
+    const QString file = fileName.isEmpty() ? tr("File") : "\"" + fileName + '"';
     m_diffAction->setText(tr("Diff %1").arg(file));
     m_statusAction->setText(tr("Status Related to %1").arg(file));
     m_logAction->setText(tr("Log of %1").arg(file));

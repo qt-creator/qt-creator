@@ -3722,8 +3722,8 @@ void BaseTextEditorEditable::updateCursorPosition()
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position() + 1;
-    m_cursorPositionLabel->setText(QString("Line: %1, Col: %2").arg(line).arg(column),
-                                   QString("Line: %1, Col: 999").arg(e->blockCount()));
+    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(column),
+                                   tr("Line: %1, Col: 999").arg(e->blockCount()));
     m_contextHelpId.clear();
 
     if (!block.isVisible())

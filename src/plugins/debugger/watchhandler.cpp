@@ -64,7 +64,8 @@
 
 using namespace Debugger::Internal;
 
-static const QString strNotInScope = QLatin1String("<not in scope>");
+static const QString strNotInScope =
+        QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
 
 static int watcherCounter = 0;
 

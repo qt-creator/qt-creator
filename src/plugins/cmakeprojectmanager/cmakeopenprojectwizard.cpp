@@ -207,7 +207,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     m_pc = new Core::Utils::PathChooser(this);
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     connect(m_pc, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
-    fl->addRow("Build directory:", m_pc);
+    fl->addRow(tr("Build directory:"), m_pc);
 }
 
 void ShadowBuildPage::buildDirectoryChanged()

@@ -258,7 +258,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
     // Explicitly hide the completion list popup.
     m_completionList->hide();
 
-    setWindowTitle("Locate...");
+    setWindowTitle(tr("Locate..."));
     resize(200, 90);
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
@@ -446,7 +446,7 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
 
 void QuickOpenToolWindow::filterSelected()
 {
-    QString searchText = "<type here>";
+    QString searchText = tr("<type here>");
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
     IQuickOpenFilter *filter = action->data().value<IQuickOpenFilter*>();
