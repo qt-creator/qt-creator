@@ -11,6 +11,8 @@ so if you created your own custom plugins these need to be adapted.
 
 General
    * Completely reworked editor split mechanism.
+   * Supports cmake project
+   * Support generic Makefile based projects
 
 Editing
    * Added support for JavaScript.
