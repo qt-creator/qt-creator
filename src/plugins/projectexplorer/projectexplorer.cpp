@@ -602,6 +602,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
 
+    // > -- Creator 1.0 compatibility code
     QStringList oldRecentProjects;
     if (QSettings *s = core->settings())
         oldRecentProjects = s->value("ProjectExplorer/RecentProjects/Files", QStringList()).toStringList();
@@ -616,6 +617,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     foreach(const QString &s, oldRecentProjects) {
         m_recentProjects.append(qMakePair(s, QFileInfo(s).fileName()));
     }
+    // < -- Creator 1.0 compatibility code
 
     // TODO restore recentProjects
     if (QSettings *s = core->settings()) {
@@ -623,7 +625,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         const QStringList displayNames = s->value("ProjectExplorer/RecentProjects/DisplayNames").toStringList();
         if (fileNames.size() == displayNames.size()) {
             for (int i = 0; i < fileNames.size(); ++i) {
-                m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
+                if (QFileInfo(fileNames.at(i)).isFile())
+                    m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
             }
         }
     }

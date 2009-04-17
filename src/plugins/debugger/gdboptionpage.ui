@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GdbOptionPage</class>
+ <widget class="QWidget" name="GdbOptionPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>429</width>
+    <height>452</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBoxLocations">
+     <property name="title">
+      <string>Gdb interaction</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="margin">
+       <number>9</number>
+      </property>
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="environmentEdit"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelGdbLocation">
+        <property name="toolTip">
+         <string>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</string>
+        </property>
+        <property name="text">
+         <string>Gdb location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelEnvironment">
+        <property name="text">
+         <string>Environment:</string>
+        </property>
+        <property name="buddy">
+         <cstring>environmentEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelGdbStartupScript">
+        <property name="toolTip">
+         <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
+        </property>
+        <property name="text">
+         <string>Gdb startup script:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="Core::Utils::PathChooser" name="scriptFileChooser" native="true"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="Core::Utils::PathChooser" name="gdbLocationChooser" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxPluginDebugging">
+     <property name="title">
+      <string>Behaviour of breakpoint setting in plugins</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonAllPluginBreakpoints">
+        <property name="toolTip">
+         <string>This is the slowest but safest option.</string>
+        </property>
+        <property name="text">
+         <string>Try to set breakpoints in plugins always automatically.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="radioButtonSelectedPluginBreakpoints">
+        <property name="text">
+         <string>Try to set breakpoints in selected plugins</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSelectedPluginBreakpoints">
+          <property name="text">
+           <string>Matching regular expression: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditSelectedPluginBreakpointsPattern"/>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0">
+       <widget class="QRadioButton" name="radioButtonNoPluginBreakpoints">
+        <property name="text">
+         <string>Never set breakpoints in plugins automatically</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>User interface</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="checkBoxListSourceFiles">
+        <property name="toolTip">
+         <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
+        </property>
+        <property name="text">
+         <string>Populate source file view automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
+        <property name="toolTip">
+         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
+ reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
+        </property>
+        <property name="text">
+         <string>Skip known frames when stepping</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxUseToolTips">
+        <property name="toolTip">
+         <string>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
+        </property>
+        <property name="text">
+         <string>Use tooltips while debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="labelMaximalStackDepth">
+          <property name="text">
+           <string>Maximal stack depth:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="specialValueText">
+           <string>&lt;unlimited&gt;</string>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>10</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Core::Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -75,6 +75,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     setPage(CMakeRunPageId, new CMakeRunPage(this));
 
     setStartId(startid);
+    setOption(QWizard::NoCancelButton);
+    setOption(QWizard::NoBackButtonOnStartPage);
 }
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
@@ -87,6 +89,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
         addPage(new CMakeRunPage(this, buildDirectory, false));
     foreach(const QString &buildDirectory, needToUpdate)
         addPage(new CMakeRunPage(this, buildDirectory, true));
+    setOption(QWizard::NoCancelButton);
+    setOption(QWizard::NoBackButtonOnStartPage);
 }
 
 CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
@@ -255,6 +259,9 @@ void CMakeRunPage::initWidgets()
 
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
+    QSizePolicy pl = m_output->sizePolicy();
+    pl.setVerticalStretch(1);
+    m_output->setSizePolicy(pl);
     fl->addRow(m_output);
 }
 

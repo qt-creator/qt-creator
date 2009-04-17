@@ -1424,17 +1424,13 @@ QString QtVersion::buildDebuggingHelperLibrary()
         if (!success)
             continue;
 
-        output += QString("Building debugging helper library in %1\n").arg(directory);
-        output += "\n";
-        output += QString("Runinng %1 ...\n").arg(qmakeCommand());
+        // Setup process
+        QProcess proc;
 
-        QProcess qmake;
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         addToEnvironment(env);
-
         // TODO this is a hack to get, to be removed and rewritten for 1.2
-        //
-        // For MSVC and MINGW, we need a toolchain to get the right environment        
+        // For MSVC and MINGW, we need a toolchain to get the right environment
         ProjectExplorer::ToolChain *toolChain = 0;
         ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
         if (t == ProjectExplorer::ToolChain::MinGW)
@@ -1447,23 +1443,20 @@ QString QtVersion::buildDebuggingHelperLibrary()
             toolChain = 0;
         }
 
-        qmake.setEnvironment(env.toStringList());
-        qmake.setWorkingDirectory(directory);
-        qmake.setProcessChannelMode(QProcess::MergedChannels);
+        proc.setEnvironment(env.toStringList());
+        proc.setWorkingDirectory(directory);
+        proc.setProcessChannelMode(QProcess::MergedChannels);
 
-        qmake.start(qmakeCommand(), QStringList()<<"-spec"<< mkspec() <<"gdbmacros.pro");
-        qmake.waitForFinished();
+        output += QString("Building debugging helper library in %1\n").arg(directory);
+        output += "\n";
 
-        output += qmake.readAll();
-
+        QString make;
         // TODO this is butt ugly
         // only qt4projects have a toolchain() method. (Reason mostly, that in order to create
         // the toolchain, we need to have the path to gcc
         // which might depend on environment settings of the project
         // so we hardcode the toolchainType to make conversation here
         // and think about how to fix that later
-
-        QString make;
         if (t == ProjectExplorer::ToolChain::MinGW)
             make = "mingw32-make.exe";
         else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)
@@ -1472,12 +1465,29 @@ QString QtVersion::buildDebuggingHelperLibrary()
             make = "make";
 
         QString makeFullPath = env.searchInPath(make);
+        if (!makeFullPath.isEmpty()) {
+            output += QString("Running %1 clean...\n").arg(makeFullPath);
+            proc.start(makeFullPath, QStringList() << "clean");
+            proc.waitForFinished();
+            output += proc.readAll();
+        } else {
+            output += QString("%1 not found in PATH\n").arg(make);
+            break;
+        }
+
+        output += QString("\nRuninng %1 ...\n").arg(qmakeCommand());
+
+        proc.start(qmakeCommand(), QStringList()<<"-spec"<< mkspec() <<"gdbmacros.pro");
+        proc.waitForFinished();
+
+        output += proc.readAll();
+
         output += "\n";
         if (!makeFullPath.isEmpty()) {
             output += QString("Running %1 ...\n").arg(makeFullPath);
-            qmake.start(makeFullPath, QStringList());
-            qmake.waitForFinished();
-            output += qmake.readAll();
+            proc.start(makeFullPath, QStringList());
+            proc.waitForFinished();
+            output += proc.readAll();
         } else {
             output += QString("%1 not found in PATH\n").arg(make);
         }

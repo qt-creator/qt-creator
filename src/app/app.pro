@@ -43,10 +43,12 @@ unix:!macx {
         QMAKE_POST_LINK += $${QMAKE_COPY_FILE} $${COPYSRC} $${COPYDEST} $$SEPARATOR
     }
 
-    target.files += $$OUT_PWD/$$DESTDIR/$$IDE_APP_WRAPPER
-    target.files += $$OUT_PWD/$$DESTDIR/$$IDE_APP_TARGET
+    wrapper.files  = $$OUT_PWD/$$DESTDIR/$$IDE_APP_WRAPPER
+    wrapper.path   = /bin
+
     target.path  = /bin
-    INSTALLS    += target
+
+    INSTALLS    += target wrapper
 
 }
 

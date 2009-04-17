@@ -87,6 +87,12 @@ public:
         b = 2 + s + t;
         a += 1;
     }
+
+    ~Foo()
+    {
+        a = 5;
+    }
+
     void doit()
     {
         static QObject ob;

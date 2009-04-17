@@ -104,6 +104,7 @@ enum GdbCommandType
     GdbQuerySources,
     GdbAsyncOutput2,
     GdbStart,
+    GdbExit,
     GdbAttached,
     GdbStubAttached,
     GdbExecRun,
@@ -743,6 +744,9 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbInfoThreads:
             handleInfoThreads(record);
             break;
+        case GdbExit:
+            handleExit(record);
+            break;
 
         case GdbShowVersion:
             handleShowVersion(record);
@@ -1155,7 +1159,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
                 + data.findChild("signal-name").toString();
         }
         q->showStatusMessage(msg);
-        sendCommand("-gdb-exit");
+        sendCommand("-gdb-exit", GdbExit);
         return;
     }
 
@@ -1513,7 +1517,7 @@ void GdbEngine::exitDebugger()
             sendCommand("detach");
         else
             sendCommand("kill");
-        sendCommand("-gdb-exit");
+        sendCommand("-gdb-exit", GdbExit);
         // 20s can easily happen when loading webkit debug information
         m_gdbProc.waitForFinished(20000);
         if (m_gdbProc.state() != QProcess::Running) {
@@ -1783,6 +1787,12 @@ void GdbEngine::handleAttach()
     // Registers
     //
     qq->reloadRegisters();
+}
+
+void GdbEngine::handleExit(const GdbResultRecord &response)
+{
+    Q_UNUSED(response);
+    q->showStatusMessage(tr("Debugger exited."));
 }
 
 void GdbEngine::stepExec()
@@ -2198,6 +2208,11 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     // within namespaces.
     // Sometimes the path is relative too.
 
+    // 2    breakpoint     keep y   <MULTIPLE> 0x0040168e
+    // 2.1    y     0x0040168e in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
+    // 2.2    y     0x00401792 in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
+
+    // tested in ../../../tests/auto/debugger/
     QRegExp re("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)");
     re.setMinimal(true);
 
@@ -2206,6 +2221,10 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->bpFuncName = re.cap(2).trimmed();
         data->bpLineNumber = re.cap(4);
         QString full = fullName(re.cap(3));
+        if (full.isEmpty()) {
+            qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
+            full = re.cap(3); // FIXME: wrong, but prevents recursion
+        }
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
         data->bpFileName = full;
@@ -3428,14 +3447,15 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
         m_availableSimpleDebuggingHelpers.append(item.data());
     if (m_availableSimpleDebuggingHelpers.isEmpty()) {
         m_debuggingHelperState = DebuggingHelperUnavailable;
-        QMessageBox::warning(q->mainWindow(),
-            tr("Cannot find special data dumpers"),
-            tr("The debugged binary does not contain information needed for "
-                    "nice display of Qt data types.\n\n"
-                    "You might want to try including the file\n\n"
-                    ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
-                    "into your project directly.")
-                );
+        q->showStatusMessage(tr("Debugging helpers not found."));
+        //QMessageBox::warning(q->mainWindow(),
+        //    tr("Cannot find special data dumpers"),
+        //    tr("The debugged binary does not contain information needed for "
+        //            "nice display of Qt data types.\n\n"
+        //            "You might want to try including the file\n\n"
+        //            ".../share/qtcreator/gdbmacros/gdbmacros.cpp\n\n"
+        //            "into your project directly.")
+        //        );
     } else {
         m_debuggingHelperState = DebuggingHelperAvailable;
         q->showStatusMessage(tr("%1 custom dumpers found.")
