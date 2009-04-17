@@ -500,9 +500,46 @@ void testQSet()
     //hash.insert(ptr);
 }
 
+class EmployeeData : public QSharedData
+{
+public:
+    EmployeeData() : id(-1) { name.clear(); }
+    EmployeeData(const EmployeeData &other)
+        : QSharedData(other), id(other.id), name(other.name) { }
+    ~EmployeeData() { }
+
+    int id;
+    QString name;
+};
+
+class Employee
+{
+public:
+    Employee() { d = new EmployeeData; }
+    Employee(int id, QString name) {
+        d = new EmployeeData;
+        setId(id);
+        setName(name);
+    }
+    Employee(const Employee &other)
+          : d (other.d)
+    {
+    }
+    void setId(int id) { d->id = id; }
+    void setName(QString name) { d->name = name; }
+
+    int id() const { return d->id; }
+    QString name() const { return d->name; }
+
+   private:
+     QSharedDataPointer<EmployeeData> d;
+ };
+
 
 void testQSharedPointer()
 {
+    Employee e1(1, "Herbert");
+    Employee e2 = e1;
 }
 
 void stringRefTest(const QString &refstring)
@@ -1050,6 +1087,7 @@ int main(int argc, char *argv[])
     testQMultiMap();
     testQString();
     testQSet();
+    testQSharedPointer();
     testQStringList();
     testStruct();
     //testThreads();
