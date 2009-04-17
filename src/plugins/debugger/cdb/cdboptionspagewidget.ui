@@ -18,6 +18,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QGroupBox" name="cdbOptionsGroupBox">
+       <property name="toolTip">
+        <string>These options take effect at the next start of Qt Creator.</string>
+       </property>
        <property name="title">
         <string>CDB</string>
        </property>

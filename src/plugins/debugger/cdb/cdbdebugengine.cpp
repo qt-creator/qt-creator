@@ -65,6 +65,7 @@
 #define DBGHELP_TRANSLATE_TCHAR
 #include <inc/Dbghelp.h>
 
+static const char *dbgHelpDllC = "dbghelp";
 static const char *dbgEngineDllC = "dbgeng";
 static const char *debugCreateFuncC = "DebugCreate";
 
@@ -116,6 +117,12 @@ QString msgComFailed(const char *func, HRESULT hr)
 
 static const char *msgNoStackTraceC = "Internal error: no stack trace present.";
 
+static inline QString msgLibLoadFailed(const QString &lib, const QString &why)
+{
+    return CdbDebugEngine::tr("Unable to load the debugger engine library '%1': %2").
+            arg(lib, why);
+}
+
 // ----- Engine helpers
 
 static inline ULONG getInterruptTimeOutSecs(IDebugControl4 *ctl)
@@ -143,19 +150,31 @@ DebuggerEngineLibrary::DebuggerEngineLibrary() :
 {
 }
 
+// Build a lib name as "Path\x.dll"
+static inline QString libPath(const QString &libName, const QString &path = QString())
+{
+    QString rc = path;
+    if (!rc.isEmpty())
+        rc += QDir::separator();
+    rc += libName;
+    rc += QLatin1String(".dll");
+    return rc;
+}
+
 bool DebuggerEngineLibrary::init(const QString &path, QString *errorMessage)
 {
-    // Load from path
-    QString dllPath = path;
-    if (!dllPath.isEmpty())
-        dllPath += QDir::separator();
-    dllPath += QLatin1String(dbgEngineDllC);
-
-    QLibrary lib(dllPath, 0);
-
+    // Load the dependent help lib first
+    const QString helpLibPath = libPath(QLatin1String(dbgHelpDllC), path);
+    QLibrary helpLib(helpLibPath, 0);
+    if (!helpLib.isLoaded() && !helpLib.load()) {
+        *errorMessage = msgLibLoadFailed(helpLibPath, helpLib.errorString());
+        return false;
+    }
+    // Load dbgeng lib
+    const QString engineLibPath = libPath(QLatin1String(dbgEngineDllC), path);
+    QLibrary lib(engineLibPath, 0);
     if (!lib.isLoaded() && !lib.load()) {
-        *errorMessage = CdbDebugEngine::tr("Unable to load the debugger engine library '%1': %2").
-                        arg(QLatin1String(dbgEngineDllC), lib.errorString());
+        *errorMessage = msgLibLoadFailed(engineLibPath, lib.errorString());
         return false;
     }
     // Locate symbols
