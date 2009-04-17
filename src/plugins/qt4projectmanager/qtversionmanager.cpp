@@ -605,7 +605,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
             m_ui.msvcComboBox->setVisible(false);
             makeMingwVisible(false);
             if (!m_versions.at(index)->isInstalled())
-                m_ui.errorLabel->setText(tr("The Qt Version is not installed. Run make install")
+                m_ui.errorLabel->setText(tr("The Qt Version %1 is not installed. Run make install")
                                            .arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
             else
                 m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
