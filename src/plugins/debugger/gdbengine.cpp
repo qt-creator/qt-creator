@@ -3166,7 +3166,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             .arg(m_pendingRequests + 1), 10000);
 
     // retrieve response
-    sendSynchronizedCommand("p (char*)qDumpOutBuffer", WatchDebuggingHelperValue2, var);
+    sendSynchronizedCommand("p (char*)&qDumpOutBuffer", WatchDebuggingHelperValue2, var);
 }
 
 void GdbEngine::createGdbVariable(const WatchData &data)
@@ -4180,14 +4180,14 @@ void GdbEngine::tryLoadDebuggingHelpers()
 #endif
     // retreive list of dumpable classes
     sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDebuggingHelper);
+    sendCommand("p (char*)&qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
     // retreive list of dumpable classes
     sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
-    sendCommand("p (char*)qDumpOutBuffer", GdbQueryDebuggingHelper);
+    sendCommand("p (char*)&qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent)
