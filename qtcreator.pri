@@ -1,4 +1,22 @@
-IDE_SOURCE_TREE = $$PWD/../
+IDE_SOURCE_TREE = $$PWD
+
+defineReplace(cleanPath) {
+    win32:1 ~= s|\\\\|/|g
+    contains(1, ^/.*):pfx = /
+    else:pfx =
+    segs = $$split(1, /)
+    out =
+    for(seg, segs) {
+        equals(seg, ..):out = $$member(out, 0, -2)
+        else:!equals(seg, .):out += $$seg
+    }
+    return($$join(out, /, $$pfx))
+}
+
+defineReplace(targetPath) {
+    win32:1 ~= s|/|\|g
+    return($$1)
+}
 
 isEmpty(TEST):CONFIG(debug, debug|release) {
     !debug_and_release|build_pass {
@@ -18,33 +36,35 @@ equals(TEST, 1) {
 }
 
 isEmpty(IDE_BUILD_TREE) {
-    error("qworkbench.pri: including file must define IDE_BUILD_TREE (probably a relative path)")
+    error("qtcreator.pri: including file must define IDE_BUILD_TREE (probably a relative path)")
 }
+IDE_BUILD_TREE = $$cleanPath($$IDE_BUILD_TREE)
 macx {
     IDE_APP_TARGET   = QtCreator
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/PlugIns
-    IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH 
+    IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH
+    IDE_DATA_PATH    = $$IDE_BUILD_TREE/bin/$${IDE_APP_TARGET}.app/Contents/Resources
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
 } else {
-    IDE_APP_WRAPPER  = qtcreator
-    IDE_APP_TARGET   = qtcreator.bin
+    win32 {
+        IDE_APP_TARGET   = qtcreator
+    } else {
+        IDE_APP_WRAPPER  = qtcreator
+        IDE_APP_TARGET   = qtcreator.bin
+    }
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
-    IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins/
+    IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins
+    IDE_DATA_PATH    = $$IDE_BUILD_TREE/share/qtcreator
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin
-win32 {
-    IDE_APP_TARGET   = qtcreator
-    IDE_LIBRARY_PATH ~= s|/+|\|
-    IDE_APP_PATH ~= s|/+|\|
-}
 
 INCLUDEPATH += \
     $$IDE_SOURCE_TREE/src/libs \
-    $$IDE_SOURCE_TREE/tools \
+    $$IDE_SOURCE_TREE/tools
 
 DEPENDPATH += \
     $$IDE_SOURCE_TREE/src/libs \
-    $$IDE_SOURCE_TREE/tools \
+    $$IDE_SOURCE_TREE/tools
 
 LIBS += -L$$IDE_LIBRARY_PATH
 
@@ -58,8 +78,8 @@ unix {
     debug:MOC_DIR = $${OUT_PWD}/.moc/debug-shared
     release:MOC_DIR = $${OUT_PWD}/.moc/release-shared
 
-    RCC_DIR = $${OUT_PWD}/.rcc/
-    UI_DIR = $${OUT_PWD}/.uic/
+    RCC_DIR = $${OUT_PWD}/.rcc
+    UI_DIR = $${OUT_PWD}/.uic
 }
 
 linux-g++-* {

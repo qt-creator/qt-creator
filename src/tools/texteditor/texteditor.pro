@@ -1,5 +1,5 @@
 
-QTCREATOR = ../../plugins/
+QTCREATOR = ../../plugins
 
 TARGET = ../../../bin/texteditor
 
@@ -39,8 +39,8 @@ SOURCES += \
 #    $${QTCREATOR}/gdbdebugger/gdbdebugger.qrc
 
 unix {
-    OBJECTS_DIR = .tmp/
-    MOC_DIR = .tmp/
-    RCC_DIR = .tmp/
-    UI_DIR = .tmp/
+    OBJECTS_DIR = .tmp
+    MOC_DIR = .tmp
+    RCC_DIR = .tmp
+    UI_DIR = .tmp
 }

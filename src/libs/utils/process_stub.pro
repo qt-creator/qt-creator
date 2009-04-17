@@ -1,5 +1,5 @@
-IDE_BUILD_TREE=../../../
-include(../../qworkbench.pri)
+IDE_BUILD_TREE=../../..
+include(../../../qtcreator.pri)
 
 TEMPLATE        = app
 TARGET          = qtcreator_process_stub

@@ -1,5 +1,5 @@
-IDE_BUILD_TREE = $$OUT_PWD/../../../
-include(qworkbench.pri)
+IDE_BUILD_TREE = $$OUT_PWD/../../..
+include(../qtcreator.pri)
 
 win32 {
 	DLLDESTDIR = $$IDE_APP_PATH

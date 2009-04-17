@@ -8,7 +8,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-DESTDIR = ./
+DESTDIR = .
 
 # Input
 HEADERS += binpatch.h

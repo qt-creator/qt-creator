@@ -1,13 +1,13 @@
 isEmpty(IDE_BUILD_TREE) {
-  IDE_BUILD_TREE = $$OUT_PWD/../../../
+  IDE_BUILD_TREE = $$OUT_PWD/../../..
 }
-include(qworkbench.pri)
+include(../qtcreator.pri)
 
 isEmpty(PROVIDER) {
     PROVIDER = Nokia
 }
 
-DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER/
+DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
 LIBS += -L$$DESTDIR
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins
 DEPENDPATH += $$IDE_SOURCE_TREE/src/plugins

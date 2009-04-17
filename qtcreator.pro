@@ -10,7 +10,8 @@ include(doc/doc.pri)
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
-SUBDIRS = src
+SUBDIRS = src share
+unix:!macx:!equals(_PRO_FILE_PWD_, $$OUT_PWD):SUBDIRS += bin
 
 # for Qt Creator translations
 QTC_BUILD_ROOT = $$PWD

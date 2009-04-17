@@ -1,6 +1,6 @@
-IDE_BUILD_TREE = $$OUT_PWD/../../
+IDE_BUILD_TREE = $$OUT_PWD/../..
 
-include(../qworkbench.pri)
+include(../../qtcreator.pri)
 include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
@@ -18,6 +18,7 @@ win32 {
 
 macx {
         ICON = qtcreator.icns
+        QMAKE_INFO_PLIST = Info.plist
 }
 
 macx {
@@ -31,25 +32,6 @@ win32 {
 unix:!macx {
     LIBS *= -lExtensionSystem -lAggregation
 
-    # make sure the wrapper is in place
-    !exists($$OUT_PWD/app.pro) {
-        # we are shadow build
-        COPYSRC = $$PWD/$$DESTDIR/$$IDE_APP_WRAPPER
-        COPYDEST = $$OUT_PWD/$$DESTDIR/$$IDE_APP_WRAPPER
-        win32:COPYSRC ~= s|/+|\|
-        win32:COPYDEST ~= s|/+|\|
-        unix:SEPARATOR = ;
-        win32:SEPARATOR = &
-        QMAKE_POST_LINK += $${QMAKE_COPY_FILE} $${COPYSRC} $${COPYDEST} $$SEPARATOR
-    }
-
-    wrapper.files  = $$OUT_PWD/$$DESTDIR/$$IDE_APP_WRAPPER
-    wrapper.path   = /bin
-
     target.path  = /bin
-
-    INSTALLS    += target wrapper
-
+    INSTALLS    += target
 }
-
-include(../../share/share.pri)
