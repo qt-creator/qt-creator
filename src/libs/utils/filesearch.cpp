@@ -72,7 +72,7 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
             future.waitForResume();
         if (future.isCanceled()) {
             future.setProgressValueAndText(numFilesSearched,
-                                           qApp->translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
+                                           QApplication::translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
                                            arg(searchTerm).arg(numMatches).arg(numFilesSearched));
             break;
         }
@@ -146,11 +146,13 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
             firstChunk = false;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched, qApp->translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
+        future.setProgressValueAndText(numFilesSearched,
+                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
                                 arg(searchTerm).arg(numMatches).arg(numFilesSearched).arg(files.size()));
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched, qApp->translate("FileSearch", "%1: %2 occurrences found in %3 files.").
+        future.setProgressValueAndText(numFilesSearched,
+                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 files.").
                                 arg(searchTerm).arg(numMatches).arg(numFilesSearched));
 }
 
@@ -172,7 +174,7 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             future.waitForResume();
         if (future.isCanceled()) {
             future.setProgressValueAndText(numFilesSearched,
-                                           qApp->translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
+                                           QApplication::translate("FileSearch", "%1: canceled. %2 occurrences found in %3 files.").
                                            arg(searchTerm).arg(numMatches).arg(numFilesSearched));
             break;
         }
@@ -193,11 +195,13 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             ++lineNr;
         }
         ++numFilesSearched;
-        future.setProgressValueAndText(numFilesSearched, qApp->translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
+        future.setProgressValueAndText(numFilesSearched,
+                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 of %4 files.").
                                 arg(searchTerm).arg(numMatches).arg(numFilesSearched).arg(files.size()));
     }
     if (!future.isCanceled())
-        future.setProgressValueAndText(numFilesSearched, qApp->translate("FileSearch", "%1: %2 occurrences found in %3 files.").
+        future.setProgressValueAndText(numFilesSearched,
+                                QApplication::translate("FileSearch", "%1: %2 occurrences found in %3 files.").
                                 arg(searchTerm).arg(numMatches).arg(numFilesSearched));
 }
 
