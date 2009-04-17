@@ -1,0 +1,17 @@
+#!/bin/bash
+
+thisdir=$(dirname "$(readlink -nf $0)")
+rootdir=$(cd "${thisdir}/../../.." ; pwd)
+
+find "${rootdir}" -type f -a -executable | while read file ; do
+    # filter out shell scripts by checking the first 2 bytes
+    if test `xxd -ps -len 2 ${file}` != 2321 ; then
+        #echo "${file}"
+        result=`eu-elflint --gnu-ld --strict "${file}" | grep -v RPATH`
+        if test -n "${result}" ; then
+            echo "${file}: ${result}" 
+        fi
+    fi
+done
+
+
