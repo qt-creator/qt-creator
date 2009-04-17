@@ -65,7 +65,7 @@ public:
     static QString findDumperLibrary(const ProjectExplorer::Environment &env);
 private:
     static QString qtVersionForQMake(const QString &qmakePath);
-    static QString findQtDir(const ProjectExplorer::Environment &env);
+    static QPair<QString, QString> findQtDir(const ProjectExplorer::Environment &env);
     int m_projectContext;
     int m_projectLanguage;
     CMakeSettingsPage *m_settingsPage;

@@ -155,7 +155,10 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
     return QString();
 }
 
-QString CMakeManager::findQtDir(const ProjectExplorer::Environment &env)
+// this is mostly a copy from qt4versionmanager
+// TODO refactor this code
+// returns QPair< QTDIR, QT_INSTALL_DATA >
+QPair<QString, QString> CMakeManager::findQtDir(const ProjectExplorer::Environment &env)
 {
     QStringList possibleCommands;
         // On windows noone has renamed qmake, right?
@@ -171,21 +174,23 @@ QString CMakeManager::findQtDir(const ProjectExplorer::Environment &env)
             QFileInfo qmake(path + "/" + possibleCommand);
             if (qmake.exists()) {
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
+                    QDir qtDir = qmake.absoluteDir();
+                    qtDir.cdUp();
                     QProcess proc;
                     proc.start(qmake.absoluteFilePath(), QStringList() << "-query" << "QT_INSTALL_DATA");
                     if (proc.waitForFinished()) {
-                        return proc.readAll().trimmed();
+                        return qMakePair(qtDir.absolutePath(), QString(proc.readAll().trimmed()));
                     } else {
                         proc.kill();
                         QDir dir(qmake.absoluteDir());
                         dir.cdUp();
-                        return dir.absolutePath();
+                        return qMakePair(qtDir.absolutePath(),  dir.absolutePath());
                     }
                 }
             }
         }
     }
-    return QString();
+    return qMakePair(QString(), QString());
 }
 
 // This code is more or less duplicated in qtversionmanager
@@ -195,14 +200,16 @@ QString CMakeManager::findDumperLibrary(const ProjectExplorer::Environment &env)
     static QString lastpath;
     if (lastenv == env)
         return lastpath;
-    QString qtdir = findQtDir(env);
-    if (qtdir.isEmpty())
+
+    QPair<QString, QString> pair = findQtDir(env);
+    QString qtInstallDataDir = pair.second;
+    if (qtInstallDataDir.isEmpty())
         return QString();
 
-    uint hash = qHash(qtdir);
+    uint hash = qHash(pair.first);
     QStringList directories;
     directories
-            << (qtdir + "/qtc-debugging-helper/")
+            << (qtInstallDataDir + "/qtc-debugging-helper/")
             << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
             << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
     foreach(const QString &directory, directories) {
