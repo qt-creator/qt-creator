@@ -11,6 +11,8 @@ so if you created your own custom plugins these need to be adapted.
 
 General
    * Completely reworked editor split mechanism.
+   * Supports cmake project
+   * Support generic Makefile based projects
 
 Editing
    * Added support for JavaScript.
@@ -63,7 +65,9 @@ Mac
    * Open in Finder action in project tree.
 
 Linux
-   * Don't crash because of incompatible libQt3Support.
+   * Don't crash because of incompatible libQt3Support:
+     Provide a wrapper script and ship libQt3Support.
+     (Fixes crashes e.g. in file dialogs on openSUSE 11.1)
 
 
 Lots of improvements to
@@ -74,4 +78,4 @@ Lots of improvements to
 
 Additional credits go to:
    * Martin Aumueller <aumuell@reserv.at> (FakeVim improvements)
-   * Kris Wong (different patches)
+   * Kris Wong (various patches)

@@ -1213,14 +1213,13 @@
 
     \section1 Debugging Helper Library
 
-    While debugging Qt Creator dynamically loads a helper library into
-    your program. This helper library enables Qt Creator to pretty print
-    Qt and STL types. The Qt SDK package already contains a prebuilt
-    debugging helper library. To create a debugging helper library
-    select the \{Options} from the \gui{Tools} menu, and go to the
-    \gui{Qt/Qt Versions} pane. As the internal layout of qt can
-    change between versions, the debugging helper library is build
-    per Qt Version.
+    While debugging Qt Creator dynamically loads a helper library into your
+    program. This helper library enables Qt Creator to pretty print Qt and STL
+    types. The Qt SDK package already contains a prebuilt debugging helper
+    library. To create a debugging helper library, select the \gui{Options}
+    from the \gui{Tools} menu, and go to the \gui{Qt/Qt Versions} pane. As the
+    internal layout of qt can change between versions, the debugging helper
+    library is built for each Qt version.
 
 
     \section1 A Walkthrough for the Debugger Frontend
@@ -1316,10 +1315,12 @@
     not have an in-place build, Qt Creator lets you specify the directory in
     which the project is built (shadow build).
 
+    \image qtcreator-cmake-import-wizard1.png
+
     The screenshot below shows how you can specify command line arguments to
     \c CMake for your project.
 
-     ###TODO one, two pictures ? \image qtcreator-import-wizard.png
+    \image qtcreator-cmake-import-wizard2.png
 
     Normally, there is no need to pass any command line arguments for projects
     that are already built, as \c CMake caches that information.
@@ -1334,7 +1335,7 @@
     By default Qt Creator builds the "all" target. You can change which
     targets get build in the Project/Build Settings.
 
-    ### \image qtcreator-build-settings.png
+    \image qtcreator-cmake-build-settings.png
 
     Currently only one build configuration is supported and the
     build directory can't be changed after the initial import. This
@@ -1639,10 +1640,6 @@
         \o Setting breakpoints in files that do not have unique absolute
            paths may fail. For example, remounting parts of a file system
            using the --bind mount option.
-
-        \o Running Qt Creator on Windows with 16 bit color depth results in
-           black icons and possible crashes. This was fixed in an updated
-           version released 05 March 2009.
 
         \o There is no syntax highlighting for \c CMake project files.
 
