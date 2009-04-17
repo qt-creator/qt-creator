@@ -1172,14 +1172,13 @@
 
     \section1 Debugging Helper Library
 
-    While debugging Qt Creator dynamically loads a helper library into
-    your program. This helper library enables Qt Creator to pretty print
-    Qt and STL types. The Qt SDK package already contains a prebuilt
-    debugging helper library. To create a debugging helper library
-    select the \{Options} from the \gui{Tools} menu, and go to the
-    \gui{Qt/Qt Versions} pane. As the internal layout of qt can
-    change between versions, the debugging helper library is build
-    per Qt Version.
+    While debugging Qt Creator dynamically loads a helper library into your
+    program. This helper library enables Qt Creator to pretty print Qt and STL
+    types. The Qt SDK package already contains a prebuilt debugging helper
+    library. To create a debugging helper library, select the \gui{Options}
+    from the \gui{Tools} menu, and go to the \gui{Qt/Qt Versions} pane. As the
+    internal layout of qt can change between versions, the debugging helper
+    library is built for each Qt version.
 
 
     \section1 A Walkthrough for the Debugger Frontend
