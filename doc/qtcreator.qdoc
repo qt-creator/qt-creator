@@ -1598,10 +1598,6 @@
            paths may fail. For example, remounting parts of a file system
            using the --bind mount option.
 
-        \o Running Qt Creator on Windows with 16 bit color depth results in
-           black icons and possible crashes. This was fixed in an updated
-           version released 05 March 2009.
-
         \o There is no syntax highlighting for \c CMake project files.
 
         \o Project files included from \c{CMakeLists.txt} are not shown in the
