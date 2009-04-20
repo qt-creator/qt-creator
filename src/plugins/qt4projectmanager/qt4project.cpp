@@ -38,7 +38,7 @@
 #include "qt4runconfiguration.h"
 #include "qtversionmanager.h"
 #include "qt4nodes.h"
-#include "qt4buildconfigwidget.h"
+#include "qt4projectconfigwidget.h"
 #include "qt4buildenvironmentwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
@@ -788,7 +788,7 @@ void Qt4Project::setQtVersion(const QString &buildConfiguration, int id)
 
 BuildStepConfigWidget *Qt4Project::createConfigWidget()
 {
-    return new Qt4BuildConfigWidget(this);
+    return new Qt4ProjectConfigWidget(this);
 }
 
 QList<BuildStepConfigWidget*> Qt4Project::subConfigWidgets()

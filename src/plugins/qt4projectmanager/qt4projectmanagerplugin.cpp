@@ -36,7 +36,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "qmakebuildstepfactory.h"
 #include "qtversionmanager.h"
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
