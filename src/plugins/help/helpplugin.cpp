@@ -58,6 +58,8 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QResource>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QTranslator>
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
 #include <QtGui/QSplitter>
@@ -128,6 +130,14 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     globalcontext << Core::Constants::C_GLOBAL_ID;
     QList<int> modecontext;
     modecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_MODE_HELP);
+
+    QString locale = qApp->property("qtc_locale").toString();
+    if (!locale.isEmpty()) {
+        QTranslator *qtr = new QTranslator(this);
+        qtr->load(QLatin1String("assistant_") + locale,
+                  QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+        qApp->installTranslator(qtr);
+    }
 
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
     QFileInfo fi(m_core->settings()->fileName());

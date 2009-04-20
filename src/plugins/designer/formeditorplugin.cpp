@@ -44,9 +44,12 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QTranslator>
 
 #ifdef CPP_ENABLED
 #    include <QtGui/QAction>
@@ -113,6 +116,14 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
             FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
     } else {
         FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+    }
+
+    QString locale = qApp->property("qtc_locale").toString();
+    if (!locale.isEmpty()) {
+        QTranslator *qtr = new QTranslator(this);
+        qtr->load(QLatin1String("designer_") + locale,
+                  QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+        qApp->installTranslator(qtr);
     }
 
     error->clear();

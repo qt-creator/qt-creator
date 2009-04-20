@@ -38,6 +38,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QTranslator>
+#include <QtCore/QVariant>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
@@ -197,6 +200,12 @@ static inline QStringList getPluginPaths()
     return rc;
 }
 
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/../Resources"
+#else
+#  define SHARE_PATH "/../share/qtcreator"
+#endif
+
 int main(int argc, char **argv)
 {
 #ifdef Q_OS_DARWIN
@@ -208,6 +217,23 @@ int main(int argc, char **argv)
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
+
+    QTranslator translator;
+    QTranslator qtTranslator;
+    const QString &locale = QLocale::system().name();
+    if (translator.load(QLatin1String("qtcreator_") + locale,
+                        QCoreApplication::applicationDirPath()
+                        + QLatin1String(SHARE_PATH "/translations"))) {
+        if (qtTranslator.load(QLatin1String("qt_") + locale,
+                              QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+            app.installTranslator(&translator);
+            app.installTranslator(&qtTranslator);
+            app.setProperty("qtc_locale", locale);
+        } else {
+            translator.load(QString()); // unload()
+        }
+    }
+
     // Load
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
