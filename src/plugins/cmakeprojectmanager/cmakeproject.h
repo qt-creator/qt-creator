@@ -40,9 +40,10 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/filewatcher.h>
 #include <coreplugin/ifile.h>
-#include <utils/pathchooser.h>
 
 #include <QtCore/QXmlStreamReader>
+#include <QtGui/QPushButton>
+#include <QtGui/QLineEdit>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -59,16 +60,20 @@ struct CMakeTarget
     void clear();
 };
 
+class CMakeBuildSettingsWidget;
+
 class CMakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
+    // for changeBuildDirectory
+    friend class CMakeBuildSettingsWidget;
 public:
     CMakeProject(CMakeManager *manager, const QString &filename);
     ~CMakeProject();
 
     virtual QString name() const;
     virtual Core::IFile *file() const;
-    virtual ProjectExplorer::IProjectManager *projectManager() const;
+    virtual CMakeManager *projectManager() const;
 
     virtual QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
@@ -84,18 +89,7 @@ public:
     // You should probably set some default values in this method
     virtual void newBuildConfiguration(const QString &buildConfiguration);
 
-//    // Returns the list of different views (such as "File View" or "Project View") the project supports.
-//    virtual QStringList supportedModels() const = 0;
-//
-//    // Returns the tree representing the requested view.
-//    virtual QModelIndex model(const QString &modelId) const = 0;
-
     virtual ProjectExplorer::ProjectNode *rootProjectNode() const;
-
-//    // Conversion functions
-//    virtual QModelIndex indexForNode(const Node *node, const QString &modelId) const = 0;
-//    virtual Node *nodeForIndex(const QModelIndex &index) const = 0;
-//    virtual Node *nodeForFile(const QString &filePath) const = 0;
 
     virtual QStringList files(FilesMode fileMode) const;
     MakeStep *makeStep() const;
@@ -103,9 +97,14 @@ public:
     QString buildParser(const QString &buildConfiguration) const;
     CMakeTarget targetForTitle(const QString &title);
 
+    QString sourceDirectory() const;
+
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual void restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+
+    // called by CMakeBuildSettingsWidget
+    void changeBuildDirectory(const QString &buildConfiguration, const QString &newBuildDirectory);
 
 private slots:
     void fileChanged(const QString &fileName);
@@ -200,10 +199,11 @@ public:
     // buildConfiguration is QString::null for the non buildConfiguration specific page
     virtual void init(const QString &buildConfiguration);
 private slots:
-    void buildDirectoryChanged();
+    void openChangeBuildDirectoryDialog();
 private:
     CMakeProject *m_project;
-    Core::Utils::PathChooser *m_pathChooser;
+    QLineEdit *m_pathLineEdit;
+    QPushButton *m_changeButton;
     QString m_buildConfiguration;
 };
 

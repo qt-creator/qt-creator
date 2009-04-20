@@ -86,10 +86,22 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
       m_creatingCbpFiles(true)
 {
     foreach(const QString &buildDirectory, needToCreate)
-        addPage(new CMakeRunPage(this, buildDirectory, false));
+        addPage(new CMakeRunPage(this, CMakeRunPage::Recreate, buildDirectory));
     foreach(const QString &buildDirectory, needToUpdate)
-        addPage(new CMakeRunPage(this, buildDirectory, true));
+        addPage(new CMakeRunPage(this, CMakeRunPage::Update, buildDirectory));
     setOption(QWizard::NoCancelButton);
+    setOption(QWizard::NoBackButtonOnStartPage);
+}
+
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
+                                               const QString &oldBuildDirectory)
+    : m_cmakeManager(cmakeManager),
+      m_sourceDirectory(sourceDirectory),
+      m_creatingCbpFiles(true)
+{
+    m_buildDirectory = oldBuildDirectory;
+    addPage(new ShadowBuildPage(this, true));
+    addPage(new CMakeRunPage(this, CMakeRunPage::Change));
     setOption(QWizard::NoBackButtonOnStartPage);
 }
 
@@ -191,7 +203,7 @@ XmlFileUpToDatePage::XmlFileUpToDatePage(CMakeOpenProjectWizard *cmakeWizard)
     layout()->addWidget(label);
 }
 
-ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard)
+ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
 {
     QFormLayout *fl = new QFormLayout;
@@ -199,10 +211,13 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard)
 
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(tr("Please enter the directory in which you want to build your project. "
-                   "Qt Creator recommends to not use the source directory for building. "
-                   "This ensures that the source directory remains clean and enables multiple builds "
-                   "with different settings."));
+    if (change)
+        label->setText(tr("Please enter the directory in which you want to build your project. "));
+    else
+        label->setText(tr("Please enter the directory in which you want to build your project. "
+                          "Qt Creator recommends to not use the source directory for building. "
+                          "This ensures that the source directory remains clean and enables multiple builds "
+                          "with different settings."));
     fl->addWidget(label);
     m_pc = new Core::Utils::PathChooser(this);
     m_pc->setPath(m_cmakeWizard->buildDirectory());
@@ -215,20 +230,12 @@ void ShadowBuildPage::buildDirectoryChanged()
     m_cmakeWizard->setBuildDirectory(m_pc->path());
 }
 
-CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard)
-    : QWizardPage(cmakeWizard),
-      m_cmakeWizard(cmakeWizard),
-      m_complete(false)
-{
-    initWidgets();
-}
-
-CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &buildDirectory, bool update)
+CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
       m_complete(false),
-      m_update(update),
-      m_presetBuildDirectory(buildDirectory)
+      m_mode(mode),
+      m_buildDirectory(buildDirectory)
 {
     initWidgets();
 }
@@ -243,12 +250,10 @@ void CMakeRunPage::initWidgets()
     fl->addRow(m_descriptionLabel);
 
     m_argumentsLineEdit = new QLineEdit(this);
-    //fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
-    //fl->addWidget(m_runCMake);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->addWidget(m_argumentsLineEdit);
@@ -267,26 +272,29 @@ void CMakeRunPage::initWidgets()
 
 void CMakeRunPage::initializePage()
 {
-    if (m_presetBuildDirectory.isEmpty()) {
+    if (m_mode == Initial) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(
                 tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. "
                    "Some projects require command line arguments to the initial cmake call.").arg(m_buildDirectory));
-    } else {
-        m_buildDirectory = m_presetBuildDirectory;
-        if (m_update)
-            m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
-                                           "Creator needs to update this file by running cmake. "
-                                           "If you want to add additional command line arguments, "
-                                           "add them in the below. Note, that cmake remembers command "
-                                           "line arguments from the former runs.").arg(m_buildDirectory));
-        else
-            m_descriptionLabel->setText(tr("The directory %1 specified in a buildconfiguration, "
-                                           "does not contain a cbp file. Qt Creator needs to "
-                                           "recreate this file, by running cmake. "
-                                           "Some projects require command line arguments to "
-                                           "the initial cmake call. Note, that cmake remembers command "
-                                           "line arguments from the former runs.").arg(m_buildDirectory));
+    } else if (m_mode == CMakeRunPage::Update) {
+        m_descriptionLabel->setText(tr("The directory %1 contains an outdated .cbp file. Qt "
+                                       "Creator needs to update this file by running cmake. "
+                                       "If you want to add additional command line arguments, "
+                                       "add them in the below. Note, that cmake remembers command "
+                                       "line arguments from the former runs.").arg(m_buildDirectory));
+    } else if(m_mode == CMakeRunPage::Recreate) {
+        m_descriptionLabel->setText(tr("The directory %1 specified in a buildconfiguration, "
+                                       "does not contain a cbp file. Qt Creator needs to "
+                                       "recreate this file, by running cmake. "
+                                       "Some projects require command line arguments to "
+                                       "the initial cmake call. Note, that cmake remembers command "
+                                       "line arguments from the former runs.").arg(m_buildDirectory));
+    } else if(m_mode == CMakeRunPage::Change) {
+        m_buildDirectory = m_cmakeWizard->buildDirectory();
+        m_descriptionLabel->setText(tr("Qt Creator needs to run cmake in the new build directory. "
+                                       "Some projects require command line arguments to the "
+                                       "initial cmake call."));
     }
 }
 

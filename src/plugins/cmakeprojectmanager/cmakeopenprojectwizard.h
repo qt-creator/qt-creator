@@ -58,8 +58,14 @@ public:
         XmlFileUpToDatePageId,
         CMakeRunPageId
     };
+
+    // used at importing a project without a .user file
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory);
+    // used to update if we have already a .user file
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QStringList &needToCreate, const QStringList &needToUpdate);
+    // used to change the build directory of one buildconfiguration
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory);
+
     virtual int nextId() const;
     QString buildDirectory() const;
     QString sourceDirectory() const;
@@ -101,7 +107,7 @@ class ShadowBuildPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard);
+    ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change = false);
 private slots:
     void buildDirectoryChanged();
 private:
@@ -113,8 +119,9 @@ class CMakeRunPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard);
-    CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, const QString &buildDirectory, bool update);
+    enum Mode { Initial, Update, Recreate, Change };
+    CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
+
     virtual void initializePage();
     virtual void cleanupPage();
     virtual bool isComplete() const;
@@ -131,9 +138,8 @@ private:
     QLineEdit *m_argumentsLineEdit;
     QLabel *m_descriptionLabel;
     bool m_complete;
-    bool m_update;
+    Mode m_mode;
     QString m_buildDirectory;
-    QString m_presetBuildDirectory;
 };
 
 }

@@ -61,7 +61,6 @@ MakeStep::~MakeStep()
 
 bool MakeStep::init(const QString &buildConfiguration)
 {
-    // TODO figure out the correct build parser
     delete m_buildParser;
     m_buildParser = 0;
     QString buildParser = m_pro->buildParser(buildConfiguration);

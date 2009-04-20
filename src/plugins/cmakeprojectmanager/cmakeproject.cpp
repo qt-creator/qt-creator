@@ -120,11 +120,11 @@ void CMakeProject::updateToolChain(const QString &compiler)
     if (compiler == "gcc") {
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
     } else if (compiler == "msvc8") {
-        // TODO hmm
+        // TODO MSVC toolchain
         //newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain("//TODO");
         Q_ASSERT(false);
     } else {
-        // TODO hmm?
+        // TODO other toolchains
         qDebug()<<"Not implemented yet!!! Qt Creator doesn't know which toolchain to use for"<<compiler;
     }
 
@@ -137,10 +137,20 @@ void CMakeProject::updateToolChain(const QString &compiler)
     }
 }
 
+void CMakeProject::changeBuildDirectory(const QString &buildConfiguration, const QString &newBuildDirectory)
+{
+    setValue(buildConfiguration, "buildDirectory", newBuildDirectory);
+    parseCMakeLists();
+}
+
+QString CMakeProject::sourceDirectory() const
+{
+    return QFileInfo(m_fileName).absolutePath();
+}
+
 void CMakeProject::parseCMakeLists()
 {
     // Find cbp file
-    QString sourceDirectory = QFileInfo(m_fileName).absolutePath();
     QString cbpFile = CMakeManager::findCbpFile(buildDirectory(activeBuildConfiguration()));
 
     // setFolderName
@@ -159,7 +169,7 @@ void CMakeProject::parseCMakeLists()
 
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
         // Manually add the CMakeLists.txt file
-        fileList.append(new ProjectExplorer::FileNode(sourceDirectory + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
+        fileList.append(new ProjectExplorer::FileNode(sourceDirectory() + "/CMakeLists.txt", ProjectExplorer::ProjectFileType, false));
 
         m_files.clear();
         foreach (ProjectExplorer::FileNode *fn, fileList)
@@ -191,7 +201,7 @@ void CMakeProject::parseCMakeLists()
                 allIncludePaths.append(headerPath.path());
         }
         // This explicitly adds -I. to the include paths
-        allIncludePaths.append(sourceDirectory);
+        allIncludePaths.append(sourceDirectory());
 
         allIncludePaths.append(cbpparser.includeFiles());
         CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
@@ -405,7 +415,7 @@ Core::IFile *CMakeProject::file() const
     return m_file;
 }
 
-ProjectExplorer::IProjectManager *CMakeProject::projectManager() const
+CMakeManager *CMakeProject::projectManager() const
 {
     return m_manager;
 }
@@ -423,7 +433,7 @@ bool CMakeProject::isApplication() const
 ProjectExplorer::Environment CMakeProject::environment(const QString &buildConfiguration) const
 {
     Q_UNUSED(buildConfiguration)
-    //TODO
+    //TODO CMakeProject::Environment;
     return ProjectExplorer::Environment::systemEnvironment();
 }
 
@@ -431,7 +441,7 @@ QString CMakeProject::buildDirectory(const QString &buildConfiguration) const
 {
     QString buildDirectory = value(buildConfiguration, "buildDirectory").toString();
     if (buildDirectory.isEmpty())
-        buildDirectory = QFileInfo(m_fileName).absolutePath() + "/qtcreator-build";
+        buildDirectory = sourceDirectory() + "/qtcreator-build";
     return buildDirectory;
 }
 
@@ -489,7 +499,7 @@ void CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        CMakeOpenProjectWizard copw(m_manager, QFileInfo(m_fileName).absolutePath());
+        CMakeOpenProjectWizard copw(m_manager, sourceDirectory());
         copw.exec();
         // TODO handle cancel....
 
@@ -550,7 +560,6 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
 
 bool CMakeFile::save(const QString &fileName)
 {
-    // TODO
     // Once we have an texteditor open for this file, we probably do
     // need to implement this, don't we.
     Q_UNUSED(fileName);
@@ -603,14 +612,22 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
 {
     QFormLayout *fl = new QFormLayout(this);
     setLayout(fl);
-    m_pathChooser = new Core::Utils::PathChooser(this);
-    m_pathChooser->setEnabled(false);
+    m_pathLineEdit = new QLineEdit(this);
+    m_pathLineEdit->setReadOnly(true);
     // TODO currently doesn't work
     // since creating the cbp file also creates makefiles
     // and then cmake builds in that directory instead of shadow building
     // We need our own generator for that to work
-    connect(m_pathChooser, SIGNAL(changed()), this, SLOT(buildDirectoryChanged()));
-    fl->addRow(tr("Build directory:"), m_pathChooser);
+
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(m_pathLineEdit);
+
+    m_changeButton = new QPushButton(this);
+    m_changeButton->setText(tr("&Change"));
+    connect(m_changeButton, SIGNAL(clicked()), this, SLOT(openChangeBuildDirectoryDialog()));
+    hbox->addWidget(m_changeButton);
+
+    fl->addRow("Build directory:", hbox);
 }
 
 QString CMakeBuildSettingsWidget::displayName() const
@@ -621,12 +638,20 @@ QString CMakeBuildSettingsWidget::displayName() const
 void CMakeBuildSettingsWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
-    m_pathChooser->setPath(m_project->buildDirectory(buildConfiguration));
+    m_pathLineEdit->setText(m_project->buildDirectory(buildConfiguration));
+    if (m_project->buildDirectory(buildConfiguration) == m_project->sourceDirectory())
+        m_changeButton->setEnabled(false);
+    else
+        m_changeButton->setEnabled(false);
 }
 
-void CMakeBuildSettingsWidget::buildDirectoryChanged()
+void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    m_project->setValue(m_buildConfiguration, "buildDirectory", m_pathChooser->path());
+    CMakeOpenProjectWizard copw(m_project->projectManager(), m_project->sourceDirectory(), m_project->buildDirectory(m_buildConfiguration));
+    if (copw.exec() == QDialog::Accepted) {
+        m_project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
+        m_pathLineEdit->setText(m_project->buildDirectory(m_buildConfiguration));
+    }
 }
 
 /////
