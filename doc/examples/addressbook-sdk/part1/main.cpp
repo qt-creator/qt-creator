@@ -1,3 +1,4 @@
+//! [main function]
 #include <QtGui/QApplication>
 #include "addressbook.h"
 
@@ -8,3 +9,4 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 }
+//! [main function]

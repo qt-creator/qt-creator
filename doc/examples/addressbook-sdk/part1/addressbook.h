@@ -1,3 +1,4 @@
+//! [class definition]
 #ifndef ADDRESSBOOK_H
 #define ADDRESSBOOK_H
 
@@ -21,3 +22,4 @@ private:
 };
 
 #endif // ADDRESSBOOK_H
+//! [class definition]

@@ -1,3 +1,4 @@
+//! [class implementation]
 #include "addressbook.h"
 #include "ui_addressbook.h"
 
@@ -11,3 +12,4 @@ AddressBook::~AddressBook()
 {
     delete ui;
 }
+//! [class implementation]
