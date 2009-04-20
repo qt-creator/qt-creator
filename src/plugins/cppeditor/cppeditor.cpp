@@ -240,17 +240,26 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     QTreeView *methodView = new OverviewTreeView;
     methodView->header()->hide();
     methodView->setItemsExpandable(false);
-    methodView->setSortingEnabled(true);
-    methodView->sortByColumn(0, Qt::AscendingOrder);
     m_methodCombo->setView(methodView);
     m_methodCombo->setMaxVisibleItems(20);
 
     m_overviewModel = new OverviewModel(this);
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setSourceModel(m_overviewModel);
+    if (CppPlugin::instance()->sortedMethodOverview())
+        m_proxyModel->sort(0, Qt::AscendingOrder);
+    else
+        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedMethodOverview()
     m_proxyModel->setDynamicSortFilter(true);
     m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_methodCombo->setModel(m_proxyModel);
+
+    m_methodCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_sortAction = new QAction(tr("Sort alphabetically"), m_methodCombo);
+    m_sortAction->setCheckable(true);
+    m_sortAction->setChecked(sortedMethodOverview());
+    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
+    m_methodCombo->addAction(m_sortAction);
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
@@ -379,6 +388,25 @@ void CPPEditor::jumpToMethod(int)
         return;
 
     openCppEditorAt(linkToSymbol(symbol));
+}
+
+void CPPEditor::setSortedMethodOverview(bool sort)
+{
+    if (sort != sortedMethodOverview()) {
+        if (sort)
+            m_proxyModel->sort(0, Qt::AscendingOrder);
+        else
+            m_proxyModel->sort(-1, Qt::AscendingOrder);
+        bool block = m_sortAction->blockSignals(true);
+        m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
+        m_sortAction->blockSignals(block);
+        updateMethodBoxIndex();
+    }
+}
+
+bool CPPEditor::sortedMethodOverview() const
+{
+    return (m_proxyModel->sortColumn() == 0);
 }
 
 void CPPEditor::updateMethodBoxIndex()
