@@ -1554,7 +1554,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         const QPair<QString, QString> &s = *it;
         if (s.first.endsWith(".qws"))
             continue;
-        QAction *action = menu->addAction(s.second);
+        QAction *action = menu->addAction(s.first);
         action->setData(s.first);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
     }
