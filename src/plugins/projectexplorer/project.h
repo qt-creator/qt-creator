@@ -165,13 +165,13 @@ protected:
     virtual void restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    BuildConfiguration *getBuildConfiguration(const QString & name) const;
+    Internal::BuildConfiguration *getBuildConfiguration(const QString & name) const;
 
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     QStringList m_buildConfigurations;
     QMap<QString, QVariant> m_values;
-    QList<BuildConfiguration *> m_buildConfigurationValues;
+    QList<Internal::BuildConfiguration *> m_buildConfigurationValues;
     QString m_activeBuildConfiguration;
     QList<QSharedPointer<RunConfiguration> > m_runConfigurations;
     QSharedPointer<RunConfiguration> m_activeRunConfiguration;

@@ -32,7 +32,8 @@
 
 #include <utils/qtcassert.h>
 
-namespace ProjectExplorer {
+using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
 
 BuildStep::BuildStep(Project * pro)
     : m_project(pro)
@@ -141,5 +142,3 @@ IBuildStepFactory::~IBuildStepFactory()
 {
 
 }
-
-} // namespace ProjectExplorer

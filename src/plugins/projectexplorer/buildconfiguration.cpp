@@ -29,7 +29,7 @@
 
 #include "buildconfiguration.h"
 
-using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
 
 BuildConfiguration::BuildConfiguration(const QString &name)
     : m_name(name)

@@ -39,7 +39,9 @@
 
 namespace ProjectExplorer {
 
+namespace Internal {
 class BuildConfiguration;
+}
 
 /*
 // BuildSteps are the primary way plugin developers can customize
@@ -132,14 +134,14 @@ Q_SIGNALS:
     void displayNameChanged(BuildStep *, const QString &displayName);
 
 private:
-    QList<BuildConfiguration *> buildConfigurations();
+    QList<Internal::BuildConfiguration *> buildConfigurations();
     void addBuildConfiguration(const QString & name);
     void removeBuildConfiguration(const QString & name);
-    BuildConfiguration *getBuildConfiguration(const QString & name) const;
+    Internal::BuildConfiguration *getBuildConfiguration(const QString & name) const;
     void copyBuildConfiguration(const QString &source, const QString &dest);
 
-    QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_configuration;
+    QList<Internal::BuildConfiguration *> m_buildConfigurations;
+    Internal::BuildConfiguration *m_configuration;
     Project *m_project;
 };
 

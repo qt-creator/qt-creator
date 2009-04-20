@@ -42,6 +42,7 @@
 #include <QtCore/QTextCodec>
 
 using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
 
 Project::Project()
     : m_activeRunConfiguration(0),

@@ -35,7 +35,7 @@
 #include <QtCore/QHash>
 
 namespace ProjectExplorer {
-
+namespace Internal {
 class BuildConfiguration
 {
 public:
@@ -55,7 +55,7 @@ private:
     QHash<QString, QVariant> m_values;
     QString m_name;
 };
-
+}
 } // namespace ProjectExplorer
 
 #endif // BUILDCONFIGURATION_H
