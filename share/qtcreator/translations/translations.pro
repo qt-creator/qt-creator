@@ -1,7 +1,7 @@
 IDE_BUILD_TREE = $$OUT_PWD/../../..
 include(../../../qtcreator.pri)
 
-TRANSLATIONS = de
+TRANSLATIONS = de ja
 
 # var, prepend, append
 defineReplace(prependAll) {
