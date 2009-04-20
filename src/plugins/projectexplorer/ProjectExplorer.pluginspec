@@ -1,4 +1,4 @@
-<plugin name="ProjectExplorer" version="1.0.90" compatVersion="1.0.90">
+<plugin name="ProjectExplorer" version="1.1.0" compatVersion="1.1.0">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,9 +19,9 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>ProjectExplorer framework that can be extended with different kind of project types.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.0.90"/>
-        <dependency name="Find" version="1.0.90"/>
-        <dependency name="QuickOpen" version="1.0.90"/>
-        <dependency name="TextEditor" version="1.0.90"/>
+        <dependency name="Core" version="1.1.0"/>
+        <dependency name="Find" version="1.1.0"/>
+        <dependency name="QuickOpen" version="1.1.0"/>
+        <dependency name="TextEditor" version="1.1.0"/>
     </dependencyList>
 </plugin>
