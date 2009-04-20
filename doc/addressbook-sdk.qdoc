@@ -133,7 +133,7 @@
     Now we have all the files we need, let's move on to designing the user
     interface.
 
-    \section1 Placing the Widgets on the Form
+    \section1 Placing Widgets on the Form
 
     In the \gui{Project Sidebar}, double-click on the \c{addressbook.ui} file.
     The \QD plugin will be launched, allowing you to design your program's user
@@ -194,6 +194,13 @@
 
     \snippet examples/addressbook-sdk/part1/main.cpp main function
 
+    The code constructs a new \c AddressBook widget on the heap using the
+    \c new keyword and invokes its \l{QWidget::}{show()} function to display
+    it. However, the widget will not be shown until the application's event
+    loop is started, by calling the application's \l{QApplication::}{exec()}
+    function. Finally, the result returned by \l{QApplication::}{exec()} is
+    used as the return value from the \c main() function.
+
 
     \section1 Qt Programming - Subclassing
 
@@ -218,5 +225,30 @@
     standard Qt widget class and add features to it. The \c AddressBook class
     we create in this tutorial can be reused in situations where a basic
     address book is needed.
+
+*/
+
+/*!
+    \page tutorials-addressbook-sdk-part2.html
+    \previouspage Address Book 1 - Designing the User Interface
+    \contentspage {Address Book Tutorial}{Contents}
+    \nextpage \l{examples/addressbook-sdk/part3}{Chapter 3}
+    \example examples/addressbook-sdk/part2
+    \title Address Book 2 - Adding Addresses
+
+    The next step to creating our basic address book application is to allow a
+    little bit of user interaction.
+
+    ### \image addressbook-tutorial-part2-add-contact.png
+
+    We will provide a push button that the user can click to add a new contact.
+    Also, some form of data structure is needed to store these contacts in an
+    organized way.
+
+
+    \section1 Placing Widgets on the Form
+
+    Now that we have the labels and input fields set up, we add push buttons to
+    complete the process of adding a contact.
 
 */
