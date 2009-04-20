@@ -105,6 +105,18 @@ private:
     QString m_result;
 };
 
+// Utility class to temporarily redirect output to another handler
+// as long as in scope
+class OutputRedirector {
+    Q_DISABLE_COPY(OutputRedirector)
+public:
+    explicit OutputRedirector(IDebugClient5 *client, IDebugOutputCallbacksWide *newHandler);
+    ~OutputRedirector();
+private:
+    IDebugClient5 *m_client;
+    IDebugOutputCallbacksWide *m_oldHandler;
+};
+
 } // namespace Internal
 } // namespace Debugger
 

@@ -33,6 +33,7 @@
 #include "cdbdebugeventcallback.h"
 #include "cdbdebugoutput.h"
 #include "cdboptions.h"
+#include "cdbdumperhelper.h"
 #include "stackhandler.h"
 #include "debuggermanager.h"
 
@@ -67,6 +68,31 @@ private:
     DebugCreateFunction m_debugCreate;
 };
 
+// A class that sets an expression syntax on the debug control while in scope.
+// Can be nested as it checks for the old value.
+class SyntaxSetter {
+    Q_DISABLE_COPY(SyntaxSetter)
+public:
+    explicit inline SyntaxSetter(IDebugControl4 *ctl, ULONG desiredSyntax);
+    inline  ~SyntaxSetter();
+private:
+    const ULONG m_desiredSyntax;
+    IDebugControl4 *m_ctl;
+    ULONG m_oldSyntax;
+};
+
+// helper struct to pass interfaces around
+struct CdbComInterfaces
+{
+    CdbComInterfaces();
+    IDebugClient5*          debugClient;
+    IDebugControl4*         debugControl;
+    IDebugSystemObjects4*   debugSystemObjects;
+    IDebugSymbols3*         debugSymbols;
+    IDebugRegisters2*       debugRegisters;
+    IDebugDataSpaces4*      debugDataSpaces;
+};
+
 struct CdbDebugEnginePrivate
 {    
     enum HandleBreakEventMode { // Special modes for break event handler.
@@ -90,9 +116,10 @@ struct CdbDebugEnginePrivate
     bool updateLocals(int frameIndex, WatchHandler *wh, QString *errorMessage);
     void updateModules();
 
-    void handleBreakpointEvent(PDEBUG_BREAKPOINT pBP);
+    void handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP);
     void cleanStackTrace();
     void clearForRun();
+    void handleModuleLoad(const QString &);
     CdbSymbolGroupContext *getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const;
     void clearDisplay();
 
@@ -103,6 +130,8 @@ struct CdbDebugEnginePrivate
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
 
+    static bool executeDebuggerCommand(IDebugControl4 *ctrl, const QString &command, QString *errorMessage);
+
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
@@ -110,13 +139,10 @@ struct CdbDebugEnginePrivate
     HandleBreakEventMode    m_breakEventMode;
 
     int                     m_watchTimer;
-    IDebugClient5*          m_pDebugClient;
-    IDebugControl4*         m_pDebugControl;
-    IDebugSystemObjects4*   m_pDebugSystemObjects;
-    IDebugSymbols3*         m_pDebugSymbols;
-    IDebugRegisters2*       m_pDebugRegisters;
+    CdbComInterfaces        m_cif;
     CdbDebugEventCallback   m_debugEventCallBack;
-    CdbDebugOutput          m_debugOutputCallBack;
+    CdbDebugOutput          m_debugOutputCallBack;    
+    CdbDumperHelper         m_dumper;
 
     CdbDebugEngine* m_engine;
     DebuggerManager *m_debuggerManager;

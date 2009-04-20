@@ -32,17 +32,21 @@
 
 #include <windows.h>
 #include <inc/dbgeng.h>
+#include <QtCore/QtGlobal>
 
 namespace Debugger {
 namespace Internal {
 
 class CdbDebugEngine;
 
-class CdbDebugEventCallback : public IDebugEventCallbacks
+// Base class for event callbacks that takes care
+// Active X magic. Provides base implementations with
+// the exception of GetInterestMask
+class CdbDebugEventCallbackBase  : public IDebugEventCallbacksWide
 {
+protected:
+    CdbDebugEventCallbackBase();
 public:
-    explicit CdbDebugEventCallback(CdbDebugEngine* dbg);
-
     // IUnknown.
     STDMETHOD(QueryInterface)(
         THIS_
@@ -58,14 +62,9 @@ public:
 
     // IDebugEventCallbacks.
 
-    STDMETHOD(GetInterestMask)(
-        THIS_
-        __out PULONG mask
-        );
-
     STDMETHOD(Breakpoint)(
         THIS_
-        __in PDEBUG_BREAKPOINT Bp
+        __in PDEBUG_BREAKPOINT2 Bp
         );
 
     STDMETHOD(Exception)(
@@ -91,8 +90,8 @@ public:
         __in ULONG64 Handle,
         __in ULONG64 BaseOffset,
         __in ULONG ModuleSize,
-        __in_opt PCSTR ModuleName,
-        __in_opt PCSTR ImageName,
+        __in_opt PCWSTR ModuleName,
+        __in_opt PCWSTR ImageName,
         __in ULONG CheckSum,
         __in ULONG TimeDateStamp,
         __in ULONG64 InitialThreadHandle,
@@ -110,15 +109,15 @@ public:
         __in ULONG64 ImageFileHandle,
         __in ULONG64 BaseOffset,
         __in ULONG ModuleSize,
-        __in_opt PCSTR ModuleName,
-        __in_opt PCSTR ImageName,
+        __in_opt PCWSTR ModuleName,
+        __in_opt PCWSTR ImageName,
         __in ULONG CheckSum,
         __in ULONG TimeDateStamp
         );
 
     STDMETHOD(UnloadModule)(
         THIS_
-        __in_opt PCSTR ImageBaseName,
+        __in_opt PCWSTR ImageBaseName,
         __in ULONG64 BaseOffset
         );
 
@@ -151,9 +150,115 @@ public:
         __in ULONG64 Argument
         );
 
+
+    static IDebugEventCallbacksWide *getEventCallback(IDebugClient5 *clnt);
+};
+
+class CdbDebugEventCallback : public CdbDebugEventCallbackBase
+{
+public:
+    explicit CdbDebugEventCallback(CdbDebugEngine* dbg);
+
+    // IDebugEventCallbacks.
+
+    STDMETHOD(GetInterestMask)(
+        THIS_
+        __out PULONG mask
+        );
+
+    STDMETHOD(Breakpoint)(
+        THIS_
+        __in PDEBUG_BREAKPOINT2 Bp
+        );
+
+    STDMETHOD(Exception)(
+        THIS_
+        __in PEXCEPTION_RECORD64 Exception,
+        __in ULONG FirstChance
+        );
+
+    STDMETHOD(CreateThread)(
+        THIS_
+        __in ULONG64 Handle,
+        __in ULONG64 DataOffset,
+        __in ULONG64 StartOffset
+        );
+    STDMETHOD(ExitThread)(
+        THIS_
+        __in ULONG ExitCode
+        );
+
+    STDMETHOD(CreateProcess)(
+        THIS_
+        __in ULONG64 ImageFileHandle,
+        __in ULONG64 Handle,
+        __in ULONG64 BaseOffset,
+        __in ULONG ModuleSize,
+        __in_opt PCWSTR ModuleName,
+        __in_opt PCWSTR ImageName,
+        __in ULONG CheckSum,
+        __in ULONG TimeDateStamp,
+        __in ULONG64 InitialThreadHandle,
+        __in ULONG64 ThreadDataOffset,
+        __in ULONG64 StartOffset
+        );
+
+    STDMETHOD(ExitProcess)(
+        THIS_
+        __in ULONG ExitCode
+        );
+
+    STDMETHOD(LoadModule)(
+        THIS_
+        __in ULONG64 ImageFileHandle,
+        __in ULONG64 BaseOffset,
+        __in ULONG ModuleSize,
+        __in_opt PCWSTR ModuleName,
+        __in_opt PCWSTR ImageName,
+        __in ULONG CheckSum,
+        __in ULONG TimeDateStamp
+        );
+
+    STDMETHOD(UnloadModule)(
+        THIS_
+        __in_opt PCWSTR ImageBaseName,
+        __in ULONG64 BaseOffset
+        );
+
+    STDMETHOD(SystemError)(
+        THIS_
+        __in ULONG Error,
+        __in ULONG Level
+        );
+
 private:
     CdbDebugEngine *m_pEngine;
 };
+
+// Event handler that ignores everything
+class IgnoreDebugEventCallback : public CdbDebugEventCallbackBase
+{
+public:
+    explicit IgnoreDebugEventCallback();
+
+    STDMETHOD(GetInterestMask)(
+        THIS_
+        __out PULONG mask
+        );
+};
+
+// Utility class to temporarily redirect events to another handler
+// as long as in scope
+class EventCallbackRedirector {
+    Q_DISABLE_COPY(EventCallbackRedirector)
+public:
+    explicit EventCallbackRedirector(IDebugClient5 *client,  IDebugEventCallbacksWide *cb);
+    ~EventCallbackRedirector();
+private:
+    IDebugClient5 *m_client;
+    IDebugEventCallbacksWide *m_oldCb;
+};
+
 
 } // namespace Internal
 } // namespace Debugger

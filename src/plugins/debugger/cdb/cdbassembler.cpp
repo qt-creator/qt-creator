@@ -212,14 +212,11 @@ bool dissassemble(IDebugClient5 *client,
     // in assembler code). We build a complete string first as line breaks
     // may occur in-between messages.
     StringOutputHandler stringHandler;
-    IDebugOutputCallbacksWide *oldHandler = CdbDebugOutputBase::getOutputCallback(client);
-    client->SetOutputCallbacksWide(&stringHandler);
+    OutputRedirector redir(client, &stringHandler);
     // For some reason, we need to output to "all clients"
     const HRESULT hr =  ctl->OutputDisassemblyLines(DEBUG_OUTCTL_ALL_CLIENTS,
                                                     beforeLines, beforeLines + afterLines,
                                                     offset, flags, 0, 0, 0, 0);
-    client->SetOutputCallbacksWide(oldHandler);
-
     if (FAILED(hr)) {
         *errorMessage= QString::fromLatin1("Unable to dissamble at 0x%1: %2").
                        arg(QString::number(offset, 16), msgComFailed("OutputDisassemblyLines", hr));

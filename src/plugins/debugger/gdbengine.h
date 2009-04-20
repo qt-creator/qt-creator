@@ -137,7 +137,7 @@ private:
     //
     // Own stuff
     //
-    void showDebuggingHelperWarning();
+
     int currentFrame() const;
     QString currentWorkingDirectory() const { return m_pwd; }
 
@@ -202,7 +202,6 @@ private:
     void handleTargetCore(const GdbResultRecord &response);
     void handleExit(const GdbResultRecord &response);
     void debugMessage(const QString &msg);
-    QString dumperLibraryName() const;
 
     OutputCollector m_outputCollector;
     QTextCodec *m_outputCodec;

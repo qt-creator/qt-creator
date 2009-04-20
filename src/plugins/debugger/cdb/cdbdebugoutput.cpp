@@ -155,5 +155,18 @@ void CdbDebugOutput::output(ULONG mask, const QString &msg)
     }
 }
 
+// Utility class to temporarily redirect output to another handler
+// as long as in scope
+OutputRedirector::OutputRedirector(IDebugClient5 *client, IDebugOutputCallbacksWide *newHandler) :
+        m_client(client),
+        m_oldHandler(CdbDebugOutputBase::getOutputCallback(client))
+{
+    m_client->SetOutputCallbacksWide(newHandler);
+}
+OutputRedirector::~OutputRedirector()
+{
+    m_client->SetOutputCallbacksWide(m_oldHandler);
+}
+
 } // namespace Internal
 } // namespace Debugger

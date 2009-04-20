@@ -164,6 +164,8 @@ private:
     virtual SourceFilesWindow *sourceFileWindow() = 0;
 
     virtual void showApplicationOutput(const QString &data) = 0;
+    virtual void showDebuggerOutput(const QString &prefix, const QString &msg) = 0;
+    virtual void showDebuggerInput(const QString &prefix, const QString &msg) = 0;
     
     virtual void reloadDisassembler() = 0;
     virtual void reloadModules() = 0;
@@ -249,6 +251,10 @@ public slots:
     void executeDebuggerCommand(const QString &command);
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
+
+    bool qtDumperLibraryEnabled() const;
+    QString qtDumperLibraryName() const;
+    void showQtDumperLibraryWarning(const QString &details);
 
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);

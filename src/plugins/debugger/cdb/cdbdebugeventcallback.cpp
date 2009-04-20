@@ -38,12 +38,12 @@
 namespace Debugger {
 namespace Internal {
 
-CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine* dbg) :
-    m_pEngine(dbg)
+//     CdbDebugEventCallbackBase
+CdbDebugEventCallbackBase::CdbDebugEventCallbackBase()
 {
 }
 
-STDMETHODIMP CdbDebugEventCallback::QueryInterface(
+STDMETHODIMP CdbDebugEventCallbackBase::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
     OUT PVOID* Interface)
@@ -60,18 +60,157 @@ STDMETHODIMP CdbDebugEventCallback::QueryInterface(
     }
 }
 
-STDMETHODIMP_(ULONG) CdbDebugEventCallback::AddRef(THIS)
+STDMETHODIMP_(ULONG) CdbDebugEventCallbackBase::AddRef(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 1;
 }
 
-STDMETHODIMP_(ULONG) CdbDebugEventCallback::Release(THIS)
+STDMETHODIMP_(ULONG) CdbDebugEventCallbackBase::Release(THIS)
 {
     // This class is designed to be static so
     // there's no true refcount.
     return 0;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT2)
+{
+    return S_OK;
+}
+STDMETHODIMP CdbDebugEventCallbackBase::Exception(
+    THIS_
+    __in PEXCEPTION_RECORD64,
+    __in ULONG /* FirstChance */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::CreateThread(
+    THIS_
+    __in ULONG64 /* Handle */,
+    __in ULONG64 /* DataOffset */,
+    __in ULONG64 /* StartOffset */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::ExitThread(
+    THIS_
+    __in ULONG /* ExitCode */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::CreateProcess(
+    THIS_
+    __in ULONG64 /* ImageFileHandle */,
+    __in ULONG64 /* Handle */,
+    __in ULONG64 /* BaseOffset */,
+    __in ULONG /* ModuleSize */,
+    __in_opt PCWSTR /* ModuleName */,
+    __in_opt PCWSTR /* ImageName */,
+    __in ULONG /* CheckSum */,
+    __in ULONG /* TimeDateStamp */,
+    __in ULONG64 /* InitialThreadHandle */,
+    __in ULONG64 /* ThreadDataOffset */,
+    __in ULONG64 /* StartOffset */
+    )
+{    
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::ExitProcess(
+    THIS_
+    __in ULONG /* ExitCode */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::LoadModule(
+    THIS_
+    __in ULONG64 /* ImageFileHandle */,
+    __in ULONG64 /* BaseOffset */,
+    __in ULONG /* ModuleSize */,
+    __in_opt PCWSTR /* ModuleName */,
+    __in_opt PCWSTR /* ImageName */,
+    __in ULONG /* CheckSum */,
+    __in ULONG /* TimeDateStamp */
+    )
+{    
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::UnloadModule(
+    THIS_
+    __in_opt PCWSTR /* ImageBaseName */,
+    __in ULONG64 /* BaseOffset */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::SystemError(
+    THIS_
+    __in ULONG /* Error */,
+    __in ULONG /* Level */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::SessionStatus(
+    THIS_
+    __in ULONG /* Status */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::ChangeDebuggeeState(
+    THIS_
+    __in ULONG /* Flags */,
+    __in ULONG64 /* Argument */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::ChangeEngineState(
+    THIS_
+    __in ULONG /* Flags */,
+    __in ULONG64 /* Argument */
+    )
+{
+    return S_OK;
+}
+
+STDMETHODIMP CdbDebugEventCallbackBase::ChangeSymbolState(
+    THIS_
+    __in ULONG /* Flags */,
+    __in ULONG64 /* Argument */
+    )
+{    
+    return S_OK;
+}
+
+IDebugEventCallbacksWide *CdbDebugEventCallbackBase::getEventCallback(IDebugClient5 *clnt)
+{
+    IDebugEventCallbacksWide *rc = 0;
+    if (SUCCEEDED(clnt->GetEventCallbacksWide(&rc)))
+        return rc;
+    return 0;
+}
+
+// ---------- CdbDebugEventCallback
+
+CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine* dbg) :
+    m_pEngine(dbg)
+{
 }
 
 STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
@@ -80,12 +219,11 @@ STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
             | DEBUG_EVENT_LOAD_MODULE   | DEBUG_EVENT_UNLOAD_MODULE
             | DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
             | DEBUG_EVENT_BREAKPOINT
-            | DEBUG_EVENT_EXCEPTION
-            ;
+            | DEBUG_EVENT_EXCEPTION;
     return S_OK;
 }
 
-STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT Bp)
+STDMETHODIMP CdbDebugEventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT2 Bp)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
@@ -150,8 +288,8 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     __in ULONG64 Handle,
     __in ULONG64 BaseOffset,
     __in ULONG ModuleSize,
-    __in_opt PCSTR ModuleName,
-    __in_opt PCSTR ImageName,
+    __in_opt PCWSTR ModuleName,
+    __in_opt PCWSTR ImageName,
     __in ULONG CheckSum,
     __in ULONG TimeDateStamp,
     __in ULONG64 InitialThreadHandle,
@@ -175,7 +313,7 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorRunning();
 
     ULONG currentThreadId;
-    if (SUCCEEDED(m_pEngine->m_d->m_pDebugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
+    if (SUCCEEDED(m_pEngine->m_d->m_cif.debugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
         m_pEngine->m_d->m_currentThreadId = currentThreadId;
     else
         m_pEngine->m_d->m_currentThreadId = 0;
@@ -201,8 +339,8 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
     __in ULONG64 ImageFileHandle,
     __in ULONG64 BaseOffset,
     __in ULONG ModuleSize,
-    __in_opt PCSTR ModuleName,
-    __in_opt PCSTR ImageName,
+    __in_opt PCWSTR ModuleName,
+    __in_opt PCWSTR ImageName,
     __in ULONG CheckSum,
     __in ULONG TimeDateStamp
     )
@@ -216,13 +354,13 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
     Q_UNUSED(TimeDateStamp)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ModuleName;
-    m_pEngine->m_d->updateModules();
+    m_pEngine->m_d->handleModuleLoad(QString::fromUtf16(ModuleName));
     return S_OK;
 }
 
 STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     THIS_
-    __in_opt PCSTR ImageBaseName,
+    __in_opt PCWSTR ImageBaseName,
     __in ULONG64 BaseOffset
     )
 {
@@ -245,46 +383,28 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
     return S_OK;
 }
 
-STDMETHODIMP CdbDebugEventCallback::SessionStatus(
-    THIS_
-    __in ULONG Status
-    )
+// -----------IgnoreDebugEventCallback
+IgnoreDebugEventCallback::IgnoreDebugEventCallback()
 {
-    Q_UNUSED(Status)
+}
+
+STDMETHODIMP IgnoreDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
+{
+    *mask = 0;
     return S_OK;
 }
 
-STDMETHODIMP CdbDebugEventCallback::ChangeDebuggeeState(
-    THIS_
-    __in ULONG Flags,
-    __in ULONG64 Argument
-    )
+// --------- EventCallbackRedirector
+EventCallbackRedirector::EventCallbackRedirector(IDebugClient5 *client,  IDebugEventCallbacksWide *cb) :
+        m_client(client),
+        m_oldCb(CdbDebugEventCallbackBase::getEventCallback(client))
 {
-    Q_UNUSED(Flags)
-    Q_UNUSED(Argument)
-    return S_OK;
+    client->SetEventCallbacksWide(cb);
 }
 
-STDMETHODIMP CdbDebugEventCallback::ChangeEngineState(
-    THIS_
-    __in ULONG Flags,
-    __in ULONG64 Argument
-    )
+EventCallbackRedirector::~EventCallbackRedirector()
 {
-    Q_UNUSED(Flags)
-    Q_UNUSED(Argument)
-    return S_OK;
-}
-
-STDMETHODIMP CdbDebugEventCallback::ChangeSymbolState(
-    THIS_
-    __in ULONG Flags,
-    __in ULONG64 Argument
-    )
-{
-    Q_UNUSED(Flags)
-    Q_UNUSED(Argument)
-    return S_OK;
+    m_client->SetEventCallbacksWide(m_oldCb);
 }
 
 } // namespace Internal
