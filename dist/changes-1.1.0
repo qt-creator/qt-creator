@@ -63,14 +63,14 @@ Version control plugins
 Platform Specific
 
 Mac
-   * Don't override systems Hide action.
-   * Option to set DYLD_IMAGE_SUFFIX=_debug when running applications.
-   * Open in Finder action in project tree.
+   * The system's Hide action is no longer overridden
+   * Added option to set DYLD_IMAGE_SUFFIX=_debug when running applications
+   * Added Open in Finder action in project tree
 
 Linux
-   * Don't crash because of incompatible libQt3Support:
-     Provide a wrapper script and ship libQt3Support.
-     (Fixes crashes e.g. in file dialogs on openSUSE 11.1)
+   * Fixed crash because of incompatible libQt3Support, by providing a wrapper
+     script and shipping libQt3Support.
+     (fixes crashes e.g. in file dialogs on openSUSE 11.1)
 
 
 Additional credits go to:
