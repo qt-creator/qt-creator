@@ -14,7 +14,8 @@ LRELEASE = $$targetPath($$[QT_INSTALL_PREFIX]/bin/lrelease)
 
 TS_FILES = $$prependAll(TRANSLATIONS, $$PWD/qtcreator_,.ts)
 
-ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TS_FILES)
+contains(QT_VERSION, ^4\.[0-5]\..*):ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.6+.
+else:ts.commands = (cd $$IDE_SOURCE_TREE && $$LUPDATE src -ts $$TS_FILES)
 QMAKE_EXTRA_TARGETS += ts
 
 contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
