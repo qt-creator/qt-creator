@@ -134,13 +134,15 @@ QPrinter *CoreImpl::printer() const
     return m_mainwindow->printer();
 }
 
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/../Resources"
+#else
+#  define SHARE_PATH "/../share/qtcreator"
+#endif
+
 QString CoreImpl::resourcePath() const
 {
-#if defined(Q_OS_MAC)
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()+QLatin1String("/../Resources"));
-#else
-    return QDir::cleanPath(QCoreApplication::applicationDirPath())+"/../share/qtcreator";
-#endif
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
 }
 
 IContext *CoreImpl::currentContextObject() const
