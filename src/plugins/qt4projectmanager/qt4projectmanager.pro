@@ -31,7 +31,7 @@ HEADERS = qt4projectmanagerplugin.h \
     embeddedpropertiespage.h \
     qt4runconfiguration.h \
     speinfo.h \
-    qt4buildconfigwidget.h \
+    qt4projectconfigwidget.h \
     qt4buildenvironmentwidget.h \
     projectloadwizard.h
 SOURCES = qt4projectmanagerplugin.cpp \
@@ -60,7 +60,7 @@ SOURCES = qt4projectmanagerplugin.cpp \
     embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
     speinfo.cpp \
-    qt4buildconfigwidget.cpp \
+    qt4projectconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp
 FORMS = qtversionmanager.ui \
@@ -69,7 +69,7 @@ FORMS = qtversionmanager.ui \
     proeditorcontainer.ui \
     makestep.ui \
     qmakestep.ui \
-    qt4buildconfigwidget.ui \
+    qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
     qt4buildenvironmentwidget.ui \
     showbuildlog.ui

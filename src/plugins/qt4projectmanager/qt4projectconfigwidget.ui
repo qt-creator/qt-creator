@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::Qt4BuildConfigWidget</class>
- <widget class="QWidget" name="Qt4ProjectManager::Internal::Qt4BuildConfigWidget">
+ <class>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</class>
+ <widget class="QWidget" name="Qt4ProjectManager::Internal::Qt4ProjectConfigWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

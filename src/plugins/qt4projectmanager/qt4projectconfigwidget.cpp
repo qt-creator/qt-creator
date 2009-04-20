@@ -27,14 +27,14 @@
 **
 **************************************************************************/
 
-#include "qt4buildconfigwidget.h"
+#include "qt4projectconfigwidget.h"
 
 #include "makestep.h"
 #include "qmakestep.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
-#include "ui_qt4buildconfigwidget.h"
+#include "ui_qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
@@ -48,11 +48,11 @@ bool debug = false;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-Qt4BuildConfigWidget::Qt4BuildConfigWidget(Qt4Project *project)
+Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     : BuildStepConfigWidget(),
       m_pro(project)
 {
-    m_ui = new Ui::Qt4BuildConfigWidget();
+    m_ui = new Ui::Qt4ProjectConfigWidget();
     m_ui->setupUi(this);
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
@@ -83,27 +83,27 @@ Qt4BuildConfigWidget::Qt4BuildConfigWidget(Qt4Project *project)
             this, SLOT(setupQtVersionsComboBox()));
 }
 
-Qt4BuildConfigWidget::~Qt4BuildConfigWidget()
+Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 {
     delete m_ui;
 }
 
-void Qt4BuildConfigWidget::manageQtVersions()
+void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
     core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
 }
 
 
-QString Qt4BuildConfigWidget::displayName() const
+QString Qt4ProjectConfigWidget::displayName() const
 {
     return tr("General");
 }
 
-void Qt4BuildConfigWidget::init(const QString &buildConfiguration)
+void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
 {
     if (debug)
-        qDebug() << "Qt4BuildConfigWidget::init()";
+        qDebug() << "Qt4ProjectConfigWidget::init()";
 
     m_buildConfiguration = buildConfiguration;
 
@@ -118,12 +118,12 @@ void Qt4BuildConfigWidget::init(const QString &buildConfiguration)
     updateImportLabel();
 }
 
-void Qt4BuildConfigWidget::changeConfigName(const QString &newName)
+void Qt4ProjectConfigWidget::changeConfigName(const QString &newName)
 {
     m_pro->setDisplayNameFor(m_buildConfiguration, newName);
 }
 
-void Qt4BuildConfigWidget::setupQtVersionsComboBox()
+void Qt4ProjectConfigWidget::setupQtVersionsComboBox()
 {
     if (m_buildConfiguration.isEmpty()) // not yet initialized
         return;
@@ -155,14 +155,14 @@ void Qt4BuildConfigWidget::setupQtVersionsComboBox()
         this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
 }
 
-void Qt4BuildConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
+void Qt4ProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
     QString initialDirectory = QFileInfo(m_pro->file()->fileName()).absolutePath();
     if (!initialDirectory.isEmpty())
         m_ui->shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory);
 }
 
-void Qt4BuildConfigWidget::shadowBuildCheckBoxClicked(bool checked)
+void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
 {
     m_ui->shadowBuildDirEdit->setEnabled(checked);
     bool b = m_ui->shadowBuildCheckBox->isChecked();
@@ -173,7 +173,7 @@ void Qt4BuildConfigWidget::shadowBuildCheckBoxClicked(bool checked)
         m_pro->setValue(m_buildConfiguration, "buildDirectory", QVariant(QString::null));
 }
 
-void Qt4BuildConfigWidget::updateImportLabel()
+void Qt4ProjectConfigWidget::updateImportLabel()
 {
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
@@ -184,7 +184,7 @@ void Qt4BuildConfigWidget::updateImportLabel()
     }
 }
 
-void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
+void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
 {
     if (m_pro->value(m_buildConfiguration, "buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
         return;
@@ -206,7 +206,7 @@ void Qt4BuildConfigWidget::shadowBuildLineEditTextChanged()
 //    }
 }
 
-void Qt4BuildConfigWidget::importLabelClicked()
+void Qt4ProjectConfigWidget::importLabelClicked()
 {
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString directory = m_ui->shadowBuildDirEdit->path();
@@ -252,7 +252,7 @@ void Qt4BuildConfigWidget::importLabelClicked()
     setupQtVersionsComboBox();
 }
 
-void Qt4BuildConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString &)
+void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString &)
 {
     //Qt Version
     int newQtVersion;

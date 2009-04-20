@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QT4BUILDCONFIGWIDGET_H
-#define QT4BUILDCONFIGWIDGET_H
+#ifndef QT4PROJECTCONFIGWIDGET_H
+#define QT4PROJECTCONFIGWIDGET_H
 
 #include <projectexplorer/buildstep.h>
 
@@ -39,15 +39,15 @@ class Qt4Project;
 namespace Internal {
 
 namespace Ui {
-class Qt4BuildConfigWidget;
+class Qt4ProjectConfigWidget;
 }
 
-class Qt4BuildConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class Qt4ProjectConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    Qt4BuildConfigWidget(Qt4Project *project);
-    ~Qt4BuildConfigWidget();
+    Qt4ProjectConfigWidget(Qt4Project *project);
+    ~Qt4ProjectConfigWidget();
 
     QString displayName() const;
     void init(const QString &buildConfiguration);
@@ -64,7 +64,7 @@ private slots:
 
 private:
     void updateImportLabel();
-    Ui::Qt4BuildConfigWidget *m_ui;
+    Ui::Qt4ProjectConfigWidget *m_ui;
     Qt4Project *m_pro;
     QString m_buildConfiguration;
 };
@@ -72,4 +72,4 @@ private:
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QT4BUILDCONFIGWIDGET_H
+#endif // QT4PROJECTCONFIGWIDGET_H
