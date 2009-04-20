@@ -154,30 +154,8 @@
 
     \image addressbook-tutorial-part1-labeled-screenshot.png
 
-
-    \section1 Qt Programming - Subclassing
-
-    When writing Qt programs, we usually subclass Qt objects to add
-    functionality. This is one of the essential concepts behind creating custom
-    widgets or collections of standard widgets. Subclassing to extend or change
-    the behavior of a widget has the following advantages:
-
-    \list
-        \o  We can write implementations of virtual or pure virtual functions
-            to obtain exactly what we need, falling back on the base class's
-            implementation when necessary.
-        \o  It allows us to encapsulate parts of the user interface within a
-            class, so that the other parts of the application do not need to
-            know about the individual widgets in the user interface.
-        \o  The subclass can be used to create multiple custom widgets in the
-            same application or library, and the code for the subclass can be
-            reused in other projects.
-    \endlist
-
-    Since Qt does not provided a specific address book widget, we subclass a
-    standard Qt widget class and add features to it. The \c AddressBook class
-    we create in this tutorial can be reused in situations where a basic
-    address book is needed.
+    Place your widgets accordingly and save the form by choosing
+    \gui{File | Save} or using the \key{Ctrl+S} shortcut.
 
 
     \section1 The AddressBook Class
@@ -212,8 +190,33 @@
     Within this function, a QApplication object, \c a, is instantiated.
     QApplication is responsible for various application-wide resources, such as
     the default font and cursor, and for running an event loop. Hence, there is
-    always one QApplication objet in every GUI application using Qt.
+    always one QApplication object in every GUI application using Qt.
 
     \snippet examples/addressbook-sdk/part1/main.cpp main function
+
+
+    \section1 Qt Programming - Subclassing
+
+    When writing Qt programs, we usually subclass Qt objects to add
+    functionality. This is one of the essential concepts behind creating custom
+    widgets or collections of standard widgets. Subclassing to extend or change
+    the behavior of a widget has the following advantages:
+
+    \list
+        \o  We can write implementations of virtual or pure virtual functions
+            to obtain exactly what we need, falling back on the base class's
+            implementation when necessary.
+        \o  It allows us to encapsulate parts of the user interface within a
+            class, so that the other parts of the application do not need to
+            know about the individual widgets in the user interface.
+        \o  The subclass can be used to create multiple custom widgets in the
+            same application or library, and the code for the subclass can be
+            reused in other projects.
+    \endlist
+
+    Since Qt does not provided a specific address book widget, we subclass a
+    standard Qt widget class and add features to it. The \c AddressBook class
+    we create in this tutorial can be reused in situations where a basic
+    address book is needed.
 
 */
