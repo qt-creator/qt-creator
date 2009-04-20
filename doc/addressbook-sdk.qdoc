@@ -187,13 +187,16 @@
 
     We start by looking at what is already provided for us by Qt Creator. The
     \c AddressBook class has been defined as a QWidget subclass with a
-    constructor and destructor.The Q_OBJECT macro is used to indicate that the
-    class uses internationalization and Qt's signals and slots features, even
-    if we do not use all of htese features at this stage.
+    constructor and destructor.The Q_OBJECT macro is used to indicate that this
+    class uses internationalization and Qt's signals and slots features.
+    Although the macro implements some of the more advanced features of Qt, for
+    now, it is useful to think of it as a shortcut that allows us to use the
+    \l{QObject::}{tr()} and \l{QObject::}{connect()} functions.
 
     \snippet examples/addressbook-sdk/part1/addressbook.h class definition
 
-
+    Qt Creator's project wizard provides us with the \c Ui object as a way to
+    access the widgets on our form.
 
 
 
