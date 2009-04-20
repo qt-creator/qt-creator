@@ -36,7 +36,27 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/projectexplorer.h>
 
+namespace ProjectExplorer {
+class BuildStep;
+class IBuildStepFactory;
+class Project;
+}
+
 namespace Qt4ProjectManager {
+
+namespace Internal {
+class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
+{
+    Q_OBJECT
+public:
+    MakeStepFactory();
+    virtual ~MakeStepFactory();
+    bool canCreate(const QString & name) const;
+    ProjectExplorer::BuildStep * create(ProjectExplorer::Project * pro, const QString & name) const;
+    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    QString displayNameForName(const QString &name) const;
+};
+}
 
 class Qt4Project;
 

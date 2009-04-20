@@ -36,8 +36,27 @@
 
 #include <QStringList>
 
+namespace ProjectExplorer {
+class BuildStep;
+class IBuildStepFactory;
+class Project;
+}
 
 namespace Qt4ProjectManager {
+
+namespace Internal {
+class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
+{
+    Q_OBJECT
+public:
+    QMakeStepFactory();
+    virtual ~QMakeStepFactory();
+    bool canCreate(const QString & name) const;
+    ProjectExplorer::BuildStep * create(ProjectExplorer::Project * pro, const QString & name) const;
+    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    QString displayNameForName(const QString &name) const;
+};
+}
 
 class Qt4Project;
 

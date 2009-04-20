@@ -272,3 +272,39 @@ void QMakeStepConfigWidget::init(const QString &buildConfiguration)
     }
 }
 
+////
+// QMakeStepFactory
+////
+
+QMakeStepFactory::QMakeStepFactory()
+{
+}
+
+QMakeStepFactory::~QMakeStepFactory()
+{
+}
+
+bool QMakeStepFactory::canCreate(const QString & name) const
+{
+    return (name == Constants::QMAKESTEP);
+}
+
+ProjectExplorer::BuildStep * QMakeStepFactory::create(ProjectExplorer::Project * pro, const QString & name) const
+{
+    Q_UNUSED(name);
+    return new QMakeStep(static_cast<Qt4Project *>(pro));
+}
+
+QStringList QMakeStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+{
+    Q_UNUSED(pro)
+    return QStringList();
+}
+
+QString QMakeStepFactory::displayNameForName(const QString &name) const
+{
+    Q_UNUSED(name);
+    return QString();
+}
+
+

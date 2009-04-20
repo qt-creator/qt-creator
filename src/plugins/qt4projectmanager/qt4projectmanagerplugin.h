@@ -42,8 +42,8 @@ namespace Internal {
 class ProFileEditorFactory;
 class ConsoleAppWizard;
 class GuiAppWizard;
-class QMakeBuildStepFactory;
-class MakeBuildStepFactory;
+class QMakeStepFactory;
+class MakeStepFactory;
 class GccParserFactory;
 class MsvcParserFactory;
 class QtVersionManager;

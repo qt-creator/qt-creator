@@ -315,3 +315,38 @@ void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
     m_makeStep->setValue(m_buildConfiguration, "makeargs",
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
 }
+
+///
+// MakeStep
+///
+
+MakeStepFactory::MakeStepFactory()
+{
+}
+
+MakeStepFactory::~MakeStepFactory()
+{
+}
+
+bool MakeStepFactory::canCreate(const QString & name) const
+{
+    return (name == Constants::MAKESTEP);
+}
+
+ProjectExplorer::BuildStep * MakeStepFactory::create(ProjectExplorer::Project * pro, const QString & name) const
+{
+    Q_UNUSED(name);
+    return new MakeStep(static_cast<Qt4Project *>(pro));
+}
+
+QStringList MakeStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+{
+    Q_UNUSED(pro)
+    return QStringList();
+}
+
+QString MakeStepFactory::displayNameForName(const QString &name) const
+{
+    Q_UNUSED(name);
+    return QString();
+}

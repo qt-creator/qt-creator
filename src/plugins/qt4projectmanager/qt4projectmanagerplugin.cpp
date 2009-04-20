@@ -122,8 +122,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);
 
-    addAutoReleasedObject(new QMakeBuildStepFactory);
-    addAutoReleasedObject(new MakeBuildStepFactory);
+    addAutoReleasedObject(new QMakeStepFactory);
+    addAutoReleasedObject(new MakeStepFactory);
 
     m_qtVersionManager = new QtVersionManager;
     addObject(m_qtVersionManager);

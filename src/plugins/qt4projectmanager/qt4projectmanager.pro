@@ -27,7 +27,6 @@ HEADERS = qt4projectmanagerplugin.h \
     qt4projectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
-    qmakebuildstepfactory.h \
     deployhelper.h \
     embeddedpropertiespage.h \
     qt4runconfiguration.h \
@@ -57,7 +56,6 @@ SOURCES = qt4projectmanagerplugin.cpp \
     wizards/qtwizard.cpp \
     makestep.cpp \
     qmakestep.cpp \
-    qmakebuildstepfactory.cpp \
     deployhelper.cpp \
     embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
