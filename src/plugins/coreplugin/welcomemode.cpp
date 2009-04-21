@@ -100,7 +100,7 @@ WelcomeModePrivate::WelcomeModePrivate() :
 
 #if defined(QT_NO_WEBKIT)
 
-const char LABEL[] = Q_TRANSLATE_NOOP("Core::Internal::WelcomeMode",
+const char LABEL[] = QT_TRANSLATE_NOOP("Core::Internal::WelcomeMode",
                     "<center><table><tr><td><img src=\":/core/html/images/product_logo.png\"/></td><td width=300>"
                     "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
                     "developers to create graphically appealing applications for desktop, "
