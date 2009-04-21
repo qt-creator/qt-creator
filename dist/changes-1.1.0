@@ -1,81 +1,79 @@
 The QtCreator 1.1 release contains bug fixes and new features.
 
-A more detailed list of changes follows below. If you want to know
-the exact and complete list of changes, you can check out the QtCreator
-sources from the public git repository and check the logs, e.g.
+A more detailed list of changes follows below. If you want to know the exact
+and complete list of changes, you can check out the QtCreator sources from the
+public git repository and check the logs, e.g.
+
 git clone git://labs.trolltech.com/qt-creator
-git log --pretty=oneline origin/1.0.0..origin/master
+git log --pretty=oneline v1.0.0..v1.1.0
 
-The release introduces source and binary incompatible changes to the plugin API,
-so if you created your own custom plugins these need to be adapted.
-
-General
-   * Completely reworked editor split mechanism.
-   * Supports cmake project
-   * Support generic Makefile based projects
+This release introduces source and binary incompatible changes to the plugin
+API, so if you created your own custom plugins these need to be adapted.
 
 Editing
-   * Added support for JavaScript.
-   * Added syntax highlighting and code completion for qdoc and doxygen tags.
-   * Improved function argument hint.
-   * More checkpoints in editor history.
-   * Ctrl-click for jumping to a symbol definition.
-   * Improved open documents view (sorted, single-click, close buttons).
-   * Copying text from the context help browser and output windows didn't work.
+   * Completely reworked editor split mechanism
+   * Added support for JavaScript
+   * Added syntax highlighting and code completion for qdoc and doxygen tags
+   * Improved function argument hint
+   * Added more checkpoints in editor history
+   * Added Ctrl-click for jumping to a symbol definition
+   * Improved open documents view (sorted, single-click, close buttons)
+   * Fixed copying text from the context help browser and output windows
+   * Improved FakeVim mode
+   * Improved C++ parsing and inline error indicators
 
 Building and Running
-   * Experimental support for generic Makefile based projects.
-   * Improved .pro file parsing, handling scopes and $$system directive.
-   * Support subdir.file in .pro files.
-   * Option to start application in external terminal.
+   * Added experimental support for generic Makefile based projects
+   * Improved .pro file parsing, handling scopes and $$system directive
+   * Added support for subdir.file in .pro files
+   * Added an option to start the application in an external terminal
+   * Improved CMake support
 
 Debugging
-   * Possibility to attach debugger to core files.
+   * Made it possible to attach debugger to core files
    * Changed approach to dumper loading: Build once per used Qt version,
-     no dumper buildstep anymore.
-   * New dumper for std::set. Improved QString, QVariant, std::wstring
-   * Make strategy to load shared objects configurable (auto-solib-add).
-   * Increase number of shown stack frames on request instead of loading them all.
-   * Improved interaction in the Locals&Watchers view.
+     no dumper buildstep anymore
+   * Added a dumper for std::set and improved dumpers for QString, QVariant,
+     std::wstring
+   * Made strategy to load shared objects configurable (auto-solib-add)
+   * The number of shown stack frames is now increased on request instead of
+     loading them all
+   * Improved interaction in the Locals & Watchers view
 
 Wizards
-   * It is now possible to choose file suffixes in the options dialog.
-   * Code of language change event is now generated correctly (added call
-     to base class).
-   * Generated header guards now adapt to file extension.
+   * It is now possible to choose default file suffixes in the options dialog
+   * Fixed the code that was generated for handling a language change event
+     (added call to base class)
+   * Generated header guards now adapt to file extension
 
 Designer
-   * Added signal/slot editor.
-   * Fixed "Goto slot" (formatting/multiple inheritance).
-   * Context help for form editor widgets.
+   * Added signal/slot editor
+   * Fixed "Goto slot" (formatting/multiple inheritance)
+   * Context help for form editor widgets
 
 Version control plugins
-   * Fixed handling of colored git output.
-   * Made svn 1.6 work.
-   * Added syntax highlighting to the git submit editor.
-   * Made  git submit editor remove comment lines.
+   * Fixed handling of colored git output
+   * Added syntax highlighting to the git submit editor
+   * Made git submit editor remove comment lines
+   * Made Subversion 1.6 work
    * Added configuration options for submit editors (user fields, word
-     wrapping).
+     wrapping)
+
 
 Platform Specific
 
 Mac
-   * Don't override systems Hide action.
-   * Option to set DYLD_IMAGE_SUFFIX=_debug when running applications.
-   * Open in Finder action in project tree.
+   * The system's Hide action is no longer overridden
+   * Added option to set DYLD_IMAGE_SUFFIX=_debug when running applications
+   * Added Open in Finder action in project tree
 
 Linux
-   * Don't crash because of incompatible libQt3Support:
-     Provide a wrapper script and ship libQt3Support.
-     (Fixes crashes e.g. in file dialogs on openSUSE 11.1)
+   * Fixed crash because of incompatible libQt3Support, by providing a wrapper
+     script and shipping libQt3Support.
+     (fixes crashes e.g. in file dialogs on openSUSE 11.1)
 
-
-Lots of improvements to
-   * FakeVim mode
-   * CMake support
-   * C++ parsing and inline error indicators
-   * Everything :-)
 
 Additional credits go to:
    * Martin Aumueller <aumuell@reserv.at> (FakeVim improvements)
    * Kris Wong (various patches)
+   * Mathias Gumz (fixed permission checks on network NTFS drives)

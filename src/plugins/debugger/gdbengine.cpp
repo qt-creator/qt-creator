@@ -3173,7 +3173,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     sendWatchParameters(params);
 
     QString cmd ="call "
-            + QString("qDumpObjectData440(")
+            + QString("(void*)qDumpObjectData440(")
             + QString::number(protocol)
             + ',' + "%1+1"                // placeholder for token
             + ',' + addr
@@ -3469,7 +3469,7 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
     QByteArray params = params0;
     params.append('\0');
     char buf[50];
-    sprintf(buf, "set {char[%d]} qDumpInBuffer = {", params.size());
+    sprintf(buf, "set {char[%d]} &qDumpInBuffer = {", params.size());
     QByteArray encoded;
     encoded.append(buf);
     for (int i = 0; i != params.size(); ++i) {
@@ -4177,14 +4177,14 @@ void GdbEngine::tryLoadDebuggingHelpers()
     sendCommand("sharedlibrary " + dotEscape(lib));
 #endif
     // retreive list of dumpable classes
-    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
+    sendCommand("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
     sendCommand("p (char*)&qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
     // retreive list of dumpable classes
-    sendCommand("call qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
+    sendCommand("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)");
     sendCommand("p (char*)&qDumpOutBuffer", GdbQueryDebuggingHelper);
 }
 
