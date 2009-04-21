@@ -604,6 +604,13 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     QTextCursor tc = cursor;
 
+    // Make sure we're not at the start of a word
+    {
+        const QChar c = characterAt(tc.position());
+        if (c.isLetter() || c == QLatin1Char('_'))
+            tc.movePosition(QTextCursor::Right);
+    }
+
     static TokenUnderCursor tokenUnderCursor;
 
     QTextBlock block;
