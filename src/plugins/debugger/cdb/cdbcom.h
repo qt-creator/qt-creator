@@ -27,37 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef CDBASSEMBLER_H
-#define CDBASSEMBLER_H
+#ifndef CDBCOM_H
+#define CDBCOM_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <windows.h>
+#include <inc/dbgeng.h>
 
-#include "cdbcom.h"
+// typedef out the version numbers
+typedef IDebugClient5          CIDebugClient;
+typedef IDebugControl4         CIDebugControl;
+typedef IDebugSystemObjects4   CIDebugSystemObjects;
+typedef IDebugSymbols3         CIDebugSymbols;
+typedef IDebugRegisters2       CIDebugRegisters;
+typedef IDebugDataSpaces4      CIDebugDataSpaces;
 
-namespace Debugger {
-namespace Internal {
-
-class DisassemblerLine;
-
-// Utilities related to assembler code.
-class Register;
-
-bool getRegisters(CIDebugControl *ctl,
-                  CIDebugRegisters *ireg,
-                  QList<Register> *registers,
-                  QString *errorMessage,
-                  int base = 10 /* 16 for hex, etc */);
-
-bool dissassemble(CIDebugClient *client,
-                  CIDebugControl *ctl,
-                  ULONG64 offset,
-                  unsigned long beforeLines,
-                  unsigned long afterLines,
-                  QList<DisassemblerLine> *lines,
-                  QString *errorMessage);
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // CDBASSEMBLER_H
+typedef IDebugSymbolGroup2     CIDebugSymbolGroup;
+typedef IDebugBreakpoint2      CIDebugBreakpoint;
+#endif // CDBCOM_H

@@ -105,7 +105,7 @@ static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMB
 }
 
 CdbSymbolGroupContext::CdbSymbolGroupContext(const QString &prefix,
-                                             IDebugSymbolGroup2 *symbolGroup) :
+                                             CIDebugSymbolGroup *symbolGroup) :
     m_prefix(prefix),
     m_nameDelimiter(QLatin1Char('.')),
     m_symbolGroup(symbolGroup)
@@ -118,7 +118,7 @@ CdbSymbolGroupContext::~CdbSymbolGroupContext()
 }
 
 CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
-                                                     IDebugSymbolGroup2 *symbolGroup,
+                                                     CIDebugSymbolGroup *symbolGroup,
                                                      QString *errorMessage)
 {
     CdbSymbolGroupContext *rc= new CdbSymbolGroupContext(prefix, symbolGroup);
@@ -343,7 +343,7 @@ QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
     return m_inameIndexMap.key(index);
 }
 
-static inline QString hexSymbolOffset(IDebugSymbolGroup2 *sg, unsigned long index)
+static inline QString hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
 {
     ULONG64 rc = 0;
     if (FAILED(sg->GetSymbolOffset(index, &rc)))
@@ -436,7 +436,7 @@ template <class Integer>
     return rc;
 }
 
-QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl,
+QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, CIDebugControl *ctl,
                                                   QString *qType,
                                                   int integerBase)
 {

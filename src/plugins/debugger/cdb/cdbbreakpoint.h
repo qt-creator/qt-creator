@@ -30,8 +30,7 @@
 #ifndef CDBBREAKPOINTS_H
 #define CDBBREAKPOINTS_H
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -64,16 +63,16 @@ struct CDBBreakPoint
     // Apply parameters
     bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
     // Convenience to add to a IDebugControl4
-    bool add(IDebugControl4* debugControl, QString *errorMessage) const;
+    bool add(CIDebugControl* debugControl, QString *errorMessage) const;
 
     // Retrieve/parse breakpoints from the interfaces
     bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);
     bool parseExpression(const QString &expr);
     // Retrieve all breakpoints from the engine
-    static bool getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage = 0);
-    static bool getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
+    static bool getBreakPointCount(CIDebugControl* debugControl, ULONG *count, QString *errorMessage = 0);
+    static bool getBreakPoints(CIDebugControl* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
     // Synchronize (halted) engine with BreakHandler.
-    static bool synchronizeBreakPoints(IDebugControl4* ctl, IDebugSymbols3 *syms,
+    static bool synchronizeBreakPoints(CIDebugControl* ctl, CIDebugSymbols *syms,
                                        BreakHandler *bh, QString *errorMessage);
 
     // Return a 'canonical' file (using '/' and capitalized drive letter)

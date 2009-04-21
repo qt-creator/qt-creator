@@ -30,8 +30,8 @@
 #ifndef DEBUGGER_CDBDEBUGEVENTCALLBACK_H
 #define DEBUGGER_CDBDEBUGEVENTCALLBACK_H
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
+
 #include <QtCore/QtGlobal>
 
 namespace Debugger {
@@ -151,7 +151,7 @@ public:
         );
 
 
-    static IDebugEventCallbacksWide *getEventCallback(IDebugClient5 *clnt);
+    static IDebugEventCallbacksWide *getEventCallback(CIDebugClient *clnt);
 };
 
 class CdbDebugEventCallback : public CdbDebugEventCallbackBase
@@ -252,10 +252,10 @@ public:
 class EventCallbackRedirector {
     Q_DISABLE_COPY(EventCallbackRedirector)
 public:
-    explicit EventCallbackRedirector(IDebugClient5 *client,  IDebugEventCallbacksWide *cb);
+    explicit EventCallbackRedirector(CIDebugClient *client,  IDebugEventCallbacksWide *cb);
     ~EventCallbackRedirector();
 private:
-    IDebugClient5 *m_client;
+    CIDebugClient *m_client;
     IDebugEventCallbacksWide *m_oldCb;
 };
 

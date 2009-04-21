@@ -30,8 +30,7 @@
 #ifndef DEBUGGER_CDBOUTPUT_H
 #define DEBUGGER_CDBOUTPUT_H
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 #include <QtCore/QObject>
 
@@ -65,7 +64,7 @@ public:
         );
 
     // Helpers to retrieve the output callbacks IF
-    static IDebugOutputCallbacksWide *getOutputCallback(IDebugClient5 *client);
+    static IDebugOutputCallbacksWide *getOutputCallback(CIDebugClient *client);
 
 protected:
     CdbDebugOutputBase();
@@ -110,10 +109,10 @@ private:
 class OutputRedirector {
     Q_DISABLE_COPY(OutputRedirector)
 public:
-    explicit OutputRedirector(IDebugClient5 *client, IDebugOutputCallbacksWide *newHandler);
+    explicit OutputRedirector(CIDebugClient *client, IDebugOutputCallbacksWide *newHandler);
     ~OutputRedirector();
 private:
-    IDebugClient5 *m_client;
+    CIDebugClient *m_client;
     IDebugOutputCallbacksWide *m_oldHandler;
 };
 

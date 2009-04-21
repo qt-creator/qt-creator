@@ -84,7 +84,7 @@ STDMETHODIMP CdbDebugOutputBase::Output(
     return S_OK;
 }
 
-IDebugOutputCallbacksWide *CdbDebugOutputBase::getOutputCallback(IDebugClient5 *client)
+IDebugOutputCallbacksWide *CdbDebugOutputBase::getOutputCallback(CIDebugClient *client)
 {
     IDebugOutputCallbacksWide *rc;
      if (FAILED(client->GetOutputCallbacksWide(&rc)))
@@ -157,7 +157,7 @@ void CdbDebugOutput::output(ULONG mask, const QString &msg)
 
 // Utility class to temporarily redirect output to another handler
 // as long as in scope
-OutputRedirector::OutputRedirector(IDebugClient5 *client, IDebugOutputCallbacksWide *newHandler) :
+OutputRedirector::OutputRedirector(CIDebugClient *client, IDebugOutputCallbacksWide *newHandler) :
         m_client(client),
         m_oldHandler(CdbDebugOutputBase::getOutputCallback(client))
 {

@@ -32,15 +32,19 @@
 
 #include "stackhandler.h"
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
 
+QT_BEGIN_NAMESPACE
+class QTextStream;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 
+struct CdbComInterfaces;
 class CdbSymbolGroupContext;
 
 /* Context representing a break point stack consisting of several frames.
@@ -51,15 +55,12 @@ class CdbStackTraceContext
 {
     Q_DISABLE_COPY(CdbStackTraceContext)
 
-    explicit CdbStackTraceContext(IDebugSystemObjects4* pDebugSystemObjects,
-                                  IDebugSymbols3* pDebugSymbols);
+    explicit CdbStackTraceContext(CdbComInterfaces *cif);
 public:
     enum { maxFrames = 100 };
 
     ~CdbStackTraceContext();
-    static CdbStackTraceContext *create(IDebugControl4* pDebugControl,
-                                        IDebugSystemObjects4* pDebugSystemObjects,
-                                        IDebugSymbols3* pDebugSymbols,
+    static CdbStackTraceContext *create(CdbComInterfaces *cif,
                                         unsigned long threadid,
                                         QString *errorMessage);
 
@@ -71,12 +72,15 @@ public:
 
     CdbSymbolGroupContext *symbolGroupContextAt(int index, QString *errorMessage);
 
+    // Format for logging
+    void format(QTextStream &str) const;
+    QString toString() const;
+
 private:
     bool init(unsigned long frameCount, QString *errorMessage);
-    IDebugSymbolGroup2 *createSymbolGroup(int index, QString *errorMessage);
+    CIDebugSymbolGroup *createSymbolGroup(int index, QString *errorMessage);
 
-    IDebugSystemObjects4*   m_pDebugSystemObjects;
-    IDebugSymbols3*         m_pDebugSymbols;
+    CdbComInterfaces *m_cif;
 
     DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
     QVector <CdbSymbolGroupContext*> m_symbolContexts;

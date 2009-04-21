@@ -125,23 +125,72 @@ static inline QString msgLibLoadFailed(const QString &lib, const QString &why)
 
 // ----- Engine helpers
 
-static inline ULONG getInterruptTimeOutSecs(IDebugControl4 *ctl)
+static inline ULONG getInterruptTimeOutSecs(CIDebugControl *ctl)
 {
     ULONG rc = 0;
     ctl->GetInterruptTimeout(&rc);
     return rc;
 }
 
-static inline bool getExecutionStatus(IDebugControl4 *ctl,
-                                      ULONG *executionStatus,
-                                      QString *errorMessage)
+bool getExecutionStatus(CIDebugControl *ctl,
+                        ULONG *executionStatus,
+                        QString *errorMessage /* = 0 */)
 {
     const HRESULT hr = ctl->GetExecutionStatus(executionStatus);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetExecutionStatus", hr);
+        if (errorMessage)
+            *errorMessage = msgComFailed("GetExecutionStatus", hr);
         return false;
     }
     return true;
+}
+
+const char *executionStatusString(ULONG executionStatus)
+{
+    switch (executionStatus) {
+    case DEBUG_STATUS_NO_CHANGE:
+        return "DEBUG_STATUS_NO_CHANGE";
+    case DEBUG_STATUS_GO:
+        return "DEBUG_STATUS_GO";
+    case DEBUG_STATUS_GO_HANDLED:
+        return "DEBUG_STATUS_GO_HANDLED";
+    case DEBUG_STATUS_GO_NOT_HANDLED:
+        return "DEBUG_STATUS_GO_NOT_HANDLED";
+    case DEBUG_STATUS_STEP_OVER:
+        return "DEBUG_STATUS_STEP_OVER";
+    case DEBUG_STATUS_STEP_INTO:
+        return "DEBUG_STATUS_STEP_INTO";
+    case DEBUG_STATUS_BREAK:
+        return "DEBUG_STATUS_BREAK";
+    case DEBUG_STATUS_NO_DEBUGGEE:
+        return "DEBUG_STATUS_NO_DEBUGGEE";
+    case DEBUG_STATUS_STEP_BRANCH:
+        return "DEBUG_STATUS_STEP_BRANCH";
+    case DEBUG_STATUS_IGNORE_EVENT:
+        return "DEBUG_STATUS_IGNORE_EVENT";
+    case DEBUG_STATUS_RESTART_REQUESTED:
+        return "DEBUG_STATUS_RESTART_REQUESTED";
+    case DEBUG_STATUS_REVERSE_GO:
+        return "DEBUG_STATUS_REVERSE_GO";
+          case DEBUG_STATUS_REVERSE_STEP_BRANCH:
+        return "DEBUG_STATUS_REVERSE_STEP_BRANCH";
+    case DEBUG_STATUS_REVERSE_STEP_OVER:
+        return "DEBUG_STATUS_REVERSE_STEP_OVER";
+    case DEBUG_STATUS_REVERSE_STEP_INTO:
+        return "DEBUG_STATUS_REVERSE_STEP_INTO";
+        default:
+        break;
+    }
+    return "<Unknown execution status>";
+}
+
+// Debug convenience
+const char *executionStatusString(CIDebugControl *ctl)
+{
+    ULONG executionStatus;
+    if (getExecutionStatus(ctl, &executionStatus))
+        return executionStatusString(executionStatus);
+    return "<failed>";
 }
 
 // --------- DebuggerEngineLibrary
@@ -189,7 +238,7 @@ bool DebuggerEngineLibrary::init(const QString &path, QString *errorMessage)
 }
 
 // ----- SyntaxSetter
-SyntaxSetter::SyntaxSetter(IDebugControl4 *ctl, ULONG desiredSyntax) :
+SyntaxSetter::SyntaxSetter(CIDebugControl *ctl, ULONG desiredSyntax) :
     m_desiredSyntax(desiredSyntax),
     m_ctl(ctl)
 {
@@ -385,8 +434,10 @@ void CdbDebugEngine::shutdown()
     exitDebugger();
 }
 
-void CdbDebugEngine::setToolTipExpression(const QPoint & /*pos*/, const QString & /*exp*/)
+void CdbDebugEngine::setToolTipExpression(const QPoint & pos, const QString & exp)
 {
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << pos << exp;
 }
 
 void CdbDebugEnginePrivate::clearDisplay()
@@ -939,7 +990,7 @@ void CdbDebugEngine::executeDebuggerCommand(const QString &command)
         qWarning("%s\n", qPrintable(errorMessage));
 }
 
-bool CdbDebugEnginePrivate::executeDebuggerCommand(IDebugControl4 *ctrl, const QString &command, QString *errorMessage)
+bool CdbDebugEnginePrivate::executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << command;
@@ -1186,6 +1237,10 @@ void CdbDebugEngine::reloadRegisters()
 
 void CdbDebugEngine::timerEvent(QTimerEvent* te)
 {
+    // Fetch away the debug events and notify if debuggee
+    // stops. Note that IDebugEventCallback does not
+    // cover all cases of a debuggee stopping execution
+    // (such as step over,etc).
     if (te->timerId() != m_d->m_watchTimer)
         return;
 
@@ -1319,8 +1374,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     QString errorMessage;
     m_engine->reloadRegisters();
     m_currentStackTrace =
-            CdbStackTraceContext::create(m_cif.debugControl, m_cif.debugSystemObjects,
-                                         m_cif.debugSymbols, m_currentThreadId, &errorMessage);
+            CdbStackTraceContext::create(&m_cif, m_currentThreadId, &errorMessage);
     if (!m_currentStackTrace) {
         qWarning("%s: failed to create trace context: %s", Q_FUNC_INFO, qPrintable(errorMessage));
         return;
