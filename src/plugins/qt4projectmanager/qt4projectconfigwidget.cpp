@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
 
@@ -83,7 +84,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
-    connect(m_pro->qt4ProjectManager()->versionManager(), SIGNAL(qtVersionsChanged()),
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+
+    connect(vm, SIGNAL(qtVersionsChanged()),
             this, SLOT(setupQtVersionsComboBox()));
 }
 
@@ -143,7 +146,7 @@ void Qt4ProjectConfigWidget::setupQtVersionsComboBox()
         m_ui->invalidQtWarningLabel->setVisible(false);
     }
     // Add Qt Versions to the combo box
-    QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
+    QtVersionManager *vm = QtVersionManager::instance();
     const QList<QtVersion *> &versions = vm->versions();
     for (int i = 0; i < versions.size(); ++i) {
         m_ui->qtVersionComboBox->addItem(versions.at(i)->name(), versions.at(i)->uniqueId());
@@ -181,7 +184,8 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 {
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
-        QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
+        ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+        QString qtPath = vm->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
         if (!qtPath.isEmpty()) {
             m_ui->importLabel->setVisible(true);
         }
@@ -215,7 +219,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString directory = m_ui->shadowBuildDirEdit->path();
         if (!directory.isEmpty()) {
-            QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
+            QtVersionManager *vm = QtVersionManager::instance();
             QString qtPath = vm->findQtVersionFromMakefile(directory);
             if (!qtPath.isEmpty()) {
                 QtVersion *version = vm->qtVersionForDirectory(qtPath);
@@ -265,7 +269,8 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     } else {
         newQtVersion = m_ui->qtVersionComboBox->itemData(m_ui->qtVersionComboBox->currentIndex()).toInt();
     }
-    bool isValid = m_pro->qt4ProjectManager()->versionManager()->version(newQtVersion)->isValid();
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+    bool isValid = vm->version(newQtVersion)->isValid();
     m_ui->invalidQtWarningLabel->setVisible(!isValid);
     if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);

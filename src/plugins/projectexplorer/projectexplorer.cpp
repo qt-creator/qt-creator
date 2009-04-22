@@ -56,6 +56,7 @@
 #include "session.h"
 #include "sessiondialog.h"
 #include "buildparserfactory.h"
+#include "qtversionmanager.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -193,6 +194,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(buildQueueFinished(bool)));
     connect(m_buildManager, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskActions()));
+
+    m_versionManager = new QtVersionManager();
+    addAutoReleasedObject(m_versionManager);
 
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
@@ -1903,6 +1907,11 @@ void ProjectExplorerPlugin::setSession(QAction *action)
     QString session = action->text();
     if (session != m_session->activeSession())
         m_session->loadSession(session);
+}
+
+QtVersionManager *ProjectExplorerPlugin::qtVersionManager() const
+{
+    return m_versionManager;
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

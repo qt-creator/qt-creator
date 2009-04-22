@@ -62,8 +62,6 @@ public:
     void extensionsInitialized();
 
     int projectContext() const { return m_projectContext; }
-    ProjectExplorer::QtVersionManager *versionManager() const;
-
 
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project,
@@ -80,8 +78,6 @@ private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
-    ProjectExplorer::QtVersionManager *m_qtVersionManager;
-    EmbeddedPropertiesPage *m_embeddedPropertiesPage;
 
     int m_projectContext;
 

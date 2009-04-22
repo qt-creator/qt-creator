@@ -189,11 +189,6 @@ ProjectExplorer::Project *Qt4Manager::contextProject() const
     return m_contextProject;
 }
 
-QtVersionManager *Qt4Manager::versionManager() const
-{
-    return m_plugin->versionManager();
-}
-
 void Qt4Manager::runQMake()
 {
     runQMake(m_projectExplorer->currentProject());

@@ -171,10 +171,11 @@ private slots:
 class PROJECTEXPLORER_EXPORT QtVersionManager : public Core::IOptionsPage
 {
     Q_OBJECT
-
 public:
     QtVersionManager();
     ~QtVersionManager();
+
+    static QtVersionManager *instance();
 
     QString id() const;
     QString trName() const;
@@ -210,7 +211,6 @@ signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
 private:
-
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
@@ -218,7 +218,7 @@ private:
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
 
-    QPointer<QtDirWidget> m_widget;
+    QtDirWidget *m_widget;
 
     QtVersion *m_emptyVersion;
     int m_defaultVersion;

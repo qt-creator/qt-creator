@@ -85,8 +85,6 @@ public:
     void setContextProject(ProjectExplorer::Project *project);
     ProjectExplorer::Project *contextProject() const;
 
-    ProjectExplorer::QtVersionManager *versionManager() const;
-
     // Return the id string of a file
     static QString fileTypeId(ProjectExplorer::FileType type);
 

@@ -32,12 +32,14 @@
 #include "projectexplorerconstants.h"
 #include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
+#include "cesdkhandler.h"
+#include "toolchain.h"
+
+#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/cesdkhandler.h>
-#include <projectexplorer/toolchain.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
@@ -113,6 +115,11 @@ QtVersionManager::~QtVersionManager()
     m_emptyVersion = 0;
 }
 
+QtVersionManager::QtVersionManager *instance()
+{
+    return ProjectExplorerPlugin::instance()->qtVersionManager();
+}
+
 void QtVersionManager::addVersion(QtVersion *version)
 {
     m_versions.append(version);
@@ -162,8 +169,6 @@ QString QtVersionManager::trCategory() const
 
 QWidget *QtVersionManager::createPage(QWidget *parent)
 {
-    if (m_widget)
-        delete m_widget;
     m_widget = new QtDirWidget(parent, m_versions, m_defaultVersion);
     return m_widget;
 }
@@ -1354,8 +1359,7 @@ int QtVersion::uniqueId() const
 
 int QtVersion::getUniqueId()
 {
-    QtVersionManager *vm = ExtensionSystem::PluginManager::instance()->getObject<QtVersionManager>();
-    return vm->getUniqueId();
+    return QtVersionManager::instance()->getUniqueId();
 }
 
 bool QtVersion::isValid() const
