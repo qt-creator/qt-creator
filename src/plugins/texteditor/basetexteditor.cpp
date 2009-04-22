@@ -1034,7 +1034,10 @@ bool BaseTextEditor::event(QEvent *e)
     d->m_contentsChanged = false;
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        e->ignore(); // we are a really nice citizen
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Backspace)
+            e->accept();
+        else
+            e->ignore(); // we are a really nice citizen
         return true;
     default:
         break;
