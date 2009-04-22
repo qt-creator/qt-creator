@@ -53,6 +53,7 @@
 #include <utils/consoleprocess.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtCore/QTimerEvent>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -96,13 +97,13 @@ QString msgDebugEngineComResult(HRESULT hr)
         case E_UNEXPECTED:
         return QLatin1String("E_UNEXPECTED");
         case E_NOTIMPL:
-        return QLatin1String("E_NOTIMPL");
+        return QLatin1String("E_NOTIMPL");        
     }
     if (hr == HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED))
         return QLatin1String("ERROR_ACCESS_DENIED");;
     if (hr == HRESULT_FROM_NT(STATUS_CONTROL_C_EXIT))
         return QLatin1String("STATUS_CONTROL_C_EXIT");
-    return Core::Utils::winErrorMessage(HRESULT_CODE(hr));
+    return QLatin1String("E_FAIL ") + Core::Utils::winErrorMessage(HRESULT_CODE(hr));
 }
 
 static QString msgStackIndexOutOfRange(int idx, int size)
@@ -450,14 +451,16 @@ void CdbDebugEnginePrivate::clearDisplay()
 bool CdbDebugEngine::startDebugger()
 {
     m_d->clearDisplay();
+    const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
     // Figure out dumper. @TODO: same in gdb...
-    bool dumperEnabled = false && m_d->m_debuggerManager->qtDumperLibraryEnabled();
-    const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManager->qtDumperLibraryName());
+    const QString dumperLibName = QDir::toNativeSeparators(m_d->m_debuggerManagerAccess->qtDumperLibraryName());
+    bool dumperEnabled = mode != AttachCore && !dumperLibName.isEmpty()
+                         && m_d->m_debuggerManagerAccess->qtDumperLibraryEnabled();
     if (dumperEnabled) {
         const QFileInfo fi(dumperLibName);
         if (!fi.isFile()) {
             const QString msg = tr("The dumper library '%1' does not exist.").arg(dumperLibName);
-            m_d->m_debuggerManager->showQtDumperLibraryWarning(msg);
+            m_d->m_debuggerManagerAccess->showQtDumperLibraryWarning(msg);
             dumperEnabled = false;
         }
     }
@@ -466,7 +469,6 @@ bool CdbDebugEngine::startDebugger()
     QString errorMessage;
     bool rc = false;
     m_d->clearForRun();
-    const DebuggerStartMode mode = m_d->m_debuggerManager->startMode();
     switch (mode) {
     case AttachExternal:
         rc = startAttachDebugger(m_d->m_debuggerManager->m_attachedPID, &errorMessage);
@@ -559,6 +561,52 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
     m_d->m_debuggerManagerAccess->notifyInferiorRunning();
 
     return true;
+}
+
+// check for a breakpoint at 'main()'
+static inline bool hasBreakPointAtMain(const BreakHandler *bp)
+{
+    if (const int count = bp->size()) {
+        // check all variations, resolved or not
+        const QString main = QLatin1String("main");
+        const QString qMain = QLatin1String("qMain");
+        const QString moduleMainPattern = QLatin1String("!main");
+        for (int i = 0; i < count ; i++) {
+            const QString &function = bp->at(i)->funcName;
+            if (function == main || function == qMain || function.endsWith(moduleMainPattern))
+                return true;
+        }
+    }
+    return false;
+}
+
+void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle)
+{
+    setDebuggeeHandles(reinterpret_cast<HANDLE>(processHandle), reinterpret_cast<HANDLE>(initialThreadHandle));
+    m_debuggerManagerAccess->notifyInferiorRunning();
+    ULONG currentThreadId;
+    if (SUCCEEDED(m_cif.debugSystemObjects->GetThreadIdByHandle(initialThreadHandle, &currentThreadId))) {
+        m_currentThreadId = currentThreadId;
+    } else {
+        m_currentThreadId = 0;
+    }
+    // Set initial breakpoints
+    if (m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
+        m_engine->attemptBreakpointSynchronization();    
+    // At any event, we want a temporary breakpoint at main() to load
+    // the dumpers.
+    if (m_dumper.state() == CdbDumperHelper::NotLoaded) {
+        if (!hasBreakPointAtMain(m_debuggerManagerAccess->breakHandler())) {
+            CDBBreakPoint mainBP;
+            // Do not resolve at this point in the rare event someone
+            // has main in a module
+            mainBP.funcName = QLatin1String("main");            
+            mainBP.oneShot = true;
+            QString errorMessage;
+            if (!mainBP.add(m_cif.debugControl, &errorMessage))
+                m_debuggerManagerAccess->showQtDumperLibraryWarning(errorMessage);
+        }
+    }
 }
 
 void CdbDebugEngine::processTerminated(unsigned long exitCode)
@@ -859,13 +907,18 @@ void CdbDebugEngine::continueInferior()
 }
 
 // Continue process without notifications
-bool CdbDebugEnginePrivate::continueInferiorProcess(QString *errorMessage)
+bool CdbDebugEnginePrivate::continueInferiorProcess(QString *errorMessagePtr /* = 0 */)
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
     const HRESULT hr = m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_GO);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("SetExecutionStatus", hr);
+        const QString errorMessage = msgComFailed("SetExecutionStatus", hr);
+        if (errorMessagePtr) {
+            *errorMessagePtr = errorMessage;
+        } else {
+            qWarning("continueInferiorProcess: %s\n", qPrintable(errorMessage));
+        }
         return false;
     }
     return  true;
@@ -992,10 +1045,10 @@ void CdbDebugEngine::executeDebuggerCommand(const QString &command)
 
 bool CdbDebugEnginePrivate::executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage)
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << command;
     // output to all clients, else we do not see anything
     const HRESULT hr = ctrl->ExecuteWide(DEBUG_OUTCTL_ALL_CLIENTS, command.utf16(), 0);
+    if (debugCDB)
+        qDebug() << "executeDebuggerCommand" << command << SUCCEEDED(hr);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to execute '%1': %2").
                         arg(command, msgDebugEngineComResult(hr));
@@ -1300,9 +1353,18 @@ void CdbDebugEnginePrivate::handleDebugEvent()
 
     switch (mode) {
     case BreakEventHandle:
+    case BreakEventMain:
+        if (mode == BreakEventMain)
+            m_dumper.load(m_debuggerManager, m_debuggerManagerAccess);
         m_debuggerManagerAccess->notifyInferiorStopped();
         updateThreadList();
         updateStackTrace();
+        break;
+    case BreakEventMainLoadDumpers:
+        // Temp stop to load dumpers    
+        m_dumper.load(m_debuggerManager, m_debuggerManagerAccess);
+        m_engine->startWatchTimer();
+        continueInferiorProcess();
         break;
     case BreakEventIgnoreOnce:
         m_engine->startWatchTimer();
@@ -1417,17 +1479,6 @@ void CdbDebugEnginePrivate::handleModuleLoad(const QString &name)
     if (debugCDB>2)
         qDebug() << Q_FUNC_INFO << "\n    " << name;
     updateModules();
-    // Call the dumper helper hook and notify about progress.
-    bool ignoreNextBreakPoint;
-    if (m_dumper.moduleLoadHook(name, &ignoreNextBreakPoint)) {
-        if (m_dumper.state() == CdbDumperHelper::Loaded)
-            m_debuggerManagerAccess->showDebuggerOutput(QLatin1String(dumperPrefixC), QString::fromLatin1("Dumpers loaded: %1").arg(m_dumper.library()));
-    } else {
-        m_debuggerManager->showQtDumperLibraryWarning(m_dumper.errorMessage());
-        m_debuggerManagerAccess->showDebuggerOutput(QLatin1String(dumperPrefixC), QString::fromLatin1("Unable to load dumpers: %1").arg(m_dumper.errorMessage()));
-    }
-    if (ignoreNextBreakPoint)
-        m_breakEventMode = BreakEventIgnoreOnce;
 }
 
 void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
@@ -1435,6 +1486,17 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
     Q_UNUSED(pBP)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
+    // Did we hit main() and did the user want that or is that just
+    // our internal BP to load the dumpers?
+    QString errorMessage;
+    CDBBreakPoint bp;
+    if (bp.retrieve(pBP, &errorMessage) && !bp.funcName.isEmpty()) {
+        if (bp.funcName == QLatin1String("main") || bp.funcName.endsWith(QLatin1String("!main"))) {
+            m_breakEventMode = bp.oneShot ? BreakEventMainLoadDumpers : BreakEventMain;
+        }
+        if (debugCDB)
+            qDebug() << bp << " b-mode=" << m_breakEventMode;
+    }
 }
 
 void CdbDebugEngine::reloadSourceFiles()

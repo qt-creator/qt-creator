@@ -299,5 +299,58 @@ QString sizeofTypeExpression(const QString &type)
     return QLatin1String("sizeof(") + gdbQuoteTypes(type) + QLatin1Char(')');
 }
 
+/* Parse 'query' (1) protocol response of the custom dumpers:
+ * "'dumpers=["QByteArray","QDateTime",..."std::basic_string",],
+ * qtversion=["4","5","1"],namespace="""' */
+
+bool parseQueryDumperOutput(const QByteArray &a, QStringList *types, QString *qtVersion, QString *qtNamespace)
+{
+    types->clear();
+    qtVersion->clear();
+    qtNamespace->clear();
+    const QChar equals = QLatin1Char('=');
+    const QChar doubleQuote = QLatin1Char('"');
+    const QChar openingBracket = QLatin1Char('[');
+    const QChar closingBracket = QLatin1Char(']');
+    const QString dumperKey = QLatin1String("dumpers");
+    const QString versionKey = QLatin1String("qtversion");
+    const QString namespaceKey = QLatin1String("namespace");
+
+    const QString s = QString::fromLatin1(a);
+    const int size = a.size();
+    for (int pos = 0; pos < size; ) {
+        // split into keyword / value pairs
+        const int equalsPos = s.indexOf(equals, pos);
+        if (equalsPos == -1)
+            break;
+        const QStringRef keyword = s.midRef(pos, equalsPos - pos);
+        // Array or flat value. Cut out value without delimiters
+        int valuePos = equalsPos + 1;
+        const QChar endChar = s.at(valuePos) == doubleQuote ? doubleQuote : closingBracket;
+        valuePos++;
+        int endValuePos = s.indexOf(endChar, valuePos);
+        if (endValuePos == -1)
+            return false;
+        QString value = s.mid(valuePos, endValuePos - valuePos);
+        pos = endValuePos;
+        // Evaluate
+        if (keyword == namespaceKey) {
+            *qtNamespace = value;
+        } else {
+            if (keyword == versionKey) {
+                *qtVersion = value.remove(doubleQuote).replace(QLatin1Char(','), QLatin1Char('.'));
+            } else {
+                if (keyword == dumperKey) {
+                    *types = value.remove(doubleQuote).split(QLatin1Char(','));
+                }
+            }
+        }
+        // find next keyword
+        while (pos < size && !s.at(pos).isLetterOrNumber())
+            pos++;
+    }
+    return true;
+}
+
 }
 }
