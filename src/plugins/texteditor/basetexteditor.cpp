@@ -1199,6 +1199,17 @@ bool BaseTextEditor::lineSeparatorsAllowed() const
     return d->m_lineSeparatorsAllowed;
 }
 
+void BaseTextEditor::setHighlightBlocks(bool b)
+{
+    d->m_highlightBlocks = b & d->m_codeFoldingSupported;
+    viewport()->update();
+}
+
+bool BaseTextEditor::highlightBlocks() const
+{
+    return d->m_highlightBlocks;
+}
+
 
 void BaseTextEditor::setCodeFoldingVisible(bool b)
 {
@@ -1262,6 +1273,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
+    m_highlightBlocks(false),
     m_revisionsVisible(false),
     m_lineNumbersVisible(true),
     m_highlightCurrentLine(true),
@@ -1662,6 +1674,24 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
+static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
+{
+const int blendBase = (baseColor.value() > 128) ? 0 : 255;
+    // Darker backgrounds may need a bit more contrast
+    // (this calculation is temporary solution until we have a setting for this color)
+    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
+
+    QColor blendColor = baseColor;
+
+    while (factor--) {
+        blendColor = QColor(
+                (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256,
+                (blendBase * blendFactor + blendColor.green() * (256 - blendFactor)) / 256,
+                (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256);
+    }
+    return blendColor;
+}
+
 void BaseTextEditor::paintEvent(QPaintEvent *e)
 {
     /*
@@ -1682,19 +1712,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QRect viewportRect = viewport()->rect();
 
     const QColor baseColor = palette().base().color();
-    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
-    // Darker backgrounds may need a bit more contrast
-    // (this calculation is temporary solution until we have a setting for this color)
-    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
-    const QColor blendColor(
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.green() * (256 - blendFactor)) / 256,
-        (blendBase * blendFactor + baseColor.blue() * (256 - blendFactor)) / 256);
+    const QColor blendColor = calcBlendColor(baseColor);
+
     if (d->m_visibleWrapColumn > 0) {
         qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
         painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
-
+    
     // keep right margin clean from full-width selection
     int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
                - doc->documentMargin();
@@ -1736,12 +1760,24 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     while (block.isValid()) {
 
-        if (!block.isVisible()) {
-            block = block.next();
-            continue;
-        }
-
         QRectF r = blockBoundingRect(block).translated(offset);
+        
+        if (d->m_highlightBlocks) {
+            QTextBlock previousBlock = block.previous();
+            if (previousBlock.isValid()){
+                int thisBraceDepth = block.userState();
+                if (thisBraceDepth >= 0)
+                    thisBraceDepth >>= 8;
+                int braceDepth = block.previous().userState();
+                if (braceDepth >= 0)
+                    braceDepth >>= 8;
+                int minBraceDepth = qMin(thisBraceDepth, braceDepth);
+                if (minBraceDepth > 0) {
+                    painter.fillRect(r, calcBlendColor(baseColor, minBraceDepth));
+                }
+            }
+        }
+        
         QTextLayout *layout = block.layout();
 
         QTextOption option = layout->textOption();
@@ -3413,6 +3449,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
     setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
+    setHighlightBlocks(ds.m_highlightBlocks);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())

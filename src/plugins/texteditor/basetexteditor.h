@@ -267,8 +267,12 @@ public:
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 
+    void setHighlightBlocks(bool b);
+    bool highlightBlocks() const;
+
     void setLineNumbersVisible(bool b);
     bool lineNumbersVisible() const;
+
 
     void setMarksVisible(bool b);
     bool marksVisible() const;

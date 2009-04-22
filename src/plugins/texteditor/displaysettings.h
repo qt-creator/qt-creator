@@ -52,6 +52,7 @@ struct TEXTEDITOR_EXPORT DisplaySettings
     bool m_visualizeWhitespace;
     bool m_displayFoldingMarkers;
     bool m_highlightCurrentLine;
+    bool m_highlightBlocks;
 
     bool equals(const DisplaySettings &ds) const;
 };
