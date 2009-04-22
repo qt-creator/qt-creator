@@ -115,7 +115,7 @@ QtVersionManager::~QtVersionManager()
     m_emptyVersion = 0;
 }
 
-QtVersionManager::QtVersionManager *instance()
+QtVersionManager *QtVersionManager::instance()
 {
     return ProjectExplorerPlugin::instance()->qtVersionManager();
 }
@@ -147,71 +147,11 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QString QtVersionManager::id() const
-{
-    return QLatin1String(Constants::QTVERSION_PAGE);
-}
-
-QString QtVersionManager::trName() const
-{
-    return tr(Constants::QTVERSION_PAGE);
-}
-
-QString QtVersionManager::category() const
-{
-    return Constants::QT_CATEGORY;
-}
-
-QString QtVersionManager::trCategory() const
-{
-    return tr(Constants::QT_CATEGORY);
-}
-
-QWidget *QtVersionManager::createPage(QWidget *parent)
-{
-    m_widget = new QtDirWidget(parent, m_versions, m_defaultVersion);
-    return m_widget;
-}
-
 void QtVersionManager::updateUniqueIdToIndexMap()
 {
     m_uniqueIdToIndex.clear();
     for (int i = 0; i < m_versions.size(); ++i)
         m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
-}
-
-void QtVersionManager::apply()
-{
-    m_widget->finish();
-    QList<QtVersion*> newVersions = m_widget->versions();
-    bool versionPathsChanged = m_versions.size() != newVersions.size();
-    if (!versionPathsChanged) {
-        for (int i = 0; i < m_versions.size(); ++i) {
-            if (m_versions.at(i)->path() != newVersions.at(i)->path()) {
-                versionPathsChanged = true;
-                break;
-            }
-        }
-    }
-    qDeleteAll(m_versions);
-    m_versions.clear();
-    foreach(QtVersion *version, m_widget->versions())
-        m_versions.append(new QtVersion(*version));
-    if (versionPathsChanged)
-        updateDocumentation();
-    updateUniqueIdToIndexMap();
-
-    bool emitDefaultChanged = false;
-    if (m_defaultVersion != m_widget->defaultVersion()) {
-        m_defaultVersion = m_widget->defaultVersion();
-        emitDefaultChanged = true;
-    }
-
-    emit qtVersionsChanged();
-    if (emitDefaultChanged)
-        emit defaultQtVersionChanged();
-
-    writeVersionsIntoSettings();
 }
 
 void QtVersionManager::writeVersionsIntoSettings()
@@ -383,10 +323,91 @@ QtVersion *QtVersionManager::currentQtVersion() const
         return m_emptyVersion;
 }
 
+void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion)
+{
+    bool versionPathsChanged = m_versions.size() != newVersions.size();
+    if (!versionPathsChanged) {
+        for (int i = 0; i < m_versions.size(); ++i) {
+            if (m_versions.at(i)->path() != newVersions.at(i)->path()) {
+                versionPathsChanged = true;
+                break;
+            }
+        }
+    }
+    qDeleteAll(m_versions);
+    m_versions.clear();
+    foreach(QtVersion *version, newVersions)
+        m_versions.append(new QtVersion(*version));
+    if (versionPathsChanged)
+        updateDocumentation();
+    updateUniqueIdToIndexMap();
+
+    bool emitDefaultChanged = false;
+    if (m_defaultVersion != newDefaultVersion) {
+        m_defaultVersion = newDefaultVersion;
+        emitDefaultChanged = true;
+    }
+
+    emit qtVersionsChanged();
+    if (emitDefaultChanged)
+        emit defaultQtVersionChanged();
+
+    writeVersionsIntoSettings();
+}
+
+///
+// QtOptionsPage
+///
+
+QtOptionsPage::QtOptionsPage()
+{
+
+}
+
+QtOptionsPage::~QtOptionsPage()
+{
+
+}
+
+QString QtOptionsPage::id() const
+{
+    return QLatin1String(Constants::QTVERSION_PAGE);
+}
+
+QString QtOptionsPage::trName() const
+{
+    return tr(Constants::QTVERSION_PAGE);
+}
+
+QString QtOptionsPage::category() const
+{
+    return Constants::QT_CATEGORY;
+}
+
+QString QtOptionsPage::trCategory() const
+{
+    return tr(Constants::QT_CATEGORY);
+}
+
+QWidget *QtOptionsPage::createPage(QWidget *parent)
+{
+    QtVersionManager *vm = QtVersionManager::instance();
+    m_widget = new QtDirWidget(parent, vm->versions(), vm->currentQtVersion());
+    return m_widget;
+}
+
+void QtOptionsPage::apply()
+{
+    m_widget->finish();
+
+    QtVersionManager *vm = QtVersionManager::instance();
+    vm->setNewQtVersions(m_widget->versions(), m_widget->defaultVersion());
+}
+
 //-----------------------------------------------------
-QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion)
+QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion)
     : QWidget(parent)
-    , m_defaultVersion(defaultVersion)
+    , m_defaultVersion(versions.indexOf(defaultVersion))
     , m_specifyNameString(tr("<specify a name>"))
     , m_specifyPathString(tr("<specify a path>"))
 {

@@ -135,7 +135,7 @@ class QtDirWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion);
+    QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
     ~QtDirWidget();
     QList<QtVersion *> versions() const;
     int defaultVersion() const;
@@ -168,45 +168,33 @@ private slots:
     void showDebuggingBuildLog();
 };
 
-class PROJECTEXPLORER_EXPORT QtVersionManager : public Core::IOptionsPage
+class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
 public:
+    static QtVersionManager *instance();
     QtVersionManager();
     ~QtVersionManager();
-
-    static QtVersionManager *instance();
-
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-
     void writeVersionsIntoSettings();
 
     QList<QtVersion *> versions() const;
 
     QtVersion * version(int id) const;
     QtVersion * currentQtVersion() const;
-
     // internal
     int getUniqueId();
 
     QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
     QString findQtVersionFromMakefile(const QString &directory);
     QtVersion *qtVersionForDirectory(const QString &directory);
-
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
-    
+
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
+    void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
@@ -218,13 +206,28 @@ private:
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
 
-    QtDirWidget *m_widget;
-
     QtVersion *m_emptyVersion;
     int m_defaultVersion;
     QList<QtVersion *> m_versions;
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;
+};
+
+class PROJECTEXPLORER_EXPORT QtOptionsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+public:
+    QtOptionsPage();
+    ~QtOptionsPage();
+    QString id() const;
+    QString trName() const;
+    QString category() const;
+    QString trCategory() const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+private:
+    QtDirWidget *m_widget;
 };
 } // namespace ProjectExplorer
 

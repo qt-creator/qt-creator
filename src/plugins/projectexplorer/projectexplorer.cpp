@@ -198,6 +198,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     m_versionManager = new QtVersionManager();
     addAutoReleasedObject(m_versionManager);
 
+    addAutoReleasedObject(new QtOptionsPage());
+
     addAutoReleasedObject(new CoreListenerCheckingForRunningBuild(m_buildManager));
 
     m_outputPane = new OutputPane;
