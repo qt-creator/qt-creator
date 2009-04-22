@@ -27,6 +27,7 @@ INCLUDEPATH*=$$PWD
 CDB_LIBPATH=$$CDB_PATH/lib/$$CDB_PLATFORM
 
 HEADERS += \
+    $$PWD/cdbcom.h \
     $$PWD/cdbdebugengine.h \
     $$PWD/cdbdebugengine_p.h \
     $$PWD/cdbdebugeventcallback.h \

@@ -131,7 +131,7 @@ QString CDBBreakPoint::expression() const
     return rc;
 }
 
-bool CDBBreakPoint::apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const
+bool CDBBreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
 {
     const QString expr = expression();
     if (debugCDB)
@@ -148,7 +148,7 @@ bool CDBBreakPoint::apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const
     return true;
 }
 
-bool CDBBreakPoint::add(IDebugControl4* debugControl, QString *errorMessage) const
+bool CDBBreakPoint::add(CIDebugControl* debugControl, QString *errorMessage) const
 {
     IDebugBreakpoint2* ibp = 0;
     const HRESULT hr = debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &ibp);
@@ -176,7 +176,7 @@ QString CDBBreakPoint::canonicalSourceFile(const QString &f)
     return rc;
 }
 
-bool CDBBreakPoint::retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage)
+bool CDBBreakPoint::retrieve(CIDebugBreakpoint *ibp, QString *errorMessage)
 {
     clear();
     WCHAR wszBuf[MAX_PATH];
@@ -245,7 +245,7 @@ bool CDBBreakPoint::parseExpression(const QString &expr)
     return true;
 }
 
-bool CDBBreakPoint::getBreakPointCount(IDebugControl4* debugControl, ULONG *count, QString *errorMessage /* = 0*/)
+bool CDBBreakPoint::getBreakPointCount(CIDebugControl* debugControl, ULONG *count, QString *errorMessage /* = 0*/)
 {
     const HRESULT hr = debugControl->GetNumberBreakpoints(count);
     if (FAILED(hr)) {
@@ -257,7 +257,7 @@ bool CDBBreakPoint::getBreakPointCount(IDebugControl4* debugControl, ULONG *coun
     return true;
 }
 
-bool CDBBreakPoint::getBreakPoints(IDebugControl4* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage)
+bool CDBBreakPoint::getBreakPoints(CIDebugControl* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage)
 {
     ULONG count = 0;
     bps->clear();

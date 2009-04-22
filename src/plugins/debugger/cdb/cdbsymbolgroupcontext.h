@@ -30,8 +30,7 @@
 #ifndef CDBSYMBOLGROUPCONTEXT_H
 #define CDBSYMBOLGROUPCONTEXT_H
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
@@ -60,12 +59,12 @@ class CdbSymbolGroupContext
 {
     Q_DISABLE_COPY(CdbSymbolGroupContext);
      explicit CdbSymbolGroupContext(const QString &prefix,
-                                    IDebugSymbolGroup2 *symbolGroup);
+                                    CIDebugSymbolGroup *symbolGroup);
 
 public:
     ~CdbSymbolGroupContext();
     static CdbSymbolGroupContext *create(const QString &prefix,
-                                         IDebugSymbolGroup2 *symbolGroup,                                         
+                                         CIDebugSymbolGroup *symbolGroup,                                         
                                          QString *errorMessage);
 
     QString prefix() const { return m_prefix; }
@@ -92,7 +91,7 @@ public:
     inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
 
     // Helper to convert a DEBUG_VALUE structure to a string representation
-    static QString debugValueToString(const DEBUG_VALUE &dv, IDebugControl4 *ctl, QString *type = 0, int integerBase = 10);
+    static QString debugValueToString(const DEBUG_VALUE &dv, CIDebugControl *ctl, QString *type = 0, int integerBase = 10);
 
     // format an array of unsigned longs as "0x323, 0x2322, ..."
     static QString hexFormatArray(const unsigned short *array, int size);
@@ -121,7 +120,7 @@ private:
     const QString m_prefix;
     const QChar m_nameDelimiter;
 
-    IDebugSymbolGroup2 *m_symbolGroup;
+    CIDebugSymbolGroup *m_symbolGroup;
     NameIndexMap m_inameIndexMap;
     QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
 };

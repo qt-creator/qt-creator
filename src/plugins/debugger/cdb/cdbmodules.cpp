@@ -36,7 +36,7 @@
 namespace Debugger {
 namespace Internal {
 
-bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage)
+bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
 {    
     modules->clear();
     ULONG loadedCount, unloadedCount;
@@ -80,7 +80,7 @@ bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorM
 }
 
 // Search symbols matching a pattern
-bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
+bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage)
 {
     matches->clear();    
@@ -113,7 +113,7 @@ bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
 
 // Add missing the module specifier: "main" -> "project!main"
 
-ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol,
+ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
                                   QString *errorMessage)
 {
     // Is it an incomplete symbol?
@@ -138,7 +138,7 @@ ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol,
 }
 
 // List symbols of a module
-bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
+bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
                       QList<Symbol> *symbols, QString *errorMessage)
 {
     // Search all symbols and retrieve addresses

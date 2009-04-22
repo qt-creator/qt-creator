@@ -42,8 +42,8 @@ namespace Internal {
 
 // Alloc memory in debuggee using the ".dvalloc" command as
 // there seems to be no API for it.
-static bool allocDebuggeeMemory(IDebugControl4 *ctl,
-                                IDebugClient5 *client,
+static bool allocDebuggeeMemory(CIDebugControl *ctl,
+                                CIDebugClient *client,
                                 int size, ULONG64 *address, QString *errorMessage)
 {
     *address = 0;
@@ -69,9 +69,9 @@ static bool allocDebuggeeMemory(IDebugControl4 *ctl,
 }
 
 // Alloc an AscII string in debuggee
-static bool createDebuggeeAscIIString(IDebugControl4 *ctl,
-                                IDebugClient5 *client,
-                                IDebugDataSpaces4 *data,
+static bool createDebuggeeAscIIString(CIDebugControl *ctl,
+                                CIDebugClient *client,
+                                CIDebugDataSpaces *data,
                                 const QString &s,
                                 ULONG64 *address,
                                 QString *errorMessage)
@@ -90,7 +90,7 @@ static bool createDebuggeeAscIIString(IDebugControl4 *ctl,
 
 // Locate 'qstrdup' in the (potentially namespaced) corelib. For some
 // reason, the symbol is present in QtGui as well without type information.
-static inline QString resolveStrdup(IDebugSymbols3 *syms, QString *errorMessage)
+static inline QString resolveStrdup(CIDebugSymbols *syms, QString *errorMessage)
 {
     QStringList matches;
     const QString pattern = QLatin1String("*qstrdup");
@@ -111,10 +111,10 @@ static inline QString resolveStrdup(IDebugSymbols3 *syms, QString *errorMessage)
 // the QtCored4.pdb file to be present as we need "qstrdup"
 // as dummy symbol. This is ok ATM since dumpers only
 // make sense for Qt apps.
-static bool debuggeeLoadLibrary(IDebugControl4 *ctl,
-                         IDebugClient5 *client,
-                         IDebugSymbols3 *syms,
-                         IDebugDataSpaces4 *data,
+static bool debuggeeLoadLibrary(CIDebugControl *ctl,
+                         CIDebugClient *client,
+                         CIDebugSymbols *syms,
+                         CIDebugDataSpaces *data,
                          const QString &moduleName, QString *errorMessage)
 {
     if (loadDebug)
@@ -179,7 +179,7 @@ bool CdbDumperHelper::moduleLoadHook(const QString &name, bool *ignoreNextBreakP
         // Load once QtCore is there.
         if (name.contains(QLatin1String("QtCore"))) {
             if (loadDebug)
-                qDebug() << Q_FUNC_INFO << '\n' << name << m_state;
+                qDebug() << Q_FUNC_INFO << '\n' << name << m_state << executionStatusString(m_cif->debugControl);
             ok = debuggeeLoadLibrary(m_cif->debugControl, m_cif->debugClient, m_cif->debugSymbols, m_cif->debugDataSpaces,
                                      m_library, &m_errorMessage);
             if (ok) {
@@ -188,6 +188,8 @@ bool CdbDumperHelper::moduleLoadHook(const QString &name, bool *ignoreNextBreakP
             } else {
                 m_state = Failed;
             }
+            if (loadDebug)
+                qDebug() << m_state << executionStatusString(m_cif->debugControl);
         }
         break;
     case Loading:

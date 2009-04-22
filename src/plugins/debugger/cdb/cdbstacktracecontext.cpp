@@ -33,27 +33,24 @@
 #include "cdbdebugengine_p.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QTextStream>
 
 namespace Debugger {
 namespace Internal {
 
-CdbStackTraceContext::CdbStackTraceContext(IDebugSystemObjects4* pDebugSystemObjects,
-                                           IDebugSymbols3* pDebugSymbols) :
-        m_pDebugSystemObjects(pDebugSystemObjects),
-        m_pDebugSymbols(pDebugSymbols),
+CdbStackTraceContext::CdbStackTraceContext(CdbComInterfaces *cif) :
+        m_cif(cif),
         m_instructionOffset(0)
 {
 }
 
-CdbStackTraceContext *CdbStackTraceContext::create(IDebugControl4* pDebugControl,
-                                                   IDebugSystemObjects4* pDebugSystemObjects,
-                                                   IDebugSymbols3* pDebugSymbols,
+CdbStackTraceContext *CdbStackTraceContext::create(CdbComInterfaces *cif,
                                                    unsigned long threadId,
                                                    QString *errorMessage)
 {    
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << threadId;
-    HRESULT hr = pDebugSystemObjects->SetCurrentThreadId(threadId);
+    HRESULT hr = cif->debugSystemObjects->SetCurrentThreadId(threadId);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("%1: SetCurrentThreadId %2 failed: %3").
                         arg(QString::fromLatin1(Q_FUNC_INFO)).
@@ -63,8 +60,8 @@ CdbStackTraceContext *CdbStackTraceContext::create(IDebugControl4* pDebugControl
     }
     // fill the DEBUG_STACK_FRAME array
     ULONG frameCount;
-    CdbStackTraceContext *ctx = new CdbStackTraceContext(pDebugSystemObjects, pDebugSymbols);
-    hr = pDebugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
+    CdbStackTraceContext *ctx = new CdbStackTraceContext(cif);
+    hr = cif->debugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
     if (FAILED(hr)) {
         delete ctx;
          *errorMessage = msgComFailed("GetStackTrace", hr);
@@ -100,12 +97,12 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
             m_instructionOffset = instructionOffset;
         frame.address = QString::fromLatin1("0x%1").arg(instructionOffset, 0, 16);
 
-        m_pDebugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);
+        m_cif->debugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);
         frame.function = QString::fromUtf16(wszBuf);
 
         ULONG ulLine;
         ULONG64 ul64Displacement;
-        const HRESULT hr = m_pDebugSymbols->GetLineByOffsetWide(instructionOffset, &ulLine, wszBuf, MAX_PATH, 0, &ul64Displacement);
+        const HRESULT hr = m_cif->debugSymbols->GetLineByOffsetWide(instructionOffset, &ulLine, wszBuf, MAX_PATH, 0, &ul64Displacement);
         if (SUCCEEDED(hr)) {
             frame.line = ulLine;
             // Vitally important  to use canonical file that matches editormanager,
@@ -131,7 +128,7 @@ CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupContextAt(int index, QSt
 
     if (m_symbolContexts.at(index))
         return m_symbolContexts.at(index);
-    IDebugSymbolGroup2 *sg  = createSymbolGroup(index, errorMessage);
+    CIDebugSymbolGroup *sg  = createSymbolGroup(index, errorMessage);
     if (!sg)
         return 0;
     CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
@@ -141,29 +138,58 @@ CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupContextAt(int index, QSt
     return sc;
 }
 
-IDebugSymbolGroup2 *CdbStackTraceContext::createSymbolGroup(int index, QString *errorMessage)
+CIDebugSymbolGroup *CdbStackTraceContext::createSymbolGroup(int index, QString *errorMessage)
 {
-    IDebugSymbolGroup2 *sg = 0;
-    HRESULT hr = m_pDebugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &sg);
+    CIDebugSymbolGroup *sg = 0;
+    HRESULT hr = m_cif->debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &sg);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
         return 0;
     }
 
-    hr = m_pDebugSymbols->SetScope(0, m_cdbFrames + index, NULL, 0);
+    hr = m_cif->debugSymbols->SetScope(0, m_cdbFrames + index, NULL, 0);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("SetScope", hr);
         sg->Release();
         return 0;
     }
     // refresh with current frame
-    hr = m_pDebugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, sg, &sg);
+    hr = m_cif->debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, sg, &sg);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
         sg->Release();
         return 0;
     }
     return sg;
+}
+
+QString CdbStackTraceContext::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    format(str);
+    return rc;
+}
+
+void CdbStackTraceContext::format(QTextStream &str) const
+{
+    const int count = m_frames.count();
+    const int defaultFieldWidth = str.fieldWidth();
+    const QTextStream::FieldAlignment defaultAlignment = str.fieldAlignment();
+    for (int f = 0; f < count; f++) {
+        const StackFrame &frame = m_frames.at(f);
+        const bool hasFile = !frame.file.isEmpty();
+        // left-pad level
+        str << qSetFieldWidth(6) << left << f;
+        str.setFieldWidth(defaultFieldWidth);
+        str.setFieldAlignment(defaultAlignment);
+        if (hasFile)
+            str << QDir::toNativeSeparators(frame.file) << ':' << frame.line << " (";
+        str << frame.function;
+        if (hasFile)
+            str << ')';
+        str << '\n';
+    }
 }
 
 } // namespace Internal

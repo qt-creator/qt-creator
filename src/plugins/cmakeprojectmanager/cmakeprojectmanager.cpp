@@ -110,8 +110,9 @@ QProcess *CMakeManager::createXmlFile(const QStringList &arguments, const QStrin
     QString buildDirectoryPath = buildDirectory.absolutePath();
     qDebug()<<"Creating cbp file in"<<buildDirectoryPath;
     buildDirectory.mkpath(buildDirectoryPath);
-    QProcess * cmake = new QProcess;
+    QProcess *cmake = new QProcess;
     cmake->setWorkingDirectory(buildDirectoryPath);
+    cmake->setProcessChannelMode(QProcess::MergedChannels);
 
 #ifdef Q_OS_WIN
     QString generator = "-GCodeBlocks - MinGW Makefiles";

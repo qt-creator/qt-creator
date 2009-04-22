@@ -73,11 +73,11 @@ private:
 class SyntaxSetter {
     Q_DISABLE_COPY(SyntaxSetter)
 public:
-    explicit inline SyntaxSetter(IDebugControl4 *ctl, ULONG desiredSyntax);
+    explicit inline SyntaxSetter(CIDebugControl *ctl, ULONG desiredSyntax);
     inline  ~SyntaxSetter();
 private:
     const ULONG m_desiredSyntax;
-    IDebugControl4 *m_ctl;
+    CIDebugControl *m_ctl;
     ULONG m_oldSyntax;
 };
 
@@ -85,12 +85,12 @@ private:
 struct CdbComInterfaces
 {
     CdbComInterfaces();
-    IDebugClient5*          debugClient;
-    IDebugControl4*         debugControl;
-    IDebugSystemObjects4*   debugSystemObjects;
-    IDebugSymbols3*         debugSymbols;
-    IDebugRegisters2*       debugRegisters;
-    IDebugDataSpaces4*      debugDataSpaces;
+    CIDebugClient*          debugClient;
+    CIDebugControl*         debugControl;
+    CIDebugSystemObjects*   debugSystemObjects;
+    CIDebugSymbols*         debugSymbols;
+    CIDebugRegisters*       debugRegisters;
+    CIDebugDataSpaces*      debugDataSpaces;
 };
 
 struct CdbDebugEnginePrivate
@@ -130,7 +130,7 @@ struct CdbDebugEnginePrivate
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
 
-    static bool executeDebuggerCommand(IDebugControl4 *ctrl, const QString &command, QString *errorMessage);
+    static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
 
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
@@ -153,6 +153,12 @@ struct CdbDebugEnginePrivate
     DebuggerStartMode m_mode;
     Core::Utils::ConsoleProcess m_consoleStubProc;
 };
+
+// helper functions
+
+bool getExecutionStatus(CIDebugControl *ctl, ULONG *executionStatus, QString *errorMessage = 0);
+const char *executionStatusString(ULONG executionStatus);
+const char *executionStatusString(CIDebugControl *ctl);
 
 // Message
 QString msgDebugEngineComResult(HRESULT hr);

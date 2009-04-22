@@ -42,8 +42,8 @@ namespace Internal {
 
 typedef QList<DisassemblerLine> DisassemblerLineList;
 
-bool getRegisters(IDebugControl4 *ctl,
-                  IDebugRegisters2 *ireg,
+bool getRegisters(CIDebugControl *ctl,
+                  CIDebugRegisters *ireg,
                   QList<Register> *registers,
                   QString *errorMessage, int base)
 {
@@ -194,8 +194,8 @@ void DisassemblerOutputParser::parse(const QStringList &l)
     }
 }
 
-bool dissassemble(IDebugClient5 *client,
-                  IDebugControl4 *ctl,
+bool dissassemble(CIDebugClient *client,
+                  CIDebugControl *ctl,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,

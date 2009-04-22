@@ -33,8 +33,7 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 namespace Debugger {
 namespace Internal {
@@ -42,9 +41,9 @@ namespace Internal {
 class Module;
 class Symbol;
 
-bool getModuleList(IDebugSymbols3 *syms, QList<Module> *modules, QString *errorMessage);
+bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage);
 // Search symbols matching a pattern
-bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
+bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage);
 
 // ResolveSymbol: For symbols that are missing the module specifier,
@@ -53,10 +52,10 @@ bool searchSymbols(IDebugSymbols3 *syms, const QString &pattern,
 enum ResolveSymbolResult { ResolveSymbolOk, ResolveSymbolAmbiguous,
                            ResolveSymbolNotFound, ResolveSymbolError };
 
-ResolveSymbolResult resolveSymbol(IDebugSymbols3 *syms, QString *symbol, QString *errorMessage);
+ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol, QString *errorMessage);
 
 // List symbols of a module
-bool getModuleSymbols(IDebugSymbols3 *syms, const QString &moduleName,
+bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,
                       QList<Symbol> *symbols, QString *errorMessage);
 
 } // namespace Internal
