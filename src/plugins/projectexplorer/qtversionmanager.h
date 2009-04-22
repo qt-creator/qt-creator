@@ -30,22 +30,26 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "ui_qtversionmanager.h"
+#include "projectexplorer.h"
+#include "toolchain.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QPushButton>
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+
 namespace Internal {
+namespace Ui {
+class QtVersionManager;
+}
+}
 
 class QtDirWidget;
 
-class QtVersion
+class PROJECTEXPLORER_EXPORT QtVersion
 {
     friend class QtDirWidget; //for changing name and path
     friend class QtVersionManager;
@@ -141,7 +145,7 @@ private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
     int indexForWidget(QWidget *debuggingHelperWidget) const;
-    Ui::QtVersionManager m_ui;
+    Internal::Ui::QtVersionManager *m_ui;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
     QString m_specifyNameString;
@@ -164,7 +168,7 @@ private slots:
     void showDebuggingBuildLog();
 };
 
-class QtVersionManager : public Core::IOptionsPage
+class PROJECTEXPLORER_EXPORT QtVersionManager : public Core::IOptionsPage
 {
     Q_OBJECT
 
@@ -222,8 +226,6 @@ private:
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;
 };
-
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // QTVERSIONMANAGER_H

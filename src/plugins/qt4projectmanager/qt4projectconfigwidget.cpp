@@ -38,8 +38,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtGui/QFileDialog>
+
+using ProjectExplorer::QtVersionManager;
+using ProjectExplorer::QtVersion;
 
 namespace {
 bool debug = false;
@@ -91,7 +95,7 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
+    core->showOptionsDialog(ProjectExplorer::Constants::QT_CATEGORY, ProjectExplorer::Constants::QTVERSION_PAGE);
 }
 
 

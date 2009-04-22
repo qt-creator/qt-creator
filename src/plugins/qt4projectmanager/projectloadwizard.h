@@ -30,7 +30,7 @@
 #ifndef PROJECTLOADWIZARD_H
 #define PROJECTLOADWIZARD_H
 
-#include "qtversionmanager.h"
+#include <projectexplorer/qtversionmanager.h>
 
 #include <QtGui/QWizard>
 
@@ -57,14 +57,14 @@ public:
     void execDialog();
 
 private:
-    void addBuildConfiguration(QString name, QtVersion *qtversion, QtVersion::QmakeBuildConfig buildConfiguration);
-    void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfig buildConfig);
+    void addBuildConfiguration(QString name, ProjectExplorer::QtVersion *qtversion, ProjectExplorer::QtVersion::QmakeBuildConfig buildConfiguration);
+    void setupImportPage(ProjectExplorer::QtVersion *version, ProjectExplorer::QtVersion::QmakeBuildConfig buildConfig);
 
     Qt4Project *m_project;
 
     // Only used for imported stuff
-    QtVersion *m_importVersion;
-    QtVersion::QmakeBuildConfig m_importBuildConfig;
+    ProjectExplorer::QtVersion *m_importVersion;
+    ProjectExplorer::QtVersion::QmakeBuildConfig m_importBuildConfig;
     // Those that we might add
     bool m_temporaryVersion;
 

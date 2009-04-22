@@ -36,7 +36,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "qtversionmanager.h"
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
 #include "profilereader.h"
@@ -48,6 +47,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/qtversionmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -64,6 +64,7 @@
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
 using ProjectExplorer::Project;
+using ProjectExplorer::QtVersionManager;
 
 Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 {

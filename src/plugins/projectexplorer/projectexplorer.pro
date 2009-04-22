@@ -58,7 +58,8 @@ HEADERS += projectexplorer.h \
     buildparserfactory.h\
     gccparser.h\
     msvcparser.h\
-    filewatcher.h
+    filewatcher.h\
+    qtversionmanager.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -105,7 +106,8 @@ SOURCES += projectexplorer.cpp \
     buildparserfactory.cpp \
     gccparser.cpp\
     msvcparser.cpp\
-    filewatcher.cpp
+    filewatcher.cpp\
+    qtversionmanager.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \
@@ -114,7 +116,9 @@ FORMS += dependenciespanel.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     buildstepspage.ui \
-    removefiledialog.ui
+    removefiledialog.ui\
+    qtversionmanager.ui\
+    showbuildlog.ui
 win32 { 
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp

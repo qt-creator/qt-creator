@@ -43,6 +43,7 @@
 using ProjectExplorer::IBuildParserFactory;
 using ProjectExplorer::BuildParserInterface;
 using ProjectExplorer::Environment;
+using ProjectExplorer::QtVersion;
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -64,7 +65,7 @@ MakeStep::~MakeStep()
     m_buildParser = 0;
 }
 
-ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion * const version)
+ProjectExplorer::BuildParserInterface *MakeStep::buildParser(const QtVersion *const version)
 {
     QString buildParser;
     ProjectExplorer::ToolChain::ToolChainType type = version->toolchainType();

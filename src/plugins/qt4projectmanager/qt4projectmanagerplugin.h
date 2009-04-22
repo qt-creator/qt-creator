@@ -33,6 +33,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 
+namespace ProjectExplorer {
+    class QtVersionManager;
+}
+
 namespace Qt4ProjectManager {
 
 class Qt4Manager;
@@ -46,7 +50,6 @@ class QMakeStepFactory;
 class MakeStepFactory;
 class GccParserFactory;
 class MsvcParserFactory;
-class QtVersionManager;
 class EmbeddedPropertiesPage;
 
 class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
@@ -59,7 +62,7 @@ public:
     void extensionsInitialized();
 
     int projectContext() const { return m_projectContext; }
-    QtVersionManager *versionManager() const;
+    ProjectExplorer::QtVersionManager *versionManager() const;
 
 
 private slots:
@@ -77,7 +80,7 @@ private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
-    QtVersionManager *m_qtVersionManager;
+    ProjectExplorer::QtVersionManager *m_qtVersionManager;
     EmbeddedPropertiesPage *m_embeddedPropertiesPage;
 
     int m_projectContext;

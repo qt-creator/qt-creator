@@ -34,7 +34,6 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "profilereader.h"
-#include "qtversionmanager.h"
 #include "qmakestep.h"
 
 #include <coreplugin/icore.h>
@@ -47,6 +46,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qtversionmanager.h>
 #include <utils/listutils.h>
 
 #include <QtCore/QCoreApplication>
@@ -68,6 +68,8 @@ using ProjectExplorer::SourceType;
 using ProjectExplorer::FormType;
 using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
+using ProjectExplorer::QtVersion;
+using ProjectExplorer::QtVersionManager;
 
 // Known file types of a Qt 4 project
 static const char* qt4FileTypes[] = {

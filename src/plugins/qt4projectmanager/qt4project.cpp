@@ -36,7 +36,6 @@
 #include "qmakestep.h"
 #include "deployhelper.h"
 #include "qt4runconfiguration.h"
-#include "qtversionmanager.h"
 #include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4buildenvironmentwidget.h"
@@ -51,6 +50,7 @@
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/qtversionmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

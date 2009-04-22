@@ -43,6 +43,7 @@ class PluginManager;
 namespace ProjectExplorer {
 class Project;
 class ProjectExplorerPlugin;
+class QtVersionManager;
 }
 
 namespace Qt4ProjectManager {
@@ -51,7 +52,6 @@ namespace Internal {
 class Qt4Builder;
 class ProFileEditor;
 class Qt4ProjectManagerPlugin;
-class QtVersionManager;
 }
 
 class Qt4Project;
@@ -85,7 +85,7 @@ public:
     void setContextProject(ProjectExplorer::Project *project);
     ProjectExplorer::Project *contextProject() const;
 
-    Internal::QtVersionManager *versionManager() const;
+    ProjectExplorer::QtVersionManager *versionManager() const;
 
     // Return the id string of a file
     static QString fileTypeId(ProjectExplorer::FileType type);

@@ -35,6 +35,8 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
+using ProjectExplorer::QtVersion;
+
 ProFileReader::ProFileReader()
 {
 }

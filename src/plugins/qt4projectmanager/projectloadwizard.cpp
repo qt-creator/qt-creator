@@ -43,10 +43,12 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
+using ProjectExplorer::QtVersion;
+
 ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::WindowFlags flags)
     : QWizard(parent, flags), m_project(project), m_importVersion(0), m_temporaryVersion(false)
 {
-    QtVersionManager * vm = project->qt4ProjectManager()->versionManager();
+    ProjectExplorer::QtVersionManager * vm = project->qt4ProjectManager()->versionManager();
     QString directory = QFileInfo(project->file()->fileName()).absolutePath();
     QString importVersion =  vm->findQtVersionFromMakefile(directory);
 

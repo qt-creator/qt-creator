@@ -5,7 +5,6 @@ include(../../qworkbenchplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 HEADERS = qt4projectmanagerplugin.h \
     qt4projectmanager.h \
-    qtversionmanager.h \
     qt4project.h \
     qt4nodes.h \
     profileeditor.h \
@@ -36,7 +35,6 @@ HEADERS = qt4projectmanagerplugin.h \
     projectloadwizard.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
-    qtversionmanager.cpp \
     qt4project.cpp \
     qt4nodes.cpp \
     profileeditor.cpp \
@@ -63,16 +61,14 @@ SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp
-FORMS = qtversionmanager.ui \
-    envvariablespage.ui \
+FORMS = envvariablespage.ui \
     enveditdialog.ui \
     proeditorcontainer.ui \
     makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
-    qt4buildenvironmentwidget.ui \
-    showbuildlog.ui
+    qt4buildenvironmentwidget.ui 
 RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)
