@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/duieditor" >
+        <file>DuiEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>
