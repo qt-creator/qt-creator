@@ -98,3 +98,5 @@ win32 {
     include(win/win.pri)
     include(cdb/cdb.pri)
 }    
+
+OTHER_FILES += Debugger.pluginspec

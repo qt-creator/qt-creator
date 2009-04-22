@@ -59,3 +59,5 @@ FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
     fontsettingspage.ui
 RESOURCES += texteditor.qrc
+
+OTHER_FILES += TextEditor.pluginspec

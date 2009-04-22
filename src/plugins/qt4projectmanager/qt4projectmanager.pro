@@ -73,3 +73,5 @@ RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)
 DEFINES += QT_NO_CAST_TO_ASCII
+
+OTHER_FILES += Qt4ProjectManager.pluginspec

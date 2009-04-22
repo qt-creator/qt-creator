@@ -11,3 +11,5 @@ SOURCES += bineditorplugin.cpp \
         bineditor.cpp
 
 RESOURCES += bineditor.qrc
+
+OTHER_FILES += BinEditor.pluginspec

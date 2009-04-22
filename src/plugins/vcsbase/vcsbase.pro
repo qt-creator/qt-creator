@@ -37,3 +37,5 @@ RESOURCES += vcsbase.qrc
 
 FORMS += vcsbasesettingspage.ui \
     nicknamedialog.ui
+
+OTHER_FILES += VCSBase.pluginspec

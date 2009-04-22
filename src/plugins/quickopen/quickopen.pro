@@ -29,3 +29,5 @@ FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui
 RESOURCES += quickopen.qrc
+
+OTHER_FILES += QuickOpen.pluginspec

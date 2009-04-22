@@ -31,3 +31,5 @@ SOURCES += findtoolwindow.cpp \
 FORMS += findwidget.ui \
     finddialog.ui
 RESOURCES += find.qrc
+
+OTHER_FILES += Find.pluginspec

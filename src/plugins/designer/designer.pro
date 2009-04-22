@@ -50,3 +50,5 @@ SOURCES += formeditorplugin.cpp \
         formwizarddialog.cpp
 
 RESOURCES += designer.qrc
+
+OTHER_FILES += Designer.pluginspec

@@ -25,3 +25,5 @@ HEADERS += \
 
 FORMS += \
     fakevimoptions.ui
+
+OTHER_FILES += FakeVim.pluginspec

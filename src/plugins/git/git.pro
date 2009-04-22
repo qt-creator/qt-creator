@@ -41,3 +41,5 @@ FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \
     branchdialog.ui
+
+OTHER_FILES += ScmGit.pluginspec
