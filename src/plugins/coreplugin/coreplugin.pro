@@ -75,6 +75,7 @@ SOURCES += mainwindow.cpp \
     icore.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
+    welcomemode_p.h \
     editmode.h \
     tabpositionindicator.h \
     fancyactionbar.h \
@@ -155,13 +156,10 @@ FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
     editormanager/openeditorsview.ui \
-    generalsettings.ui
+    generalsettings.ui \
+    welcomemode.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
-
-contains(QT_CONFIG, webkit) {
-    QT += webkit
-}
 
 linux-* {
     images.files = images/qtcreator_logo_*.png

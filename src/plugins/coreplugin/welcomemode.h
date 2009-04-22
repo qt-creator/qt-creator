@@ -78,12 +78,17 @@ public:
 signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
-    void requestHelp(const QString &help);
+    void requestHelp();
 
 private slots:
-    void linkClicked(const QUrl &url);
+    void slotFeedback();
+    void slotRestoreLastSession();
+    void slotSessionClicked(const QString &data);
+    void slotProjectClicked(const QString &data);
 
 private:
+    void activateEditMode();
+
     WelcomeModePrivate *m_d;
 };
 
