@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/x-dui">
+        <sub-class-of type="text/plain"/>
+        <comment>DUI file</comment>
+        <glob pattern="*.dui"/>
+    </mime-type>
+</mime-info>

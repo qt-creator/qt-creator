@@ -27,47 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
-#define QSCRIPTSYNTAXHIGHLIGHTER_H
+#ifndef DUISYNTAXHIGHLIGHTER_H
+#define DUISYNTAXHIGHLIGHTER_H
 
-#include <QVector>
-#include <QtGui/QSyntaxHighlighter>
+#include "qscripthighlighter.h"
+#include <texteditor/basetexteditor.h>
 
-namespace SharedTools {
+namespace DuiEditor {
+namespace Internal {
 
-class QScriptHighlighter : public QSyntaxHighlighter
+// Highlighter for Scripts that stores
+// the parentheses encountered in the block data
+// for parentheses matching to work.
+
+class DuiHighlighter : public SharedTools::QScriptHighlighter
 {
     Q_OBJECT
 public:
-    QScriptHighlighter(QTextDocument *parent = 0);
-    virtual void highlightBlock(const QString &text);
-
-    enum { NumberFormat, StringFormat, TypeFormat,
-           KeywordFormat, PreProcessorFormat, LabelFormat, CommentFormat,
-           NumFormats };
-
-    bool isDuiEnabled() const;
-    void setDuiEnabled(bool enabled);
-
-    // MS VC 6 compatible, still.
-    void setFormats(const QVector<QTextCharFormat> &s);
-    static const QVector<QTextCharFormat> &defaultFormats();
+    DuiHighlighter(QTextDocument *parent = 0);
 
 private:
-    // The functions are notified whenever parentheses are encountered.
-    // Custom behaviour can be added, for example storing info for indenting.
-    virtual int onBlockStart(); // returns the blocks initial state
+    virtual int onBlockStart();
     virtual void onOpeningParenthesis(QChar parenthesis, int pos);
     virtual void onClosingParenthesis(QChar parenthesis, int pos);
-    // sets the enriched user state, or simply calls setCurrentBlockState(state);
     virtual void onBlockEnd(int state, int firstNonSpace);
 
-    void highlightKeyword(int currentPos, const QString &buffer);
-
-    bool m_duiEnabled;
-    QTextCharFormat m_formats[NumFormats];
+    typedef TextEditor::Parenthesis Parenthesis;
+    typedef TextEditor::Parentheses Parentheses;
+    Parentheses m_currentBlockParentheses;
+    int m_braceDepth;
 };
 
-} // namespace SharedTools
+} // namespace Internal
+} // namespace DuiEditor
 
-#endif // QSCRIPTSYNTAXHIGHLIGHTER_H
+#endif // DUISYNTAXHIGHLIGHTER_H

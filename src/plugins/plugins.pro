@@ -24,6 +24,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_help \
 #            plugin_regexp \ # don't know what to do with this
             plugin_qtscripteditor \
+            plugin_duieditor \
             plugin_cpaster \
             plugin_cmakeprojectmanager \
             plugin_fakevim \
@@ -138,6 +139,10 @@ plugin_regexp.depends = plugin_coreplugin
 plugin_qtscripteditor.subdir = qtscripteditor
 plugin_qtscripteditor.depends = plugin_texteditor
 plugin_qtscripteditor.depends += plugin_coreplugin
+
+plugin_duieditor.subdir = duieditor
+plugin_duieditor.depends = plugin_texteditor
+plugin_duieditor.depends += plugin_coreplugin
 
 plugin_cpaster.subdir = cpaster
 plugin_cpaster.depends += plugin_texteditor
