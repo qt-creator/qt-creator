@@ -2529,7 +2529,11 @@ void *qDumpObjectData440(
     int protocolVersion,
     int token,
     void *data,
+#ifdef Q_CC_MSVC // CDB cannot handle boolean parameters
+    int dumpChildren,
+#else
     bool dumpChildren,
+#endif
     int extraInt0,
     int extraInt1,
     int extraInt2,

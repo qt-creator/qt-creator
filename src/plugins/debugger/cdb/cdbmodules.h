@@ -30,8 +30,7 @@
 #ifndef CDBMODULES_H
 #define CDBMODULES_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include "cdbcom.h"
 
@@ -42,7 +41,8 @@ class Module;
 class Symbol;
 
 bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage);
-// Search symbols matching a pattern
+bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *errorMessage);
+// Search symbols matching a pattern. Does not filter on module names.
 bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage);
 
@@ -52,7 +52,11 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
 enum ResolveSymbolResult { ResolveSymbolOk, ResolveSymbolAmbiguous,
                            ResolveSymbolNotFound, ResolveSymbolError };
 
+// Resolve a symbol that is unique to all modules
 ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol, QString *errorMessage);
+
+// Resolve symbol overload with an additional regexp pattern to filter on modules.
+ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, const QString &pattern, QString *symbol, QString *errorMessage);
 
 // List symbols of a module
 bool getModuleSymbols(CIDebugSymbols *syms, const QString &moduleName,

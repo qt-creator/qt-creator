@@ -122,6 +122,7 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_visualizeWhitespace = m_d->m_page.visualizeWhitespace->isChecked();
     displaySettings.m_displayFoldingMarkers = m_d->m_page.displayFoldingMarkers->isChecked();
     displaySettings.m_highlightCurrentLine = m_d->m_page.highlightCurrentLine->isChecked();
+    displaySettings.m_highlightBlocks = m_d->m_page.highlightBlocks->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -134,6 +135,7 @@ void DisplaySettingsPage::settingsToUI()
     m_d->m_page.visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
     m_d->m_page.displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
     m_d->m_page.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
+    m_d->m_page.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
 }
 
 DisplaySettings DisplaySettingsPage::displaySettings() const

@@ -4135,16 +4135,16 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
-    if (!q->qtDumperLibraryEnabled())
+    if (!qq->qtDumperLibraryEnabled())
         return;
-    const QString lib = q->qtDumperLibraryName();
+    const QString lib = qq->qtDumperLibraryName();
     //qDebug() << "DUMPERLIB: " << lib;
     // @TODO: same in CDB engine...
     const QFileInfo fi(lib);
     if (!fi.exists()) {
         const QString msg = tr("The dumper library '%1' does not exist.").arg(lib);
         debugMessage(msg);
-        q->showQtDumperLibraryWarning(msg);
+        qq->showQtDumperLibraryWarning(msg);
         return;
     }
 

@@ -30,55 +30,77 @@
 #ifndef CDBDUMPERHELPER_H
 #define CDBDUMPERHELPER_H
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 namespace Debugger {
 namespace Internal {
 
 struct CdbComInterfaces;
+class IDebuggerManagerAccessForEngines;
+class DebuggerManager;
 
-// For code clarity, all the stuff related to custom dumpers
-// goes here.
-// "Custom dumper" is a library compiled against the current
-// Qt containing functions to evaluate values of Qt classes
-// (such as QString, taking pointers to their addresses).
-// The library must be loaded into the debuggee.
+/* For code clarity, all the stuff related to custom dumpers
+ * goes here.
+ * "Custom dumper" is a library compiled against the current
+ * Qt containing functions to evaluate values of Qt classes
+ * (such as QString, taking pointers to their addresses).
+ * The library must be loaded into the debuggee.
+ * Loading the dumpers requires making the debuggee call functions
+ * (LoadLibrary() and the dumper functions). This only works if the
+ * debuggee is in a 'well-defined' breakpoint state (such as at 'main()').
+ * Calling the load functions from an IDebugEvent callback causes
+ * WaitForEvent() to fail with unknown errors. Calling the load functions from an
+ * non 'well-defined' (arbitrary) breakpoint state will cause LoadLibrary
+ * to trigger an access violations.
+ * Currently, we call the load function when stopping at 'main()' for which
+ * we set a temporary break point if the user does not want to stop there. */
 
 class CdbDumperHelper
 {
+    Q_DISABLE_COPY(CdbDumperHelper)
 public:
    enum State {
         Disabled,
         NotLoaded,
-        Loading,
         Loaded,
         Failed
     };
 
     explicit CdbDumperHelper(CdbComInterfaces *cif);
+    ~CdbDumperHelper();
+
+    State state() const { return m_state; }
+    operator bool() const { return m_state == Loaded; }
 
     // Call before starting the debugger
     void reset(const QString &library, bool enabled);
 
-    // Call from the module loaded event handler.
-    // It will load the dumper library and resolve the required symbols
-    // when appropriate.
-    bool moduleLoadHook(const QString &name, bool *ignoreNextBreakPoint);
-
-    State state() const { return m_state; }
-
-    QString errorMessage() const { return m_errorMessage; }
-    QString library() const { return m_library; }
+    // Call in a temporary breakpoint state to actually load.
+    void load(DebuggerManager *manager, IDebuggerManagerAccessForEngines *access);
 
 private:
+    struct DumperInputParameters;
+
+    void clearBuffer();
     bool resolveSymbols(QString *errorMessage);
+    bool getKnownTypes(QString *errorMessage);
+    bool callDumper(const DumperInputParameters &p, QByteArray *output, QString *errorMessage);
+    inline QString statusMessage() const;
 
     State m_state;
     CdbComInterfaces *m_cif;
 
     QString m_library;
     QString m_dumpObjectSymbol;
-    QString m_errorMessage;
+    QStringList m_knownTypes;
+    QString m_qtVersion;
+    QString m_qtNamespace;
+
+    quint64 m_inBufferAddress;
+    unsigned long m_inBufferSize;
+    quint64 m_outBufferAddress;
+    unsigned long m_outBufferSize;
+    char *m_buffer;
 };
 
 } // namespace Internal

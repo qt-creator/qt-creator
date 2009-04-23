@@ -27,39 +27,56 @@
 **
 **************************************************************************/
 
-#ifndef DISPLAYSETTINGS_H
-#define DISPLAYSETTINGS_H
+#ifndef WELCOMEMODE_P_H
+#define WELCOMEMODE_P_H
 
-#include "texteditor_global.h"
+#include <QtGui/QIcon>
+#include <QtGui/QLabel>
+#include <QtGui/QTreeWidget>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Core {
+namespace Internal {
 
-namespace TextEditor {
-
-struct TEXTEDITOR_EXPORT DisplaySettings
+class WelcomeModeButton : public QLabel
 {
-    DisplaySettings();
+    Q_OBJECT
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+public:
+    WelcomeModeButton(QWidget *parent = 0);
 
-    bool m_displayLineNumbers;
-    bool m_textWrapping;
-    bool m_showWrapColumn;
-    int m_wrapColumn;
-    bool m_visualizeWhitespace;
-    bool m_displayFoldingMarkers;
-    bool m_highlightCurrentLine;
-    bool m_highlightBlocks;
+signals:
+    void clicked();
 
-    bool equals(const DisplaySettings &ds) const;
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+
+private:
+    bool m_isPressed;
 };
 
-inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
+class WelcomeModeTreeWidget : public QTreeWidget
+{
+    Q_OBJECT
 
-} // namespace TextEditor
+public:
+    WelcomeModeTreeWidget(QWidget *parent = 0);
+    QTreeWidgetItem *addItem(const QString &label, const QString &data);
 
-#endif // DISPLAYSETTINGS_H
+signals:
+    void activated(const QString &data);
+
+protected:
+    virtual QSize sizeHint() const;
+
+private slots:
+    void slotItemClicked(QTreeWidgetItem *item);
+
+private:
+    QIcon m_bullet;
+};
+
+}
+}
+
+#endif // WELCOMEMODE_P_H

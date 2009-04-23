@@ -145,6 +145,7 @@ private:
     friend class CdbDebugEventCallback;
     friend class ScriptEngine;
     friend struct CdbDebugEnginePrivate;
+    friend class CdbDumperHelper;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;
@@ -171,6 +172,11 @@ private:
     virtual void reloadModules() = 0;
     virtual void reloadSourceFiles() = 0;
     virtual void reloadRegisters() = 0;
+
+    virtual bool qtDumperLibraryEnabled() const = 0;
+    virtual QString qtDumperLibraryName() const = 0;
+    virtual void showQtDumperLibraryWarning(const QString &details = QString()) = 0;
+
 };
 
 
@@ -252,10 +258,6 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-    bool qtDumperLibraryEnabled() const;
-    QString qtDumperLibraryName() const;
-    void showQtDumperLibraryWarning(const QString &details);
-
 private slots:
     void showDebuggerOutput(const QString &prefix, const QString &msg);
     void showDebuggerInput(const QString &prefix, const QString &msg);
@@ -306,6 +308,10 @@ private:
     QWidget *threadsWindow() const { return m_threadsWindow; }
     QList<QDockWidget*> dockWidgets() const { return m_dockWidgets; }
     void createDockWidgets();
+
+    virtual bool qtDumperLibraryEnabled() const;
+    virtual QString qtDumperLibraryName() const;
+    virtual void showQtDumperLibraryWarning(const QString &details = QString());
 
     //    
     // internal implementation

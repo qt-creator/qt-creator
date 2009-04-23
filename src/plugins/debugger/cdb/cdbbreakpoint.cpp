@@ -48,7 +48,8 @@ static const char sourceFileQuoteC = '`';
 
 CDBBreakPoint::CDBBreakPoint() :
     ignoreCount(0),
-    lineNumber(-1)
+    lineNumber(-1),
+    oneShot(false)
 {
 }
 
@@ -57,7 +58,8 @@ CDBBreakPoint::CDBBreakPoint(const BreakpointData &bpd) :
      condition(bpd.condition),
      ignoreCount(0),
      funcName(bpd.funcName),
-     lineNumber(-1)
+     lineNumber(-1),
+     oneShot(false)
 {
     if (!bpd.ignoreCount.isEmpty())
         ignoreCount = bpd.ignoreCount.toInt();
@@ -75,6 +77,10 @@ int CDBBreakPoint::compare(const CDBBreakPoint& rhs) const
         return 1;
     if (lineNumber < rhs.lineNumber)
         return -1;
+    if (oneShot && !rhs.oneShot)
+        return 1;
+    if (!oneShot && rhs.oneShot)
+        return -1;
     if (const int fileCmp = fileName.compare(rhs.fileName))
         return fileCmp;
     if (const int  funcCmp = funcName.compare(rhs.funcName))
@@ -87,7 +93,8 @@ int CDBBreakPoint::compare(const CDBBreakPoint& rhs) const
 void CDBBreakPoint::clear()
 {
      ignoreCount = 0;
-     clearExpressionData();
+     oneShot = false;
+     clearExpressionData();     
 }
 
 void CDBBreakPoint::clearExpressionData()
@@ -110,6 +117,8 @@ QDebug operator<<(QDebug dbg, const CDBBreakPoint &bp)
         nsp << " condition='" << bp.condition << '\'';
     if (bp.ignoreCount)
         nsp << " ignoreCount=" << bp.ignoreCount;
+    if (bp.oneShot)
+        nsp << " oneShot";
     return dbg;
 }
 
@@ -144,7 +153,10 @@ bool CDBBreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
     }
     // Pass Count is ignoreCount + 1
     ibp->SetPassCount(ignoreCount + 1u);
-    ibp->AddFlags(DEBUG_BREAKPOINT_ENABLED);
+    ULONG flags = DEBUG_BREAKPOINT_ENABLED;
+    if (oneShot)
+        flags |= DEBUG_BREAKPOINT_ONE_SHOT;
+    ibp->AddFlags(flags);
     return true;
 }
 
@@ -190,6 +202,10 @@ bool CDBBreakPoint::retrieve(CIDebugBreakpoint *ibp, QString *errorMessage)
     ibp->GetPassCount(&ignoreCount);
     if (ignoreCount)
         ignoreCount--;
+    ULONG flags = 0;
+    ibp->GetFlags(&flags);
+    if (flags & DEBUG_BREAKPOINT_ONE_SHOT)
+        oneShot = true;
     const QString expr = QString::fromUtf16(wszBuf);
     if (!parseExpression(expr)) {
         *errorMessage = QString::fromLatin1("Parsing of '%1' failed.").arg(expr);

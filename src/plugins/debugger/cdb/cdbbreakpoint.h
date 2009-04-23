@@ -83,6 +83,7 @@ struct CDBBreakPoint
     unsigned long ignoreCount;    // ignore count associated with breakpoint
     int lineNumber;     // line in source file
     QString funcName;       // name of containing function
+    bool oneShot;
 };
 
 QDebug operator<<(QDebug, const CDBBreakPoint &bp);

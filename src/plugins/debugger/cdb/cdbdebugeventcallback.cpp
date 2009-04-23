@@ -247,7 +247,8 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = e->ExceptionInformation[0];
-            str << (writeOperation ? "write access violation" : "read access violation");
+            str << (writeOperation ? "write" : "read")
+                << " access violation at: 0x" << e->ExceptionInformation[1];
     }
         break;
     case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
@@ -342,8 +343,10 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     QString msg;
     {
         QTextStream str(&msg);
-        formatException(Exception, m_pEngine->m_d->m_cif, str);
+        formatException(Exception, m_pEngine->m_d->m_cif, str);        
     }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << msg;
     m_pEngine->m_d->m_debuggerManagerAccess->showApplicationOutput(msg);
     return S_OK;
 }
@@ -402,18 +405,7 @@ STDMETHODIMP CdbDebugEventCallback::CreateProcess(
     Q_UNUSED(StartOffset)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << ModuleName;
-
-    m_pEngine->m_d->setDebuggeeHandles(reinterpret_cast<HANDLE>(Handle), reinterpret_cast<HANDLE>(InitialThreadHandle));
-    m_pEngine->m_d->m_debuggerManagerAccess->notifyInferiorRunning();
-
-    ULONG currentThreadId;
-    if (SUCCEEDED(m_pEngine->m_d->m_cif.debugSystemObjects->GetThreadIdByHandle(InitialThreadHandle, &currentThreadId)))
-        m_pEngine->m_d->m_currentThreadId = currentThreadId;
-    else
-        m_pEngine->m_d->m_currentThreadId = 0;
-    // Set initial breakpoints
-    if (m_pEngine->m_d->m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
-        m_pEngine->attemptBreakpointSynchronization();
+    m_pEngine->m_d->processCreatedAttached(Handle, InitialThreadHandle);
     return S_OK;
 }
 

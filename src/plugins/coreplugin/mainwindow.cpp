@@ -1028,9 +1028,13 @@ void MainWindow::changeEvent(QEvent *e)
 void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
-    Q_UNUSED(now)
+
+    // Prevent changing the context object just because the menu is activated
+    if (qobject_cast<QMenuBar*>(now))
+        return;
+
     IContext *newContext = 0;
-    if (focusWidget())    {
+    if (focusWidget()) {
         IContext *context = 0;
         QWidget *p = focusWidget();
         while (p) {
@@ -1045,7 +1049,7 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
     updateContextObject(newContext);
 }
 
-void MainWindow::updateContextObject(IContext  *context)
+void MainWindow::updateContextObject(IContext *context)
 {
     if (context == m_activeContext)
         return;
