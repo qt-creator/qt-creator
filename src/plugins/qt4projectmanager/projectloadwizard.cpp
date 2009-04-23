@@ -52,7 +52,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 {
     ProjectExplorer::QtVersionManager * vm = ProjectExplorer::QtVersionManager::instance();
     QString directory = QFileInfo(project->file()->fileName()).absolutePath();
-    QString importVersion =  vm->findQtVersionFromMakefile(directory);
+    QString importVersion =  ProjectExplorer::QtVersionManager::findQtVersionFromMakefile(directory);
 
     if (!importVersion.isNull()) {
         // This also means we have a build in there
@@ -65,7 +65,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
         }
 
         m_importBuildConfig = m_importVersion->defaultBuildConfig();
-        m_importBuildConfig= vm->scanMakefileForQmakeConfig(directory, m_importBuildConfig);
+        m_importBuildConfig= ProjectExplorer::QtVersionManager::scanMakefileForQmakeConfig(directory, m_importBuildConfig);
     }
 
     // So now we have the version and the configuration for that version

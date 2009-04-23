@@ -184,8 +184,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 {
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
-        ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
-        QString qtPath = vm->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
+        QString qtPath = ProjectExplorer::QtVersionManager::findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
         if (!qtPath.isEmpty()) {
             m_ui->importLabel->setVisible(true);
         }
@@ -219,16 +218,16 @@ void Qt4ProjectConfigWidget::importLabelClicked()
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString directory = m_ui->shadowBuildDirEdit->path();
         if (!directory.isEmpty()) {
-            QtVersionManager *vm = QtVersionManager::instance();
-            QString qtPath = vm->findQtVersionFromMakefile(directory);
+            QString qtPath = QtVersionManager::findQtVersionFromMakefile(directory);
             if (!qtPath.isEmpty()) {
+                QtVersionManager *vm = QtVersionManager::instance();
                 QtVersion *version = vm->qtVersionForDirectory(qtPath);
                 if (!version) {
                     version = new QtVersion(QFileInfo(qtPath).baseName(), qtPath);
                     vm->addVersion(version);
                 }
                 QtVersion::QmakeBuildConfig qmakeBuildConfig = version->defaultBuildConfig();
-                qmakeBuildConfig = vm->scanMakefileForQmakeConfig(directory, qmakeBuildConfig);
+                qmakeBuildConfig = QtVersionManager::scanMakefileForQmakeConfig(directory, qmakeBuildConfig);
 
                 // So we got all the information now apply it...
                 m_pro->setQtVersion(m_buildConfiguration, version->uniqueId());
