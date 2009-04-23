@@ -206,7 +206,7 @@ p {
            <number>0</number>
           </property>
           <item>
-           <layout class="QVBoxLayout" name="recentSessionsLayout">
+           <layout class="QVBoxLayout" name="recentSessionsLayout" stretch="0,1">
             <item>
              <widget class="QFrame" name="recentSessionsFrame">
               <property name="sizePolicy">
