@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QString;
+class QByteArray;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -63,6 +64,8 @@ QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
 QString sizeofTypeExpression(const QString &type);
 
+// Parse 'query' (1) protocol response of the custom dumpers
+bool parseQueryDumperOutput(const QByteArray &a, QStringList *types, QString *qtVersion, QString *qtNamespace);
 
 } // namespace Internal
 } // namespace Debugger

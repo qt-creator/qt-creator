@@ -63,7 +63,7 @@ public:
 
 private:
     // The exported functions of the library
-    typedef HRESULT (*DebugCreateFunction)(REFIID, PVOID *);
+    typedef HRESULT (STDAPICALLTYPE *DebugCreateFunction)(REFIID, PVOID *);
 
     DebugCreateFunction m_debugCreate;
 };
@@ -98,6 +98,10 @@ struct CdbDebugEnginePrivate
     enum HandleBreakEventMode { // Special modes for break event handler.
         BreakEventHandle,
         BreakEventIgnoreOnce,
+        // We hit main (and the user intended it)
+        BreakEventMain,
+        // We hit main (and the user did not intend it, just load dumpers)
+        BreakEventMainLoadDumpers,
         BreakEventSyncBreakPoints,
     };
 
@@ -107,6 +111,7 @@ struct CdbDebugEnginePrivate
     bool init(QString *errorMessage);
     ~CdbDebugEnginePrivate();
 
+    void processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle);
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
 
     bool isDebuggeeRunning() const { return m_watchTimer != -1; }
@@ -125,7 +130,7 @@ struct CdbDebugEnginePrivate
 
     bool interruptInterferiorProcess(QString *errorMessage);
 
-    bool continueInferiorProcess(QString *errorMessage);
+    bool continueInferiorProcess(QString *errorMessage = 0);
     bool continueInferior(QString *errorMessage);
 
     bool attemptBreakpointSynchronization(QString *errorMessage);

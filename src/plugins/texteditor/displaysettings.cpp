@@ -41,6 +41,7 @@ static const char * const wrapColumnKey = "WrapColumn";
 static const char * const visualizeWhitespaceKey = "VisualizeWhitespace";
 static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
 static const char * const highlightCurrentLineKey = "HighlightCurrentLineKey";
+static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -52,7 +53,8 @@ DisplaySettings::DisplaySettings() :
     m_wrapColumn(80),
     m_visualizeWhitespace(false),
     m_displayFoldingMarkers(true),
-    m_highlightCurrentLine(true)
+    m_highlightCurrentLine(true),
+    m_highlightBlocks(false)
 {
 }
 
@@ -69,6 +71,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace);
     s->setValue(QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers);
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
+    s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
     s->endGroup();
 }
 
@@ -88,6 +91,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_visualizeWhitespace = s->value(group + QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace).toBool();
     m_displayFoldingMarkers = s->value(group + QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
+    m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -99,6 +103,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_visualizeWhitespace == ds.m_visualizeWhitespace
         && m_displayFoldingMarkers == ds.m_displayFoldingMarkers
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
+        && m_highlightBlocks == ds.m_highlightBlocks
         ;
 }
 

@@ -68,6 +68,11 @@
 #include <QtGui/QComboBox>
 #include <QtHelp/QHelpEngine>
 
+#ifndef QT_NO_WEBKIT
+#include <QtGui/QApplication>
+#include <QtWebKit/QWebSettings>
+#endif
+
 using namespace Help;
 using namespace Help::Internal;
 
@@ -138,6 +143,13 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
                   QLibraryInfo::location(QLibraryInfo::TranslationsPath));
         qApp->installTranslator(qtr);
     }
+
+#ifndef QT_NO_WEBKIT
+    QWebSettings *webSettings = QWebSettings::globalSettings();
+    const QFont applicationFont = QApplication::font();
+    webSettings->setFontFamily(QWebSettings::StandardFont, applicationFont.family());
+    //webSettings->setFontSize(QWebSettings::DefaultFontSize, applicationFont.pointSize());
+#endif
 
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
     QFileInfo fi(m_core->settings()->fileName());
@@ -510,7 +522,7 @@ void HelpPlugin::extensionsInitialized()
     m_bookmarkManager->setupBookmarkModels();
 
     if (Core::Internal::WelcomeMode *welcomeMode = qobject_cast<Core::Internal::WelcomeMode*>(m_core->modeManager()->mode(Core::Constants::MODE_WELCOME))) {
-        connect(welcomeMode, SIGNAL(requestHelp(QString)), this, SLOT(openGettingStarted()));
+        connect(welcomeMode, SIGNAL(requestHelp()), this, SLOT(openGettingStarted()));
     }
 }
 

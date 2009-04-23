@@ -32,83 +32,35 @@
 #include "uniqueidmanager.h"
 #include "modemanager.h"
 
-#if !defined(QT_NO_WEBKIT)
-#include <QtWebKit/QWebView>
-#include <QtGui/QApplication>
-#include <QtCore/QFileInfo>
-#else
-#include <QtGui/QLabel>
-#endif
 #include <QtGui/QToolBar>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMouseEvent>
 
 #include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
+#include "ui_welcomemode.h"
+
 namespace Core {
 namespace Internal {
-
-static QString readFile(const QString &name)
-{
-    QFile f(name);
-    if (!f.open(QIODevice::ReadOnly)) {
-        qWarning("Unable to open %s: %s", name.toUtf8().constData(), f.errorString().toUtf8().constData());
-        return QString();
-    }
-    QTextStream ts(&f);
-    return ts.readAll();
-}
 
 struct WelcomeModePrivate
 {
     WelcomeModePrivate();
 
     QWidget *m_widget;
-#if !defined(QT_NO_WEBKIT)
-    QWebView *m_webview;
-#else
-    QLabel *m_label;
-#endif
+    QWidget *m_welcomePage;
+    Ui::welcomePage ui;
 
     WelcomeMode::WelcomePageData lastData;
-
-    const QString m_htmlTemplate;
-    const QString m_sessionHtmlTemplate;
-    const QString m_projectHtmlTemplate;
-    const QUrl m_baseUrl;
 };
 
-WelcomeModePrivate::WelcomeModePrivate() :
-    m_widget(new QWidget),
-#if !defined(QT_NO_WEBKIT)
-    m_webview(new QWebView),
-#else
-    m_label(new QLabel),
-#endif
-    m_htmlTemplate(readFile(QLatin1String(":/core/html/welcome.html"))),
-    m_sessionHtmlTemplate(readFile(QLatin1String(":/core/html/recent_sessions.html"))),
-    m_projectHtmlTemplate(readFile(QLatin1String(":/core/html/recent_projects.html"))),
-    m_baseUrl(QUrl(QLatin1String("qrc:/core/html/welcome.html")))
+WelcomeModePrivate::WelcomeModePrivate()
 {
-#if !defined(QT_NO_WEBKIT)
-    m_webview->setContextMenuPolicy(Qt::NoContextMenu);
-#endif   
 }
 
-#if defined(QT_NO_WEBKIT)
-
-const char LABEL[] = QT_TRANSLATE_NOOP("Core::Internal::WelcomeMode",
-                    "<center><table><tr><td><img src=\":/core/html/images/product_logo.png\"/></td><td width=300>"
-                    "<h2><br/><br/>Welcome</h2><p> Qt Creator is an intuitive, modern cross platform IDE that enables "
-                    "developers to create graphically appealing applications for desktop, "
-                    "embedded, and mobile devices. "
-                    "<p><font color=\"red\">(This startup page lacks features due to disabled WebKit support)</font>"
-                    "</td></tr></table>");
-
-#endif
 // ---  WelcomePageData
 
 bool WelcomeMode::WelcomePageData::operator==(const WelcomePageData &rhs) const
@@ -140,27 +92,25 @@ QDebug operator<<(QDebug dgb, const WelcomeMode::WelcomePageData &d)
 WelcomeMode::WelcomeMode() :
     m_d(new WelcomeModePrivate)
 {
+    m_d->m_widget = new QWidget;
     QVBoxLayout *l = new QVBoxLayout(m_d->m_widget);
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new QToolBar(m_d->m_widget));
-#if !defined(QT_NO_WEBKIT)
-    connect(m_d->m_webview, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
 
-    WelcomePageData welcomePageData;
-    updateWelcomePage(welcomePageData);
+    m_d->m_welcomePage = new QWidget(m_d->m_widget);
+    m_d->ui.setupUi(m_d->m_welcomePage);
+    m_d->ui.sessTreeWidget->viewport()->setAutoFillBackground(false);
+    m_d->ui.projTreeWidget->viewport()->setAutoFillBackground(false);
+    l->addWidget(m_d->m_welcomePage);
 
-    l->addWidget(m_d->m_webview);
-    m_d->m_webview->setAcceptDrops(false);
-    m_d->m_webview->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
-    m_d->m_webview->settings()->setAttribute(QWebSettings::JavaEnabled, false);
+    updateWelcomePage(WelcomePageData());
 
-#else
-    m_d->m_label->setWordWrap(true);
-    m_d->m_label->setAlignment(Qt::AlignCenter);
-    m_d->m_label->setText(tr(LABEL));
-    l->addWidget(m_d->m_label);
-#endif
+    connect(m_d->ui.gettingStartedButton, SIGNAL(clicked()), SIGNAL(requestHelp()));
+    connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
+    connect(m_d->ui.restoreSessionButton, SIGNAL(clicked()), SLOT(slotRestoreLastSession()));
+    connect(m_d->ui.sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
+    connect(m_d->ui.projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
 }
 
 WelcomeMode::~WelcomeMode()
@@ -202,77 +152,137 @@ QList<int> WelcomeMode::context() const
 
 void WelcomeMode::updateWelcomePage(const WelcomePageData &welcomePageData)
 {
-// should really only modify the DOM tree
-
-#if defined(QT_NO_WEBKIT)
-    Q_UNUSED(welcomePageData);
-#else
-
     // Update only if data are modified
     if (welcomePageData == m_d->lastData)
         return;
     m_d->lastData = welcomePageData;
 
-    QString html = m_d->m_htmlTemplate;
-
+    m_d->m_widget->setUpdatesEnabled(false);
     if (!welcomePageData.previousSession.isEmpty() || !welcomePageData.projectList.isEmpty()) {
-        QString sessionHtml = m_d->m_sessionHtmlTemplate;
-        sessionHtml.replace(QLatin1String("LAST_SESSION"), welcomePageData.previousSession);
+        m_d->ui.sessTreeWidget->clear();
+        m_d->ui.projTreeWidget->clear();
 
         if (welcomePageData.sessionList.count() > 1) {
-            QString sessions;
-            foreach (QString s, welcomePageData.sessionList) {
-                QString last;
+            foreach (const QString &s, welcomePageData.sessionList) {
+                QString str = s;
                 if (s == welcomePageData.previousSession)
-                    last = tr(" (last session)");
-                sessions += QString::fromLatin1("<li><p><a href=\"gh-session:%1\">%2%3</a></p></li>").arg(s, s, last);
+                    str = tr("%1 (last session)").arg(s);
+                m_d->ui.sessTreeWidget->addItem(str, s);
             }
-            sessionHtml.replace(QLatin1String("<!-- RECENT SESSIONS LIST -->"), sessions);
+            m_d->ui.sessTreeWidget->updateGeometry();
+            m_d->ui.sessTreeWidget->show();
+        } else {
+            m_d->ui.sessTreeWidget->hide();
         }
-        html.replace(QLatin1String("<!-- RECENT SESSIONS -->"), sessionHtml);
 
-        QString projectHtml = m_d->m_projectHtmlTemplate;
-        {
-            QString projects;
-            QTextStream str(&projects);
-
-            QList<QPair<QString, QString> >::const_iterator it, end;
-            end = welcomePageData.projectList.constEnd();
-            for( it = welcomePageData.projectList.constBegin(); it != end; ++it) {
-                const QFileInfo fi((*it).first);
-                str << "<li><p><a href=\"gh-project:" << (*it).first << "\" title=\""
-                    << QDir::toNativeSeparators(fi.absolutePath()) << "\">" << (*it).second << "</a></p></li>\n";
-            }
-            projectHtml.replace(QLatin1String("<!-- RECENT PROJECTS LIST -->"), projects);
+        typedef QPair<QString, QString> QStringPair;
+        foreach (const QStringPair &it, welcomePageData.projectList) {
+            QTreeWidgetItem *item = m_d->ui.projTreeWidget->addItem(it.second, it.first);
+            const QFileInfo fi(it.first);
+            item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
         }
-        html.replace(QLatin1String("<!-- RECENT PROJECTS -->"), projectHtml);
+        m_d->ui.projTreeWidget->updateGeometry();
+
+        m_d->ui.recentSessionsFrame->show();
+        m_d->ui.recentProjectsFrame->show();
+    } else {
+        m_d->ui.recentSessionsFrame->hide();
+        m_d->ui.recentProjectsFrame->hide();
     }
-
-    m_d->m_webview->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    m_d->m_webview->setHtml(html, m_d->m_baseUrl);
-#endif
+    m_d->m_widget->setUpdatesEnabled(true);
 }
 
-void WelcomeMode::linkClicked(const QUrl &url)
+void WelcomeMode::activateEditMode()
 {
-    QString scheme = url.scheme();
     Core::ModeManager *modeManager = ModeManager::instance();
-    if (scheme.startsWith(QLatin1String("gh"))) {
-        QString s = url.toString(QUrl::RemoveScheme);
-        if (scheme == QLatin1String("gh")) {
-            emit requestHelp(s);
-        } else if (scheme == QLatin1String("gh-project")) {
-            emit requestProject(s);
-            if (modeManager->currentMode() == this)
-                modeManager->activateMode(Core::Constants::MODE_EDIT);
-        } else if (scheme == QLatin1String("gh-session")) {
-            emit requestSession(s);
-            if (modeManager->currentMode() == this)
-                modeManager->activateMode(Core::Constants::MODE_EDIT);
-        }
-    } else {
-        QDesktopServices::openUrl(url);
+    if (modeManager->currentMode() == this)
+        modeManager->activateMode(Core::Constants::MODE_EDIT);
+}
+
+void WelcomeMode::slotSessionClicked(const QString &data)
+{
+    emit requestSession(data);
+    activateEditMode();
+}
+
+void WelcomeMode::slotProjectClicked(const QString &data)
+{
+    emit requestProject(data);
+    activateEditMode();
+}
+
+void WelcomeMode::slotRestoreLastSession()
+{
+    emit requestSession(m_d->lastData.previousSession);
+    activateEditMode();
+}
+
+void WelcomeMode::slotFeedback()
+{
+    QDesktopServices::openUrl(QUrl(QLatin1String(
+            "http://www.qtsoftware.com/forms/feedback-forms/qt-creator-user-feedback/view")));
+}
+
+// ---  WelcomeModeButton
+
+WelcomeModeButton::WelcomeModeButton(QWidget *parent) :
+        QLabel(parent),
+        m_isPressed(false)
+{
+    setCursor(QCursor(Qt::PointingHandCursor));
+}
+
+void WelcomeModeButton::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        m_isPressed = true;
+}
+
+void WelcomeModeButton::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && m_isPressed) {
+        m_isPressed = false;
+        if (rect().contains(event->pos()))
+            emit clicked();
     }
+}
+
+// ---  WelcomeModeTreeWidget
+
+WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
+        QTreeWidget(parent),
+        m_bullet(QLatin1String(":/core/images/welcomemode/list_bullet_arrow.png"))
+{
+    connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
+            SLOT(slotItemClicked(QTreeWidgetItem *)));
+}
+
+QSize WelcomeModeTreeWidget::sizeHint() const
+{
+    return QSize(QTreeWidget::sizeHint().width(), 30 * topLevelItemCount());
+}
+
+QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QString &data)
+{
+    QTreeWidgetItem *item = new QTreeWidgetItem(this);
+    item->setIcon(0, m_bullet);
+    item->setSizeHint(0, QSize(24, 30));
+    QWidget *lbl = new QLabel(label);
+    lbl->setCursor(QCursor(Qt::PointingHandCursor));
+    lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QBoxLayout *lay = new QVBoxLayout;
+    lay->setContentsMargins(3, 2, 0, 0);
+    lay->addWidget(lbl);
+    QWidget *wdg = new QWidget;
+    wdg->setLayout(lay);
+    setItemWidget(item, 1, wdg);
+    item->setData(0, Qt::UserRole, data);
+    return item;
+}
+
+void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
+{
+    emit activated(item->data(0, Qt::UserRole).toString());
 }
 
 } // namespace Internal

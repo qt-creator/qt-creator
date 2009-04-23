@@ -38,10 +38,6 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
-#if !defined(QT_NO_WEBKIT)
-#include <QtGui/QApplication>
-#include <QtWebKit/QWebSettings>
-#endif
 
 using namespace Core::Internal;
 
@@ -72,12 +68,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments);
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
-#if !defined(QT_NO_WEBKIT)
-        QWebSettings *webSettings = QWebSettings::globalSettings();
-        const QFont applicationFont = QApplication::font();
-        webSettings->setFontFamily(QWebSettings::StandardFont, applicationFont.family());
-        //webSettings->setFontSize(QWebSettings::DefaultFontSize, applicationFont.pointSize());
-#endif
         m_welcomeMode = new WelcomeMode;
         addObject(m_welcomeMode);
 

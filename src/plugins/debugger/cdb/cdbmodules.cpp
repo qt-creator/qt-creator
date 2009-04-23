@@ -32,25 +32,47 @@
 #include "cdbdebugengine_p.h"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QRegExp>
 
 namespace Debugger {
 namespace Internal {
 
-bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
-{    
-    modules->clear();
+static inline bool getModuleCount(CIDebugSymbols *syms, ULONG *count, QString *errorMessage)
+{
+    *count = 0;
     ULONG loadedCount, unloadedCount;
-    HRESULT hr = syms->GetNumberModules(&loadedCount, &unloadedCount);
+    const HRESULT hr = syms->GetNumberModules(&loadedCount, &unloadedCount);
     if (FAILED(hr)) {
         *errorMessage= msgComFailed("GetNumberModules", hr);
         return false;
     }
-    // retrieve array of parameters
-    const ULONG count = loadedCount + unloadedCount;
+    *count = loadedCount + unloadedCount;
+    return true;
+}
+
+bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *errorMessage)
+{
+    ULONG count;
+    modules->clear();
+    if (!getModuleCount(syms, &count, errorMessage))
+        return false;
+    WCHAR wszBuf[MAX_PATH];
+    for (ULONG m = 0; m < count; m++)
+        if (SUCCEEDED(syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0)))
+                modules->push_back(QString::fromUtf16(wszBuf));
+    return true;
+}
+
+bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
+{    
+    ULONG count;
+    modules->clear();
+    if (!getModuleCount(syms, &count, errorMessage))
+        return false;
     QVector<DEBUG_MODULE_PARAMETERS> parameters(count);
     DEBUG_MODULE_PARAMETERS *parmPtr = &(*parameters.begin());
     memset(parmPtr, 0, sizeof(DEBUG_MODULE_PARAMETERS) * count);
-    hr = syms->GetModuleParameters(count, 0, 0u, parmPtr);
+    HRESULT hr = syms->GetModuleParameters(count, 0, 0u, parmPtr);
     // E_INVALIDARG indicates 'Partial results' according to docu
     if (FAILED(hr) && hr != E_INVALIDARG) {
         *errorMessage= msgComFailed("GetModuleParameters", hr);
@@ -67,7 +89,7 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
                             && (p.SymbolType != DEBUG_SYMTYPE_NONE);
             module.startAddress = hexPrefix + QString::number(p.Base, 16);
             module.endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
-            hr = syms ->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0);
+            hr = syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0);
             if (FAILED(hr) && hr != E_INVALIDARG) {
                 *errorMessage= msgComFailed("GetModuleNameStringWide", hr);
                 return false;
@@ -111,10 +133,10 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
     return true;
 }
 
-// Add missing the module specifier: "main" -> "project!main"
-
-ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
-                                  QString *errorMessage)
+// Helper for the resolveSymbol overloads.
+static ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
+                                         QStringList *matches,
+                                         QString *errorMessage)
 {
     // Is it an incomplete symbol?
     if (symbol->contains(QLatin1Char('!')))
@@ -123,18 +145,61 @@ ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
     if (*symbol == QLatin1String("qMain"))
         *symbol = QLatin1String("main");
     // resolve
-    QStringList matches;
-    if (!searchSymbols(syms, *symbol, &matches, errorMessage))
+    if (!searchSymbols(syms, *symbol, matches, errorMessage))
         return ResolveSymbolError;
-    if (matches.empty())
+    if (matches->empty())
         return ResolveSymbolNotFound;
-    *symbol = matches.front();
-    if (matches.size() > 1) {
+    *symbol = matches->front();
+    if (matches->size() > 1) {
         *errorMessage = QString::fromLatin1("Ambiguous symbol '%1': %2").
-                        arg(*symbol, matches.join(QString(QLatin1Char(' '))));
+                        arg(*symbol, matches->join(QString(QLatin1Char(' '))));
         return ResolveSymbolAmbiguous;
     }
     return ResolveSymbolOk;
+}
+
+// Add missing the module specifier: "main" -> "project!main"
+ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, QString *symbol,
+                                  QString *errorMessage)
+{
+    QStringList matches;
+    return resolveSymbol(syms, symbol, &matches, errorMessage);
+}
+
+ResolveSymbolResult resolveSymbol(CIDebugSymbols *syms, const QString &pattern, QString *symbol, QString *errorMessage)
+{
+    QStringList matches;
+    const ResolveSymbolResult r1 = resolveSymbol(syms, symbol, &matches, errorMessage);
+    switch (r1) {
+    case ResolveSymbolOk:
+    case ResolveSymbolNotFound:
+    case ResolveSymbolError:
+        return r1;
+    case ResolveSymbolAmbiguous:
+        break;
+    }
+    // Filter out
+    errorMessage->clear();
+    const QRegExp re(pattern);
+    if (!re.isValid()) {
+        *errorMessage = QString::fromLatin1("Internal error: Invalid pattern '%1'.").arg(pattern);
+        return ResolveSymbolError;
+    }
+    const QStringList filteredMatches = matches.filter(re);
+    if (filteredMatches.size() == 1) {
+        *symbol = filteredMatches.front();
+        return ResolveSymbolOk;
+    }
+    // something went wrong
+    const QString matchesString = matches.join(QString(QLatin1Char(',')));
+    if (filteredMatches.empty()) {
+        *errorMessage = QString::fromLatin1("None of symbols '%1' found for '%2' matches '%3'.").
+                        arg(matchesString, *symbol, pattern);
+        return ResolveSymbolNotFound;
+    }
+    *errorMessage = QString::fromLatin1("Ambiguous match of symbols '%1' found for '%2' (%3)").
+                        arg(matchesString, *symbol, pattern);
+    return ResolveSymbolAmbiguous;
 }
 
 // List symbols of a module

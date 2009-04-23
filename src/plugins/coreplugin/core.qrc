@@ -1,34 +1,5 @@
 <RCC>
     <qresource prefix="/core" >
-        <file>html/images/bg_site_header_dark_grey.png</file>
-        <file>html/images/body_bg_circles_bottom_right.png</file>
-        <file>html/images/body_bg_gradient.png</file>
-        <file>html/images/btn_feedback.png</file>
-        <file>html/images/btn_feedback_hover.png</file>
-        <file>html/images/btn_getting_started.png</file>
-        <file>html/images/btn_getting_started_hover.png</file>
-        <file>html/images/btn_restore_session.png</file>
-        <file>html/images/btn_restore_session_hover.png</file>
-        <file>html/images/feedback-bar-background.png</file>
-        <file>html/images/feedback-text.png</file>
-        <file>html/images/list_bullet_arrow.png</file>
-        <file>html/images/mode_Project.png</file>
-        <file>html/images/nokia_logo.png</file>
-        <file>html/images/product_logo.png</file>
-        <file>html/images/qt_logo.png</file>
-        <file>html/images/rc_bottom_left.png</file>
-        <file>html/images/rc_bottom_mid.png</file>
-        <file>html/images/rc_bottom_right.png</file>
-        <file>html/images/rc_mid_left.png</file>
-        <file>html/images/rc_mid_mid.png</file>
-        <file>html/images/rc_mid_right.png</file>
-        <file>html/images/rc_top_left.png</file>
-        <file>html/images/rc_top_mid.png</file>
-        <file>html/images/rc_top_right.png</file>
-        <file>html/qt.css</file>
-        <file>html/recent_projects.html</file>
-        <file>html/recent_sessions.html</file>
-        <file>html/welcome.html</file>
         <file>images/clean_pane_small.png</file>
         <file>images/clear.png</file>
         <file>images/closebutton.png</file>
@@ -73,5 +44,19 @@
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
+        <file>images/welcomemode/btn_feedback.png</file>
+        <file>images/welcomemode/btn_feedback_hover.png</file>
+        <file>images/welcomemode/btn_getting_started.png</file>
+        <file>images/welcomemode/btn_getting_started_hover.png</file>
+        <file>images/welcomemode/btn_restore_session.png</file>
+        <file>images/welcomemode/btn_restore_session_hover.png</file>
+        <file>images/welcomemode/feedback-bar-background.png</file>
+        <file>images/welcomemode/feedback-text.png</file>
+        <file>images/welcomemode/list_bullet_arrow.png</file>
+        <file>images/welcomemode/mode_project.png</file>
+        <file>images/welcomemode/nokia_logo.png</file>
+        <file>images/welcomemode/product_logo.png</file>
+        <file>images/welcomemode/qt_logo.png</file>
+        <file>images/welcomemode/rc_combined.png</file>
     </qresource>
 </RCC>
