@@ -126,34 +126,39 @@ private:
 class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
+    // for getUniqueId();
+    friend class QtVersion;
+    friend class QtOptionsPage;
 public:
     static QtVersionManager *instance();
     QtVersionManager();
     ~QtVersionManager();
-    void writeVersionsIntoSettings();
 
     QList<QtVersion *> versions() const;
 
-    QtVersion * version(int id) const;
-    QtVersion * currentQtVersion() const;
-    // internal
-    int getUniqueId();
+    QtVersion *version(int id) const;
+    QtVersion *currentQtVersion() const;
 
-    QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
-    QString findQtVersionFromMakefile(const QString &directory);
     QtVersion *qtVersionForDirectory(const QString &directory);
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
 
+    // Static Methods
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
-    void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
+    static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
+    static QString findQtVersionFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
 private:
+    // Used by QtOptionsPage
+    void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
+    // Used by QtVersion
+    int getUniqueId();
+    void writeVersionsIntoSettings();
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
