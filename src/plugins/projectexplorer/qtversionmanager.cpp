@@ -476,7 +476,6 @@ void QtVersion::updateSourcePath()
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
 QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
 {
-    QString result = QString::null;
     bool debugAdding = false;
     QFile makefile(directory + "/Makefile" );
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
@@ -492,14 +491,12 @@ QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
                 QString qtDir = binDir.absolutePath();
                 if (debugAdding)
                     qDebug() << "#~~ QtDir:"<<qtDir;
-                // Now we have the qtDir
-                // look through the qtversions wheter we already have that qt version setup
                 return qtDir;
             }
         }
         makefile.close();
     }
-    return result;
+    return QString::null;
 }
 
 QtVersion *QtVersionManager::qtVersionForDirectory(const QString &directory)
