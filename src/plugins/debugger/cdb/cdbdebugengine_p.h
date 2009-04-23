@@ -63,7 +63,7 @@ public:
 
 private:
     // The exported functions of the library
-    typedef HRESULT (*DebugCreateFunction)(REFIID, PVOID *);
+    typedef HRESULT (STDAPICALLTYPE *DebugCreateFunction)(REFIID, PVOID *);
 
     DebugCreateFunction m_debugCreate;
 };
