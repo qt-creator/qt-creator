@@ -57,6 +57,7 @@
 #include "sessiondialog.h"
 #include "buildparserfactory.h"
 #include "qtversionmanager.h"
+#include "qtoptionspage.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>

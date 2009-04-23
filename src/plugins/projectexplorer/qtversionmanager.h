@@ -30,28 +30,21 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "projectexplorer.h"
+#include "environment.h"
 #include "toolchain.h"
+#include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QPushButton>
+#include <QtCore/QHash>
 
 namespace ProjectExplorer {
 
 namespace Internal {
-namespace Ui {
-class QtVersionManager;
-}
-}
-
 class QtDirWidget;
+}
 
 class PROJECTEXPLORER_EXPORT QtVersion
 {
-    friend class QtDirWidget; //for changing name and path
+    friend class Internal::QtDirWidget; //for changing name and path
     friend class QtVersionManager;
 public:
     QtVersion(const QString &name, const QString &path);
@@ -130,44 +123,6 @@ private:
     bool m_hasDebuggingHelper;
 };
 
-
-class QtDirWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
-    ~QtDirWidget();
-    QList<QtVersion *> versions() const;
-    int defaultVersion() const;
-    void finish();
-
-private:
-    void showEnvironmentPage(QTreeWidgetItem * item);
-    void fixQtVersionName(int index);
-    int indexForWidget(QWidget *debuggingHelperWidget) const;
-    Internal::Ui::QtVersionManager *m_ui;
-    QList<QtVersion *> m_versions;
-    int m_defaultVersion;
-    QString m_specifyNameString;
-    QString m_specifyPathString;
-
-private slots:
-    void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
-    void addQtDir();
-    void removeQtDir();
-    void updateState();
-    void makeMingwVisible(bool visible);
-    void onQtBrowsed();
-    void onMingwBrowsed();
-    void defaultChanged(int index);
-    void updateCurrentQtName();
-    void updateCurrentQtPath();
-    void updateCurrentMingwDirectory();
-    void msvcVersionChanged();
-    void buildDebuggingHelper();
-    void showDebuggingBuildLog();
-};
-
 class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
@@ -213,22 +168,6 @@ private:
     int m_idcount;
 };
 
-class PROJECTEXPLORER_EXPORT QtOptionsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-public:
-    QtOptionsPage();
-    ~QtOptionsPage();
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-private:
-    QtDirWidget *m_widget;
-};
 } // namespace ProjectExplorer
 
 #endif // QTVERSIONMANAGER_H
