@@ -714,7 +714,10 @@ void BaseTextEditor::moveLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();
     QTextCursor move = cursor;
-    move.beginEditBlock();
+    if (d->m_moveLineUndoHack)
+        move.joinPreviousEditBlock();
+    else
+        move.beginEditBlock();
 
     bool hasSelection = cursor.hasSelection();
 
@@ -722,7 +725,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        move.movePosition(move.atBlockStart() ? QTextCursor::Left: QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
         move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -760,6 +763,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
     move.endEditBlock();
 
     setTextCursor(move);
+    d->m_moveLineUndoHack = true;
 }
 
 void BaseTextEditor::cleanWhitespace()
@@ -769,6 +773,7 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
+    d->m_moveLineUndoHack = false;
     d->clearVisibleCollapsedBlock();
 
     QKeyEvent *original_e = e;
@@ -1305,7 +1310,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_actionHack(0),
     m_inBlockSelectionMode(false),
     m_lastEventWasBlockSelectionEvent(false),
-    m_blockSelectionExtraX(0)
+    m_blockSelectionExtraX(0),
+    m_moveLineUndoHack(false)
 {
 }
 

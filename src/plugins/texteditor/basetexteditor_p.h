@@ -225,6 +225,7 @@ public:
     void clearBlockSelection();
     QString copyBlockSelection();
     void removeBlockSelection(const QString &text = QString());
+    bool m_moveLineUndoHack;
     
     QTextCursor m_findScope;
     QTextCursor m_selectBlockAnchor;
