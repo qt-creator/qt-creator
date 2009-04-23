@@ -71,12 +71,11 @@ public:
 
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
-    QString prependPath() const;
-    void setPrependPath(const QString &string);
     QString msvcVersion() const;
     QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
     void addToEnvironment(ProjectExplorer::Environment &env);
+
     bool hasDebuggingHelper() const;
     // Builds a debugging library
     // returns the output of the commands
@@ -95,6 +94,7 @@ public:
     QString dumperLibrary() const;
 private:
     static int getUniqueId();
+    // Also used by QtOptionsPageWidget
     void setName(const QString &name);
     void setPath(const QString &path);
     void updateSourcePath();

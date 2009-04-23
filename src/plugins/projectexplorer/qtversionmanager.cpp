@@ -78,7 +78,6 @@ QtVersionManager::QtVersionManager()
                                            id,
                                            s->value("IsSystemVersion", false).toBool());
         version->setMingwDirectory(s->value("MingwDirectory").toString());
-        version->setPrependPath(s->value("PrependPath").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
         m_versions.append(version);
     }
@@ -151,7 +150,6 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("Path", m_versions.at(i)->path());
         s->setValue("Id", m_versions.at(i)->uniqueId());
         s->setValue("MingwDirectory", m_versions.at(i)->mingwDirectory());
-        s->setValue("PrependPath", m_versions.at(i)->prependPath());
         s->setValue("msvcVersion", m_versions.at(i)->msvcVersion());
         s->setValue("IsSystemVersion", m_versions.at(i)->isSystemVersion());
     }
@@ -202,8 +200,6 @@ void QtVersionManager::addNewVersionsFromInstaller()
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
                 if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
-                if (newVersionData.count() >= 4)
-                    version->setPrependPath(newVersionData[3]);
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
@@ -869,16 +865,6 @@ QString QtVersion::mingwDirectory() const
 void QtVersion::setMingwDirectory(const QString &directory)
 {
     m_mingwDirectory = directory;
-}
-
-QString QtVersion::prependPath() const
-{
-    return m_prependPath;
-}
-
-void QtVersion::setPrependPath(const QString &directory)
-{
-    m_prependPath = directory;
 }
 
 QString QtVersion::msvcVersion() const
