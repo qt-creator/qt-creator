@@ -1746,11 +1746,11 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
     
-    // keep right margin clean from full-width selection
-    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
-               - doc->documentMargin();
-    er.setRight(qMin(er.right(), maxX));
-    painter.setClipRect(er);
+//    // keep right margin clean from full-width selection
+//    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
+//               - doc->documentMargin();
+//    er.setRight(qMin(er.right(), maxX));
+//    painter.setClipRect(er);
 
     bool editable = !isReadOnly();
 
@@ -1804,9 +1804,11 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
             int count = d->m_highlightBlocksInfo.visualIndent.size();
             if (count) {
+                QRectF rr = r;
+                rr.setWidth(viewport()->width());
                 for(int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                    painter.fillRect(r.adjusted(vi, 0, 0, 0), calcBlendColor(baseColor, count - i));
+                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, count - i));
                 }
             }
         }
