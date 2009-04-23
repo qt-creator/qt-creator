@@ -40,6 +40,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class QtOptionsPageWidget;
+class QtOptionsPage;
 }
 
 class PROJECTEXPLORER_EXPORT QtVersion
@@ -128,7 +129,7 @@ class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
     Q_OBJECT
     // for getUniqueId();
     friend class QtVersion;
-    friend class QtOptionsPage;
+    friend class Internal::QtOptionsPage;
 public:
     static QtVersionManager *instance();
     QtVersionManager();
