@@ -46,7 +46,7 @@ QString QtOptionsPage::trCategory() const
 QWidget *QtOptionsPage::createPage(QWidget *parent)
 {
     QtVersionManager *vm = QtVersionManager::instance();
-    m_widget = new QtDirWidget(parent, vm->versions(), vm->currentQtVersion());
+    m_widget = new QtOptionsPageWidget(parent, vm->versions(), vm->currentQtVersion());
     return m_widget;
 }
 
@@ -59,7 +59,7 @@ void QtOptionsPage::apply()
 }
 
 //-----------------------------------------------------
-QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion)
+QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion)
     : QWidget(parent)
     , m_defaultVersion(versions.indexOf(defaultVersion))
     , m_specifyNameString(tr("<specify a name>"))
@@ -138,7 +138,7 @@ QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion
     updateState();
 }
 
-void QtDirWidget::buildDebuggingHelper()
+void QtOptionsPageWidget::buildDebuggingHelper()
 {
     // Find the qt version for this button..
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -161,7 +161,7 @@ void QtDirWidget::buildDebuggingHelper()
     m_ui->showLogButton->setEnabled(true);
 }
 
-void QtDirWidget::showDebuggingBuildLog()
+void QtOptionsPageWidget::showDebuggingBuildLog()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     if (!currentItem)
@@ -175,13 +175,13 @@ void QtDirWidget::showDebuggingBuildLog()
     dlg.exec();
 }
 
-QtDirWidget::~QtDirWidget()
+QtOptionsPageWidget::~QtOptionsPageWidget()
 {
     qDeleteAll(m_versions);
     delete m_ui;
 }
 
-void QtDirWidget::addQtDir()
+void QtOptionsPageWidget::addQtDir()
 {
     QtVersion *newVersion = new QtVersion(m_specifyNameString, m_specifyPathString);
     m_versions.append(newVersion);
@@ -201,7 +201,7 @@ void QtDirWidget::addQtDir()
     m_ui->nameEdit->selectAll();
 }
 
-void QtDirWidget::removeQtDir()
+void QtOptionsPageWidget::removeQtDir()
 {
     QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
     int index = m_ui->qtdirList->indexOfTopLevelItem(item);
@@ -221,7 +221,7 @@ void QtDirWidget::removeQtDir()
     updateState();
 }
 
-void QtDirWidget::updateState()
+void QtOptionsPageWidget::updateState()
 {
     bool enabled = (m_ui->qtdirList->currentItem() != 0);
     bool isSystemVersion = (enabled
@@ -248,13 +248,13 @@ void QtDirWidget::updateState()
         m_ui->debuggingHelperStateLabel->setPixmap(QPixmap());
     }
 }
-void QtDirWidget::makeMingwVisible(bool visible)
+void QtOptionsPageWidget::makeMingwVisible(bool visible)
 {
     m_ui->mingwLabel->setVisible(visible);
     m_ui->mingwPath->setVisible(visible);
 }
 
-void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
+void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     m_ui->msvcComboBox->setVisible(false);
     if (item) {
@@ -304,7 +304,7 @@ void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
     }
 }
 
-void QtDirWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
+void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
 {
     if (old) {
         fixQtVersionName(m_ui->qtdirList->indexOfTopLevelItem(old));
@@ -320,7 +320,7 @@ void QtDirWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
     updateState();
 }
 
-void QtDirWidget::onQtBrowsed()
+void QtOptionsPageWidget::onQtBrowsed()
 {
     const QString dir = m_ui->qtPath->path();
     if (dir.isEmpty())
@@ -336,7 +336,7 @@ void QtDirWidget::onQtBrowsed()
     updateState();
 }
 
-void QtDirWidget::onMingwBrowsed()
+void QtOptionsPageWidget::onMingwBrowsed()
 {
     const QString dir = m_ui->mingwPath->path();
     if (dir.isEmpty())
@@ -346,7 +346,7 @@ void QtDirWidget::onMingwBrowsed()
     updateState();
 }
 
-void QtDirWidget::defaultChanged(int)
+void QtOptionsPageWidget::defaultChanged(int)
 {
     for (int i=0; i<m_ui->defaultCombo->count(); ++i) {
         if (m_versions.at(i)->name() == m_ui->defaultCombo->currentText()) {
@@ -358,7 +358,7 @@ void QtDirWidget::defaultChanged(int)
     m_defaultVersion = 0;
 }
 
-void QtDirWidget::updateCurrentQtName()
+void QtOptionsPageWidget::updateCurrentQtName()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     Q_ASSERT(currentItem);
@@ -370,7 +370,7 @@ void QtDirWidget::updateCurrentQtName()
 }
 
 
-void QtDirWidget::finish()
+void QtOptionsPageWidget::finish()
 {
     if (QTreeWidgetItem *item = m_ui->qtdirList->currentItem())
         fixQtVersionName(m_ui->qtdirList->indexOfTopLevelItem(item));
@@ -380,7 +380,7 @@ void QtDirWidget::finish()
  * and otherwise changes the name
  *
  */
-void QtDirWidget::fixQtVersionName(int index)
+void QtOptionsPageWidget::fixQtVersionName(int index)
 {
     int count = m_versions.count();
     for (int i = 0; i < count; ++i) {
@@ -407,7 +407,7 @@ void QtDirWidget::fixQtVersionName(int index)
     }
 }
 
-void QtDirWidget::updateCurrentQtPath()
+void QtOptionsPageWidget::updateCurrentQtPath()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     Q_ASSERT(currentItem);
@@ -436,7 +436,7 @@ void QtDirWidget::updateCurrentQtPath()
     }
 }
 
-void QtDirWidget::updateCurrentMingwDirectory()
+void QtOptionsPageWidget::updateCurrentMingwDirectory()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
     Q_ASSERT(currentItem);
@@ -444,7 +444,7 @@ void QtDirWidget::updateCurrentMingwDirectory()
     m_versions[currentItemIndex]->setMingwDirectory(m_ui->mingwPath->path());
 }
 
-void QtDirWidget::msvcVersionChanged()
+void QtOptionsPageWidget::msvcVersionChanged()
 {
     const QString &msvcVersion = m_ui->msvcComboBox->currentText();
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -453,12 +453,12 @@ void QtDirWidget::msvcVersionChanged()
     m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
 }
 
-QList<QtVersion *> QtDirWidget::versions() const
+QList<QtVersion *> QtOptionsPageWidget::versions() const
 {
     return m_versions;
 }
 
-int QtDirWidget::defaultVersion() const
+int QtOptionsPageWidget::defaultVersion() const
 {
     return m_defaultVersion;
 }

@@ -39,12 +39,12 @@
 namespace ProjectExplorer {
 
 namespace Internal {
-class QtDirWidget;
+class QtOptionsPageWidget;
 }
 
 class PROJECTEXPLORER_EXPORT QtVersion
 {
-    friend class Internal::QtDirWidget; //for changing name and path
+    friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
 public:
     QtVersion(const QString &name, const QString &path);

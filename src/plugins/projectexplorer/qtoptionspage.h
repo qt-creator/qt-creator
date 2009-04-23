@@ -46,12 +46,12 @@ namespace Ui {
 class QtVersionManager;
 }
 
-class QtDirWidget : public QWidget
+class QtOptionsPageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QtDirWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
-    ~QtDirWidget();
+    QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
+    ~QtOptionsPageWidget();
     QList<QtVersion *> versions() const;
     int defaultVersion() const;
     void finish();
@@ -97,7 +97,7 @@ public:
     void apply();
     void finish() { }
 private:
-    QtDirWidget *m_widget;
+    QtOptionsPageWidget *m_widget;
 };
 
 } //namespace Internal
