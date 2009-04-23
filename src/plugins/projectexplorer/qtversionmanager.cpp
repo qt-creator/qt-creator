@@ -230,9 +230,19 @@ void QtVersionManager::addNewVersionsFromInstaller()
 void QtVersionManager::updateSystemVersion()
 {
     bool haveSystemVersion = false;
+    QString systemQMakePath = findSystemQt(Environment::systemEnvironment());
+    QString systemQtPath;
+    if (systemQMakePath.isNull()) {
+        systemQtPath = tr("<not found>");
+    } else {
+        QDir dir(QFileInfo(systemQMakePath).absoluteDir());
+        dir.cdUp();
+        systemQtPath = dir.absolutePath();
+    }
+
     foreach (QtVersion *version, m_versions) {
         if (version->isSystemVersion()) {
-            version->setPath(findSystemQt());
+            version->setPath(systemQtPath);
             version->setName(tr("Auto-detected Qt"));
             haveSystemVersion = true;
         }
@@ -240,7 +250,7 @@ void QtVersionManager::updateSystemVersion()
     if (haveSystemVersion)
         return;
     QtVersion *version = new QtVersion(tr("Auto-detected Qt"),
-                                       findSystemQt(),
+                                       systemQtPath,
                                        getUniqueId(),
                                        true);
     m_versions.prepend(version);
@@ -278,23 +288,20 @@ QString QtVersionManager::qtVersionForQMake(const QString &qmakePath)
     return QString();
 }
 
-QString QtVersionManager::findSystemQt() const
+QString QtVersionManager::findSystemQt(const Environment &env)
 {
-    Environment env = Environment::systemEnvironment();
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
         foreach (const QString &possibleCommand, possibleQMakeCommands()) {
             QFileInfo qmake(path + "/" + possibleCommand);
             if (qmake.exists()) {
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
-                    QDir dir(qmake.absoluteDir());
-                    dir.cdUp();
-                    return dir.absolutePath();
+                    return qmake.absoluteFilePath();
                 }
             }
         }
     }
-    return tr("<not found>");
+    return QString::null;
 }
 
 QtVersion *QtVersionManager::currentQtVersion() const

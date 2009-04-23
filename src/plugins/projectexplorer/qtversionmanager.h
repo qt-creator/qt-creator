@@ -40,6 +40,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class QtOptionsPageWidget;
+class QtOptionsPage;
 }
 
 class PROJECTEXPLORER_EXPORT QtVersion
@@ -77,6 +78,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
 
     bool hasDebuggingHelper() const;
+    QString dumperLibrary() const;
     // Builds a debugging library
     // returns the output of the commands
     QString buildDebuggingHelperLibrary();
@@ -91,7 +93,6 @@ public:
     };
 
     QmakeBuildConfig defaultBuildConfig() const;
-    QString dumperLibrary() const;
 private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
@@ -128,7 +129,7 @@ class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
     Q_OBJECT
     // for getUniqueId();
     friend class QtVersion;
-    friend class QtOptionsPage;
+    friend class Internal::QtOptionsPage;
 public:
     static QtVersionManager *instance();
     QtVersionManager();
@@ -150,6 +151,10 @@ public:
     static QString qtVersionForQMake(const QString &qmakePath);
     static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
     static QString findQtVersionFromMakefile(const QString &directory);
+
+    // returns the full path to the first qmake, qmake-qt4, qmake4 that has
+    // at least version 2.0.0 and thus is a qt4 qmake
+    static QString findSystemQt(const Environment &env);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
@@ -162,7 +167,7 @@ private:
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
-    QString findSystemQt() const;
+
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
 
