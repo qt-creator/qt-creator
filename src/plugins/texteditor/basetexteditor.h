@@ -370,7 +370,6 @@ private slots:
     void restoreCursorPosition();
     void highlightSearchResults(const QString &txt, QTextDocument::FindFlags findFlags);
     void setFindScope(const QTextCursor &);
-    void setCollapseIndicatorAlpha(int);
     void currentEditorChanged(Core::IEditor *editor);
 
 private:
@@ -460,7 +459,7 @@ private:
     void saveCurrentCursorPositionForNavigation();
 
     void toggleBlockVisible(const QTextBlock &block);
-    QRect collapseBox(const QTextBlock &block);
+    QRect collapseBox();
 
     QTextBlock collapsedBlockAt(const QPoint &pos, QRect *box = 0) const;
 
