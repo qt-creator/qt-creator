@@ -3165,10 +3165,10 @@ bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool se
     return false;
 }
 
-bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor)
+bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition)
 {
     QTextBlock block = cursor->block();
-    int position = cursor->position();
+    int position = cursor->position() + (checkStartPosition ? 1 : 0 );
     int ignore = 0;
     while (block.isValid()) {
         Parentheses parenList = TextEditDocumentLayout::parentheses(block);
@@ -3399,10 +3399,12 @@ void BaseTextEditor::_q_highlightBlocks()
         if (block.isValid()) {
             QTextCursor cursor(block);
             if (d->extraAreaHighlightCollapseColumn >= 0)
-                cursor.setPosition(cursor.position() + qMin(d->extraAreaHighlightCollapseColumn+1,
+                cursor.setPosition(cursor.position() + qMin(d->extraAreaHighlightCollapseColumn,
                                                             block.length()));
             QTextCursor closeCursor;
-            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor)) {
+            bool firstRun = true;
+            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor), firstRun) {
+                firstRun = false;
                 highlightBlocksInfo.open.prepend(cursor.blockNumber());
                 highlightBlocksInfo.visualIndent.prepend(d->visualIndent(cursor.block()));
                 if (closeCursor.isNull())

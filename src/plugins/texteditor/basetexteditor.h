@@ -167,7 +167,7 @@ public:
     static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false);
     static bool findNextClosingParenthesis(QTextCursor *cursor, bool select = false);
 
-    static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor);
+    static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
 
