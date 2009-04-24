@@ -51,9 +51,17 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
 
+/*!
+    \namespace QuickOpen
+    The QuickOpen namespace provides the hooks for Locator content.
+*/
+/*!
+    \namespace QuickOpen::Internal
+    \internal
+*/
+
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
-
 
 namespace {
     static bool filterLessThan(const IQuickOpenFilter *first, const IQuickOpenFilter *second)

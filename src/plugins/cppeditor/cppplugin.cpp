@@ -106,8 +106,7 @@ CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
     m_actionHandler(0),
-    m_factory(0),
-    m_sortedMethodOverview(false)
+    m_factory(0)
 {
     m_instance = this;
 }
@@ -134,20 +133,6 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
             TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
-    // method combo box sorting
-    connect(this, SIGNAL(methodOverviewSortingChanged(bool)),
-            editor, SLOT(setSortedMethodOverview(bool)));
-}
-
-void CppPlugin::setSortedMethodOverview(bool sorted)
-{
-    m_sortedMethodOverview = sorted;
-    emit methodOverviewSortingChanged(sorted);
-}
-
-bool CppPlugin::sortedMethodOverview() const
-{
-    return m_sortedMethodOverview;
 }
 
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -209,28 +194,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
-    readSettings();
     return true;
-}
-
-void CppPlugin::readSettings()
-{
-    m_sortedMethodOverview = Core::ICore::instance()->settings()->value("CppTools/SortedMethodOverview", false).toBool();
-}
-
-void CppPlugin::writeSettings()
-{
-    Core::ICore::instance()->settings()->setValue("CppTools/SortedMethodOverview", m_sortedMethodOverview);
 }
 
 void CppPlugin::extensionsInitialized()
 {
     m_actionHandler->initializeActions();
-}
-
-void CppPlugin::shutdown()
-{
-    writeSettings();
 }
 
 void CppPlugin::switchDeclarationDefinition()

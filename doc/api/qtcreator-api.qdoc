@@ -9,6 +9,8 @@
     simple means for plugin cooperation that allow plugins to provide
     hooks for other plugin's extensions.
 
+    To get an overview of what parts of QtCreator are extensible, have a look at the \l{Common Extension Tasks} page.
+
     \section1 Core Libraries
 
     There are a few core libraries used by many parts of Qt Creator.
@@ -19,12 +21,12 @@
     \o Description
 
     \row
-    \o \l{Aggregation}{Aggregation}
+    \o \l{Aggregation}
     \o Adds functionality for "glueing" QObjects of different
     types together, so you can "cast" between them.
 
     \row
-    \o \l{ExtensionSystem}{ExtensionSystem}
+    \o \l{ExtensionSystem}
     \o Implements the plugin loader framework. Provides a base class for plugins and
     basic mechanisms for plugin interaction like an object pool.
 
@@ -43,9 +45,17 @@
     \o Description
 
     \row
-    \o \l{Core} {Core}
+    \o \l{Core}
     \o The core plugin. Provides the main window and managers for editors,
     actions, mode windows and files, just to mention the most important ones.
+
+    \row
+    \o \l{Find}
+    \o Support for searching text in arbitrary widgets, and arbitrary other things.
+
+    \row
+    \o \l{QuickOpen}
+    \o Hooks for providing content for Locator.
 
     \endtable
 */
@@ -79,3 +89,85 @@
     \generatelist functionindex
 */
 
+/*!
+    \page common_extension_tasks.html
+    \title Common Extension Tasks
+
+    \table
+    \header
+    \o Task
+    \o Details
+    \o API
+
+    \row
+    \o Add a menu / menu entry.
+    \o You can extend existing menus or create new ones.
+    \o \l{Core::ActionManager}, \l{Core::Command}, \l{Core::ICore::actionManager()}
+
+    \row
+    \o Add a configurable keyboard shortcut.
+    \o Registerng shortcuts makes it possible for users to configure them in the common shortcut settings dialog.
+    \o \l{Core::ActionManager}, \l{Core::Command}, \l{Core::ICore::actionManager()}
+
+    \row
+    \o Add a mode.
+    \o Modes correspond to complete screens of controls, specialized for a task.
+    \o \l{Core::IMode}, \l{Core::BaseMode}
+
+    \row
+    \o Add a new editor type.
+    \o Like an editor for xml files.
+    \o \l{Core::IEditorFactory}, \l{Core::IEditor}, \l{Core::IFile}
+
+    \row
+    \o Add a "New" wizard.
+    \o That is added to the list when users do File->New..., allows you to basically do whatever you want.
+    \o \l{Core::IWizard}, \l{Core::StandardFileWizard}, \l{Core::BaseFileWizard}, \l{Core::BaseFileWizardParameters}
+
+    \row
+    \o Add support for a new version control system.
+    \o Version control systems provided by QtCreator itself are Perforce, Git and Subversion.
+    \o \l{Core::IVersionControl}
+
+    \row
+    \o Add a view to the navigation sidebar.
+    \o The one which shows the project tree, filesystem, open documents or bookmarks.
+    \o \l{Core::INavigationWidgetFactory}
+
+    \row
+    \o Add a preferences page to the preferences dialog.
+    \o Add a new page to existing or new category in Tools->Options.
+    \o \l{Core::IOptionsPage}
+
+    \row
+    \o Add a find filter for the find dialog.
+    \o Implement any kind of search term based search.
+    \o \l{Find::IFindFilter}, \l{Find::SearchResultWindow}, \l{Find::ResultWindowItem}
+
+    \row
+    \o Add support for the find tool bar to a widget.
+    \o The widget that has focus is asked if it supports text search, you can provide that for widgets under your control.
+    \o \l{Find::IFindSupport}, \l{Find::BaseTextFind}
+
+    \row
+    \o Add a completely new project type.
+    \o
+    \o
+
+    \row
+    \o Add a new type of build step.
+    \o
+    \o
+
+    \row
+    \o Add a new filter to Locator.
+    \o For a text typed in by the user you provide a list of things to show in the popup. When the user selects an entry you are requested to do whatever you want.
+    \o \l{QuickOpen::IQuickOpenFilter}, \l{QuickOpen::FilterEntry}, \l{QuickOpen::BaseFileFilter}
+
+    \row
+    \o
+    \o
+    \o
+
+    \endtable
+*/
