@@ -1480,6 +1480,8 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
             setTextCursor(cursorForPosition(ce->pos()));
     } else if (event->type() == QEvent::ToolTip) {
         const QHelpEvent *he = static_cast<QHelpEvent*>(event);
+        if (QApplication::keyboardModifiers() & Qt::ControlModifier)
+            return true; // eat tooltip event when control is pressed
         const QPoint &pos = he->pos();
 
         // Allow plugins to show tooltips
