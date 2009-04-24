@@ -3403,7 +3403,7 @@ void BaseTextEditor::_q_highlightBlocks()
                                                             block.length()));
             QTextCursor closeCursor;
             bool firstRun = true;
-            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor), firstRun) {
+            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor, firstRun)) {
                 firstRun = false;
                 highlightBlocksInfo.open.prepend(cursor.blockNumber());
                 highlightBlocksInfo.visualIndent.prepend(d->visualIndent(cursor.block()));
