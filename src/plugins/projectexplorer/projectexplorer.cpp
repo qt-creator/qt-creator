@@ -114,9 +114,9 @@ bool CoreListenerCheckingForRunningBuild::coreAboutToClose()
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Don't Close"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(tr("Close QtCreator?"));
+        box.setWindowTitle(tr("Close Qt Creator?"));
         box.setText(tr("A project is currently being built."));
-        box.setInformativeText(tr("Do you want to cancel the build process and close QtCreator anyway?"));
+        box.setInformativeText(tr("Do you want to cancel the build process and close Qt Creator anyway?"));
         box.exec();
         return (box.clickedButton() == closeAnyway);
     }
