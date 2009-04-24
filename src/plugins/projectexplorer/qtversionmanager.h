@@ -78,7 +78,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
 
     bool hasDebuggingHelper() const;
-    QString dumperLibrary() const;
+    QString debuggingHelperLibrary() const;
     // Builds a debugging library
     // returns the output of the commands
     QString buildDebuggingHelperLibrary();
@@ -155,6 +155,18 @@ public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
     static QString findSystemQt(const Environment &env);
+
+    static bool hasDebuggingHelperLibrary(const QString &qmakePath);
+    static QString debuggingHelperLibrary(const QString &qmakePath);
+    static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
+
+private:
+    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir);
+    static QString debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath);
+    static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
+    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath);
+    static QString qtInstallDataDir(const QString &qmakePath);
+    static QString qtDir(const QString &qmakePath);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();

@@ -428,32 +428,7 @@ void QtVersion::setPath(const QString &path)
     m_mkspecUpToDate = false;
     m_qmakeCommand = QString::null;
 // TODO do i need to optimize this?
-    m_hasDebuggingHelper = !dumperLibrary().isEmpty();
-}
-
-QString QtVersion::dumperLibrary() const
-{
-    uint hash = qHash(path());
-    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        qtInstallData = path();
-    QStringList directories;
-    directories
-            << (qtInstallData + "/qtc-debugging-helper/")
-            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
-            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
-    foreach(const QString &directory, directories) {
-#if defined(Q_OS_WIN)
-        QFileInfo fi(directory + "debug/gdbmacros.dll");
-#elif defined(Q_OS_MAC)
-        QFileInfo fi(directory + "libgdbmacros.dylib");
-#else // generic UNIX
-        QFileInfo fi(directory + "libgdbmacros.so");
-#endif
-        if (fi.exists())
-            return fi.filePath();
-    }
-    return QString();
+    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
 }
 
 void QtVersion::updateSourcePath()
@@ -928,34 +903,136 @@ bool QtVersion::hasDebuggingHelper() const
     return m_hasDebuggingHelper;
 }
 
-
-// TODO buildDebuggingHelperLibrary needs to be accessible outside of the
-// qt4versionmanager
-// That probably means moving qt4version management into either the projectexplorer
-// (The Projectexplorer plugin probably needs some splitting up, most of the stuff
-// could be in a plugin shared by qt4projectmanager, cmakemanager and debugger.)
-QString QtVersion::buildDebuggingHelperLibrary()
+QString QtVersion::debuggingHelperLibrary() const
 {
-// Locations to try:
-//    $QTDIR/qtc-debugging-helper
-//    $APPLICATION-DIR/qtc-debugging-helper/$hash
-//    $USERDIR/qtc-debugging-helper/$hash
-
-    QString output;
-    uint hash = qHash(path());
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         qtInstallData = path();
+    return QtVersionManager::debuggingHelperLibrary(qtInstallData, path());
+}
+
+
+QString QtVersion::buildDebuggingHelperLibrary()
+{
+    QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    if (qtInstallData.isEmpty())
+        qtInstallData = path();
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    // TODO this is a hack to get, to be removed and rewritten for 1.2
+    // For MSVC and MINGW, we need a toolchain to get the right environment
+    ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
+    ProjectExplorer::ToolChain *toolChain = 0;
+    if (t == ProjectExplorer::ToolChain::MinGW)
+        toolChain = ProjectExplorer::ToolChain::createMinGWToolChain("g++", mingwDirectory());
+    else if(t == ProjectExplorer::ToolChain::MSVC)
+        toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion());
+    if (toolChain) {
+        toolChain->addToEnvironment(env);
+        delete toolChain;
+        toolChain = 0;
+    }
+
+    QString make;
+    // TODO this is butt ugly
+    // only qt4projects have a toolchain() method. (Reason mostly, that in order to create
+    // the toolchain, we need to have the path to gcc
+    // which might depend on environment settings of the project
+    // so we hardcode the toolchainType to make conversation here
+    // and think about how to fix that later
+    if (t == ProjectExplorer::ToolChain::MinGW)
+        make = "mingw32-make.exe";
+    else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)
+        make = "nmake.exe";
+    else if (t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC)
+        make = "make";
+
+    QString directory = QtVersionManager::copyDebuggingHelperLibrary(qtInstallData, path());
+    QString output = QtVersionManager::buildDebuggingHelperLibrary(directory, make, qmakeCommand(), mkspec(), env);
+    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
+    return output;
+}
+
+
+///
+// Helper functions for building, checking for existance and finding the debugging helper library
+///
+
+bool QtVersionManager::hasDebuggingHelperLibrary(const QString &qmakePath)
+{
+    return !debuggingHelperLibrary(qmakePath).isNull();
+}
+
+QStringList QtVersionManager::debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath)
+{
+    uint hash = qHash(qtpath);
     QStringList directories;
     directories
-            << qtInstallData + "/qtc-debugging-helper/"
-            << QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash) +"/"
-            << QDesktopServices::storageLocation (QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash) +"/";
+            << (qtInstallData + "/qtc-debugging-helper/")
+            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
+            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
+    return directories;
+}
+
+QString QtVersionManager::debuggingHelperLibrary(const QString &qmakePath)
+{
+    return debuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
+}
+
+QString QtVersionManager::qtInstallDataDir(const QString &qmakePath)
+{
+    QProcess proc;
+    proc.start(qmakePath, QStringList() << "-query"<< "QT_INSTALL_DATA");
+    if (proc.waitForFinished())
+        return QString(proc.readAll().trimmed());
+    return QString::null;
+}
+
+QString QtVersionManager::qtDir(const QString &qmakePath)
+{
+    QDir dir = QFileInfo(qmakePath).absoluteDir();
+    dir.cdUp();
+    return dir.absolutePath();
+}
+
+// Debugging Helper Library
+
+QString QtVersionManager::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
+{
+    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath)) {
+#if defined(Q_OS_WIN)
+        QFileInfo fi(directory + "debug/gdbmacros.dll");
+#elif defined(Q_OS_MAC)
+        QFileInfo fi(directory + "libgdbmacros.dylib");
+#else // generic UNIX
+        QFileInfo fi(directory + "libgdbmacros.so");
+#endif
+        if (fi.exists())
+            return fi.filePath();
+    }
+    return QString();
+}
+
+
+QString QtVersionManager::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
+{
+    QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
+    return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
+    return QString::null;
+}
+
+QString QtVersionManager::copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir)
+{
+    // Locations to try:
+    //    $QTDIR/qtc-debugging-helper
+    //    $APPLICATION-DIR/qtc-debugging-helper/$hash
+    //    $USERDIR/qtc-debugging-helper/$hash
+    QStringList directories = QtVersionManager::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
 
     QStringList files;
     files << "gdbmacros.cpp" << "gdbmacros.pro"
           << "LICENSE.LGPL" << "LGPL_EXCEPTION.TXT";
-
     foreach(const QString &directory, directories) {
         QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
         bool success = true;
@@ -971,78 +1048,50 @@ QString QtVersion::buildDebuggingHelperLibrary()
             }
             success &= QFile::copy(source, dest);
         }
-        if (!success)
-            continue;
-
-        // Setup process
-        QProcess proc;
-
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        addToEnvironment(env);
-        // TODO this is a hack to get, to be removed and rewritten for 1.2
-        // For MSVC and MINGW, we need a toolchain to get the right environment
-        ProjectExplorer::ToolChain *toolChain = 0;
-        ProjectExplorer::ToolChain::ToolChainType t = toolchainType();
-        if (t == ProjectExplorer::ToolChain::MinGW)
-            toolChain = ProjectExplorer::ToolChain::createMinGWToolChain("g++", mingwDirectory());
-        else if(t == ProjectExplorer::ToolChain::MSVC)
-            toolChain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion());
-        if (toolChain) {
-            toolChain->addToEnvironment(env);
-            delete toolChain;
-            toolChain = 0;
-        }
-
-        proc.setEnvironment(env.toStringList());
-        proc.setWorkingDirectory(directory);
-        proc.setProcessChannelMode(QProcess::MergedChannels);
-
-        output += QString("Building debugging helper library in %1\n").arg(directory);
-        output += "\n";
-
-        QString make;
-        // TODO this is butt ugly
-        // only qt4projects have a toolchain() method. (Reason mostly, that in order to create
-        // the toolchain, we need to have the path to gcc
-        // which might depend on environment settings of the project
-        // so we hardcode the toolchainType to make conversation here
-        // and think about how to fix that later
-        if (t == ProjectExplorer::ToolChain::MinGW)
-            make = "mingw32-make.exe";
-        else if(t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE)
-            make = "nmake.exe";
-        else if (t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC)
-            make = "make";
-
-        QString makeFullPath = env.searchInPath(make);
-        if (!makeFullPath.isEmpty()) {
-            output += QString("Running %1 clean...\n").arg(makeFullPath);
-            proc.start(makeFullPath, QStringList() << "clean");
-            proc.waitForFinished();
-            output += proc.readAll();
-        } else {
-            output += QString("%1 not found in PATH\n").arg(make);
-            break;
-        }
-
-        output += QString("\nRunning %1 ...\n").arg(qmakeCommand());
-
-        proc.start(qmakeCommand(), QStringList()<<"-spec"<< mkspec() <<"gdbmacros.pro");
-        proc.waitForFinished();
-
-        output += proc.readAll();
-
-        output += "\n";
-        if (!makeFullPath.isEmpty()) {
-            output += QString("Running %1 ...\n").arg(makeFullPath);
-            proc.start(makeFullPath, QStringList());
-            proc.waitForFinished();
-            output += proc.readAll();
-        } else {
-            output += QString("%1 not found in PATH\n").arg(make);
-        }
-        break;
+        if (success)
+            return directory;
     }
-    m_hasDebuggingHelper = !dumperLibrary().isEmpty();
+    return QString::null;
+}
+
+QString QtVersionManager::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env)
+{
+    QString output;
+    // Setup process
+    QProcess proc;
+    proc.setEnvironment(env.toStringList());
+    proc.setWorkingDirectory(directory);
+    proc.setProcessChannelMode(QProcess::MergedChannels);
+
+    output += QString("Building debugging helper library in %1\n").arg(directory);
+    output += "\n";
+
+    QString makeFullPath = env.searchInPath(makeCommand);
+    if (!makeFullPath.isEmpty()) {
+        output += QString("Running %1 clean...\n").arg(makeFullPath);
+        proc.start(makeFullPath, QStringList() << "clean");
+        proc.waitForFinished();
+        output += proc.readAll();
+    } else {
+        output += QString("%1 not found in PATH\n").arg(makeCommand);
+        return output;
+    }
+
+    output += QString("\nRunning %1 ...\n").arg(qmakeCommand);
+
+    proc.start(qmakeCommand, QStringList()<<"-spec"<< (mkspec.isEmpty() ? "default" : mkspec) <<"gdbmacros.pro");
+    proc.waitForFinished();
+
+    output += proc.readAll();
+
+    output += "\n";
+    if (!makeFullPath.isEmpty()) {
+        output += QString("Running %1 ...\n").arg(makeFullPath);
+        proc.start(makeFullPath, QStringList());
+        proc.waitForFinished();
+        output += proc.readAll();
+    } else {
+        output += QString("%1 not found in PATH\n").arg(makeCommand);
+    }
     return output;
 }
