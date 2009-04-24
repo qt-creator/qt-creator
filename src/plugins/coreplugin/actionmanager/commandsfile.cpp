@@ -42,7 +42,6 @@ using namespace Core::Internal;
 /*!
     \class CommandsFile
     \brief The CommandsFile class provides a collection of import and export commands.
-    \ingroup qwb
     \inheaderfile commandsfile.h
 */
 

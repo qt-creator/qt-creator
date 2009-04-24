@@ -154,7 +154,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     if (QApplication::clipboard()->supportsFindBuffer()) {
         m_enterFindStringAction = new QAction(tr("Enter Find String"), this);
-        cmd = am->registerAction(m_enterFindStringAction, tr("Find.EnterFindString"), globalcontext);
+        cmd = am->registerAction(m_enterFindStringAction, QLatin1String("Find.EnterFindString"), globalcontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E")));
         mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
         connect(m_enterFindStringAction, SIGNAL(triggered()), this, SLOT(putSelectionToFindClipboard()));

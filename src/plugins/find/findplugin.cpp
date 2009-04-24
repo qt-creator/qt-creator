@@ -47,6 +47,20 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
 
+/*!
+    \namespace Find
+    The Find namespace provides everything that has to do with search term based searches.
+*/
+
+/*!
+    \namespace Find::Internal
+    \internal
+*/
+/*!
+    \namespace Find::Internal::ItemDataRoles
+    \internal
+*/
+
 Q_DECLARE_METATYPE(Find::IFindFilter*)
 
 namespace {

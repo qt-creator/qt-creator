@@ -40,31 +40,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-/*!
-  \class Core::IEditor
-  \brief The IEditor is an interface for providing different editors for different file types.
-
-  Classes that implement this interface are for example the editors for
-  C++ files, ui-files and resource files.
-
-  Whenever a user wants to edit or create a file, the EditorManager scans all
-  EditorFactoryInterfaces for suitable editors. The selected EditorFactory
-  is then asked to create an editor, which must implement this interface.
-
-  Guidelines for implementing:
-  \list
-  \o displayName() is used as a user visible description of the document (usually filename w/o path).
-  \o kind() must be the same value as the kind() of the corresponding EditorFactory.
-  \o The changed() signal should be emitted when the modified state of the document changes
-     (so /bold{not} every time the document changes, but /bold{only once}).
-  \o If duplication is supported, you need to ensure that all duplicates
-        return the same file().
-  \endlist
-
-  \sa Core::EditorFactoryInterface Core::IContext
-
-*/
-
 class CORE_EXPORT IEditor : public IContext
 {
     Q_OBJECT
@@ -85,8 +60,8 @@ public:
     virtual QByteArray saveState() const = 0;
     virtual bool restoreState(const QByteArray &state) = 0;
 
-    virtual int currentLine() const { return 0; };
-    virtual int currentColumn() const { return 0; };
+    virtual int currentLine() const { return 0; }
+    virtual int currentColumn() const { return 0; }
 
     virtual QToolBar *toolBar() = 0;
 

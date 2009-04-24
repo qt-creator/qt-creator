@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>welcomePage</class>
- <widget class="QWidget" name="welcomePage">
+ <class>Core::Internal::WelcomePage</class>
+ <widget class="QWidget" name="Core::Internal::WelcomePage">
   <property name="geometry">
    <rect>
     <x>0</x>
