@@ -268,10 +268,10 @@ QString QtVersionManager::qtVersionForQMake(const QString &qmakePath)
     if (!qmake.waitForFinished())
         return false;
     QString output = qmake.readAllStandardOutput();
-    QRegExp regexp("(QMake version|Qmake version:)[\\s]*([\\d.]*)");
+    QRegExp regexp("(QMake version|QMake version:)[\\s]*([\\d.]*)", Qt::CaseInsensitive);
     regexp.indexIn(output);
     if (regexp.cap(2).startsWith("2.")) {
-        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)");
+        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)", Qt::CaseInsensitive);
         regexp2.indexIn(output);
         return regexp2.cap(1);
     }
