@@ -33,10 +33,10 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "makestep.h"
-#include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/qtversionmanager.h>
 
 #include <QFileDialog>
 #include <QDir>

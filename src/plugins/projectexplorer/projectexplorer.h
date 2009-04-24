@@ -64,6 +64,7 @@ class RunConfiguration;
 class RunControl;
 class SessionManager;
 class IRunConfigurationRunner;
+class QtVersionManager;
 
 namespace Internal {
 class ApplicationOutput;
@@ -103,6 +104,8 @@ public:
     bool saveModifiedFiles(const QList<Project *> & projects);
 
     void showContextMenu(const QPoint &globalPos, Node *node);
+
+    QtVersionManager *qtVersionManager() const;
 
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *error_message);
@@ -246,6 +249,7 @@ private:
     Node *m_currentNode;
 
     BuildManager *m_buildManager;
+    QtVersionManager *m_versionManager;
 
     QList<Internal::ProjectFileFactory*> m_fileFactories;
     QStringList m_profileMimeTypes;

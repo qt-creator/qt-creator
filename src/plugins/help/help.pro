@@ -35,3 +35,5 @@ include(../../shared/help/help.pri)
 contains(QT_CONFIG, webkit) {
     QT += webkit
 }
+
+OTHER_FILES += Help.pluginspec

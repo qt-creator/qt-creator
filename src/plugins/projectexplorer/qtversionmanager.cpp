@@ -29,36 +29,24 @@
 
 #include "qtversionmanager.h"
 
-#include "qt4projectmanagerconstants.h"
-#include "ui_showbuildlog.h"
+#include "projectexplorerconstants.h"
+#include "cesdkhandler.h"
+
+#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/cesdkhandler.h>
-#include <projectexplorer/toolchain.h>
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QProcess>
 #include <QtCore/QSettings>
-#include <QtCore/QStringRef>
 #include <QtCore/QTime>
-
-#include <QtGui/QFileDialog>
-#include <QtGui/QHeaderView>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
 
-using namespace Qt4ProjectManager::Internal;
-
-using ProjectExplorer::Environment;
+using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
 
 static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
@@ -90,7 +78,6 @@ QtVersionManager::QtVersionManager()
                                            id,
                                            s->value("IsSystemVersion", false).toBool());
         version->setMingwDirectory(s->value("MingwDirectory").toString());
-        version->setPrependPath(s->value("PrependPath").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
         m_versions.append(version);
     }
@@ -111,6 +98,11 @@ QtVersionManager::~QtVersionManager()
     m_versions.clear();
     delete m_emptyVersion;
     m_emptyVersion = 0;
+}
+
+QtVersionManager *QtVersionManager::instance()
+{
+    return ProjectExplorerPlugin::instance()->qtVersionManager();
 }
 
 void QtVersionManager::addVersion(QtVersion *version)
@@ -140,73 +132,11 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QString QtVersionManager::id() const
-{
-    return QLatin1String(Constants::QTVERSION_PAGE);
-}
-
-QString QtVersionManager::trName() const
-{
-    return tr(Constants::QTVERSION_PAGE);
-}
-
-QString QtVersionManager::category() const
-{
-    return Constants::QT_CATEGORY;
-}
-
-QString QtVersionManager::trCategory() const
-{
-    return tr(Constants::QT_CATEGORY);
-}
-
-QWidget *QtVersionManager::createPage(QWidget *parent)
-{
-    if (m_widget)
-        delete m_widget;
-    m_widget = new QtDirWidget(parent, m_versions, m_defaultVersion);
-    return m_widget;
-}
-
 void QtVersionManager::updateUniqueIdToIndexMap()
 {
     m_uniqueIdToIndex.clear();
     for (int i = 0; i < m_versions.size(); ++i)
         m_uniqueIdToIndex.insert(m_versions.at(i)->uniqueId(), i);
-}
-
-void QtVersionManager::apply()
-{
-    m_widget->finish();
-    QList<QtVersion*> newVersions = m_widget->versions();
-    bool versionPathsChanged = m_versions.size() != newVersions.size();
-    if (!versionPathsChanged) {
-        for (int i = 0; i < m_versions.size(); ++i) {
-            if (m_versions.at(i)->path() != newVersions.at(i)->path()) {
-                versionPathsChanged = true;
-                break;
-            }
-        }
-    }
-    qDeleteAll(m_versions);
-    m_versions.clear();
-    foreach(QtVersion *version, m_widget->versions())
-        m_versions.append(new QtVersion(*version));
-    if (versionPathsChanged)
-        updateDocumentation();
-    updateUniqueIdToIndexMap();
-
-    bool emitDefaultChanged = false;
-    if (m_defaultVersion != m_widget->defaultVersion()) {
-        m_defaultVersion = m_widget->defaultVersion();
-        emitDefaultChanged = true;
-    }
-
-    emit qtVersionsChanged();
-    if (emitDefaultChanged)
-        emit defaultQtVersionChanged();
-
-    writeVersionsIntoSettings();
 }
 
 void QtVersionManager::writeVersionsIntoSettings()
@@ -220,7 +150,6 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("Path", m_versions.at(i)->path());
         s->setValue("Id", m_versions.at(i)->uniqueId());
         s->setValue("MingwDirectory", m_versions.at(i)->mingwDirectory());
-        s->setValue("PrependPath", m_versions.at(i)->prependPath());
         s->setValue("msvcVersion", m_versions.at(i)->msvcVersion());
         s->setValue("IsSystemVersion", m_versions.at(i)->isSystemVersion());
     }
@@ -271,8 +200,6 @@ void QtVersionManager::addNewVersionsFromInstaller()
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
                 if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
-                if (newVersionData.count() >= 4)
-                    version->setPrependPath(newVersionData[3]);
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
@@ -378,408 +305,39 @@ QtVersion *QtVersionManager::currentQtVersion() const
         return m_emptyVersion;
 }
 
-//-----------------------------------------------------
-QtDirWidget::QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion)
-    : QWidget(parent)
-    , m_defaultVersion(defaultVersion)
-    , m_specifyNameString(tr("<specify a name>"))
-    , m_specifyPathString(tr("<specify a path>"))
+void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion)
 {
-    // Initialize m_versions
-    foreach(QtVersion *version, versions) {
-        m_versions.append(new QtVersion(*version));
-    }
-
-
-    m_ui.setupUi(this);
-    m_ui.qtPath->setExpectedKind(Core::Utils::PathChooser::Directory);
-    m_ui.qtPath->setPromptDialogTitle(tr("Select QTDIR"));
-    m_ui.mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
-    m_ui.qtPath->setPromptDialogTitle(tr("Select the Qt Directory"));
-
-    m_ui.addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
-    m_ui.delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
-
-    for (int i = 0; i < m_versions.count(); ++i) {
-        const QtVersion * const version = m_versions.at(i);
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.qtdirList);
-        item->setText(0, version->name());
-        item->setText(1, QDir::toNativeSeparators(version->path()));
-        item->setData(0, Qt::UserRole, version->uniqueId());
-
-        if (version->isValid()) {
-            if (version->hasDebuggingHelper())
-                item->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
-            else
-                item->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
-        } else {
-            item->setData(2, Qt::DecorationRole, QIcon());
+    bool versionPathsChanged = m_versions.size() != newVersions.size();
+    if (!versionPathsChanged) {
+        for (int i = 0; i < m_versions.size(); ++i) {
+            if (m_versions.at(i)->path() != newVersions.at(i)->path()) {
+                versionPathsChanged = true;
+                break;
+            }
         }
-
-        m_ui.defaultCombo->addItem(version->name());
-        if (i == m_defaultVersion)
-            m_ui.defaultCombo->setCurrentIndex(i);
     }
-
-    connect(m_ui.nameEdit, SIGNAL(textEdited(const QString &)),
-            this, SLOT(updateCurrentQtName()));
-
-
-    connect(m_ui.qtPath, SIGNAL(changed()),
-            this, SLOT(updateCurrentQtPath()));
-    connect(m_ui.mingwPath, SIGNAL(changed()),
-            this, SLOT(updateCurrentMingwDirectory()));
-
-    connect(m_ui.addButton, SIGNAL(clicked()),
-            this, SLOT(addQtDir()));
-    connect(m_ui.delButton, SIGNAL(clicked()),
-            this, SLOT(removeQtDir()));
-
-    connect(m_ui.qtPath, SIGNAL(browsingFinished()),
-            this, SLOT(onQtBrowsed()));
-    connect(m_ui.mingwPath, SIGNAL(browsingFinished()),
-            this, SLOT(onMingwBrowsed()));
-
-    connect(m_ui.qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(m_ui.defaultCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(defaultChanged(int)));
-
-    connect(m_ui.msvcComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(msvcVersionChanged()));
-
-    connect(m_ui.rebuildButton, SIGNAL(clicked()),
-            this, SLOT(buildDebuggingHelper()));
-    connect(m_ui.showLogButton, SIGNAL(clicked()),
-            this, SLOT(showDebuggingBuildLog()));
-
-    showEnvironmentPage(0);
-    updateState();
-}
-
-void QtDirWidget::buildDebuggingHelper()
-{
-    // Find the qt version for this button..
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    if (!currentItem)
-        return;
-
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    QtVersion *version = m_versions[currentItemIndex];
-
-    QString result = m_versions.at(currentItemIndex)->buildDebuggingHelperLibrary();
-    currentItem->setData(2, Qt::UserRole, result);
-
-    if (version->hasDebuggingHelper()) {
-        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
-        currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
-    } else {        
-        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
-        currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
-    }
-    m_ui.showLogButton->setEnabled(true);
-}
-
-void QtDirWidget::showDebuggingBuildLog()
-{
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    if (!currentItem)
-        return;
-
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    QDialog dlg;
-    Ui_ShowBuildLog ui;
-    ui.setupUi(&dlg);
-    ui.log->setPlainText(m_ui.qtdirList->topLevelItem(currentItemIndex)->data(2, Qt::UserRole).toString());
-    dlg.exec();
-}
-
-QtDirWidget::~QtDirWidget()
-{
     qDeleteAll(m_versions);
-}
+    m_versions.clear();
+    foreach(QtVersion *version, newVersions)
+        m_versions.append(new QtVersion(*version));
+    if (versionPathsChanged)
+        updateDocumentation();
+    updateUniqueIdToIndexMap();
 
-void QtDirWidget::addQtDir()
-{
-    QtVersion *newVersion = new QtVersion(m_specifyNameString, m_specifyPathString);
-    m_versions.append(newVersion);
-
-    QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.qtdirList);
-    item->setText(0, newVersion->name());
-    item->setText(1, QDir::toNativeSeparators(newVersion->path()));
-    item->setData(0, Qt::UserRole, newVersion->uniqueId());
-    item->setData(2, Qt::DecorationRole, QIcon());
-
-    m_ui.qtdirList->setCurrentItem(item);
-
-    m_ui.nameEdit->setText(newVersion->name());
-    m_ui.qtPath->setPath(newVersion->path());
-    m_ui.defaultCombo->addItem(newVersion->name());
-    m_ui.nameEdit->setFocus();
-    m_ui.nameEdit->selectAll();
-}
-
-void QtDirWidget::removeQtDir()
-{
-    QTreeWidgetItem *item = m_ui.qtdirList->currentItem();
-    int index = m_ui.qtdirList->indexOfTopLevelItem(item);
-    if (index < 0)
-        return;
-
-    for (int i = 0; i < m_ui.defaultCombo->count(); ++i) {
-        if (m_ui.defaultCombo->itemText(i) == item->text(0)) {
-            m_ui.defaultCombo->removeItem(i);
-            break;
-        }
+    bool emitDefaultChanged = false;
+    if (m_defaultVersion != newDefaultVersion) {
+        m_defaultVersion = newDefaultVersion;
+        emitDefaultChanged = true;
     }
 
-    delete item;
+    emit qtVersionsChanged();
+    if (emitDefaultChanged)
+        emit defaultQtVersionChanged();
 
-    delete m_versions.takeAt(index);
-    updateState();
-}
-
-void QtDirWidget::updateState()
-{
-    bool enabled = (m_ui.qtdirList->currentItem() != 0);
-    bool isSystemVersion = (enabled 
-        && m_versions.at(m_ui.qtdirList->indexOfTopLevelItem(m_ui.qtdirList->currentItem()))->isSystemVersion());
-    m_ui.delButton->setEnabled(enabled && !isSystemVersion);
-    m_ui.nameEdit->setEnabled(enabled && !isSystemVersion);
-    m_ui.qtPath->setEnabled(enabled && !isSystemVersion);
-    m_ui.mingwPath->setEnabled(enabled);
-
-    bool hasLog = enabled && !m_ui.qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
-    m_ui.showLogButton->setEnabled(hasLog);
-
-    QtVersion *version = 0;
-    if (enabled)
-        version = m_versions.at(m_ui.qtdirList->indexOfTopLevelItem(m_ui.qtdirList->currentItem()));
-    if (version) {
-        m_ui.rebuildButton->setEnabled(version->isValid());
-        if (version->hasDebuggingHelper())
-            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
-        else
-            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
-    } else {
-        m_ui.rebuildButton->setEnabled(false);
-        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap());
-    }
-}
-void QtDirWidget::makeMingwVisible(bool visible)
-{
-    m_ui.mingwLabel->setVisible(visible);
-    m_ui.mingwPath->setVisible(visible);
-}
-
-void QtDirWidget::showEnvironmentPage(QTreeWidgetItem *item)
-{
-    m_ui.msvcComboBox->setVisible(false);
-    if (item) {
-        int index = m_ui.qtdirList->indexOfTopLevelItem(item);
-        m_ui.errorLabel->setText("");
-        ProjectExplorer::ToolChain::ToolChainType t = m_versions.at(index)->toolchainType();
-        if (t == ProjectExplorer::ToolChain::MinGW) {
-            m_ui.msvcComboBox->setVisible(false);
-            makeMingwVisible(true);
-            m_ui.mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (t == ProjectExplorer::ToolChain::MSVC || t == ProjectExplorer::ToolChain::WINCE){
-            m_ui.msvcComboBox->setVisible(false);
-            makeMingwVisible(false);
-            QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
-            if (msvcEnvironments.count() == 0) {
-            } else if (msvcEnvironments.count() == 1) {
-            } else {
-                 m_ui.msvcComboBox->setVisible(true);
-                 bool block = m_ui.msvcComboBox->blockSignals(true);
-                 m_ui.msvcComboBox->clear();
-                 foreach(const QString &msvcenv, msvcEnvironments) {
-                     m_ui.msvcComboBox->addItem(msvcenv);
-                     if (msvcenv == m_versions.at(index)->msvcVersion()) {
-                         m_ui.msvcComboBox->setCurrentIndex(m_ui.msvcComboBox->count() - 1);
-                     }
-                 }
-                 m_ui.msvcComboBox->blockSignals(block);
-            }
-        } else if (t == ProjectExplorer::ToolChain::INVALID) {
-            m_ui.msvcComboBox->setVisible(false);
-            makeMingwVisible(false);
-            if (!m_versions.at(index)->isInstalled())
-                m_ui.errorLabel->setText(tr("The Qt Version %1 is not installed. Run make install")
-                                           .arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
-            else
-                m_ui.errorLabel->setText(tr("%1 is not a valid qt directory").arg(QDir::toNativeSeparators(m_versions.at(index)->path())));
-        } else { //ProjectExplorer::ToolChain::GCC
-            m_ui.msvcComboBox->setVisible(false);
-            makeMingwVisible(false);
-            m_ui.errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
-                                     .arg(m_versions.at(index)->qtVersionString(),
-                                          m_versions.at(index)->mkspec()));
-        }
-    } else {
-        m_ui.msvcComboBox->setVisible(false);
-        makeMingwVisible(false);
-    }
-}
-
-void QtDirWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
-{
-    if (old) {
-        fixQtVersionName(m_ui.qtdirList->indexOfTopLevelItem(old));
-    }
-    if (item) {
-        m_ui.nameEdit->setText(item->text(0));
-        m_ui.qtPath->setPath(item->text(1));
-    } else {
-        m_ui.nameEdit->clear();
-        m_ui.qtPath->setPath(""); // clear()
-    }
-    showEnvironmentPage(item);
-    updateState();
-}
-
-void QtDirWidget::onQtBrowsed()
-{
-    const QString dir = m_ui.qtPath->path();
-    if (dir.isEmpty())
-        return;
-
-    updateCurrentQtPath();
-    if (m_ui.nameEdit->text().isEmpty() || m_ui.nameEdit->text() == m_specifyNameString) {
-        QStringList dirSegments = dir.split(QDir::separator(), QString::SkipEmptyParts);
-        if (!dirSegments.isEmpty())
-            m_ui.nameEdit->setText(dirSegments.last());
-        updateCurrentQtName();
-    }
-    updateState();
-}
-
-void QtDirWidget::onMingwBrowsed()
-{
-    const QString dir = m_ui.mingwPath->path();
-    if (dir.isEmpty())
-        return;
-
-    updateCurrentMingwDirectory();
-    updateState();
-}
-
-void QtDirWidget::defaultChanged(int)
-{
-    for (int i=0; i<m_ui.defaultCombo->count(); ++i) {
-        if (m_versions.at(i)->name() == m_ui.defaultCombo->currentText()) {
-            m_defaultVersion = i;
-            return;
-        }
-    }
-
-    m_defaultVersion = 0;
-}
-
-void QtDirWidget::updateCurrentQtName()
-{
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    m_versions[currentItemIndex]->setName(m_ui.nameEdit->text());
-    currentItem->setText(0, m_versions[currentItemIndex]->name());
-
-    m_ui.defaultCombo->setItemText(currentItemIndex, m_versions[currentItemIndex]->name());
+    writeVersionsIntoSettings();
 }
 
 
-void QtDirWidget::finish()
-{
-    if (QTreeWidgetItem *item = m_ui.qtdirList->currentItem())
-        fixQtVersionName(m_ui.qtdirList->indexOfTopLevelItem(item));
-}
-
-/* Checks that the qt version name is unique
- * and otherwise changes the name
- *
- */
-void QtDirWidget::fixQtVersionName(int index)
-{
-    int count = m_versions.count();
-    for (int i = 0; i < count; ++i) {
-        if (i != index) {
-            if (m_versions.at(i)->name() == m_versions.at(index)->name()) {
-                // Same name, find new name
-                QString name = m_versions.at(index)->name();
-                QRegExp regexp("^(.*)\\((\\d)\\)$");
-                if (regexp.exactMatch(name)) {
-                    // Alreay in Name (#) format
-                    name = regexp.cap(1) + "(" + QString().setNum(regexp.cap(2).toInt() + 1) + ")";
-                } else {
-                    name = name + " (2)";
-                }
-                // set new name
-                m_versions[index]->setName(name);
-                m_ui.qtdirList->topLevelItem(index)->setText(0, name);
-                m_ui.defaultCombo->setItemText(index, name);
-
-                // Now check again...
-                fixQtVersionName(index);
-            }
-        }
-    }
-}
-
-void QtDirWidget::updateCurrentQtPath()
-{
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    if (m_versions[currentItemIndex]->path() == m_ui.qtPath->path())
-        return;
-    m_versions[currentItemIndex]->setPath(m_ui.qtPath->path());
-    currentItem->setText(1, QDir::toNativeSeparators(m_versions[currentItemIndex]->path()));
-
-    showEnvironmentPage(currentItem);
-
-    if (m_versions[currentItemIndex]->isValid()) {
-        bool hasLog = !currentItem->data(2, Qt::UserRole).toString().isEmpty();
-        bool hasHelper = m_versions[currentItemIndex]->hasDebuggingHelper();
-        if (hasHelper) {
-            currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/ok.png"));
-            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/ok.png"));
-        } else {
-            currentItem->setData(2, Qt::DecorationRole, QIcon(":/extensionsystem/images/error.png"));
-            m_ui.debuggingHelperStateLabel->setPixmap(QPixmap(":/extensionsystem/images/error.png"));
-        }
-        m_ui.showLogButton->setEnabled(hasLog);
-    } else {
-        currentItem->setData(2, Qt::DecorationRole, QIcon());
-        m_ui.debuggingHelperStateLabel->setPixmap(QPixmap());
-    }
-}
-
-void QtDirWidget::updateCurrentMingwDirectory()
-{
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    m_versions[currentItemIndex]->setMingwDirectory(m_ui.mingwPath->path());
-}
-
-void QtDirWidget::msvcVersionChanged()
-{
-    const QString &msvcVersion = m_ui.msvcComboBox->currentText();
-    QTreeWidgetItem *currentItem = m_ui.qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = m_ui.qtdirList->indexOfTopLevelItem(currentItem);
-    m_versions[currentItemIndex]->setMsvcVersion(msvcVersion);
-}
-
-QList<QtVersion *> QtDirWidget::versions() const
-{
-    return m_versions;
-}
-
-int QtDirWidget::defaultVersion() const
-{
-    return m_defaultVersion;
-}
 
 ///
 /// QtVersion
@@ -918,7 +476,6 @@ void QtVersion::updateSourcePath()
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
 QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
 {
-    QString result = QString::null;
     bool debugAdding = false;
     QFile makefile(directory + "/Makefile" );
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
@@ -934,14 +491,12 @@ QString QtVersionManager::findQtVersionFromMakefile(const QString &directory)
                 QString qtDir = binDir.absolutePath();
                 if (debugAdding)
                     qDebug() << "#~~ QtDir:"<<qtDir;
-                // Now we have the qtDir
-                // look through the qtversions wheter we already have that qt version setup
                 return qtDir;
             }
         }
         makefile.close();
     }
-    return result;
+    return QString::null;
 }
 
 QtVersion *QtVersionManager::qtVersionForDirectory(const QString &directory)
@@ -1309,16 +864,6 @@ void QtVersion::setMingwDirectory(const QString &directory)
     m_mingwDirectory = directory;
 }
 
-QString QtVersion::prependPath() const
-{
-    return m_prependPath;
-}
-
-void QtVersion::setPrependPath(const QString &directory)
-{
-    m_prependPath = directory;
-}
-
 QString QtVersion::msvcVersion() const
 {
     return m_msvcVersion;
@@ -1352,8 +897,7 @@ int QtVersion::uniqueId() const
 
 int QtVersion::getUniqueId()
 {
-    QtVersionManager *vm = ExtensionSystem::PluginManager::instance()->getObject<QtVersionManager>();
-    return vm->getUniqueId();
+    return QtVersionManager::instance()->getUniqueId();
 }
 
 bool QtVersion::isValid() const

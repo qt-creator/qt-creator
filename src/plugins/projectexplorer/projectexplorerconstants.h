@@ -177,7 +177,10 @@ const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 const char * const BUILD_PARSER_MSVC    = "BuildParser.MSVC";
 const char * const BUILD_PARSER_GCC     = "BuildParser.Gcc";
 
-
+//Qt4 settings pages
+const char * const QT_CATEGORY            = "Qt4";
+const char * const QTVERSION_PAGE         = "Qt Versions";
+const char * const BUILD_ENVIRONMENT_PAGE = "Build Environments";
 } // namespace Constants
 } // namespace ProjectExplorer
 

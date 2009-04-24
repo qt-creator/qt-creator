@@ -34,6 +34,8 @@
 #include "qmakestep.h"
 #include "makestep.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtGui/QCheckBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
@@ -43,12 +45,14 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
+using ProjectExplorer::QtVersion;
+
 ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::WindowFlags flags)
     : QWizard(parent, flags), m_project(project), m_importVersion(0), m_temporaryVersion(false)
 {
-    QtVersionManager * vm = project->qt4ProjectManager()->versionManager();
+    ProjectExplorer::QtVersionManager * vm = ProjectExplorer::QtVersionManager::instance();
     QString directory = QFileInfo(project->file()->fileName()).absolutePath();
-    QString importVersion =  vm->findQtVersionFromMakefile(directory);
+    QString importVersion =  ProjectExplorer::QtVersionManager::findQtVersionFromMakefile(directory);
 
     if (!importVersion.isNull()) {
         // This also means we have a build in there
@@ -61,7 +65,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
         }
 
         m_importBuildConfig = m_importVersion->defaultBuildConfig();
-        m_importBuildConfig= vm->scanMakefileForQmakeConfig(directory, m_importBuildConfig);
+        m_importBuildConfig= ProjectExplorer::QtVersionManager::scanMakefileForQmakeConfig(directory, m_importBuildConfig);
     }
 
     // So now we have the version and the configuration for that version
@@ -125,6 +129,7 @@ void ProjectLoadWizard::addBuildConfiguration(QString name, QtVersion *qtversion
 
 void ProjectLoadWizard::done(int result)
 {
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
     QWizard::done(result);
     // This normally happens on showing the final page, but since we
     // don't show it anymore, do it here
@@ -133,7 +138,7 @@ void ProjectLoadWizard::done(int result)
     if (m_importVersion && importCheckbox->isChecked()) {
         // Importing
         if (m_temporaryVersion)
-            m_project->qt4ProjectManager()->versionManager()->addVersion(m_importVersion);
+            vm->addVersion(m_importVersion);
         // Import the existing stuff
         // qDebug()<<"Creating m_buildconfiguration entry from imported stuff";
         // qDebug()<<((m_importBuildConfig& QtVersion::BuildAll)? "debug_and_release" : "")<<((m_importBuildConfig & QtVersion::DebugBuild)? "debug" : "release");
@@ -156,7 +161,7 @@ void ProjectLoadWizard::done(int result)
             delete m_importVersion;
         // Create default   
         bool buildAll = false;
-        QtVersion *defaultVersion = m_project->qt4ProjectManager()->versionManager()->version(0);
+        QtVersion *defaultVersion = vm->version(0);
         if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
             buildAll = true;
         if (buildAll) {

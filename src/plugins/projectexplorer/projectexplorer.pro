@@ -54,11 +54,13 @@ HEADERS += projectexplorer.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
-    cesdkhandler.h\
-    buildparserfactory.h\
-    gccparser.h\
-    msvcparser.h\
-    filewatcher.h
+    cesdkhandler.h \
+    buildparserfactory.h \
+    gccparser.h \
+    msvcparser.h \
+    filewatcher.h \
+    qtversionmanager.h \
+    qtoptionspage.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -101,11 +103,13 @@ SOURCES += projectexplorer.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
-    cesdkhandler.cpp\ 
+    cesdkhandler.cpp \
     buildparserfactory.cpp \
-    gccparser.cpp\
-    msvcparser.cpp\
-    filewatcher.cpp
+    gccparser.cpp \
+    msvcparser.cpp \
+    filewatcher.cpp \
+    qtversionmanager.cpp \
+    qtoptionspage.cpp
 FORMS += dependenciespanel.ui \
     buildsettingspropertiespage.ui \
     processstep.ui \
@@ -114,7 +118,9 @@ FORMS += dependenciespanel.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     buildstepspage.ui \
-    removefiledialog.ui
+    removefiledialog.ui \
+    qtversionmanager.ui \
+    showbuildlog.ui
 win32 { 
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
@@ -123,3 +129,4 @@ win32 {
 else:unix:SOURCES += applicationlauncher_x11.cpp
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
+OTHER_FILES += ProjectExplorer.pluginspec

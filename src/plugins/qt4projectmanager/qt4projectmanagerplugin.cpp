@@ -36,7 +36,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "qtversionmanager.h"
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
 #include "profilereader.h"
@@ -48,6 +47,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/qtversionmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -64,14 +64,12 @@
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
 using ProjectExplorer::Project;
+using ProjectExplorer::QtVersionManager;
 
 Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 {
     //removeObject(m_embeddedPropertiesPage);
     //delete m_embeddedPropertiesPage;
-
-    removeObject(m_qtVersionManager);
-    delete m_qtVersionManager;
 
     removeObject(m_proFileEditorFactory);
     delete m_proFileEditorFactory;
@@ -123,9 +121,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
-
-    m_qtVersionManager = new QtVersionManager;
-    addObject(m_qtVersionManager);
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactoryUser);
@@ -188,11 +183,6 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
         if (!m_projectExplorer->buildManager()->isBuilding(project))
             m_runQMakeActionContextMenu->setEnabled(true);
     }
-}
-
-QtVersionManager *Qt4ProjectManagerPlugin::versionManager() const
-{
-    return m_qtVersionManager;
 }
 
 void Qt4ProjectManagerPlugin::currentProjectChanged()

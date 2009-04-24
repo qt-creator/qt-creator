@@ -19,3 +19,5 @@ SOURCES = cmakeproject.cpp \
     cmakeopenprojectwizard.cpp
 RESOURCES += cmakeproject.qrc
 FORMS += 
+
+OTHER_FILES += CMakeProjectManager.pluginspec

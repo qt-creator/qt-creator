@@ -22,3 +22,5 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp
 RESOURCES += cppeditor.qrc
+
+OTHER_FILES += CppEditor.pluginspec

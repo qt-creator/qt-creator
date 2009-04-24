@@ -37,11 +37,6 @@ namespace Constants {
 const char * const C_PROFILEEDITOR  = ".pro File Editor";
 const char * const C_PROFILEEDITOR_PANEL  = ".pro File Editor (embedded)";
 
-//settings pages
-const char * const QT_CATEGORY            = "Qt4";
-const char * const QTVERSION_PAGE         = "Qt Versions";
-const char * const BUILD_ENVIRONMENT_PAGE = "Build Environments";
-
 // kinds
 const char * const PROJECT_KIND      = "Qt4";
 const char * const PROFILE_EDITOR    = ".pro File Editor";

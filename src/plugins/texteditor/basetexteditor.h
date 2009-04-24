@@ -167,6 +167,9 @@ public:
     static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false);
     static bool findNextClosingParenthesis(QTextCursor *cursor, bool select = false);
 
+    static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor);
+    static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
+
 
 private:
     TextMarks m_marks;
@@ -464,6 +467,7 @@ private:
     // parentheses matcher
 private slots:
     void _q_matchParentheses();
+    void _q_highlightBlocks();
     void slotSelectionChanged();
 };
 

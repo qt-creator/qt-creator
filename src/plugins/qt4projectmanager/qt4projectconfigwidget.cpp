@@ -38,8 +38,13 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
+
+using ProjectExplorer::QtVersionManager;
+using ProjectExplorer::QtVersion;
 
 namespace {
 bool debug = false;
@@ -79,7 +84,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
-    connect(m_pro->qt4ProjectManager()->versionManager(), SIGNAL(qtVersionsChanged()),
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+
+    connect(vm, SIGNAL(qtVersionsChanged()),
             this, SLOT(setupQtVersionsComboBox()));
 }
 
@@ -91,7 +98,7 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
+    core->showOptionsDialog(ProjectExplorer::Constants::QT_CATEGORY, ProjectExplorer::Constants::QTVERSION_PAGE);
 }
 
 
@@ -139,7 +146,7 @@ void Qt4ProjectConfigWidget::setupQtVersionsComboBox()
         m_ui->invalidQtWarningLabel->setVisible(false);
     }
     // Add Qt Versions to the combo box
-    QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
+    QtVersionManager *vm = QtVersionManager::instance();
     const QList<QtVersion *> &versions = vm->versions();
     for (int i = 0; i < versions.size(); ++i) {
         m_ui->qtVersionComboBox->addItem(versions.at(i)->name(), versions.at(i)->uniqueId());
@@ -177,7 +184,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
 {
     m_ui->importLabel->setVisible(false);
     if (m_ui->shadowBuildCheckBox->isChecked()) {
-        QString qtPath = m_pro->qt4ProjectManager()->versionManager()->findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
+        QString qtPath = ProjectExplorer::QtVersionManager::findQtVersionFromMakefile(m_ui->shadowBuildDirEdit->path());
         if (!qtPath.isEmpty()) {
             m_ui->importLabel->setVisible(true);
         }
@@ -211,16 +218,16 @@ void Qt4ProjectConfigWidget::importLabelClicked()
     if (m_ui->shadowBuildCheckBox->isChecked()) {
         QString directory = m_ui->shadowBuildDirEdit->path();
         if (!directory.isEmpty()) {
-            QtVersionManager *vm = m_pro->qt4ProjectManager()->versionManager();
-            QString qtPath = vm->findQtVersionFromMakefile(directory);
+            QString qtPath = QtVersionManager::findQtVersionFromMakefile(directory);
             if (!qtPath.isEmpty()) {
+                QtVersionManager *vm = QtVersionManager::instance();
                 QtVersion *version = vm->qtVersionForDirectory(qtPath);
                 if (!version) {
                     version = new QtVersion(QFileInfo(qtPath).baseName(), qtPath);
                     vm->addVersion(version);
                 }
                 QtVersion::QmakeBuildConfig qmakeBuildConfig = version->defaultBuildConfig();
-                qmakeBuildConfig = vm->scanMakefileForQmakeConfig(directory, qmakeBuildConfig);
+                qmakeBuildConfig = QtVersionManager::scanMakefileForQmakeConfig(directory, qmakeBuildConfig);
 
                 // So we got all the information now apply it...
                 m_pro->setQtVersion(m_buildConfiguration, version->uniqueId());
@@ -261,7 +268,8 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     } else {
         newQtVersion = m_ui->qtVersionComboBox->itemData(m_ui->qtVersionComboBox->currentIndex()).toInt();
     }
-    bool isValid = m_pro->qt4ProjectManager()->versionManager()->version(newQtVersion)->isValid();
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+    bool isValid = vm->version(newQtVersion)->isValid();
     m_ui->invalidQtWarningLabel->setVisible(!isValid);
     if (newQtVersion != m_pro->qtVersionId(m_buildConfiguration)) {
         m_pro->setQtVersion(m_buildConfiguration, newQtVersion);

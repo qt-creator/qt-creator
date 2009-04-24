@@ -21,3 +21,5 @@ SOURCES = genericproject.cpp \
     genericmakestep.cpp
 RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
+
+OTHER_FILES += GenericProjectManager.pluginspec

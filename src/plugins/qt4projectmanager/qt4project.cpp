@@ -36,7 +36,6 @@
 #include "qmakestep.h"
 #include "deployhelper.h"
 #include "qt4runconfiguration.h"
-#include "qtversionmanager.h"
 #include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4buildenvironmentwidget.h"
@@ -51,6 +50,7 @@
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/qtversionmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -236,9 +236,11 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 {
     m_manager->registerProject(this);
 
-    connect(qt4ProjectManager()->versionManager(), SIGNAL(defaultQtVersionChanged()),
+    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+
+    connect(vm, SIGNAL(defaultQtVersionChanged()),
             this, SLOT(defaultQtVersionChanged()));
-    connect(qt4ProjectManager()->versionManager(), SIGNAL(qtVersionsChanged()),
+    connect(vm, SIGNAL(qtVersionsChanged()),
             this, SLOT(qtVersionsChanged()));
 
     m_updateCodeModelTimer.setSingleShot(true);
@@ -266,8 +268,9 @@ void Qt4Project::defaultQtVersionChanged()
 
 void Qt4Project::qtVersionsChanged()
 {
+    QtVersionManager *vm = QtVersionManager::instance();
     foreach (QString bc, buildConfigurations()) {
-        if (!qt4ProjectManager()->versionManager()->version(qtVersionId(bc))->isValid()) {
+        if (!vm->version(qtVersionId(bc))->isValid()) {
             setQtVersion(bc, 0);
             if (bc == activeBuildConfiguration())
                 m_rootProjectNode->update();
@@ -740,18 +743,19 @@ QString Qt4Project::qtDir(const QString &buildConfiguration) const
 
 QtVersion *Qt4Project::qtVersion(const QString &buildConfiguration) const
 {
-    return m_manager->versionManager()->version(qtVersionId(buildConfiguration));
+    return QtVersionManager::instance()->version(qtVersionId(buildConfiguration));
 }
 
 int Qt4Project::qtVersionId(const QString &buildConfiguration) const
 {
+    QtVersionManager *vm = QtVersionManager::instance();
     if (debug)
         qDebug()<<"Looking for qtVersion ID of "<<buildConfiguration;
     int id = 0;
     QVariant vid = value(buildConfiguration, "QtVersionId");
     if (vid.isValid()) {
         id = vid.toInt();
-        if (m_manager->versionManager()->version(id)->isValid()) {
+        if (vm->version(id)->isValid()) {
             return id;
         } else {
             const_cast<Qt4Project *>(this)->setValue(buildConfiguration, "QtVersionId", 0);
@@ -763,7 +767,7 @@ int Qt4Project::qtVersionId(const QString &buildConfiguration) const
         if (debug)
             qDebug()<<"  Backward compatibility reading QtVersion"<<vname;
         if (!vname.isEmpty()) {
-            const QList<QtVersion *> &versions = m_manager->versionManager()->versions();
+            const QList<QtVersion *> &versions = vm->versions();
             foreach (const QtVersion * const version, versions) {
                 if (version->name() == vname) {
                     if (debug)

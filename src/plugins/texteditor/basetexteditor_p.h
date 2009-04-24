@@ -114,6 +114,17 @@ private:
 
 //================BaseTextEditorPrivate==============
 
+struct BaseTextEditorPrivateHighlightBlocks
+{
+    QList<int> open;
+    QList<int> close;
+    QList<int> visualIndent;
+    inline bool operator==(const BaseTextEditorPrivateHighlightBlocks &o) const {
+        return (open == o.open && close == o.close && visualIndent == o.visualIndent);
+    }
+    inline bool operator!=(const BaseTextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
+};
+
 class BaseTextEditorPrivate
 {
     BaseTextEditorPrivate(const BaseTextEditorPrivate &);
@@ -214,11 +225,17 @@ public:
     void clearBlockSelection();
     QString copyBlockSelection();
     void removeBlockSelection(const QString &text = QString());
+    bool m_moveLineUndoHack;
     
     QTextCursor m_findScope;
     QTextCursor m_selectBlockAnchor;
 
     void moveCursorVisible(bool ensureVisible = true);
+
+    int visualIndent(const QTextBlock &block) const;
+    BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
+    QTimer *m_highlightBlocksTimer;
+
 };
 
 } // namespace Internal

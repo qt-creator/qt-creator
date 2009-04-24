@@ -30,16 +30,17 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
-#include "qtversionmanager.h"
 #include "ui_makestep.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/qtversionmanager.h>
 
 namespace ProjectExplorer {
 class BuildStep;
 class IBuildStepFactory;
 class Project;
+class QtVersion;
 }
 
 namespace Qt4ProjectManager {
@@ -81,7 +82,7 @@ private slots:
     void addDirectory(const QString &dir);
     void removeDirectory(const QString &dir);
 private:
-    ProjectExplorer::BuildParserInterface *buildParser(const Internal::QtVersion * const version);
+    ProjectExplorer::BuildParserInterface *buildParser(const ProjectExplorer::QtVersion *const version);
     Qt4Project *m_project;
     ProjectExplorer::BuildParserInterface *m_buildParser;
     bool m_skipMakeClean;

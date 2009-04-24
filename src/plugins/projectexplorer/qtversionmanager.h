@@ -30,24 +30,22 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "ui_qtversionmanager.h"
+#include "environment.h"
+#include "toolchain.h"
+#include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/toolchain.h>
+#include <QtCore/QHash>
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QPushButton>
+namespace ProjectExplorer {
 
-namespace Qt4ProjectManager {
 namespace Internal {
+class QtOptionsPageWidget;
+class QtOptionsPage;
+}
 
-class QtDirWidget;
-
-class QtVersion
+class PROJECTEXPLORER_EXPORT QtVersion
 {
-    friend class QtDirWidget; //for changing name and path
+    friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
 public:
     QtVersion(const QString &name, const QString &path);
@@ -74,12 +72,11 @@ public:
 
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
-    QString prependPath() const;
-    void setPrependPath(const QString &string);
     QString msvcVersion() const;
     QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
     void addToEnvironment(ProjectExplorer::Environment &env);
+
     bool hasDebuggingHelper() const;
     // Builds a debugging library
     // returns the output of the commands
@@ -98,6 +95,7 @@ public:
     QString dumperLibrary() const;
 private:
     static int getUniqueId();
+    // Also used by QtOptionsPageWidget
     void setName(const QString &name);
     void setPath(const QString &path);
     void updateSourcePath();
@@ -126,95 +124,48 @@ private:
     bool m_hasDebuggingHelper;
 };
 
-
-class QtDirWidget : public QWidget
+class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
+    // for getUniqueId();
+    friend class QtVersion;
+    friend class Internal::QtOptionsPage;
 public:
-    QtDirWidget(QWidget *parent, QList<QtVersion *> versions, int defaultVersion);
-    ~QtDirWidget();
-    QList<QtVersion *> versions() const;
-    int defaultVersion() const;
-    void finish();
-
-private:
-    void showEnvironmentPage(QTreeWidgetItem * item);
-    void fixQtVersionName(int index);
-    int indexForWidget(QWidget *debuggingHelperWidget) const;
-    Ui::QtVersionManager m_ui;
-    QList<QtVersion *> m_versions;
-    int m_defaultVersion;
-    QString m_specifyNameString;
-    QString m_specifyPathString;
-
-private slots:
-    void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
-    void addQtDir();
-    void removeQtDir();
-    void updateState();
-    void makeMingwVisible(bool visible);
-    void onQtBrowsed();
-    void onMingwBrowsed();
-    void defaultChanged(int index);
-    void updateCurrentQtName();
-    void updateCurrentQtPath();
-    void updateCurrentMingwDirectory();
-    void msvcVersionChanged();
-    void buildDebuggingHelper();
-    void showDebuggingBuildLog();
-};
-
-class QtVersionManager : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
+    static QtVersionManager *instance();
     QtVersionManager();
     ~QtVersionManager();
 
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-
-    void writeVersionsIntoSettings();
-
     QList<QtVersion *> versions() const;
 
-    QtVersion * version(int id) const;
-    QtVersion * currentQtVersion() const;
+    QtVersion *version(int id) const;
+    QtVersion *currentQtVersion() const;
 
-    // internal
-    int getUniqueId();
-
-    QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
-    QString findQtVersionFromMakefile(const QString &directory);
     QtVersion *qtVersionForDirectory(const QString &directory);
-
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
-    
+
+    // Static Methods
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
+    static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
+    static QString findQtVersionFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged();
 private:
-
+    // Used by QtOptionsPage
+    void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
+    // Used by QtVersion
+    int getUniqueId();
+    void writeVersionsIntoSettings();
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
     QString findSystemQt() const;
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
-
-    QPointer<QtDirWidget> m_widget;
 
     QtVersion *m_emptyVersion;
     int m_defaultVersion;
@@ -223,7 +174,6 @@ private:
     int m_idcount;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
 #endif // QTVERSIONMANAGER_H

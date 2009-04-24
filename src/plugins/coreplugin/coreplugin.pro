@@ -167,3 +167,5 @@ linux-* {
 
     INSTALLS += images
 }
+
+OTHER_FILES += Core.pluginspec
