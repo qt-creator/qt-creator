@@ -705,80 +705,60 @@ void QtVersion::updateMkSpec() const
     //qDebug()<<"Finding mkspec for"<<path();
 
     QString mkspec;
-//    QFile f(path() + "/.qmake.cache");
-//    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-//        while (!f.atEnd()) {
-//            QByteArray line = f.readLine();
-//            if (line.startsWith("QMAKESPEC")) {
-//                const QList<QByteArray> &temp = line.split('=');
-//                if (temp.size() == 2) {
-//                    mkspec = temp.at(1).trimmed();
-//                    if (mkspec.startsWith("$$QT_BUILD_TREE/mkspecs/"))
-//                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE/mkspecs/").length());
-//                    else if (mkspec.startsWith("$$QT_BUILD_TREE\\mkspecs\\"))
-//                        mkspec = mkspec.mid(QString("$$QT_BUILD_TREE\\mkspecs\\").length());
-//                    mkspec = QDir::fromNativeSeparators(mkspec);
-//                }
-//                break;
-//            }
-//        }
-//        f.close();
-//    } else {
-        // no .qmake.cache so look at the default mkspec
-        QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
-        if (mkspecPath.isEmpty())
-            mkspecPath = path() + "/mkspecs/default";
-        else
-            mkspecPath = mkspecPath + "/default";
+    // no .qmake.cache so look at the default mkspec
+    QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
+    if (mkspecPath.isEmpty())
+        mkspecPath = path() + "/mkspecs/default";
+    else
+        mkspecPath = mkspecPath + "/default";
 //        qDebug() << "default mkspec is located at" << mkspecPath;
 #ifdef Q_OS_WIN
-        QFile f2(mkspecPath + "/qmake.conf");
-        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while (!f2.atEnd()) {
-                QByteArray line = f2.readLine();
-                if (line.startsWith("QMAKESPEC_ORIGINAL")) {
-                    const QList<QByteArray> &temp = line.split('=');
-                    if (temp.size() == 2) {
-                        mkspec = temp.at(1).trimmed();
-                    }
-                    break;
+    QFile f2(mkspecPath + "/qmake.conf");
+    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+        while (!f2.atEnd()) {
+            QByteArray line = f2.readLine();
+            if (line.startsWith("QMAKESPEC_ORIGINAL")) {
+                const QList<QByteArray> &temp = line.split('=');
+                if (temp.size() == 2) {
+                    mkspec = temp.at(1).trimmed();
                 }
+                break;
             }
-            f2.close();
         }
+        f2.close();
+    }
 #elif defined(Q_OS_MAC)
-        QFile f2(mkspecPath + "/qmake.conf");
-        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while (!f2.atEnd()) {
-                QByteArray line = f2.readLine();
-                if (line.startsWith("MAKEFILE_GENERATOR")) {
-                    const QList<QByteArray> &temp = line.split('=');
-                    if (temp.size() == 2) {
-                        const QByteArray &value = temp.at(1);
-                        if (value.contains("XCODE")) {
-                            // we don't want to generate xcode projects...
-//                            qDebug() << "default mkspec is xcode, falling back to g++";
-                            mkspec = "macx-g++";
-                        } else {
-                            //resolve mkspec link
-                            QFileInfo f3(mkspecPath);
-                            if (f3.isSymLink()) {
-                                mkspec = f3.symLinkTarget();
-                            }
+    QFile f2(mkspecPath + "/qmake.conf");
+    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+        while (!f2.atEnd()) {
+            QByteArray line = f2.readLine();
+            if (line.startsWith("MAKEFILE_GENERATOR")) {
+                const QList<QByteArray> &temp = line.split('=');
+                if (temp.size() == 2) {
+                    const QByteArray &value = temp.at(1);
+                    if (value.contains("XCODE")) {
+                        // we don't want to generate xcode projects...
+//                      qDebug() << "default mkspec is xcode, falling back to g++";
+                        mkspec = "macx-g++";
+                    } else {
+                        //resolve mkspec link
+                        QFileInfo f3(mkspecPath);
+                        if (f3.isSymLink()) {
+                            mkspec = f3.symLinkTarget();
                         }
                     }
-                    break;
                 }
+                break;
             }
-            f2.close();
         }
+        f2.close();
+    }
 #else
-        QFileInfo f2(mkspecPath);
-        if (f2.isSymLink()) {
-            mkspec = f2.symLinkTarget();
-        }
+    QFileInfo f2(mkspecPath);
+    if (f2.isSymLink()) {
+        mkspec = f2.symLinkTarget();
+    }
 #endif
-//    }
 
     m_mkspecFullPath = mkspec;
     int index = mkspec.lastIndexOf('/');
