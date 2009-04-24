@@ -141,8 +141,8 @@ void CMakeRunConfiguration::setArguments(const QString &newText)
 
 QString CMakeRunConfiguration::dumperLibrary() const
 {
-    QString qmakePath = ProjectExplorer::QtVersionManager::findSystemQt(environment());
-    QString dhl = ProjectExplorer::QtVersionManager::debuggingHelperLibrary(qmakePath);
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    QString dhl = ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
     return dhl;
 }
 

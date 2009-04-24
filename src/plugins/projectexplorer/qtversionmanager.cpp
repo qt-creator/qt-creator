@@ -230,7 +230,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 void QtVersionManager::updateSystemVersion()
 {
     bool haveSystemVersion = false;
-    QString systemQMakePath = findSystemQt(Environment::systemEnvironment());
+    QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(Environment::systemEnvironment());
     QString systemQtPath;
     if (systemQMakePath.isNull()) {
         systemQtPath = tr("<not found>");
@@ -259,7 +259,7 @@ void QtVersionManager::updateSystemVersion()
         ++m_defaultVersion;
 }
 
-QStringList QtVersionManager::possibleQMakeCommands()
+QStringList DebuggingHelperLibrary::possibleQMakeCommands()
 {
     // On windows noone has renamed qmake, right?
 #ifdef Q_OS_WIN
@@ -269,39 +269,6 @@ QStringList QtVersionManager::possibleQMakeCommands()
     QStringList result;
     result << "qmake-qt4" << "qmake4" << "qmake";
     return result;
-}
-
-QString QtVersionManager::qtVersionForQMake(const QString &qmakePath)
-{
-    QProcess qmake;
-    qmake.start(qmakePath, QStringList()<<"--version");
-    if (!qmake.waitForFinished())
-        return false;
-    QString output = qmake.readAllStandardOutput();
-    QRegExp regexp("(QMake version|QMake version:)[\\s]*([\\d.]*)", Qt::CaseInsensitive);
-    regexp.indexIn(output);
-    if (regexp.cap(2).startsWith("2.")) {
-        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)", Qt::CaseInsensitive);
-        regexp2.indexIn(output);
-        return regexp2.cap(1);
-    }
-    return QString();
-}
-
-QString QtVersionManager::findSystemQt(const Environment &env)
-{
-    QStringList paths = env.path();
-    foreach (const QString &path, paths) {
-        foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            QFileInfo qmake(path + "/" + possibleCommand);
-            if (qmake.exists()) {
-                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
-                    return qmake.absoluteFilePath();
-                }
-            }
-        }
-    }
-    return QString::null;
 }
 
 QtVersion *QtVersionManager::currentQtVersion() const
@@ -781,11 +748,11 @@ QString QtVersion::qmakeCommand() const
         return m_qmakeCommand;
 
     QDir qtDir = path() + "/bin/";
-    foreach (const QString &possibleCommand, QtVersionManager::possibleQMakeCommands()) {
+    foreach (const QString &possibleCommand, DebuggingHelperLibrary::possibleQMakeCommands()) {
         QString s = qtDir.absoluteFilePath(possibleCommand);
         QFileInfo qmake(s);
         if (qmake.exists() && qmake.isExecutable()) {
-            QString qtVersion = QtVersionManager::qtVersionForQMake(qmake.absoluteFilePath());
+            QString qtVersion = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
             if (!qtVersion.isNull()) {
                 m_qtVersionString = qtVersion;
                 m_qmakeCommand = qmake.absoluteFilePath();
@@ -888,7 +855,7 @@ QString QtVersion::debuggingHelperLibrary() const
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         qtInstallData = path();
-    return QtVersionManager::debuggingHelperLibrary(qtInstallData, path());
+    return DebuggingHelperLibrary::debuggingHelperLibrary(qtInstallData, path());
 }
 
 
@@ -928,8 +895,8 @@ QString QtVersion::buildDebuggingHelperLibrary()
     else if (t == ProjectExplorer::ToolChain::GCC || t == ProjectExplorer::ToolChain::LinuxICC)
         make = "make";
 
-    QString directory = QtVersionManager::copyDebuggingHelperLibrary(qtInstallData, path());
-    QString output = QtVersionManager::buildDebuggingHelperLibrary(directory, make, qmakeCommand(), mkspec(), env);
+    QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, path());
+    QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, make, qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     return output;
 }
@@ -939,12 +906,28 @@ QString QtVersion::buildDebuggingHelperLibrary()
 // Helper functions for building, checking for existance and finding the debugging helper library
 ///
 
-bool QtVersionManager::hasDebuggingHelperLibrary(const QString &qmakePath)
+QString DebuggingHelperLibrary::findSystemQt(const Environment &env)
+{
+    QStringList paths = env.path();
+    foreach (const QString &path, paths) {
+        foreach (const QString &possibleCommand, possibleQMakeCommands()) {
+            QFileInfo qmake(path + "/" + possibleCommand);
+            if (qmake.exists()) {
+                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
+                    return qmake.absoluteFilePath();
+                }
+            }
+        }
+    }
+    return QString::null;
+}
+
+bool DebuggingHelperLibrary::hasDebuggingHelperLibrary(const QString &qmakePath)
 {
     return !debuggingHelperLibrary(qmakePath).isNull();
 }
 
-QStringList QtVersionManager::debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath)
+QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath)
 {
     uint hash = qHash(qtpath);
     QStringList directories;
@@ -955,12 +938,12 @@ QStringList QtVersionManager::debuggingHelperLibraryDirectories(const QString &q
     return directories;
 }
 
-QString QtVersionManager::debuggingHelperLibrary(const QString &qmakePath)
+QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qmakePath)
 {
     return debuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
 }
 
-QString QtVersionManager::qtInstallDataDir(const QString &qmakePath)
+QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
 {
     QProcess proc;
     proc.start(qmakePath, QStringList() << "-query"<< "QT_INSTALL_DATA");
@@ -969,7 +952,7 @@ QString QtVersionManager::qtInstallDataDir(const QString &qmakePath)
     return QString::null;
 }
 
-QString QtVersionManager::qtDir(const QString &qmakePath)
+QString DebuggingHelperLibrary::qtDir(const QString &qmakePath)
 {
     QDir dir = QFileInfo(qmakePath).absoluteDir();
     dir.cdUp();
@@ -978,7 +961,7 @@ QString QtVersionManager::qtDir(const QString &qmakePath)
 
 // Debugging Helper Library
 
-QString QtVersionManager::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
+QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
 {
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath)) {
 #if defined(Q_OS_WIN)
@@ -995,20 +978,20 @@ QString QtVersionManager::debuggingHelperLibrary(const QString &qtInstallData, c
 }
 
 
-QString QtVersionManager::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
+QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
 {
     QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
     return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
     return QString::null;
 }
 
-QString QtVersionManager::copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir)
+QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir)
 {
     // Locations to try:
     //    $QTDIR/qtc-debugging-helper
     //    $APPLICATION-DIR/qtc-debugging-helper/$hash
     //    $USERDIR/qtc-debugging-helper/$hash
-    QStringList directories = QtVersionManager::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
+    QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
 
     QStringList files;
     files << "gdbmacros.cpp" << "gdbmacros.pro"
@@ -1034,7 +1017,7 @@ QString QtVersionManager::copyDebuggingHelperLibrary(const QString &qtInstallDat
     return QString::null;
 }
 
-QString QtVersionManager::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env)
+QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env)
 {
     QString output;
     // Setup process
@@ -1075,3 +1058,21 @@ QString QtVersionManager::buildDebuggingHelperLibrary(const QString &directory, 
     }
     return output;
 }
+
+QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
+{
+    QProcess qmake;
+    qmake.start(qmakePath, QStringList()<<"--version");
+    if (!qmake.waitForFinished())
+        return false;
+    QString output = qmake.readAllStandardOutput();
+    QRegExp regexp("(QMake version|QMake version:)[\\s]*([\\d.]*)", Qt::CaseInsensitive);
+    regexp.indexIn(output);
+    if (regexp.cap(2).startsWith("2.")) {
+        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)", Qt::CaseInsensitive);
+        regexp2.indexIn(output);
+        return regexp2.cap(1);
+    }
+    return QString();
+}
+
