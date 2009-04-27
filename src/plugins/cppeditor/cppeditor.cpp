@@ -75,6 +75,7 @@
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
+#include <QtGui/QSortFilterProxyModel>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -243,7 +244,22 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     m_methodCombo->setMaxVisibleItems(20);
 
     m_overviewModel = new OverviewModel(this);
-    m_methodCombo->setModel(m_overviewModel);
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setSourceModel(m_overviewModel);
+    if (CppPlugin::instance()->sortedMethodOverview())
+        m_proxyModel->sort(0, Qt::AscendingOrder);
+    else
+        m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedMethodOverview()
+    m_proxyModel->setDynamicSortFilter(true);
+    m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_methodCombo->setModel(m_proxyModel);
+
+    m_methodCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_sortAction = new QAction(tr("Sort alphabetically"), m_methodCombo);
+    m_sortAction->setCheckable(true);
+    m_sortAction->setChecked(sortedMethodOverview());
+    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedMethodOverview(bool)));
+    m_methodCombo->addAction(m_sortAction);
 
     connect(m_methodCombo, SIGNAL(activated(int)), this, SLOT(jumpToMethod(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateMethodBoxIndex()));
@@ -366,12 +382,31 @@ void CPPEditor::updateFileName()
 
 void CPPEditor::jumpToMethod(int)
 {
-    QModelIndex index = m_methodCombo->view()->currentIndex();
+    QModelIndex index = m_proxyModel->mapToSource(m_methodCombo->view()->currentIndex());
     Symbol *symbol = m_overviewModel->symbolFromIndex(index);
     if (! symbol)
         return;
 
     openCppEditorAt(linkToSymbol(symbol));
+}
+
+void CPPEditor::setSortedMethodOverview(bool sort)
+{
+    if (sort != sortedMethodOverview()) {
+        if (sort)
+            m_proxyModel->sort(0, Qt::AscendingOrder);
+        else
+            m_proxyModel->sort(-1, Qt::AscendingOrder);
+        bool block = m_sortAction->blockSignals(true);
+        m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
+        m_sortAction->blockSignals(block);
+        updateMethodBoxIndex();
+    }
+}
+
+bool CPPEditor::sortedMethodOverview() const
+{
+    return (m_proxyModel->sortColumn() == 0);
 }
 
 void CPPEditor::updateMethodBoxIndex()
@@ -394,7 +429,7 @@ void CPPEditor::updateMethodBoxIndex()
 
     if (lastIndex.isValid()) {
         bool blocked = m_methodCombo->blockSignals(true);
-        m_methodCombo->setCurrentIndex(lastIndex.row());
+        m_methodCombo->setCurrentIndex(m_proxyModel->mapFromSource(lastIndex).row());
         updateMethodBoxToolTip();
         (void) m_methodCombo->blockSignals(blocked);
     }
