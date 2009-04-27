@@ -2365,7 +2365,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                          extraAreaWidth, viewport()->height());
         painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
                          extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
-        QRect cb = collapseBox();
+//        QRect cb = collapseBox();
 //        if (!cb.isEmpty()) {
 //            QPen pen(baseColor.value() < 128 ? Qt::white : Qt::black);
 //            pen.setWidth(2);
@@ -2428,10 +2428,17 @@ void BaseTextEditor::slotCursorPositionChanged()
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
     }
+
+    if (d->m_parenthesesMatchingEnabled) {
+        // Delay update when no matching is displayed yet, to avoid flicker
+        if (extraSelections(ParenthesesMatchingSelection).isEmpty()) {
+            d->m_parenthesesMatchingTimer->start(50);
+        } else {
+            _q_matchParentheses();
+        }
+    }
+
     QList<QTextEdit::ExtraSelection> extraSelections;
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2445,7 +2452,7 @@ void BaseTextEditor::slotCursorPositionChanged()
     setExtraSelections(CurrentLineSelection, extraSelections);
 
     if (d->m_highlightBlocks) {
-        QTextCursor cursor  = textCursor();
+        QTextCursor cursor = textCursor();
         d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
         d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         d->m_highlightBlocksTimer->start(100);
@@ -3333,10 +3340,12 @@ void BaseTextEditor::_q_matchParentheses()
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
     const TextBlockUserData::MatchType forwardMatchType = TextBlockUserData::matchCursorForward(&forwardMatch);
 
-    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
-        return;
-
     QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch) {
+        setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+        return;
+    }
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
