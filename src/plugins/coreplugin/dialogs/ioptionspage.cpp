@@ -27,48 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef IEDITOR_H
-#define IEDITOR_H
+#include "ioptionspage.h"
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/ifile.h>
+/*!
+  \class Core::IOptionsPage
+  \mainclass
+  \brief The IOptionsPage is an interface for providing options pages.
 
-QT_BEGIN_NAMESPACE
-class QToolBar;
-QT_END_NAMESPACE
-
-namespace Core {
-
-class CORE_EXPORT IEditor : public IContext
-{
-    Q_OBJECT
-public:
-    IEditor(QObject *parent = 0) : IContext(parent) {}
-    virtual ~IEditor() {}
-
-    virtual bool createNew(const QString &contents = QString()) = 0;
-    virtual bool open(const QString &fileName = QString()) = 0;
-    virtual IFile *file() = 0;
-    virtual const char *kind() const = 0;
-    virtual QString displayName() const = 0;
-    virtual void setDisplayName(const QString &title) = 0;
-
-    virtual bool duplicateSupported() const = 0;
-    virtual IEditor *duplicate(QWidget *parent) = 0;
-
-    virtual QByteArray saveState() const = 0;
-    virtual bool restoreState(const QByteArray &state) = 0;
-
-    virtual int currentLine() const { return 0; }
-    virtual int currentColumn() const { return 0; }
-
-    virtual QToolBar *toolBar() = 0;
-
-signals:
-    void changed();
-};
-
-} // namespace Core
-
-#endif // IEDITOR_H
+  Guidelines for implementing:
+  \list
+  \o id() is an id used for filtering when calling ICore:: showOptionsDialog()
+  \o trName() is the (translated) name for display.
+  \o category() is the category used for filtering when calling ICore:: showOptionsDialog()
+  \o trCategory() is the translated category
+  \o apply() is called to store the settings. It should detect if any changes have been
+         made and store those.
+  \endlist
+*/

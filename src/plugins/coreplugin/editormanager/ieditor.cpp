@@ -27,48 +27,29 @@
 **
 **************************************************************************/
 
-#ifndef IEDITOR_H
-#define IEDITOR_H
+#include "ieditor.h"
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/ifile.h>
+/*!
+  \class Core::IEditor
+  \brief The IEditor is an interface for providing different editors for different file types.
 
-QT_BEGIN_NAMESPACE
-class QToolBar;
-QT_END_NAMESPACE
+  Classes that implement this interface are for example the editors for
+  C++ files, ui-files and resource files.
 
-namespace Core {
+  Whenever a user wants to edit or create a file, the EditorManager scans all
+  EditorFactoryInterfaces for suitable editors. The selected EditorFactory
+  is then asked to create an editor, which must implement this interface.
 
-class CORE_EXPORT IEditor : public IContext
-{
-    Q_OBJECT
-public:
-    IEditor(QObject *parent = 0) : IContext(parent) {}
-    virtual ~IEditor() {}
+  Guidelines for implementing:
+  \list
+  \o displayName() is used as a user visible description of the document (usually filename w/o path).
+  \o kind() must be the same value as the kind() of the corresponding EditorFactory.
+  \o The changed() signal should be emitted when the modified state of the document changes
+     (so /bold{not} every time the document changes, but /bold{only once}).
+  \o If duplication is supported, you need to ensure that all duplicates
+        return the same file().
+  \endlist
 
-    virtual bool createNew(const QString &contents = QString()) = 0;
-    virtual bool open(const QString &fileName = QString()) = 0;
-    virtual IFile *file() = 0;
-    virtual const char *kind() const = 0;
-    virtual QString displayName() const = 0;
-    virtual void setDisplayName(const QString &title) = 0;
+  \sa Core::EditorFactoryInterface Core::IContext
 
-    virtual bool duplicateSupported() const = 0;
-    virtual IEditor *duplicate(QWidget *parent) = 0;
-
-    virtual QByteArray saveState() const = 0;
-    virtual bool restoreState(const QByteArray &state) = 0;
-
-    virtual int currentLine() const { return 0; }
-    virtual int currentColumn() const { return 0; }
-
-    virtual QToolBar *toolBar() = 0;
-
-signals:
-    void changed();
-};
-
-} // namespace Core
-
-#endif // IEDITOR_H
+*/

@@ -36,7 +36,6 @@
 /*!
     \class Core::Command
     \mainclass
-    \ingroup qwb
 
     \brief The class...
 
@@ -197,7 +196,6 @@ QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
 
 /*!
     \class Shortcut
-    \ingroup qwb
 */
 
 /*!
@@ -309,7 +307,6 @@ bool Shortcut::isActive() const
 
 /*!
     \class Action
-    \ingroup qwb
 */
 
 /*!
@@ -401,7 +398,6 @@ QKeySequence Action::keySequence() const
 
 /*!
     \class OverrideableAction
-    \ingroup qwb
 */
 
 /*!

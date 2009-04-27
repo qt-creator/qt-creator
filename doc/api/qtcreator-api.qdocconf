@@ -7,13 +7,15 @@ headerdirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
-                          ../../src/plugins/coreplugin/actionmanager
+                          ../../src/plugins/find \
+                          ../../src/plugins/quickopen
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
-                          ../../src/plugins/coreplugin/actionmanager
+                          ../../src/plugins/find \
+                          ../../src/plugins/quickopen
 
 headers.fileextesnions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"

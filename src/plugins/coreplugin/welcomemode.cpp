@@ -52,7 +52,7 @@ struct WelcomeModePrivate
 
     QWidget *m_widget;
     QWidget *m_welcomePage;
-    Ui::welcomePage ui;
+    Ui::WelcomePage ui;
 
     WelcomeMode::WelcomePageData lastData;
 };

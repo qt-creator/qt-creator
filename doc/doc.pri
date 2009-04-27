@@ -44,3 +44,5 @@ macx {
 
 OTHER_FILES = qtcreator.qdoc \
               qtcreator.qdocconf
+OTHER_FILES += api/qtcreator-api.qdoc \
+               api/qtcreator-api.qdocconf

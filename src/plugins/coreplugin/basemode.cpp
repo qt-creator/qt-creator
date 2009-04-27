@@ -38,7 +38,6 @@ using namespace Core;
 /*!
     \class BaseMode
     \mainclass
-    \ingroup qwb
     \inheaderfile basemode.h
     \brief A base implementation of the mode interface IMode.
 
