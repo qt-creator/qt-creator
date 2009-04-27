@@ -1513,7 +1513,7 @@ QRect BaseTextEditor::collapseBox()
         return QRect();
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
-    QTextBlock end= document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
+    QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
         return QRect();
     QRectF br = blockBoundingGeometry(begin).translated(contentOffset());
@@ -2349,7 +2349,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
             const QString &number = QString::number(blockNumber + 1);
             if (blockNumber == cursorBlockNumber) {
                 painter.save();
-                painter.setPen(pal.color(QPalette::Background).value() < 128 ? Qt::white : Qt::black);
+                QFont f = painter.font();
+                f.setBold(d->m_currentLineNumberFormat.font().bold());
+                f.setItalic(d->m_currentLineNumberFormat.font().italic());
+                painter.setFont(f);
+                painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
             painter.drawText(markWidth, top, extraAreaWidth - markWidth - 4, fm.height(), Qt::AlignRight, number);
             if (blockNumber == cursorBlockNumber)
@@ -3547,10 +3551,11 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
     const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
-    const QTextCharFormat searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
+    d->m_searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
     const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
-    const QTextCharFormat currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
-    const QTextCharFormat ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
+    d->m_currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
+    d->m_currentLineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE_NUMBER));
+    d->m_ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
     QFont font(textFormat.font());
 
     const QColor foreground = textFormat.foreground().color();
@@ -3578,15 +3583,10 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     // Search results
     d->m_searchResultFormat.setBackground(searchResultFormat.background());
-    d->m_searchScopeFormat.setBackground(searchScopeFormat.background());
-    d->m_currentLineFormat.setBackground(currentLineFormat.background());
 
     // Matching braces
     d->m_matchFormat.setForeground(parenthesesFormat.foreground());
     d->m_rangeFormat.setBackground(parenthesesFormat.background());
-
-    // Disabled code
-    d->m_ifdefedOutFormat.setForeground(ifdefedOutFormat.foreground());
 
     slotUpdateExtraAreaWidth();
 }

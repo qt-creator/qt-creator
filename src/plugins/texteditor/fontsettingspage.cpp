@@ -137,9 +137,9 @@ QString FormatDescription::trName() const
 
 QColor FormatDescription::foreground() const
 {
-    if (m_name == QLatin1String("LineNumber"))
+    if (m_name == QLatin1String(Constants::C_LINE_NUMBER))
         return QApplication::palette().dark().color();
-    if (m_name == QLatin1String("Parentheses"))
+    if (m_name == QLatin1String(Constants::C_PARENTHESES))
         return QColor(Qt::red);
     return m_format.foreground();
 }

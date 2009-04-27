@@ -207,6 +207,7 @@ public:
     QTextCharFormat m_searchResultFormat;
     QTextCharFormat m_searchScopeFormat;
     QTextCharFormat m_currentLineFormat;
+    QTextCharFormat m_currentLineNumberFormat;
     void highlightSearchResults(const QTextBlock &block,
                                 QVector<QTextLayout::FormatRange> *selections);
 
