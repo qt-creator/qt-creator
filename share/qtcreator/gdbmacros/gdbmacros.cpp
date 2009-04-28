@@ -869,10 +869,11 @@ static void qDumpQDateTime(QDumper &d)
         BL(d, "isNull", date.isNull());
         I(d, "toTime_t", (long)date.toTime_t());
         S(d, "toString", date.toString());
+        #if QT_VERSION >= 0x040500
         S(d, "toString_(ISO)", date.toString(Qt::ISODate));
         S(d, "toString_(SystemLocale)", date.toString(Qt::SystemLocaleDate));
         S(d, "toString_(Locale)", date.toString(Qt::LocaleDate));
-        S(d, "toString", date.toString());
+        #endif
 
         #if 0
         d.beginHash();
@@ -2039,11 +2040,13 @@ static void qDumpQVariantHelper(const void *data, QString *value,
         *value = QLatin1Char('"') + v.toString() + QLatin1Char('"');
         *numchild = 0;
         break;
+    #if QT_VERSION >= 0x040500
     case QVariant::StringList:
         *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
                     .arg((quintptr)data);
         *numchild = v.toStringList().size();
         break;
+    #endif
     case QVariant::Int:
         *value = QString::number(v.toInt());
         *numchild= 0;
