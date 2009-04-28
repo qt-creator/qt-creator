@@ -21,18 +21,18 @@
     <widget class="QWidget" name="gradientWidget" native="true">
      <property name="styleSheet">
       <string notr="true">#gradientWidget {
-background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }
 
 *, * *, * * *, * * * *, * * * * * {
-font-family: Arial, Trebuchet, Lucida, sans-serif;
-font-size: 12px;
-color: #5e5e5e;
+    font-family: Arial, Trebuchet, Lucida, sans-serif;
+    font-size: 12px;
+    color: #5e5e5e;
 }
 
 #recentSessionsFrame, #recentProjectsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
-border-width: 8;
+    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+    border-width: 8;
 }
 </string>
      </property>
@@ -232,8 +232,8 @@ p {
               </property>
               <property name="styleSheet">
                <string>#recentSessionsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
-border-width: 8;
+    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+    border-width: 8;
 }
 </string>
               </property>
@@ -696,7 +696,7 @@ h2 {
      </property>
      <property name="styleSheet">
       <string>#bottomWidget {
-background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
+    background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
 }
 </string>
      </property>
