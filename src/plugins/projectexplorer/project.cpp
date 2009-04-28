@@ -273,7 +273,7 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
     m_values = reader.restoreValue("project").toMap();
 
-    //Build Settings
+    // restoring BuldConfigurations from settings
     const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         addBuildConfiguration(buildConfigurationName);
@@ -282,77 +282,64 @@ void Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         getBuildConfiguration(buildConfigurationName)->setValuesFromMap(temp);
     }
 
+    const QList<IBuildStepFactory *> buildStepFactories =
+          ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    //Build Settings
     QVariant buildStepsVariant = reader.restoreValue("buildsteps");
     if (buildStepsVariant.isValid()) {
         // restoring BuildSteps from settings
         int pos = 0;
-        const QList<IBuildStepFactory *> buildStepFactories =
-            ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
         QStringList buildStepNames = buildStepsVariant.toStringList();
-        foreach (const QString &buildStepName, buildStepNames) {
+        for (int buildstepnr = 0; buildstepnr < buildStepNames.size(); ++buildstepnr) {
+            const QString &buildStepName = buildStepNames.at(buildstepnr);
+            BuildStep *buildStep  = 0;
             foreach (IBuildStepFactory *factory, buildStepFactories) {
                 if (factory->canCreate(buildStepName)) {
-                    BuildStep *buildStep = factory->create(this, buildStepName);
+                    buildStep = factory->create(this, buildStepName);
                     insertBuildStep(pos, buildStep);
                     ++pos;
                     break;
                 }
             }
+            // Restoring settings
+            if (buildStep) {
+                QMap<QString, QVariant> buildConfiguration = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
+                buildStep->setValuesFromMap(buildConfiguration);
+                foreach (const QString &buildConfigurationName, buildConfigurationNames) {
+                    //get the buildconfiguration for this build step
+                    QMap<QString, QVariant> buildConfiguration =
+                        reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr)).toMap();
+                    buildStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
+                }
+            }
         }
+    }
 
-        QStringList cleanStepNames = reader.restoreValue("cleansteps").toStringList();
+    QVariant cleanStepsVariant = reader.restoreValue("cleansteps");
+    if (cleanStepsVariant.isValid()) {
+        QStringList cleanStepNames = cleanStepsVariant.toStringList();
         // restoring BuildSteps from settings
-        pos = 0;
-        foreach (const QString &cleanStepName, cleanStepNames) {
+        int pos = 0;
+        for (int cleanstepnr = 0; cleanstepnr < cleanStepNames.size(); ++cleanstepnr) {
+            const QString &cleanStepName = cleanStepNames.at(cleanstepnr);
+            BuildStep *cleanStep = 0;
             foreach (IBuildStepFactory *factory, buildStepFactories) {
                 if (factory->canCreate(cleanStepName)) {
-                    BuildStep *cleanStep = factory->create(this, cleanStepName);
+                    cleanStep = factory->create(this, cleanStepName);
                     insertCleanStep(pos, cleanStep);
                     ++pos;
                     break;
                 }
             }
-        }
-
-        // restoring BuldConfigurations from settings
-
-
-
-        // restore BuildSteps configuration
-        int buildstepnr = 0;
-        foreach (BuildStep *buildStep, buildSteps()) {
-            QMap<QString, QVariant> buildConfiguration = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
-            buildStep->setValuesFromMap(buildConfiguration);
-            ++buildstepnr;
-        }
-
-        foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-            buildstepnr = 0;
-            foreach (BuildStep *buildStep, buildSteps()) {
-                //get the buildconfiguration for this build step
-                QMap<QString, QVariant> buildConfiguration =
-                    reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr)).toMap();
-                buildStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
-                ++buildstepnr;
-            }
-        }
-
-        // restore CleanSteps configuration
-        int cleanstepnr = 0;
-        foreach (BuildStep *cleanStep, cleanSteps()) {
-            QMap<QString, QVariant> buildConfiguration = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
-            cleanStep->setValuesFromMap(buildConfiguration);
-            ++cleanstepnr;
-        }
-
-        foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-            cleanstepnr = 0;
-            foreach (BuildStep *cleanStep, cleanSteps()) {
-                //get the buildconfiguration for this clean step
-                QMap<QString, QVariant> buildConfiguration =
-                    reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr)).toMap();
-                cleanStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
-                ++cleanstepnr;
+            // Restoring settings
+            if (cleanStep) {
+                QMap<QString, QVariant> buildConfiguration = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
+                cleanStep->setValuesFromMap(buildConfiguration);
+                foreach (const QString &buildConfigurationName, buildConfigurationNames) {
+                    QMap<QString, QVariant> buildConfiguration =
+                            reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr)).toMap();
+                    cleanStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
+                }
             }
         }
     }
