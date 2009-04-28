@@ -39,9 +39,9 @@ static const char * const textWrappingKey = "TextWrapping";
 static const char * const showWrapColumnKey = "ShowWrapColumn";
 static const char * const wrapColumnKey = "WrapColumn";
 static const char * const visualizeWhitespaceKey = "VisualizeWhitespace";
-static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkersV2";
+static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
 static const char * const highlightCurrentLineKey = "HighlightCurrentLineKeyV2";
-static const char * const highlightBlocksKey = "HighlightBlocksKeyV2";
+static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -52,9 +52,9 @@ DisplaySettings::DisplaySettings() :
     m_showWrapColumn(false),
     m_wrapColumn(80),
     m_visualizeWhitespace(false),
-    m_displayFoldingMarkers(false),
+    m_displayFoldingMarkers(true),
     m_highlightCurrentLine(false),
-    m_highlightBlocks(true)
+    m_highlightBlocks(false)
 {
 }
 
