@@ -239,6 +239,8 @@ public:
 
     void finish();
 
+    bool isRunning() const;
+
 signals:
     void updateRequest(int position, QRectF rect);
 

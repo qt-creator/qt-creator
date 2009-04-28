@@ -2135,7 +2135,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         }
     }
 
-    if (d->m_animator) {
+    if (d->m_animator && d->m_animator->isRunning()) {
         QTextCursor cursor = textCursor();
         cursor.setPosition(d->m_animator->position());
         d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
@@ -3418,6 +3418,11 @@ void BaseTextEditorAnimator::draw(QPainter *p, const QPointF &pos)
     p->fillRect(r, m_palette.base());
     p->setFont(f);
     p->drawText(r, m_text);
+}
+
+bool BaseTextEditorAnimator::isRunning() const
+{
+    return m_timeline->state() == QTimeLine::Running;
 }
 
 QRectF BaseTextEditorAnimator::rect() const
