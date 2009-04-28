@@ -51,7 +51,6 @@ using namespace Qt4ProjectManager;
 using ProjectExplorer::ApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
-using ProjectExplorer::QtVersion;
 
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
     : ApplicationRunConfiguration(pro),

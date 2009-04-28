@@ -43,7 +43,6 @@
 using ProjectExplorer::IBuildParserFactory;
 using ProjectExplorer::BuildParserInterface;
 using ProjectExplorer::Environment;
-using ProjectExplorer::QtVersion;
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -33,13 +33,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 
-namespace ProjectExplorer {
-    class QtVersionManager;
-}
-
 namespace Qt4ProjectManager {
 
 class Qt4Manager;
+class QtVersionManager;
 
 namespace Internal {
 

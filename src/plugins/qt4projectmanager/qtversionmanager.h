@@ -30,20 +30,20 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "environment.h"
-#include "toolchain.h"
-#include "projectexplorer_export.h"
+#include <projectexplorer/environment.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QHash>
 
-namespace ProjectExplorer {
+namespace Qt4ProjectManager {
 
 namespace Internal {
 class QtOptionsPageWidget;
 class QtOptionsPage;
+class Qt4ProjectManagerPlugin;
 }
 
-class PROJECTEXPLORER_EXPORT QtVersion
+class QtVersion
 {
     friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
@@ -124,8 +124,9 @@ private:
     bool m_hasDebuggingHelper;
 };
 
-class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
+class QtVersionManager : public QObject
 {
+    friend class Internal::Qt4ProjectManagerPlugin;
     Q_OBJECT
     // for getUniqueId();
     friend class QtVersion;
@@ -168,33 +169,10 @@ private:
     QList<QtVersion *> m_versions;
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;
+    // managed by QtProjectManagerPlugin
+    static QtVersionManager *m_self;
 };
 
-
-class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary
-{
-public:
-    // returns the full path to the first qmake, qmake-qt4, qmake4 that has
-    // at least version 2.0.0 and thus is a qt4 qmake
-    static QString findSystemQt(const Environment &env);
-    // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
-    static QStringList possibleQMakeCommands();
-    // return true if the qmake at qmakePath is qt4 (used by QtVersion)
-    static QString qtVersionForQMake(const QString &qmakePath);
-
-
-    static bool hasDebuggingHelperLibrary(const QString &qmakePath);
-    static QString debuggingHelperLibrary(const QString &qmakePath);
-    static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
-    static QString debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath);
-    static QString copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir);
-    static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
-private:    
-    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath);
-    static QString qtInstallDataDir(const QString &qmakePath);
-    static QString qtDir(const QString &qmakePath);
-};
-
-} // namespace ProjectExplorer
+} // namespace Qt4ProjectManager
 
 #endif // QTVERSIONMANAGER_H

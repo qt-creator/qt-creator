@@ -32,7 +32,9 @@ HEADERS = qt4projectmanagerplugin.h \
     speinfo.h \
     qt4projectconfigwidget.h \
     qt4buildenvironmentwidget.h \
-    projectloadwizard.h
+    projectloadwizard.h\
+    qtversionmanager.h\
+    qtoptionspage.h
 SOURCES = qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -60,7 +62,9 @@ SOURCES = qt4projectmanagerplugin.cpp \
     speinfo.cpp \
     qt4projectconfigwidget.cpp \
     qt4buildenvironmentwidget.cpp \
-    projectloadwizard.cpp
+    projectloadwizard.cpp\
+    qtversionmanager.cpp\
+    qtoptionspage.cpp
 FORMS = envvariablespage.ui \
     enveditdialog.ui \
     proeditorcontainer.ui \
@@ -68,7 +72,9 @@ FORMS = envvariablespage.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
     embeddedpropertiespage.ui \
-    qt4buildenvironmentwidget.ui 
+    qt4buildenvironmentwidget.ui \
+    qtversionmanager.ui\
+    showbuildlog.ui
 RESOURCES = qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)

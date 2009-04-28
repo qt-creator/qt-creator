@@ -1,14 +1,14 @@
 #include "qtoptionspage.h"
 #include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
-#include "projectexplorerconstants.h"
+#include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
 #include <coreplugin/coreconstants.h>
 
 #include <QtCore/QDir>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
 ///
 // QtOptionsPage
 ///

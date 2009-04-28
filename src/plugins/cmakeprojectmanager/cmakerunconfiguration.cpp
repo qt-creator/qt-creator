@@ -33,7 +33,7 @@
 #include "cmakeprojectconstants.h"
 
 #include <projectexplorer/environment.h>
-#include <projectexplorer/qtversionmanager.h>
+#include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>

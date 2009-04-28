@@ -73,6 +73,11 @@ const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelp
 const char * const VIEW_DETAILED        = "Qt4.View.Detailed";
 const char * const VIEW_PROFILESONLY    = "Qt4.View.ProjectHierarchy";
 
+//Qt4 settings pages
+const char * const QT_CATEGORY            = "Qt4";
+const char * const QTVERSION_PAGE         = "Qt Versions";
+const char * const BUILD_ENVIRONMENT_PAGE = "Build Environments";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

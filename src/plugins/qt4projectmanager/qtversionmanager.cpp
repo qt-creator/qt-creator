@@ -29,11 +29,11 @@
 
 #include "qtversionmanager.h"
 
-#include "projectexplorerconstants.h"
-#include "cesdkhandler.h"
+#include "qt4projectmanagerconstants.h"
 
-#include "projectexplorer.h"
-
+#include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/cesdkhandler.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpplugin.h>
@@ -45,14 +45,16 @@
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
+
+using ProjectExplorer::DebuggingHelperLibrary;
 
 static const char *QtVersionsSectionName = "QtVersions";
 static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
 
-
+QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager()
     : m_emptyVersion(new QtVersion)
@@ -102,7 +104,7 @@ QtVersionManager::~QtVersionManager()
 
 QtVersionManager *QtVersionManager::instance()
 {
-    return ProjectExplorerPlugin::instance()->qtVersionManager();
+    return m_self;
 }
 
 void QtVersionManager::addVersion(QtVersion *version)
@@ -230,7 +232,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 void QtVersionManager::updateSystemVersion()
 {
     bool haveSystemVersion = false;
-    QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(Environment::systemEnvironment());
+    QString systemQMakePath = DebuggingHelperLibrary::findSystemQt(ProjectExplorer::Environment::systemEnvironment());
     QString systemQtPath;
     if (systemQMakePath.isNull()) {
         systemQtPath = tr("<not found>");
@@ -257,18 +259,6 @@ void QtVersionManager::updateSystemVersion()
     updateUniqueIdToIndexMap();
     if (m_versions.size() > 1) // we had other versions before adding system version
         ++m_defaultVersion;
-}
-
-QStringList DebuggingHelperLibrary::possibleQMakeCommands()
-{
-    // On windows noone has renamed qmake, right?
-#ifdef Q_OS_WIN
-    return QStringList() << "qmake.exe";
-#endif
-    // On unix some distributions renamed qmake to avoid clashes
-    QStringList result;
-    result << "qmake-qt4" << "qmake4" << "qmake";
-    return result;
 }
 
 QtVersion *QtVersionManager::currentQtVersion() const
@@ -809,7 +799,7 @@ void QtVersion::setMsvcVersion(const QString &version)
     m_msvcVersion = version;
 }
 
-void QtVersion::addToEnvironment(Environment &env)
+void QtVersion::addToEnvironment(ProjectExplorer::Environment &env)
 {
     env.set("QTDIR", m_path);
     QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
@@ -899,180 +889,5 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QString output = DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, make, qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     return output;
-}
-
-
-///
-// Helper functions for building, checking for existance and finding the debugging helper library
-///
-
-QString DebuggingHelperLibrary::findSystemQt(const Environment &env)
-{
-    QStringList paths = env.path();
-    foreach (const QString &path, paths) {
-        foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            QFileInfo qmake(path + "/" + possibleCommand);
-            if (qmake.exists()) {
-                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
-                    return qmake.absoluteFilePath();
-                }
-            }
-        }
-    }
-    return QString::null;
-}
-
-bool DebuggingHelperLibrary::hasDebuggingHelperLibrary(const QString &qmakePath)
-{
-    return !debuggingHelperLibrary(qmakePath).isNull();
-}
-
-QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData, const QString &qtpath)
-{
-    uint hash = qHash(qtpath);
-    QStringList directories;
-    directories
-            << (qtInstallData + "/qtc-debugging-helper/")
-            << (QApplication::applicationDirPath() + "/../qtc-debugging-helper/" + QString::number(hash)) + "/"
-            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/qtc-debugging-helper/" + QString::number(hash)) + "/";
-    return directories;
-}
-
-QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qmakePath)
-{
-    return debuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
-}
-
-QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
-{
-    QProcess proc;
-    proc.start(qmakePath, QStringList() << "-query"<< "QT_INSTALL_DATA");
-    if (proc.waitForFinished())
-        return QString(proc.readAll().trimmed());
-    return QString::null;
-}
-
-QString DebuggingHelperLibrary::qtDir(const QString &qmakePath)
-{
-    QDir dir = QFileInfo(qmakePath).absoluteDir();
-    dir.cdUp();
-    return dir.absolutePath();
-}
-
-// Debugging Helper Library
-
-QString DebuggingHelperLibrary::debuggingHelperLibrary(const QString &qtInstallData, const QString &qtpath)
-{
-    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData, qtpath)) {
-#if defined(Q_OS_WIN)
-        QFileInfo fi(directory + "debug/gdbmacros.dll");
-#elif defined(Q_OS_MAC)
-        QFileInfo fi(directory + "libgdbmacros.dylib");
-#else // generic UNIX
-        QFileInfo fi(directory + "libgdbmacros.so");
-#endif
-        if (fi.exists())
-            return fi.filePath();
-    }
-    return QString();
-}
-
-
-QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env)
-{
-    QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), qtDir(qmakePath));
-    return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
-    return QString::null;
-}
-
-QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInstallData, const QString &qtdir)
-{
-    // Locations to try:
-    //    $QTDIR/qtc-debugging-helper
-    //    $APPLICATION-DIR/qtc-debugging-helper/$hash
-    //    $USERDIR/qtc-debugging-helper/$hash
-    QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData, qtdir);
-
-    QStringList files;
-    files << "gdbmacros.cpp" << "gdbmacros.pro"
-          << "LICENSE.LGPL" << "LGPL_EXCEPTION.TXT";
-    foreach(const QString &directory, directories) {
-        QString dumperPath = Core::ICore::instance()->resourcePath() + "/gdbmacros/";
-        bool success = true;
-        QDir().mkpath(directory);
-        foreach (const QString &file, files) {
-            QString source = dumperPath + file;
-            QString dest = directory + file;
-            QFileInfo destInfo(dest);
-            if (destInfo.exists()) {
-                if (destInfo.lastModified() >= QFileInfo(source).lastModified())
-                    continue;
-                success &= QFile::remove(dest);
-            }
-            success &= QFile::copy(source, dest);
-        }
-        if (success)
-            return directory;
-    }
-    return QString::null;
-}
-
-QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env)
-{
-    QString output;
-    // Setup process
-    QProcess proc;
-    proc.setEnvironment(env.toStringList());
-    proc.setWorkingDirectory(directory);
-    proc.setProcessChannelMode(QProcess::MergedChannels);
-
-    output += QString("Building debugging helper library in %1\n").arg(directory);
-    output += "\n";
-
-    QString makeFullPath = env.searchInPath(makeCommand);
-    if (!makeFullPath.isEmpty()) {
-        output += QString("Running %1 clean...\n").arg(makeFullPath);
-        proc.start(makeFullPath, QStringList() << "clean");
-        proc.waitForFinished();
-        output += proc.readAll();
-    } else {
-        output += QString("%1 not found in PATH\n").arg(makeCommand);
-        return output;
-    }
-
-    output += QString("\nRunning %1 ...\n").arg(qmakeCommand);
-
-    proc.start(qmakeCommand, QStringList()<<"-spec"<< (mkspec.isEmpty() ? "default" : mkspec) <<"gdbmacros.pro");
-    proc.waitForFinished();
-
-    output += proc.readAll();
-
-    output += "\n";
-    if (!makeFullPath.isEmpty()) {
-        output += QString("Running %1 ...\n").arg(makeFullPath);
-        proc.start(makeFullPath, QStringList());
-        proc.waitForFinished();
-        output += proc.readAll();
-    } else {
-        output += QString("%1 not found in PATH\n").arg(makeCommand);
-    }
-    return output;
-}
-
-QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
-{
-    QProcess qmake;
-    qmake.start(qmakePath, QStringList()<<"--version");
-    if (!qmake.waitForFinished())
-        return false;
-    QString output = qmake.readAllStandardOutput();
-    QRegExp regexp("(QMake version|QMake version:)[\\s]*([\\d.]*)", Qt::CaseInsensitive);
-    regexp.indexIn(output);
-    if (regexp.cap(2).startsWith("2.")) {
-        QRegExp regexp2("Using Qt version[\\s]*([\\d\\.]*)", Qt::CaseInsensitive);
-        regexp2.indexIn(output);
-        return regexp2.cap(1);
-    }
-    return QString();
 }
 
