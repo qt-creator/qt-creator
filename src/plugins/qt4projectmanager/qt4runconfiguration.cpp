@@ -331,7 +331,8 @@ void Qt4RunConfiguration::updateTarget()
         return;
     //qDebug()<<"updateTarget";
     Qt4Project *pro = static_cast<Qt4Project *>(project());
-    ProFileReader *reader = pro->createProFileReader();
+    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
     reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));
 

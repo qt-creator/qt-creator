@@ -48,6 +48,8 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/CppDocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -498,8 +500,16 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     return vars;
 }
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/buildmanager.h>
+Qt4PriFileNode *Qt4PriFileNode::findProFileFor(const QString &fileName)
+{
+    if (fileName == path())
+        return this;
+    foreach (ProjectNode *pn, subProjectNodes())
+        if (Qt4PriFileNode *qt4PriFileNode = qobject_cast<Qt4PriFileNode *>(pn))
+            if (Qt4PriFileNode *result = qt4PriFileNode->findProFileFor(fileName))
+                return result;
+    return 0;
+}
 
 /*!
   \class Qt4ProFileNode
