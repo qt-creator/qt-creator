@@ -128,6 +128,8 @@ enum GdbCommandType
     BreakEnablePending,
     BreakSetAnnotate,
     BreakDelete,
+    BreakEnable,
+    BreakDisable,
     BreakList,
     BreakIgnore,
     BreakInfo,
@@ -802,6 +804,8 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
             break;
         case BreakEnablePending:
         case BreakDelete:
+        case BreakEnable:
+        case BreakDisable:
             // nothing
             break;
         case BreakIgnore:
@@ -2280,6 +2284,20 @@ void GdbEngine::attemptBreakpointSynchronization()
     inBreakpointSychronization = true;
 
     BreakHandler *handler = qq->breakHandler();
+
+    foreach (BreakpointData *data, handler->takeDisabledBreakpoints()) {
+        QString bpNumber = data->bpNumber;
+        if (!bpNumber.trimmed().isEmpty())
+            sendCommand("-break-disable " + bpNumber, BreakDisable, QVariant(),
+                NeedsStop);
+    }
+
+    foreach (BreakpointData *data, handler->takeEnabledBreakpoints()) {
+        QString bpNumber = data->bpNumber;
+        if (!bpNumber.trimmed().isEmpty())
+            sendCommand("-break-enable " + bpNumber, BreakEnable, QVariant(),
+                NeedsStop);
+    }
 
     foreach (BreakpointData *data, handler->takeRemovedBreakpoints()) {
         QString bpNumber = data->bpNumber;

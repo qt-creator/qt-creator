@@ -163,19 +163,19 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setDefaultValue(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(UseCustomDebuggingHelperLocation, item);
     item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
+    instance->insertItem(UseCustomDebuggingHelperLocation, item);
     item->setCheckable(true);
 
     item = new SavedAction(instance);
-    instance->insertItem(CustomDebuggingHelperLocation, item);
     item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
+    instance->insertItem(CustomDebuggingHelperLocation, item);
 
     item = new SavedAction(instance);
-    instance->insertItem(DebugDebuggingHelpers, item);
     item->setSettingsKey(debugModeGroup, QLatin1String("DebugDebuggingHelpers"));
     item->setText(tr("Debug debugging helper"));
     item->setCheckable(true);
+    instance->insertItem(DebugDebuggingHelpers, item);
 
 
     item = new SavedAction(instance);
@@ -188,6 +188,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setText(tr("Syncronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
+
 
     //
     // Registers

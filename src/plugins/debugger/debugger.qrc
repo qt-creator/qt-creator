@@ -2,6 +2,7 @@
     <qresource prefix="/gdbdebugger" >
         <file>images/breakpoint.svg</file>
         <file>images/breakpoint_pending.svg</file>
+        <file>images/breakpoint_disabled.svg</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue_small.png</file>
         <file>images/debugger_interrupt_small.png</file>

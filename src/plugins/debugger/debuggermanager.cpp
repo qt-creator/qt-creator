@@ -144,14 +144,14 @@ static IDebuggerEngine *scriptEngine = 0;
 // The creation functions take a list of options pages they can add to.
 // This allows for having a "enabled" toggle on the page indepently
 // of the engine.
-extern IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
-extern IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, QList<Core::IOptionsPage*> *)
+IDebuggerEngine *createGdbEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineDisabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
 ;
 #else
 { return 0; }
 #endif
-extern IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
+IDebuggerEngine *createScriptEngine(DebuggerManager *parent, QList<Core::IOptionsPage*> *);
 
 DebuggerManager::DebuggerManager()
 {
@@ -687,6 +687,14 @@ void DebuggerManager::shutdown()
     //qDebug() << "DEBUGGER_MANAGER SHUTDOWN END";
 }
 
+BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lineNumber)
+{
+    if (!m_breakHandler)
+        return 0;
+    int index = m_breakHandler->findBreakpoint(fileName, lineNumber);
+    return index == -1 ? 0 : m_breakHandler->at(index);
+}
+
 void DebuggerManager::toggleBreakpoint()
 {
     QString fileName;
@@ -712,11 +720,30 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
         return;
     }
 
-    int index = m_breakHandler->indexOf(fileName, lineNumber);
+    int index = m_breakHandler->findBreakpoint(fileName, lineNumber);
     if (index == -1)
         m_breakHandler->setBreakpoint(fileName, lineNumber);
     else
         m_breakHandler->removeBreakpoint(index);
+    m_engine->attemptBreakpointSynchronization();
+}
+
+void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
+{
+    if (Debugger::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+
+    QTC_ASSERT(m_engine, return);
+    QTC_ASSERT(m_breakHandler, return);
+    if (status() != DebuggerInferiorRunning
+         && status() != DebuggerInferiorStopped 
+         && status() != DebuggerProcessNotReady) {
+        showStatusMessage(tr("Changing breakpoint state requires either a "
+            "fully running or fully stopped application."));
+        return;
+    }
+
+    m_breakHandler->toggleBreakpointEnabled(fileName, lineNumber);
     m_engine->attemptBreakpointSynchronization();
 }
 
