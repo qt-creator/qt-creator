@@ -50,9 +50,14 @@ signals:
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
 
 private:
     bool m_isPressed;
+    bool m_isInited;
+    QString m_text;
+    QString m_hoverText;
 };
 
 class WelcomeModeTreeWidget : public QTreeWidget

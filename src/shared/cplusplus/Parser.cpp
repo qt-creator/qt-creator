@@ -2873,6 +2873,10 @@ bool Parser::parseNameId(NameAST *&name)
         return false;
 
     if (LA() == T_IDENTIFIER ||
+        LA() == T_STATIC_CAST ||
+        LA() == T_DYNAMIC_CAST ||
+        LA() == T_REINTERPRET_CAST ||
+        LA() == T_CONST_CAST ||
         tok().isLiteral()    ||
         (tok().isOperator() && LA() != T_LPAREN && LA() != T_LBRACKET))
     {

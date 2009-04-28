@@ -34,6 +34,7 @@
 
 #include <QtCore/QBasicTimer>
 #include <QtCore/QSharedData>
+#include <QtCore/QPointer>
 
 #include <QtGui/QTextEdit>
 #include <QtGui/QPixmap>
@@ -125,6 +126,7 @@ struct BaseTextEditorPrivateHighlightBlocks
     }
     inline bool operator!=(const BaseTextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
 };
+
 
 class BaseTextEditorPrivate
 {
@@ -235,6 +237,8 @@ public:
     int visualIndent(const QTextBlock &block) const;
     BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
     QTimer *m_highlightBlocksTimer;
+
+    QPointer<BaseTextEditorAnimator> m_animator;
 
 };
 

@@ -227,7 +227,8 @@ void WelcomeMode::slotFeedback()
 
 WelcomeModeButton::WelcomeModeButton(QWidget *parent) :
         QLabel(parent),
-        m_isPressed(false)
+        m_isPressed(false),
+        m_isInited(false)
 {
     setCursor(QCursor(Qt::PointingHandCursor));
 }
@@ -245,6 +246,28 @@ void WelcomeModeButton::mouseReleaseEvent(QMouseEvent *event)
         if (rect().contains(event->pos()))
             emit clicked();
     }
+}
+
+void WelcomeModeButton::enterEvent(QEvent *)
+{
+    if (!m_isInited) {
+        m_isInited = true;
+        m_text = text();
+        m_hoverText = m_text;
+        m_hoverText.replace(QLatin1String(".png"), QLatin1String("_hover.png"));
+        if (m_text == m_hoverText) {
+            m_text.clear();
+            m_hoverText.clear();
+        }
+    }
+    if (!m_hoverText.isEmpty())
+        setText(m_hoverText);
+}
+
+void WelcomeModeButton::leaveEvent(QEvent *)
+{
+    if (!m_text.isEmpty())
+        setText(m_text);
 }
 
 // ---  WelcomeModeTreeWidget

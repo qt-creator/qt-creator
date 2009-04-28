@@ -49,15 +49,17 @@ using namespace Debugger::Internal;
 namespace Debugger {
 namespace Internal {
 
-
 // The red blob on the left side in the cpp editor.
 class BreakpointMarker : public TextEditor::BaseTextMark
 {
     Q_OBJECT
 public:
     BreakpointMarker(BreakpointData *data, const QString &fileName, int lineNumber)
-      : BaseTextMark(fileName, lineNumber), m_data(data), m_pending(true)
+      : BaseTextMark(fileName, lineNumber)
     {
+        m_data = data;
+        m_pending = true;
+        m_enabled = true;
         //qDebug() << "CREATE MARKER " << fileName << lineNumber;
     }
 
@@ -69,16 +71,23 @@ public:
 
     QIcon icon() const
     {
-        static const QIcon icon(":/gdbdebugger/images/breakpoint.svg");
-        static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
-        return m_pending ? icon2 : icon;
+        return icon(m_pending, m_enabled);
     }
 
-    void setPending(bool pending)
+    static const QIcon &icon(bool pending, bool enabled)
     {
-        if (pending == m_pending)
+        static const QIcon icon(":/gdbdebugger/images/breakpoint.svg");
+        static const QIcon icon1(":/gdbdebugger/images/breakpoint_disabled.svg");
+        static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
+        return enabled ? (pending ? icon2 : icon) : icon1;
+    }
+
+    void setPending(bool pending, bool enabled)
+    {
+        if (pending == m_pending && enabled == m_enabled)
             return;
         m_pending = pending;
+        m_enabled = enabled;
         updateMarker();
     }
 
@@ -122,6 +131,7 @@ public:
 private:
     BreakpointData *m_data;
     bool m_pending;
+    bool m_enabled;
 };
 
 } // namespace Internal
@@ -139,6 +149,7 @@ BreakpointData::BreakpointData(BreakHandler *handler)
 {
     //qDebug() << "CREATE BREAKPOINTDATA" << this;
     m_handler = handler;
+    enabled = true;
     pending = true;
     marker = 0;
     markerLineNumber = 0;
@@ -168,7 +179,7 @@ void BreakpointData::updateMarker()
         marker = new BreakpointMarker(this, markerFileName, markerLineNumber);
 
     if (marker)
-        marker->setPending(pending);
+        marker->setPending(pending, enabled);
 }
 
 QString BreakpointData::toToolTip() const
@@ -281,6 +292,14 @@ int BreakHandler::findBreakpoint(const BreakpointData &needle)
     return -1;
 }
 
+int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
+{
+    for (int index = 0; index != size(); ++index)
+        if (at(index)->isLocatedAt(fileName, lineNumber))
+            return index;
+    return -1;
+}
+
 int BreakHandler::findBreakpoint(int bpNumber)
 {
     for (int index = 0; index != size(); ++index)
@@ -305,6 +324,8 @@ void BreakHandler::saveBreakpoints()
             map["condition"] = data->condition;
         if (!data->ignoreCount.isEmpty())
             map["ignorecount"] = data->ignoreCount;
+        if (!data->enabled)
+            map["disabled"] = "1";
         list.append(map);
     }
     setSessionValueRequested("Breakpoints", list);
@@ -325,6 +346,7 @@ void BreakHandler::loadBreakpoints()
         data->condition = map["condition"].toString();
         data->ignoreCount = map["ignorecount"].toString();
         data->funcName = map["funcname"].toString();
+        data->enabled = !map["disabled"].toInt();
         data->markerFileName = data->fileName;
         data->markerLineNumber = data->lineNumber.toInt();
         append(data);
@@ -372,8 +394,6 @@ QVariant BreakHandler::headerData(int section,
 
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
 {
-    static const QIcon icon(":/gdbdebugger/images/breakpoint.svg");
-    static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
     static const QString empty = QString(QLatin1Char('-'));
 
     QTC_ASSERT(mi.isValid(), return QVariant());
@@ -388,8 +408,12 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 QString str = data->bpNumber;
                 return str.isEmpty() ? empty : str;
             }
+            //if (role == Qt::CheckStateRole)
+            //    return data->enabled ? Qt::Checked : Qt::Unchecked;
+            if (role == Qt::UserRole)
+                return data->enabled;
             if (role == Qt::DecorationRole)
-                return data->pending ? icon2 : icon;
+                return BreakpointMarker::icon(data->pending, data->enabled);
             break;
         case 1:
             if (role == Qt::DisplayRole) {
@@ -432,6 +456,16 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     return QVariant();
 }
 
+Qt::ItemFlags BreakHandler::flags(const QModelIndex &mi) const
+{
+    switch (mi.column()) {
+        //case 0:
+        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+        default:
+            return  QAbstractItemModel::flags(mi);
+    }
+}
+
 bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int role)
 {
     if (role != Qt::EditRole)
@@ -439,6 +473,13 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
 
     BreakpointData *data = at(mi.row());
     switch (mi.column()) {
+        case 0: {
+            if (data->enabled != value.toBool()) {
+                toggleBreakpointEnabled(data);
+                dataChanged(mi, mi);
+            }
+            return true;
+        }
         case 4: {
             QString val = value.toString();
             if (val != data->condition) {
@@ -468,6 +509,20 @@ QList<BreakpointData *> BreakHandler::takeRemovedBreakpoints()
     return result;
 }
 
+QList<BreakpointData *> BreakHandler::takeEnabledBreakpoints()
+{
+    QList<BreakpointData *> result = m_enabled;
+    m_enabled.clear();
+    return result;
+}
+
+QList<BreakpointData *> BreakHandler::takeDisabledBreakpoints()
+{
+    QList<BreakpointData *> result = m_disabled;
+    m_disabled.clear();
+    return result;
+}
+
 void BreakHandler::removeBreakpointHelper(int index)
 {
     BreakpointData *data = m_bp.at(index);
@@ -475,7 +530,6 @@ void BreakHandler::removeBreakpointHelper(int index)
     data->removeMarker();
     m_removed.append(data);
 }
-
 
 void BreakHandler::removeBreakpoint(int index)
 {
@@ -486,13 +540,24 @@ void BreakHandler::removeBreakpoint(int index)
     saveBreakpoints();
 }
 
-
-int BreakHandler::indexOf(const QString &fileName, int lineNumber)
+void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
 {
-    for (int index = 0; index != size(); ++index)
-        if (at(index)->isLocatedAt(fileName, lineNumber))
-            return index;
-    return -1;
+    QTC_ASSERT(data, return);
+    data->enabled = !data->enabled;
+    if (data->enabled) {
+        m_enabled.append(data);
+        m_disabled.removeAll(data);
+    } else {
+        m_enabled.removeAll(data);
+        m_disabled.append(data);
+    }
+    saveBreakpoints();
+    updateMarkers();
+}
+
+void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
+{
+    toggleBreakpointEnabled(at(findBreakpoint(fileName, lineNumber)));
 }
 
 void BreakHandler::setBreakpoint(const QString &fileName, int lineNumber)

@@ -44,14 +44,13 @@
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
-        <file>images/welcomemode/btn_feedback.png</file>
-        <file>images/welcomemode/btn_feedback_hover.png</file>
-        <file>images/welcomemode/btn_getting_started.png</file>
-        <file>images/welcomemode/btn_getting_started_hover.png</file>
-        <file>images/welcomemode/btn_restore_session.png</file>
-        <file>images/welcomemode/btn_restore_session_hover.png</file>
+        <file>images/welcomemode/btn_26.png</file>
+        <file>images/welcomemode/btn_26_hover.png</file>
+        <file>images/welcomemode/btn_27.png</file>
+        <file>images/welcomemode/btn_27_hover.png</file>
+        <file>images/welcomemode/feedback_arrow.png</file>
+        <file>images/welcomemode/feedback_arrow_hover.png</file>
         <file>images/welcomemode/feedback-bar-background.png</file>
-        <file>images/welcomemode/feedback-text.png</file>
         <file>images/welcomemode/list_bullet_arrow.png</file>
         <file>images/welcomemode/mode_project.png</file>
         <file>images/welcomemode/nokia_logo.png</file>

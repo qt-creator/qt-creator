@@ -37,6 +37,7 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QKeyEvent>
+#include <QtCore/QTimeLine>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -218,6 +219,45 @@ public:
 
 
 class BaseTextEditorEditable;
+
+class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
+{
+    Q_OBJECT
+
+public:
+    BaseTextEditorAnimator(QObject *parent);
+
+    void setPosition(int position) { m_position = position; }
+    int position() const { return m_position; }
+
+    void setData(QFont f, QPalette pal, const QString &text);
+
+    void draw(QPainter *p, const QPointF &pos);
+    QRectF rect() const;
+
+    qreal value() const { return m_value; }
+
+    void finish();
+
+    bool isRunning() const;
+
+signals:
+    void updateRequest(int position, QRectF rect);
+
+
+private slots:
+    void step(qreal v);
+
+private:
+    QTimeLine *m_timeline;
+    qreal m_value;
+    int m_position;
+    QFont m_font;
+    QPalette m_palette;
+    QString m_text;
+    QSizeF m_size;
+};
+
 
 class TEXTEDITOR_EXPORT BaseTextEditor
   : public QPlainTextEdit
@@ -468,6 +508,7 @@ private slots:
     void _q_matchParentheses();
     void _q_highlightBlocks();
     void slotSelectionChanged();
+    void _q_animateUpdate(int position, QRectF rect);
 };
 
 
