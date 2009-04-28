@@ -33,6 +33,7 @@
 #include "cmakeprojectconstants.h"
 
 #include <projectexplorer/environment.h>
+#include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
@@ -140,7 +141,9 @@ void CMakeRunConfiguration::setArguments(const QString &newText)
 
 QString CMakeRunConfiguration::dumperLibrary() const
 {
-    return CMakeManager::findDumperLibrary(environment());
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    QString dhl = ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
+    return dhl;
 }
 
 // Factory

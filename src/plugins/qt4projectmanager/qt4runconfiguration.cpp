@@ -51,7 +51,6 @@ using namespace Qt4ProjectManager;
 using ProjectExplorer::ApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
-using ProjectExplorer::QtVersion;
 
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
     : ApplicationRunConfiguration(pro),
@@ -332,7 +331,8 @@ void Qt4RunConfiguration::updateTarget()
         return;
     //qDebug()<<"updateTarget";
     Qt4Project *pro = static_cast<Qt4Project *>(project());
-    ProFileReader *reader = pro->createProFileReader();
+    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
     reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));
 
@@ -422,7 +422,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
-    return version->dumperLibrary();
+    return version->debuggingHelperLibrary();
 }
 
 

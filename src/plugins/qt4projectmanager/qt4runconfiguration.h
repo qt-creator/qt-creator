@@ -47,9 +47,7 @@ class Qt4Project;
 
 namespace Internal {
 
-class Qt4ProFileNode;
-
-
+class Qt4PriFileNode;
 
 class Qt4RunConfiguration : public ProjectExplorer::ApplicationRunConfiguration
 {
@@ -103,7 +101,6 @@ private slots:
 private:
     void updateTarget();
     QStringList m_commandLineArguments;
-    Qt4ProFileNode *m_proFileNode;
     QString m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information

@@ -41,6 +41,7 @@
 #include "qt4buildenvironmentwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
+#include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -50,7 +51,6 @@
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/qtversionmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -236,7 +236,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 {
     m_manager->registerProject(this);
 
-    ProjectExplorer::QtVersionManager *vm = ProjectExplorer::QtVersionManager::instance();
+    QtVersionManager *vm = QtVersionManager::instance();
 
     connect(vm, SIGNAL(defaultQtVersionChanged()),
             this, SLOT(defaultQtVersionChanged()));
@@ -582,18 +582,6 @@ void Qt4Project::update()
     // TODO Maybe remove this method completely?
     m_rootProjectNode->update();
     //updateCodeModel();
-}
-
-ProFileReader *Qt4Project::createProFileReader() const
-{
-    ProFileReader *reader = new ProFileReader();
-    connect(reader, SIGNAL(errorFound(const QString&)),
-            this, SLOT(proFileParseError(const QString&)));
-    QtVersion *version = qtVersion(activeBuildConfiguration());
-    if (version->isValid()) {
-        reader->setQtVersion(version);
-    }
-    return reader;
 }
 
 /*!

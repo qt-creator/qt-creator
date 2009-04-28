@@ -31,7 +31,7 @@
 #define PROFILEREADER_H
 
 #include "profileevaluator.h"
-#include <projectexplorer/qtversionmanager.h>
+#include "qtversionmanager.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
@@ -47,7 +47,7 @@ public:
     ProFileReader();
     ~ProFileReader();
 
-    void setQtVersion(ProjectExplorer::QtVersion *qtVersion);
+    void setQtVersion(QtVersion *qtVersion);
     bool readProFile(const QString &fileName);
     QList<ProFile*> includeFiles() const;
 

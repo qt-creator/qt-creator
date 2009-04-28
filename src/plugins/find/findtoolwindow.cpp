@@ -136,7 +136,7 @@ void FindToolWindow::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
-    settings->setValue("CurrentFilter", m_currentFilter->id());
+    settings->setValue("CurrentFilter", m_currentFilter ? 0 : m_currentFilter->id());
     foreach (IFindFilter *filter, m_filters)
         filter->writeSettings(settings);
     settings->endGroup();

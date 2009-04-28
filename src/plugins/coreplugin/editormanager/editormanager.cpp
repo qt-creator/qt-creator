@@ -1657,7 +1657,9 @@ void EditorManager::showEditorInfoBar(const QString &kind,
 
 void EditorManager::hideEditorInfoBar(const QString &kind)
 {
-    currentEditorView()->hideEditorInfoBar(kind);
+    Core::Internal::EditorView *cev = currentEditorView();
+    if (cev)
+        cev->hideEditorInfoBar(kind);
 }
 
 void EditorManager::showEditorStatusBar(const QString &kind,

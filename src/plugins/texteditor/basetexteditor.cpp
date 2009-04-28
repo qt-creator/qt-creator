@@ -1704,11 +1704,18 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
+static QColor calcMixColor(const QColor &one, const QColor &two)
+{
+    return QColor((one.red() + two.red()) / 2,
+                  (one.green() + two.green()) / 2,
+                  (one.blue() + two.blue()) / 2);
+}
+
 static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
 {
     const int blendBase = (baseColor.value() > 128) ? 0 : 255;
     // Darker backgrounds may need a bit more contrast
-    const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
+    const int blendFactor = (baseColor.value() > 128) ? 16 : 32;
     QColor blendColor = baseColor;
 
     while (factor--) {
@@ -1943,7 +1950,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         if (!block.isVisible()) {
             if (block.blockNumber() == d->visibleCollapsedBlockNumber) {
                 visibleCollapsedBlock = block;
-                visibleCollapsedBlockOffset = offset;
+                visibleCollapsedBlockOffset = offset + QPointF(0,1);
             }
 
             // invisible blocks do have zero line count
@@ -2108,7 +2115,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.setBrush(color);
         painter.drawRoundedRect(QRectF(visibleCollapsedBlockOffset.x(),
                                        visibleCollapsedBlockOffset.y(),
-                                       maxWidth, blockHeight).adjusted(0, 0, 1, 1), 3, 3);
+                                       maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
         painter.restore();
 
         QTextBlock end = b;
@@ -2199,7 +2206,8 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
-    int cursorBlockNumber = textCursor().blockNumber();
+    int selStart = textCursor().selectionStart();
+    int selEnd = textCursor().selectionEnd();
 
     const QColor baseColor = palette().base().color();
     QPalette pal = d->m_extraArea->palette();
@@ -2244,11 +2252,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 #endif
 
     while (block.isValid() && top <= e->rect().bottom()) {
-
-        bool collapseThis = false;
-        bool collapseAfter = false;
-        bool hasClosingCollapse = false;
-
 
         top = bottom;
         bottom = top + (int)blockBoundingRect(block).height();
@@ -2301,7 +2304,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
             }
 
             if (d->m_codeFoldingVisible) {
-                const QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
+                QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
                 bool drawBox = !nextBlock.isVisible();
 
                 int minBraceDepth = qMax(braceDepth, previousBraceDepth);
@@ -2310,9 +2313,10 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     if (!d->m_highlightBlocksInfo.isEmpty()
                         && blockNumber >= d->m_highlightBlocksInfo.open.last()
                         && blockNumber <= d->m_highlightBlocksInfo.close.first())
-                        color = color.light();
+                        color = calcMixColor(pal.highlight().color(), color);
                     painter.fillRect(r, color);
                 }
+
                 bool drawDown = !d->m_highlightBlocksInfo.isEmpty()
                               && blockNumber == d->m_highlightBlocksInfo.open.last();
                 bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
@@ -2374,7 +2378,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
         if (d->m_lineNumbersVisible) {
             const QString &number = QString::number(blockNumber + 1);
-            if (blockNumber == cursorBlockNumber) {
+            bool selected = (
+                    selStart < block.position() + block.length()
+                    && selEnd > block.position()
+                    );
+            if (selected) {
                 painter.save();
                 QFont f = painter.font();
                 f.setBold(d->m_currentLineNumberFormat.font().bold());
@@ -2383,7 +2391,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
             painter.drawText(markWidth, top, extraAreaWidth - markWidth - 4, fm.height(), Qt::AlignRight, number);
-            if (blockNumber == cursorBlockNumber)
+            if (selected)
                 painter.restore();
         }
 

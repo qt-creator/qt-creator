@@ -179,7 +179,7 @@ void Environment::clear()
     m_values.clear();
 }
 
-QString Environment::searchInPath(QString executable)
+QString Environment::searchInPath(QString executable) const
 {
 //    qDebug()<<"looking for "<<executable<< "in PATH: "<<m_values.value("PATH");
     if (executable.isEmpty())

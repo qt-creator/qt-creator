@@ -83,7 +83,7 @@ public:
     Environment::const_iterator constBegin() const;
     Environment::const_iterator constEnd() const;
 
-    QString searchInPath(QString executable);
+    QString searchInPath(QString executable) const;
     QStringList path() const;
 
     static QStringList parseCombinedArgString(const QString &program);
