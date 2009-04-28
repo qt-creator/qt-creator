@@ -29,6 +29,7 @@
 
 #include "debuggerplugin.h"
 
+#include "breakhandler.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
@@ -148,6 +149,11 @@ static ProjectExplorer::SessionManager *sessionManager()
     return ProjectExplorer::ProjectExplorerPlugin::instance()->session();
 }
 
+static QSettings *settings()
+{
+    return ICore::instance()->settings();
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebugMode
@@ -246,13 +252,17 @@ public:
     CommonOptionsPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
-    QString trName() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
-    QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
-    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
+    QString id() const
+        { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
+    QString trName() const
+        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
+    QString category() const
+        { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
+    QString trCategory() const
+        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void apply() { m_group.apply(settings()); }
     void finish() { m_group.finish(); }
 
 private:
@@ -305,7 +315,7 @@ public:
     QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void apply() { m_group.apply(settings()); }
     void finish() { m_group.finish(); }
 
 private:
@@ -377,24 +387,16 @@ void DebuggingHelperOptionPage::updateState()
 //
 ///////////////////////////////////////////////////////////////////////
 
-DebuggerPlugin::DebuggerPlugin() :
-    m_manager(0),
+DebuggerPlugin::DebuggerPlugin()
+  : m_manager(0),
     m_debugMode(0),
     m_locationMark(0),
     m_gdbRunningContext(0),
-    m_breakpointMarginAction(0),
-    m_toggleLockedAction(0),
-    m_breakpointMarginActionLineNumber(0)
-{    
-}
+    m_toggleLockedAction(0)
+{}
 
 DebuggerPlugin::~DebuggerPlugin()
 {}
-
-static QSettings *settings()
-{
-    return ICore::instance()->settings();
-}
 
 void DebuggerPlugin::shutdown()
 {
@@ -454,13 +456,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     texteditorcontext << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
-
-    // FIXME: make this a global action
-    m_breakpointMarginAction = new QAction(this);
-    m_breakpointMarginAction->setText(tr("Toggle Breakpoint"));
-    //m_breakpointMarginAction->setIcon(QIcon(":/gdbdebugger/images/breakpoint.svg"));
-    connect(m_breakpointMarginAction, SIGNAL(triggered()),
-        this, SLOT(breakpointMarginActionTriggered()));
 
     //Core::ActionContainer *mcppcontext =
     //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
@@ -837,17 +832,53 @@ void DebuggerPlugin::editorAboutToClose(Core::IEditor *editor)
 void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
-    m_breakpointMarginActionLineNumber = lineNumber;
-    m_breakpointMarginActionFileName = editor->file()->fileName();
-    menu->addAction(m_breakpointMarginAction);
+    QString fileName = editor->file()->fileName();
+    QString position = fileName + QString(":%1").arg(lineNumber);
+    BreakpointData *data = m_manager->findBreakpoint(fileName, lineNumber);
+
+    if (data) {
+        // existing breakpoint
+        QAction *act = new QAction(tr("Remove Breakpoint"), menu);
+        act->setData(position);
+        connect(act, SIGNAL(triggered()),
+            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+
+        QAction *act2;
+        if (data->enabled)
+            act2 = new QAction(tr("Disable Breakpoint"), menu);
+        else
+            act2 = new QAction(tr("Enable Breakpoint"), menu);
+        act2->setData(position);
+        connect(act2, SIGNAL(triggered()),
+            this, SLOT(breakpointEnableDisableMarginActionTriggered()));
+        menu->addAction(act2);
+    } else {
+        // non-existing
+        QAction *act = new QAction(tr("Set Breakpoint"), menu);
+        act->setData(position);
+        connect(act, SIGNAL(triggered()),
+            this, SLOT(breakpointSetRemoveMarginActionTriggered()));
+        menu->addAction(act);
+    }
 }
 
-void DebuggerPlugin::breakpointMarginActionTriggered()
+void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
 {
-    m_manager->toggleBreakpoint(
-        m_breakpointMarginActionFileName,
-        m_breakpointMarginActionLineNumber
-    );
+    if (QAction *act = qobject_cast<QAction *>(sender())) {
+        QString str = act->data().toString();
+        int pos = str.lastIndexOf(':');
+        m_manager->toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
+    }
+}
+
+void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
+{
+    if (QAction *act = qobject_cast<QAction *>(sender())) {
+        QString str = act->data().toString();
+        int pos = str.lastIndexOf(':');
+        m_manager->toggleBreakpointEnabled(str.left(pos), str.mid(pos + 1).toInt());
+    }
 }
 
 void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber)
@@ -988,8 +1019,9 @@ void DebuggerPlugin::focusCurrentEditor(IMode *mode)
 
 void DebuggerPlugin::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
-                                               QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
+    Core::ICore::instance()->showOptionsDialog(
+        QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
+        QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
 }
 
 #include "debuggerplugin.moc"

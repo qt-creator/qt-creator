@@ -584,18 +584,6 @@ void Qt4Project::update()
     //updateCodeModel();
 }
 
-ProFileReader *Qt4Project::createProFileReader() const
-{
-    ProFileReader *reader = new ProFileReader();
-    connect(reader, SIGNAL(errorFound(const QString&)),
-            this, SLOT(proFileParseError(const QString&)));
-    QtVersion *version = qtVersion(activeBuildConfiguration());
-    if (version->isValid()) {
-        reader->setQtVersion(version);
-    }
-    return reader;
-}
-
 /*!
   Returns whether the project is an application, or has an application as a subproject.
  */

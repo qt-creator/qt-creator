@@ -85,6 +85,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     const QModelIndex index = indexAt(ev->pos());
+    const QModelIndex index0 = index.sibling(index.row(), 0);
     const bool indexIsValid = index.isValid();
     QAction *act0 = new QAction(tr("Delete breakpoint"), &menu);
     act0->setEnabled(indexIsValid);
@@ -95,9 +96,13 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act3 = new QAction(tr("Edit condition..."), &menu);
     act3->setEnabled(indexIsValid);    
     QAction *act4 = new QAction(tr("Synchronize breakpoints"), &menu);
+    bool enabled = model()->data(index0, Qt::UserRole).toBool();
+    QString str = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
+    QAction *act5 = new QAction(str, &menu);
 
     menu.addAction(act0);
     menu.addAction(act3);
+    menu.addAction(act5);
     menu.addSeparator();
     menu.addAction(act1);
     menu.addAction(act2);
@@ -117,6 +122,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         editCondition(index);
     else if (act == act4)
         emit breakpointSynchronizationRequested();
+    else if (act == act5) {
+        model()->setData(index0, !enabled);
+        emit breakpointSynchronizationRequested();
+    }
 }
 
 void BreakWindow::deleteBreakpoint(const QModelIndex &idx)

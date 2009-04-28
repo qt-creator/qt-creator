@@ -123,6 +123,11 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
+    Qt4PriFileNode *findProFileFor(const QString &string);
+
+    //internal
+    ProFileReader *createProFileReader() const;
+
 protected:
     void clear();
     static QStringList varNames(FileType type);
@@ -142,7 +147,6 @@ protected:
                      ChangeType change);
 
     QString buildDir() const;
-    ProFileReader *createProFileReader() const;
 
 private slots:
     void scheduleUpdate();
@@ -197,8 +201,6 @@ private:
     QStringList includePaths(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
     QStringList qBuildSubDirsPaths(const QString &scanDir)  const;
-
-
 
     void invalidate();
 

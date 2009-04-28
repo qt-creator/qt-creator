@@ -69,6 +69,7 @@ private:
     BreakHandler *m_handler;  // not owned.
 
 public:
+    bool enabled;           // should we talk to the debugger engine?
     bool pending;           // does the debugger engine know about us already?
 
     // this "user requested information". will get stored in the session
@@ -125,15 +126,19 @@ public:
     void removeAt(int index); // also deletes the marker
     void clear(); // also deletes all the marker
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
-    int indexOf(const QString &fileName, int lineNumber);
+    int findBreakpoint(const QString &fileName, int lineNumber);
     int findBreakpoint(const BreakpointData &data); // returns index
     int findBreakpoint(int bpNumber); // returns index
     void updateMarkers();
 
-    QList<BreakpointData *> takeRemovedBreakpoints();
+    QList<BreakpointData *> takeRemovedBreakpoints(); // owned
+    QList<BreakpointData *> takeEnabledBreakpoints(); // not owned
+    QList<BreakpointData *> takeDisabledBreakpoints(); // not owned
 
 public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
+    void toggleBreakpointEnabled(BreakpointData *data);
+    void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     void breakByFunction(const QString &functionName);
     void activateBreakpoint(int index);
     void removeBreakpoint(int index);
@@ -156,6 +161,7 @@ private:
     QModelIndex index(int row, int column, const QModelIndex &) const
         { return createIndex(row, column); }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void markerUpdated(BreakpointMarker *, int lineNumber);
     void loadBreakpoints();
@@ -164,7 +170,9 @@ private:
     void removeBreakpointHelper(int index);
 
     QList<BreakpointData *> m_bp;
-    QList<BreakpointData *> m_removed;
+    QList<BreakpointData *> m_removed; // lately removed breakpoints
+    QList<BreakpointData *> m_enabled; // lately enabled breakpoints
+    QList<BreakpointData *> m_disabled; // lately disabled breakpoints
 };
 
 } // namespace Internal

@@ -44,27 +44,6 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-//
-// DependenciesModel
-//
-
-class DependenciesModel : public QAbstractListModel
-{
-public:
-    DependenciesModel(SessionManager *session, Project *project, QObject *parent = 0);
-
-    int rowCount(const QModelIndex &index) const;
-    int columnCount(const QModelIndex &index) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-
-private:
-    SessionManager *m_session;
-    Project *m_project;
-    QList<Project *> m_projects;
-};
-
 DependenciesModel::DependenciesModel(SessionManager *session,
                                      Project *project,
                                      QObject *parent)
@@ -75,6 +54,26 @@ DependenciesModel::DependenciesModel(SessionManager *session,
 {
     // We can't select ourselves as a dependency
     m_projects.removeAll(m_project);
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(resetModel()));
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(resetModel()));
+    connect(session, SIGNAL(sessionLoaded()),
+            this, SLOT(resetModel()));
+//    qDebug()<<"Dependencies Model"<<this<<"for project"<<project<<"("<<project->file()->fileName()<<")";
+}
+
+DependenciesModel::~DependenciesModel()
+{
+//    qDebug()<<"~DependenciesModel"<<this;
+}
+
+void DependenciesModel::resetModel()
+{
+    qDebug()<<"Resetting";
+    m_projects = m_session->projects();
+    m_projects.removeAll(m_project);
+    reset();
 }
 
 int DependenciesModel::rowCount(const QModelIndex &index) const

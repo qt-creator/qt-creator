@@ -21,18 +21,18 @@
     <widget class="QWidget" name="gradientWidget" native="true">
      <property name="styleSheet">
       <string notr="true">#gradientWidget {
-background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }
 
 *, * *, * * *, * * * *, * * * * * {
-font-family: Arial, Trebuchet, Lucida, sans-serif;
-font-size: 12px;
-color: #5e5e5e;
+    font-family: Arial, Trebuchet, Lucida, sans-serif;
+    font-size: 12px;
+    color: #5e5e5e;
 }
 
 #recentSessionsFrame, #recentProjectsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8 8 8 8 stretch stretch;
-border-width: 8 8 8 8;
+    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+    border-width: 8;
 }
 </string>
      </property>
@@ -164,21 +164,24 @@ p {
           </item>
           <item>
            <widget class="Core::Internal::WelcomeModeButton" name="gettingStartedButton">
-            <property name="minimumSize">
-             <size>
-              <width>133</width>
-              <height>29</height>
-             </size>
-            </property>
             <property name="styleSheet">
              <string>* {
-    background-image: url(&quot;:/core/images/welcomemode/btn_getting_started.png&quot;);
+    border-image: url(:/core/images/welcomemode/btn_27.png) 7;
+    border-width: 7;
+    padding: -2px 0;
+    font-size: 12px;
+    font-family: lucida sans, dejavu sans, sans serif;
+    color: black;
 }
 
 *:hover {
-    background-image: url(:/core/images/welcomemode/btn_getting_started_hover.png)
+    border-image: url(:/core/images/welcomemode/btn_27_hover.png) 7;
+    color: white;
 }
 </string>
+            </property>
+            <property name="text">
+             <string>&lt;qt&gt;Getting Started &amp;gt;&amp;gt;</string>
             </property>
            </widget>
           </item>
@@ -229,8 +232,8 @@ p {
               </property>
               <property name="styleSheet">
                <string>#recentSessionsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8 8 8 8 stretch stretch;
-border-width: 8 8 8 8;
+    border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+    border-width: 8;
 }
 </string>
               </property>
@@ -278,45 +281,6 @@ h2 {
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <spacer name="restoreButtonSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>1</width>
-                   <height>1</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="2" column="2">
-                <widget class="Core::Internal::WelcomeModeButton" name="restoreSessionButton">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>137</width>
-                   <height>27</height>
-                  </size>
-                 </property>
-                 <property name="styleSheet">
-                  <string>* {
-    background-image: url(&quot;:/core/images/welcomemode/btn_restore_session.png&quot;);
-}
-
-*:hover {
-    background-image: url(:/core/images/welcomemode/btn_restore_session_hover.png)
-}
-</string>
                  </property>
                 </widget>
                </item>
@@ -374,13 +338,52 @@ h2 {
                 </widget>
                </item>
                <item row="2" column="0">
-                <spacer name="verticalSpacer_2">
+                <spacer name="restoreButtonVerticalSpacer">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>5</width>
+                   <height>1</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="2" column="2">
+                <widget class="Core::Internal::WelcomeModeButton" name="restoreSessionButton">
+                 <property name="styleSheet">
+                  <string>* {
+    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
+    border-width: 7;
+    padding: -2px 0;
+    font-size: 12px;
+    font-family: lucida sans, dejavu sans, sans serif;
+    color: black;
+}
+
+*:hover {
+    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
+    color: white;
+}
+</string>
+                 </property>
+                 <property name="text">
+                  <string>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <spacer name="restoreButtonSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Ignored</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>1</width>
                    <height>1</height>
                   </size>
                  </property>
@@ -693,7 +696,7 @@ h2 {
      </property>
      <property name="styleSheet">
       <string>#bottomWidget {
-background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
+    background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
 }
 </string>
      </property>
@@ -711,44 +714,30 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
        <number>0</number>
       </property>
       <property name="horizontalSpacing">
-       <number>6</number>
+       <number>10</number>
       </property>
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="0" rowspan="3">
-       <widget class="QLabel" name="feedbackLabel">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="core.qrc">:/core/images/welcomemode/feedback-text.png</pixmap>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="Core::Internal::WelcomeModeButton" name="feedbackButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>102</width>
-          <height>26</height>
-         </size>
-        </property>
         <property name="styleSheet">
          <string>* {
-    background-image: url(&quot;:/core/images/welcomemode/btn_feedback.png&quot;);
+    border-image: url(:/core/images/welcomemode/btn_26.png) 7;
+    border-width: 7;
+    padding: -2px 2px;
+    font-size: 12px;
+    font-family: lucida sans, dejavu sans, sans serif;
 }
 
 *:hover {
-    background-image: url(:/core/images/welcomemode/btn_feedback_hover.png)
+    border-image: url(:/core/images/welcomemode/btn_26_hover.png) 7;
+    color: white;
 }
 </string>
+        </property>
+        <property name="text">
+         <string>&lt;qt&gt;Feedback&amp;nbsp;&amp;nbsp;&lt;img src=&quot;:/core/images/welcomemode/feedback_arrow.png&quot; /&gt;</string>
         </property>
        </widget>
       </item>
@@ -771,7 +760,7 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
          <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -787,15 +776,22 @@ background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
          <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>1</width>
-          <height>0</height>
+          <height>1</height>
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="helpUsLabel">
+        <property name="text">
+         <string>Help us make Qt Creator even better</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

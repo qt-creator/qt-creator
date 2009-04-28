@@ -368,6 +368,8 @@ private:
     void shutdown();
 
     void toggleBreakpoint(const QString &fileName, int lineNumber);
+    void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
+    BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &pos, const QString &exp0);
 
     DebuggerStartMode m_startMode;

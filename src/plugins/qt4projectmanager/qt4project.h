@@ -164,7 +164,6 @@ public:
     virtual void newBuildConfiguration(const QString &buildConfiguration);
 
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
-    Internal::ProFileReader *createProFileReader() const;
 
     // Those functions arein a few places.
     // The drawback is that we shouldn't actually depend on them beeing always there
