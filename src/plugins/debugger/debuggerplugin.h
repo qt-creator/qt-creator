@@ -54,6 +54,7 @@ class ITextEditor;
 namespace Debugger {
 namespace Internal {
 
+class BreakpointData;
 class DebuggerManager;
 class DebugMode;
 class LocationMark;
@@ -90,7 +91,8 @@ private slots:
     void resetLocation();
     void gotoLocation(const QString &fileName, int line, bool setMarker);
 
-    void breakpointMarginActionTriggered();
+    void breakpointSetRemoveMarginActionTriggered();
+    void breakpointEnableDisableMarginActionTriggered();
     void focusCurrentEditor(Core::IMode *mode);
     void showSettingsDialog();
 
@@ -110,10 +112,7 @@ private:
     LocationMark *m_locationMark;
     int m_gdbRunningContext;
 
-    QAction *m_breakpointMarginAction;
     QAction *m_toggleLockedAction;
-    int m_breakpointMarginActionLineNumber;
-    QString m_breakpointMarginActionFileName;
 };
 
 } // namespace Internal
