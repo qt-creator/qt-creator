@@ -118,6 +118,7 @@ struct BaseTextEditorPrivateHighlightBlocks
     QList<int> open;
     QList<int> close;
     QList<int> visualIndent;
+    inline int count() const { return visualIndent.size(); }
     inline bool isEmpty() const { return open.isEmpty() || close.isEmpty() || visualIndent.isEmpty(); }
     inline bool operator==(const BaseTextEditorPrivateHighlightBlocks &o) const {
         return (open == o.open && close == o.close && visualIndent == o.visualIndent);
