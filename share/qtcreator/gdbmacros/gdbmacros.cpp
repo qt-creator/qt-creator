@@ -47,8 +47,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QSharedDataPointer>
 #include <QtCore/QTextCodec>
 #include <QtCore/QVector>
+#include <QtCore/QWeakPointer>
 
 int qtGhVersion = QT_VERSION;
 
@@ -866,10 +869,11 @@ static void qDumpQDateTime(QDumper &d)
         BL(d, "isNull", date.isNull());
         I(d, "toTime_t", (long)date.toTime_t());
         S(d, "toString", date.toString());
+        #if QT_VERSION >= 0x040500
         S(d, "toString_(ISO)", date.toString(Qt::ISODate));
         S(d, "toString_(SystemLocale)", date.toString(Qt::SystemLocaleDate));
         S(d, "toString_(Locale)", date.toString(Qt::LocaleDate));
-        S(d, "toString", date.toString());
+        #endif
 
         #if 0
         d.beginHash();
@@ -1931,6 +1935,30 @@ static void qDumpQSet(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQSharedPointer(QDumper &d)
+{
+    const QSharedPointer<int> &ptr =
+        *reinterpret_cast<const QSharedPointer<int> *>(d.data);
+
+    if (isSimpleType(d.innertype)) 
+        qDumpInnerValueHelper(d, d.innertype, ptr.data());
+    else
+        P(d, "value", "");
+    P(d, "valuedisabled", "true");
+    P(d, "numchild", 1);
+    if (d.dumpChildren) {
+        d << ",children=[";
+        d.beginHash();
+            P(d, "name", "data");
+            qDumpInnerValue(d, d.innertype, ptr.data());
+        d.endHash();
+        I(d, "strongref", 44);
+        I(d, "weakref", 45);
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpQString(QDumper &d)
 {
     const QString &str = *reinterpret_cast<const QString *>(d.data);
@@ -2012,11 +2040,13 @@ static void qDumpQVariantHelper(const void *data, QString *value,
         *value = QLatin1Char('"') + v.toString() + QLatin1Char('"');
         *numchild = 0;
         break;
+    #if QT_VERSION >= 0x040500
     case QVariant::StringList:
         *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
                     .arg((quintptr)data);
         *numchild = v.toStringList().size();
         break;
+    #endif
     case QVariant::Int:
         *value = QString::number(v.toInt());
         *numchild= 0;
@@ -2480,6 +2510,8 @@ static void handleProtocolVersion2and3(QDumper & d)
         case 'S':
             if (isEqual(type, "QSet"))
                 qDumpQSet(d);
+            else if (isEqual(type, "QSharedPointer"))
+                qDumpQSharedPointer(d);
             else if (isEqual(type, "QString"))
                 qDumpQString(d);
             else if (isEqual(type, "QStringList"))
@@ -2578,6 +2610,7 @@ void *qDumpObjectData440(
 #endif // PRIVATE_OBJECT_ALLOWED
             // << "\""NS"QRegion\","
             "\""NS"QSet\","
+            "\""NS"QSharedPointer\","
             "\""NS"QString\","
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","

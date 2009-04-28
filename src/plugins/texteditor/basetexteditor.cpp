@@ -1709,16 +1709,44 @@ static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
     const int blendBase = (baseColor.value() > 128) ? 0 : 255;
     // Darker backgrounds may need a bit more contrast
     const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
-
     QColor blendColor = baseColor;
 
     while (factor--) {
         blendColor = QColor(
-                (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256,
+                (blendBase * blendFactor + blendColor.red() * (256 - blendFactor)) / 256,
                 (blendBase * blendFactor + blendColor.green() * (256 - blendFactor)) / 256,
                 (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256);
     }
     return blendColor;
+}
+
+
+static QColor calcBlendColor(const QColor &baseColor, int level, int count)
+{
+    QColor color80;
+    QColor color90;
+
+    if (baseColor.value() > 128) {
+        color80 = baseColor.lighter(90);
+        color90 = baseColor.lighter(95);
+    } else {
+        color80 = baseColor.lighter(110);
+        color90 = baseColor.lighter(105);
+    }
+
+    if (level == count)
+        return baseColor;
+    if (level == 0)
+        return color80;
+    if (level == count - 1)
+        return color90;
+
+    const int blendFactor = level * (256 / (count - 2));
+
+    return QColor(
+                (color90.red() * blendFactor + color80.red() * (256 - blendFactor)) / 256,
+                (color90.green() * blendFactor + color80.green() * (256 - blendFactor)) / 256,
+                (color90.blue() * blendFactor + color80.blue() * (256 - blendFactor)) / 256);
 }
 
 void BaseTextEditor::paintEvent(QPaintEvent *e)
@@ -1804,13 +1832,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 if (n > i)
                     --depth;
 
-            int count = d->m_highlightBlocksInfo.visualIndent.size();
+            int count = d->m_highlightBlocksInfo.count();
             if (count) {
                 QRectF rr = r;
                 rr.setWidth(viewport()->width());
                 for(int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, count - i));
+                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
                 }
             }
         }
@@ -2270,12 +2298,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                         xoffset += 2;
                     }
                 }
-
-                if (!userData->ifdefedOut()) {
-                    collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
-                    collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
-                    hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
-                }
             }
 
             if (d->m_codeFoldingVisible) {
@@ -2296,7 +2318,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
                               && blockNumber == d->m_highlightBlocksInfo.close.first();
 
-
                 if (drawBox || drawDown || drawUp) {
                     painter.setRenderHint(QPainter::Antialiasing, true);
                     painter.translate(.5, .5);
@@ -2313,10 +2334,16 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                         painter.drawPolygon(points1, 3);
                         painter.drawPolygon(points2, 3);
                     } else if (drawUp) {
-                        QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
-                                              QPointF(r.center().x(), r.center().y()),
-                                              QPointF(r.right(), r.bottom()-1) };
-                        painter.drawPolygon(points, 3);
+
+                        // check that we are not collapsed
+                        QTextBlock open = doc->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
+                        if (open.next().isVisible()) {
+
+                            QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
+                                                  QPointF(r.center().x(), r.center().y()),
+                                                  QPointF(r.right(), r.bottom()-1) };
+                            painter.drawPolygon(points, 3);
+                        }
                     } else if(drawDown) {
                         QPointF points[3] = { QPointF(r.left(), r.top()),
                                                QPointF(r.center().x(), r.center().y()),
@@ -2604,7 +2631,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         }
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
             || highlightColumn != d->extraAreaHighlightCollapseColumn)
-            d->m_highlightBlocksTimer->start(100);
+            d->m_highlightBlocksTimer->start(40);
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
