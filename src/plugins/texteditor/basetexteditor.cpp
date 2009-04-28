@@ -192,6 +192,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_highlightBlocksTimer->setSingleShot(true);
     connect(d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
 
+    d->m_animator = 0;
 
     d->m_searchResultFormat.setBackground(QColor(0xffef0b));
 
@@ -2134,6 +2135,12 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         }
     }
 
+    if (d->m_animator) {
+        QTextCursor cursor = textCursor();
+        cursor.setPosition(d->m_animator->position());
+        d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
+    }
+
 
     if (d->m_visibleWrapColumn > 0) {
         qreal lineX = fontMetrics().width('x') * d->m_visibleWrapColumn + offset.x() + 4;
@@ -2379,8 +2386,9 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
         if (d->m_lineNumbersVisible) {
             const QString &number = QString::number(blockNumber + 1);
             bool selected = (
-                    selStart < block.position() + block.length()
-                    && selEnd > block.position()
+                    (selStart < block.position() + block.length()
+                    && selEnd > block.position())
+                    || (selStart == selEnd && selStart == block.position())
                     );
             if (selected) {
                 painter.save();
@@ -3369,10 +3377,77 @@ void BaseTextEditor::setFindScope(const QTextCursor &scope)
     }
 }
 
+void BaseTextEditor::_q_animateUpdate(int position, QRectF rect)
+{
+    QTextCursor cursor(textCursor());
+    cursor.setPosition(position);
+    viewport()->update(QRectF(cursorRect(cursor).topLeft() + rect.topLeft(), rect.size()).toAlignedRect());
+}
+
+
+BaseTextEditorAnimator::BaseTextEditorAnimator(QObject *parent)
+        :QObject(parent)
+{
+    m_value = 0;
+    m_timeline = new QTimeLine(500, this);
+    m_timeline->setCurveShape(QTimeLine::SineCurve);
+    connect(m_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(step(qreal)));
+    connect(m_timeline, SIGNAL(finished()), this, SLOT(deleteLater()));
+    m_timeline->start();
+}
+
+
+void BaseTextEditorAnimator::setData(QFont f, QPalette pal, const QString &text)
+{
+        m_font = f;
+        m_palette = pal;
+        m_text = text;
+        QFontMetrics fm(m_font);
+        m_size = QSizeF(fm.width(m_text), fm.height());
+    }
+
+void BaseTextEditorAnimator::draw(QPainter *p, const QPointF &pos)
+{
+    p->setPen(m_palette.text().color());
+    QFont f = m_font;
+    f.setPointSizeF(f.pointSizeF() * (1.0 + m_value));
+    QFontMetrics fm(f);
+    int width = fm.width(m_text);
+    QRectF r((m_size.width()-width)/2, (m_size.height() - fm.height())/2, width, fm.height());
+    r.translate(pos);
+    p->fillRect(r, m_palette.base());
+    p->setFont(f);
+    p->drawText(r, m_text);
+}
+
+QRectF BaseTextEditorAnimator::rect() const
+{
+    QFont f = m_font;
+    f.setPointSizeF(f.pointSizeF() * (1.0 + m_value));
+    QFontMetrics fm(f);
+    int width = fm.width(m_text);
+    return QRectF((m_size.width()-width)/2, (m_size.height() - fm.height())/2, width, fm.height());
+}
+
+void BaseTextEditorAnimator::step(qreal v)
+{
+    QRectF before = rect();
+    m_value = v;
+    QRectF after = rect();
+    emit updateRequest(m_position, before.united(after));
+}
+
+void BaseTextEditorAnimator::finish()
+{
+    step(0);
+    deleteLater();
+}
+
 void BaseTextEditor::_q_matchParentheses()
 {
     if (isReadOnly())
         return;
+
 
     QTextCursor backwardMatch = textCursor();
     QTextCursor forwardMatch = textCursor();
@@ -3386,6 +3461,7 @@ void BaseTextEditor::_q_matchParentheses()
         return;
     }
 
+    int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
         if (backwardMatchType == TextBlockUserData::Mismatch) {
@@ -3393,11 +3469,12 @@ void BaseTextEditor::_q_matchParentheses()
             sel.format = d->m_mismatchFormat;
         } else {
 
-            if (d->m_formatRange) {
-                sel.cursor = backwardMatch;
-                sel.format = d->m_rangeFormat;
-                extraSelections.append(sel);
-            }
+//            if (d->m_formatRange) {
+//                sel.cursor = backwardMatch;
+//                sel.format = d->m_rangeFormat;
+//                extraSelections.append(sel);
+//            }
+            animatePosition = backwardMatch.selectionStart();
 
             sel.cursor = backwardMatch;
             sel.format = d->m_matchFormat;
@@ -3419,11 +3496,13 @@ void BaseTextEditor::_q_matchParentheses()
             sel.format = d->m_mismatchFormat;
         } else {
 
-            if (d->m_formatRange) {
-                sel.cursor = forwardMatch;
-                sel.format = d->m_rangeFormat;
-                extraSelections.append(sel);
-            }
+            animatePosition = forwardMatch.selectionEnd()-1;
+
+//            if (d->m_formatRange) {
+//                sel.cursor = forwardMatch;
+//                sel.format = d->m_rangeFormat;
+//                extraSelections.append(sel);
+//            }
 
             sel.cursor = forwardMatch;
             sel.format = d->m_matchFormat;
@@ -3438,6 +3517,22 @@ void BaseTextEditor::_q_matchParentheses()
         extraSelections.append(sel);
     }
     setExtraSelections(ParenthesesMatchingSelection, extraSelections);
+
+
+    if (animatePosition >= 0) {
+        if (d->m_animator)
+            d->m_animator->finish();  // one animation is enough
+        d->m_animator = new BaseTextEditorAnimator(this);
+        d->m_animator->setPosition(animatePosition);
+        QPalette pal;
+        pal.setBrush(QPalette::Text, d->m_matchFormat.foreground());
+        pal.setBrush(QPalette::Base, d->m_rangeFormat.background());
+        d->m_animator->setData(font(), pal, characterAt(d->m_animator->position()));
+        connect(d->m_animator, SIGNAL(updateRequest(int,QRectF)),
+                this, SLOT(_q_animateUpdate(int,QRectF)));
+    }
+
+
 }
 
 void BaseTextEditor::_q_highlightBlocks()
