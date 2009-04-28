@@ -4,5 +4,6 @@
         <sub-class-of type="text/plain"/>
         <comment>DUI file</comment>
         <glob pattern="*.dui"/>
+        <glob pattern="*.qml"/>
     </mime-type>
 </mime-info>
