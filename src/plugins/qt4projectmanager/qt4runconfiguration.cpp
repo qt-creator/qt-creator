@@ -51,7 +51,6 @@ using namespace Qt4ProjectManager;
 using ProjectExplorer::ApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
-using ProjectExplorer::QtVersion;
 
 Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
     : ApplicationRunConfiguration(pro),
@@ -422,7 +421,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
     QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
-    return version->dumperLibrary();
+    return version->debuggingHelperLibrary();
 }
 
 

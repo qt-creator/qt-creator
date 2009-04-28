@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
+namespace Qt4ProjectManager {
 
 class QtVersion;
 
@@ -101,7 +101,7 @@ private:
 };
 
 } //namespace Internal
-} //namespace ProjectExplorer
+} //namespace Qt4ProjectManager
 
 
 #endif // QTOPTIONSPAGE_H

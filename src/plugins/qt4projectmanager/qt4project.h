@@ -33,12 +33,12 @@
 #include "qt4nodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "qtversionmanager.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/qtversionmanager.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -148,7 +148,7 @@ public:
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
     // to check wheter the project uses the default qt version use qtVersionId
-    ProjectExplorer::QtVersion *qtVersion(const QString &buildConfiguration) const;
+    QtVersion *qtVersion(const QString &buildConfiguration) const;
 
     // returns the id of the qt version, if the project is using the default qt version
     // this function returns 0

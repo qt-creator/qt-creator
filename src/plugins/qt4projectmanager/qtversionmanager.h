@@ -30,20 +30,20 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "environment.h"
-#include "toolchain.h"
-#include "projectexplorer_export.h"
+#include <projectexplorer/environment.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QHash>
 
-namespace ProjectExplorer {
+namespace Qt4ProjectManager {
 
 namespace Internal {
 class QtOptionsPageWidget;
 class QtOptionsPage;
+class Qt4ProjectManagerPlugin;
 }
 
-class PROJECTEXPLORER_EXPORT QtVersion
+class QtVersion
 {
     friend class Internal::QtOptionsPageWidget; //for changing name and path
     friend class QtVersionManager;
@@ -78,6 +78,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
 
     bool hasDebuggingHelper() const;
+    QString debuggingHelperLibrary() const;
     // Builds a debugging library
     // returns the output of the commands
     QString buildDebuggingHelperLibrary();
@@ -92,7 +93,6 @@ public:
     };
 
     QmakeBuildConfig defaultBuildConfig() const;
-    QString dumperLibrary() const;
 private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
@@ -124,8 +124,9 @@ private:
     bool m_hasDebuggingHelper;
 };
 
-class PROJECTEXPLORER_EXPORT QtVersionManager : public QObject
+class QtVersionManager : public QObject
 {
+    friend class Internal::Qt4ProjectManagerPlugin;
     Q_OBJECT
     // for getUniqueId();
     friend class QtVersion;
@@ -145,10 +146,6 @@ public:
     void addVersion(QtVersion *version);
 
     // Static Methods
-    // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
-    static QStringList possibleQMakeCommands();
-    // return true if the qmake at qmakePath is qt4 (used by QtVersion)
-    static QString qtVersionForQMake(const QString &qmakePath);
     static QtVersion::QmakeBuildConfig scanMakefileForQmakeConfig(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
     static QString findQtVersionFromMakefile(const QString &directory);
 signals:
@@ -163,7 +160,7 @@ private:
     void addNewVersionsFromInstaller();
     void updateSystemVersion();
     void updateDocumentation();
-    QString findSystemQt() const;
+
     static int indexOfVersionInList(const QtVersion * const version, const QList<QtVersion *> &list);
     void updateUniqueIdToIndexMap();
 
@@ -172,8 +169,10 @@ private:
     QList<QtVersion *> m_versions;
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;
+    // managed by QtProjectManagerPlugin
+    static QtVersionManager *m_self;
 };
 
-} // namespace ProjectExplorer
+} // namespace Qt4ProjectManager
 
 #endif // QTVERSIONMANAGER_H

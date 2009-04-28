@@ -39,6 +39,8 @@
 #include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
 #include "profilereader.h"
+#include "qtversionmanager.h"
+#include "qtoptionspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -47,7 +49,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/qtversionmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -64,7 +65,6 @@
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
 using ProjectExplorer::Project;
-using ProjectExplorer::QtVersionManager;
 
 Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 {
@@ -97,8 +97,13 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-
     Core::ActionManager *am = core->actionManager();
+
+    QtVersionManager::m_self = new QtVersionManager();
+    addAutoReleasedObject(QtVersionManager::m_self);
+
+    addAutoReleasedObject(new QtOptionsPage());
+
 
     //create and register objects
     m_qt4ProjectManager = new Qt4Manager(this);
