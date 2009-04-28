@@ -1513,7 +1513,7 @@ QRect BaseTextEditor::collapseBox()
         return QRect();
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
-    QTextBlock end= document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
+    QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
         return QRect();
     QRectF br = blockBoundingGeometry(begin).translated(contentOffset());
@@ -2349,7 +2349,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
             const QString &number = QString::number(blockNumber + 1);
             if (blockNumber == cursorBlockNumber) {
                 painter.save();
-                painter.setPen(pal.color(QPalette::Background).value() < 128 ? Qt::white : Qt::black);
+                QFont f = painter.font();
+                f.setBold(d->m_currentLineNumberFormat.font().bold());
+                f.setItalic(d->m_currentLineNumberFormat.font().italic());
+                painter.setFont(f);
+                painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
             painter.drawText(markWidth, top, extraAreaWidth - markWidth - 4, fm.height(), Qt::AlignRight, number);
             if (blockNumber == cursorBlockNumber)
@@ -2365,7 +2369,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                          extraAreaWidth, viewport()->height());
         painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
                          extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
-        QRect cb = collapseBox();
+//        QRect cb = collapseBox();
 //        if (!cb.isEmpty()) {
 //            QPen pen(baseColor.value() < 128 ? Qt::white : Qt::black);
 //            pen.setWidth(2);
@@ -2428,10 +2432,17 @@ void BaseTextEditor::slotCursorPositionChanged()
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
     }
+
+    if (d->m_parenthesesMatchingEnabled) {
+        // Delay update when no matching is displayed yet, to avoid flicker
+        if (extraSelections(ParenthesesMatchingSelection).isEmpty()) {
+            d->m_parenthesesMatchingTimer->start(50);
+        } else {
+            _q_matchParentheses();
+        }
+    }
+
     QList<QTextEdit::ExtraSelection> extraSelections;
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2445,7 +2456,7 @@ void BaseTextEditor::slotCursorPositionChanged()
     setExtraSelections(CurrentLineSelection, extraSelections);
 
     if (d->m_highlightBlocks) {
-        QTextCursor cursor  = textCursor();
+        QTextCursor cursor = textCursor();
         d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
         d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         d->m_highlightBlocksTimer->start(100);
@@ -3333,10 +3344,12 @@ void BaseTextEditor::_q_matchParentheses()
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
     const TextBlockUserData::MatchType forwardMatchType = TextBlockUserData::matchCursorForward(&forwardMatch);
 
-    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
-        return;
-
     QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch) {
+        setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+        return;
+    }
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -3538,10 +3551,11 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
     const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
-    const QTextCharFormat searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
+    d->m_searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
     const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
-    const QTextCharFormat currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
-    const QTextCharFormat ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
+    d->m_currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
+    d->m_currentLineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE_NUMBER));
+    d->m_ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
     QFont font(textFormat.font());
 
     const QColor foreground = textFormat.foreground().color();
@@ -3569,15 +3583,10 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     // Search results
     d->m_searchResultFormat.setBackground(searchResultFormat.background());
-    d->m_searchScopeFormat.setBackground(searchScopeFormat.background());
-    d->m_currentLineFormat.setBackground(currentLineFormat.background());
 
     // Matching braces
     d->m_matchFormat.setForeground(parenthesesFormat.foreground());
     d->m_rangeFormat.setBackground(parenthesesFormat.background());
-
-    // Disabled code
-    d->m_ifdefedOutFormat.setForeground(ifdefedOutFormat.foreground());
 
     slotUpdateExtraAreaWidth();
 }
