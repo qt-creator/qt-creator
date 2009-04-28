@@ -56,7 +56,6 @@ using namespace Core::Internal;
 /*!
   \class FileManager
   \mainclass
-  \ingroup qwb
   \inheaderfile filemanager.h
   \brief Manages a set of IFile objects.
 
@@ -549,7 +548,7 @@ void FileManager::saveRecentFiles()
   The current file is e.g. the file currently opened when an editor is active,
   or the selected file in case a Project Explorer is active ...
 
-  \see currentFile
+  \sa currentFile
   */
 void FileManager::setCurrentFile(const QString &filePath)
 {
@@ -565,7 +564,7 @@ void FileManager::setCurrentFile(const QString &filePath)
   The current file is e.g. the file currently opened when an editor is active,
   or the selected file in case a Project Explorer is active ...
 
-  \see setCurrentFile
+  \sa setCurrentFile
   */
 QString FileManager::currentFile() const
 {

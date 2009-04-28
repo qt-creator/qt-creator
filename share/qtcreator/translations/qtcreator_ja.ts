@@ -347,8 +347,8 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+613"/>
-        <source>Build directory:</source>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+626"/>
+        <source>&amp;Change</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -363,12 +363,12 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+249"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+255"/>
         <source>Run CMake</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+7"/>
         <source>Arguments</source>
         <translation type="unfinished"></translation>
     </message>
@@ -378,7 +378,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+3"/>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running cmake. If you want to add additional command line arguments, add them in the below. Note, that cmake remembers command line arguments from the former runs.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -387,11 +387,16 @@
         <source>The directory %1 specified in a buildconfiguration, does not contain a cbp file. Qt Creator needs to recreate this file, by running cmake. Some projects require command line arguments to the initial cmake call. Note, that cmake remembers command line arguments from the former runs.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location line="+8"/>
+        <source>Qt Creator needs to run cmake in the new build directory. Some projects require command line arguments to the initial cmake call.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+337"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+338"/>
         <location line="+10"/>
         <source>CMake</source>
         <translation type="unfinished"></translation>
@@ -400,7 +405,7 @@
 <context>
     <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-109"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-108"/>
         <source>Qt Creator has detected an in source build. This prevents shadow builds, Qt Creator won&apos;t allow you to change the build directory. If you want a shadow build, clean your source directory and open the project again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -408,7 +413,7 @@
 <context>
     <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+259"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+258"/>
         <source>Additional arguments:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -421,7 +426,12 @@
 <context>
     <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+27"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+28"/>
+        <source>Please enter the directory in which you want to build your project. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -434,7 +444,7 @@
 <context>
     <name>CMakeProjectManager::Internal::XmlFileUpToDatePage</name>
     <message>
-        <location line="-22"/>
+        <location line="-25"/>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -450,6 +460,47 @@
         <location line="+2"/>
         <source>&lt;No Symbols&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CdbDumperHelper</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdumperhelper.cpp" line="+253"/>
+        <source>Loading dumpers...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>The debugger does not appear to be Qt application.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>The dumper module appears to be already loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Dumper library &apos;%1&apos; loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>The dumper library &apos;%1&apos; could not be loaded:
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>&lt;none&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>%n known types, Qt version: %1, Qt namespace: %2</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1112,6 +1163,14 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
+    <name>Core::Internal::EditMode</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/editmode.cpp" line="+94"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Core::Internal::EditorSplitter</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorsplitter.cpp" line="+75"/>
@@ -1629,8 +1688,91 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::WelcomeMode</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+227"/>
-        <source> (last session)</source>
+        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+169"/>
+        <source>%1 (last session)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::WelcomePage</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/welcomemode.ui"/>
+        <source>&lt;style&gt;
+h1 {
+    font-size: 24px;
+    font-weight: normal;
+    color: #4d4d4d;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+p {
+    margin-top: 0px;
+    margin-bottom: 7px;
+}
+&lt;/style&gt;
+
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;h1&gt;Welcome&lt;/h1&gt;
+&lt;!-- QTextDocument does not support line-height, so wrap the lines manually ... --&gt;
+&lt;p&gt;Qt Creator is an intuitive, modern cross platform IDE that&lt;/p&gt; &lt;p&gt;enables developers to create graphically appealing applications&lt;/p&gt;
+&lt;p&gt;for desktop, embedded, and mobile devices. Click on &lt;strong&gt;Getting&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Started&lt;/strong&gt; to begin developing with Qt Creator.&lt;/p&gt;
+&lt;hr style=&quot;margin-top:15px&quot;/&gt;
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>* {
+    background-image: url(&quot;:/core/images/welcomemode/btn_getting_started.png&quot;);
+}
+
+*:hover {
+    background-image: url(:/core/images/welcomemode/btn_getting_started_hover.png)
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>#recentSessionsFrame {
+border-image: url(:/core/images/welcomemode/rc_combined.png) 8 8 8 8 stretch stretch;
+border-width: 8 8 8 8;
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>* {
+    background-image: url(&quot;:/core/images/welcomemode/btn_restore_session.png&quot;);
+}
+
+*:hover {
+    background-image: url(:/core/images/welcomemode/btn_restore_session_hover.png)
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>#bottomWidget {
+background-image: url(:/core/images/welcomemode/feedback-bar-background.png);
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>* {
+    background-image: url(&quot;:/core/images/welcomemode/btn_feedback.png&quot;);
+}
+
+*:hover {
+    background-image: url(:/core/images/welcomemode/btn_feedback_hover.png)
+}
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1983,6 +2125,14 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
+    <name>CppEditor::Internal::CPPEditor</name>
+    <message>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+258"/>
+        <source>Sort alphabetically</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <location filename="../../../src/plugins/cppeditor/cppclasswizard.cpp" line="+62"/>
@@ -2027,7 +2177,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+152"/>
+        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+167"/>
         <source>C++</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2328,22 +2478,22 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbDebugEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+122"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+123"/>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+110"/>
         <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+229"/>
         <source>The dumper library &apos;%1&apos; does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+23"/>
         <source>The console stub process was unable to start &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2368,7 +2518,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+428"/>
+        <location line="+479"/>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2378,7 +2528,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+83"/>
         <location line="+6"/>
         <source>Debugger Error</source>
         <translation type="unfinished"></translation>
@@ -4595,12 +4745,7 @@ Reason: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Find.EnterFindString</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4689,115 +4834,8 @@ Reason: %3</source>
 <context>
     <name>GdbOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdboptionpage.ui"/>
         <source>Form</source>
-        <translation type="unfinished">フォーム</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Environment:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Skip known frames when stepping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Checking this will make enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Use tooltips while debugging</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Gdb interaction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>This is either a full abolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Gdb location:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Gdb startup script:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Behaviour of breakpoint setting in plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>This is the slowest but safest option.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Try to set breakpoints in selected plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Matching regular expression: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Never set breakpoints in plugins automatically</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>User interface</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Populate source file view automatically</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Maximal stack depth:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;unlimited&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">フォーム</translation>
     </message>
 </context>
 <context>
@@ -5832,7 +5870,7 @@ Reason: %3</source>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+165"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+177"/>
         <location line="+36"/>
         <source>Contents</source>
         <translation type="unfinished">コンテンツ</translation>
@@ -7285,7 +7323,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+112"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+114"/>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7295,18 +7333,18 @@ Library base name: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Close QtCreator?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>A project is currently being built.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Do you want to cancel the build process and close QtCreator anyway?</source>
+        <location line="-1"/>
+        <source>Close Qt Creator?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7619,6 +7657,117 @@ Library base name: %1</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::Internal::QtOptionsPageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/qtoptionspage.cpp" line="+65"/>
+        <source>&lt;specify a name&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;specify a path&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Select QTDIR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select the Qt Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+211"/>
+        <source>The Qt Version %1 is not installed. Run make install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>%1 is not a valid qt directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Found Qt version %1, using mkspec %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::QtVersionManager</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/qtversionmanager.ui"/>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Qt versions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debugging Helper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Version Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>MinGw Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debugging Helper:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show &amp;Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Rebuild</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default Qt Version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/removefiledialog.ui"/>
@@ -7799,7 +7948,7 @@ Library base name: %1</source>
         <translation type="unfinished">プロジェクト</translation>
     </message>
     <message>
-        <location line="+85"/>
+        <location line="+90"/>
         <source>&amp;Build</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8060,6 +8209,20 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::QtVersionManager</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/qtversionmanager.cpp" line="+236"/>
+        <location line="+6"/>
+        <source>Auto-detected Qt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+55"/>
+        <source>&lt;not found&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::SessionManager</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+297"/>
@@ -8095,14 +8258,6 @@ to version control (%2)?</source>
     <message>
         <location line="+2"/>
         <source>Session (&apos;%1&apos;)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QHelpProjectPlugin::Internal::QHelpProjectManager</name>
-    <message>
-        <location filename="../../../src/plugins/qhelpproject/qhelpprojectmanager.cpp" line="+105"/>
-        <source>Qt Help Project File (*.qthp)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8249,9 +8404,8 @@ to version control (%2)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qhelpproject/qhelpproject.cpp" line="+50"/>
         <source>Files</source>
-        <translation>ファイル</translation>
+        <translation type="obsolete">ファイル</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qtestlib/qtestlibplugin.cpp" line="+59"/>
@@ -8354,36 +8508,43 @@ to version control (%2)?</source>
     <name>QrcEditor</name>
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+151"/>
         <source>Form</source>
         <translation type="unfinished">フォーム</translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Add</source>
         <translation type="unfinished">追加</translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Remove</source>
         <translation type="unfinished">削除</translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location/>
+        <location filename="../../../src/shared/qrceditor/test/ui_qrceditor.h" line="+1"/>
         <source>Alias:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8725,7 +8886,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+186"/>
+        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+191"/>
         <source>Import existing settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8748,59 +8909,12 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4BuildConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4buildconfigwidget.ui"/>
         <source>Form</source>
-        <translation type="unfinished">フォーム</translation>
+        <translation type="obsolete">フォーム</translation>
     </message>
     <message>
-        <location/>
-        <source>Configuration Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Qt Version:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Manage Qt Versions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>This Qt-Version is invalid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Shadow Build:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Build Directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4buildconfigwidget.cpp" line="+57"/>
-        <source>Shadow Build Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+43"/>
         <source>General</source>
-        <translation type="unfinished">全般</translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Default Qt Version</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">全般</translation>
     </message>
 </context>
 <context>
@@ -8854,7 +8968,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+278"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+279"/>
         <location line="+7"/>
         <source>Failed!</source>
         <translation type="unfinished"></translation>
@@ -8899,9 +9013,67 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
+    <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished">フォーム</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Configuration Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Qt Version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Manage Qt Versions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>This Qt-Version is invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Shadow Build:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Build Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+62"/>
+        <source>Shadow Build Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>General</source>
+        <translation type="unfinished">全般</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Default Qt Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+152"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+146"/>
         <location line="+5"/>
         <source>Run qmake</source>
         <translation type="unfinished"></translation>
@@ -8910,7 +9082,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+69"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+70"/>
         <location line="+245"/>
         <source>Qt4RunConfiguration</source>
         <translation type="unfinished"></translation>
@@ -8955,125 +9127,10 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtDirWidget</name>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+385"/>
-        <source>&lt;specify a name&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>&lt;specify a path&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Select QTDIR</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Select the Qt Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+210"/>
-        <source>The Qt Version %1 is not installed. Run make install</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>%1 is not a valid qt directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Found Qt version %1, using mkspec %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.ui"/>
         <source>Form</source>
-        <translation type="unfinished">フォーム</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Qt versions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Version Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>MinGw Directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Default Qt Version:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Debugging Helper</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Debugging Helper:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Show &amp;Log</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Rebuild</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="-306"/>
-        <location line="+6"/>
-        <source>Auto-detected Qt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+55"/>
-        <source>&lt;not found&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">フォーム</translation>
     </message>
 </context>
 <context>
@@ -9185,7 +9242,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::MakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+105"/>
+        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+106"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9233,7 +9290,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Qt4Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+134"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+136"/>
         <source>Loading project %1 ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9956,7 +10013,7 @@ To do this you type this shortcut and a space in the QuickOpen entry field, and 
 <context>
     <name>ShowBuildLog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/showbuildlog.ui"/>
+        <location filename="../../../src/plugins/projectexplorer/showbuildlog.ui"/>
         <source>Debugging Helper Build Log</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10645,12 +10702,12 @@ To do this you type this shortcut and a space in the QuickOpen entry field, and 
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+230"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+234"/>
         <source>Print Document</source>
         <translation type="unfinished">ドキュメントを印刷</translation>
     </message>
     <message>
-        <location line="+267"/>
+        <location line="+284"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10663,7 +10720,7 @@ To do this you type this shortcut and a space in the QuickOpen entry field, and 
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+3226"/>
+        <location line="+3361"/>
         <source>Line: %1, Col: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10806,6 +10863,11 @@ To do this you type this shortcut and a space in the QuickOpen entry field, and 
     <message>
         <location/>
         <source>Display right &amp;margin at column:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Highlight &amp;blocks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -33,7 +33,6 @@
 #include "basetexteditor.h"
 
 #include <QtCore/QBasicTimer>
-#include <QtCore/QTimeLine>
 #include <QtCore/QSharedData>
 
 #include <QtGui/QTextEdit>
@@ -119,6 +118,8 @@ struct BaseTextEditorPrivateHighlightBlocks
     QList<int> open;
     QList<int> close;
     QList<int> visualIndent;
+    inline int count() const { return visualIndent.size(); }
+    inline bool isEmpty() const { return open.isEmpty() || close.isEmpty() || visualIndent.isEmpty(); }
     inline bool operator==(const BaseTextEditorPrivateHighlightBlocks &o) const {
         return (open == o.open && close == o.close && visualIndent == o.visualIndent);
     }
@@ -178,9 +179,7 @@ public:
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;
     int extraAreaHighlightCollapseBlockNumber;
-    int extraAreaCollapseAlpha;
-    int extraAreaHighlightFadingBlockNumber;
-    QTimeLine *extraAreaTimeLine;
+    int extraAreaHighlightCollapseColumn;
 
     QBasicTimer collapsedBlockTimer;
     int visibleCollapsedBlockNumber;
@@ -209,6 +208,7 @@ public:
     QTextCharFormat m_searchResultFormat;
     QTextCharFormat m_searchScopeFormat;
     QTextCharFormat m_currentLineFormat;
+    QTextCharFormat m_currentLineNumberFormat;
     void highlightSearchResults(const QTextBlock &block,
                                 QVector<QTextLayout::FormatRange> *selections);
 

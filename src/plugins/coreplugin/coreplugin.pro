@@ -4,7 +4,6 @@ DEFINES += CORE_LIBRARY
 QT += xml \
     script \
     svg
-
 include(../../qworkbenchplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
@@ -72,7 +71,9 @@ SOURCES += mainwindow.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
     mimedatabase.cpp \
-    icore.cpp
+    icore.cpp \
+    editormanager/ieditor.cpp \
+    dialogs/ioptionspage.cpp
 HEADERS += mainwindow.h \
     welcomemode.h \
     welcomemode_p.h \
@@ -160,12 +161,9 @@ FORMS += dialogs/newdialog.ui \
     welcomemode.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
-
-linux-* {
+linux-* { 
     images.files = images/qtcreator_logo_*.png
-    images.path  = /share/pixmaps
-
+    images.path = /share/pixmaps
     INSTALLS += images
 }
-
 OTHER_FILES += Core.pluginspec

@@ -135,6 +135,7 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
         texteditor->gotoLine(line, column);
         return texteditor;
     }
+
     return 0;
 }
 
@@ -161,9 +162,8 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->extraAreaSelectionAnchorBlockNumber
         = d->extraAreaToggleMarkBlockNumber
         = d->extraAreaHighlightCollapseBlockNumber
-        = d->extraAreaHighlightFadingBlockNumber
+        = d->extraAreaHighlightCollapseColumn
         = -1;
-    d->extraAreaCollapseAlpha = 255;
 
     d->visibleCollapsedBlockNumber = d->suggestedVisibleCollapsedBlockNumber = -1;
 
@@ -198,13 +198,6 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     slotUpdateExtraAreaWidth();
     slotCursorPositionChanged();
     setFrameStyle(QFrame::NoFrame);
-
-
-    d->extraAreaTimeLine = new QTimeLine(150, this);
-    d->extraAreaTimeLine->setFrameRange(0, 255);
-    connect(d->extraAreaTimeLine, SIGNAL(frameChanged(int)), this,
-            SLOT(setCollapseIndicatorAlpha(int)));
-
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
@@ -1227,7 +1220,7 @@ void BaseTextEditor::setHighlightBlocks(bool b)
     if (d->m_highlightBlocks == b)
         return;
     d->m_highlightBlocks = b;
-    d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    d->extraAreaHighlightCollapseBlockNumber = -1;
     _q_highlightBlocks();
 }
 
@@ -1487,6 +1480,8 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
             setTextCursor(cursorForPosition(ce->pos()));
     } else if (event->type() == QEvent::ToolTip) {
         const QHelpEvent *he = static_cast<QHelpEvent*>(event);
+        if (QApplication::keyboardModifiers() & Qt::ControlModifier)
+            return true; // eat tooltip event when control is pressed
         const QPoint &pos = he->pos();
 
         // Allow plugins to show tooltips
@@ -1512,14 +1507,22 @@ void BaseTextEditor::resizeEvent(QResizeEvent *e)
                            QRect(cr.left(), cr.top(), extraAreaWidth(), cr.height())));
 }
 
-QRect BaseTextEditor::collapseBox(const QTextBlock &block)
+QRect BaseTextEditor::collapseBox()
 {
-    QRectF br = blockBoundingGeometry(block).translated(contentOffset());
-    int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
-    return QRect(d->m_extraArea->width() - collapseBoxWidth + collapseBoxWidth/4,
-                 int(br.top()) + collapseBoxWidth/4,
-                  2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
+    if (d->m_highlightBlocksInfo.isEmpty() || d->extraAreaHighlightCollapseBlockNumber < 0)
+        return QRect();
 
+    QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
+    QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
+    if (!begin.isValid() || !end.isValid())
+        return QRect();
+    QRectF br = blockBoundingGeometry(begin).translated(contentOffset());
+    QRectF er = blockBoundingGeometry(end).translated(contentOffset());
+    int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
+    return QRect(d->m_extraArea->width() - collapseBoxWidth,
+                 int(br.top()),
+                 collapseBoxWidth,
+                 er.bottom() - br.top());
 }
 
 QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const {
@@ -1703,20 +1706,47 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
 
 static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
 {
-const int blendBase = (baseColor.value() > 128) ? 0 : 255;
+    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
     // Darker backgrounds may need a bit more contrast
-    // (this calculation is temporary solution until we have a setting for this color)
     const int blendFactor = (baseColor.value() > 128) ? 8 : 16;
-
     QColor blendColor = baseColor;
 
     while (factor--) {
         blendColor = QColor(
-                (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256,
+                (blendBase * blendFactor + blendColor.red() * (256 - blendFactor)) / 256,
                 (blendBase * blendFactor + blendColor.green() * (256 - blendFactor)) / 256,
                 (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256);
     }
     return blendColor;
+}
+
+
+static QColor calcBlendColor(const QColor &baseColor, int level, int count)
+{
+    QColor color80;
+    QColor color90;
+
+    if (baseColor.value() > 128) {
+        color80 = baseColor.lighter(90);
+        color90 = baseColor.lighter(95);
+    } else {
+        color80 = baseColor.lighter(110);
+        color90 = baseColor.lighter(105);
+    }
+
+    if (level == count)
+        return baseColor;
+    if (level == 0)
+        return color80;
+    if (level == count - 1)
+        return color90;
+
+    const int blendFactor = level * (256 / (count - 2));
+
+    return QColor(
+                (color90.red() * blendFactor + color80.red() * (256 - blendFactor)) / 256,
+                (color90.green() * blendFactor + color80.green() * (256 - blendFactor)) / 256,
+                (color90.blue() * blendFactor + color80.blue() * (256 - blendFactor)) / 256);
 }
 
 void BaseTextEditor::paintEvent(QPaintEvent *e)
@@ -1791,7 +1821,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         QRectF r = blockBoundingRect(block).translated(offset);
         
-        if (d->m_highlightBlocks) {
+        if (!d->m_highlightBlocksInfo.isEmpty()) {
 
             int n = block.blockNumber();
             int depth = 0;
@@ -1802,13 +1832,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 if (n > i)
                     --depth;
 
-            int count = d->m_highlightBlocksInfo.visualIndent.size();
+            int count = d->m_highlightBlocksInfo.count();
             if (count) {
                 QRectF rr = r;
                 rr.setWidth(viewport()->width());
                 for(int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, count - i));
+                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
                 }
             }
         }
@@ -2169,6 +2199,9 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
+    int cursorBlockNumber = textCursor().blockNumber();
+
+    const QColor baseColor = palette().base().color();
     QPalette pal = d->m_extraArea->palette();
     pal.setCurrentColorGroup(QPalette::Active);
     QPainter painter(d->m_extraArea);
@@ -2188,12 +2221,12 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     painter.fillRect(e->rect().intersected(QRect(0, 0, extraAreaWidth, INT_MAX)),
                      pal.color(QPalette::Background));
 
-
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
     int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top;
 
+#if 0
     int extraAreaHighlightCollapseEndBlockNumber = -1;
 
     int extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
@@ -2208,7 +2241,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
         else
             extraAreaHighlightCollapseEndBlockNumber = extraAreaHighlightCollapseBlockNumber;
     }
-
+#endif
 
     while (block.isValid() && top <= e->rect().bottom()) {
 
@@ -2265,76 +2298,64 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                         xoffset += 2;
                     }
                 }
-
-                if (!userData->ifdefedOut()) {
-                    collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
-                    collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
-                    hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
-                }
             }
 
             if (d->m_codeFoldingVisible) {
-                const QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
-                                2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
-                const QPoint boxCenter = box.center();
+                const QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
+                bool drawBox = !nextBlock.isVisible();
 
-                QColor textColorAlpha = pal.text().color();
-                textColorAlpha.setAlpha(d->extraAreaCollapseAlpha);
-                QColor textColorInactive = pal.text().color();
-                textColorInactive.setAlpha(100);
-                QColor textColor = pal.text().color();
-                textColor.setAlpha(qMax(textColorInactive.alpha(), d->extraAreaCollapseAlpha));
-
-                const QPen pen( (blockNumber >= extraAreaHighlightCollapseBlockNumber
-                                 && blockNumber <= extraAreaHighlightCollapseEndBlockNumber) ?
-                                textColorAlpha : pal.base().color());
-                const QPen boxPen((blockNumber == extraAreaHighlightCollapseBlockNumber) ?
-                                  textColor : textColorInactive);
-                const QPen endPen((blockNumber == extraAreaHighlightCollapseEndBlockNumber) ?
-                                  textColorAlpha : pal.base().color());
-                const QPen previousPen((blockNumber-1 >= extraAreaHighlightCollapseBlockNumber
-                                        && blockNumber-1 < extraAreaHighlightCollapseEndBlockNumber) ?
-                                       textColorAlpha : pal.base().color());
-                const QPen nextPen((blockNumber+1 > extraAreaHighlightCollapseBlockNumber
-                                    && blockNumber+1 <= extraAreaHighlightCollapseEndBlockNumber) ?
-                                   textColorAlpha : pal.base().color());
-
-                TextBlockUserData *nextBlockUserData = TextEditDocumentLayout::testUserData(nextBlock);
-
-                bool collapseNext = nextBlockUserData
-                                    && nextBlockUserData->collapseMode()
-                                    == TextBlockUserData::CollapseThis
-                                    && !nextBlockUserData->ifdefedOut();
-
-                bool nextHasClosingCollapse = nextBlockUserData
-                                              && nextBlockUserData->hasClosingCollapseInside()
-                                              && nextBlockUserData->ifdefedOut();
-
-                bool drawBox = ((collapseAfter || collapseNext) && !nextHasClosingCollapse);
-
-                if (braceDepth || (collapseNext && nextBlock.isVisible())) {
-                    painter.setPen((hasClosingCollapse || !nextBlock.isVisible())? nextPen : pen);
-                    painter.drawLine(boxCenter.x(), boxCenter.y(), boxCenter.x(), bottom - 1);
+                int minBraceDepth = qMax(braceDepth, previousBraceDepth);
+                if (minBraceDepth > 0) {
+                    QColor color = calcBlendColor(baseColor, minBraceDepth);
+                    if (!d->m_highlightBlocksInfo.isEmpty()
+                        && blockNumber >= d->m_highlightBlocksInfo.open.last()
+                        && blockNumber <= d->m_highlightBlocksInfo.close.first())
+                        color = color.light();
+                    painter.fillRect(r, color);
                 }
+                bool drawDown = !d->m_highlightBlocksInfo.isEmpty()
+                              && blockNumber == d->m_highlightBlocksInfo.open.last();
+                bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
+                              && blockNumber == d->m_highlightBlocksInfo.close.first();
 
-                if (previousBraceDepth || collapseThis) {
-                    painter.setPen((collapseAfter || collapseNext) ? previousPen : pen);
-                    painter.drawLine(boxCenter.x(), top, boxCenter.x(), boxCenter.y());
-                }
+                if (drawBox || drawDown || drawUp) {
+                    painter.setRenderHint(QPainter::Antialiasing, true);
+                    painter.translate(.5, .5);
+                    painter.setPen(pal.text().color());
+                    painter.setBrush(pal.text().color());
 
-                if (drawBox) {
-                    painter.setPen(boxPen);
-                    painter.setBrush(pal.base());
-                    painter.drawRect(box.adjusted(0, 0, -1, -1));
-                    if (!nextBlock.isVisible())
-                        painter.drawLine(boxCenter.x(), box.top() + 2, boxCenter.x(), box.bottom() - 2);
-                    painter.drawLine(box.left() + 2, boxCenter.y(), box.right() - 2, boxCenter.y());
-                } else if (hasClosingCollapse || collapseAfter || collapseNext) {
-                    painter.setPen(endPen);
-                    painter.drawLine(boxCenter.x() + 1, boxCenter.y(), box.right() - 1, boxCenter.y());
+                    if (drawBox) {
+                        QPointF points1[3] = { QPointF(r.left(), r.center().y()-1),
+                                               QPointF(r.center().x(), r.top()),
+                                               QPointF(r.right(), r.center().y()-1) };
+                        QPointF points2[3] = { QPointF(r.left(), r.center().y()+1),
+                                               QPointF(r.center().x(), r.bottom()-1),
+                                               QPointF(r.right(), r.center().y()+1) };
+                        painter.drawPolygon(points1, 3);
+                        painter.drawPolygon(points2, 3);
+                    } else if (drawUp) {
+
+                        // check that we are not collapsed
+                        QTextBlock open = doc->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
+                        if (open.next().isVisible()) {
+
+                            QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
+                                                  QPointF(r.center().x(), r.center().y()),
+                                                  QPointF(r.right(), r.bottom()-1) };
+                            painter.drawPolygon(points, 3);
+                        }
+                    } else if(drawDown) {
+                        QPointF points[3] = { QPointF(r.left(), r.top()),
+                                               QPointF(r.center().x(), r.center().y()),
+                                               QPointF(r.right(), r.top()) };
+                        painter.drawPolygon(points, 3);
+                    }
+                    painter.translate(-.5, -.5);
+                    painter.setRenderHint(QPainter::Antialiasing, false);
                 }
 
             }
+
 
             painter.restore();
         }
@@ -2353,11 +2374,37 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
         if (d->m_lineNumbersVisible) {
             const QString &number = QString::number(blockNumber + 1);
+            if (blockNumber == cursorBlockNumber) {
+                painter.save();
+                QFont f = painter.font();
+                f.setBold(d->m_currentLineNumberFormat.font().bold());
+                f.setItalic(d->m_currentLineNumberFormat.font().italic());
+                painter.setFont(f);
+                painter.setPen(d->m_currentLineNumberFormat.foreground().color());
+            }
             painter.drawText(markWidth, top, extraAreaWidth - markWidth - 4, fm.height(), Qt::AlignRight, number);
+            if (blockNumber == cursorBlockNumber)
+                painter.restore();
         }
 
         block = nextVisibleBlock;
         blockNumber = nextVisibleBlockNumber;
+    }
+
+    if (d->m_codeFoldingVisible) {
+        painter.drawLine(extraAreaWidth, 0,
+                         extraAreaWidth, viewport()->height());
+        painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
+                         extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
+//        QRect cb = collapseBox();
+//        if (!cb.isEmpty()) {
+//            QPen pen(baseColor.value() < 128 ? Qt::white : Qt::black);
+//            pen.setWidth(2);
+//            painter.setPen(pen);
+//            painter.setRenderHint(QPainter::Antialiasing, true);
+//            painter.translate(.5, .5);
+//            painter.drawRoundedRect(QRect(cb.adjusted(0, 0,-2, -2)), 4, 4);
+//        }
     }
 }
 
@@ -2412,10 +2459,17 @@ void BaseTextEditor::slotCursorPositionChanged()
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
     }
+
+    if (d->m_parenthesesMatchingEnabled) {
+        // Delay update when no matching is displayed yet, to avoid flicker
+        if (extraSelections(ParenthesesMatchingSelection).isEmpty()) {
+            d->m_parenthesesMatchingTimer->start(50);
+        } else {
+            _q_matchParentheses();
+        }
+    }
+
     QList<QTextEdit::ExtraSelection> extraSelections;
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
-    if (d->m_parenthesesMatchingEnabled)
-        d->m_parenthesesMatchingTimer->start(50);
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
@@ -2429,6 +2483,9 @@ void BaseTextEditor::slotCursorPositionChanged()
     setExtraSelections(CurrentLineSelection, extraSelections);
 
     if (d->m_highlightBlocks) {
+        QTextCursor cursor = textCursor();
+        d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
+        d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         d->m_highlightBlocksTimer->start(100);
     }
 }
@@ -2448,12 +2505,6 @@ void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
         emit requestBlockUpdate(block.previous());
         blockRecursion = false;
     }
-}
-
-void BaseTextEditor::setCollapseIndicatorAlpha(int alpha)
-{
-    d->extraAreaCollapseAlpha = alpha;
-    d->m_extraArea->update();
 }
 
 void BaseTextEditor::timerEvent(QTimerEvent *e)
@@ -2545,13 +2596,9 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
 
 void BaseTextEditor::extraAreaLeaveEvent(QEvent *)
 {
-    if (d->extraAreaHighlightCollapseBlockNumber >= 0) {
-        d->extraAreaHighlightFadingBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
-        d->extraAreaHighlightCollapseBlockNumber = -1; // missing mouse move event from Qt
-        d->extraAreaTimeLine->setDirection(QTimeLine::Backward);
-        if (d->extraAreaTimeLine->state() != QTimeLine::Running)
-            d->extraAreaTimeLine->start();
-    }
+    // fake missing mouse move event from Qt
+    QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, 0, 0);
+    extraAreaMouseEvent(&me);
 }
 
 void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
@@ -2562,43 +2609,48 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
     int markWidth;
     extraAreaWidth(&markWidth);
 
-    if (e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
+    if (d->m_codeFoldingVisible
+        && e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
         // Update which folder marker is highlighted
         const int highlightBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
+        const int highlightColumn = d->extraAreaHighlightCollapseColumn;
         d->extraAreaHighlightCollapseBlockNumber = -1;
+        d->extraAreaHighlightCollapseColumn = -1;
 
-        if (d->m_codeFoldingVisible
-            && TextBlockUserData::canCollapse(cursor.block())
-            && !TextBlockUserData::hasClosingCollapseInside(cursor.block().next())
-            && collapseBox(cursor.block()).contains(e->pos()))
+        if (d->m_highlightBlocks) {
+            QTextCursor cursor  = textCursor();
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-
-        // Set whether the mouse cursor is a hand or normal arrow
-        bool hand = (e->pos().x() <= markWidth || d->extraAreaHighlightCollapseBlockNumber >= 0);
-        if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
-            d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
-
-        // Start fading in or out the highlighted folding marker
-        if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber) {
-            d->extraAreaTimeLine->stop();
-            d->extraAreaTimeLine->setDirection(d->extraAreaHighlightCollapseBlockNumber >= 0?
-                                               QTimeLine::Forward : QTimeLine::Backward);
-            if (d->extraAreaTimeLine->direction() == QTimeLine::Backward)
-                d->extraAreaHighlightFadingBlockNumber = highlightBlockNumber;
-            else
-                d->extraAreaHighlightFadingBlockNumber = -1;
-            if (d->extraAreaTimeLine->state() != QTimeLine::Running)
-                d->extraAreaTimeLine->start();
+            d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
         }
+
+        int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
+        if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
+            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
+            if (!TextBlockUserData::hasClosingCollapse(cursor.block()))
+                d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
+        }
+        if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
+            || highlightColumn != d->extraAreaHighlightCollapseColumn)
+            d->m_highlightBlocksTimer->start(40);
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            if (d->m_codeFoldingVisible && TextBlockUserData::canCollapse(cursor.block())
-                && !TextBlockUserData::hasClosingCollapseInside(cursor.block().next())
-                && collapseBox(cursor.block()).contains(e->pos())) {
-                toggleBlockVisible(cursor.block());
-                d->moveCursorVisible(false);
+            int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
+            if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - collapseBoxWidth) {
+                if (!cursor.block().next().isVisible()) {
+                    toggleBlockVisible(cursor.block());
+                    d->moveCursorVisible(false);
+                } else if (collapseBox().contains(e->pos())) {
+                    cursor.setPosition(
+                            document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last()).position()
+                            );
+                    QTextBlock c = cursor.block();
+                    if (!TextBlockUserData::canCollapse(c))
+                        c = c.previous();
+                    toggleBlockVisible(c);
+                    d->moveCursorVisible(false);
+                }
             } else if (d->m_marksVisible && e->pos().x() > markWidth) {
                 QTextCursor selection = cursor;
                 selection.setVisualNavigation(true);
@@ -3153,37 +3205,10 @@ bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool se
     return false;
 }
 
-bool TextBlockUserData::findNextClosingParenthesis(QTextCursor *cursor, bool select)
+bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition)
 {
     QTextBlock block = cursor->block();
-    int position = cursor->position();
-    int ignore = 0;
-    while (block.isValid()) {
-        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
-        if (!parenList.isEmpty() && !TextEditDocumentLayout::ifdefedOut(block)) {
-            for (int i = 0; i < parenList.count(); ++i) {
-                Parenthesis paren = parenList.at(i);
-                if (block == cursor->block() && position - block.position() >= paren.pos)
-                    continue;
-                if (paren.type == Parenthesis::Opened) {
-                    ++ignore;
-                } else if (ignore > 0) {
-                    --ignore;
-                } else {
-                    cursor->setPosition(block.position() + paren.pos+1, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
-                    return true;
-                }
-            }
-        }
-        block = block.next();
-    }
-    return false;
-}
-
-bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor)
-{
-    QTextBlock block = cursor->block();
-    int position = cursor->position();
+    int position = cursor->position() + (checkStartPosition ? 1 : 0 );
     int ignore = 0;
     while (block.isValid()) {
         Parentheses parenList = TextEditDocumentLayout::parentheses(block);
@@ -3194,7 +3219,7 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor)
                     && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
                     continue;
                 if (block == cursor->block() &&
-                    (position - block.position() <= paren.pos))
+                    (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0)))
                         continue;
                 if (paren.type == Parenthesis::Closed) {
                     ++ignore;
@@ -3207,6 +3232,34 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor)
             }
         }
         block = block.previous();
+    }
+    return false;
+}
+
+bool TextBlockUserData::findNextClosingParenthesis(QTextCursor *cursor, bool select)
+{
+    QTextBlock block = cursor->block();
+    int position = cursor->position();
+    int ignore = 0;
+    while (block.isValid()) {
+        Parentheses parenList = TextEditDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty() && !TextEditDocumentLayout::ifdefedOut(block)) {
+            for (int i = 0; i < parenList.count(); ++i) {
+                Parenthesis paren = parenList.at(i);
+                if (block == cursor->block() &&
+                    (position - block.position() > paren.pos - (paren.type == Parenthesis::Opened ? 1 : 0)))
+                    continue;
+                if (paren.type == Parenthesis::Opened) {
+                    ++ignore;
+                } else if (ignore > 0) {
+                    --ignore;
+                } else {
+                    cursor->setPosition(block.position() + paren.pos+1, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+                    return true;
+                }
+            }
+        }
+        block = block.next();
     }
     return false;
 }
@@ -3224,7 +3277,8 @@ bool TextBlockUserData::findNextBlockClosingParenthesis(QTextCursor *cursor)
                 if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
                     && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
                     continue;
-                if (block == cursor->block() && position - block.position() >= paren.pos)
+                if (block == cursor->block() &&
+                    (position - block.position() > paren.pos - (paren.type == Parenthesis::Opened ? 1 : 0)))
                     continue;
                 if (paren.type == Parenthesis::Opened) {
                     ++ignore;
@@ -3317,10 +3371,12 @@ void BaseTextEditor::_q_matchParentheses()
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
     const TextBlockUserData::MatchType forwardMatchType = TextBlockUserData::matchCursorForward(&forwardMatch);
 
-    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch)
-        return;
-
     QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (backwardMatchType == TextBlockUserData::NoMatch && forwardMatchType == TextBlockUserData::NoMatch) {
+        setExtraSelections(ParenthesesMatchingSelection, extraSelections); // clear
+        return;
+    }
 
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -3378,18 +3434,33 @@ void BaseTextEditor::_q_matchParentheses()
 
 void BaseTextEditor::_q_highlightBlocks()
 {
-    QTextCursor cursor = textCursor();
-    QTextCursor closeCursor = cursor;
     BaseTextEditorPrivateHighlightBlocks highlightBlocksInfo;
-    while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor)) {
-        highlightBlocksInfo.open.prepend(cursor.blockNumber());
-        highlightBlocksInfo.visualIndent.prepend(d->visualIndent(cursor.block()));
-        if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor))
-            highlightBlocksInfo.close.append(closeCursor.blockNumber());
+
+    if (d->extraAreaHighlightCollapseBlockNumber >= 0) {
+        QTextBlock block = document()->findBlockByNumber(d->extraAreaHighlightCollapseBlockNumber);
+        if (block.isValid()) {
+            QTextCursor cursor(block);
+            if (d->extraAreaHighlightCollapseColumn >= 0)
+                cursor.setPosition(cursor.position() + qMin(d->extraAreaHighlightCollapseColumn,
+                                                            block.length()));
+            QTextCursor closeCursor;
+            bool firstRun = true;
+            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor, firstRun)) {
+                firstRun = false;
+                highlightBlocksInfo.open.prepend(cursor.blockNumber());
+                highlightBlocksInfo.visualIndent.prepend(d->visualIndent(cursor.block()));
+                if (closeCursor.isNull())
+                    closeCursor = cursor;
+                if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor))
+                    highlightBlocksInfo.close.append(closeCursor.blockNumber());
+            }
+        }
     }
+
     if (d->m_highlightBlocksInfo != highlightBlocksInfo) {
         d->m_highlightBlocksInfo = highlightBlocksInfo;
         viewport()->update();
+        d->m_extraArea->update();
     }
 }
 
@@ -3507,10 +3578,11 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
     const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
-    const QTextCharFormat searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
+    d->m_searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
     const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
-    const QTextCharFormat currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
-    const QTextCharFormat ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
+    d->m_currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
+    d->m_currentLineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE_NUMBER));
+    d->m_ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
     QFont font(textFormat.font());
 
     const QColor foreground = textFormat.foreground().color();
@@ -3538,15 +3610,10 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     // Search results
     d->m_searchResultFormat.setBackground(searchResultFormat.background());
-    d->m_searchScopeFormat.setBackground(searchScopeFormat.background());
-    d->m_currentLineFormat.setBackground(currentLineFormat.background());
 
     // Matching braces
     d->m_matchFormat.setForeground(parenthesesFormat.foreground());
     d->m_rangeFormat.setBackground(parenthesesFormat.background());
-
-    // Disabled code
-    d->m_ifdefedOutFormat.setForeground(ifdefedOutFormat.foreground());
 
     slotUpdateExtraAreaWidth();
 }

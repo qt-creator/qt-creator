@@ -58,9 +58,18 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message = 0);
     void extensionsInitialized();
+    void shutdown();
 
     // Connect editor to settings changed signals.
     void initializeEditor(CPPEditor *editor);
+
+    bool sortedMethodOverview() const;
+
+signals:
+    void methodOverviewSortingChanged(bool sort);
+
+public slots:
+    void setSortedMethodOverview(bool sorted);
 
 private slots:
     void switchDeclarationDefinition();
@@ -69,11 +78,14 @@ private slots:
 private:
     friend class CppEditorFactory;
     Core::IEditor *createEditor(QWidget *parent);
+    void writeSettings();
+    void readSettings();
 
     static CppPlugin *m_instance;
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
     CppEditorFactory *m_factory;
+    bool m_sortedMethodOverview;
 };
 
 class CppEditorFactory : public Core::IEditorFactory

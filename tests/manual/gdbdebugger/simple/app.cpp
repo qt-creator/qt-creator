@@ -538,8 +538,20 @@ public:
 
 void testQSharedPointer()
 {
-    Employee e1(1, "Herbert");
-    Employee e2 = e1;
+    //Employee e1(1, "Herbert");
+    //Employee e2 = e1;
+
+    QSharedPointer<int> iptr(new int(43));
+    QSharedPointer<int> iptr2 = iptr;
+    QSharedPointer<int> iptr3 = iptr;
+
+    QSharedPointer<QString> ptr(new QString("hallo"));
+    QSharedPointer<QString> ptr2 = ptr;
+    QSharedPointer<QString> ptr3 = ptr;
+
+    //QWeakPointer<QString> wptr(ptr);
+    //QWeakPointer<QString> wptr2 = wptr;
+    //QWeakPointer<QString> wptr3 = wptr;
 }
 
 void stringRefTest(const QString &refstring)

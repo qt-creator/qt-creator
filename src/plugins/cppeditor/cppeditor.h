@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -86,6 +87,7 @@ public:
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
+    void setSortedMethodOverview(bool sort);
     void switchDeclarationDefinition();
     void jumpToDefinition();
 
@@ -94,7 +96,6 @@ public slots:
 
     void deleteStartOfToken();
     void deleteEndOfToken();
-
 protected:
     void contextMenuEvent(QContextMenuEvent *);
     void mouseMoveEvent(QMouseEvent *);
@@ -115,6 +116,7 @@ private slots:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
 private:
+    bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
@@ -161,6 +163,8 @@ private:
     QList<int> m_contexts;
     QComboBox *m_methodCombo;
     CPlusPlus::OverviewModel *m_overviewModel;
+    QSortFilterProxyModel *m_proxyModel;
+    QAction *m_sortAction;
 };
 
 } // namespace Internal

@@ -91,7 +91,7 @@ EditMode::~EditMode()
 
 QString EditMode::name() const
 {
-    return QLatin1String("Edit");
+    return tr("Edit");
 }
 
 QIcon EditMode::icon() const

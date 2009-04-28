@@ -293,6 +293,63 @@
                 \gui{Edit -> Advanced} menu.
     \endtable
 
+    \section1 Code Completion
+
+    The completion popup shows possible completions to a certain statement.
+    These completions include classes, namespaces, functions, variables,
+    macros and keywords. Listed below are the icons used in the completion box
+    and their meaning.
+
+    \table
+        \row
+            \i  \inlineimage completion/class.png
+            \i  A class
+        \row
+            \i  \inlineimage completion/enum.png
+            \i  An enum
+        \row
+            \i  \inlineimage completion/enumerator.png
+            \i  An enumerator (value of an enum)
+        \row
+            \i  \inlineimage completion/func.png
+            \i  A function
+        \row
+            \i  \inlineimage completion/func_priv.png
+            \i  A private function
+        \row
+            \i  \inlineimage completion/func_prot.png
+            \i  A protected function
+        \row
+            \i  \inlineimage completion/var.png
+            \i  A variable
+        \row
+            \i  \inlineimage completion/var_priv.png
+            \i  A private variable
+        \row
+            \i  \inlineimage completion/var_prot.png
+            \i  A protected variable
+        \row
+            \i  \inlineimage completion/signal.png
+            \i  A signal
+        \row
+            \i  \inlineimage completion/slot.png
+            \i  A slot
+        \row
+            \i  \inlineimage completion/slot_priv.png
+            \i  A private slot
+        \row
+            \i  \inlineimage completion/slot_prot.png
+            \i  A protected slot
+        \row
+            \i  \inlineimage completion/keyword.png
+            \i  A keyword
+        \row
+            \i  \inlineimage completion/macro.png
+            \i  A macro
+        \row
+            \i  \inlineimage completion/namespace.png
+            \i  A namespace
+    \endtable
 */
 
 

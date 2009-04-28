@@ -72,6 +72,7 @@ const char * const C_SEARCH_RESULT       = "SearchResult";
 const char * const C_SEARCH_SCOPE        = "SearchScope";
 const char * const C_PARENTHESES         = "Parentheses";
 const char * const C_CURRENT_LINE        = "CurrentLine";
+const char * const C_CURRENT_LINE_NUMBER = "CurrentLineNumber";
 
 const char * const C_NUMBER              = "Number";
 const char * const C_STRING              = "String";
