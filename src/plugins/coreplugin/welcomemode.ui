@@ -31,8 +31,8 @@ color: #5e5e5e;
 }
 
 #recentSessionsFrame, #recentProjectsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8 8 8 8 stretch stretch;
-border-width: 8 8 8 8;
+border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+border-width: 8;
 }
 </string>
      </property>
@@ -232,8 +232,8 @@ p {
               </property>
               <property name="styleSheet">
                <string>#recentSessionsFrame {
-border-image: url(:/core/images/welcomemode/rc_combined.png) 8 8 8 8 stretch stretch;
-border-width: 8 8 8 8;
+border-image: url(:/core/images/welcomemode/rc_combined.png) 8;
+border-width: 8;
 }
 </string>
               </property>
