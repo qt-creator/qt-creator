@@ -70,6 +70,32 @@ private:
     DependenciesWidget *m_widget;
 };
 
+//
+// DependenciesModel
+//
+
+class DependenciesModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    DependenciesModel(SessionManager *session, Project *project, QObject *parent = 0);
+    ~DependenciesModel();
+
+    int rowCount(const QModelIndex &index) const;
+    int columnCount(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+public slots:
+    void resetModel();
+
+private:
+    SessionManager *m_session;
+    Project *m_project;
+    QList<Project *> m_projects;
+};
+
 } // namespace Internal
 } // namespace ProjectExplorer
 
