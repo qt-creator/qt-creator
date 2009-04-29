@@ -38,6 +38,7 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "watchutils.h"
 #include "moduleshandler.h"
 
 #include <utils/qtcassert.h>
@@ -421,28 +422,6 @@ QList<Symbol> ScriptEngine::moduleSymbols(const QString & /*moduleName*/)
 static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
-
-static bool hasLetterOrNumber(const QString &exp)
-{
-    for (int i = exp.size(); --i >= 0; )
-        if (exp[i].isLetterOrNumber())
-            return true;
-    return false;
-}
-
-static bool hasSideEffects(const QString &exp)
-{
-    // FIXME: complete?
-    return exp.contains("-=")
-        || exp.contains("+=")
-        || exp.contains("/=")
-        || exp.contains("*=")
-        || exp.contains("&=")
-        || exp.contains("|=")
-        || exp.contains("^=")
-        || exp.contains("--")
-        || exp.contains("++");
-}
 
 void ScriptEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 {
