@@ -36,6 +36,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -46,21 +47,23 @@ namespace Internal {
 
 struct CdbComInterfaces;
 class CdbSymbolGroupContext;
+class CdbStackFrameContext;
+class CdbDumperHelper;
 
 /* Context representing a break point stack consisting of several frames.
- * Maintains an on-demand constructed list of CdbSymbolGroupContext
+ * Maintains an on-demand constructed list of CdbStackFrameContext
  * containining the local variables of the stack. */
 
 class CdbStackTraceContext        
 {
     Q_DISABLE_COPY(CdbStackTraceContext)
 
-    explicit CdbStackTraceContext(CdbComInterfaces *cif);
+    explicit CdbStackTraceContext(const QSharedPointer<CdbDumperHelper> &dumper);
 public:
     enum { maxFrames = 100 };
 
     ~CdbStackTraceContext();
-    static CdbStackTraceContext *create(CdbComInterfaces *cif,
+    static CdbStackTraceContext *create(const QSharedPointer<CdbDumperHelper> &dumper,
                                         unsigned long threadid,
                                         QString *errorMessage);
 
@@ -70,7 +73,7 @@ public:
     // Top-Level instruction offset for disassembler
     ULONG64 instructionOffset() const { return m_instructionOffset; }
 
-    CdbSymbolGroupContext *symbolGroupContextAt(int index, QString *errorMessage);
+    CdbStackFrameContext*frameContextAt(int index, QString *errorMessage);
 
     // Format for logging
     void format(QTextStream &str) const;
@@ -80,10 +83,11 @@ private:
     bool init(unsigned long frameCount, QString *errorMessage);
     CIDebugSymbolGroup *createSymbolGroup(int index, QString *errorMessage);
 
+    const QSharedPointer<CdbDumperHelper> m_dumper;
     CdbComInterfaces *m_cif;
 
     DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
-    QVector <CdbSymbolGroupContext*> m_symbolContexts;
+    QVector <CdbStackFrameContext*> m_frameContexts;
     QList<StackFrame> m_frames;
     ULONG64 m_instructionOffset;
 };

@@ -42,6 +42,8 @@ static const char * const visualizeWhitespaceKey = "VisualizeWhitespace";
 static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
 static const char * const highlightCurrentLineKey = "HighlightCurrentLineKeyV2";
 static const char * const highlightBlocksKey = "HighlightBlocksKey";
+static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
+static const char * const fancyFoldingBarKey= "FancyFoldingBarKey";
 static const char * const groupPostfix = "DisplaySettings";
 
 namespace TextEditor {
@@ -54,7 +56,9 @@ DisplaySettings::DisplaySettings() :
     m_visualizeWhitespace(false),
     m_displayFoldingMarkers(true),
     m_highlightCurrentLine(false),
-    m_highlightBlocks(false)
+    m_highlightBlocks(false),
+    m_animateMatchingParentheses(true),
+    m_fancyFoldingBar(false)
 {
 }
 
@@ -72,6 +76,8 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers);
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
+    s->setValue(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses);
+    s->setValue(QLatin1String(fancyFoldingBarKey), m_fancyFoldingBar);
     s->endGroup();
 }
 
@@ -92,6 +98,8 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_displayFoldingMarkers = s->value(group + QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
+    m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
+    m_fancyFoldingBar = s->value(group + QLatin1String(fancyFoldingBarKey), m_fancyFoldingBar).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -104,6 +112,8 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_displayFoldingMarkers == ds.m_displayFoldingMarkers
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
         && m_highlightBlocks == ds.m_highlightBlocks
+        && m_animateMatchingParentheses == ds.m_animateMatchingParentheses
+        && m_fancyFoldingBar == ds.m_fancyFoldingBar
         ;
 }
 

@@ -122,6 +122,9 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
     setItemDelegate(new WatchDelegate(this));
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
 
     connect(this, SIGNAL(expanded(QModelIndex)),
         this, SLOT(expandNode(QModelIndex)));
@@ -159,6 +162,35 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
         theDebuggerAction(WatchExpression)->trigger(exp);
     }
     QTreeView::keyPressEvent(ev);
+}
+
+void WatchWindow::dragEnterEvent(QDragEnterEvent *ev)
+{
+    //QTreeView::dragEnterEvent(ev);
+    if (ev->mimeData()->hasFormat("text/plain")) {
+        ev->setDropAction(Qt::CopyAction);
+        ev->accept();
+    }
+}
+
+void WatchWindow::dragMoveEvent(QDragMoveEvent *ev)
+{
+    //QTreeView::dragMoveEvent(ev);
+    if (ev->mimeData()->hasFormat("text/plain")) {
+        ev->setDropAction(Qt::CopyAction);
+        ev->accept();
+    }
+}
+
+void WatchWindow::dropEvent(QDropEvent *ev)
+{
+    if (ev->mimeData()->hasFormat("text/plain")) {
+        theDebuggerAction(WatchExpression)->trigger(ev->mimeData()->text());
+        //ev->acceptProposedAction();
+        ev->setDropAction(Qt::CopyAction);
+        ev->accept();
+    }
+    //QTreeView::dropEvent(ev);
 }
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)

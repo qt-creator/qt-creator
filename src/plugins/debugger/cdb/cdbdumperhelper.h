@@ -30,7 +30,10 @@
 #ifndef CDBDUMPERHELPER_H
 #define CDBDUMPERHELPER_H
 
+#include "watchutils.h"
+#include "cdbcom.h"
 #include <QtCore/QStringList>
+#include <QtCore/QMap>
 
 namespace Debugger {
 namespace Internal {
@@ -66,7 +69,8 @@ public:
         Failed
     };
 
-    explicit CdbDumperHelper(CdbComInterfaces *cif);
+    explicit CdbDumperHelper(IDebuggerManagerAccessForEngines *access,
+                             CdbComInterfaces *cif);
     ~CdbDumperHelper();
 
     State state() const { return m_state; }
@@ -76,31 +80,50 @@ public:
     void reset(const QString &library, bool enabled);
 
     // Call in a temporary breakpoint state to actually load.
-    void load(DebuggerManager *manager, IDebuggerManagerAccessForEngines *access);
+    void load(DebuggerManager *manager);
+
+    enum DumpResult { DumpNotHandled, DumpOk, DumpError };
+    DumpResult dumpType(const WatchData &d, bool dumpChildren, int source,
+                        QList<WatchData> *result, QString *errorMessage);
+
+    // bool handlesType(const QString &typeName) const;
+
+    inline CdbComInterfaces *comInterfaces() const { return m_cif; }
 
 private:
-    struct DumperInputParameters;
-
     void clearBuffer();
     bool resolveSymbols(QString *errorMessage);
     bool getKnownTypes(QString *errorMessage);
-    bool callDumper(const DumperInputParameters &p, QByteArray *output, QString *errorMessage);
-    inline QString statusMessage() const;
+    bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
+    bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
+    bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr, QString *errorMessage);
 
+    enum DumpExecuteResult { DumpExecuteOk, DumpExecuteSizeFailed, DumpExecuteCallFailed };
+    DumpExecuteResult executeDump(const WatchData &wd,
+                                  const QtDumperHelper::TypeData& td, bool dumpChildren, int source,
+                                  QList<WatchData> *result, QString *errorMessage);
+
+    static bool writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage);
+
+    const QString m_messagePrefix;
     State m_state;
+    IDebuggerManagerAccessForEngines *m_access;
     CdbComInterfaces *m_cif;
 
     QString m_library;
     QString m_dumpObjectSymbol;
-    QStringList m_knownTypes;
-    QString m_qtVersion;
-    QString m_qtNamespace;
 
     quint64 m_inBufferAddress;
     unsigned long m_inBufferSize;
     quint64 m_outBufferAddress;
     unsigned long m_outBufferSize;
     char *m_buffer;
+
+    typedef QMap<QString, int> TypeSizeCache;
+    TypeSizeCache m_typeSizeCache;
+    QStringList m_failedTypes;
+
+    QtDumperHelper m_helper;
 };
 
 } // namespace Internal

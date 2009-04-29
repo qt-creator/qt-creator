@@ -78,6 +78,7 @@ static int watcherCounter = 0;
 WatchData::WatchData() :
     childCount(-1),
     valuedisabled(false),
+    source(0),
     state(InitialState),
     parentIndex(-1),
     row(-1),
@@ -806,6 +807,8 @@ void WatchHandler::cleanup()
     m_incompleteSet.clear();
     m_completeSet = initialSet();
     m_displaySet = m_completeSet;
+
+    rebuildModel(); // to get the dummy entries back
 
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();

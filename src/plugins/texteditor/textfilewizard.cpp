@@ -30,6 +30,7 @@
 #include "textfilewizard.h"
 #include "basetexteditor.h"
 #include "texteditorconstants.h"
+#include <QDebug>
 
 using namespace TextEditor;
 

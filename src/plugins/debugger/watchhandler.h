@@ -124,6 +124,7 @@ public:
 private:
 
 public:
+    int source;  // Used by some debuggers (CDB) to tell where it originates from (dumper or symbol evaluation)
     int state;
 
     // Model

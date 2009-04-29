@@ -27,58 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_WATCHWINDOW_H
-#define DEBUGGER_WATCHWINDOW_H
+#ifndef CDBSTACKFRAMECONTEXT_H
+#define CDBSTACKFRAMECONTEXT_H
 
-#include <QtGui/QTreeView>
+#include <QtCore/QList>
+#include <QtCore/QSharedPointer>
 
 namespace Debugger {
 namespace Internal {
 
-/////////////////////////////////////////////////////////////////////
-//
-// WatchWindow
-//
-/////////////////////////////////////////////////////////////////////
+class WatchData;
+class WatchHandler;
+class CdbSymbolGroupContext;
+class CdbDumperHelper;
 
-class WatchWindow : public QTreeView
+/* CdbStackFrameContext manages a symbol group context and
+ * a dumper context. It dispatches calls between the local items
+ * that are handled by the symbol group and those that are handled by the dumpers. */
+
+class CdbStackFrameContext
 {
-    Q_OBJECT
-
+    Q_DISABLE_COPY(CdbStackFrameContext)
 public:
-    enum Type { LocalsType, TooltipType, WatchersType };
+    explicit CdbStackFrameContext(const QSharedPointer<CdbDumperHelper> &dumper,
+                                  CdbSymbolGroupContext *symbolContext);
+    ~CdbStackFrameContext();
 
-    WatchWindow(Type type, QWidget *parent = 0);
-    void setType(Type type) { m_type = type; }
-    Type type() const { return m_type; }
-    
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on = true);
-    void setModel(QAbstractItemModel *model);
+    bool assignValue(const QString &iname, const QString &value,
+                     QString *newValue /* = 0 */, QString *errorMessage);
+
+    bool populateModelInitially(WatchHandler *wh, QString *errorMessage);
+
+    bool completeModel(const QList<WatchData> &incompleteLocals,
+                       WatchHandler *wh,
+                       QString *errorMessage);
 
 private:
-    Q_SLOT void expandNode(const QModelIndex &index);
-    Q_SLOT void collapseNode(const QModelIndex &index);
-    Q_SLOT void resetHelper();
-
-    void keyPressEvent(QKeyEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
-    void dragEnterEvent(QDragEnterEvent *ev);
-    void dropEvent(QDropEvent *ev);
-    void dragMoveEvent(QDragMoveEvent *ev);
-
-    void editItem(const QModelIndex &idx);
-    void reset(); /* reimpl */
-
-    void resetHelper(const QModelIndex &idx);
-
-    bool m_alwaysResizeColumnsToContents;
-    Type m_type;
+    const bool m_useDumpers;
+    const QSharedPointer<CdbDumperHelper> m_dumper;
+    CdbSymbolGroupContext *m_symbolContext;
 };
-
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_WATCHWINDOW_H
+#endif // CDBSTACKFRAMECONTEXT_H

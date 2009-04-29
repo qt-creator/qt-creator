@@ -55,6 +55,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -410,19 +411,36 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2",
                 // symbols-loaded="0"
+                QString id = record.findChild("id").data();
+                if (!id.isEmpty())
+                    q->showStatusMessage(tr("Library %1 loaded.").arg(id));
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Library %1 unloaded.").arg(id));
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread group %1 created.").arg(id));
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread %1 created.").arg(id));
             } else if (asyncClass == "thread-group-exited") {
                 // Archer has "{id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread group %1 exited.").arg(id));
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}" 
+                QString id = record.findChild("id").data();
+                QString groupid = record.findChild("group-id").data();
+                q->showStatusMessage(tr("Thread %1 in group %2 exited.")
+                    .arg(id).arg(groupid));
             } else if (asyncClass == "thread-selected") {
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread %1 selected.").arg(id));
                 //"{id="2"}" 
             #ifdef Q_OS_MAC
             } else if (asyncClass == "shlibs-updated") {
@@ -2896,44 +2914,6 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 
 static const QString strNotInScope = QLatin1String("<not in scope>");
 
-static QString quoteUnprintableLatin1(const QByteArray &ba)
-{
-    QString res;
-    char buf[10];
-    for (int i = 0, n = ba.size(); i != n; ++i) {
-        unsigned char c = ba.at(i);
-        if (isprint(c)) {
-            res += c;
-        } else {
-            qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
-            res += buf;
-        }
-    }
-    return res;
-}
-
-static QString decodeData(QByteArray ba, int encoding)
-{
-    switch (encoding) {
-        case 0: // unencoded 8 bit data
-            return quoteUnprintableLatin1(ba);
-        case 1: //  base64 encoded 8 bit data, used for QByteArray
-            ba = QByteArray::fromBase64(ba);
-            return '"' + quoteUnprintableLatin1(ba) + '"';
-        case 2: //  base64 encoded 16 bit data, used for QString
-            ba = QByteArray::fromBase64(ba);
-            return '"' + QString::fromUtf16((ushort *)ba.data(), ba.size() / 2) + '"';
-        case 3: //  base64 encoded 32 bit data
-            ba = QByteArray::fromBase64(ba);
-            return '"' + QString::fromUcs4((uint *)ba.data(), ba.size() / 4) + '"';
-            break;
-        case 4: //  base64 encoded 16 bit data, without quotes (see 2)
-            ba = QByteArray::fromBase64(ba);
-            return QString::fromUtf16((ushort *)ba.data(), ba.size() / 2);
-    }
-    return "<Encoding error>";
-}
-
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
@@ -3024,15 +3004,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
         return false;
 
     // simple types
-    if (m_availableSimpleDebuggingHelpers.contains(type))
-        return true;
-
-    // templates
-    QString tmplate;
-    QString inner;
-    if (!extractTemplate(type, &tmplate, &inner))
-        return false;
-    return m_availableSimpleDebuggingHelpers.contains(tmplate);
+    return m_dumperHelper.type(type) != QtDumperHelper::UnknownType;
 }
 
 void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildren)
@@ -3063,145 +3035,33 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     }
     WatchData data = data0;
     QTC_ASSERT(!data.exp.isEmpty(), return);
-    QString tmplate;
-    QString inner;
-    bool isTemplate = extractTemplate(data.type, &tmplate, &inner);
-    QStringList inners = inner.split('@');
-    if (inners.at(0).isEmpty())
-        inners.clear();
-    for (int i = 0; i != inners.size(); ++i)
-        inners[i] = inners[i].simplified();
 
-    QString outertype = isTemplate ? tmplate : data.type;
-    // adjust the data extract
-    if (outertype == m_namespace + "QWidget")
-        outertype = m_namespace + "QObject";
-
-    QString extraArgs[4];
-    extraArgs[0] = "0";
-    extraArgs[1] = "0";
-    extraArgs[2] = "0";
-    extraArgs[3] = "0";
-
-    int extraArgCount = 0;
-
-    // "generic" template dumpers: passing sizeof(argument)
-    // gives already most information the dumpers need
-    foreach (const QString &arg, inners)
-        extraArgs[extraArgCount++] = sizeofTypeExpression(arg);
-
-    // in rare cases we need more or less:
-    if (outertype == m_namespace + "QObject") {
-        extraArgs[0] = "(char*)&((('"
-            + m_namespace + "QObjectPrivate'*)&"
-            + data.exp + ")->children)-(char*)&" + data.exp;
-    } else if (outertype == m_namespace + "QVector") {
-        extraArgs[1] = "(char*)&(("
-            + data.exp + ").d->array)-(char*)" + data.exp + ".d";
-    } else if (outertype == m_namespace + "QObjectSlot"
-            || outertype == m_namespace + "QObjectSignal") {
-        // we need the number out of something like
-        // iname="local.ob.slots.2" // ".deleteLater()"?
-        int pos = data.iname.lastIndexOf('.');
-        QString slotNumber = data.iname.mid(pos + 1);
-        QTC_ASSERT(slotNumber.toInt() != -1, /**/);
-        extraArgs[0] = slotNumber;
-    } else if (outertype == m_namespace + "QMap" || outertype == m_namespace + "QMultiMap") {
-        QString nodetype;
-        if (m_qtVersion >= (4 << 16) + (5 << 8) + 0) {
-            nodetype  = m_namespace + "QMapNode";
-            nodetype += data.type.mid(outertype.size());
-        } else {
-            // FIXME: doesn't work for QMultiMap
-            nodetype  = data.type + "::Node";
-        }
-        //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
-        //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
-        extraArgs[2] = sizeofTypeExpression(nodetype);
-        extraArgs[3] = "(size_t)&(('" + nodetype + "'*)0)->value";
-    } else if (outertype == m_namespace + "QMapNode") {
-        extraArgs[2] = sizeofTypeExpression(data.type);
-        extraArgs[3] = "(size_t)&(('" + data.type + "'*)0)->value";
-    } else if (outertype == "std::vector" || outertype == "vector") {
-        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
-        if (inners.at(0) == "bool") {
-            outertype = "std::vector::bool";
-        } else {
-            //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
-            //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
-        }
-    } else if (outertype == "std::deque" || outertype == "deque") {
-        // remove 'std::allocator<...>':
-        extraArgs[1] = "0";
-    } else if (outertype == "std::stack" || outertype == "stack") {
-        // remove 'std::allocator<...>':
-        extraArgs[1] = "0";
-    } else if (outertype == "std::set" || outertype == "set") {
-        // remove 'std::less<...>':
-        extraArgs[1] = "0";
-        // remove 'std::allocator<...>':
-        extraArgs[2] = "0";
-    } else if (outertype == "std::map" || outertype == "map") {
-        // We don't want the comparator and the allocator confuse gdb.
-        // But we need the offset of the second item in the value pair.
-        // We read the type of the pair from the allocator argument because
-        // that gets the constness "right" (in the sense that gdb can
-        // read it back;
-        QString pairType = inners.at(3);
-        // remove 'std::allocator<...>':
-        pairType = pairType.mid(15, pairType.size() - 15 - 2);
-        extraArgs[2] = "(size_t)&(('" + pairType + "'*)0)->second";
-        extraArgs[3] = "0";
-    } else if (outertype == "std::basic_string" || outertype == "basic_string") {
-        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
-        if (inners.at(0) == "char") {
-            outertype = "std::string";
-        } else if (inners.at(0) == "wchar_t") {
-            outertype = "std::wstring";
-        }
-        extraArgs[0] = "0";
-        extraArgs[1] = "0";
-        extraArgs[2] = "0";
-        extraArgs[3] = "0";
-    }
+    QByteArray params;
+    QStringList extraArgs;
+    const QtDumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
+    m_dumperHelper.evaluationParameters(data, td, QtDumperHelper::GdbDebugger, &params, &extraArgs);
 
     //int protocol = (data.iname.startsWith("watch") && data.type == "QImage") ? 3 : 2;
     //int protocol = data.iname.startsWith("watch") ? 3 : 2;
-    int protocol = 2;
+    const int protocol = 2;
     //int protocol = isDisplayedIName(data.iname) ? 3 : 2;
 
     QString addr;
-    if (data.addr.startsWith("0x"))
-        addr = "(void*)" + data.addr;
-    else
-        addr = "&(" + data.exp + ")";
-
-    QByteArray params;
-    params.append(outertype.toUtf8());
-    params.append('\0');
-    params.append(data.iname.toUtf8());
-    params.append('\0');
-    params.append(data.exp.toUtf8());
-    params.append('\0');
-    params.append(inner.toUtf8());
-    params.append('\0');
-    params.append(data.iname.toUtf8());
-    params.append('\0');
+    if (data.addr.startsWith(QLatin1String("0x"))) {
+        addr = QLatin1String("(void*)") + data.addr;
+    } else {
+        addr = QLatin1String("&(") + data.exp + QLatin1Char(')');
+    }
 
     sendWatchParameters(params);
 
-    QString cmd ="call "
-            + QString("(void*)qDumpObjectData440(")
-            + QString::number(protocol)
-            + ',' + "%1+1"                // placeholder for token
-            + ',' + addr
-            + ',' + (dumpChildren ? "1" : "0")
-            + ',' + extraArgs[0]
-            + ',' + extraArgs[1]
-            + ',' + extraArgs[2]
-            + ',' + extraArgs[3] + ')';
+    QString cmd;
+    QTextStream(&cmd) << "call " << "(void*)qDumpObjectData440(" <<
+            protocol << ',' << "%1+1"                // placeholder for token
+            <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
+            << ',' << extraArgs.join(QString(QLatin1Char(','))) <<  ')';
 
-    //qDebug() << "CMD: " << cmd;
+    qDebug() << "CMD: " << cmd;
 
     QVariant var;
     var.setValue(data);
@@ -3434,6 +3294,7 @@ void GdbEngine::updateWatchModel2()
 
 void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
 {
+    m_dumperHelper.clear();
     //qDebug() << "DATA DUMPER TRIAL:" << record.toString();
     GdbMi output = record.data.findChild("consolestreamoutput");
     QByteArray out = output.data();
@@ -3447,23 +3308,27 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
     GdbMi contents;
     contents.fromString(out);
     GdbMi simple = contents.findChild("dumpers");
-    m_namespace = contents.findChild("namespace").data();
+
+    m_dumperHelper.setQtNamespace(contents.findChild("namespace").data());
     GdbMi qtversion = contents.findChild("qtversion");
+    int qtv = 0;
     if (qtversion.children().size() == 3) {
-        m_qtVersion = (qtversion.childAt(0).data().toInt() << 16)
+        qtv = (qtversion.childAt(0).data().toInt() << 16)
                     + (qtversion.childAt(1).data().toInt() << 8)
                     + qtversion.childAt(2).data().toInt();
         //qDebug() << "FOUND QT VERSION: " << qtversion.toString() << m_qtVersion;
-    } else {
-        m_qtVersion = 0;
     }
+    m_dumperHelper.setQtVersion(qtv);
 
     //qDebug() << "CONTENTS: " << contents.toString();
     //qDebug() << "SIMPLE DUMPERS: " << simple.toString();
-    m_availableSimpleDebuggingHelpers.clear();
+
+    QStringList availableSimpleDebuggingHelpers;
     foreach (const GdbMi &item, simple.children())
-        m_availableSimpleDebuggingHelpers.append(item.data());
-    if (m_availableSimpleDebuggingHelpers.isEmpty()) {
+        availableSimpleDebuggingHelpers.append(item.data());
+    m_dumperHelper.parseQueryTypes(availableSimpleDebuggingHelpers, QtDumperHelper::GdbDebugger);
+
+    if (availableSimpleDebuggingHelpers.isEmpty()) {
         m_debuggingHelperState = DebuggingHelperUnavailable;
         q->showStatusMessage(tr("Debugging helpers not found."));
         //QMessageBox::warning(q->mainWindow(),
@@ -3477,8 +3342,9 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
     } else {
         m_debuggingHelperState = DebuggingHelperAvailable;
         q->showStatusMessage(tr("%1 custom dumpers found.")
-            .arg(m_availableSimpleDebuggingHelpers.size()));
+            .arg(m_dumperHelper.typeCount()));
     }
+    qDebug() << m_dumperHelper.toString(true);
     //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDebuggingHelpers;
 }
 
