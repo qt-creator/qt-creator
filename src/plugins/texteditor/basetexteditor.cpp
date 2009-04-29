@@ -2378,8 +2378,8 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
                     endIsVisible = doc->findBlockByNumber(extraAreaHighlightCollapseEndBlockNumber).isVisible();
 
-                    if (TextBlockUserData::hasCollapseAfter(
-                            doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1))) {
+                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
+                    if (TextBlockUserData::hasCollapseAfter(before)) {
                             extraAreaHighlightCollapseBlockNumber--;
                     }
                 }
@@ -2698,12 +2698,15 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
         if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-            if (!TextBlockUserData::hasClosingCollapse(cursor.block()))
+            if (TextBlockUserData::canCollapse(cursor.block())
+                || !TextBlockUserData::hasClosingCollapse(cursor.block()))
                 d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
             if (!d->m_displaySettings.m_fancyFoldingBar
                 && TextBlockUserData::hasCollapseAfter(cursor.block())) {
                 d->extraAreaHighlightCollapseBlockNumber++;
-                if (!TextBlockUserData::hasClosingCollapse(cursor.block().next()))
+                d->extraAreaHighlightCollapseColumn = -1;
+                if (TextBlockUserData::canCollapse(cursor.block().next())
+                    || !TextBlockUserData::hasClosingCollapse(cursor.block().next()))
                     d->extraAreaHighlightCollapseColumn = cursor.block().next().length()-1;
             }
         }
@@ -3299,8 +3302,9 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bo
                 if (block == cursor->block()) {
                     if (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0))
                         continue;
-                    if (checkStartPosition && paren.type == Parenthesis::Opened && position == cursor->position())
+                    if (checkStartPosition && paren.type == Parenthesis::Opened && paren.pos== cursor->position()) {
                         return true;
+                    }
                 }
                 if (paren.type == Parenthesis::Closed) {
                     ++ignore;
@@ -3820,6 +3824,10 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     }
 
     d->m_displaySettings = ds;
+    d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
+    d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
+    viewport()->update();
+    extraArea()->update();
 }
 
 void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)
