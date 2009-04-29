@@ -80,7 +80,8 @@ STDMETHODIMP CdbDebugOutputBase::Output(
     IN PCWSTR text
     )
 {
-    output(mask, QString::fromUtf16(text));
+    const QString msg = QString::fromUtf16(text);
+    output(mask, msg.trimmed());
     return S_OK;
 }
 

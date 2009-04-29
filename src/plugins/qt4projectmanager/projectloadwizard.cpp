@@ -190,7 +190,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 
-    QString versionString = version->name() + " (" + version->path() + ")";
+    QString versionString = version->name() + " (" + QDir::toNativeSeparators(version->path()) + ")";
     QString buildConfigString = (buildConfig & QtVersion::BuildAll) ? QLatin1String("debug_and_release ") : QLatin1String("");
     buildConfigString.append((buildConfig & QtVersion::DebugBuild) ? QLatin1String("debug") : QLatin1String("release"));
     importLabel->setTextFormat(Qt::RichText);
@@ -211,7 +211,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     import2Label->setTextFormat(Qt::RichText);
     if (m_temporaryVersion)
         import2Label->setText(tr("<b>Note:</b> Importing the settings will automatically add the Qt Version from:<br><b>%1</b> to the list of qt versions.")
-                              .arg(m_importVersion->path()));
+                              .arg(QDir::toNativeSeparators(m_importVersion->path())));
     importLayout->addWidget(import2Label);
     addPage(importPage);
 }

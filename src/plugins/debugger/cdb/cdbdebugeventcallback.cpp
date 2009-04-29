@@ -318,14 +318,16 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
 }
 
 // Format exception with stacktrace in case of C++ exception
-void formatException(const EXCEPTION_RECORD64 *e, CdbComInterfaces &cif, QTextStream &str)
+void formatException(const EXCEPTION_RECORD64 *e,
+                     const QSharedPointer<CdbDumperHelper> &dumper,
+                     QTextStream &str)
 {
     formatException(e, str);
     if (e->ExceptionCode == cppExceptionCode) {
         QString errorMessage;
         ULONG currentThreadId = 0;
-        cif.debugSystemObjects->GetCurrentThreadId(&currentThreadId);
-        if (CdbStackTraceContext *stc = CdbStackTraceContext::create(&cif, currentThreadId, &errorMessage)) {
+        dumper->comInterfaces()->debugSystemObjects->GetCurrentThreadId(&currentThreadId);
+        if (CdbStackTraceContext *stc = CdbStackTraceContext::create(dumper, currentThreadId, &errorMessage)) {
             str << "at:\n";
             stc->format(str);
             str <<'\n';
@@ -343,7 +345,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     QString msg;
     {
         QTextStream str(&msg);
-        formatException(Exception, m_pEngine->m_d->m_cif, str);        
+        formatException(Exception, m_pEngine->m_d->m_dumper, str);
     }
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << '\n' << msg;
@@ -466,6 +468,37 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << Error << Level;
+    return S_OK;
+}
+
+// -----------ExceptionLoggerEventCallback
+CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(const QString &logPrefix,
+                                                           IDebuggerManagerAccessForEngines *access) :
+    m_logPrefix(logPrefix),
+    m_access(access)
+{
+}
+
+STDMETHODIMP CdbExceptionLoggerEventCallback::GetInterestMask(THIS_ __out PULONG mask)
+{
+    *mask = DEBUG_EVENT_EXCEPTION;
+    return S_OK;
+}
+
+STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
+    THIS_
+    __in PEXCEPTION_RECORD64 Exception,
+    __in ULONG /* FirstChance */
+    )
+{
+    m_exceptionMessages.push_back(QString());
+    {
+        QTextStream str(&m_exceptionMessages.back());
+        formatException(Exception, str);
+    }
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << '\n' << m_exceptionMessages.back();
+    m_access->showDebuggerOutput(m_logPrefix, m_exceptionMessages.back());
     return S_OK;
 }
 
