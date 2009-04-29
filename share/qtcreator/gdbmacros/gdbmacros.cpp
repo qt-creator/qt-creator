@@ -56,6 +56,7 @@
 int qtGhVersion = QT_VERSION;
 
 #ifdef QT_GUI_LIB
+#   include <QtGui/QWidget>
 #   include <QtGui/QPixmap>
 #   include <QtGui/QImage>
 #endif
@@ -2685,7 +2686,25 @@ void *qDumpObjectData440(
             "\"" << ((QT_VERSION >> 16) & 255) << "\","
             "\"" << ((QT_VERSION >> 8)  & 255) << "\","
             "\"" << ((QT_VERSION)       & 255) << "\"]";
-        d << ",namespace=\""NS"\"";
+        d << ",namespace=\""NS"\",";
+//      Dump out size information
+        d << "sizes={";
+        d << "int=\"" << sizeof(int) << "\","
+          << "char*=\"" << sizeof(char*) << "\","
+          << ""NS"QString=\"" << sizeof(QString) << "\","
+          << ""NS"QStringList=\"" << sizeof(QStringList) << "\","
+          << ""NS"QObject=\"" << sizeof(QObject) << "\","
+#ifdef QT_GUI_LIB
+          << ""NS"QWidget=\"" << sizeof(QWidget)<< "\","
+#endif
+#ifdef Q_OS_WIN
+          << "string=\"" << sizeof(std::string) << "\","
+          << "wstring=\"" << sizeof(std::wstring) << "\","
+#endif
+          << "std::string=\"" << sizeof(std::string) << "\","
+          << "std::wstring=\"" << sizeof(std::wstring) << "\","
+          << "std::allocator=\"" << sizeof(std::allocator<int>)
+          << "\"}";
         d.disarm();
     }
 

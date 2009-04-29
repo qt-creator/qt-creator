@@ -61,8 +61,13 @@ void BaseTextMark::init()
 
 void BaseTextMark::editorOpened(Core::IEditor *editor)
 {
+#ifdef Q_OS_WIN
+    if (m_fileName.compare(editor->file()->fileName(), Qt::CaseInsensitive))
+        return;
+#else
     if (editor->file()->fileName() != m_fileName)
         return;
+#endif
     if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
         if (m_markableInterface == 0) { // We aren't added to something
             m_markableInterface = textEditor->markableInterface();

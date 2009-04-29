@@ -181,7 +181,6 @@ void CdbDumperHelper::reset(const QString &library, bool enabled)
     m_helper.clear();
     m_inBufferAddress = m_outBufferAddress = 0;
     m_inBufferSize = m_outBufferSize = 0;
-    m_typeSizeCache.clear();
     m_failedTypes.clear();
     clearBuffer();
 }
@@ -405,7 +404,9 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     // Check failure cache and supported types
     if (m_failedTypes.contains(wd.type))
         return DumpNotHandled;
-    const QtDumperHelper::TypeData td = m_helper.typeData(wd.type);
+    const QtDumperHelper::TypeData td = m_helper.typeData(wd.type);    
+    if (loadDebug)
+        qDebug() << wd.type << td;
     if (td.type == QtDumperHelper::UnknownType)
         return DumpNotHandled;
 
@@ -448,10 +449,11 @@ CdbDumperHelper::DumpExecuteResult
             int size;
             ep.truncate(ep.lastIndexOf(QLatin1Char(')')));
             ep.remove(0, ep.indexOf(QLatin1Char('(')) + 1);
-            if (!getTypeSize(ep, &size, errorMessage))
-                return DumpExecuteSizeFailed;
+            const bool sizeOk = getTypeSize(ep, &size, errorMessage);
             if (loadDebug)
-                qDebug() << "Size" << size << ep;
+                qDebug() << "Size" << sizeOk << size << ep;
+            if (!sizeOk)
+                return DumpExecuteSizeFailed;
             ep = QString::number(size);
         }
     }
@@ -461,7 +463,7 @@ CdbDumperHelper::DumpExecuteResult
             << "(2,0," << wd.addr << ','
             << (dumpChildren ? 1 : 0) << ',' << extraParameters.join(QString(QLatin1Char(','))) << ')';
     if (loadDebug)
-        qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd;
+        qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd << '\n';
     const char *outputData;
     if (!callDumper(callCmd, inBuffer, &outputData, errorMessage))
         return DumpExecuteCallFailed;
@@ -486,11 +488,6 @@ bool CdbDumperHelper::getTypeSize(const QString &typeNameIn, int *size, QString 
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << typeNameIn;
     // Look up cache
-    const TypeSizeCache::const_iterator it = m_typeSizeCache.constFind(typeNameIn);
-    if (it != m_typeSizeCache.constEnd()) {
-        *size = it.value();     
-        return true;
-    }
     QString typeName = typeNameIn;
     simplifySizeExpression(&typeName);
     // "std::" types sometimes only work without namespace.
@@ -511,8 +508,9 @@ bool CdbDumperHelper::getTypeSize(const QString &typeNameIn, int *size, QString 
             break;
         success = true;
     } while (false);
+    // Cache in dumper helper
     if (success)
-        m_typeSizeCache.insert(typeName, *size);
+        m_helper.addSize(typeName, *size);
     return success;
 }
 
