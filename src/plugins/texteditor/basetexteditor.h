@@ -38,6 +38,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QTimeLine>
+#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -130,7 +131,7 @@ public:
     inline bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
     inline bool ifdefedOut() const { return m_ifdefedOut; }
 
-    inline static TextBlockUserData *canCollapse(const QTextBlock& block) {
+    inline static TextBlockUserData *canCollapse(const QTextBlock &block) {
         TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
         if (!data || data->collapseMode() != CollapseAfter) {
             data = static_cast<TextBlockUserData*>(block.next().userData());
@@ -138,6 +139,19 @@ public:
                 data = 0;
         }
         return data;
+    }
+
+    inline static bool hasCollapseAfter(const QTextBlock & block)
+    {
+        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
+        if (data && data->collapseMode() != NoCollapse) {
+            return (data->collapseMode() == CollapseAfter);
+        } else if (!data) {
+            data = static_cast<TextBlockUserData*>(block.next().userData());
+            if (data && data->collapseMode() == TextBlockUserData::CollapseThis &&  !data->m_ifdefedOut)
+                return true;
+        }
+        return false;
     }
 
     inline static bool hasClosingCollapse(const QTextBlock &block) {

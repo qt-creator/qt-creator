@@ -1498,6 +1498,12 @@ QRect BaseTextEditor::collapseBox()
         return QRect();
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
+
+    if (!d->m_displaySettings.m_fancyFoldingBar) {
+        if (TextBlockUserData::hasCollapseAfter(begin.previous()))
+            begin = begin.previous();
+    }
+
     QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
         return QRect();
@@ -2294,7 +2300,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 }
             }
 
-            if (d->m_codeFoldingVisible) {
+            if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
                 QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
                 bool drawBox = !nextBlock.isVisible();
 
@@ -2349,6 +2355,86 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     painter.setRenderHint(QPainter::Antialiasing, false);
                 }
 
+            } else if (d->m_codeFoldingVisible) {
+
+                bool collapseThis = false;
+                bool collapseAfter = false;
+                bool hasClosingCollapse = false;
+
+                if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
+                    if (!userData->ifdefedOut()) {
+                        collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
+                        collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
+                        hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
+                    }
+                }
+
+
+                int extraAreaHighlightCollapseBlockNumber = -1;
+                int extraAreaHighlightCollapseEndBlockNumber = -1;
+                bool endIsVisible = false;
+                if (!d->m_highlightBlocksInfo.isEmpty()) {
+                    extraAreaHighlightCollapseBlockNumber =  d->m_highlightBlocksInfo.open.last();
+                    extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
+                    endIsVisible = doc->findBlockByNumber(extraAreaHighlightCollapseEndBlockNumber).isVisible();
+
+                    if (TextBlockUserData::hasCollapseAfter(
+                            doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1))) {
+                            extraAreaHighlightCollapseBlockNumber--;
+                    }
+                }
+
+                const QRect box(extraAreaWidth + collapseBoxWidth/4, top + collapseBoxWidth/4,
+                                2 * (collapseBoxWidth/4) + 1, 2 * (collapseBoxWidth/4) + 1);
+                const QPoint boxCenter = box.center();
+
+
+                QColor textColorInactive = pal.text().color();
+                textColorInactive.setAlpha(100);
+                QColor textColor = pal.text().color();
+
+                QPen activePen(textColor);
+                QPen inactivePen(textColorInactive);
+
+                TextBlockUserData *nextBlockUserData = TextEditDocumentLayout::testUserData(nextBlock);
+
+                bool collapseNext = nextBlockUserData
+                                    && nextBlockUserData->collapseMode()
+                                    == TextBlockUserData::CollapseThis
+                                    && !nextBlockUserData->ifdefedOut();
+
+                bool nextHasClosingCollapse = nextBlockUserData
+                                              && nextBlockUserData->hasClosingCollapseInside()
+                                              && nextBlockUserData->ifdefedOut();
+
+                bool drawBox = ((collapseAfter || collapseNext) && !nextHasClosingCollapse);
+
+                if (blockNumber > extraAreaHighlightCollapseBlockNumber
+                    && blockNumber < extraAreaHighlightCollapseEndBlockNumber) {
+                    painter.setPen(activePen);
+                    painter.drawLine(boxCenter.x(), top, boxCenter.x(), bottom - 1);
+                } else if (blockNumber == extraAreaHighlightCollapseBlockNumber
+                           && nextVisibleBlockNumber <= extraAreaHighlightCollapseEndBlockNumber) {
+                    painter.setPen(activePen);
+                    painter.drawLine(boxCenter.x(), boxCenter.y(), boxCenter.x(), bottom - 1);
+                } else if (blockNumber == extraAreaHighlightCollapseEndBlockNumber) {
+                    painter.setPen(activePen);
+                    painter.drawLine(boxCenter.x(), top, boxCenter.x(), boxCenter.y());
+                }
+
+                if (drawBox) {
+                    painter.setPen(blockNumber == extraAreaHighlightCollapseBlockNumber ?
+                                   activePen : inactivePen);
+                    painter.setBrush(pal.base());
+                    painter.drawRect(box.adjusted(0, 0, -1, -1));
+                    if (!nextBlock.isVisible())
+                        painter.drawLine(boxCenter.x(), box.top() + 2, boxCenter.x(), box.bottom() - 2);
+                    painter.drawLine(box.left() + 2, boxCenter.y(), box.right() - 2, boxCenter.y());
+                } else if (blockNumber == extraAreaHighlightCollapseEndBlockNumber) {
+                    painter.setPen(activePen);
+                    painter.drawLine(boxCenter.x() + 1, boxCenter.y(), box.right() - 1, boxCenter.y());
+                }
+
             }
 
 
@@ -2391,20 +2477,11 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
         blockNumber = nextVisibleBlockNumber;
     }
 
-    if (d->m_codeFoldingVisible) {
+    if (d->m_codeFoldingVisible && d->m_displaySettings.m_fancyFoldingBar) {
         painter.drawLine(extraAreaWidth, 0,
                          extraAreaWidth, viewport()->height());
         painter.drawLine(extraAreaWidth + collapseBoxWidth - 1, 0,
                          extraAreaWidth + collapseBoxWidth - 1, viewport()->height());
-//        QRect cb = collapseBox();
-//        if (!cb.isEmpty()) {
-//            QPen pen(baseColor.value() < 128 ? Qt::white : Qt::black);
-//            pen.setWidth(2);
-//            painter.setPen(pen);
-//            painter.setRenderHint(QPainter::Antialiasing, true);
-//            painter.translate(.5, .5);
-//            painter.drawRoundedRect(QRect(cb.adjusted(0, 0,-2, -2)), 4, 4);
-//        }
     }
 }
 
@@ -2617,17 +2694,18 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
         d->extraAreaHighlightCollapseBlockNumber = -1;
         d->extraAreaHighlightCollapseColumn = -1;
 
-        if (d->m_displaySettings.m_highlightBlocks) {
-            QTextCursor cursor  = textCursor();
-            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-            d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
-        }
 
         int collapseBoxWidth = fontMetrics().lineSpacing() + 1;
         if (e->pos().x() > extraArea()->width() - collapseBoxWidth) {
             d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
             if (!TextBlockUserData::hasClosingCollapse(cursor.block()))
                 d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
+            if (!d->m_displaySettings.m_fancyFoldingBar
+                && TextBlockUserData::hasCollapseAfter(cursor.block())) {
+                d->extraAreaHighlightCollapseBlockNumber++;
+                if (!TextBlockUserData::hasClosingCollapse(cursor.block().next()))
+                    d->extraAreaHighlightCollapseColumn = cursor.block().next().length()-1;
+            }
         }
         if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
             || highlightColumn != d->extraAreaHighlightCollapseColumn)
