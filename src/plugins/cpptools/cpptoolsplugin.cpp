@@ -61,8 +61,10 @@ enum { debug = 0 };
 
 CppToolsPlugin *CppToolsPlugin::m_instance = 0;
 
-CppToolsPlugin::CppToolsPlugin()
-    : m_context(-1), m_modelManager(0)
+CppToolsPlugin::CppToolsPlugin() :
+    m_context(-1),
+    m_modelManager(0),
+    m_fileSettings(new CppFileSettings)
 {
     m_instance = this;
 }
@@ -91,7 +93,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
-    addAutoReleasedObject(new CppFileSettingsPage);
+    addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
@@ -127,6 +129,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
 void CppToolsPlugin::extensionsInitialized()
 {
+    // The Cpp editor plugin, which is loaded later on, registers the Cpp mime types,
+    // so, apply settings here
+    m_fileSettings->fromSettings(Core::ICore::instance()->settings());
+    if (!m_fileSettings->applySuffixesToMimeDB())
+        qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 }
 
 void CppToolsPlugin::shutdown()

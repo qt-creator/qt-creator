@@ -32,6 +32,7 @@
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/projectexplorer.h>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -43,11 +44,12 @@ namespace Internal {
 
 class CppCodeCompletion;
 class CppModelManager;
+struct CppFileSettings;
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
+    Q_DISABLE_COPY(CppToolsPlugin)
     Q_OBJECT
-
 public:
     static CppToolsPlugin *instance() { return m_instance; }
 
@@ -70,6 +72,7 @@ private:
     int m_context;
     CppModelManager *m_modelManager;
     CppCodeCompletion *m_completion;
+    QSharedPointer<CppFileSettings> m_fileSettings;
 
     static CppToolsPlugin *m_instance;
 };

@@ -32,6 +32,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QtCore/QPointer>
+#include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +54,7 @@ struct CppFileSettings {
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
-    void applySuffixesToMimeDB();
+    bool applySuffixesToMimeDB();
 
     bool equals(const CppFileSettings &rhs) const;
 };
@@ -76,8 +77,10 @@ private:
 
 class CppFileSettingsPage : public Core::IOptionsPage
 {
+    Q_DISABLE_COPY(CppFileSettingsPage)
 public:
-    explicit CppFileSettingsPage(QObject *parent = 0);
+    explicit CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
+                                 QObject *parent = 0);
     virtual ~CppFileSettingsPage();
 
     virtual QString id() const;
@@ -90,8 +93,8 @@ public:
     virtual void finish() { }
 
 private:
+    const QSharedPointer<CppFileSettings> m_settings;
     QPointer<CppFileSettingsWidget> m_widget;
-    CppFileSettings m_settings;
 };
 
 } // namespace Internal

@@ -69,11 +69,11 @@ void CppFileSettings::fromSettings(QSettings *s)
     s->endGroup();
 }
 
-void CppFileSettings::applySuffixesToMimeDB()
+bool CppFileSettings::applySuffixesToMimeDB()
 {
     Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
-    mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix);
-    mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
+    return mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
+            && mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
 }
 
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
@@ -129,11 +129,11 @@ void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
 }
 
 // --------------- CppFileSettingsPage
-CppFileSettingsPage::CppFileSettingsPage(QObject *parent) :
-    Core::IOptionsPage(parent)
+CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
+                                         QObject *parent) :
+    Core::IOptionsPage(parent),
+    m_settings(settings)
 {
-    m_settings.fromSettings(Core::ICore::instance()->settings());
-    m_settings.applySuffixesToMimeDB();
 }
 
 CppFileSettingsPage::~CppFileSettingsPage()
@@ -164,7 +164,7 @@ QWidget *CppFileSettingsPage::createPage(QWidget *parent)
 {
 
     m_widget = new CppFileSettingsWidget(parent);
-    m_widget->setSettings(m_settings);
+    m_widget->setSettings(*m_settings);
     return m_widget;
 }
 
@@ -172,10 +172,10 @@ void CppFileSettingsPage::apply()
 {
     if (m_widget) {
         const CppFileSettings newSettings = m_widget->settings();
-        if (newSettings != m_settings) {
-            m_settings = newSettings;
-            m_settings.toSettings(Core::ICore::instance()->settings());
-            m_settings.applySuffixesToMimeDB();
+        if (newSettings != *m_settings) {
+            *m_settings = newSettings;
+            m_settings->toSettings(Core::ICore::instance()->settings());
+            m_settings->applySuffixesToMimeDB();
         }
     }
 }
