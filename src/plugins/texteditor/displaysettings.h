@@ -53,6 +53,7 @@ struct TEXTEDITOR_EXPORT DisplaySettings
     bool m_displayFoldingMarkers;
     bool m_highlightCurrentLine;
     bool m_highlightBlocks;
+    bool m_animateMatchingParentheses;
 
     bool equals(const DisplaySettings &ds) const;
 };
