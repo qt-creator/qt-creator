@@ -265,6 +265,10 @@ void tst_FakeVim::command_dd()
     check("dd",  l[0] + "\n@" + lmid(2));
     check(".",   l[0] + "\n@" + lmid(3));
     check("3dd", l[0] + "\n@" + lmid(6));
+    check("8l",  l[0] + "\n    QApp@lication app(argc, argv);\n" + lmid(7));
+    check("dd",  l[0] + "\n@" + lmid(7));
+    check(".",   l[0] + "\n@" + lmid(8));
+    check("dd",  l[0] + "\n@" + lmid(9));
 }
 
 void tst_FakeVim::command_dollar()

@@ -877,10 +877,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (m_submode == DeleteSubMode && key == 'd') { // tested
         moveToStartOfLine();
+        setTargetColumn(); 
         setAnchor();
         moveDown(count());
         m_moveType = MoveLineWise;
-        finishMovement("d");
+        setDotCommand("%1dd", count());
+        finishMovement();
     } else if (m_submode == YankSubMode && key == 'y') {
         moveToStartOfLine();
         setAnchor();
