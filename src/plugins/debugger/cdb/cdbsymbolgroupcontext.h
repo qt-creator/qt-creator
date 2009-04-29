@@ -31,6 +31,7 @@
 #define CDBSYMBOLGROUPCONTEXT_H
 
 #include "cdbcom.h"
+#include "watchhandler.h"
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
@@ -72,11 +73,13 @@ public:
     bool assignValue(const QString &iname, const QString &value,
                      QString *newValue /* = 0 */, QString *errorMessage);
 
-    static bool populateModelInitially(CdbSymbolGroupContext *sg, WatchHandler *wh, QString *errorMessage);
+    template <class OutputIterator>
+    static bool populateModelInitially(CdbSymbolGroupContext *sg, OutputIterator it, QString *errorMessage);
 
+    template <class OutputIterator>
     static bool completeModel(CdbSymbolGroupContext *sg,
                               const QList<WatchData> &incompleteLocals,
-                              WatchHandler *wh,
+                              OutputIterator it,
                               QString *errorMessage);
 
     // Retrieve child symbols of prefix as a sequence of WatchData.
@@ -92,6 +95,7 @@ public:
 
     // Helper to convert a DEBUG_VALUE structure to a string representation
     static QString debugValueToString(const DEBUG_VALUE &dv, CIDebugControl *ctl, QString *type = 0, int integerBase = 10);
+    static bool debugValueToInteger(const DEBUG_VALUE &dv, qint64 *value);
 
     // format an array of unsigned longs as "0x323, 0x2322, ..."
     static QString hexFormatArray(const unsigned short *array, int size);
@@ -125,26 +129,25 @@ private:
     QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
 };
 
-template <class OutputIterator>
-bool CdbSymbolGroupContext::getChildSymbols(const QString &prefix, OutputIterator it, QString *errorMessage)
-{
-    unsigned long start;
-    unsigned long parentId;
-    if (!getChildSymbolsPosition(prefix, &start, &parentId, errorMessage))
-        return false;    
-    // Skip over expanded children
-    const unsigned long end = m_symbolParameters.size();
-    for (unsigned long s = start; s < end; ++s) {
-        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(s);
-        if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
-            *it = symbolAt(s);
-            ++it;
-        }
+// Helper to a sequence of  WatchData into a list.
+class WatchDataBackInserter {
+public:
+    explicit WatchDataBackInserter(QList<WatchData> &wh) : m_wh(wh) {}
+
+    inline WatchDataBackInserter & operator*() { return *this; }
+    inline WatchDataBackInserter &operator=(const WatchData &wd) {
+        m_wh.push_back(wd);
+        return *this;
     }
-    return true;
-}
+    inline WatchDataBackInserter &operator++() { return *this; }
+
+private:
+    QList<WatchData> &m_wh;
+};
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "cdbsymbolgroupcontext_tpl.h"
 
 #endif // CDBSYMBOLGROUPCONTEXT_H

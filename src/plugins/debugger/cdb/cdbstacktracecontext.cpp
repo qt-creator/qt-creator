@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "cdbstacktracecontext.h"
+#include "cdbstackframecontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
+#include "cdbdumperhelper.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
@@ -38,18 +40,20 @@
 namespace Debugger {
 namespace Internal {
 
-CdbStackTraceContext::CdbStackTraceContext(CdbComInterfaces *cif) :
-        m_cif(cif),
+CdbStackTraceContext::CdbStackTraceContext(const QSharedPointer<CdbDumperHelper> &dumper) :
+        m_dumper(dumper),
+        m_cif(dumper->comInterfaces()),
         m_instructionOffset(0)
 {
 }
 
-CdbStackTraceContext *CdbStackTraceContext::create(CdbComInterfaces *cif,
+CdbStackTraceContext *CdbStackTraceContext::create(const QSharedPointer<CdbDumperHelper> &dumper,
                                                    unsigned long threadId,
                                                    QString *errorMessage)
 {    
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << threadId;
+    CdbComInterfaces *cif = dumper->comInterfaces();
     HRESULT hr = cif->debugSystemObjects->SetCurrentThreadId(threadId);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("%1: SetCurrentThreadId %2 failed: %3").
@@ -60,7 +64,7 @@ CdbStackTraceContext *CdbStackTraceContext::create(CdbComInterfaces *cif,
     }
     // fill the DEBUG_STACK_FRAME array
     ULONG frameCount;
-    CdbStackTraceContext *ctx = new CdbStackTraceContext(cif);
+    CdbStackTraceContext *ctx = new CdbStackTraceContext(dumper);
     hr = cif->debugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
     if (FAILED(hr)) {
         delete ctx;
@@ -77,7 +81,7 @@ CdbStackTraceContext *CdbStackTraceContext::create(CdbComInterfaces *cif,
 
 CdbStackTraceContext::~CdbStackTraceContext()
 {
-    qDeleteAll(m_symbolContexts);
+    qDeleteAll(m_frameContexts);
 }
 
 bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessage*/)
@@ -85,8 +89,8 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameCount;
 
-    m_symbolContexts.resize(frameCount);
-    qFill(m_symbolContexts, static_cast<CdbSymbolGroupContext*>(0));
+    m_frameContexts.resize(frameCount);
+    qFill(m_frameContexts, static_cast<CdbStackFrameContext*>(0));
 
     // Convert the DEBUG_STACK_FRAMEs to our StackFrame structure and populate the frames
     WCHAR wszBuf[MAX_PATH];
@@ -114,28 +118,28 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     return true;
 }
 
-CdbSymbolGroupContext *CdbStackTraceContext::symbolGroupContextAt(int index, QString *errorMessage)
+CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *errorMessage)
 {
-    // Create a symbol group on demand
+    // Create a frame on demand
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << index;
 
-    if (index < 0 || index >= m_symbolContexts.size()) {
+    if (index < 0 || index >= m_frameContexts.size()) {
         *errorMessage = QString::fromLatin1("%1: Index %2 out of range %3.").
-                        arg(QLatin1String(Q_FUNC_INFO)).arg(index).arg(m_symbolContexts.size());
+                        arg(QLatin1String(Q_FUNC_INFO)).arg(index).arg(m_frameContexts.size());
         return 0;
     }
-
-    if (m_symbolContexts.at(index))
-        return m_symbolContexts.at(index);
+    if (m_frameContexts.at(index))
+        return m_frameContexts.at(index);
     CIDebugSymbolGroup *sg  = createSymbolGroup(index, errorMessage);
     if (!sg)
         return 0;
     CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
     if (!sc)
-        return 0;                                \
-    m_symbolContexts[index] = sc;
-    return sc;
+        return 0;
+    CdbStackFrameContext *fr = new CdbStackFrameContext(m_dumper, sc);
+    m_frameContexts[index] = fr;
+    return fr;
 }
 
 CIDebugSymbolGroup *CdbStackTraceContext::createSymbolGroup(int index, QString *errorMessage)

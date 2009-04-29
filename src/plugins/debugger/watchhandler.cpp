@@ -78,6 +78,7 @@ static int watcherCounter = 0;
 WatchData::WatchData() :
     childCount(-1),
     valuedisabled(false),
+    source(0),
     state(InitialState),
     parentIndex(-1),
     row(-1),

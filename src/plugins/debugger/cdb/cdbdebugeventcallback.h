@@ -32,12 +32,13 @@
 
 #include "cdbcom.h"
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QStringList>
 
 namespace Debugger {
 namespace Internal {
 
 class CdbDebugEngine;
+class IDebuggerManagerAccessForEngines;
 
 // Base class for event callbacks that takes care
 // Active X magic. Provides base implementations with
@@ -233,6 +234,34 @@ public:
 
 private:
     CdbDebugEngine *m_pEngine;
+};
+
+// Event handler logs exceptions to the debugger window
+// and ignores the rest. To be used for running dumper calls.
+class CdbExceptionLoggerEventCallback : public CdbDebugEventCallbackBase
+{
+public:
+    explicit CdbExceptionLoggerEventCallback(const QString &logPrefix,
+                                             IDebuggerManagerAccessForEngines *access);
+
+    STDMETHOD(GetInterestMask)(
+        THIS_
+        __out PULONG mask
+        );
+
+    STDMETHOD(Exception)(
+        THIS_
+        __in PEXCEPTION_RECORD64 Exception,
+        __in ULONG FirstChance
+        );
+
+    int exceptionCount() const { return m_exceptionMessages.size(); }
+    QStringList exceptionMessages() const { return m_exceptionMessages; }
+
+private:
+    const QString m_logPrefix;
+    IDebuggerManagerAccessForEngines *m_access;
+    QStringList m_exceptionMessages;
 };
 
 // Event handler that ignores everything

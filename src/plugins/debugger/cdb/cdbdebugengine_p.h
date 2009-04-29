@@ -46,7 +46,7 @@ namespace Internal {
 class DebuggerManager;
 class IDebuggerManagerAccessForEngines;
 class WatchHandler;
-class CdbSymbolGroupContext;
+class CdbStackFrameContext;
 class CdbStackTraceContext;
 
 // Thin wrapper around the 'DBEng' debugger engine shared library
@@ -125,7 +125,7 @@ struct CdbDebugEnginePrivate
     void cleanStackTrace();
     void clearForRun();
     void handleModuleLoad(const QString &);
-    CdbSymbolGroupContext *getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const;
+    CdbStackFrameContext *getStackFrameContext(int frameIndex, QString *errorMessage) const;
     void clearDisplay();
 
     bool interruptInterferiorProcess(QString *errorMessage);
@@ -136,6 +136,7 @@ struct CdbDebugEnginePrivate
     bool attemptBreakpointSynchronization(QString *errorMessage);
 
     static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
+    static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);
 
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
@@ -147,7 +148,7 @@ struct CdbDebugEnginePrivate
     CdbComInterfaces        m_cif;
     CdbDebugEventCallback   m_debugEventCallBack;
     CdbDebugOutput          m_debugOutputCallBack;    
-    CdbDumperHelper         m_dumper;
+    QSharedPointer<CdbDumperHelper> m_dumper;
 
     CdbDebugEngine* m_engine;
     DebuggerManager *m_debuggerManager;
