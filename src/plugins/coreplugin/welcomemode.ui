@@ -352,6 +352,12 @@ h2 {
                </item>
                <item row="2" column="2">
                 <widget class="Core::Internal::WelcomeModeButton" name="restoreSessionButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="styleSheet">
                   <string>* {
     border-image: url(:/core/images/welcomemode/btn_26.png) 7;
