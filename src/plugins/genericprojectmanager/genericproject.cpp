@@ -431,7 +431,6 @@ GenericMakeStep *GenericProject::makeStep() const
         if (GenericMakeStep *ms = qobject_cast<GenericMakeStep *>(bs))
             return ms;
     }
-
     return 0;
 }
 
