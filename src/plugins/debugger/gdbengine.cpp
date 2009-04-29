@@ -410,19 +410,36 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2",
                 // symbols-loaded="0"
+                QString id = record.findChild("id").data();
+                if (!id.isEmpty())
+                    q->showStatusMessage(tr("Library %1 loaded.").arg(id));
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Library %1 unloaded.").arg(id));
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread group %1 created.").arg(id));
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread %1 created.").arg(id));
             } else if (asyncClass == "thread-group-exited") {
                 // Archer has "{id="28902"}" 
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread group %1 exited.").arg(id));
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}" 
+                QString id = record.findChild("id").data();
+                QString groupid = record.findChild("group-id").data();
+                q->showStatusMessage(tr("Thread %1 in group %2 exited.")
+                    .arg(id).arg(groupid));
             } else if (asyncClass == "thread-selected") {
+                QString id = record.findChild("id").data();
+                q->showStatusMessage(tr("Thread %1 selected.").arg(id));
                 //"{id="2"}" 
             #ifdef Q_OS_MAC
             } else if (asyncClass == "shlibs-updated") {
