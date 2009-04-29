@@ -808,6 +808,8 @@ void WatchHandler::cleanup()
     m_completeSet = initialSet();
     m_displaySet = m_completeSet;
 
+    rebuildModel(); // to get the dummy entries back
+
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {

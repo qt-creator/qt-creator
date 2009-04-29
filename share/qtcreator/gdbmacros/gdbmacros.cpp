@@ -1972,8 +1972,23 @@ static void qDumpQSharedPointer(QDumper &d)
             P(d, "name", "data");
             qDumpInnerValue(d, d.innertype, ptr.data());
         d.endHash();
-        I(d, "strongref", 44);
-        I(d, "weakref", 45);
+        const int v = sizeof(void *);
+        d.beginHash();
+            const void *weak = addOffset(deref(addOffset(d.data, v)), v);
+            P(d, "name", "weakref"); 
+            P(d, "value", *static_cast<const int *>(weak));
+            P(d, "type", "int"); 
+            P(d, "addr",  weak);
+            P(d, "numchild", "0");
+        d.endHash();
+        d.beginHash();
+            const void *strong = addOffset(weak, sizeof(int));
+            P(d, "name", "strongref"); 
+            P(d, "value", *static_cast<const int *>(strong));
+            P(d, "type", "int"); 
+            P(d, "addr",  strong);
+            P(d, "numchild", "0");
+        d.endHash();
         d << "]";
     }
     d.disarm();
