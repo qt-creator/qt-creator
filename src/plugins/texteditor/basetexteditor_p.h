@@ -195,7 +195,6 @@ public:
     uint m_marksVisible : 1;
     uint m_codeFoldingVisible : 1;
     uint m_codeFoldingSupported : 1;
-    uint m_highlightBlocks : 1;
     uint m_revisionsVisible : 1;
     uint m_lineNumbersVisible : 1;
     uint m_highlightCurrentLine : 1;

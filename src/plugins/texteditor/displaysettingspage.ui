@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>381</width>
-    <height>279</height>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
     </spacer>
    </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBoxDisplay">
      <property name="title">
       <string>Display</string>
      </property>
@@ -71,11 +71,18 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="animateMatchingParentheses">
+        <property name="text">
+         <string>Animate matching parentheses</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBoxDisplaySettings">
+    <widget class="QGroupBox" name="groupBoxText">
      <property name="title">
       <string>Text Wrapping</string>
      </property>
