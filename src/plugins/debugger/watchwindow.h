@@ -64,6 +64,10 @@ private:
 
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
+    void dragEnterEvent(QDragEnterEvent *ev);
+    void dropEvent(QDropEvent *ev);
+    void dragMoveEvent(QDragMoveEvent *ev);
+
     void editItem(const QModelIndex &idx);
     void reset(); /* reimpl */
 
