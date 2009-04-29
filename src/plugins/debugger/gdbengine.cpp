@@ -3061,8 +3061,6 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(QLatin1Char(','))) <<  ')';
 
-    qDebug() << "CMD: " << cmd;
-
     QVariant var;
     var.setValue(data);
     sendSynchronizedCommand(cmd, WatchDebuggingHelperValue1, var);
@@ -3344,7 +3342,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
         q->showStatusMessage(tr("%1 custom dumpers found.")
             .arg(m_dumperHelper.typeCount()));
     }
-    qDebug() << m_dumperHelper.toString(true);
+    //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDebuggingHelpers;
 }
 

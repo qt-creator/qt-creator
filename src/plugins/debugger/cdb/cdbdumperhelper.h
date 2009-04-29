@@ -119,8 +119,6 @@ private:
     unsigned long m_outBufferSize;
     char *m_buffer;
 
-    typedef QMap<QString, int> TypeSizeCache;
-    TypeSizeCache m_typeSizeCache;
     QStringList m_failedTypes;
 
     QtDumperHelper m_helper;
