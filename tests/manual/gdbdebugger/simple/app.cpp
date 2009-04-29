@@ -549,9 +549,13 @@ void testQSharedPointer()
     QSharedPointer<QString> ptr2 = ptr;
     QSharedPointer<QString> ptr3 = ptr;
 
-    //QWeakPointer<QString> wptr(ptr);
-    //QWeakPointer<QString> wptr2 = wptr;
-    //QWeakPointer<QString> wptr3 = wptr;
+    QWeakPointer<int> wiptr(iptr);
+    QWeakPointer<int> wiptr2 = wiptr;
+    QWeakPointer<int> wiptr3 = wiptr;
+
+    QWeakPointer<QString> wptr(ptr);
+    QWeakPointer<QString> wptr2 = wptr;
+    QWeakPointer<QString> wptr3 = wptr;
 }
 
 void stringRefTest(const QString &refstring)
