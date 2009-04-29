@@ -36,6 +36,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QIcon>
 #include <QtGui/QTextEdit>
+#include <QtGui/QScrollBar>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -82,9 +83,10 @@ void CompileOutputWindow::clearContents()
     m_textEdit->clear();
 }
 
-void CompileOutputWindow::visibilityChanged(bool /* b */)
+void CompileOutputWindow::visibilityChanged(bool b)
 {
-
+    if (b)
+        m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
 }
 
 int CompileOutputWindow::priorityInStatusBar() const

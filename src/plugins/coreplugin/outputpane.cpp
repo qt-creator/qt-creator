@@ -384,7 +384,7 @@ void OutputPaneManager::ensurePageVisible(int idx)
     }
 }
 
-
+// Slot connected to showPage signal of each page
 void OutputPaneManager::showPage(bool focus)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
