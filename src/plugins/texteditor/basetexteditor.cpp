@@ -1499,7 +1499,7 @@ QRect BaseTextEditor::collapseBox()
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
 
-    if (!d->m_displaySettings.m_fancyFoldingBar) {
+    if (true || !d->m_displaySettings.m_fancyFoldingBar) {
         if (TextBlockUserData::hasCollapseAfter(begin.previous()))
             begin = begin.previous();
     }
@@ -2231,23 +2231,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top;
 
-#if 0
-    int extraAreaHighlightCollapseEndBlockNumber = -1;
-
-    int extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
-    if (extraAreaHighlightCollapseBlockNumber < 0) {
-        extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightFadingBlockNumber;
-    }
-
-    if (extraAreaHighlightCollapseBlockNumber >= 0 ) {
-        QTextBlock highlightBlock = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber);
-        if (highlightBlock.isValid() && highlightBlock.next().isValid() && highlightBlock.next().isVisible())
-            extraAreaHighlightCollapseEndBlockNumber = TextBlockUserData::testCollapse(highlightBlock).blockNumber();
-        else
-            extraAreaHighlightCollapseEndBlockNumber = extraAreaHighlightCollapseBlockNumber;
-    }
-#endif
-
     while (block.isValid() && top <= e->rect().bottom()) {
 
         top = bottom;
@@ -2304,20 +2287,29 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 QRect r(extraAreaWidth+2, top, collapseBoxWidth-4, bottom - top);
                 bool drawBox = !nextBlock.isVisible();
 
-                int minBraceDepth = qMax(braceDepth, previousBraceDepth);
-                if (minBraceDepth > 0) {
-                    QColor color = calcBlendColor(baseColor, minBraceDepth);
-                    if (!d->m_highlightBlocksInfo.isEmpty()
-                        && blockNumber >= d->m_highlightBlocksInfo.open.last()
-                        && blockNumber <= d->m_highlightBlocksInfo.close.first())
-                        color = calcMixColor(pal.highlight().color(), color);
-                    painter.fillRect(r, color);
+                int extraAreaHighlightCollapseBlockNumber = -1;
+                int extraAreaHighlightCollapseEndBlockNumber = -1;
+                if (!d->m_highlightBlocksInfo.isEmpty()) {
+                    extraAreaHighlightCollapseBlockNumber =  d->m_highlightBlocksInfo.open.last();
+                    extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
+
+                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
+                    if (TextBlockUserData::hasCollapseAfter(before)) {
+                        extraAreaHighlightCollapseBlockNumber--;
+                    }
                 }
+                int minBraceDepth = qMax(braceDepth, previousBraceDepth);
+                QColor color = calcBlendColor(baseColor, minBraceDepth);
+                if (!d->m_highlightBlocksInfo.isEmpty()
+                    && blockNumber >= extraAreaHighlightCollapseBlockNumber
+                            && blockNumber <= extraAreaHighlightCollapseEndBlockNumber)
+                    color = calcMixColor(pal.highlight().color(), color);
+                painter.fillRect(r, color);
 
                 bool drawDown = !d->m_highlightBlocksInfo.isEmpty()
-                              && blockNumber == d->m_highlightBlocksInfo.open.last();
+                                && blockNumber == extraAreaHighlightCollapseBlockNumber;
                 bool drawUp = !d->m_highlightBlocksInfo.isEmpty()
-                              && blockNumber == d->m_highlightBlocksInfo.close.first();
+                              && blockNumber == extraAreaHighlightCollapseEndBlockNumber;
 
                 if (drawBox || drawDown || drawUp) {
                     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -2337,7 +2329,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                     } else if (drawUp) {
 
                         // check that we are not collapsed
-                        QTextBlock open = doc->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
+                        QTextBlock open = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber);
                         if (open.next().isVisible()) {
 
                             QPointF points[3] = { QPointF(r.left(), r.bottom()-1),
@@ -2347,8 +2339,8 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                         }
                     } else if(drawDown) {
                         QPointF points[3] = { QPointF(r.left(), r.top()),
-                                               QPointF(r.center().x(), r.center().y()),
-                                               QPointF(r.right(), r.top()) };
+                                              QPointF(r.center().x(), r.center().y()),
+                                              QPointF(r.right(), r.top()) };
                         painter.drawPolygon(points, 3);
                     }
                     painter.translate(-.5, -.5);
@@ -2701,7 +2693,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             if (TextBlockUserData::canCollapse(cursor.block())
                 || !TextBlockUserData::hasClosingCollapse(cursor.block()))
                 d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
-            if (!d->m_displaySettings.m_fancyFoldingBar
+            if ((true || !d->m_displaySettings.m_fancyFoldingBar)
                 && TextBlockUserData::hasCollapseAfter(cursor.block())) {
                 d->extraAreaHighlightCollapseBlockNumber++;
                 d->extraAreaHighlightCollapseColumn = -1;
