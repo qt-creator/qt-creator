@@ -29,8 +29,9 @@
 
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
-#include "cdbsymbolgroupcontext.h"
 #include "cdbstacktracecontext.h"
+#include "cdbstackframecontext.h"
+#include "cdbsymbolgroupcontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbmodules.h"
 #include "cdbassembler.h"
@@ -274,7 +275,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *parent,
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
-    m_dumper(&m_cif),
+    m_dumper(new CdbDumperHelper(parent, &m_cif)),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
     m_engine(engine),
@@ -464,7 +465,7 @@ bool CdbDebugEngine::startDebugger()
             dumperEnabled = false;
         }
     }
-    m_d->m_dumper.reset(dumperLibName, dumperEnabled);
+    m_d->m_dumper->reset(dumperLibName, dumperEnabled);
     m_d->m_debuggerManager->showStatusMessage("Starting Debugger", -1);
     QString errorMessage;
     bool rc = false;
@@ -590,19 +591,20 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     } else {
         m_currentThreadId = 0;
     }
-    // Set initial breakpoints
+    // Clear any saved breakpoints and set initial breakpoints
+    m_engine->executeDebuggerCommand(QLatin1String("bc"));
     if (m_debuggerManagerAccess->breakHandler()->hasPendingBreakpoints())
         m_engine->attemptBreakpointSynchronization();    
     // At any event, we want a temporary breakpoint at main() to load
     // the dumpers.
-    if (m_dumper.state() == CdbDumperHelper::NotLoaded) {
+    if (m_dumper->state() == CdbDumperHelper::NotLoaded) {
         if (!hasBreakPointAtMain(m_debuggerManagerAccess->breakHandler())) {
+            QString errorMessage;
             CDBBreakPoint mainBP;
             // Do not resolve at this point in the rare event someone
             // has main in a module
             mainBP.funcName = QLatin1String("main");            
             mainBP.oneShot = true;
-            QString errorMessage;
             if (!mainBP.add(m_cif.debugControl, &errorMessage))
                 m_debuggerManagerAccess->showQtDumperLibraryWarning(errorMessage);
         }
@@ -675,13 +677,13 @@ void CdbDebugEngine::exitDebugger()
     killWatchTimer();
 }
 
-CdbSymbolGroupContext *CdbDebugEnginePrivate::getStackFrameSymbolGroupContext(int frameIndex, QString *errorMessage) const
+CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex, QString *errorMessage) const
 {
     if (!m_currentStackTrace) {
         *errorMessage = QLatin1String(msgNoStackTraceC);
         return 0;
     }
-    if (CdbSymbolGroupContext *sg = m_currentStackTrace->symbolGroupContextAt(frameIndex, errorMessage))
+    if (CdbStackFrameContext *sg = m_currentStackTrace->frameContextAt(frameIndex, errorMessage))
         return sg;
     return 0;
 }
@@ -718,8 +720,8 @@ bool CdbDebugEnginePrivate::updateLocals(int frameIndex,
     }
 
     bool success = false;
-    if (CdbSymbolGroupContext *sgc = getStackFrameSymbolGroupContext(frameIndex, errorMessage))
-        success = CdbSymbolGroupContext::populateModelInitially(sgc, wh, errorMessage);
+    if (CdbStackFrameContext *sgc = getStackFrameContext(frameIndex, errorMessage))
+        success = sgc->populateModelInitially(wh, errorMessage);
 
     wh->rebuildModel();
     return success;
@@ -800,8 +802,8 @@ void CdbDebugEngine::updateWatchModel()
         filterEvaluateWatchers(&incomplete, watchHandler);
         // Do locals. We might get called while running when someone enters watchers
         if (!incomplete.empty()) {
-            CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->symbolGroupContextAt(frameIndex, &errorMessage);
-            if (!sg || !CdbSymbolGroupContext::completeModel(sg, incomplete, watchHandler, &errorMessage))
+            CdbStackFrameContext *sg = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+            if (!sg || !sg->completeModel(incomplete, watchHandler, &errorMessage))
                 break;
         }
         watchHandler->rebuildModel();
@@ -1016,7 +1018,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
     bool success = false;
     do {
         QString newValue;
-        CdbSymbolGroupContext *sg = m_d->getStackFrameSymbolGroupContext(frameIndex, &errorMessage);
+        CdbStackFrameContext *sg = m_d->getStackFrameContext(frameIndex, &errorMessage);
         if (!sg)
             break;
         if (!sg->assignValue(expr, value, &newValue, &errorMessage))
@@ -1062,16 +1064,29 @@ bool CdbDebugEngine::evaluateExpression(const QString &expression,
                                         QString *type,
                                         QString *errorMessage)
 {
+    DEBUG_VALUE debugValue;
+    if (!m_d->evaluateExpression(m_d->m_cif.debugControl, expression, &debugValue, errorMessage))
+        return false;
+    *value = CdbSymbolGroupContext::debugValueToString(debugValue, m_d->m_cif.debugControl, type);
+    return true;
+}
+
+bool CdbDebugEnginePrivate::evaluateExpression(CIDebugControl *ctrl,
+                                               const QString &expression,
+                                               DEBUG_VALUE *debugValue,
+                                               QString *errorMessage)
+{
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << expression;
-    DEBUG_VALUE debugValue;
-    memset(&debugValue, 0, sizeof(DEBUG_VALUE));
+
+    memset(debugValue, 0, sizeof(DEBUG_VALUE));
     // Original syntax must be restored, else setting breakpoints will fail.
-    SyntaxSetter syntaxSetter(m_d->m_cif.debugControl, DEBUG_EXPR_CPLUSPLUS);
+    SyntaxSetter syntaxSetter(ctrl, DEBUG_EXPR_CPLUSPLUS);
     ULONG errorPosition = 0;
-    const HRESULT hr = m_d->m_cif.debugControl->EvaluateWide(expression.utf16(),
-                                                          DEBUG_VALUE_INVALID, &debugValue,
-                                                          &errorPosition);    if (FAILED(hr)) {
+    const HRESULT hr = ctrl->EvaluateWide(expression.utf16(),
+                                          DEBUG_VALUE_INVALID, debugValue,
+                                          &errorPosition);
+    if (FAILED(hr)) {
         if (HRESULT_CODE(hr) == 517) {
             *errorMessage = QString::fromLatin1("Unable to evaluate '%1': Expression out of scope.").
                             arg(expression);
@@ -1081,7 +1096,6 @@ bool CdbDebugEngine::evaluateExpression(const QString &expression,
         }
         return false;
     }
-    *value = CdbSymbolGroupContext::debugValueToString(debugValue, m_d->m_cif.debugControl, type);
     return true;
 }
 
@@ -1355,14 +1369,14 @@ void CdbDebugEnginePrivate::handleDebugEvent()
     case BreakEventHandle:
     case BreakEventMain:
         if (mode == BreakEventMain)
-            m_dumper.load(m_debuggerManager, m_debuggerManagerAccess);
+            m_dumper->load(m_debuggerManager);
         m_debuggerManagerAccess->notifyInferiorStopped();
         updateThreadList();
         updateStackTrace();
         break;
     case BreakEventMainLoadDumpers:
         // Temp stop to load dumpers    
-        m_dumper.load(m_debuggerManager, m_debuggerManagerAccess);
+        m_dumper->load(m_debuggerManager);
         m_engine->startWatchTimer();
         continueInferiorProcess();
         break;
@@ -1436,7 +1450,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     QString errorMessage;
     m_engine->reloadRegisters();
     m_currentStackTrace =
-            CdbStackTraceContext::create(&m_cif, m_currentThreadId, &errorMessage);
+            CdbStackTraceContext::create(m_dumper, m_currentThreadId, &errorMessage);
     if (!m_currentStackTrace) {
         qWarning("%s: failed to create trace context: %s", Q_FUNC_INFO, qPrintable(errorMessage));
         return;

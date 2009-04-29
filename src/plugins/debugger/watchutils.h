@@ -31,14 +31,16 @@
 #define WATCHUTILS_H
 
 #include <QtCore/QString>
+#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
-class QString;
-class QByteArray;
+class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
+
+class WatchData;
 
 QString dotEscape(QString str);
 QString currentTime();
@@ -64,8 +66,131 @@ QString extractTypeFromPTypeOutput(const QString &str);
 bool isIntOrFloatType(const QString &type);
 QString sizeofTypeExpression(const QString &type);
 
-// Parse 'query' (1) protocol response of the custom dumpers
-bool parseQueryDumperOutput(const QByteArray &a, QStringList *types, QString *qtVersion, QString *qtNamespace);
+// Decode string data as returned by the dumper helpers.
+QString decodeData(const QByteArray &baIn, int encoding);
+
+// Result of a dumper call.
+struct QtDumperResult
+{
+    struct Child {
+        Child();
+
+        int valueEncoded;
+        QString name;
+        QString address;
+        QByteArray value;
+    };
+
+    QtDumperResult();
+    void clear();
+    QList<WatchData> toWatchData(int source = 0) const;
+
+    QString iname;
+    QString address;
+    QString type;
+    QByteArray value;
+    int valueEncoded;
+    bool valuedisabled;
+    int childCount;
+    bool internal;
+    QString childType;
+    QList <Child> children;
+};
+
+QDebug operator<<(QDebug in, const QtDumperResult &d);
+
+/* Attempt to put common code of the dumper handling into a helper
+ * class.
+ * "Custom dumper" is a library compiled against the current
+ * Qt containing functions to evaluate values of Qt classes
+ * (such as QString, taking pointers to their addresses).
+ * The library must be loaded into the debuggee.
+ * It provides a function that takes input from an input buffer
+ * and some parameters and writes output into an output buffer.
+ * Parameter 1 is the protocol:
+ * 1) Query. Fills output buffer with known types, Qt version and namespace.
+ *    This information is parsed and stored by this class (special type
+ *    enumeration).
+ * 2) Evaluate symbol, taking address and some additional parameters
+ *    depending on type. */
+
+class QtDumperHelper {
+public:
+    enum Debugger {
+        GdbDebugger,  // Can evalulate expressions in function calls
+        CdbDebugger   // Can only handle scalar, simple types in function calls
+    };
+
+    enum Type {
+        UnknownType,
+        SupportedType, // A type that requires no special handling by the dumper
+        // Below types require special handling
+        QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
+        QVectorType, QMapType, QMultiMapType, QMapNodeType,
+        StdVectorType, StdDequeType, StdSetType,StdMapType, StdStackType,
+        StdStringType
+    };
+
+    // Type/Parameter struct required for building a value query
+    struct TypeData {
+        TypeData();
+        void clear();
+
+        Type type;
+        bool isTemplate;
+        QString tmplate;
+        QString inner;
+    };
+
+    QtDumperHelper();
+    void clear();
+
+    int typeCount() const;
+    // Look up a simple, non-template  type
+    Type simpleType(const QString &simpleType) const;
+    // Look up a (potentially) template type and fill parameter struct
+    TypeData typeData(const QString &typeName) const;
+    Type type(const QString &typeName) const;
+
+    int qtVersion() const;
+    QString qtVersionString() const;
+    void setQtVersion(int v);
+    void setQtVersion(const QString &v);
+
+    QString qtNamespace() const;
+    void setQtNamespace(const QString &qtNamespace);
+
+    // Complete parse of "query" (protocol 1) response from debuggee buffer.
+    // 'data' excludes the leading indicator character.
+    bool parseQuery(const char *data, Debugger debugger);
+    // Set up from pre-parsed type list
+    void parseQueryTypes(const QStringList &l, Debugger debugger);
+
+    // Determine the parameters required for an "evaluate" (protocol 2) call
+    void evaluationParameters(const WatchData &data,
+                              const TypeData &td,
+                              Debugger debugger,
+                              QByteArray *inBuffer,
+                              QStringList *extraParameters) const;
+
+    // Parse the value response (protocol 2) from debuggee buffer.
+    // 'data' excludes the leading indicator character.
+    static bool parseValue(const char *data, QtDumperResult *r);
+
+    static bool needsExpressionSyntax(Type t);
+
+    QString toString(bool debug = false) const;
+
+private:    
+    typedef QMap<QString, Type> NameTypeMap;
+
+    // Look up a simple (namespace) type
+    static Type specialType(QString s);
+
+    NameTypeMap m_nameTypeMap;
+    int m_qtVersion;
+    QString m_qtNamespace;
+};
 
 } // namespace Internal
 } // namespace Debugger

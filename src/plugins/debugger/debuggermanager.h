@@ -146,6 +146,7 @@ private:
     friend class ScriptEngine;
     friend struct CdbDebugEnginePrivate;
     friend class CdbDumperHelper;
+    friend class CdbExceptionLoggerEventCallback;
 
     // called from the engines after successful startup
     virtual void notifyInferiorStopRequested() = 0;

@@ -33,6 +33,7 @@
 #include "idebuggerengine.h"
 #include "gdbmi.h"
 #include "outputcollector.h"
+#include "watchutils.h"
 
 #include <consoleprocess.h>
 
@@ -342,9 +343,7 @@ private:
     QString m_editedData;
     int m_pendingRequests;
 
-    QStringList m_availableSimpleDebuggingHelpers;
-    QString m_namespace; // namespace used in "namespaced Qt";
-    int m_qtVersion; // Qt version used in the debugged program
+    QtDumperHelper m_dumperHelper;
     
     DebuggingHelperState m_debuggingHelperState;
     QList<GdbMi> m_currentFunctionArgs;

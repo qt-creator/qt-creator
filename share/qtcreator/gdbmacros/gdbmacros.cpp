@@ -60,6 +60,10 @@ int qtGhVersion = QT_VERSION;
 #   include <QtGui/QImage>
 #endif
 
+#ifdef Q_OS_WIN
+#    include <windows.h>
+#endif
+
 #include <list>
 #include <map>
 #include <string>
@@ -231,11 +235,17 @@ static QByteArray stripPointerType(QByteArray type)
 }
 
 // This is used to abort evaluation of custom data dumpers in a "coordinated"
-// way. Abortion will happen anyway when we try to access a non-initialized
+// way. Abortion will happen at the latest when we try to access a non-initialized
 // non-trivial object, so there is no way to prevent this from occuring at all
-// conceptionally.  Gdb will catch SIGSEGV and return to the calling frame.
-// This is just fine provided we only _read_ memory in the custom handlers
-// below.
+// conceptionally.  Ideally, if there is API to check memory access, it should
+// be used to terminate nicely, especially with CDB.
+// 1) Gdb will catch SIGSEGV and return to the calling frame.
+//    This is just fine provided we only _read_ memory in the custom handlers
+//    below.
+// 2) For MSVC/CDB, exceptions must be handled in the dumper, which is
+//    achieved using __try/__except. The exception will be reported in the
+//    debugger, which will then execute a 'gN' command, passing handling back
+//    to the __except clause.
 
 volatile int qProvokeSegFaultHelper;
 
@@ -269,11 +279,16 @@ static bool startsWith(const char *s, const char *t)
     return qstrncmp(s, t, qstrlen(t)) == 0;
 }
 
-// provoke segfault when address is not readable
-#define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
-#define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
-// provoke segfault unconditionally
-#define qCheck(b) do { if (!(b)) qProvokeSegFaultHelper = *(char*)0; } while (0)
+// Check memory for read access and provoke segfault if nothing else helps.
+// On Windows, try to be less crash-prone by checking memory using WinAPI
+
+#ifdef Q_OS_WIN
+#    define qCheckAccess(d) if (IsBadReadPtr(d, 1)) return false; do { qProvokeSegFaultHelper = *(char*)d; } while (0)
+#    define qCheckPointer(d) if (d && IsBadReadPtr(d, 1)) return false; do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
+#else
+#    define qCheckAccess(d) do { qProvokeSegFaultHelper = *(char*)d; } while (0)
+#    define qCheckPointer(d) do { if (d) qProvokeSegFaultHelper = *(char*)d; } while (0)
+#endif
 
 const char *stripNamespace(const char *type)
 {
@@ -692,11 +707,14 @@ void QDumper::putEllipsis()
 #define TT(type, value) \
     "<tr><td>" << type << "</td><td> : </td><td>" << value << "</td></tr>"
 
-static void qDumpUnknown(QDumper &d)
+#define DUMPUNKNOWN_MESSAGE "<internal error>"
+static void qDumpUnknown(QDumper &d, const char *why = 0)
 {
     P(d, "iname", d.iname);
     P(d, "addr", d.data);
-    P(d, "value", "<internal error>");
+    if (!why)
+        why = DUMPUNKNOWN_MESSAGE;
+    P(d, "value", why);
     P(d, "type", d.outertype);
     P(d, "numchild", "0");
     d.disarm();
@@ -815,7 +833,7 @@ static void qDumpInnerValueOrPointer(QDumper &d,
 
 //////////////////////////////////////////////////////////////////////////////
 
-static void qDumpQByteArray(QDumper &d)
+static bool qDumpQByteArray(QDumper &d)
 {
     const QByteArray &ba = *reinterpret_cast<const QByteArray *>(d.data);
 
@@ -848,6 +866,7 @@ static void qDumpQByteArray(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
 static void qDumpQDateTime(QDumper &d)
@@ -1063,7 +1082,7 @@ int hashOffset(bool optimizedIntKey, bool forKey, unsigned keySize, unsigned val
 }
 
 
-static void qDumpQHash(QDumper &d)
+static bool qDumpQHash(QDumper &d)
 {
     QHashData *h = *reinterpret_cast<QHashData *const*>(d.data);
     const char *keyType   = d.templateParameters[0];
@@ -1078,7 +1097,7 @@ static void qDumpQHash(QDumper &d)
     int n = h->size;
 
     if (n < 0)
-        qCheck(false);
+        return false;
     if (n > 0) {
         qCheckPointer(h->fakeNext);
         qCheckPointer(*h->buckets);
@@ -1127,6 +1146,7 @@ static void qDumpQHash(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
 static void qDumpQHashNode(QDumper &d)
@@ -1177,23 +1197,25 @@ static void qDumpQImage(QDumper &d)
 #endif
 }
 
-static void qDumpQList(QDumper &d)
+static bool qDumpQList(QDumper &d)
 {
     // This uses the knowledge that QList<T> has only a single member
     // of type  union { QListData p; QListData::Data *d; };
+
     const QListData &ldata = *reinterpret_cast<const QListData*>(d.data);
     const QListData::Data *pdata =
         *reinterpret_cast<const QListData::Data* const*>(d.data);
+    qCheckAccess(pdata);
     int nn = ldata.size();
     if (nn < 0)
-        qCheck(false);
+        return false;
     if (nn > 0) {
         qCheckAccess(ldata.d->array);
         //qCheckAccess(ldata.d->array[0]);
         //qCheckAccess(ldata.d->array[nn - 1]);
 #if QT_VERSION >= 0x040400
         if (ldata.d->ref._q_value <= 0)
-            qCheck(false);
+            return false;
 #endif
     }
 
@@ -1252,9 +1274,10 @@ static void qDumpQList(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpQLinkedList(QDumper &d)
+static bool qDumpQLinkedList(QDumper &d)
 {
     // This uses the knowledge that QLinkedList<T> has only a single member
     // of type  union { QLinkedListData *d; QLinkedListNode<T> *e; };
@@ -1262,7 +1285,7 @@ static void qDumpQLinkedList(QDumper &d)
         reinterpret_cast<const QLinkedListData*>(deref(d.data));
     int nn = ldata->size;
     if (nn < 0)
-        qCheck(false);
+        return false;
 
     int n = nn;
     P(d, "value", "<" << n << " items>");
@@ -1294,6 +1317,7 @@ static void qDumpQLinkedList(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
 static void qDumpQLocale(QDumper &d)
@@ -1341,7 +1365,7 @@ static void qDumpQLocale(QDumper &d)
     d.disarm();
 }
 
-static void qDumpQMapNode(QDumper &d)
+static bool qDumpQMapNode(QDumper &d)
 {
     const QMapData *h = reinterpret_cast<const QMapData *>(d.data);
     const char *keyType   = d.templateParameters[0];
@@ -1375,9 +1399,10 @@ static void qDumpQMapNode(QDumper &d)
     }
 
     d.disarm();
+    return true;
 }
 
-static void qDumpQMap(QDumper &d)
+static bool qDumpQMap(QDumper &d)
 {
     QMapData *h = *reinterpret_cast<QMapData *const*>(d.data);
     const char *keyType   = d.templateParameters[0];
@@ -1386,7 +1411,7 @@ static void qDumpQMap(QDumper &d)
     int n = h->size;
 
     if (n < 0)
-        qCheck(false);
+        return false;
     if (n > 0) {
         qCheckAccess(h->backward);
         qCheckAccess(h->forward[0]);
@@ -1455,11 +1480,12 @@ static void qDumpQMap(QDumper &d)
     }
 
     d.disarm();
+    return true;
 }
 
-static void qDumpQMultiMap(QDumper &d)
+static bool qDumpQMultiMap(QDumper &d)
 {
-    qDumpQMap(d);
+    return qDumpQMap(d);
 }
 
 static void qDumpQModelIndex(QDumper &d)
@@ -1890,7 +1916,7 @@ static void qDumpQPixmap(QDumper &d)
 #endif
 }
 
-static void qDumpQSet(QDumper &d)
+static bool qDumpQSet(QDumper &d)
 {
     // This uses the knowledge that QHash<T> has only a single member
     // of  union { QHashData *d; QHashNode<Key, T> *e; };
@@ -1899,7 +1925,7 @@ static void qDumpQSet(QDumper &d)
 
     int n = hd->size;
     if (n < 0)
-        qCheck(false);
+        return false;
     if (n > 0) {
         qCheckAccess(node);
         qCheckPointer(node->next);
@@ -1933,6 +1959,7 @@ static void qDumpQSet(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return  true;
 }
 
 static void qDumpQSharedPointer(QDumper &d)
@@ -1959,7 +1986,7 @@ static void qDumpQSharedPointer(QDumper &d)
     d.disarm();
 }
 
-static void qDumpQString(QDumper &d)
+static bool qDumpQString(QDumper &d)
 {
     const QString &str = *reinterpret_cast<const QString *>(d.data);
 
@@ -1975,14 +2002,15 @@ static void qDumpQString(QDumper &d)
     P(d, "numchild", "0");
 
     d.disarm();
+    return true;
 }
 
-static void qDumpQStringList(QDumper &d)
+static bool qDumpQStringList(QDumper &d)
 {
     const QStringList &list = *reinterpret_cast<const QStringList *>(d.data);
     int n = list.size();
     if (n < 0)
-        qCheck(false);
+        return false;
     if (n > 0) {
         qCheckAccess(&list.front());
         qCheckAccess(&list.back());
@@ -2009,6 +2037,7 @@ static void qDumpQStringList(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
 static void qDumpQTextCodec(QDumper &d)
@@ -2109,7 +2138,7 @@ static void qDumpQVariant(QDumper &d)
     d.disarm();
 }
 
-static void qDumpQVector(QDumper &d)
+static bool qDumpQVector(QDumper &d)
 {
     QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
 
@@ -2117,7 +2146,7 @@ static void qDumpQVector(QDumper &d)
     // from asking for unavailable child details
     int nn = v->size;
     if (nn < 0)
-        qCheck(false);
+        return false;
     if (nn > 0) {
         //qCheckAccess(&vec.front());
         //qCheckAccess(&vec.back());
@@ -2149,9 +2178,10 @@ static void qDumpQVector(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpStdList(QDumper &d)
+static bool qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
     const void *p = d.data;
@@ -2196,9 +2226,10 @@ static void qDumpStdList(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpStdMap(QDumper &d)
+static bool qDumpStdMap(QDumper &d)
 {
     typedef std::map<int, int> DummyType;
     const DummyType &map = *reinterpret_cast<const DummyType*>(d.data);
@@ -2209,7 +2240,8 @@ static void qDumpStdMap(QDumper &d)
     p = deref(p);
 
     int nn = map.size();
-    qCheck(nn >= 0);
+    if (nn < 0)
+        return false;
     DummyType::const_iterator it = map.begin();
     for (int i = 0; i < nn && i < 10 && it != map.end(); ++i, ++it)
         qCheckAccess(it.operator->());
@@ -2263,9 +2295,10 @@ static void qDumpStdMap(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpStdSet(QDumper &d)
+static bool qDumpStdSet(QDumper &d)
 {
     typedef std::set<int> DummyType;
     const DummyType &set = *reinterpret_cast<const DummyType*>(d.data);
@@ -2274,7 +2307,8 @@ static void qDumpStdSet(QDumper &d)
     p = deref(p);
 
     int nn = set.size();
-    qCheck(nn >= 0);
+    if (nn < 0)
+        return false;
     DummyType::const_iterator it = set.begin();
     for (int i = 0; i < nn && i < 10 && it != set.end(); ++i, ++it)
         qCheckAccess(it.operator->());
@@ -2306,9 +2340,10 @@ static void qDumpStdSet(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpStdString(QDumper &d)
+static bool qDumpStdString(QDumper &d)
 {
     const std::string &str = *reinterpret_cast<const std::string *>(d.data);
 
@@ -2325,9 +2360,10 @@ static void qDumpStdString(QDumper &d)
     P(d, "numchild", "0");
 
     d.disarm();
+    return true;
 }
 
-static void qDumpStdWString(QDumper &d)
+static bool qDumpStdWString(QDumper &d)
 {
     const std::wstring &str = *reinterpret_cast<const std::wstring *>(d.data);
 
@@ -2344,9 +2380,10 @@ static void qDumpStdWString(QDumper &d)
     P(d, "numchild", "0");
 
     d.disarm();
+    return true;
 }
 
-static void qDumpStdVector(QDumper &d)
+static bool qDumpStdVector(QDumper &d)
 {
     // Correct type would be something like:
     // std::_Vector_base<int,std::allocator<int, std::allocator<int> >>::_Vector_impl
@@ -2361,7 +2398,7 @@ static void qDumpStdVector(QDumper &d)
     // from asking for unavailable child details
     int nn = (v->finish - v->start) / d.extraInt[0];
     if (nn < 0)
-        qCheck(false);
+        return false;
     if (nn > 0) {
         qCheckAccess(v->start);
         qCheckAccess(v->finish);
@@ -2392,9 +2429,10 @@ static void qDumpStdVector(QDumper &d)
         d << "]";
     }
     d.disarm();
+    return true;
 }
 
-static void qDumpStdVectorBool(QDumper &d)
+static bool qDumpStdVectorBool(QDumper &d)
 {
     // FIXME
     return qDumpStdVector(d);
@@ -2402,10 +2440,14 @@ static void qDumpStdVectorBool(QDumper &d)
 
 static void handleProtocolVersion2and3(QDumper & d)
 {
+
     if (!d.outertype[0]) {
         qDumpUnknown(d);
         return;
     }
+#ifdef Q_CC_MSVC // Catch exceptions with MSVC/CDB
+    __try {
+#endif
 
     d.setupTemplateParameters();
     P(d, "iname", d.iname);
@@ -2551,6 +2593,12 @@ static void handleProtocolVersion2and3(QDumper & d)
 
     if (!d.success)
         qDumpUnknown(d);
+#ifdef Q_CC_MSVC // Catch exceptions with MSVC/CDB
+    } __except(EXCEPTION_EXECUTE_HANDLER) {
+        qDumpUnknown(d, DUMPUNKNOWN_MESSAGE" <exception>");
+    }
+#endif
+
 }
 
 } // anonymous namespace
