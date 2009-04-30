@@ -68,7 +68,7 @@ QString GeneralSettings::trCategory() const
 
 QWidget *GeneralSettings::createPage(QWidget *parent)
 {
-    m_page = new Ui_GeneralSettings();
+    m_page = new Ui::GeneralSettings();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 

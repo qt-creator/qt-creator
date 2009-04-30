@@ -120,7 +120,7 @@ WelcomeMode::~WelcomeMode()
 
 QString WelcomeMode::name() const
 {
-    return QLatin1String("Welcome");
+    return tr("Welcome");
 }
 
 QIcon WelcomeMode::icon() const

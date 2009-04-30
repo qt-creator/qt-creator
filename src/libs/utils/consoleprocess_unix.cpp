@@ -71,7 +71,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
 
     QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(tr("Cannot set up comm channel: %1").arg(err));
+        emit processError(tr("Cannot set up communication channel: %1").arg(err));
         return false;
     }
 
@@ -79,7 +79,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(tr("Cannot create temp file: %1").arg(m_tempFile->errorString()));
+            emit processError(tr("Cannot create temporary file: %1").arg(m_tempFile->errorString()));
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -109,7 +109,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     m_process.start(xterm, xtermArgs);
     if (!m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processError(tr("Cannot start terminal emulator %1.").arg(xterm));
+        emit processError(tr("Cannot start the terminal emulator '%1'.").arg(xterm));
         delete m_tempFile;
         m_tempFile = 0;
         return false;
@@ -145,7 +145,7 @@ QString ConsoleProcess::stubServerListen()
         {
             QTemporaryFile tf;
             if (!tf.open())
-                return tr("Cannot create temporary file: %2").arg(tf.errorString());
+                return tr("Cannot create temporary file: %1").arg(tf.errorString());
             stubFifoDir = QFile::encodeName(tf.fileName());
         }
         // By now the temp file was deleted again
@@ -153,12 +153,12 @@ QString ConsoleProcess::stubServerListen()
         if (!::mkdir(m_stubServerDir.constData(), 0700))
             break;
         if (errno != EEXIST)
-            return tr("Cannot create temporary directory %1: %2").arg(stubFifoDir, strerror(errno));
+            return tr("Cannot create temporary directory '%1': %2").arg(stubFifoDir, strerror(errno));
     }
     QString stubServer  = stubFifoDir + "/stub-socket";
     if (!m_stubServer.listen(stubServer)) {
         ::rmdir(m_stubServerDir.constData());
-        return tr("Cannot create socket %1: %2").arg(stubServer, m_stubServer.errorString());
+        return tr("Cannot create socket '%1': %2").arg(stubServer, m_stubServer.errorString());
     }
     return QString();
 }
@@ -190,10 +190,10 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emit processError(tr("Cannot change to working directory %1: %2")
+            emit processError(tr("Cannot change to working directory '%1': %2")
                               .arg(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(tr("Cannot execute %1: %2")
+            emit processError(tr("Cannot execute '%1': %2")
                               .arg(m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
