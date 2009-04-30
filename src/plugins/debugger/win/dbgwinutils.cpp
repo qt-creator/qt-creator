@@ -34,6 +34,7 @@
 #ifdef USE_PSAPI
 #  include <psapi.h>
 #endif
+
 namespace Debugger {
 namespace Internal {
    
@@ -75,5 +76,5 @@ QList<ProcData> winProcessList()
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

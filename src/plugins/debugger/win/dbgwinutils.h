@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef _DBG_WINDUTILS_H
-#define _DBG_WINDUTILS_H
+#ifndef DEBUGGER_DBG_WINUTILS_H
+#define DEBUGGER_DBG_WINUTILS_H
 
 #include <QtCore/QList>
 
@@ -39,6 +39,7 @@ struct ProcData; // debuggerdialogs, used by the process listing dialogs
 
 QList<ProcData> winProcessList();
 
-}
-}
-#endif
+} // namespace Internal
+} // namespace Debugger
+
+#endif // DEBUGGER_DBG_WINUTILS_H
