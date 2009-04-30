@@ -277,18 +277,6 @@ GdbMi GdbMi::findChild(const QByteArray &name) const
     return GdbMi();
 }
 
-
-GdbMi GdbMi::findChild(const QByteArray &name, const QByteArray &defaultData) const
-{
-    for (int i = 0; i < m_children.size(); ++i)
-        if (m_children.at(i).m_name == name)
-            return m_children.at(i);
-    GdbMi result;
-    result.m_data = defaultData;
-    return result;
-}
-
-
 //////////////////////////////////////////////////////////////////////////////////
 //
 // GdbResultRecord
