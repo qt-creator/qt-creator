@@ -125,7 +125,7 @@ enum GdbCommandType
     GdbExecNextI,
     GdbExecContinue,
     GdbExecFinish,
-    GdbExecJumpToLine,
+    //GdbExecJumpToLine,
     GdbExecInterrupt,
     GdbInfoShared,
     GdbInfoProc,
@@ -790,9 +790,11 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbExecInterrupt:
             qq->notifyInferiorStopped();
             break;
+#if 0
         case GdbExecJumpToLine:
             handleExecJumpToLine(record);
             break;
+#endif
 #if 0
         case GdbQueryPwd:
             handleQueryPwd(record);
@@ -1076,6 +1078,7 @@ void GdbEngine::handleInfoShared(const GdbResultRecord &record)
     }
 }
 
+#if 0
 void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
 {
     // FIXME: remove this special case as soon as 'jump'
@@ -1088,7 +1091,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
     qq->notifyInferiorStopped();
     q->showStatusMessage(tr("Jumped. Stopped."));
     QByteArray output = record.data.findChild("logstreamoutput").data();
-    if (!output.isEmpty())
+    if (output.isEmpty())
         return;
     int idx1 = output.indexOf(' ') + 1;
     if (idx1 > 0) {
@@ -1100,6 +1103,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResultRecord &record)
         }
     }
 }
+#endif
 
 void GdbEngine::handleExecRunToFunction(const GdbResultRecord &record)
 {
