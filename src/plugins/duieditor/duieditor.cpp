@@ -68,21 +68,120 @@ namespace Internal {
 
 class FindDeclarations: protected Visitor
 {
-    QList<Declaration> declarations;
+    QList<Declaration> _declarations;
+    int _depth;
 
 public:
     QList<Declaration> operator()(AST::Node *node)
     {
-        declarations.clear();
+        _depth = -1;
+        _declarations.clear();
         accept(node);
-        return declarations;
+        return _declarations;
     }
 
 protected:
     using Visitor::visit;
+    using Visitor::endVisit;
+
+    QString asString(AST::UiQualifiedId *id)
+    {
+        QString text;
+        for (; id; id = id->next) {
+            if (id->name)
+                text += id->name->asString();
+            else
+                text += QLatin1Char('?');
+
+            if (id->next)
+                text += QLatin1Char('.');
+        }
+
+        return text;
+    }
 
     void accept(AST::Node *node)
     { AST::Node::acceptChild(node, this); }
+
+    void init(Declaration *decl, AST::UiObjectMember *member)
+    {
+        const SourceLocation first = member->firstSourceLocation();
+        const SourceLocation last = member->lastSourceLocation();
+        decl->startLine = first.startLine;
+        decl->startColumn = first.startColumn;
+        decl->endLine = last.startLine;
+        decl->endColumn = last.startColumn + last.length;
+    }
+
+    virtual bool visit(AST::UiObjectDefinition *node)
+    {
+        ++_depth;
+
+        Declaration decl;
+        init(&decl, node);
+
+        decl.text.fill(QLatin1Char(' '), _depth);
+        if (node->name)
+            decl.text.append(node->name->asString());
+        else
+            decl.text.append(QLatin1Char('?'));
+
+        _declarations.append(decl);
+
+        return true; // search for more bindings
+    }
+
+    virtual void endVisit(AST::UiObjectDefinition *)
+    {
+        --_depth;
+    }
+
+    virtual bool visit(AST::UiObjectBinding *node)
+    {
+        ++_depth;
+
+        Declaration decl;
+        init(&decl, node);
+
+        decl.text.fill(QLatin1Char(' '), _depth);
+
+        decl.text.append(asString(node->qualifiedId));
+        decl.text.append(QLatin1String(": "));
+
+        if (node->name)
+            decl.text.append(node->name->asString());
+        else
+            decl.text.append(QLatin1Char('?'));
+
+        _declarations.append(decl);
+
+        return true; // search for more bindings
+    }
+
+    virtual void endVisit(AST::UiObjectBinding *)
+    {
+        --_depth;
+    }
+
+    virtual bool visit(AST::UiScriptBinding *node)
+    {
+        ++_depth;
+
+        Declaration decl;
+        init(&decl, node);
+
+        decl.text.fill(QLatin1Char(' '), _depth);
+        decl.text.append(asString(node->qualifiedId));
+
+        _declarations.append(decl);
+
+        return false; // more more bindings in this subtree.
+    }
+
+    virtual void endVisit(AST::UiScriptBinding *)
+    {
+        --_depth;
+    }
 };
 
 class HighlightBindings: protected Visitor
@@ -243,6 +342,9 @@ void ScriptEditor::updateDocumentNow()
             highlightIds.setFormat(highlighter->labelTextCharFormat());
             setExtraSelections(CodeSemanticsSelection, highlightIds(parser.ast()));
         }
+
+        FindDeclarations findDeclarations;
+        m_declarations = findDeclarations(parser.ast());
 
         m_words.clear();
         foreach (const JavaScriptNameIdImpl &id, driver.literals())
