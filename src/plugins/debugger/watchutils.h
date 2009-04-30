@@ -114,7 +114,8 @@ QDebug operator<<(QDebug in, const QtDumperResult &d);
  * 2) Evaluate symbol, taking address and some additional parameters
  *    depending on type. */
 
-class QtDumperHelper {
+class QtDumperHelper
+{
 public:
     enum Debugger {
         GdbDebugger,  // Can evalulate expressions in function calls
@@ -127,7 +128,7 @@ public:
         // Below types require special handling
         QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
         QVectorType, QMapType, QMultiMapType, QMapNodeType,
-        StdVectorType, StdDequeType, StdSetType,StdMapType, StdStackType,
+        StdVectorType, StdDequeType, StdSetType, StdMapType, StdStackType,
         StdStringType
     };
 
@@ -181,16 +182,28 @@ public:
 
     QString toString(bool debug = false) const;
 
-private:    
+    void addSize(const QString &name, int size);
+
+private:        
     typedef QMap<QString, Type> NameTypeMap;
+    typedef QMap<QString, int> SizeCache;
 
     // Look up a simple (namespace) type
     static Type specialType(QString s);
+    QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
+
+    const QString m_stdAllocatorPrefix;
 
     NameTypeMap m_nameTypeMap;
+    SizeCache m_sizeCache;
+    int m_intSize;
+    int m_pointerSize;
+    int m_stdAllocatorSize;
     int m_qtVersion;
     QString m_qtNamespace;
 };
+
+QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);
 
 } // namespace Internal
 } // namespace Debugger

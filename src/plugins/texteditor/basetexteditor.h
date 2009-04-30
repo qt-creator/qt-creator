@@ -143,10 +143,12 @@ public:
 
     inline static bool hasCollapseAfter(const QTextBlock & block)
     {
+        if (!block.isValid())
+            return false;
         TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
         if (data && data->collapseMode() != NoCollapse) {
-            return (data->collapseMode() == CollapseAfter);
-        } else if (!data) {
+            return false;
+        } else if (block.next().isValid()) {
             data = static_cast<TextBlockUserData*>(block.next().userData());
             if (data && data->collapseMode() == TextBlockUserData::CollapseThis &&  !data->m_ifdefedOut)
                 return true;

@@ -3047,11 +3047,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     //int protocol = isDisplayedIName(data.iname) ? 3 : 2;
 
     QString addr;
-    if (data.addr.startsWith(QLatin1String("0x"))) {
+    if (data.addr.startsWith(QLatin1String("0x")))
         addr = QLatin1String("(void*)") + data.addr;
-    } else {
+    else
         addr = QLatin1String("&(") + data.exp + QLatin1Char(')');
-    }
 
     sendWatchParameters(params);
 
@@ -3060,8 +3059,6 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             protocol << ',' << "%1+1"                // placeholder for token
             <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(QLatin1Char(','))) <<  ')';
-
-    qDebug() << "CMD: " << cmd;
 
     QVariant var;
     var.setValue(data);
@@ -3344,7 +3341,7 @@ void GdbEngine::handleQueryDebuggingHelper(const GdbResultRecord &record)
         q->showStatusMessage(tr("%1 custom dumpers found.")
             .arg(m_dumperHelper.typeCount()));
     }
-    qDebug() << m_dumperHelper.toString(true);
+    //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << "DATA DUMPERS AVAILABLE" << m_availableSimpleDebuggingHelpers;
 }
 

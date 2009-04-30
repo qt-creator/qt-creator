@@ -56,6 +56,7 @@
 int qtGhVersion = QT_VERSION;
 
 #ifdef QT_GUI_LIB
+#   include <QtGui/QWidget>
 #   include <QtGui/QPixmap>
 #   include <QtGui/QImage>
 #endif
@@ -2186,6 +2187,44 @@ static void qDumpQVector(QDumper &d)
     d.disarm();
 }
 
+static void qDumpQWeakPointer(QDumper &d)
+{
+    const int v = sizeof(void *);
+    const void *value = deref(addOffset(d.data, v));
+
+    if (isSimpleType(d.innertype)) 
+        qDumpInnerValueHelper(d, d.innertype, value);
+    else
+        P(d, "value", "");
+    P(d, "valuedisabled", "true");
+    P(d, "numchild", 1);
+    if (d.dumpChildren) {
+        d << ",children=[";
+        d.beginHash();
+            P(d, "name", "data");
+            qDumpInnerValue(d, d.innertype, value);
+        d.endHash();
+        d.beginHash();
+            const void *weak = addOffset(deref(d.data), v);
+            P(d, "name", "weakref"); 
+            P(d, "value", *static_cast<const int *>(weak));
+            P(d, "type", "int"); 
+            P(d, "addr",  weak);
+            P(d, "numchild", "0");
+        d.endHash();
+        d.beginHash();
+            const void *strong = addOffset(weak, sizeof(int));
+            P(d, "name", "strongref"); 
+            P(d, "value", *static_cast<const int *>(strong));
+            P(d, "type", "int"); 
+            P(d, "addr",  strong);
+            P(d, "numchild", "0");
+        d.endHash();
+        d << "]";
+    }
+    d.disarm();
+}
+
 static void qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
@@ -2558,16 +2597,6 @@ static void handleProtocolVersion2and3(QDumper & d)
             else if (isEqual(type, "QStringList"))
                 qDumpQStringList(d);
             break;
-        case 'T':
-            if (isEqual(type, "QTextCodec"))
-                qDumpQTextCodec(d);
-            break;
-        case 'V':
-            if (isEqual(type, "QVariant"))
-                qDumpQVariant(d);
-            else if (isEqual(type, "QVector"))
-                qDumpQVector(d);
-            break;
         case 's':
             if (isEqual(type, "wstring"))
                 qDumpStdWString(d);
@@ -2588,6 +2617,19 @@ static void handleProtocolVersion2and3(QDumper & d)
             else if (isEqual(type, "std::wstring"))
                 qDumpStdWString(d);
             break;
+        case 'T':
+            if (isEqual(type, "QTextCodec"))
+                qDumpQTextCodec(d);
+            break;
+        case 'V':
+            if (isEqual(type, "QVariant"))
+                qDumpQVariant(d);
+            else if (isEqual(type, "QVector"))
+                qDumpQVector(d);
+            break;
+        case 'W':
+            if (isEqual(type, "QWeakPointer"))
+                qDumpQWeakPointer(d);
     }
 
     if (!d.success)
@@ -2663,6 +2705,7 @@ void *qDumpObjectData440(
             "\""NS"QTextCodec\","
             "\""NS"QVariant\","
             "\""NS"QVector\","
+            "\""NS"QWeakPointer\","
             "\""NS"QWidget\","
 #ifdef Q_OS_WIN            
             "\"basic_string\","
@@ -2685,7 +2728,25 @@ void *qDumpObjectData440(
             "\"" << ((QT_VERSION >> 16) & 255) << "\","
             "\"" << ((QT_VERSION >> 8)  & 255) << "\","
             "\"" << ((QT_VERSION)       & 255) << "\"]";
-        d << ",namespace=\""NS"\"";
+        d << ",namespace=\""NS"\",";
+//      Dump out size information
+        d << "sizes={";
+        d << "int=\"" << sizeof(int) << "\","
+          << "char*=\"" << sizeof(char*) << "\","
+          << ""NS"QString=\"" << sizeof(QString) << "\","
+          << ""NS"QStringList=\"" << sizeof(QStringList) << "\","
+          << ""NS"QObject=\"" << sizeof(QObject) << "\","
+#ifdef QT_GUI_LIB
+          << ""NS"QWidget=\"" << sizeof(QWidget)<< "\","
+#endif
+#ifdef Q_OS_WIN
+          << "string=\"" << sizeof(std::string) << "\","
+          << "wstring=\"" << sizeof(std::wstring) << "\","
+#endif
+          << "std::string=\"" << sizeof(std::string) << "\","
+          << "std::wstring=\"" << sizeof(std::wstring) << "\","
+          << "std::allocator=\"" << sizeof(std::allocator<int>)
+          << "\"}";
         d.disarm();
     }
 

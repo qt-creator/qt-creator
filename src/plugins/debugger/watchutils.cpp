@@ -166,8 +166,10 @@ bool isPointerType(const QString &type)
 
 bool isAccessSpecifier(const QString &str)
 {
-    static const QStringList items =
-        QStringList() << QLatin1String("private") << QLatin1String("protected") << QLatin1String("public");
+    static const QStringList items = QStringList()
+        << QLatin1String("private")
+        << QLatin1String("protected")
+        << QLatin1String("public");
     return items.contains(str);
 }
 
@@ -326,28 +328,28 @@ static QString quoteUnprintableLatin1(const QByteArray &ba)
     return res;
 }
 
-QString decodeData(const QByteArray &baIn, int encoding)
+QString decodeData(const QByteArray &ba, int encoding)
 {
     switch (encoding) {
         case 0: // unencoded 8 bit data
-            return quoteUnprintableLatin1(baIn);
+            return quoteUnprintableLatin1(ba);
         case 1: { //  base64 encoded 8 bit data, used for QByteArray
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
-            rc += quoteUnprintableLatin1(QByteArray::fromBase64(baIn));
+            rc += quoteUnprintableLatin1(QByteArray::fromBase64(ba));
             rc += doubleQuote;
             return rc;
         }
         case 2: { //  base64 encoded 16 bit data, used for QString
             const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             QString rc = doubleQuote;
             rc += QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
             rc += doubleQuote;
             return rc;
         }
         case 3: { //  base64 encoded 32 bit data
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
             rc += QString::fromUcs4(reinterpret_cast<const uint *>(ba.data()), ba.size() / 4);
@@ -355,7 +357,7 @@ QString decodeData(const QByteArray &baIn, int encoding)
             return rc;
         }
         case 4: { //  base64 encoded 16 bit data, without quotes (see 2)
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             return QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
         }
     }
@@ -374,7 +376,6 @@ QtDumperResult::QtDumperResult() :
     valuedisabled(false),
     childCount(0),
     internal(false)
-
 {
 }
 
@@ -470,6 +471,10 @@ void QtDumperHelper::TypeData::clear()
 
 // ----------------- QtDumperHelper
 QtDumperHelper::QtDumperHelper() :
+    m_stdAllocatorPrefix(QLatin1String("std::allocator")),
+    m_intSize(0),
+    m_pointerSize(0),
+    m_stdAllocatorSize(0),
     m_qtVersion(0)
 {
 }
@@ -479,6 +484,10 @@ void QtDumperHelper::clear()
     m_nameTypeMap.clear();
     m_qtVersion = 0;
     m_qtNamespace.clear();
+    m_sizeCache.clear();
+    m_intSize = 0;
+    m_pointerSize = 0;
+    m_stdAllocatorSize = 0;
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)
@@ -497,6 +506,12 @@ QString QtDumperHelper::toString(bool debug) const
         const NameTypeMap::const_iterator cend = m_nameTypeMap.constEnd();
         for (NameTypeMap::const_iterator it = m_nameTypeMap.constBegin(); it != cend; ++it) {
             str <<",[" << it.key() << ',' << it.value() << ']';
+        }
+        str << "Sizes: intsize=" << m_intSize << " pointer size=" << m_pointerSize
+                << " allocatorsize=" << m_stdAllocatorSize;
+        const SizeCache::const_iterator scend = m_sizeCache.constEnd();
+        for (SizeCache::const_iterator it = m_sizeCache.constBegin(); it != scend; ++it) {
+            str << ' ' << it.key() << '=' << it.value();
         }
         return rc;
     }
@@ -584,7 +599,6 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     return UnknownType;
 }
 
-
 bool QtDumperHelper::needsExpressionSyntax(Type t)
 {
     switch (t) {
@@ -600,7 +614,7 @@ bool QtDumperHelper::needsExpressionSyntax(Type t)
             return true;
         default:
             break;
-        }
+    }
     return false;
 }
 
@@ -638,9 +652,8 @@ void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
         const Type t = specialType(l.at(i));
         if (t != UnknownType) {
             // Exclude types that require expression syntax for CDB
-            if (debugger == GdbDebugger || !needsExpressionSyntax(t)) {
+            if (debugger == GdbDebugger || !needsExpressionSyntax(t))
                 m_nameTypeMap.insert(l.at(i), t);
-            }
         } else {
             m_nameTypeMap.insert(l.at(i), SupportedType);
         }
@@ -654,7 +667,8 @@ void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
  * value="dABoAHIAZQBlAA==",valueencoded="2"}]"
  * Default implementation can be used for debugging purposes. */
 
-class DumperParser {
+class DumperParser
+{
 public:
     explicit DumperParser(const char *s) : m_s(s) {}
     bool run();
@@ -824,6 +838,7 @@ bool DumperParser::handleValue(const char *k, int size)
 
 class QueryDumperParser : public DumperParser {
 public:
+    typedef QPair<QString, int> SizeEntry;
     explicit QueryDumperParser(const char *s);
 
     struct Data {
@@ -831,20 +846,23 @@ public:
         QString qtNameSpace;
         QString qtVersion;
         QStringList types;
+        QList<SizeEntry> sizes;
     };
 
     inline Data data() const { return m_data; }
 
 protected:
     virtual bool handleKeyword(const char *k, int size);
-    virtual bool handleListStart();
+    virtual bool handleListStart();    
     virtual bool handleListEnd();
+    virtual bool handleHashEnd();
     virtual bool handleValue(const char *k, int size);
 
 private:
-    enum Mode { None, ExpectingDumpers, ExpectingVersion, ExpectingNameSpace };
+    enum Mode { None, ExpectingDumpers, ExpectingVersion, ExpectingNameSpace, ExpectingSizes };
     Mode m_mode;
     Data m_data;
+    QString m_lastSizeType;
 };
 
 QueryDumperParser::QueryDumperParser(const char *s) :
@@ -854,7 +872,11 @@ QueryDumperParser::QueryDumperParser(const char *s) :
 }
 
 bool QueryDumperParser::handleKeyword(const char *k, int size)        
-{
+{    
+    if (m_mode == ExpectingSizes) {
+        m_lastSizeType = QString::fromLatin1(k, size);
+        return true;
+    }
     if (!qstrncmp(k, "dumpers", size)) {
         m_mode = ExpectingDumpers;
         return true;
@@ -865,6 +887,10 @@ bool QueryDumperParser::handleKeyword(const char *k, int size)
     }
     if (!qstrncmp(k, "namespace", size)) {
         m_mode = ExpectingNameSpace;
+        return true;
+    }
+    if (!qstrncmp(k, "sizes", size)) {
+        m_mode = ExpectingSizes;
         return true;
     }
     qWarning("%s Unexpected keyword %s.\n", Q_FUNC_INFO, QByteArray(k, size).constData());
@@ -882,21 +908,30 @@ bool QueryDumperParser::handleListEnd()
     return true;
 }
 
+bool QueryDumperParser::handleHashEnd()
+{
+    m_mode = None; // Size hash
+    return true;
+}
+
 bool QueryDumperParser::handleValue(const char *k, int size)
 {
     switch (m_mode) {
-        case None:
+    case None:
         return false;
-        case ExpectingDumpers:
+    case ExpectingDumpers:
         m_data.types.push_back(QString::fromLatin1(k, size));
         break;
-        case ExpectingNameSpace:
+    case ExpectingNameSpace:
         m_data.qtNameSpace = QString::fromLatin1(k, size);
         break;
     case ExpectingVersion: // ["4","1","5"]
         if (!m_data.qtVersion.isEmpty())
             m_data.qtVersion += QLatin1Char('.');
         m_data.qtVersion += QString::fromLatin1(k, size);
+        break;
+    case ExpectingSizes:
+        m_data.sizes.push_back(SizeEntry(m_lastSizeType, QString::fromLatin1(k, size).toInt()));
         break;
     }
     return true;
@@ -905,7 +940,6 @@ bool QueryDumperParser::handleValue(const char *k, int size)
 // parse a query
 bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
 {
-
     QueryDumperParser parser(data);
     if (!parser.run())
         return false;
@@ -913,7 +947,37 @@ bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
     m_qtNamespace = parser.data().qtNameSpace;
     setQtVersion(parser.data().qtVersion);
     parseQueryTypes(parser.data().types, debugger);
+    foreach (const QueryDumperParser::SizeEntry &se, parser.data().sizes)
+        addSize(se.first, se.second);
     return true;
+}
+
+void QtDumperHelper::addSize(const QString &name, int size)
+{
+    // Special interest cases
+    do {
+        if (name == QLatin1String("char*")) {
+            m_pointerSize = size;
+            break;
+        }
+        if (name == QLatin1String("int")) {
+            m_intSize = size;
+            break;
+        }
+        if (name.startsWith(m_stdAllocatorPrefix)) {
+            m_stdAllocatorSize = size;
+            break;
+        }
+        if (name == QLatin1String("std::string")) {
+            m_sizeCache.insert(QLatin1String("std::basic_string<char,std::char_traits<char>,std::allocator<char>>"), size);
+            break;
+        }
+        if (name == QLatin1String("std::wstring")) {
+            m_sizeCache.insert(QLatin1String("std::basic_string<unsigned short,std::char_traits<unsignedshort>,std::allocator<unsignedshort> >"), size);
+            break;
+        }
+    } while (false);
+    m_sizeCache.insert(name, size);
 }
 
 QtDumperHelper::Type QtDumperHelper::type(const QString &typeName) const
@@ -941,9 +1005,26 @@ QtDumperHelper::TypeData QtDumperHelper::typeData(const QString &typeName) const
     return td;
 }
 
+// Format an expression to have the debugger query the
+// size. Use size cache if possible
+QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
+                                                       Debugger /* debugger */) const
+{
+    // Look up fixed types
+    if (m_pointerSize && isPointerType(typeName))
+        return QString::number(m_pointerSize);
+    if (m_stdAllocatorSize && typeName.startsWith(m_stdAllocatorPrefix))
+        return QString::number(m_stdAllocatorSize);
+    const SizeCache::const_iterator sit = m_sizeCache.constFind(typeName);
+    if (sit != m_sizeCache.constEnd())
+        return QString::number(sit.value());
+    // Finally have the debugger evaluate
+    return sizeofTypeExpression(typeName);
+}
+
 void QtDumperHelper::evaluationParameters(const WatchData &data,
                                           const TypeData &td,
-                                          Debugger /* debugger */,
+                                          Debugger debugger,
                                           QByteArray *inBuffer,
                                           QStringList *extraArgsIn) const
 {
@@ -970,7 +1051,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         // gives already most information the dumpers need
         const int count = qMin(int(maxExtraArgCount), inners.size());
         for (int i = 0; i < count; i++)
-            extraArgs.push_back(sizeofTypeExpression(inners.at(i)));
+            extraArgs.push_back(evaluationSizeofTypeExpression(inners.at(i), debugger));
     }
     int extraArgCount = extraArgs.size();
     // Pad with zeros
@@ -1019,14 +1100,14 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             }
             //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
             //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
-            extraArgs[2] = sizeofTypeExpression(nodetype);
+            extraArgs[2] = evaluationSizeofTypeExpression(nodetype, debugger);
             extraArgs[3] = QLatin1String("(size_t)&(('");
             extraArgs[3] += nodetype;
             extraArgs[3] += QLatin1String("'*)0)->value");
         }
         break;
             case QMapNodeType:
-        extraArgs[2] = sizeofTypeExpression(data.type);
+        extraArgs[2] = evaluationSizeofTypeExpression(data.type, debugger);
         extraArgs[3] = QLatin1String("(size_t)&(('");
         extraArgs[3] += data.type;
         extraArgs[3] += QLatin1String("'*)0)->value");
@@ -1036,7 +1117,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         if (inners.at(0) == QLatin1String("bool")) {
             outertype = QLatin1String("std::vector::bool");
         } else {
-            //extraArgs[extraArgCount++] = sizeofTypeExpression(data.type);
+            //extraArgs[extraArgCount++] = evaluationSizeofTypeExpression(data.type, debugger);
             //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
         break;
@@ -1101,11 +1182,13 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
 
 /* Parse value:
  * "iname="local.sl",addr="0x0012BA84",value="<3 items>",valuedisabled="true",
- * numchild="3",childtype="QString",childnumchild="0",children=[{name="0",value="<binhex>",
- * valueencoded="2"},{name="1",value="dAB3AG8A",valueencoded="2"},{name="2",
- * value="dABoAHIAZQBlAA==",valueencoded="2"}]" */
+ * numchild="3",childtype="QString",childnumchild="0",
+ * children=[{name="0",value="<binhex>",valueencoded="2"},
+ * {name="1",value="dAB3AG8A",valueencoded="2"},
+ * {name="2",value="dABoAHIAZQBlAA==",valueencoded="2"}]" */
 
-class ValueDumperParser : public DumperParser {
+class ValueDumperParser : public DumperParser
+{
 public:
     explicit ValueDumperParser(const char *s);
 
@@ -1258,6 +1341,15 @@ bool QtDumperHelper::parseValue(const char *data, QtDumperResult *r)
         return false;
     *r = parser.result();
     return true;
+}
+
+QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d)
+{
+    QDebug nsp = in.nospace();
+    nsp << " type=" << d.type << " tpl=" << d.isTemplate;
+    if (d.isTemplate)
+        nsp << d.tmplate << '<' << d.inner << '>';
+    return in;
 }
 
 }
