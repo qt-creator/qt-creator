@@ -59,6 +59,7 @@ enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
 };
 
+using namespace JavaScript;
 using namespace JavaScript::AST;
 
 
@@ -70,68 +71,18 @@ class FindDeclarations: protected Visitor
     QList<Declaration> declarations;
 
 public:
-    QList<Declaration> accept(JavaScript::AST::Node *node)
+    QList<Declaration> operator()(AST::Node *node)
     {
-        JavaScript::AST::Node::acceptChild(node, this);
+        declarations.clear();
+        accept(node);
         return declarations;
     }
 
 protected:
     using Visitor::visit;
 
-    virtual bool visit(FunctionExpression *)
-    {
-        return false;
-    }
-
-    virtual bool visit(FunctionDeclaration *ast)
-    {
-        if (! ast->name)
-            return false;
-
-        QString text = ast->name->asString();
-
-        text += QLatin1Char('(');
-        for (FormalParameterList *it = ast->formals; it; it = it->next) {
-            if (it->name)
-                text += it->name->asString();
-
-            if (it->next)
-                text += QLatin1String(", ");
-        }
-
-        text += QLatin1Char(')');
-
-        Declaration d;
-        d.text = text;
-#if 0 // ### FIXME
-        d.startLine = ast->startLine;
-        d.startColumn = ast->startColumn;
-        d.endLine = ast->endLine;
-        d.endColumn = ast->endColumn;
-#endif
-
-        declarations.append(d);
-
-        return false;
-    }
-
-    virtual bool visit(VariableDeclaration *ast)
-    {
-        if (! ast->name)
-            return false;
-
-        Declaration d;
-        d.text = ast->name->asString();
-#if 0 // ### FIXME
-        d.startLine= ast->startLine;
-        d.startColumn = ast->startColumn;
-        d.endLine = ast->endLine;
-        d.endColumn = ast->endColumn;
-#endif
-        declarations.append(d);
-        return false;
-    }
+    void accept(AST::Node *node)
+    { AST::Node::acceptChild(node, this); }
 };
 
 ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int>& context)
@@ -207,16 +158,16 @@ void ScriptEditor::updateDocumentNow()
     JavaScriptParser parser;
     JavaScriptEnginePrivate driver;
 
-    JavaScript::NodePool nodePool(fileName, &driver);
+    NodePool nodePool(fileName, &driver);
     driver.setNodePool(&nodePool);
 
-    JavaScript::Lexer lexer(&driver);
+    Lexer lexer(&driver);
     lexer.setCode(code, /*line = */ 1);
     driver.setLexer(&lexer);
 
     if (parser.parse(&driver)) {
         FindDeclarations decls;
-        m_declarations = decls.accept(driver.ast());
+        m_declarations = decls(parser.ast());
 
         m_words.clear();
         foreach (const JavaScriptNameIdImpl &id, driver.literals())
