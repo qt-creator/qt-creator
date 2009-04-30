@@ -27,6 +27,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "gdbengine.h"
 #include "gdboptionspage.h"
 
@@ -471,8 +473,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             QByteArray data = GdbMi::parseCString(from, to);
             m_pendingConsoleStreamOutput += data;
             if (data.startsWith("Reading symbols from ")) {
-                q->showStatusMessage(tr("Reading ")
-                    + _(data.mid(21)));
+                q->showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))));
             }
             break;
         }
@@ -1188,16 +1189,13 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         qq->notifyInferiorExited();
         QString msg;
         if (reason == "exited") {
-            msg = "Program exited with exit code "
-                + _(data.findChild("exit-code").toString());
-        } else if (reason == "exited-signalled") {
-            msg = "Program exited after receiving signal "
-                + _(data.findChild("signal-name").toString());
-        } else if (reason == "signal-received") {
-            msg = "Program exited after receiving signal "
-                + _(data.findChild("signal-name").toString());
+            msg = tr("Program exited with exit code %1")
+                .arg(_(data.findChild("exit-code").toString()));
+        } else if (reason == "exited-signalled" || reason == "signal-received") {
+            msg = tr("Program exited after receiving signal %1")
+                .arg(_(data.findChild("signal-name").toString()));
         } else {
-            msg = "Program exited normally";
+            msg = tr("Program exited normally");
         }
         q->showStatusMessage(msg);
         sendCommand(_("-gdb-exit"), GdbExit);
@@ -2565,7 +2563,8 @@ void GdbEngine::handleModulesList(const GdbResultRecord &record)
                 module.moduleName = QString::fromLocal8Bit(item.findChild("path").data());
                 module.symbolsRead = (item.findChild("state").data() == "Y");
                 module.startAddress = _(item.findChild("loaded_addr").data());
-                module.endAddress = _("<unknown>");
+                //: End address of loaded module
+                module.endAddress = tr("<unknown>");
                 modules.append(module);
             }
         }
@@ -2932,7 +2931,9 @@ void GdbEngine::setToolTipExpression(const QPoint &pos, const QString &exp0)
 //
 //////////////////////////////////////////////////////////////////////
 
-static const QString strNotInScope = _("<not in scope>");
+//: Variable
+static const QString strNotInScope =
+        QApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
 
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
@@ -3615,6 +3616,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
     //qDebug() << "RECEIVED" << record.toString() << " FOR " << data0.toString()
     //    <<  " STREAM: " << out;
     if (list.isEmpty()) {
+        //: Value for variable
         data.setValue(tr("<unavailable>"));
         data.setAllUnneeded();
         insertData(data);
@@ -3629,6 +3631,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
         insertData(data);
     } else if (data.type == __("QStringList") || data.type.endsWith(__("::QStringList"))) {
         int l = list.size();
+        //: In string list
         data.setValue(tr("<%1 items>").arg(l));
         data.setChildCount(list.size());
         data.setAllUnneeded();
@@ -3648,6 +3651,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResultRecord &record,
             sendSynchronizedCommand(cmd, WatchDebuggingHelperValue3, var);
         }
     } else {
+        //: Value for variable
         data.setValue(tr("<unavailable>"));
         data.setAllUnneeded();
         insertData(data);
@@ -3743,10 +3747,12 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             WatchData data;
             QString nam = _(name);
             data.iname = _("local.") + nam + QString::number(n + 1);
+            //: Variable %1 <FIXME: does something - bug Andre about it>
             data.name = tr("%1 <shadowed %2>").arg(nam, n);
             //data.setValue("<shadowed>");
             setWatchDataValue(data, item.findChild("value"));
-            data.setType(_("<shadowed>"));
+            //: Type of variable <FIXME: what? bug Andre about it>
+            data.setType(tr("<shadowed>"));
             data.setChildCount(0);
             insertData(data);
         } else {
@@ -3905,7 +3911,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
             data.exp = parent.exp;
             data.name = tr("<n/a>");
             data.iname = parent.iname + _(".@");
-            data.type = _("<anonymous union>");
+            data.type = tr("<anonymous union>");
         } else {
             // A structure. Hope there's nothing else...
             data.exp = parent.exp + _c('.') + data.name;
@@ -3942,6 +3948,7 @@ void GdbEngine::handleVarListChildren(const GdbResultRecord &record,
             // if the class really has no children
             WatchData data1;
             data1.iname = data.iname + _(".child");
+            //: About variable's value
             data1.value = tr("<no information>");
             data1.childCount = 0;
             data1.setAllUnneeded();
@@ -3975,7 +3982,7 @@ void GdbEngine::handleToolTip(const GdbResultRecord &record,
         if (what == "evaluate") {
             QByteArray msg = record.data.findChild("msg").data();
             if (msg.startsWith("Cannot look up value of a typedef")) {
-                m_toolTip.value = m_toolTip.exp + " is a typedef.";
+                m_toolTip.value = tr("%1 is a typedef.").arg(m_toolTip.exp);
                 //return;
             }
         }
