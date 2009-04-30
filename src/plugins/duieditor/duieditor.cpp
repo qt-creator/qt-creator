@@ -218,15 +218,11 @@ protected:
         _selections.append(sel);
     }
 
-    void highlight(AST::UiQualifiedId *qualifiedId)
+    void highlight(AST::UiQualifiedId *id)
     {
-        AST::UiQualifiedId *last = qualifiedId;
-        for (; last; last = last->next) {
-            if (! last->next)
-                break;
+        for (; id; id = id->next) {
+            highlight(id->identifierToken.begin(), id->identifierToken.end());
         }
-        highlight(qualifiedId->identifierToken.begin(),
-                  last->identifierToken.end());
     }
 
     virtual bool visit(AST::UiScriptBinding *node)
