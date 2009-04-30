@@ -70,6 +70,12 @@ public:
     bool hasFocus();
     void setFocus();
 
+    bool canNext();
+    bool canPrevious();
+    void goToNext();
+    void goToPrev();
+    bool canNavigate();
+
     void appendOutput(const QString &out);
 
     // ApplicationOutputspecifics

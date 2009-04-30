@@ -35,6 +35,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
 
@@ -102,6 +103,7 @@ void SearchResultWindow::clearContents()
     m_searchResultTreeView->clear();
     qDeleteAll(m_items);
     m_items.clear();
+    navigateStateChanged();
 }
 
 void SearchResultWindow::showNoMatchesFound()
@@ -160,8 +162,8 @@ ResultWindowItem *SearchResultWindow::addResult(const QString &fileName, int lin
         // We didn't have an item before, set the focus to the m_searchResultTreeView
         m_searchResultTreeView->setFocus();
         m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
+        emit navigateStateChanged();
     }
-
     return item;
 }
 
@@ -197,4 +199,40 @@ void SearchResultWindow::writeSettings()
 int SearchResultWindow::priorityInStatusBar() const
 {
     return 80;
+}
+
+bool SearchResultWindow::canNext()
+{
+    return m_searchResultTreeView->model()->rowCount();
+}
+
+bool SearchResultWindow::canPrevious()
+{
+    return m_searchResultTreeView->model()->rowCount();
+}
+
+void SearchResultWindow::goToNext()
+{
+    if (!m_searchResultTreeView->model()->rowCount())
+        return;
+    QModelIndex idx = m_searchResultTreeView->model()->next(m_searchResultTreeView->currentIndex());
+    if (idx.isValid()) {
+        m_searchResultTreeView->setCurrentIndex(idx);
+        m_searchResultTreeView->emitJumpToSearchResult(idx);
+    }
+}
+void SearchResultWindow::goToPrev()
+{
+    if (!m_searchResultTreeView->model()->rowCount())
+        return;
+    QModelIndex idx = m_searchResultTreeView->model()->prev(m_searchResultTreeView->currentIndex());
+    if (idx.isValid()) {
+        m_searchResultTreeView->setCurrentIndex(idx);
+        m_searchResultTreeView->emitJumpToSearchResult(idx);
+    }
+}
+
+bool SearchResultWindow::canNavigate()
+{
+    return true;
 }

@@ -39,6 +39,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
 class QToolButton;
+class QToolBar;
 class QStackedWidget;
 class QPushButton;
 QT_END_NAMESPACE
@@ -89,6 +90,8 @@ public:
 
 public slots:
     void slotHide();
+    void slotNext();
+    void slotPrev();
     void shortcutTriggered();
 
 protected:
@@ -101,6 +104,7 @@ private slots:
     void clearPage();
     void updateToolTip();
     void buttonTriggered();
+    void updateNavigateState();
 
 private:
     // the only class that is allowed to create and destroy
@@ -118,13 +122,18 @@ private:
     QComboBox *m_widgetComboBox;
     QToolButton *m_clearButton;
     QToolButton *m_closeButton;
+
+    QAction *m_nextAction;
+    QAction *m_prevAction;
     QAction *m_closeAction;
+    QToolBar *m_toolBar;
 
     QMap<int, Core::IOutputPane*> m_pageMap;
     int m_lastIndex;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
+    QAction *m_opToolBarAction;
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;

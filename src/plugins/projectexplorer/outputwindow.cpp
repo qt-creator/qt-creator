@@ -305,6 +305,30 @@ RunControl* OutputPane::runControlForTab(int index) const
     return m_outputWindows.key(qobject_cast<OutputWindow *>(m_tabWidget->widget(index)));
 }
 
+bool OutputPane::canNext()
+{
+    return false;
+}
+
+bool OutputPane::canPrevious()
+{
+    return false;
+}
+
+void OutputPane::goToNext()
+{
+
+}
+
+void OutputPane::goToPrev()
+{
+
+}
+
+bool OutputPane::canNavigate()
+{
+    return false;
+}
 
 /*******************/
 

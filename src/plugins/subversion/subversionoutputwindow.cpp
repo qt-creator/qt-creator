@@ -100,3 +100,28 @@ bool SubversionOutputWindow::hasFocus()
 void SubversionOutputWindow::setFocus()
 {
 }
+
+bool SubversionOutputWindow::canNext()
+{
+    return false;
+}
+
+bool SubversionOutputWindow::canPrevious()
+{
+    return false;
+}
+
+void SubversionOutputWindow::goToNext()
+{
+
+}
+
+void SubversionOutputWindow::goToPrev()
+{
+
+}
+
+bool SubversionOutputWindow::canNavigate()
+{
+    return false;
+}

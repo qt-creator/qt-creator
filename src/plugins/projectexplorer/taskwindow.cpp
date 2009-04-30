@@ -319,6 +319,7 @@ void TaskWindow::clearContents()
     m_model->clear();
     m_copyAction->setEnabled(false);
     emit tasksChanged();
+    navigateStateChanged();
 }
 
 void TaskWindow::visibilityChanged(bool /* b */)
@@ -333,6 +334,8 @@ void TaskWindow::addItem(ProjectExplorer::BuildParserInterface::PatternType type
         ++m_errorCount;
     m_copyAction->setEnabled(true);
     emit tasksChanged();
+    if (m_model->rowCount() == 1)
+        navigateStateChanged();
 }
 
 void TaskWindow::showTaskInFile(const QModelIndex &index)
@@ -406,8 +409,6 @@ bool TaskWindow::canFocus()
     return m_model->rowCount();
 }
 
-#include <QDebug>
-
 void TaskWindow::setFocus()
 {
     if (m_model->rowCount()) {
@@ -416,6 +417,55 @@ void TaskWindow::setFocus()
             m_listview->setCurrentIndex(m_model->index(0,0, QModelIndex()));
         }
     }
+}
+
+bool TaskWindow::canNext()
+{
+    return m_model->rowCount();
+}
+
+bool TaskWindow::canPrevious()
+{
+    return m_model->rowCount();
+}
+
+void TaskWindow::goToNext()
+{
+    if (!m_model->rowCount())
+        return;
+    QModelIndex currentIndex = m_listview->currentIndex();
+    if (currentIndex.isValid()) {
+        int row = currentIndex.row() + 1;
+        if (row == m_model->rowCount())
+            row = 0;
+        currentIndex = m_model->index(row, 0);
+    } else {
+        currentIndex = m_model->index(0, 0);
+    }
+    m_listview->setCurrentIndex(currentIndex);
+    showTaskInFile(currentIndex);
+}
+
+void TaskWindow::goToPrev()
+{
+    if (!m_model->rowCount())
+        return;
+    QModelIndex currentIndex = m_listview->currentIndex();
+    if (currentIndex.isValid()) {
+        int row = currentIndex.row() -1;
+        if (row < 0)
+            row = m_model->rowCount() - 1;
+        currentIndex = m_model->index(row, 0);
+    } else {
+        currentIndex = m_model->index(m_model->rowCount()-1, 0);
+    }
+    m_listview->setCurrentIndex(currentIndex);
+    showTaskInFile(currentIndex);
+}
+
+bool TaskWindow::canNavigate()
+{
+    return true;
 }
 
 /////
