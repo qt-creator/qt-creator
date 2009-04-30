@@ -114,6 +114,22 @@ private:
     const QString *a;
 };
 
+
+template <>
+class QStringBuilder<char>
+{
+public:
+    QStringBuilder(char c_) : c(c_) {}
+
+    inline int size() const { return 1; }
+    inline void append(QChar *&out) const { *out++ = QLatin1Char(c); }
+
+private:
+    const char c;
+};
+
+
+
 template <class A, class B>
 class QStringBuilderPair
 {
@@ -134,6 +150,9 @@ operator%(const A &a, const B &b)
     return QStringBuilderPair<A, B> (a, b);
 }
 
+
+// QString related specializations
+
 template <class A>
 inline QStringBuilder< QStringBuilderPair<A, QStringBuilder<QString> > >
 operator%(const A &a, const QString &b)
@@ -148,15 +167,40 @@ operator%(const QString &a, const B &b)
     return QStringBuilderPair<QStringBuilder<QString>, B> (a, b);
 }
 
-
 inline QStringBuilder<
-    QStringBuilderPair<QStringBuilder<QString>,
-    QStringBuilder<QString> >
+    QStringBuilderPair<QStringBuilder<QString>, QStringBuilder<QString> >
 >
 operator%(const QString &a, const QString &b)
 {
     return QStringBuilderPair< QStringBuilder<QString>,
         QStringBuilder<QString> > (a, b);
 }
+
+// char related specializations
+
+template <class A>
+inline QStringBuilder< QStringBuilderPair<A, QStringBuilder<char> > >
+operator%(const A &a, char b)
+{
+    return QStringBuilderPair<A, QStringBuilder<char> > (a, b);
+}
+
+template <class B>
+inline QStringBuilder< QStringBuilderPair<QStringBuilder<char>, B> >
+operator%(char a, const B &b)
+{
+    return QStringBuilderPair<QStringBuilder<QString>, B> (a, b);
+}
+
+inline QStringBuilder<
+    QStringBuilderPair<QStringBuilder<QString>, QStringBuilder<char> >
+>
+operator%(const QString &a, char b)
+{
+    return QStringBuilderPair<
+               QStringBuilder<QString>, QStringBuilder<char>
+           > (a, b);
+}
+
 
 #endif // QSTRINGBUILDER_H
