@@ -3889,12 +3889,14 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
             data.setChildrenUnneeded();
 
         data.name = _(exp);
-        if (isPointerType(parent.type) && data.type == data.name) {
-            data.exp = _("*(") + parent.exp + _c(')');
-            data.name = _("*") + parent.name;
-        } else if (data.type == data.name) {
-            // A type we derive from? gdb crashes when creating variables here
-            data.exp = parent.exp;
+        if (data.type == data.name) {
+            if (isPointerType(parent.type)) {
+                data.exp = _("*(") + parent.exp + _c(')');
+                data.name = _("*") + parent.name;
+            } else {
+                // A type we derive from? gdb crashes when creating variables here
+                data.exp = parent.exp;
+            }
         } else if (exp.startsWith("*")) {
             // A pointer
             data.exp = _("*(") + parent.exp + _c(')');
