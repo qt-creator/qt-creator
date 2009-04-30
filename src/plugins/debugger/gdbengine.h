@@ -140,7 +140,7 @@ private:
     //
 
     int currentFrame() const;
-    QString currentWorkingDirectory() const { return m_pwd; }
+    //QString currentWorkingDirectory() const { return m_pwd; }
 
     bool supportsThreads() const;
 
@@ -220,7 +220,7 @@ private:
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingTargetStreamOutput;
     QByteArray m_pendingLogStreamOutput;
-    QString m_pwd;
+    //QString m_pwd;
 
     // contains the first token number for the current round
     // of evaluation. Responses with older tokens are considers

@@ -101,7 +101,7 @@ enum GdbCommandType
 
     GdbShowVersion = 100,
     GdbFileExecAndSymbols,
-    GdbQueryPwd,
+    //GdbQueryPwd,
     GdbQuerySources,
     GdbAsyncOutput2,
     GdbStart,
@@ -785,9 +785,11 @@ void GdbEngine::handleResult(const GdbResultRecord & record, int type,
         case GdbExecJumpToLine:
             handleExecJumpToLine(record);
             break;
+#if 0
         case GdbQueryPwd:
             handleQueryPwd(record);
             break;
+#endif
         case GdbQuerySources:
             handleQuerySources(record);
             break;
@@ -971,6 +973,7 @@ void GdbEngine::handleTargetCore(const GdbResultRecord &record)
     );
 }
 
+#if 0
 void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
 {
     // FIXME: remove this special case as soon as 'pwd'
@@ -989,6 +992,7 @@ void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
             m_pwd.chop(1);
 #endif
 #ifdef Q_OS_WIN
+        FIXME: this is broken
         // ~"Working directory C:\\Users\\Thomas\\Documents\\WBTest3\\debug.\n"
         m_pwd = record.data.findChild("consolestreamoutput").data();
         m_pwd = m_pwd.trimmed();
@@ -996,6 +1000,7 @@ void GdbEngine::handleQueryPwd(const GdbResultRecord &record)
         debugMessage("PWD RESULT: " + m_pwd);
     }
 }
+#endif
 
 void GdbEngine::handleQuerySources(const GdbResultRecord &record)
 {
@@ -1670,7 +1675,7 @@ bool GdbEngine::startDebugger()
     //sendCommand("handle SIGTERM pass nostop print");
 
     sendCommand("set unwindonsignal on");
-    sendCommand("pwd", GdbQueryPwd);
+    //sendCommand("pwd", GdbQueryPwd);
     sendCommand("set width 0");
     sendCommand("set height 0");
 
