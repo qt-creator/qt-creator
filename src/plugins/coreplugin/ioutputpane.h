@@ -64,6 +64,12 @@ public:
     // Wheter the outputpane can be focused at the moment.
     // (E.g. the search result window doesn't want to be focussed if the are no results.)
     virtual bool canFocus() = 0;
+
+    virtual bool canNavigate() = 0;
+    virtual bool canNext() = 0;
+    virtual bool canPrevious() = 0;
+    virtual void goToNext() = 0;
+    virtual void goToPrev() = 0;
 public slots:
     void popup()
     {
@@ -89,10 +95,16 @@ public slots:
         emit togglePage(withFocusIfShown);
     }
 
+    void navigateStateChanged()
+    {
+        emit navigateStateUpdate();
+    }
+
 signals:
     void showPage(bool withFocus);
     void hidePage();
     void togglePage(bool withFocusIfShown);
+    void navigateStateUpdate();
 };
 
 } // namespace Core

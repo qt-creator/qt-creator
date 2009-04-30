@@ -117,3 +117,27 @@ int GitOutputWindow::priorityInStatusBar() const
 {
     return -1;
 }
+
+bool GitOutputWindow::canNext()
+{
+    return false;
+}
+
+bool GitOutputWindow::canPrevious()
+{
+    return false;
+}
+
+void GitOutputWindow::goToNext()
+{
+}
+
+void GitOutputWindow::goToPrev()
+{
+
+}
+
+bool GitOutputWindow::canNavigate()
+{
+    return false;
+}

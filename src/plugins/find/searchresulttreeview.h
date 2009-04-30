@@ -48,6 +48,8 @@ public:
     void setAutoExpandResults(bool expand);
     void setTextEditorFont(const QFont &font);
 
+    SearchResultTreeModel *model() const;
+
 signals:
     void jumpToSearchResult(int index, const QString &fileName, int lineNumber,
                             int searchTermStart, int searchTermLength);
@@ -56,8 +58,6 @@ public slots:
     void clear();
     void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &lineText,
                           int searchTermStart, int searchTermLength);
-
-private slots:
     void emitJumpToSearchResult(const QModelIndex &index);
 
 protected:

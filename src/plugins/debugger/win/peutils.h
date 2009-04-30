@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef PEUTILS_H
-#define PEUTILS_H
+#ifndef DEBUGGER_PEUTILS_H
+#define DEBUGGER_PEUTILS_H
 
 #include <QtCore/qnamespace.h>
 
@@ -45,7 +45,7 @@ namespace Internal {
 // Return a list of Program-Database (*.pdb) files a PE executable refers to. */
 bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage);
 
-}
-}
+} // namespace Internal 
+} // namespace Debugger
 
-#endif // PEUTILS_H
+#endif // DEBUGGER_PEUTILS_H

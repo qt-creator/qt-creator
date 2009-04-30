@@ -3047,11 +3047,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     //int protocol = isDisplayedIName(data.iname) ? 3 : 2;
 
     QString addr;
-    if (data.addr.startsWith(QLatin1String("0x"))) {
+    if (data.addr.startsWith(QLatin1String("0x")))
         addr = QLatin1String("(void*)") + data.addr;
-    } else {
+    else
         addr = QLatin1String("&(") + data.exp + QLatin1Char(')');
-    }
 
     sendWatchParameters(params);
 

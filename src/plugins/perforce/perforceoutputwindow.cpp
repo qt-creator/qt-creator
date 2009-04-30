@@ -159,3 +159,28 @@ int PerforceOutputWindow::priorityInStatusBar() const
 {
     return -1;
 }
+
+bool PerforceOutputWindow::canNext()
+{
+    return false;
+}
+
+bool PerforceOutputWindow::canPrevious()
+{
+    return false;
+}
+
+void PerforceOutputWindow::goToNext()
+{
+
+}
+
+void PerforceOutputWindow::goToPrev()
+{
+
+}
+
+bool PerforceOutputWindow::canNavigate()
+{
+    return false;
+}

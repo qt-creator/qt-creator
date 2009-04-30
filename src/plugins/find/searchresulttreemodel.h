@@ -57,6 +57,9 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    QModelIndex next(const QModelIndex &idx) const;
+    QModelIndex prev(const QModelIndex &idx) const;
+
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
                             int searchTermStart, int searchTermLength);

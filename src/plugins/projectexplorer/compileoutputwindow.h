@@ -57,6 +57,12 @@ public:
     bool hasFocus();
     void setFocus();
 
+    bool canNext();
+    bool canPrevious();
+    void goToNext();
+    void goToPrev();
+    bool canNavigate();
+
 private:
     QPlainTextEdit *m_textEdit;
 };

@@ -166,8 +166,10 @@ bool isPointerType(const QString &type)
 
 bool isAccessSpecifier(const QString &str)
 {
-    static const QStringList items =
-        QStringList() << QLatin1String("private") << QLatin1String("protected") << QLatin1String("public");
+    static const QStringList items = QStringList()
+        << QLatin1String("private")
+        << QLatin1String("protected")
+        << QLatin1String("public");
     return items.contains(str);
 }
 
@@ -326,28 +328,28 @@ static QString quoteUnprintableLatin1(const QByteArray &ba)
     return res;
 }
 
-QString decodeData(const QByteArray &baIn, int encoding)
+QString decodeData(const QByteArray &ba, int encoding)
 {
     switch (encoding) {
         case 0: // unencoded 8 bit data
-            return quoteUnprintableLatin1(baIn);
+            return quoteUnprintableLatin1(ba);
         case 1: { //  base64 encoded 8 bit data, used for QByteArray
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
-            rc += quoteUnprintableLatin1(QByteArray::fromBase64(baIn));
+            rc += quoteUnprintableLatin1(QByteArray::fromBase64(ba));
             rc += doubleQuote;
             return rc;
         }
         case 2: { //  base64 encoded 16 bit data, used for QString
             const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             QString rc = doubleQuote;
             rc += QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
             rc += doubleQuote;
             return rc;
         }
         case 3: { //  base64 encoded 32 bit data
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
             rc += QString::fromUcs4(reinterpret_cast<const uint *>(ba.data()), ba.size() / 4);
@@ -355,7 +357,7 @@ QString decodeData(const QByteArray &baIn, int encoding)
             return rc;
         }
         case 4: { //  base64 encoded 16 bit data, without quotes (see 2)
-            const QByteArray ba = QByteArray::fromBase64(baIn);
+            const QByteArray ba = QByteArray::fromBase64(ba);
             return QString::fromUtf16(reinterpret_cast<const ushort *>(ba.data()), ba.size() / 2);
         }
     }
@@ -374,7 +376,6 @@ QtDumperResult::QtDumperResult() :
     valuedisabled(false),
     childCount(0),
     internal(false)
-
 {
 }
 
@@ -598,7 +599,6 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     return UnknownType;
 }
 
-
 bool QtDumperHelper::needsExpressionSyntax(Type t)
 {
     switch (t) {
@@ -614,7 +614,7 @@ bool QtDumperHelper::needsExpressionSyntax(Type t)
             return true;
         default:
             break;
-        }
+    }
     return false;
 }
 
@@ -652,9 +652,8 @@ void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
         const Type t = specialType(l.at(i));
         if (t != UnknownType) {
             // Exclude types that require expression syntax for CDB
-            if (debugger == GdbDebugger || !needsExpressionSyntax(t)) {
+            if (debugger == GdbDebugger || !needsExpressionSyntax(t))
                 m_nameTypeMap.insert(l.at(i), t);
-            }
         } else {
             m_nameTypeMap.insert(l.at(i), SupportedType);
         }
@@ -668,7 +667,8 @@ void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
  * value="dABoAHIAZQBlAA==",valueencoded="2"}]"
  * Default implementation can be used for debugging purposes. */
 
-class DumperParser {
+class DumperParser
+{
 public:
     explicit DumperParser(const char *s) : m_s(s) {}
     bool run();
@@ -1182,11 +1182,13 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
 
 /* Parse value:
  * "iname="local.sl",addr="0x0012BA84",value="<3 items>",valuedisabled="true",
- * numchild="3",childtype="QString",childnumchild="0",children=[{name="0",value="<binhex>",
- * valueencoded="2"},{name="1",value="dAB3AG8A",valueencoded="2"},{name="2",
- * value="dABoAHIAZQBlAA==",valueencoded="2"}]" */
+ * numchild="3",childtype="QString",childnumchild="0",
+ * children=[{name="0",value="<binhex>",valueencoded="2"},
+ * {name="1",value="dAB3AG8A",valueencoded="2"},
+ * {name="2",value="dABoAHIAZQBlAA==",valueencoded="2"}]" */
 
-class ValueDumperParser : public DumperParser {
+class ValueDumperParser : public DumperParser
+{
 public:
     explicit ValueDumperParser(const char *s);
 

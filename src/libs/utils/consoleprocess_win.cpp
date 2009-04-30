@@ -69,7 +69,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
 
     QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(tr("Cannot set up comm channel: %1").arg(err));
+        emit processError(tr("Cannot set up communication channel: %1").arg(err));
         return false;
     }
 
@@ -77,7 +77,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(tr("Cannot create temp file: %1").arg(m_tempFile->errorString()));
+            emit processError(tr("Cannot create temporary file: %1").arg(m_tempFile->errorString()));
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -180,10 +180,10 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processError(tr("Cannot change to working directory %1: %2")
+            emit processError(tr("Cannot change to working directory '%1': %2")
                               .arg(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(tr("Cannot execute %1: %2")
+            emit processError(tr("Cannot execute '%1': %2")
                               .arg(m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
             // Will not need it any more

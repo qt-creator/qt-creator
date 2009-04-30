@@ -130,7 +130,8 @@ private:
 };
 
 // Helper to a sequence of  WatchData into a list.
-class WatchDataBackInserter {
+class WatchDataBackInserter
+{
 public:
     explicit WatchDataBackInserter(QList<WatchData> &wh) : m_wh(wh) {}
 

@@ -31,6 +31,7 @@
 #include "cdbdebugengine_p.h"
 #include "watchhandler.h"
 #include "watchutils.h"
+
 #include <QtCore/QTextStream>
 
 enum { debug = 0 };
@@ -40,7 +41,10 @@ static inline QString msgSymbolNotFound(const QString &s)
     return QString::fromLatin1("The symbol '%1' could not be found.").arg(s);
 }
 
-static inline bool isTopLevelSymbol(const DEBUG_SYMBOL_PARAMETERS &p) { return p.ParentSymbol == DEBUG_ANY_ID; }
+static inline bool isTopLevelSymbol(const DEBUG_SYMBOL_PARAMETERS &p)
+{
+    return p.ParentSymbol == DEBUG_ANY_ID;
+}
 
 static inline void debugSymbolFlags(unsigned long f, QTextStream &str)
 {

@@ -31,6 +31,8 @@
 #include "environment.h"
 #include "project.h"
 
+#include <projectexplorer/debugginghelper.h>
+
 #include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
@@ -312,9 +314,9 @@ void CustomExecutableRunConfiguration::setUserName(const QString &name)
 
 QString CustomExecutableRunConfiguration::dumperLibrary() const
 {
-    return QString();
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibrary(qmakePath);
 }
-
 
 
 // Factory

@@ -99,3 +99,8 @@ void SearchResultTreeView::keyPressEvent(QKeyEvent *e)
     }
     QTreeView::keyPressEvent(e);
 }
+
+SearchResultTreeModel *SearchResultTreeView::model() const
+{
+    return m_model;
+}

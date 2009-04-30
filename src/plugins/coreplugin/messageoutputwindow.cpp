@@ -89,3 +89,28 @@ int MessageOutputWindow::priorityInStatusBar() const
 {
     return -1;
 }
+
+bool MessageOutputWindow::canNext()
+{
+    return false;
+}
+
+bool MessageOutputWindow::canPrevious()
+{
+    return false;
+}
+
+void MessageOutputWindow::goToNext()
+{
+
+}
+
+void MessageOutputWindow::goToPrev()
+{
+
+}
+
+bool MessageOutputWindow::canNavigate()
+{
+    return false;
+}

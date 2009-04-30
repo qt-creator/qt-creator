@@ -255,3 +255,61 @@ void SearchResultTreeModel::clear()
     m_rootItem->clearChildren();
     reset();
 }
+
+QModelIndex SearchResultTreeModel::next(const QModelIndex &idx) const
+{
+    QModelIndex parent = idx.parent();
+    if (parent.isValid()) {
+        int row = idx.row();
+        if (row + 1 < rowCount(parent)) {
+            // Same parent
+            return index(row + 1, 0, parent);
+        } else {
+            // Next parent
+            int parentRow = parent.row();
+            QModelIndex nextParent;
+            if (parentRow + 1 < rowCount()) {
+                nextParent = index(parentRow + 1, 0);
+            } else {
+                // Wrap around
+                nextParent = index(0,0);
+            }
+            return nextParent.child(0, 0);
+        }
+    } else {
+        // We are on a top level item
+        return idx.child(0,0);
+    }
+    return QModelIndex();
+}
+
+QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx) const
+{
+    QModelIndex parent = idx.parent();
+    if (parent.isValid()) {
+        int row = idx.row();
+        if (row  > 0) {
+            // Same parent
+            return index(row - 1, 0, parent);
+        } else {
+            // Prev parent
+            int parentRow = parent.row();
+            QModelIndex prevParent;
+            if (parentRow > 0 ) {
+                prevParent = index(parentRow - 1, 0);
+            } else {
+                // Wrap around
+                prevParent = index(rowCount() - 1, 0);
+            }
+            return prevParent.child(rowCount(prevParent) - 1, 0);
+        }
+    } else {
+        // We are on a top level item
+        int row = idx.row();
+        if (row > 0) {
+            QModelIndex prevParent = index(row - 1, 0);
+            return prevParent.child(rowCount(prevParent) ,0);
+        }
+    }
+    return QModelIndex();
+}
