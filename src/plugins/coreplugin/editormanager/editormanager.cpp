@@ -516,6 +516,9 @@ void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
         old->update();
     if (view)
         view->update();
+
+    if (view && !view->editor())
+        view->setFocus();
 }
 
 Core::Internal::SplitterOrView *EditorManager::currentView() const
@@ -715,6 +718,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
 
     foreach (EditorView *view, currentViews) {
         IEditor *newCurrent = view->currentEditor();
+#if 0
         if (!newCurrent)
             newCurrent = pickUnusedEditor();
         if (!newCurrent) {
@@ -726,7 +730,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askA
                 }
             }
         }
-
+#else
+    if (!newCurrent && view == m_d->m_view)
+        newCurrent = pickUnusedEditor();
+#endif
         if (newCurrent) {
             activateEditor(view, newCurrent, NoActivate);
         } else {
@@ -833,15 +840,18 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
                 sourceView->view()->removeEditor(editor);
                 view->addEditor(editor);
                 view->setCurrentEditor(editor);
+#if 0
                 if (!sourceView->editor()) {
                     if (IEditor *replacement = pickUnusedEditor()) {
                         sourceView->view()->addEditor(replacement);
                     }
                 }
+#endif
                 return editor;
             } else if (duplicateSupported) {
                 editor = duplicateEditor(editor);
                 Q_ASSERT(editor);
+                m_d->m_editorModel->makeOriginal(editor);
             }
         }
         view->addEditor(editor);

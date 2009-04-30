@@ -229,6 +229,17 @@ QList<IEditor *> EditorModel::duplicatesFor(IEditor *editor) const
     return result;
 }
 
+void EditorModel::makeOriginal(IEditor *duplicate)
+{
+    Q_ASSERT(isDuplicate(duplicate));
+    IEditor *original = originalForDuplicate(duplicate);
+    Q_ASSERT(original);
+    int i = findEditor(original);
+    m_editors[i].editor = duplicate;
+    m_duplicateEditors.removeOne(duplicate);
+    m_duplicateEditors.append(original);
+}
+
 void EditorModel::emitDataChanged(IEditor *editor)
 {
     int idx = findEditor(editor);
@@ -504,7 +515,12 @@ bool EditorView::hasEditor(IEditor *editor) const
 void EditorView::closeView()
 {
     EditorManager *em = CoreImpl::instance()->editorManager();
+#if 1
+    if (IEditor *editor = currentEditor())
+        em->closeEditor(editor);
+#else
     em->closeView(this);
+#endif
 }
 
 void EditorView::removeEditor(IEditor *editor)
@@ -547,7 +563,9 @@ void EditorView::setCurrentEditor(IEditor *editor)
 {
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1)
+        // ### TODO the combo box m_editorList should show an empty item
         return;
+
     m_editors.removeAll(editor);
     m_editors.append(editor);
 
@@ -862,20 +880,24 @@ void SplitterOrView::split(Qt::Orientation orientation)
     EditorManager *em = CoreImpl::instance()->editorManager();
     Core::IEditor *e = m_view->currentEditor();
 
+    SplitterOrView *view = 0;
     if (e) {
 
         m_view->removeEditor(e);
         m_splitter->addWidget(new SplitterOrView(e));
-
+#if 0
         if (e->duplicateSupported()) {
             Core::IEditor *duplicate = em->duplicateEditor(e);
             m_splitter->addWidget(new SplitterOrView(duplicate));
         } else {
             m_splitter->addWidget(new SplitterOrView());
         }
+#else
+        m_splitter->addWidget((view = new SplitterOrView()));
+#endif
     } else {
         m_splitter->addWidget(new SplitterOrView());
-        m_splitter->addWidget(new SplitterOrView());
+        m_splitter->addWidget((view = new SplitterOrView()));
     }
 
     m_layout->setCurrentWidget(m_splitter);
@@ -886,9 +908,11 @@ void SplitterOrView::split(Qt::Orientation orientation)
         m_view = 0;
     }
 
-    em->setCurrentView(findFirstView());
+    em->setCurrentView(view);
+#if 0
     if (e)
         em->activateEditor(e);
+#endif
 }
 
 void SplitterOrView::unsplitAll()
