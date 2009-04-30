@@ -53,6 +53,9 @@ public:
     void setFormats(const QVector<QTextCharFormat> &s);
     static const QVector<QTextCharFormat> &defaultFormats();
 
+    QTextCharFormat labelTextCharFormat() const
+    { return m_formats[LabelFormat]; }
+
 private:
     // The functions are notified whenever parentheses are encountered.
     // Custom behaviour can be added, for example storing info for indenting.
