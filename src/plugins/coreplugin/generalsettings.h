@@ -33,12 +33,12 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-class Ui_GeneralSettings;
-QT_END_NAMESPACE
-
 namespace Core {
 namespace Internal {
+
+namespace Ui {
+    class GeneralSettings;
+}
 
 class GeneralSettings : public IOptionsPage
 {
@@ -64,7 +64,7 @@ private slots:
 #endif
 
 private:
-    Ui_GeneralSettings *m_page;
+    Ui::GeneralSettings *m_page;
     QWidget *m_dialog;
 };
 
