@@ -324,64 +324,46 @@ void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
 bool ScriptEditor::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('{') || ch == QLatin1Char('}'))
+    if (ch == QLatin1Char('}'))
         return true;
     return false;
 }
 
-    // Indent a code line based on previous
-template <class Iterator>
-static void indentScriptBlock(const TextEditor::TabSettings &ts,
-                              const QTextBlock &block,
-                              const Iterator &programBegin,
-                              const Iterator &programEnd,
-                              QChar typedChar)
+void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedChar)
 {
-    typedef typename SharedTools::Indenter<Iterator> Indenter ;
-    Indenter &indenter = Indenter::instance();
-    indenter.setTabSize(ts.m_tabSize);
-    indenter.setIndentSize(ts.m_indentSize);
-    const TextEditor::TextBlockIterator current(block);
-    const int indent = indenter.indentForBottomLine(current, programBegin,
-                                                    programEnd, typedChar);
-    ts.indentLine(block, indent);
-}
-
-void ScriptEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
-{
-#if 0
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-    indentScriptBlock(tabSettings(), block, begin, end, typedChar);
-#else
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-
     TextEditor::TabSettings ts = tabSettings();
-    const int tabSize = qMax(1, ts.m_tabSize);
+
+    if (typedChar == QLatin1Char('}')) {
+        QTextCursor tc = textCursor();
+        if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
+            const QString text = tc.block().text();
+            ts.indentLine(block, ts.lineIndentPosition(text));
+            return;
+        }
+    }
 
     int indent = 0;
+    int extraIndent = 0;
+
+    if (block.previous().isValid()) {
+        const int braceDepth = qMax(0, block.previous().userState() >> 8);
+        const int previousBraceDepth = qMax(0, block.previous().previous().userState() >> 8);
+
+        if (braceDepth > previousBraceDepth)
+            extraIndent = ts.m_indentSize * (braceDepth - previousBraceDepth);
+    }
+
     QTextBlock it = block.previous();
     for (; it.isValid(); it = it.previous()) {
-        const QString blockText = it.text();
+        const QString text = it.text();
 
-        if (! blockText.isEmpty()) {
-            for (int i = 0; i < blockText.length(); ++i) {
-                const QChar ch = blockText.at(i);
-    
-                if (ch == QLatin1Char('\t'))
-                    indent += (indent + tabSize) % tabSize;
-                else if (ch.isSpace())
-                    ++indent;
-                else
-                    break;
-            }
-
+        if (! text.isEmpty()) {
+            indent = ts.lineIndentPosition(text);
             break;
         }
     }
-    ts.indentLine(block, indent);
-#endif
+
+    ts.indentLine(block, extraIndent + indent);
 }
 
 TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()
