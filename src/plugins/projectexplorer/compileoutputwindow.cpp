@@ -93,3 +93,28 @@ int CompileOutputWindow::priorityInStatusBar() const
 {
     return 50;
 }
+
+bool CompileOutputWindow::canNext()
+{
+    return false;
+}
+
+bool CompileOutputWindow::canPrevious()
+{
+    return false;
+}
+
+void CompileOutputWindow::goToNext()
+{
+
+}
+
+void CompileOutputWindow::goToPrev()
+{
+
+}
+
+bool CompileOutputWindow::canNavigate()
+{
+    return false;
+}

@@ -59,9 +59,15 @@ public:
     int priorityInStatusBar() const;
     void visibilityChanged(bool visible);
 
-    virtual bool canFocus();
-    virtual bool hasFocus();
-    virtual void setFocus();
+    bool canFocus();
+    bool hasFocus();
+    void setFocus();
+
+    bool canNext();
+    bool canPrevious();
+    void goToNext();
+    void goToPrev();
+    bool canNavigate();
 
 public slots:
     void append(const QString &txt, bool popup = false);

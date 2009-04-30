@@ -32,6 +32,7 @@
 
 #include "watchutils.h"
 #include "cdbcom.h"
+
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
@@ -42,8 +43,7 @@ struct CdbComInterfaces;
 class IDebuggerManagerAccessForEngines;
 class DebuggerManager;
 
-/* For code clarity, all the stuff related to custom dumpers
- * goes here.
+/* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current
  * Qt containing functions to evaluate values of Qt classes
  * (such as QString, taking pointers to their addresses).

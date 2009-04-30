@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdboptions.h"
+
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

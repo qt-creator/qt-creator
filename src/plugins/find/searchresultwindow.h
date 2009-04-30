@@ -75,6 +75,12 @@ public:
     bool canFocus();
     void setFocus();
 
+    bool canNext();
+    bool canPrevious();
+    void goToNext();
+    void goToPrev();
+    bool canNavigate();
+
     void setTextEditorFont(const QFont &font);
 
 public slots:

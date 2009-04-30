@@ -40,6 +40,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <QtCore/QDebug>
+
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
@@ -159,6 +161,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_widgetComboBox(new QComboBox),
     m_clearButton(new QToolButton),
     m_closeButton(new QToolButton),
+    m_nextAction(0),
+    m_prevAction(0),
     m_closeAction(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
@@ -171,6 +175,18 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_clearButton->setToolTip(tr("Clear"));
     connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearPage()));
 
+    m_nextAction = new QAction(this);
+    m_nextAction->setIcon(QIcon(":/core/images/next.png"));
+    m_nextAction->setProperty("type", QLatin1String("dockbutton"));
+    m_nextAction->setText(tr("Next Item"));
+    connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
+
+    m_prevAction = new QAction(this);
+    m_prevAction->setIcon(QIcon(":/core/images/prev.png"));
+    m_prevAction->setProperty("type", QLatin1String("dockbutton"));
+    m_prevAction->setText(tr("Previous Item"));
+    connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
+
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     m_closeButton->setProperty("type", QLatin1String("dockbutton"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
@@ -178,12 +194,13 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
-    QToolBar *toolBar = new QToolBar;
-    toolBar->addWidget(m_widgetComboBox);
-    toolBar->addWidget(m_clearButton);
-    toolBar->addWidget(m_opToolBarWidgets);
-    m_closeAction = toolBar->addWidget(m_closeButton);
-    mainlayout->addWidget(toolBar);
+    m_toolBar = new QToolBar;
+    m_toolBar->addWidget(m_widgetComboBox);
+    m_toolBar->addWidget(m_clearButton);
+
+    m_opToolBarAction =  m_toolBar->addWidget(m_opToolBarWidgets);
+    m_closeAction = m_toolBar->addWidget(m_closeButton);
+    mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
     setLayout(mainlayout);
 
@@ -195,6 +212,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 #else
     m_buttonsWidget->layout()->setSpacing(4);
 #endif
+
 }
 
 OutputPaneManager::~OutputPaneManager()
@@ -216,11 +234,32 @@ void OutputPaneManager::init()
 {
     ActionManager *am = Core::ICore::instance()->actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    QList<int> globalcontext;
+    globalcontext.append(Core::Constants::C_GLOBAL_ID);
 
     // Window->Output Panes
     ActionContainer *mpanes = am->createMenu(Constants::M_WINDOW_PANES);
     mwindow->addMenu(mpanes, Constants::G_WINDOW_PANES);
     mpanes->menu()->setTitle(tr("Output &Panes"));
+    mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
+    mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");
+
+    Core::Command *cmd;
+
+    cmd = am->registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence("Shift+F6"));
+    m_toolBar->insertAction(m_opToolBarAction ,cmd->action());
+    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+
+    cmd = am->registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalcontext);
+    m_toolBar->insertAction(m_opToolBarAction, cmd->action());
+    cmd->setDefaultKeySequence(QKeySequence("F6"));
+    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    cmd = am->registerAction(sep, QLatin1String("Coreplugin.OutputPane.Sep"), globalcontext);
+    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     QList<IOutputPane*> panes = ExtensionSystem::PluginManager::instance()
         ->getObjects<IOutputPane>();
@@ -241,6 +280,7 @@ void OutputPaneManager::init()
         connect(outPane, SIGNAL(showPage(bool)), this, SLOT(showPage(bool)));
         connect(outPane, SIGNAL(hidePage()), this, SLOT(slotHide()));
         connect(outPane, SIGNAL(togglePage(bool)), this, SLOT(togglePage(bool)));
+        connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
@@ -265,7 +305,7 @@ void OutputPaneManager::init()
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::ALT, shortcutNumber)));
 #endif
         }
-        mpanes->addAction(cmd);
+        mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.insert(cmd->action(), idx);
 
         // TODO priority -1
@@ -343,6 +383,24 @@ void OutputPaneManager::updateToolTip()
     }
 }
 
+void OutputPaneManager::slotNext()
+{
+    int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
+    ensurePageVisible(idx);
+    IOutputPane *out = m_pageMap.value(idx);
+    if (out->canNext())
+        out->goToNext();
+}
+
+void OutputPaneManager::slotPrev()
+{
+    int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
+    ensurePageVisible(idx);
+    IOutputPane *out = m_pageMap.value(idx);
+    if (out->canPrevious())
+        out->goToPrev();
+}
+
 void OutputPaneManager::slotHide()
 {
     if (OutputPanePlaceHolder::m_current) {
@@ -381,6 +439,16 @@ void OutputPaneManager::ensurePageVisible(int idx)
         m_widgetComboBox->setCurrentIndex(m_widgetComboBox->findData(idx));
     } else {
         changePage();
+    }
+}
+
+void OutputPaneManager::updateNavigateState()
+{
+    IOutputPane* pane = qobject_cast<IOutputPane*>(sender());
+    int idx = findIndexForPage(pane);
+    if (m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() == idx) {
+        m_prevAction->setEnabled(pane->canNavigate() && pane->canPrevious());
+        m_nextAction->setEnabled(pane->canNavigate() && pane->canNext());
     }
 }
 
@@ -457,10 +525,16 @@ void OutputPaneManager::changePage()
     }
 
     int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
+    if (m_lastIndex == idx)
+        return;
     m_outputWidgetPane->setCurrentIndex(idx);
     m_opToolBarWidgets->setCurrentIndex(idx);
     m_pageMap.value(idx)->visibilityChanged(true);
     m_pageMap.value(m_lastIndex)->visibilityChanged(false);
+
+    bool canNavigate = m_pageMap.value(idx)->canNavigate();
+    m_prevAction->setEnabled(canNavigate && m_pageMap.value(idx)->canPrevious());
+    m_nextAction->setEnabled(canNavigate && m_pageMap.value(idx)->canNext());
 
     if (m_buttons.value(m_lastIndex))
         m_buttons.value(m_lastIndex)->setChecked(false);

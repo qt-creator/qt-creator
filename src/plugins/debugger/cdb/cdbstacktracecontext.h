@@ -73,7 +73,7 @@ public:
     // Top-Level instruction offset for disassembler
     ULONG64 instructionOffset() const { return m_instructionOffset; }
 
-    CdbStackFrameContext*frameContextAt(int index, QString *errorMessage);
+    CdbStackFrameContext *frameContextAt(int index, QString *errorMessage);
 
     // Format for logging
     void format(QTextStream &str) const;

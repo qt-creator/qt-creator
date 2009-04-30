@@ -40,7 +40,7 @@ using Core::Utils::winErrorMessage;
 // a memory mapped file
 
 template <class Ptr>
-        inline Ptr *makePtr(void *base, ptrdiff_t offset)
+inline Ptr *makePtr(void *base, ptrdiff_t offset)
 {
     return reinterpret_cast<Ptr*>(static_cast<char*>(base) + offset);
 }
@@ -275,5 +275,5 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
     return success;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Debugger

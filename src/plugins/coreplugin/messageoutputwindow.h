@@ -60,6 +60,12 @@ public:
     bool hasFocus();
     void setFocus();
 
+    virtual bool canNext();
+    virtual bool canPrevious();
+    virtual void goToNext();
+    virtual void goToPrev();
+    bool canNavigate();
+
 private:
     QTextEdit *m_widget;
 };

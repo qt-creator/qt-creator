@@ -43,4 +43,5 @@ typedef IDebugDataSpaces4      CIDebugDataSpaces;
 
 typedef IDebugSymbolGroup2     CIDebugSymbolGroup;
 typedef IDebugBreakpoint2      CIDebugBreakpoint;
+
 #endif // CDBCOM_H

@@ -61,6 +61,12 @@ public:
     bool hasFocus();
     void setFocus();
 
+    bool canNext();
+    bool canPrevious();
+    void goToNext();
+    void goToPrev();
+    bool canNavigate();
+
 public slots:
      void append(const QString &txt, bool doPopup = false);
 
