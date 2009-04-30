@@ -269,7 +269,7 @@ void GdbMi::fromString(const QByteArray &ba)
     parseResultOrValue(from, to);
 }
 
-GdbMi GdbMi::findChild(const QByteArray &name) const
+GdbMi GdbMi::findChild(const char *name) const
 {
     for (int i = 0; i < m_children.size(); ++i)
         if (m_children.at(i).m_name == name)
