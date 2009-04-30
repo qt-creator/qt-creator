@@ -323,7 +323,7 @@ private:
     void handleEvaluateExpression(const GdbResultRecord &record,
         const WatchData &cookie);
     void handleToolTip(const GdbResultRecord &record,
-        const QString &cookie);
+        const QByteArray &cookie);
     void handleQueryDebuggingHelper(const GdbResultRecord &record);
     void handleDebuggingHelperValue1(const GdbResultRecord &record,
         const WatchData &cookie);
