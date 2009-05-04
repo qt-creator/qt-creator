@@ -125,49 +125,11 @@ QmlProjectWizardDialog::QmlProjectWizardDialog(QWidget *parent)
 
     // first page
     m_firstPage = new FileWizardPage;
-    m_firstPage->setTitle(tr("Qml Project"));
+    m_firstPage->setTitle(tr("QML Project"));
     m_firstPage->setNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
     addPage(m_firstPage);
-
-#if 0
-    // second page
-    QWizardPage *secondPage = new QWizardPage;
-    secondPage->setTitle(tr("Second Page Title"));
-
-    QFormLayout *secondPageLayout = new QFormLayout(secondPage);
-
-    m_dirView = new QTreeView;
-    m_dirModel = new DirModel(this);
-    m_dirView->setModel(_dirModel);
-
-    Core::ICore *core = Core::ICore::instance();
-    Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
-
-    const QStringList suffixes = mimeDatabase->suffixes();
-
-    QStringList nameFilters;
-    foreach (const QString &suffix, suffixes) {
-        QString nameFilter;
-        nameFilter.append(QLatin1String("*."));
-        nameFilter.append(suffix);
-        nameFilters.append(nameFilter);
-    }
-
-    m_filesView = new QListView;
-    m_filesModel = new QDirModel(this);
-    m_filesModel->setNameFilters(nameFilters);
-    m_filesModel->setFilter(QDir::Files);
-
-    connect(_dirView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateFilesView(QModelIndex,QModelIndex)));
-
-    secondPageLayout->addRow(_dirView);
-    secondPageLayout->addRow(_filesView);
-
-    m_secondPageId = addPage(secondPage);
-#endif
 }
 
 QmlProjectWizardDialog::~QmlProjectWizardDialog()
@@ -222,12 +184,6 @@ void QmlProjectWizardDialog::initializePage(int id)
 bool QmlProjectWizardDialog::validateCurrentPage()
 {
     using namespace Core::Utils;
-
-#if 0
-    if (currentId() == m_secondPageId) {
-        return true;
-    }
-#endif
 
     return QWizard::validateCurrentPage();
 }
@@ -318,8 +274,6 @@ Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
     const QString projectName = wizard->projectName();
     const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".qmlproject")).absoluteFilePath();
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
-    const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
-    const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
 
     Core::ICore *core = Core::ICore::instance();
     Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
