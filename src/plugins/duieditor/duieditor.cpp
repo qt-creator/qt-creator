@@ -66,6 +66,60 @@ using namespace JavaScript::AST;
 namespace DuiEditor {
 namespace Internal {
 
+class IdDeclarations: protected Visitor
+{
+public:
+    typedef QMap<QString, QPair<AST::SourceLocation, AST::SourceLocation> > Result;
+
+    Result operator()(AST::Node *node)
+    {
+        _ids.clear();
+        accept(node);
+        return _ids;
+    }
+
+protected:
+    QString asString(AST::UiQualifiedId *id)
+    {
+        QString text;
+        for (; id; id = id->next) {
+            if (id->name)
+                text += id->name->asString();
+            else
+                text += QLatin1Char('?');
+
+            if (id->next)
+                text += QLatin1Char('.');
+        }
+
+        return text;
+    }
+
+    void accept(AST::Node *node)
+    { AST::Node::acceptChild(node, this); }
+
+    using Visitor::visit;
+    using Visitor::endVisit;
+
+    virtual bool visit(AST::UiScriptBinding *node)
+    {
+        if (asString(node->qualifiedId) == QLatin1String("id")) {
+            if (AST::ExpressionStatement *stmt = AST::cast<AST::ExpressionStatement*>(node->statement)) {
+                if (AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression *>(stmt->expression)) {
+                    if (idExpr->name) {
+                        _ids[idExpr->name->asString()] = qMakePair(idExpr->firstSourceLocation(),
+                                                                   idExpr->lastSourceLocation());
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+private:
+    Result _ids;
+};
+
 class FindDeclarations: protected Visitor
 {
     QList<Declaration> _declarations;
@@ -333,6 +387,9 @@ void ScriptEditor::updateDocumentNow()
     bool parsed = parser.parse(&driver);
 
     if (parsed) {
+        IdDeclarations updateIds;
+        m_ids = updateIds(parser.ast());
+
         if (DuiHighlighter *highlighter = qobject_cast<DuiHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
             HighlightBindings highlightIds(document());
             highlightIds.setFormat(highlighter->labelTextCharFormat());
@@ -414,6 +471,25 @@ void ScriptEditor::updateMethodBoxIndex()
     }
 
     m_methodCombo->setCurrentIndex(currentSymbolIndex);
+
+    QTextCursor tc = textCursor();
+    tc.movePosition(QTextCursor::StartOfWord);
+    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    const QString wordUnderCursor = tc.selectedText();
+
+    const QPair<AST::SourceLocation, AST::SourceLocation> id = m_ids.value(wordUnderCursor);
+
+    QList<QTextEdit::ExtraSelection> selections;
+    if (id.first.offset && id.second.offset) {
+        QTextEdit::ExtraSelection sel;
+        sel.format.setBackground(Qt::yellow);
+        sel.cursor = textCursor();
+        sel.cursor.setPosition(id.first.begin());
+        sel.cursor.setPosition(id.second.end(), QTextCursor::KeepAnchor);
+        selections.append(sel);
+    }
+
+    setExtraSelections(CodeSemanticsSelection, selections);
 }
 
 void ScriptEditor::updateMethodBoxToolTip()

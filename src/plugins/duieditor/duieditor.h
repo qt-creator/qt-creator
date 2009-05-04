@@ -31,6 +31,7 @@
 #define DUIDITORW_H
 
 #include <texteditor/basetexteditor.h>
+#include <parser/javascriptast_p.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -119,6 +120,7 @@ private:
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations;
     QStringList m_words;
+    QMap<QString, QPair<JavaScript::AST::SourceLocation, JavaScript::AST::SourceLocation> > m_ids;
 };
 
 } // namespace Internal
