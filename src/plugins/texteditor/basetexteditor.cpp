@@ -1768,11 +1768,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     const QColor baseColor = palette().base().color();
     const QColor blendColor = calcBlendColor(baseColor);
 
+    qreal lineX = 0;
+
     if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
+        lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
         painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
     }
-    
+
 //    // keep right margin clean from full-width selection
 //    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
 //               - doc->documentMargin();
@@ -1833,7 +1835,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             if (count) {
                 QRectF rr = r;
                 rr.setWidth(viewport()->width());
-                for(int i = 0; i <= depth; ++i) {
+                if (lineX > 0)
+                    rr.setRight(qMin(lineX, rr.right()));
+                for (int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
                 }
@@ -2131,8 +2135,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     }
 
 
-    if (d->m_visibleWrapColumn > 0) {
-        qreal lineX = fontMetrics().width('x') * d->m_visibleWrapColumn + offset.x() + 4;
+    if (lineX > 0) {
         const QColor bg = palette().base().color();
         QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
         col.setAlpha(32);
@@ -2488,8 +2491,6 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QRect &rect,
 
     if (expanded)
         opt.state |= QStyle::State_Open;
-    else
-        opt.state |= QStyle::State_Enabled;
 
     if (hovered)
         opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
