@@ -198,6 +198,7 @@ private slots:
     bool saveFile(Core::IEditor *editor = 0);
     bool saveFileAs(Core::IEditor *editor = 0);
     void closeEditor();
+    void closeOtherEditors();
 
     void gotoNextDocHistory();
     void gotoPreviousDocHistory();
