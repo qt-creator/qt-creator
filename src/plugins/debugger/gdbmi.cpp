@@ -42,16 +42,8 @@ QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
     return os << mi.toString();
 }
 
-//static void skipSpaces(const char *&from, const char *to)
-//{
-//    while (from != to && QChar(*from).isSpace())
-//        ++from;
-//}
-
-
 void GdbMi::parseResultOrValue(const char *&from, const char *to)
 {
-    //skipSpaces(from, to);
     while (from != to && QChar(*from).isSpace())
         ++from;
 
